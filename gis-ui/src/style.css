@@ -1,0 +1,232 @@
+/* ---- Design tokens (mirrors GeoLibre packages/ui/src/globals.css) ---- */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 40%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 48%;
+}
+
+/* Accent color schemes (swap --primary / --ring only) */
+[data-theme='violet'] { --primary: 262.1 83.3% 57.8%; --ring: 262.1 83.3% 57.8%; }
+[data-theme='emerald'] { --primary: 142.1 76.2% 36.3%; --ring: 142.1 76.2% 36.3%; }
+[data-theme='rose'] { --primary: 346.8 77.2% 49.8%; --ring: 346.8 77.2% 49.8%; }
+[data-theme='amber'] { --primary: 24.6 95% 53.1%; --ring: 24.6 95% 53.1%; }
+
+/* ---- Base ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  font-size: 14px;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.3); border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---- Shared primitives ---- */
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 32px; padding: 0 10px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 13px; white-space: nowrap;
+  color: hsl(var(--foreground));
+  transition: background 0.12s, color 0.12s;
+}
+.btn-ghost:hover { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+.btn-ghost.active, .btn-icon.active { color: hsl(var(--primary)); }
+
+.btn-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--foreground));
+  transition: background 0.12s;
+}
+.btn-icon:hover { background: hsl(var(--accent)); }
+.btn-icon:disabled { opacity: 0.4; cursor: default; }
+.btn-icon:disabled:hover { background: none; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 14px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 13px; font-weight: 500;
+  background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+}
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 14px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 13px;
+  border: 1px solid hsl(var(--border));
+  background: transparent; color: hsl(var(--foreground));
+}
+.btn-outline:hover { background: hsl(var(--accent)); }
+
+.input {
+  height: 32px; padding: 0 10px;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--input));
+  background: transparent;
+  font-size: 13px; color: hsl(var(--foreground));
+  width: 100%;
+}
+.input::placeholder { color: hsl(var(--muted-foreground)); }
+.input:focus { outline: 2px solid hsl(var(--ring)); outline-offset: -1px; }
+
+.select {
+  height: 30px; padding: 0 8px; width: 100%;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--background)); color: hsl(var(--foreground));
+  font-size: 13px;
+}
+
+.slider { width: 100%; accent-color: hsl(var(--primary)); height: 16px; }
+
+.field-label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: hsl(var(--muted-foreground)); margin-bottom: 4px;
+}
+
+/* ---- Dropdown / popover menus ---- */
+.menu-pop {
+  position: absolute; z-index: 200; min-width: 232px;
+  background: hsl(var(--popover)); color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  padding: 4px;
+  font-size: 13px;
+}
+.menu-item {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 6px 8px;
+  border-radius: calc(var(--radius) - 4px);
+  text-align: left; white-space: nowrap;
+  color: hsl(var(--popover-foreground));
+}
+.menu-item:hover, .menu-item.open { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+.menu-item .shortcut { margin-left: auto; font-size: 11px; color: hsl(var(--muted-foreground)); padding-left: 16px; }
+.menu-item .sub-arrow { margin-left: auto; opacity: 0.6; }
+.menu-sep { height: 1px; margin: 4px 0; background: hsl(var(--border)); }
+.menu-label {
+  padding: 6px 8px 2px; font-size: 11px; font-weight: 600;
+  color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.03em;
+}
+
+/* ---- Dialog ---- */
+.dialog-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgb(0 0 0 / 0.5);
+  display: flex; align-items: center; justify-content: center;
+}
+.dialog {
+  background: hsl(var(--card)); color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.3);
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  display: flex; flex-direction: column;
+}
+.dialog-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+.dialog-title { font-size: 15px; font-weight: 600; margin: 0; }
+.dialog-body { padding: 4px 16px 16px; overflow-y: auto; font-size: 13px; }
+.dialog-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 16px; border-top: 1px solid hsl(var(--border));
+}
+
+/* ---- Resize handles ---- */
+.resize-x {
+  width: 4px; cursor: col-resize; flex-shrink: 0;
+  background: transparent; transition: background 0.15s;
+}
+.resize-x:hover, .resize-x.dragging { background: hsl(var(--primary) / 0.5); }
+.resize-y {
+  height: 4px; cursor: row-resize; flex-shrink: 0;
+  background: transparent; transition: background 0.15s;
+}
+.resize-y:hover, .resize-y.dragging { background: hsl(var(--primary) / 0.5); }
+
+/* ---- Panel chrome ---- */
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 4px 12px; min-height: 38px; flex-shrink: 0;
+}
+.panel-title { font-size: 13px; font-weight: 600; }
+
+/* ---- MapLibre control theming (match app tokens) ---- */
+.maplibregl-ctrl-group {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15) !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button { background: transparent !important; }
+.maplibregl-ctrl-group button:hover { background: hsl(var(--accent)) !important; }
+.maplibregl-ctrl-group button + button { border-top: 1px solid hsl(var(--border)) !important; }
+.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) hue-rotate(180deg); }
+.maplibregl-ctrl-scale {
+  background: hsl(var(--card) / 0.7) !important;
+  border-color: hsl(var(--foreground) / 0.6) !important;
+  color: hsl(var(--foreground)) !important;
+  font-size: 10px !important;
+}
+.maplibregl-ctrl-attrib {
+  background: hsl(var(--card) / 0.7) !important;
+  font-size: 10px;
+}
+.maplibregl-ctrl-attrib a { color: hsl(var(--muted-foreground)) !important; }

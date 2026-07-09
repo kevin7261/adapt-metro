@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# OS
+.DS_Store
+
+# Duplicate archives (extracted folders are tracked instead)
+*.zip
+
+# Environment
+.env
+.env.local
+
+# Local AI session
+.claude/
