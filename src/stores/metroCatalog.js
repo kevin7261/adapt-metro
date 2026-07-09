@@ -18,6 +18,23 @@ export function loadMetroCatalog() {
   return catalogPromise
 }
 
+// Official route-map image index (data/metro/maps/maps_index.json),
+// keyed by '{continent}/{country}/{slug}'.
+let mapsIndexPromise = null
+
+export function loadMapsIndex() {
+  mapsIndexPromise ??= fetch('/data/metro/maps/maps_index.json')
+    .then((r) => {
+      if (!r.ok) throw new Error(`maps_index.json ${r.status}`)
+      return r.json()
+    })
+    .catch((err) => {
+      mapsIndexPromise = null // allow retry
+      throw err
+    })
+  return mapsIndexPromise
+}
+
 // 'north-america' → 'North America'
 export function prettyContinent(slug) {
   return slug

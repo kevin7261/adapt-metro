@@ -5,7 +5,7 @@ import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
-  BASEMAPS, DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
+  DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
   basemapById, basemapGroups, styleFor,
 } from '../stores/basemaps'
 import StylePanel from './StylePanel.vue'
@@ -380,6 +380,51 @@ onBeforeUnmount(() => {
   font-size: 11.5px;
   color: hsl(var(--muted-foreground));
 }
+
+/* ---- basemap picker (bottom-right) ---- */
+.basemap-control { position: absolute; right: 10px; bottom: 10px; z-index: 6; }
+.basemap-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--card)); color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.18);
+}
+.basemap-btn:hover { background: hsl(var(--accent)); }
+.basemap-btn.active { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
+.basemap-menu {
+  position: absolute; right: 0; bottom: 42px;
+  width: 240px; padding: 6px;
+  display: flex; flex-direction: column;
+}
+.bm-current {
+  font-size: 12px; font-weight: 600; color: hsl(var(--foreground));
+  padding: 4px 8px 6px; border-bottom: 1px solid hsl(var(--border)); margin-bottom: 4px;
+}
+.bm-scroll { max-height: 46vh; overflow-y: auto; }
+.bm-item {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 5px 8px; border-radius: calc(var(--radius) - 4px);
+  text-align: left; font-size: 12.5px; color: hsl(var(--popover-foreground));
+}
+.bm-item:hover { background: hsl(var(--accent)); }
+.bm-item.active { color: hsl(var(--primary)); font-weight: 600; }
+.bm-item:disabled { opacity: 0.45; cursor: default; }
+.bm-item:disabled:hover { background: none; }
+.bm-check { color: hsl(var(--primary)); flex-shrink: 0; }
+.bm-check-spacer { width: 13px; flex-shrink: 0; }
+.bm-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bm-note {
+  font-size: 10px; color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border)); border-radius: 4px; padding: 0 4px;
+}
+.bm-overlay {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 8px; font-size: 12.5px; cursor: pointer;
+  color: hsl(var(--foreground));
+}
+.bm-overlay input { accent-color: hsl(var(--primary)); }
 </style>
 
 <style>
