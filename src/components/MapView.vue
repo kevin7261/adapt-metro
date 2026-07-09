@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import maplibregl from 'maplibre-gl'
-import { store, mapHandle, demoData } from '../store'
+import { useMapStore } from '../stores/mapStore'
+import { mapHandle } from '../stores/mapHandle'
 import { Copy, Crosshair, ZoomIn, ZoomOut } from 'lucide-vue-next'
+
+const store = useMapStore()
 
 const container = ref(null)
 const ctxMenu = ref(null) // { x, y, lng, lat }
@@ -70,6 +73,7 @@ onMounted(() => {
 })
 
 function addDemoLayers() {
+  const demoData = store.demoData
   map.addSource('flood', { type: 'geojson', data: demoData.flood })
   map.addSource('catchment', { type: 'geojson', data: demoData.catchment })
   map.addSource('lines', { type: 'geojson', data: demoData.lines })

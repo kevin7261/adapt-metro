@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, onBeforeUnmount, watch } from 'vue'
-import { store } from './store'
+import { useMapStore } from './stores/mapStore'
 import TopToolbar from './components/TopToolbar.vue'
 import LayerPanel from './components/LayerPanel.vue'
 import StylePanel from './components/StylePanel.vue'
@@ -9,6 +9,8 @@ import AttributeTable from './components/AttributeTable.vue'
 import StatusBar from './components/StatusBar.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import DialogHost from './components/DialogHost.vue'
+
+const store = useMapStore()
 
 watch(
   () => store.dark,

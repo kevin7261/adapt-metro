@@ -23,6 +23,15 @@ npm run build    # 產出 dist/
 
 ## 主要檔案
 
-- `src/store.js` — 全域狀態 + 假圖層資料（之後接真資料從這裡改）
-- `src/components/MapView.vue` — MapLibre 初始化與圖層同步
+- `src/stores/mapStore.js` — Pinia store，所有資料（UI 狀態、圖層清單、假 GeoJSON demoData）都放這裡，之後接真資料從這裡改
+- `src/stores/mapHandle.js` — 存放真實 MapLibre 實例的非響應式 handle（刻意不放進 Pinia，避免 proxy 弄壞 MapLibre 內部狀態）
+- `src/components/MapView.vue` — MapLibre 初始化，讀寫 `useMapStore()` 同步圖層
 - `src/style.css` — 設計 token（複製自 GeoLibre 的 shadcn HSL 變數）
+
+## 狀態管理
+
+全域狀態集中在 Pinia（`useMapStore()`），元件內用 `const store = useMapStore()` 取用：
+
+- `state` — `ui`、`layers`、`groups`、`map`（游標座標/zoom/bearing/pitch/bbox）、`demoData`（假 GeoJSON）等
+- `getters` — `selectedLayer`、`allLayersVisible`、`layersInGroup(id)`
+- `actions` — `toast(msg)`、`fake(name)`（顯示「尚未實作」提示）

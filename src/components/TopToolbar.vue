@@ -1,5 +1,6 @@
 <script setup>
-import { store, mapHandle } from '../store'
+import { useMapStore } from '../stores/mapStore'
+import { mapHandle } from '../stores/mapHandle'
 import MenuDropdown from './MenuDropdown.vue'
 import {
   Map as MapIcon, Folder, FilePen, Eye, Database, Wrench, SlidersHorizontal,
@@ -11,6 +12,8 @@ import {
   Ruler, Bookmark, Search, MapPin, ScanLine, ListTree, Component,
   Keyboard, Github, Info, MessageSquare, Command as CommandIcon,
 } from 'lucide-vue-next'
+
+const store = useMapStore()
 
 const projectMenu = [
   { label: 'New…', icon: FilePlus2, shortcut: '⌘N', action: 'new-project' },

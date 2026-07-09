@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, onBeforeUnmount } from 'vue'
-import { store, mapHandle } from '../store'
+import { ref, onBeforeUnmount } from 'vue'
+import { useMapStore } from '../stores/mapStore'
+import { mapHandle } from '../stores/mapHandle'
 import {
   Map as MapIcon, PenTool, FolderPlus, Eye, EyeOff, PanelLeftClose, PanelLeftOpen,
   Folder, FolderOpen, ChevronRight, ChevronDown, GripVertical, MoreHorizontal,
@@ -8,19 +9,19 @@ import {
   Circle, Spline, Hexagon, Image as ImageIcon,
 } from 'lucide-vue-next'
 
+const store = useMapStore()
+
 const menuFor = ref(null)
 const placeQuery = ref('')
 
 const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon }
 
-const allVisible = computed(() => store.layers.every((l) => l.visible))
-
 function layersInGroup(groupId) {
-  return store.layers.filter((l) => l.group === groupId)
+  return store.layersInGroup(groupId)
 }
 
 function toggleAll() {
-  const next = !allVisible.value
+  const next = !store.allLayersVisible
   store.layers.forEach((l) => { l.visible = next })
 }
 
@@ -84,8 +85,8 @@ onBeforeUnmount(() => { dragging.value = false })
           <button class="btn-icon" title="New group" @click="store.fake('New group')">
             <FolderPlus :size="14" />
           </button>
-          <button class="btn-icon" :title="allVisible ? 'Hide all layers' : 'Show all layers'" @click="toggleAll">
-            <Eye v-if="allVisible" :size="14" />
+          <button class="btn-icon" :title="store.allLayersVisible ? 'Hide all layers' : 'Show all layers'" @click="toggleAll">
+            <Eye v-if="store.allLayersVisible" :size="14" />
             <EyeOff v-else :size="14" />
           </button>
           <button class="btn-icon" title="Collapse panel" @click="store.ui.layerPanelOpen = false">

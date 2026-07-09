@@ -1,7 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import { store } from '../store'
+import { useMapStore } from '../stores/mapStore'
 import { Bug } from 'lucide-vue-next'
+
+const store = useMapStore()
 
 const coords = computed(() => {
   const { lng, lat } = store.map

@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { store, demoData, mapHandle } from '../store'
+import { useMapStore } from '../stores/mapStore'
+import { mapHandle } from '../stores/mapHandle'
 import {
   TableProperties, X, Filter, Download, Sigma, BarChart3,
   ArrowUp, ArrowDown, ZoomIn,
 } from 'lucide-vue-next'
+
+const store = useMapStore()
 
 const columns = ['fid', 'name', 'line', 'ridership', 'status']
 const filter = ref('')
@@ -13,7 +16,7 @@ const sortDir = ref(1)
 const selectedRow = ref(null)
 
 const rows = computed(() => {
-  let r = demoData.stations.features.map((f) => ({
+  let r = store.demoData.stations.features.map((f) => ({
     ...f.properties,
     _coords: f.geometry.coordinates,
   }))

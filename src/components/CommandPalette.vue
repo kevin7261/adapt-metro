@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { store, mapHandle } from '../store'
+import { useMapStore } from '../stores/mapStore'
+import { mapHandle } from '../stores/mapHandle'
 import {
   Search, FilePlus2, Save, Share2, FileJson, Server, Layers2,
   ZoomIn, ZoomOut, Compass, Ruler, Bookmark, Terminal, Sparkles,
   LayoutDashboard, TableProperties, Settings, Info, Keyboard, Sun,
 } from 'lucide-vue-next'
+
+const store = useMapStore()
 
 const query = ref('')
 const activeIdx = ref(0)

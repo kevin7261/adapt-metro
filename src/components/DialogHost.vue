@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { store } from '../store'
+import { useMapStore } from '../stores/mapStore'
 import {
   X, FileJson, Mountain, Grid2x2, Server, FileArchive, Layers2,
   Upload, Map as MapIcon, Github, Globe,
 } from 'lucide-vue-next'
+
+const store = useMapStore()
 
 const dialog = computed(() => store.ui.dialog)
 function close() { store.ui.dialog = null }

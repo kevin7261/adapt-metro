@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { store } from '../store'
+import { useMapStore } from '../stores/mapStore'
 import { PanelRightClose, PanelRightOpen, SlidersHorizontal } from 'lucide-vue-next'
 
-const layer = computed(() => store.selectedLayer())
+const store = useMapStore()
+
+const layer = computed(() => store.selectedLayer)
 const editable = computed(() => layer.value && !layer.value.isBasemap)
 
 /* ---- resize ---- */
