@@ -25,8 +25,6 @@ onMounted(() => {
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
   map.addControl(new maplibregl.FullscreenControl(), 'top-right')
-  map.addControl(new maplibregl.GeolocateControl({ trackUserLocation: true }), 'top-right')
-  if (maplibregl.GlobeControl) map.addControl(new maplibregl.GlobeControl(), 'top-right')
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')
   map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
 

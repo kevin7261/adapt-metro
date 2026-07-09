@@ -1,0 +1,5014 @@
+{
+  "London Underground": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "City of Westminster",
+    "stations": 231
+  },
+  "Sydney Metro": {
+    "continent": "oceania",
+    "country": "Australia",
+    "country_code": "AU",
+    "city": "Sydney",
+    "stations": 26
+  },
+  "Metro Rail": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Maywood",
+    "stations": 7
+  },
+  "National Rail;London Underground;London Trams": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 1
+  },
+  "London Underground;London Overground;National Rail": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 1
+  },
+  "London Underground;London Overground": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 13
+  },
+  "HVV": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hamburg",
+    "stations": 30
+  },
+  "Prague Metro": {
+    "continent": "europe",
+    "country": "Czechia",
+    "country_code": "CZ",
+    "city": "Prague",
+    "stations": 65
+  },
+  "Translink": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Burnaby",
+    "stations": 51
+  },
+  "Ruter": {
+    "continent": "europe",
+    "country": "Norway",
+    "country_code": "NO",
+    "city": "Oslo",
+    "stations": 84
+  },
+  "Metro de Madrid": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Madrid",
+    "stations": 256
+  },
+  "Toronto subway": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Toronto",
+    "stations": 51
+  },
+  "TTC": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Toronto",
+    "stations": 20
+  },
+  "Glasgow Subway": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Glasgow",
+    "stations": 15
+  },
+  "MVG": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Munich",
+    "stations": 7
+  },
+  "RATP": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "stations": 95
+  },
+  "Métro de Paris": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "stations": 41
+  },
+  "Berliner Verkehrsbetriebe": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Berlin",
+    "stations": 156
+  },
+  "Rhein-Main-Verkehrsverbund": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Frankfurt",
+    "stations": 73
+  },
+  "Verkehrsverbund Berlin-Brandenburg": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Berlin",
+    "stations": 12
+  },
+  "TCL": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Lyon",
+    "stations": 45
+  },
+  "STC Metro": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Mexico City",
+    "stations": 190
+  },
+  "Warsaw Metro": {
+    "continent": "europe",
+    "country": "Poland",
+    "country_code": "PL",
+    "city": "Warsaw",
+    "stations": 38
+  },
+  "NYC Subway": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "New York",
+    "stations": 480
+  },
+  "Staten Island Railway": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "New York",
+    "stations": 21
+  },
+  "Hoofdrailnet Nederland;Amsterdamse metro": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Amsterdam-Duivendrecht",
+    "stations": 5
+  },
+  "Kaupunkiliikenne Oy": {
+    "continent": "europe",
+    "country": "Finland",
+    "country_code": "FI",
+    "city": "Helsinki",
+    "stations": 19
+  },
+  "BART": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Oakland",
+    "stations": 48
+  },
+  "VOR": {
+    "continent": "europe",
+    "country": "Austria",
+    "country_code": "AT",
+    "city": "Vienna",
+    "stations": 121
+  },
+  "Московский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Moscow",
+    "stations": 277
+  },
+  "SL": {
+    "continent": "europe",
+    "country": "Sweden",
+    "country_code": "SE",
+    "city": "Stockholm Municipality",
+    "stations": 101
+  },
+  "MBTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Boston",
+    "stations": 45
+  },
+  "National Rail;London Underground": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 13
+  },
+  "IBXL": {
+    "continent": "europe",
+    "country": "Belgium",
+    "country_code": "BE",
+    "city": "Brussels",
+    "stations": 72
+  },
+  "Петербургский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Saint Petersburg",
+    "stations": 74
+  },
+  "Ferrocarrils de la Generalitat Valenciana": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Xirivella",
+    "stations": 43
+  },
+  "PATCO": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Collingswood",
+    "stations": 15
+  },
+  "Metrorex": {
+    "continent": "europe",
+    "country": "Romania",
+    "country_code": "RO",
+    "city": "Bucharest",
+    "stations": 64
+  },
+  "Metro de Santiago": {
+    "continent": "south-america",
+    "country": "Chile",
+    "country_code": "CL",
+    "city": "Santiago",
+    "stations": 126
+  },
+  "Metropolitano de Lisboa": {
+    "continent": "europe",
+    "country": "Portugal",
+    "country_code": "PT",
+    "city": "Lisbon",
+    "stations": 80
+  },
+  "MetrôRio": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Rio de Janeiro",
+    "stations": 35
+  },
+  "AMT": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Liguria",
+    "stations": 10
+  },
+  "Mass Rapid Transit": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 171
+  },
+  "East West Line (EWL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 7
+  },
+  "Société de transport de Montréal": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Montreal",
+    "stations": 23
+  },
+  "Минский метрополитен": {
+    "continent": "europe",
+    "country": "Belarus",
+    "country_code": "BY",
+    "city": "Minsk",
+    "stations": 44
+  },
+  "MRT": {
+    "continent": null,
+    "country": null,
+    "country_code": null,
+    "city": null,
+    "stations": 21
+  },
+  "North East Line (NEL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 20
+  },
+  "Montreal Metro": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Montreal",
+    "stations": 53
+  },
+  "Tisséo": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Toulouse",
+    "stations": 24
+  },
+  "Tisséo Voyageurs": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Toulouse",
+    "stations": 43
+  },
+  "VVT": {
+    "continent": "europe",
+    "country": "Austria",
+    "country_code": "AT",
+    "city": "Bezirk Landeck",
+    "stations": 1
+  },
+  "Verkehrsverbund Tirol": {
+    "continent": "europe",
+    "country": "Austria",
+    "country_code": "AT",
+    "city": "Bezirk Landeck",
+    "stations": 7
+  },
+  "Amsterdam Metro": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Amsterdam",
+    "stations": 8
+  },
+  "りんかい線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinagawa",
+    "stations": 1
+  },
+  "Métro de Paris;RATP": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "stations": 21
+  },
+  "東京急行電鉄;東京地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Meguro",
+    "stations": 1
+  },
+  "Metrô Rio": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Rio de Janeiro",
+    "stations": 4
+  },
+  "ATAC": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Rome",
+    "stations": 44
+  },
+  "İstanbul Metrosu": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Istanbul",
+    "stations": 107
+  },
+  "Metro İstanbul": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Istanbul",
+    "stations": 27
+  },
+  "CTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Chicago",
+    "stations": 152
+  },
+  "Hamburger Verkehrsverbund": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hamburg",
+    "stations": 61
+  },
+  "Delhi Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "New Delhi",
+    "stations": 267
+  },
+  "Saint Petersburg Metro": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Saint Petersburg",
+    "stations": 1
+  },
+  "Amsterdamse metro": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Amsterdam",
+    "stations": 33
+  },
+  "Μετρό Αθήνας": {
+    "continent": "europe",
+    "country": "Greece",
+    "country_code": "GR",
+    "city": "Athens",
+    "stations": 52
+  },
+  "東京地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 107
+  },
+  "MTR": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hong Kong",
+    "stations": 115
+  },
+  "臺北捷運": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taipei",
+    "stations": 89
+  },
+  "Gruppo Torinese Trasporti": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Turin",
+    "stations": 21
+  },
+  "Subte de Buenos Aires": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Buenos Aires",
+    "stations": 90
+  },
+  "BTS": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 20
+  },
+  "ระบบขนส่งมวลชนกรุงเทพ": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 7
+  },
+  "STIBM": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Milan",
+    "stations": 134
+  },
+  "RATP Ile de France Mobilités": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "stations": 2
+  },
+  "日比谷線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "stations": 2
+  },
+  "Metrovalencia": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Paterna",
+    "stations": 38
+  },
+  "都営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "stations": 9
+  },
+  "КП «Харківський метрополітен»": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kharkiv",
+    "stations": 29
+  },
+  "Харківський метрополітен": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kharkiv",
+    "stations": 1
+  },
+  "LACMTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Los Angeles",
+    "stations": 19
+  },
+  "Moscow Metro": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Moscow",
+    "stations": 1
+  },
+  "ทางด่วนและรถไฟฟ้ากรุงเทพ": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 34
+  },
+  "Градски транспорт София": {
+    "continent": "europe",
+    "country": "Bulgaria",
+    "country_code": "BG",
+    "city": "Sofia",
+    "stations": 53
+  },
+  "서울교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 173
+  },
+  "Tbilisi Metro": {
+    "continent": "asia",
+    "country": "Georgia",
+    "country_code": "GE",
+    "city": "Tbilisi",
+    "stations": 23
+  },
+  "부산교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Busan",
+    "stations": 98
+  },
+  "PATH": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Jersey City",
+    "stations": 13
+  },
+  "Новосибирский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Novosibirsk",
+    "stations": 14
+  },
+  "Екатеринбургский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Yekaterinburg",
+    "stations": 9
+  },
+  "ASTRAL": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Rome",
+    "stations": 13
+  },
+  "Ilévia": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Marcq-en-Barœul",
+    "stations": 62
+  },
+  "Línea 1": {
+    "continent": null,
+    "country": null,
+    "country_code": null,
+    "city": null,
+    "stations": 44
+  },
+  "MARTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Atlanta",
+    "stations": 38
+  },
+  "ANM": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Naples",
+    "stations": 27
+  },
+  "京都市営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 4
+  },
+  "RTM": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Marseille",
+    "stations": 116
+  },
+  "Самарский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Samara",
+    "stations": 10
+  },
+  "한국철도공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Yongin-si",
+    "stations": 94
+  },
+  "Korail": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Jincheon-eup",
+    "stations": 26
+  },
+  "Seoul Metropolitan Subway": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 125
+  },
+  "수도권 전철": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Gwangmyeong",
+    "stations": 6
+  },
+  "横浜市交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yokohama",
+    "stations": 16
+  },
+  "横浜市営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yokohama",
+    "stations": 31
+  },
+  "Προαστιακός Αθήνας;Μετρό Αθήνας": {
+    "continent": "europe",
+    "country": "Greece",
+    "country_code": "GR",
+    "city": "Spata-Loutsa Municipal Unit",
+    "stations": 4
+  },
+  "Կարեն Դեմիրճյանի անվան Երևանի մետրոպոլիտեն": {
+    "continent": "asia",
+    "country": "Armenia",
+    "country_code": "AM",
+    "city": "Yerevan",
+    "stations": 16
+  },
+  "Circle Line (CCL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 24
+  },
+  "Ankara Metrosu": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Altındağ",
+    "stations": 4
+  },
+  "Нижегородский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Ленинский район",
+    "stations": 15
+  },
+  "National Rail;London Underground;London Overground": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 8
+  },
+  "Washington Metro": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Washington",
+    "stations": 102
+  },
+  "MDT": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Miami",
+    "stations": 23
+  },
+  "上海地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shanghai",
+    "stations": 468
+  },
+  "Shanghai Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xuhui District",
+    "stations": 69
+  },
+  "Ligne 7": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Ivry-sur-Seine",
+    "stations": 2
+  },
+  "Toei subway": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 96
+  },
+  "Metrô-DF": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Águas Claras",
+    "stations": 47
+  },
+  "RATP El Djazaïr": {
+    "continent": "africa",
+    "country": "Algeria",
+    "country_code": "DZ",
+    "city": "Hussein Dey District",
+    "stations": 3
+  },
+  "Ligne 1": {
+    "continent": "africa",
+    "country": "Algeria",
+    "country_code": "DZ",
+    "city": "Hussein Dey District",
+    "stations": 4
+  },
+  "Métro d'Alger": {
+    "continent": "africa",
+    "country": "Algeria",
+    "country_code": "DZ",
+    "city": "Algiers",
+    "stations": 11
+  },
+  "평양 지하철도": {
+    "continent": "asia",
+    "country": "North Korea",
+    "country_code": "KP",
+    "city": "P'yŏngyang",
+    "stations": 1
+  },
+  "大阪市高速電気軌道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 68
+  },
+  "Ташкентский метрополитен": {
+    "continent": "asia",
+    "country": "Uzbekistan",
+    "country_code": "UZ",
+    "city": "Tashkent",
+    "stations": 50
+  },
+  "Chennai Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Chennai",
+    "stations": 84
+  },
+  "Dubai Metro": {
+    "continent": "asia",
+    "country": "United Arab Emirates",
+    "country_code": "AE",
+    "city": "Dubai",
+    "stations": 54
+  },
+  "Metropolitano de São Paulo": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 48
+  },
+  "Metro C": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Rome",
+    "stations": 5
+  },
+  "Transperth": {
+    "continent": "oceania",
+    "country": "Australia",
+    "country_code": "AU",
+    "city": "Perth",
+    "stations": 2
+  },
+  "Athens Metro": {
+    "continent": "europe",
+    "country": "Greece",
+    "country_code": "GR",
+    "city": "Municipal Unit of Tavros",
+    "stations": 11
+  },
+  "SEPTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Philadelphia",
+    "stations": 51
+  },
+  "广州地铁集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Tianhe District",
+    "stations": 149
+  },
+  "Bakı Metropoliteni": {
+    "continent": "asia",
+    "country": "Azerbaijan",
+    "country_code": "AZ",
+    "city": "Baku",
+    "stations": 28
+  },
+  "Pyongyang Metro": {
+    "continent": "asia",
+    "country": "North Korea",
+    "country_code": "KP",
+    "city": "P'yŏngyang",
+    "stations": 2
+  },
+  "Taipei Metro": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taipei",
+    "stations": 20
+  },
+  "Linha 2 - Verde": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Rio de Janeiro",
+    "stations": 1
+  },
+  "Southeastern Pennsylvania Transportation Authority": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Philadelphia",
+    "stations": 1
+  },
+  "Companhia do Metropolitano do Distrito Federal - Metrô-DF": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Guará",
+    "stations": 13
+  },
+  "Metro SubwayLink": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Baltimore",
+    "stations": 10
+  },
+  "MARC": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Baltimore",
+    "stations": 1
+  },
+  "Baltimore Metro SubwayLink": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Baltimore",
+    "stations": 2
+  },
+  "Infra Fürth GmbH": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Fürth",
+    "stations": 5
+  },
+  "Дніпровський метрополітен": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Dnipro",
+    "stations": 6
+  },
+  "Companhia do Metropolitano do Distrito Federal - Metrô": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Águas Claras",
+    "stations": 3
+  },
+  "Companhia do Metropolitano do Distrito Federal - Metrô DF": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Águas Claras",
+    "stations": 4
+  },
+  "metrorrey": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Monterrey",
+    "stations": 1
+  },
+  "Línea 2": {
+    "continent": null,
+    "country": null,
+    "country_code": null,
+    "city": null,
+    "stations": 16
+  },
+  "Jaipur Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Jaipur Municipal Corporation",
+    "stations": 14
+  },
+  "VRR": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Dusseldorf",
+    "stations": 26
+  },
+  "東京メトロ": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 18
+  },
+  "東葉高速線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yachiyo",
+    "stations": 8
+  },
+  "กรุงเทพธนาคม": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 15
+  },
+  "VAG Verkehrs-Aktiengesellschaft Nürnberg": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Nuremberg",
+    "stations": 39
+  },
+  "Hyderabad Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Hyderabad",
+    "stations": 69
+  },
+  "桃園機場捷運": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taoyuan City",
+    "stations": 19
+  },
+  "臺中捷運綠線": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taichung",
+    "stations": 17
+  },
+  "Metro": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Caldas de Reis",
+    "stations": 60
+  },
+  "EAV": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Naples",
+    "stations": 12
+  },
+  "Namma Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Bengaluru",
+    "stations": 94
+  },
+  "Formula": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Turin",
+    "stations": 2
+  },
+  "London Underground;Docklands Light Railway": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 2
+  },
+  "Wuhan Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jianghan District",
+    "stations": 33
+  },
+  "Metro de Barcelona": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 168
+  },
+  "Transports Metropolitans de Barcelona": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 1
+  },
+  "Metro Brescia": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Brescia",
+    "stations": 16
+  },
+  "Métro": {
+    "continent": null,
+    "country": null,
+    "country_code": null,
+    "city": null,
+    "stations": 2
+  },
+  "서울시메트로9호선": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 16
+  },
+  "Chongqing Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Liangjiang",
+    "stations": 323
+  },
+  "東京メトロ半蔵門線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 2
+  },
+  "Münchner Verkehrs- und Tarifverbund": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Munich",
+    "stations": 5
+  },
+  "Shenzhen Metro Line 3 Operations Branch Corporation": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Longgang District",
+    "stations": 13
+  },
+  "Rapid Metro Gurgaon": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Gurgaon",
+    "stations": 12
+  },
+  "Seoul Metropolitan Subway System": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 7
+  },
+  "Metro de Caracas": {
+    "continent": "south-america",
+    "country": "Venezuela",
+    "country_code": "VE",
+    "city": "Caracas",
+    "stations": 48
+  },
+  "Metro CDMX": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Mexico City",
+    "stations": 6
+  },
+  "新北捷運": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taipei",
+    "stations": 14
+  },
+  "New York City Subway": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "New York",
+    "stations": 1
+  },
+  "SRT": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Gusu District",
+    "stations": 29
+  },
+  "OPRET": {
+    "continent": "north-america",
+    "country": "Dominican Republic",
+    "country_code": "DO",
+    "city": "Santo Domingo",
+    "stations": 18
+  },
+  "武汉地铁集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hanyang District",
+    "stations": 13
+  },
+  "Metropolitana di Brescia": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Brescia",
+    "stations": 1
+  },
+  "Pune Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Khadki",
+    "stations": 116
+  },
+  "大连地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Ganjingzi District",
+    "stations": 70
+  },
+  "Rail Rotterdam": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Rotterdam",
+    "stations": 26
+  },
+  "南昌地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Honggutan District",
+    "stations": 7
+  },
+  "London Underground;London Overground;Elizabeth line": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 1
+  },
+  "REM": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Montreal",
+    "stations": 8
+  },
+  "인천교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Incheon",
+    "stations": 44
+  },
+  "Алматинский метрополитен": {
+    "continent": "asia",
+    "country": "Kazakhstan",
+    "country_code": "KZ",
+    "city": "Almaty",
+    "stations": 11
+  },
+  "京浜急行電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Ota",
+    "stations": 10
+  },
+  "東日本旅客鉄道;東京地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nakano",
+    "stations": 1
+  },
+  "西武鉄道;東京地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nerima",
+    "stations": 1
+  },
+  "Linha 2": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Novo Cruzeiro",
+    "stations": 8
+  },
+  "Münchner Verkehrsgesellschaft": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Garching bei München",
+    "stations": 2
+  },
+  "東京臨海高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Koto",
+    "stations": 7
+  },
+  "EGO Genel Müdürlüğü": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ankara",
+    "stations": 1
+  },
+  "仙台市交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Sendai",
+    "stations": 27
+  },
+  "千代田線, 丸ノ内線, 銀座線, 南北線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 3
+  },
+  "Changsha Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yuhua District",
+    "stations": 14
+  },
+  "ロ丸ノ内線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinjuku",
+    "stations": 1
+  },
+  "宁波市轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yinzhou District",
+    "stations": 72
+  },
+  "合肥轨道交通集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Baohe District",
+    "stations": 32
+  },
+  "福岡市交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Fukuoka",
+    "stations": 4
+  },
+  "Rotterdamse Elektrische Tram N.V. (RET)": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Rotterdam",
+    "stations": 1
+  },
+  "TL": {
+    "continent": "europe",
+    "country": "Switzerland",
+    "country_code": "CH",
+    "city": "Lausanne",
+    "stations": 13
+  },
+  "National Rail;London Underground;Elizabeth line": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 2
+  },
+  "Ruhrbahn": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Essen",
+    "stations": 24
+  },
+  "Línea 2 MetroValencia": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Llíria",
+    "stations": 1
+  },
+  "北京市地铁运营;北京京港地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xicheng District",
+    "stations": 8
+  },
+  "北京地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Haidian District",
+    "stations": 5
+  },
+  "东莞轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Dongguan",
+    "stations": 18
+  },
+  "Subte de Buenos Aires;Sarmiento": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Buenos Aires",
+    "stations": 1
+  },
+  "Dongguan Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Dongguan",
+    "stations": 25
+  },
+  "Київський метрополітен": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kyiv",
+    "stations": 53
+  },
+  "Métro de Paris;RER;Tramway d'Île de France;Transilien": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Puteaux",
+    "stations": 1
+  },
+  "EMA": {
+    "continent": "africa",
+    "country": "Algeria",
+    "country_code": "DZ",
+    "city": "Hussein Dey District",
+    "stations": 2
+  },
+  "Metropolitana di Roma": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Rome",
+    "stations": 25
+  },
+  "深圳地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Longhua District",
+    "stations": 55
+  },
+  "合肥市轨道交通集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Luyang District",
+    "stations": 12
+  },
+  "مترو تهران": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Tehran",
+    "stations": 2
+  },
+  "東京急行電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shibuya",
+    "stations": 1
+  },
+  "京成電鉄;東京都交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Sumida",
+    "stations": 1
+  },
+  "千代田線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "stations": 5
+  },
+  "Metro del Vallès": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 1
+  },
+  "Linea 3": {
+    "continent": null,
+    "country": null,
+    "country_code": null,
+    "city": null,
+    "stations": 13
+  },
+  "linea 3": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Monterrey",
+    "stations": 1
+  },
+  "Verkehrsverbund Rhein-Ruhr": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Ratingen",
+    "stations": 12
+  },
+  "神戸市営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kobe",
+    "stations": 1
+  },
+  "BOGESTRA": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Bochum",
+    "stations": 18
+  },
+  "Metro Bilbao": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Erandio",
+    "stations": 41
+  },
+  "TransLink": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Burnaby",
+    "stations": 5
+  },
+  "Lucknow Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Lucknow",
+    "stations": 21
+  },
+  "NS;Amsterdamse metro": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Amsterdam",
+    "stations": 1
+  },
+  "Downtown Line (DTL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 6
+  },
+  "南宁轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanning",
+    "stations": 95
+  },
+  "地下鉄西神・山手線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kobe",
+    "stations": 1
+  },
+  "地下鉄海岸線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kobe",
+    "stations": 1
+  },
+  "Nederlandse Spoorwegen": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Schiedam",
+    "stations": 1
+  },
+  "Metro Line 1": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shahekou District",
+    "stations": 1
+  },
+  "MetrôBH": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Belo Horizonte",
+    "stations": 3
+  },
+  "深圳市轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Futian District",
+    "stations": 7
+  },
+  "ViaMobilidade Linhas 5 e 17": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 10
+  },
+  "Noida Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Gautam Buddha Nagar",
+    "stations": 22
+  },
+  "M11": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Eyüpsultan",
+    "stations": 15
+  },
+  "ViaQuatro": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 12
+  },
+  "CCR Metro Bahia": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "stations": 1
+  },
+  "HKL": {
+    "continent": "europe",
+    "country": "Finland",
+    "country_code": "FI",
+    "city": "Espoo",
+    "stations": 11
+  },
+  "Metrorrey - Línea 3": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Monterrey",
+    "stations": 1
+  },
+  "東京メトロ丸ノ内線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 2
+  },
+  "Metroviária": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 2
+  },
+  "Taoyuan Metro": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "New Taipei",
+    "stations": 3
+  },
+  "徐州地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yunlong District",
+    "stations": 14
+  },
+  "A1": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ankara",
+    "stations": 1
+  },
+  "Kaohsiung Metro": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Kaohsiung",
+    "stations": 16
+  },
+  "高雄捷運": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Kaohsiung",
+    "stations": 30
+  },
+  "名古屋鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagoya",
+    "stations": 1
+  },
+  "ATI": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Puerto Nuevo",
+    "stations": 16
+  },
+  "苏州地铁5号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Suzhou Industrial Park",
+    "stations": 2
+  },
+  "MRT Jakarta": {
+    "continent": "asia",
+    "country": "Indonesia",
+    "country_code": "ID",
+    "city": "Central Jakarta",
+    "stations": 20
+  },
+  "Verkehrsverbund Großraum Nürnberg": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Fürth",
+    "stations": 3
+  },
+  "U-Bahn Nürnberg": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Nuremberg",
+    "stations": 1
+  },
+  "VGN": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Nuremberg",
+    "stations": 1
+  },
+  "KVB": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Cologne",
+    "stations": 1
+  },
+  "VRS": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Cologne",
+    "stations": 1
+  },
+  "Kochi Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Kalamassery",
+    "stations": 27
+  },
+  "Metropolitano de São Paulo;ViaMobilidade Linhas 5 e 17": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 1
+  },
+  "南通城市轨道交通有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chongchuan District",
+    "stations": 42
+  },
+  "Metro Warszawskie": {
+    "continent": "europe",
+    "country": "Poland",
+    "country_code": "PL",
+    "city": "Warsaw",
+    "stations": 22
+  },
+  "VLT Teresina": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Piracuruca",
+    "stations": 15
+  },
+  "武汉地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hongshan District",
+    "stations": 5
+  },
+  "Cairo Metro": {
+    "continent": "africa",
+    "country": "Egypt",
+    "country_code": "EG",
+    "city": "Nasr City",
+    "stations": 1
+  },
+  "杭州地铁集团责任有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Gongshu District",
+    "stations": 8
+  },
+  "Euskotren Trena; Metro Bilbao": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Bilbao",
+    "stations": 4
+  },
+  "RKH Qitarat": {
+    "continent": "asia",
+    "country": "Qatar",
+    "country_code": "QA",
+    "city": "Al Rayyan",
+    "stations": 19
+  },
+  "RTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Cleveland",
+    "stations": 20
+  },
+  "Linha 1": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Córrego do Bom Jesus",
+    "stations": 8
+  },
+  "北京京港地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fengtai District",
+    "stations": 28
+  },
+  "متروی تهران": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Tehran",
+    "stations": 5
+  },
+  "Metro de Panamá": {
+    "continent": "north-america",
+    "country": "Panama",
+    "country_code": "PA",
+    "city": "Pueblo Nuevo",
+    "stations": 9
+  },
+  "Metro de Panama": {
+    "continent": "north-america",
+    "country": "Panama",
+    "country_code": "PA",
+    "city": "Calidonia",
+    "stations": 1
+  },
+  "神戸市営地下鉄北神線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kobe",
+    "stations": 1
+  },
+  "Shenzhen Metro Line 3 Operations Branch Corporation & Shenzhen Metro Co.,Ltd": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Longgang District",
+    "stations": 1
+  },
+  "Shenzhen Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Longgang District",
+    "stations": 34
+  },
+  "BKV": {
+    "continent": "europe",
+    "country": "Hungary",
+    "country_code": "HU",
+    "city": "Budapest",
+    "stations": 51
+  },
+  "Budapesti metró": {
+    "continent": "europe",
+    "country": "Hungary",
+    "country_code": "HU",
+    "city": "Budapest",
+    "stations": 2
+  },
+  "Mumbai Metro Line 2": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Mumbai",
+    "stations": 3
+  },
+  "Mumbai Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Mumbai",
+    "stations": 37
+  },
+  "National Rail;London Underground;Docklands Light Railway": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 1
+  },
+  "National Rail;London Underground;London Overground;Docklands Light Railway;Elizabeth line": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "stations": 1
+  },
+  "Metro Bilbao;Euskotren Trena": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Erandio",
+    "stations": 1
+  },
+  "Metro de Barcelona;Metro del Vallès": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 2
+  },
+  "CBTU Recife": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Jaboatão dos Guararapes",
+    "stations": 1
+  },
+  "Metro Manila Subway": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "stations": 11
+  },
+  "Euskotren Trena;Metro Bilbao": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Bilbao",
+    "stations": 3
+  },
+  "Linea 1": {
+    "continent": "south-america",
+    "country": "Peru",
+    "country_code": "PE",
+    "city": "Contamana",
+    "stations": 5
+  },
+  "Adana Metrosu": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Seyhan",
+    "stations": 13
+  },
+  "Qingdao Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shibei District",
+    "stations": 198
+  },
+  "Metrosur": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Móstoles",
+    "stations": 1
+  },
+  "北京地铁运营一分公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Haidian District",
+    "stations": 2
+  },
+  "上海轨道交通9号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Pudong",
+    "stations": 1
+  },
+  "Metro de Barcelona;Metro del Baix Llobregat": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "l'Hospitalet de Llobregat",
+    "stations": 3
+  },
+  "Metro de Barcelona;Rodalia de Barcelona": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 6
+  },
+  "Llobregat-Anoia": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 1
+  },
+  "BursaRay": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Bursa",
+    "stations": 43
+  },
+  "Trensurb": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Canoas",
+    "stations": 23
+  },
+  "RET": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Rotterdam",
+    "stations": 2
+  },
+  "宁波轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yinzhou District",
+    "stations": 7
+  },
+  "Thessaloniki Metro": {
+    "continent": "europe",
+    "country": "Greece",
+    "country_code": "GR",
+    "city": "Thessaloniki Municipal Unit",
+    "stations": 7
+  },
+  "CCR Metrô Bahia": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "stations": 6
+  },
+  "Metro del Baix Llobregat": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "l'Hospitalet de Llobregat",
+    "stations": 1
+  },
+  "常州地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Tianning District",
+    "stations": 34
+  },
+  "常州地铁Wujin Yanjiang Intercity Station": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Wujin District",
+    "stations": 2
+  },
+  "Linea 1, Metro Los Teques": {
+    "continent": "south-america",
+    "country": "Venezuela",
+    "country_code": "VE",
+    "city": "Lagunetica",
+    "stations": 1
+  },
+  "CDGVAL": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Meaux",
+    "stations": 4
+  },
+  "CPTM;Metrô": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 1
+  },
+  "Manila LRT": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "stations": 12
+  },
+  "İzmir Metro": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Buca",
+    "stations": 16
+  },
+  "Evka-3 - Fahrettin Altay": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Bornova",
+    "stations": 1
+  },
+  "Sukhumvit Line": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 1
+  },
+  "Kelana Jaya Line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kuala Lumpur",
+    "stations": 3
+  },
+  "東京メトロ南北線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 2
+  },
+  "副都心線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shibuya",
+    "stations": 2
+  },
+  "東京メトロ副都心線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Wako",
+    "stations": 1
+  },
+  "東京メトロ東西線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinjuku",
+    "stations": 3
+  },
+  "名古屋市交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagoya",
+    "stations": 23
+  },
+  "中央線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagoya",
+    "stations": 1
+  },
+  "Osaka Metro谷町線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "Kolkata Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Kolkata",
+    "stations": 57
+  },
+  "北京市地铁运营": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fengtai District",
+    "stations": 11
+  },
+  "北京地铁运营公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fengtai District",
+    "stations": 1
+  },
+  "Manila MRT": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "stations": 21
+  },
+  "ratp": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "stations": 1
+  },
+  "Taichung Mass Rapid Transit": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taichung",
+    "stations": 1
+  },
+  "에스알": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Hwaseong-si",
+    "stations": 1
+  },
+  "東京地下鉄;東京都交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Koto",
+    "stations": 1
+  },
+  "都営地下鉄;東京メトロ": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Koto",
+    "stations": 1
+  },
+  "North East Line": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 2
+  },
+  "高雄捷運公司": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Kaohsiung",
+    "stations": 1
+  },
+  "남양주도시공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Namyangju-si",
+    "stations": 6
+  },
+  "Lahore Metro": {
+    "continent": "asia",
+    "country": "Pakistan",
+    "country_code": "PK",
+    "city": "Model Town Tehsil",
+    "stations": 29
+  },
+  "Казанский метрополитен": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Kazan",
+    "stations": 11
+  },
+  "VGF": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Frankfurt",
+    "stations": 1
+  },
+  "U-Bahn Frankfurt": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Frankfurt",
+    "stations": 1
+  },
+  "한국철도공사;공항철도주식회사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 1
+  },
+  "KTX": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Sosu-myeon",
+    "stations": 3
+  },
+  "한국철도공사;서울교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Goyang-si",
+    "stations": 1
+  },
+  "Bakı metropoliteni": {
+    "continent": "asia",
+    "country": "Azerbaijan",
+    "country_code": "AZ",
+    "city": "Baku",
+    "stations": 2
+  },
+  "DLAn": {
+    "continent": "europe",
+    "country": "Belgium",
+    "country_code": "BE",
+    "city": "Antwerp",
+    "stations": 11
+  },
+  "서울메트로": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 1
+  },
+  "서울교통공사;네오트랜스주식회사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 1
+  },
+  "서울 지하철": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 4
+  },
+  "서울교통공사;서울시메트로9호선": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 1
+  },
+  "呼和浩特市城市轨道交通建设管理有限责任公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xincheng District",
+    "stations": 20
+  },
+  "西安地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Lianhu District",
+    "stations": 221
+  },
+  "Xi'an Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Baqiao District",
+    "stations": 13
+  },
+  "東京メトロ丸ノ内線;銀座線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "stations": 1
+  },
+  "都営地下鉄新宿線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 1
+  },
+  "東京メトロ千代田線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Bunkyō",
+    "stations": 1
+  },
+  "東京メトロ有楽町線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 3
+  },
+  "東京メト": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 1
+  },
+  "銀座線;千代田線;半蔵門線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "stations": 1
+  },
+  "銀座線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shibuya",
+    "stations": 1
+  },
+  "Tokyu Railways;Tokyo Metro": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shibuya",
+    "stations": 1
+  },
+  "ロ銀座線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "stations": 2
+  },
+  "Tokyo Metro Ginza Line": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chuo",
+    "stations": 1
+  },
+  "Changzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Wujin District",
+    "stations": 4
+  },
+  "東京都交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chuo",
+    "stations": 2
+  },
+  "丸ノ内線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinjuku",
+    "stations": 1
+  },
+  "Toei Shinjuku Line": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinjuku",
+    "stations": 1
+  },
+  "埼玉高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawaguchi",
+    "stations": 7
+  },
+  "Dhaka Metro": {
+    "continent": "asia",
+    "country": "Bangladesh",
+    "country_code": "BD",
+    "city": "Dhaka",
+    "stations": 17
+  },
+  "M4": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Beypazarı",
+    "stations": 15
+  },
+  "Skyline": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Ewa Beach",
+    "stations": 13
+  },
+  "VRR;Bogestra": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Gelsenkirchen",
+    "stations": 1
+  },
+  "Metrô - DF": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Samambaia",
+    "stations": 1
+  },
+  "南京地铁S1号线,南京地铁S7号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jiangning District",
+    "stations": 1
+  },
+  "Nanjing Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jiangning District",
+    "stations": 20
+  },
+  "大阪市営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "Osaka Metro四つ橋線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "广东广佛轨道交通有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanhai District",
+    "stations": 18
+  },
+  "广州地铁集团有限公司;广东广佛轨道交通有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Haizhu District",
+    "stations": 1
+  },
+  "Sydney Trains": {
+    "continent": "oceania",
+    "country": "Australia",
+    "country_code": "AU",
+    "city": "Sydney",
+    "stations": 6
+  },
+  "沈阳地铁集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hunnan",
+    "stations": 1
+  },
+  "长春轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Changchun City",
+    "stations": 39
+  },
+  "Metro Line3": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanning",
+    "stations": 1
+  },
+  "Punggol LRT Line": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 2
+  },
+  "武汉地铁集团": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jianghan District",
+    "stations": 1
+  },
+  "Osaka Metro": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "대전교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Daejeon",
+    "stations": 21
+  },
+  "SZMC": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Futian District",
+    "stations": 4
+  },
+  "Metropolitan Rapid Transit": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 42
+  },
+  "M1": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Gungoren",
+    "stations": 13
+  },
+  "İstanbul M1A Metro Hattı": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Gungoren",
+    "stations": 1
+  },
+  "RMV": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Oberursel (Taunus)",
+    "stations": 1
+  },
+  "MahaMetro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Nagpur",
+    "stations": 12
+  },
+  "Nagpur Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Nagpur",
+    "stations": 12
+  },
+  "izmir metro": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Konak",
+    "stations": 2
+  },
+  "M8": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Kadıköy",
+    "stations": 1
+  },
+  "Linha Sul": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Maracanaú",
+    "stations": 1
+  },
+  "Doha Metro": {
+    "continent": "asia",
+    "country": "Qatar",
+    "country_code": "QA",
+    "city": "Al Rayyan",
+    "stations": 8
+  },
+  "METROFOR": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Maracanaú",
+    "stations": 4
+  },
+  "CDRT": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shuangliu District",
+    "stations": 12
+  },
+  "厦门地铁1号线、厦门地铁3号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Siming District",
+    "stations": 1
+  },
+  "金华市轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yiwu",
+    "stations": 19
+  },
+  "Metro-Çayyolu-Sincan": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ankara",
+    "stations": 1
+  },
+  "M3": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Bağcılar",
+    "stations": 1
+  },
+  "2号線(箱崎線)": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Fukuoka",
+    "stations": 1
+  },
+  "七隈線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Fukuoka",
+    "stations": 2
+  },
+  "FCE": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Catania",
+    "stations": 2
+  },
+  "京都市営地下鉄烏丸線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 1
+  },
+  "京都市交通局": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 2
+  },
+  "京都市交通局;京都市": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 1
+  },
+  "京都市": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 1
+  },
+  "京都市営地下鉄東西線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 2
+  },
+  "東山線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagoya",
+    "stations": 1
+  },
+  "Toei Subway": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinjuku",
+    "stations": 3
+  },
+  "御堂筋線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "大阪市営地下鉄御堂筋線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "北大阪急行電鉄株式会社": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Suita",
+    "stations": 1
+  },
+  "Osaka Metro御堂筋線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "北陸鉄道株式会社": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kanazawa",
+    "stations": 1
+  },
+  "京浜急行電鉄 (Keikyu Corporation)": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Ota",
+    "stations": 2
+  },
+  "大阪市高速電気軌道;阪急電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "大阪市営地下鉄堺筋線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "大阪メトロ": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "stations": 1
+  },
+  "けいはんな線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Higashiōsaka",
+    "stations": 1
+  },
+  "Kanpur Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Kanpur",
+    "stations": 14
+  },
+  "Pune Metro Line 3 (Pink Line)": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Khadki",
+    "stations": 1
+  },
+  "Surat Metro Green Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Amroli",
+    "stations": 26
+  },
+  "Surat Metro Red Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Majura Taluka",
+    "stations": 31
+  },
+  "Agra Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Agra",
+    "stations": 6
+  },
+  "Kochi Metro Pink Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Kalamassery",
+    "stations": 1
+  },
+  "Surat Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Amroli",
+    "stations": 1
+  },
+  "RapidX": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "fafrana",
+    "stations": 12
+  },
+  "南京地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Qinhuai District",
+    "stations": 86
+  },
+  "oslo_metro": {
+    "continent": "europe",
+    "country": "Norway",
+    "country_code": "NO",
+    "city": "Oslo",
+    "stations": 1
+  },
+  "東京メトロ;東葉高速線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Funabashi",
+    "stations": 1
+  },
+  "成都地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chenghua District",
+    "stations": 6
+  },
+  "Hanoi Metro": {
+    "continent": "asia",
+    "country": "Vietnam",
+    "country_code": "VN",
+    "city": "Hà Nội",
+    "stations": 18
+  },
+  "Nanning Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanning",
+    "stations": 1
+  },
+  "广州地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Baiyun District",
+    "stations": 2
+  },
+  "대구권 전철": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Daegu",
+    "stations": 57
+  },
+  "太原地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Taiyuan City",
+    "stations": 18
+  },
+  "Sincan-Çayyolu Metro Line (Former M2)": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ankara",
+    "stations": 3
+  },
+  "대구교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Daegu",
+    "stations": 1
+  },
+  "United States Capitol Subway System": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Washington",
+    "stations": 6
+  },
+  "Metropolitana di Catania": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Catania",
+    "stations": 11
+  },
+  "佛山地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shunde District",
+    "stations": 10
+  },
+  "Mumbai Metro Green Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Thane",
+    "stations": 1
+  },
+  "Mumbai Metro Line 4": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Thane",
+    "stations": 4
+  },
+  "Thane Ring Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Thane",
+    "stations": 12
+  },
+  "GMRC": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Sachin",
+    "stations": 2
+  },
+  "Líneas 1/2": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Monterrey",
+    "stations": 1
+  },
+  "Metrô DF": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Taguatinga",
+    "stations": 5
+  },
+  "CCR - Metro Bahia": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "stations": 1
+  },
+  "Metro de Sevilla": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Seville",
+    "stations": 1
+  },
+  "Metro Sevilla": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Seville",
+    "stations": 1
+  },
+  "Metro de Medellín": {
+    "continent": "south-america",
+    "country": "Colombia",
+    "country_code": "CO",
+    "city": "Medellín",
+    "stations": 27
+  },
+  "Guangzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Zhongshan",
+    "stations": 4
+  },
+  "공항철도주식회사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 2
+  },
+  "M9": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Küçükçekmece",
+    "stations": 1
+  },
+  "厦门地铁3号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Siming District",
+    "stations": 1
+  },
+  "Ligne C": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Toulouse",
+    "stations": 1
+  },
+  "1号线;2号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Taiyuan City",
+    "stations": 2
+  },
+  "洛阳市轨道交通集团有限责任公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xigong District",
+    "stations": 18
+  },
+  "洛阳轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jianxi District",
+    "stations": 1
+  },
+  "Linea 1 (metropolitana di Napoli)": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Naples",
+    "stations": 4
+  },
+  "广州地铁二号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Panyu District",
+    "stations": 1
+  },
+  "深圳地铁集团 SZMC": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Luohu District",
+    "stations": 1
+  },
+  "绍兴京越地铁有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Keqiao District",
+    "stations": 6
+  },
+  "广东城际铁路运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nansha District",
+    "stations": 1
+  },
+  "Mumbai Metro Red Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Mira-Bhayander",
+    "stations": 4
+  },
+  "Mumbai Metro Line 7A": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Mumbai",
+    "stations": 2
+  },
+  "福州地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fuzhou City",
+    "stations": 2
+  },
+  "The Egyptian Co. for Metro Management & Operation": {
+    "continent": "africa",
+    "country": "Egypt",
+    "country_code": "EG",
+    "city": "Giza",
+    "stations": 1
+  },
+  "Dalian Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Lüshunkou District",
+    "stations": 3
+  },
+  "南京地铁1号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanjing City",
+    "stations": 20
+  },
+  "南京地铁4号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xuanwu District",
+    "stations": 14
+  },
+  "南京地铁10号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jianye District",
+    "stations": 10
+  },
+  "南京地铁2号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xuanwu District",
+    "stations": 1
+  },
+  "Gemeentelijk Vervoerbedrijf": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Amsterdam",
+    "stations": 1
+  },
+  "Linea 2, Metro Los Teques": {
+    "continent": "south-america",
+    "country": "Venezuela",
+    "country_code": "VE",
+    "city": "Lagunetica",
+    "stations": 2
+  },
+  "无锡地铁4号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Binhu District",
+    "stations": 1
+  },
+  "西安市轨道交通集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Weiyang District",
+    "stations": 1
+  },
+  "北京轨道运营": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xicheng District",
+    "stations": 7
+  },
+  "코레일": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Bucheon-si",
+    "stations": 1
+  },
+  "金华轨道交通集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Wucheng District",
+    "stations": 2
+  },
+  "杭州地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 3
+  },
+  "Hangzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xihu District",
+    "stations": 75
+  },
+  "杭州地铁集团责任有限公司；杭州杭港地铁有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 1
+  },
+  "杭州杭港地铁有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xiaoshan District",
+    "stations": 21
+  },
+  "杭州地铁集团运营分公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 13
+  },
+  "杭州杭港地铁有限公司、杭州杭港地铁五号线有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Gongshu District",
+    "stations": 2
+  },
+  "杭州地铁集团运营分公司，浙江轨道运营集团海宁分公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Linping District",
+    "stations": 2
+  },
+  "杭州杭港地铁有限公司，杭州地铁集团运营分公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xiaoshan District",
+    "stations": 6
+  },
+  "杭州地铁集团运营分公司，杭州杭港地铁五号线有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 3
+  },
+  "杭州地铁集团运营有限公司，杭州杭港地铁五号线有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 1
+  },
+  "杭州杭港地铁五号线有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 20
+  },
+  "杭州地铁集团运营有限公司、杭州杭港地铁五号线有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 4
+  },
+  "杭州地铁集团运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 63
+  },
+  "地铁5号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yanta District",
+    "stations": 1
+  },
+  "滁州轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chuzhou",
+    "stations": 1
+  },
+  "杭州市地铁集团有限责任公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 28
+  },
+  "神戸電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kobe",
+    "stations": 1
+  },
+  "A2": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Mamak",
+    "stations": 8
+  },
+  "M5": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ankara",
+    "stations": 13
+  },
+  "M2": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Etimesgut",
+    "stations": 10
+  },
+  "杭州地铁运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shangcheng District",
+    "stations": 59
+  },
+  "Métro 1": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Vincennes",
+    "stations": 1
+  },
+  "평양지하철도관리국": {
+    "continent": "asia",
+    "country": "North Korea",
+    "country_code": "KP",
+    "city": "P'yŏngyang",
+    "stations": 6
+  },
+  "東武鉄道;東京地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Adachi",
+    "stations": 1
+  },
+  "佛山市轨道交通发展有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shunde District",
+    "stations": 35
+  },
+  "武漢地鐵": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Wuhan",
+    "stations": 3
+  },
+  "Ассоциация «Тошшаҳартрансхизмат»": {
+    "continent": "asia",
+    "country": "Uzbekistan",
+    "country_code": "UZ",
+    "city": "Tashkent",
+    "stations": 1
+  },
+  "Meerut Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Meerut",
+    "stations": 9
+  },
+  "Panama Metro": {
+    "continent": "north-america",
+    "country": "Panama",
+    "country_code": "PA",
+    "city": "Distrito de Panamá",
+    "stations": 17
+  },
+  "Société de Transport de Montréal": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Montreal",
+    "stations": 2
+  },
+  "Σ.Α.Π.;Ε.Η.Σ.": {
+    "continent": "europe",
+    "country": "Greece",
+    "country_code": "GR",
+    "city": "Athens",
+    "stations": 1
+  },
+  "Metro de Lisboa": {
+    "continent": "europe",
+    "country": "Portugal",
+    "country_code": "PT",
+    "city": "Lisbon",
+    "stations": 1
+  },
+  "مترو القاهرة الكبرى": {
+    "continent": "africa",
+    "country": "Egypt",
+    "country_code": "EG",
+    "city": "Giza",
+    "stations": 1
+  },
+  "Navi Mumbai Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Panvel",
+    "stations": 11
+  },
+  "Metrô de Salvador - Linha 1": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "stations": 1
+  },
+  "北京京港地铁有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chaoyang District",
+    "stations": 8
+  },
+  "Ho Chi Minh City Metro": {
+    "continent": "asia",
+    "country": "Vietnam",
+    "country_code": "VN",
+    "city": "Thủ Đức",
+    "stations": 14
+  },
+  "ATM": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Vimercate",
+    "stations": 2
+  },
+  "Metro de Quito": {
+    "continent": "south-america",
+    "country": "Ecuador",
+    "country_code": "EC",
+    "city": "Kennedy",
+    "stations": 1
+  },
+  "구리도시공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Guri-si",
+    "stations": 3
+  },
+  "上海市域铁路": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Pudong",
+    "stations": 7
+  },
+  "VVR Antwerpen": {
+    "continent": "europe",
+    "country": "Belgium",
+    "country_code": "BE",
+    "city": "Antwerp",
+    "stations": 1
+  },
+  "Shanghai Suburban Railway": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Minhang District",
+    "stations": 1
+  },
+  "佛山市地铁运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanhai District",
+    "stations": 5
+  },
+  "metro Warszawskie": {
+    "continent": "europe",
+    "country": "Poland",
+    "country_code": "PL",
+    "city": "Warsaw",
+    "stations": 1
+  },
+  "Ahmedabad Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Asarva Taluka",
+    "stations": 47
+  },
+  "成都轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chengdu",
+    "stations": 5
+  },
+  "港铁中铁电化轨道交通（深圳）有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Bao'an District",
+    "stations": 13
+  },
+  "Riyadh Transit Network": {
+    "continent": "asia",
+    "country": "Saudi Arabia",
+    "country_code": "SA",
+    "city": "Riyadh",
+    "stations": 24
+  },
+  "Riyadh Metro": {
+    "continent": "asia",
+    "country": "Saudi Arabia",
+    "country_code": "SA",
+    "city": "Riyadh",
+    "stations": 15
+  },
+  "Línea 1 - Metro de Santo Domingo": {
+    "continent": "north-america",
+    "country": "Dominican Republic",
+    "country_code": "DO",
+    "city": "Santo Domingo",
+    "stations": 16
+  },
+  "Metro de Santo Domingo": {
+    "continent": "north-america",
+    "country": "Dominican Republic",
+    "country_code": "DO",
+    "city": "Santo Domingo",
+    "stations": 2
+  },
+  "Linea 2B": {
+    "continent": "north-america",
+    "country": "Dominican Republic",
+    "country_code": "DO",
+    "city": "Santo Domingo Este",
+    "stations": 1
+  },
+  "Mi Tren": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Guadalajara",
+    "stations": 26
+  },
+  "Indore Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Tigriya",
+    "stations": 6
+  },
+  "Algiers Metro": {
+    "continent": "africa",
+    "country": "Algeria",
+    "country_code": "DZ",
+    "city": "Bir Mourad Rais District",
+    "stations": 2
+  },
+  "青岛地铁运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Laoshan District",
+    "stations": 4
+  },
+  "Sistema de Transporte Colectivo": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Mexico City",
+    "stations": 2
+  },
+  "Línea A": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Mexico City",
+    "stations": 1
+  },
+  "Ningbo Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Beilun District",
+    "stations": 1
+  },
+  "Metro de Panamá S.A.": {
+    "continent": "north-america",
+    "country": "Panama",
+    "country_code": "PA",
+    "city": "Panama City",
+    "stations": 2
+  },
+  "متروی شیراز": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Shiraz",
+    "stations": 1
+  },
+  "Nanchang Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Qingshanhu District",
+    "stations": 23
+  },
+  "Rete Ferroviaria Italiana": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Latina",
+    "stations": 2
+  },
+  "Metro Fortaleza - Linha Sul": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Maracanaú",
+    "stations": 1
+  },
+  "Coop. Juan Pablo II": {
+    "continent": "south-america",
+    "country": "Ecuador",
+    "country_code": "EC",
+    "city": "Guayaquil",
+    "stations": 1
+  },
+  "Coop. IntiRumiñahui": {
+    "continent": "south-america",
+    "country": "Ecuador",
+    "country_code": "EC",
+    "city": "Guayaquil",
+    "stations": 1
+  },
+  "Tehran Urban & Suburban Railway Operation Co.": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Tehran",
+    "stations": 1
+  },
+  "TMB": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "stations": 1
+  },
+  "Aqua Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Noida",
+    "stations": 7
+  },
+  "Kunming Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Kunming",
+    "stations": 1
+  },
+  "Thane  Ring Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Thane",
+    "stations": 1
+  },
+  "绍兴轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yuecheng District",
+    "stations": 14
+  },
+  "M3 Konak - Menderes Metrosu": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Konak",
+    "stations": 1
+  },
+  "Pink Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Delhi",
+    "stations": 1
+  },
+  "Metro de Valencia": {
+    "continent": "south-america",
+    "country": "Venezuela",
+    "country_code": "VE",
+    "city": "Valencia",
+    "stations": 4
+  },
+  "Linha 1 / Linha 2": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Belo Horizonte",
+    "stations": 1
+  },
+  "LinhaUni": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 5
+  },
+  "Rapid KL": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kuala Lumpur",
+    "stations": 3
+  },
+  "Kajang Line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kuala Lumpur",
+    "stations": 26
+  },
+  "MBTA;Amtrak;CCRTA": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Boston",
+    "stations": 1
+  },
+  "Service des transports en commun de l'agglomération rennaise": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Rennes",
+    "stations": 2
+  },
+  "FR:STAR": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Rennes",
+    "stations": 3
+  },
+  "北京地铁八通线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Tongzhou District",
+    "stations": 1
+  },
+  "Linha Centro 1 e 2": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Recife",
+    "stations": 1
+  },
+  "BART;Muni": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "San Francisco",
+    "stations": 2
+  },
+  "Metrocable": {
+    "continent": "south-america",
+    "country": "Colombia",
+    "country_code": "CO",
+    "city": "Medellín",
+    "stations": 1
+  },
+  "南昌地铁集团": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xihu District",
+    "stations": 1
+  },
+  "서울 지하철 4호선": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seoul",
+    "stations": 1
+  },
+  "NTA": {
+    "continent": "asia",
+    "country": "Israel",
+    "country_code": "IL",
+    "city": "Ramat Gan",
+    "stations": 1
+  },
+  "LRT Line 2": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "stations": 1
+  },
+  "Metro L2": {
+    "continent": "north-america",
+    "country": "Dominican Republic",
+    "country_code": "DO",
+    "city": "Santo Domingo",
+    "stations": 1
+  },
+  "Putrajaya Line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kuala Lumpur",
+    "stations": 33
+  },
+  "Sungai Buloh-Kajang Line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Petaling Jaya",
+    "stations": 2
+  },
+  "Kajang Line;Putrajaya Line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kuala Lumpur",
+    "stations": 2
+  },
+  "CCR": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "stations": 2
+  },
+  "Metrô de Salvador": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "stations": 1
+  },
+  "Linha 5 Lilás;Linha 1 Azul": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 1
+  },
+  "Linha 5 Lilás": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 1
+  },
+  "M2 Yenikapı - Hacıosman Metro Hattı": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Istanbul",
+    "stations": 2
+  },
+  "M1 Yenikapı - Atatürk Havalimanı/Kirazlı Metro Hattı": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Istanbul",
+    "stations": 2
+  },
+  "Linha 6-Laranja": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 3
+  },
+  "Blue Line": {
+    "continent": "africa",
+    "country": "Egypt",
+    "country_code": "EG",
+    "city": "Matruh",
+    "stations": 3
+  },
+  "苏州轨道交通4号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Gusu District",
+    "stations": 1
+  },
+  "北京地铁燕房线/北京地铁房山线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fangshan District",
+    "stations": 1
+  },
+  "Manila LRT and Manila MRT": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "stations": 1
+  },
+  "لاہور میٹرو": {
+    "continent": "asia",
+    "country": "Pakistan",
+    "country_code": "PK",
+    "city": "Begampura",
+    "stations": 1
+  },
+  "metrovalencia": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Valencia",
+    "stations": 3
+  },
+  "Red Line": {
+    "continent": "asia",
+    "country": "Qatar",
+    "country_code": "QA",
+    "city": "Doha",
+    "stations": 1
+  },
+  "常州市轨道交通发展有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Tianning District",
+    "stations": 1
+  },
+  "Linha 5 - Lilás": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 1
+  },
+  "Saddar-Secretriat": {
+    "continent": "asia",
+    "country": "Pakistan",
+    "country_code": "PK",
+    "city": "Blue Area",
+    "stations": 1
+  },
+  "Pink Line (Jaipur Metro)": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Jaipur Municipal Corporation",
+    "stations": 1
+  },
+  "Los Angeles County Metropolitan Transportation Authority": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Los Angeles",
+    "stations": 6
+  },
+  "Cross Island Line": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 1
+  },
+  "南医大·江苏经贸学院": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jiangning District",
+    "stations": 1
+  },
+  "Riyadh Network Transit": {
+    "continent": "asia",
+    "country": "Saudi Arabia",
+    "country_code": "SA",
+    "city": "Riyadh",
+    "stations": 1
+  },
+  "杭州杭港地铁有限公司、杭州地铁运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xiaoshan District",
+    "stations": 1
+  },
+  "Wenzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Wenzhou",
+    "stations": 1
+  },
+  "Toronto Transit Commission": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Toronto",
+    "stations": 1
+  },
+  "金义东市域轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jinhua",
+    "stations": 1
+  },
+  "金华轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jinhua",
+    "stations": 2
+  },
+  "Metro de Bogotá": {
+    "continent": "south-america",
+    "country": "Colombia",
+    "country_code": "CO",
+    "city": "Bogota",
+    "stations": 3
+  },
+  "南京地铁S7号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanjing City",
+    "stations": 3
+  },
+  "Gujarat Metro Rail Corporation Limited": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "SabarmatiTaluka",
+    "stations": 2
+  },
+  "North East Line (NEL)/Punggol LRT": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 1
+  },
+  "Sungai Buloh-Serdang-Putrajaya Line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kuala Lumpur",
+    "stations": 1
+  },
+  "STM": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Montreal",
+    "stations": 1
+  },
+  "Línea 2 Metrorrey": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Monterrey",
+    "stations": 1
+  },
+  "DMRC": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Ghaziabad",
+    "stations": 1
+  },
+  "Changchun Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Changchun City",
+    "stations": 1
+  },
+  "申通地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Qingpu District",
+    "stations": 1
+  },
+  "7号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Wuhan",
+    "stations": 1
+  },
+  "郑州地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Zhengzhou",
+    "stations": 1
+  },
+  "福州地铁集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fuzhou City",
+    "stations": 2
+  },
+  "Orange Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Rajpur Sonarpur",
+    "stations": 1
+  },
+  "Línea 2 - Metro de Santo Domingo": {
+    "continent": "north-america",
+    "country": "Dominican Republic",
+    "country_code": "DO",
+    "city": "Santo Domingo",
+    "stations": 2
+  },
+  "郑许线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Zhengzhou Airport Economy Zone",
+    "stations": 1
+  },
+  "광주교통공사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Gwangju",
+    "stations": 1
+  },
+  "天津轨道交通集团有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jinnan District",
+    "stations": 2
+  },
+  "Indore Metro - Yellow Line": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Indore City",
+    "stations": 12
+  },
+  "Mumbai Metro Line 5": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Thane",
+    "stations": 1
+  },
+  "Subway": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Pune",
+    "stations": 1
+  },
+  "Stadsvervoer Amsterdam": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Amsterdam",
+    "stations": 4025
+  },
+  "WestfalenTarif": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Bielefeld",
+    "stations": 2049
+  },
+  "Pražské metro": {
+    "continent": "europe",
+    "country": "Czechia",
+    "country_code": "CZ",
+    "city": "Prague",
+    "stations": 1760
+  },
+  "Mobilis": {
+    "continent": "europe",
+    "country": "Switzerland",
+    "country_code": "CH",
+    "city": "Lausanne",
+    "stations": 572
+  },
+  "Takst Sjælland": {
+    "continent": "europe",
+    "country": "Denmark",
+    "country_code": "DK",
+    "city": "Sundbyerne",
+    "stations": 802
+  },
+  "COTRAL": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Rome",
+    "stations": 528
+  },
+  "Strathclyde Partnership for Transport": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Glasgow",
+    "stations": 341
+  },
+  "Metropolitana di Napoli": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Naples",
+    "stations": 254
+  },
+  "Metropolitana di Genova": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Genoa",
+    "stations": 104
+  },
+  "Metrô de São Paulo": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "stations": 696
+  },
+  "Metrô do Recife": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Recife",
+    "stations": 1311
+  },
+  "الشركة المصرية لإدارة وتشغيل المترو": {
+    "continent": "africa",
+    "country": "Egypt",
+    "country_code": "EG",
+    "city": "Cairo",
+    "stations": 504
+  },
+  "Nagoya Municipal Subway": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagoya",
+    "stations": 785
+  },
+  "Tokyo Metro": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "stations": 5053
+  },
+  "Tianjin Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Dongli District",
+    "stations": 1272
+  },
+  "Երևանի մետրոպոլիտեն": {
+    "continent": "asia",
+    "country": "Armenia",
+    "country_code": "AM",
+    "city": "Yerevan",
+    "stations": 296
+  },
+  "BTS Skytrain": {
+    "continent": "asia",
+    "country": "Thailand",
+    "country_code": "TH",
+    "city": "Bangkok",
+    "stations": 257
+  },
+  "Kyoto Municipal Subway": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kyoto",
+    "stations": 493
+  },
+  "قطارات مكة للنقل العام": {
+    "continent": "asia",
+    "country": "Saudi Arabia",
+    "country_code": "SA",
+    "city": "Makkah Region",
+    "stations": 78
+  },
+  "Beijing Subway": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Dongcheng District",
+    "stations": 2727
+  },
+  "Metro de Lima y Callao": {
+    "continent": "south-america",
+    "country": "Peru",
+    "country_code": "PE",
+    "city": "San Luis",
+    "stations": 924
+  },
+  "札幌市営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Sapporo",
+    "stations": 246
+  },
+  "福岡市地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Fukuoka",
+    "stations": 77
+  },
+  "みなとみらい線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yokohama",
+    "stations": 107
+  },
+  "Busan Metro": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Busan",
+    "stations": 317
+  },
+  "Chengdu Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shuangliu District",
+    "stations": 2447
+  },
+  "HSL": {
+    "continent": "europe",
+    "country": "Finland",
+    "country_code": "FI",
+    "city": "Helsinki",
+    "stations": 1427
+  },
+  "Comune di Palestrina": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Palestrina",
+    "stations": 21
+  },
+  "Île-de-France Mobilités": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "stations": 110
+  },
+  "Keisei": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Ichikawa",
+    "stations": 1711
+  },
+  "Metrorrey": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Monterrey",
+    "stations": 221
+  },
+  "ZTM Warszawa": {
+    "continent": "europe",
+    "country": "Poland",
+    "country_code": "PL",
+    "city": "Warsaw",
+    "stations": 674
+  },
+  "Hong Kong Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hong Kong",
+    "stations": 1683
+  },
+  "Metro de Los Teques": {
+    "continent": "south-america",
+    "country": "Venezuela",
+    "country_code": "VE",
+    "city": "Las Lomitas",
+    "stations": 182
+  },
+  "Kunming Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Kunming",
+    "stations": 705
+  },
+  "Metrofor": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Fortaleza",
+    "stations": 397
+  },
+  "広島高速交通株式会社": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Hiroshima",
+    "stations": 76
+  },
+  "Tokyo Metro;JR": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Matsudo",
+    "stations": 571
+  },
+  "Wuxi Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xishan District",
+    "stations": 235
+  },
+  "Suzhou Rail Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Suzhou Industrial Park",
+    "stations": 786
+  },
+  "Zhengzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Zhengzhou",
+    "stations": 334
+  },
+  "Shenyang Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shenyang City",
+    "stations": 134
+  },
+  "Almaty Metro": {
+    "continent": "asia",
+    "country": "Kazakhstan",
+    "country_code": "KZ",
+    "city": "Almaty",
+    "stations": 22
+  },
+  "مترو کرج": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Karaj",
+    "stations": 62
+  },
+  "قطار شهری مشهد": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Mashhad",
+    "stations": 84
+  },
+  "Hefei Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shushan District",
+    "stations": 313
+  },
+  "متروی تبریز": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Tabriz",
+    "stations": 118
+  },
+  "Fuzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Fuzhou City",
+    "stations": 746
+  },
+  "Xuzhou Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Quanshan District",
+    "stations": 119
+  },
+  "Shijiazhuang Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shijiazhuang",
+    "stations": 112
+  },
+  "埼玉高速鉄道線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawaguchi",
+    "stations": 136
+  },
+  "Daejeon Metro": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Daejeon",
+    "stations": 18
+  },
+  "Daegu Metro": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Daegu",
+    "stations": 234
+  },
+  "MMMOCL": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Thane",
+    "stations": 40
+  },
+  "Singapore Rail": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "stations": 38
+  },
+  "济南轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Licheng District",
+    "stations": 139
+  },
+  "S-Train": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nerima",
+    "stations": 293
+  },
+  "東京メトロ;都営地下鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Setagaya",
+    "stations": 296
+  },
+  "通勤五方面作戦": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Matsudo",
+    "stations": 1076
+  },
+  "東急電鉄;東京メトロ": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawasaki",
+    "stations": 2772
+  },
+  "Tobu Skytree Line;Tokyo Metro": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawaguchi",
+    "stations": 1412
+  },
+  "Tobu Railway;Tokyo Metro": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawagoe",
+    "stations": 753
+  },
+  "東急電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawasaki",
+    "stations": 710
+  },
+  "Odakyu;Tokyo Metro": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kawasaki",
+    "stations": 1131
+  },
+  "Hohhot Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xincheng District",
+    "stations": 69
+  },
+  "合肥轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shushan District",
+    "stations": 6
+  },
+  "台州轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Taizhou",
+    "stations": 160
+  },
+  "Taiyuan Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Taiyuan City",
+    "stations": 49
+  },
+  "東急電鉄;東京メトロ;東武鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Suginami",
+    "stations": 1900
+  },
+  "東武鉄道;東京メトロ;東急電鉄;横浜高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Setagaya",
+    "stations": 14
+  },
+  "Seibu": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Tokorozawa",
+    "stations": 883
+  },
+  "Ikebukuro Line System": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nerima",
+    "stations": 73
+  },
+  "西武鉄道;東京地下鉄;東急電鉄;横浜高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Setagaya",
+    "stations": 14
+  },
+  "Luoyang Subway": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jianxi District",
+    "stations": 34
+  },
+  "Shaoxing Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yuecheng District",
+    "stations": 395
+  },
+  "광주 도시철도": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Gwangju",
+    "stations": 80
+  },
+  "Foshan Metro": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Shunde District",
+    "stations": 1253
+  },
+  "浙中都市圈城际轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jinhua",
+    "stations": 238
+  },
+  "南通轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chongchuan District",
+    "stations": 295
+  },
+  "Dhaka Metro Rail": {
+    "continent": "asia",
+    "country": "Bangladesh",
+    "country_code": "BD",
+    "city": "Dhaka",
+    "stations": 53
+  },
+  "Lagos Rail Mass Transit": {
+    "continent": "africa",
+    "country": "Nigeria",
+    "country_code": "NG",
+    "city": "Apapa",
+    "stations": 69
+  },
+  "City and County of Honolulu": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Ewa Beach",
+    "stations": 212
+  },
+  "MMRC": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Mumbai Zone 2",
+    "stations": 21
+  },
+  "Kocaeli Büyükşehir Belediyesi": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Gebze",
+    "stations": 134
+  },
+  "Patna Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Patna",
+    "stations": 40
+  },
+  "Bhoj Metro": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Bhopal",
+    "stations": 16
+  }
+}

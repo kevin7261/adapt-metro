@@ -7,7 +7,12 @@
     "dev": "vite",
     "serve": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "metro:wiki": "node scripts/fetchWikiList.mjs",
+    "metro:fetch": "node scripts/fetchMetro.mjs",
+    "metro:geocode": "node scripts/geocodeSystems.mjs",
+    "metro:build": "node scripts/buildGeojson.mjs",
+    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs"
   },
   "dependencies": {
     "lucide-vue-next": "^0.469.0",
