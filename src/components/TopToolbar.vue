@@ -179,7 +179,7 @@ function onAction(item) {
   <header class="toolbar">
     <div class="brand">
       <MapIcon :size="16" />
-      <span class="brand-name">Adapt-Metro GIS</span>
+      <span class="brand-name">Adapt-Metro</span>
     </div>
 
     <MenuDropdown label="Project" :icon="Folder" :items="projectMenu" @action="onAction" />

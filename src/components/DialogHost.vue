@@ -174,7 +174,7 @@ const shortcuts = [
       </div>
       <div class="dialog-body about-body">
         <MapIcon :size="40" class="about-logo" />
-        <h3>Adapt-Metro GIS</h3>
+        <h3>Adapt-Metro</h3>
         <p class="muted">UI prototype v0.1.0 — layout inspired by GeoLibre</p>
         <p class="muted">Vue 3 · Vite · MapLibre GL JS</p>
         <div class="about-links">
