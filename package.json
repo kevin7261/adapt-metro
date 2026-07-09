@@ -15,6 +15,7 @@
     "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs"
   },
   "dependencies": {
+    "dockview-vue": "^7.0.2",
     "lucide-vue-next": "^0.469.0",
     "maplibre-gl": "^5.6.0",
     "pinia": "^3.0.4",

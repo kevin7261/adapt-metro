@@ -114,7 +114,6 @@ export const useMapStore = defineStore('map', {
 
     ui: {
       layerPanelOpen: true,
-      stylePanelOpen: true,
       attributeTable: false,
       commandPalette: false,
       dialog: null, // 'add-data' | 'settings' | 'about' | 'shortcuts' | 'new-project'
@@ -122,49 +121,35 @@ export const useMapStore = defineStore('map', {
     },
 
     layerPanelWidth: 300,
-    stylePanelWidth: 320,
     attributeTableHeight: 260,
 
-    map: {
-      lng: null,
-      lat: null,
-      zoom: 11,
-      bearing: 0,
-      pitch: 0,
-      bounds: null,
-    },
-
+    // Layer of the active editor tab (mirrors the dockview active panel).
     selectedLayerId: 'stations',
 
-    groups: [
-      { id: 'overlays', name: 'Metro network', open: true },
-      { id: 'analysis', name: 'Analysis', open: true },
-      { id: 'basemap', name: 'Basemaps', open: true },
-    ],
-
+    // Flat list — every layer opens as its own editor tab.
     layers: [
       {
-        id: 'stations', group: 'overlays', name: 'metro_stations', type: 'point',
+        id: 'stations', name: 'metro_stations', type: 'point',
         visible: true, opacity: 1, color: '#f59e0b', strokeColor: '#ffffff',
         strokeWidth: 1.5, radius: 5, symbology: 'single', featureCount: 8,
       },
       {
-        id: 'lines', group: 'overlays', name: 'metro_lines', type: 'line',
+        id: 'lines', name: 'metro_lines', type: 'line',
         visible: true, opacity: 1, color: '#d90023', strokeColor: '#d90023',
         strokeWidth: 3, symbology: 'categorized', featureCount: 2,
       },
       {
-        id: 'catchment', group: 'analysis', name: 'station_catchment_800m', type: 'polygon',
+        id: 'catchment', name: 'station_catchment_800m', type: 'polygon',
         visible: true, opacity: 0.35, color: '#3b82f6', strokeColor: '#2563eb',
         strokeWidth: 1, symbology: 'single', featureCount: 8,
       },
       {
-        id: 'flood', group: 'analysis', name: 'flood_risk_zones', type: 'polygon',
-        visible: false, opacity: 0.4, color: '#06b6d4', strokeColor: '#0891b2',
+        id: 'flood', name: 'flood_risk_zones', type: 'polygon',
+        visible: true, opacity: 0.4, color: '#06b6d4', strokeColor: '#0891b2',
         strokeWidth: 1, symbology: 'graduated', featureCount: 14,
       },
       {
-        id: 'basemap', group: 'basemap', name: 'OpenFreeMap Liberty', type: 'raster',
+        id: 'basemap', name: 'OpenFreeMap Liberty', type: 'raster',
         visible: true, opacity: 1, symbology: null, featureCount: null, isBasemap: true,
       },
     ],
@@ -180,7 +165,6 @@ export const useMapStore = defineStore('map', {
     allLayersVisible(state) {
       return state.layers.every((l) => l.visible)
     },
-    layersInGroup: (state) => (groupId) => state.layers.filter((l) => l.group === groupId),
   },
 
   actions: {

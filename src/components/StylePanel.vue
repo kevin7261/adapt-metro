@@ -3,9 +3,15 @@ import { ref, computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { PanelRightClose, PanelRightOpen, SlidersHorizontal } from 'lucide-vue-next'
 
+// The layer this tab edits — passed in by LayerTab.
+const props = defineProps({ layer: { type: Object, required: true } })
+
 const store = useMapStore()
 
-const layer = computed(() => store.selectedLayer)
+const open = ref(true)
+const width = ref(300)
+
+const layer = computed(() => props.layer)
 const editable = computed(() => layer.value && !layer.value.isBasemap)
 
 /* ---- resize ---- */
@@ -13,9 +19,9 @@ const dragging = ref(false)
 function startResize(e) {
   dragging.value = true
   const startX = e.clientX
-  const startW = store.stylePanelWidth
+  const startW = width.value
   const move = (ev) => {
-    store.stylePanelWidth = Math.min(560, Math.max(180, startW - (ev.clientX - startX)))
+    width.value = Math.min(560, Math.max(180, startW - (ev.clientX - startX)))
   }
   const up = () => {
     dragging.value = false
@@ -29,8 +35,8 @@ function startResize(e) {
 
 <template>
   <!-- Collapsed rail -->
-  <aside v-if="!store.ui.stylePanelOpen" class="rail" aria-label="Style (collapsed)">
-    <button class="btn-icon" title="Expand style panel" @click="store.ui.stylePanelOpen = true">
+  <aside v-if="!open" class="rail" aria-label="Style (collapsed)">
+    <button class="btn-icon" title="Expand style panel" @click="open = true">
       <PanelRightOpen :size="15" />
     </button>
     <SlidersHorizontal :size="14" class="rail-icon" />
@@ -46,17 +52,15 @@ function startResize(e) {
       @pointerdown="startResize"
     />
 
-    <aside class="style-panel" aria-label="Layer style" :style="{ width: store.stylePanelWidth + 'px' }">
+    <aside class="style-panel" aria-label="Layer style" :style="{ width: width + 'px' }">
       <div class="panel-header">
         <span class="panel-title">Style</span>
-        <button class="btn-icon" title="Collapse panel" @click="store.ui.stylePanelOpen = false">
+        <button class="btn-icon" title="Collapse panel" @click="open = false">
           <PanelRightClose :size="14" />
         </button>
       </div>
 
-      <div v-if="!layer" class="empty">Select a layer to edit its style.</div>
-
-      <div v-else class="style-body">
+      <div class="style-body">
         <div class="layer-heading">
           <span class="layer-name">{{ layer.name }}</span>
           <span class="layer-type">{{ layer.type }}</span>
@@ -158,12 +162,6 @@ function startResize(e) {
   font-size: 11px;
   color: hsl(var(--muted-foreground));
 }
-.empty {
-  padding: 24px 16px;
-  font-size: 12.5px;
-  color: hsl(var(--muted-foreground));
-  text-align: center;
-}
 .style-body { flex: 1; overflow-y: auto; padding: 12px; }
 .layer-heading {
   display: flex;
@@ -206,8 +204,5 @@ function startResize(e) {
   border-top: 1px solid hsl(var(--border));
   padding-top: 12px;
   margin: 4px 0 10px;
-}
-@media (max-width: 768px) {
-  .style-panel { position: absolute; z-index: 50; top: 0; bottom: 0; right: 0; }
 }
 </style>

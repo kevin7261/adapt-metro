@@ -3,10 +3,8 @@ import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { useMapStore } from './stores/mapStore'
 import TopToolbar from './components/TopToolbar.vue'
 import LayerPanel from './components/LayerPanel.vue'
-import StylePanel from './components/StylePanel.vue'
-import MapView from './components/MapView.vue'
+import EditorArea from './components/EditorArea.vue'
 import AttributeTable from './components/AttributeTable.vue'
-import StatusBar from './components/StatusBar.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import DialogHost from './components/DialogHost.vue'
 
@@ -51,12 +49,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     <div class="workspace">
       <LayerPanel />
       <main class="map-main">
-        <MapView />
+        <EditorArea />
       </main>
-      <StylePanel />
     </div>
     <AttributeTable v-if="store.ui.attributeTable" />
-    <StatusBar />
 
     <CommandPalette v-if="store.ui.commandPalette" />
     <DialogHost />

@@ -4,7 +4,7 @@ import { mapHandle } from '../stores/mapHandle'
 import MenuDropdown from './MenuDropdown.vue'
 import {
   Map as MapIcon, Folder, FilePen, Eye, Database, Wrench, SlidersHorizontal,
-  Puzzle, Settings, CircleHelp, Sun, Moon,
+  Settings, CircleHelp, Sun, Moon,
   FilePlus2, FolderOpen, Save, Share2, FileDown, Printer, BookOpen,
   Undo2, Redo2, ZoomIn, ZoomOut, Compass, Crosshair, Grid2x2,
   FileJson, FileArchive, Layers2, Globe, Server, Boxes, Mountain,
@@ -141,15 +141,6 @@ const controlsMenu = [
   { label: 'Record Map Tour…' },
 ]
 
-const pluginsMenu = [
-  { label: 'Manage Plugins…', icon: Puzzle },
-  { type: 'separator' },
-  { label: 'Basemap Picker' },
-  { label: 'Overture Maps' },
-  { label: 'Planetary Computer' },
-  { label: 'Earth Engine' },
-]
-
 const helpMenu = [
   { label: 'Command Palette', icon: CommandIcon, shortcut: '⌘K', action: 'command-palette' },
   { label: 'Keyboard Shortcuts', icon: Keyboard, shortcut: '?', action: 'shortcuts' },
@@ -191,7 +182,6 @@ function onAction(item) {
     <MenuDropdown label="Add Data" :icon="Database" :items="addDataMenu" @action="onAction" />
     <MenuDropdown label="Processing" :icon="Wrench" :items="processingMenu" @action="onAction" />
     <MenuDropdown label="Controls" :icon="SlidersHorizontal" :items="controlsMenu" @action="onAction" />
-    <MenuDropdown label="Plugins" :icon="Puzzle" :items="pluginsMenu" @action="onAction" />
     <button class="btn-ghost" title="Settings" @click="store.ui.dialog = 'settings'">
       <Settings :size="14" />
     </button>

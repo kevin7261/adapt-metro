@@ -3,15 +3,18 @@ import { computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { Bug } from 'lucide-vue-next'
 
+// Per-tab view state ({ lng, lat, zoom, bearing, pitch, bounds }) from LayerTab.
+const props = defineProps({ view: { type: Object, required: true } })
+
 const store = useMapStore()
 
 const coords = computed(() => {
-  const { lng, lat } = store.map
+  const { lng, lat } = props.view
   if (lng == null || lat == null) return '—'
   return `${lng.toFixed(5)}, ${lat.toFixed(5)}`
 })
 const bbox = computed(() => {
-  const b = store.map.bounds
+  const b = props.view.bounds
   if (!b) return '—'
   return b.map((v) => v.toFixed(4)).join(', ')
 })
@@ -20,9 +23,9 @@ const bbox = computed(() => {
 <template>
   <footer class="status-bar">
     <span>Coords: {{ coords }}</span>
-    <span>Zoom: {{ store.map.zoom.toFixed(2) }}</span>
-    <span>Bearing: {{ store.map.bearing.toFixed(1) }}°</span>
-    <span>Pitch: {{ store.map.pitch.toFixed(1) }}°</span>
+    <span>Zoom: {{ view.zoom.toFixed(2) }}</span>
+    <span>Bearing: {{ view.bearing.toFixed(1) }}°</span>
+    <span>Pitch: {{ view.pitch.toFixed(1) }}°</span>
     <span class="bbox">BBox: {{ bbox }}</span>
     <button class="diag" @click="store.fake('Diagnostics')">
       <Bug :size="12" />

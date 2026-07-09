@@ -131,10 +131,6 @@ const shortcuts = [
           <input v-model="store.ui.layerPanelOpen" type="checkbox" />
         </label>
         <label class="settings-row check">
-          <span>Style panel</span>
-          <input v-model="store.ui.stylePanelOpen" type="checkbox" />
-        </label>
-        <label class="settings-row check">
           <span>Attribute table</span>
           <input v-model="store.ui.attributeTable" type="checkbox" />
         </label>
