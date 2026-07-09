@@ -4,9 +4,13 @@ import maplibregl from 'maplibre-gl'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
+import {
+  BASEMAPS, DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
+  basemapById, basemapGroups, styleFor,
+} from '../stores/basemaps'
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
-import { Copy, Crosshair, ZoomIn, ZoomOut } from 'lucide-vue-next'
+import { Copy, Crosshair, ZoomIn, ZoomOut, Layers, Check, TrainFront } from 'lucide-vue-next'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -24,26 +28,30 @@ const loadError = ref(null)
 let map = null
 const disposables = []
 
+// Basemap picker state (bottom-right).
+const basemapId = ref(DEFAULT_BASEMAP)
+const railwayOn = ref(false)
+const basemapMenuOpen = ref(false)
+const groups = basemapGroups()
+const currentBasemap = computed(() => basemapById(basemapId.value))
+
 // Per-tab view state feeding this tab's footer.
 const view = reactive({ lng: null, lat: null, zoom: 1.5, bearing: 0, pitch: 0, bounds: null })
-
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 
 onMounted(() => {
   map = new maplibregl.Map({
     container: container.value,
-    style: MAP_STYLE,
+    style: styleFor(basemapById(DEFAULT_BASEMAP)),
     center: [10, 25],
     zoom: 1.5,
-    attributionControl: false,
+    attributionControl: false,  // no on-map copyright overlay (per request)
   })
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
   map.addControl(new maplibregl.FullscreenControl(), 'top-right')
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')
-  map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
 
-  map.on('load', addMetroLayers)
+  map.on('load', () => addMetroLayers(true))
 
   map.on('mousemove', (e) => {
     view.lng = e.lngLat.lng
@@ -67,7 +75,7 @@ onMounted(() => {
     e.preventDefault()
     ctxMenu.value = { x: e.point.x, y: e.point.y, lng: e.lngLat.lng, lat: e.lngLat.lat }
   })
-  map.on('click', () => { ctxMenu.value = null })
+  map.on('click', () => { ctxMenu.value = null; basemapMenuOpen.value = false })
 
   // Station hover popup
   const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
@@ -100,7 +108,7 @@ onMounted(() => {
   disposables.push(panelApi.onDidDimensionsChange(() => map?.resize()))
 })
 
-async function addMetroLayers() {
+async function addMetroLayers(fit) {
   const l = layer.value
   if (!l || l.type !== 'metro') { loading.value = false; return }
 
@@ -120,8 +128,20 @@ async function addMetroLayers() {
   if (!map) return
   loading.value = false
 
-  map.addSource('metro', { type: 'geojson', data })
+  addMetroSourceLayers(data)
+  if (railwayOn.value) addRailwayLayer()
 
+  if (fit) {
+    const bbox = boundsOfGeojson(data)
+    if (bbox) map.fitBounds(bbox, { padding: 48, duration: 0, maxZoom: 13 })
+  }
+}
+
+// Add the metro source + line/station layers (idempotent; re-run after setStyle).
+function addMetroSourceLayers(data) {
+  const l = layer.value
+  if (!map || map.getSource('metro')) return
+  map.addSource('metro', { type: 'geojson', data })
   map.addLayer({
     id: 'metro-lines', source: 'metro', type: 'line',
     filter: ['==', ['geometry-type'], 'LineString'],
@@ -144,11 +164,41 @@ async function addMetroLayers() {
       'circle-stroke-opacity': l.opacity,
     },
   })
-
-  const bbox = boundsOfGeojson(data)
-  if (bbox) map.fitBounds(bbox, { padding: 48, duration: 0, maxZoom: 13 })
-
   applyLayerState()
+}
+
+/* ---- basemap + OpenRailwayMap overlay ---- */
+function addRailwayLayer() {
+  if (!map || map.getSource('railway')) return
+  map.addSource('railway', { type: 'raster', tiles: RAILWAY_OVERLAY.tiles, tileSize: 256 })
+  // Keep the railway overlay below the metro data so our lines stay on top.
+  const before = map.getLayer('metro-lines') ? 'metro-lines' : undefined
+  map.addLayer({ id: 'railway', type: 'raster', source: 'railway',
+    paint: { 'raster-opacity': 0.9 } }, before)
+}
+function removeRailwayLayer() {
+  if (map?.getLayer('railway')) map.removeLayer('railway')
+  if (map?.getSource('railway')) map.removeSource('railway')
+}
+function setRailway(on) {
+  railwayOn.value = on
+  if (!map) return
+  if (on) addRailwayLayer(); else removeRailwayLayer()
+}
+
+function setBasemap(id) {
+  const bm = basemapById(id)
+  if (bm.needsToken && !MAPBOX_ENABLED) return
+  basemapId.value = id
+  basemapMenuOpen.value = false
+  if (!map) return
+  // setStyle wipes all sources/layers — re-add our overlays once the new style loads.
+  map.setStyle(styleFor(bm))
+  map.once('style.load', () => {
+    const l = layer.value
+    if (l?.type === 'metro' && layerData[l.id]) addMetroSourceLayers(layerData[l.id])
+    if (railwayOn.value) addRailwayLayer()
+  })
 }
 
 function applyLayerState() {
@@ -199,8 +249,13 @@ onBeforeUnmount(() => {
       <div class="tab-map">
         <div ref="container" class="map-container" />
 
-        <div v-if="loading" class="map-overlay">載入 metro map…</div>
-        <div v-else-if="loadError" class="map-overlay error">{{ loadError }}</div>
+        <div v-if="loading" class="map-loading">
+          <div class="spinner" />
+          <span>載入 {{ layer?.city ?? '' }} metro map…</span>
+        </div>
+        <div v-else-if="loadError" class="map-loading error">
+          <span>{{ loadError }}</span>
+        </div>
 
         <div
           v-if="ctxMenu"
@@ -223,6 +278,46 @@ onBeforeUnmount(() => {
           <button class="menu-item" @click="ctxZoom(-1)">
             <ZoomOut :size="14" /> Zoom out here
           </button>
+        </div>
+
+        <!-- Basemap picker (bottom-right) -->
+        <div class="basemap-control" @click.stop>
+          <button
+            class="basemap-btn"
+            :class="{ active: basemapMenuOpen }"
+            title="Basemaps"
+            @click="basemapMenuOpen = !basemapMenuOpen"
+          >
+            <Layers :size="16" />
+          </button>
+          <div v-if="basemapMenuOpen" class="menu-pop basemap-menu">
+            <div class="bm-current">{{ currentBasemap.label }}</div>
+            <div class="bm-scroll">
+              <template v-for="grp in groups" :key="grp.group">
+                <div class="menu-label">{{ grp.group }}</div>
+                <button
+                  v-for="b in grp.items"
+                  :key="b.id"
+                  class="bm-item"
+                  :class="{ active: basemapId === b.id }"
+                  :disabled="b.needsToken && !MAPBOX_ENABLED"
+                  @click="setBasemap(b.id)"
+                >
+                  <Check v-if="basemapId === b.id" :size="13" class="bm-check" />
+                  <span v-else class="bm-check-spacer" />
+                  <span class="bm-label">{{ b.label }}</span>
+                  <span v-if="b.needsToken && !MAPBOX_ENABLED" class="bm-note">需 token</span>
+                </button>
+              </template>
+            </div>
+            <div class="menu-sep" />
+            <label class="bm-overlay">
+              <input type="checkbox" :checked="railwayOn"
+                @change="setRailway($event.target.checked)" />
+              <TrainFront :size="14" />
+              <span>OpenRailwayMap 鐵路圖層</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -254,21 +349,30 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 .map-container { position: absolute; inset: 0; }
-.map-overlay {
+.map-loading {
   position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 0;
   z-index: 5;
-  background: hsl(var(--popover) / 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: hsl(var(--background) / 0.75);
+  backdrop-filter: blur(2px);
   color: hsl(var(--muted-foreground));
-  border: 1px solid hsl(var(--border));
-  border-radius: 999px;
-  padding: 5px 14px;
-  font-size: 12px;
-  white-space: nowrap;
+  font-size: 13px;
 }
-.map-overlay.error { color: hsl(var(--destructive)); }
+.map-loading.error { color: hsl(var(--destructive)); }
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid hsl(var(--border));
+  border-top-color: hsl(var(--primary));
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .ctx-menu { min-width: 200px; }
 .ctx-coords {
   padding: 6px 8px 2px;

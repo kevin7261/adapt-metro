@@ -5,8 +5,8 @@ import { Layers } from 'lucide-vue-next'
 <template>
   <div class="watermark">
     <Layers :size="28" class="wm-icon" />
-    <p>從左側 Layers 面板點選圖層來開啟分頁</p>
-    <p class="hint">分頁可拖曳併排、堆疊，像 IDE 一樣自由排版</p>
+    <p>點上方「Import Metro Map」匯入城市地鐵圖層</p>
+    <p class="hint">匯入後從左側 Layers 點選開啟分頁 — 分頁可拖曳併排、堆疊</p>
   </div>
 </template>
 

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
+import { layerData } from '../stores/layerData'
 import {
   TableProperties, X, Filter, Download, Sigma, BarChart3,
   ArrowUp, ArrowDown, ZoomIn,
@@ -9,25 +10,34 @@ import {
 
 const store = useMapStore()
 
-const columns = ['fid', 'name', 'line', 'ridership', 'status']
+const columns = ['station_name', 'station_name_local', 'network', 'lines', 'city']
 const filter = ref('')
-const sortBy = ref('fid')
+const sortBy = ref('station_name')
 const sortDir = ref(1)
 const selectedRow = ref(null)
 
+// Stations of the active tab's metro layer (loaded lazily by its LayerTab).
+const stations = computed(() => {
+  const layer = store.selectedLayer
+  const data = layer && layerData[layer.id]
+  if (!data) return []
+  return data.features.filter((f) => f.geometry.type === 'Point')
+})
+
 const rows = computed(() => {
-  let r = store.demoData.stations.features.map((f) => ({
+  let r = stations.value.map((f) => ({
     ...f.properties,
+    lines: Array.isArray(f.properties.lines) ? f.properties.lines.join(', ') : f.properties.lines,
     _coords: f.geometry.coordinates,
   }))
   const q = filter.value.trim().toLowerCase()
   if (q) {
     r = r.filter((row) =>
-      columns.some((c) => String(row[c]).toLowerCase().includes(q)),
+      columns.some((c) => String(row[c] ?? '').toLowerCase().includes(q)),
     )
   }
   return [...r].sort((a, b) => {
-    const va = a[sortBy.value], vb = b[sortBy.value]
+    const va = a[sortBy.value] ?? '', vb = b[sortBy.value] ?? ''
     return (va > vb ? 1 : va < vb ? -1 : 0) * sortDir.value
   })
 })
@@ -38,7 +48,7 @@ function sort(col) {
 }
 
 function zoomToRow(row) {
-  selectedRow.value = row.fid
+  selectedRow.value = row.station_id
   mapHandle.map?.flyTo({ center: row._coords, zoom: 14 })
 }
 
@@ -73,7 +83,9 @@ function startResize(e) {
     <div class="attr-header">
       <TableProperties :size="14" class="hdr-icon" />
       <span class="attr-title">Attribute table</span>
-      <span class="attr-meta">metro_stations — {{ rows.length }} / 8 features</span>
+      <span class="attr-meta">
+        {{ store.selectedLayer?.name ?? '—' }} — {{ rows.length }} / {{ stations.length }} stations
+      </span>
 
       <div class="attr-actions">
         <div class="filter-wrap">
@@ -112,18 +124,16 @@ function startResize(e) {
         <tbody>
           <tr
             v-for="row in rows"
-            :key="row.fid"
-            :class="{ selected: selectedRow === row.fid }"
-            @click="selectedRow = row.fid"
+            :key="row.station_id"
+            :class="{ selected: selectedRow === row.station_id }"
+            @click="selectedRow = row.station_id"
           >
             <td class="row-action-col">
               <button class="btn-icon zoom-btn" title="Zoom to feature" @click.stop="zoomToRow(row)">
                 <ZoomIn :size="12" />
               </button>
             </td>
-            <td v-for="col in columns" :key="col">
-              {{ col === 'ridership' ? Number(row[col]).toLocaleString() : row[col] }}
-            </td>
+            <td v-for="col in columns" :key="col">{{ row[col] ?? '—' }}</td>
           </tr>
         </tbody>
       </table>

@@ -3,18 +3,19 @@ import { ref, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab } from '../stores/dockHandle'
+import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
   Map as MapIcon, PenTool, Eye, EyeOff, PanelLeftClose, PanelLeftOpen,
   GripVertical, MoreHorizontal,
   ZoomIn, Palette, TableProperties, RefreshCw, Download, Trash2,
-  Circle, Spline, Hexagon, Image as ImageIcon,
+  Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
 
 const menuFor = ref(null)
 
-const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon }
+const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront }
 
 // Click a layer → open (or focus) its editor tab, like opening a file in an IDE.
 function openLayer(layer) {
@@ -31,7 +32,9 @@ function overflow(layer, action) {
   menuFor.value = null
   if (action === 'zoom') {
     openLayer(layer)
-    mapHandle.map?.flyTo({ center: [121.5405, 25.0430], zoom: 11.5 })
+    const data = layerData[layer.id]
+    const bbox = data && boundsOfGeojson(data)
+    if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
   } else if (action === 'style') {
     openLayer(layer)
   } else if (action === 'table') {
