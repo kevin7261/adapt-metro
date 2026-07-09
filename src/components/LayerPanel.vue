@@ -128,7 +128,7 @@ onBeforeUnmount(() => { dragging.value = false })
                 class="type-icon"
                 :style="layer.color ? { color: layer.color } : {}"
               />
-              <span class="layer-name" :class="{ hidden-layer: !layer.visible }">{{ layer.name }}</span>
+              <span class="layer-name" :class="{ 'hidden-layer': !layer.visible }">{{ layer.name }}</span>
 
               <div class="row-menu-wrap" @click.stop>
                 <button

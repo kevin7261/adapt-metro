@@ -119,9 +119,9 @@ const LAYER_MAP = {
 }
 
 function applyLayerState(layer) {
-  if (!map || !map.isStyleLoaded()) return
+  if (!map) return
   const ids = LAYER_MAP[layer.id]
-  if (!ids) return
+  if (!ids || !map.getLayer(ids[0])) return
   for (const id of ids) {
     if (!map.getLayer(id)) continue
     map.setLayoutProperty(id, 'visibility', layer.visible ? 'visible' : 'none')
