@@ -12,6 +12,7 @@
     "metro:fetch": "node scripts/fetchMetro.mjs",
     "metro:geocode": "node scripts/geocodeSystems.mjs",
     "metro:build": "node scripts/buildGeojson.mjs",
+    "metro:maps": "node scripts/downloadMaps.mjs",
     "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs"
   },
   "dependencies": {

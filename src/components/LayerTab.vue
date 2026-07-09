@@ -3,6 +3,7 @@ import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import maplibregl from 'maplibre-gl'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
+import { layerData, boundsOfGeojson } from '../stores/layerData'
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
 import { Copy, Crosshair, ZoomIn, ZoomOut } from 'lucide-vue-next'
@@ -18,28 +19,22 @@ const layer = computed(() => store.layers.find((l) => l.id === layerId) ?? null)
 
 const container = ref(null)
 const ctxMenu = ref(null) // { x, y, lng, lat }
+const loading = ref(true)
+const loadError = ref(null)
 let map = null
 const disposables = []
 
 // Per-tab view state feeding this tab's footer.
-const view = reactive({ lng: null, lat: null, zoom: 11.2, bearing: 0, pitch: 0, bounds: null })
+const view = reactive({ lng: null, lat: null, zoom: 1.5, bearing: 0, pitch: 0, bounds: null })
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
-
-// Map store layer ids → maplibre layer ids inside this tab
-const LAYER_MAP = {
-  stations: ['stations-circle'],
-  lines: ['lines-line'],
-  catchment: ['catchment-fill', 'catchment-outline'],
-  flood: ['flood-fill', 'flood-outline'],
-}
 
 onMounted(() => {
   map = new maplibregl.Map({
     container: container.value,
     style: MAP_STYLE,
-    center: [121.5405, 25.0430],
-    zoom: 11.2,
+    center: [10, 25],
+    zoom: 1.5,
     attributionControl: false,
   })
 
@@ -48,7 +43,7 @@ onMounted(() => {
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')
   map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
 
-  map.on('load', addLayerData)
+  map.on('load', addMetroLayers)
 
   map.on('mousemove', (e) => {
     view.lng = e.lngLat.lng
@@ -74,22 +69,24 @@ onMounted(() => {
   })
   map.on('click', () => { ctxMenu.value = null })
 
-  // Station hover popup (only meaningful in the stations tab)
-  if (layerId === 'stations') {
-    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
-    map.on('mouseenter', 'stations-circle', (e) => {
-      map.getCanvas().style.cursor = 'pointer'
-      const p = e.features[0].properties
-      popup
-        .setLngLat(e.features[0].geometry.coordinates)
-        .setHTML(`<strong>${p.name}</strong><br/>Line: ${p.line}<br/>Ridership: ${Number(p.ridership).toLocaleString()}`)
-        .addTo(map)
-    })
-    map.on('mouseleave', 'stations-circle', () => {
-      map.getCanvas().style.cursor = ''
-      popup.remove()
-    })
-  }
+  // Station hover popup
+  const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
+  map.on('mouseenter', 'metro-stations', (e) => {
+    map.getCanvas().style.cursor = 'pointer'
+    const p = e.features[0].properties
+    const local = p.station_name_local && p.station_name_local !== p.station_name
+      ? `<br/>${p.station_name_local}` : ''
+    const lines = p.lines && p.lines !== '[]'
+      ? `<br/>Lines: ${JSON.parse(p.lines).join(', ')}` : ''
+    popup
+      .setLngLat(e.features[0].geometry.coordinates)
+      .setHTML(`<strong>${p.station_name ?? '—'}</strong>${local}${lines}`)
+      .addTo(map)
+  })
+  map.on('mouseleave', 'metro-stations', () => {
+    map.getCanvas().style.cursor = ''
+    popup.remove()
+  })
 
   // Active tab drives the global map handle (toolbar / palette / attr table actions).
   const setHandle = (active) => {
@@ -103,82 +100,68 @@ onMounted(() => {
   disposables.push(panelApi.onDidDimensionsChange(() => map?.resize()))
 })
 
-function addLayerData() {
-  if (!layer.value || layer.value.isBasemap) return
-  const demoData = store.demoData
+async function addMetroLayers() {
+  const l = layer.value
+  if (!l || l.type !== 'metro') { loading.value = false; return }
 
-  if (layerId === 'flood') {
-    map.addSource('flood', { type: 'geojson', data: demoData.flood })
-    map.addLayer({
-      id: 'flood-fill', source: 'flood', type: 'fill',
-      paint: { 'fill-color': '#06b6d4', 'fill-opacity': 0.4 },
-    })
-    map.addLayer({
-      id: 'flood-outline', source: 'flood', type: 'line',
-      paint: { 'line-color': '#0891b2', 'line-width': 1 },
-    })
-  } else if (layerId === 'catchment') {
-    map.addSource('catchment', { type: 'geojson', data: demoData.catchment })
-    map.addLayer({
-      id: 'catchment-fill', source: 'catchment', type: 'fill',
-      paint: { 'fill-color': '#3b82f6', 'fill-opacity': 0.35 },
-    })
-    map.addLayer({
-      id: 'catchment-outline', source: 'catchment', type: 'line',
-      paint: { 'line-color': '#2563eb', 'line-width': 1 },
-    })
-  } else if (layerId === 'lines') {
-    map.addSource('lines', { type: 'geojson', data: demoData.lines })
-    map.addLayer({
-      id: 'lines-line', source: 'lines', type: 'line',
-      layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 1 },
-    })
-  } else if (layerId === 'stations') {
-    map.addSource('stations', { type: 'geojson', data: demoData.stations })
-    map.addLayer({
-      id: 'stations-circle', source: 'stations', type: 'circle',
-      paint: {
-        'circle-radius': 5,
-        'circle-color': '#f59e0b',
-        'circle-stroke-color': '#ffffff',
-        'circle-stroke-width': 1.5,
-        'circle-opacity': 1,
-      },
-    })
+  let data = layerData[l.id]
+  if (!data) {
+    try {
+      const res = await fetch(l.file)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      data = await res.json()
+      layerData[l.id] = data
+    } catch (err) {
+      loading.value = false
+      loadError.value = `無法載入 ${l.file}（${err.message}）`
+      return
+    }
   }
+  if (!map) return
+  loading.value = false
+
+  map.addSource('metro', { type: 'geojson', data })
+
+  map.addLayer({
+    id: 'metro-lines', source: 'metro', type: 'line',
+    filter: ['==', ['geometry-type'], 'LineString'],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
+      'line-color': ['coalesce', ['get', 'route_color'], '#e11d48'],
+      'line-width': l.strokeWidth,
+      'line-opacity': l.opacity,
+    },
+  })
+  map.addLayer({
+    id: 'metro-stations', source: 'metro', type: 'circle',
+    filter: ['==', ['geometry-type'], 'Point'],
+    paint: {
+      'circle-radius': l.radius,
+      'circle-color': '#ffffff',
+      'circle-stroke-color': '#3f3f46',
+      'circle-stroke-width': 1.2,
+      'circle-opacity': l.opacity,
+      'circle-stroke-opacity': l.opacity,
+    },
+  })
+
+  const bbox = boundsOfGeojson(data)
+  if (bbox) map.fitBounds(bbox, { padding: 48, duration: 0, maxZoom: 13 })
 
   applyLayerState()
 }
 
 function applyLayerState() {
   const l = layer.value
-  if (!map || !l) return
-  const ids = LAYER_MAP[l.id]
-  if (!ids || !map.getLayer(ids[0])) return
-  for (const id of ids) {
-    if (!map.getLayer(id)) continue
-    map.setLayoutProperty(id, 'visibility', l.visible ? 'visible' : 'none')
-  }
-  if (l.id === 'stations') {
-    map.setPaintProperty('stations-circle', 'circle-opacity', l.opacity)
-    map.setPaintProperty('stations-circle', 'circle-color', l.color)
-    map.setPaintProperty('stations-circle', 'circle-stroke-color', l.strokeColor)
-    map.setPaintProperty('stations-circle', 'circle-stroke-width', l.strokeWidth)
-    map.setPaintProperty('stations-circle', 'circle-radius', l.radius)
-  } else if (l.id === 'lines') {
-    map.setPaintProperty('lines-line', 'line-opacity', l.opacity)
-    map.setPaintProperty(
-      'lines-line', 'line-color',
-      l.symbology === 'categorized' ? ['get', 'color'] : l.color,
-    )
-    map.setPaintProperty('lines-line', 'line-width', l.strokeWidth)
-  } else if (l.id === 'catchment' || l.id === 'flood') {
-    map.setPaintProperty(`${l.id}-fill`, 'fill-opacity', l.opacity)
-    map.setPaintProperty(`${l.id}-fill`, 'fill-color', l.color)
-    map.setPaintProperty(`${l.id}-outline`, 'line-color', l.strokeColor)
-    map.setPaintProperty(`${l.id}-outline`, 'line-width', l.strokeWidth)
-  }
+  if (!map || !l || !map.getLayer('metro-lines')) return
+  const vis = l.visible ? 'visible' : 'none'
+  map.setLayoutProperty('metro-lines', 'visibility', vis)
+  map.setLayoutProperty('metro-stations', 'visibility', vis)
+  map.setPaintProperty('metro-lines', 'line-opacity', l.opacity)
+  map.setPaintProperty('metro-lines', 'line-width', l.strokeWidth)
+  map.setPaintProperty('metro-stations', 'circle-opacity', l.opacity)
+  map.setPaintProperty('metro-stations', 'circle-stroke-opacity', l.opacity)
+  map.setPaintProperty('metro-stations', 'circle-radius', l.radius)
 }
 
 watch(layer, applyLayerState, { deep: true })
@@ -215,6 +198,9 @@ onBeforeUnmount(() => {
     <div class="tab-body">
       <div class="tab-map">
         <div ref="container" class="map-container" />
+
+        <div v-if="loading" class="map-overlay">載入 metro map…</div>
+        <div v-else-if="loadError" class="map-overlay error">{{ loadError }}</div>
 
         <div
           v-if="ctxMenu"
@@ -268,6 +254,21 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 .map-container { position: absolute; inset: 0; }
+.map-overlay {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: hsl(var(--popover) / 0.9);
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.map-overlay.error { color: hsl(var(--destructive)); }
 .ctx-menu { min-width: 200px; }
 .ctx-coords {
   padding: 6px 8px 2px;

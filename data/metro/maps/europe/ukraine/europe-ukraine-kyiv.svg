@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg2" width="1040" height="770">
+
+<defs id="defs001">
+<style type="text/css">
+text.stbg {font-size:11px;stroke:#ffffff;stroke-width:3;font-family:Manchu,Arial;}
+text.icbg {font-size:11px;stroke:#ffffff;stroke-width:3;font-family:Manchu,Arial;font-weight: bold;}
+text.st {font-size:11px;font-family:Manchu,Arial;}
+text.ic {font-size:11px;font-family:Manchu,Arial;font-weight: bold;}
+</style>
+
+<circle cx="0" cy="0" r="4" style="fill:#ffffff;stroke:#000000;stroke-width:1" id="station"/>
+</defs>
+<rect width="1050" height="1050" x="-6" y="-10" style="fill:#7fc9ee" id="water_bg"/>
+<path style="fill:#eaebed" id="obolon-podil-svyatoshyn-shevchenko-solomyansk-pechersk-holosiiv" d="M -5,-5 L 520,-5 520,330, 460,270 450,270 520,340 620,440 620,530 640,550 640,1040 -5,1040"/>
+<path style="fill:#eaebed" id="trukhaniv_ostriv_map" d="M 570,-5 L 570,340 600,370 600,320 605,315 605,375 640,410 640,-5"/>
+<path style="fill:#eaebed" id="north-island" d="M 660,380 L 670,380 720,430 660,430"/>
+<path style="fill:#eaebed" id="hidropark_map" d="M 655,445 L 720,445 720,540 680,580 680,540 655,512"/>
+<path style="fill:#eaebed" id="desna-dnipro-darnytsia" d="M 660,-5 L 660,350 740,430 740,545 680,605 680,1040 1040,1040 1040,-5"/>
+ <!--#1-->
+<path id="L1_Sviatoshynsko_Brovarska_Line" style="fill:none;stroke:#ff0000;stroke-width:5;stroke-linejoin:round" d="M 40,285 L 40,320 70,350 230,350 270,390 310,430 560,430 615,485 775,485 865,395"/>
+
+ <!--#2-->
+<path id="L2_Kurenivsko_Chervonoarmiiska_Line" style="fill:none;stroke:#0000ff;stroke-width:5;stroke-linejoin:round" d="M 440,105 L 440,320 500,380 500,430 455,475 455,560 425,590 365,650 320,650 275,650 245,680"/>
+
+<path id="L2_Kurenivsko-Chervonoarmiiska_Line_uc_build" style="fill:none;stroke:#0000ff;stroke-width:5;stroke-linejoin:round" d="M 245,680 L 215,710"/>
+
+<path id="L2_Kurenivsko-Chervonoarmiiska_Line_uc_project_1" style="fill:none;stroke:#0000ff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 215,710 L 185,740"/>
+
+<path id="L2_Kurenivsko-Chervonoarmiiska_Line_uc_project_2" style="fill:none;stroke:#0000ff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 245,680 L 145,680"/>
+
+ <!--#3-->
+<path id="L3_Syretsko_Pecherska_Line" style="fill:none;stroke:#00923f;stroke-width:5;stroke-linejoin:round" d="M 260,280 L 410,430 635,655 840,655 930,565"/>
+
+<path id="L3_Syretsko_Pecherska_Line_uc" style="fill:none;stroke:#00923f;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 260,280 L 200,220"/>
+
+<path id="L3_Syretsko_Pecherska_Line_uc_project" style="fill:none;stroke:#00923f;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 930,565 L 790,485"/>
+
+ <!--#4-->
+<path id="L4_Podilsko_Vyhurivska_Line_uc_T" style="fill:none;stroke:#ffa500;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 160,580 L 310,430 310,330 340,300 690,300 770,300 791,281 791,101"/>
+
+<path id="L4_Podilsko_Vyhurivska_Line_uc_V" style="fill:none;stroke:#ffa500;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 790,280 L 840,280 870,250"/>
+
+ <!--#5-->
+<path id="L5_Livoberezhna_Line_uc" style="fill:none;stroke:#00bfff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 790,740 L 790,100"/>
+
+<path id="L5_Livoberezhna_Line_uc_2" style="fill:none;stroke:#00bfff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:2" d="M 775,485 L 790,470"/>
+
+
+
+ <!--#1-->
+<use xlink:href="#station" x="40" y="285" id="O_Akademmistechko"/>
+<use xlink:href="#station" x="40" y="320" id="O_Zhytomyrska"/>
+<use xlink:href="#station" x="70" y="350" id="O_Sviatoshyn"/>
+<use xlink:href="#station" x="120" y="350" id="O_Nyvky"/>
+<use xlink:href="#station" x="180" y="350" id="O_Beresteiska"/>
+<use xlink:href="#station" x="230" y="350" id="O_Shuliavska"/>
+<use xlink:href="#station" x="270" y="390" id="O_Politekhnichnyi_Instytut"/>
+<circle cx="310" cy="430" r="4" style="fill:#ffa500;stroke:#ff0000;stroke-width:2" id="O_Vokzalna_Vokzalna"/>
+<use xlink:href="#station" x="360" y="430" id="O_Universytet"/>
+<circle cx="410" cy="430" r="4" style="fill:#ff0000;stroke:#00923f;stroke-width:2" id="O_Teatralna_Zoloti_vorota"/>
+<circle cx="500" cy="430" r="4" style="fill:#0000ff;stroke:#ff0000;stroke-width:2" id="O_Khreshchatyk_Maidan_Nezalezhnosti"/>
+<use xlink:href="#station" x="560" y="430" id="O_Ahsenalna"/>
+<use xlink:href="#station" x="615" y="485" id="O_Dnipro"/>
+<use xlink:href="#station" x="695" y="485" id="O_Hidropark"/>
+<circle cx="775" cy="485" r="4" style="fill:#ff0000;stroke:#00bfff;stroke-width:2" id="O_Livoberezhna_Brovarskyi_prospekt"/>
+<use xlink:href="#station" x="805" y="455" id="O_Darnytsia"/>
+<use xlink:href="#station" x="835" y="425" id="O_Chernihivska"/>
+<use xlink:href="#station" x="865" y="395" id="O_Lisova"/>
+
+ <!--#2-->
+<use xlink:href="#station" x="440" y="105" id="O_Heroiv_Dnipra"/>
+<use xlink:href="#station" x="440" y="150" id="O_Minska"/>
+<use xlink:href="#station" x="440" y="200" id="O_Obolon"/>
+<use xlink:href="#station" x="440" y="250" id="O_Petrivka"/>
+<circle cx="440" cy="300" r="4" style="fill:#ffa500;stroke:#0000ff;stroke-width:2" id="O_Tarasa_Shevchenka_Podilska"/>
+<use xlink:href="#station" x="470" y="350" id="O_Kontraktova_ploshcha"/>
+<use xlink:href="#station" x="500" y="380" id="O_Poshtova_ploshcha"/>
+<circle cx="455" cy="475" r="4" style="fill:#00923f;stroke:#0000ff;stroke-width:2" id="O_Ploshcha_Lva_Tolstoho_Palats_sportu"/>
+<use xlink:href="#station" x="455" y="520" id="O_Olimpiiska"/>
+<use xlink:href="#station" x="455" y="560" id="O_Palats_Ukraina"/>
+<use xlink:href="#station" x="425" y="590" id="O_Lybidska"/>
+<use xlink:href="#station" x="395" y="620" id="O_Demiivska"/>
+<use xlink:href="#station" x="365" y="650" id="O_Holosiivska"/>
+<use xlink:href="#station" x="320" y="650" id="O_Vasylkivska"/>
+<use xlink:href="#station" x="275" y="650" id="O_Vystavkovyi_tsentr"/>
+<use xlink:href="#station" x="245" y="680" id="O_Ipodrom"/>
+<use xlink:href="#station" x="215" y="710" id="O_Teremky"/>
+<use xlink:href="#station" x="185" y="740" id="O_Odeska"/>
+<use xlink:href="#station" x="195" y="680" id="O_Avtovokzal_Teremky"/>
+<use xlink:href="#station" x="145" y="680" id="O_Vul_Avrory"/>
+
+ <!--#3-->
+<use xlink:href="#station" x="200" y="220" id="O_Synioozerna"/>
+<use xlink:href="#station" x="220" y="240" id="O_Vynohradar"/>
+<use xlink:href="#station" x="240" y="260" id="O_Mostytska"/>
+<use xlink:href="#station" x="260" y="280" id="O_Syrets"/>
+<use xlink:href="#station" x="285" y="305" id="O_Dorohozhychi"/>
+<circle cx="310" cy="330" r="4" style="fill:#00923f;stroke:#ffa500;stroke-width:2" id="O_Lukianivska_Hlybochytska"/>
+<use xlink:href="#station" x="350" y="370" id="O_Lvivska_brama"/>
+<use xlink:href="#station" x="490" y="510" id="O_Klovska"/>
+<use xlink:href="#station" x="525" y="545" id="O_Pecherska"/>
+<use xlink:href="#station" x="560" y="580" id="O_Druzhby_narodiv"/>
+<use xlink:href="#station" x="595" y="615" id="O_Vydubychi"/>
+<use xlink:href="#station" x="635" y="655" id="O_Telychka"/>
+<use xlink:href="#station" x="690" y="655" id="O_Slavutych"/>
+<use xlink:href="#station" x="740" y="655" id="O_Osokorky"/>
+<circle cx="790" cy="655" r="4" style="fill:#00923f;stroke:#00bfff;stroke-width:2" id="O_Pozniaky_Prospekt_Bazhana"/>
+<use xlink:href="#station" x="840" y="655" id="O_Kharkivska"/>
+<use xlink:href="#station" x="870" y="625" id="O_Vyrlytsia"/>
+<use xlink:href="#station" x="900" y="595" id="O_Boryspilska"/>
+<use xlink:href="#station" x="930" y="565" id="O_Chervonyi_khutir"/>
+<use xlink:href="#station" x="902" y="549" id="O_Promyslenna"/>
+<use xlink:href="#station" x="874" y="533" id="O_Vul_Horbunova"/>
+<use xlink:href="#station" x="846" y="517" id="O_Darnytskyi_vokzal"/>
+<use xlink:href="#station" x="818" y="501" id="O_Leninghadska_ploscha"/>
+<circle cx="790" cy="485" r="4" style="fill:#00923f;stroke:#00bfff;stroke-width:2" id="O_Brovarskyi_prospekt_Brovarskyi_prospekt"/>
+
+
+ <!--#4-->
+<use xlink:href="#station" x="160" y="580" id="O_Kiltseva_doroha"/>
+<use xlink:href="#station" x="190" y="550" id="O_Aeroport"/>
+<use xlink:href="#station" x="220" y="520" id="O_Chokolivska"/>
+<use xlink:href="#station" x="250" y="490" id="O_Solomianska_ploshcha"/>
+
+<use xlink:href="#station" x="310" y="392" id="O_Ploshcha_Peremohy"/>
+<use xlink:href="#station" x="505" y="300" id="O_Sudnobudibna"/>
+<use xlink:href="#station" x="600" y="300" id="O_Trukhaniv_ostriv"/>
+<use xlink:href="#station" x="690" y="300" id="O_Zatoka_Desenka"/>
+<use xlink:href="#station" x="750" y="300" id="O_Raiduzhna"/>
+<use xlink:href="#station" x="840" y="280" id="O_Bulvar_Perova"/>
+<use xlink:href="#station" x="870" y="250" id="O_Bratyslavska"/>
+
+
+ <!--#5-->
+<use xlink:href="#station" x="790" y="100" id="O_Vulytsia_Myloslavska"/>
+<use xlink:href="#station" x="790" y="130" id="O_Vulytsia_Tsvetaevoi"/>
+<use xlink:href="#station" x="790" y="160" id="O_Vulytsia_Saburova"/>
+<use xlink:href="#station" x="790" y="190" id="O_Vulytsia_T_Draizera"/>
+<use xlink:href="#station" x="790" y="220" id="O_Vulytsia_Kashtanova"/>
+<use xlink:href="#station" x="790" y="250" id="O_Prospekt_Vatutina"/>
+<use xlink:href="#station" x="790" y="325" id="O_Horodnia"/>
+<use xlink:href="#station" x="790" y="370" id="O_Dniprovska"/>
+<use xlink:href="#station" x="790" y="520" id="O_Prospekt_Vozziednannia"/>
+<use xlink:href="#station" x="790" y="555" id="O_Berezniaky"/>
+<use xlink:href="#station" x="790" y="585" id="O_Vul_Zdolbunivska"/>
+<use xlink:href="#station" x="790" y="620" id="O_Vul_A_Akhmatovoi"/>
+<use xlink:href="#station" x="790" y="690" id="O_Vul_Kolektorna"/>
+<use xlink:href="#station" x="790" y="715" id="O_Osokorky-Tsentralni"/>
+<use xlink:href="#station" x="790" y="740" id="O_Osokorky-Pivdenni"/>
+
+
+<defs id="def2">
+<text id="stname">
+
+ <!--#1-->
+<tspan x="37" y="272" style="font-weight:bold">1</tspan>
+<tspan x="50" y="288" id="Akademmistechko">Akademmistechko</tspan>
+<tspan x="50" y="323" id="Zhytomyrska">Zhytomyrska</tspan>
+<tspan x="20" y="367" id="Sviatoshyn">Sviatoshyn</tspan>
+<tspan x="104" y="367" id="Nyvky">Nyvky</tspan>
+<tspan x="145" y="367" id="Beresteiska">Beresteiska</tspan>
+<tspan x="240" y="353" id="Shuliavska">Shuliavska</tspan>
+<tspan x="168" y="403" id="Politekhnichnyi_instytut">Politekhnichnyi</tspan>
+<tspan x="208" y="413" id="Politekhnichnyi_instytut">Instytut</tspan>
+<tspan x="243" y="433" id="Vokzalna" fill="red">Vokzalna</tspan>
+<tspan x="317" y="420" id="Universytet">Universytet</tspan>
+<tspan x="410" y="420" id="Teatralna" fill="red">Teatralna</tspan>
+<tspan x="493" y="450" id="Khreschatyk" fill="red">Khreshchatyk</tspan>
+<tspan x="573" y="435" id="Arsenalna">Arsenalna</tspan>
+<tspan x="580" y="502" id="Dnipro">Dnipro</tspan>
+<tspan x="665" y="502" id="Hidropark">Hidropark</tspan>
+<tspan x="697" y="475" id="Livoberezhna" fill="red">Livoberezhna</tspan>
+<tspan x="815" y="462" id="Darnytsia">Darnytsia</tspan>
+<tspan x="845" y="432" id="Chernihivska">Chernihivska</tspan>
+<tspan x="875" y="402" id="Lisova">Lisova</tspan>
+<tspan x="870" y="385" style="font-weight:bold">1</tspan>
+
+ <!--#2-->
+<tspan x="437" y="93" style="font-weight:bold">2</tspan>
+<tspan x="448" y="108" id="Heroiv_Dnipra">Heroiv Dnipra</tspan>
+<tspan x="448" y="153" id="Minska">Minska</tspan>
+<tspan x="448" y="203" id="Obolon">Obolon</tspan>
+<tspan x="448" y="253" id="Petrivka">Petrivka</tspan>
+<tspan x="448" y="320" id="Tarasa_Shevchenka" fill="blue">Tarasa Shevchenka</tspan>
+<tspan x="480" y="353" id="Kontraktova_ploscha">Kontraktova Ploshcha</tspan>
+<tspan x="509" y="383" id="Poshtova_ploscha">Poshtova Ploshcha</tspan>
+<tspan x="509" y="419" id="Maidan_Nezalezhnosti" fill="blue">Maidan Nezalezhnosti</tspan>
+<tspan x="388" y="477" id="Ploscha_Lva_Tolstoho" fill="blue">Ploshcha</tspan>
+<tspan x="363" y="487" id="Ploscha_Lva_Tolstoho" fill="blue">Lva Tolstoho</tspan>
+<tspan x="378" y="523" id="Olimpiiska">Olimpiiska</tspan>
+<tspan x="395" y="556" id="Palats_Ukraina">Palats</tspan>
+<tspan x="383" y="566" id="Palats_Ukraina">"Ukraina"</tspan>
+<tspan x="435" y="601" id="Lybidska">Lybidska</tspan>
+<tspan x="405" y="631" id="Demiivska">Demiivska</tspan>
+<tspan x="375" y="661" id="Holosiivska">Holosiivska</tspan>
+<tspan x="285" y="667" id="Vasylkivska">Vasylkivska</tspan>
+<tspan x="185" y="639" id="Vystavkovyi_tsentr">Vystavkovyi Tsentr</tspan>
+<tspan x="255" y="685" id="Ipodrom">Ipodrom</tspan>
+<tspan x="225" y="715" id="Teremky">Teremky</tspan>
+<tspan x="195" y="745" id="Odeska" fill="#727272">Odeska</tspan>
+<tspan x="170" y="661" id="Avtovokzal_Teremky" fill="#727272">Avtovokzal</tspan>
+<tspan x="173" y="671" id="Avtovokzal_Teremky" fill="#727272">"Teremky"</tspan>
+<tspan x="95" y="697" id="Vul_Avrory" fill="#727272">Vulytsia Kreisera</tspan>
+<tspan x="115" y="707" id="Vul_Avrory" fill="#727272">"Avrora"</tspan>
+<tspan x="180" y="760" style="font-weight:bold">2</tspan>
+
+<!--#3-->
+<tspan x="185" y="223" style="font-weight:bold">3</tspan>
+<tspan x="213" y="223" id="Synioozerna" fill="#727272">Synioozerna</tspan>
+<tspan x="233" y="243" id="Vynohradar" fill="#727272">Vynohradar</tspan>
+<tspan x="253" y="263" id="Mostytska" fill="#727272">Mostytska</tspan>
+<tspan x="210" y="290" id="Syrets">Syrets</tspan>
+<tspan x="193" y="315" id="Dorohozhychi">Dorohozhychi</tspan>
+<tspan x="323" y="333" id="Lukianivska" fill="#00923F">Lukianivska</tspan>
+<tspan x="360" y="373" id="Lvivska_brama" fill="#727272">Lvivska Brama</tspan>
+<tspan x="370" y="450" id="Zoloti_vorota" fill="#00923F">Zoloti</tspan>
+<tspan x="370" y="460" id="Zoloti_vorota" fill="#00923F">Vorota</tspan>
+<tspan x="468" y="478" id="Palats_sportu" fill="#00923F">Palats Sportu</tspan>
+<tspan x="500" y="505" id="Klovska">Klovska</tspan>
+<tspan x="535" y="543" id="Pecherska">Pecherska</tspan>
+<tspan x="570" y="578" id="Druzhby_narodiv">Druzhby Narodiv</tspan>
+<tspan x="605" y="613" id="Vydubychi">Vydubychi</tspan>
+<tspan x="587" y="672" id="Telychka" fill="#727272">Telychka</tspan>
+<tspan x="665" y="672" id="Slavutych">Slavutych</tspan>
+<tspan x="715" y="645" id="Osokorky">Osokorky</tspan>
+<tspan x="795" y="645" id="Pozniaky" fill="#00923F">Pozniaky</tspan>
+<tspan x="852" y="660" id="Kharkivska">Kharkivska</tspan>
+<tspan x="878" y="635" id="Vyrlytsia">Vyrlytsia</tspan>
+<tspan x="908" y="605" id="Boryspilska">Boryspilska</tspan>
+<tspan x="935" y="578" id="Chervony_khutir">Chervony Khutir</tspan>
+<tspan x="915" y="550" id="Promyslenna" fill="#727272">Promyslova</tspan>
+<tspan x="887" y="534" id="Vul_Horbunova" fill="#727272">Vulytsia Horbunova</tspan>
+<tspan x="859" y="514" id="Darnytskyi_vokzal" fill="#727272">Darnytskyi Vokzal</tspan>
+<tspan x="831" y="501" id="Leninhadska_ploscha" fill="#727272">Leninhradska Ploshcha</tspan>
+
+<!--<tspan x="932" y="553" style="font-weight:bold">3</tspan>-->
+
+ <!--#4-->
+<tspan x="155" y="598" style="font-weight:bold">4</tspan>
+<tspan x="170" y="588" id="Kiltseva_doroha" fill="#727272"> Kiltseva Doroha</tspan>
+<tspan x="200" y="558" id="Aeroport" fill="#727272">Aeroport</tspan>
+<tspan x="230" y="528" id="Chokolivska" fill="#727272">Chokolivska</tspan>
+<tspan x="260" y="498" id="Solomianska_ploscha" fill="#727272">Solomianska</tspan>
+<tspan x="260" y="508" id="Solomianska_ploscha" fill="#727272">Ploshcha</tspan>
+<!--<tspan x="232" y="443" id="Vokzalna_2" fill="#727272">Vokzalna-2</tspan>-->
+<tspan x="317" y="397" id="Ploshcha_Peremohy" fill="#727272">Ploshcha Peremohy</tspan>
+<tspan x="219" y="333" id="Hlybochytska" fill="#727272">Hlybochytska</tspan>
+<tspan x="375" y="290" id="Podilska" fill="#727272">Podilska</tspan>
+<tspan x="462" y="290" id="Sudnobudivna" fill="#727272">Sudnobudivna</tspan>
+<tspan x="568" y="290" id="Trukhaniv_ostriv" fill="#727272">Trukhaniv Ostriv</tspan>
+<tspan x="657" y="317" id="Zatoka_Desenka" fill="#727272">Zatoka Desenka</tspan>
+<tspan x="710" y="290" id="Raiduzhna" fill="#727272">Raiduzhna</tspan>
+<tspan x="842" y="297" id="Bulvar_Perova" fill="#727272">Bulvar Perova</tspan>
+<tspan x="879" y="253" id="Bratyslavska" fill="#727272">Bratyslavska</tspan>
+<tspan x="880" y="235" style="font-weight:bold">4</tspan>
+
+
+ <!--#5-->
+<tspan x="788" y="88" style="font-weight:bold">5</tspan>
+<tspan x="798" y="102" id="Vulytsia_Myloslavska" fill="#727272">Vulytsia Myloslavska</tspan>
+<tspan x="798" y="132" id="Vulytsia_Tsvetaevoi" fill="#727272">Vulytsia Tsvietaievoi</tspan>
+<tspan x="798" y="162" id="Vulytsia_Saburova" fill="#727272">Vulytsia Saburova</tspan>
+<tspan x="798" y="192" id="Vulytsia_T_Draizera" fill="#727272">Vulytsia Teodora Draizera</tspan>
+<tspan x="726" y="217" id="Vulytsia_Kashtanova" fill="#727272">Vulytsia</tspan>
+<tspan x="708" y="227" id="Vulytsia_Kashtanova" fill="#727272">Kashtanova</tspan>
+<tspan x="723" y="247" id="Prospekt_Vatutina" fill="#727272">Prospekt</tspan>
+<tspan x="723" y="257" id="Prospekt_Vatutina" fill="#727272">Vatutina</tspan>
+<tspan x="798" y="327" id="Horodnia" fill="#727272">Horodnia</tspan>
+<tspan x="798" y="372" id="Dniprovska" fill="#727272">Dniprovska</tspan>
+<tspan x="805" y="486" id="Brovarskyi_prospekt" fill="#727272">Brovarskyi Prospekt</tspan>
+<tspan x="724" y="517" id="Prospekt_Vozziednannia" fill="#727272">Prospekt</tspan>
+<tspan x="691" y="527" id="Prospekt_Vozziednannia" fill="#727272">Vozziednannia</tspan>
+<tspan x="712" y="557" id="Berezniaky" fill="#727272">Berezniaky</tspan>
+<tspan x="726" y="584" id="Vul_Zdolbunivska" fill="#727272">Vulytsia</tspan>
+<tspan x="699" y="594" id="Vul_Zdolbunivska" fill="#727272">Zdolbunivska</tspan>
+<tspan x="726" y="617" id="Vul_A_Ahmatovoi" fill="#727272">Vulytsia</tspan>
+<tspan x="680" y="627" id="Vul_A_Ahmatovoi" fill="#727272">Anny Akhmatovoi</tspan>
+<tspan x="798" y="672" id="Prospekt_Bazhana" fill="#727272">Prospekt Bazhana</tspan>
+<tspan x="798" y="693" id="Vul_Kolektorna" fill="#727272">Vulytsia Kolektorna</tspan>
+<tspan x="798" y="718" id="Osokorky-Tsentralni" fill="#727272">Osokorky-Tsentralni</tspan>
+<tspan x="798" y="743" id="Osokorky-Pivdenni" fill="#727272">Osokorky-Pivdenni</tspan>
+<tspan x="788" y="762" style="font-weight:bold">5</tspan>
+</text>
+</defs>
+
+
+<use xlink:href="#stname" style="font-size:11px;font-family:Manchu,Arial;stroke:#ffffff;stroke-width:3;"/>
+<use xlink:href="#stname" style="font-size:11px;font-family:Manchu,Arial;"/>
+
+<text style="font-size:10px;font-family:Manchu,Arial;font-weight: bold" transform="matrix(0.707,0.707,-0.707,0.707,620,510)" fill="#0080FF">Dnieper River</text>
+<text style="font-size:10px;font-family:Manchu,Arial;font-weight: bold" transform="matrix(0.707,0.707,-0.707,0.707,650,355)" fill="#0080FF">Rusanivska Strait</text>
+
+<rect width="1080" height="60" x="-10" y="-10" fill="black" id="hat"/>
+<text id="metro_title" style="font-size:30px;fill:#ffffff;font-family:Manchu,Arial">
+<tspan x="35" y="35" id="tspan4600">Kiev Metro route map (2013)</tspan>
+</text>
+
+
+<g transform="translate(20,70)" id="legendbox_group">
+
+<rect width="300" height="130" ry="15" x="0" y="0" id="legendbox" style="opacity:1;fill:#ffffff;fill-opacity:0.7;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:28;stroke-opacity:0.5"/>
+
+<text id="legendtext" style="font-size:11px;font-family:Manchu,Arial">
+<tspan x="10" y="19" id="L1_legend_No" style="font-weight:bold">1</tspan>
+<tspan x="10" y="34" id="L2_legend_No" style="font-weight:bold">2</tspan>
+<tspan x="10" y="49" id="L3_legend_No" style="font-weight:bold">3</tspan>
+<tspan x="10" y="64" id="L4_legend_No" style="font-weight:bold">4</tspan>
+<tspan x="10" y="79" id="L5_legend_No" style="font-weight:bold">5</tspan>
+
+
+<tspan x="65" y="19" id="L1_legend_txt">Sviatoshynsko-Brovarska Line</tspan>
+<tspan x="65" y="34" id="L2_legend_txt">Kurenivsko-Chervonoarmiiska Line</tspan>
+<tspan x="65" y="49" id="L3_legend_txt">Syretsko-Pecherska Line</tspan>
+<tspan x="65" y="64" id="L4_legend_txt">Podilsko-Vyhurivska Line</tspan>
+<tspan x="65" y="79" id="L5_legend_txt">Livoberezhna Line</tspan>
+<tspan x="65" y="99" id="Build_line_txt">Constructed</tspan>
+<tspan x="195" y="99" id="Project_line_txt">Planned</tspan>
+<tspan x="65" y="119" id="station_txt">Station</tspan>
+<tspan x="195" y="119" id="inter_txt">Interchange</tspan>
+
+</text>
+
+<path d="M 20,15 L 55,15" style="fill:none;stroke:#ff0000;stroke-width:5" id="L1_legend"/>
+<path d="M 20,30 L 55,30" style="fill:none;stroke:#0000ff;stroke-width:5" id="L2_legend"/>
+<path d="M 20,45 L 55,45" style="fill:none;stroke:#00923f;stroke-width:5" id="L3_legned"/>
+<path d="M 20,60 L 55,60" style="fill:none;stroke:#ffa500;stroke-width:5" id="L4_legend"/>
+<path d="M 20,75 L 55,75" style="fill:none;stroke:#00bfff;stroke-width:5" id="L5_legend"/>
+<path d="M 20,95 L 55,95" style="fill:none;stroke:#0000ff;stroke-width:5;stroke-dasharray:3" id="Build_line_legend"/>
+<path d="M 150,95 L 185,95" style="fill:none;stroke:#ffa500;stroke-width:5;stroke-dasharray:2" id="Project_line_legend"/>
+<use id="station_legend" x="37" y="114" width="980" height="770" xlink:href="#station"/>
+<circle cx="168" cy="115" r="4" style="fill:#0000ff;stroke:#ff0000;stroke-width:2" id="interchange"/>
+
+</g>
+
+
+</svg>

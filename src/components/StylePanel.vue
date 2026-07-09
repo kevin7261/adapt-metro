@@ -12,7 +12,8 @@ const open = ref(true)
 const width = ref(300)
 
 const layer = computed(() => props.layer)
-const editable = computed(() => layer.value && !layer.value.isBasemap)
+const isMetro = computed(() => layer.value?.type === 'metro')
+const editable = computed(() => layer.value && !layer.value.isBasemap && !isMetro.value)
 
 /* ---- resize ---- */
 const dragging = ref(false)
@@ -65,6 +66,22 @@ function startResize(e) {
           <span class="layer-name">{{ layer.name }}</span>
           <span class="layer-type">{{ layer.type }}</span>
         </div>
+
+        <template v-if="isMetro">
+          <div class="metro-meta">
+            {{ layer.city }}, {{ layer.country }} — {{ layer.lineCount }} lines · {{ layer.stationCount }} stations
+          </div>
+
+          <div class="field">
+            <label class="field-label">Line width — {{ layer.strokeWidth }} px</label>
+            <input v-model.number="layer.strokeWidth" type="range" min="0.5" max="8" step="0.5" class="slider" />
+          </div>
+
+          <div class="field">
+            <label class="field-label">Station radius — {{ layer.radius }} px</label>
+            <input v-model.number="layer.radius" type="range" min="1" max="10" step="0.5" class="slider" />
+          </div>
+        </template>
 
         <template v-if="editable">
           <div class="field">

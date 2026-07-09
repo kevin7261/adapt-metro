@@ -31,6 +31,7 @@ npm run metro:build    # 組成最終 GeoJSON
 | `metro_stations.geojson` | 全球所有地鐵**車站**（Point） |
 | `systems/{洲}/{國}/{洲}-{國}-{城}.geojson` | 每個城市/系統一個檔，依 `continent/country/` 分層存放，例如 `systems/asia/taiwan/asia-taiwan-taipei.geojson`；含該系統的線路+車站，並附系統中繼資料 |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
+| `maps/{洲}/{國}/{洲}-{國}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載，規則見 skill `metro-map-download` |
 | `_cache/` | Overpass/Wikipedia 原始回應（可刪，重跑會重抓） |
 
 ## 欄位 (properties)
@@ -56,14 +57,15 @@ npm run metro:build    # 組成最終 GeoJSON
 
 ## 關於「官方 metro map」
 
-GeoJSON 是地理向量格式，**無法內嵌官方路線示意圖（schematic diagram，通常是圖片/PDF 且多為版權素材）**。
-因此本資料的做法是：
+官方路網示意圖（schematic diagram）是圖片，**無法內嵌進 GeoJSON**，因此分兩種形式提供：
 
-1. **地理版的地圖**＝就是這些 `route=subway` 的真實線形與車站座標（可直接畫在地圖上）。
-2. 每個系統的 `metro_system.official_map` 存**該系統 Wikipedia 條目連結**（該頁通常有官方示意圖與完整資訊），
-   `official_website` 存營運單位官網（若 OSM 有 `website` 標籤），`wikidata` 供進一步查詢。
+1. **地理版的地圖**＝這些 `route=subway` 的真實線形與車站座標（在 `metro_lines.geojson` / `systems/**`，可直接畫在地圖上）；
+   每個系統的 `metro_system.official_map` 另存該系統 Wikipedia 連結、`official_website` 存營運單位官網。
+2. **官方示意圖圖片本身**＝存在 `maps/{洲}/{國}/*.png|svg`，由 `npm run metro:maps` 從
+   Wikimedia（Wikidata `P15` route map → Commons）下載，出處與**授權**記在 `maps/maps_index.json`。
+   下載規則見 skill `.claude/skills/metro-map-download/SKILL.md`。
 
-若日後需要「官方示意圖圖片本身」，需另外針對各系統下載（多數有版權，需個別確認授權）。
+> 這些示意圖多為 CC BY-SA / Public domain（各圖不同），**再散布/放進論文時需依 `maps_index.json` 的授權署名**。
 
 ## 資料來源與授權
 
