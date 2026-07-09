@@ -20,8 +20,10 @@ const selContinent = ref('')
 const selCountry = ref('')
 const selCity = ref('')
 
+const IMPORT_DIALOGS = ['import-metro', 'import-quick', 'import-stations']
+
 watch(dialog, (d) => {
-  if (d !== 'import-metro' || catalog.value) return
+  if (!IMPORT_DIALOGS.includes(d) || catalog.value) return
   catalogError.value = null
   loadMetroCatalog()
     .then((systems) => { catalog.value = systems })
@@ -54,14 +56,41 @@ const selectedSystem = computed(() =>
 watch(selContinent, () => { selCountry.value = ''; selCity.value = '' })
 watch(selCountry, () => { selCity.value = '' })
 
-function importMetro() {
-  const sys = selectedSystem.value
+function importSystem(sys) {
   if (!sys) return
   const layer = store.importMetroSystem(sys)
   openLayerTab(layer)
   close()
   store.toast(`已匯入 ${sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
 }
+
+function importMetro() {
+  importSystem(selectedSystem.value)
+}
+
+/* Quick Selection — 常用城市 */
+const QUICK_CITIES = [
+  { zh: '台北', en: 'Taipei' }, { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
+  { zh: '東京', en: 'Tokyo' }, { zh: '大阪', en: 'Osaka' }, { zh: '首爾', en: 'Seoul' },
+  { zh: '北京', en: 'Beijing' }, { zh: '上海', en: 'Shanghai' }, { zh: '香港', en: 'Hong Kong' },
+  { zh: '新加坡', en: 'Singapore' }, { zh: '倫敦', en: 'London' }, { zh: '巴黎', en: 'Paris' },
+  { zh: '柏林', en: 'Berlin' }, { zh: '維也納', en: 'Vienna' }, { zh: '紐約', en: 'New York' },
+]
+const quickCities = computed(() => {
+  if (!catalog.value) return []
+  return QUICK_CITIES.map((q) => ({
+    ...q,
+    sys: catalog.value.find((s) => s.city === q.en) ?? null,
+  }))
+})
+
+/* 依車站數排序 */
+const stationSort = ref('desc') // 'desc' 多到少 | 'asc' 少到多
+const byStations = computed(() => {
+  if (!catalog.value) return []
+  const dir = stationSort.value === 'asc' ? 1 : -1
+  return [...catalog.value].sort((a, b) => (a.station_count - b.station_count) * dir)
+})
 
 /* Add Data */
 const sources = [
@@ -96,10 +125,76 @@ const shortcuts = [
 
 <template>
   <div v-if="dialog" class="dialog-overlay" @mousedown.self="close">
-    <!-- Import Metro Map -->
-    <div v-if="dialog === 'import-metro'" class="dialog import-metro">
+    <!-- Import: Quick Selection -->
+    <div v-if="dialog === 'import-quick'" class="dialog import-quick">
       <div class="dialog-header">
-        <h2 class="dialog-title">Import Metro Map</h2>
+        <h2 class="dialog-title">Quick Selection</h2>
+        <button class="btn-icon" @click="close"><X :size="15" /></button>
+      </div>
+      <div class="dialog-body">
+        <div v-if="catalogError" class="import-status error">載入城市清單失敗：{{ catalogError }}</div>
+        <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
+        <div v-else class="quick-grid">
+          <button
+            v-for="q in quickCities"
+            :key="q.en"
+            class="quick-city"
+            :disabled="!q.sys"
+            :title="q.sys ? '' : '資料集中找不到此城市'"
+            @click="importSystem(q.sys)"
+          >
+            <span class="quick-zh">{{ q.zh }}</span>
+            <span class="quick-en">{{ q.en }}</span>
+            <span class="quick-count">{{ q.sys ? `${q.sys.station_count} 站` : '—' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import: 依車站數排序 -->
+    <div v-else-if="dialog === 'import-stations'" class="dialog import-stations">
+      <div class="dialog-header">
+        <h2 class="dialog-title">依車站數排序</h2>
+        <button class="btn-icon" @click="close"><X :size="15" /></button>
+      </div>
+      <div class="dialog-body stations-body">
+        <div v-if="catalogError" class="import-status error">載入城市清單失敗：{{ catalogError }}</div>
+        <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
+        <template v-else>
+          <div class="sort-toggle">
+            <button
+              class="sort-btn"
+              :class="{ active: stationSort === 'desc' }"
+              @click="stationSort = 'desc'"
+            >多到少</button>
+            <button
+              class="sort-btn"
+              :class="{ active: stationSort === 'asc' }"
+              @click="stationSort = 'asc'"
+            >少到多</button>
+            <span class="sort-meta">{{ byStations.length }} 個系統</span>
+          </div>
+          <div class="stations-list">
+            <button
+              v-for="(s, i) in byStations"
+              :key="s.file"
+              class="station-row"
+              @click="importSystem(s)"
+            >
+              <span class="station-rank">{{ i + 1 }}</span>
+              <span class="station-city">{{ s.city }}</span>
+              <span class="station-country">{{ s.country }}</span>
+              <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Import: Global Metro Map -->
+    <div v-else-if="dialog === 'import-metro'" class="dialog import-metro">
+      <div class="dialog-header">
+        <h2 class="dialog-title">Global Metro Map</h2>
         <button class="btn-icon" @click="close"><X :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -317,6 +412,100 @@ const shortcuts = [
 
 <style scoped>
 .import-metro { width: min(720px, calc(100vw - 32px)); }
+
+/* Quick Selection */
+.import-quick { width: min(560px, calc(100vw - 32px)); }
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.quick-city {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.25);
+}
+.quick-city:hover:not(:disabled) {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+}
+.quick-city:disabled { opacity: 0.4; cursor: default; }
+.quick-zh { font-size: 15px; font-weight: 600; }
+.quick-en { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
+.quick-count { font-size: 10.5px; color: hsl(var(--muted-foreground)); }
+
+/* 依車站數排序 */
+.import-stations { width: min(560px, calc(100vw - 32px)); }
+.stations-body { display: flex; flex-direction: column; min-height: 0; }
+.sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.sort-btn {
+  padding: 5px 14px;
+  font-size: 12.5px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  color: hsl(var(--muted-foreground));
+}
+.sort-btn:hover { background: hsl(var(--accent)); }
+.sort-btn.active {
+  background: hsl(var(--primary) / 0.12);
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+  font-weight: 500;
+}
+.sort-meta { margin-left: auto; font-size: 11.5px; color: hsl(var(--muted-foreground)); }
+.stations-list {
+  flex: 1;
+  min-height: 0;
+  max-height: 46vh;
+  overflow-y: auto;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 4px;
+}
+.station-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: calc(var(--radius) - 4px);
+  font-size: 12.5px;
+  text-align: left;
+}
+.station-row:hover { background: hsl(var(--accent) / 0.6); }
+.station-rank {
+  width: 30px;
+  flex-shrink: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+  text-align: right;
+}
+.station-city { font-weight: 500; white-space: nowrap; }
+.station-country {
+  color: hsl(var(--muted-foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.station-count {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+}
 .import-status {
   padding: 18px 0;
   text-align: center;

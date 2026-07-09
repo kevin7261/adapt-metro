@@ -1,6 +1,8 @@
 // Assemble OSM subway cache into GeoJSON: per-system files + global layers.
 //   stations: station_id, station_name (+ network/city/country/lines)
 //   lines:    route_id, route_name, route_color, route_ref (+ network/city/country)
+// Line geometry connects each route's stops in member order (schematic), not
+// the real track ways. Operational elements only (no construction/proposed).
 // Run fetchMetro.mjs first. Outputs under data/metro/.
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -33,6 +35,15 @@ function normColor(c) {
 }
 
 const pick = (tags, ...keys) => { for (const k of keys) if (tags[k]) return tags[k]; return null }
+
+// Operational only: an element carrying a lifecycle tag (under construction,
+// proposed, disused…) is not part of the running network. The fetch queries
+// already exclude these; this re-filters older caches fetched without the guard.
+const NONOP = /^(proposed|construction|planned|disused|abandoned|razed)$/
+const isOperational = (t = {}) =>
+  !NONOP.test(t.state || '') && !NONOP.test(t.railway || '') &&
+  !('construction' in t) && !('proposed' in t) && !('planned' in t) &&
+  !('disused' in t) && !('abandoned' in t)
 
 function slugify(s) {
   if (!s) return ''
@@ -76,7 +87,8 @@ async function build() {
   console.log('Loading cache...')
   const routesRaw = await readJSON('routes_tags.json')
   const routesTags = new Map()
-  for (const e of routesRaw.elements) if (e.type === 'relation') routesTags.set(e.id, e.tags || {})
+  for (const e of routesRaw.elements)
+    if (e.type === 'relation' && isOperational(e.tags)) routesTags.set(e.id, e.tags || {})
 
   const mastersRaw = await readJSON('route_masters.json')
   const masterOf = new Map(), masterTags = new Map()
@@ -86,15 +98,22 @@ async function build() {
     for (const m of e.members || []) if (m.type === 'relation') masterOf.set(m.ref, e.id)
   }
 
-  const geom = new Map()
+  // geom_* cache: relations with ordered member lists + coordinates for member
+  // nodes. New caches ship node coords as separate skel elements; old `out geom`
+  // caches carried lat/lon inline on each node member — support both.
+  const geom = new Map(), memberXY = new Map()
   for (const f of (await readdir(CACHE)).filter((n) => /^geom_\d+\.json$/.test(n))) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
-    for (const e of d.elements || []) if (e.type === 'relation') geom.set(e.id, e)
+    for (const e of d.elements || []) {
+      if (e.type === 'relation') geom.set(e.id, e)
+      else if (e.type === 'node' && e.lat != null) memberXY.set(e.id, [e.lon, e.lat])
+    }
   }
 
   const stRaw = await readJSON('stations.json')
   const stations = []
   for (const e of stRaw.elements) {
+    if (!isOperational(e.tags)) continue
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }
@@ -158,21 +177,48 @@ async function build() {
     if (net && ref) return `nr|${net}|${ref}`
     return `r|${rid}`
   }
+  // Line geometry = the route's stops connected in relation-member order — we
+  // deliberately do NOT use track (way) geometry. Prefer stop members; routes
+  // mapped without stop roles fall back to platform nodes, then plain nodes.
+  const stopXY = new Map()
   const groups = new Map()
   for (const [rid, t] of routesTags) {
     const key = groupKey(rid, t)
     let g = groups.get(key)
-    if (!g) { g = { key, ways: new Map(), rids: [], stopNodes: new Set() }; groups.set(key, g) }
+    if (!g) { g = { key, seqs: [], rids: [], stopNodes: new Set() }; groups.set(key, g) }
     g.rids.push(rid)
     const el = geom.get(rid)
-    if (el) for (const m of el.members || []) {
-      if (m.type === 'way' && m.geometry) {
-        const coords = m.geometry.map((p) => [p.lon, p.lat])
-        if (coords.length >= 2) g.ways.set(m.ref, coords)
-      } else if (m.type === 'node' && (m.role || '').includes('stop')) {
-        g.stopNodes.add(m.ref)
-      }
+    if (!el) continue
+    const stops = [], platforms = [], plain = []
+    for (const m of el.members || []) {
+      if (m.type !== 'node') continue
+      const coord = m.lat != null ? [m.lon, m.lat] : memberXY.get(m.ref)
+      if (!coord) continue
+      const role = m.role || ''
+      const bucket = role.includes('stop') ? stops : role.includes('platform') ? platforms : plain
+      bucket.push({ ref: m.ref, coord })
     }
+    const seq = [stops, platforms, plain].find((b) => b.length >= 2)
+    if (!seq) continue
+    g.seqs.push(seq)
+    for (const r of seq) { g.stopNodes.add(r.ref); stopXY.set(r.ref, r.coord) }
+  }
+
+  // A line's forward/backward variants share (nearly) all stops: keep the
+  // longest sequence, then only variants adding >20% unseen stops (branches).
+  // Coverage is keyed by ~100 m coordinate cells, not node ids — the two
+  // directions usually use different stop_position nodes at the same station.
+  const ckey = (r) => `${Math.round(r.coord[0] / 0.001)}:${Math.round(r.coord[1] / 0.001)}`
+  const dedupeSeqs = (seqs) => {
+    const sorted = [...seqs].sort((a, b) => b.length - a.length)
+    const covered = new Set(), kept = []
+    for (const seq of sorted) {
+      const fresh = seq.filter((r) => !covered.has(ckey(r))).length
+      if (kept.length && fresh / seq.length <= 0.2) continue
+      kept.push(seq)
+      for (const r of seq) covered.add(ckey(r))
+    }
+    return kept
   }
 
   const repTags = (g) => {
@@ -228,16 +274,20 @@ async function build() {
   const cellKey = (lon, lat) => `${Math.round(lon / CELL)}:${Math.round(lat / CELL)}`
 
   for (const g of groups.values()) {
-    if (g.ways.size === 0) continue
+    const kept = dedupeSeqs(g.seqs)
+    if (!kept.length) continue
     const t = repTags(g)
     const network = pick(t, 'network:en', 'network') || pick(t, 'operator') || 'Unknown'
     const info = cityInfo(network, t.network)
     const routeRef = t.ref || null
-    if (routeRef) for (const n of g.stopNodes) {
-      if (!nodeLineRefs.has(n)) nodeLineRefs.set(n, new Set())
-      nodeLineRefs.get(n).add(routeRef)
-    }
     const routeId = g.key.startsWith('m|') ? `rm${g.key.slice(2)}` : `r${Math.min(...g.rids)}`
+    // Stations must always resolve to a line (verify invariant), so fall back
+    // to the route name when the relation carries no ref.
+    const lineTag = routeRef || pick(t, 'name:en', 'name') || routeId
+    for (const n of g.stopNodes) {
+      if (!nodeLineRefs.has(n)) nodeLineRefs.set(n, new Set())
+      nodeLineRefs.get(n).add(lineTag)
+    }
     const props = {
       route_id: routeId,
       route_name: pick(t, 'name:en', 'name') || routeRef || routeId,
@@ -254,12 +304,13 @@ async function build() {
     }
     const feat = {
       type: 'Feature', properties: props,
-      geometry: { type: 'MultiLineString', coordinates: [...g.ways.values()] },
+      geometry: { type: 'MultiLineString',
+        coordinates: kept.map((seq) => seq.map((r) => r.coord)) },
     }
     lineFeatures.push(feat)
     for (const seg of feat.geometry.coordinates)
-      for (let i = 0; i < seg.length; i += 2) {
-        const k = cellKey(seg[i][0], seg[i][1])
+      for (const [lon, lat] of seg) {
+        const k = cellKey(lon, lat)
         if (!grid.has(k)) grid.set(k, info.key)
       }
     const grp = groupFor(info)
@@ -273,6 +324,28 @@ async function build() {
 
   // ---- stations: assign to the city of the nearest metro line (spatial) ----
   const gInfo = new Map([...cityGroups].map(([k, v]) => [k, v.info]))
+
+  // Station→line membership: route stop members are usually stop_position
+  // nodes, not the station node itself, so id matching alone strands stations
+  // without lines. Fall back to the nearest stop within ~500 m.
+  const stopGrid = new Map()
+  for (const [nid, refs] of nodeLineRefs) {
+    const c = stopXY.get(nid)
+    if (!c) continue
+    const k = cellKey(c[0], c[1])
+    if (!stopGrid.has(k)) stopGrid.set(k, [])
+    stopGrid.get(k).push({ lon: c[0], lat: c[1], refs })
+  }
+  const nearbyLineRefs = (lon, lat) => {
+    const gx = Math.round(lon / CELL), gy = Math.round(lat / CELL)
+    let best = null, bestD = Infinity
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+      for (const p of stopGrid.get(`${gx + dx}:${gy + dy}`) || []) {
+        const d = (p.lon - lon) ** 2 + (p.lat - lat) ** 2
+        if (d < bestD) { bestD = d; best = p }
+      }
+    return best && Math.sqrt(bestD) < 0.005 ? [...best.refs] : []  // ~500 m
+  }
   const nearestCityKey = (lon, lat) => {
     const gx = Math.round(lon / CELL), gy = Math.round(lat / CELL)
     for (let r = 0; r <= 12; r++) {  // out to ~24 km
@@ -290,7 +363,9 @@ async function build() {
     const network = pick(t, 'network:en', 'network') || pick(t, 'operator') || 'Unknown'
     const spatialKey = nearestCityKey(s.lon, s.lat)
     const info = (spatialKey && gInfo.get(spatialKey)) || cityInfo(network, t.network)
-    const lines = [...(nodeLineRefs.get(s.id) || [])].sort()
+    let lines = [...(nodeLineRefs.get(s.id) || [])]
+    if (!lines.length) lines = nearbyLineRefs(s.lon, s.lat)
+    lines = [...new Set(lines)].sort()
     const props = {
       station_id: `n${s.id}`,
       station_name: pick(t, 'name:en', 'name') || `n${s.id}`,
@@ -359,7 +434,8 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
     .map((s) => ({ city: s.city, country: s.country, name: s.name }))
 
   await writeFile(join(BASE, 'index.json'), JSON.stringify({
-    generated_from: 'OpenStreetMap via Overpass API (route=subway)',
+    generated_from: 'OpenStreetMap via Overpass API (route=subway, operational only; ' +
+      'line geometry = stops connected in member order)',
     baseline: 'Wikipedia: List of metro systems',
     system_count: index.length,
     wikipedia_system_count: wikiSystems.length,

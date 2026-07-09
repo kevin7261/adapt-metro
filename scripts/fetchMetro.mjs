@@ -13,9 +13,15 @@ async function cached(name) {
   try { return (await stat(join(overpass.CACHE, name))).size > 0 } catch { return false }
 }
 
+// Operational-only guard: route=subway / station=subway with a lifecycle tag
+// (state=construction, construction=*, proposed=*, ...) is not in service yet.
+// Lifecycle-prefixed tagging (construction:route=subway) never matches the
+// base queries, so these predicates only catch the mixed-tagging leftovers.
+const LIFE = '["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]'
+
 async function fetchRouteTags() {
-  step('1/4  route=subway relation tags')
-  const q = '[out:json][timeout:300];relation["route"="subway"];out tags;'
+  step('1/4  route=subway relation tags (operational only)')
+  const q = `[out:json][timeout:300];relation["route"="subway"]${LIFE};out tags;`
   const data = await overpass.query(q, { cacheName: 'routes_tags.json', timeout: 300000 })
   const ids = data.elements.filter((e) => e.type === 'relation').map((e) => e.id)
   console.log(`  ${ids.length} subway route relations`)
@@ -48,10 +54,11 @@ async function fetchStations() {
   }
   // Split into two lighter queries: nodes carry lat/lon directly; station
   // areas (ways) need center. Lighter queries survive loaded public mirrors.
+  const ST = '["railway"!~"^(proposed|construction|disused|abandoned|razed)$"]'
   const nodeQ = '[out:json][timeout:180];(' +
-    'node["station"="subway"];node["railway"="station"]["subway"="yes"];);out;'
+    `node["station"="subway"]${ST}${LIFE};node["railway"="station"]["subway"="yes"]${LIFE};);out;`
   const wayQ = '[out:json][timeout:180];(' +
-    'way["station"="subway"];way["railway"="station"]["subway"="yes"];);out center tags;'
+    `way["station"="subway"]${ST}${LIFE};way["railway"="station"]["subway"="yes"]${LIFE};);out center tags;`
   const nodes = await overpass.query(nodeQ, { timeout: 180000 })
   const ways = await overpass.query(wayQ, { timeout: 180000, maxAttempts: 6 })
     .catch((e) => { console.log(`  !! station areas fetch failed (${e.message})`); return { elements: [] } })
@@ -61,7 +68,11 @@ async function fetchStations() {
 }
 
 async function fetchGeomBatchData(ids) {
-  const q = `[out:json][timeout:300];relation(id:${ids.join(',')});out geom;`
+  // No track (way) geometry: lines are later drawn by connecting the route's
+  // stops in member order, so we only need the ordered member lists (out body)
+  // plus coordinates of the member nodes (stops/platforms).
+  const q = `[out:json][timeout:300];relation(id:${ids.join(',')})->.r;` +
+    '.r out body;node(r.r);out skel qt;'
   try {
     return (await overpass.query(q, { timeout: 300000, maxAttempts: 5 })).elements
   } catch (e) {
@@ -74,7 +85,7 @@ async function fetchGeomBatchData(ids) {
 }
 
 async function fetchGeometry(routeIds) {
-  step(`4/4  route geometry (${routeIds.length} relations, batches of ${BATCH})`)
+  step(`4/4  route members + stop nodes (${routeIds.length} relations, batches of ${BATCH})`)
   const batches = []
   for (let i = 0; i < routeIds.length; i += BATCH) batches.push(routeIds.slice(i, i + BATCH))
   for (let bi = 0; bi < batches.length; bi++) {

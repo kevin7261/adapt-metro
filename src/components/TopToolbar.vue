@@ -2,9 +2,24 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
 import { useMapStore } from '../stores/mapStore'
-import { Map as MapIcon, TrainFront, Sparkles, X } from 'lucide-vue-next'
+import {
+  Map as MapIcon, TrainFront, Sparkles, X, Zap, ArrowUpDown, Globe,
+} from 'lucide-vue-next'
 
 const store = useMapStore()
+
+/* ---- Import dropdown ---- */
+const importOpen = ref(false)
+const importWrap = ref(null)
+const importItems = [
+  { id: 'import-quick', label: 'Quick Selection', icon: Zap },
+  { id: 'import-stations', label: '依車站數排序', icon: ArrowUpDown },
+  { id: 'import-metro', label: 'Global Metro Map', icon: Globe },
+]
+function pickImport(id) {
+  importOpen.value = false
+  store.ui.dialog = id
+}
 
 /* ---- Skills dropdown + modal ---- */
 const skillsOpen = ref(false)
@@ -47,9 +62,12 @@ function onDocClick(e) {
   if (skillsOpen.value && menuWrap.value && !menuWrap.value.contains(e.target)) {
     skillsOpen.value = false
   }
+  if (importOpen.value && importWrap.value && !importWrap.value.contains(e.target)) {
+    importOpen.value = false
+  }
 }
 function onKeydown(e) {
-  if (e.key === 'Escape') { skillsOpen.value = false; activeSkill.value = null }
+  if (e.key === 'Escape') { skillsOpen.value = false; importOpen.value = false; activeSkill.value = null }
 }
 onMounted(() => {
   document.addEventListener('mousedown', onDocClick)
@@ -68,10 +86,17 @@ onBeforeUnmount(() => {
       <span class="brand-name">Adapt-Metro</span>
     </div>
 
-    <button class="btn-ghost" @click="store.ui.dialog = 'import-metro'">
-      <TrainFront :size="14" />
-      Import Metro Map
-    </button>
+    <div ref="importWrap" class="skills-wrap">
+      <button class="btn-ghost" :class="{ active: importOpen }" @click="importOpen = !importOpen">
+        <TrainFront :size="14" />
+        Import
+      </button>
+      <div v-if="importOpen" class="menu-pop import-menu">
+        <button v-for="item in importItems" :key="item.id" class="menu-item" @click="pickImport(item.id)">
+          <component :is="item.icon" :size="14" /> {{ item.label }}
+        </button>
+      </div>
+    </div>
 
     <div ref="menuWrap" class="skills-wrap">
       <button class="btn-ghost" :class="{ active: skillsOpen }" @click="toggleSkills">
@@ -138,6 +163,7 @@ onBeforeUnmount(() => {
 
 .skills-wrap { position: relative; }
 .skills-menu { top: 34px; left: 0; min-width: 320px; max-width: 420px; }
+.import-menu { top: 34px; left: 0; min-width: 200px; }
 .skills-status {
   padding: 12px;
   font-size: 12.5px;
