@@ -5,7 +5,7 @@
 // Line geometry connects each route's stops in member order (schematic), not
 // the real track ways. Operational elements only (no construction/proposed).
 // Run fetchMetro.mjs first. Outputs under data/metro/.
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { continentCode, iocCode } from './countryCodes.mjs'
@@ -1178,18 +1178,18 @@ async function build() {
       }
     }
     for (const f of grp.lines) {
-      // ordered station list for this route (vertices ARE station points, in
-      // stop order; dedupe repeats, e.g. a station shared by two branches)
-      const seen = new Set(), sts = []
+      // ordered station list for this route：各分段頂點**原序串接、不去重**
+      //（使用者規則：列表相鄰＝圖上直連。支線的接續站在支線段開頭重複出現、
+      // 環狀線最後回到第一個車站——與 pass_count「通過兩次算兩次」語義一致；
+      // 站數統計一律用唯一站數）
+      const sts = []
       for (const seq of f.geometry.coordinates) {
         if (seq.length < 2) continue
         for (const c of seq) {
           const s = byCoord.get(c.join(','))
           if (!s) continue
-          const id = s.properties.station_id
-          if (seen.has(id)) continue
-          seen.add(id)
-          sts.push({ station_id: id, station_name: s.properties.station_name })
+          sts.push({ station_id: s.properties.station_id,
+            station_name: s.properties.station_name })
         }
         const a = seq[0], b = seq[seq.length - 1]
         // closed loop: ends identical, or ~adjacent on a many-stop ring
@@ -1387,6 +1387,23 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
     await mkdir(dirname(outPath), { recursive: true })
     await writeFile(outPath, JSON.stringify(fc(feats, { metro_system: systemMeta })))
     index.push({ file: `systems/${relPath}`, ...systemMeta })
+  }
+
+  // stale-file cleanup：桶的命名/歸屬改變時，上一輪寫出的舊檔要刪掉
+  // （index 不引用的 systems/*.geojson 一律不留，避免殘留誤導）
+  {
+    const wanted = new Set(index.map((i) => join(BASE, i.file)))
+    const walk = async (d) => {
+      for (const e of await readdir(d, { withFileTypes: true })) {
+        const p = join(d, e.name)
+        if (e.isDirectory()) await walk(p)
+        else if (p.endsWith('.geojson') && !wanted.has(p)) {
+          await rm(p, { force: true })
+          console.log(`  stale removed: ${p.slice(BASE.length + 1)}`)
+        }
+      }
+    }
+    try { await walk(SYS_DIR) } catch { /* first run */ }
   }
 
   const matchedCities = new Set(index.map((i) => i.city).filter(Boolean))

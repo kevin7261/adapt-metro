@@ -58,8 +58,11 @@ async function main() {
       for (const r of f.properties.routes || []) {
         if (seen.has(r.route_id)) continue
         seen.add(r.route_id)
+        // 站數用「唯一站數」——stations 列表為保序不去重（支線接續站、
+        // 環線閉合站會重複出現），計數需去重
         const rec = { city: s.city, country: s.country, route_id: r.route_id,
-          route_name: r.route_name, ours: (r.stations || []).length,
+          route_name: r.route_name,
+          ours: new Set((r.stations || []).map((x) => x.station_id)).size,
           lang: langOf(s.country) }
         if (r.wikipedia && /^[a-z-]{2,8}:/.test(r.wikipedia)) rec.wiki = r.wikipedia
         else if (r.wikidata && /^Q\d+$/.test(r.wikidata)) rec.wikidata = r.wikidata

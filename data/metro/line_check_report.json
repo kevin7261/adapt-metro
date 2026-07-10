@@ -1,7 +1,7 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 941,
-  "checked_against_infobox": 566,
+  "routes_total": 942,
+  "checked_against_infobox": 567,
   "flagged": 175,
   "uncovered": 375,
   "flags": [
@@ -3499,6 +3499,16 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm5576487",
+      "route_name": "Danhai LRT",
+      "ours": 13,
+      "lang": "zh",
+      "wiki": "zh:藍海線",
+      "reason": "article has no station count infobox"
+    },
+    {
       "city": "Suzhou",
       "country": "China",
       "route_id": "rm8439253",
@@ -3517,16 +3527,6 @@
       "lang": "zh",
       "wiki": "zh:苏州轨道交通",
       "reason": "suspect system article (zh:苏州轨道交通: 275)"
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm5576487",
-      "route_name": "Danhai LRT",
-      "ours": 13,
-      "lang": "zh",
-      "wiki": "zh:藍海線",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Istanbul",

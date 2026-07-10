@@ -77,6 +77,8 @@ const selectedRouteLists = computed(() => {
     ref: r.route_ref,
     color: r.route_color ?? '#e11d48',
     stations: r.stations ?? [],
+    // stations 保序不去重（支線接續站/環線閉合站重複出現）——計數用唯一站數
+    uniqueCount: new Set((r.stations ?? []).map((s) => s.station_id)).size,
   }))
 })
 
@@ -382,7 +384,7 @@ function startResize(e) {
               <span class="line-swatch" :style="{ background: rt.color }" />
               <span v-if="rt.ref" class="line-ref">{{ rt.ref }}</span>
               <span class="obj-route-name">{{ rt.name }}</span>
-              <span class="obj-route-count">{{ rt.stations.length }} 站</span>
+              <span class="obj-route-count">{{ rt.uniqueCount }} 站</span>
             </div>
             <ol class="obj-station-list">
               <li v-for="st in rt.stations" :key="st.station_id">{{ st.station_name }}</li>
