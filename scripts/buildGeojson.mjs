@@ -127,7 +127,7 @@ const isOperational = (t = {}) =>
 // metro line and extend deep into non-metro rail, so they are not lines of
 // the metro network itself — the base lines have their own relations.
 const isThroughService = (t = {}) =>
-  /直通運転/.test(t.name || '') ||
+  /直通運転|直通列車|直通電車/.test(`${t.name || ''} ${t['name:ja'] || ''}`) ||
   /through service|bypass line/i.test(`${t['name:en'] || ''} ${t.description || ''}`)
 
 // 機廠/車輛段不是客運設施：出入段線 route（新北捷運淡海機廠）與 depot 停靠點
@@ -1160,8 +1160,13 @@ async function build() {
       }
     })
     // (2) same name within ~800 m (greedy clusters, then union each cluster)
+    // 每城政策：紐約的同名站多半「不相通」（23rd St 分屬 6 條線各自獨立、
+    // 官方僅以 station complex 定義轉乘）——NYC 關閉同名合併，只信
+    // stop_area ∪ interchanges.json（官方 complex 以 overrides 回補）。
+    const NO_SAMENAME_MERGE = new Set(['newyorkcity'])
+    const sameNameOff = NO_SAMENAME_MERGE.has(normCity(grp.info.city))
     const byName = new Map()
-    feats.forEach((f, i) => {
+    if (!sameNameOff) feats.forEach((f, i) => {
       const key = normName(f.properties.station_name)
       if (!key || /^n\d+$/.test(key)) return
       if (!byName.has(key)) byName.set(key, [])
@@ -1198,6 +1203,10 @@ async function build() {
       groupsByRoot.get(r).push(i)
     })
     const keep = []
+    // 吸附別名：合併後代表點是「質心」，可能離某些成員 >600 m（NYC 125th St
+    // 質心位移把 Lexington 節點全甩掉）——記下成員原座標→代表點座標，
+    // 吸附階段對成員點找最近、再映射回代表點。
+    const aliases = []
     for (const idxs of groupsByRoot.values()) {
       if (idxs.length === 1) { keep.push(feats[idxs[0]]); continue }
       mergedAway += idxs.length - 1
@@ -1216,8 +1225,11 @@ async function build() {
         },
         geometry: { type: 'Point', coordinates: [lon, lat] },
       })
+      for (const m of members)
+        aliases.push({ c: m.geometry.coordinates, rep: [lon, lat] })
     }
     grp.stations = keep
+    grp.__snapAliases = aliases
   }
   // ---- drop stations that serve no operational line (invariant 2) ----
   // A station the widened matching still can't tie to any line is either a
@@ -1244,19 +1256,24 @@ async function build() {
     if (!grp.lines.length) continue
     const sGrid = new Map()
     const sKey = (lon, lat) => `${Math.round(lon / SNAP)}:${Math.round(lat / SNAP)}`
-    for (const f of grp.stations) {
-      const [lon, lat] = f.geometry.coordinates
-      const k = sKey(lon, lat)
+    const addSnapPoint = (c, rep) => {
+      const k = sKey(c[0], c[1])
       if (!sGrid.has(k)) sGrid.set(k, [])
-      sGrid.get(k).push(f.geometry.coordinates)
+      sGrid.get(k).push({ c, rep })
     }
+    const repAlive = new Set(grp.stations.map((f) => f.geometry.coordinates.join(',')))
+    for (const f of grp.stations) addSnapPoint(f.geometry.coordinates, f.geometry.coordinates)
+    // 合併成員的原座標也是吸附目標（映射回代表點）——質心位移不甩站；
+    // 代表點已被 orphan-drop 移除者不得借屍還魂
+    for (const a of grp.__snapAliases ?? [])
+      if (repAlive.has(a.rep.join(','))) addSnapPoint(a.c, a.rep)
     const nearestStation = (lon, lat) => {
       const gx = Math.round(lon / SNAP), gy = Math.round(lat / SNAP)
       let best = null, bestD = Infinity
       for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
-        for (const c of sGrid.get(`${gx + dx}:${gy + dy}`) || []) {
+        for (const { c, rep } of sGrid.get(`${gx + dx}:${gy + dy}`) || []) {
           const d = (c[0] - lon) ** 2 + (c[1] - lat) ** 2
-          if (d < bestD) { bestD = d; best = c }
+          if (d < bestD) { bestD = d; best = rep }
         }
       return best && Math.sqrt(bestD) < SNAP ? best : null
     }

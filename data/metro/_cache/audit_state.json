@@ -16696,5 +16696,1659 @@
       "2 條線無 wiki 站數對照：Orange Line、Green Line"
     ],
     "audited_at": "2026-07-10T20:36:03.211Z"
+  },
+  "New York City|United States": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "586 station candidates fetched (r=43km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/united-states/am-usa-new-york-city.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "49 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "463 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 463 站（wiki List 記 424，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "463/463 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "791 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "463/463 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "3 條線站數與 wiki 條目不符（必須相等）：NYCS - 2 Train 57/49、NYCS - N Train 44/28、NYCS - 4 Train 53/28",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_planned",
+        "ok": false,
+        "detail": "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：NYCS - 1 Train 34/38、NYCS - 3 Train 33/34",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "33 條線無 wiki 站數對照：NYCS - C Train、NYCS - A Train、NYCS - A Train (am rush): Rockaway Park–Beach 116th Street → 207th Street–Inwood",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "3 條線站數與 wiki 條目不符（必須相等）：NYCS - 2 Train 57/49、NYCS - N Train 44/28、NYCS - 4 Train 53/28"
+    ],
+    "warnings": [
+      "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：NYCS - 1 Train 34/38、NYCS - 3 Train 33/34",
+      "33 條線無 wiki 站數對照：NYCS - C Train、NYCS - A Train、NYCS - A Train (am rush): Rockaway Park–Beach 116th Street → 207th Street–Inwood"
+    ],
+    "audited_at": "2026-07-10T20:36:06.006Z"
+  },
+  "Philadelphia|United States": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/united-states/am-usa-philadelphia.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "5 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "70 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 70 站（wiki List 記 53，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "70/70 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "84 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "70/70 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line"
+    ],
+    "audited_at": "2026-07-10T20:36:06.008Z"
+  },
+  "San Francisco (Bay Area)|United States": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "7 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "86 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 86 站（wiki List 記 47，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "86/86 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "65 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "86/86 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton"
+    ],
+    "audited_at": "2026-07-10T20:36:06.010Z"
+  },
+  "Washington, D.C.|United States": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/united-states/am-usa-washington-d-c.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "7 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "103 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 103 站（wiki List 記 98，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "103/103 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "114 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "103/103 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn"
+    ],
+    "audited_at": "2026-07-10T20:36:06.013Z"
+  },
+  "San Juan|United States": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/united-states/am-usa-san-juan.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "16 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 16 站（wiki List 記 16，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "16/16 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "16 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "16/16 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.015Z"
+  },
+  "Tashkent|Uzbekistan": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/uzbekistan/as-uzb-tashkent.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "50 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 50 站（wiki List 記 45，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "50/50 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "50 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "50/50 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "4 條線無 wiki 站數對照：Chilonzor Line、Oʻzbekiston Line、Yunusobod Line",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "4 條線無 wiki 站數對照：Chilonzor Line、Oʻzbekiston Line、Yunusobod Line"
+    ],
+    "audited_at": "2026-07-10T20:36:06.017Z"
+  },
+  "Caracas|Venezuela": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/venezuela/am-ven-caracas.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "8 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "58 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 58 站（wiki List 記 49，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "58/58 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "59 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "58/58 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "8 條線無 wiki 站數對照：Línea 4 del Metro de Caracas、Línea 4: Dirección Zona Rental、Línea 2 del Metro de Caracas",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "8 條線無 wiki 站數對照：Línea 4 del Metro de Caracas、Línea 4: Dirección Zona Rental、Línea 2 del Metro de Caracas"
+    ],
+    "audited_at": "2026-07-10T20:36:06.019Z"
+  },
+  "Maracaibo|Venezuela": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/venezuela/am-ven-maracaibo.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "6 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 6 站（wiki List 記 6，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "6/6 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "6 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "6/6 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.020Z"
+  },
+  "Valencia|Venezuela": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/venezuela/am-ven-valencia.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "10 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 10 站（wiki List 記 9，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "10/10 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "9 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "10/10 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.022Z"
+  },
+  "Hanoi|Vietnam": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/vietnam/as-vie-hanoi.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "21 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 21 站（wiki List 記 20，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "21/21 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "20 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "21/21 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.024Z"
+  },
+  "Ho Chi Minh City|Vietnam": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/vietnam/as-vie-ho-chi-minh-city.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "17 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 17 站（wiki List 記 14，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "17/17 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "14 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "17/17 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.025Z"
+  },
+  "Frankfurt|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "21 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "196 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "196/196 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "260 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "196/196 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "21 條線無 wiki 站數對照：U3: Oberursel Hohemark <=> Südbahnhof、U8: Riedberg <=> Südbahnhof、U9: Nieder-Eschbach <=> Ginnheim Mitte",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "21 條線無 wiki 站數對照：U3: Oberursel Hohemark <=> Südbahnhof、U8: Riedberg <=> Südbahnhof、U9: Nieder-Eschbach <=> Ginnheim Mitte"
+    ],
+    "audited_at": "2026-07-10T20:36:06.029Z"
+  },
+  "Dusseldorf|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "9 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "138 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "138/138 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "176 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "138/138 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "9 條線無 wiki 站數對照：Subway U77、Subway U76、Subway U75",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "9 條線無 wiki 站數對照：Subway U77、Subway U76、Subway U75"
+    ],
+    "audited_at": "2026-07-10T20:36:06.032Z"
+  },
+  "Xirivella|Spain": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "96 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "96/96 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "110 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "96/96 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "6 條線無 wiki 站數對照：Línia 7、Línia 5、Línia 3",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "6 條線無 wiki 站數對照：Línia 7、Línia 5、Línia 3"
+    ],
+    "audited_at": "2026-07-10T20:36:06.034Z"
+  },
+  "Bielefeld|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "61 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "61/61 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "68 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "61/61 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "4 條線無 wiki 站數對照：StadtBahn 2、StadtBahn 1、StadtBahn 3",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "4 條線無 wiki 站數對照：StadtBahn 2、StadtBahn 1、StadtBahn 3"
+    ],
+    "audited_at": "2026-07-10T20:36:06.041Z"
+  },
+  "Essen|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "32 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "32/32 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "33 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "32/32 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Subway line U18、Subway line U17",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Subway line U18、Subway line U17"
+    ],
+    "audited_at": "2026-07-10T20:36:06.043Z"
+  },
+  "Ratingen|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "72 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "72/72 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "71 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "72/72 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Subway line U11、Subway U79",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Subway line U11、Subway U79"
+    ],
+    "audited_at": "2026-07-10T20:36:06.044Z"
+  },
+  "Derince|Turkey": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "29 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "29/29 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "29 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "29/29 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.046Z"
+  },
+  "Bochum|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "23 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "23/23 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "22 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "23/23 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：U-Bahn U35 CampusLinie",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "1 條線無 wiki 站數對照：U-Bahn U35 CampusLinie"
+    ],
+    "audited_at": "2026-07-10T20:36:06.048Z"
+  },
+  "Seville|Spain": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "20 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "20/20 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "18 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "20/20 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Línea 1",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Línea 1"
+    ],
+    "audited_at": "2026-07-10T20:36:06.054Z"
+  },
+  "Bezirk Landeck|Austria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "4 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "4/4 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "4 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "4/4 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T20:36:06.055Z"
+  },
+  "Chuzhou|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "10 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "10/10 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "10 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "10/10 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_planned",
+        "ok": false,
+        "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：宁滁线 10/14",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：宁滁线 10/14"
+    ],
+    "audited_at": "2026-07-10T20:36:06.057Z"
   }
 }
