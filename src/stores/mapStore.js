@@ -31,6 +31,13 @@ export const useMapStore = defineStore('map', {
     // Flat list — every layer opens as its own editor tab.
     // Populated by importing metro systems (Import Metro Map).
     layers: [],
+
+    // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
+    // kind of layer: imported metro maps, and D3.js views over a metro layer.
+    groups: [
+      { id: 'metro-maps', label: 'Metro Maps', collapsed: false },
+      { id: 'd3', label: 'D3.js', collapsed: false },
+    ],
   }),
 
   getters: {
@@ -39,6 +46,13 @@ export const useMapStore = defineStore('map', {
     },
     allLayersVisible(state) {
       return state.layers.every((l) => l.visible)
+    },
+    // Panel rows: each group with its member layers (groups always shown).
+    layerTree(state) {
+      return state.groups.map((group) => ({
+        group,
+        children: state.layers.filter((l) => l.groupId === group.id),
+      }))
     },
   },
 
@@ -75,6 +89,7 @@ export const useMapStore = defineStore('map', {
           // Default layer name = the geojson filename (without extension).
           name: id,
           type: 'metro',
+          groupId: 'metro-maps',
           file: `/data/metro/${sys.file}`,
           continent: sys.continent,
           country: sys.country,
@@ -90,6 +105,27 @@ export const useMapStore = defineStore('map', {
         }
         this.layers.push(layer)
       }
+      this.selectedLayerId = layer.id
+      return layer
+    },
+
+    // Add a D3.js view layer — its tab renders a metro layer with d3 instead of
+    // MapLibre. The source metro layer is chosen at creation and never changes.
+    addD3Layer(sourceLayerId) {
+      const src = this.layers.find((l) => l.id === sourceLayerId)
+      if (!src) return null
+      let n = 1
+      while (this.layers.some((l) => l.id === `d3-view-${n}`)) n++
+      const layer = {
+        id: `d3-view-${n}`,
+        name: `d3-${src.name}`,
+        type: 'd3',
+        groupId: 'd3',
+        sourceLayerId,
+        visible: true,
+        opacity: 1,
+      }
+      this.layers.push(layer)
       this.selectedLayerId = layer.id
       return layer
     },

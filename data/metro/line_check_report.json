@@ -2,9 +2,9 @@
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
   "routes_total": 1136,
   "checked_against_infobox": 532,
-  "flagged": 123,
+  "flagged": 105,
   "uncovered": 604,
-  "adjudicated": 0,
+  "adjudicated": 14,
   "flags": [
     {
       "city": "Chongqing",
@@ -688,19 +688,6 @@
       "severity": "warn"
     },
     {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "r9154523",
-      "route_name": "Danhai LRT Hongshulin-Kanding (Outbound)",
-      "ours": 11,
-      "lang": "zh",
-      "wiki": "zh:綠山線",
-      "wiki_stations": 14,
-      "wiki_basis": "operational",
-      "diff": -3,
-      "severity": "error"
-    },
-    {
       "city": "Fuzhou",
       "country": "China",
       "route_id": "rm18957313",
@@ -739,19 +726,6 @@
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm5576487",
-      "route_name": "Danhai LRT",
-      "ours": 12,
-      "lang": "zh",
-      "wiki": "zh:藍海線",
-      "wiki_stations": 14,
-      "wiki_basis": "operational",
-      "diff": -2,
-      "severity": "error"
     },
     {
       "city": "Suzhou",
@@ -1276,58 +1250,6 @@
       "severity": "warn"
     },
     {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm4624915",
-      "route_name": "Beijing Subway Line 14",
-      "ours": 34,
-      "lang": "zh",
-      "wiki": "en:Line 14 (Beijing Subway)",
-      "wiki_stations": 33,
-      "wiki_basis": "operational",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm10557252",
-      "route_name": "Shanghai Metro Line 14",
-      "ours": 31,
-      "lang": "zh",
-      "wiki": "en:Line 14 (Shanghai Metro)",
-      "wiki_stations": 30,
-      "wiki_basis": "operational",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Chongqing",
-      "country": "China",
-      "route_id": "rm8300867",
-      "route_name": "Line 5 (Chongqing Rail Transit)",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "en:Line 5 (Chongqing Rail Transit)",
-      "wiki_stations": 31,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Chengdu",
-      "country": "China",
-      "route_id": "rm11697795",
-      "route_name": "Chengdu Metro Line 18",
-      "ours": 13,
-      "lang": "zh",
-      "wiki": "zh:成都地铁18号线",
-      "wiki_stations": 12,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "Tianjin",
       "country": "China",
       "route_id": "rm8489971",
@@ -1354,58 +1276,6 @@
       "severity": "error"
     },
     {
-      "city": "Qingdao",
-      "country": "China",
-      "route_id": "rm10467728",
-      "route_name": "West Coast Line",
-      "ours": 23,
-      "lang": "zh",
-      "wiki": "zh:青岛地铁13号线",
-      "wiki_stations": 22,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Qingdao",
-      "country": "China",
-      "route_id": "rm15051229",
-      "route_name": "Qingdao Metro Line 4",
-      "ours": 25,
-      "lang": "zh",
-      "wiki": "en:Line 4 (Qingdao Metro)",
-      "wiki_stations": 24,
-      "wiki_basis": "operational",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Dalian",
-      "country": "China",
-      "route_id": "rm13633615",
-      "route_name": "Dalian Metro Line 13",
-      "ours": 12,
-      "lang": "zh",
-      "wiki": "zh:大连地铁13号线",
-      "wiki_stations": 11,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Atlanta",
-      "country": "United States",
-      "route_id": "rm4439535",
-      "route_name": "MARTA Green Line",
-      "ours": 10,
-      "lang": "en",
-      "wiki": "en:Green Line (MARTA)",
-      "wiki_stations": 9,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "Pune",
       "country": "India",
       "route_id": "rm13917129",
@@ -1416,32 +1286,6 @@
       "wiki_stations": 13,
       "wiki_basis": "total",
       "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Chengdu",
-      "country": "China",
-      "route_id": "rm8298254",
-      "route_name": "Chengdu Metro Line 10",
-      "ours": 18,
-      "lang": "zh",
-      "wiki": "zh:成都地铁10号线",
-      "wiki_stations": 16,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Chengdu",
-      "country": "China",
-      "route_id": "rm12095438",
-      "route_name": "成都地铁17号线",
-      "ours": 21,
-      "lang": "zh",
-      "wiki": "zh:成都地铁17号线",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": 2,
       "severity": "error"
     },
     {
@@ -1459,32 +1303,6 @@
       "severity": "error"
     },
     {
-      "city": "Hefei",
-      "country": "China",
-      "route_id": "rm7949047",
-      "route_name": "Hefei Metro Line 1",
-      "ours": 26,
-      "lang": "zh",
-      "wiki": "en:Line 1, Hefei Metro",
-      "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Chengdu",
-      "country": "China",
-      "route_id": "rm8298113",
-      "route_name": "Chengdu Metro Line 2",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "zh:成都地铁2号线",
-      "wiki_stations": 28,
-      "wiki_basis": "operational",
-      "diff": 4,
-      "severity": "error"
-    },
-    {
       "city": "Osaka",
       "country": "Japan",
       "route_id": "rm8028805",
@@ -1495,32 +1313,6 @@
       "wiki_stations": 20,
       "wiki_basis": "total",
       "diff": 5,
-      "severity": "error"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm6855054",
-      "route_name": "Солнцевская линия",
-      "ours": 14,
-      "lang": "ru",
-      "wiki": "en:Kalininsko–Solntsevskaya line",
-      "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": 6,
-      "severity": "error"
-    },
-    {
-      "city": "Changchun",
-      "country": "China",
-      "route_id": "rm9642906",
-      "route_name": "Changchun Subway Line 2",
-      "ours": 27,
-      "lang": "zh",
-      "wiki": "en:Line 2 (Changchun Rail Transit)",
-      "wiki_stations": 21,
-      "wiki_basis": "total",
-      "diff": 6,
       "severity": "error"
     },
     {
@@ -1537,19 +1329,6 @@
       "severity": "error"
     },
     {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm420838",
-      "route_name": "Beijing Subway Line 4/DX",
-      "ours": 35,
-      "lang": "zh",
-      "wiki": "en:Line 4, Beijing Subway",
-      "wiki_stations": 24,
-      "wiki_basis": "total",
-      "diff": 11,
-      "severity": "error"
-    },
-    {
       "city": "Shenzhen",
       "country": "China",
       "route_id": "rm13176924",
@@ -1560,19 +1339,6 @@
       "wiki_stations": 32,
       "wiki_basis": "total",
       "diff": 11,
-      "severity": "error"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm415571",
-      "route_name": "Beijing Subway Line 1",
-      "ours": 37,
-      "lang": "zh",
-      "wiki": "en:Line 1 (Beijing Subway)",
-      "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": 14,
       "severity": "error"
     },
     {
@@ -3793,7 +3559,7 @@
       "country": "China",
       "route_id": "r16494768",
       "route_name": "成都地铁19号线: 天府站 => 金星",
-      "ours": 23,
+      "ours": 22,
       "lang": "zh",
       "wiki": "zh:成都地铁",
       "reason": "suspect system article (zh:成都地铁: 405)"
@@ -7699,5 +7465,160 @@
       "reason": "article has no station count infobox"
     }
   ],
-  "adjudicated_lines": []
+  "adjudicated_lines": [
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm420838",
+      "route_name": "Beijing Subway Line 4/DX",
+      "ours": 35,
+      "lang": "zh",
+      "wiki": "en:Line 4, Beijing Subway",
+      "wiki_stations": 24,
+      "note": "infobox 24 只计 4 号线本线。en wiki 明载 4 号线与大兴线贯通运营（through-running as a single line），4号线24站 + 大兴线11站(新宫—天宫院) = 35，与我们的站单逐站一致。此路线是贯通服务，站数正确。"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm415571",
+      "route_name": "Beijing Subway Line 1",
+      "ours": 35,
+      "lang": "zh",
+      "wiki": "en:Line 1 (Beijing Subway)",
+      "wiki_stations": 23,
+      "note": "1號線與八通線 2021-08-29 貫通運營（蘋果園—環球度假區）共 35 站；infobox 23 只計 1 號線本線（agent 核對 zh/en wiki 2026-07-11）"
+    },
+    {
+      "city": "Chengdu",
+      "country": "China",
+      "route_id": "rm8298113",
+      "route_name": "Chengdu Metro Line 2",
+      "ours": 27,
+      "lang": "zh",
+      "wiki": "zh:成都地铁2号线",
+      "wiki_stations": 28,
+      "note": "全線33站，東段6站（大面铺～龙泉驿）2025-12-20起停運改造→營運中27站＝我們的站數；infobox「運營28」為停運前舊數。WebFetch 查證 2026-07-11。"
+    },
+    {
+      "city": "Chengdu",
+      "country": "China",
+      "route_id": "rm8298254",
+      "route_name": "Chengdu Metro Line 10",
+      "ours": 19,
+      "lang": "zh",
+      "wiki": "zh:成都地铁10号线",
+      "wiki_stations": 16,
+      "note": "三期首通段（太平园—武侯祠，含高升桥）2025-09-17開通後營運19站；infobox 16 為三期前過期數。agent 核對 zh wiki 2026-07-11；高升桥經 member_appends 插入（上游 relation 漏站）。"
+    },
+    {
+      "city": "Chengdu",
+      "country": "China",
+      "route_id": "rm12095438",
+      "route_name": "成都地铁17号线",
+      "ours": 21,
+      "lang": "zh",
+      "wiki": "zh:成都地铁17号线",
+      "wiki_stations": 19,
+      "note": "wiki_n=19 为过期 infobox。zh wiki 载 17号线二期 2025-09-17 开通后现营运 21 站（九江北—高洪），与我们 21 站逐站一致（浣花里=Huanhua Lane、省骨科医院等均对应）。"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm6855054",
+      "route_name": "Солнцевская линия",
+      "ours": 14,
+      "lang": "ru",
+      "wiki": "en:Kalininsko–Solntsevskaya line",
+      "wiki_stations": 8,
+      "note": "Line operates as two disconnected segments; wiki_n=8 is the eastern Kalininskaya segment (Novokosino–Tretyakovskaya). Our 14-station route (rm6855054, Солнцевская линия) matches the western Solntsevskaya segment exactly station-for-station: Деловой центр, Парк Победы, Минская, Ломоносовский проспект, Раменки, Мичуринский проспект, Озёрная, Говорово, Солнцево, Боровское шоссе, Новопеределкино, Рассказовка, Пыхтино, Аэропорт Внуково. Wiki infobox states 'West section: 14'."
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm5576487",
+      "route_name": "Danhai LRT",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:藍海線",
+      "wiki_stations": 14,
+      "note": "藍海線營運模式紅樹林→漁人碼頭共 12 站（與圖面一致）；infobox 14 為全系統數、藍海線自身9站為含未通車二期之全線數。WebFetch 查證 2026-07-11。"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "r9154523",
+      "route_name": "Danhai LRT Hongshulin-Kanding (Outbound)",
+      "ours": 11,
+      "lang": "zh",
+      "wiki": "zh:綠山線",
+      "wiki_stations": 14,
+      "note": "綠山線實際 11 站（V01-V11，條目車站表）；infobox「營運中14站」為淡海輕軌全系統數（綠山11＋藍海一期新增3）。WebFetch 查證 2026-07-11。"
+    },
+    {
+      "city": "Hefei",
+      "country": "China",
+      "route_id": "rm7949047",
+      "route_name": "Hefei Metro Line 1",
+      "ours": 26,
+      "lang": "zh",
+      "wiki": "en:Line 1, Hefei Metro",
+      "wiki_stations": 23,
+      "note": "zh:合肥轨道交通1号线 列出营运中车站 26 座（张洼→九联圩），与我们 26 站逐一对应。三期北延段（张洼、兴华苑、瑶海公园）2023-07-01 开通，infobox 的 23 为三期前旧数。"
+    },
+    {
+      "city": "Qingdao",
+      "country": "China",
+      "route_id": "rm10467728",
+      "route_name": "West Coast Line",
+      "ours": 23,
+      "lang": "zh",
+      "wiki": "zh:青岛地铁13号线",
+      "wiki_stations": 22,
+      "note": "zh 条目车站列表共 23 座营运中：首批 2018-12-26 开通井冈山路～董家口火车站 21 站，二期北段（嘉陵江西路、香江路）2023-10-26 开通。infobox 的 22 为过期数字，我们 23 站与现况一致。"
+    },
+    {
+      "city": "Qingdao",
+      "country": "China",
+      "route_id": "rm15051229",
+      "route_name": "Qingdao Metro Line 4",
+      "ours": 25,
+      "lang": "zh",
+      "wiki": "en:Line 4 (Qingdao Metro)",
+      "wiki_stations": 24,
+      "note": "zh:青岛地铁4号线 确认全线 25 座车站均已营运：2022-12-26 开通 24 站，观象山（市立医院）站 2023-08-31 补开。en infobox 的 '24 in operation' 未更新；我们 25 站（含 Guanxiangshan）正确。"
+    },
+    {
+      "city": "Dalian",
+      "country": "China",
+      "route_id": "rm13633615",
+      "route_name": "Dalian Metro Line 13",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:大连地铁13号线",
+      "wiki_stations": 11,
+      "note": "zh wiki 车站表载我们的 12 站（九里—普兰店振兴街）全部已开通运营（2021-12-28 延伸后），未开通的预留站为平安河、五里台等，不在我们站单内。infobox『11』为过期/仅计一期之数，与车站表 12 站不符，以车站表为准。"
+    },
+    {
+      "city": "Atlanta",
+      "country": "United States",
+      "route_id": "rm4439535",
+      "route_name": "MARTA Green Line",
+      "ours": 10,
+      "lang": "en",
+      "wiki": "en:Green Line (MARTA)",
+      "wiki_stations": 9,
+      "note": "wiki 條目自載部分平日 Green 班次延駛 Avondale；依「路線服務到的站都畫」語義 10 站正確（agent 逐站核對 2026-07-11）"
+    },
+    {
+      "city": "Changchun",
+      "country": "China",
+      "route_id": "rm9642906",
+      "route_name": "Changchun Subway Line 2",
+      "ours": 27,
+      "lang": "zh",
+      "wiki": "en:Line 2 (Changchun Rail Transit)",
+      "wiki_stations": 21,
+      "note": "wiki_n=21 为过期快照。zh wiki 载：2号线东延（东方广场—雾开河大街，含哈尔滨大街、窦家沟、英俊大街、英凯大街、林溪大街、雾开河大街6站）于 2025-09-28 开通，全线竣工，infobox 现为 27 站，与我们 27 站逐站一致。"
+    }
+  ]
 }

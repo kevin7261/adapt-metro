@@ -23,6 +23,9 @@
     "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/fetchUcExceptions.mjs && node scripts/fetchSbahnDe.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/wikiLineCheck.mjs && node scripts/auditLoop.mjs"
   },
   "dependencies": {
+    "d3-geo": "^3.1.1",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
     "dockview-vue": "^7.0.2",
     "lucide-vue-next": "^0.469.0",
     "maplibre-gl": "^5.6.0",

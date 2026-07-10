@@ -68,6 +68,16 @@ function importMetro() {
   importSystem(selectedSystem.value)
 }
 
+/* Add D3.js view — pick one of the loaded metro map layers as its source */
+const metroLayerChoices = computed(() => store.layers.filter((l) => l.type === 'metro'))
+function addD3View(src) {
+  const d3Layer = store.addD3Layer(src.id)
+  if (!d3Layer) return
+  openLayerTab(d3Layer)
+  close()
+  store.toast(`已建立 D3.js 視圖（來源：${src.name}）`)
+}
+
 /* Quick Selection — 常用城市 */
 const QUICK_CITIES = [
   { zh: '台北', en: 'Taipei' }, { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
@@ -188,6 +198,35 @@ const shortcuts = [
               <span class="station-city">{{ s.city }}</span>
               <span class="station-country">{{ s.country }}</span>
               <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Add D3.js view: pick a loaded metro map layer (fixed once chosen) -->
+    <div v-else-if="dialog === 'add-d3'" class="dialog add-d3">
+      <div class="dialog-header">
+        <h2 class="dialog-title">Add D3.js View</h2>
+        <button class="btn-icon" @click="close"><X :size="15" /></button>
+      </div>
+      <div class="dialog-body">
+        <div v-if="!metroLayerChoices.length" class="import-status">
+          Metro Maps group 還沒有圖層 — 先用 + 匯入一個 metro map
+        </div>
+        <template v-else>
+          <p class="add-d3-hint">選擇一個 metro map 圖層作為 D3.js 視圖的資料來源（建立後不可更改）：</p>
+          <div class="stations-list">
+            <button
+              v-for="l in metroLayerChoices"
+              :key="l.id"
+              class="station-row"
+              @click="addD3View(l)"
+            >
+              <TrainFront :size="14" />
+              <span class="station-city">{{ l.name }}</span>
+              <span class="station-country">{{ l.city }}</span>
+              <span class="station-count">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
             </button>
           </div>
         </template>
@@ -409,6 +448,8 @@ const shortcuts = [
 
 <style scoped>
 .import-metro { width: min(720px, calc(100vw - 32px)); }
+.add-d3 { width: min(520px, calc(100vw - 32px)); }
+.add-d3-hint { font-size: 12.5px; color: hsl(var(--muted-foreground)); margin: 0 0 10px; }
 
 /* Quick Selection */
 .import-quick { width: min(560px, calc(100vw - 32px)); }

@@ -13,7 +13,7 @@ export function openLayerTab(layer) {
   }
   api.addPanel({
     id: layer.id,
-    component: 'layer-tab',
+    component: layer.type === 'd3' ? 'd3-tab' : 'layer-tab',
     title: layer.name,
     params: { layerId: layer.id },
     // Keep hidden tabs mounted so each tab's map keeps its view state.

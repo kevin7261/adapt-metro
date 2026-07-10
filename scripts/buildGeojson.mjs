@@ -115,7 +115,7 @@ const pick = (tags, ...keys) => { for (const k of keys) if (tags[k]) return tags
 // already exclude these; this re-filters older caches fetched without the guard.
 const NONOP = /^(proposed|construction|planned|disused|abandoned|razed)$/
 // stations sometimes mark construction only in the name — "大明北路(建设中)"
-const NONOP_NAME = /[（(【[][^）)】\]]*(建設中|建设中|在建|未开通|未開通|規劃|规划|under construction|planned|u\/c)[^）)】\]]*[）)】\]]/i
+const NONOP_NAME = /[（(【[][^）)】\]]*(建設中|建设中|在建|未开通|未開通|規劃|规划|封閉改造|封闭改造|封站|停運|停运|renovation|closed|under construction|planned|u\/c)[^）)】\]]*[）)】\]]/i
 const isOperational = (t = {}) =>
   !NONOP.test(t.state || '') && !NONOP.test(t.railway || '') &&
   !('construction' in t) && !('proposed' in t) && !('planned' in t) &&
@@ -232,11 +232,19 @@ async function build() {
       el.members ??= []
       for (const nid of fix.append_stops ?? [])
         el.members.push({ type: 'node', ref: nid, role: 'stop' })
+      // 中途插站（上游漏掉的營運中間站，如成都 L10 高升桥）
+      for (const ins of fix.inserts ?? []) {
+        const i = el.members.findIndex((m) => m.type === 'node' && m.ref === ins.after)
+        if (i < 0) { console.log(`  !! member_appends: r${fix.relation} anchor ${ins.after} not found`); continue }
+        el.members.splice(i + 1, 0,
+          ...ins.add.map((nid) => ({ type: 'node', ref: nid, role: 'stop' })))
+      }
       if (fix.close_loop) {
         const first = el.members.find((m) => m.type === 'node' && (m.role || '').includes('stop'))
         if (first) el.members.push({ ...first })
       }
       console.log(`  member_appends: r${fix.relation} +${(fix.append_stops ?? []).length} stops` +
+        `${(fix.inserts ?? []).length ? ` +${fix.inserts.length} inserts` : ''}` +
         (fix.close_loop ? ' (loop closed)' : ''))
     }
   } catch { /* no member_appends override */ }
@@ -249,6 +257,27 @@ async function build() {
     tombstones = new Set((JSON.parse(await readFile(join(CACHE, 'deleted_nodes.json'), 'utf8'))
       .deleted ?? []))
   } catch { /* no tombstones */ }
+  // wiki 裁決「非營運中」站點（_overrides/station_excludes.json：預留未開通/
+  // 封站改造/停運施工——OSM 標營運但 wiki 證實沒有）。單靠 id 剔不乾淨——
+  // 同名兄弟節點（雙向 stop_position）會遞補成代表點，故以「名稱＋座標半徑
+  // ~3 km」匹配整個同名簇拒收。
+  let stationExcludes = []
+  try {
+    stationExcludes = (JSON.parse(await readFile(
+      join(OVERRIDES_DIR, 'station_excludes.json'), 'utf8')).excludes ?? [])
+      .filter((e) => e.lon != null && Array.isArray(e.names))
+  } catch { /* none */ }
+  const isExcluded = (e, lon, lat) => {
+    // 精確比對名稱欄位（substring 會誤殺「龙泉驿火车站」之類的同前綴站）
+    const nms = [e.tags?.name, e.tags?.['name:en'], e.tags?.['name:zh']]
+      .filter(Boolean).map((s) => s.trim())
+    if (!nms.length) return false
+    for (const x of stationExcludes) {
+      if (Math.abs(lon - x.lon) > 0.04 || Math.abs(lat - x.lat) > 0.03) continue
+      if (x.names.some((n) => nms.includes(n))) return true
+    }
+    return false
+  }
   // 人工站名補正（_overrides/station_names.json）：上游無名、但 wiki 可查得名稱的
   // 站點——agent/人工逐站核對 wiki 後落地（站名 100% 不變式的裁決出口）。
   let nameOverrides = {}
@@ -267,6 +296,7 @@ async function build() {
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }
     if (lon == null || lat == null) return
+    if (isExcluded(e, lon, lat)) return
     const key = `${e.type}/${e.id}`
     if (seenStation.has(key)) return
     seenStation.add(key)

@@ -4,6 +4,8 @@ import { DockviewVue } from 'dockview-vue'
 import { useMapStore } from '../stores/mapStore'
 import { dockHandle, openLayerTab } from '../stores/dockHandle'
 import LayerTab from './LayerTab.vue'
+import D3Tab from './D3Tab.vue'
+import DockTab from './DockTab.vue'
 import DockWatermark from './DockWatermark.vue'
 
 const store = useMapStore()
@@ -35,7 +37,8 @@ onBeforeUnmount(() => { dockHandle.api = null })
 <template>
   <DockviewVue
     class="editor-dock"
-    :components="{ 'layer-tab': LayerTab }"
+    :components="{ 'layer-tab': LayerTab, 'd3-tab': D3Tab }"
+    :default-tab-component="DockTab"
     :watermark-component="DockWatermark"
     :theme="theme"
     @ready="onReady"

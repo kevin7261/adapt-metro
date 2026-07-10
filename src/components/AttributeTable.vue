@@ -11,8 +11,14 @@ import {
 const store = useMapStore()
 
 // The tab owning this table passes its layer; fall back to the active layer.
-const props = defineProps({ layer: { type: Object, default: null } })
+// `ownerId` keys the open/closed state — a D3 tab shows a SOURCE layer's data
+// but owns its own toggle, so the two ids differ there.
+const props = defineProps({
+  layer: { type: Object, default: null },
+  ownerId: { type: String, default: null },
+})
 const activeLayer = computed(() => props.layer ?? store.selectedLayer)
+const toggleId = computed(() => props.ownerId ?? activeLayer.value?.id)
 
 const columns = ['station_name', 'station_name_local', 'network', 'lines', 'city']
 const filter = ref('')
@@ -96,7 +102,7 @@ function startResize(e) {
           <Filter :size="12" class="filter-icon" />
           <input v-model="filter" class="filter-input" placeholder="Filter…" />
         </div>
-        <button class="btn-icon" title="Close" @click="activeLayer && store.toggleAttributeTable(activeLayer.id, false)">
+        <button class="btn-icon" title="Close" @click="toggleId && store.toggleAttributeTable(toggleId, false)">
           <X :size="14" />
         </button>
       </div>

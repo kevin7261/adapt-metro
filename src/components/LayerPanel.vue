@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, dockHandle } from '../stores/dockHandle'
@@ -8,11 +8,41 @@ import {
   PanelLeftClose, PanelLeftOpen,
   ZoomIn, TableProperties, Download, Trash2,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
+  ChevronDown, ChevronRight, Folder, FolderOpen, Plus,
+  Zap, ArrowUpDown, Globe,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
 
-const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront }
+const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline }
+const typeBadges = { metro: 'METRO', d3: 'D3' }
+
+// Add a D3.js view: a dialog picks the source metro layer (fixed afterwards).
+function addD3() {
+  store.ui.dialog = 'add-d3'
+}
+
+// "+" on the Metro Maps group: the three import entry points (was the top-bar
+// Import menu).
+const metroAddOpen = ref(false)
+const metroAddWrap = ref(null)
+const importItems = [
+  { id: 'import-quick', label: 'Quick Selection', icon: Zap },
+  { id: 'import-stations', label: 'Sort by Station Count', icon: ArrowUpDown },
+  { id: 'import-metro', label: 'Global Metro Map', icon: Globe },
+]
+function pickImport(id) {
+  metroAddOpen.value = false
+  store.ui.dialog = id
+}
+function onDocClick(e) {
+  // template ref sits inside v-for, so Vue fills it as an array
+  const wrap = Array.isArray(metroAddWrap.value) ? metroAddWrap.value[0] : metroAddWrap.value
+  if (metroAddOpen.value && wrap && !wrap.contains(e.target)) {
+    metroAddOpen.value = false
+  }
+}
+onMounted(() => document.addEventListener('mousedown', onDocClick))
 
 // Click a layer → open (or focus) its editor tab, like opening a file in an IDE.
 function openLayer(layer) {
@@ -101,7 +131,10 @@ function startResize(e) {
   window.addEventListener('pointermove', move)
   window.addEventListener('pointerup', up)
 }
-onBeforeUnmount(() => { dragging.value = false })
+onBeforeUnmount(() => {
+  dragging.value = false
+  document.removeEventListener('mousedown', onDocClick)
+})
 </script>
 
 <template>
@@ -125,42 +158,92 @@ onBeforeUnmount(() => { dragging.value = false })
       </div>
 
       <div class="tree">
-        <div
-          v-for="layer in store.layers"
-          :key="layer.id"
-          class="layer-row"
-          :class="{ selected: store.selectedLayerId === layer.id }"
-          @click="openLayer(layer)"
-        >
-          <div class="layer-title">
-            <component
-              :is="typeIcons[layer.type]"
-              :size="13"
-              class="type-icon"
-              :style="layer.color ? { color: layer.color } : {}"
-            />
-            <span class="layer-name">{{ layer.name }}</span>
+        <div v-for="item in store.layerTree" :key="item.group.id" class="group-card">
+          <!-- Group header: chevron + folder + name (+ add for the D3 group) -->
+          <div class="group-header" @click="item.group.collapsed = !item.group.collapsed">
+            <component :is="item.group.collapsed ? ChevronRight : ChevronDown" :size="14" class="group-chevron" />
+            <component :is="item.group.collapsed ? Folder : FolderOpen" :size="14" class="group-folder" />
+            <span class="group-name">{{ item.group.label }}</span>
+            <span class="group-count">{{ item.children.length }}</span>
+            <div v-if="item.group.id === 'metro-maps'" ref="metroAddWrap" class="group-add-wrap" @click.stop>
+              <button
+                class="btn-icon group-add"
+                :class="{ active: metroAddOpen }"
+                title="Import metro map"
+                @click="metroAddOpen = !metroAddOpen"
+              >
+                <Plus :size="14" />
+              </button>
+              <div v-if="metroAddOpen" class="menu-pop group-add-menu">
+                <button v-for="it in importItems" :key="it.id" class="menu-item" @click="pickImport(it.id)">
+                  <component :is="it.icon" :size="14" /> {{ it.label }}
+                </button>
+              </div>
+            </div>
+            <button
+              v-if="item.group.id === 'd3'"
+              class="btn-icon group-add"
+              title="Add D3.js view"
+              @click.stop="addD3()"
+            >
+              <Plus :size="14" />
+            </button>
           </div>
 
-          <div class="layer-actions" @click.stop>
-            <button class="btn-icon" title="Zoom to layer" @click="overflow(layer, 'zoom')">
-              <ZoomIn :size="14" />
-            </button>
-            <button
-              class="btn-icon"
-              :class="{ active: store.ui.attributeTableOpen[layer.id] }"
-              title="Attribute table"
-              @click="overflow(layer, 'table')"
+          <!-- Group children -->
+          <template v-if="!item.group.collapsed">
+            <div v-if="!item.children.length" class="group-empty">
+              {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖' : '用 Import 匯入 metro map' }}
+            </div>
+            <div
+              v-for="layer in item.children"
+              :key="layer.id"
+              class="layer-row"
+              :class="{ selected: store.selectedLayerId === layer.id }"
+              @click="openLayer(layer)"
             >
-              <TableProperties :size="14" />
-            </button>
-            <button class="btn-icon" title="Export GeoJSON" @click="overflow(layer, 'export')">
-              <Download :size="14" />
-            </button>
-            <button class="btn-icon danger" title="Remove layer" @click="overflow(layer, 'remove')">
-              <Trash2 :size="14" />
-            </button>
-          </div>
+              <div class="layer-title">
+                <component
+                  :is="typeIcons[layer.type]"
+                  :size="13"
+                  class="type-icon"
+                  :style="layer.color ? { color: layer.color } : {}"
+                />
+                <span class="layer-name">{{ layer.name }}</span>
+                <span class="type-badge">{{ typeBadges[layer.type] ?? layer.type }}</span>
+              </div>
+
+              <div class="layer-actions" @click.stop>
+                <button
+                  v-if="layer.type === 'metro'"
+                  class="btn-icon"
+                  title="Zoom to layer"
+                  @click="overflow(layer, 'zoom')"
+                >
+                  <ZoomIn :size="14" />
+                </button>
+                <button
+                  class="btn-icon"
+                  :class="{ active: store.ui.attributeTableOpen[layer.id] }"
+                  title="Attribute table"
+                  @click="overflow(layer, 'table')"
+                >
+                  <TableProperties :size="14" />
+                </button>
+                <button
+                  v-if="layer.type === 'metro'"
+                  class="btn-icon"
+                  title="Export GeoJSON"
+                  @click="overflow(layer, 'export')"
+                >
+                  <Download :size="14" />
+                </button>
+                <button class="btn-icon danger" title="Remove layer" @click="overflow(layer, 'remove')">
+                  <Trash2 :size="14" />
+                </button>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </aside>
@@ -202,7 +285,55 @@ onBeforeUnmount(() => { dragging.value = false })
 }
 .header-actions { display: flex; gap: 2px; }
 
-.tree { flex: 1; overflow-y: auto; padding: 8px; }
+.tree { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+
+/* ---- group card (GeoLibre-style: chevron + folder + name) ---- */
+.group-card {
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.25);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+  user-select: none;
+}
+.group-header:hover { background: hsl(var(--accent) / 0.6); }
+.group-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
+.group-folder { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
+.group-name {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-count {
+  font-size: 10.5px;
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  padding: 0 6px;
+  line-height: 16px;
+}
+.group-add { width: 22px; height: 22px; color: hsl(var(--muted-foreground)); }
+.group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
+.group-add-wrap { position: relative; }
+.group-add-menu { right: 0; top: 26px; min-width: 200px; }
+.group-empty {
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 4px 8px 6px 26px;
+}
 
 .layer-row {
   position: relative;
@@ -212,7 +343,8 @@ onBeforeUnmount(() => { dragging.value = false })
   padding: 6px 8px;
   border-radius: calc(var(--radius) - 4px);
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card));
 }
 .layer-row:hover { background: hsl(var(--accent) / 0.6); }
 /* Active layer = the layer shown in the active editor tab. */
@@ -229,6 +361,14 @@ onBeforeUnmount(() => { dragging.value = false })
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.type-badge {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+  padding-left: 6px;
 }
 /* second row: the four actions, aligned bottom-right */
 .layer-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }
