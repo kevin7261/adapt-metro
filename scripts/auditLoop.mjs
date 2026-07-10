@@ -90,6 +90,8 @@ async function loadStatic() {
   ctx.wiki = await readJSON(join(CACHE, 'wiki_metro_systems.json'), [])
   ctx.wikiXY = await readJSON(join(CACHE, 'wiki_city_coords.json'), {})
   ctx.state = await readJSON(STATE_PATH, {})
+  // per-line Wikipedia station counts (scripts/wikiLineCheck.mjs, optional)
+  ctx.wikiLineN = await readJSON(join(CACHE, 'wiki_line_stations.json'), {})
 
   // relation centroids from every geometry cache file
   const files = (await readdir(CACHE)).filter((n) =>
@@ -282,6 +284,32 @@ async function audit(city, country, wikiRow) {
           '，需以 Wikipedia 線路條目與 urbanrail.net 人工確認'
         : '所有線路站序合理',
       'warn')
+
+    // 逐線 wiki 站數對照（metro:wikilines 產出的快取，warn 級——
+    // 支線/計法差異會誤報，flag = 請以該線 wiki 條目確認站單）
+    if (Object.keys(ctx.wikiLineN).length) {
+      const lineFlags = []
+      const seenRt = new Set()
+      for (const f of g.features) {
+        if (f.geometry?.type !== 'MultiLineString') continue
+        for (const r of f.properties?.routes || []) {
+          if (seenRt.has(r.route_id) || !r.wikipedia) continue
+          seenRt.add(r.route_id)
+          const wikiN = ctx.wikiLineN[r.wikipedia]
+          if (!wikiN || wikiN < 2) continue
+          const ours = (r.stations || []).length
+          const ratio = ours / wikiN
+          if (Math.abs(ours - wikiN) >= 2 && (ratio < 0.7 || ratio > 1.3))
+            lineFlags.push(`${r.route_name} ${ours}/${wikiN}`)
+        }
+      }
+      push('line_wiki_stations', lineFlags.length === 0,
+        lineFlags.length
+          ? `${lineFlags.length} 條線站數與該線 wiki 條目不符：` +
+            lineFlags.slice(0, 4).join('、') + '，需逐線確認站單'
+          : '各線站數與 wiki 線路條目相符',
+        'warn')
+    }
   }
 
   const errors = checks.filter((c) => !c.ok && c.level === 'error')

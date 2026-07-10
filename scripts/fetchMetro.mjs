@@ -17,7 +17,7 @@ import * as overpass from './overpass.mjs'
 const BATCH = 120
 // Bump when the Overpass predicates change — stale tag/station caches from an
 // older query shape are discarded automatically (geometry stays incremental).
-const QUERY_VERSION = 3
+const QUERY_VERSION = 4
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const step = (m) => console.log(`\n=== ${m} ===`)
@@ -129,13 +129,17 @@ async function fetchStations() {
     return
   }
   // station=subway|light_rail, plus railway=station explicitly flagged
-  // subway=yes / light_rail=yes. Deliberately NOT plain railway=station
-  // (that would pull in mainline rail).
+  // subway=yes / light_rail=yes, plus NAMED stop_positions of those modes
+  // (newly opened lines often have named stops mapped before station nodes —
+  // 三鶯線 opened 2026-06 with 12 named stops but only 10 station nodes).
+  // Deliberately NOT plain railway=station (that would pull in mainline rail).
   const ST = '["railway"!~"^(proposed|construction|disused|abandoned|razed)$"]'
   const nodeQ = '[out:json][timeout:240];(' +
     `node["station"~"^(subway|light_rail)$"]${ST}${LIFE};` +
     `node["railway"="station"]["subway"="yes"]${LIFE};` +
     `node["railway"="station"]["light_rail"="yes"]${LIFE};` +
+    `node["railway"="stop"]["subway"="yes"]["name"]${LIFE};` +
+    `node["railway"="stop"]["light_rail"="yes"]["name"]${LIFE};` +
     ');out;'
   const wayQ = '[out:json][timeout:240];(' +
     `way["station"~"^(subway|light_rail)$"]${ST}${LIFE};` +

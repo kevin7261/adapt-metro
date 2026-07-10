@@ -195,6 +195,15 @@ async function addMetroLayers(fit) {
 const MAX_OVERLAP = 6
 const DASH = 2.5
 const ALL_LINE_LAYER_IDS = ['metro-lines']
+
+// Station fill by role: transfer/interchange → red, terminal/terminus → blue,
+// otherwise white. Interchange wins when a station is both.
+const STATION_COLOR = [
+  'case',
+  ['coalesce', ['get', 'is_interchange'], false], '#e11d48',
+  ['coalesce', ['get', 'is_terminus'], false], '#2563eb',
+  '#ffffff',
+]
 for (let n = 2; n <= MAX_OVERLAP; n++)
   for (let i = 0; i < n; i++) ALL_LINE_LAYER_IDS.push(`metro-lines-d${n}-${i}`)
 
@@ -254,7 +263,7 @@ function addMetroSourceLayers(data) {
     filter: ['==', ['geometry-type'], 'Point'],
     paint: {
       'circle-radius': l.radius,
-      'circle-color': '#ffffff',
+      'circle-color': STATION_COLOR,
       'circle-stroke-color': '#3f3f46',
       'circle-stroke-width': 1.2,
       'circle-opacity': l.opacity,
@@ -268,7 +277,7 @@ function addMetroSourceLayers(data) {
     filter: ['==', ['get', 'station_id'], ''],
     paint: {
       'circle-radius': (l.radius || 4) + 3,
-      'circle-color': '#ffffff',
+      'circle-color': STATION_COLOR,
       'circle-stroke-color': '#3f3f46',
       'circle-stroke-width': 2,
     },
@@ -385,6 +394,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="layer-tab">
     <div class="tab-body">
+      <div class="map-col">
       <div class="tab-map">
         <div ref="container" class="map-container" />
 
@@ -483,11 +493,11 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </div>
+        <AttributeTable v-if="store.ui.attributeTable && layer" :layer="layer" />
+      </div>
 
       <StylePanel v-if="layer" :layer="layer" />
     </div>
-
-    <AttributeTable v-if="store.ui.attributeTable && layer" :layer="layer" />
 
     <StatusBar :view="view" />
   </div>
@@ -506,11 +516,20 @@ onBeforeUnmount(() => {
   flex: 1;
   min-height: 0;
 }
+/* Map + its attribute table stack vertically; StylePanel sits full-height beside. */
+.map-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
 .tab-map {
   position: relative;
   isolation: isolate;
   flex: 1;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
 }
 .map-container { position: absolute; inset: 0; }

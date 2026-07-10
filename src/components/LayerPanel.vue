@@ -5,7 +5,7 @@ import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
-  Eye, EyeOff, PanelLeftClose, PanelLeftOpen,
+  PanelLeftClose, PanelLeftOpen,
   GripVertical, MoreHorizontal,
   ZoomIn, Palette, TableProperties, Download, Trash2,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
@@ -21,11 +21,6 @@ const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: Image
 function openLayer(layer) {
   store.selectedLayerId = layer.id
   openLayerTab(layer)
-}
-
-function toggleAll() {
-  const next = !store.allLayersVisible
-  store.layers.forEach((l) => { l.visible = next })
 }
 
 function overflow(layer, action) {
@@ -81,10 +76,6 @@ onBeforeUnmount(() => { dragging.value = false })
       <div class="panel-header">
         <span class="panel-title">Layers</span>
         <div class="header-actions">
-          <button class="btn-icon" :title="store.allLayersVisible ? 'Hide all layers' : 'Show all layers'" @click="toggleAll">
-            <Eye v-if="store.allLayersVisible" :size="14" />
-            <EyeOff v-else :size="14" />
-          </button>
           <button class="btn-icon" title="Collapse panel" @click="store.ui.layerPanelOpen = false">
             <PanelLeftClose :size="14" />
           </button>
@@ -100,21 +91,13 @@ onBeforeUnmount(() => { dragging.value = false })
           @click="openLayer(layer)"
         >
           <GripVertical :size="13" class="grip" />
-          <button
-            class="btn-icon vis"
-            :title="layer.visible ? 'Hide layer' : 'Show layer'"
-            @click.stop="layer.visible = !layer.visible"
-          >
-            <Eye v-if="layer.visible" :size="14" />
-            <EyeOff v-else :size="14" class="dim" />
-          </button>
           <component
             :is="typeIcons[layer.type]"
             :size="13"
             class="type-icon"
             :style="layer.color ? { color: layer.color } : {}"
           />
-          <span class="layer-name" :class="{ 'hidden-layer': !layer.visible }">{{ layer.name }}</span>
+          <span class="layer-name">{{ layer.name }}</span>
 
           <div class="row-menu-wrap" @click.stop>
             <button
@@ -201,8 +184,6 @@ onBeforeUnmount(() => { dragging.value = false })
   border-color: hsl(var(--primary) / 0.4);
 }
 .grip { color: hsl(var(--muted-foreground) / 0.5); cursor: grab; flex-shrink: 0; }
-.vis { width: 24px; height: 24px; }
-.dim { color: hsl(var(--muted-foreground)); }
 .type-icon { flex-shrink: 0; margin: 0 3px; }
 .layer-name {
   flex: 1;
@@ -211,7 +192,6 @@ onBeforeUnmount(() => { dragging.value = false })
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.hidden-layer { color: hsl(var(--muted-foreground)); }
 .more { width: 24px; height: 24px; opacity: 0; }
 .layer-row:hover .more, .layer-row.selected .more { opacity: 1; }
 .row-menu-wrap { position: relative; }

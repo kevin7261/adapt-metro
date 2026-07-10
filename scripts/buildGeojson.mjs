@@ -358,7 +358,11 @@ async function build() {
     const covered = new Set(), kept = []
     for (const seq of sorted) {
       const fresh = seq.filter((r) => !covered.has(ckey(r))).length
-      if (kept.length && fresh / seq.length <= 0.2) continue
+      // Keep any variant bringing ≥1 unseen station (short branches like
+      // 小碧潭支線 add just 1-2 stations); pure reverse/express duplicates
+      // (fresh = 0) are dropped. Overlap segmentization dedupes the shared
+      // stretch afterwards, so keeping a mostly-overlapping branch is free.
+      if (kept.length && fresh === 0) continue
       kept.push(seq)
       for (const r of seq) covered.add(ckey(r))
     }
@@ -883,6 +887,12 @@ async function build() {
       // 只要沾到私鐵就不是 Metro/Toei 本體的線（deny 優先於 allow）。
       deny: /京浜急行|京急|京成|東急|東武|西武|小田急|京王|相鉄|keikyu|keisei|tokyu|tobu|seibu|odakyu|keio|sotetsu|s-train|りんかい|ゆりかもめ|多摩モノレール/i,
     }],
+    // 台北（使用者指定）：只收 台北捷運／新北捷運／桃園捷運 三系統
+    //（機場航廈電車 Skytrain 等自然不在表列 → 剔除）
+    ['taipei|taiwan', {
+      allow: /台北捷運|臺北捷運|taipei metro|新北捷運|新北大眾捷運|new taipei metro|淡海輕軌|安坑輕軌|三鶯|桃園捷運|桃園大眾捷運|桃園機場捷運|taoyuan (?:metro|airport)/i,
+      deny: /skytrain|航廈電車/i,
+    }],
   ])
   let removedPrivate = 0
   for (const [ckey, rule] of CITY_NETWORK_ALLOW) {
@@ -893,7 +903,10 @@ async function build() {
       grp.lines = grp.lines.filter((f) => {
         const p = f.properties
         const hay = `${p.network ?? ''} ${p.network_local ?? ''} ${p.operator ?? ''} ${p.route_name ?? ''}`
-        if ((rule.allow.test(hay) && !rule.deny.test(hay)) || ovFlags.get(f)) return true
+        const pass = rule.allow
+          ? (rule.allow.test(hay) && !rule.deny.test(hay))
+          : !rule.deny.test(hay)
+        if (pass || ovFlags.get(f)) return true
         removedTags.add(featTag.get(f))
         removedPrivate++
         if (process.env.DEBUG_LRT) console.log('  [private-removed]',

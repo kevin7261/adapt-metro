@@ -15,6 +15,7 @@
     "metro:maps": "node scripts/downloadMaps.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
     "metro:audit": "node scripts/auditLoop.mjs",
+    "metro:wikilines": "node scripts/wikiLineCheck.mjs",
     "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/auditLoop.mjs"
   },
   "dependencies": {

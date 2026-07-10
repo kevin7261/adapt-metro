@@ -64,7 +64,8 @@ export const useMapStore = defineStore('map', {
       if (!layer) {
         layer = {
           id,
-          name: `metro_map_${sys.city.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
+          // Default layer name = the geojson filename (without extension).
+          name: id,
           type: 'metro',
           file: `/data/metro/${sys.file}`,
           continent: sys.continent,
