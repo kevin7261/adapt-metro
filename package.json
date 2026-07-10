@@ -14,7 +14,8 @@
     "metro:build": "node scripts/buildGeojson.mjs",
     "metro:maps": "node scripts/downloadMaps.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
-    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs"
+    "metro:audit": "node scripts/auditLoop.mjs",
+    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/auditLoop.mjs"
   },
   "dependencies": {
     "dockview-vue": "^7.0.2",

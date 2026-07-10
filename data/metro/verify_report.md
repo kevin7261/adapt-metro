@@ -5,169 +5,75 @@
 | 指標 | 值 |
 |---|---|
 | Wikipedia 系統數 | 233 |
-| 本資料系統數 | 232 |
-| 站數相符 (ok) | 192 |
-| 標記待查 | 148（missing 6／no_line 104／order 3／zero 0／low 4／high 31） |
-| 額外（不在 wiki 清單） | 23 |
+| 本資料系統數 | 308 |
+| 站數相符 (ok) | 187 |
+| 標記待查 | 54（missing 1／no_line 0／order 8／zero 0／low 3／high 42） |
+| 額外（不在 wiki 清單） | 94 |
 
 ## 不變式（invariants，違反＝資料一定有錯，必須驗證修正）
 
-1. **wiki 有列的城市不可能沒資料**：違反數 **6**（severity `missing`）
-2. **車站不可能沒有路線**：**104** 個系統、共 **979** 站的 `lines` 為空（severity `no_line`）
-3. **站序必須正確**：**3** 個系統有站序可疑的線（severity `order`）——一律以該線 **Wikipedia 條目**的車站列表與 **urbanrail.net** 的線路站序人工確認
+1. **wiki 有列的城市不可能沒資料**：違反數 **1**（severity `missing`）
+2. **車站不可能沒有路線**：**0** 個系統、共 **0** 站的 `lines` 為空（severity `no_line`）
+3. **站序必須正確**：**8** 個系統有站序可疑的線（severity `order`）——一律以該線 **Wikipedia 條目**的車站列表與 **urbanrail.net** 的線路站序人工確認
 
 ## 待查系統（fetch⇄verify 迴圈的回饋清單）
 
 | 嚴重度 | 城市 | 國家 | 本站數 | wiki站數 | 比值 | 說明 | 參考 |
 |---|---|---|---|---|---|---|---|
 | missing | Wuhu | China | — | 36 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Wuhu_Rail_Transit) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Wuhu) |
-| missing | Astana | Kazakhstan | — | 18 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Astana_Light_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Astana) |
-| missing | Macau | China | — | 15 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Macau_Light_Rapid_Transit) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Macau) |
-| missing | Palembang | Indonesia | — | 13 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Palembang_LRT) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Palembang) |
-| missing | Gimpo | South Korea | — | 10 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Gimpo_Goldline) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Gimpo) |
-| missing | Maracaibo | Venezuela | — | 6 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Maracaibo_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Maracaibo) |
-| no_line | Beijing | China | 482 | — | — | 10/482 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Beijing) |
-| no_line | Tokyo | Japan | 315 | — | — | 8/315 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| no_line | Paris | France | 418 | — | — | 3/418 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Paris) |
-| no_line | Shanghai | China | 564 | — | — | 31/564 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Shanghai) |
-| no_line | Guangzhou | China | 362 | — | — | 5/362 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Guangzhou) |
-| no_line | Berlin | Germany | 267 | — | — | 6/267 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin) |
-| no_line | Chengdu | China | 548 | — | — | 12/548 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Chengdu) |
-| no_line | Shenzhen | China | 403 | — | — | 1/403 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Shenzhen) |
-| no_line | Moscow | Russia | 276 | — | — | 3/276 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Moscow) |
-| no_line | Nanjing | China | 305 | — | — | 3/305 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Nanjing) |
-| no_line | Tianjin | China | 304 | — | — | 26/304 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tianjin) |
-| no_line | Hangzhou | China | 382 | — | — | 72/382 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Hangzhou) |
-| no_line | Zhengzhou | China | 248 | — | — | 2/248 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Zhengzhou) |
-| no_line | Mexico City | Mexico | 212 | — | — | 4/212 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Mexico%20City) |
-| no_line | London | United Kingdom | 280 | — | — | 5/280 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20London) |
-| no_line | Seoul | South Korea | 499 | — | — | 8/499 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul) |
-| no_line | Chongqing | China | 319 | — | — | 3/319 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Chongqing) |
-| no_line | Istanbul | Turkey | 243 | — | — | 5/243 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Istanbul) |
-| no_line | Ratingen | Germany | 158 | — | — | 6/158 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Ratingen) |
-| no_line | Osaka | Japan | 128 | — | — | 1/128 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Osaka) |
-| no_line | Suzhou | China | 276 | — | — | 3/276 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Suzhou) |
-| no_line | Hefei | China | 218 | — | — | 7/218 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Hefei) |
-| no_line | Qingdao | China | 231 | — | — | 47/231 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Qingdao) |
-| no_line | Munich | Germany | 101 | — | — | 1/101 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Munich) |
-| no_line | Ningbo | China | 188 | — | — | 7/188 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Ningbo) |
-| no_line | Mumbai | India | 83 | — | — | 3/83 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Mumbai) |
-| no_line | Stockholm | Sweden | 101 | — | — | 1/101 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Stockholm) |
-| no_line | Washington, D.C. | United States | 109 | — | — | 5/109 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Washington%2C%20D.C.) |
-| no_line | Saint Petersburg | Russia | 75 | — | — | 2/75 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Saint%20Petersburg) |
-| no_line | Tehran | Iran | 143 | — | — | 2/143 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tehran) |
-| no_line | Singapore | Singapore | 235 | — | — | 25/235 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Singapore) |
-| no_line | Dalian | China | 153 | — | — | 12/153 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Dalian) |
-| no_line | Kunming | China | 195 | — | — | 2/195 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kunming) |
-| no_line | Fuzhou | China | 128 | — | — | 10/128 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Fuzhou) |
-| no_line | Jinan | China | 109 | — | — | 1/109 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jinan) |
-| no_line | Vienna | Austria | 121 | — | — | 7/121 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Vienna) |
-| no_line | Oslo | Norway | 91 | — | — | 6/91 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Oslo) |
-| no_line | Bangkok | Thailand | 159 | — | — | 45/159 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok) |
-| no_line | Rotterdam | Netherlands | 81 | — | — | 1/81 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Rotterdam) |
-| no_line | Nanning | China | 118 | — | — | 17/118 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Nanning) |
-| no_line | Kolkata | India | 62 | — | — | 2/62 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kolkata) |
-| no_line | Brussels | Belgium | 72 | — | — | 6/72 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Brussels) |
-| no_line | Montreal | Canada | 88 | — | — | 8/88 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal) |
-| no_line | Rome | Italy | 139 | — | — | 35/139 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Rome) |
-| no_line | null | null | 117 | — | — | 70/117 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20) |
-| no_line | Nanchang | China | 143 | — | — | 10/143 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Nanchang) |
-| no_line | Xuzhou | China | 149 | — | — | 63/149 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Xuzhou) |
-| no_line | Prague | Czechia | 61 | — | — | 2/61 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Prague) |
-| no_line | Toronto | Canada | 85 | — | — | 12/85 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Toronto) |
-| no_line | Vancouver | Canada | 56 | — | — | 1/56 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Vancouver) |
-| no_line | Naples | Italy | 36 | — | — | 3/36 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Naples) |
-| no_line | Boston | United States | 46 | — | — | 5/46 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Boston) |
-| no_line | Busan | South Korea | 103 | — | — | 4/103 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Busan) |
-| no_line | Harbin | China | 78 | — | — | 3/78 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Harbin) |
-| no_line | Chennai | India | 86 | — | — | 11/86 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Chennai) |
-| no_line | Changchun | China | 104 | — | — | 32/104 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Changchun) |
-| no_line | Xiamen | China | 84 | — | — | 14/84 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Xiamen) |
-| no_line | Noida | India | 27 | — | — | 1/27 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Noida) |
-| no_line | Essen | Germany | 19 | — | — | 3/19 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Essen) |
-| no_line | Dubai | United Arab Emirates | 71 | — | — | 15/71 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Dubai) |
-| no_line | Santo Domingo | Dominican Republic | 51 | — | — | 3/51 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Santo%20Domingo) |
-| no_line | Medellín | Colombia | 29 | — | — | 1/29 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Medell%C3%ADn) |
-| no_line | Los Angeles | United States | 32 | — | — | 8/32 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles) |
-| no_line | Kaohsiung | Taiwan | 47 | — | — | 8/47 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kaohsiung) |
-| no_line | Mashhad | Iran | 25 | — | — | 6/25 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Mashhad) |
-| no_line | Kuala Lumpur | Malaysia | 69 | — | — | 5/69 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kuala%20Lumpur) |
-| no_line | Shiraz | Iran | 34 | — | — | 6/34 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Shiraz) |
-| no_line | Lanzhou | China | 29 | — | — | 1/29 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lanzhou) |
-| no_line | Ürümqi | China | 24 | — | — | 1/24 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20%C3%9Cr%C3%BCmqi) |
-| no_line | Dongguan | China | 46 | — | — | 1/46 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Dongguan) |
-| no_line | Daegu | South Korea | 72 | — | — | 6/72 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Daegu) |
-| no_line | Bursa | Turkey | 43 | — | — | 1/43 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bursa) |
-| no_line | Nagpur | India | 38 | — | — | 1/38 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Nagpur) |
-| no_line | Jinhua | China | 51 | — | — | 5/51 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jinhua) |
-| no_line | Taiyuan | China | 53 | — | — | 3/53 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taiyuan) |
-| no_line | Shaoxing | China | 56 | — | — | 14/56 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Shaoxing) |
-| no_line | Pune | India | 41 | — | — | 2/41 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Pune) |
-| no_line | Brasília | Brazil | 75 | — | — | 1/75 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bras%C3%ADlia) |
-| no_line | Bochum | Germany | 25 | — | — | 2/25 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bochum) |
-| no_line | Manila | Philippines | 39 | — | — | 25/39 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Manila) |
-| no_line | Samara | Russia | 10 | — | — | 8/10 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
-| no_line | Seville | Spain | 22 | — | — | 3/22 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Seville) |
-| no_line | Algiers | Algeria | 39 | — | — | 16/39 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Algiers) |
-| no_line | Isfahan | Iran | 53 | — | — | 26/53 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Isfahan) |
-| no_line | Karaj | Iran | 7 | — | — | 3/7 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Karaj) |
-| no_line | Tabriz | Iran | 20 | — | — | 1/20 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tabriz) |
-| no_line | Sydney | Australia | 32 | — | — | 10/32 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney) |
-| no_line | Jakarta | Indonesia | 20 | — | — | 7/20 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jakarta) |
-| no_line | Guadalajara | Mexico | 26 | — | — | 7/26 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Guadalajara) |
-| no_line | Chuzhou | China | 15 | — | — | 5/15 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Chuzhou) |
-| no_line | Incheon | South Korea | 27 | — | — | 1/27 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Incheon) |
-| no_line | Mecca | Saudi Arabia | 12 | — | — | 3/12 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Mecca) |
-| no_line | Perth | Australia | 2 | — | — | 2/2 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Perth) |
-| no_line | Piracuruca | Brazil | 15 | — | — | 15/15 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Piracuruca) |
-| no_line | Antwerp | Belgium | 12 | — | — | 12/12 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Antwerp) |
-| no_line | Kanazawa | Japan | 1 | — | — | 1/1 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kanazawa) |
-| no_line | Amroli | India | 13 | — | — | 13/13 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Amroli) |
-| no_line | Majura Taluka | India | 17 | — | — | 17/17 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Majura%20Taluka) |
-| no_line | Sachin | India | 2 | — | — | 2/2 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Sachin) |
-| no_line | Chenghua District | China | 1 | — | — | 1/1 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Chenghua%20District) |
-| no_line | Guayaquil | Ecuador | 2 | — | — | 2/2 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Guayaquil) |
-| no_line | Valencia | Venezuela | 4 | — | — | 4/4 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Valencia) |
-| no_line | Ramat Gan | Israel | 1 | — | — | 1/1 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Ramat%20Gan) |
-| no_line | Blue Area | Pakistan | 1 | — | — | 1/1 站不屬於任何路線（違反不變式：車站必有路線） | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Blue%20Area) |
-| order | Tokyo | Japan | 315 | — | — | 3 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Skytree Bypass Line (Hibiya, North->South) 1.85×、Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North) 1.83×、Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya) 1.64×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| order | Yokohama | Japan | 50 | — | — | 2 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound) 1.94×、Tokyo Metro - Odawara Bypass Line (southbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
-| order | null | null | 117 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20) |
-| low | Kuala Lumpur | Malaysia | 69 | 156 | 0.44 | 站數偏少（69 vs wiki 156） | [wiki](https://en.wikipedia.org/wiki/Rapid_KL[Nb_63]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kuala%20Lumpur) |
-| low | Incheon | South Korea | 27 | 68 | 0.4 | 站數偏少（27 vs wiki 68） | [wiki](https://en.wikipedia.org/wiki/Incheon_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Incheon) |
+| order | New York City | United States | 529 | — | — | 2 條線站序可疑（路徑長 > 1.6× MST）：Jamaica Station Route 1.86×、Howard Beach Route 1.79×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
+| order | Sydney | Australia | 170 | — | — | 7 條線站序可疑（路徑長 > 1.6× MST）：Bybanen til Fyllingsdalen 2.3×、Bybanen til Fyllingsdalen, deltrinn 1 1.85×、华为松山湖有轨电车3号线 1.81×、Metro D 1.78×…，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney) |
+| order | Tokyo | Japan | 266 | — | — | 3 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Skytree Bypass Line (Hibiya, North->South) 1.85×、Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North) 1.83×、Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya) 1.64×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| order | Buenos Aires | Argentina | 116 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Tren Universitario 1.69×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Buenos%20Aires) |
+| order | Yokohama | Japan | 69 | — | — | 2 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound) 1.94×、Tokyo Metro - Odawara Bypass Line (southbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
+| order | Kobe | Japan | 44 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Port Liner 1.63×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kobe) |
+| order | Doha | Qatar | 22 | — | — | 2 條線站序可疑（路徑長 > 1.6× MST）：Lusaii LRT - Purple Line 1.85×、Lusail Tram Orange Line: Legtaifiya → Al Yasmeen → Legtaifiya 1.64×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Doha) |
+| order | null | null | 0 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Red Line Jerusalem Light Rail 1.68×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20) |
+| low | Doha | Qatar | 22 | 37 | 0.59 | 站數偏少（22 vs wiki 37） | [wiki](https://en.wikipedia.org/wiki/Doha_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Doha) |
 | low | Lagos | Nigeria | 5 | 13 | 0.38 | 站數偏少（5 vs wiki 13） | [wiki](https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos) |
-| low | Valencia | Venezuela | 4 | 9 | 0.44 | 站數偏少（4 vs wiki 9） | [wiki](https://en.wikipedia.org/wiki/Metro_Valencia) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Valencia) |
-| high | Singapore | Singapore | 235 | 143 | 1.64 | 站數偏多（235 vs wiki 143），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Mass_Rapid_Transit) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Singapore) |
-| high | Tokyo | Japan | 315 | 142 | 2.22 | 站數偏多（315 vs wiki 142），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Tokyo_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| high | Kunming | China | 195 | 103 | 1.89 | 站數偏多（195 vs wiki 103），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kunming_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kunming) |
-| high | Tokyo | Japan | 315 | 99 | 3.18 | 站數偏多（315 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| high | Rome | Italy | 139 | 74 | 1.88 | 站數偏多（139 vs wiki 74），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Rome_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Rome) |
-| high | Xuzhou | China | 149 | 67 | 2.22 | 站數偏多（149 vs wiki 67），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Xuzhou_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Xuzhou) |
-| high | Bangkok | Thailand | 159 | 64 | 2.48 | 站數偏多（159 vs wiki 64），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BTS_Skytrain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok) |
-| high | London | United Kingdom | 280 | 45 | 6.22 | 站數偏多（280 vs wiki 45），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Docklands_Light_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20London) |
-| high | Changzhou | China | 80 | 43 | 1.86 | 站數偏多（80 vs wiki 43），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Changzhou_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Changzhou) |
-| high | Chennai | India | 86 | 42 | 2.05 | 站數偏多（86 vs wiki 42），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Chennai_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Chennai) |
-| high | Monterrey | Mexico | 63 | 38 | 1.66 | 站數偏多（63 vs wiki 38），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Metrorrey) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Monterrey) |
-| high | Toulouse | France | 69 | 37 | 1.86 | 站數偏多（69 vs wiki 37），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toulouse_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Toulouse) |
-| high | Fukuoka | Japan | 73 | 36 | 2.03 | 站數偏多（73 vs wiki 36），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Fukuoka_City_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Fukuoka) |
-| high | Marseille | France | 128 | 29 | 4.41 | 站數偏多（128 vs wiki 29），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Marseille_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Marseille) |
-| high | Brasília | Brazil | 75 | 27 | 2.78 | 站數偏多（75 vs wiki 27），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Federal_District_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bras%C3%ADlia) |
-| high | Montreal | Canada | 88 | 23 | 3.83 | 站數偏多（88 vs wiki 23），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Réseau_express_métropolitain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal) |
-| high | New York City | United States | 514 | 21 | 24.48 | 站數偏多（514 vs wiki 21），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Staten_Island_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
-| high | Isfahan | Iran | 53 | 20 | 2.65 | 站數偏多（53 vs wiki 20），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Isfahan_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Isfahan) |
-| high | Algiers | Algeria | 39 | 19 | 2.05 | 站數偏多（39 vs wiki 19），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Algiers_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Algiers) |
-| high | Los Angeles | United States | 32 | 19 | 1.68 | 站數偏多（32 vs wiki 19），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Metro_Rail[Nb_96]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles) |
-| high | Tokyo | Japan | 315 | 16 | 19.69 | 站數偏多（315 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Yurikamome) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| high | Seoul | South Korea | 499 | 16 | 31.19 | 站數偏多（499 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Shinbundang_Line[Nb_62]_(Neo_Trans)) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul) |
-| high | Yokohama | Japan | 50 | 14 | 3.57 | 站數偏多（50 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
-| high | Philadelphia | United States | 67 | 14 | 4.79 | 站數偏多（67 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/PATCO_Speedline) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Philadelphia) |
-| high | Tokyo | Japan | 315 | 13 | 24.23 | 站數偏多（315 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Nippori-Toneri_Liner) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| high | Manila | Philippines | 39 | 13 | 3 | 站數偏多（39 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Manila_Metro_Rail_Transit_System) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Manila) |
-| high | New York City | United States | 514 | 13 | 39.54 | 站數偏多（514 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/PATH) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
-| high | Tokyo | Japan | 315 | 8 | 39.38 | 站數偏多（315 vs wiki 8），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Rinkai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
-| high | Jakarta | Indonesia | 20 | 6 | 3.33 | 站數偏多（20 vs wiki 6），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Jakarta_LRT) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jakarta) |
-| high | Yokohama | Japan | 50 | 6 | 8.33 | 站數偏多（50 vs wiki 6），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Minatomirai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
-| high | Karaj | Iran | 7 | 4 | 1.75 | 站數偏多（7 vs wiki 4），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Karaj_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Karaj) |
+| low | Samara | Russia | 3 | 10 | 0.3 | 站數偏少（3 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
+| high | Berlin | Germany | 405 | 175 | 2.31 | 站數偏多（405 vs wiki 175），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Berlin_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin) |
+| high | Tokyo | Japan | 266 | 142 | 1.87 | 站數偏多（266 vs wiki 142），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Tokyo_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Hong Kong | China | 190 | 99 | 1.92 | 站數偏多（190 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Mass_Transit_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Hong%20Kong) |
+| high | Tokyo | Japan | 266 | 99 | 2.69 | 站數偏多（266 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Hamburg | Germany | 155 | 93 | 1.67 | 站數偏多（155 vs wiki 93），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Hamburg_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Hamburg) |
+| high | Bangkok | Thailand | 112 | 64 | 1.75 | 站數偏多（112 vs wiki 64），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BTS_Skytrain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok) |
+| high | Philadelphia | United States | 93 | 53 | 1.75 | 站數偏多（93 vs wiki 53），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/SEPTA_Metro:_L,_B,_M[446]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Philadelphia) |
+| high | Boston | United States | 115 | 52 | 2.21 | 站數偏多（115 vs wiki 52），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/MBTA_subway[Nb_92]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Boston) |
+| high | Budapest | Hungary | 116 | 48 | 2.42 | 站數偏多（116 vs wiki 48），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Budapest_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Budapest) |
+| high | San Francisco (Bay Area) | United States | 215 | 47 | 4.57 | 站數偏多（215 vs wiki 47），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BART[Nb_102]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20San%20Francisco%20(Bay%20Area)) |
+| high | London | United Kingdom | 318 | 45 | 7.07 | 站數偏多（318 vs wiki 45），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Docklands_Light_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20London) |
+| high | Copenhagen | Denmark | 130 | 44 | 2.95 | 站數偏多（130 vs wiki 44），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Copenhagen_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Copenhagen) |
+| high | Rio de Janeiro | Brazil | 112 | 41 | 2.73 | 站數偏多（112 vs wiki 41），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Rio_de_Janeiro_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Rio%20de%20Janeiro) |
+| high | Yokohama | Japan | 69 | 40 | 1.73 | 站數偏多（69 vs wiki 40），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Yokohama_Municipal_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
+| high | Kaohsiung | Taiwan | 67 | 38 | 1.76 | 站數偏多（67 vs wiki 38），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kaohsiung_Rapid_Transit) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kaohsiung) |
+| high | Naples | Italy | 123 | 31 | 3.97 | 站數偏多（123 vs wiki 31），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Naples_Metro[Nb_53]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Naples) |
+| high | Helsinki | Finland | 63 | 30 | 2.1 | 站數偏多（63 vs wiki 30），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Helsinki_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Helsinki) |
+| high | Guadalajara | Mexico | 86 | 28 | 3.07 | 站數偏多（86 vs wiki 28），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/SITEUR[Nb_65]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Guadalajara) |
+| high | Montreal | Canada | 89 | 23 | 3.87 | 站數偏多（89 vs wiki 23），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Réseau_express_métropolitain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal) |
+| high | Sydney | Australia | 170 | 21 | 8.1 | 站數偏多（170 vs wiki 21），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Sydney_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney) |
+| high | New York City | United States | 529 | 21 | 25.19 | 站數偏多（529 vs wiki 21），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Staten_Island_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
+| high | Fortaleza | Brazil | 41 | 20 | 2.05 | 站數偏多（41 vs wiki 20），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Fortaleza_Metro[Nb_8]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Fortaleza) |
+| high | Los Angeles | United States | 112 | 19 | 5.89 | 站數偏多（112 vs wiki 19），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Metro_Rail[Nb_96]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles) |
+| high | Jakarta | Indonesia | 37 | 18 | 2.06 | 站數偏多（37 vs wiki 18），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Jabodebek_LRT) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jakarta) |
+| high | Kobe | Japan | 44 | 18 | 2.44 | 站數偏多（44 vs wiki 18），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kobe_New_Transit) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kobe) |
+| high | Cleveland | United States | 50 | 18 | 2.78 | 站數偏多（50 vs wiki 18），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Red_Line_(RTA_Rapid_Transit)) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Cleveland) |
+| high | Tokyo | Japan | 266 | 16 | 16.63 | 站數偏多（266 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Yurikamome) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Seoul | South Korea | 509 | 16 | 31.81 | 站數偏多（509 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Shinbundang_Line[Nb_62]_(Neo_Trans)) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul) |
+| high | Yokohama | Japan | 69 | 14 | 4.93 | 站數偏多（69 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
+| high | Lausanne | Switzerland | 27 | 14 | 1.93 | 站數偏多（27 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Lausanne_Metro[Nb_85]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lausanne) |
+| high | Baltimore | United States | 45 | 14 | 3.21 | 站數偏多（45 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Baltimore_Metro_SubwayLink) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Baltimore) |
+| high | Philadelphia | United States | 93 | 14 | 6.64 | 站數偏多（93 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/PATCO_Speedline) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Philadelphia) |
+| high | Jakarta | Indonesia | 37 | 13 | 2.85 | 站數偏多（37 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Jakarta_MRT) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jakarta) |
+| high | Saitama Prefecture | Japan | 55 | 13 | 4.23 | 站數偏多（55 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/New_Shuttle) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Saitama%20Prefecture) |
+| high | Tokyo | Japan | 266 | 13 | 20.46 | 站數偏多（266 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Nippori-Toneri_Liner) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Manila | Philippines | 51 | 13 | 3.92 | 站數偏多（51 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Manila_Metro_Rail_Transit_System) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Manila) |
+| high | New York City | United States | 529 | 13 | 40.69 | 站數偏多（529 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/PATH) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
+| high | Genoa | Italy | 16 | 8 | 2 | 站數偏多（16 vs wiki 8），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Genoa_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Genoa) |
+| high | Saitama Prefecture | Japan | 55 | 8 | 6.88 | 站數偏多（55 vs wiki 8），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Saitama_Rapid_Railway_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Saitama%20Prefecture) |
+| high | Tokyo | Japan | 266 | 8 | 33.25 | 站數偏多（266 vs wiki 8），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Rinkai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Jakarta | Indonesia | 37 | 6 | 6.17 | 站數偏多（37 vs wiki 6），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Jakarta_LRT) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jakarta) |
+| high | Yokohama | Japan | 69 | 6 | 11.5 | 站數偏多（69 vs wiki 6），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Minatomirai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
 
 ## 額外系統（本資料有、Wikipedia 清單無）
 
@@ -175,26 +81,97 @@
 
 | 檔案 | 城市 | 國家 | 站 | 線 |
 |---|---|---|---|---|
-| systems/europe/germany/europe-germany-ratingen.geojson | Ratingen | Germany | 158 | 9 |
-| systems/europe/spain/europe-spain-xirivella.geojson | Xirivella | Spain | 100 | 6 |
-| systems/europe/germany/europe-germany-bielefeld.geojson | Bielefeld | Germany | 0 | 4 |
-| systems/unknown/unknown/unknown.geojson | — | — | 117 | 4 |
+| systems/europe/germany/europe-germany-stuttgart.geojson | Stuttgart | Germany | 203 | 16 |
+| systems/europe/germany/europe-germany-bad-wildbad.geojson | Bad Wildbad | Germany | 8 | 9 |
+| systems/europe/germany/europe-germany-dusseldorf.geojson | Dusseldorf | Germany | 105 | 9 |
+| systems/europe/spain/europe-spain-xirivella.geojson | Xirivella | Spain | 111 | 7 |
+| systems/asia/myanmar/asia-myanmar-yangon-city.geojson | Yangon City | Myanmar | 58 | 7 |
+| systems/unknown/unknown/mhd-kosice.geojson | — | — | 0 | 7 |
+| systems/north-america/united-states/north-america-united-states-denver.geojson | Denver | United States | 57 | 6 |
+| systems/europe/portugal/europe-portugal-porto.geojson | Porto | Portugal | 86 | 6 |
+| systems/europe/germany/europe-germany-bielefeld.geojson | Bielefeld | Germany | 60 | 4 |
+| systems/unknown/unknown/verkehrsverbund-mittelsachsen.geojson | — | — | 0 | 4 |
+| systems/africa/tunisia/africa-tunisia-sidi-hassine.geojson | Sidi Hassine | Tunisia | 41 | 4 |
+| systems/unknown/unknown/t.geojson | — | — | 12 | 4 |
+| systems/north-america/united-states/north-america-united-states-minneapolis.geojson | Minneapolis | United States | 77 | 4 |
+| systems/europe/belgium/europe-belgium-charleroi.geojson | Charleroi | Belgium | 50 | 4 |
+| systems/north-america/united-states/north-america-united-states-san-diego.geojson | San Diego | United States | 62 | 4 |
+| systems/north-america/united-states/north-america-united-states-miller-county.geojson | Miller County | United States | 68 | 4 |
+| systems/unknown/france/france-lyon.geojson | Lyon | France | 0 | 4 |
+| systems/europe/germany/europe-germany-pforzheim.geojson | Pforzheim | Germany | 2 | 3 |
+| systems/north-america/united-states/north-america-united-states-taylorsville.geojson | Taylorsville | United States | 52 | 3 |
+| systems/europe/spain/europe-spain-caldas-de-reis.geojson | Caldas de Reis | Spain | 45 | 3 |
+| systems/north-america/canada/north-america-canada-edmonton.geojson | Edmonton | Canada | 31 | 3 |
+| systems/north-america/united-states/north-america-united-states-sacramento.geojson | Sacramento | United States | 54 | 3 |
+| systems/unknown/unknown/utrecht-binnen.geojson | — | — | 32 | 3 |
+| systems/north-america/united-states/north-america-united-states-san-jose.geojson | San Jose | United States | 57 | 3 |
+| systems/north-america/united-states/north-america-united-states-pittsburgh.geojson | Pittsburgh | United States | 52 | 3 |
+| systems/north-america/united-states/north-america-united-states-phoenix.geojson | Phoenix | United States | 60 | 3 |
+| systems/asia/qatar/asia-qatar-doha.geojson | Doha | Qatar | 41 | 3 |
+| systems/north-america/united-states/north-america-united-states-paradise.geojson | Paradise | United States | 5 | 3 |
+| systems/north-america/canada/north-america-canada-ottawa.geojson | Ottawa | Canada | 25 | 3 |
 | systems/asia/turkey/asia-turkey-derince.geojson | Derince | Turkey | 11 | 3 |
-| systems/europe/germany/europe-germany-essen.geojson | Essen | Germany | 19 | 2 |
-| systems/europe/germany/europe-germany-dusseldorf.geojson | Dusseldorf | Germany | 17 | 2 |
-| systems/europe/germany/europe-germany-bochum.geojson | Bochum | Germany | 25 | 1 |
-| systems/europe/spain/europe-spain-seville.geojson | Seville | Spain | 22 | 1 |
-| systems/europe/austria/europe-austria-bezirk-landeck.geojson | Bezirk Landeck | Austria | 9 | 1 |
-| systems/asia/china/asia-china-chuzhou.geojson | Chuzhou | China | 15 | 1 |
-| systems/south-america/colombia/south-america-colombia-bogota.geojson | Bogota | Colombia | 0 | 1 |
-| systems/oceania/australia/oceania-australia-perth.geojson | Perth | Australia | 2 | 0 |
-| systems/south-america/brazil/south-america-brazil-piracuruca.geojson | Piracuruca | Brazil | 15 | 0 |
-| systems/europe/belgium/europe-belgium-antwerp.geojson | Antwerp | Belgium | 12 | 0 |
-| systems/asia/japan/asia-japan-kanazawa.geojson | Kanazawa | Japan | 1 | 0 |
-| systems/asia/india/asia-india-amroli.geojson | Amroli | India | 13 | 0 |
-| systems/asia/india/asia-india-majura-taluka.geojson | Majura Taluka | India | 17 | 0 |
-| systems/asia/india/asia-india-sachin.geojson | Sachin | India | 2 | 0 |
-| systems/asia/china/asia-china-chenghua-district.geojson | Chenghua District | China | 1 | 0 |
-| systems/south-america/ecuador/south-america-ecuador-guayaquil.geojson | Guayaquil | Ecuador | 2 | 0 |
-| systems/asia/israel/asia-israel-ramat-gan.geojson | Ramat Gan | Israel | 1 | 0 |
-| systems/asia/pakistan/asia-pakistan-blue-area.geojson | Blue Area | Pakistan | 1 | 0 |
+| systems/unknown/argentina/argentina-buenos-aires.geojson | Buenos Aires | Argentina | 2 | 3 |
+| systems/europe/germany/europe-germany-ratingen.geojson | Ratingen | Germany | 89 | 2 |
+| systems/europe/germany/europe-germany-essen.geojson | Essen | Germany | 18 | 2 |
+| systems/europe/united-kingdom/europe-united-kingdom-south-tyneside.geojson | South Tyneside | United Kingdom | 60 | 2 |
+| systems/europe/italy/europe-italy-pauli-monserrato.geojson | Paùli/Monserrato | Italy | 10 | 2 |
+| systems/africa/tunisia/africa-tunisia-tunis.geojson | Tunis | Tunisia | 31 | 2 |
+| systems/europe/spain/europe-spain-palma-de-mallorca.geojson | Palma de Mallorca | Spain | 18 | 2 |
+| systems/europe/russia/europe-russia.geojson | Краснооктябрьский район | Russia | 22 | 2 |
+| systems/north-america/canada/north-america-canada-calgary.geojson | Calgary | Canada | 45 | 2 |
+| systems/unknown/unknown/cosenza.geojson | — | — | 0 | 2 |
+| systems/unknown/unknown/tez.geojson | — | — | 2 | 2 |
+| systems/europe/spain/europe-spain-malaga.geojson | Málaga | Spain | 19 | 2 |
+| systems/africa/ethiopia/africa-ethiopia-lideta.geojson | Lideta | Ethiopia | 39 | 2 |
+| systems/unknown/unknown/skyss.geojson | — | — | 29 | 2 |
+| systems/europe/denmark/europe-denmark-tranbjerg.geojson | Tranbjerg | Denmark | 39 | 2 |
+| systems/unknown/unknown/abuja-rail-mass-transit.geojson | — | — | 12 | 2 |
+| systems/unknown/unknown/metro-express-ltd.geojson | — | — | 22 | 2 |
+| systems/europe/finland/europe-finland-tampere.geojson | Tampere | Finland | 33 | 2 |
+| systems/europe/france/europe-france-nantes.geojson | Nantes | France | 6 | 2 |
+| systems/europe/germany/europe-germany-bochum.geojson | Bochum | Germany | 23 | 1 |
+| systems/europe/germany/europe-germany-walzbachtal.geojson | Walzbachtal | Germany | 1 | 1 |
+| systems/europe/spain/europe-spain-seville.geojson | Seville | Spain | 20 | 1 |
+| systems/unknown/unknown/parkeisenbahn-chemnitz.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/metro-de-teresina.geojson | — | — | 26 | 1 |
+| systems/unknown/unknown/tramway-du-cap-ferret.geojson | — | — | 0 | 1 |
+| systems/north-america/united-states/north-america-united-states-vista.geojson | Vista | United States | 15 | 1 |
+| systems/unknown/unknown/jerusalem.geojson | — | — | 0 | 1 |
+| systems/asia/japan/asia-japan-sabae.geojson | Sabae | Japan | 27 | 1 |
+| systems/unknown/unknown/isle-of-man-public-transport.geojson | — | — | 2 | 1 |
+| systems/south-america/argentina/south-america-argentina-distrito-el-resguardo.geojson | Distrito El Resguardo | Argentina | 26 | 1 |
+| systems/unknown/unknown/fal.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/tel-aviv-lrt.geojson | — | — | 37 | 1 |
+| systems/unknown/unknown/tnw.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/ter-grand-est-solea.geojson | — | — | 0 | 1 |
+| systems/europe/switzerland/europe-switzerland-kusnacht-zh.geojson | Küsnacht (ZH) | Switzerland | 14 | 1 |
+| systems/europe/austria/europe-austria-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
+| systems/unknown/unknown/west-midlands-trains.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/detroit-transportation-corporation.geojson | — | — | 13 | 1 |
+| systems/unknown/unknown/bari.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/trenitalia.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/saarvv.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/cagliari.geojson | — | — | 1 | 1 |
+| systems/europe/spain/europe-spain-granada.geojson | Granada | Spain | 26 | 1 |
+| systems/north-america/canada/north-america-canada-kitchener.geojson | Kitchener | Canada | 19 | 1 |
+| systems/asia/north-korea/asia-north-korea-hamhung-si.geojson | Hamhung-si | North Korea | 3 | 1 |
+| systems/north-america/united-states/north-america-united-states-norfolk.geojson | Norfolk | United States | 11 | 1 |
+| systems/europe/spain/europe-spain-chiclana-de-la-frontera.geojson | Chiclana de la Frontera | Spain | 13 | 1 |
+| systems/south-america/brazil/south-america-brazil-juazeiro-do-norte.geojson | Juazeiro do Norte | Brazil | 9 | 1 |
+| systems/unknown/unknown/szeged.geojson | — | — | 0 | 1 |
+| systems/asia/china/asia-china-sanya-city.geojson | Sanya City | China | 15 | 1 |
+| systems/unknown/unknown/pkm.geojson | — | — | 0 | 1 |
+| systems/oceania/australia/oceania-australia-newcastle-maitland.geojson | Newcastle-Maitland | Australia | 5 | 1 |
+| systems/europe/isle-of-man/europe-isle-of-man-douglas.geojson | Douglas | Isle of Man | 1 | 1 |
+| systems/north-america/united-states/north-america-united-states-charlotte.geojson | Charlotte | United States | 26 | 1 |
+| systems/oceania/australia/oceania-australia-district-of-gungahlin.geojson | District of Gungahlin | Australia | 14 | 1 |
+| systems/asia/china/asia-china-huai-an-district.geojson | Huai'an District | China | 1 | 1 |
+| systems/unknown/unknown/kereta-layang-bandara-soekarno-hatta.geojson | — | — | 4 | 1 |
+| systems/unknown/unknown/paradiski.geojson | — | — | 0 | 1 |
+| systems/unknown/unknown/local.geojson | — | — | 6 | 1 |
+| systems/asia/china/asia-china-chuzhou.geojson | Chuzhou | China | 10 | 1 |
+| systems/unknown/unknown/mpk-poznan.geojson | — | — | 0 | 1 |
+| systems/south-america/colombia/south-america-colombia-bogota.geojson | Bogota | Colombia | 1 | 1 |
+| systems/unknown/brazil/brazil-rio-de-janeiro.geojson | Rio de Janeiro | Brazil | 1 | 1 |
+| systems/unknown/united-states/united-states-new-york-city.geojson | New York City | United States | 0 | 1 |

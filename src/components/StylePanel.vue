@@ -2,7 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { layerData } from '../stores/layerData'
 import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
-import { PanelRightClose, PanelRightOpen, SlidersHorizontal, ExternalLink } from 'lucide-vue-next'
+import {
+  PanelRightClose, PanelRightOpen, SlidersHorizontal, ExternalLink,
+  CircleCheck, CircleX, TriangleAlert,
+} from 'lucide-vue-next'
 
 // The layer this tab edits — passed in by LayerTab.
 const props = defineProps({ layer: { type: Object, required: true } })
@@ -38,6 +41,10 @@ const metroLines = computed(() => {
 const wikidataUrl = computed(() =>
   meta.value?.wikidata ? `https://www.wikidata.org/wiki/${meta.value.wikidata}` : null,
 )
+
+/* ---- Info: per-city audit verdict (metro_system.audit, from metro:audit) ---- */
+const auditInfo = computed(() => meta.value?.audit ?? null)
+const auditChecks = computed(() => auditInfo.value?.checks ?? [])
 
 /* ---- Info: external links (wiki / official route map / urbanrail) ---- */
 const mapsIndex = ref(null)
@@ -170,6 +177,43 @@ function startResize(e) {
                 <span>{{ meta.osm_networks.join(', ') }}</span>
               </div>
             </div>
+
+            <div class="section-title">Audit</div>
+            <div v-if="!auditInfo" class="info-empty">
+              尚未執行資料驗證（npm run metro:audit）
+            </div>
+            <template v-else>
+              <div class="audit-banner" :class="auditInfo.passed ? 'pass' : 'fail'">
+                <CircleCheck v-if="auditInfo.passed" :size="14" />
+                <CircleX v-else :size="14" />
+                <span>{{ auditInfo.passed ? '資料驗證通過' : '資料驗證未通過' }}</span>
+                <span v-if="auditInfo.audited_at" class="audit-date">
+                  {{ auditInfo.audited_at.slice(0, 10) }}
+                </span>
+              </div>
+
+              <div v-if="!auditInfo.passed && auditInfo.reasons?.length" class="audit-list fail">
+                <div v-for="(r, i) in auditInfo.reasons" :key="i" class="audit-item">
+                  <CircleX :size="12" class="audit-ic" /> {{ r }}
+                </div>
+              </div>
+              <div v-if="auditInfo.covered_by" class="audit-list">
+                <div class="audit-item">
+                  <TriangleAlert :size="12" class="audit-ic warn" />
+                  由 {{ auditInfo.covered_by }} 系統檔涵蓋（同都會區）
+                </div>
+              </div>
+              <div v-if="auditInfo.warnings?.length" class="audit-list warn">
+                <div v-for="(w, i) in auditInfo.warnings" :key="i" class="audit-item">
+                  <TriangleAlert :size="12" class="audit-ic warn" /> {{ w }}
+                </div>
+              </div>
+              <div v-if="auditChecks.length" class="audit-list">
+                <div v-for="c in auditChecks.filter((c) => c.ok)" :key="c.id" class="audit-item ok">
+                  <CircleCheck :size="12" class="audit-ic ok" /> {{ c.detail }}
+                </div>
+              </div>
+            </template>
 
             <div class="section-title">Links</div>
             <div class="link-list">
@@ -356,6 +400,46 @@ function startResize(e) {
 .link-list { display: flex; flex-direction: column; gap: 6px; }
 .link-item { font-size: 12.5px; }
 .link-note { color: hsl(var(--muted-foreground)); font-size: 11px; }
+
+/* Audit */
+.audit-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.audit-banner.pass {
+  background: hsl(142 71% 45% / 0.12);
+  color: hsl(142 60% 40%);
+}
+.dark .audit-banner.pass { color: hsl(142 65% 55%); }
+.audit-banner.fail {
+  background: hsl(var(--destructive) / 0.12);
+  color: hsl(var(--destructive));
+}
+.audit-date {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 10.5px;
+  opacity: 0.75;
+}
+.audit-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.audit-item {
+  display: flex;
+  gap: 6px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: hsl(var(--foreground));
+}
+.audit-item.ok { color: hsl(var(--muted-foreground)); }
+.audit-ic { flex-shrink: 0; margin-top: 2px; }
+.audit-ic.ok { color: hsl(142 60% 42%); }
+.audit-ic.warn { color: hsl(38 92% 50%); }
+.audit-list.fail .audit-ic { color: hsl(var(--destructive)); }
 
 .line-list { display: flex; flex-direction: column; gap: 2px; }
 .line-row {

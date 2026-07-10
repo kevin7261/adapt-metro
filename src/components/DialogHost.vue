@@ -154,7 +154,7 @@ const shortcuts = [
     <!-- Import: 依車站數排序 -->
     <div v-else-if="dialog === 'import-stations'" class="dialog import-stations">
       <div class="dialog-header">
-        <h2 class="dialog-title">依車站數排序</h2>
+        <h2 class="dialog-title">Sort by Station Count</h2>
         <button class="btn-icon" @click="close"><X :size="15" /></button>
       </div>
       <div class="dialog-body stations-body">

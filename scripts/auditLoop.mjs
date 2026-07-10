@@ -1,0 +1,653 @@
+// Per-city audit + repair loop (strategy ladder, zero-LLM, resumable).
+//
+//   for each city:  audit → (fail?) apply next strategy → rebuild → re-audit
+//                   … until pass, or the ladder is exhausted (verdict recorded)
+//
+// Cities are audited one by one right after their data lands — not in one big
+// batch at the end. Verdicts (pass/fail + reasons) are written to
+// _cache/audit_state.json; buildGeojson embeds them into each system's
+// metro_system.audit so the UI's Info tab can display them.
+//
+// Strategy ladders (see .claude/skills/metro-audit/SKILL.md):
+//   missing wiki system:  S1 bind cached routes near city  → override
+//                         S2 targeted fetch r=40 km (name-token gated)
+//                         S3 targeted fetch r=80 km (city-token gated)
+//   too few stations:     Z1 targeted station fetch around the system
+//                         Z2 derive stations from named stop_position nodes
+//   stray 0-station sys:  Z0 merge into a canonical neighbour city (≤25 km)
+//
+// Scope rule everywhere: route=subway|light_rail only — never train/railway/tram.
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+import * as overpass from './overpass.mjs'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const BASE = join(__dirname, '..', 'data', 'metro')
+const CACHE = overpass.CACHE
+const OVERRIDES_DIR = join(BASE, '_overrides')
+const STATE_PATH = join(CACHE, 'audit_state.json')
+const UA = 'adapt-metro-thesis/1.0 (metro data audit; knowledge.nomads.tw2@gmail.com)'
+
+const LIFE = '["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]'
+const MODES = '["route"~"^(subway|light_rail)$"]'
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const slugify = (s) => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase()
+const normCity = (s) => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase().replace(/[^a-z0-9]/g, '')
+const kmDist = (aLat, aLon, bLat, bLon) => {
+  const dx = (aLon - bLon) * Math.cos(((aLat + bLat) / 2) * Math.PI / 180)
+  return Math.sqrt(dx * dx + (aLat - bLat) ** 2) * 111
+}
+const STOP_TOKENS = new Set(['metro', 'subway', 'underground', 'u-bahn', 'the', 'of',
+  'rapid', 'transit', 'railway', 'rail', 'mrt', 'lrt', 'light', 'system', 'line', 'lines'])
+const tokens = (s) => {
+  const out = new Set()
+  for (const t of (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().split(/[^a-z0-9]+/))
+    if (t && t.length > 1 && !STOP_TOKENS.has(t)) out.add(t)
+  return out
+}
+const shareToken = (a, b) => { for (const x of a) if (b.has(x)) return true; return false }
+// Known country-name variants (reverse-geocode vs Wikipedia wording) —
+// keep in sync with buildGeojson.mjs.
+const COUNTRY_ALIAS = {
+  czechia: 'czechrepublic',
+  turkiye: 'turkey',
+  unitedstatesofamerica: 'unitedstates',
+  republicofkorea: 'southkorea',
+  russianfederation: 'russia',
+  myanmarburma: 'myanmar',
+}
+const normCountry = (s) => {
+  const n = (s || '').toLowerCase().replace(/[^a-z]/g, '')
+  return COUNTRY_ALIAS[n] ?? n
+}
+const countryOk = (a, b) => {
+  if (!a || !b) return false
+  const na = normCountry(a), nb = normCountry(b)
+  return na === nb || na.includes(nb) || nb.includes(na)
+}
+
+const readJSON = async (p, fallback) => {
+  try { return JSON.parse(await readFile(p, 'utf8')) } catch { return fallback }
+}
+
+/* ---------------- shared context (reloaded after each rebuild) ---------------- */
+
+const ctx = {
+  wiki: [], wikiXY: {}, state: {},
+  index: null,          // data/metro/index.json
+  ridCity: new Map(),   // osm relation id -> current bucket city
+  ridCentroid: new Map(), // osm relation id -> {lat, lon} (from geom cache)
+  knownRids: new Set(),
+}
+
+async function loadStatic() {
+  ctx.wiki = await readJSON(join(CACHE, 'wiki_metro_systems.json'), [])
+  ctx.wikiXY = await readJSON(join(CACHE, 'wiki_city_coords.json'), {})
+  ctx.state = await readJSON(STATE_PATH, {})
+
+  // relation centroids from every geometry cache file
+  const files = (await readdir(CACHE)).filter((n) =>
+    /^(geom_.+|gap_geom_.+)\.json$/.test(n) && !n.endsWith('.partial'))
+  for (const f of files) {
+    const d = await readJSON(join(CACHE, f), {})
+    const nodeXY = new Map()
+    for (const e of d.elements || [])
+      if (e.type === 'node' && e.lat != null) nodeXY.set(e.id, [e.lon, e.lat])
+    for (const e of d.elements || []) {
+      if (e.type !== 'relation') continue
+      let sx = 0, sy = 0, n = 0
+      for (const m of e.members || []) {
+        if (m.type !== 'node') continue
+        const c = m.lat != null ? [m.lon, m.lat] : nodeXY.get(m.ref)
+        if (c) { sx += c[0]; sy += c[1]; n++ }
+      }
+      if (n) ctx.ridCentroid.set(e.id, { lon: sx / n, lat: sy / n })
+    }
+  }
+  const rt = await readJSON(join(CACHE, 'routes_tags.json'), { elements: [] })
+  for (const e of rt.elements) if (e.type === 'relation') ctx.knownRids.add(e.id)
+}
+
+async function reloadIndex() {
+  ctx.index = await readJSON(join(BASE, 'index.json'), null)
+  ctx.ridCity = new Map()
+  const lines = await readJSON(join(BASE, 'metro_lines.geojson'), { features: [] })
+  for (const f of lines.features)
+    for (const rid of f.properties.osm_route_ids || [])
+      ctx.ridCity.set(rid, f.properties.city)
+}
+
+function rebuild() {
+  execFileSync('node', [join(__dirname, 'buildGeojson.mjs')], { stdio: 'pipe' })
+}
+
+async function saveState() {
+  await writeFile(STATE_PATH, JSON.stringify(ctx.state, null, 2))
+}
+
+/* ---------------- audit ---------------- */
+
+const parseIntLoose = (s) => {
+  const m = /\d[\d,]*/.exec(String(s ?? ''))
+  return m ? parseInt(m[0].replace(/,/g, ''), 10) : null
+}
+
+function findSystem(city, country) {
+  return ctx.index.systems.find((s) =>
+    normCity(s.city) === normCity(city) && countryOk(s.country, country)) ?? null
+}
+
+// --- station-order sanity (same rule as scripts/verifyMetro.mjs) ---
+const ORDER_RATIO = 1.6
+const segDist = (a, b) => {
+  const dx = (a[0] - b[0]) * Math.cos(((a[1] + b[1]) / 2) * Math.PI / 180)
+  return Math.sqrt(dx * dx + (a[1] - b[1]) ** 2)
+}
+const pathLen = (pts) => {
+  let s = 0
+  for (let i = 1; i < pts.length; i++) s += segDist(pts[i - 1], pts[i])
+  return s
+}
+const mstLen = (pts) => {
+  const d = pts.map(() => Infinity), used = pts.map(() => false)
+  d[0] = 0
+  let total = 0
+  for (let k = 0; k < pts.length; k++) {
+    let u = -1
+    for (let i = 0; i < pts.length; i++) if (!used[i] && (u < 0 || d[i] < d[u])) u = i
+    used[u] = true; total += d[u]
+    for (let i = 0; i < pts.length; i++)
+      if (!used[i]) d[i] = Math.min(d[i], segDist(pts[u], pts[i]))
+  }
+  return total
+}
+const suspectOrder = (f) => {
+  let worst = 0
+  for (const seq of f.geometry?.coordinates || []) {
+    if (seq.length < 4) continue
+    const mst = mstLen(seq)
+    if (mst < 0.01) continue
+    worst = Math.max(worst, pathLen(seq) / mst)
+  }
+  return worst > ORDER_RATIO ? +worst.toFixed(2) : 0
+}
+
+// Audit one city. Mirrors the metro-data-verify invariants:
+//   error → fails the audit (missing / zero / no_line / low coverage)
+//   warn  → passes but is surfaced (high count / suspect station order)
+// wikiRow is null for extra (non-baseline) systems.
+const LOW_RATIO = 0.6, HIGH_RATIO = 1.6
+async function audit(city, country, wikiRow) {
+  const checks = []
+  const push = (id, ok, detail, level = 'error') => checks.push({ id, ok, detail, level })
+  const sys = findSystem(city, country)
+
+  if (wikiRow) {
+    push('system_exists', !!sys,
+      sys ? `matched OSM system ${sys.file}` : 'no OSM system matched to this city')
+  }
+  if (!sys) {
+    return { passed: false, checks,
+      reasons: ['OSM 中找不到對應系統（route=subway|light_rail 皆無匹配）'] }
+  }
+
+  push('has_lines', sys.line_count >= 1, `${sys.line_count} lines`)
+  push('has_stations', sys.station_count >= 1, `${sys.station_count} stations`)
+
+  if (wikiRow) {
+    const wikiN = parseIntLoose(wikiRow.stations)
+    if (wikiN && wikiN >= 3 && sys.station_count > 0) {
+      const ratio = sys.station_count / wikiN
+      if (ratio < LOW_RATIO) {
+        push('station_ratio_low', false,
+          `站數偏少：OSM ${sys.station_count} vs Wikipedia ${wikiN}（比值 ${ratio.toFixed(2)}）`)
+      } else if (ratio > HIGH_RATIO) {
+        // usually legit: one-city-one-file merges several operators
+        push('station_ratio_high', false,
+          `站數偏多：OSM ${sys.station_count} vs Wikipedia ${wikiN}（比值 ${ratio.toFixed(2)}），` +
+          '多營運商合併或含輕軌，需人工判定', 'warn')
+      } else {
+        push('station_ratio', true,
+          `OSM ${sys.station_count} vs Wikipedia ${wikiN}（比值 ${ratio.toFixed(2)}）`)
+      }
+    }
+  }
+
+  const g = await readJSON(join(BASE, sys.file), null)
+  if (g) {
+    const pts = g.features.filter((f) => f.geometry.type === 'Point')
+    // invariant 2: a station can never be without a line
+    const orphans = pts.filter((f) => !(f.properties.lines || []).length)
+    if (pts.length) {
+      push('stations_have_lines', orphans.length === 0,
+        orphans.length
+          ? `${orphans.length}/${pts.length} 站不屬於任何路線（違反不變式）`
+          : `${pts.length}/${pts.length} 站皆有所屬路線`)
+    }
+    // ≥85% stations should carry real names (not synthetic n123)
+    const named = pts.filter((f) => !/^n\d+$/.test(f.properties.station_name || '')).length
+    if (pts.length) {
+      push('stations_named', named / pts.length >= 0.85,
+        `${named}/${pts.length} 站有名稱`, 'warn')
+    }
+    // invariant 3: station order must be plausible (suspects need manual confirm)
+    const suspects = g.features
+      .filter((f) => f.geometry?.type === 'MultiLineString')
+      .map((f) => ({ name: f.properties?.route_name || f.properties?.route_id,
+        ratio: suspectOrder(f) }))
+      .filter((l) => l.ratio > 0)
+    push('station_order', suspects.length === 0,
+      suspects.length
+        ? `${suspects.length} 條線站序可疑（路徑長 > ${ORDER_RATIO}× MST）：` +
+          suspects.slice(0, 4).map((l) => `${l.name} ${l.ratio}×`).join('、') +
+          '，需以 Wikipedia 線路條目與 urbanrail.net 人工確認'
+        : '所有線路站序合理',
+      'warn')
+  }
+
+  const errors = checks.filter((c) => !c.ok && c.level === 'error')
+  const warns = checks.filter((c) => !c.ok && c.level === 'warn')
+  return {
+    passed: errors.length === 0,
+    checks,
+    reasons: errors.map((c) => c.detail),
+    warnings: warns.map((c) => c.detail),
+    system_file: sys.file,
+  }
+}
+
+/* ---------------- geocoding helpers (cached, 1 req/s) ---------------- */
+
+async function cityCoords(city, country) {
+  const key = `${city}|${country}`
+  if (ctx.wikiXY[key]) return ctx.wikiXY[key]
+  const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=' +
+    encodeURIComponent(`${city}, ${country}`)
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': UA } })
+    const j = res.ok ? await res.json() : []
+    ctx.wikiXY[key] = j[0] ? { lat: +j[0].lat, lon: +j[0].lon } : null
+    await writeFile(join(CACHE, 'wiki_city_coords.json'), JSON.stringify(ctx.wikiXY))
+    await sleep(1100)
+  } catch { /* leave null */ }
+  return ctx.wikiXY[key]
+}
+
+function continentFor(country) {
+  const hit = ctx.index.systems.find((s) => s.continent && countryOk(s.country, country))
+  return hit?.continent ?? null
+}
+
+/* ---------------- strategies ---------------- */
+
+async function writeOverride(slug, city, country, rids, source) {
+  await mkdir(OVERRIDES_DIR, { recursive: true })
+  await writeFile(join(OVERRIDES_DIR, `${slug}.json`), JSON.stringify({
+    city, country, continent: continentFor(country),
+    osm_route_ids: rids, source,
+    created: new Date().toISOString(),
+  }, null, 2))
+}
+
+// S1: relations already in cache whose centroid sits near the city.
+// Bound them to this city (override) unless they already belong to a canonical
+// nearby city — then the wiki system is covered by that file (record & pass on).
+async function s1BindCached(city, country, wikiRow) {
+  const xy = await cityCoords(city, country)
+  if (!xy) return { changed: false, note: 'no coordinates for city' }
+  const near = []
+  for (const [rid, c] of ctx.ridCentroid)
+    if (ctx.knownRids.has(rid) && kmDist(xy.lat, xy.lon, c.lat, c.lon) < 30) near.push(rid)
+  if (!near.length) return { changed: false, note: 'no cached routes within 30 km' }
+
+  // where do those relations currently live?
+  const cities = new Map()
+  for (const rid of near) {
+    const c = ctx.ridCity.get(rid)
+    if (c) cities.set(c, (cities.get(c) ?? 0) + 1)
+  }
+  const canonical = [...cities.keys()].find((c) =>
+    ctx.wiki.some((w) => normCity(w.city) === normCity(c)))
+  if (canonical && normCity(canonical) !== normCity(city)) {
+    return { changed: false, coveredBy: canonical,
+      note: `routes near ${city} already belong to ${canonical}` }
+  }
+  const unbound = near.filter((rid) => {
+    const c = ctx.ridCity.get(rid)
+    return !c || !ctx.wiki.some((w) => normCity(w.city) === normCity(c))
+  })
+  if (!unbound.length) return { changed: false, note: 'all nearby routes already canonical' }
+  await writeOverride(slugify(`${country}-${city}`), city, country, unbound,
+    `auditLoop S1 bind-cached (${wikiRow?.name ?? city})`)
+  return { changed: true, note: `bound ${unbound.length} cached relations` }
+}
+
+// S2/S3: targeted Overpass fetch around the city.
+async function targetedFetch(city, country, wikiRow, radiusKm, gate) {
+  const xy = await cityCoords(city, country)
+  if (!xy) return { changed: false, note: 'no coordinates for city' }
+  const slug = slugify(`${country}-${city}`)
+  const around = `(around:${radiusKm * 1000},${xy.lat},${xy.lon})`
+
+  const tagQ = `[out:json][timeout:120];relation${MODES}${LIFE}${around};out tags;`
+  const tags = await overpass.query(tagQ,
+    { cacheName: `gap_probe_${slug}_r${radiusKm}.json`, timeout: 120000, maxAttempts: 4 })
+    .catch(() => null)
+  if (!tags) return { changed: false, note: `overpass probe failed (r=${radiusKm}km)` }
+
+  const nameTok = tokens(`${wikiRow?.name ?? ''} ${city}`)
+  const rels = tags.elements.filter((e) => e.type === 'relation').filter((e) => {
+    if (gate === 'none') return true
+    const t = e.tags || {}
+    return shareToken(nameTok,
+      tokens(`${t.name ?? ''} ${t['name:en'] ?? ''} ${t.network ?? ''} ${t['network:en'] ?? ''} ${t.operator ?? ''}`))
+  })
+  const fresh = rels.filter((e) => !ctx.knownRids.has(e.id))
+  const unboundCached = rels.filter((e) => {
+    if (!ctx.knownRids.has(e.id)) return false
+    const c = ctx.ridCity.get(e.id)
+    return !c || !ctx.wiki.some((w) => normCity(w.city) === normCity(c))
+  })
+  if (!rels.length) return { changed: false, note: `no matching relations within ${radiusKm} km` }
+
+  if (fresh.length) {
+    await writeFile(join(CACHE, `gap_routes_${slug}.json`),
+      JSON.stringify({ elements: fresh }))
+    const ids = fresh.map((e) => e.id)
+    const geomQ = `[out:json][timeout:180];relation(id:${ids.join(',')})->.r;` +
+      '.r out body;node(r.r);out skel qt;'
+    const geom = await overpass.query(geomQ,
+      { cacheName: `gap_geom_${slug}.json`, timeout: 180000, maxAttempts: 4 })
+      .catch(() => null)
+    if (!geom) return { changed: false, note: 'geometry fetch failed' }
+    // register centroids for future S1 runs
+    const nodeXY = new Map()
+    for (const e of geom.elements || [])
+      if (e.type === 'node' && e.lat != null) nodeXY.set(e.id, [e.lon, e.lat])
+    for (const e of geom.elements || []) {
+      if (e.type !== 'relation') continue
+      let sx = 0, sy = 0, n = 0
+      for (const m of e.members || []) {
+        if (m.type !== 'node') continue
+        const c = m.lat != null ? [m.lon, m.lat] : nodeXY.get(m.ref)
+        if (c) { sx += c[0]; sy += c[1]; n++ }
+      }
+      if (n) ctx.ridCentroid.set(e.id, { lon: sx / n, lat: sy / n })
+      ctx.knownRids.add(e.id)
+    }
+
+    // stations for the new lines (subway|light_rail flavoured only)
+    const stQ = `[out:json][timeout:120];(` +
+      `node["station"~"^(subway|light_rail)$"]${LIFE}${around};` +
+      `node["railway"="station"]["subway"="yes"]${LIFE}${around};` +
+      `node["railway"="station"]["light_rail"="yes"]${LIFE}${around};` +
+      `way["station"~"^(subway|light_rail)$"]${LIFE}${around};` +
+      ');out center;'
+    const st = await overpass.query(stQ,
+      { cacheName: `gap_stations_${slug}.json`, timeout: 120000, maxAttempts: 4 })
+      .catch(() => null)
+    await sleep(1000)
+    void st
+  }
+
+  const bindIds = [...new Set([...fresh.map((e) => e.id), ...unboundCached.map((e) => e.id)])]
+  if (!bindIds.length) return { changed: false, note: 'relations found but all already canonical' }
+  await writeOverride(slug, city, country, bindIds,
+    `auditLoop targeted-fetch r=${radiusKm}km (${wikiRow?.name ?? city})`)
+  return { changed: true, note: `${fresh.length} new + ${unboundCached.length} rebound relations` }
+}
+
+// Z1: fetch stations around an existing system that audits with too few.
+async function z1Stations(city, country, sysFile) {
+  const g = await readJSON(join(BASE, sysFile), null)
+  if (!g) return { changed: false, note: 'system file unreadable' }
+  let sx = 0, sy = 0, n = 0, maxKm = 0
+  const pts = []
+  for (const f of g.features) {
+    if (f.geometry.type === 'Point') { pts.push(f.geometry.coordinates) }
+    else for (const seg of f.geometry.coordinates) for (const c of seg) pts.push(c)
+  }
+  for (const [lon, lat] of pts) { sx += lon; sy += lat; n++ }
+  if (!n) return { changed: false, note: 'no geometry' }
+  const clat = sy / n, clon = sx / n
+  for (const [lon, lat] of pts) maxKm = Math.max(maxKm, kmDist(clat, clon, lat, lon))
+  const r = Math.min(60, Math.ceil(maxKm + 8))
+  const slug = slugify(`${country}-${city}`)
+  const around = `(around:${r * 1000},${clat},${clon})`
+  const stQ = `[out:json][timeout:120];(` +
+    `node["station"~"^(subway|light_rail)$"]${LIFE}${around};` +
+    `node["railway"="station"]["subway"="yes"]${LIFE}${around};` +
+    `node["railway"="station"]["light_rail"="yes"]${LIFE}${around};` +
+    `way["station"~"^(subway|light_rail)$"]${LIFE}${around};` +
+    ');out center;'
+  const st = await overpass.query(stQ,
+    { cacheName: `gap_stations_${slug}.json`, timeout: 120000, maxAttempts: 4 })
+    .catch(() => null)
+  await sleep(1000)
+  if (!st?.elements?.length) return { changed: false, note: `no stations within ${r} km` }
+  return { changed: true, note: `${st.elements.length} station candidates fetched (r=${r}km)` }
+}
+
+// Z2: derive stations from the system's own named stop_position nodes.
+async function z2DeriveStops(city, country, sysFile) {
+  const g = await readJSON(join(BASE, sysFile), null)
+  if (!g) return { changed: false, note: 'system file unreadable' }
+  const rids = new Set()
+  for (const f of g.features)
+    for (const rid of f.properties.osm_route_ids || []) rids.add(rid)
+  // member node ids + coords from geometry cache
+  const nodeIds = new Map() // id -> [lon,lat]
+  const files = (await readdir(CACHE)).filter((n) =>
+    /^(geom_.+|gap_geom_.+)\.json$/.test(n) && !n.endsWith('.partial'))
+  for (const f of files) {
+    const d = await readJSON(join(CACHE, f), {})
+    const nodeXY = new Map()
+    for (const e of d.elements || [])
+      if (e.type === 'node' && e.lat != null) nodeXY.set(e.id, [e.lon, e.lat])
+    for (const e of d.elements || []) {
+      if (e.type !== 'relation' || !rids.has(e.id)) continue
+      for (const m of e.members || []) {
+        if (m.type !== 'node') continue
+        const c = m.lat != null ? [m.lon, m.lat] : nodeXY.get(m.ref)
+        if (c) nodeIds.set(m.ref, c)
+      }
+    }
+  }
+  if (!nodeIds.size) return { changed: false, note: 'no member nodes in cache' }
+
+  const ids = [...nodeIds.keys()]
+  const slug = slugify(`${country}-${city}`)
+  const derived = []
+  for (let i = 0; i < ids.length; i += 400) {
+    const chunk = ids.slice(i, i + 400)
+    const q = `[out:json][timeout:120];node(id:${chunk.join(',')});out tags;`
+    const d = await overpass.query(q,
+      { cacheName: `gap_stoptags_${slug}_${i / 400}.json`, timeout: 120000, maxAttempts: 4 })
+      .catch(() => null)
+    if (!d) continue
+    for (const e of d.elements || []) {
+      const t = e.tags || {}
+      const name = t['name:en'] || t.name
+      if (!name) continue
+      const c = nodeIds.get(e.id)
+      if (!c) continue
+      derived.push({
+        type: 'node', id: e.id, lon: c[0], lat: c[1],
+        tags: { name: t.name, 'name:en': t['name:en'], station: 'light_rail',
+          network: t.network, operator: t.operator, derived_from: 'stop_position' },
+      })
+    }
+    await sleep(1000)
+  }
+  if (!derived.length) return { changed: false, note: 'no named stop nodes' }
+  await writeFile(join(CACHE, `gap_stations_${slug}_derived.json`),
+    JSON.stringify({ elements: derived }))
+  return { changed: true, note: `${derived.length} stations derived from stop nodes` }
+}
+
+// Z0: a stray non-baseline 0-station bucket near a canonical city merges into it.
+async function z0MergeNeighbor(sys) {
+  const g = await readJSON(join(BASE, sys.file), null)
+  if (!g) return { changed: false, note: 'system file unreadable' }
+  let sx = 0, sy = 0, n = 0
+  const rids = new Set()
+  for (const f of g.features) {
+    for (const rid of f.properties.osm_route_ids || []) rids.add(rid)
+    if (f.geometry.type !== 'Point')
+      for (const seg of f.geometry.coordinates) for (const [lon, lat] of seg) {
+        sx += lon; sy += lat; n++
+      }
+  }
+  if (!n || !rids.size) return { changed: false, note: 'no line geometry' }
+  const clat = sy / n, clon = sx / n
+  let best = null, bestKm = Infinity
+  for (const w of ctx.wiki) {
+    if (!countryOk(w.country, sys.country)) continue
+    if (normCity(w.city) === normCity(sys.city)) continue
+    const xy = ctx.wikiXY[`${w.city}|${w.country}`]
+    if (!xy) continue
+    const km = kmDist(clat, clon, xy.lat, xy.lon)
+    if (km < bestKm) { bestKm = km; best = w }
+  }
+  if (!best || bestKm > 25) return { changed: false, note: 'no canonical neighbour within 25 km' }
+  await writeOverride(slugify(`${best.country}-${best.city}-merge-${sys.city}`),
+    best.city, best.country, [...rids],
+    `auditLoop Z0 merge ${sys.city} into ${best.city} (${bestKm.toFixed(1)} km)`)
+  return { changed: true, note: `merged into ${best.city} (${bestKm.toFixed(1)} km)` }
+}
+
+/* ---------------- per-city driver ---------------- */
+
+async function processCity(city, country, wikiRow) {
+  const key = `${city}|${country}`
+  const st = ctx.state[key] ?? { strategies_tried: [] }
+  ctx.state[key] = st
+
+  let verdict = await audit(city, country, wikiRow)
+  let guard = 0
+  while (!verdict.passed && guard++ < 6) {
+    const sys = findSystem(city, country)
+    const failedIds = new Set(verdict.checks.filter((c) => !c.ok).map((c) => c.id))
+    // choose next untried strategy for this failure shape
+    let strategy = null
+    if (!sys) {
+      strategy = ['S1', 'S2', 'S3'].find((s) => !st.strategies_tried.includes(s))
+    } else if (failedIds.has('has_stations') || failedIds.has('station_ratio_low')) {
+      if (!wikiRow && sys.station_count === 0 && !st.strategies_tried.includes('Z0'))
+        strategy = 'Z0'
+      else strategy = ['Z1', 'Z2'].find((s) => !st.strategies_tried.includes(s))
+    }
+    if (!strategy) break
+
+    st.strategies_tried.push(strategy)
+    let res
+    if (strategy === 'S1') res = await s1BindCached(city, country, wikiRow)
+    else if (strategy === 'S2') res = await targetedFetch(city, country, wikiRow, 40, 'token')
+    else if (strategy === 'S3') res = await targetedFetch(city, country, wikiRow, 80, 'token')
+    else if (strategy === 'Z0') res = await z0MergeNeighbor(sys)
+    else if (strategy === 'Z1') res = await z1Stations(city, country, verdict.system_file ?? sys.file)
+    else if (strategy === 'Z2') res = await z2DeriveStops(city, country, verdict.system_file ?? sys.file)
+
+    console.log(`    ${strategy}: ${res.note}`)
+    st.notes = st.notes ?? {}
+    st.notes[strategy] = res.note
+    if (res.coveredBy) {
+      st.covered_by = res.coveredBy
+      verdict = { passed: true, checks: verdict.checks,
+        reasons: [`由 ${res.coveredBy} 系統檔涵蓋（同都會區，OSM 未區分）`] }
+      // also note it on the covering system
+      const cover = ctx.index.systems.find((s) => normCity(s.city) === normCity(res.coveredBy))
+      if (cover) {
+        const ck = `${cover.city}|${cover.country}`
+        ctx.state[ck] = ctx.state[ck] ?? { strategies_tried: [] }
+        ctx.state[ck].covers = [...new Set([...(ctx.state[ck].covers ?? []),
+          wikiRow?.name ?? city])]
+      }
+      break
+    }
+    if (res.changed) {
+      rebuild()
+      await reloadIndex()
+      verdict = await audit(city, country, wikiRow)
+    }
+  }
+
+  st.passed = verdict.passed
+  st.checks = verdict.checks
+  st.reasons = verdict.passed ? (st.covered_by ? verdict.reasons : []) : verdict.reasons
+  st.warnings = verdict.warnings ?? []
+  st.audited_at = new Date().toISOString()
+  // also record under the system's own index strings (may differ from the wiki
+  // wording — "Czechia" vs "Czech Republic") so the build-time embed finds it
+  const sysNow = findSystem(city, country)
+  if (sysNow) {
+    const indexKey = `${sysNow.city}|${sysNow.country}`
+    if (indexKey !== key) ctx.state[indexKey] = st
+  }
+  await saveState()
+  return verdict
+}
+
+/* ---------------- main ---------------- */
+
+async function main() {
+  const t0 = Date.now()
+  await loadStatic()
+  await reloadIndex()
+  if (!ctx.index) { rebuild(); await reloadIndex() }
+
+  // audit queue: every Wikipedia-baseline city first, then extra OSM systems
+  const seen = new Set()
+  const queue = []
+  for (const w of ctx.wiki) {
+    const k = `${w.city}|${w.country}`
+    if (seen.has(k)) continue
+    seen.add(k)
+    queue.push({ city: w.city, country: w.country, wikiRow: w })
+  }
+  for (const s of ctx.index.systems) {
+    if (!s.city || !s.country) continue
+    const matched = queue.some((q) =>
+      normCity(q.city) === normCity(s.city) && countryOk(q.country, s.country))
+    if (matched) continue
+    const k = `${s.city}|${s.country}`
+    if (seen.has(k)) continue
+    seen.add(k)
+    queue.push({ city: s.city, country: s.country, wikiRow: null })
+  }
+
+  console.log(`Auditing ${queue.length} cities (${ctx.wiki.length} baseline + extras)\n`)
+  let pass = 0, fail = 0
+  for (let i = 0; i < queue.length; i++) {
+    const { city, country, wikiRow } = queue[i]
+    const prev = ctx.state[`${city}|${country}`]
+    // skip cities that already passed and exhausted nothing new
+    if (prev?.passed && prev.checks) { pass++; continue }
+    console.log(`[${i + 1}/${queue.length}] ${city}, ${country}` +
+      (wikiRow ? ` (${wikiRow.name})` : ' (extra system)'))
+    const verdict = await processCity(city, country, wikiRow)
+    if (verdict.passed) { pass++; console.log('    ✅ PASS') }
+    else { fail++; console.log(`    ❌ FAIL: ${verdict.reasons.join('; ')}`) }
+  }
+
+  // final rebuild embeds the latest audit verdicts into the outputs
+  rebuild()
+  await reloadIndex()
+
+  const failed = Object.entries(ctx.state).filter(([, v]) => !v.passed)
+  console.log(`\nDONE in ${((Date.now() - t0) / 60000).toFixed(1)} min — ` +
+    `${pass} passed, ${fail} failed of ${queue.length} cities`)
+  if (failed.length) {
+    console.log('\nStill failing:')
+    for (const [k, v] of failed)
+      console.log(`  ${k}: ${v.reasons?.join('; ') ?? '?'}`)
+  }
+}
+
+main().catch((e) => { console.error(e); process.exit(1) })

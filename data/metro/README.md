@@ -1,35 +1,40 @@
 # 全球地鐵資料 (Metro data)
 
-從 **OpenStreetMap**（透過 Overpass API，`route=subway`，**僅營運中**——排除建設中/規劃中/停用）
-抓取的全球地下鐵路線與車站，以 **Wikipedia [List of metro systems](https://en.wikipedia.org/wiki/List_of_metro_systems)**
+從 **OpenStreetMap**（透過 Overpass API，**`route=subway` 與 `route=light_rail`（LRT）**——
+不含 train/一般 railway/tram，**僅營運中**——排除建設中/規劃中/停用）
+抓取的全球地鐵/輕軌路線與車站，以 **Wikipedia [List of metro systems](https://en.wikipedia.org/wiki/List_of_metro_systems)**
 為覆蓋率基準，並對照 [urbanrail.net](https://www.urbanrail.net/) 驗證。
 
 **線路幾何是「依站序連線」的示意折線**（route relation 的 stop 成員依順序相連），
-**不是**真實軌道線形。
+**不是**真實軌道線形。**同一城市內同名車站合併為單一點（座標取平均、lines 取聯集，
+~800 m 距離護欄）**。
 
 **不變式（每次抓完必以 Wikipedia＋urbanrail 驗證，違反＝資料有錯）**：
 1. Wikipedia 清單上有的城市不可能沒資料；2. 不可能有車站沒有路線（每站 `lines` ≥ 1）；
 3. 站序必須正確（可疑者由 `verify_report` 標 `order`，逐線人工比對確認）。
 
-> **權威依據（兩份 skill，互為 fetch⇄verify 迴圈）**：
+> **權威依據（三份 skill）**：
 > - 取得：`.claude/skills/metro-osm-fetch/SKILL.md`（OSM 資料 + 反查 + 組檔 + 下載官方路網圖）
-> - 驗證：`.claude/skills/metro-data-verify/SKILL.md`（對照 Wikipedia/urbanrail，產 `verify_report`，回饋修正）
+> - 驗證：`.claude/skills/metro-data-verify/SKILL.md`（對照 Wikipedia/urbanrail，產 `verify_report`）
+> - 收斂：`.claude/skills/metro-audit/SKILL.md`（**逐城市** audit⇄修補迴圈，策略階梯自動補抓/綁定，
+>   結果嵌入每系統 `metro_system.audit`，前端 Info 面板顯示通過與否及原因）
 >
-> 任何重抓/更新都遵循該 skill；改動判準、欄位、命名時需同步更新兩份 skill 與本檔。
+> 任何重抓/更新都遵循該 skill；改動判準、欄位、命名時需同步更新 skill 與本檔。
 
 ## 產生方式
 
 ```bash
-npm run metro:all      # 完整流程：Wikipedia 清單 + OSM 抓取 + 反向地理編碼 + 組成 GeoJSON
+npm run metro:all      # 完整流程：wiki 清單 → OSM 抓取 → 反向地理編碼 → 組檔 → 逐城市 audit
 
-# 或分步（每步都有快取，可續跑）：
+# 或分步（每步都有快取，可續跑；失敗會留 .partial 標記，重跑自癒）：
 npm run metro:wiki     # 抓 Wikipedia 地鐵系統清單 -> _cache/wiki_metro_systems.json
-npm run metro:fetch    # 抓 OSM 全球 subway 路線/車站原始資料 -> _cache/*.json
+npm run metro:fetch    # 抓 OSM 全球 subway+LRT 路線/車站原始資料 -> _cache/*.json（幾何增量）
 npm run metro:geocode  # 反向地理編碼每個系統中心點 -> _cache/geocode.json（洲/國/城）
-npm run metro:build    # 組成最終 GeoJSON
+npm run metro:build    # 組成最終 GeoJSON（含同名站合併、_overrides 綁定、audit 嵌入）
+npm run metro:audit    # 逐城市 audit⇄修補到收斂 -> _cache/audit_state.json + metro_system.audit
 
 npm run metro:maps     # 下載各系統官方路網圖 -> maps/**（需先有 index.json）
-npm run metro:verify   # 對照 Wikipedia/urbanrail 驗證 -> verify_report.json/.md
+npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_report.json/.md
 ```
 
 腳本在 `scripts/`（純 Node.js，無外部套件）：`overpass.mjs`（多端點重試+快取的 Overpass client）、

@@ -13,7 +13,7 @@ const importOpen = ref(false)
 const importWrap = ref(null)
 const importItems = [
   { id: 'import-quick', label: 'Quick Selection', icon: Zap },
-  { id: 'import-stations', label: '依車站數排序', icon: ArrowUpDown },
+  { id: 'import-stations', label: 'Sort by Station Count', icon: ArrowUpDown },
   { id: 'import-metro', label: 'Global Metro Map', icon: Globe },
 ]
 function pickImport(id) {
