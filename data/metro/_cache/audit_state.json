@@ -1,0 +1,4410 @@
+{
+  "Algiers|Algeria": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/africa/algeria/af-alg-algiers.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "21 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 21 站（wiki List 記 19，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "21/21 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "20 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "1/21 站無名稱（n1285510857…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Metro L1R",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "1/21 站無名稱（n1285510857…）——需補上游名稱或剔除"
+    ],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Metro L1R"
+    ],
+    "audited_at": "2026-07-10T13:04:49.068Z"
+  },
+  "Buenos Aires|Argentina": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/argentina/am-arg-buenos-aires.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "90 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 90 站（wiki List 記 78，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "90/90 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "92 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "90/90 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "6 條線無 wiki 站數對照：Línea A、Línea B、Línea C",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "6 條線無 wiki 站數對照：Línea A、Línea B、Línea C"
+    ],
+    "audited_at": "2026-07-10T13:04:49.070Z"
+  },
+  "Yerevan|Armenia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/armenia/as-arm-yerevan.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "10 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 10 站（wiki List 記 10，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "10/10 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "11 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "10/10 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Yerevan Metro Line 1",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Yerevan Metro Line 1"
+    ],
+    "audited_at": "2026-07-10T13:04:49.070Z"
+  },
+  "Sydney|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/oceania/australia/oc-aus-sydney.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "39 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 39 站（wiki List 記 21，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "39/39 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "27 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "39/39 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Metro North West & Bankstown Line",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Metro North West & Bankstown Line"
+    ],
+    "audited_at": "2026-07-10T13:04:49.071Z"
+  },
+  "Vienna|Austria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/europe/austria/eu-aut-vienna.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "5 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "103 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 103 站（wiki List 記 99，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "103/103 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "110 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "103/103 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:49.072Z"
+  },
+  "Baku|Azerbaijan": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/azerbaijan/as-aze-baku.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "26 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 26 站（wiki List 記 25，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "26/26 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "30 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "26/26 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "4 條線無 wiki 站數對照：Line 2、Line 1、Line 2B",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "4 條線無 wiki 站數對照：Line 2、Line 1、Line 2B"
+    ],
+    "audited_at": "2026-07-10T13:04:49.072Z"
+  },
+  "Dhaka|Bangladesh": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "16 station candidates fetched (r=18km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/bangladesh/as-ban-dhaka.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "17 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 17 站（wiki List 記 16，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "17/17 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "19 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "17/17 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Dhaka Metro Rail Line 6 17/22",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Dhaka Metro Rail Line 6 17/22"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:51.527Z"
+  },
+  "Minsk|Belarus": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/europe/belarus/eu-blr-minsk.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "36 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 36 站（wiki List 記 33，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "36/36 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "36 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "36/36 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "3 條線無 wiki 站數對照：Moscow Line、Аўтазаводская лінія、Zielienalužskaja linija",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "3 條線無 wiki 站數對照：Moscow Line、Аўтазаводская лінія、Zielienalužskaja linija"
+    ],
+    "audited_at": "2026-07-10T13:04:51.528Z"
+  },
+  "Brussels|Belgium": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "72 station candidates fetched (r=16km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/europe/belgium/eu-bel-brussels.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "68 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 68 站（wiki List 記 59，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "68/68 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "71 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "68/68 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Metro 1 22/21",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Metro 1 22/21"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:54.076Z"
+  },
+  "Belo Horizonte|Brazil": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-belo-horizonte.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "24 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 24 站（wiki List 記 20，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "24/24 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "23 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "24/24 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Linha 1 - Laranja",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Linha 1 - Laranja"
+    ],
+    "audited_at": "2026-07-10T13:04:54.077Z"
+  },
+  "Brasília|Brazil": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-brasilia.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "27 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 27 站（wiki List 記 27，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "27/27 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "29 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "27/27 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Linha Verde、Linha Laranja",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Linha Verde、Linha Laranja"
+    ],
+    "audited_at": "2026-07-10T13:04:54.078Z"
+  },
+  "Fortaleza|Brazil": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-fortaleza.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "21 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 21 站（wiki List 記 20，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "21/21 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "20 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "21/21 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:54.079Z"
+  },
+  "Porto Alegre|Brazil": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-porto-alegre.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "23 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 23 站（wiki List 記 22，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "23/23 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "24 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "23/23 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Linha 1、Conexão Metrô-Aeroporto",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Linha 1、Conexão Metrô-Aeroporto"
+    ],
+    "audited_at": "2026-07-10T13:04:54.079Z"
+  },
+  "Recife|Brazil": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-recife.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "32 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 32 站（wiki List 記 28，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "32/32 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "38 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "3/32 站無名稱（n141711185、n371261870、n428121165…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Linha Centro - 1、Linha Sul",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "3/32 站無名稱（n141711185、n371261870、n428121165…）——需補上游名稱或剔除"
+    ],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Linha Centro - 1、Linha Sul"
+    ],
+    "audited_at": "2026-07-10T13:04:54.080Z"
+  },
+  "Rio de Janeiro|Brazil": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "50 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 50 站（wiki List 記 41，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "50/50 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "45 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "9/50 站無名稱（n48383058、n48383059、n48383061…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "9/50 站無名稱（n48383058、n48383059、n48383061…）——需補上游名稱或剔除"
+    ],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico"
+    ],
+    "audited_at": "2026-07-10T13:04:54.084Z"
+  },
+  "Salvador|Brazil": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-salvador.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "22 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 22 站（wiki List 記 22，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "22/22 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "22 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "22/22 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:54.085Z"
+  },
+  "São Paulo|Brazil": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "103 station candidates fetched (r=26km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/brazil/am-bra-sao-paulo.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "5 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "82 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 82 站（wiki List 記 103，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "82/82 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "90 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "2/82 站無名稱（n1396243234、n1444023097…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Line 1 - Blue 24/23",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "3 條線無 wiki 站數對照：Linha 5 - Lilás、Line 2 - Green、Linha 4 - Amarela",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "2/82 站無名稱（n1396243234、n1444023097…）——需補上游名稱或剔除",
+      "1 條線站數與 wiki 條目不符（必須相等）：Line 1 - Blue 24/23"
+    ],
+    "warnings": [
+      "3 條線無 wiki 站數對照：Linha 5 - Lilás、Line 2 - Green、Linha 4 - Amarela"
+    ],
+    "audited_at": "2026-07-10T13:04:56.626Z"
+  },
+  "Sofia|Bulgaria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/europe/bulgaria/eu-bul-sofia.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "47 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 47 站（wiki List 記 47，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "47/47 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "49 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "47/47 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "4 條線無 wiki 站數對照：Line M1、Line M4、Line M2",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "4 條線無 wiki 站數對照：Line M1、Line M4、Line M2"
+    ],
+    "audited_at": "2026-07-10T13:04:56.626Z"
+  },
+  "Montreal|Canada": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/canada/am-can-montreal.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "70 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 70 站（wiki List 記 68，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "70/70 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "73 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "1/70 站無名稱（n1155282212…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1/70 站無名稱（n1155282212…）——需補上游名稱或剔除"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:56.627Z"
+  },
+  "Toronto|Canada": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/canada/am-can-toronto.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "73 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 73 站（wiki List 記 70，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "73/73 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "76 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "1/73 站無名稱（n973381909…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1/73 站無名稱（n973381909…）——需補上游名稱或剔除"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:56.628Z"
+  },
+  "Vancouver|Canada": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "56 station candidates fetched (r=25km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/canada/am-can-vancouver.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "54 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 54 站（wiki List 記 54，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "54/54 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "60 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "54/54 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Canada Line 16/17",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Canada Line 16/17"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:04:59.095Z"
+  },
+  "Santiago|Chile": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/americas/chile/am-chi-santiago.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "8 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "136 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 136 站（wiki List 記 126，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "136/136 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "156 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "136/136 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "8 條線無 wiki 站數對照：Línea 4、Línea 1、Línea 5",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "8 條線無 wiki 站數對照：Línea 4、Línea 1、Línea 5"
+    ],
+    "audited_at": "2026-07-10T13:04:59.096Z"
+  },
+  "Beijing|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "488 station candidates fetched (r=54km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-beijing.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "27 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "423 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 423 站（wiki List 記 407，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "423/423 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "536 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "11/423 站無名稱（n128511305、n169078154、n891180455…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "8 條線站數與 wiki 條目不符（必須相等）：Beijing Subway Line 18 6/11、Beijing Subway Line 14 34/36、Beijing Subway Yanfang Line 10/9、Subway Line 12 21/20",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "4 條線無 wiki 站數對照：北京地铁八通线、Beijing Subway Line 11、Beijing Subway Line 17",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "11/423 站無名稱（n128511305、n169078154、n891180455…）——需補上游名稱或剔除",
+      "8 條線站數與 wiki 條目不符（必須相等）：Beijing Subway Line 18 6/11、Beijing Subway Line 14 34/36、Beijing Subway Yanfang Line 10/9、Subway Line 12 21/20"
+    ],
+    "warnings": [
+      "4 條線無 wiki 站數對照：北京地铁八通线、Beijing Subway Line 11、Beijing Subway Line 17"
+    ],
+    "audited_at": "2026-07-10T13:05:07.526Z"
+  },
+  "Changchun|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "191 station candidates fetched (r=27km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-changchun.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "69 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 69 站（wiki List 記 89，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "69/69 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "65 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "69/69 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Changchun Subway Line 2 27/21",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Changchun Subway Line 2 27/21"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:06:58.217Z"
+  },
+  "Changsha|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-changsha.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "144 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 144 站（wiki List 記 140，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "144/144 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "159 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "144/144 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:06:58.218Z"
+  },
+  "Changzhou|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "123 station candidates fetched (r=24km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-changzhou.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "50 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 50 站（wiki List 記 43，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "50/50 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "44 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "4/50 站無名稱（n689050002、n704449837、n704449853…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Changzhou Metro Line 2 15/43",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "4/50 站無名稱（n689050002、n704449837、n704449853…）——需補上游名稱或剔除",
+      "1 條線站數與 wiki 條目不符（必須相等）：Changzhou Metro Line 2 15/43"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:07:02.530Z"
+  },
+  "Chengdu|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "543 station candidates fetched (r=60km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-chengdu.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "17 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "371 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 371 站（wiki List 記 363，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "371/371 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "449 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "3/371 站無名稱（n1352529982、n1352529983、n1476729030…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "7 條線站數與 wiki 條目不符（必須相等）：Chengdu Metro Line 30 18/24、Chengdu Metro Line 2 32/33、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：成都地铁19号线: 天府站 => 金星",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "3/371 站無名稱（n1352529982、n1352529983、n1476729030…）——需補上游名稱或剔除",
+      "7 條線站數與 wiki 條目不符（必須相等）：Chengdu Metro Line 30 18/24、Chengdu Metro Line 2 32/33、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23"
+    ],
+    "warnings": [
+      "1 條線無 wiki 站數對照：成都地铁19号线: 天府站 => 金星"
+    ],
+    "audited_at": "2026-07-10T13:07:09.472Z"
+  },
+  "Chongqing|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "334 station candidates fetched (r=60km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-chongqing.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "11 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "236 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 236 站（wiki List 記 286，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "236/236 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "283 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "236/236 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "6 條線站數與 wiki 條目不符（必須相等）：Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27、Line 4 (Chongqing Rail Transit) 32/33、Bitong Line 8/9",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "6 條線站數與 wiki 條目不符（必須相等）：Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27、Line 4 (Chongqing Rail Transit) 32/33、Bitong Line 8/9"
+    ],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)"
+    ],
+    "audited_at": "2026-07-10T13:07:15.338Z"
+  },
+  "Dalian|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "no stations within 60 km",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-dalian.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "113 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 113 站（wiki List 記 100，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "113/113 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "116 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "113/113 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "2 條線站數與 wiki 條目不符（必須相等）：Dalian Metro Line 3 18/20、Dalian Metro Line 13 17/11",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "2 條線站數與 wiki 條目不符（必須相等）：Dalian Metro Line 3 18/20、Dalian Metro Line 13 17/11"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:12:53.020Z"
+  },
+  "Dongguan|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-dongguan.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "52 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 52 站（wiki List 記 39，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "52/52 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "40 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "52/52 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:12:53.021Z"
+  },
+  "Foshan|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "367 station candidates fetched (r=34km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-foshan.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "47 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 47 站（wiki List 記 76，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "47/47 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "47 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "47/47 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "2 條線站數與 wiki 條目不符（必須相等）：Foshan Metro Line 3 32/37、Foshan Metro Line 2 15/17",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "2 條線站數與 wiki 條目不符（必須相等）：Foshan Metro Line 3 32/37、Foshan Metro Line 2 15/17"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:15:26.120Z"
+  },
+  "Fuzhou|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "128 station candidates fetched (r=43km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-fuzhou.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "110 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 110 站（wiki List 記 102，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "110/110 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "124 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "6/110 站無名稱（n1056561054、n1056561074、n1316108788…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "2 條線站數與 wiki 條目不符（必須相等）：Binhai Express 12/15、福州地铁6号线 15/16",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "6/110 站無名稱（n1056561054、n1056561074、n1316108788…）——需補上游名稱或剔除",
+      "2 條線站數與 wiki 條目不符（必須相等）：Binhai Express 12/15、福州地铁6号线 15/16"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:15:31.037Z"
+  },
+  "Guangzhou|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "531 station candidates fetched (r=60km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-guangzhou.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "18 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "351 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 351 站（wiki List 記 317，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "351/351 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "400 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "2/351 站無名稱（n819869956、n1348070405…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "4 條線站數與 wiki 條目不符（必須相等）：Metro Line 3 33/34、Subway Line 7 27/28、Subway Guangfo Line 26/25、Subway Line 21 21/20",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "3 條線無 wiki 站數對照：Subway Line 1、Subway Line 18、Subway Line 22",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "2/351 站無名稱（n819869956、n1348070405…）——需補上游名稱或剔除",
+      "4 條線站數與 wiki 條目不符（必須相等）：Metro Line 3 33/34、Subway Line 7 27/28、Subway Guangfo Line 26/25、Subway Line 21 21/20"
+    ],
+    "warnings": [
+      "3 條線無 wiki 站數對照：Subway Line 1、Subway Line 18、Subway Line 22"
+    ],
+    "audited_at": "2026-07-10T13:15:37.000Z"
+  },
+  "Guiyang|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-guiyang.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "5 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "93 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 93 站（wiki List 記 82，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "93/93 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "99 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "93/93 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Guiyang Metro Line 2、Guiyang Metro Line 2",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Guiyang Metro Line 2、Guiyang Metro Line 2"
+    ],
+    "audited_at": "2026-07-10T13:15:37.001Z"
+  },
+  "Hangzhou|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-hangzhou.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "13 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "286 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 286 站（wiki List 記 254，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "286/286 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "325 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "286/286 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "11 條線無 wiki 站數對照：杭州地铁3号线、杭州地铁4号线、Hangzhou Metro Line 5",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "11 條線無 wiki 站數對照：杭州地铁3号线、杭州地铁4号线、Hangzhou Metro Line 5"
+    ],
+    "audited_at": "2026-07-10T13:15:37.003Z"
+  },
+  "Harbin|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-harbin.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "73 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 73 站（wiki List 記 78，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "73/73 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "79 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "73/73 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:15:37.006Z"
+  },
+  "Hefei|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "no stations within 34 km",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-hefei.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "7 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "189 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 189 站（wiki List 記 195，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "189/189 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "202 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "1/189 站無名稱（n759787671…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "4 條線站數與 wiki 條目不符（必須相等）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22、Hefei Metro Line 1 26/23、Hefei Metro Line 4 38/34",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1/189 站無名稱（n759787671…）——需補上游名稱或剔除",
+      "4 條線站數與 wiki 條目不符（必須相等）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22、Hefei Metro Line 1 26/23、Hefei Metro Line 4 38/34"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:20:39.091Z"
+  },
+  "Hohhot|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-hohhot.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "43 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 43 站（wiki List 記 43，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "43/43 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "44 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "43/43 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:20:39.092Z"
+  },
+  "Hong Kong|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "388 station candidates fetched (r=31km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-hong-kong.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "10 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "155 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 155 站（wiki List 記 99，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "155/155 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "138 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "10/155 站無名稱（n184284403、n712449914、n746198186…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "3 條線站數與 wiki 條目不符（必須相等）：East Rail Line 15/16、MTR Tuen Ma Line 28/27、MTR Kwun Tong Line 20/17",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Airport Express",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "10/155 站無名稱（n184284403、n712449914、n746198186…）——需補上游名稱或剔除",
+      "3 條線站數與 wiki 條目不符（必須相等）：East Rail Line 15/16、MTR Tuen Ma Line 28/27、MTR Kwun Tong Line 20/17"
+    ],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Airport Express"
+    ],
+    "audited_at": "2026-07-10T13:20:46.562Z"
+  },
+  "Jinan|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-jinan.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "111 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 111 站（wiki List 記 103，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "111/111 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "112 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "111/111 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:20:46.563Z"
+  },
+  "Jinhua|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "51 station candidates fetched (r=47km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-jinhua.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "32 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 32 站（wiki List 記 32，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "32/32 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "29 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "3/32 站無名稱（n1507657777、n1507657778、n1507657779…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Jinyi line: Jinhua Railway Station ↔ Qintang 15/30",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Yidong line: Lingyun ↔ Ming & Qing Dynasty Palace",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "3/32 站無名稱（n1507657777、n1507657778、n1507657779…）——需補上游名稱或剔除",
+      "1 條線站數與 wiki 條目不符（必須相等）：Jinyi line: Jinhua Railway Station ↔ Qintang 15/30"
+    ],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Yidong line: Lingyun ↔ Ming & Qing Dynasty Palace"
+    ],
+    "audited_at": "2026-07-10T13:23:27.876Z"
+  },
+  "Kunming|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "198 station candidates fetched (r=31km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-kunming.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "106 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 106 站（wiki List 記 103，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "106/106 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "120 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "106/106 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Kunming Metro Line 2 14/22",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Kunming Metro Line 2 14/22"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:23:32.053Z"
+  },
+  "Lanzhou|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "29 station candidates fetched (r=23km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-lanzhou.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "26 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 26 站（wiki List 記 27，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "26/26 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "28 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "26/26 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Lanzhou Metro Line 1 19/20",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Lanzhou Metro Line 1 19/20"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:23:36.727Z"
+  },
+  "Luoyang|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "33 station candidates fetched (r=20km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-luoyang.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "33 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 33 站（wiki List 記 33，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "33/33 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "34 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "33/33 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "1 條線站數與 wiki 條目不符（必須相等）：Luoyang Subway Line 2 15/34",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "1 條線站數與 wiki 條目不符（必須相等）：Luoyang Subway Line 2 15/34"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:23:44.885Z"
+  },
+  "Macau|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-macau.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "15 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 15 站（wiki List 記 15，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "15/15 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "17 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "15/15 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:23:44.886Z"
+  },
+  "Nanchang|China": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-nanchang.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "133 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 133 站（wiki List 記 113，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "133/133 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "118 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "22/133 站無名稱（n457653396、n457653397、n457653398…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Nanchang Metro Line 2、Nanchang Metro Line 4",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "22/133 站無名稱（n457653396、n457653397、n457653398…）——需補上游名稱或剔除"
+    ],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Nanchang Metro Line 2、Nanchang Metro Line 4"
+    ],
+    "audited_at": "2026-07-10T13:23:44.887Z"
+  },
+  "Nanjing|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "345 station candidates fetched (r=60km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-nanjing.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "15 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "285 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 285 站（wiki List 記 252，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "285/285 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "301 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "10/285 站無名稱（n11048039080、n923996656、n995812191…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "2 條線站數與 wiki 條目不符（必須相等）：Nanjing Metro Line 1 34/32、Nanjing Metro Line 5 32/30",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "10/285 站無名稱（n11048039080、n923996656、n995812191…）——需補上游名稱或剔除",
+      "2 條線站數與 wiki 條目不符（必須相等）：Nanjing Metro Line 1 34/32、Nanjing Metro Line 5 32/30"
+    ],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线"
+    ],
+    "audited_at": "2026-07-10T13:23:51.003Z"
+  },
+  "Nanning|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-nanning.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "5 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "102 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 102 站（wiki List 記 95，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "102/102 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "108 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "102/102 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "2 條線無 wiki 站數對照：Nanning Rail Transit Line 2、Line 5, Nanning Rail Transit",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [
+      "2 條線無 wiki 站數對照：Nanning Rail Transit Line 2、Line 5, Nanning Rail Transit"
+    ],
+    "audited_at": "2026-07-10T13:23:51.004Z"
+  },
+  "Nantong|China": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-nantong.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "53 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 53 站（wiki List 記 43，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "53/53 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "45 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "10/53 站無名稱（n640287341、n640287342、n640287343…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "10/53 站無名稱（n640287341、n640287342、n640287343…）——需補上游名稱或剔除"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:23:51.005Z"
+  },
+  "Ningbo|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-ningbo.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "8 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "172 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 172 站（wiki List 記 156，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "172/172 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "200 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "172/172 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:23:51.006Z"
+  },
+  "Qingdao|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "261 station candidates fetched (r=60km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-qingdao.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "8 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "179 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 179 站（wiki List 記 172，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "179/179 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "192 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "179/179 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "2 條線站數與 wiki 條目不符（必須相等）：Qingdao Metro Line 6 21/31、West Coast Line 23/22",
+        "level": "error"
+      },
+      {
+        "id": "line_wiki_coverage",
+        "ok": false,
+        "detail": "1 條線無 wiki 站數對照：Qingdao Metro Line 8",
+        "level": "warn"
+      }
+    ],
+    "reasons": [
+      "2 條線站數與 wiki 條目不符（必須相等）：Qingdao Metro Line 6 21/31、West Coast Line 23/22"
+    ],
+    "warnings": [
+      "1 條線無 wiki 站數對照：Qingdao Metro Line 8"
+    ],
+    "audited_at": "2026-07-10T13:25:14.851Z"
+  },
+  "Shanghai|China": {
+    "strategies_tried": [
+      "Z1",
+      "Z2"
+    ],
+    "notes": {
+      "Z1": "647 station candidates fetched (r=60km)",
+      "Z2": "no member nodes in cache"
+    },
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-shanghai.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "18 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "426 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 426 站（wiki List 記 415，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "426/426 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "530 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "4/426 站無名稱（n558909184、n766165365、n1452905933…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": false,
+        "detail": "8 條線站數與 wiki 條目不符（必須相等）：Shanghai Metro Line 13 31/36、Shanghai Metro Line 9 34/35、Shanghai Metro Line 3 30/29、Shanghai Metro Line 10 38/37",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "4/426 站無名稱（n558909184、n766165365、n1452905933…）——需補上游名稱或剔除",
+      "8 條線站數與 wiki 條目不符（必須相等）：Shanghai Metro Line 13 31/36、Shanghai Metro Line 9 34/35、Shanghai Metro Line 3 30/29、Shanghai Metro Line 10 38/37"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:26:39.806Z"
+  },
+  "Shaoxing|China": {
+    "strategies_tried": [],
+    "passed": false,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/as-chn-shaoxing.geojson",
+        "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "42 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_count_info",
+        "ok": true,
+        "detail": "OSM 42 站（wiki List 記 40，計法含轉乘重複，僅參考）",
+        "level": "warn"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "42/42 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "42 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": false,
+        "detail": "2/42 站無名稱（n9077267211、n1030031952…）——需補上游名稱或剔除",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "2/42 站無名稱（n9077267211、n1030031952…）——需補上游名稱或剔除"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T13:26:39.807Z"
+  }
+}

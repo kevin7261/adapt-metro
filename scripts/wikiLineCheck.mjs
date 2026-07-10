@@ -138,13 +138,38 @@ async function main() {
     }
   }
 
-  // 比對（使用者規則：不算比值，站數必須與 wiki 條目**完全相等**）
-  const flags = []
-  let checked = 0
+  // 比對（使用者規則：不算比值，站數必須與 wiki 條目**完全相等**）。
+  // 護欄：OSM 的 wikipedia 標籤常指向「系統」條目而非「線路」條目
+  // （北京各線標 zh:北京地铁 → infobox 540 站是系統數）——
+  //   (a) 同城多條線共用同一條目 ⇒ 系統條目，不比對、列入 uncovered；
+  //   (b) 單線但 wikiN > max(80, 3×ours) ⇒ 疑似系統條目，同上。
+  const tagUsers = new Map() // `${city}|${wiki}` -> count
   for (const l of lines) {
     if (!l.wiki) continue
+    const k = `${l.city}|${l.wiki}`
+    tagUsers.set(k, (tagUsers.get(k) ?? 0) + 1)
+  }
+  const flags = []
+  const uncovered = []
+  let checked = 0
+  for (const l of lines) {
+    if (!l.wiki) {
+      uncovered.push({ ...l, reason: 'no wikipedia/wikidata tag resolves' })
+      continue
+    }
     const wikiN = cache[l.wiki]
-    if (!wikiN || wikiN < 2) continue
+    if (!wikiN || wikiN < 2) {
+      uncovered.push({ ...l, reason: 'article has no station count infobox' })
+      continue
+    }
+    if (tagUsers.get(`${l.city}|${l.wiki}`) >= 2) {
+      uncovered.push({ ...l, reason: `system article shared by several lines (${l.wiki})` })
+      continue
+    }
+    if (wikiN > Math.max(80, l.ours * 3)) {
+      uncovered.push({ ...l, reason: `suspect system article (${l.wiki}: ${wikiN})` })
+      continue
+    }
     checked++
     if (l.ours !== wikiN) {
       flags.push({ ...l, wiki_stations: wikiN, diff: l.ours - wikiN })
@@ -152,15 +177,17 @@ async function main() {
   }
   flags.sort((a, b) => a.diff - b.diff)
   await writeFile(join(BASE, 'line_check_report.json'), JSON.stringify({
-    generated: 'per-line station counts vs Wikipedia line articles',
-    routes_with_wiki_tag: lines.length,
+    generated: 'per-line station counts vs local-language Wikipedia line articles (strict equality)',
+    routes_total: lines.length,
     checked_against_infobox: checked,
     flagged: flags.length,
+    uncovered: uncovered.length,
     flags,
+    uncovered_lines: uncovered,
   }, null, 2))
   console.log(`checked ${checked} lines against wiki infobox; flagged ${flags.length}`)
   for (const f of flags.slice(0, 20))
-    console.log(`  ${f.city} | ${f.route_name}: ours ${f.ours} vs wiki ${f.wiki_stations} (${f.ratio})`)
+    console.log(`  ${f.city} | ${f.route_name}: ours ${f.ours} vs wiki ${f.wiki_stations} (${f.diff > 0 ? '+' : ''}${f.diff})`)
   console.log(`report -> ${join(BASE, 'line_check_report.json')}`)
 }
 

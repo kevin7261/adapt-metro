@@ -90,8 +90,9 @@ async function loadStatic() {
   ctx.wiki = await readJSON(join(CACHE, 'wiki_metro_systems.json'), [])
   ctx.wikiXY = await readJSON(join(CACHE, 'wiki_city_coords.json'), {})
   ctx.state = await readJSON(STATE_PATH, {})
-  // per-line Wikipedia station counts (scripts/wikiLineCheck.mjs, optional)
-  ctx.wikiLineN = await readJSON(join(CACHE, 'wiki_line_stations.json'), {})
+  // per-line Wikipedia verification report (scripts/wikiLineCheck.mjs, optional;
+  // system-article guards live THERE — audit reads the adjudicated report)
+  ctx.lineReport = await readJSON(join(BASE, 'line_check_report.json'), null)
 
   // relation centroids from every geometry cache file
   const files = (await readdir(CACHE)).filter((n) =>
@@ -330,22 +331,13 @@ async function audit(city, country, wikiRow) {
       'warn')
 
     // 逐線 wiki 站數對照（使用者規則：不算比值，站數必須與該線「當地語言」
-    // wiki 條目完全相等——error 級；無 wiki 對照的線列 warn 供補齊）
-    if (Object.keys(ctx.wikiLineN).length) {
-      const lineFlags = []
-      const noWiki = []
-      const seenRt = new Set()
-      for (const f of g.features) {
-        if (f.geometry?.type !== 'MultiLineString') continue
-        for (const r of f.properties?.routes || []) {
-          if (seenRt.has(r.route_id)) continue
-          seenRt.add(r.route_id)
-          const wikiN = r.wikipedia ? ctx.wikiLineN[r.wikipedia] : undefined
-          if (!wikiN || wikiN < 2) { noWiki.push(r.route_name || r.route_id); continue }
-          const ours = (r.stations || []).length
-          if (ours !== wikiN) lineFlags.push(`${r.route_name} ${ours}/${wikiN}`)
-        }
-      }
+    // wiki 條目完全相等——error 級；無法對照的線列 warn 供補齊）。
+    // 判定讀 line_check_report.json（系統條目誤標的護欄在 wikiLineCheck 端）。
+    if (ctx.lineReport) {
+      const inCity = (x) => normCity(x.city) === normCity(city) && countryOk(x.country, country)
+      const lineFlags = (ctx.lineReport.flags ?? []).filter(inCity)
+        .map((x) => `${x.route_name} ${x.ours}/${x.wiki_stations}`)
+      const noWiki = (ctx.lineReport.uncovered_lines ?? []).filter(inCity)
       push('line_wiki_stations', lineFlags.length === 0,
         lineFlags.length
           ? `${lineFlags.length} 條線站數與 wiki 條目不符（必須相等）：` +
@@ -353,8 +345,8 @@ async function audit(city, country, wikiRow) {
           : '各線站數與 wiki 線路條目相符')
       if (noWiki.length) {
         push('line_wiki_coverage', false,
-          `${noWiki.length} 條線無 wiki 站數對照（缺 wikipedia 標籤或條目無 infobox）：` +
-          noWiki.slice(0, 3).join('、'), 'warn')
+          `${noWiki.length} 條線無 wiki 站數對照：` +
+          noWiki.slice(0, 3).map((x) => x.route_name || x.route_id).join('、'), 'warn')
       }
     }
   }
