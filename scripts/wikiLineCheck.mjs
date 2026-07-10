@@ -26,8 +26,29 @@ async function main() {
   if (!index) { console.error('run metro:build first'); process.exit(1) }
   const cache = await readJSON(OUT_CACHE, {})
 
-  // 收集每條 route 的 wiki tag 與我們的站數
-  const lines = [] // { city, country, route_id, route_name, ours, wiki: 'zh:板南線' }
+  // 收集每條 route 的 wiki 對照條目與我們的站數。
+  // 以「當地語言」條目為主（使用者規則）：OSM wikipedia 標籤（zh:板南線 等，
+  // 本即當地語居多）優先；缺標籤但有 wikidata 者，用 wikidata sitelinks 取
+  // 當地語言 wiki（依國家→語言對照，退而求其次 en）。
+  const COUNTRY_LANG = {
+    taiwan: 'zh', china: 'zh', japan: 'ja', southkorea: 'ko', northkorea: 'ko',
+    france: 'fr', germany: 'de', austria: 'de', switzerland: 'de', spain: 'es',
+    mexico: 'es', argentina: 'es', chile: 'es', colombia: 'es', peru: 'es',
+    venezuela: 'es', ecuador: 'es', panama: 'es', dominicanrepublic: 'es',
+    brazil: 'pt', portugal: 'pt', italy: 'it', russia: 'ru', belarus: 'ru',
+    ukraine: 'uk', poland: 'pl', czechia: 'cs', hungary: 'hu', romania: 'ro',
+    bulgaria: 'bg', greece: 'el', turkey: 'tr', iran: 'fa', india: 'en',
+    thailand: 'th', vietnam: 'vi', indonesia: 'id', malaysia: 'ms',
+    philippines: 'en', netherlands: 'nl', belgium: 'nl', denmark: 'da',
+    norway: 'no', sweden: 'sv', finland: 'fi', egypt: 'ar', algeria: 'ar',
+    saudiarabia: 'ar', qatar: 'ar', unitedarabemirates: 'ar', uzbekistan: 'uz',
+    kazakhstan: 'ru', azerbaijan: 'az', armenia: 'hy', georgia: 'ka',
+    singapore: 'en', bangladesh: 'bn', pakistan: 'ur', nigeria: 'en',
+  }
+  const langOf = (country) => COUNTRY_LANG[
+    (country || '').toLowerCase().replace(/[^a-z]/g, '')] ?? 'en'
+
+  const lines = [] // { city, country, route_id, route_name, ours, wiki|wikidata }
   for (const s of index.systems) {
     const g = await readJSON(join(BASE, s.file), null)
     if (!g) continue
@@ -37,18 +58,49 @@ async function main() {
       for (const r of f.properties.routes || []) {
         if (seen.has(r.route_id)) continue
         seen.add(r.route_id)
-        const wp = r.wikipedia
-        if (!wp || !/^[a-z-]{2,8}:/.test(wp)) continue
-        lines.push({ city: s.city, country: s.country, route_id: r.route_id,
-          route_name: r.route_name, ours: (r.stations || []).length, wiki: wp })
+        const rec = { city: s.city, country: s.country, route_id: r.route_id,
+          route_name: r.route_name, ours: (r.stations || []).length,
+          lang: langOf(s.country) }
+        if (r.wikipedia && /^[a-z-]{2,8}:/.test(r.wikipedia)) rec.wiki = r.wikipedia
+        else if (r.wikidata && /^Q\d+$/.test(r.wikidata)) rec.wikidata = r.wikidata
+        else continue
+        lines.push(rec)
       }
     }
   }
-  console.log(`${lines.length} routes with a wikipedia tag`)
+  console.log(`${lines.length} routes with wiki/wikidata reference`)
+
+  // wikidata → 當地語 sitelink（批次 50，快取共用 cache 以 'wd:Qxxx:lang' 為鍵）
+  const wdPending = [...new Set(lines.filter((l) => !l.wiki && l.wikidata &&
+    cache[`wd:${l.wikidata}:${l.lang}`] === undefined).map((l) => l.wikidata))]
+  for (let i = 0; i < wdPending.length; i += 50) {
+    const batch = wdPending.slice(i, i + 50)
+    const url = 'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks' +
+      `&format=json&ids=${batch.join('|')}`
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': UA } })
+      const j = await res.json()
+      for (const [qid, ent] of Object.entries(j.entities ?? {})) {
+        const sl = ent.sitelinks ?? {}
+        for (const l of lines.filter((x) => x.wikidata === qid)) {
+          const title = sl[`${l.lang}wiki`]?.title ?? sl.enwiki?.title ?? null
+          const lang2 = sl[`${l.lang}wiki`] ? l.lang : (sl.enwiki ? 'en' : null)
+          cache[`wd:${qid}:${l.lang}`] = title && lang2 ? `${lang2}:${title}` : null
+        }
+      }
+      await writeFile(OUT_CACHE, JSON.stringify(cache))
+    } catch (e) { console.log(`  !! wikidata batch failed: ${e.message}`) }
+    await sleep(1000)
+  }
+  for (const l of lines) {
+    if (!l.wiki && l.wikidata) l.wiki = cache[`wd:${l.wikidata}:${l.lang}`] ?? undefined
+  }
+  console.log(`  resolved ${lines.filter((l) => l.wiki).length} to a wiki article`)
 
   // 批次抓 wikitext（依語言分組，50 titles/請求）
   const byLang = new Map()
   for (const l of lines) {
+    if (!l.wiki) continue
     if (cache[l.wiki] !== undefined) continue
     const [lang, ...rest] = l.wiki.split(':')
     const title = rest.join(':')
@@ -86,19 +138,19 @@ async function main() {
     }
   }
 
-  // 比對：|diff| >= 2 且 比值超出 [0.7, 1.3] → flag（支線/環線計法差容忍）
+  // 比對（使用者規則：不算比值，站數必須與 wiki 條目**完全相等**）
   const flags = []
   let checked = 0
   for (const l of lines) {
+    if (!l.wiki) continue
     const wikiN = cache[l.wiki]
     if (!wikiN || wikiN < 2) continue
     checked++
-    const ratio = l.ours / wikiN
-    if (Math.abs(l.ours - wikiN) >= 2 && (ratio < 0.7 || ratio > 1.3)) {
-      flags.push({ ...l, wiki_stations: wikiN, ratio: +ratio.toFixed(2) })
+    if (l.ours !== wikiN) {
+      flags.push({ ...l, wiki_stations: wikiN, diff: l.ours - wikiN })
     }
   }
-  flags.sort((a, b) => a.ratio - b.ratio)
+  flags.sort((a, b) => a.diff - b.diff)
   await writeFile(join(BASE, 'line_check_report.json'), JSON.stringify({
     generated: 'per-line station counts vs Wikipedia line articles',
     routes_with_wiki_tag: lines.length,

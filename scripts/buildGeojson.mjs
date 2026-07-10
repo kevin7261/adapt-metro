@@ -387,11 +387,18 @@ async function build() {
     return base
   }
 
-  // 城市合併規則（使用者指定）：桃園併入台北（機場捷運屬台北都會圈，一城一檔）。
-  // key = `${normCity(city)}|${normCountry(country)}` → 目標城市。
+  // 城市合併規則（使用者指定）：桃園、新北併入台北（台北檔＝台北/新北/桃園捷運
+  // 三系統，一城一檔）。key = `${normCity(city)}|${normCountry(country)}` → 目標城市。
   const CITY_MERGE = new Map([
     ['taoyuan|taiwan', { city: 'Taipei', country: 'Taiwan', continent: 'asia' }],
+    ['newtaipei|taiwan', { city: 'Taipei', country: 'Taiwan', continent: 'asia' }],
   ])
+  // 系統→城市直綁（使用者指定）：跨市系統不靠 geocode 重心（重心會隨站源增減
+  // 漂移——臺北捷運重心曾南移到新北把 G/O/Y 整批帶走）。比對 network/operator。
+  const NETWORK_CITY = [
+    [/臺北捷運|台北捷運|taipei metro|臺北大眾捷運|新北捷運|新北大眾捷運|new taipei metro|淡海輕軌|安坑輕軌|桃園捷運|桃園大眾捷運|桃園機場捷運|taoyuan metro/i,
+      { city: 'Taipei', country: 'Taiwan', continent: 'asia' }],
+  ]
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file. Naming (metro-osm-fetch skill): DIRECTORIES use full names
   // (north+south america merged as "americas"); the FILENAME uses codes —
@@ -505,9 +512,15 @@ async function build() {
     // Override wins outright: bind these relations to the specified city and
     // pin the bucket (no sanity-check drift, no rebucketing).
     const ov = g.rids.map((r) => ovByRid.get(r)).find(Boolean)
+    // 系統→城市直綁（優先於 geocode 解析；視同 override：pin、不做距離裁決）
+    const netBind = !ov ? NETWORK_CITY.find(([re]) =>
+      re.test(`${network} ${t.network ?? ''} ${t.__own ?? ''}`))?.[1] : null
     let info
     if (ov) {
       info = mkInfo({ continent: ov.continent, country: ov.country, city: ov.city }, ov.city)
+      pinnedKeys.add(info.key)
+    } else if (netBind) {
+      info = mkInfo(netBind, netBind.city)
       pinnedKeys.add(info.key)
     } else {
       info = network === 'Unknown' ? null : cityInfo(network, t.network, t.__own)
@@ -1131,11 +1144,10 @@ async function build() {
   // ---- station role: terminus / interchange / normal ----
   // Derived from the FINAL snapped geometry — endpoints are exact station
   // coords, so this matches what's drawn (and what Wikipedia / urbanrail.net
-  // show). interchange = served by ≥2 lines; terminus = an endpoint of some
-  // line (circle lines excluded — their two ends meet, so no terminus).
-  // Single role, interchange > terminus: an interchange sitting at a line end
-  // reads as an interchange on both wiki and urbanrail diagrams; is_terminus
-  // is kept as a separate flag so that fact isn't lost.
+  // show). interchange = **通過次數 ≥2**（使用者規則：同一路線通過同站兩次也算
+  // 兩次——支線交會、環線繞經皆計；環線閉合點首尾同座標不重複計）。
+  // terminus = an endpoint of some line (circle lines excluded).
+  // Single role, interchange > terminus; is_terminus kept as separate flag.
   for (const grp of cityGroups.values()) {
     // grp.lines are still per-route here (segmentization is below) — map each
     // line's tag (as carried in station.lines) to its route id/name/ref/color.
@@ -1148,6 +1160,22 @@ async function build() {
     for (const s of grp.stations) {
       s.properties.is_terminus = false
       byCoord.set(s.geometry.coordinates.join(','), s)
+    }
+    // 通過次數：每條 route 的每個幾何頂點各計一次（閉合環的閉合頂點減一次）
+    const passCount = new Map()
+    for (const f of grp.lines) {
+      for (const seq of f.geometry.coordinates) {
+        if (seq.length < 2) continue
+        for (const c of seq) {
+          const k = c.join(',')
+          if (byCoord.has(k)) passCount.set(k, (passCount.get(k) ?? 0) + 1)
+        }
+        const a = seq[0], b = seq[seq.length - 1]
+        if (a[0] === b[0] && a[1] === b[1]) {
+          const k = a.join(',')
+          if (passCount.has(k)) passCount.set(k, passCount.get(k) - 1)
+        }
+      }
     }
     for (const f of grp.lines) {
       // ordered station list for this route (vertices ARE station points, in
@@ -1193,9 +1221,12 @@ async function build() {
         .localeCompare(String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true }))
       s.properties.line_ids = routes.map((r) => r.route_id)
       s.properties.line_names = routes.map((r) => r.route_name)
-      const n = routes.length
-      s.properties.is_interchange = n >= 2
-      s.properties.station_role = n >= 2 ? 'interchange'
+      // 通過次數（幾何為準）；至少為所屬 route 數（幾何缺漏時的下限）
+      const pc = Math.max(
+        passCount.get(s.geometry.coordinates.join(',')) ?? 0, routes.length)
+      s.properties.pass_count = pc
+      s.properties.is_interchange = pc >= 2
+      s.properties.station_role = pc >= 2 ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
     }
   }

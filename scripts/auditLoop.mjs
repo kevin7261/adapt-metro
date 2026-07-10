@@ -206,22 +206,14 @@ async function audit(city, country, wikiRow) {
   push('has_lines', sys.line_count >= 1, `${sys.line_count} lines`)
   push('has_stations', sys.station_count >= 1, `${sys.station_count} stations`)
 
+  // 系統級站數不算比值（使用者規則：全部以 wiki 為準）——站數的硬判定在
+  // 逐線檢查 line_wiki_stations（當地語言 wiki 條目，站數必須相等）。
+  // 系統級數字僅作參考資訊（wiki List 的計法與共站合併天然不同）。
   if (wikiRow) {
     const wikiN = parseIntLoose(wikiRow.stations)
-    if (wikiN && wikiN >= 3 && sys.station_count > 0) {
-      const ratio = sys.station_count / wikiN
-      if (ratio < LOW_RATIO) {
-        push('station_ratio_low', false,
-          `站數偏少：OSM ${sys.station_count} vs Wikipedia ${wikiN}（比值 ${ratio.toFixed(2)}）`)
-      } else if (ratio > HIGH_RATIO) {
-        // usually legit: one-city-one-file merges several operators
-        push('station_ratio_high', false,
-          `站數偏多：OSM ${sys.station_count} vs Wikipedia ${wikiN}（比值 ${ratio.toFixed(2)}），` +
-          '多營運商合併或含輕軌，需人工判定', 'warn')
-      } else {
-        push('station_ratio', true,
-          `OSM ${sys.station_count} vs Wikipedia ${wikiN}（比值 ${ratio.toFixed(2)}）`)
-      }
+    if (wikiN) {
+      push('station_count_info', true,
+        `OSM ${sys.station_count} 站（wiki List 記 ${wikiN}，計法含轉乘重複，僅參考）`, 'warn')
     }
   }
 
@@ -259,11 +251,63 @@ async function audit(city, country, wikiRow) {
           : `${totalVerts} 個折點/端點皆為車站`)
     }
 
-    // ≥85% stations should carry real names (not synthetic n123)
-    const named = pts.filter((f) => !/^n\d+$/.test(f.properties.station_name || '')).length
+    // 不變式：route 的 stations 列表必須與圖面（該線所有路段的頂點）一致——
+    // 「列表跟圖不同是不可能的」。以站 id 集合比對。
+    {
+      const coordToId = new Map(pts.map((f) =>
+        [f.geometry.coordinates.join(','), f.properties.station_id]))
+      const geomIds = new Map()   // route_id -> Set(station ids from geometry)
+      const listIds = new Map()   // route_id -> Set(station ids from stations[])
+      for (const f of g.features) {
+        if (f.geometry?.type !== 'MultiLineString') continue
+        for (const r of f.properties?.routes || []) {
+          if (!geomIds.has(r.route_id)) {
+            geomIds.set(r.route_id, new Set())
+            listIds.set(r.route_id, new Set((r.stations || []).map((s) => s.station_id)))
+          }
+        }
+        for (const seq of f.geometry.coordinates)
+          for (const c of seq) {
+            const id = coordToId.get(c.join(','))
+            if (!id) continue
+            for (const r of f.properties?.routes || []) geomIds.get(r.route_id).add(id)
+          }
+      }
+      const bad = []
+      for (const [rid, gset] of geomIds) {
+        const lset = listIds.get(rid)
+        const miss = [...gset].filter((x) => !lset.has(x)).length
+        const extra = [...lset].filter((x) => !gset.has(x)).length
+        if (miss || extra) bad.push(`${rid}(圖${gset.size}/表${lset.size})`)
+      }
+      push('route_stations_match_geometry', bad.length === 0,
+        bad.length
+          ? `${bad.length} 條線的車站列表與圖面不一致（不可能狀態）：` + bad.slice(0, 3).join('、')
+          : '各線車站列表與圖面一致')
+    }
+
+    // 不變式：interchange ⇔ 通過次數 ≥2（同路線通過兩次也算；pass_count 由 build 記錄）
+    {
+      const bad = pts.filter((f) => {
+        const p = f.properties
+        const pc = p.pass_count ?? (p.line_ids?.length ?? 0)
+        return (pc >= 2) !== !!p.is_interchange
+      })
+      push('interchange_rule', bad.length === 0,
+        bad.length
+          ? `${bad.length} 站的 interchange 標記與通過次數不符：` +
+            bad.slice(0, 4).map((f) => f.properties.station_name).join('、')
+          : '所有車站 interchange 標記符合「通過次數 ≥2」規則')
+    }
+
+    // 全部車站必須有名稱（使用者規則：100%，無名＝資料錯誤）
+    const unnamed = pts.filter((f) => /^n\d+$/.test(f.properties.station_name || ''))
     if (pts.length) {
-      push('stations_named', named / pts.length >= 0.85,
-        `${named}/${pts.length} 站有名稱`, 'warn')
+      push('stations_named', unnamed.length === 0,
+        unnamed.length
+          ? `${unnamed.length}/${pts.length} 站無名稱（${unnamed.slice(0, 3)
+              .map((f) => f.properties.station_id).join('、')}…）——需補上游名稱或剔除`
+          : `${pts.length}/${pts.length} 站皆有名稱`)
     }
     // invariant: station order must be plausible — computed by the build per
     // route (before segmentization) and carried on route meta `order_suspect`
@@ -285,30 +329,33 @@ async function audit(city, country, wikiRow) {
         : '所有線路站序合理',
       'warn')
 
-    // 逐線 wiki 站數對照（metro:wikilines 產出的快取，warn 級——
-    // 支線/計法差異會誤報，flag = 請以該線 wiki 條目確認站單）
+    // 逐線 wiki 站數對照（使用者規則：不算比值，站數必須與該線「當地語言」
+    // wiki 條目完全相等——error 級；無 wiki 對照的線列 warn 供補齊）
     if (Object.keys(ctx.wikiLineN).length) {
       const lineFlags = []
+      const noWiki = []
       const seenRt = new Set()
       for (const f of g.features) {
         if (f.geometry?.type !== 'MultiLineString') continue
         for (const r of f.properties?.routes || []) {
-          if (seenRt.has(r.route_id) || !r.wikipedia) continue
+          if (seenRt.has(r.route_id)) continue
           seenRt.add(r.route_id)
-          const wikiN = ctx.wikiLineN[r.wikipedia]
-          if (!wikiN || wikiN < 2) continue
+          const wikiN = r.wikipedia ? ctx.wikiLineN[r.wikipedia] : undefined
+          if (!wikiN || wikiN < 2) { noWiki.push(r.route_name || r.route_id); continue }
           const ours = (r.stations || []).length
-          const ratio = ours / wikiN
-          if (Math.abs(ours - wikiN) >= 2 && (ratio < 0.7 || ratio > 1.3))
-            lineFlags.push(`${r.route_name} ${ours}/${wikiN}`)
+          if (ours !== wikiN) lineFlags.push(`${r.route_name} ${ours}/${wikiN}`)
         }
       }
       push('line_wiki_stations', lineFlags.length === 0,
         lineFlags.length
-          ? `${lineFlags.length} 條線站數與該線 wiki 條目不符：` +
-            lineFlags.slice(0, 4).join('、') + '，需逐線確認站單'
-          : '各線站數與 wiki 線路條目相符',
-        'warn')
+          ? `${lineFlags.length} 條線站數與 wiki 條目不符（必須相等）：` +
+            lineFlags.slice(0, 4).join('、')
+          : '各線站數與 wiki 線路條目相符')
+      if (noWiki.length) {
+        push('line_wiki_coverage', false,
+          `${noWiki.length} 條線無 wiki 站數對照（缺 wikipedia 標籤或條目無 infobox）：` +
+          noWiki.slice(0, 3).join('、'), 'warn')
+      }
     }
   }
 
@@ -607,7 +654,7 @@ async function processCity(city, country, wikiRow) {
       // S4 (monorail) only for Wikipedia-baseline cities — see metro-audit skill
       const ladder = wikiRow ? ['S1', 'S2', 'S3', 'S4'] : ['S1', 'S2', 'S3']
       strategy = ladder.find((s) => !st.strategies_tried.includes(s))
-    } else if (failedIds.has('has_stations') || failedIds.has('station_ratio_low')) {
+    } else if (failedIds.has('has_stations') || failedIds.has('line_wiki_stations')) {
       if (!wikiRow && sys.station_count === 0 && !st.strategies_tried.includes('Z0'))
         strategy = 'Z0'
       else strategy = ['Z1', 'Z2'].find((s) => !st.strategies_tried.includes(s))

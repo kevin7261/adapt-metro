@@ -7,7 +7,7 @@ import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
   PanelLeftClose, PanelLeftOpen,
   GripVertical, MoreHorizontal,
-  ZoomIn, Palette, TableProperties, Download, Trash2,
+  ZoomIn, TableProperties, Download, Trash2,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
 } from 'lucide-vue-next'
 
@@ -30,8 +30,6 @@ function overflow(layer, action) {
     const data = layerData[layer.id]
     const bbox = data && boundsOfGeojson(data)
     if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
-  } else if (action === 'style') {
-    openLayer(layer)
   } else if (action === 'table') {
     store.selectedLayerId = layer.id
     store.ui.attributeTable = true
@@ -110,9 +108,6 @@ onBeforeUnmount(() => { dragging.value = false })
             <div v-if="menuFor === layer.id" class="menu-pop layer-menu">
               <button class="menu-item" @click="overflow(layer, 'zoom')">
                 <ZoomIn :size="14" /> Zoom to layer
-              </button>
-              <button class="menu-item" @click="overflow(layer, 'style')">
-                <Palette :size="14" /> Style
               </button>
               <button class="menu-item" @click="overflow(layer, 'table')">
                 <TableProperties :size="14" /> Attribute table

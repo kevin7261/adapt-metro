@@ -63,6 +63,23 @@ const selectedEntries = computed(() => {
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
 
+// 點到路段時：顯示每條行經 route 的完整車站列表（依站序）。
+// 列表來自 route meta 的 stations（build 保證與圖面一致——audit 有不變式檢查）。
+const selectedRouteLists = computed(() => {
+  const p = selectedProps.value
+  if (!p) return []
+  let routes = p.routes
+  if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { return [] } }
+  if (!Array.isArray(routes)) return []
+  return routes.map((r) => ({
+    route_id: r.route_id,
+    name: r.route_name ?? r.route_id,
+    ref: r.route_ref,
+    color: r.route_color ?? '#e11d48',
+    stations: r.stations ?? [],
+  }))
+})
+
 const layer = computed(() => props.layer)
 const isMetro = computed(() => layer.value?.type === 'metro')
 const editable = computed(() => layer.value && !layer.value.isBasemap && !isMetro.value)
@@ -359,7 +376,19 @@ function startResize(e) {
           <div v-if="!selectedEntries.length" class="obj-empty">
             點地圖上的物件以檢視其屬性
           </div>
-          <table v-else class="obj-table">
+          <!-- 路段：每條行經 route 的車站列表（依站序，與圖面一致——audit 不變式保證） -->
+          <template v-for="rt in selectedRouteLists" :key="rt.route_id">
+            <div class="obj-route-head">
+              <span class="line-swatch" :style="{ background: rt.color }" />
+              <span v-if="rt.ref" class="line-ref">{{ rt.ref }}</span>
+              <span class="obj-route-name">{{ rt.name }}</span>
+              <span class="obj-route-count">{{ rt.stations.length }} 站</span>
+            </div>
+            <ol class="obj-station-list">
+              <li v-for="st in rt.stations" :key="st.station_id">{{ st.station_name }}</li>
+            </ol>
+          </template>
+          <table v-if="selectedEntries.length" class="obj-table">
             <tbody>
               <tr v-for="row in selectedEntries" :key="row.key">
                 <th class="obj-key">{{ row.key }}</th>
@@ -430,6 +459,21 @@ function startResize(e) {
 
 /* Object tab: all properties of the clicked feature */
 .obj-empty { color: hsl(var(--muted-foreground)); font-size: 12px; padding: 8px 2px; }
+.obj-route-head {
+  display: flex; align-items: center; gap: 6px;
+  margin: 10px 0 4px; font-size: 12.5px; font-weight: 600; min-width: 0;
+}
+.obj-route-head:first-of-type { margin-top: 0; }
+.obj-route-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.obj-route-count {
+  margin-left: auto; flex-shrink: 0;
+  font-weight: 400; font-size: 11px; color: hsl(var(--muted-foreground));
+}
+.obj-station-list {
+  margin: 0 0 10px; padding-left: 26px; font-size: 12px; line-height: 1.7;
+  color: hsl(var(--foreground));
+}
+.obj-station-list li::marker { color: hsl(var(--muted-foreground)); font-size: 10.5px; }
 .obj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .obj-table tr { border-bottom: 1px solid hsl(var(--border)); }
 .obj-key {

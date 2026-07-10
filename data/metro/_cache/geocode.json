@@ -1,4 +1,17 @@
 {
+  "110": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Uijeongbu-si",
+    "city_candidates": [
+      "Uijeongbu-si",
+      "Uijeongbu 1(il)-dong",
+      "Gyeonggi"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
   "London Underground": {
     "continent": "europe",
     "country": "United Kingdom",
@@ -1196,7 +1209,7 @@
     "city": null,
     "city_candidates": [],
     "zoom10": true,
-    "stations": 44
+    "stations": 46
   },
   "MARTA": {
     "continent": "north-america",
@@ -1871,7 +1884,7 @@
     "city": null,
     "city_candidates": [],
     "zoom10": true,
-    "stations": 16
+    "stations": 25
   },
   "Jaipur Metro": {
     "continent": "asia",
@@ -2113,7 +2126,7 @@
     "city": null,
     "city_candidates": [],
     "zoom10": true,
-    "stations": 2
+    "stations": 5
   },
   "서울시메트로9호선": {
     "continent": "asia",
@@ -13748,5 +13761,1777 @@
     ],
     "zoom10": true,
     "stations": 2
+  },
+  "Transport for London": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Greater London",
+    "city_candidates": [
+      "Greater London",
+      "Willesden",
+      "England",
+      "London Borough of Brent"
+    ],
+    "zoom10": true,
+    "stations": 234
+  },
+  "Karlsruher Verkehrsverbund (KVV)": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "VVG der Gemeinde Sinzheim",
+    "city_candidates": [
+      "VVG der Gemeinde Sinzheim",
+      "Landkreis Rastatt",
+      "Baden-Württemberg",
+      "Sinzheim"
+    ],
+    "zoom10": true,
+    "stations": 11
+  },
+  "cz:DPP": {
+    "continent": "europe",
+    "country": "Czechia",
+    "country_code": "CZ",
+    "city": "Prague",
+    "city_candidates": [
+      "Prague",
+      "obvod Praha 1"
+    ],
+    "zoom10": true,
+    "stations": 76
+  },
+  "Dopravní podnik hl. m. Prahy": {
+    "continent": "europe",
+    "country": "Czechia",
+    "country_code": "CZ",
+    "city": "Prague",
+    "city_candidates": [
+      "Prague",
+      "obvod Praha 1"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Pražská integrovaná doprava": {
+    "continent": "europe",
+    "country": "Czechia",
+    "country_code": "CZ",
+    "city": "Prague",
+    "city_candidates": [
+      "Prague",
+      "obvod Praha 5"
+    ],
+    "zoom10": true,
+    "stations": 3
+  },
+  "Illéva": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Lille",
+    "city_candidates": [
+      "Lille",
+      "Nord",
+      "Metropolitan France",
+      "Hauts-de-France"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Verkehrs-Gemeinschaft Landkreis Freudenstadt": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "VVG der Stadt Horb am Neckar",
+    "city_candidates": [
+      "VVG der Stadt Horb am Neckar",
+      "Landkreis Freudenstadt",
+      "Baden-Württemberg",
+      "Eutingen",
+      "Eutingen im Gäu"
+    ],
+    "zoom10": true,
+    "stations": 3
+  },
+  "DB InfraGO": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Amorbach",
+    "city_candidates": [
+      "Amorbach",
+      "Landkreis Miltenberg",
+      "Bavaria"
+    ],
+    "zoom10": true,
+    "stations": 14
+  },
+  "WLB": {
+    "continent": "europe",
+    "country": "Austria",
+    "country_code": "AT",
+    "city": "Bezirk Mödling",
+    "city_candidates": [
+      "Bezirk Mödling",
+      "Lower Austria",
+      "Gumpoldskirchen"
+    ],
+    "zoom10": true,
+    "stations": 24
+  },
+  "Großraum-Verkehr Hannover": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hanover",
+    "city_candidates": [
+      "Hanover",
+      "Centre",
+      "Region Hannover",
+      "Lower Saxony"
+    ],
+    "zoom10": true,
+    "stations": 41
+  },
+  "Ostwind": {
+    "continent": "europe",
+    "country": "Switzerland",
+    "country_code": "CH",
+    "city": "St. Gallen",
+    "city_candidates": [
+      "St. Gallen",
+      "Wahlkreis St. Gallen"
+    ],
+    "zoom10": true,
+    "stations": 15
+  },
+  "OC Transpo": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Ottawa",
+    "city_candidates": [
+      "Ottawa",
+      "Somerset",
+      "Eastern Ontario",
+      "Ontario"
+    ],
+    "zoom10": true,
+    "stations": 5
+  },
+  "SNJRG": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Burlington County",
+    "city_candidates": [
+      "Burlington County",
+      "New Jersey",
+      "Riverside Township"
+    ],
+    "zoom10": true,
+    "stations": 32
+  },
+  "North South Line (NSL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 55
+  },
+  "Linha 1 Azul": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "São Paulo",
+    "city_candidates": [
+      "São Paulo",
+      "Vila Mariana",
+      "Southeast Region"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "GVH": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hanover",
+    "city_candidates": [
+      "Hanover",
+      "Kirchrode-Bemerode-Wülferode",
+      "Region Hannover",
+      "Lower Saxony"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Verkehrsverbund-Rhein Ruhr": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Dusseldorf",
+    "city_candidates": [
+      "Dusseldorf",
+      "Stadtbezirk 3",
+      "North Rhine-Westphalia"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Isle of Man Govermaent": {
+    "continent": "europe",
+    "country": "Isle of Man",
+    "country_code": "IM",
+    "city": "Garff",
+    "city_candidates": [
+      "Garff",
+      "Laxey"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "香港鐵路有限公司 MTR Corporation": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hong Kong",
+    "city_candidates": [
+      "Hong Kong",
+      "Kwun Tong District",
+      "Kowloon"
+    ],
+    "zoom10": true,
+    "stations": 10
+  },
+  "vrr": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Essen",
+    "city_candidates": [
+      "Essen",
+      "Stadtbezirk I",
+      "North Rhine-Westphalia"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "ЕМУП «Екатеринбургский метрополитен»": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Yekaterinburg",
+    "city_candidates": [
+      "Yekaterinburg",
+      "Железнодорожный район",
+      "Yekaterinburg Municipality",
+      "Ural Federal District",
+      "Sverdlovsk Oblast"
+    ],
+    "zoom10": true,
+    "stations": 14
+  },
+  "Transportes Ferroviarios de Madrid": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Rivas-Vaciamadrid",
+    "city_candidates": [
+      "Rivas-Vaciamadrid",
+      "Community of Madrid"
+    ],
+    "zoom10": true,
+    "stations": 10
+  },
+  "北京地铁一公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xicheng District",
+    "city_candidates": [
+      "Xicheng District",
+      "Yuetan Subdistrict"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "地铁1号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jinzhong City",
+    "city_candidates": [
+      "Jinzhong City",
+      "Qi County",
+      "Shanxi"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Криворізкий швидкісний трамвай (метротрам)": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kryvyi Rih",
+    "city_candidates": [
+      "Kryvyi Rih",
+      "Kryvyi Rih Urban Hromada",
+      "Kryvyi Rih Raion",
+      "Dnipropetrovsk Oblast"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "서해철도주식회사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Ansan",
+    "city_candidates": [
+      "Ansan",
+      "Gyeonggi"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "横浜高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yokohama",
+    "city_candidates": [
+      "Yokohama",
+      "Naka ward",
+      "Kanagawa Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 10
+  },
+  "みなとみらい線;東急電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yokohama",
+    "city_candidates": [
+      "Yokohama",
+      "Nishi Ward",
+      "Kanagawa Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "東京地下鉄;埼玉高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Kita",
+    "city_candidates": [
+      "Kita"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "西武鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Higashikurume",
+    "city_candidates": [
+      "Higashikurume"
+    ],
+    "zoom10": true,
+    "stations": 13
+  },
+  "Verkehrsverbund Pforzheim-Enzkreis": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Knittlingen",
+    "city_candidates": [
+      "Knittlingen",
+      "Enzkreis",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "大阪市営地下鉄千日前線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Osaka",
+    "city_candidates": [
+      "Osaka",
+      "Chūō Ward",
+      "Osaka Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "近畿日本鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Higashiōsaka",
+    "city_candidates": [
+      "Higashiōsaka",
+      "Osaka Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 11
+  },
+  "愛知高速  東部丘陵線（リニモ）": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagakute",
+    "city_candidates": [
+      "Nagakute",
+      "Aichi Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Echills Wood Railway": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "North Warwickshire",
+    "city_candidates": [
+      "North Warwickshire",
+      "Kingsbury",
+      "Warwickshire",
+      "England"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "MVV": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Munich",
+    "city_candidates": [
+      "Munich",
+      "Old Town",
+      "Bavaria"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Γραμμή 3 Μετρό Αθήνας": {
+    "continent": "europe",
+    "country": "Greece",
+    "country_code": "GR",
+    "city": "Pallini Municipal Unit",
+    "city_candidates": [
+      "Pallini Municipal Unit",
+      "Municipality of Pallini",
+      "Regional Unit of East Attica",
+      "Attica"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "TransTu": {
+    "continent": "africa",
+    "country": "Tunisia",
+    "country_code": "TN",
+    "city": "Tunis",
+    "city_candidates": [
+      "Tunis",
+      "Bab Laassal"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "VBB": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Berlin",
+    "city_candidates": [
+      "Berlin"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "КП \"Швидкiсний Трамвай\"": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kryvyi Rih",
+    "city_candidates": [
+      "Kryvyi Rih",
+      "Kryvyi Rih Urban Hromada",
+      "Kryvyi Rih Raion",
+      "Dnipropetrovsk Oblast"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "김해경전철": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Busan",
+    "city_candidates": [
+      "Busan"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Сеть маршрутов регулярных перевозок МО \"Город Екатеринбург\"": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Yekaterinburg",
+    "city_candidates": [
+      "Yekaterinburg",
+      "Чкаловский район",
+      "Yekaterinburg Municipality",
+      "Ural Federal District",
+      "Sverdlovsk Oblast"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "PTV - Metropolitan Trams": {
+    "continent": "oceania",
+    "country": "Australia",
+    "country_code": "AU",
+    "city": "Melbourne",
+    "city_candidates": [
+      "Melbourne",
+      "Armadale",
+      "Victoria"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "SBS Transit": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "Thomson–East Coast Line (TEL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 6
+  },
+  "네오트랜스주식회사": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Seongnam-si",
+    "city_candidates": [
+      "Seongnam-si",
+      "Gyeonggi"
+    ],
+    "zoom10": true,
+    "stations": 23
+  },
+  "TEB": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Alzano Lombardo",
+    "city_candidates": [
+      "Alzano Lombardo",
+      "Bergamo",
+      "Lombardy"
+    ],
+    "zoom10": true,
+    "stations": 30
+  },
+  "T1 Metrotramvia Bergamo-Albino": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Bergamo",
+    "city_candidates": [
+      "Bergamo",
+      "Lombardy"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "BVG": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Berlin",
+    "city_candidates": [
+      "Berlin"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Fahrettin Altay - Evka-3": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Konak",
+    "city_candidates": [
+      "Konak",
+      "Yenişehir Mahallesi",
+      "Aegean Region",
+      "Izmir"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "Chicago Transit Authority": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Chicago",
+    "city_candidates": [
+      "Chicago",
+      "South Chicago Township",
+      "Cook County",
+      "Illinois"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "VAG": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Nuremberg",
+    "city_candidates": [
+      "Nuremberg",
+      "Bavaria"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Sengkang LRT Line": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 30
+  },
+  "HNV": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Heilbronn",
+    "city_candidates": [
+      "Heilbronn",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "東武鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Koshigaya",
+    "city_candidates": [
+      "Koshigaya",
+      "Saitama Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "КП «Київський метрополітен»": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kyiv",
+    "city_candidates": [
+      "Kyiv"
+    ],
+    "zoom10": true,
+    "stations": 6
+  },
+  "route 2": {
+    "continent": "asia",
+    "country": "Vietnam",
+    "country_code": "VN",
+    "city": "Thủ Đức",
+    "city_candidates": [
+      "Thủ Đức",
+      "Phường Bảy Hiền"
+    ],
+    "zoom10": true,
+    "stations": 6
+  },
+  "North South Line": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "HVV;Hamburger Verkehrsverbund": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hamburg",
+    "city_candidates": [
+      "Hamburg"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Línea 6": {
+    "continent": "south-america",
+    "country": "Chile",
+    "country_code": "CL",
+    "city": "Providencia",
+    "city_candidates": [
+      "Providencia",
+      "Provincia de Santiago",
+      "Santiago Metropolitan Region"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Hamburger Hochbahn AG": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hamburg",
+    "city_candidates": [
+      "Hamburg",
+      "Hamburg-Nord"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Métro ligne 9": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "city_candidates": [
+      "Paris",
+      "11th Arrondissement",
+      "Metropolitan France",
+      "Ile-de-France"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "S4": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Bretten",
+    "city_candidates": [
+      "Bretten",
+      "VVG der Stadt Bretten",
+      "Landkreis Karlsruhe",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Port Authority of New York and New Jersey": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "New York",
+    "city_candidates": [
+      "New York",
+      "Queens",
+      "Queens County"
+    ],
+    "zoom10": true,
+    "stations": 18
+  },
+  "Metrovalència": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Rafelbunyol",
+    "city_candidates": [
+      "Rafelbunyol",
+      "l'Horta Nord",
+      "Valencian Community",
+      "Valencia"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Deutsche Bahn AG": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Hamburg",
+    "city_candidates": [
+      "Hamburg"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "L1 - L5": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Barcelona",
+    "city_candidates": [
+      "Barcelona",
+      "Barcelonès",
+      "Catalonia"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "台北捷運": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "New Taipei",
+    "city_candidates": [
+      "New Taipei",
+      "Xinzhuang District",
+      "中港厝",
+      "新庄(海山口)"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "深圳市地铁集团": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Longhua District",
+    "city_candidates": [
+      "Longhua District",
+      "Dalang Sub-District",
+      "Guangdong"
+    ],
+    "zoom10": true,
+    "stations": 9
+  },
+  "First Line": {
+    "continent": "africa",
+    "country": "Egypt",
+    "country_code": "EG",
+    "city": "Helwan",
+    "city_candidates": [
+      "Helwan",
+      "Cairo"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "New York City Transit Authority": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "New York",
+    "city_candidates": [
+      "New York",
+      "Brooklyn",
+      "Kings County"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Emova Movilidad S.A.": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Buenos Aires",
+    "city_candidates": [
+      "Buenos Aires",
+      "Balvanera",
+      "Comuna 3",
+      "Autonomous City of Buenos Aires",
+      "Comuna 1"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Línea 7": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Tucumán",
+    "city_candidates": [
+      "Departamento Graneros",
+      "Tucumán",
+      "Municipio de Graneros"
+    ],
+    "zoom10": true,
+    "stations": 26
+  },
+  "Lima and Callao Metro": {
+    "continent": "south-america",
+    "country": "Peru",
+    "country_code": "PE",
+    "city": "Santiago de Surco",
+    "city_candidates": [
+      "Santiago de Surco",
+      "Lima Metropolitan Area",
+      "Province of Lima",
+      "Lima"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "東京都交通局;東急電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Shinagawa",
+    "city_candidates": [
+      "Shinagawa"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Isle of Man Railways": {
+    "continent": "europe",
+    "country": "Isle of Man",
+    "country_code": "IM",
+    "city": "Garff",
+    "city_candidates": [
+      "Garff",
+      "Laxey"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Metro Sul do Tejo": {
+    "continent": "europe",
+    "country": "Portugal",
+    "country_code": "PT",
+    "city": "Almada",
+    "city_candidates": [
+      "Almada",
+      "Almada, Cova da Piedade, Pragal e Cacilhas",
+      "Setúbal"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "BZB": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Garmisch-Partenkirchen",
+    "city_candidates": [
+      "Garmisch-Partenkirchen",
+      "Landkreis Garmisch-Partenkirchen",
+      "Bavaria"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Línea 3": {
+    "continent": "south-america",
+    "country": "Chile",
+    "country_code": "CL",
+    "city": "Santiago",
+    "city_candidates": [
+      "Santiago",
+      "Provincia de Santiago",
+      "Santiago Metropolitan Region"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "STIF": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Paris",
+    "city_candidates": [
+      "Paris",
+      "2nd Arrondissement",
+      "Metropolitan France",
+      "Ile-de-France"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Sungai Buloh-Kajang line": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Kajang Municipal Council",
+    "city_candidates": [
+      "Kajang Municipal Council",
+      "Semenyih",
+      "Hulu Langat",
+      "Selangor"
+    ],
+    "zoom10": true,
+    "stations": 3
+  },
+  "PID": {
+    "continent": "europe",
+    "country": "Czechia",
+    "country_code": "CZ",
+    "city": "Prague",
+    "city_candidates": [
+      "Prague",
+      "obvod Praha 7"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "route 2, km4+990": {
+    "continent": "asia",
+    "country": "Vietnam",
+    "country_code": "VN",
+    "city": "Thủ Đức",
+    "city_candidates": [
+      "Thủ Đức",
+      "Phường Hòa Hưng"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "广州有轨电车": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Haizhu District",
+    "city_candidates": [
+      "Haizhu District",
+      "Pazhou Sub-District",
+      "Guangdong"
+    ],
+    "zoom10": true,
+    "stations": 18
+  },
+  "NMRC": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Noida",
+    "city_candidates": [
+      "Noida",
+      "Dadri",
+      "Gautam Buddha Nagar",
+      "Uttar Pradesh"
+    ],
+    "zoom10": true,
+    "stations": 6
+  },
+  "metro": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Üsküdar",
+    "city_candidates": [
+      "Üsküdar",
+      "Kısıklı Mahallesi",
+      "Marmara Region",
+      "Istanbul"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Midttrafik (Aarhus Letbane)": {
+    "continent": "europe",
+    "country": "Denmark",
+    "country_code": "DK",
+    "city": "Aarhus",
+    "city_candidates": [
+      "Aarhus",
+      "Aarhus Municipality",
+      "Central Denmark Region"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "인천매트로": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Incheon",
+    "city_candidates": [
+      "Incheon",
+      "Yeonsu 2(i)-dong"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "洛阳市轨道交通": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xigong District",
+    "city_candidates": [
+      "Xigong District",
+      "Tanggonglu Subdistrict",
+      "Henan"
+    ],
+    "zoom10": true,
+    "stations": 38
+  },
+  "浙江轨道集团 浙江幸福轨道运营": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Longwan District",
+    "city_candidates": [
+      "Longwan District",
+      "Zhejiang"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "LRTA": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "city_candidates": [
+      "Quezon City",
+      "1st District",
+      "Eastern Manila District",
+      "Metro Manila"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "stop": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ümraniye",
+    "city_candidates": [
+      "Ümraniye",
+      "Atakent Mahallesi",
+      "Marmara Region",
+      "Istanbul"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "小田急電鉄": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Atsugi",
+    "city_candidates": [
+      "Atsugi",
+      "Kanagawa Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "VLT de Salvador - Linha 3": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Salvador",
+    "city_candidates": [
+      "Salvador",
+      "Northeast Region",
+      "Bahia"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Криворізький швидкісний трамвай (метротрам)": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kryvyi Rih",
+    "city_candidates": [
+      "Kryvyi Rih",
+      "Kryvyi Rih Urban Hromada",
+      "Kryvyi Rih Raion",
+      "Dnipropetrovsk Oblast"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "都営地下鉄三田線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Chiyoda",
+    "city_candidates": [
+      "Chiyoda"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "半蔵門線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "city_candidates": [
+      "Minato"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "MDOT Maryland Transit Administration": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Baltimore",
+    "city_candidates": [
+      "Baltimore",
+      "Maryland"
+    ],
+    "zoom10": true,
+    "stations": 3
+  },
+  "東葉高速鉄道": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Funabashi",
+    "city_candidates": [
+      "Funabashi",
+      "Chiba Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 16
+  },
+  "MetroCagliari": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Cagliari",
+    "city_candidates": [
+      "Cagliari",
+      "Casteddu/Cagliari",
+      "Sardinia"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "Ferrocarril Urquiza Cargas (Ex Tramway Rural)": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Bella Vista",
+    "city_candidates": [
+      "Bella Vista",
+      "Partido de San Miguel",
+      "Buenos Aires"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "愛知高速東部丘陵線（リニモ）": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagakute",
+    "city_candidates": [
+      "Nagakute",
+      "Aichi Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "SMRT": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "Light Rail Transit Authority": {
+    "continent": "asia",
+    "country": "Philippines",
+    "country_code": "PH",
+    "city": "Quezon City",
+    "city_candidates": [
+      "Quezon City",
+      "3rd District",
+      "Cubao",
+      "Eastern Manila District",
+      "Metro Manila"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "London Underground;National Rail": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Amersham and Villages Community Board",
+    "city_candidates": [
+      "Amersham and Villages Community Board",
+      "Buckinghamshire",
+      "England"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Trillium Line": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Ottawa",
+    "city_candidates": [
+      "Ottawa",
+      "Gloucester-Southgate",
+      "Eastern Ontario",
+      "Ontario"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Metrotranvia a Sassari": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Tàttari/Sassari",
+    "city_candidates": [
+      "Tàttari/Sassari",
+      "Sardinia"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "臺北大眾捷運股份有限公司": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "New Taipei",
+    "city_candidates": [
+      "New Taipei",
+      "Tamsui District",
+      "滬尾"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Niagara Frontier Transportation Authority": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Buffalo",
+    "city_candidates": [
+      "Buffalo",
+      "Erie County",
+      "New York"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "東京メトロ銀座線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Minato",
+    "city_candidates": [
+      "Minato"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "京成電鉄押上線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Sumida",
+    "city_candidates": [
+      "Sumida"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "近畿日本鉄道けいはんな線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nara",
+    "city_candidates": [
+      "Nara",
+      "Nara Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "地铁9号线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Xi'an",
+    "city_candidates": [
+      "Xi'an",
+      "Xiekou",
+      "Shaanxi",
+      "Lintong District"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "EGO": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Ankara",
+    "city_candidates": [
+      "Ankara",
+      "Çankaya",
+      "Kültür Mahallesi",
+      "Central Anatolia Region"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Метро": {
+    "continent": "europe",
+    "country": "Russia",
+    "country_code": "RU",
+    "city": "Kazan",
+    "city_candidates": [
+      "Kazan",
+      "Приволжский район",
+      "городской округ Казань",
+      "Volga Federal District",
+      "Tatarstan"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "入間馬車鉄道株式会社": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Hanno",
+    "city_candidates": [
+      "Hanno",
+      "Saitama Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "TRAM Metropolitano de Alicante": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Dénia",
+    "city_candidates": [
+      "Dénia",
+      "la Marina Alta",
+      "Valencian Community",
+      "Alacant / Alicante"
+    ],
+    "zoom10": true,
+    "stations": 3
+  },
+  "M6": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Şişli",
+    "city_candidates": [
+      "Şişli",
+      "Esentepe Mahallesi",
+      "Marmara Region",
+      "Istanbul"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Line 15": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Changning District",
+    "city_candidates": [
+      "Changning District",
+      "Hongqiao",
+      "Shanghai",
+      "Fahua"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Tranvía Coquimbo-La Serena": {
+    "continent": "south-america",
+    "country": "Chile",
+    "country_code": "CL",
+    "city": "Coquimbo",
+    "city_candidates": [
+      "Coquimbo",
+      "Provincia de Elqui",
+      "Coquimbo Region"
+    ],
+    "zoom10": true,
+    "stations": 16
+  },
+  "Metrotren de Gijón": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Gijón",
+    "city_candidates": [
+      "Gijón",
+      "Asturias"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "金华轨道交通义东线": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Jinhua",
+    "city_candidates": [
+      "Jinhua",
+      "后宅街道",
+      "Zhejiang",
+      "Yiwu"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Servicio Regional Neuquén": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Plottier",
+    "city_candidates": [
+      "Plottier",
+      "Unión",
+      "Departamento Confluencia",
+      "Neuquén"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Mumbai Metro Line 9": {
+    "continent": "asia",
+    "country": "India",
+    "country_code": "IN",
+    "city": "Mira-Bhayander",
+    "city_candidates": [
+      "Mira-Bhayander",
+      "Thane Subdistrict",
+      "Thane",
+      "Maharashtra"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "MEL": {
+    "continent": "africa",
+    "country": "Mauritius",
+    "country_code": "MU",
+    "city": "Town of Vacoas-Phoenix, Ward 4",
+    "city_candidates": [
+      "Town of Vacoas-Phoenix, Ward 4",
+      "Plaines Wilhems",
+      "Vacoas-Phoenix"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Línea 8": {
+    "continent": "south-america",
+    "country": "Chile",
+    "country_code": "CL",
+    "city": "Provincia de Santiago",
+    "city_candidates": [
+      "Macul",
+      "Provincia de Santiago",
+      "Santiago Metropolitan Region"
+    ],
+    "zoom10": true,
+    "stations": 28
+  },
+  "Grand River Transit": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Waterloo",
+    "city_candidates": [
+      "Waterloo",
+      "Region of Waterloo",
+      "Southwestern Ontario",
+      "Ontario"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Grand River Transit; Ion": {
+    "continent": "north-america",
+    "country": "Canada",
+    "country_code": "CA",
+    "city": "Kitchener",
+    "city_candidates": [
+      "Kitchener",
+      "Region of Waterloo",
+      "Southwestern Ontario",
+      "Ontario"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Metro S.A.": {
+    "continent": "south-america",
+    "country": "Chile",
+    "country_code": "CL",
+    "city": "Santiago",
+    "city_candidates": [
+      "Santiago",
+      "Ñuñoa",
+      "Provincia de Santiago",
+      "Santiago Metropolitan Region"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Silver Line": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Dallas",
+    "city_candidates": [
+      "Dallas",
+      "Dallas County",
+      "Texas"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "东莞地铁": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Dongguan",
+    "city_candidates": [
+      "Dongguan",
+      "Dalang Town",
+      "Songshan Lake",
+      "Guangdong"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "SITEUR": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "San Sebastián El Grande",
+    "city_candidates": [
+      "San Sebastián El Grande",
+      "Tlajomulco de Zúñiga",
+      "Región Centro",
+      "Jalisco"
+    ],
+    "zoom10": true,
+    "stations": 17
+  },
+  "Pittsburgh Light Rail": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Pittsburgh",
+    "city_candidates": [
+      "Pittsburgh",
+      "Allegheny County",
+      "Pennsylvania"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "重庆轨道交通运营": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Chongqing High-tech Zone",
+    "city_candidates": [
+      "Chongqing High-tech Zone",
+      "Xianglushan",
+      "Chongqing"
+    ],
+    "zoom10": true,
+    "stations": 43
+  },
+  "Línea B": {
+    "continent": "north-america",
+    "country": "Mexico",
+    "country_code": "MX",
+    "city": "Mexico City",
+    "city_candidates": [
+      "Mexico City"
+    ],
+    "zoom10": true,
+    "stations": 1
+  },
+  "Jurong Region Line (JRL)": {
+    "continent": "asia",
+    "country": "Singapore",
+    "country_code": "SG",
+    "city": "Singapore",
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 2
+  },
+  "Singapore–Johor Bahru Rapid Transit System (RTS Link)": {
+    "continent": "asia",
+    "country": "Malaysia",
+    "country_code": "MY",
+    "city": "Tebrau",
+    "city_candidates": [
+      "Tebrau",
+      "Johor Bahru",
+      "Johor"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "میدان امام حسین": {
+    "continent": "asia",
+    "country": "Iran",
+    "country_code": "IR",
+    "city": "Tehran",
+    "city_candidates": [
+      "Tehran",
+      "بخش مرکزی شهرستان تهران",
+      "District 7",
+      "Tehran County",
+      "Tehran Province"
+    ],
+    "zoom10": true,
+    "stations": 1
   }
 }
