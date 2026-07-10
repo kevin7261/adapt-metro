@@ -86,7 +86,8 @@ const selectedRouteLists = computed(() => {
 })
 
 const layer = computed(() => props.layer)
-const isMetro = computed(() => layer.value?.type === 'metro')
+// metroLike: a D3 view created from an imported metro GeoJSON — same panels.
+const isMetro = computed(() => layer.value?.type === 'metro' || layer.value?.metroLike === true)
 const editable = computed(() => layer.value && !layer.value.isBasemap && !isMetro.value)
 
 /* ---- Info: metro system metadata (from the loaded GeoJSON) ---- */

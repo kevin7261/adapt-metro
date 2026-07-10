@@ -22,6 +22,10 @@ const metroLayers = computed(() => store.layers.filter((l) => l.type === 'metro'
 // are bound to it, exactly like the MapLibre tab.
 const sourceLayer = computed(() =>
   metroLayers.value.find((l) => l.id === layer.value?.sourceLayerId) ?? null)
+// A file-imported view owns its data (stored under its own id in layerData);
+// panels and styling then bind to the d3 layer itself instead of a source layer.
+const ownData = computed(() => !!layerData[layerId])
+const panelLayer = computed(() => (ownData.value ? layer.value : sourceLayer.value))
 
 const host = ref(null)      // container div
 const svgEl = ref(null)     // <svg>
@@ -40,6 +44,8 @@ function stationColor(p) {
 }
 
 async function sourceData() {
+  // File-imported view: its own GeoJSON lives under this layer's id.
+  if (layerData[layerId]) return layerData[layerId]
   const src = metroLayers.value.find((l) => l.id === layer.value?.sourceLayerId)
   if (!src) {
     // A dangling reference (source layer was removed) — say so instead of a blank canvas.
@@ -127,7 +133,7 @@ async function render() {
 // the Style tab edits for the MapLibre view) — applied without a re-render so
 // slider drags stay smooth.
 function applyStyle() {
-  const src = sourceLayer.value
+  const src = panelLayer.value
   const sel = select(gEl.value)
   sel.selectAll('path.line')
     .attr('stroke-width', src?.strokeWidth ?? 2.5)
@@ -140,13 +146,13 @@ function applyStyle() {
 // Clicking a station/line feeds the Object tab (keyed by the source layer id,
 // same as the MapLibre tab does).
 function selectFeature(d) {
-  if (sourceLayer.value) store.setSelectedFeature(sourceLayer.value.id, d.properties)
+  if (panelLayer.value) store.setSelectedFeature(panelLayer.value.id, d.properties)
 }
 
 watch(() => layer.value?.sourceLayerId, render)
-// Live style sync from the source layer (Style tab sliders).
+// Live style sync from the bound layer (Style tab sliders).
 watch(
-  () => [sourceLayer.value?.strokeWidth, sourceLayer.value?.radius, sourceLayer.value?.opacity],
+  () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
   applyStyle,
 )
 
@@ -182,11 +188,13 @@ onBeforeUnmount(() => {
       <div class="map-col">
         <div class="d3-toolbar">
           <span class="d3-label">D3.js view — 資料來源：</span>
-          <span class="d3-source">{{ sourceLayer?.name ?? layer?.sourceLayerId ?? '—' }}</span>
+          <span class="d3-source">
+            {{ ownData ? `${layer?.name}（匯入 JSON）` : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
+          </span>
         </div>
 
         <div ref="host" class="d3-canvas">
-          <svg ref="svgEl" class="d3-svg" @click="sourceLayer && store.setSelectedFeature(sourceLayer.id, null)">
+          <svg ref="svgEl" class="d3-svg" @click="panelLayer && store.setSelectedFeature(panelLayer.id, null)">
             <g ref="gEl" />
           </svg>
           <div v-if="loading" class="d3-hint">載入中…</div>
@@ -194,13 +202,13 @@ onBeforeUnmount(() => {
         </div>
 
         <AttributeTable
-          v-if="store.ui.attributeTableOpen[layerId] && sourceLayer"
-          :layer="sourceLayer"
+          v-if="store.ui.attributeTableOpen[layerId] && panelLayer"
+          :layer="panelLayer"
           :owner-id="layerId"
         />
       </div>
 
-      <StylePanel v-if="sourceLayer" :layer="sourceLayer" />
+      <StylePanel v-if="panelLayer" :layer="panelLayer" />
     </div>
   </div>
 </template>

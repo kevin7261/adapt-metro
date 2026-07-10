@@ -130,6 +130,45 @@ export const useMapStore = defineStore('map', {
       return layer
     },
 
+    // Add a D3.js view from an imported GeoJSON file. The data is the layer's
+    // own (caller stores it in layerData under the new id). If the file carries
+    // metro_system metadata the layer behaves like a metro layer in the panels.
+    addD3LayerFromData(name, data) {
+      let n = 1
+      while (this.layers.some((l) => l.id === `d3-view-${n}`)) n++
+      const sys = data?.metro_system
+      const stationCount = (data?.features ?? [])
+        .filter((f) => f.geometry?.type === 'Point').length
+      const routeIds = new Set()
+      for (const f of data?.features ?? []) {
+        if (f.geometry?.type === 'Point') continue
+        for (const r of f.properties?.routes ?? [f.properties]) {
+          if (r?.route_id) routeIds.add(r.route_id)
+        }
+      }
+      const layer = {
+        id: `d3-view-${n}`,
+        name,
+        type: 'd3',
+        groupId: 'd3',
+        sourceLayerId: null,
+        metroLike: !!sys,
+        city: sys?.city,
+        country: sys?.country,
+        continent: sys?.continent,
+        visible: true,
+        opacity: 1,
+        strokeWidth: 2.5,
+        radius: 4,
+        lineCount: routeIds.size,
+        stationCount,
+        featureCount: (data?.features ?? []).length,
+      }
+      this.layers.push(layer)
+      this.selectedLayerId = layer.id
+      return layer
+    },
+
     // Drop a layer from the list and clear any state keyed to it. Callers are
     // responsible for closing its editor tab and freeing its loaded GeoJSON.
     removeLayer(id) {

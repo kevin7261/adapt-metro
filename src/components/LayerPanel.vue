@@ -82,15 +82,23 @@ function cleanForExport(data) {
   }
 }
 
-// Export = download the layer's GeoJSON (uses the loaded copy, else fetches it).
+// Export = download the layer's GeoJSON. Resolution order: the layer's own
+// loaded data (metro layers, file-imported d3 views) → its source layer's data
+// (metro-backed d3 views) → fetch from the owning file.
+async function fetchJson(file) {
+  const res = await fetch(file)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
 async function exportLayer(layer) {
   try {
     let data = layerData[layer.id]
-    if (!data) {
-      const res = await fetch(layer.file)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      data = await res.json()
+    if (!data && layer.sourceLayerId) {
+      const src = store.layers.find((l) => l.id === layer.sourceLayerId)
+      if (src) data = layerData[src.id] ?? (src.file && await fetchJson(src.file))
     }
+    if (!data && layer.file) data = await fetchJson(layer.file)
+    if (!data) throw new Error('沒有可匯出的資料')
     const blob = new Blob([JSON.stringify(cleanForExport(data))], { type: 'application/geo+json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -230,12 +238,7 @@ onBeforeUnmount(() => {
                 >
                   <TableProperties :size="14" />
                 </button>
-                <button
-                  v-if="layer.type === 'metro'"
-                  class="btn-icon"
-                  title="Export GeoJSON"
-                  @click="overflow(layer, 'export')"
-                >
+                <button class="btn-icon" title="Export GeoJSON" @click="overflow(layer, 'export')">
                   <Download :size="14" />
                 </button>
                 <button class="btn-icon danger" title="Remove layer" @click="overflow(layer, 'remove')">

@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { loadMetroCatalog, prettyContinent } from '../stores/metroCatalog'
 import { openLayerTab } from '../stores/dockHandle'
+import { layerData } from '../stores/layerData'
 import {
   X, FileJson, Mountain, Grid2x2, Server, FileArchive, Layers2,
   Upload, Map as MapIcon, Github, Globe, TrainFront,
@@ -76,6 +77,28 @@ function addD3View(src) {
   openLayerTab(d3Layer)
   close()
   store.toast(`已建立 D3.js 視圖（來源：${src.name}）`)
+}
+
+/* Add D3.js view — or import a GeoJSON file as its own data source */
+const d3FileInput = ref(null)
+async function onD3File(e) {
+  const file = e.target.files?.[0]
+  e.target.value = '' // allow re-picking the same file
+  if (!file) return
+  try {
+    const data = JSON.parse(await file.text())
+    if (data?.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
+      throw new Error('不是有效的 GeoJSON FeatureCollection')
+    }
+    const name = file.name.replace(/\.(geo)?json$/i, '')
+    const d3Layer = store.addD3LayerFromData(name, data)
+    layerData[d3Layer.id] = data
+    openLayerTab(d3Layer)
+    close()
+    store.toast(`已匯入 ${file.name} 為 D3.js 視圖`)
+  } catch (err) {
+    store.toast(`匯入失敗：${err.message}`)
+  }
 }
 
 /* Quick Selection — 常用城市 */
@@ -212,7 +235,7 @@ const shortcuts = [
       </div>
       <div class="dialog-body">
         <div v-if="!metroLayerChoices.length" class="import-status">
-          Metro Maps group 還沒有圖層 — 先用 + 匯入一個 metro map
+          Metro Maps group 還沒有圖層 — 先用 + 匯入一個 metro map，或直接匯入 GeoJSON 檔案
         </div>
         <template v-else>
           <p class="add-d3-hint">選擇一個 metro map 圖層作為 D3.js 視圖的資料來源（建立後不可更改）：</p>
@@ -230,6 +253,20 @@ const shortcuts = [
             </button>
           </div>
         </template>
+
+        <div class="menu-sep" />
+        <button class="station-row d3-file-row" @click="d3FileInput?.click()">
+          <Upload :size="14" />
+          <span class="station-city">匯入 GeoJSON 檔案…</span>
+          <span class="station-count">.geojson / .json</span>
+        </button>
+        <input
+          ref="d3FileInput"
+          type="file"
+          accept=".geojson,.json,application/geo+json,application/json"
+          hidden
+          @change="onD3File"
+        />
       </div>
     </div>
 
@@ -450,6 +487,7 @@ const shortcuts = [
 .import-metro { width: min(720px, calc(100vw - 32px)); }
 .add-d3 { width: min(520px, calc(100vw - 32px)); }
 .add-d3-hint { font-size: 12.5px; color: hsl(var(--muted-foreground)); margin: 0 0 10px; }
+.d3-file-row { width: 100%; margin-top: 8px; color: hsl(var(--primary)); }
 
 /* Quick Selection */
 .import-quick { width: min(560px, calc(100vw - 32px)); }

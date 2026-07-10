@@ -5,8 +5,8 @@ import { Layers } from 'lucide-vue-next'
 <template>
   <div class="watermark">
     <Layers :size="28" class="wm-icon" />
-    <p>點上方「Import Metro Map」匯入城市地鐵圖層</p>
-    <p class="hint">匯入後從左側 Layers 點選開啟分頁 — 分頁可拖曳併排、堆疊</p>
+    <p>按左側 Layers「Metro Maps」的 + 匯入城市地鐵圖層</p>
+    <p class="hint">匯入後點選圖層開啟分頁 — 分頁可拖曳併排、堆疊</p>
   </div>
 </template>
 
