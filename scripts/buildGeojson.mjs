@@ -423,19 +423,21 @@ async function build() {
     if (ov) {
       info = mkInfo({ continent: ov.continent, country: ov.country, city: ov.city }, ov.city)
       pinnedKeys.add(info.key)
-    } else if (network === 'Unknown') {
-      // No network to geocode — resolve each line by its own coordinates.
-      // (One shared "Unknown" bucket would smear worldwide strays into
-      // whichever city its accidental centroid lands near.)
-      let sx = 0, sy = 0, n = 0
-      for (const seq of kept) for (const r of seq) { sx += r.coord[0]; sy += r.coord[1]; n++ }
-      const near = n ? nearestWiki(sy / n, sx / n, null) : null
-      info = near && near.km < 15
-        ? mkInfo({ continent: countryContinent.get(near.sys.country) ?? null,
-            country: near.sys.country, city: near.sys.city }, near.sys.city)
-        : mkInfo({ continent: null, country: null, city: null }, 'unknown')
     } else {
-      info = cityInfo(network, t.network, t.__own)
+      info = network === 'Unknown' ? null : cityInfo(network, t.network, t.__own)
+      // Unknown network, or a network whose geocode failed (city null):
+      // resolve the line by its own coordinates. (A shared null bucket would
+      // smear worldwide strays into whichever city its centroid lands near,
+      // and the spread guard would then block rebucketing it.)
+      if (!info || !info.city) {
+        let sx = 0, sy = 0, n = 0
+        for (const seq of kept) for (const r of seq) { sx += r.coord[0]; sy += r.coord[1]; n++ }
+        const near = n ? nearestWiki(sy / n, sx / n, null) : null
+        info = near && near.km < 30
+          ? mkInfo({ continent: countryContinent.get(near.sys.country) ?? null,
+              country: near.sys.country, city: near.sys.city }, near.sys.city)
+          : (info ?? mkInfo({ continent: null, country: null, city: null }, 'unknown'))
+      }
     }
     // 座標為準 sanity check: tags can point at the wrong system city — Pune's
     // lines are operated by Nagpur-shared MahaMetro, Incheon's are tagged as
@@ -582,6 +584,9 @@ async function build() {
       type: 'Feature', properties: props,
       geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
     }
+    if (process.env.DEBUG_ST && /榴花公园|Embarcadero/.test((t.name || '') + (t['name:en'] || '')))
+      console.log('  [st]', t.name, '| id:', s.id, '| bucket:', info.key,
+        '| direct-refs:', !!nodeLineRefs.get(s.id), '| lines:', JSON.stringify(props.lines))
     stationFeatures.push(feat)
     groupFor(info).stations.push(feat)
     groupFor(info).networks.add(network)
@@ -665,14 +670,38 @@ async function build() {
   // （SkyTrain、澳門輕軌、Stadtbahn…）。非基準、純 LRT 的額外系統一律剔除。
   // Override 綁定的線（audit 逐城判過的）不在剔除範圍。
   const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung'])
-  const isBaselineCity = (info) => !!info.city && wikiIdx.some((r) =>
+  const wikiRowOf = (info) => info.city ? (wikiIdx.find((r) =>
     countryOk(info.country || '', r.sys.country) &&
-    normCity(r.sys.city) === normCity(info.city))
+    normCity(r.sys.city) === normCity(info.city))?.sys ?? null) : null
+  const parseWikiN = (s) => { const m = /\d[\d,]*/.exec(String(s ?? '')); return m ? parseInt(m[0].replace(/,/g, ''), 10) : null }
   let skippedLrt = 0
   for (const grp of cityGroups.values()) {
     const hasSubway = grp.lines.some((f) => !lrtFlags.get(f))
-    const allowed = LRT_ADDON_CITIES.has(normCity(grp.info.city)) ||
-      (isBaselineCity(grp.info) && !hasSubway)
+    const wikiRow = wikiRowOf(grp.info)
+    let allowed = LRT_ADDON_CITIES.has(normCity(grp.info.city)) ||
+      (!!wikiRow && !hasSubway)
+    // Wikipedia 站數當仲裁者：基準城市若剔除 LRT 會跌破 0.6 覆蓋比值，代表
+    // wiki 把這些 LRT 線算進該城 metro（仁川2號線、吉隆坡/馬尼拉 LRT）→ 保留。
+    if (!allowed && wikiRow && hasSubway) {
+      const wikiN = parseWikiN(wikiRow.stations)
+      if (wikiN && wikiN >= 3) {
+        const subwayTags = new Set(grp.lines.filter((f) => !lrtFlags.get(f))
+          .map((f) => featTag.get(f)))
+        // 用「唯一站名數」近似合併後站數（此時同名合併尚未發生，節點數會虛胖）
+        const keptNames = new Set()
+        for (const s of grp.stations) {
+          if (!(s.properties.lines || []).some((tag) => subwayTags.has(tag))) continue
+          const nm = (s.properties.station_name || '').normalize('NFKD')
+            .toLowerCase().replace(/\s+/g, ' ').trim()
+          keptNames.add(nm && !/^n\d+$/.test(nm) ? nm : s.properties.station_id)
+        }
+        const kept = keptNames.size
+        if (process.env.DEBUG_LRT) console.log('  [lrt-arbitrate]',
+          JSON.stringify(grp.info.city), 'wikiN:', wikiN, 'keptUniqueStations:', kept,
+          'ratio:', (kept / wikiN).toFixed(2))
+        if (kept / wikiN < 0.6) allowed = true
+      }
+    }
     if (allowed) continue
     const removedTags = new Set()
     grp.lines = grp.lines.filter((f) => {
@@ -684,11 +713,31 @@ async function build() {
       return false
     })
     if (removedTags.size) {
-      // strip the removed lines from station memberships; stations left with
-      // none are dropped by the orphan rule right below
+      // Re-derive station memberships against the SURVIVING lines only.
+      // Filtering by removed tag string alone is unsafe: refs collide
+      // ("2" = both 東莞地鐵2號線 and the removed 松山湖 tram line 2), and a
+      // station whose nearest stop belonged to a removed line (Embarcadero →
+      // Muni) needs a second chance against the surviving lines' stops.
+      const surviving = new Set(grp.lines.map((f) => featTag.get(f)))
+      const nearestSurvivingRefs = (lon, lat) => {
+        const gx = Math.round(lon / CELL), gy = Math.round(lat / CELL)
+        let best = null, bestD = Infinity
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+          for (const p of stopGrid.get(`${gx + dx}:${gy + dy}`) || []) {
+            const hits = [...p.refs].filter((r) => surviving.has(r))
+            if (!hits.length) continue
+            const d = (p.lon - lon) ** 2 + (p.lat - lat) ** 2
+            if (d < bestD) { bestD = d; best = hits }
+          }
+        return best && Math.sqrt(bestD) < 0.008 ? best : []  // ~900 m
+      }
       for (const s of grp.stations) {
         if (!s.properties.lines) continue
-        const left = s.properties.lines.filter((tag) => !removedTags.has(tag))
+        let left = s.properties.lines.filter((tag) => surviving.has(tag))
+        if (!left.length) {
+          const [lon, lat] = s.geometry.coordinates
+          left = [...new Set(nearestSurvivingRefs(lon, lat))].sort()
+        }
         s.properties.lines = left.length ? left : null
       }
     }
@@ -805,8 +854,47 @@ async function build() {
       }).filter((seq) => seq.length >= 2)
     }
     const before = grp.lines.length
-    grp.lines = grp.lines.filter((f) => f.geometry.coordinates.length)
+    grp.lines = grp.lines.filter((f) => {
+      if (f.geometry.coordinates.length) return true
+      if (process.env.DEBUG_SNAP) console.log('  [line-dropped]',
+        JSON.stringify(grp.info.city), '| stations-in-bucket:', grp.stations.length,
+        '|', f.properties.route_name)
+      return false
+    })
     droppedLines += before - grp.lines.length
+    // which surviving lines own each vertex coordinate (for the consistency pass)
+    grp.__vertexOwners = new Map()
+    for (const f of grp.lines) {
+      const tag = featTag.get(f)
+      for (const seq of f.geometry.coordinates)
+        for (const c of seq) {
+          const k = c.join(',')
+          if (!grp.__vertexOwners.has(k)) grp.__vertexOwners.set(k, new Set())
+          if (tag) grp.__vertexOwners.get(k).add(tag)
+        }
+    }
+  }
+
+  // final consistency: a station's `lines` may only reference lines that
+  // still exist in its bucket (a line dropped above must take its orphaned
+  // stations with it — invariant 2 both ways). A station whose tag refs all
+  // died but whose coordinate IS a vertex of surviving lines was spatially
+  // adopted by them at snap time — re-attribute instead of dropping (else
+  // the line would keep a vertex that is no station).
+  for (const grp of cityGroups.values()) {
+    const alive = new Set(grp.lines.map((f) => featTag.get(f)).filter(Boolean))
+    const owners = grp.__vertexOwners ?? new Map()
+    grp.stations = grp.stations.filter((s) => {
+      let left = (s.properties.lines || []).filter((tag) => alive.has(tag))
+      if (!left.length) {
+        const adopted = owners.get(s.geometry.coordinates.join(','))
+        if (adopted?.size) left = [...adopted].sort()
+      }
+      if (!left.length) return false
+      s.properties.lines = left
+      return true
+    })
+    delete grp.__vertexOwners
   }
 
   // prune buckets left with neither lines nor stations (stray station nodes /
