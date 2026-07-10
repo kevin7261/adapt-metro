@@ -85,5 +85,17 @@ export const useMapStore = defineStore('map', {
       this.selectedLayerId = layer.id
       return layer
     },
+
+    // Drop a layer from the list and clear any state keyed to it. Callers are
+    // responsible for closing its editor tab and freeing its loaded GeoJSON.
+    removeLayer(id) {
+      const i = this.layers.findIndex((l) => l.id === id)
+      if (i === -1) return
+      this.layers.splice(i, 1)
+      delete this.selectedFeatures[id]
+      if (this.selectedLayerId === id) {
+        this.selectedLayerId = this.layers[0]?.id ?? null
+      }
+    },
   },
 })

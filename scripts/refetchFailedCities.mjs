@@ -77,9 +77,10 @@ for (const [key] of failed) {
     for (let i = 0; i < nids.length; i += 500) {
       const batch = nids.slice(i, i + 500)
       const d = await overpass.query(
-        `[out:json][timeout:120];node(id:${batch.join(',')});out ids;`,
+        `[out:json][timeout:120];node(id:${batch.join(',')});out body;`,
         { timeout: 120000, maxAttempts: 5 })
-      const alive = new Set((d.elements ?? []).map((e) => e.id))
+      // 活著＝存在且還有名字（存在但被拆標籤/名稱的殭屍等同已刪）
+      const alive = new Set((d.elements ?? []).filter((e) => e.tags?.name).map((e) => e.id))
       for (const id of batch) if (!alive.has(id) && !tombSet.has(id)) { tombSet.add(id); newTombs++ }
     }
     await writeFile(TOMB, JSON.stringify({

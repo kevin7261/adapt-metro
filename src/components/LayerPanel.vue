@@ -2,18 +2,15 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import { openLayerTab } from '../stores/dockHandle'
+import { openLayerTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
   PanelLeftClose, PanelLeftOpen,
-  GripVertical, MoreHorizontal,
   ZoomIn, TableProperties, Download, Trash2,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
-
-const menuFor = ref(null)
 
 const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront }
 
@@ -24,20 +21,72 @@ function openLayer(layer) {
 }
 
 function overflow(layer, action) {
-  menuFor.value = null
   if (action === 'zoom') {
     openLayer(layer)
     const data = layerData[layer.id]
     const bbox = data && boundsOfGeojson(data)
     if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
   } else if (action === 'table') {
-    store.selectedLayerId = layer.id
-    store.ui.attributeTable = true
+    // Toggle the attribute table (close if already open on the active layer,
+    // otherwise focus this layer's tab and open it).
+    if (store.selectedLayerId === layer.id && store.ui.attributeTable) {
+      store.ui.attributeTable = false
+    } else {
+      openLayer(layer)
+      store.ui.attributeTable = true
+    }
+  } else if (action === 'export') {
+    exportLayer(layer)
   } else if (action === 'remove') {
-    store.fake(`Remove layer「${layer.name}」`)
-  } else {
-    store.fake(action)
+    removeLayer(layer)
   }
+}
+
+// Strip internal render-only props (e.g. `_c0.._c5` dash colours the map tab
+// adds to features) so the exported GeoJSON matches the source file.
+function cleanForExport(data) {
+  return {
+    ...data,
+    features: data.features.map((f) => {
+      const p = f.properties
+      if (!p || !Object.keys(p).some((k) => k.startsWith('_'))) return f
+      const cleaned = {}
+      for (const k of Object.keys(p)) if (!k.startsWith('_')) cleaned[k] = p[k]
+      return { ...f, properties: cleaned }
+    }),
+  }
+}
+
+// Export = download the layer's GeoJSON (uses the loaded copy, else fetches it).
+async function exportLayer(layer) {
+  try {
+    let data = layerData[layer.id]
+    if (!data) {
+      const res = await fetch(layer.file)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      data = await res.json()
+    }
+    const blob = new Blob([JSON.stringify(cleanForExport(data))], { type: 'application/geo+json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${layer.name}.geojson`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    store.toast(`已下載 ${layer.name}.geojson`)
+  } catch (err) {
+    store.toast(`匯出失敗：${err.message}`)
+  }
+}
+
+// Remove = drop the layer, close its editor tab, free its loaded GeoJSON.
+function removeLayer(layer) {
+  dockHandle.api?.getPanel(layer.id)?.api.close()
+  delete layerData[layer.id]
+  store.removeLayer(layer.id)
+  store.toast(`已移除圖層「${layer.name}」`)
 }
 
 /* ---- resize ---- */
@@ -88,38 +137,34 @@ onBeforeUnmount(() => { dragging.value = false })
           :class="{ selected: store.selectedLayerId === layer.id }"
           @click="openLayer(layer)"
         >
-          <GripVertical :size="13" class="grip" />
-          <component
-            :is="typeIcons[layer.type]"
-            :size="13"
-            class="type-icon"
-            :style="layer.color ? { color: layer.color } : {}"
-          />
-          <span class="layer-name">{{ layer.name }}</span>
+          <div class="layer-title">
+            <component
+              :is="typeIcons[layer.type]"
+              :size="13"
+              class="type-icon"
+              :style="layer.color ? { color: layer.color } : {}"
+            />
+            <span class="layer-name">{{ layer.name }}</span>
+          </div>
 
-          <div class="row-menu-wrap" @click.stop>
-            <button
-              class="btn-icon more"
-              title="Layer actions"
-              @click="menuFor = menuFor === layer.id ? null : layer.id"
-            >
-              <MoreHorizontal :size="14" />
+          <div class="layer-actions" @click.stop>
+            <button class="btn-icon" title="Zoom to layer" @click="overflow(layer, 'zoom')">
+              <ZoomIn :size="14" />
             </button>
-            <div v-if="menuFor === layer.id" class="menu-pop layer-menu">
-              <button class="menu-item" @click="overflow(layer, 'zoom')">
-                <ZoomIn :size="14" /> Zoom to layer
-              </button>
-              <button class="menu-item" @click="overflow(layer, 'table')">
-                <TableProperties :size="14" /> Attribute table
-              </button>
-              <button class="menu-item" @click="overflow(layer, 'Export')">
-                <Download :size="14" /> Export
-              </button>
-              <div class="menu-sep" />
-              <button class="menu-item danger" @click="overflow(layer, 'remove')">
-                <Trash2 :size="14" /> Remove
-              </button>
-            </div>
+            <button
+              class="btn-icon"
+              :class="{ active: store.ui.attributeTable && store.selectedLayerId === layer.id }"
+              title="Attribute table"
+              @click="overflow(layer, 'table')"
+            >
+              <TableProperties :size="14" />
+            </button>
+            <button class="btn-icon" title="Export GeoJSON" @click="overflow(layer, 'export')">
+              <Download :size="14" />
+            </button>
+            <button class="btn-icon danger" title="Remove layer" @click="overflow(layer, 'remove')">
+              <Trash2 :size="14" />
+            </button>
           </div>
         </div>
       </div>
@@ -166,9 +211,9 @@ onBeforeUnmount(() => { dragging.value = false })
 
 .layer-row {
   display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 4px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
   border-radius: calc(var(--radius) - 4px);
   cursor: pointer;
   border: 1px solid transparent;
@@ -178,7 +223,7 @@ onBeforeUnmount(() => { dragging.value = false })
   background: hsl(var(--primary) / 0.1);
   border-color: hsl(var(--primary) / 0.4);
 }
-.grip { color: hsl(var(--muted-foreground) / 0.5); cursor: grab; flex-shrink: 0; }
+.layer-title { display: flex; align-items: center; gap: 2px; min-width: 0; }
 .type-icon { flex-shrink: 0; margin: 0 3px; }
 .layer-name {
   flex: 1;
@@ -187,12 +232,19 @@ onBeforeUnmount(() => { dragging.value = false })
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.more { width: 24px; height: 24px; opacity: 0; }
-.layer-row:hover .more, .layer-row.selected .more { opacity: 1; }
-.row-menu-wrap { position: relative; }
-.layer-menu { right: 0; top: 26px; min-width: 180px; }
-.menu-item.danger { color: hsl(var(--destructive)); }
-.menu-item.danger:hover { background: hsl(var(--destructive) / 0.12); color: hsl(var(--destructive)); }
+/* second row: the four actions, aligned bottom-right */
+.layer-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }
+.layer-actions .btn-icon { width: 24px; height: 24px; color: hsl(var(--muted-foreground)); }
+.layer-actions .btn-icon:hover { color: hsl(var(--foreground)); }
+.layer-actions .btn-icon.active {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+}
+.layer-actions .btn-icon.danger { color: hsl(var(--destructive) / 0.7); }
+.layer-actions .btn-icon.danger:hover {
+  color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 0.12);
+}
 
 @media (max-width: 768px) {
   .layer-panel { position: absolute; z-index: 50; top: 0; bottom: 0; left: 0; }

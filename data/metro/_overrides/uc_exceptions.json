@@ -31,6 +31,14 @@
       "city": "Taipei",
       "blocked_by": "OSM 只有 proposed 民汐全線（大稻埕→汐止）且無任何車站節點；汐東段無獨立 relation",
       "tag_overrides": { "route": "subway", "ref": "SB" }
+    },
+    {
+      "enabled": false,
+      "relation": 11122080,
+      "label": "環狀線南北環（未通車段）",
+      "city": "Taipei",
+      "blocked_by": "OSM r11122080（construction:route=subway）0 個車站成員；建設中車站僅零星佔位名（環狀線Y1A站/Y3/Y4/Y5）——待上游補站名或人工依 wiki 建站資料",
+      "tag_overrides": { "route": "subway", "ref": "Y" }
     }
   ]
 }

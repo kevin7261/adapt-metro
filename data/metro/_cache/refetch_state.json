@@ -33,5 +33,20 @@
     "refetched": true,
     "relations": 44,
     "tombstones": 1
+  },
+  "Chongqing|China": {
+    "refetched": true,
+    "relations": 28,
+    "tombstones": 0
+  },
+  "Dalian|China": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 5
+  },
+  "Fuzhou|China": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 4
   }
 }

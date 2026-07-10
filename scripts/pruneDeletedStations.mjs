@@ -31,11 +31,13 @@ const missing = []
 for (let i = 0; i < ids.length; i += 500) {
   const batch = ids.slice(i, i + 500)
   const d = await overpass.query(
-    `[out:json][timeout:120];node(id:${batch.join(',')});out ids;`,
+    `[out:json][timeout:120];node(id:${batch.join(',')});out body;`,
     { timeout: 120000, maxAttempts: 5 })
-  const alive = new Set((d.elements ?? []).map((e) => e.id))
+  // 活著＝上游還在**且還有名字**——節點存在但被拆掉標籤/名稱（香港
+  // Kowloon Bay Station 案例）等同不再是車站（站名 100% 語義一致）
+  const alive = new Set((d.elements ?? []).filter((e) => e.tags?.name).map((e) => e.id))
   for (const id of batch) if (!alive.has(id)) missing.push(id)
-  console.log(`  ${Math.min(i + 500, ids.length)}/${ids.length} checked, ${missing.length} deleted so far`)
+  console.log(`  ${Math.min(i + 500, ids.length)}/${ids.length} checked, ${missing.length} dead so far`)
 }
 for (const id of missing) known.add(id)
 await writeFile(TOMB, JSON.stringify({

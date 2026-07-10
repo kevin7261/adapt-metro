@@ -272,12 +272,13 @@ async function build() {
     seenStation.add(key)
     stations.push({ id: e.id, lon, lat, tags: e.tags || {} })
   }
-  for (const e of stRaw.elements) pushStation(e)
-  // gap supplements: extra stations fetched per-city by auditLoop.mjs
+  // 站點以「先到先贏」去重——gap（定向補抓/刷新，較新）先載，
+  // 免得 stations.json 的舊 tags 壓過刷新後的新 tags
   for (const f of cacheFiles.filter((n) => /^gap_stations_.+\.json$/.test(n))) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
     for (const e of d.elements || []) pushStation(e)
   }
+  for (const e of stRaw.elements) pushStation(e)
 
   const wikiSystems = await readJSON('wiki_metro_systems.json')
   const wikiIdx = wikiSystems.map((s) => ({
