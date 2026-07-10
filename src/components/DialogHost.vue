@@ -22,6 +22,12 @@ const selCountry = ref('')
 const selCity = ref('')
 
 const IMPORT_DIALOGS = ['import-metro', 'import-quick', 'import-stations']
+// The three import methods are tabs of one modal (the dialog id = the active tab).
+const importTabs = [
+  { id: 'import-quick', label: 'Quick Selection' },
+  { id: 'import-stations', label: 'Sort by Station Count' },
+  { id: 'import-metro', label: 'Global Metro Map' },
+]
 
 watch(dialog, (d) => {
   if (!IMPORT_DIALOGS.includes(d) || catalog.value) return
@@ -161,69 +167,126 @@ const shortcuts = [
 
 <template>
   <div v-if="dialog" class="dialog-overlay" @mousedown.self="close">
-    <!-- Import: Quick Selection -->
-    <div v-if="dialog === 'import-quick'" class="dialog import-quick">
+    <!-- Import Metro Map: one modal, three tabs (Quick / Sort / Global) -->
+    <div v-if="IMPORT_DIALOGS.includes(dialog)" class="dialog import-modal">
       <div class="dialog-header">
-        <h2 class="dialog-title">Quick Selection</h2>
+        <h2 class="dialog-title">Import Metro Map</h2>
         <button class="btn-icon" @click="close"><X :size="15" /></button>
       </div>
-      <div class="dialog-body">
-        <div v-if="catalogError" class="import-status error">載入城市清單失敗：{{ catalogError }}</div>
-        <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
-        <div v-else class="quick-grid">
-          <button
-            v-for="q in quickCities"
-            :key="q.en"
-            class="quick-city"
-            :disabled="!q.sys"
-            :title="q.sys ? '' : '資料集中找不到此城市'"
-            @click="importSystem(q.sys)"
-          >
-            <span class="quick-zh">{{ q.zh }}</span>
-            <span class="quick-en">{{ q.en }}</span>
-            <span class="quick-count">{{ q.sys ? `${q.sys.station_count} 站` : '—' }}</span>
-          </button>
-        </div>
+      <div class="dialog-tabs" role="tablist">
+        <button
+          v-for="t in importTabs"
+          :key="t.id"
+          class="dialog-tab"
+          :class="{ active: dialog === t.id }"
+          role="tab"
+          :aria-selected="dialog === t.id"
+          @click="store.ui.dialog = t.id"
+        >{{ t.label }}</button>
       </div>
-    </div>
 
-    <!-- Import: 依車站數排序 -->
-    <div v-else-if="dialog === 'import-stations'" class="dialog import-stations">
-      <div class="dialog-header">
-        <h2 class="dialog-title">Sort by Station Count</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
-      </div>
-      <div class="dialog-body stations-body">
+      <div class="dialog-body" :class="{ 'stations-body': dialog === 'import-stations' || dialog === 'import-quick' }">
         <div v-if="catalogError" class="import-status error">載入城市清單失敗：{{ catalogError }}</div>
         <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
+
         <template v-else>
-          <div class="sort-toggle">
+          <!-- Quick Selection -->
+          <div v-if="dialog === 'import-quick'" class="stations-list">
             <button
-              class="sort-btn"
-              :class="{ active: stationSort === 'desc' }"
-              @click="stationSort = 'desc'"
-            >多到少</button>
-            <button
-              class="sort-btn"
-              :class="{ active: stationSort === 'asc' }"
-              @click="stationSort = 'asc'"
-            >少到多</button>
-            <span class="sort-meta">{{ byStations.length }} 個系統</span>
-          </div>
-          <div class="stations-list">
-            <button
-              v-for="(s, i) in byStations"
-              :key="s.file"
+              v-for="q in quickCities"
+              :key="q.en"
               class="station-row"
-              @click="importSystem(s)"
+              :disabled="!q.sys"
+              :title="q.sys ? '' : '資料集中找不到此城市'"
+              @click="importSystem(q.sys)"
             >
-              <span class="station-rank">{{ i + 1 }}</span>
-              <span class="station-city">{{ s.city }}</span>
-              <span class="station-country">{{ s.country }}</span>
-              <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
+              <span class="station-city">{{ q.zh }}</span>
+              <span class="station-country">{{ q.en }}</span>
+              <span class="station-count">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
             </button>
           </div>
+
+          <!-- Sort by Station Count -->
+          <template v-else-if="dialog === 'import-stations'">
+            <div class="sort-toggle">
+              <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
+              <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
+              <span class="sort-meta">{{ byStations.length }} 個系統</span>
+            </div>
+            <div class="stations-list">
+              <button
+                v-for="(s, i) in byStations"
+                :key="s.file"
+                class="station-row"
+                @click="importSystem(s)"
+              >
+                <span class="station-rank">{{ i + 1 }}</span>
+                <span class="station-city">{{ s.city }}</span>
+                <span class="station-country">{{ s.country }}</span>
+                <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
+              </button>
+            </div>
+          </template>
+
+          <!-- Global Metro Map -->
+          <template v-else-if="dialog === 'import-metro'">
+            <div class="miller">
+              <div class="miller-col">
+                <div class="miller-head">洲別</div>
+                <div class="miller-list">
+                  <button
+                    v-for="c in continents"
+                    :key="c"
+                    class="miller-item"
+                    :class="{ active: selContinent === c }"
+                    @click="selContinent = c"
+                  >{{ prettyContinent(c) }}</button>
+                </div>
+              </div>
+              <div class="miller-col">
+                <div class="miller-head">國家</div>
+                <div class="miller-list">
+                  <div v-if="!selContinent" class="miller-empty">← 先選洲別</div>
+                  <button
+                    v-for="c in countries"
+                    :key="c"
+                    class="miller-item"
+                    :class="{ active: selCountry === c }"
+                    @click="selCountry = c"
+                  >{{ c }}</button>
+                </div>
+              </div>
+              <div class="miller-col">
+                <div class="miller-head">城市</div>
+                <div class="miller-list">
+                  <div v-if="!selCountry" class="miller-empty">← 先選國家</div>
+                  <button
+                    v-for="c in cities"
+                    :key="c"
+                    class="miller-item"
+                    :class="{ active: selCity === c }"
+                    @click="selCity = c"
+                  >{{ c }}</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="import-preview" :class="{ placeholder: !selectedSystem }">
+              <TrainFront :size="14" />
+              <span v-if="selectedSystem">
+                {{ selectedSystem.city }} — {{ selectedSystem.line_count }} 條線 ·
+                {{ selectedSystem.station_count }} 站
+                <template v-if="selectedSystem.operator">（{{ selectedSystem.operator }}）</template>
+              </span>
+              <span v-else>選擇一個城市以匯入其 metro map</span>
+            </div>
+          </template>
         </template>
+      </div>
+
+      <div v-if="dialog === 'import-metro'" class="dialog-footer">
+        <button class="btn-outline" @click="close">取消</button>
+        <button class="btn-primary" :disabled="!selectedSystem" @click="importMetro">確定</button>
       </div>
     </div>
 
@@ -267,85 +330,6 @@ const shortcuts = [
           hidden
           @change="onD3File"
         />
-      </div>
-    </div>
-
-    <!-- Import: Global Metro Map -->
-    <div v-else-if="dialog === 'import-metro'" class="dialog import-metro">
-      <div class="dialog-header">
-        <h2 class="dialog-title">Global Metro Map</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
-      </div>
-      <div class="dialog-body">
-        <div v-if="catalogError" class="import-status error">
-          載入城市清單失敗：{{ catalogError }}
-        </div>
-        <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
-
-        <template v-else>
-          <div class="miller">
-            <div class="miller-col">
-              <div class="miller-head">洲別</div>
-              <div class="miller-list">
-                <button
-                  v-for="c in continents"
-                  :key="c"
-                  class="miller-item"
-                  :class="{ active: selContinent === c }"
-                  @click="selContinent = c"
-                >
-                  {{ prettyContinent(c) }}
-                </button>
-              </div>
-            </div>
-
-            <div class="miller-col">
-              <div class="miller-head">國家</div>
-              <div class="miller-list">
-                <div v-if="!selContinent" class="miller-empty">← 先選洲別</div>
-                <button
-                  v-for="c in countries"
-                  :key="c"
-                  class="miller-item"
-                  :class="{ active: selCountry === c }"
-                  @click="selCountry = c"
-                >
-                  {{ c }}
-                </button>
-              </div>
-            </div>
-
-            <div class="miller-col">
-              <div class="miller-head">城市</div>
-              <div class="miller-list">
-                <div v-if="!selCountry" class="miller-empty">← 先選國家</div>
-                <button
-                  v-for="c in cities"
-                  :key="c"
-                  class="miller-item"
-                  :class="{ active: selCity === c }"
-                  @click="selCity = c"
-                >
-                  {{ c }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="import-preview" :class="{ placeholder: !selectedSystem }">
-            <TrainFront :size="14" />
-            <span v-if="selectedSystem">
-              {{ selectedSystem.city }} — {{ selectedSystem.line_count }} 條線 ·
-              {{ selectedSystem.station_count }} 站
-              <template v-if="selectedSystem.operator">（{{ selectedSystem.operator }}）</template>
-            </span>
-            <span v-else>選擇一個城市以匯入其 metro map</span>
-          </div>
-        </template>
-      </div>
-      <div class="dialog-footer">
-        <button class="btn-outline" @click="close">取消</button>
-        <button class="btn-primary" :disabled="!selectedSystem" @click="importMetro">確定</button>
       </div>
     </div>
 
@@ -484,6 +468,29 @@ const shortcuts = [
 </template>
 
 <style scoped>
+/* Import Metro Map: one tabbed modal. Fixed width so switching tabs (grid /
+   list / miller columns) doesn't resize the dialog. */
+.import-modal { width: min(720px, calc(100vw - 32px)); }
+.dialog-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 16px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.dialog-tab {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.dialog-tab:hover { color: hsl(var(--foreground)); }
+.dialog-tab.active {
+  color: hsl(var(--primary));
+  font-weight: 600;
+  border-bottom-color: hsl(var(--primary));
+}
 .import-metro { width: min(720px, calc(100vw - 32px)); }
 .add-d3 { width: min(520px, calc(100vw - 32px)); }
 .add-d3-hint { font-size: 12.5px; color: hsl(var(--muted-foreground)); margin: 0 0 10px; }
@@ -559,7 +566,8 @@ const shortcuts = [
   font-size: 12.5px;
   text-align: left;
 }
-.station-row:hover { background: hsl(var(--accent) / 0.6); }
+.station-row:hover:not(:disabled) { background: hsl(var(--accent) / 0.6); }
+.station-row:disabled { opacity: 0.4; cursor: default; }
 .station-rank {
   width: 30px;
   flex-shrink: 0;

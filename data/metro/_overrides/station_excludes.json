@@ -144,6 +144,59 @@
    ],
    "lon": 106.56552,
    "lat": 29.69698
+  },
+  {
+   "city": "Shaoxing",
+   "name": "张墅",
+   "lon": 120.5496,
+   "lat": 30.0555,
+   "names": [
+    "张墅",
+    "Zhangshu"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Suzhou",
+   "name": "白荡南",
+   "lon": 120.64701,
+   "lat": 31.3571,
+   "names": [
+    "白荡南"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Tianjin",
+   "name": "咸水沽北",
+   "lon": 117.41417,
+   "lat": 39.00843,
+   "names": [
+    "咸水沽北",
+    "Xianshuigubei"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Zhengzhou",
+   "name": "须水",
+   "lon": 113.51569,
+   "lat": 34.77555,
+   "names": [
+    "须水",
+    "Xushui"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Pune",
+   "name": "Range Hills",
+   "lon": 73.84581,
+   "lat": 18.55029,
+   "names": [
+    "Range Hills"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
   }
  ]
 }

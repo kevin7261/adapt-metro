@@ -230,6 +230,9 @@ async function build() {
       const el = geom.get(fix.relation)
       if (!el) { console.log(`  !! member_appends: r${fix.relation} not in geom cache`); continue }
       el.members ??= []
+      // 前置（上游成員只涵蓋路線一段時補前段，如蘇州7號線南段）
+      if (fix.prepend_stops?.length)
+        el.members.unshift(...fix.prepend_stops.map((nid) => ({ type: 'node', ref: nid, role: 'stop' })))
       for (const nid of fix.append_stops ?? [])
         el.members.push({ type: 'node', ref: nid, role: 'stop' })
       // 中途插站（上游漏掉的營運中間站，如成都 L10 高升桥）
@@ -776,7 +779,10 @@ async function build() {
     for (const seg of feat.geometry.coordinates)
       for (const [lon, lat] of seg) {
         const k = cellKey(lon, lat)
-        if (!grid.has(k)) grid.set(k, info.key)
+        // 一格可有多城（跨城轉乘站：紹興1號線↔杭州5號線的姑娘桥）——存 Set
+        let cks = grid.get(k)
+        if (!cks) { cks = new Set(); grid.set(k, cks) }
+        cks.add(info.key)
       }
     const grp = groupFor(info)
     grp.lines.push(feat)
@@ -818,11 +824,21 @@ async function build() {
     for (let r = 0; r <= 12; r++) {  // out to ~24 km
       for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue
-        const ck = grid.get(`${gx + dx}:${gy + dy}`)
-        if (ck) return ck
+        const cks = grid.get(`${gx + dx}:${gy + dy}`)
+        if (cks && cks.size) return [...cks][0]
       }
     }
     return null
+  }
+  // 跨城轉乘站：同一站點 ~2 km 內有「多個城市」的線經過（姑娘桥＝紹興1號線
+  // ↔杭州5號線）——站點要複製進每個城市檔，否則另一城的線頂點失主被剪。
+  // 誤複製的（該城線實際吸不到）由 orphan-drop 自清。
+  const nearbyCityKeys = (lon, lat) => {
+    const gx = Math.round(lon / CELL), gy = Math.round(lat / CELL)
+    const keys = new Set()
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+      for (const ck of grid.get(`${gx + dx}:${gy + dy}`) ?? []) keys.add(ck)
+    return keys
   }
 
   for (const s of stations) {
@@ -856,6 +872,16 @@ async function build() {
     stationFeatures.push(feat)
     groupFor(info).stations.push(feat)
     groupFor(info).networks.add(network)
+    // 跨城轉乘站複製（其餘城市各拿一份 clone，city 欄位改該城）
+    for (const ck of nearbyCityKeys(s.lon, s.lat)) {
+      if (ck === info.key) continue
+      const info2 = gInfo.get(ck)
+      if (!info2) continue
+      const clone = { type: 'Feature',
+        properties: { ...props, city: info2.city, country: info2.country },
+        geometry: { type: 'Point', coordinates: [s.lon, s.lat] } }
+      groupFor(info2).stations.push(clone)
+    }
   }
 
   // ---- rebucket: groups whose city never resolved to a Wikipedia city ----

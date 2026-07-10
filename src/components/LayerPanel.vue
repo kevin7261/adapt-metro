@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, dockHandle } from '../stores/dockHandle'
@@ -9,7 +9,6 @@ import {
   ZoomIn, TableProperties, Download, Trash2,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
   ChevronDown, ChevronRight, Folder, FolderOpen, Plus,
-  Zap, ArrowUpDown, Globe,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
@@ -21,28 +20,6 @@ const typeBadges = { metro: 'METRO', d3: 'D3' }
 function addD3() {
   store.ui.dialog = 'add-d3'
 }
-
-// "+" on the Metro Maps group: the three import entry points (was the top-bar
-// Import menu).
-const metroAddOpen = ref(false)
-const metroAddWrap = ref(null)
-const importItems = [
-  { id: 'import-quick', label: 'Quick Selection', icon: Zap },
-  { id: 'import-stations', label: 'Sort by Station Count', icon: ArrowUpDown },
-  { id: 'import-metro', label: 'Global Metro Map', icon: Globe },
-]
-function pickImport(id) {
-  metroAddOpen.value = false
-  store.ui.dialog = id
-}
-function onDocClick(e) {
-  // template ref sits inside v-for, so Vue fills it as an array
-  const wrap = Array.isArray(metroAddWrap.value) ? metroAddWrap.value[0] : metroAddWrap.value
-  if (metroAddOpen.value && wrap && !wrap.contains(e.target)) {
-    metroAddOpen.value = false
-  }
-}
-onMounted(() => document.addEventListener('mousedown', onDocClick))
 
 // Click a layer → open (or focus) its editor tab, like opening a file in an IDE.
 function openLayer(layer) {
@@ -141,7 +118,6 @@ function startResize(e) {
 }
 onBeforeUnmount(() => {
   dragging.value = false
-  document.removeEventListener('mousedown', onDocClick)
 })
 </script>
 
@@ -173,21 +149,14 @@ onBeforeUnmount(() => {
             <component :is="item.group.collapsed ? Folder : FolderOpen" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
             <span class="group-count">{{ item.children.length }}</span>
-            <div v-if="item.group.id === 'metro-maps'" ref="metroAddWrap" class="group-add-wrap" @click.stop>
-              <button
-                class="btn-icon group-add"
-                :class="{ active: metroAddOpen }"
-                title="Import metro map"
-                @click="metroAddOpen = !metroAddOpen"
-              >
-                <Plus :size="14" />
-              </button>
-              <div v-if="metroAddOpen" class="menu-pop group-add-menu">
-                <button v-for="it in importItems" :key="it.id" class="menu-item" @click="pickImport(it.id)">
-                  <component :is="it.icon" :size="14" /> {{ it.label }}
-                </button>
-              </div>
-            </div>
+            <button
+              v-if="item.group.id === 'metro-maps'"
+              class="btn-icon group-add"
+              title="Import metro map"
+              @click.stop="store.ui.dialog = 'import-quick'"
+            >
+              <Plus :size="14" />
+            </button>
             <button
               v-if="item.group.id === 'd3'"
               class="btn-icon group-add"

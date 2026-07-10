@@ -1,10 +1,10 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1136,
-  "checked_against_infobox": 532,
-  "flagged": 105,
+  "routes_total": 1137,
+  "checked_against_infobox": 533,
+  "flagged": 86,
   "uncovered": 604,
-  "adjudicated": 14,
+  "adjudicated": 20,
   "flags": [
     {
       "city": "Chongqing",
@@ -65,12 +65,12 @@
       "country": "China",
       "route_id": "r17438392",
       "route_name": "1号线：会展中心 -> 芳泉",
-      "ours": 20,
+      "ours": 19,
       "lang": "zh",
       "wiki": "zh:绍兴轨道交通",
       "wiki_stations": 40,
       "wiki_basis": "total",
-      "diff": -20,
+      "diff": -21,
       "severity": "warn"
     },
     {
@@ -98,19 +98,6 @@
       "wiki_basis": "total",
       "diff": -18,
       "severity": "warn"
-    },
-    {
-      "city": "Tianjin",
-      "country": "China",
-      "route_id": "rm13711701",
-      "route_name": "Tianjin Metro Line 8",
-      "ours": 9,
-      "lang": "zh",
-      "wiki": "zh:天津地铁8号线",
-      "wiki_stations": 26,
-      "wiki_basis": "operational",
-      "diff": -17,
-      "severity": "error"
     },
     {
       "city": "Bangkok",
@@ -230,19 +217,6 @@
       "severity": "warn"
     },
     {
-      "city": "Noida",
-      "country": "India",
-      "route_id": "rm16534370",
-      "route_name": "Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram)",
-      "ours": 6,
-      "lang": "en",
-      "wiki": "en:Delhi–Meerut Regional Rapid Transit System",
-      "wiki_stations": 16,
-      "wiki_basis": "total",
-      "diff": -10,
-      "severity": "warn"
-    },
-    {
       "city": "Hangzhou",
       "country": "China",
       "route_id": "r14280624",
@@ -255,19 +229,6 @@
       "wiki_basis": "total",
       "diff": -9,
       "severity": "warn"
-    },
-    {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm18356559",
-      "route_name": "苏州轨道交通7号线",
-      "ours": 19,
-      "lang": "zh",
-      "wiki": "zh:苏州地铁7号线",
-      "wiki_stations": 28,
-      "wiki_basis": "operational",
-      "diff": -9,
-      "severity": "error"
     },
     {
       "city": "Navi Mumbai",
@@ -413,19 +374,6 @@
       "severity": "warn"
     },
     {
-      "city": "Tianjin",
-      "country": "China",
-      "route_id": "rm19442546",
-      "route_name": "Tianjin Metro Line 7",
-      "ours": 15,
-      "lang": "zh",
-      "wiki": "zh:天津地铁7号线",
-      "wiki_stations": 21,
-      "wiki_basis": "operational",
-      "diff": -6,
-      "severity": "error"
-    },
-    {
       "city": "Kolkata",
       "country": "India",
       "route_id": "rm19508985",
@@ -531,19 +479,6 @@
       "severity": "warn"
     },
     {
-      "city": "Foshan",
-      "country": "China",
-      "route_id": "rm15054273",
-      "route_name": "Foshan Metro Line 3",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "zh:佛山地铁3号线",
-      "wiki_stations": 37,
-      "wiki_basis": "total",
-      "diff": -5,
-      "severity": "warn"
-    },
-    {
       "city": "New York City",
       "country": "United States",
       "route_id": "rm9651536",
@@ -552,19 +487,6 @@
       "lang": "en",
       "wiki": "en:1 (New York City Subway service)",
       "wiki_stations": 38,
-      "wiki_basis": "total",
-      "diff": -4,
-      "severity": "warn"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm7943869",
-      "route_name": "PATH Newark-WTC",
-      "ours": 2,
-      "lang": "en",
-      "wiki": "en:Newark–World Trade Center",
-      "wiki_stations": 6,
       "wiki_basis": "total",
       "diff": -4,
       "severity": "warn"
@@ -596,19 +518,6 @@
       "severity": "warn"
     },
     {
-      "city": "Incheon",
-      "country": "South Korea",
-      "route_id": "rm7527498",
-      "route_name": "Incheon Subway Line 2",
-      "ours": 23,
-      "lang": "ko",
-      "wiki": "en:Incheon Subway Line 2",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": -4,
-      "severity": "warn"
-    },
-    {
       "city": "Chuzhou",
       "country": "China",
       "route_id": "rm15804062",
@@ -620,19 +529,6 @@
       "wiki_stations": 14,
       "wiki_basis": "total",
       "diff": -4,
-      "severity": "warn"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm11100813",
-      "route_name": "PATH Journal Square-33rd via Hoboken",
-      "ours": 6,
-      "lang": "en",
-      "wiki": "en:Journal Square–33rd Street (via Hoboken)",
-      "wiki_stations": 9,
-      "wiki_basis": "total",
-      "diff": -3,
       "severity": "warn"
     },
     {
@@ -675,19 +571,6 @@
       "severity": "warn"
     },
     {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "rm272132",
-      "route_name": "East Rail Line",
-      "ours": 13,
-      "lang": "zh",
-      "wiki": "zh:東鐵綫",
-      "wiki_stations": 16,
-      "wiki_basis": "total",
-      "diff": -3,
-      "severity": "warn"
-    },
-    {
       "city": "Fuzhou",
       "country": "China",
       "route_id": "rm18957313",
@@ -702,19 +585,6 @@
       "severity": "warn"
     },
     {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm7943962",
-      "route_name": "PATH Journal Square-33rd",
-      "ours": 6,
-      "lang": "en",
-      "wiki": "en:Journal Square–33rd Street",
-      "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": -2,
-      "severity": "warn"
-    },
-    {
       "city": "Chongqing",
       "country": "China",
       "route_id": "rm14004564",
@@ -723,6 +593,19 @@
       "lang": "zh",
       "wiki": "zh:重慶軌道交通9號線",
       "wiki_stations": 31,
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "rm272132",
+      "route_name": "East Rail Line",
+      "ours": 14,
+      "lang": "zh",
+      "wiki": "zh:東鐵綫",
+      "wiki_stations": 16,
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
@@ -780,14 +663,14 @@
       "severity": "warn"
     },
     {
-      "city": "Foshan",
-      "country": "China",
-      "route_id": "rm13604445",
-      "route_name": "Foshan Metro Line 2",
-      "ours": 15,
-      "lang": "zh",
-      "wiki": "zh:佛山地铁2号线",
-      "wiki_stations": 17,
+      "city": "Noida",
+      "country": "India",
+      "route_id": "rm16534370",
+      "route_name": "Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram)",
+      "ours": 14,
+      "lang": "en",
+      "wiki": "en:Delhi–Meerut Regional Rapid Transit System",
+      "wiki_stations": 16,
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
@@ -801,19 +684,6 @@
       "lang": "en",
       "wiki": "en:3 (New York City Subway service)",
       "wiki_stations": 34,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm7943885",
-      "route_name": "PATH 33rd-Hoboken",
-      "ours": 5,
-      "lang": "en",
-      "wiki": "en:Hoboken–33rd Street",
-      "wiki_stations": 6,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -910,19 +780,6 @@
       "severity": "warn"
     },
     {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8026071",
-      "route_name": "Tokyo Metro Namboku Line",
-      "ours": 18,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Namboku Line",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "Chongqing",
       "country": "China",
       "route_id": "rm8300873",
@@ -962,6 +819,19 @@
       "severity": "warn"
     },
     {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "rm9736612",
+      "route_name": "MTR Tseung Kwan O Line",
+      "ours": 7,
+      "lang": "zh",
+      "wiki": "zh:將軍澳綫",
+      "wiki_stations": 8,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
       "city": "Shenzhen",
       "country": "China",
       "route_id": "rm9629866",
@@ -996,19 +866,6 @@
       "lang": "zh",
       "wiki": "zh:成都地铁27号线",
       "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "rm9736612",
-      "route_name": "MTR Tseung Kwan O Line",
-      "ours": 7,
-      "lang": "zh",
-      "wiki": "zh:將軍澳綫",
-      "wiki_stations": 8,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -1081,19 +938,6 @@
     {
       "city": "Zhengzhou",
       "country": "China",
-      "route_id": "rm7871541",
-      "route_name": "Zhengzhou Metro Chengjiao Line",
-      "ours": 17,
-      "lang": "zh",
-      "wiki": "en:Chengjiao line",
-      "wiki_stations": 18,
-      "wiki_basis": "operational",
-      "diff": -1,
-      "severity": "error"
-    },
-    {
-      "city": "Zhengzhou",
-      "country": "China",
       "route_id": "rm18492618",
       "route_name": "Zhengzhou Metro Line 7",
       "ours": 20,
@@ -1156,19 +1000,6 @@
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
-    },
-    {
-      "city": "Wuxi",
-      "country": "China",
-      "route_id": "rm7841837",
-      "route_name": "Wuxi Metro Line 2",
-      "ours": 21,
-      "lang": "zh",
-      "wiki": "en:Line 2 (Wuxi Metro)",
-      "wiki_stations": 22,
-      "wiki_basis": "operational",
-      "diff": -1,
-      "severity": "error"
     },
     {
       "city": "Nanchang",
@@ -1237,82 +1068,16 @@
       "severity": "warn"
     },
     {
-      "city": "Chiba Prefecture",
+      "city": "Yokohama",
       "country": "Japan",
-      "route_id": "rm5326658",
-      "route_name": "Tōyō Rapid Railway",
-      "ours": 8,
+      "route_id": "r10036863",
+      "route_name": "Tokyo Metro - Odawara Express Line (northbound)",
+      "ours": 9,
       "lang": "ja",
-      "wiki": "ja:東葉高速鉄道東葉高速線",
-      "wiki_stations": 9,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Tianjin",
-      "country": "China",
-      "route_id": "rm8489971",
-      "route_name": "Tianjin Metro Line 1",
-      "ours": 30,
-      "lang": "zh",
-      "wiki": "zh:天津地铁1号线",
-      "wiki_stations": 29,
+      "wiki": "ja:小田急多摩線",
+      "wiki_stations": 8,
       "wiki_basis": "total",
       "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Zhengzhou",
-      "country": "China",
-      "route_id": "rm10131355",
-      "route_name": "Zhengzhou Metro Line 14",
-      "ours": 6,
-      "lang": "zh",
-      "wiki": "en:Line 14 (Zhengzhou Metro)",
-      "wiki_stations": 5,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Pune",
-      "country": "India",
-      "route_id": "rm13917129",
-      "route_name": "Purple Line: PCMC Bhavan ⇔ Phugewadi & Civil Court ⇔ Shivaji Nagar",
-      "ours": 14,
-      "lang": "en",
-      "wiki": "en:Purple Line (Pune Metro)",
-      "wiki_stations": 13,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Pyongyang",
-      "country": "North Korea",
-      "route_id": "rm7734280",
-      "route_name": "Chollima Line",
-      "ours": 8,
-      "lang": "ko",
-      "wikidata": "Q711112",
-      "wiki": "ko:평양 지하철도 천리마선",
-      "wiki_stations": 6,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Osaka",
-      "country": "Japan",
-      "route_id": "rm8028805",
-      "route_name": "Osaka Municipal Subway Midōsuji Line",
-      "ours": 25,
-      "lang": "ja",
-      "wiki": "ja:Osaka Metro御堂筋線",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": 5,
       "severity": "error"
     },
     {
@@ -1329,19 +1094,6 @@
       "severity": "error"
     },
     {
-      "city": "Shenzhen",
-      "country": "China",
-      "route_id": "rm13176924",
-      "route_name": "Subway Line 2 (Line 8)",
-      "ours": 43,
-      "lang": "zh",
-      "wiki": "zh:深圳地铁2号线",
-      "wiki_stations": 32,
-      "wiki_basis": "total",
-      "diff": 11,
-      "severity": "error"
-    },
-    {
       "city": "New York City",
       "country": "United States",
       "route_id": "rm366768",
@@ -1355,20 +1107,6 @@
       "severity": "error"
     },
     {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm16097173",
-      "route_name": "苏州轨道交通11号线",
-      "ours": 51,
-      "lang": "zh",
-      "wikidata": "Q17029788",
-      "wiki": "zh:苏州地铁11号线",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": 24,
-      "severity": "error"
-    },
-    {
       "city": "New York City",
       "country": "United States",
       "route_id": "rm9677108",
@@ -1377,6 +1115,20 @@
       "lang": "en",
       "wiki": "en:4 (New York City Subway service)",
       "wiki_stations": 28,
+      "wiki_basis": "total",
+      "diff": 25,
+      "severity": "error"
+    },
+    {
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "rm16097173",
+      "route_name": "苏州轨道交通11号线",
+      "ours": 52,
+      "lang": "zh",
+      "wikidata": "Q17029788",
+      "wiki": "zh:苏州地铁11号线",
+      "wiki_stations": 27,
       "wiki_basis": "total",
       "diff": 25,
       "severity": "error"
@@ -1914,6 +1666,296 @@
       "reason": "system article shared by several lines (en:Metropolitan line)"
     },
     {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857639",
+      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1676043",
+      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857497",
+      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
+      "ours": 14,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r536798",
+      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r539312",
+      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
+      "ours": 34,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r17013072",
+      "route_name": "S-Bahn S1: Erlangen => Hartmannshof",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r10512097",
+      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r959753",
+      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
+      "ours": 2,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2199151",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r18466074",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Crailsheim",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2213213",
+      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r169136",
+      "route_name": "Stadtbahn S1: Hochstetten => Bad Herrenalb",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r5977154",
+      "route_name": "Stadtbahn S1: KIT-Campus Nord => Bad Herrenalb",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm17842",
+      "route_name": "Stadtbahn S11: Ittersbach <=> Hochstetten",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r5977152",
+      "route_name": "Stadtbahn S11: Ittersbach => KIT-Campus Nord",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm2872365",
+      "route_name": "Stadtbahn S51: Söllingen <=> Germersheim",
+      "ours": 39,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r6063261",
+      "route_name": "Stadtbahn S51: Germersheim => Maxau => Söllingen",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r6063258",
+      "route_name": "Stadtbahn S51: Germersheim => Maxau => Karlsruhe Albtalbahnhof",
+      "ours": 25,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r6063259",
+      "route_name": "Stadtbahn S51 Eilzug: Germersheim => Ettlinger Tor => Karlsruhe Tullastraße",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm13566082",
+      "route_name": "Stadtbahn S12: Ittersbach <=> Rheinhafen EILZUG",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm2395148",
+      "route_name": "Stadtbahn S4 Eilzug: Bretten => Albtalbahnhof",
+      "ours": 60,
+      "lang": "de",
+      "wikidata": "Q106362966",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r189816",
+      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Forbach (Schwarzwald)",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r190111",
+      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Bondorf (b Herrenberg)",
+      "ours": 32,
+      "lang": "de",
+      "wikidata": "Q112623864",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r1607109",
+      "route_name": "Stadtbahn S52: Germersheim => Karlsruhe West => Karlsruhe Marktplatz",
+      "ours": 22,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r1622732",
+      "route_name": "Stadtbahn S52: Karlsruhe Marktplatz => Germersheim",
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm3368507",
+      "route_name": "S42: Sinsheim (Elsenz) Hbf <=> Heilbronn",
+      "ours": 14,
+      "lang": "de",
+      "wikidata": "Q121237874",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm4272651",
+      "route_name": "S41: Heilbronn <=> Mosbach (Baden)",
+      "ours": 17,
+      "lang": "de",
+      "wikidata": "Q121237670",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm53844",
+      "route_name": "S6 - Enztalbahn",
+      "ours": 3,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Pforzheim-Enzkreis",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r187060",
+      "route_name": "S-Bahn S5: Wiesbaden Hbf => Bensheim",
+      "ours": 33,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
       "city": "Berlin",
       "country": "Germany",
       "route_id": "rm7369771",
@@ -2171,296 +2213,6 @@
       "ours": 24,
       "lang": "de",
       "wiki": "de:U-Bahnlinie 6 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857639",
-      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1676043",
-      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
-      "ours": 16,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857497",
-      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
-      "ours": 14,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r536798",
-      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r539312",
-      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
-      "ours": 34,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r17013072",
-      "route_name": "S-Bahn S1: Erlangen => Hartmannshof",
-      "ours": 21,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r10512097",
-      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
-      "ours": 23,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r959753",
-      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
-      "ours": 2,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r2199151",
-      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r18466074",
-      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Crailsheim",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r2213213",
-      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
-      "ours": 10,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r169136",
-      "route_name": "Stadtbahn S1: Hochstetten => Bad Herrenalb",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r5977154",
-      "route_name": "Stadtbahn S1: KIT-Campus Nord => Bad Herrenalb",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm17842",
-      "route_name": "Stadtbahn S11: Ittersbach <=> Hochstetten",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r5977152",
-      "route_name": "Stadtbahn S11: Ittersbach => KIT-Campus Nord",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm2872365",
-      "route_name": "Stadtbahn S51: Söllingen <=> Germersheim",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r6063261",
-      "route_name": "Stadtbahn S51: Germersheim => Maxau => Söllingen",
-      "ours": 17,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r6063258",
-      "route_name": "Stadtbahn S51: Germersheim => Maxau => Karlsruhe Albtalbahnhof",
-      "ours": 21,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r6063259",
-      "route_name": "Stadtbahn S51 Eilzug: Germersheim => Ettlinger Tor => Karlsruhe Tullastraße",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm13566082",
-      "route_name": "Stadtbahn S12: Ittersbach <=> Rheinhafen EILZUG",
-      "ours": 14,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm2395148",
-      "route_name": "Stadtbahn S4 Eilzug: Bretten => Albtalbahnhof",
-      "ours": 55,
-      "lang": "de",
-      "wikidata": "Q106362966",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r189816",
-      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Forbach (Schwarzwald)",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r190111",
-      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Bondorf (b Herrenberg)",
-      "ours": 29,
-      "lang": "de",
-      "wikidata": "Q112623864",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r1607109",
-      "route_name": "Stadtbahn S52: Germersheim => Karlsruhe West => Karlsruhe Marktplatz",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r1622732",
-      "route_name": "Stadtbahn S52: Karlsruhe Marktplatz => Germersheim",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm3368507",
-      "route_name": "S42: Sinsheim (Elsenz) Hbf <=> Heilbronn",
-      "ours": 14,
-      "lang": "de",
-      "wikidata": "Q121237874",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4272651",
-      "route_name": "S41: Heilbronn <=> Mosbach (Baden)",
-      "ours": 17,
-      "lang": "de",
-      "wikidata": "Q121237670",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm53844",
-      "route_name": "S6 - Enztalbahn",
-      "ours": 2,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Pforzheim-Enzkreis",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r187060",
-      "route_name": "S-Bahn S5: Wiesbaden Hbf => Bensheim",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
       "reason": "article has no station count infobox"
     },
     {
@@ -3018,7 +2770,7 @@
       "country": "South Korea",
       "route_id": "rm7922930",
       "route_name": "Seoul Metropolitan Subway Line 7",
-      "ours": 52,
+      "ours": 53,
       "lang": "ko",
       "wiki": "ko:서울 지하철 7호선",
       "reason": "article has no station count infobox"
@@ -3514,6 +3266,96 @@
       "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
     },
     {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm27667",
+      "route_name": "Subway U77",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm27663",
+      "route_name": "Subway U76",
+      "ours": 37,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm2003447",
+      "route_name": "Subway U75",
+      "ours": 28,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm27662",
+      "route_name": "Subway U70",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm2003448",
+      "route_name": "Subway U78",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm5756147",
+      "route_name": "Subway U72",
+      "ours": 43,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm5747258",
+      "route_name": "Subway U71",
+      "ours": 25,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm5748738",
+      "route_name": "Subway U83",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "route_id": "rm5756097",
+      "route_name": "Subway U73",
+      "ours": 29,
+      "lang": "de",
+      "wiki": "en:Düsseldorf Stadtbahn",
+      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
+    },
+    {
       "city": "Chongqing",
       "country": "China",
       "route_id": "rm2768662",
@@ -3532,6 +3374,47 @@
       "lang": "zh",
       "wikidata": "Q1190894",
       "wiki": "zh:重庆轨道交通",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "r13352937",
+      "route_name": "MTR Tseung Kwan O Line",
+      "ours": 6,
+      "lang": "zh",
+      "wikidata": "Q14751",
+      "wiki": "zh:港鐵",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "r4250432",
+      "route_name": "MTR East Rail Line",
+      "ours": 14,
+      "lang": "zh",
+      "wiki": "zh:港鐵",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "r4248590",
+      "route_name": "MTR East Rail Line",
+      "ours": 14,
+      "lang": "zh",
+      "wiki": "zh-yue:港鐵",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "rm272078",
+      "route_name": "Airport Express",
+      "ours": 5,
+      "lang": "zh",
+      "wiki": "zh:機場快綫",
       "reason": "article has no station count infobox"
     },
     {
@@ -3673,47 +3556,6 @@
       "lang": "de",
       "wiki": "en:U1 (Hamburg U-Bahn)",
       "reason": "system article shared by several lines (en:U1 (Hamburg U-Bahn))"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "r13352937",
-      "route_name": "MTR Tseung Kwan O Line",
-      "ours": 6,
-      "lang": "zh",
-      "wikidata": "Q14751",
-      "wiki": "zh:港鐵",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "r4248590",
-      "route_name": "MTR East Rail Line",
-      "ours": 14,
-      "lang": "zh",
-      "wiki": "zh-yue:港鐵",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "r4250432",
-      "route_name": "MTR East Rail Line",
-      "ours": 13,
-      "lang": "zh",
-      "wiki": "zh:港鐵",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "rm272078",
-      "route_name": "Airport Express",
-      "ours": 5,
-      "lang": "zh",
-      "wiki": "zh:機場快綫",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Hangzhou",
@@ -3937,96 +3779,6 @@
       "wikidata": "Q18239278",
       "wiki": "ru:Троицкая линия",
       "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm27667",
-      "route_name": "Subway U77",
-      "ours": 7,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm27663",
-      "route_name": "Subway U76",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm2003447",
-      "route_name": "Subway U75",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm5756147",
-      "route_name": "Subway U72",
-      "ours": 33,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm27662",
-      "route_name": "Subway U70",
-      "ours": 12,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm2003448",
-      "route_name": "Subway U78",
-      "ours": 3,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm5747258",
-      "route_name": "Subway U71",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm5748738",
-      "route_name": "Subway U83",
-      "ours": 16,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
-    },
-    {
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "route_id": "rm5756097",
-      "route_name": "Subway U73",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "en:Düsseldorf Stadtbahn",
-      "reason": "system article shared by several lines (en:Düsseldorf Stadtbahn)"
     },
     {
       "city": "Barcelona",
@@ -6588,6 +6340,26 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Essen",
+      "country": "Germany",
+      "route_id": "rm5312153",
+      "route_name": "Subway line U18",
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Essen",
+      "country": "Germany",
+      "route_id": "rm5312041",
+      "route_name": "Subway line U17",
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
+      "reason": "article has no station count infobox"
+    },
+    {
       "city": "Toulouse",
       "country": "France",
       "route_id": "rm1557177",
@@ -6776,7 +6548,7 @@
       "country": "South Korea",
       "route_id": "rm7854149",
       "route_name": "Incheon Subway Line 1",
-      "ours": 26,
+      "ours": 33,
       "lang": "ko",
       "wiki": "ko:인천 도시철도 1호선",
       "reason": "article has no station count infobox"
@@ -6923,26 +6695,6 @@
       "ours": 7,
       "lang": "ka",
       "wiki": "en:Saburtalo Line",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Essen",
-      "country": "Germany",
-      "route_id": "rm5312153",
-      "route_name": "Subway line U18",
-      "ours": 12,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Essen",
-      "country": "Germany",
-      "route_id": "rm5312041",
-      "route_name": "Subway line U17",
-      "ours": 4,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Ruhr",
       "reason": "article has no station count infobox"
     },
     {
@@ -7314,7 +7066,7 @@
       "country": "India",
       "route_id": "rm7890003",
       "route_name": "Rapid MetroRail Gurgaon",
-      "ours": 8,
+      "ours": 11,
       "lang": "en",
       "wikidata": "Q7294170",
       "wiki": "en:Rapid Metro Gurgaon",
@@ -7396,7 +7148,7 @@
       "country": "South Korea",
       "route_id": "rm10092721",
       "route_name": "Gimpo Goldline",
-      "ours": 9,
+      "ours": 10,
       "lang": "ko",
       "wikidata": "Q12589088",
       "wiki": "ko:김포 도시철도",
@@ -7489,6 +7241,17 @@
       "note": "1號線與八通線 2021-08-29 貫通運營（蘋果園—環球度假區）共 35 站；infobox 23 只計 1 號線本線（agent 核對 zh/en wiki 2026-07-11）"
     },
     {
+      "city": "Shenzhen",
+      "country": "China",
+      "route_id": "rm13176924",
+      "route_name": "Subway Line 2 (Line 8)",
+      "ours": 43,
+      "lang": "zh",
+      "wiki": "zh:深圳地铁2号线",
+      "wiki_stations": 32,
+      "note": "计法不同：OSM route为2/8号线贯通运营（赤湾—溪涌）。wiki 2号线32站（赤湾—莲塘）+8号线11站（梧桐山南、沙头角、海山、盐田港西、深外高中、盐田路、鸿安围、盐田墟、大梅沙、小梅沙、溪涌，均营运中）=43，与我们逐站一致。infobox 32只计2号线本体。"
+    },
+    {
       "city": "Chengdu",
       "country": "China",
       "route_id": "rm8298113",
@@ -7555,6 +7318,39 @@
       "note": "綠山線實際 11 站（V01-V11，條目車站表）；infobox「營運中14站」為淡海輕軌全系統數（綠山11＋藍海一期新增3）。WebFetch 查證 2026-07-11。"
     },
     {
+      "city": "Tianjin",
+      "country": "China",
+      "route_id": "rm13711701",
+      "route_name": "Tianjin Metro Line 8",
+      "ours": 9,
+      "lang": "zh",
+      "wiki": "zh:天津地铁8号线",
+      "wiki_stations": 26,
+      "note": "wiki营运9站（渌水道—咸水沽西，2021-12-28开通南段）与我们逐站一致。wiki_n=26为全线规划数，含未开通的后续各期，infobox含未通车站。"
+    },
+    {
+      "city": "Tianjin",
+      "country": "China",
+      "route_id": "rm19442546",
+      "route_name": "Tianjin Metro Line 7",
+      "ours": 15,
+      "lang": "zh",
+      "wiki": "zh:天津地铁7号线",
+      "wiki_stations": 21,
+      "note": "wiki营运15站（赛达路—鼓楼）与我们逐站一致。wiki_n=21为一期总数，含在建北段6站（广东会馆、东北角、金纬路、中山路、外院附中、喜峰道，预计2029年），infobox含未通车站。"
+    },
+    {
+      "city": "Osaka",
+      "country": "Japan",
+      "route_id": "rm8028805",
+      "route_name": "Osaka Municipal Subway Midōsuji Line",
+      "ours": 25,
+      "lang": "ja",
+      "wiki": "ja:Osaka Metro御堂筋線",
+      "wiki_stations": 20,
+      "note": "計法不同：御堂筋線本身為 20 站（江坂 M11〜中百舌鳥 M30），與 wiki infobox 一致。我方多出的 5 站（箕面萱野、箕面船場阪大前、千里中央、桃山台、緑地公園）屬北大阪急行電鉄南北線（與御堂筋線相互直通運轉，2024-03-23 延伸至箕面萱野後全線營運中），OSM 路線關係涵蓋直通區間故計 25 站。無幽靈站、無未通車站。"
+    },
+    {
       "city": "Hefei",
       "country": "China",
       "route_id": "rm7949047",
@@ -7608,6 +7404,29 @@
       "wiki": "en:Green Line (MARTA)",
       "wiki_stations": 9,
       "note": "wiki 條目自載部分平日 Green 班次延駛 Avondale；依「路線服務到的站都畫」語義 10 站正確（agent 逐站核對 2026-07-11）"
+    },
+    {
+      "city": "Wuxi",
+      "country": "China",
+      "route_id": "rm7841837",
+      "route_name": "Wuxi Metro Line 2",
+      "ours": 21,
+      "lang": "zh",
+      "wiki": "en:Line 2 (Wuxi Metro)",
+      "wiki_stations": 22,
+      "note": "wiki营运21站（梅园开原寺—无锡东）与我们逐站一致。infobox计22含未开通的安镇站（planned, not opened），故wiki_n=22为含未通车站的过期计法。"
+    },
+    {
+      "city": "Pyongyang",
+      "country": "North Korea",
+      "route_id": "rm7734280",
+      "route_name": "Chollima Line",
+      "ours": 8,
+      "lang": "ko",
+      "wikidata": "Q711112",
+      "wiki": "ko:평양 지하철도 천리마선",
+      "wiki_stations": 6,
+      "note": "計法不同（線別歸屬）：ko wiki 千里馬線本體僅 6 站（봉화·승리·모란봉·개선·전우·붉은별），榮光（영광）·復興（부흥）兩站 ko wiki 歸入直通運轉的萬景台線（만경대선：부흥—영광—봉화）。我方把直通區間併入千里馬線計 8 站。ko wiki 對 8 站均未記載停業或關閉，榮光·復興視為營運中，非幽靈站。"
     },
     {
       "city": "Changchun",

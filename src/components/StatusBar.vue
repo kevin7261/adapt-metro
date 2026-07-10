@@ -20,8 +20,6 @@ const bbox = computed(() => {
   <footer class="status-bar">
     <span>Coords: {{ coords }}</span>
     <span>Zoom: {{ view.zoom.toFixed(2) }}</span>
-    <span>Bearing: {{ view.bearing.toFixed(1) }}°</span>
-    <span>Pitch: {{ view.pitch.toFixed(1) }}°</span>
     <span class="bbox">BBox: {{ bbox }}</span>
   </footer>
 </template>

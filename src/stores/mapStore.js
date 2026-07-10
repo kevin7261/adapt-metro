@@ -36,7 +36,7 @@ export const useMapStore = defineStore('map', {
     // kind of layer: imported metro maps, and D3.js views over a metro layer.
     groups: [
       { id: 'metro-maps', label: 'Metro Maps', collapsed: false },
-      { id: 'd3', label: 'D3.js', collapsed: false },
+      { id: 'd3', label: 'Map Adjust', collapsed: false },
     ],
   }),
 
