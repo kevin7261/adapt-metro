@@ -2,7 +2,7 @@
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
   "routes_total": 998,
   "checked_against_infobox": 574,
-  "flagged": 179,
+  "flagged": 178,
   "uncovered": 424,
   "flags": [
     {
@@ -930,19 +930,6 @@
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm5576487",
-      "route_name": "Danhai LRT",
-      "ours": 13,
-      "lang": "zh",
-      "wiki": "zh:藍海線",
-      "wiki_stations": 14,
-      "wiki_basis": "operational",
-      "diff": -1,
-      "severity": "error"
     },
     {
       "city": "Seoul",

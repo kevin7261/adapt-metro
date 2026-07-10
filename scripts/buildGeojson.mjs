@@ -242,10 +242,18 @@ async function build() {
   } catch { /* no member_appends override */ }
 
   const stRaw = await readJSON('stations.json')
+  // 墓碑：上游已刪除的節點（scripts/pruneDeletedStations.mjs 驗證）——快取殭屍
+  // 會被頂點吸附撿走變成多出來的站（香港 KTL 舊 stop_position 案例），拒收。
+  let tombstones = new Set()
+  try {
+    tombstones = new Set((JSON.parse(await readFile(join(CACHE, 'deleted_nodes.json'), 'utf8'))
+      .deleted ?? []))
+  } catch { /* no tombstones */ }
   const stations = []
   const seenStation = new Set()
   const pushStation = (e) => {
     if (!isOperational(e.tags) || isDepot(e.tags)) return
+    if (e.type === 'node' && tombstones.has(e.id)) return
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }
@@ -1299,6 +1307,18 @@ async function build() {
       s.properties.is_interchange = pc >= 2
       s.properties.station_role = pc >= 2 ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
+    }
+    // 快取殭屍清理：無名（合成名 n123…）且不屬於任何線站序的站點＝上游已刪
+    // 或從未真正在線上（僅靠 900 m 鄰近被指派 lines）——剔除（站名 100% 不變式）。
+    {
+      const used = new Set()
+      for (const f of grp.lines) for (const st of f.__stations ?? []) used.add(st.station_id)
+      const before = grp.stations.length
+      grp.stations = grp.stations.filter((s) =>
+        used.has(s.properties.station_id) ||
+        !/^[nwr]\d+$/.test(s.properties.station_name || ''))
+      if (grp.stations.length !== before && process.env.DEBUG_LRT)
+        console.log('  [zombie]', grp.info.city, before - grp.stations.length, 'unnamed off-line points dropped')
     }
   }
 

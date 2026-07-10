@@ -13,6 +13,7 @@
     "metro:fetchuc": "node scripts/fetchUcExceptions.mjs",
     "metro:fetchsbahn": "node scripts/fetchSbahnDe.mjs",
     "metro:refresh": "node scripts/refreshRelations.mjs",
+    "metro:refetchfailed": "node scripts/refetchFailedCities.mjs",
     "metro:geocode": "node scripts/geocodeSystems.mjs",
     "metro:build": "node scripts/buildGeojson.mjs",
     "metro:maps": "node scripts/downloadMaps.mjs",
