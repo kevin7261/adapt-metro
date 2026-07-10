@@ -30,7 +30,7 @@ const disposables = []
 
 // Basemap picker state (bottom-right).
 const basemapId = ref(DEFAULT_BASEMAP)
-const railwayOn = ref(false)
+const railwayOn = ref(true)
 const basemapMenuOpen = ref(false)
 const groups = basemapGroups()
 const currentBasemap = computed(() => basemapById(basemapId.value))

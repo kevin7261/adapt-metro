@@ -128,6 +128,24 @@ async function main() {
     let sys
     try { sys = JSON.parse(await readFile(join(BASE, s.file), 'utf8')) } catch { continue }
     const pts = (sys.features || []).filter((f) => f.geometry?.type === 'Point')
+    // invariants 4-6: every line has >=2 stations; every vertex (bend) and
+    // endpoint of a line IS a station (geometry = station points in stop order)
+    const stationCoords = new Set(pts.map((f) => f.geometry.coordinates.join(',')))
+    let badVerts = 0, shortSeqs = 0
+    for (const f of sys.features || []) {
+      if (f.geometry?.type !== 'MultiLineString') continue
+      for (const seq of f.geometry.coordinates) {
+        if (seq.length < 2) { shortSeqs++; continue }
+        for (const c of seq) if (!stationCoords.has(c.join(','))) badVerts++
+      }
+    }
+    if (badVerts || shortSeqs) {
+      flags.push({ severity: 'vertex', city: s.city, country: s.country,
+        our_file: s.file, our_stations: s.station_count, our_lines: s.line_count,
+        note: `${badVerts} 個折點非車站、${shortSeqs} 段少於 2 站` +
+          '（違反不變式：折點/端點必為車站、線必有站）',
+        urbanrail: urbanrailSearch(s.city) })
+    }
     const orphans = pts.filter((f) => !(f.properties?.lines || []).length)
     if (orphans.length) {
       flags.push({ severity: 'no_line', city: s.city, country: s.country,
@@ -164,7 +182,7 @@ async function main() {
   //   1. wiki 有列的城市不可能沒資料  -> severity `missing`
   //   2. 車站不可能沒有路線          -> severity `no_line`
   // 必驗項目：站序可疑 (`order`) -> 用 Wikipedia + urbanrail 人工確認
-  const order = { missing: 0, no_line: 1, order: 2, zero: 3, low: 4, high: 5 }
+  const order = { missing: 0, no_line: 1, vertex: 2, order: 3, zero: 4, low: 5, high: 6 }
   flags.sort((a, b) => (order[a.severity] - order[b.severity]) ||
     ((b.wiki_stations || 0) - (a.wiki_stations || 0)))
 
@@ -180,11 +198,13 @@ async function main() {
       stations_without_line: flags.filter((f) => f.severity === 'no_line')
         .reduce((n, f) => n + f.stations_without_line, 0),
       systems_with_stations_without_line: nSev('no_line'),
+      systems_with_non_station_vertices: nSev('vertex'),
     },
     order_suspect_systems: nSev('order'),
     by_severity: {
       missing: nSev('missing'),
       no_line: nSev('no_line'),
+      vertex: nSev('vertex'),
       order: nSev('order'),
       zero: nSev('zero'),
       low: nSev('low'),
@@ -218,7 +238,9 @@ function toMarkdown(summary, flags, extras) {
   L.push('2. **車站不可能沒有路線**：' +
     `**${summary.invariant_violations.systems_with_stations_without_line}** 個系統、共 ` +
     `**${summary.invariant_violations.stations_without_line}** 站的 \`lines\` 為空（severity \`no_line\`）`)
-  L.push('3. **站序必須正確**：' +
+  L.push('3. **線必有站、折點/端點必為車站**（幾何＝車站點依站序連線）：違反系統數 ' +
+    `**${summary.invariant_violations.systems_with_non_station_vertices}**（severity \`vertex\`）`)
+  L.push('4. **站序必須正確**：' +
     `**${summary.order_suspect_systems}** 個系統有站序可疑的線（severity \`order\`）——` +
     '一律以該線 **Wikipedia 條目**的車站列表與 **urbanrail.net** 的線路站序人工確認', '')
   L.push('## 待查系統（fetch⇄verify 迴圈的回饋清單）', '')

@@ -64,7 +64,7 @@ export const BASEMAPS = [
 ]
 
 export const MAPBOX_ENABLED = !!MAPBOX_TOKEN
-export const DEFAULT_BASEMAP = 'openfreemap-liberty'
+export const DEFAULT_BASEMAP = 'openfreemap-positron'
 
 // OpenRailwayMap — a transparent overlay drawn on top of the basemap.
 export const RAILWAY_OVERLAY = {

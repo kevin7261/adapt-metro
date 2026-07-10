@@ -230,6 +230,29 @@ async function audit(city, country, wikiRow) {
           ? `${orphans.length}/${pts.length} 站不屬於任何路線（違反不變式）`
           : `${pts.length}/${pts.length} 站皆有所屬路線`)
     }
+    // invariants 4-6: every line has ≥2 stations; every vertex (bend) of a
+    // line IS a station; both endpoints ARE stations. The build guarantees
+    // this by construction (geometry = station points in stop order) — this
+    // check verifies the shipped output actually holds it.
+    const stationCoords = new Set(pts.map((f) => f.geometry.coordinates.join(',')))
+    let badVerts = 0, shortSeqs = 0, totalVerts = 0
+    for (const f of g.features) {
+      if (f.geometry?.type !== 'MultiLineString') continue
+      for (const seq of f.geometry.coordinates) {
+        if (seq.length < 2) { shortSeqs++; continue }
+        for (const c of seq) {
+          totalVerts++
+          if (!stationCoords.has(c.join(','))) badVerts++
+        }
+      }
+    }
+    if (totalVerts) {
+      push('line_geometry_stations', badVerts === 0 && shortSeqs === 0,
+        badVerts || shortSeqs
+          ? `${badVerts} 個折點非車站、${shortSeqs} 段少於 2 站（違反不變式：折點/端點必為車站、線必有站）`
+          : `${totalVerts} 個折點/端點皆為車站`)
+    }
+
     // ≥85% stations should carry real names (not synthetic n123)
     const named = pts.filter((f) => !/^n\d+$/.test(f.properties.station_name || '')).length
     if (pts.length) {

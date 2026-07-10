@@ -690,19 +690,71 @@ async function build() {
     grp.stations = grp.stations.filter((f) => (f.properties.lines || []).length)
     orphansDropped += before - grp.stations.length
   }
-  // prune buckets left with neither lines nor stations (stray station nodes of
-  // out-of-scope modes — e.g. tram-based Stadtbahn — end up here after the
-  // orphan drop; they are not systems)
+  // ---- line geometry = merged station points connected in stop order ----
+  // Invariants (see metro-audit skill): every line has stations; every vertex
+  // (bend) of a line IS a station; both endpoints ARE stations. So the final
+  // polyline keeps ONLY vertices that snap (≤ ~600 m) to a merged station
+  // point, in original stop order, consecutive duplicates collapsed
+  // (several stop_positions of one interchange → one vertex). Sequences left
+  // with <2 stations are dropped; lines left with no sequence are dropped
+  // (a line without stations is not shippable — audit flags the city if
+  // coverage suffers).
+  const SNAP = 0.006 // ~600 m
+  let snapped = 0, droppedVerts = 0, droppedLines = 0
+  for (const grp of cityGroups.values()) {
+    if (!grp.lines.length) continue
+    const sGrid = new Map()
+    const sKey = (lon, lat) => `${Math.round(lon / SNAP)}:${Math.round(lat / SNAP)}`
+    for (const f of grp.stations) {
+      const [lon, lat] = f.geometry.coordinates
+      const k = sKey(lon, lat)
+      if (!sGrid.has(k)) sGrid.set(k, [])
+      sGrid.get(k).push(f.geometry.coordinates)
+    }
+    const nearestStation = (lon, lat) => {
+      const gx = Math.round(lon / SNAP), gy = Math.round(lat / SNAP)
+      let best = null, bestD = Infinity
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+        for (const c of sGrid.get(`${gx + dx}:${gy + dy}`) || []) {
+          const d = (c[0] - lon) ** 2 + (c[1] - lat) ** 2
+          if (d < bestD) { bestD = d; best = c }
+        }
+      return best && Math.sqrt(bestD) < SNAP ? best : null
+    }
+    for (const f of grp.lines) {
+      f.geometry.coordinates = f.geometry.coordinates.map((seq) => {
+        const out = []
+        for (const [lon, lat] of seq) {
+          const st = nearestStation(lon, lat)
+          if (!st) { droppedVerts++; continue }  // bend that is no station → out
+          snapped++
+          const last = out[out.length - 1]
+          if (!last || last[0] !== st[0] || last[1] !== st[1]) out.push(st)
+        }
+        return out
+      }).filter((seq) => seq.length >= 2)
+    }
+    const before = grp.lines.length
+    grp.lines = grp.lines.filter((f) => f.geometry.coordinates.length)
+    droppedLines += before - grp.lines.length
+  }
+
+  // prune buckets left with neither lines nor stations (stray station nodes /
+  // out-of-scope fragments end up here after the drops; they are not systems)
   let pruned = 0
   for (const [key, grp] of [...cityGroups]) {
     if (!grp.lines.length && !grp.stations.length) { cityGroups.delete(key); pruned++ }
   }
-  // rebuild the global station layer from the merged per-city stations
+
+  // rebuild the global layers from the per-city groups
   stationFeatures.length = 0
   for (const grp of cityGroups.values()) stationFeatures.push(...grp.stations)
+  lineFeatures.length = 0
+  for (const grp of cityGroups.values()) lineFeatures.push(...grp.lines)
   console.log(`  merged ${mergedAway} duplicate same-named station points; ` +
     `dropped ${orphansDropped} stations with no operational line; ` +
-    `pruned ${pruned} empty buckets`)
+    `line vertices: ${snapped} = stations, ${droppedVerts} non-station bends removed, ` +
+    `${droppedLines} station-less lines dropped; pruned ${pruned} empty buckets`)
 
   await writeOutputs(lineFeatures, stationFeatures, cityGroups, wikiSystems)
 }
