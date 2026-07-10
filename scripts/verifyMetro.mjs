@@ -163,7 +163,8 @@ async function main() {
   // invariants (硬規則，違反即資料錯，必須回 fetch 端修)：
   //   1. wiki 有列的城市不可能沒資料  -> severity `missing`
   //   2. 車站不可能沒有路線          -> severity `no_line`
-  const order = { missing: 0, no_line: 1, zero: 2, low: 3, high: 4 }
+  // 必驗項目：站序可疑 (`order`) -> 用 Wikipedia + urbanrail 人工確認
+  const order = { missing: 0, no_line: 1, order: 2, zero: 3, low: 4, high: 5 }
   flags.sort((a, b) => (order[a.severity] - order[b.severity]) ||
     ((b.wiki_stations || 0) - (a.wiki_stations || 0)))
 
@@ -180,9 +181,11 @@ async function main() {
         .reduce((n, f) => n + f.stations_without_line, 0),
       systems_with_stations_without_line: nSev('no_line'),
     },
+    order_suspect_systems: nSev('order'),
     by_severity: {
       missing: nSev('missing'),
       no_line: nSev('no_line'),
+      order: nSev('order'),
       zero: nSev('zero'),
       low: nSev('low'),
       high: nSev('high'),
@@ -207,14 +210,17 @@ function toMarkdown(summary, flags, extras) {
   L.push(`| Wikipedia 系統數 | ${summary.wikipedia_systems} |`)
   L.push(`| 本資料系統數 | ${summary.our_systems} |`)
   L.push(`| 站數相符 (ok) | ${summary.matched_ok} |`)
-  L.push(`| 標記待查 | ${summary.flagged}（missing ${summary.by_severity.missing}／no_line ${summary.by_severity.no_line}／zero ${summary.by_severity.zero}／low ${summary.by_severity.low}／high ${summary.by_severity.high}） |`)
+  L.push(`| 標記待查 | ${summary.flagged}（missing ${summary.by_severity.missing}／no_line ${summary.by_severity.no_line}／order ${summary.by_severity.order}／zero ${summary.by_severity.zero}／low ${summary.by_severity.low}／high ${summary.by_severity.high}） |`)
   L.push(`| 額外（不在 wiki 清單） | ${summary.extras} |`, '')
-  L.push('## 不變式（invariants，違反＝資料一定有錯）', '')
+  L.push('## 不變式（invariants，違反＝資料一定有錯，必須驗證修正）', '')
   L.push('1. **wiki 有列的城市不可能沒資料**：違反數 ' +
     `**${summary.invariant_violations.wiki_city_without_data}**（severity \`missing\`）`)
   L.push('2. **車站不可能沒有路線**：' +
     `**${summary.invariant_violations.systems_with_stations_without_line}** 個系統、共 ` +
-    `**${summary.invariant_violations.stations_without_line}** 站的 \`lines\` 為空（severity \`no_line\`）`, '')
+    `**${summary.invariant_violations.stations_without_line}** 站的 \`lines\` 為空（severity \`no_line\`）`)
+  L.push('3. **站序必須正確**：' +
+    `**${summary.order_suspect_systems}** 個系統有站序可疑的線（severity \`order\`）——` +
+    '一律以該線 **Wikipedia 條目**的車站列表與 **urbanrail.net** 的線路站序人工確認', '')
   L.push('## 待查系統（fetch⇄verify 迴圈的回饋清單）', '')
   L.push('| 嚴重度 | 城市 | 國家 | 本站數 | wiki站數 | 比值 | 說明 | 參考 |')
   L.push('|---|---|---|---|---|---|---|---|')

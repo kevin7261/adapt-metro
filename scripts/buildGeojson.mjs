@@ -40,10 +40,13 @@ const pick = (tags, ...keys) => { for (const k of keys) if (tags[k]) return tags
 // proposed, disused…) is not part of the running network. The fetch queries
 // already exclude these; this re-filters older caches fetched without the guard.
 const NONOP = /^(proposed|construction|planned|disused|abandoned|razed)$/
+// stations sometimes mark construction only in the name — "大明北路(建设中)"
+const NONOP_NAME = /[（(【[][^）)】\]]*(建設中|建设中|在建|未开通|未開通|規劃|规划|under construction|planned|u\/c)[^）)】\]]*[）)】\]]/i
 const isOperational = (t = {}) =>
   !NONOP.test(t.state || '') && !NONOP.test(t.railway || '') &&
   !('construction' in t) && !('proposed' in t) && !('planned' in t) &&
-  !('disused' in t) && !('abandoned' in t)
+  !('disused' in t) && !('abandoned' in t) &&
+  !NONOP_NAME.test(t.name || '') && !NONOP_NAME.test(t['name:en'] || '')
 
 function slugify(s) {
   if (!s) return ''
@@ -126,6 +129,9 @@ async function build() {
     sys: s, nameTok: tokens(s.name), cityTok: tokens(s.city),
   }))
   const geocode = await readGeocode()
+  let wikiXY = {}
+  try { wikiXY = JSON.parse(await readFile(join(CACHE, 'wiki_city_coords.json'), 'utf8')) }
+  catch { /* optional; rebucket-by-distance is skipped without it */ }
   // Resolve continent/country/city for a network: prefer reverse-geocode
   // (coordinate-truthful), fall back to the Wikipedia name match.
   const countryOk = (a, b) => {
@@ -135,6 +141,13 @@ async function build() {
   }
   const normCity = (s) => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
     .toLowerCase().replace(/[^a-z0-9]/g, '')
+  // word-boundary form: " xiancun subdistrict " must NOT match "Xi'an",
+  // while " suzhou industrial park " must match "Suzhou"
+  const cityWords = (s) => {
+    const w = (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+    return w ? ` ${w} ` : ''
+  }
   const bestWikiInCountry = (network, netTag, country) => {
     const nt = union(tokens(network), tokens(netTag))
     if (!nt.size) return null
@@ -147,20 +160,35 @@ async function build() {
     }
     return bestScore >= 1 ? best : null
   }
-  const geoFor = (network, netTag) => {
-    const g = geocode[network] || {}
+  const geoFor = (network, netTag, own) => {
+    // Prefer the routes' own network key (most specific), then the display
+    // network (may come from a route_master), then the local network name.
+    const g = geocode[own] || geocode[network] || geocode[netTag] || {}
     // continent + country come ONLY from coordinate reverse-geocoding (authoritative).
     const continent = g.continent || null
     const country = g.country || null
     let city = g.city || null
     if (country) {
-      // If the geocoded city is already a canonical Wikipedia city in this country,
-      // keep it. Only when it's a district/variant (e.g. "Xuhui District", "Greater
-      // London") do we upgrade to the best same-country Wikipedia city — matching
-      // within the country avoids "Taipei Metro" being pulled to "New Taipei".
-      const canon = city && wikiIdx.some((r) => countryOk(country, r.sys.country) &&
-        normCity(r.sys.city) === normCity(city))
-      if (!canon) {
+      // Pick the canonical Wikipedia city for this country, trying every
+      // geocoded admin level ("Yinzhou District" alone hides "Ningbo"):
+      //   1. a candidate that IS a wiki city of this country (exact),
+      //   2. a candidate containing / contained by one ("Stockholm Municipality"
+      //      ⊃ "Stockholm"; longest wiki name wins so "New Taipei" beats "Taipei"),
+      //   3. network-name token match — same-country only, so "Taipei Metro"
+      //      can't be pulled to "New Taipei".
+      const candList = [...new Set([g.city, ...(g.city_candidates || [])])].filter(Boolean)
+      const candsExact = candList.map(normCity)
+      const candsWords = candList.map(cityWords).filter(Boolean)
+      const inCountry = wikiIdx.filter((r) => countryOk(country, r.sys.country))
+      const exact = inCountry.find((r) => candsExact.includes(normCity(r.sys.city)))
+      const within = exact || inCountry
+        .filter((r) => {
+          const b = cityWords(r.sys.city)
+          return b && candsWords.some((c) => c.includes(b) || b.includes(c))
+        })
+        .sort((a, b) => normCity(b.sys.city).length - normCity(a.sys.city).length)[0]
+      if (within) city = within.sys.city
+      else {
         const b = bestWikiInCountry(network, netTag, country)
         if (b) city = b.city
       }
@@ -227,6 +255,10 @@ async function build() {
       (Number(!!pick(b, 'colour')) - Number(!!pick(a, 'colour'))) ||
       (Number(!!pick(b, 'name:en', 'name')) - Number(!!pick(a, 'name:en', 'name'))))
     const base = { ...(variants[0] || {}) }
+    // the routes' own operator/network, before master fill-in — city resolution
+    // prefers it so e.g. Incheon's lines (operator 인천교통공사, but network:en
+    // "Seoul Metropolitan Subway") aren't pulled into Seoul
+    base.__own = pick(base, 'operator') || pick(base, 'network:en', 'network')
     if (g.key.startsWith('m|')) {
       const mt = masterTags.get(Number(g.key.slice(2))) || {}
       for (const [k, v] of Object.entries(mt)) if (v && !base[k]) base[k] = v
@@ -237,17 +269,20 @@ async function build() {
 
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file: systems/{continent}/{country}/{continent}-{country}-{city}.geojson
-  const cityCache = new Map()
-  const cityInfo = (network, netTag) => {
-    if (cityCache.has(network)) return cityCache.get(network)
-    const geo = geoFor(network, netTag)
+  const mkInfo = (geo, fallbackName) => {
     const cont = geo.continent || 'unknown'
     const countrySlug = slugify(geo.country) || 'unknown'
     const nameParts = [geo.continent, slugify(geo.country), slugify(geo.city)].filter(Boolean)
-    const slug = nameParts.join('-') || slugify(network) || 'system'
-    const info = { continent: geo.continent, country: geo.country, city: geo.city,
+    const slug = nameParts.join('-') || slugify(fallbackName) || 'system'
+    return { continent: geo.continent, country: geo.country, city: geo.city,
       key: `${cont}/${countrySlug}/${slug}` }
-    cityCache.set(network, info)
+  }
+  const cityCache = new Map()
+  const cityInfo = (network, netTag, own) => {
+    const ck = `${network}|${own || ''}`
+    if (cityCache.has(ck)) return cityCache.get(ck)
+    const info = mkInfo(geoFor(network, netTag, own), network)
+    cityCache.set(ck, info)
     return info
   }
   const cityGroups = new Map()
@@ -259,6 +294,23 @@ async function build() {
       cityGroups.set(info.key, grp)
     }
     return grp
+  }
+
+  const kmDist = (aLat, aLon, bLat, bLon) => {
+    const dx = (aLon - bLon) * Math.cos(((aLat + bLat) / 2) * Math.PI / 180)
+    return Math.sqrt(dx * dx + (aLat - bLat) ** 2) * 111
+  }
+  const wikiRowXY = (sys) => wikiXY[`${sys.city}|${sys.country}`] || null
+  const nearestWiki = (lat, lon, country) => {
+    let best = null, bestKm = Infinity
+    for (const row of wikiIdx) {
+      if (country && !countryOk(country, row.sys.country)) continue
+      const xy = wikiRowXY(row.sys)
+      if (!xy) continue
+      const km = kmDist(lat, lon, xy.lat, xy.lon)
+      if (km < bestKm) { bestKm = km; best = row.sys }
+    }
+    return best ? { sys: best, km: bestKm } : null
   }
 
   const nodeLineRefs = new Map()
@@ -278,7 +330,29 @@ async function build() {
     if (!kept.length) continue
     const t = repTags(g)
     const network = pick(t, 'network:en', 'network') || pick(t, 'operator') || 'Unknown'
-    const info = cityInfo(network, t.network)
+    let info = cityInfo(network, t.network, t.__own)
+    // 座標為準 sanity check: tags can point at the wrong system city — Pune's
+    // lines are operated by Nagpur-shared MahaMetro, Incheon's are tagged as
+    // the Seoul network. If the resolved city sits far from the line while a
+    // same-country wiki city is at least twice as close, the line lives there.
+    {
+      let sx = 0, sy = 0, n = 0
+      for (const seq of kept) for (const r of seq) { sx += r.coord[0]; sy += r.coord[1]; n++ }
+      if (n) {
+        const clat = sy / n, clon = sx / n
+        const own = wikiIdx.find((r) => countryOk(info.country || '', r.sys.country) &&
+          normCity(r.sys.city) === normCity(info.city || ''))
+        const ownXY = own && wikiRowXY(own.sys)
+        const near = nearestWiki(clat, clon, info.country || null)
+        if (ownXY && near && near.km < 30) {
+          const ownKm = kmDist(clat, clon, ownXY.lat, ownXY.lon)
+          if (ownKm > 20 && near.km * 2 < ownKm &&
+              normCity(near.sys.city) !== normCity(info.city))
+            info = mkInfo({ continent: info.continent, country: info.country,
+              city: near.sys.city }, near.sys.city)
+        }
+      }
+    }
     const routeRef = t.ref || null
     const routeId = g.key.startsWith('m|') ? `rm${g.key.slice(2)}` : `r${Math.min(...g.rids)}`
     // Stations must always resolve to a line (verify invariant), so fall back
@@ -385,6 +459,66 @@ async function build() {
     stationFeatures.push(feat)
     groupFor(info).stations.push(feat)
     groupFor(info).networks.add(network)
+  }
+
+  // ---- rebucket: groups whose city never resolved to a Wikipedia city ----
+  // 1st chance: a member network resolves (station tags often carry the English
+  //   name the routes lack — "Ningbo Rail Transit" on 宁波轨道交通 lines).
+  // 2nd chance: the group's centroid sits next to a forward-geocoded wiki city
+  //   (language-independent — 济南 buckets as "Lixia District" but IS Jinan).
+  const isCanon = (info) => !!info.city && wikiIdx.some((r) =>
+    countryOk(info.country || '', r.sys.country) && normCity(r.sys.city) === normCity(info.city))
+  const groupCentroid = (grp) => {
+    let sx = 0, sy = 0, n = 0
+    for (const f of grp.lines) for (const seg of f.geometry.coordinates)
+      for (const [lon, lat] of seg) { sx += lon; sy += lat; n++ }
+    for (const f of grp.stations) {
+      sx += f.geometry.coordinates[0]; sy += f.geometry.coordinates[1]; n++
+    }
+    return n ? { lon: sx / n, lat: sy / n } : null
+  }
+  const nearestWikiCity = (grp) => {
+    const c = groupCentroid(grp)
+    if (!c) return null
+    const near = nearestWiki(c.lat, c.lon, null)
+    if (!near) return null
+    // same country within 30 km; cross-country only when unambiguous (<15 km,
+    // e.g. Macau is listed under China but reverse-geocodes as Macao)
+    const sameCountry = countryOk(grp.info.country || '', near.sys.country)
+    return (near.km < 30 && sameCountry) || near.km < 15 ? near.sys : null
+  }
+  const rebucket = (grp, key, alt) => {
+    for (const f of [...grp.lines, ...grp.stations]) {
+      f.properties.city = alt.city
+      f.properties.country = alt.country
+    }
+    const tgt = groupFor(alt)
+    tgt.lines.push(...grp.lines)
+    tgt.stations.push(...grp.stations)
+    for (const n of grp.networks) tgt.networks.add(n)
+    tgt.operator = tgt.operator || grp.operator
+    tgt.official_url = tgt.official_url || grp.official_url
+    tgt.wikipedia = tgt.wikipedia || grp.wikipedia
+    tgt.wikidata = tgt.wikidata || grp.wikidata
+    cityGroups.delete(key)
+  }
+  for (const [key, grp] of [...cityGroups]) {
+    if (isCanon(grp.info)) continue
+    let alt = null
+    for (const net of grp.networks) {
+      if (net === 'Unknown') continue
+      const c = cityInfo(net, null, null)
+      if (isCanon(c) && c.key !== key) { alt = c; break }
+    }
+    if (!alt) {
+      const w = nearestWikiCity(grp)
+      if (w) {
+        const cand = mkInfo({ continent: grp.info.continent,
+          country: grp.info.country || w.country, city: w.city }, w.city)
+        if (cand.key !== key) alt = cand
+      }
+    }
+    if (alt) rebucket(grp, key, alt)
   }
 
   await writeOutputs(lineFeatures, stationFeatures, cityGroups, wikiSystems)

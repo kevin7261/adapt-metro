@@ -2,192 +2,26 @@
   "summary": {
     "generated_against": "Wikipedia: List of metro systems (+ urbanrail.net reference)",
     "wikipedia_systems": 233,
-    "our_systems": 242,
-    "matched_ok": 164,
-    "flagged": 181,
+    "our_systems": 232,
+    "matched_ok": 192,
+    "flagged": 148,
     "invariant_violations": {
-      "wiki_city_without_data": 37,
-      "stations_without_line": 1119,
-      "systems_with_stations_without_line": 112
+      "wiki_city_without_data": 6,
+      "stations_without_line": 979,
+      "systems_with_stations_without_line": 104
     },
+    "order_suspect_systems": 3,
     "by_severity": {
-      "missing": 37,
-      "no_line": 112,
+      "missing": 6,
+      "no_line": 104,
+      "order": 3,
       "zero": 0,
-      "low": 5,
-      "high": 27
+      "low": 4,
+      "high": 31
     },
-    "extras": 63
+    "extras": 23
   },
   "flags": [
-    {
-      "severity": "missing",
-      "city": "Ningbo",
-      "country": "China",
-      "system": "Ningbo Rail Transit[127]",
-      "our_stations": null,
-      "wiki_stations": 156,
-      "wiki_length_km": 297.6,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Ningbo_Rail_Transit[127]",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Ningbo"
-    },
-    {
-      "severity": "missing",
-      "city": "Jinan",
-      "country": "China",
-      "system": "Jinan Metro",
-      "our_stations": null,
-      "wiki_stations": 103,
-      "wiki_length_km": 182.4,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Jinan_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Jinan"
-    },
-    {
-      "severity": "missing",
-      "city": "Stockholm",
-      "country": "Sweden",
-      "system": "Stockholm Metro",
-      "our_stations": null,
-      "wiki_stations": 100,
-      "wiki_length_km": 108,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Stockholm_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Stockholm"
-    },
-    {
-      "severity": "missing",
-      "city": "Guiyang",
-      "country": "China",
-      "system": "Guiyang Metro",
-      "our_stations": null,
-      "wiki_stations": 82,
-      "wiki_length_km": 149.05,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Guiyang_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Guiyang"
-    },
-    {
-      "severity": "missing",
-      "city": "Harbin",
-      "country": "China",
-      "system": "Harbin Metro",
-      "our_stations": null,
-      "wiki_stations": 78,
-      "wiki_length_km": 91.57,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Harbin_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Harbin"
-    },
-    {
-      "severity": "missing",
-      "city": "Xiamen",
-      "country": "China",
-      "system": "Xiamen Metro",
-      "our_stations": null,
-      "wiki_stations": 70,
-      "wiki_length_km": 98.4,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Xiamen_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Xiamen"
-    },
-    {
-      "severity": "missing",
-      "city": "Incheon",
-      "country": "South Korea",
-      "system": "Incheon Subway",
-      "our_stations": null,
-      "wiki_stations": 68,
-      "wiki_length_km": 80.5,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Incheon_Subway",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Incheon"
-    },
-    {
-      "severity": "missing",
-      "city": "Lille",
-      "country": "France",
-      "system": "Lille Metro",
-      "our_stations": null,
-      "wiki_stations": 60,
-      "wiki_length_km": 45,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Lille_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Lille"
-    },
-    {
-      "severity": "missing",
-      "city": "Vancouver",
-      "country": "Canada",
-      "system": "SkyTrain",
-      "our_stations": null,
-      "wiki_stations": 54,
-      "wiki_length_km": 79.6,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/SkyTrain",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Vancouver"
-    },
-    {
-      "severity": "missing",
-      "city": "Nuremberg",
-      "country": "Germany",
-      "system": "Nuremberg U-Bahn",
-      "our_stations": null,
-      "wiki_stations": 49,
-      "wiki_length_km": 38.4,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Nuremberg_U-Bahn",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Nuremberg"
-    },
-    {
-      "severity": "missing",
-      "city": "Sapporo",
-      "country": "Japan",
-      "system": "Sapporo Municipal Subway",
-      "our_stations": null,
-      "wiki_stations": 46,
-      "wiki_length_km": 48,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Sapporo_Municipal_Subway",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Sapporo"
-    },
-    {
-      "severity": "missing",
-      "city": "Copenhagen",
-      "country": "Denmark",
-      "system": "Copenhagen Metro",
-      "our_stations": null,
-      "wiki_stations": 44,
-      "wiki_length_km": 43.3,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Copenhagen_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Copenhagen"
-    },
-    {
-      "severity": "missing",
-      "city": "Nantong",
-      "country": "China",
-      "system": "Nantong Rail Transit",
-      "our_stations": null,
-      "wiki_stations": 43,
-      "wiki_length_km": 60,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Nantong_Rail_Transit",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Nantong"
-    },
-    {
-      "severity": "missing",
-      "city": "Mashhad",
-      "country": "Iran",
-      "system": "Mashhad Urban Railway",
-      "our_stations": null,
-      "wiki_stations": 40,
-      "wiki_length_km": 43.3,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Mashhad_Urban_Railway",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mashhad"
-    },
     {
       "severity": "missing",
       "city": "Wuhu",
@@ -199,138 +33,6 @@
       "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
       "wiki_url": "https://en.wikipedia.org/wiki/Wuhu_Rail_Transit",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Wuhu"
-    },
-    {
-      "severity": "missing",
-      "city": "Fukuoka",
-      "country": "Japan",
-      "system": "Fukuoka City Subway",
-      "our_stations": null,
-      "wiki_stations": 36,
-      "wiki_length_km": 31.4,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Fukuoka_City_Subway",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Fukuoka"
-    },
-    {
-      "severity": "missing",
-      "city": "Sendai",
-      "country": "Japan",
-      "system": "Sendai Subway",
-      "our_stations": null,
-      "wiki_stations": 29,
-      "wiki_length_km": 28.7,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Sendai_Subway",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Sendai"
-    },
-    {
-      "severity": "missing",
-      "city": "Brasília",
-      "country": "Brazil",
-      "system": "Federal District Metro",
-      "our_stations": null,
-      "wiki_stations": 27,
-      "wiki_length_km": 42.4,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Federal_District_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Bras%C3%ADlia"
-    },
-    {
-      "severity": "missing",
-      "city": "Lanzhou",
-      "country": "China",
-      "system": "Lanzhou Metro",
-      "our_stations": null,
-      "wiki_stations": 27,
-      "wiki_length_km": 35,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Lanzhou_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Lanzhou"
-    },
-    {
-      "severity": "missing",
-      "city": "Ürümqi",
-      "country": "China",
-      "system": "Ürümqi Metro",
-      "our_stations": null,
-      "wiki_stations": 23,
-      "wiki_length_km": 32.88,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Ürümqi_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20%C3%9Cr%C3%BCmqi"
-    },
-    {
-      "severity": "missing",
-      "city": "Porto Alegre",
-      "country": "Brazil",
-      "system": "Porto Alegre Metro",
-      "our_stations": null,
-      "wiki_stations": 22,
-      "wiki_length_km": 43.8,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Porto_Alegre_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Porto%20Alegre"
-    },
-    {
-      "severity": "missing",
-      "city": "Taoyuan",
-      "country": "Taiwan",
-      "system": "Taoyuan Metro",
-      "our_stations": null,
-      "wiki_stations": 22,
-      "wiki_length_km": 53.1,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Taoyuan_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Taoyuan"
-    },
-    {
-      "severity": "missing",
-      "city": "Belo Horizonte",
-      "country": "Brazil",
-      "system": "Belo Horizonte Metro",
-      "our_stations": null,
-      "wiki_stations": 20,
-      "wiki_length_km": 29.8,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Belo_Horizonte_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Belo%20Horizonte"
-    },
-    {
-      "severity": "missing",
-      "city": "Isfahan",
-      "country": "Iran",
-      "system": "Isfahan Metro",
-      "our_stations": null,
-      "wiki_stations": 20,
-      "wiki_length_km": 20.2,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Isfahan_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Isfahan"
-    },
-    {
-      "severity": "missing",
-      "city": "Los Angeles",
-      "country": "United States",
-      "system": "Metro Rail[Nb 96]",
-      "our_stations": null,
-      "wiki_stations": 19,
-      "wiki_length_km": 34.31,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Metro_Rail[Nb_96]",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles"
-    },
-    {
-      "severity": "missing",
-      "city": "Tabriz",
-      "country": "Iran",
-      "system": "Tabriz Metro",
-      "our_stations": null,
-      "wiki_stations": 18,
-      "wiki_length_km": 17.2,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Tabriz_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tabriz"
     },
     {
       "severity": "missing",
@@ -346,18 +48,6 @@
     },
     {
       "severity": "missing",
-      "city": "San Juan",
-      "country": "United States",
-      "system": "Tren Urbano",
-      "our_stations": null,
-      "wiki_stations": 16,
-      "wiki_length_km": 17.2,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Tren_Urbano",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20San%20Juan"
-    },
-    {
-      "severity": "missing",
       "city": "Macau",
       "country": "China",
       "system": "Macau Light Rapid Transit",
@@ -367,18 +57,6 @@
       "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
       "wiki_url": "https://en.wikipedia.org/wiki/Macau_Light_Rapid_Transit",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Macau"
-    },
-    {
-      "severity": "missing",
-      "city": "Nizhny Novgorod",
-      "country": "Russia",
-      "system": "Nizhny Novgorod Metro",
-      "our_stations": null,
-      "wiki_stations": 15,
-      "wiki_length_km": 21.8,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Nizhny_Novgorod_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Nizhny%20Novgorod"
     },
     {
       "severity": "missing",
@@ -394,18 +72,6 @@
     },
     {
       "severity": "missing",
-      "city": "Saitama Prefecture",
-      "country": "Japan",
-      "system": "New Shuttle",
-      "our_stations": null,
-      "wiki_stations": 13,
-      "wiki_length_km": 12.7,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/New_Shuttle",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Saitama%20Prefecture"
-    },
-    {
-      "severity": "missing",
       "city": "Gimpo",
       "country": "South Korea",
       "system": "Gimpo Goldline",
@@ -415,42 +81,6 @@
       "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
       "wiki_url": "https://en.wikipedia.org/wiki/Gimpo_Goldline",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Gimpo"
-    },
-    {
-      "severity": "missing",
-      "city": "Chiba Prefecture",
-      "country": "Japan",
-      "system": "Tōyō Rapid Railway Line",
-      "our_stations": null,
-      "wiki_stations": 9,
-      "wiki_length_km": 16.2,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Tōyō_Rapid_Railway_Line",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Chiba%20Prefecture"
-    },
-    {
-      "severity": "missing",
-      "city": "Mecca",
-      "country": "Saudi Arabia",
-      "system": "Mecca Metro",
-      "our_stations": null,
-      "wiki_stations": 9,
-      "wiki_length_km": 18.1,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Mecca_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mecca"
-    },
-    {
-      "severity": "missing",
-      "city": "Saitama Prefecture",
-      "country": "Japan",
-      "system": "Saitama Rapid Railway Line",
-      "our_stations": null,
-      "wiki_stations": 8,
-      "wiki_length_km": 14.6,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Saitama_Rapid_Railway_Line",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Saitama%20Prefecture"
     },
     {
       "severity": "missing",
@@ -487,7 +117,7 @@
       "city": "Tokyo",
       "country": "Japan",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 316,
+      "our_stations": 315,
       "our_lines": 21,
       "stations_without_line": 8,
       "samples": [
@@ -497,17 +127,33 @@
         "Tennozu Isle",
         "Shinagawa Seaside"
       ],
-      "note": "8/316 站不屬於任何路線（違反不變式：車站必有路線）",
+      "note": "8/315 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
+    },
+    {
+      "severity": "no_line",
+      "city": "Paris",
+      "country": "France",
+      "our_file": "systems/europe/france/europe-france-paris.geojson",
+      "our_stations": 418,
+      "our_lines": 18,
+      "stations_without_line": 3,
+      "samples": [
+        "Terminal 2E - Hall K",
+        "Terminal 2E - Hall L",
+        "Terminal 2E - Hall M"
+      ],
+      "note": "3/418 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Paris"
     },
     {
       "severity": "no_line",
       "city": "Shanghai",
       "country": "China",
       "our_file": "systems/asia/china/asia-china-shanghai.geojson",
-      "our_stations": 587,
+      "our_stations": 564,
       "our_lines": 18,
-      "stations_without_line": 45,
+      "stations_without_line": 31,
       "samples": [
         "Jinji Road",
         "S1",
@@ -515,7 +161,7 @@
         "Shanghai International Resort",
         "East Kangqiao"
       ],
-      "note": "45/587 站不屬於任何路線（違反不變式：車站必有路線）",
+      "note": "31/564 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Shanghai"
     },
     {
@@ -535,6 +181,24 @@
       ],
       "note": "5/362 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Guangzhou"
+    },
+    {
+      "severity": "no_line",
+      "city": "Berlin",
+      "country": "Germany",
+      "our_file": "systems/europe/germany/europe-germany-berlin.geojson",
+      "our_stations": 267,
+      "our_lines": 18,
+      "stations_without_line": 6,
+      "samples": [
+        "Scharnweberstraße",
+        "Otisstraße",
+        "Holzhauser Straße",
+        "Borsigwerke",
+        "Alt-Tegel"
+      ],
+      "note": "6/267 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin"
     },
     {
       "severity": "no_line",
@@ -602,30 +266,12 @@
     },
     {
       "severity": "no_line",
-      "city": "Dusseldorf",
-      "country": "Germany",
-      "our_file": "systems/europe/germany/europe-germany-dusseldorf.geojson",
-      "our_stations": 219,
-      "our_lines": 14,
-      "stations_without_line": 11,
-      "samples": [
-        "Brügmannplatz",
-        "Aktienstraße",
-        "Stadtmitte",
-        "Kalk Kapelle",
-        "Polizeipräsidium"
-      ],
-      "note": "11/219 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Dusseldorf"
-    },
-    {
-      "severity": "no_line",
       "city": "Tianjin",
       "country": "China",
       "our_file": "systems/asia/china/asia-china-tianjin.geojson",
-      "our_stations": 330,
+      "our_stations": 304,
       "our_lines": 13,
-      "stations_without_line": 45,
+      "stations_without_line": 26,
       "samples": [
         "第五大街",
         "滨海站",
@@ -633,7 +279,7 @@
         "金临道",
         "大沽船坞"
       ],
-      "note": "45/330 站不屬於任何路線（違反不變式：車站必有路線）",
+      "note": "26/304 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tianjin"
     },
     {
@@ -688,24 +334,6 @@
     },
     {
       "severity": "no_line",
-      "city": "Seoul",
-      "country": "South Korea",
-      "our_file": "systems/asia/south-korea/asia-south-korea-seoul.geojson",
-      "our_stations": 526,
-      "our_lines": 12,
-      "stations_without_line": 9,
-      "samples": [
-        "Jipyeong",
-        "Mangpo",
-        "Dongtan",
-        "Wonjong",
-        "n407869047"
-      ],
-      "note": "9/526 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul"
-    },
-    {
-      "severity": "no_line",
       "city": "London",
       "country": "United Kingdom",
       "our_file": "systems/europe/united-kingdom/europe-united-kingdom-london.geojson",
@@ -721,6 +349,24 @@
       ],
       "note": "5/280 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20London"
+    },
+    {
+      "severity": "no_line",
+      "city": "Seoul",
+      "country": "South Korea",
+      "our_file": "systems/asia/south-korea/asia-south-korea-seoul.geojson",
+      "our_stations": 499,
+      "our_lines": 11,
+      "stations_without_line": 8,
+      "samples": [
+        "Jipyeong",
+        "Mangpo",
+        "Dongtan",
+        "Wonjong",
+        "n407869047"
+      ],
+      "note": "8/499 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul"
     },
     {
       "severity": "no_line",
@@ -758,17 +404,21 @@
     },
     {
       "severity": "no_line",
-      "city": "Frankfurt",
+      "city": "Ratingen",
       "country": "Germany",
-      "our_file": "systems/europe/germany/europe-germany-frankfurt.geojson",
-      "our_stations": 87,
+      "our_file": "systems/europe/germany/europe-germany-ratingen.geojson",
+      "our_stations": 158,
       "our_lines": 9,
-      "stations_without_line": 1,
+      "stations_without_line": 6,
       "samples": [
-        "Rodgau-Hainhausen"
+        "Kalk Kapelle",
+        "Friesenplatz",
+        "Ebertplatz",
+        "Nordstraße",
+        "Bergwerk Consolidation"
       ],
-      "note": "1/87 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Frankfurt"
+      "note": "6/158 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Ratingen"
     },
     {
       "severity": "no_line",
@@ -786,39 +436,55 @@
     },
     {
       "severity": "no_line",
-      "city": "Berlin",
-      "country": "Germany",
-      "our_file": "systems/europe/germany/europe-germany-berlin.geojson",
-      "our_stations": 180,
-      "our_lines": 9,
-      "stations_without_line": 5,
-      "samples": [
-        "Scharnweberstraße",
-        "Otisstraße",
-        "Holzhauser Straße",
-        "Borsigwerke",
-        "Alt-Tegel"
-      ],
-      "note": "5/180 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin"
-    },
-    {
-      "severity": "no_line",
       "city": "Suzhou",
       "country": "China",
       "our_file": "systems/asia/china/asia-china-suzhou.geojson",
-      "our_stations": 280,
+      "our_stations": 276,
       "our_lines": 9,
+      "stations_without_line": 3,
+      "samples": [
+        "登云",
+        "登云",
+        "Suzhounan Railway Station"
+      ],
+      "note": "3/276 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Suzhou"
+    },
+    {
+      "severity": "no_line",
+      "city": "Hefei",
+      "country": "China",
+      "our_file": "systems/asia/china/asia-china-hefei.geojson",
+      "our_stations": 218,
+      "our_lines": 8,
       "stations_without_line": 7,
       "samples": [
-        "观塘路（在建）",
-        "漕湖大道（在建）",
-        "太阳路（在建）",
-        "国际会展中心（在建）",
-        "登云"
+        "馆驿",
+        "T1航站楼",
+        "Ziyun Lake",
+        "唐大楼",
+        "未来湖"
       ],
-      "note": "7/280 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Suzhou"
+      "note": "7/218 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Hefei"
+    },
+    {
+      "severity": "no_line",
+      "city": "Qingdao",
+      "country": "China",
+      "our_file": "systems/asia/china/asia-china-qingdao.geojson",
+      "our_stations": 231,
+      "our_lines": 8,
+      "stations_without_line": 47,
+      "samples": [
+        "胶州火车站",
+        "胶州火车站",
+        "兰州西路",
+        "泸州路",
+        "广州路"
+      ],
+      "note": "47/231 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Qingdao"
     },
     {
       "severity": "no_line",
@@ -836,9 +502,9 @@
     },
     {
       "severity": "no_line",
-      "city": "Yinzhou District",
+      "city": "Ningbo",
       "country": "China",
-      "our_file": "systems/asia/china/asia-china-yinzhou-district.geojson",
+      "our_file": "systems/asia/china/asia-china-ningbo.geojson",
       "our_stations": 188,
       "our_lines": 8,
       "stations_without_line": 7,
@@ -850,49 +516,29 @@
         "掌起"
       ],
       "note": "7/188 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yinzhou%20District"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Ningbo"
     },
     {
       "severity": "no_line",
-      "city": "Qingdao",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-qingdao.geojson",
-      "our_stations": 265,
-      "our_lines": 8,
-      "stations_without_line": 79,
-      "samples": [
-        "胶州火车站",
-        "胶州火车站",
-        "兰州西路",
-        "泸州路",
-        "广州路"
-      ],
-      "note": "79/265 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Qingdao"
-    },
-    {
-      "severity": "no_line",
-      "city": "Hefei",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-hefei.geojson",
-      "our_stations": 218,
+      "city": "Mumbai",
+      "country": "India",
+      "our_file": "systems/asia/india/asia-india-mumbai.geojson",
+      "our_stations": 83,
       "our_lines": 7,
-      "stations_without_line": 20,
+      "stations_without_line": 3,
       "samples": [
-        "馆驿",
-        "T1航站楼",
-        "Ziyun Lake",
-        "唐大楼",
-        "Feicuigongyuan"
+        "Chembur",
+        "Azad Nagar Bus Stop",
+        "Chembur"
       ],
-      "note": "20/218 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Hefei"
+      "note": "3/83 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mumbai"
     },
     {
       "severity": "no_line",
-      "city": "Stockholm Municipality",
+      "city": "Stockholm",
       "country": "Sweden",
-      "our_file": "systems/europe/sweden/europe-sweden-stockholm-municipality.geojson",
+      "our_file": "systems/europe/sweden/europe-sweden-stockholm.geojson",
       "our_stations": 101,
       "our_lines": 7,
       "stations_without_line": 1,
@@ -900,7 +546,7 @@
         "Hallonbergen"
       ],
       "note": "1/101 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Stockholm%20Municipality"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Stockholm"
     },
     {
       "severity": "no_line",
@@ -988,22 +634,6 @@
     },
     {
       "severity": "no_line",
-      "city": "Mumbai",
-      "country": "India",
-      "our_file": "systems/asia/india/asia-india-mumbai.geojson",
-      "our_stations": 83,
-      "our_lines": 6,
-      "stations_without_line": 3,
-      "samples": [
-        "Chembur",
-        "Azad Nagar Bus Stop",
-        "Chembur"
-      ],
-      "note": "3/83 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mumbai"
-    },
-    {
-      "severity": "no_line",
       "city": "Kunming",
       "country": "China",
       "our_file": "systems/asia/china/asia-china-kunming.geojson",
@@ -1016,20 +646,6 @@
       ],
       "note": "2/195 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Kunming"
-    },
-    {
-      "severity": "no_line",
-      "city": "Shenyang",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-shenyang.geojson",
-      "our_stations": 141,
-      "our_lines": 6,
-      "stations_without_line": 1,
-      "samples": [
-        "体育学院（建设中）"
-      ],
-      "note": "1/141 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Shenyang"
     },
     {
       "severity": "no_line",
@@ -1051,18 +667,17 @@
     },
     {
       "severity": "no_line",
-      "city": "Licheng District",
+      "city": "Jinan",
       "country": "China",
-      "our_file": "systems/asia/china/asia-china-licheng-district.geojson",
-      "our_stations": 110,
+      "our_file": "systems/asia/china/asia-china-jinan.geojson",
+      "our_stations": 109,
       "our_lines": 6,
-      "stations_without_line": 2,
+      "stations_without_line": 1,
       "samples": [
-        "都市阳台",
-        "济南站（在建）"
+        "都市阳台"
       ],
-      "note": "2/110 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Licheng%20District"
+      "note": "1/109 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Jinan"
     },
     {
       "severity": "no_line",
@@ -1081,24 +696,6 @@
       ],
       "note": "7/121 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Vienna"
-    },
-    {
-      "severity": "no_line",
-      "city": "São Paulo",
-      "country": "Brazil",
-      "our_file": "systems/south-america/brazil/south-america-brazil-sao-paulo.geojson",
-      "our_stations": 97,
-      "our_lines": 5,
-      "stations_without_line": 9,
-      "samples": [
-        "Água Branca",
-        "Perdizes",
-        "SESC-Pompeia",
-        "Santa Marina",
-        "João Paulo I"
-      ],
-      "note": "9/97 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20S%C3%A3o%20Paulo"
     },
     {
       "severity": "no_line",
@@ -1149,20 +746,6 @@
       ],
       "note": "1/81 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Rotterdam"
-    },
-    {
-      "severity": "no_line",
-      "city": "Wuxi",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-wuxi.geojson",
-      "our_stations": 93,
-      "our_lines": 5,
-      "stations_without_line": 1,
-      "samples": [
-        "杨舍（在建）"
-      ],
-      "note": "1/93 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Wuxi"
     },
     {
       "severity": "no_line",
@@ -1340,9 +923,9 @@
     },
     {
       "severity": "no_line",
-      "city": "Burnaby",
+      "city": "Vancouver",
       "country": "Canada",
-      "our_file": "systems/north-america/canada/north-america-canada-burnaby.geojson",
+      "our_file": "systems/north-america/canada/north-america-canada-vancouver.geojson",
       "our_stations": 56,
       "our_lines": 3,
       "stations_without_line": 1,
@@ -1350,7 +933,7 @@
         "Richmond–Brighouse"
       ],
       "note": "1/56 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Burnaby"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Vancouver"
     },
     {
       "severity": "no_line",
@@ -1405,9 +988,9 @@
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/harbin-metro.geojson",
+      "city": "Harbin",
+      "country": "China",
+      "our_file": "systems/asia/china/asia-china-harbin.geojson",
       "our_stations": 78,
       "our_lines": 3,
       "stations_without_line": 3,
@@ -1417,7 +1000,7 @@
         "民主村"
       ],
       "note": "3/78 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Harbin"
     },
     {
       "severity": "no_line",
@@ -1457,9 +1040,9 @@
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/xiamen-metro.geojson",
+      "city": "Xiamen",
+      "country": "China",
+      "our_file": "systems/asia/china/asia-china-xiamen.geojson",
       "our_stations": 84,
       "our_lines": 3,
       "stations_without_line": 14,
@@ -1471,7 +1054,37 @@
         "International Expo Center"
       ],
       "note": "14/84 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Xiamen"
+    },
+    {
+      "severity": "no_line",
+      "city": "Noida",
+      "country": "India",
+      "our_file": "systems/asia/india/asia-india-noida.geojson",
+      "our_stations": 27,
+      "our_lines": 3,
+      "stations_without_line": 1,
+      "samples": [
+        "DG Corner  Stationery"
+      ],
+      "note": "1/27 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Noida"
+    },
+    {
+      "severity": "no_line",
+      "city": "Essen",
+      "country": "Germany",
+      "our_file": "systems/europe/germany/europe-germany-essen.geojson",
+      "our_stations": 19,
+      "our_lines": 2,
+      "stations_without_line": 3,
+      "samples": [
+        "Aktienstraße",
+        "Stadtmitte",
+        "Schloß Broich"
+      ],
+      "note": "3/19 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Essen"
     },
     {
       "severity": "no_line",
@@ -1490,20 +1103,6 @@
       ],
       "note": "15/71 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Dubai"
-    },
-    {
-      "severity": "no_line",
-      "city": "Águas Claras",
-      "country": "Brazil",
-      "our_file": "systems/south-america/brazil/south-america-brazil-aguas-claras.geojson",
-      "our_stations": 75,
-      "our_lines": 2,
-      "stations_without_line": 1,
-      "samples": [
-        "Onoyama"
-      ],
-      "note": "1/75 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20%C3%81guas%20Claras"
     },
     {
       "severity": "no_line",
@@ -1537,9 +1136,9 @@
     },
     {
       "severity": "no_line",
-      "city": "Maywood",
+      "city": "Los Angeles",
       "country": "United States",
-      "our_file": "systems/north-america/united-states/north-america-united-states-maywood.geojson",
+      "our_file": "systems/north-america/united-states/north-america-united-states-los-angeles.geojson",
       "our_stations": 32,
       "our_lines": 2,
       "stations_without_line": 8,
@@ -1551,7 +1150,7 @@
         "East LA Civic Center"
       ],
       "note": "8/32 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Maywood"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles"
     },
     {
       "severity": "no_line",
@@ -1573,9 +1172,9 @@
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/mashhad-urban-railway.geojson",
+      "city": "Mashhad",
+      "country": "Iran",
+      "our_file": "systems/asia/iran/asia-iran-mashhad.geojson",
       "our_stations": 25,
       "our_lines": 2,
       "stations_without_line": 6,
@@ -1587,7 +1186,7 @@
         "Hashemiyeh Metro Station"
       ],
       "note": "6/25 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mashhad"
     },
     {
       "severity": "no_line",
@@ -1609,9 +1208,27 @@
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/lanzhou-metro.geojson",
+      "city": "Shiraz",
+      "country": "Iran",
+      "our_file": "systems/asia/iran/asia-iran-shiraz.geojson",
+      "our_stations": 34,
+      "our_lines": 2,
+      "stations_without_line": 6,
+      "samples": [
+        "Sa'diyeh",
+        "Atlasi",
+        "Azadi",
+        "15 Khordad",
+        "Hafeziyeh"
+      ],
+      "note": "6/34 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Shiraz"
+    },
+    {
+      "severity": "no_line",
+      "city": "Lanzhou",
+      "country": "China",
+      "our_file": "systems/asia/china/asia-china-lanzhou.geojson",
       "our_stations": 29,
       "our_lines": 2,
       "stations_without_line": 1,
@@ -1619,13 +1236,13 @@
         "Gansu Provincial Government"
       ],
       "note": "1/29 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Lanzhou"
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/urumqi-metro.geojson",
+      "city": "Ürümqi",
+      "country": "China",
+      "our_file": "systems/asia/china/asia-china-urumqi.geojson",
       "our_stations": 24,
       "our_lines": 2,
       "stations_without_line": 1,
@@ -1633,7 +1250,7 @@
         "乌鲁木齐站"
       ],
       "note": "1/24 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20%C3%9Cr%C3%BCmqi"
     },
     {
       "severity": "no_line",
@@ -1654,16 +1271,17 @@
       "city": "Daegu",
       "country": "South Korea",
       "our_file": "systems/asia/south-korea/asia-south-korea-daegu.geojson",
-      "our_stations": 70,
+      "our_stations": 72,
       "our_lines": 2,
-      "stations_without_line": 4,
+      "stations_without_line": 6,
       "samples": [
         "Gyeongsan",
         "Waegwan",
         "Sagok",
-        "Seodaegu"
+        "Seodaegu",
+        "Taehwagang"
       ],
-      "note": "4/70 站不屬於任何路線（違反不變式：車站必有路線）",
+      "note": "6/72 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Daegu"
     },
     {
@@ -1693,24 +1311,6 @@
       ],
       "note": "1/38 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Nagpur"
-    },
-    {
-      "severity": "no_line",
-      "city": "Changzhou",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-changzhou.geojson",
-      "our_stations": 123,
-      "our_lines": 2,
-      "stations_without_line": 41,
-      "samples": [
-        "Qinlong",
-        "大明北路(建设中)",
-        "东青(建设中)",
-        "横塘河东路(建设中)",
-        "竹林(建设中)"
-      ],
-      "note": "41/123 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Changzhou"
     },
     {
       "severity": "no_line",
@@ -1766,20 +1366,6 @@
     },
     {
       "severity": "no_line",
-      "city": "Foshan",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-foshan.geojson",
-      "our_stations": 52,
-      "our_lines": 2,
-      "stations_without_line": 1,
-      "samples": [
-        "平顺东路站（在建）"
-      ],
-      "note": "1/52 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Foshan"
-    },
-    {
-      "severity": "no_line",
       "city": "Pune",
       "country": "India",
       "our_file": "systems/asia/india/asia-india-pune.geojson",
@@ -1795,17 +1381,32 @@
     },
     {
       "severity": "no_line",
-      "city": "Chongchuan District",
-      "country": "China",
-      "our_file": "systems/asia/china/asia-china-chongchuan-district.geojson",
-      "our_stations": 54,
+      "city": "Brasília",
+      "country": "Brazil",
+      "our_file": "systems/south-america/brazil/south-america-brazil-brasilia.geojson",
+      "our_stations": 75,
       "our_lines": 2,
       "stations_without_line": 1,
       "samples": [
-        "华昌路（在建）"
+        "Onoyama"
       ],
-      "note": "1/54 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Chongchuan%20District"
+      "note": "1/75 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Bras%C3%ADlia"
+    },
+    {
+      "severity": "no_line",
+      "city": "Bochum",
+      "country": "Germany",
+      "our_file": "systems/europe/germany/europe-germany-bochum.geojson",
+      "our_stations": 25,
+      "our_lines": 1,
+      "stations_without_line": 2,
+      "samples": [
+        "Brügmannplatz",
+        "Polizeipräsidium"
+      ],
+      "note": "2/25 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Bochum"
     },
     {
       "severity": "no_line",
@@ -1879,55 +1480,9 @@
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/metro-de-belo-horizonte.geojson",
-      "our_stations": 22,
-      "our_lines": 1,
-      "stations_without_line": 1,
-      "samples": [
-        "Amazonas"
-      ],
-      "note": "1/22 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
-    },
-    {
-      "severity": "no_line",
-      "city": "Makkah Region",
-      "country": "Saudi Arabia",
-      "our_file": "systems/asia/saudi-arabia/asia-saudi-arabia-makkah-region.geojson",
-      "our_stations": 12,
-      "our_lines": 1,
-      "stations_without_line": 3,
-      "samples": [
-        "n795223474",
-        "n795223475",
-        "n795223476"
-      ],
-      "note": "3/12 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Makkah%20Region"
-    },
-    {
-      "severity": "no_line",
-      "city": "Meaux",
-      "country": "France",
-      "our_file": "systems/europe/france/europe-france-meaux.geojson",
-      "our_stations": 9,
-      "our_lines": 1,
-      "stations_without_line": 3,
-      "samples": [
-        "Terminal 2E - Hall K",
-        "Terminal 2E - Hall L",
-        "Terminal 2E - Hall M"
-      ],
-      "note": "3/9 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Meaux"
-    },
-    {
-      "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/system.geojson",
+      "city": "Isfahan",
+      "country": "Iran",
+      "our_file": "systems/asia/iran/asia-iran-isfahan.geojson",
       "our_stations": 53,
       "our_lines": 1,
       "stations_without_line": 26,
@@ -1939,7 +1494,7 @@
         "Shams-e Tabrizi"
       ],
       "note": "26/53 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Isfahan"
     },
     {
       "severity": "no_line",
@@ -1959,41 +1514,9 @@
     },
     {
       "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/shiraz-metro.geojson",
-      "our_stations": 25,
-      "our_lines": 1,
-      "stations_without_line": 3,
-      "samples": [
-        "Sa'diyeh",
-        "Atlasi",
-        "Hafeziyeh"
-      ],
-      "note": "3/25 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
-    },
-    {
-      "severity": "no_line",
-      "city": "Shiraz",
+      "city": "Tabriz",
       "country": "Iran",
-      "our_file": "systems/asia/iran/asia-iran-shiraz.geojson",
-      "our_stations": 9,
-      "our_lines": 1,
-      "stations_without_line": 3,
-      "samples": [
-        "Azadi",
-        "15 Khordad",
-        "Shekoufeh"
-      ],
-      "note": "3/9 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Shiraz"
-    },
-    {
-      "severity": "no_line",
-      "city": null,
-      "country": null,
-      "our_file": "systems/unknown/unknown/tabriz-metro.geojson",
+      "our_file": "systems/asia/iran/asia-iran-tabriz.geojson",
       "our_stations": 20,
       "our_lines": 1,
       "stations_without_line": 1,
@@ -2001,7 +1524,7 @@
         "Azad University"
       ],
       "note": "1/20 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tabriz"
     },
     {
       "severity": "no_line",
@@ -2020,20 +1543,6 @@
       ],
       "note": "10/32 站不屬於任何路線（違反不變式：車站必有路線）",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney"
-    },
-    {
-      "severity": "no_line",
-      "city": "Noida",
-      "country": "India",
-      "our_file": "systems/asia/india/asia-india-noida.geojson",
-      "our_stations": 20,
-      "our_lines": 1,
-      "stations_without_line": 1,
-      "samples": [
-        "DG Corner  Stationery"
-      ],
-      "note": "1/20 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Noida"
     },
     {
       "severity": "no_line",
@@ -2091,33 +1600,33 @@
     },
     {
       "severity": "no_line",
-      "city": "Patna",
-      "country": "India",
-      "our_file": "systems/asia/india/asia-india-patna.geojson",
-      "our_stations": 5,
+      "city": "Incheon",
+      "country": "South Korea",
+      "our_file": "systems/asia/south-korea/asia-south-korea-incheon.geojson",
+      "our_stations": 27,
       "our_lines": 1,
-      "stations_without_line": 2,
+      "stations_without_line": 1,
       "samples": [
-        "Khemnichak",
-        "Malahi Pakri"
+        "n502801769"
       ],
-      "note": "2/5 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Patna"
+      "note": "1/27 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Incheon"
     },
     {
       "severity": "no_line",
-      "city": "Jincheon-eup",
-      "country": "South Korea",
-      "our_file": "systems/asia/south-korea/asia-south-korea-jincheon-eup.geojson",
-      "our_stations": 2,
-      "our_lines": 0,
-      "stations_without_line": 2,
+      "city": "Mecca",
+      "country": "Saudi Arabia",
+      "our_file": "systems/asia/saudi-arabia/asia-saudi-arabia-mecca.geojson",
+      "our_stations": 12,
+      "our_lines": 1,
+      "stations_without_line": 3,
       "samples": [
-        "Taehwagang",
-        "Gumi"
+        "n795223474",
+        "n795223475",
+        "n795223476"
       ],
-      "note": "2/2 站不屬於任何路線（違反不變式：車站必有路線）",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Jincheon-eup"
+      "note": "3/12 站不屬於任何路線（違反不變式：車站必有路線）",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mecca"
     },
     {
       "severity": "no_line",
@@ -2310,20 +1819,64 @@
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Blue%20Area"
     },
     {
-      "severity": "low",
-      "city": "New York City",
-      "country": "United States",
-      "system": "New York City Subway",
-      "our_file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
-      "our_stations": 28,
-      "our_lines": 6,
-      "wiki_stations": 424,
-      "wiki_length_km": 399,
-      "ratio": 0.07,
-      "note": "站數偏少（28 vs wiki 424）",
-      "has_map": true,
-      "wiki_url": "https://en.wikipedia.org/wiki/New_York_City_Subway",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
+      "severity": "order",
+      "city": "Tokyo",
+      "country": "Japan",
+      "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
+      "our_stations": 315,
+      "our_lines": 21,
+      "suspect_lines": [
+        {
+          "name": "Tokyo Metro - Skytree Bypass Line (Hibiya, North->South)",
+          "ratio": 1.85
+        },
+        {
+          "name": "Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North)",
+          "ratio": 1.83
+        },
+        {
+          "name": "Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya)",
+          "ratio": 1.64
+        }
+      ],
+      "note": "3 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Skytree Bypass Line (Hibiya, North->South) 1.85×、Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North) 1.83×、Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya) 1.64×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
+    },
+    {
+      "severity": "order",
+      "city": "Yokohama",
+      "country": "Japan",
+      "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
+      "our_stations": 50,
+      "our_lines": 8,
+      "suspect_lines": [
+        {
+          "name": "Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound)",
+          "ratio": 1.94
+        },
+        {
+          "name": "Tokyo Metro - Odawara Bypass Line (southbound)",
+          "ratio": 1.79
+        }
+      ],
+      "note": "2 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound) 1.94×、Tokyo Metro - Odawara Bypass Line (southbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
+    },
+    {
+      "severity": "order",
+      "city": null,
+      "country": null,
+      "our_file": "systems/unknown/unknown/unknown.geojson",
+      "our_stations": 117,
+      "our_lines": 4,
+      "suspect_lines": [
+        {
+          "name": "Metro D",
+          "ratio": 1.78
+        }
+      ],
+      "note": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
     },
     {
       "severity": "low",
@@ -2343,19 +1896,19 @@
     },
     {
       "severity": "low",
-      "city": "Shiraz",
-      "country": "Iran",
-      "system": "Shiraz Metro",
-      "our_file": "systems/asia/iran/asia-iran-shiraz.geojson",
-      "our_stations": 9,
+      "city": "Incheon",
+      "country": "South Korea",
+      "system": "Incheon Subway",
+      "our_file": "systems/asia/south-korea/asia-south-korea-incheon.geojson",
+      "our_stations": 27,
       "our_lines": 1,
-      "wiki_stations": 24,
-      "wiki_length_km": 32.5,
-      "ratio": 0.38,
-      "note": "站數偏少（9 vs wiki 24）",
+      "wiki_stations": 68,
+      "wiki_length_km": 80.5,
+      "ratio": 0.4,
+      "note": "站數偏少（27 vs wiki 68）",
       "has_map": false,
-      "wiki_url": "https://en.wikipedia.org/wiki/Shiraz_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Shiraz"
+      "wiki_url": "https://en.wikipedia.org/wiki/Incheon_Subway",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Incheon"
     },
     {
       "severity": "low",
@@ -2411,12 +1964,12 @@
       "country": "Japan",
       "system": "Tokyo Metro",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 316,
+      "our_stations": 315,
       "our_lines": 21,
       "wiki_stations": 142,
       "wiki_length_km": 195.1,
-      "ratio": 2.23,
-      "note": "站數偏多（316 vs wiki 142），可能混入輕軌",
+      "ratio": 2.22,
+      "note": "站數偏多（315 vs wiki 142），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Tokyo_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -2443,12 +1996,12 @@
       "country": "Japan",
       "system": "Toei Subway",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 316,
+      "our_stations": 315,
       "our_lines": 21,
       "wiki_stations": 99,
       "wiki_length_km": 109,
-      "ratio": 3.19,
-      "note": "站數偏多（316 vs wiki 99），可能混入輕軌",
+      "ratio": 3.18,
+      "note": "站數偏多（315 vs wiki 99），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Toei_Subway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -2523,12 +2076,12 @@
       "country": "China",
       "system": "Changzhou Metro",
       "our_file": "systems/asia/china/asia-china-changzhou.geojson",
-      "our_stations": 123,
+      "our_stations": 80,
       "our_lines": 2,
       "wiki_stations": 43,
       "wiki_length_km": 54,
-      "ratio": 2.86,
-      "note": "站數偏多（123 vs wiki 43），可能混入輕軌",
+      "ratio": 1.86,
+      "note": "站數偏多（80 vs wiki 43），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Changzhou_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Changzhou"
@@ -2572,7 +2125,7 @@
       "system": "Toulouse Metro",
       "our_file": "systems/europe/france/europe-france-toulouse.geojson",
       "our_stations": 69,
-      "our_lines": 3,
+      "our_lines": 2,
       "wiki_stations": 37,
       "wiki_length_km": 28.2,
       "ratio": 1.86,
@@ -2580,6 +2133,22 @@
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Toulouse_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Toulouse"
+    },
+    {
+      "severity": "high",
+      "city": "Fukuoka",
+      "country": "Japan",
+      "system": "Fukuoka City Subway",
+      "our_file": "systems/asia/japan/asia-japan-fukuoka.geojson",
+      "our_stations": 73,
+      "our_lines": 3,
+      "wiki_stations": 36,
+      "wiki_length_km": 31.4,
+      "ratio": 2.03,
+      "note": "站數偏多（73 vs wiki 36），可能混入輕軌",
+      "has_map": false,
+      "wiki_url": "https://en.wikipedia.org/wiki/Fukuoka_City_Subway",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Fukuoka"
     },
     {
       "severity": "high",
@@ -2599,6 +2168,22 @@
     },
     {
       "severity": "high",
+      "city": "Brasília",
+      "country": "Brazil",
+      "system": "Federal District Metro",
+      "our_file": "systems/south-america/brazil/south-america-brazil-brasilia.geojson",
+      "our_stations": 75,
+      "our_lines": 2,
+      "wiki_stations": 27,
+      "wiki_length_km": 42.4,
+      "ratio": 2.78,
+      "note": "站數偏多（75 vs wiki 27），可能混入輕軌",
+      "has_map": false,
+      "wiki_url": "https://en.wikipedia.org/wiki/Federal_District_Metro",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Bras%C3%ADlia"
+    },
+    {
+      "severity": "high",
       "city": "Montreal",
       "country": "Canada",
       "system": "Réseau express métropolitain",
@@ -2612,6 +2197,38 @@
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Réseau_express_métropolitain",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal"
+    },
+    {
+      "severity": "high",
+      "city": "New York City",
+      "country": "United States",
+      "system": "Staten Island Railway",
+      "our_file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
+      "our_stations": 514,
+      "our_lines": 34,
+      "wiki_stations": 21,
+      "wiki_length_km": 22.5,
+      "ratio": 24.48,
+      "note": "站數偏多（514 vs wiki 21），可能混入輕軌",
+      "has_map": true,
+      "wiki_url": "https://en.wikipedia.org/wiki/Staten_Island_Railway",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
+    },
+    {
+      "severity": "high",
+      "city": "Isfahan",
+      "country": "Iran",
+      "system": "Isfahan Metro",
+      "our_file": "systems/asia/iran/asia-iran-isfahan.geojson",
+      "our_stations": 53,
+      "our_lines": 1,
+      "wiki_stations": 20,
+      "wiki_length_km": 20.2,
+      "ratio": 2.65,
+      "note": "站數偏多（53 vs wiki 20），可能混入輕軌",
+      "has_map": false,
+      "wiki_url": "https://en.wikipedia.org/wiki/Isfahan_Metro",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Isfahan"
     },
     {
       "severity": "high",
@@ -2631,16 +2248,32 @@
     },
     {
       "severity": "high",
+      "city": "Los Angeles",
+      "country": "United States",
+      "system": "Metro Rail[Nb 96]",
+      "our_file": "systems/north-america/united-states/north-america-united-states-los-angeles.geojson",
+      "our_stations": 32,
+      "our_lines": 2,
+      "wiki_stations": 19,
+      "wiki_length_km": 34.31,
+      "ratio": 1.68,
+      "note": "站數偏多（32 vs wiki 19），可能混入輕軌",
+      "has_map": false,
+      "wiki_url": "https://en.wikipedia.org/wiki/Metro_Rail[Nb_96]",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles"
+    },
+    {
+      "severity": "high",
       "city": "Tokyo",
       "country": "Japan",
       "system": "Yurikamome",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 316,
+      "our_stations": 315,
       "our_lines": 21,
       "wiki_stations": 16,
       "wiki_length_km": 14.7,
-      "ratio": 19.75,
-      "note": "站數偏多（316 vs wiki 16），可能混入輕軌",
+      "ratio": 19.69,
+      "note": "站數偏多（315 vs wiki 16），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Yurikamome",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -2651,12 +2284,12 @@
       "country": "South Korea",
       "system": "Shinbundang Line[Nb 62] (Neo Trans)",
       "our_file": "systems/asia/south-korea/asia-south-korea-seoul.geojson",
-      "our_stations": 526,
-      "our_lines": 12,
+      "our_stations": 499,
+      "our_lines": 11,
       "wiki_stations": 16,
       "wiki_length_km": 33.4,
-      "ratio": 32.88,
-      "note": "站數偏多（526 vs wiki 16），可能混入輕軌",
+      "ratio": 31.19,
+      "note": "站數偏多（499 vs wiki 16），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Shinbundang_Line[Nb_62]_(Neo_Trans)",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul"
@@ -2667,12 +2300,12 @@
       "country": "Japan",
       "system": "Kanazawa Seaside Line",
       "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "our_stations": 49,
-      "our_lines": 3,
+      "our_stations": 50,
+      "our_lines": 8,
       "wiki_stations": 14,
       "wiki_length_km": 10.6,
-      "ratio": 3.5,
-      "note": "站數偏多（49 vs wiki 14），可能混入輕軌",
+      "ratio": 3.57,
+      "note": "站數偏多（50 vs wiki 14），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
@@ -2699,12 +2332,12 @@
       "country": "Japan",
       "system": "Nippori-Toneri Liner",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 316,
+      "our_stations": 315,
       "our_lines": 21,
       "wiki_stations": 13,
       "wiki_length_km": 9.7,
-      "ratio": 24.31,
-      "note": "站數偏多（316 vs wiki 13），可能混入輕軌",
+      "ratio": 24.23,
+      "note": "站數偏多（315 vs wiki 13），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Nippori-Toneri_Liner",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -2731,31 +2364,15 @@
       "country": "United States",
       "system": "PATH",
       "our_file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
-      "our_stations": 28,
-      "our_lines": 6,
+      "our_stations": 514,
+      "our_lines": 34,
       "wiki_stations": 13,
       "wiki_length_km": 22.2,
-      "ratio": 2.15,
-      "note": "站數偏多（28 vs wiki 13），可能混入輕軌",
+      "ratio": 39.54,
+      "note": "站數偏多（514 vs wiki 13），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/PATH",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
-    },
-    {
-      "severity": "high",
-      "city": "New Taipei",
-      "country": "Taiwan",
-      "system": "New Taipei Metro",
-      "our_file": "systems/asia/taiwan/asia-taiwan-new-taipei.geojson",
-      "our_stations": 23,
-      "our_lines": 1,
-      "wiki_stations": 12,
-      "wiki_length_km": 14.29,
-      "ratio": 1.92,
-      "note": "站數偏多（23 vs wiki 12），可能混入輕軌",
-      "has_map": true,
-      "wiki_url": "https://en.wikipedia.org/wiki/New_Taipei_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei"
     },
     {
       "severity": "high",
@@ -2763,12 +2380,12 @@
       "country": "Japan",
       "system": "Rinkai Line",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 316,
+      "our_stations": 315,
       "our_lines": 21,
       "wiki_stations": 8,
       "wiki_length_km": 12.2,
-      "ratio": 39.5,
-      "note": "站數偏多（316 vs wiki 8），可能混入輕軌",
+      "ratio": 39.38,
+      "note": "站數偏多（315 vs wiki 8），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Rinkai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -2795,12 +2412,12 @@
       "country": "Japan",
       "system": "Minatomirai Line",
       "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "our_stations": 49,
-      "our_lines": 3,
+      "our_stations": 50,
+      "our_lines": 8,
       "wiki_stations": 6,
       "wiki_length_km": 4.1,
-      "ratio": 8.17,
-      "note": "站數偏多（49 vs wiki 6），可能混入輕軌",
+      "ratio": 8.33,
+      "note": "站數偏多（50 vs wiki 6），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Minatomirai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
@@ -2824,52 +2441,17 @@
   ],
   "extras": [
     {
-      "file": "systems/north-america/united-states/north-america-united-states-new-york.geojson",
-      "city": "New York",
-      "country": "United States",
-      "station_count": 486,
-      "line_count": 28
-    },
-    {
-      "file": "systems/europe/germany/europe-germany-dusseldorf.geojson",
-      "city": "Dusseldorf",
+      "file": "systems/europe/germany/europe-germany-ratingen.geojson",
+      "city": "Ratingen",
       "country": "Germany",
-      "station_count": 219,
-      "line_count": 14
-    },
-    {
-      "file": "systems/europe/germany/europe-germany-frankfurt.geojson",
-      "city": "Frankfurt",
-      "country": "Germany",
-      "station_count": 87,
+      "station_count": 158,
       "line_count": 9
     },
     {
-      "file": "systems/asia/china/asia-china-yinzhou-district.geojson",
-      "city": "Yinzhou District",
-      "country": "China",
-      "station_count": 188,
-      "line_count": 8
-    },
-    {
-      "file": "systems/europe/sweden/europe-sweden-stockholm-municipality.geojson",
-      "city": "Stockholm Municipality",
-      "country": "Sweden",
-      "station_count": 101,
-      "line_count": 7
-    },
-    {
-      "file": "systems/europe/spain/europe-spain-paterna.geojson",
-      "city": "Paterna",
+      "file": "systems/europe/spain/europe-spain-xirivella.geojson",
+      "city": "Xirivella",
       "country": "Spain",
       "station_count": 100,
-      "line_count": 6
-    },
-    {
-      "file": "systems/asia/china/asia-china-licheng-district.geojson",
-      "city": "Licheng District",
-      "country": "China",
-      "station_count": 110,
       "line_count": 6
     },
     {
@@ -2880,13 +2462,6 @@
       "line_count": 4
     },
     {
-      "file": "systems/europe/denmark/europe-denmark-sundbyerne.geojson",
-      "city": "Sundbyerne",
-      "country": "Denmark",
-      "station_count": 46,
-      "line_count": 4
-    },
-    {
       "file": "systems/unknown/unknown/unknown.geojson",
       "city": null,
       "country": null,
@@ -2894,178 +2469,38 @@
       "line_count": 4
     },
     {
-      "file": "systems/north-america/canada/north-america-canada-burnaby.geojson",
-      "city": "Burnaby",
-      "country": "Canada",
-      "station_count": 56,
-      "line_count": 3
-    },
-    {
-      "file": "systems/europe/germany/europe-germany-furth.geojson",
-      "city": "Fürth",
-      "country": "Germany",
-      "station_count": 49,
-      "line_count": 3
-    },
-    {
-      "file": "systems/unknown/unknown/sapporo-municipal-subway.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 51,
-      "line_count": 3
-    },
-    {
-      "file": "systems/unknown/unknown/fukuoka-city-subway.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 73,
-      "line_count": 3
-    },
-    {
-      "file": "systems/unknown/unknown/harbin-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 78,
-      "line_count": 3
-    },
-    {
-      "file": "systems/unknown/unknown/xiamen-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 84,
-      "line_count": 3
-    },
-    {
-      "file": "systems/unknown/unknown/guiyang-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 65,
-      "line_count": 3
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-kawasaki.geojson",
-      "city": "Kawasaki",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 3
-    },
-    {
-      "file": "systems/asia/turkey/asia-turkey-gebze.geojson",
-      "city": "Gebze",
+      "file": "systems/asia/turkey/asia-turkey-derince.geojson",
+      "city": "Derince",
       "country": "Turkey",
       "station_count": 11,
       "line_count": 3
     },
     {
-      "file": "systems/europe/france/europe-france-marcq-en-bar-ul.geojson",
-      "city": "Marcq-en-Barœul",
-      "country": "France",
-      "station_count": 65,
+      "file": "systems/europe/germany/europe-germany-essen.geojson",
+      "city": "Essen",
+      "country": "Germany",
+      "station_count": 19,
       "line_count": 2
     },
     {
-      "file": "systems/europe/russia/europe-russia.geojson",
-      "city": "Ленинский район",
-      "country": "Russia",
-      "station_count": 15,
+      "file": "systems/europe/germany/europe-germany-dusseldorf.geojson",
+      "city": "Dusseldorf",
+      "country": "Germany",
+      "station_count": 17,
       "line_count": 2
     },
     {
-      "file": "systems/south-america/brazil/south-america-brazil-canoas.geojson",
-      "city": "Canoas",
-      "country": "Brazil",
-      "station_count": 23,
-      "line_count": 2
-    },
-    {
-      "file": "systems/south-america/brazil/south-america-brazil-aguas-claras.geojson",
-      "city": "Águas Claras",
-      "country": "Brazil",
-      "station_count": 75,
-      "line_count": 2
-    },
-    {
-      "file": "systems/north-america/united-states/north-america-united-states-maywood.geojson",
-      "city": "Maywood",
-      "country": "United States",
-      "station_count": 32,
-      "line_count": 2
-    },
-    {
-      "file": "systems/unknown/unknown/mashhad-urban-railway.geojson",
-      "city": null,
-      "country": null,
+      "file": "systems/europe/germany/europe-germany-bochum.geojson",
+      "city": "Bochum",
+      "country": "Germany",
       "station_count": 25,
-      "line_count": 2
-    },
-    {
-      "file": "systems/unknown/unknown/sendai-subway.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 30,
-      "line_count": 2
-    },
-    {
-      "file": "systems/unknown/unknown/lanzhou-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 29,
-      "line_count": 2
-    },
-    {
-      "file": "systems/unknown/unknown/urumqi-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 24,
-      "line_count": 2
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-nerima.geojson",
-      "city": "Nerima",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 2
-    },
-    {
-      "file": "systems/asia/china/asia-china-chongchuan-district.geojson",
-      "city": "Chongchuan District",
-      "country": "China",
-      "station_count": 54,
-      "line_count": 2
-    },
-    {
-      "file": "systems/asia/india/asia-india-fafrana.geojson",
-      "city": "fafrana",
-      "country": "India",
-      "station_count": 7,
-      "line_count": 2
+      "line_count": 1
     },
     {
       "file": "systems/europe/spain/europe-spain-seville.geojson",
       "city": "Seville",
       "country": "Spain",
       "station_count": 22,
-      "line_count": 1
-    },
-    {
-      "file": "systems/unknown/unknown/metro-de-belo-horizonte.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 22,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/saudi-arabia/asia-saudi-arabia-makkah-region.geojson",
-      "city": "Makkah Region",
-      "country": "Saudi Arabia",
-      "station_count": 12,
-      "line_count": 1
-    },
-    {
-      "file": "systems/north-america/united-states/north-america-united-states-puerto-nuevo.geojson",
-      "city": "Puerto Nuevo",
-      "country": "United States",
-      "station_count": 16,
       "line_count": 1
     },
     {
@@ -3076,101 +2511,10 @@
       "line_count": 1
     },
     {
-      "file": "systems/europe/france/europe-france-meaux.geojson",
-      "city": "Meaux",
-      "country": "France",
-      "station_count": 9,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-ichikawa.geojson",
-      "city": "Ichikawa",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 1
-    },
-    {
-      "file": "systems/south-america/venezuela/south-america-venezuela-las-lomitas.geojson",
-      "city": "Las Lomitas",
-      "country": "Venezuela",
-      "station_count": 7,
-      "line_count": 1
-    },
-    {
-      "file": "systems/unknown/unknown/system.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 53,
-      "line_count": 1
-    },
-    {
-      "file": "systems/unknown/unknown/shiraz-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 25,
-      "line_count": 1
-    },
-    {
-      "file": "systems/unknown/unknown/tabriz-metro.geojson",
-      "city": null,
-      "country": null,
-      "station_count": 20,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-yachiyo.geojson",
-      "city": "Yachiyo",
-      "country": "Japan",
-      "station_count": 8,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-kawaguchi.geojson",
-      "city": "Kawaguchi",
-      "country": "Japan",
-      "station_count": 8,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-setagaya.geojson",
-      "city": "Setagaya",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-matsudo.geojson",
-      "city": "Matsudo",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-suginami.geojson",
-      "city": "Suginami",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-tokorozawa.geojson",
-      "city": "Tokorozawa",
-      "country": "Japan",
-      "station_count": 0,
-      "line_count": 1
-    },
-    {
       "file": "systems/asia/china/asia-china-chuzhou.geojson",
       "city": "Chuzhou",
       "country": "China",
       "station_count": 15,
-      "line_count": 1
-    },
-    {
-      "file": "systems/asia/india/asia-india-mumbai-zone-2.geojson",
-      "city": "Mumbai Zone 2",
-      "country": "India",
-      "station_count": 0,
       "line_count": 1
     },
     {
@@ -3179,13 +2523,6 @@
       "country": "Colombia",
       "station_count": 0,
       "line_count": 1
-    },
-    {
-      "file": "systems/asia/south-korea/asia-south-korea-jincheon-eup.geojson",
-      "city": "Jincheon-eup",
-      "country": "South Korea",
-      "station_count": 2,
-      "line_count": 0
     },
     {
       "file": "systems/oceania/australia/oceania-australia-perth.geojson",

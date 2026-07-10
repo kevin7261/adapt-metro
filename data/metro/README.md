@@ -1,8 +1,15 @@
 # 全球地鐵資料 (Metro data)
 
-從 **OpenStreetMap**（透過 Overpass API，`route=subway`）抓取的全球地下鐵路線與車站，
-以 **Wikipedia [List of metro systems](https://en.wikipedia.org/wiki/List_of_metro_systems)**
-為覆蓋率基準，並可對照 [urbanrail.net](https://www.urbanrail.net/)。
+從 **OpenStreetMap**（透過 Overpass API，`route=subway`，**僅營運中**——排除建設中/規劃中/停用）
+抓取的全球地下鐵路線與車站，以 **Wikipedia [List of metro systems](https://en.wikipedia.org/wiki/List_of_metro_systems)**
+為覆蓋率基準，並對照 [urbanrail.net](https://www.urbanrail.net/) 驗證。
+
+**線路幾何是「依站序連線」的示意折線**（route relation 的 stop 成員依順序相連），
+**不是**真實軌道線形。
+
+**不變式（每次抓完必以 Wikipedia＋urbanrail 驗證，違反＝資料有錯）**：
+1. Wikipedia 清單上有的城市不可能沒資料；2. 不可能有車站沒有路線（每站 `lines` ≥ 1）；
+3. 站序必須正確（可疑者由 `verify_report` 標 `order`，逐線人工比對確認）。
 
 > **權威依據（兩份 skill，互為 fetch⇄verify 迴圈）**：
 > - 取得：`.claude/skills/metro-osm-fetch/SKILL.md`（OSM 資料 + 反查 + 組檔 + 下載官方路網圖）
@@ -38,7 +45,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 驗證 -> verify_report.json
 | `systems/{洲}/{國}/{洲}-{國}-{城}.geojson` | 每個城市/系統一個檔，依 `continent/country/` 分層存放，例如 `systems/asia/taiwan/asia-taiwan-taipei.geojson`；含該系統的線路+車站，並附系統中繼資料 |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
 | `maps/{洲}/{國}/{洲}-{國}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
-| `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**（待查系統清單），由 `npm run metro:verify` 產出，見 skill `metro-data-verify` |
+| `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-data-verify` |
 | `_cache/` | Overpass/Wikipedia 原始回應（可刪，重跑會重抓） |
 
 ## 欄位 (properties)
@@ -48,12 +55,15 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 驗證 -> verify_report.json
 `route_color`（正規化為 `#rrggbb`）, `network`, `network_local`, `operator`,
 `city`, `country`, `wikidata`, `wikipedia`, `osm_route_ids`（來源 OSM relation ids）。
 
-> 來回方向的路線變體會依 OSM `route_master`（或 `network`+`ref`）合併為單一線路，
-> 幾何以 way id 去重，避免同一條線畫兩次。
+> 幾何＝該線各 stop 依 relation 順序連成的折線（示意，非軌道線形）。來回方向的路線變體會依
+> OSM `route_master`（或 `network`+`ref`）合併為單一線路，並以 ~100 m 座標格去重反向重複、
+> 保留支線（帶來 >20% 新站的變體）。
 
 **車站 (station feature):**
 `station_id`, `station_name`, `station_name_local`, `network`, `network_local`,
-`operator`, `city`, `country`, `lines`（此站所屬線路代號，best-effort）, `wikidata`。
+`operator`, `city`, `country`,
+`lines`（此站所屬線路代號；線無代號時用線名。**至少一條**——空值屬資料錯誤，verify 會標 `no_line`）,
+`wikidata`。
 
 **系統中繼資料（每個 `systems/*.geojson` 的 `metro_system` 欄位）:**
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 OSM network 清單）, `operator`,

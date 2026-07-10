@@ -1,26 +1,27 @@
 {
   "generated_from": "OpenStreetMap via Overpass API (route=subway, operational only; line geometry = stops connected in member order)",
   "baseline": "Wikipedia: List of metro systems",
-  "system_count": 242,
+  "system_count": 232,
   "wikipedia_system_count": 233,
-  "line_total": 959,
-  "station_total": 19614,
+  "line_total": 961,
+  "station_total": 19476,
   "systems": [
     {
-      "file": "systems/north-america/united-states/north-america-united-states-new-york.geojson",
+      "file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
       "continent": "north-america",
       "country": "United States",
-      "city": "New York",
+      "city": "New York City",
       "osm_networks": [
         "NYC Subway",
-        "PATH"
+        "PATH",
+        "Staten Island Railway"
       ],
       "operator": "Metropolitan Transportation Authority",
       "official_website": "https://www.mta.info/",
       "official_map": "https://en.wikipedia.org/wiki/1_(New_York_City_Subway_service)",
       "wikidata": "Q126093",
-      "line_count": 28,
-      "station_count": 486
+      "line_count": 34,
+      "station_count": 514
     },
     {
       "file": "systems/asia/china/asia-china-beijing.geojson",
@@ -54,8 +55,7 @@
       "country": "Japan",
       "city": "Tokyo",
       "osm_networks": [
-        "Odakyu;Tokyo Metro",
-        "Tobu Railway;Tokyo Metro",
+        "Keisei",
         "Tobu Skytree Line;Tokyo Metro",
         "Toei Shinjuku Line",
         "Toei Subway",
@@ -79,6 +79,7 @@
         "東京メト",
         "東京メトロ",
         "東京メトロ;東葉高速線",
+        "東京メトロ;都営地下鉄",
         "東京メトロ丸ノ内線",
         "東京メトロ丸ノ内線;銀座線",
         "東京メトロ副都心線",
@@ -93,6 +94,7 @@
         "東京急行電鉄;東京地下鉄",
         "東京臨海高速鉄道",
         "東京都交通局",
+        "東急電鉄;東京メトロ;東武鉄道",
         "東日本旅客鉄道;東京地下鉄",
         "東武鉄道;東京地下鉄",
         "西武鉄道;東京地下鉄",
@@ -103,11 +105,36 @@
         "銀座線;千代田線;半蔵門線"
       ],
       "operator": "東京都交通局",
-      "official_website": null,
+      "official_website": "https://www.keisei.co.jp/",
       "official_map": "https://en.wikipedia.org/wiki/Toei_Shinjuku_Line",
       "wikidata": "Q1374502",
       "line_count": 21,
-      "station_count": 316
+      "station_count": 315
+    },
+    {
+      "file": "systems/europe/france/europe-france-paris.geojson",
+      "continent": "europe",
+      "country": "France",
+      "city": "Paris",
+      "osm_networks": [
+        "CDGVAL",
+        "Ligne 7",
+        "Métro",
+        "Métro 1",
+        "Métro de Paris",
+        "Métro de Paris;RATP",
+        "Métro de Paris;RER;Tramway d'Île de France;Transilien",
+        "RATP",
+        "RATP Ile de France Mobilités",
+        "Unknown",
+        "ratp"
+      ],
+      "operator": "RATP",
+      "official_website": null,
+      "official_map": "https://fr.wikipedia.org/wiki/Ligne_8_du_métro_de_Paris",
+      "wikidata": "Q50751",
+      "line_count": 18,
+      "station_count": 418
     },
     {
       "file": "systems/asia/china/asia-china-shanghai.geojson",
@@ -128,7 +155,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_8_(Shanghai_Metro)",
       "wikidata": "Q1152341",
       "line_count": 18,
-      "station_count": 587
+      "station_count": 564
     },
     {
       "file": "systems/asia/china/asia-china-guangzhou.geojson",
@@ -155,28 +182,25 @@
       "station_count": 362
     },
     {
-      "file": "systems/europe/france/europe-france-paris.geojson",
+      "file": "systems/europe/germany/europe-germany-berlin.geojson",
       "continent": "europe",
-      "country": "France",
-      "city": "Paris",
+      "country": "Germany",
+      "city": "Berlin",
       "osm_networks": [
-        "Ligne 7",
-        "Métro",
-        "Métro 1",
-        "Métro de Paris",
-        "Métro de Paris;RATP",
-        "Métro de Paris;RER;Tramway d'Île de France;Transilien",
-        "RATP",
-        "RATP Ile de France Mobilités",
+        "Berliner Verkehrsbetriebe",
+        "RMV",
+        "Rhein-Main-Verkehrsverbund",
+        "U-Bahn Frankfurt",
         "Unknown",
-        "ratp"
+        "VGF",
+        "Verkehrsverbund Berlin-Brandenburg"
       ],
-      "operator": "RATP",
+      "operator": "Berliner Verkehrsbetriebe",
       "official_website": null,
-      "official_map": "https://fr.wikipedia.org/wiki/Ligne_8_du_métro_de_Paris",
-      "wikidata": "Q50751",
-      "line_count": 17,
-      "station_count": 409
+      "official_map": "https://de.wikipedia.org/wiki/U-Bahn-Linie_U5_(Berlin)",
+      "wikidata": "Q99711",
+      "line_count": 18,
+      "station_count": 267
     },
     {
       "file": "systems/asia/china/asia-china-chengdu.geojson",
@@ -262,28 +286,6 @@
       "station_count": 305
     },
     {
-      "file": "systems/europe/germany/europe-germany-dusseldorf.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Dusseldorf",
-      "osm_networks": [
-        "BOGESTRA",
-        "KVB",
-        "Ruhrbahn",
-        "Unknown",
-        "VRR",
-        "VRR;Bogestra",
-        "VRS",
-        "Verkehrsverbund Rhein-Ruhr"
-      ],
-      "operator": "Ruhrbahn;BOGESTRA",
-      "official_website": null,
-      "official_map": "https://de.wikipedia.org/wiki/Stadtbahn_Essen",
-      "wikidata": "Q110928761",
-      "line_count": 14,
-      "station_count": 219
-    },
-    {
       "file": "systems/europe/spain/europe-spain-barcelona.geojson",
       "continent": "europe",
       "country": "Spain",
@@ -339,7 +341,7 @@
       "official_map": "https://zh.wikipedia.org/wiki/天津地铁9号线",
       "wikidata": "Q3125123",
       "line_count": 13,
-      "station_count": 330
+      "station_count": 304
     },
     {
       "file": "systems/asia/china/asia-china-wuhan.geojson",
@@ -360,7 +362,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_1,_Wuhan_Metro",
       "wikidata": "Q5963161",
       "line_count": 13,
-      "station_count": 326
+      "station_count": 325
     },
     {
       "file": "systems/asia/china/asia-china-hangzhou.geojson",
@@ -432,42 +434,6 @@
       "station_count": 212
     },
     {
-      "file": "systems/asia/south-korea/asia-south-korea-seoul.geojson",
-      "continent": "asia",
-      "country": "South Korea",
-      "city": "Seoul",
-      "osm_networks": [
-        "KTX",
-        "Korail",
-        "Seoul Metropolitan Subway",
-        "Seoul Metropolitan Subway System",
-        "Unknown",
-        "공항철도주식회사",
-        "구리도시공사",
-        "남양주도시공사",
-        "서울 지하철",
-        "서울 지하철 4호선",
-        "서울교통공사",
-        "서울교통공사;네오트랜스주식회사",
-        "서울교통공사;서울시메트로9호선",
-        "서울메트로",
-        "서울시메트로9호선",
-        "수도권 전철",
-        "에스알",
-        "인천교통공사",
-        "코레일",
-        "한국철도공사",
-        "한국철도공사;공항철도주식회사",
-        "한국철도공사;서울교통공사"
-      ],
-      "operator": "서울교통공사;한국철도공사",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Seoul_Subway_Line_3",
-      "wikidata": "Q20393",
-      "line_count": 12,
-      "station_count": 526
-    },
-    {
       "file": "systems/asia/china/asia-china-xi-an.geojson",
       "continent": "asia",
       "country": "China",
@@ -511,6 +477,42 @@
       "wikidata": "Q207699",
       "line_count": 11,
       "station_count": 280
+    },
+    {
+      "file": "systems/asia/south-korea/asia-south-korea-seoul.geojson",
+      "continent": "asia",
+      "country": "South Korea",
+      "city": "Seoul",
+      "osm_networks": [
+        "KTX",
+        "Korail",
+        "Seoul Metropolitan Subway",
+        "Seoul Metropolitan Subway System",
+        "Unknown",
+        "공항철도주식회사",
+        "구리도시공사",
+        "남양주도시공사",
+        "서울 지하철",
+        "서울 지하철 4호선",
+        "서울교통공사",
+        "서울교통공사;네오트랜스주식회사",
+        "서울교통공사;서울시메트로9호선",
+        "서울메트로",
+        "서울시메트로9호선",
+        "수도권 전철",
+        "에스알",
+        "인천교통공사",
+        "코레일",
+        "한국철도공사",
+        "한국철도공사;공항철도주식회사",
+        "한국철도공사;서울교통공사"
+      ],
+      "operator": "서울교통공사;한국철도공사",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Seoul_Subway_Line_3",
+      "wikidata": "Q20393",
+      "line_count": 11,
+      "station_count": 499
     },
     {
       "file": "systems/asia/china/asia-china-chongqing.geojson",
@@ -570,42 +572,25 @@
       "station_count": 243
     },
     {
-      "file": "systems/europe/germany/europe-germany-frankfurt.geojson",
+      "file": "systems/europe/germany/europe-germany-ratingen.geojson",
       "continent": "europe",
       "country": "Germany",
-      "city": "Frankfurt",
+      "city": "Ratingen",
       "osm_networks": [
-        "RMV",
-        "Rhein-Main-Verkehrsverbund",
-        "U-Bahn Frankfurt",
+        "KVB",
+        "Ruhrbahn",
         "Unknown",
-        "VGF"
+        "VRR",
+        "VRR;Bogestra",
+        "VRS",
+        "Verkehrsverbund Rhein-Ruhr"
       ],
-      "operator": "VGF",
+      "operator": "Ruhrbahn;BOGESTRA",
       "official_website": null,
-      "official_map": "https://de.wikipedia.org/wiki/U-Bahn-Strecke_A_(Frankfurt_am_Main)",
-      "wikidata": "Q19862991",
+      "official_map": "https://de.wikipedia.org/wiki/Stadtbahn_Essen",
+      "wikidata": "Q110928761",
       "line_count": 9,
-      "station_count": 87
-    },
-    {
-      "file": "systems/asia/taiwan/asia-taiwan-taipei.geojson",
-      "continent": "asia",
-      "country": "Taiwan",
-      "city": "Taipei",
-      "osm_networks": [
-        "Taipei Metro",
-        "Taoyuan Metro",
-        "Unknown",
-        "新北捷運",
-        "臺北捷運"
-      ],
-      "operator": "臺北大眾捷運股份有限公司",
-      "official_website": "http://www.trtc.com.tw/",
-      "official_map": "https://zh.wikipedia.org/wiki/板南線",
-      "wikidata": "Q708378",
-      "line_count": 9,
-      "station_count": 135
+      "station_count": 158
     },
     {
       "file": "systems/asia/japan/asia-japan-osaka.geojson",
@@ -675,23 +660,6 @@
       "station_count": 283
     },
     {
-      "file": "systems/europe/germany/europe-germany-berlin.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Berlin",
-      "osm_networks": [
-        "Berliner Verkehrsbetriebe",
-        "Unknown",
-        "Verkehrsverbund Berlin-Brandenburg"
-      ],
-      "operator": "Berliner Verkehrsbetriebe",
-      "official_website": null,
-      "official_map": "https://de.wikipedia.org/wiki/U-Bahn-Linie_U5_(Berlin)",
-      "wikidata": "Q99711",
-      "line_count": 9,
-      "station_count": 180
-    },
-    {
       "file": "systems/asia/china/asia-china-suzhou.geojson",
       "continent": "asia",
       "country": "China",
@@ -708,7 +676,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_2_(Suzhou_Metro)",
       "wikidata": "Q1054280",
       "line_count": 9,
-      "station_count": 280
+      "station_count": 276
     },
     {
       "file": "systems/north-america/united-states/north-america-united-states-chicago.geojson",
@@ -724,6 +692,82 @@
       "wikidata": "Q595450",
       "line_count": 8,
       "station_count": 148
+    },
+    {
+      "file": "systems/asia/taiwan/asia-taiwan-taipei.geojson",
+      "continent": "asia",
+      "country": "Taiwan",
+      "city": "Taipei",
+      "osm_networks": [
+        "Taipei Metro",
+        "Taoyuan Metro",
+        "Unknown",
+        "新北捷運",
+        "臺北捷運"
+      ],
+      "operator": "臺北大眾捷運股份有限公司",
+      "official_website": "http://www.trtc.com.tw/",
+      "official_map": "https://zh.wikipedia.org/wiki/板南線",
+      "wikidata": "Q708378",
+      "line_count": 8,
+      "station_count": 125
+    },
+    {
+      "file": "systems/asia/japan/asia-japan-yokohama.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Yokohama",
+      "osm_networks": [
+        "Odakyu;Tokyo Metro",
+        "Toei subway",
+        "Unknown",
+        "みなとみらい線",
+        "東急電鉄",
+        "東急電鉄;東京メトロ",
+        "横浜市交通局",
+        "横浜市営地下鉄"
+      ],
+      "operator": "横浜高速鉄道",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Minatomirai_Line",
+      "wikidata": "Q852314",
+      "line_count": 8,
+      "station_count": 50
+    },
+    {
+      "file": "systems/asia/china/asia-china-hefei.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Hefei",
+      "osm_networks": [
+        "Hefei Metro",
+        "Unknown",
+        "合肥市轨道交通集团有限公司",
+        "合肥轨道交通集团有限公司"
+      ],
+      "operator": "合肥轨道交通集团有限公司",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Line_2_(Hefei_Metro)",
+      "wikidata": "Q10916960",
+      "line_count": 8,
+      "station_count": 218
+    },
+    {
+      "file": "systems/asia/china/asia-china-qingdao.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Qingdao",
+      "osm_networks": [
+        "Qingdao Metro",
+        "Unknown",
+        "青岛地铁运营有限公司"
+      ],
+      "operator": "青岛地铁运营有限公司",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Line_3_(Qingdao_Metro)",
+      "wikidata": "Q15907883",
+      "line_count": 8,
+      "station_count": 231
     },
     {
       "file": "systems/europe/germany/europe-germany-munich.geojson",
@@ -744,10 +788,10 @@
       "station_count": 101
     },
     {
-      "file": "systems/asia/china/asia-china-yinzhou-district.geojson",
+      "file": "systems/asia/china/asia-china-ningbo.geojson",
       "continent": "asia",
       "country": "China",
-      "city": "Yinzhou District",
+      "city": "Ningbo",
       "osm_networks": [
         "Ningbo Rail Transit",
         "Unknown",
@@ -762,21 +806,23 @@
       "station_count": 188
     },
     {
-      "file": "systems/asia/china/asia-china-qingdao.geojson",
+      "file": "systems/asia/india/asia-india-mumbai.geojson",
       "continent": "asia",
-      "country": "China",
-      "city": "Qingdao",
+      "country": "India",
+      "city": "Mumbai",
       "osm_networks": [
-        "Qingdao Metro",
-        "Unknown",
-        "青岛地铁运营有限公司"
+        "MMRC",
+        "Mumbai Metro",
+        "Mumbai Metro Line 2",
+        "Thane Ring Metro",
+        "Unknown"
       ],
-      "operator": "青岛地铁运营有限公司",
+      "operator": "MMRDA",
       "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_3_(Qingdao_Metro)",
-      "wikidata": "Q15907883",
-      "line_count": 8,
-      "station_count": 265
+      "official_map": "https://en.wikipedia.org/wiki/Line_1_(Mumbai_Metro)",
+      "wikidata": "Q6553099",
+      "line_count": 7,
+      "station_count": 83
     },
     {
       "file": "systems/asia/china/asia-china-changsha.geojson",
@@ -792,31 +838,13 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_2_(Changsha_Metro)",
       "wikidata": "Q15919822",
       "line_count": 7,
-      "station_count": 141
+      "station_count": 140
     },
     {
-      "file": "systems/asia/china/asia-china-hefei.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Hefei",
-      "osm_networks": [
-        "Hefei Metro",
-        "Unknown",
-        "合肥市轨道交通集团有限公司",
-        "合肥轨道交通集团有限公司"
-      ],
-      "operator": "合肥轨道交通集团有限公司",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_2_(Hefei_Metro)",
-      "wikidata": "Q10916960",
-      "line_count": 7,
-      "station_count": 218
-    },
-    {
-      "file": "systems/europe/sweden/europe-sweden-stockholm-municipality.geojson",
+      "file": "systems/europe/sweden/europe-sweden-stockholm.geojson",
       "continent": "europe",
       "country": "Sweden",
-      "city": "Stockholm Municipality",
+      "city": "Stockholm",
       "osm_networks": [
         "SL"
       ],
@@ -859,6 +887,34 @@
       "wikidata": "Q1509576",
       "line_count": 6,
       "station_count": 75
+    },
+    {
+      "file": "systems/south-america/brazil/south-america-brazil-sao-paulo.geojson",
+      "continent": "south-america",
+      "country": "Brazil",
+      "city": "São Paulo",
+      "osm_networks": [
+        "CPTM;Metrô",
+        "Linha 1",
+        "Linha 5 - Lilás",
+        "Linha 5 Lilás",
+        "Linha 5 Lilás;Linha 1 Azul",
+        "Linha 6-Laranja",
+        "LinhaUni",
+        "Metropolitano de São Paulo",
+        "Metropolitano de São Paulo;ViaMobilidade Linhas 5 e 17",
+        "Metroviária",
+        "Metrô de São Paulo",
+        "Unknown",
+        "ViaMobilidade Linhas 5 e 17",
+        "ViaQuatro"
+      ],
+      "operator": "ViaMobilidade Linhas 5 e 17",
+      "official_website": null,
+      "official_map": "https://pt.wikipedia.org/wiki/Linha_5_do_Metropolitano_de_São_Paulo",
+      "wikidata": "Q3308465",
+      "line_count": 6,
+      "station_count": 97
     },
     {
       "file": "systems/south-america/argentina/south-america-argentina-buenos-aires.geojson",
@@ -940,22 +996,6 @@
       "station_count": 235
     },
     {
-      "file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
-      "continent": "north-america",
-      "country": "United States",
-      "city": "New York City",
-      "osm_networks": [
-        "PATH",
-        "Staten Island Railway"
-      ],
-      "operator": "Staten Island Rapid Transit Operating Authority",
-      "official_website": "https://www.mta.info/sir",
-      "official_map": "https://en.wikipedia.org/wiki/Staten_Island_Railway",
-      "wikidata": "Q1273068",
-      "line_count": 6,
-      "station_count": 28
-    },
-    {
       "file": "systems/asia/china/asia-china-dalian.geojson",
       "continent": "asia",
       "country": "China",
@@ -972,24 +1012,6 @@
       "wikidata": "Q5976456",
       "line_count": 6,
       "station_count": 153
-    },
-    {
-      "file": "systems/asia/india/asia-india-mumbai.geojson",
-      "continent": "asia",
-      "country": "India",
-      "city": "Mumbai",
-      "osm_networks": [
-        "Mumbai Metro",
-        "Mumbai Metro Line 2",
-        "Thane Ring Metro",
-        "Unknown"
-      ],
-      "operator": "MMRDA",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_1_(Mumbai_Metro)",
-      "wikidata": "Q6553099",
-      "line_count": 6,
-      "station_count": 83
     },
     {
       "file": "systems/asia/china/asia-china-kunming.geojson",
@@ -1023,13 +1045,13 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_1_(Shenyang_Metro)",
       "wikidata": "Q5934658",
       "line_count": 6,
-      "station_count": 141
+      "station_count": 140
     },
     {
-      "file": "systems/europe/spain/europe-spain-paterna.geojson",
+      "file": "systems/europe/spain/europe-spain-xirivella.geojson",
       "continent": "europe",
       "country": "Spain",
-      "city": "Paterna",
+      "city": "Xirivella",
       "osm_networks": [
         "Ferrocarrils de la Generalitat Valenciana",
         "Línea 2",
@@ -1064,22 +1086,6 @@
       "station_count": 128
     },
     {
-      "file": "systems/asia/china/asia-china-licheng-district.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Licheng District",
-      "osm_networks": [
-        "Unknown",
-        "济南轨道交通"
-      ],
-      "operator": "济南轨道交通集团有限公司",
-      "official_website": null,
-      "official_map": "https://zh.wikipedia.org/wiki/济南轨道交通3号线",
-      "wikidata": "Q24837836",
-      "line_count": 6,
-      "station_count": 110
-    },
-    {
       "file": "systems/asia/saudi-arabia/asia-saudi-arabia-riyadh.geojson",
       "continent": "asia",
       "country": "Saudi Arabia",
@@ -1096,6 +1102,22 @@
       "wikidata": "Q106740369",
       "line_count": 6,
       "station_count": 92
+    },
+    {
+      "file": "systems/asia/china/asia-china-jinan.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Jinan",
+      "osm_networks": [
+        "Unknown",
+        "济南轨道交通"
+      ],
+      "operator": "济南轨道交通集团有限公司",
+      "official_website": null,
+      "official_map": "https://zh.wikipedia.org/wiki/济南轨道交通3号线",
+      "wikidata": "Q24837836",
+      "line_count": 6,
+      "station_count": 109
     },
     {
       "file": "systems/europe/netherlands/europe-netherlands-amsterdam.geojson",
@@ -1147,34 +1169,6 @@
       "wikidata": "Q2735258",
       "line_count": 5,
       "station_count": 64
-    },
-    {
-      "file": "systems/south-america/brazil/south-america-brazil-sao-paulo.geojson",
-      "continent": "south-america",
-      "country": "Brazil",
-      "city": "São Paulo",
-      "osm_networks": [
-        "CPTM;Metrô",
-        "Linha 1",
-        "Linha 5 - Lilás",
-        "Linha 5 Lilás",
-        "Linha 5 Lilás;Linha 1 Azul",
-        "Linha 6-Laranja",
-        "LinhaUni",
-        "Metropolitano de São Paulo",
-        "Metropolitano de São Paulo;ViaMobilidade Linhas 5 e 17",
-        "Metroviária",
-        "Metrô de São Paulo",
-        "Unknown",
-        "ViaMobilidade Linhas 5 e 17",
-        "ViaQuatro"
-      ],
-      "operator": "ViaMobilidade Linhas 5 e 17",
-      "official_website": null,
-      "official_map": "https://pt.wikipedia.org/wiki/Linha_5_do_Metropolitano_de_São_Paulo",
-      "wikidata": "Q3308465",
-      "line_count": 5,
-      "station_count": 97
     },
     {
       "file": "systems/europe/norway/europe-norway-oslo.geojson",
@@ -1252,6 +1246,26 @@
       "station_count": 134
     },
     {
+      "file": "systems/south-america/venezuela/south-america-venezuela-caracas.geojson",
+      "continent": "south-america",
+      "country": "Venezuela",
+      "city": "Caracas",
+      "osm_networks": [
+        "Linea 1",
+        "Linea 1, Metro Los Teques",
+        "Linea 2, Metro Los Teques",
+        "Metro de Caracas",
+        "Metro de Los Teques",
+        "Unknown"
+      ],
+      "operator": "C.A. Metro de Caracas",
+      "official_website": null,
+      "official_map": "https://es.wikipedia.org/wiki/Línea_4_(Metro_de_Caracas)",
+      "wikidata": "Q21659772",
+      "line_count": 5,
+      "station_count": 54
+    },
+    {
       "file": "systems/europe/netherlands/europe-netherlands-rotterdam.geojson",
       "continent": "europe",
       "country": "Netherlands",
@@ -1301,7 +1315,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_1_(Wuxi_Metro)",
       "wikidata": "Q11085985",
       "line_count": 5,
-      "station_count": 93
+      "station_count": 92
     },
     {
       "file": "systems/asia/china/asia-china-nanning.geojson",
@@ -1320,6 +1334,27 @@
       "wikidata": "Q17498765",
       "line_count": 5,
       "station_count": 118
+    },
+    {
+      "file": "systems/asia/japan/asia-japan-saitama-prefecture.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Saitama Prefecture",
+      "osm_networks": [
+        "Ikebukuro Line System",
+        "S-Train",
+        "Seibu",
+        "Tobu Railway;Tokyo Metro",
+        "Unknown",
+        "埼玉高速鉄道",
+        "埼玉高速鉄道線"
+      ],
+      "operator": "埼玉高速鉄道",
+      "official_website": null,
+      "official_map": "https://ja.wikipedia.org/wiki/埼玉高速鉄道線",
+      "wikidata": "Q1065949",
+      "line_count": 5,
+      "station_count": 8
     },
     {
       "file": "systems/asia/india/asia-india-kolkata.geojson",
@@ -1423,10 +1458,10 @@
       "station_count": 51
     },
     {
-      "file": "systems/europe/denmark/europe-denmark-sundbyerne.geojson",
+      "file": "systems/europe/denmark/europe-denmark-copenhagen.geojson",
       "continent": "europe",
       "country": "Denmark",
-      "city": "Sundbyerne",
+      "city": "Copenhagen",
       "osm_networks": [
         "Metro",
         "Takst Sjælland"
@@ -1571,22 +1606,6 @@
       "station_count": 117
     },
     {
-      "file": "systems/south-america/venezuela/south-america-venezuela-caracas.geojson",
-      "continent": "south-america",
-      "country": "Venezuela",
-      "city": "Caracas",
-      "osm_networks": [
-        "Linea 1",
-        "Metro de Caracas"
-      ],
-      "operator": "C.A. Metro de Caracas",
-      "official_website": null,
-      "official_map": "https://es.wikipedia.org/wiki/Línea_4_(Metro_de_Caracas)",
-      "wikidata": "Q21659772",
-      "line_count": 4,
-      "station_count": 47
-    },
-    {
       "file": "systems/asia/china/asia-china-nanchang.geojson",
       "continent": "asia",
       "country": "China",
@@ -1703,23 +1722,6 @@
       "station_count": 52
     },
     {
-      "file": "systems/europe/france/europe-france-toulouse.geojson",
-      "continent": "europe",
-      "country": "France",
-      "city": "Toulouse",
-      "osm_networks": [
-        "Tisséo",
-        "Tisséo Voyageurs",
-        "Unknown"
-      ],
-      "operator": "Tisséo",
-      "official_website": null,
-      "official_map": "https://fr.wikipedia.org/wiki/Ligne_B_du_métro_de_Toulouse",
-      "wikidata": "Q3239063",
-      "line_count": 3,
-      "station_count": 69
-    },
-    {
       "file": "systems/north-america/united-states/north-america-united-states-philadelphia.geojson",
       "continent": "north-america",
       "country": "United States",
@@ -1737,10 +1739,10 @@
       "station_count": 67
     },
     {
-      "file": "systems/north-america/canada/north-america-canada-burnaby.geojson",
+      "file": "systems/north-america/canada/north-america-canada-vancouver.geojson",
       "continent": "north-america",
       "country": "Canada",
-      "city": "Burnaby",
+      "city": "Vancouver",
       "osm_networks": [
         "TransLink",
         "Translink"
@@ -1862,10 +1864,10 @@
       "station_count": 68
     },
     {
-      "file": "systems/europe/germany/europe-germany-furth.geojson",
+      "file": "systems/europe/germany/europe-germany-nuremberg.geojson",
       "continent": "europe",
       "country": "Germany",
-      "city": "Fürth",
+      "city": "Nuremberg",
       "osm_networks": [
         "Infra Fürth GmbH",
         "U-Bahn Nürnberg",
@@ -1912,10 +1914,10 @@
       "station_count": 89
     },
     {
-      "file": "systems/unknown/unknown/sapporo-municipal-subway.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/japan/asia-japan-sapporo.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Sapporo",
       "osm_networks": [
         "Sapporo Municipal Subway",
         "Unknown"
@@ -1928,10 +1930,10 @@
       "station_count": 51
     },
     {
-      "file": "systems/unknown/unknown/fukuoka-city-subway.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/japan/asia-japan-fukuoka.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Fukuoka",
       "osm_networks": [
         "2号線(箱崎線)",
         "Fukuoka City Subway",
@@ -1945,24 +1947,6 @@
       "wikidata": "Q1039166",
       "line_count": 3,
       "station_count": 73
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Yokohama",
-      "osm_networks": [
-        "Unknown",
-        "みなとみらい線",
-        "横浜市交通局",
-        "横浜市営地下鉄"
-      ],
-      "operator": "横浜高速鉄道",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Minatomirai_Line",
-      "wikidata": "Q852314",
-      "line_count": 3,
-      "station_count": 49
     },
     {
       "file": "systems/asia/south-korea/asia-south-korea-busan.geojson",
@@ -2023,10 +2007,10 @@
       "station_count": 66
     },
     {
-      "file": "systems/unknown/unknown/harbin-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/china/asia-china-harbin.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Harbin",
       "osm_networks": [
         "Harbin Metro",
         "Unknown"
@@ -2106,10 +2090,10 @@
       "station_count": 104
     },
     {
-      "file": "systems/unknown/unknown/xiamen-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/china/asia-china-xiamen.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Xiamen",
       "osm_networks": [
         "Unknown",
         "Xiamen Metro",
@@ -2124,10 +2108,10 @@
       "station_count": 84
     },
     {
-      "file": "systems/unknown/unknown/guiyang-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/china/asia-china-guiyang.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Guiyang",
       "osm_networks": [
         "Guiyang Metro",
         "Unknown"
@@ -2138,6 +2122,22 @@
       "wikidata": "Q19856263",
       "line_count": 3,
       "station_count": 65
+    },
+    {
+      "file": "systems/asia/india/asia-india-noida.geojson",
+      "continent": "asia",
+      "country": "India",
+      "city": "Noida",
+      "osm_networks": [
+        "Noida Metro",
+        "RapidX"
+      ],
+      "operator": "NMRC",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Aqua_Line_(Noida_Metro)",
+      "wikidata": "Q41668068",
+      "line_count": 3,
+      "station_count": 27
     },
     {
       "file": "systems/asia/qatar/asia-qatar-doha.geojson",
@@ -2158,26 +2158,10 @@
       "station_count": 40
     },
     {
-      "file": "systems/asia/japan/asia-japan-kawasaki.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Kawasaki",
-      "osm_networks": [
-        "東急電鉄",
-        "東急電鉄;東京メトロ"
-      ],
-      "operator": "東急電鉄;東京地下鉄",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/東急田園都市線",
-      "wikidata": "Q1190086",
-      "line_count": 3,
-      "station_count": 0
-    },
-    {
-      "file": "systems/asia/turkey/asia-turkey-gebze.geojson",
+      "file": "systems/asia/turkey/asia-turkey-derince.geojson",
       "continent": "asia",
       "country": "Turkey",
-      "city": "Gebze",
+      "city": "Derince",
       "osm_networks": [
         "Kocaeli Büyükşehir Belediyesi",
         "Unknown"
@@ -2222,10 +2206,28 @@
       "station_count": 23
     },
     {
-      "file": "systems/europe/france/europe-france-marcq-en-bar-ul.geojson",
+      "file": "systems/europe/germany/europe-germany-essen.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Essen",
+      "osm_networks": [
+        "Ruhrbahn",
+        "Unknown",
+        "VRR",
+        "Verkehrsverbund Rhein-Ruhr"
+      ],
+      "operator": "Ruhrbahn",
+      "official_website": null,
+      "official_map": "https://de.wikipedia.org/wiki/Verkehrsverbund_Rhein-Ruhr",
+      "wikidata": "Q88799606",
+      "line_count": 2,
+      "station_count": 19
+    },
+    {
+      "file": "systems/europe/france/europe-france-lille.geojson",
       "continent": "europe",
       "country": "France",
-      "city": "Marcq-en-Barœul",
+      "city": "Lille",
       "osm_networks": [
         "Ilévia",
         "Unknown"
@@ -2238,10 +2240,27 @@
       "station_count": 65
     },
     {
-      "file": "systems/europe/russia/europe-russia.geojson",
+      "file": "systems/europe/france/europe-france-toulouse.geojson",
+      "continent": "europe",
+      "country": "France",
+      "city": "Toulouse",
+      "osm_networks": [
+        "Tisséo",
+        "Tisséo Voyageurs",
+        "Unknown"
+      ],
+      "operator": "Tisséo",
+      "official_website": null,
+      "official_map": "https://fr.wikipedia.org/wiki/Ligne_B_du_métro_de_Toulouse",
+      "wikidata": "Q3239063",
+      "line_count": 2,
+      "station_count": 69
+    },
+    {
+      "file": "systems/europe/russia/europe-russia-nizhny-novgorod.geojson",
       "continent": "europe",
       "country": "Russia",
-      "city": "Ленинский район",
+      "city": "Nizhny Novgorod",
       "osm_networks": [
         "Нижегородский метрополитен"
       ],
@@ -2269,40 +2288,24 @@
       "station_count": 71
     },
     {
-      "file": "systems/south-america/brazil/south-america-brazil-canoas.geojson",
+      "file": "systems/south-america/brazil/south-america-brazil-belo-horizonte.geojson",
       "continent": "south-america",
       "country": "Brazil",
-      "city": "Canoas",
+      "city": "Belo Horizonte",
       "osm_networks": [
-        "Trensurb"
-      ],
-      "operator": "Trensurb",
-      "official_website": "https://www.trensurb.gov.br/",
-      "official_map": "https://pt.wikipedia.org/wiki/Linha_1_do_Metrô_de_Porto_Alegre",
-      "wikidata": "Q10318641",
-      "line_count": 2,
-      "station_count": 23
-    },
-    {
-      "file": "systems/south-america/brazil/south-america-brazil-aguas-claras.geojson",
-      "continent": "south-america",
-      "country": "Brazil",
-      "city": "Águas Claras",
-      "osm_networks": [
-        "Companhia do Metropolitano do Distrito Federal - Metrô",
-        "Companhia do Metropolitano do Distrito Federal - Metrô DF",
-        "Companhia do Metropolitano do Distrito Federal - Metrô-DF",
-        "Metrô - DF",
-        "Metrô DF",
-        "Metrô-DF",
+        "Linha 1",
+        "Linha 1 / Linha 2",
+        "Linha 2",
+        "Metrô de Belo Horizonte",
+        "MetrôBH",
         "Unknown"
       ],
-      "operator": "Metrô-DF",
+      "operator": null,
       "official_website": null,
-      "official_map": "https://pt.wikipedia.org/wiki/Linha_Verde_do_Metrô_do_Distrito_Federal_(Brasil)",
-      "wikidata": "Q10318743",
+      "official_map": null,
+      "wikidata": "Q10318642",
       "line_count": 2,
-      "station_count": 75
+      "station_count": 22
     },
     {
       "file": "systems/asia/japan/asia-japan-kyoto.geojson",
@@ -2327,10 +2330,10 @@
       "station_count": 39
     },
     {
-      "file": "systems/asia/north-korea/asia-north-korea-p-yongyang.geojson",
+      "file": "systems/asia/north-korea/asia-north-korea-pyongyang.geojson",
       "continent": "asia",
       "country": "North Korea",
-      "city": "P'yŏngyang",
+      "city": "Pyongyang",
       "osm_networks": [
         "Pyongyang Metro",
         "Unknown",
@@ -2433,10 +2436,27 @@
       "station_count": 30
     },
     {
-      "file": "systems/north-america/united-states/north-america-united-states-maywood.geojson",
+      "file": "systems/europe/germany/europe-germany-dusseldorf.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Dusseldorf",
+      "osm_networks": [
+        "Unknown",
+        "VRR",
+        "Verkehrsverbund Rhein-Ruhr"
+      ],
+      "operator": "Rheinbahn",
+      "official_website": null,
+      "official_map": "https://de.wikipedia.org/wiki/Verkehrsverbund_Rhein-Ruhr",
+      "wikidata": "Q121295971",
+      "line_count": 2,
+      "station_count": 17
+    },
+    {
+      "file": "systems/north-america/united-states/north-america-united-states-los-angeles.geojson",
       "continent": "north-america",
       "country": "United States",
-      "city": "Maywood",
+      "city": "Los Angeles",
       "osm_networks": [
         "LACMTA",
         "Los Angeles County Metropolitan Transportation Authority",
@@ -2521,10 +2541,10 @@
       "station_count": 23
     },
     {
-      "file": "systems/unknown/unknown/mashhad-urban-railway.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/iran/asia-iran-mashhad.geojson",
+      "continent": "asia",
+      "country": "Iran",
+      "city": "Mashhad",
       "osm_networks": [
         "Mashhad Urban Railway",
         "Unknown"
@@ -2558,10 +2578,27 @@
       "station_count": 69
     },
     {
-      "file": "systems/unknown/unknown/sendai-subway.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/iran/asia-iran-shiraz.geojson",
+      "continent": "asia",
+      "country": "Iran",
+      "city": "Shiraz",
+      "osm_networks": [
+        "Shiraz Metro",
+        "Unknown",
+        "متروی شیراز"
+      ],
+      "operator": "سازمان قطار شهری شیراز و حومه",
+      "official_website": null,
+      "official_map": "https://fa.wikipedia.org/wiki/خط_۱_متروی_شیراز",
+      "wikidata": "Q66782266",
+      "line_count": 2,
+      "station_count": 34
+    },
+    {
+      "file": "systems/asia/japan/asia-japan-sendai.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Sendai",
       "osm_networks": [
         "Sendai Subway",
         "Unknown",
@@ -2575,10 +2612,10 @@
       "station_count": 30
     },
     {
-      "file": "systems/unknown/unknown/lanzhou-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/china/asia-china-lanzhou.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Lanzhou",
       "osm_networks": [
         "Lanzhou Metro",
         "Unknown"
@@ -2591,10 +2628,10 @@
       "station_count": 29
     },
     {
-      "file": "systems/unknown/unknown/urumqi-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/china/asia-china-urumqi.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Ürümqi",
       "osm_networks": [
         "Unknown",
         "Ürümqi Metro"
@@ -2640,6 +2677,22 @@
       "station_count": 46
     },
     {
+      "file": "systems/asia/japan/asia-japan-chiba-prefecture.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Chiba Prefecture",
+      "osm_networks": [
+        "東葉高速線",
+        "通勤五方面作戦"
+      ],
+      "operator": "東葉高速鉄道",
+      "official_website": null,
+      "official_map": "https://ja.wikipedia.org/wiki/東葉高速鉄道東葉高速線",
+      "wikidata": "Q843148",
+      "line_count": 2,
+      "station_count": 8
+    },
+    {
       "file": "systems/asia/south-korea/asia-south-korea-daegu.geojson",
       "continent": "asia",
       "country": "South Korea",
@@ -2657,7 +2710,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Daegu_Metro_Line_1",
       "wikidata": "Q200331",
       "line_count": 2,
-      "station_count": 70
+      "station_count": 72
     },
     {
       "file": "systems/north-america/panama/north-america-panama-panama-city.geojson",
@@ -2715,22 +2768,6 @@
       "station_count": 43
     },
     {
-      "file": "systems/asia/japan/asia-japan-nerima.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Nerima",
-      "osm_networks": [
-        "Ikebukuro Line System",
-        "S-Train"
-      ],
-      "operator": "西武鉄道株式会社",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/S-TRAIN",
-      "wikidata": "Q28690436",
-      "line_count": 2,
-      "station_count": 0
-    },
-    {
       "file": "systems/asia/india/asia-india-nagpur.geojson",
       "continent": "asia",
       "country": "India",
@@ -2748,10 +2785,10 @@
       "station_count": 38
     },
     {
-      "file": "systems/asia/vietnam/asia-vietnam-ha-noi.geojson",
+      "file": "systems/asia/vietnam/asia-vietnam-hanoi.geojson",
       "continent": "asia",
       "country": "Vietnam",
-      "city": "Hà Nội",
+      "city": "Hanoi",
       "osm_networks": [
         "Hanoi Metro",
         "Unknown"
@@ -2780,7 +2817,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_1_(Changzhou_Metro)",
       "wikidata": "Q66660306",
       "line_count": 2,
-      "station_count": 123
+      "station_count": 80
     },
     {
       "file": "systems/asia/china/asia-china-hohhot.geojson",
@@ -2906,7 +2943,7 @@
       "official_map": "https://zh.wikipedia.org/wiki/佛山地铁2号线",
       "wikidata": "Q10886732",
       "line_count": 2,
-      "station_count": 52
+      "station_count": 50
     },
     {
       "file": "systems/asia/india/asia-india-pune.geojson",
@@ -2926,10 +2963,46 @@
       "station_count": 41
     },
     {
-      "file": "systems/asia/china/asia-china-chongchuan-district.geojson",
+      "file": "systems/south-america/brazil/south-america-brazil-porto-alegre.geojson",
+      "continent": "south-america",
+      "country": "Brazil",
+      "city": "Porto Alegre",
+      "osm_networks": [
+        "Trensurb"
+      ],
+      "operator": "Trensurb",
+      "official_website": "https://www.trensurb.gov.br/",
+      "official_map": "https://pt.wikipedia.org/wiki/Linha_1_do_Metrô_de_Porto_Alegre",
+      "wikidata": "Q10318641",
+      "line_count": 2,
+      "station_count": 23
+    },
+    {
+      "file": "systems/south-america/brazil/south-america-brazil-brasilia.geojson",
+      "continent": "south-america",
+      "country": "Brazil",
+      "city": "Brasília",
+      "osm_networks": [
+        "Companhia do Metropolitano do Distrito Federal - Metrô",
+        "Companhia do Metropolitano do Distrito Federal - Metrô DF",
+        "Companhia do Metropolitano do Distrito Federal - Metrô-DF",
+        "Metrô - DF",
+        "Metrô DF",
+        "Metrô-DF",
+        "Unknown"
+      ],
+      "operator": "Metrô-DF",
+      "official_website": null,
+      "official_map": "https://pt.wikipedia.org/wiki/Linha_Verde_do_Metrô_do_Distrito_Federal_(Brasil)",
+      "wikidata": "Q10318743",
+      "line_count": 2,
+      "station_count": 75
+    },
+    {
+      "file": "systems/asia/china/asia-china-nantong.geojson",
       "continent": "asia",
       "country": "China",
-      "city": "Chongchuan District",
+      "city": "Nantong",
       "osm_networks": [
         "Unknown",
         "南通城市轨道交通有限公司",
@@ -2940,22 +3013,25 @@
       "official_map": null,
       "wikidata": "Q47015943",
       "line_count": 2,
-      "station_count": 54
+      "station_count": 53
     },
     {
-      "file": "systems/asia/india/asia-india-fafrana.geojson",
-      "continent": "asia",
-      "country": "India",
-      "city": "fafrana",
+      "file": "systems/europe/germany/europe-germany-bochum.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Bochum",
       "osm_networks": [
-        "RapidX"
+        "BOGESTRA",
+        "Unknown",
+        "VRR",
+        "Verkehrsverbund Rhein-Ruhr"
       ],
-      "operator": "National Capital Region Transport Corporation",
+      "operator": "BOGESTRA",
       "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Delhi–Meerut_Regional_Rapid_Transit_System",
-      "wikidata": "Q30644700",
-      "line_count": 2,
-      "station_count": 7
+      "official_map": "https://de.wikipedia.org/wiki/U-Bahn-Linie_35_(Bochum)",
+      "wikidata": "Q2466100",
+      "line_count": 1,
+      "station_count": 25
     },
     {
       "file": "systems/europe/switzerland/europe-switzerland-lausanne.geojson",
@@ -3001,7 +3077,7 @@
       "osm_networks": [
         "Самарский метрополитен"
       ],
-      "operator": "Самарский метрополитен",
+      "operator": "МП г.о. Самара «Самарский метрополитен»",
       "official_website": null,
       "official_map": "https://en.wikipedia.org/wiki/Samara_Metro",
       "wikidata": "Q4349061",
@@ -3063,22 +3139,6 @@
       "station_count": 39
     },
     {
-      "file": "systems/europe/italy/europe-italy-genoa.geojson",
-      "continent": "europe",
-      "country": "Italy",
-      "city": "Genoa",
-      "osm_networks": [
-        "AMT",
-        "Metropolitana di Genova"
-      ],
-      "operator": "AMT",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Genoa_Metro",
-      "wikidata": "Q106335122",
-      "line_count": 1,
-      "station_count": 8
-    },
-    {
       "file": "systems/europe/italy/europe-italy-turin.geojson",
       "continent": "europe",
       "country": "Italy",
@@ -3093,26 +3153,6 @@
       "wikidata": "Q3238662",
       "line_count": 1,
       "station_count": 23
-    },
-    {
-      "file": "systems/unknown/unknown/metro-de-belo-horizonte.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
-      "osm_networks": [
-        "Linha 1",
-        "Linha 1 / Linha 2",
-        "Linha 2",
-        "Metrô de Belo Horizonte",
-        "MetrôBH",
-        "Unknown"
-      ],
-      "operator": null,
-      "official_website": null,
-      "official_map": null,
-      "wikidata": "Q10318642",
-      "line_count": 1,
-      "station_count": 22
     },
     {
       "file": "systems/asia/armenia/asia-armenia-yerevan.geojson",
@@ -3162,22 +3202,6 @@
       "station_count": 8
     },
     {
-      "file": "systems/asia/saudi-arabia/asia-saudi-arabia-makkah-region.geojson",
-      "continent": "asia",
-      "country": "Saudi Arabia",
-      "city": "Makkah Region",
-      "osm_networks": [
-        "Unknown",
-        "قطارات مكة للنقل العام"
-      ],
-      "operator": null,
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Al_Mashaaer_Al_Mugaddassah_Metro_Southern_Line",
-      "wikidata": "Q16240707",
-      "line_count": 1,
-      "station_count": 12
-    },
-    {
       "file": "systems/north-america/united-states/north-america-united-states-baltimore.geojson",
       "continent": "north-america",
       "country": "United States",
@@ -3195,10 +3219,10 @@
       "station_count": 13
     },
     {
-      "file": "systems/asia/taiwan/asia-taiwan-new-taipei.geojson",
+      "file": "systems/asia/taiwan/asia-taiwan-taoyuan.geojson",
       "continent": "asia",
       "country": "Taiwan",
-      "city": "New Taipei",
+      "city": "Taoyuan",
       "osm_networks": [
         "Taipei Metro",
         "Taoyuan Metro",
@@ -3213,10 +3237,10 @@
       "station_count": 23
     },
     {
-      "file": "systems/north-america/united-states/north-america-united-states-puerto-nuevo.geojson",
+      "file": "systems/north-america/united-states/north-america-united-states-san-juan.geojson",
       "continent": "north-america",
       "country": "United States",
-      "city": "Puerto Nuevo",
+      "city": "San Juan",
       "osm_networks": [
         "ATI"
       ],
@@ -3295,56 +3319,6 @@
       "station_count": 9
     },
     {
-      "file": "systems/europe/france/europe-france-meaux.geojson",
-      "continent": "europe",
-      "country": "France",
-      "city": "Meaux",
-      "osm_networks": [
-        "CDGVAL",
-        "Unknown"
-      ],
-      "operator": "Aéroports de Paris",
-      "official_website": null,
-      "official_map": "https://fr.wikipedia.org/wiki/CDGVAL",
-      "wikidata": "Q52774539",
-      "line_count": 1,
-      "station_count": 9
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-ichikawa.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Ichikawa",
-      "osm_networks": [
-        "Keisei"
-      ],
-      "operator": "京成電鉄",
-      "official_website": "https://www.keisei.co.jp/",
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 1,
-      "station_count": 0
-    },
-    {
-      "file": "systems/south-america/venezuela/south-america-venezuela-las-lomitas.geojson",
-      "continent": "south-america",
-      "country": "Venezuela",
-      "city": "Las Lomitas",
-      "osm_networks": [
-        "Linea 1, Metro Los Teques",
-        "Linea 2, Metro Los Teques",
-        "Metro de Caracas",
-        "Metro de Los Teques",
-        "Unknown"
-      ],
-      "operator": "Metro de Los Teques C.A",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": "Q56168307",
-      "line_count": 1,
-      "station_count": 7
-    },
-    {
       "file": "systems/asia/india/asia-india-gurgaon.geojson",
       "continent": "asia",
       "country": "India",
@@ -3411,6 +3385,22 @@
       "station_count": 13
     },
     {
+      "file": "systems/asia/taiwan/asia-taiwan-new-taipei.geojson",
+      "continent": "asia",
+      "country": "Taiwan",
+      "city": "New Taipei",
+      "osm_networks": [
+        "Unknown",
+        "新北捷運"
+      ],
+      "operator": null,
+      "official_website": null,
+      "official_map": "https://zh.wikipedia.org/wiki/三鶯線",
+      "wikidata": "Q10914163",
+      "line_count": 1,
+      "station_count": 10
+    },
+    {
       "file": "systems/asia/kazakhstan/asia-kazakhstan-almaty.geojson",
       "continent": "asia",
       "country": "Kazakhstan",
@@ -3427,10 +3417,10 @@
       "station_count": 11
     },
     {
-      "file": "systems/unknown/unknown/system.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/iran/asia-iran-isfahan.geojson",
+      "continent": "asia",
+      "country": "Iran",
+      "city": "Isfahan",
       "osm_networks": [
         "Unknown",
         "متروی اصفهان"
@@ -3459,39 +3449,6 @@
       "station_count": 7
     },
     {
-      "file": "systems/unknown/unknown/shiraz-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
-      "osm_networks": [
-        "Shiraz Metro",
-        "Unknown",
-        "متروی شیراز"
-      ],
-      "operator": "سازمان قطار شهری شیراز و حومه",
-      "official_website": null,
-      "official_map": "https://fa.wikipedia.org/wiki/خط_۱_متروی_شیراز",
-      "wikidata": "Q66782266",
-      "line_count": 1,
-      "station_count": 25
-    },
-    {
-      "file": "systems/asia/iran/asia-iran-shiraz.geojson",
-      "continent": "asia",
-      "country": "Iran",
-      "city": "Shiraz",
-      "osm_networks": [
-        "Unknown",
-        "متروی شیراز"
-      ],
-      "operator": "سازمان قطار شهری شیراز و حومه",
-      "official_website": null,
-      "official_map": "https://fa.wikipedia.org/wiki/خط_۲_متروی_شیراز",
-      "wikidata": "Q97218492",
-      "line_count": 1,
-      "station_count": 9
-    },
-    {
       "file": "systems/europe/greece/europe-greece-thessaloniki.geojson",
       "continent": "europe",
       "country": "Greece",
@@ -3508,10 +3465,10 @@
       "station_count": 13
     },
     {
-      "file": "systems/unknown/unknown/tabriz-metro.geojson",
-      "continent": null,
-      "country": null,
-      "city": null,
+      "file": "systems/asia/iran/asia-iran-tabriz.geojson",
+      "continent": "asia",
+      "country": "Iran",
+      "city": "Tabriz",
       "osm_networks": [
         "Tabriz Metro",
         "Unknown"
@@ -3522,21 +3479,6 @@
       "wikidata": "Q21034316",
       "line_count": 1,
       "station_count": 20
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-yachiyo.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Yachiyo",
-      "osm_networks": [
-        "東葉高速線"
-      ],
-      "operator": "東葉高速鉄道",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/東葉高速鉄道東葉高速線",
-      "wikidata": "Q843148",
-      "line_count": 1,
-      "station_count": 8
     },
     {
       "file": "systems/europe/italy/europe-italy-catania.geojson",
@@ -3554,23 +3496,6 @@
       "wikidata": "Q239927",
       "line_count": 1,
       "station_count": 14
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-kawaguchi.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Kawaguchi",
-      "osm_networks": [
-        "Unknown",
-        "埼玉高速鉄道",
-        "埼玉高速鉄道線"
-      ],
-      "operator": "埼玉高速鉄道",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/埼玉高速鉄道線",
-      "wikidata": "Q1065949",
-      "line_count": 1,
-      "station_count": 8
     },
     {
       "file": "systems/asia/south-korea/asia-south-korea-daejeon.geojson",
@@ -3666,21 +3591,6 @@
       "station_count": 32
     },
     {
-      "file": "systems/asia/india/asia-india-noida.geojson",
-      "continent": "asia",
-      "country": "India",
-      "city": "Noida",
-      "osm_networks": [
-        "Noida Metro"
-      ],
-      "operator": "NMRC",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Aqua_Line_(Noida_Metro)",
-      "wikidata": "Q41668068",
-      "line_count": 1,
-      "station_count": 20
-    },
-    {
       "file": "systems/asia/indonesia/asia-indonesia-jakarta.geojson",
       "continent": "asia",
       "country": "Indonesia",
@@ -3694,36 +3604,6 @@
       "wikidata": "Q60608236",
       "line_count": 1,
       "station_count": 20
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-setagaya.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Setagaya",
-      "osm_networks": [
-        "東京メトロ;都営地下鉄"
-      ],
-      "operator": "東急電鉄;東京地下鉄;東京都交通局",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/東急目黒線",
-      "wikidata": "Q283861",
-      "line_count": 1,
-      "station_count": 0
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-matsudo.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Matsudo",
-      "osm_networks": [
-        "通勤五方面作戦"
-      ],
-      "operator": "東日本旅客鉄道",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/常磐緩行線",
-      "wikidata": "Q5365768",
-      "line_count": 1,
-      "station_count": 0
     },
     {
       "file": "systems/south-america/ecuador/south-america-ecuador-quito.geojson",
@@ -3819,36 +3699,6 @@
       "wikidata": "Q48899113",
       "line_count": 1,
       "station_count": 15
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-suginami.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Suginami",
-      "osm_networks": [
-        "東急電鉄;東京メトロ;東武鉄道"
-      ],
-      "operator": "東急電鉄;東京地下鉄;東武鉄道",
-      "official_website": null,
-      "official_map": "https://ja.wikipedia.org/wiki/東急田園都市線",
-      "wikidata": null,
-      "line_count": 1,
-      "station_count": 0
-    },
-    {
-      "file": "systems/asia/japan/asia-japan-tokorozawa.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Tokorozawa",
-      "osm_networks": [
-        "Seibu"
-      ],
-      "operator": "西武鉄道;東京地下鉄",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 1,
-      "station_count": 0
     },
     {
       "file": "systems/asia/south-korea/asia-south-korea-gwangju.geojson",
@@ -4011,19 +3861,21 @@
       "station_count": 7
     },
     {
-      "file": "systems/asia/india/asia-india-mumbai-zone-2.geojson",
+      "file": "systems/asia/south-korea/asia-south-korea-incheon.geojson",
       "continent": "asia",
-      "country": "India",
-      "city": "Mumbai Zone 2",
+      "country": "South Korea",
+      "city": "Incheon",
       "osm_networks": [
-        "MMRC"
+        "Seoul Metropolitan Subway",
+        "인천교통공사",
+        "한국철도공사"
       ],
-      "operator": "MMRC",
+      "operator": "인천교통공사",
       "official_website": null,
-      "official_map": null,
-      "wikidata": null,
+      "official_map": "https://ko.wikipedia.org/wiki/인천_도시철도_1호선",
+      "wikidata": "Q487733",
       "line_count": 1,
-      "station_count": 0
+      "station_count": 27
     },
     {
       "file": "systems/south-america/colombia/south-america-colombia-bogota.geojson",
@@ -4073,19 +3925,36 @@
       "station_count": 8
     },
     {
-      "file": "systems/asia/south-korea/asia-south-korea-jincheon-eup.geojson",
-      "continent": "asia",
-      "country": "South Korea",
-      "city": "Jincheon-eup",
+      "file": "systems/europe/italy/europe-italy-genoa.geojson",
+      "continent": "europe",
+      "country": "Italy",
+      "city": "Genoa",
       "osm_networks": [
-        "Korail"
+        "AMT",
+        "Metropolitana di Genova"
+      ],
+      "operator": "AMT",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Genoa_Metro",
+      "wikidata": "Q106335122",
+      "line_count": 1,
+      "station_count": 8
+    },
+    {
+      "file": "systems/asia/saudi-arabia/asia-saudi-arabia-mecca.geojson",
+      "continent": "asia",
+      "country": "Saudi Arabia",
+      "city": "Mecca",
+      "osm_networks": [
+        "Unknown",
+        "قطارات مكة للنقل العام"
       ],
       "operator": null,
       "official_website": null,
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 0,
-      "station_count": 2
+      "official_map": "https://en.wikipedia.org/wiki/Al_Mashaaer_Al_Mugaddassah_Metro_Southern_Line",
+      "wikidata": "Q16240707",
+      "line_count": 1,
+      "station_count": 12
     },
     {
       "file": "systems/oceania/australia/oceania-australia-perth.geojson",
@@ -4273,64 +4142,9 @@
   ],
   "wikipedia_cities_without_match": [
     {
-      "city": "Belo Horizonte",
-      "country": "Brazil",
-      "name": "Belo Horizonte Metro"
-    },
-    {
-      "city": "Brasília",
-      "country": "Brazil",
-      "name": "Federal District Metro"
-    },
-    {
-      "city": "Porto Alegre",
-      "country": "Brazil",
-      "name": "Porto Alegre Metro"
-    },
-    {
-      "city": "Vancouver",
-      "country": "Canada",
-      "name": "SkyTrain"
-    },
-    {
-      "city": "Guiyang",
-      "country": "China",
-      "name": "Guiyang Metro"
-    },
-    {
-      "city": "Harbin",
-      "country": "China",
-      "name": "Harbin Metro"
-    },
-    {
-      "city": "Jinan",
-      "country": "China",
-      "name": "Jinan Metro"
-    },
-    {
-      "city": "Lanzhou",
-      "country": "China",
-      "name": "Lanzhou Metro"
-    },
-    {
       "city": "Macau",
       "country": "China",
       "name": "Macau Light Rapid Transit"
-    },
-    {
-      "city": "Nantong",
-      "country": "China",
-      "name": "Nantong Rail Transit"
-    },
-    {
-      "city": "Ningbo",
-      "country": "China",
-      "name": "Ningbo Rail Transit[127]"
-    },
-    {
-      "city": "Ürümqi",
-      "country": "China",
-      "name": "Ürümqi Metro"
     },
     {
       "city": "Wuhu",
@@ -4338,74 +4152,9 @@
       "name": "Wuhu Rail Transit"
     },
     {
-      "city": "Xiamen",
-      "country": "China",
-      "name": "Xiamen Metro"
-    },
-    {
-      "city": "Copenhagen",
-      "country": "Denmark",
-      "name": "Copenhagen Metro"
-    },
-    {
-      "city": "Lille",
-      "country": "France",
-      "name": "Lille Metro"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "name": "Nuremberg U-Bahn"
-    },
-    {
       "city": "Palembang",
       "country": "Indonesia",
       "name": "Palembang LRT"
-    },
-    {
-      "city": "Isfahan",
-      "country": "Iran",
-      "name": "Isfahan Metro"
-    },
-    {
-      "city": "Mashhad",
-      "country": "Iran",
-      "name": "Mashhad Urban Railway"
-    },
-    {
-      "city": "Tabriz",
-      "country": "Iran",
-      "name": "Tabriz Metro"
-    },
-    {
-      "city": "Chiba Prefecture",
-      "country": "Japan",
-      "name": "Tōyō Rapid Railway Line"
-    },
-    {
-      "city": "Fukuoka",
-      "country": "Japan",
-      "name": "Fukuoka City Subway"
-    },
-    {
-      "city": "Saitama Prefecture",
-      "country": "Japan",
-      "name": "New Shuttle"
-    },
-    {
-      "city": "Saitama Prefecture",
-      "country": "Japan",
-      "name": "Saitama Rapid Railway Line"
-    },
-    {
-      "city": "Sapporo",
-      "country": "Japan",
-      "name": "Sapporo Municipal Subway"
-    },
-    {
-      "city": "Sendai",
-      "country": "Japan",
-      "name": "Sendai Subway"
     },
     {
       "city": "Astana",
@@ -4413,59 +4162,14 @@
       "name": "Astana Light Metro"
     },
     {
-      "city": "Pyongyang",
-      "country": "North Korea",
-      "name": "Pyongyang Metro"
-    },
-    {
       "city": "Gimpo",
       "country": "South Korea",
       "name": "Gimpo Goldline"
     },
     {
-      "city": "Incheon",
-      "country": "South Korea",
-      "name": "Incheon Subway"
-    },
-    {
-      "city": "Nizhny Novgorod",
-      "country": "Russia",
-      "name": "Nizhny Novgorod Metro"
-    },
-    {
-      "city": "Mecca",
-      "country": "Saudi Arabia",
-      "name": "Mecca Metro"
-    },
-    {
-      "city": "Stockholm",
-      "country": "Sweden",
-      "name": "Stockholm Metro"
-    },
-    {
-      "city": "Taoyuan",
-      "country": "Taiwan",
-      "name": "Taoyuan Metro"
-    },
-    {
-      "city": "Los Angeles",
-      "country": "United States",
-      "name": "Metro Rail[Nb 96]"
-    },
-    {
-      "city": "San Juan",
-      "country": "United States",
-      "name": "Tren Urbano"
-    },
-    {
       "city": "Maracaibo",
       "country": "Venezuela",
       "name": "Maracaibo Metro"
-    },
-    {
-      "city": "Hanoi",
-      "country": "Vietnam",
-      "name": "Hanoi Metro"
     }
   ]
 }
