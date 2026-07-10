@@ -343,9 +343,16 @@ async function build() {
     return base
   }
 
+  // 城市合併規則（使用者指定）：桃園併入台北（機場捷運屬台北都會圈，一城一檔）。
+  // key = `${normCity(city)}|${normCountry(country)}` → 目標城市。
+  const CITY_MERGE = new Map([
+    ['taoyuan|taiwan', { city: 'Taipei', country: 'Taiwan', continent: 'asia' }],
+  ])
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file: systems/{continent}/{country}/{continent}-{country}-{city}.geojson
   const mkInfo = (geo, fallbackName) => {
+    const merged = CITY_MERGE.get(`${normCity(geo.city)}|${normCountry(geo.country)}`)
+    if (merged) geo = merged
     const cont = geo.continent || 'unknown'
     const countrySlug = slugify(geo.country) || 'unknown'
     const nameParts = [geo.continent, slugify(geo.country), slugify(geo.city)].filter(Boolean)
@@ -401,7 +408,9 @@ async function build() {
   const grid = new Map()
   const cellKey = (lon, lat) => `${Math.round(lon / CELL)}:${Math.round(lat / CELL)}`
 
+  // ---- phase A: resolve every line group to a city (no emission yet) ----
   const pinnedKeys = new Set()
+  const resolved = []
   for (const g of groups.values()) {
     const kept = dedupeSeqs(g.seqs)
     if (!kept.length) continue
@@ -451,6 +460,20 @@ async function build() {
         }
       }
     }
+    // 一組內全部 relation 都是 light_rail 才算 LRT 線（混合視為 subway）
+    const lrtOnly = g.rids.every((r) => (routesTags.get(r) || {}).route === 'light_rail')
+    resolved.push({ g, kept, t, network, ov, info, lrtOnly })
+  }
+
+  // Per-feature flags for the LRT scope rule — the keep/drop decision itself
+  // runs AFTER rebucket (the final canonical city decides, not the raw name).
+  const lrtFlags = new Map()   // feature -> group is pure light_rail
+  const ovFlags = new Map()    // feature -> bound by an override (audit-sanctioned)
+  const featTag = new Map()    // feature -> lineTag used in station `lines`
+
+  // ---- phase B: emit features ----
+  for (const e of resolved) {
+    const { g, kept, t, network, ov, info } = e
     const routeRef = t.ref || null
     const routeId = g.key.startsWith('m|') ? `rm${g.key.slice(2)}` : `r${Math.min(...g.rids)}`
     // Stations must always resolve to a line (verify invariant), so fall back
@@ -480,6 +503,9 @@ async function build() {
         coordinates: kept.map((seq) => seq.map((r) => r.coord)) },
     }
     lineFeatures.push(feat)
+    lrtFlags.set(feat, e.lrtOnly)
+    ovFlags.set(feat, !!ov)
+    featTag.set(feat, lineTag)
     for (const seg of feat.geometry.coordinates)
       for (const [lon, lat] of seg) {
         const k = cellKey(lon, lat)
@@ -631,6 +657,50 @@ async function build() {
       }
     }
     if (alt) rebucket(grp, key, alt)
+  }
+
+  // ---- LRT 範圍規則（使用者指定；用 rebucket 後的最終城市判定）----
+  // 只有台北（含新北）/高雄的城市檔「附加」LRT 線；其他城市僅當其 Wikipedia 基準
+  // 系統本身就是 LRT（該城完全沒有 subway 線）才保留整個 LRT 系統
+  // （SkyTrain、澳門輕軌、Stadtbahn…）。非基準、純 LRT 的額外系統一律剔除。
+  // Override 綁定的線（audit 逐城判過的）不在剔除範圍。
+  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung'])
+  const isBaselineCity = (info) => !!info.city && wikiIdx.some((r) =>
+    countryOk(info.country || '', r.sys.country) &&
+    normCity(r.sys.city) === normCity(info.city))
+  let skippedLrt = 0
+  for (const grp of cityGroups.values()) {
+    const hasSubway = grp.lines.some((f) => !lrtFlags.get(f))
+    const allowed = LRT_ADDON_CITIES.has(normCity(grp.info.city)) ||
+      (isBaselineCity(grp.info) && !hasSubway)
+    if (allowed) continue
+    const removedTags = new Set()
+    grp.lines = grp.lines.filter((f) => {
+      if (!lrtFlags.get(f) || ovFlags.get(f)) return true
+      removedTags.add(featTag.get(f))
+      skippedLrt++
+      if (process.env.DEBUG_LRT) console.log('  [lrt-removed]',
+        JSON.stringify(grp.info.city), '|', f.properties.route_name)
+      return false
+    })
+    if (removedTags.size) {
+      // strip the removed lines from station memberships; stations left with
+      // none are dropped by the orphan rule right below
+      for (const s of grp.stations) {
+        if (!s.properties.lines) continue
+        const left = s.properties.lines.filter((tag) => !removedTags.has(tag))
+        s.properties.lines = left.length ? left : null
+      }
+    }
+  }
+  if (skippedLrt) console.log(`  LRT scope: removed ${skippedLrt} light-rail lines ` +
+    '(kept Taipei/Kaohsiung add-ons and baseline LRT-only systems)')
+  // keep the global line layer consistent with the per-city groups
+  {
+    const keptFeats = new Set()
+    for (const grp of cityGroups.values()) for (const f of grp.lines) keptFeats.add(f)
+    for (let i = lineFeatures.length - 1; i >= 0; i--)
+      if (!keptFeats.has(lineFeatures[i])) lineFeatures.splice(i, 1)
   }
 
   // ---- merge same-named stations within a city (shared point, mean coords) ----

@@ -5,13 +5,18 @@
 抓取的全球地鐵/輕軌路線與車站，以 **Wikipedia [List of metro systems](https://en.wikipedia.org/wiki/List_of_metro_systems)**
 為覆蓋率基準，並對照 [urbanrail.net](https://www.urbanrail.net/) 驗證。
 
-**線路幾何是「依站序連線」的示意折線**（route relation 的 stop 成員依順序相連），
-**不是**真實軌道線形。**同一城市內同名車站合併為單一點（座標取平均、lines 取聯集，
-~800 m 距離護欄）**。
+**線路幾何＝「合併後的車站點」依站序連線**（route relation 只提供成員與順序），
+**不是**真實軌道線形——**線永遠壓在站點上**：每個折點、端點都是車站本身。
+**同一城市內同名車站合併為單一點（座標取平均、lines 取聯集，~800 m 距離護欄）**。
+
+**城市規則（使用者指定）**：桃園併入台北（一城一檔）；LRT 線只有台北（含新北）/高雄
+附加進城市檔，其他城市僅當其 Wikipedia 基準系統本身是 LRT（無 subway）才整系統保留，
+其餘純 LRT 一律剔除。直通運轉覆蓋線（through-service）排除。
 
 **不變式（每次抓完必以 Wikipedia＋urbanrail 驗證，違反＝資料有錯）**：
 1. Wikipedia 清單上有的城市不可能沒資料；2. 不可能有車站沒有路線（每站 `lines` ≥ 1）；
-3. 站序必須正確（可疑者由 `verify_report` 標 `order`，逐線人工比對確認）。
+3. 不可能有路線沒有車站、折點/端點必為車站（每線每段 ≥2 站，`vertex`）；
+4. 站序必須正確（可疑者由 `verify_report` 標 `order`，逐線人工比對確認）。
 
 > **權威依據（兩份 skill，互為 fetch⇄audit 迴圈）**：
 > - 取得：`.claude/skills/metro-osm-fetch/SKILL.md`（OSM 資料 + 反查 + 組檔 + 下載官方路網圖）
