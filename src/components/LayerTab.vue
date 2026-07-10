@@ -91,6 +91,7 @@ onMounted(() => {
   map.on('mouseenter', 'metro-stations', (e) => {
     map.getCanvas().style.cursor = 'pointer'
     const p = e.features[0].properties
+    map.setFilter('metro-stations-hover', ['==', ['get', 'station_id'], p.station_id ?? ''])
     const local = p.station_name_local && p.station_name_local !== p.station_name
       ? `<br/>${p.station_name_local}` : ''
     const lines = p.lines && p.lines !== '[]'
@@ -102,6 +103,7 @@ onMounted(() => {
   })
   map.on('mouseleave', 'metro-stations', () => {
     map.getCanvas().style.cursor = ''
+    map.setFilter('metro-stations-hover', ['==', ['get', 'station_id'], ''])
     popup.remove()
   })
 
@@ -253,6 +255,18 @@ function addMetroSourceLayers(data) {
       'circle-stroke-opacity': l.opacity,
     },
   })
+  // Hover highlight for stations: same circle, enlarged, filtered to the
+  // hovered station only (empty match by default). Sits on top so it's visible.
+  map.addLayer({
+    id: 'metro-stations-hover', source: 'metro', type: 'circle',
+    filter: ['==', ['get', 'station_id'], ''],
+    paint: {
+      'circle-radius': (l.radius || 4) + 3,
+      'circle-color': '#ffffff',
+      'circle-stroke-color': '#3f3f46',
+      'circle-stroke-width': 2,
+    },
+  })
   applyLayerState()
 }
 
@@ -308,6 +322,10 @@ function applyLayerState() {
   map.setPaintProperty('metro-stations', 'circle-opacity', l.opacity)
   map.setPaintProperty('metro-stations', 'circle-stroke-opacity', l.opacity)
   map.setPaintProperty('metro-stations', 'circle-radius', l.radius)
+  if (map.getLayer('metro-stations-hover')) {
+    map.setLayoutProperty('metro-stations-hover', 'visibility', vis)
+    map.setPaintProperty('metro-stations-hover', 'circle-radius', (l.radius || 4) + 3)
+  }
 }
 
 watch(layer, applyLayerState, { deep: true })

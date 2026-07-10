@@ -6,8 +6,8 @@
 |---|---|
 | Wikipedia 系統數 | 233 |
 | 本資料系統數 | 225 |
-| 站數相符 (ok) | 211 |
-| 標記待查 | 23（missing 1／no_line 0／order 1／zero 0／low 2／high 19） |
+| 站數相符 (ok) | 212 |
+| 標記待查 | 22（missing 1／no_line 0／order 1／zero 0／low 2／high 18） |
 | 額外（不在 wiki 清單） | 11 |
 
 ## 不變式（invariants，違反＝資料一定有錯，必須驗證修正）
@@ -28,7 +28,6 @@
 | high | Tokyo | Japan | 230 | 142 | 1.62 | 站數偏多（230 vs wiki 142），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Tokyo_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Tokyo | Japan | 230 | 99 | 2.32 | 站數偏多（230 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Bangkok | Thailand | 112 | 64 | 1.75 | 站數偏多（112 vs wiki 64），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BTS_Skytrain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok) |
-| high | San Francisco (Bay Area) | United States | 163 | 47 | 3.47 | 站數偏多（163 vs wiki 47），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BART[Nb_102]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20San%20Francisco%20(Bay%20Area)) |
 | high | London | United Kingdom | 291 | 45 | 6.47 | 站數偏多（291 vs wiki 45），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Docklands_Light_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20London) |
 | high | Kaohsiung | Taiwan | 75 | 38 | 1.97 | 站數偏多（75 vs wiki 38），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kaohsiung_Rapid_Transit) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Kaohsiung) |
 | high | Montreal | Canada | 69 | 23 | 3 | 站數偏多（69 vs wiki 23），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Réseau_express_métropolitain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal) |
@@ -51,14 +50,14 @@
 
 | 檔案 | 城市 | 國家 | 站 | 線 |
 |---|---|---|---|---|
-| systems/eu/ger/eu-ger-dusseldorf.geojson | Dusseldorf | Germany | 105 | 9 |
-| systems/eu/esp/eu-esp-xirivella.geojson | Xirivella | Spain | 97 | 6 |
-| systems/eu/ger/eu-ger-bielefeld.geojson | Bielefeld | Germany | 60 | 4 |
-| systems/eu/ger/eu-ger-ratingen.geojson | Ratingen | Germany | 72 | 2 |
-| systems/eu/ger/eu-ger-essen.geojson | Essen | Germany | 18 | 2 |
-| systems/eu/ger/eu-ger-bochum.geojson | Bochum | Germany | 23 | 1 |
-| systems/xx/xxx/unknown.geojson | — | — | 3 | 1 |
-| systems/eu/esp/eu-esp-seville.geojson | Seville | Spain | 20 | 1 |
-| systems/eu/aut/eu-aut-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
-| systems/as/chn/as-chn-chuzhou.geojson | Chuzhou | China | 10 | 1 |
-| systems/as/tur/as-tur-derince.geojson | Derince | Turkey | 11 | 1 |
+| systems/europe/germany/eu-ger-frankfurt.geojson | Frankfurt | Germany | 84 | 9 |
+| systems/europe/germany/eu-ger-dusseldorf.geojson | Dusseldorf | Germany | 105 | 9 |
+| systems/europe/spain/eu-esp-xirivella.geojson | Xirivella | Spain | 97 | 6 |
+| systems/europe/germany/eu-ger-bielefeld.geojson | Bielefeld | Germany | 60 | 4 |
+| systems/europe/germany/eu-ger-ratingen.geojson | Ratingen | Germany | 72 | 2 |
+| systems/europe/germany/eu-ger-essen.geojson | Essen | Germany | 18 | 2 |
+| systems/europe/germany/eu-ger-bochum.geojson | Bochum | Germany | 23 | 1 |
+| systems/europe/spain/eu-esp-seville.geojson | Seville | Spain | 20 | 1 |
+| systems/europe/austria/eu-aut-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
+| systems/asia/china/as-chn-chuzhou.geojson | Chuzhou | China | 10 | 1 |
+| systems/asia/turkey/as-tur-derince.geojson | Derince | Turkey | 11 | 1 |

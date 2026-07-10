@@ -30,6 +30,19 @@ const asText = (v) => {
   if (typeof v === 'object') return JSON.stringify(v, null, 2)
   return String(v)
 }
+// A wikipedia value is a raw OSM tag ("en:Taipei Main Station") or a URL;
+// a wikidata value is a Q-id. Turn both into a clickable link in the Object tab.
+const linkFor = (key, v) => {
+  if (typeof v !== 'string' || !v) return null
+  if (key === 'wikipedia') {
+    if (/^https?:\/\//.test(v)) return v
+    const m = /^([a-z-]+):(.+)$/.exec(v)
+    if (m) return `https://${m[1]}.wikipedia.org/wiki/${encodeURIComponent(m[2].replace(/ /g, '_'))}`
+    return `https://en.wikipedia.org/wiki/${encodeURIComponent(v.replace(/ /g, '_'))}`
+  }
+  if (key === 'wikidata' && /^Q\d+$/.test(v)) return `https://www.wikidata.org/wiki/${v}`
+  return null
+}
 // MapLibre serialises nested arrays/objects to JSON strings for GeoJSON source
 // features — parse them back. Arrays render as an ordered list (no brackets);
 // everything else as text.
@@ -42,7 +55,8 @@ const selectedEntries = computed(() => {
       try { v = JSON.parse(v) } catch { /* leave as-is */ }
     }
     if (Array.isArray(v)) return { key: k, isList: true, items: v.map(asText) }
-    return { key: k, isList: false, value: asText(v) }
+    const href = linkFor(k, v)
+    return { key: k, isList: false, value: asText(v), href }
   })
 })
 
@@ -90,16 +104,19 @@ onMounted(() => {
 const systemKey = computed(() => layer.value.file?.match(/systems\/(.+)\.geojson$/)?.[1] ?? null)
 const mapEntry = computed(() => (systemKey.value && mapsIndex.value?.[systemKey.value]) || null)
 
-// Wikipedia article of this metro system (via its Wikidata item).
+// Wikipedia article of this metro system: via its Wikidata item, else the
+// wiki URL recorded in the system metadata (metro_system.official_map).
 const wikipediaUrl = computed(() =>
   meta.value?.wikidata
     ? `https://www.wikidata.org/wiki/Special:GoToLinkedPage/enwiki/${meta.value.wikidata}`
-    : null,
+    : (meta.value?.official_map ?? null),
 )
-// Official schematic route map: local downloaded image if we have it,
-// otherwise the wiki link recorded in the system metadata.
+// Official operator website.
+const websiteUrl = computed(() => meta.value?.official_website ?? null)
+// Official schematic route map: only the local downloaded image (the wiki URL
+// is surfaced separately as the Wikipedia link, not mislabelled as a map).
 const routeMapUrl = computed(() =>
-  mapEntry.value?.map_file ? `/data/metro/${mapEntry.value.map_file}` : (meta.value?.official_map ?? null),
+  mapEntry.value?.map_file ? `/data/metro/${mapEntry.value.map_file}` : null,
 )
 // urbanrail.net continent index (city pages have irregular URLs, so link the
 // continent page — the city is one click away).
@@ -255,6 +272,9 @@ function startResize(e) {
               <a v-if="wikipediaUrl" :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link link-item">
                 <ExternalLink :size="12" /> Wikipedia — {{ layer.city }} metro
               </a>
+              <a v-if="websiteUrl" :href="websiteUrl" target="_blank" rel="noopener" class="info-link link-item">
+                <ExternalLink :size="12" /> Official website
+              </a>
               <a v-if="routeMapUrl" :href="routeMapUrl" target="_blank" rel="noopener" class="info-link link-item">
                 <ExternalLink :size="12" /> Official route map
                 <span v-if="mapEntry" class="link-note">（{{ mapEntry.license ?? 'image' }}）</span>
@@ -348,6 +368,9 @@ function startResize(e) {
                     <span v-if="!row.items.length">—</span>
                     <div v-for="(it, i) in row.items" :key="i" class="obj-li">{{ it }}</div>
                   </template>
+                  <a v-else-if="row.href" :href="row.href" target="_blank" rel="noopener" class="info-link">
+                    {{ row.value }} <ExternalLink :size="11" />
+                  </a>
                   <template v-else>{{ row.value }}</template>
                 </td>
               </tr>

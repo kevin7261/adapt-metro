@@ -6,7 +6,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/africa/algeria/africa-algeria-algiers.geojson",
+        "detail": "matched OSM system systems/africa/algeria/af-alg-algiers.geojson",
         "level": "error"
       },
       {
@@ -54,7 +54,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.341Z"
+    "audited_at": "2026-07-10T11:12:29.171Z"
   },
   "Buenos Aires|Argentina": {
     "strategies_tried": [],
@@ -63,7 +63,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/argentina/south-america-argentina-buenos-aires.geojson",
+        "detail": "matched OSM system systems/americas/argentina/am-arg-buenos-aires.geojson",
         "level": "error"
       },
       {
@@ -111,7 +111,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.343Z"
+    "audited_at": "2026-07-10T11:12:29.174Z"
   },
   "Yerevan|Armenia": {
     "strategies_tried": [],
@@ -120,7 +120,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/armenia/asia-armenia-yerevan.geojson",
+        "detail": "matched OSM system systems/asia/armenia/as-arm-yerevan.geojson",
         "level": "error"
       },
       {
@@ -168,7 +168,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.343Z"
+    "audited_at": "2026-07-10T11:12:29.174Z"
   },
   "Sydney|Australia": {
     "strategies_tried": [],
@@ -177,7 +177,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/oceania/australia/oceania-australia-sydney.geojson",
+        "detail": "matched OSM system systems/oceania/australia/oc-aus-sydney.geojson",
         "level": "error"
       },
       {
@@ -225,7 +225,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.344Z"
+    "audited_at": "2026-07-10T11:12:29.175Z"
   },
   "Vienna|Austria": {
     "strategies_tried": [],
@@ -234,7 +234,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/austria/europe-austria-vienna.geojson",
+        "detail": "matched OSM system systems/europe/austria/eu-aut-vienna.geojson",
         "level": "error"
       },
       {
@@ -282,7 +282,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.345Z"
+    "audited_at": "2026-07-10T11:12:29.176Z"
   },
   "Baku|Azerbaijan": {
     "strategies_tried": [],
@@ -291,7 +291,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/azerbaijan/asia-azerbaijan-baku.geojson",
+        "detail": "matched OSM system systems/asia/azerbaijan/as-aze-baku.geojson",
         "level": "error"
       },
       {
@@ -339,7 +339,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.345Z"
+    "audited_at": "2026-07-10T11:12:29.176Z"
   },
   "Dhaka|Bangladesh": {
     "strategies_tried": [],
@@ -348,7 +348,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/bangladesh/asia-bangladesh-dhaka.geojson",
+        "detail": "matched OSM system systems/asia/bangladesh/as-ban-dhaka.geojson",
         "level": "error"
       },
       {
@@ -396,7 +396,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.346Z"
+    "audited_at": "2026-07-10T11:12:29.177Z"
   },
   "Minsk|Belarus": {
     "strategies_tried": [],
@@ -405,7 +405,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/belarus/europe-belarus-minsk.geojson",
+        "detail": "matched OSM system systems/europe/belarus/eu-blr-minsk.geojson",
         "level": "error"
       },
       {
@@ -453,7 +453,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.346Z"
+    "audited_at": "2026-07-10T11:12:29.177Z"
   },
   "Brussels|Belgium": {
     "strategies_tried": [],
@@ -462,7 +462,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/belgium/europe-belgium-brussels.geojson",
+        "detail": "matched OSM system systems/europe/belgium/eu-bel-brussels.geojson",
         "level": "error"
       },
       {
@@ -510,7 +510,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.347Z"
+    "audited_at": "2026-07-10T11:12:29.178Z"
   },
   "Belo Horizonte|Brazil": {
     "strategies_tried": [],
@@ -519,7 +519,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-belo-horizonte.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-belo-horizonte.geojson",
         "level": "error"
       },
       {
@@ -567,7 +567,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.348Z"
+    "audited_at": "2026-07-10T11:12:29.179Z"
   },
   "Brasília|Brazil": {
     "strategies_tried": [],
@@ -576,7 +576,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-brasilia.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-brasilia.geojson",
         "level": "error"
       },
       {
@@ -624,7 +624,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.348Z"
+    "audited_at": "2026-07-10T11:12:29.180Z"
   },
   "Fortaleza|Brazil": {
     "strategies_tried": [],
@@ -633,7 +633,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-fortaleza.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-fortaleza.geojson",
         "level": "error"
       },
       {
@@ -681,7 +681,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.349Z"
+    "audited_at": "2026-07-10T11:12:29.180Z"
   },
   "Porto Alegre|Brazil": {
     "strategies_tried": [],
@@ -690,7 +690,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-porto-alegre.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-porto-alegre.geojson",
         "level": "error"
       },
       {
@@ -738,7 +738,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.349Z"
+    "audited_at": "2026-07-10T11:12:29.181Z"
   },
   "Recife|Brazil": {
     "strategies_tried": [],
@@ -747,7 +747,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-recife.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-recife.geojson",
         "level": "error"
       },
       {
@@ -795,7 +795,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.350Z"
+    "audited_at": "2026-07-10T11:12:29.181Z"
   },
   "Rio de Janeiro|Brazil": {
     "strategies_tried": [],
@@ -804,7 +804,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-rio-de-janeiro.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
         "level": "error"
       },
       {
@@ -854,7 +854,7 @@
     "warnings": [
       "41/50 站有名稱"
     ],
-    "audited_at": "2026-07-10T10:07:31.350Z"
+    "audited_at": "2026-07-10T11:12:29.182Z"
   },
   "Salvador|Brazil": {
     "strategies_tried": [],
@@ -863,7 +863,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-salvador.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-salvador.geojson",
         "level": "error"
       },
       {
@@ -911,7 +911,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.351Z"
+    "audited_at": "2026-07-10T11:12:29.182Z"
   },
   "São Paulo|Brazil": {
     "strategies_tried": [],
@@ -920,7 +920,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/brazil/south-america-brazil-sao-paulo.geojson",
+        "detail": "matched OSM system systems/americas/brazil/am-bra-sao-paulo.geojson",
         "level": "error"
       },
       {
@@ -968,7 +968,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.351Z"
+    "audited_at": "2026-07-10T11:12:29.183Z"
   },
   "Sofia|Bulgaria": {
     "strategies_tried": [],
@@ -977,7 +977,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/bulgaria/europe-bulgaria-sofia.geojson",
+        "detail": "matched OSM system systems/europe/bulgaria/eu-bul-sofia.geojson",
         "level": "error"
       },
       {
@@ -1025,7 +1025,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.352Z"
+    "audited_at": "2026-07-10T11:12:29.184Z"
   },
   "Montreal|Canada": {
     "strategies_tried": [],
@@ -1034,7 +1034,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/canada/north-america-canada-montreal.geojson",
+        "detail": "matched OSM system systems/americas/canada/am-can-montreal.geojson",
         "level": "error"
       },
       {
@@ -1082,7 +1082,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.352Z"
+    "audited_at": "2026-07-10T11:12:29.184Z"
   },
   "Toronto|Canada": {
     "strategies_tried": [],
@@ -1091,7 +1091,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/canada/north-america-canada-toronto.geojson",
+        "detail": "matched OSM system systems/americas/canada/am-can-toronto.geojson",
         "level": "error"
       },
       {
@@ -1139,7 +1139,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.353Z"
+    "audited_at": "2026-07-10T11:12:29.185Z"
   },
   "Vancouver|Canada": {
     "strategies_tried": [],
@@ -1148,7 +1148,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/canada/north-america-canada-vancouver.geojson",
+        "detail": "matched OSM system systems/americas/canada/am-can-vancouver.geojson",
         "level": "error"
       },
       {
@@ -1196,7 +1196,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.353Z"
+    "audited_at": "2026-07-10T11:12:29.185Z"
   },
   "Santiago|Chile": {
     "strategies_tried": [],
@@ -1205,7 +1205,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/chile/south-america-chile-santiago.geojson",
+        "detail": "matched OSM system systems/americas/chile/am-chi-santiago.geojson",
         "level": "error"
       },
       {
@@ -1253,7 +1253,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.354Z"
+    "audited_at": "2026-07-10T11:12:29.186Z"
   },
   "Beijing|China": {
     "strategies_tried": [],
@@ -1262,7 +1262,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-beijing.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-beijing.geojson",
         "level": "error"
       },
       {
@@ -1310,7 +1310,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.355Z"
+    "audited_at": "2026-07-10T11:12:29.188Z"
   },
   "Changchun|China": {
     "strategies_tried": [],
@@ -1319,7 +1319,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-changchun.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-changchun.geojson",
         "level": "error"
       },
       {
@@ -1367,7 +1367,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.356Z"
+    "audited_at": "2026-07-10T11:12:29.188Z"
   },
   "Changsha|China": {
     "strategies_tried": [],
@@ -1376,13 +1376,13 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-changsha.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-changsha.geojson",
         "level": "error"
       },
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "7 lines",
+        "detail": "6 lines",
         "level": "error"
       },
       {
@@ -1406,7 +1406,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "160 個折點/端點皆為車站",
+        "detail": "159 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1424,7 +1424,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.357Z"
+    "audited_at": "2026-07-10T11:12:29.189Z"
   },
   "Changzhou|China": {
     "strategies_tried": [],
@@ -1433,7 +1433,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-changzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-changzhou.geojson",
         "level": "error"
       },
       {
@@ -1481,7 +1481,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.357Z"
+    "audited_at": "2026-07-10T11:12:29.190Z"
   },
   "Chengdu|China": {
     "strategies_tried": [],
@@ -1490,7 +1490,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-chengdu.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-chengdu.geojson",
         "level": "error"
       },
       {
@@ -1538,7 +1538,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.358Z"
+    "audited_at": "2026-07-10T11:12:29.191Z"
   },
   "Chongqing|China": {
     "strategies_tried": [],
@@ -1547,7 +1547,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-chongqing.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-chongqing.geojson",
         "level": "error"
       },
       {
@@ -1595,7 +1595,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.359Z"
+    "audited_at": "2026-07-10T11:12:29.192Z"
   },
   "Dalian|China": {
     "strategies_tried": [],
@@ -1604,7 +1604,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-dalian.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-dalian.geojson",
         "level": "error"
       },
       {
@@ -1652,7 +1652,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.360Z"
+    "audited_at": "2026-07-10T11:12:29.193Z"
   },
   "Dongguan|China": {
     "strategies_tried": [],
@@ -1661,7 +1661,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-dongguan.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-dongguan.geojson",
         "level": "error"
       },
       {
@@ -1709,7 +1709,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.360Z"
+    "audited_at": "2026-07-10T11:12:29.194Z"
   },
   "Foshan|China": {
     "strategies_tried": [],
@@ -1718,7 +1718,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-foshan.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-foshan.geojson",
         "level": "error"
       },
       {
@@ -1766,7 +1766,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.361Z"
+    "audited_at": "2026-07-10T11:12:29.194Z"
   },
   "Fuzhou|China": {
     "strategies_tried": [],
@@ -1775,7 +1775,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-fuzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-fuzhou.geojson",
         "level": "error"
       },
       {
@@ -1823,7 +1823,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.361Z"
+    "audited_at": "2026-07-10T11:12:29.195Z"
   },
   "Guangzhou|China": {
     "strategies_tried": [],
@@ -1832,7 +1832,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-guangzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-guangzhou.geojson",
         "level": "error"
       },
       {
@@ -1880,7 +1880,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.362Z"
+    "audited_at": "2026-07-10T11:12:29.197Z"
   },
   "Guiyang|China": {
     "strategies_tried": [],
@@ -1889,7 +1889,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-guiyang.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-guiyang.geojson",
         "level": "error"
       },
       {
@@ -1937,7 +1937,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.363Z"
+    "audited_at": "2026-07-10T11:12:29.197Z"
   },
   "Hangzhou|China": {
     "strategies_tried": [],
@@ -1946,7 +1946,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-hangzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-hangzhou.geojson",
         "level": "error"
       },
       {
@@ -1994,7 +1994,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.366Z"
+    "audited_at": "2026-07-10T11:12:29.199Z"
   },
   "Harbin|China": {
     "strategies_tried": [],
@@ -2003,7 +2003,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-harbin.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-harbin.geojson",
         "level": "error"
       },
       {
@@ -2051,7 +2051,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.367Z"
+    "audited_at": "2026-07-10T11:12:29.199Z"
   },
   "Hefei|China": {
     "strategies_tried": [],
@@ -2060,7 +2060,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-hefei.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-hefei.geojson",
         "level": "error"
       },
       {
@@ -2108,7 +2108,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.368Z"
+    "audited_at": "2026-07-10T11:12:29.200Z"
   },
   "Hohhot|China": {
     "strategies_tried": [],
@@ -2117,7 +2117,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-hohhot.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-hohhot.geojson",
         "level": "error"
       },
       {
@@ -2165,7 +2165,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.368Z"
+    "audited_at": "2026-07-10T11:12:29.201Z"
   },
   "Hong Kong|China": {
     "strategies_tried": [],
@@ -2174,7 +2174,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-hong-kong.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-hong-kong.geojson",
         "level": "error"
       },
       {
@@ -2222,7 +2222,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.369Z"
+    "audited_at": "2026-07-10T11:12:29.201Z"
   },
   "Jinan|China": {
     "strategies_tried": [],
@@ -2231,7 +2231,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-jinan.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-jinan.geojson",
         "level": "error"
       },
       {
@@ -2279,7 +2279,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.369Z"
+    "audited_at": "2026-07-10T11:12:29.202Z"
   },
   "Jinhua|China": {
     "strategies_tried": [],
@@ -2288,7 +2288,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-jinhua.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-jinhua.geojson",
         "level": "error"
       },
       {
@@ -2336,7 +2336,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.370Z"
+    "audited_at": "2026-07-10T11:12:29.203Z"
   },
   "Kunming|China": {
     "strategies_tried": [],
@@ -2345,7 +2345,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-kunming.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-kunming.geojson",
         "level": "error"
       },
       {
@@ -2393,7 +2393,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.370Z"
+    "audited_at": "2026-07-10T11:12:29.204Z"
   },
   "Lanzhou|China": {
     "strategies_tried": [],
@@ -2402,7 +2402,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-lanzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-lanzhou.geojson",
         "level": "error"
       },
       {
@@ -2450,7 +2450,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.371Z"
+    "audited_at": "2026-07-10T11:12:29.204Z"
   },
   "Luoyang|China": {
     "strategies_tried": [],
@@ -2459,7 +2459,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-luoyang.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-luoyang.geojson",
         "level": "error"
       },
       {
@@ -2507,7 +2507,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.371Z"
+    "audited_at": "2026-07-10T11:12:29.205Z"
   },
   "Macau|China": {
     "strategies_tried": [],
@@ -2516,7 +2516,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-macau.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-macau.geojson",
         "level": "error"
       },
       {
@@ -2564,7 +2564,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.372Z"
+    "audited_at": "2026-07-10T11:12:29.205Z"
   },
   "Nanchang|China": {
     "strategies_tried": [],
@@ -2573,7 +2573,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-nanchang.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-nanchang.geojson",
         "level": "error"
       },
       {
@@ -2623,7 +2623,7 @@
     "warnings": [
       "111/133 站有名稱"
     ],
-    "audited_at": "2026-07-10T10:07:31.373Z"
+    "audited_at": "2026-07-10T11:12:29.206Z"
   },
   "Nanjing|China": {
     "strategies_tried": [],
@@ -2632,7 +2632,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-nanjing.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-nanjing.geojson",
         "level": "error"
       },
       {
@@ -2680,7 +2680,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.374Z"
+    "audited_at": "2026-07-10T11:12:29.207Z"
   },
   "Nanning|China": {
     "strategies_tried": [],
@@ -2689,7 +2689,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-nanning.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-nanning.geojson",
         "level": "error"
       },
       {
@@ -2737,7 +2737,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.374Z"
+    "audited_at": "2026-07-10T11:12:29.208Z"
   },
   "Nantong|China": {
     "strategies_tried": [],
@@ -2746,7 +2746,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-nantong.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-nantong.geojson",
         "level": "error"
       },
       {
@@ -2796,7 +2796,7 @@
     "warnings": [
       "43/53 站有名稱"
     ],
-    "audited_at": "2026-07-10T10:07:31.375Z"
+    "audited_at": "2026-07-10T11:12:29.209Z"
   },
   "Ningbo|China": {
     "strategies_tried": [],
@@ -2805,7 +2805,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-ningbo.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-ningbo.geojson",
         "level": "error"
       },
       {
@@ -2853,7 +2853,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.376Z"
+    "audited_at": "2026-07-10T11:12:29.210Z"
   },
   "Qingdao|China": {
     "strategies_tried": [],
@@ -2862,7 +2862,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-qingdao.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-qingdao.geojson",
         "level": "error"
       },
       {
@@ -2910,7 +2910,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.376Z"
+    "audited_at": "2026-07-10T11:12:29.211Z"
   },
   "Shanghai|China": {
     "strategies_tried": [],
@@ -2919,7 +2919,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-shanghai.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-shanghai.geojson",
         "level": "error"
       },
       {
@@ -2967,7 +2967,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.378Z"
+    "audited_at": "2026-07-10T11:12:29.212Z"
   },
   "Shaoxing|China": {
     "strategies_tried": [],
@@ -2976,7 +2976,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-shaoxing.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-shaoxing.geojson",
         "level": "error"
       },
       {
@@ -3024,7 +3024,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.378Z"
+    "audited_at": "2026-07-10T11:12:29.213Z"
   },
   "Shenyang|China": {
     "strategies_tried": [],
@@ -3033,7 +3033,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-shenyang.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-shenyang.geojson",
         "level": "error"
       },
       {
@@ -3081,7 +3081,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.379Z"
+    "audited_at": "2026-07-10T11:12:29.214Z"
   },
   "Shenzhen|China": {
     "strategies_tried": [],
@@ -3090,7 +3090,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-shenzhen.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-shenzhen.geojson",
         "level": "error"
       },
       {
@@ -3138,7 +3138,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.380Z"
+    "audited_at": "2026-07-10T11:12:29.215Z"
   },
   "Shijiazhuang|China": {
     "strategies_tried": [],
@@ -3147,7 +3147,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-shijiazhuang.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-shijiazhuang.geojson",
         "level": "error"
       },
       {
@@ -3195,7 +3195,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.381Z"
+    "audited_at": "2026-07-10T11:12:29.216Z"
   },
   "Suzhou|China": {
     "strategies_tried": [],
@@ -3204,7 +3204,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-suzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-suzhou.geojson",
         "level": "error"
       },
       {
@@ -3252,7 +3252,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.382Z"
+    "audited_at": "2026-07-10T11:12:29.217Z"
   },
   "Taiyuan|China": {
     "strategies_tried": [],
@@ -3261,7 +3261,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-taiyuan.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-taiyuan.geojson",
         "level": "error"
       },
       {
@@ -3309,7 +3309,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.382Z"
+    "audited_at": "2026-07-10T11:12:29.218Z"
   },
   "Taizhou|China": {
     "strategies_tried": [],
@@ -3318,7 +3318,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-taizhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-taizhou.geojson",
         "level": "error"
       },
       {
@@ -3366,7 +3366,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.383Z"
+    "audited_at": "2026-07-10T11:12:29.218Z"
   },
   "Tianjin|China": {
     "strategies_tried": [],
@@ -3375,7 +3375,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-tianjin.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-tianjin.geojson",
         "level": "error"
       },
       {
@@ -3423,7 +3423,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.384Z"
+    "audited_at": "2026-07-10T11:12:29.220Z"
   },
   "Ürümqi|China": {
     "strategies_tried": [],
@@ -3432,7 +3432,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-urumqi.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-urumqi.geojson",
         "level": "error"
       },
       {
@@ -3480,7 +3480,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.384Z"
+    "audited_at": "2026-07-10T11:12:29.220Z"
   },
   "Wenzhou|China": {
     "strategies_tried": [],
@@ -3489,7 +3489,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-wenzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-wenzhou.geojson",
         "level": "error"
       },
       {
@@ -3537,7 +3537,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.385Z"
+    "audited_at": "2026-07-10T11:12:29.221Z"
   },
   "Wuhan|China": {
     "strategies_tried": [],
@@ -3546,7 +3546,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-wuhan.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-wuhan.geojson",
         "level": "error"
       },
       {
@@ -3594,7 +3594,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.386Z"
+    "audited_at": "2026-07-10T11:12:29.222Z"
   },
   "Wuhu|China": {
     "strategies_tried": [],
@@ -3603,7 +3603,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-wuhu.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-wuhu.geojson",
         "level": "error"
       },
       {
@@ -3651,7 +3651,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.387Z"
+    "audited_at": "2026-07-10T11:12:29.223Z"
   },
   "Wuxi|China": {
     "strategies_tried": [],
@@ -3660,7 +3660,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-wuxi.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-wuxi.geojson",
         "level": "error"
       },
       {
@@ -3708,7 +3708,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.387Z"
+    "audited_at": "2026-07-10T11:12:29.224Z"
   },
   "Xiamen|China": {
     "strategies_tried": [],
@@ -3717,7 +3717,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-xiamen.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-xiamen.geojson",
         "level": "error"
       },
       {
@@ -3765,7 +3765,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.388Z"
+    "audited_at": "2026-07-10T11:12:29.224Z"
   },
   "Xi'an|China": {
     "strategies_tried": [],
@@ -3774,7 +3774,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-xi-an.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-xi-an.geojson",
         "level": "error"
       },
       {
@@ -3822,7 +3822,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.389Z"
+    "audited_at": "2026-07-10T11:12:29.226Z"
   },
   "Xuzhou|China": {
     "strategies_tried": [],
@@ -3831,7 +3831,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-xuzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-xuzhou.geojson",
         "level": "error"
       },
       {
@@ -3879,7 +3879,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.390Z"
+    "audited_at": "2026-07-10T11:12:29.226Z"
   },
   "Zhengzhou|China": {
     "strategies_tried": [],
@@ -3888,7 +3888,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/china/asia-china-zhengzhou.geojson",
+        "detail": "matched OSM system systems/asia/china/as-chn-zhengzhou.geojson",
         "level": "error"
       },
       {
@@ -3936,7 +3936,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.391Z"
+    "audited_at": "2026-07-10T11:12:29.228Z"
   },
   "Medellín|Colombia": {
     "strategies_tried": [],
@@ -3945,7 +3945,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/colombia/south-america-colombia-medellin.geojson",
+        "detail": "matched OSM system systems/americas/colombia/am-col-medellin.geojson",
         "level": "error"
       },
       {
@@ -3993,7 +3993,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.392Z"
+    "audited_at": "2026-07-10T11:12:29.228Z"
   },
   "Prague|Czech Republic": {
     "strategies_tried": [],
@@ -4002,7 +4002,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/czechia/europe-czechia-prague.geojson",
+        "detail": "matched OSM system systems/europe/czechia/eu-cze-prague.geojson",
         "level": "error"
       },
       {
@@ -4050,7 +4050,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.392Z"
+    "audited_at": "2026-07-10T11:12:29.229Z"
   },
   "Prague|Czechia": {
     "strategies_tried": [],
@@ -4059,7 +4059,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/czechia/europe-czechia-prague.geojson",
+        "detail": "matched OSM system systems/europe/czechia/eu-cze-prague.geojson",
         "level": "error"
       },
       {
@@ -4107,7 +4107,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.392Z"
+    "audited_at": "2026-07-10T11:12:29.229Z"
   },
   "Copenhagen|Denmark": {
     "strategies_tried": [],
@@ -4116,7 +4116,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/denmark/europe-denmark-copenhagen.geojson",
+        "detail": "matched OSM system systems/europe/denmark/eu-den-copenhagen.geojson",
         "level": "error"
       },
       {
@@ -4164,7 +4164,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.393Z"
+    "audited_at": "2026-07-10T11:12:29.230Z"
   },
   "Santo Domingo|Dominican Republic": {
     "strategies_tried": [],
@@ -4173,7 +4173,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/dominican-republic/north-america-dominican-republic-santo-domingo.geojson",
+        "detail": "matched OSM system systems/americas/dominican-republic/am-dom-santo-domingo.geojson",
         "level": "error"
       },
       {
@@ -4221,7 +4221,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.393Z"
+    "audited_at": "2026-07-10T11:12:29.231Z"
   },
   "Quito|Ecuador": {
     "strategies_tried": [],
@@ -4230,7 +4230,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/ecuador/south-america-ecuador-quito.geojson",
+        "detail": "matched OSM system systems/americas/ecuador/am-ecu-quito.geojson",
         "level": "error"
       },
       {
@@ -4278,7 +4278,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.394Z"
+    "audited_at": "2026-07-10T11:12:29.231Z"
   },
   "Cairo|Egypt": {
     "strategies_tried": [],
@@ -4287,7 +4287,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/africa/egypt/africa-egypt-cairo.geojson",
+        "detail": "matched OSM system systems/africa/egypt/af-egy-cairo.geojson",
         "level": "error"
       },
       {
@@ -4335,7 +4335,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.395Z"
+    "audited_at": "2026-07-10T11:12:29.233Z"
   },
   "Helsinki|Finland": {
     "strategies_tried": [],
@@ -4344,7 +4344,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/finland/europe-finland-helsinki.geojson",
+        "detail": "matched OSM system systems/europe/finland/eu-fin-helsinki.geojson",
         "level": "error"
       },
       {
@@ -4392,7 +4392,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.396Z"
+    "audited_at": "2026-07-10T11:12:29.233Z"
   },
   "Lille|France": {
     "strategies_tried": [],
@@ -4401,7 +4401,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/france/europe-france-lille.geojson",
+        "detail": "matched OSM system systems/europe/france/eu-fra-lille.geojson",
         "level": "error"
       },
       {
@@ -4449,7 +4449,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.397Z"
+    "audited_at": "2026-07-10T11:12:29.234Z"
   },
   "Lyon|France": {
     "strategies_tried": [],
@@ -4458,7 +4458,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/france/europe-france-lyon.geojson",
+        "detail": "matched OSM system systems/europe/france/eu-fra-lyon.geojson",
         "level": "error"
       },
       {
@@ -4506,7 +4506,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.397Z"
+    "audited_at": "2026-07-10T11:12:29.235Z"
   },
   "Marseille|France": {
     "strategies_tried": [],
@@ -4515,7 +4515,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/france/europe-france-marseille.geojson",
+        "detail": "matched OSM system systems/europe/france/eu-fra-marseille.geojson",
         "level": "error"
       },
       {
@@ -4563,7 +4563,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.398Z"
+    "audited_at": "2026-07-10T11:12:29.236Z"
   },
   "Paris|France": {
     "strategies_tried": [],
@@ -4572,7 +4572,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/france/europe-france-paris.geojson",
+        "detail": "matched OSM system systems/europe/france/eu-fra-paris.geojson",
         "level": "error"
       },
       {
@@ -4620,7 +4620,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.399Z"
+    "audited_at": "2026-07-10T11:12:29.237Z"
   },
   "Rennes|France": {
     "strategies_tried": [],
@@ -4629,7 +4629,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/france/europe-france-rennes.geojson",
+        "detail": "matched OSM system systems/europe/france/eu-fra-rennes.geojson",
         "level": "error"
       },
       {
@@ -4677,7 +4677,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.400Z"
+    "audited_at": "2026-07-10T11:12:29.238Z"
   },
   "Toulouse|France": {
     "strategies_tried": [],
@@ -4686,7 +4686,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/france/europe-france-toulouse.geojson",
+        "detail": "matched OSM system systems/europe/france/eu-fra-toulouse.geojson",
         "level": "error"
       },
       {
@@ -4734,7 +4734,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.400Z"
+    "audited_at": "2026-07-10T11:12:29.239Z"
   },
   "Tbilisi|Georgia": {
     "strategies_tried": [],
@@ -4743,7 +4743,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/georgia/asia-georgia-tbilisi.geojson",
+        "detail": "matched OSM system systems/asia/georgia/as-geo-tbilisi.geojson",
         "level": "error"
       },
       {
@@ -4791,7 +4791,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.401Z"
+    "audited_at": "2026-07-10T11:12:29.239Z"
   },
   "Berlin|Germany": {
     "strategies_tried": [],
@@ -4800,43 +4800,43 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/germany/europe-germany-berlin.geojson",
+        "detail": "matched OSM system systems/europe/germany/eu-ger-berlin.geojson",
         "level": "error"
       },
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "18 lines",
+        "detail": "9 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "276 stations",
+        "detail": "192 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 276 vs Wikipedia 175（比值 1.58）",
+        "detail": "OSM 192 vs Wikipedia 175（比值 1.10）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "276/276 站皆有所屬路線",
+        "detail": "192/192 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "306 個折點/端點皆為車站",
+        "detail": "195 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "276/276 站有名稱",
+        "detail": "192/192 站有名稱",
         "level": "warn"
       },
       {
@@ -4848,7 +4848,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.402Z"
+    "audited_at": "2026-07-10T11:12:29.241Z"
   },
   "Hamburg|Germany": {
     "strategies_tried": [],
@@ -4857,7 +4857,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/germany/europe-germany-hamburg.geojson",
+        "detail": "matched OSM system systems/europe/germany/eu-ger-hamburg.geojson",
         "level": "error"
       },
       {
@@ -4905,7 +4905,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.403Z"
+    "audited_at": "2026-07-10T11:12:29.241Z"
   },
   "Munich|Germany": {
     "strategies_tried": [],
@@ -4914,7 +4914,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/germany/europe-germany-munich.geojson",
+        "detail": "matched OSM system systems/europe/germany/eu-ger-munich.geojson",
         "level": "error"
       },
       {
@@ -4962,7 +4962,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.404Z"
+    "audited_at": "2026-07-10T11:12:29.242Z"
   },
   "Nuremberg|Germany": {
     "strategies_tried": [],
@@ -4971,7 +4971,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/germany/europe-germany-nuremberg.geojson",
+        "detail": "matched OSM system systems/europe/germany/eu-ger-nuremberg.geojson",
         "level": "error"
       },
       {
@@ -5019,7 +5019,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.405Z"
+    "audited_at": "2026-07-10T11:12:29.243Z"
   },
   "Athens|Greece": {
     "strategies_tried": [],
@@ -5028,7 +5028,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/greece/europe-greece-athens.geojson",
+        "detail": "matched OSM system systems/europe/greece/eu-gre-athens.geojson",
         "level": "error"
       },
       {
@@ -5076,7 +5076,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.405Z"
+    "audited_at": "2026-07-10T11:12:29.244Z"
   },
   "Thessaloniki|Greece": {
     "strategies_tried": [],
@@ -5085,7 +5085,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/greece/europe-greece-thessaloniki.geojson",
+        "detail": "matched OSM system systems/europe/greece/eu-gre-thessaloniki.geojson",
         "level": "error"
       },
       {
@@ -5133,7 +5133,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.406Z"
+    "audited_at": "2026-07-10T11:12:29.245Z"
   },
   "Budapest|Hungary": {
     "strategies_tried": [],
@@ -5142,7 +5142,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/hungary/europe-hungary-budapest.geojson",
+        "detail": "matched OSM system systems/europe/hungary/eu-hun-budapest.geojson",
         "level": "error"
       },
       {
@@ -5190,7 +5190,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.407Z"
+    "audited_at": "2026-07-10T11:12:29.246Z"
   },
   "Agra|India": {
     "strategies_tried": [],
@@ -5199,7 +5199,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-agra.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-agra.geojson",
         "level": "error"
       },
       {
@@ -5247,7 +5247,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.407Z"
+    "audited_at": "2026-07-10T11:12:29.246Z"
   },
   "Ahmedabad|India": {
     "strategies_tried": [],
@@ -5256,7 +5256,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-ahmedabad.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-ahmedabad.geojson",
         "level": "error"
       },
       {
@@ -5304,7 +5304,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.408Z"
+    "audited_at": "2026-07-10T11:12:29.247Z"
   },
   "Bengaluru|India": {
     "strategies_tried": [],
@@ -5313,7 +5313,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-bengaluru.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-bengaluru.geojson",
         "level": "error"
       },
       {
@@ -5361,7 +5361,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.409Z"
+    "audited_at": "2026-07-10T11:12:29.248Z"
   },
   "Bhopal|India": {
     "strategies_tried": [],
@@ -5370,7 +5370,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-bhopal.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-bhopal.geojson",
         "level": "error"
       },
       {
@@ -5418,7 +5418,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.409Z"
+    "audited_at": "2026-07-10T11:12:29.249Z"
   },
   "Chennai|India": {
     "strategies_tried": [],
@@ -5427,7 +5427,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-chennai.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-chennai.geojson",
         "level": "error"
       },
       {
@@ -5475,7 +5475,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.410Z"
+    "audited_at": "2026-07-10T11:12:29.250Z"
   },
   "Delhi|India": {
     "strategies_tried": [],
@@ -5484,7 +5484,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-delhi.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-delhi.geojson",
         "level": "error"
       },
       {
@@ -5532,7 +5532,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.411Z"
+    "audited_at": "2026-07-10T11:12:29.251Z"
   },
   "Gurgaon|India": {
     "strategies_tried": [],
@@ -5541,7 +5541,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-gurgaon.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-gurgaon.geojson",
         "level": "error"
       },
       {
@@ -5589,7 +5589,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.412Z"
+    "audited_at": "2026-07-10T11:12:29.252Z"
   },
   "Hyderabad|India": {
     "strategies_tried": [],
@@ -5598,7 +5598,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-hyderabad.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-hyderabad.geojson",
         "level": "error"
       },
       {
@@ -5646,7 +5646,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.413Z"
+    "audited_at": "2026-07-10T11:12:29.252Z"
   },
   "Indore|India": {
     "strategies_tried": [],
@@ -5655,7 +5655,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-indore.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-indore.geojson",
         "level": "error"
       },
       {
@@ -5703,7 +5703,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.413Z"
+    "audited_at": "2026-07-10T11:12:29.253Z"
   },
   "Jaipur|India": {
     "strategies_tried": [],
@@ -5712,7 +5712,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-jaipur.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-jaipur.geojson",
         "level": "error"
       },
       {
@@ -5760,7 +5760,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.414Z"
+    "audited_at": "2026-07-10T11:12:29.254Z"
   },
   "Kanpur|India": {
     "strategies_tried": [],
@@ -5769,7 +5769,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-kanpur.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-kanpur.geojson",
         "level": "error"
       },
       {
@@ -5817,7 +5817,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.415Z"
+    "audited_at": "2026-07-10T11:12:29.255Z"
   },
   "Kochi|India": {
     "strategies_tried": [],
@@ -5826,7 +5826,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-kochi.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-kochi.geojson",
         "level": "error"
       },
       {
@@ -5874,7 +5874,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.415Z"
+    "audited_at": "2026-07-10T11:12:29.255Z"
   },
   "Kolkata|India": {
     "strategies_tried": [],
@@ -5883,7 +5883,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-kolkata.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-kolkata.geojson",
         "level": "error"
       },
       {
@@ -5931,7 +5931,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.418Z"
+    "audited_at": "2026-07-10T11:12:29.256Z"
   },
   "Lucknow|India": {
     "strategies_tried": [],
@@ -5940,7 +5940,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-lucknow.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-lucknow.geojson",
         "level": "error"
       },
       {
@@ -5988,7 +5988,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.419Z"
+    "audited_at": "2026-07-10T11:12:29.259Z"
   },
   "Mumbai|India": {
     "strategies_tried": [],
@@ -5997,7 +5997,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-mumbai.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-mumbai.geojson",
         "level": "error"
       },
       {
@@ -6045,7 +6045,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.420Z"
+    "audited_at": "2026-07-10T11:12:29.261Z"
   },
   "Meerut|India": {
     "strategies_tried": [],
@@ -6054,7 +6054,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-meerut.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-meerut.geojson",
         "level": "error"
       },
       {
@@ -6102,7 +6102,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.421Z"
+    "audited_at": "2026-07-10T11:12:29.262Z"
   },
   "Nagpur|India": {
     "strategies_tried": [],
@@ -6111,7 +6111,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-nagpur.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-nagpur.geojson",
         "level": "error"
       },
       {
@@ -6159,7 +6159,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.422Z"
+    "audited_at": "2026-07-10T11:12:29.262Z"
   },
   "Navi Mumbai|India": {
     "strategies_tried": [],
@@ -6168,7 +6168,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-navi-mumbai.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-navi-mumbai.geojson",
         "level": "error"
       },
       {
@@ -6216,7 +6216,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.422Z"
+    "audited_at": "2026-07-10T11:12:29.263Z"
   },
   "Noida|India": {
     "strategies_tried": [],
@@ -6225,13 +6225,13 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-noida.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-noida.geojson",
         "level": "error"
       },
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "3 lines",
+        "detail": "2 lines",
         "level": "error"
       },
       {
@@ -6255,7 +6255,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "28 個折點/端點皆為車站",
+        "detail": "27 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -6273,7 +6273,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.423Z"
+    "audited_at": "2026-07-10T11:12:29.264Z"
   },
   "Patna|India": {
     "strategies_tried": [],
@@ -6282,7 +6282,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-patna.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-patna.geojson",
         "level": "error"
       },
       {
@@ -6330,7 +6330,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.424Z"
+    "audited_at": "2026-07-10T11:12:29.265Z"
   },
   "Pune|India": {
     "strategies_tried": [],
@@ -6339,7 +6339,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/india/asia-india-pune.geojson",
+        "detail": "matched OSM system systems/asia/india/as-ind-pune.geojson",
         "level": "error"
       },
       {
@@ -6387,7 +6387,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.424Z"
+    "audited_at": "2026-07-10T11:12:29.266Z"
   },
   "Jakarta|Indonesia": {
     "strategies_tried": [],
@@ -6396,7 +6396,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/indonesia/asia-indonesia-jakarta.geojson",
+        "detail": "matched OSM system systems/asia/indonesia/as-ina-jakarta.geojson",
         "level": "error"
       },
       {
@@ -6444,7 +6444,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.425Z"
+    "audited_at": "2026-07-10T11:12:29.267Z"
   },
   "Palembang|Indonesia": {
     "strategies_tried": [],
@@ -6453,7 +6453,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/indonesia/asia-indonesia-palembang.geojson",
+        "detail": "matched OSM system systems/asia/indonesia/as-ina-palembang.geojson",
         "level": "error"
       },
       {
@@ -6501,7 +6501,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.426Z"
+    "audited_at": "2026-07-10T11:12:29.268Z"
   },
   "Isfahan|Iran": {
     "strategies_tried": [],
@@ -6510,7 +6510,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/iran/asia-iran-isfahan.geojson",
+        "detail": "matched OSM system systems/asia/iran/as-iri-isfahan.geojson",
         "level": "error"
       },
       {
@@ -6558,7 +6558,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.427Z"
+    "audited_at": "2026-07-10T11:12:29.268Z"
   },
   "Mashhad|Iran": {
     "strategies_tried": [],
@@ -6567,7 +6567,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/iran/asia-iran-mashhad.geojson",
+        "detail": "matched OSM system systems/asia/iran/as-iri-mashhad.geojson",
         "level": "error"
       },
       {
@@ -6615,7 +6615,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.427Z"
+    "audited_at": "2026-07-10T11:12:29.269Z"
   },
   "Shiraz|Iran": {
     "strategies_tried": [],
@@ -6624,7 +6624,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/iran/asia-iran-shiraz.geojson",
+        "detail": "matched OSM system systems/asia/iran/as-iri-shiraz.geojson",
         "level": "error"
       },
       {
@@ -6672,7 +6672,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.428Z"
+    "audited_at": "2026-07-10T11:12:29.270Z"
   },
   "Karaj|Iran": {
     "strategies_tried": [],
@@ -6681,7 +6681,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/iran/asia-iran-karaj.geojson",
+        "detail": "matched OSM system systems/asia/iran/as-iri-karaj.geojson",
         "level": "error"
       },
       {
@@ -6729,7 +6729,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.429Z"
+    "audited_at": "2026-07-10T11:12:29.271Z"
   },
   "Tabriz|Iran": {
     "strategies_tried": [],
@@ -6738,7 +6738,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/iran/asia-iran-tabriz.geojson",
+        "detail": "matched OSM system systems/asia/iran/as-iri-tabriz.geojson",
         "level": "error"
       },
       {
@@ -6786,7 +6786,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.430Z"
+    "audited_at": "2026-07-10T11:12:29.272Z"
   },
   "Tehran|Iran": {
     "strategies_tried": [],
@@ -6795,7 +6795,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/iran/asia-iran-tehran.geojson",
+        "detail": "matched OSM system systems/asia/iran/as-iri-tehran.geojson",
         "level": "error"
       },
       {
@@ -6843,7 +6843,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.431Z"
+    "audited_at": "2026-07-10T11:12:29.273Z"
   },
   "Brescia|Italy": {
     "strategies_tried": [],
@@ -6852,7 +6852,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-brescia.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-brescia.geojson",
         "level": "error"
       },
       {
@@ -6900,7 +6900,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.431Z"
+    "audited_at": "2026-07-10T11:12:29.273Z"
   },
   "Catania|Italy": {
     "strategies_tried": [],
@@ -6909,7 +6909,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-catania.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-catania.geojson",
         "level": "error"
       },
       {
@@ -6957,7 +6957,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.432Z"
+    "audited_at": "2026-07-10T11:12:29.274Z"
   },
   "Genoa|Italy": {
     "strategies_tried": [],
@@ -6966,7 +6966,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-genoa.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-genoa.geojson",
         "level": "error"
       },
       {
@@ -7014,7 +7014,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.433Z"
+    "audited_at": "2026-07-10T11:12:29.275Z"
   },
   "Milan|Italy": {
     "strategies_tried": [],
@@ -7023,7 +7023,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-milan.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-milan.geojson",
         "level": "error"
       },
       {
@@ -7071,7 +7071,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.434Z"
+    "audited_at": "2026-07-10T11:12:29.276Z"
   },
   "Naples|Italy": {
     "strategies_tried": [],
@@ -7080,7 +7080,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-naples.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-naples.geojson",
         "level": "error"
       },
       {
@@ -7128,7 +7128,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.435Z"
+    "audited_at": "2026-07-10T11:12:29.277Z"
   },
   "Rome|Italy": {
     "strategies_tried": [],
@@ -7137,7 +7137,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-rome.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-rome.geojson",
         "level": "error"
       },
       {
@@ -7187,7 +7187,7 @@
     "warnings": [
       "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T10:07:31.436Z"
+    "audited_at": "2026-07-10T11:12:29.278Z"
   },
   "Turin|Italy": {
     "strategies_tried": [],
@@ -7196,7 +7196,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/italy/europe-italy-turin.geojson",
+        "detail": "matched OSM system systems/europe/italy/eu-ita-turin.geojson",
         "level": "error"
       },
       {
@@ -7244,7 +7244,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.437Z"
+    "audited_at": "2026-07-10T11:12:29.279Z"
   },
   "Chiba Prefecture|Japan": {
     "strategies_tried": [],
@@ -7253,7 +7253,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-chiba-prefecture.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-chiba-prefecture.geojson",
         "level": "error"
       },
       {
@@ -7301,7 +7301,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.438Z"
+    "audited_at": "2026-07-10T11:12:29.280Z"
   },
   "Fukuoka|Japan": {
     "strategies_tried": [],
@@ -7310,7 +7310,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-fukuoka.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-fukuoka.geojson",
         "level": "error"
       },
       {
@@ -7358,7 +7358,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.438Z"
+    "audited_at": "2026-07-10T11:12:29.281Z"
   },
   "Hiroshima|Japan": {
     "strategies_tried": [],
@@ -7367,7 +7367,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-hiroshima.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-hiroshima.geojson",
         "level": "error"
       },
       {
@@ -7415,7 +7415,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.439Z"
+    "audited_at": "2026-07-10T11:12:29.281Z"
   },
   "Kobe|Japan": {
     "strategies_tried": [],
@@ -7424,7 +7424,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-kobe.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-kobe.geojson",
         "level": "error"
       },
       {
@@ -7472,7 +7472,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.440Z"
+    "audited_at": "2026-07-10T11:12:29.283Z"
   },
   "Kyoto|Japan": {
     "strategies_tried": [],
@@ -7481,7 +7481,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-kyoto.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-kyoto.geojson",
         "level": "error"
       },
       {
@@ -7529,7 +7529,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.441Z"
+    "audited_at": "2026-07-10T11:12:29.284Z"
   },
   "Nagoya|Japan": {
     "strategies_tried": [],
@@ -7538,7 +7538,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-nagoya.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-nagoya.geojson",
         "level": "error"
       },
       {
@@ -7586,7 +7586,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.442Z"
+    "audited_at": "2026-07-10T11:12:29.285Z"
   },
   "Osaka|Japan": {
     "strategies_tried": [],
@@ -7595,7 +7595,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-osaka.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-osaka.geojson",
         "level": "error"
       },
       {
@@ -7643,7 +7643,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.443Z"
+    "audited_at": "2026-07-10T11:12:29.286Z"
   },
   "Saitama Prefecture|Japan": {
     "strategies_tried": [],
@@ -7652,7 +7652,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-saitama-prefecture.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-saitama-prefecture.geojson",
         "level": "error"
       },
       {
@@ -7700,7 +7700,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.444Z"
+    "audited_at": "2026-07-10T11:12:29.287Z"
   },
   "Sapporo|Japan": {
     "strategies_tried": [],
@@ -7709,7 +7709,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-sapporo.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-sapporo.geojson",
         "level": "error"
       },
       {
@@ -7757,7 +7757,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.445Z"
+    "audited_at": "2026-07-10T11:12:29.288Z"
   },
   "Sendai|Japan": {
     "strategies_tried": [],
@@ -7766,7 +7766,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-sendai.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-sendai.geojson",
         "level": "error"
       },
       {
@@ -7814,7 +7814,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.446Z"
+    "audited_at": "2026-07-10T11:12:29.289Z"
   },
   "Tokyo|Japan": {
     "strategies_tried": [],
@@ -7823,43 +7823,43 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-tokyo.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-tokyo.geojson",
         "level": "error"
       },
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "16 lines",
+        "detail": "13 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "230 stations",
+        "detail": "218 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_high",
         "ok": false,
-        "detail": "站數偏多：OSM 230 vs Wikipedia 99（比值 2.32），多營運商合併或含輕軌，需人工判定",
+        "detail": "站數偏多：OSM 218 vs Wikipedia 99（比值 2.20），多營運商合併或含輕軌，需人工判定",
         "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "230/230 站皆有所屬路線",
+        "detail": "218/218 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "318 個折點/端點皆為車站",
+        "detail": "291 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "230/230 站有名稱",
+        "detail": "218/218 站有名稱",
         "level": "warn"
       },
       {
@@ -7871,9 +7871,9 @@
     ],
     "reasons": [],
     "warnings": [
-      "站數偏多：OSM 230 vs Wikipedia 99（比值 2.32），多營運商合併或含輕軌，需人工判定"
+      "站數偏多：OSM 218 vs Wikipedia 99（比值 2.20），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T10:07:31.448Z"
+    "audited_at": "2026-07-10T11:12:29.290Z"
   },
   "Yokohama|Japan": {
     "strategies_tried": [],
@@ -7882,7 +7882,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/japan/asia-japan-yokohama.geojson",
+        "detail": "matched OSM system systems/asia/japan/as-jpn-yokohama.geojson",
         "level": "error"
       },
       {
@@ -7930,7 +7930,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.449Z"
+    "audited_at": "2026-07-10T11:12:29.291Z"
   },
   "Almaty|Kazakhstan": {
     "strategies_tried": [],
@@ -7939,7 +7939,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/kazakhstan/asia-kazakhstan-almaty.geojson",
+        "detail": "matched OSM system systems/asia/kazakhstan/as-kaz-almaty.geojson",
         "level": "error"
       },
       {
@@ -7987,7 +7987,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.450Z"
+    "audited_at": "2026-07-10T11:12:29.292Z"
   },
   "Astana|Kazakhstan": {
     "strategies_tried": [],
@@ -7996,7 +7996,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/kazakhstan/asia-kazakhstan-astana.geojson",
+        "detail": "matched OSM system systems/asia/kazakhstan/as-kaz-astana.geojson",
         "level": "error"
       },
       {
@@ -8044,7 +8044,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.450Z"
+    "audited_at": "2026-07-10T11:12:29.293Z"
   },
   "Pyongyang|North Korea": {
     "strategies_tried": [],
@@ -8053,7 +8053,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/north-korea/asia-north-korea-pyongyang.geojson",
+        "detail": "matched OSM system systems/asia/north-korea/as-prk-pyongyang.geojson",
         "level": "error"
       },
       {
@@ -8101,7 +8101,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.453Z"
+    "audited_at": "2026-07-10T11:12:29.296Z"
   },
   "Busan|South Korea": {
     "strategies_tried": [],
@@ -8110,7 +8110,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-busan.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-busan.geojson",
         "level": "error"
       },
       {
@@ -8158,7 +8158,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.454Z"
+    "audited_at": "2026-07-10T11:12:29.298Z"
   },
   "Daegu|South Korea": {
     "strategies_tried": [],
@@ -8167,7 +8167,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-daegu.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-daegu.geojson",
         "level": "error"
       },
       {
@@ -8215,7 +8215,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.454Z"
+    "audited_at": "2026-07-10T11:12:29.299Z"
   },
   "Daejeon|South Korea": {
     "strategies_tried": [],
@@ -8224,7 +8224,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-daejeon.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-daejeon.geojson",
         "level": "error"
       },
       {
@@ -8272,7 +8272,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.455Z"
+    "audited_at": "2026-07-10T11:12:29.300Z"
   },
   "Gimpo|South Korea": {
     "strategies_tried": [],
@@ -8281,7 +8281,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-gimpo.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-gimpo.geojson",
         "level": "error"
       },
       {
@@ -8329,7 +8329,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.456Z"
+    "audited_at": "2026-07-10T11:12:29.300Z"
   },
   "Gwangju|South Korea": {
     "strategies_tried": [],
@@ -8338,7 +8338,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-gwangju.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-gwangju.geojson",
         "level": "error"
       },
       {
@@ -8386,7 +8386,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.457Z"
+    "audited_at": "2026-07-10T11:12:29.301Z"
   },
   "Incheon|South Korea": {
     "strategies_tried": [],
@@ -8395,7 +8395,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-incheon.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-incheon.geojson",
         "level": "error"
       },
       {
@@ -8443,7 +8443,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.458Z"
+    "audited_at": "2026-07-10T11:12:29.302Z"
   },
   "Seoul|South Korea": {
     "strategies_tried": [],
@@ -8452,7 +8452,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/south-korea/asia-south-korea-seoul.geojson",
+        "detail": "matched OSM system systems/asia/south-korea/as-kor-seoul.geojson",
         "level": "error"
       },
       {
@@ -8500,7 +8500,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.459Z"
+    "audited_at": "2026-07-10T11:12:29.304Z"
   },
   "Kuala Lumpur|Malaysia": {
     "strategies_tried": [],
@@ -8509,7 +8509,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/malaysia/asia-malaysia-kuala-lumpur.geojson",
+        "detail": "matched OSM system systems/asia/malaysia/as-mas-kuala-lumpur.geojson",
         "level": "error"
       },
       {
@@ -8557,7 +8557,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.460Z"
+    "audited_at": "2026-07-10T11:12:29.306Z"
   },
   "Guadalajara|Mexico": {
     "strategies_tried": [],
@@ -8566,7 +8566,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/mexico/north-america-mexico-guadalajara.geojson",
+        "detail": "matched OSM system systems/americas/mexico/am-mex-guadalajara.geojson",
         "level": "error"
       },
       {
@@ -8614,7 +8614,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.461Z"
+    "audited_at": "2026-07-10T11:12:29.306Z"
   },
   "Mexico City|Mexico": {
     "strategies_tried": [],
@@ -8623,7 +8623,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/mexico/north-america-mexico-mexico-city.geojson",
+        "detail": "matched OSM system systems/americas/mexico/am-mex-mexico-city.geojson",
         "level": "error"
       },
       {
@@ -8671,7 +8671,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.463Z"
+    "audited_at": "2026-07-10T11:12:29.308Z"
   },
   "Monterrey|Mexico": {
     "strategies_tried": [],
@@ -8680,7 +8680,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/mexico/north-america-mexico-monterrey.geojson",
+        "detail": "matched OSM system systems/americas/mexico/am-mex-monterrey.geojson",
         "level": "error"
       },
       {
@@ -8730,7 +8730,7 @@
     "warnings": [
       "39/59 站有名稱"
     ],
-    "audited_at": "2026-07-10T10:07:31.463Z"
+    "audited_at": "2026-07-10T11:12:29.309Z"
   },
   "Amsterdam|Netherlands": {
     "strategies_tried": [],
@@ -8739,7 +8739,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/netherlands/europe-netherlands-amsterdam.geojson",
+        "detail": "matched OSM system systems/europe/netherlands/eu-ned-amsterdam.geojson",
         "level": "error"
       },
       {
@@ -8787,7 +8787,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.464Z"
+    "audited_at": "2026-07-10T11:12:29.310Z"
   },
   "Rotterdam|Netherlands": {
     "strategies_tried": [],
@@ -8796,7 +8796,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/netherlands/europe-netherlands-rotterdam.geojson",
+        "detail": "matched OSM system systems/europe/netherlands/eu-ned-rotterdam.geojson",
         "level": "error"
       },
       {
@@ -8844,7 +8844,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:31.465Z"
+    "audited_at": "2026-07-10T11:12:29.311Z"
   },
   "Lagos|Nigeria": {
     "strategies_tried": [
@@ -8860,7 +8860,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/africa/nigeria/africa-nigeria-lagos.geojson",
+        "detail": "matched OSM system systems/africa/nigeria/af-ngr-lagos.geojson",
         "level": "error"
       },
       {
@@ -8910,7 +8910,7 @@
       "站數偏少：OSM 5 vs Wikipedia 13（比值 0.38）"
     ],
     "warnings": [],
-    "audited_at": "2026-07-10T10:09:22.412Z"
+    "audited_at": "2026-07-10T11:12:31.528Z"
   },
   "Oslo|Norway": {
     "strategies_tried": [],
@@ -8919,7 +8919,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/norway/europe-norway-oslo.geojson",
+        "detail": "matched OSM system systems/europe/norway/eu-nor-oslo.geojson",
         "level": "error"
       },
       {
@@ -8967,7 +8967,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.638Z"
+    "audited_at": "2026-07-10T11:12:31.530Z"
   },
   "Lahore|Pakistan": {
     "strategies_tried": [],
@@ -8976,7 +8976,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/pakistan/asia-pakistan-lahore.geojson",
+        "detail": "matched OSM system systems/asia/pakistan/as-pak-lahore.geojson",
         "level": "error"
       },
       {
@@ -9024,7 +9024,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.639Z"
+    "audited_at": "2026-07-10T11:12:31.531Z"
   },
   "Panama City|Panama": {
     "strategies_tried": [],
@@ -9033,7 +9033,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/panama/north-america-panama-panama-city.geojson",
+        "detail": "matched OSM system systems/americas/panama/am-pan-panama-city.geojson",
         "level": "error"
       },
       {
@@ -9081,7 +9081,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.640Z"
+    "audited_at": "2026-07-10T11:12:31.532Z"
   },
   "Lima|Peru": {
     "strategies_tried": [],
@@ -9090,7 +9090,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/peru/south-america-peru-lima.geojson",
+        "detail": "matched OSM system systems/americas/peru/am-per-lima.geojson",
         "level": "error"
       },
       {
@@ -9138,7 +9138,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.641Z"
+    "audited_at": "2026-07-10T11:12:31.533Z"
   },
   "Manila|Philippines": {
     "strategies_tried": [],
@@ -9147,7 +9147,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/philippines/asia-philippines-manila.geojson",
+        "detail": "matched OSM system systems/asia/philippines/as-phi-manila.geojson",
         "level": "error"
       },
       {
@@ -9195,7 +9195,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.641Z"
+    "audited_at": "2026-07-10T11:12:31.533Z"
   },
   "Warsaw|Poland": {
     "strategies_tried": [],
@@ -9204,7 +9204,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/poland/europe-poland-warsaw.geojson",
+        "detail": "matched OSM system systems/europe/poland/eu-pol-warsaw.geojson",
         "level": "error"
       },
       {
@@ -9252,7 +9252,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.642Z"
+    "audited_at": "2026-07-10T11:12:31.534Z"
   },
   "Lisbon|Portugal": {
     "strategies_tried": [],
@@ -9261,7 +9261,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/portugal/europe-portugal-lisbon.geojson",
+        "detail": "matched OSM system systems/europe/portugal/eu-por-lisbon.geojson",
         "level": "error"
       },
       {
@@ -9309,7 +9309,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.644Z"
+    "audited_at": "2026-07-10T11:12:31.537Z"
   },
   "Doha|Qatar": {
     "strategies_tried": [],
@@ -9318,7 +9318,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/qatar/asia-qatar-doha.geojson",
+        "detail": "matched OSM system systems/asia/qatar/as-qat-doha.geojson",
         "level": "error"
       },
       {
@@ -9366,7 +9366,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.645Z"
+    "audited_at": "2026-07-10T11:12:31.538Z"
   },
   "Bucharest|Romania": {
     "strategies_tried": [],
@@ -9375,7 +9375,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/romania/europe-romania-bucharest.geojson",
+        "detail": "matched OSM system systems/europe/romania/eu-rou-bucharest.geojson",
         "level": "error"
       },
       {
@@ -9423,7 +9423,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.646Z"
+    "audited_at": "2026-07-10T11:12:31.539Z"
   },
   "Kazan|Russia": {
     "strategies_tried": [],
@@ -9432,7 +9432,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-kazan.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-kazan.geojson",
         "level": "error"
       },
       {
@@ -9480,7 +9480,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.647Z"
+    "audited_at": "2026-07-10T11:12:31.540Z"
   },
   "Moscow|Russia": {
     "strategies_tried": [],
@@ -9489,7 +9489,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-moscow.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-moscow.geojson",
         "level": "error"
       },
       {
@@ -9537,7 +9537,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.648Z"
+    "audited_at": "2026-07-10T11:12:31.541Z"
   },
   "Nizhny Novgorod|Russia": {
     "strategies_tried": [],
@@ -9546,7 +9546,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-nizhny-novgorod.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-nizhny-novgorod.geojson",
         "level": "error"
       },
       {
@@ -9594,7 +9594,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.649Z"
+    "audited_at": "2026-07-10T11:12:31.542Z"
   },
   "Novosibirsk|Russia": {
     "strategies_tried": [],
@@ -9603,7 +9603,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-novosibirsk.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-novosibirsk.geojson",
         "level": "error"
       },
       {
@@ -9651,7 +9651,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.650Z"
+    "audited_at": "2026-07-10T11:12:31.543Z"
   },
   "Saint Petersburg|Russia": {
     "strategies_tried": [],
@@ -9660,7 +9660,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-saint-petersburg.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-saint-petersburg.geojson",
         "level": "error"
       },
       {
@@ -9708,7 +9708,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:33.651Z"
+    "audited_at": "2026-07-10T11:12:31.544Z"
   },
   "Samara|Russia": {
     "strategies_tried": [
@@ -9724,7 +9724,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-samara.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-samara.geojson",
         "level": "error"
       },
       {
@@ -9774,7 +9774,7 @@
       "站數偏少：OSM 2 vs Wikipedia 10（比值 0.20）"
     ],
     "warnings": [],
-    "audited_at": "2026-07-10T10:09:22.414Z"
+    "audited_at": "2026-07-10T11:12:33.813Z"
   },
   "Yekaterinburg|Russia": {
     "strategies_tried": [],
@@ -9783,7 +9783,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/russia/europe-russia-yekaterinburg.geojson",
+        "detail": "matched OSM system systems/europe/russia/eu-rus-yekaterinburg.geojson",
         "level": "error"
       },
       {
@@ -9831,7 +9831,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.761Z"
+    "audited_at": "2026-07-10T11:12:33.814Z"
   },
   "Mecca|Saudi Arabia": {
     "strategies_tried": [],
@@ -9840,7 +9840,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/saudi-arabia/asia-saudi-arabia-mecca.geojson",
+        "detail": "matched OSM system systems/asia/saudi-arabia/as-ksa-mecca.geojson",
         "level": "error"
       },
       {
@@ -9888,7 +9888,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.762Z"
+    "audited_at": "2026-07-10T11:12:33.815Z"
   },
   "Riyadh|Saudi Arabia": {
     "strategies_tried": [],
@@ -9897,7 +9897,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/saudi-arabia/asia-saudi-arabia-riyadh.geojson",
+        "detail": "matched OSM system systems/asia/saudi-arabia/as-ksa-riyadh.geojson",
         "level": "error"
       },
       {
@@ -9945,7 +9945,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.763Z"
+    "audited_at": "2026-07-10T11:12:33.816Z"
   },
   "Singapore|Singapore": {
     "strategies_tried": [],
@@ -9954,7 +9954,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/singapore/asia-singapore-singapore.geojson",
+        "detail": "matched OSM system systems/asia/singapore/as-sgp-singapore.geojson",
         "level": "error"
       },
       {
@@ -10002,7 +10002,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.764Z"
+    "audited_at": "2026-07-10T11:12:33.817Z"
   },
   "Barcelona|Spain": {
     "strategies_tried": [],
@@ -10011,7 +10011,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/spain/europe-spain-barcelona.geojson",
+        "detail": "matched OSM system systems/europe/spain/eu-esp-barcelona.geojson",
         "level": "error"
       },
       {
@@ -10059,7 +10059,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.766Z"
+    "audited_at": "2026-07-10T11:12:33.818Z"
   },
   "Bilbao|Spain": {
     "strategies_tried": [],
@@ -10068,7 +10068,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/spain/europe-spain-bilbao.geojson",
+        "detail": "matched OSM system systems/europe/spain/eu-esp-bilbao.geojson",
         "level": "error"
       },
       {
@@ -10116,7 +10116,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.767Z"
+    "audited_at": "2026-07-10T11:12:33.819Z"
   },
   "Madrid|Spain": {
     "strategies_tried": [],
@@ -10125,7 +10125,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/spain/europe-spain-madrid.geojson",
+        "detail": "matched OSM system systems/europe/spain/eu-esp-madrid.geojson",
         "level": "error"
       },
       {
@@ -10173,7 +10173,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.768Z"
+    "audited_at": "2026-07-10T11:12:33.821Z"
   },
   "Stockholm|Sweden": {
     "strategies_tried": [],
@@ -10182,7 +10182,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/sweden/europe-sweden-stockholm.geojson",
+        "detail": "matched OSM system systems/europe/sweden/eu-swe-stockholm.geojson",
         "level": "error"
       },
       {
@@ -10230,7 +10230,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.769Z"
+    "audited_at": "2026-07-10T11:12:33.822Z"
   },
   "Lausanne|Switzerland": {
     "strategies_tried": [],
@@ -10239,7 +10239,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/switzerland/europe-switzerland-lausanne.geojson",
+        "detail": "matched OSM system systems/europe/switzerland/eu-sui-lausanne.geojson",
         "level": "error"
       },
       {
@@ -10287,7 +10287,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.770Z"
+    "audited_at": "2026-07-10T11:12:33.823Z"
   },
   "Kaohsiung|Taiwan": {
     "strategies_tried": [],
@@ -10296,7 +10296,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/taiwan/asia-taiwan-kaohsiung.geojson",
+        "detail": "matched OSM system systems/asia/taiwan/as-twn-kaohsiung.geojson",
         "level": "error"
       },
       {
@@ -10346,7 +10346,7 @@
     "warnings": [
       "站數偏多：OSM 75 vs Wikipedia 38（比值 1.97），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T10:07:35.771Z"
+    "audited_at": "2026-07-10T11:12:33.824Z"
   },
   "New Taipei|Taiwan": {
     "strategies_tried": [],
@@ -10355,7 +10355,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/taiwan/asia-taiwan-new-taipei.geojson",
+        "detail": "matched OSM system systems/asia/taiwan/as-twn-new-taipei.geojson",
         "level": "error"
       },
       {
@@ -10405,7 +10405,7 @@
     "warnings": [
       "站數偏多：OSM 27 vs Wikipedia 12（比值 2.25），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T10:07:35.772Z"
+    "audited_at": "2026-07-10T11:12:33.825Z"
   },
   "Taipei|Taiwan": {
     "strategies_tried": [],
@@ -10414,13 +10414,13 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/taiwan/asia-taiwan-taipei.geojson",
+        "detail": "matched OSM system systems/asia/taiwan/as-twn-taipei.geojson",
         "level": "error"
       },
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "11 lines",
+        "detail": "9 lines",
         "level": "error"
       },
       {
@@ -10462,7 +10462,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.773Z",
+    "audited_at": "2026-07-10T11:12:33.826Z",
     "covers": [
       "Taoyuan Metro"
     ]
@@ -10474,7 +10474,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/taiwan/asia-taiwan-taichung.geojson",
+        "detail": "matched OSM system systems/asia/taiwan/as-twn-taichung.geojson",
         "level": "error"
       },
       {
@@ -10522,7 +10522,30 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:07:35.774Z"
+    "audited_at": "2026-07-10T11:12:33.827Z"
+  },
+  "Taoyuan|Taiwan": {
+    "strategies_tried": [
+      "S1"
+    ],
+    "notes": {
+      "S1": "routes near Taoyuan already belong to Taipei"
+    },
+    "covered_by": "Taipei",
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": false,
+        "detail": "no OSM system matched to this city",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "由 Taipei 系統檔涵蓋（同都會區，OSM 未區分）"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T11:12:33.829Z"
   },
   "Bangkok|Thailand": {
     "strategies_tried": [],
@@ -10531,7 +10554,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/thailand/asia-thailand-bangkok.geojson",
+        "detail": "matched OSM system systems/asia/thailand/as-tha-bangkok.geojson",
         "level": "error"
       },
       {
@@ -10581,7 +10604,7 @@
     "warnings": [
       "站數偏多：OSM 112 vs Wikipedia 64（比值 1.75），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T10:08:51.624Z"
+    "audited_at": "2026-07-10T11:12:33.830Z"
   },
   "Adana|Turkey": {
     "strategies_tried": [],
@@ -10590,7 +10613,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/turkey/asia-turkey-adana.geojson",
+        "detail": "matched OSM system systems/asia/turkey/as-tur-adana.geojson",
         "level": "error"
       },
       {
@@ -10638,7 +10661,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.625Z"
+    "audited_at": "2026-07-10T11:12:33.831Z"
   },
   "Ankara|Turkey": {
     "strategies_tried": [],
@@ -10647,7 +10670,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/turkey/asia-turkey-ankara.geojson",
+        "detail": "matched OSM system systems/asia/turkey/as-tur-ankara.geojson",
         "level": "error"
       },
       {
@@ -10695,7 +10718,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.626Z"
+    "audited_at": "2026-07-10T11:12:33.832Z"
   },
   "Bursa|Turkey": {
     "strategies_tried": [],
@@ -10704,7 +10727,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/turkey/asia-turkey-bursa.geojson",
+        "detail": "matched OSM system systems/asia/turkey/as-tur-bursa.geojson",
         "level": "error"
       },
       {
@@ -10752,7 +10775,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.627Z"
+    "audited_at": "2026-07-10T11:12:33.833Z"
   },
   "Istanbul|Turkey": {
     "strategies_tried": [],
@@ -10761,7 +10784,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/turkey/asia-turkey-istanbul.geojson",
+        "detail": "matched OSM system systems/asia/turkey/as-tur-istanbul.geojson",
         "level": "error"
       },
       {
@@ -10811,7 +10834,7 @@
     "warnings": [
       "160/220 站有名稱"
     ],
-    "audited_at": "2026-07-10T10:08:51.629Z"
+    "audited_at": "2026-07-10T11:12:33.834Z"
   },
   "İzmir|Turkey": {
     "strategies_tried": [],
@@ -10820,7 +10843,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/turkey/asia-turkey-izmir.geojson",
+        "detail": "matched OSM system systems/asia/turkey/as-tur-izmir.geojson",
         "level": "error"
       },
       {
@@ -10868,7 +10891,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.630Z"
+    "audited_at": "2026-07-10T11:12:33.835Z"
   },
   "Dnipro|Ukraine": {
     "strategies_tried": [],
@@ -10877,7 +10900,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/ukraine/europe-ukraine-dnipro.geojson",
+        "detail": "matched OSM system systems/europe/ukraine/eu-ukr-dnipro.geojson",
         "level": "error"
       },
       {
@@ -10925,7 +10948,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.631Z"
+    "audited_at": "2026-07-10T11:12:33.836Z"
   },
   "Kharkiv|Ukraine": {
     "strategies_tried": [],
@@ -10934,7 +10957,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/ukraine/europe-ukraine-kharkiv.geojson",
+        "detail": "matched OSM system systems/europe/ukraine/eu-ukr-kharkiv.geojson",
         "level": "error"
       },
       {
@@ -10982,7 +11005,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.632Z"
+    "audited_at": "2026-07-10T11:12:33.837Z"
   },
   "Kyiv|Ukraine": {
     "strategies_tried": [],
@@ -10991,7 +11014,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/ukraine/europe-ukraine-kyiv.geojson",
+        "detail": "matched OSM system systems/europe/ukraine/eu-ukr-kyiv.geojson",
         "level": "error"
       },
       {
@@ -11039,7 +11062,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.633Z"
+    "audited_at": "2026-07-10T11:12:33.839Z"
   },
   "Dubai|United Arab Emirates": {
     "strategies_tried": [],
@@ -11048,7 +11071,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/united-arab-emirates/asia-united-arab-emirates-dubai.geojson",
+        "detail": "matched OSM system systems/asia/united-arab-emirates/as-uae-dubai.geojson",
         "level": "error"
       },
       {
@@ -11096,7 +11119,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.634Z"
+    "audited_at": "2026-07-10T11:12:33.840Z"
   },
   "Glasgow|United Kingdom": {
     "strategies_tried": [],
@@ -11105,7 +11128,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/united-kingdom/europe-united-kingdom-glasgow.geojson",
+        "detail": "matched OSM system systems/europe/united-kingdom/eu-gbr-glasgow.geojson",
         "level": "error"
       },
       {
@@ -11153,7 +11176,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.635Z"
+    "audited_at": "2026-07-10T11:12:33.841Z"
   },
   "London|United Kingdom": {
     "strategies_tried": [],
@@ -11162,7 +11185,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/europe/united-kingdom/europe-united-kingdom-london.geojson",
+        "detail": "matched OSM system systems/europe/united-kingdom/eu-gbr-london.geojson",
         "level": "error"
       },
       {
@@ -11210,7 +11233,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.636Z"
+    "audited_at": "2026-07-10T11:12:33.844Z"
   },
   "Atlanta|United States": {
     "strategies_tried": [],
@@ -11219,7 +11242,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-atlanta.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-atlanta.geojson",
         "level": "error"
       },
       {
@@ -11267,7 +11290,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.638Z"
+    "audited_at": "2026-07-10T11:12:33.846Z"
   },
   "Baltimore|United States": {
     "strategies_tried": [],
@@ -11276,7 +11299,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-baltimore.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-baltimore.geojson",
         "level": "error"
       },
       {
@@ -11324,7 +11347,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.639Z"
+    "audited_at": "2026-07-10T11:12:33.847Z"
   },
   "Boston|United States": {
     "strategies_tried": [],
@@ -11333,7 +11356,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-boston.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-boston.geojson",
         "level": "error"
       },
       {
@@ -11381,7 +11404,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.640Z"
+    "audited_at": "2026-07-10T11:12:33.848Z"
   },
   "Chicago|United States": {
     "strategies_tried": [],
@@ -11390,7 +11413,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-chicago.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-chicago.geojson",
         "level": "error"
       },
       {
@@ -11438,7 +11461,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.641Z"
+    "audited_at": "2026-07-10T11:12:33.849Z"
   },
   "Cleveland|United States": {
     "strategies_tried": [],
@@ -11447,7 +11470,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-cleveland.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-cleveland.geojson",
         "level": "error"
       },
       {
@@ -11495,7 +11518,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.643Z"
+    "audited_at": "2026-07-10T11:12:33.850Z"
   },
   "Honolulu|United States": {
     "strategies_tried": [],
@@ -11504,7 +11527,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-honolulu.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-honolulu.geojson",
         "level": "error"
       },
       {
@@ -11552,7 +11575,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.644Z"
+    "audited_at": "2026-07-10T11:12:33.851Z"
   },
   "Los Angeles|United States": {
     "strategies_tried": [],
@@ -11561,7 +11584,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-los-angeles.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-los-angeles.geojson",
         "level": "error"
       },
       {
@@ -11609,7 +11632,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.645Z"
+    "audited_at": "2026-07-10T11:12:33.852Z"
   },
   "Miami|United States": {
     "strategies_tried": [],
@@ -11618,7 +11641,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-miami.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-miami.geojson",
         "level": "error"
       },
       {
@@ -11666,7 +11689,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.646Z"
+    "audited_at": "2026-07-10T11:12:33.853Z"
   },
   "New York City|United States": {
     "strategies_tried": [],
@@ -11675,13 +11698,13 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-new-york-city.geojson",
         "level": "error"
       },
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "33 lines",
+        "detail": "31 lines",
         "level": "error"
       },
       {
@@ -11723,7 +11746,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.648Z"
+    "audited_at": "2026-07-10T11:12:33.856Z"
   },
   "Philadelphia|United States": {
     "strategies_tried": [],
@@ -11732,7 +11755,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-philadelphia.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-philadelphia.geojson",
         "level": "error"
       },
       {
@@ -11780,7 +11803,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.649Z"
+    "audited_at": "2026-07-10T11:12:33.857Z"
   },
   "San Francisco (Bay Area)|United States": {
     "strategies_tried": [],
@@ -11789,7 +11812,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-san-francisco-bay-area.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
         "level": "error"
       },
       {
@@ -11801,31 +11824,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "163 stations",
+        "detail": "68 stations",
         "level": "error"
       },
       {
-        "id": "station_ratio_high",
-        "ok": false,
-        "detail": "站數偏多：OSM 163 vs Wikipedia 47（比值 3.47），多營運商合併或含輕軌，需人工判定",
-        "level": "warn"
+        "id": "station_ratio",
+        "ok": true,
+        "detail": "OSM 68 vs Wikipedia 47（比值 1.45）",
+        "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "163/163 站皆有所屬路線",
+        "detail": "68/68 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "63 個折點/端點皆為車站",
+        "detail": "66 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "163/163 站有名稱",
+        "detail": "68/68 站有名稱",
         "level": "warn"
       },
       {
@@ -11836,10 +11859,8 @@
       }
     ],
     "reasons": [],
-    "warnings": [
-      "站數偏多：OSM 163 vs Wikipedia 47（比值 3.47），多營運商合併或含輕軌，需人工判定"
-    ],
-    "audited_at": "2026-07-10T10:08:51.650Z"
+    "warnings": [],
+    "audited_at": "2026-07-10T11:12:33.859Z"
   },
   "Washington, D.C.|United States": {
     "strategies_tried": [],
@@ -11848,7 +11869,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-washington-d-c.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-washington-d-c.geojson",
         "level": "error"
       },
       {
@@ -11896,7 +11917,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.652Z"
+    "audited_at": "2026-07-10T11:12:33.860Z"
   },
   "San Juan|United States": {
     "strategies_tried": [],
@@ -11905,7 +11926,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/north-america/united-states/north-america-united-states-san-juan.geojson",
+        "detail": "matched OSM system systems/americas/united-states/am-usa-san-juan.geojson",
         "level": "error"
       },
       {
@@ -11953,7 +11974,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.653Z"
+    "audited_at": "2026-07-10T11:12:33.861Z"
   },
   "Tashkent|Uzbekistan": {
     "strategies_tried": [],
@@ -11962,7 +11983,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/uzbekistan/asia-uzbekistan-tashkent.geojson",
+        "detail": "matched OSM system systems/asia/uzbekistan/as-uzb-tashkent.geojson",
         "level": "error"
       },
       {
@@ -12010,7 +12031,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.654Z"
+    "audited_at": "2026-07-10T11:12:33.862Z"
   },
   "Caracas|Venezuela": {
     "strategies_tried": [],
@@ -12019,7 +12040,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/venezuela/south-america-venezuela-caracas.geojson",
+        "detail": "matched OSM system systems/americas/venezuela/am-ven-caracas.geojson",
         "level": "error"
       },
       {
@@ -12067,7 +12088,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.655Z"
+    "audited_at": "2026-07-10T11:12:33.863Z"
   },
   "Maracaibo|Venezuela": {
     "strategies_tried": [],
@@ -12076,7 +12097,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/venezuela/south-america-venezuela-maracaibo.geojson",
+        "detail": "matched OSM system systems/americas/venezuela/am-ven-maracaibo.geojson",
         "level": "error"
       },
       {
@@ -12124,7 +12145,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.657Z"
+    "audited_at": "2026-07-10T11:12:33.864Z"
   },
   "Valencia|Venezuela": {
     "strategies_tried": [],
@@ -12133,7 +12154,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/south-america/venezuela/south-america-venezuela-valencia.geojson",
+        "detail": "matched OSM system systems/americas/venezuela/am-ven-valencia.geojson",
         "level": "error"
       },
       {
@@ -12181,7 +12202,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.658Z"
+    "audited_at": "2026-07-10T11:12:33.865Z"
   },
   "Hanoi|Vietnam": {
     "strategies_tried": [],
@@ -12190,7 +12211,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/vietnam/asia-vietnam-hanoi.geojson",
+        "detail": "matched OSM system systems/asia/vietnam/as-vie-hanoi.geojson",
         "level": "error"
       },
       {
@@ -12238,7 +12259,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.659Z"
+    "audited_at": "2026-07-10T11:12:33.866Z"
   },
   "Ho Chi Minh City|Vietnam": {
     "strategies_tried": [],
@@ -12247,7 +12268,7 @@
       {
         "id": "system_exists",
         "ok": true,
-        "detail": "matched OSM system systems/asia/vietnam/asia-vietnam-ho-chi-minh-city.geojson",
+        "detail": "matched OSM system systems/asia/vietnam/as-vie-ho-chi-minh-city.geojson",
         "level": "error"
       },
       {
@@ -12295,7 +12316,52 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.661Z"
+    "audited_at": "2026-07-10T11:12:33.867Z"
+  },
+  "Frankfurt|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "9 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "84 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "84/84 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "111 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "84/84 站有名稱",
+        "level": "warn"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T11:12:33.868Z"
   },
   "Dusseldorf|Germany": {
     "strategies_tried": [],
@@ -12340,7 +12406,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.662Z"
+    "audited_at": "2026-07-10T11:12:33.869Z"
   },
   "Xirivella|Spain": {
     "strategies_tried": [],
@@ -12385,7 +12451,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.663Z"
+    "audited_at": "2026-07-10T11:12:33.871Z"
   },
   "Bielefeld|Germany": {
     "strategies_tried": [],
@@ -12430,7 +12496,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.664Z"
+    "audited_at": "2026-07-10T11:12:33.872Z"
   },
   "Ratingen|Germany": {
     "strategies_tried": [],
@@ -12475,7 +12541,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.665Z"
+    "audited_at": "2026-07-10T11:12:33.873Z"
   },
   "Essen|Germany": {
     "strategies_tried": [],
@@ -12520,7 +12586,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.666Z"
+    "audited_at": "2026-07-10T11:12:33.874Z"
   },
   "Bochum|Germany": {
     "strategies_tried": [],
@@ -12565,7 +12631,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.667Z"
+    "audited_at": "2026-07-10T11:12:33.875Z"
   },
   "Seville|Spain": {
     "strategies_tried": [],
@@ -12610,7 +12676,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.668Z"
+    "audited_at": "2026-07-10T11:12:33.876Z"
   },
   "Bezirk Landeck|Austria": {
     "strategies_tried": [],
@@ -12655,7 +12721,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.669Z"
+    "audited_at": "2026-07-10T11:12:33.877Z"
   },
   "Chuzhou|China": {
     "strategies_tried": [],
@@ -12700,7 +12766,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.670Z"
+    "audited_at": "2026-07-10T11:12:33.879Z"
   },
   "Derince|Turkey": {
     "strategies_tried": [],
@@ -12745,29 +12811,6 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T10:08:51.672Z"
-  },
-  "Taoyuan|Taiwan": {
-    "strategies_tried": [
-      "S1"
-    ],
-    "notes": {
-      "S1": "routes near Taoyuan already belong to Taipei"
-    },
-    "covered_by": "Taipei",
-    "passed": true,
-    "checks": [
-      {
-        "id": "system_exists",
-        "ok": false,
-        "detail": "no OSM system matched to this city",
-        "level": "error"
-      }
-    ],
-    "reasons": [
-      "由 Taipei 系統檔涵蓋（同都會區，OSM 未區分）"
-    ],
-    "warnings": [],
-    "audited_at": "2026-07-10T10:09:22.416Z"
+    "audited_at": "2026-07-10T11:12:33.880Z"
   }
 }

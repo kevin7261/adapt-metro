@@ -459,6 +459,37 @@ async function build() {
   const grid = new Map()
   const cellKey = (lon, lat) => `${Math.round(lon / CELL)}:${Math.round(lat / CELL)}`
 
+  // ---- 同一路線的快/慢車合併為一條線（使用者規則）----
+  // 快車/慢車/區間車常是同 network+ref（或同基底名稱）的不同 relation/master。
+  // 依「network＋ref」（無 ref 時用去掉快慢字樣的基底名稱）把群組再合併一次；
+  // 後續 dedupeSeqs 會把只跳站不加站的快車變體去重（新增 >20% 站的支線仍保留）。
+  // network 取 repTags（含 master 補值）——network 無法辨識時**絕不跨組合併**
+  //（否則各城市無 network 的「1 號線」會被揉成一個跨國怪物群組）。
+  const EXPRESS_WORDS = /(express|local service|local train|rapid|limited|各駅停車|各停|快速|急行|準急|准急|特急|通勤|回送)/gi
+  {
+    const mergedGroups = new Map()
+    for (const g of groups.values()) {
+      const t0 = repTags(g)
+      const net = pick(t0, 'network:en', 'network') || pick(t0, 'operator')
+      let base = g.key
+      if (net) {
+        if (t0.ref) base = `ref|${net}|${t0.ref}`
+        else {
+          const nm = (pick(t0, 'name:en', 'name') || '')
+            .replace(EXPRESS_WORDS, '').replace(/\s+/g, ' ').trim().toLowerCase()
+          if (nm) base = `nm|${net}|${nm}`
+        }
+      }
+      const tgt = mergedGroups.get(base)
+      if (!tgt) { mergedGroups.set(base, g); continue }
+      tgt.rids.push(...g.rids)
+      tgt.seqs.push(...g.seqs)
+      for (const s of g.stopNodes) tgt.stopNodes.add(s)
+    }
+    groups.clear()
+    for (const [k, g] of mergedGroups) groups.set(k, g)
+  }
+
   // ---- phase A: resolve every line group to a city (no emission yet) ----
   const pinnedKeys = new Set()
   const resolved = []
@@ -510,6 +541,29 @@ async function build() {
               normCity(near.sys.city) !== normCity(info.city))
             info = mkInfo({ continent: info.continent, country: info.country,
               city: near.sys.city }, near.sys.city)
+        }
+      }
+    }
+    // 同一城市＝同一系統：解析出的 wiki 城市離線路重心 >250 km ⇒ 絕不屬於該城
+    // （全國性 network 名稱/token 撞名的誤配，如 Frankfurt→Berlin 424 km），
+    // 改用線自身座標或原始反查城市。門檻 250 km：中國直轄市（重慶等）的 wiki
+    // 座標是行政區幾何中心，離市中心可達 ~150 km，不能誤殺。
+    if (!ov && network !== 'Unknown' && info.city) {
+      let sx = 0, sy = 0, n = 0
+      for (const seq of kept) for (const r of seq) { sx += r.coord[0]; sy += r.coord[1]; n++ }
+      if (n) {
+        const clat = sy / n, clon = sx / n
+        const row = wikiIdx.find((r) => countryOk(info.country || '', r.sys.country) &&
+          normCity(r.sys.city) === normCity(info.city))
+        const xy = row && wikiRowXY(row.sys)
+        if (xy && kmDist(clat, clon, xy.lat, xy.lon) > 250) {
+          const near = nearestWiki(clat, clon, null)
+          const raw = geocode[t.__own] || geocode[network] || geocode[t.network] || {}
+          info = near && near.km < 30
+            ? mkInfo({ continent: countryContinent.get(near.sys.country) ?? info.continent,
+                country: near.sys.country, city: near.sys.city }, near.sys.city)
+            : mkInfo({ continent: raw.continent ?? info.continent,
+                country: raw.country ?? info.country, city: raw.city ?? null }, network)
         }
       }
     }
@@ -634,6 +688,7 @@ async function build() {
       country: info.country,
       lines: lines.length ? lines : null,
       wikidata: pick(t, 'wikidata'),
+      wikipedia: pick(t, 'wikipedia'),
     }
     const feat = {
       type: 'Feature', properties: props,
@@ -709,12 +764,13 @@ async function build() {
       if (net === 'Unknown') continue
       const c = cityInfo(net, null, null)
       if (!isCanon(c) || c.key === key) continue
-      // 同一城市＝同一系統：network 名稱解析出的城市必須離群組重心 ≤50 km，
-      // 否則是誤配（全國性營運商/token 撞名），不得整桶搬家。
+      // 同一城市＝同一系統：network 名稱解析出的城市必須離群組重心 ≤250 km
+      //（中國直轄市 wiki 座標可偏 ~150 km），否則是誤配（全國性營運商/token
+      // 撞名，如 Frankfurt→Berlin 424 km），不得整桶搬家。
       const row = wikiIdx.find((r) => countryOk(c.country || '', r.sys.country) &&
         normCity(r.sys.city) === normCity(c.city))
       const xy = row && wikiRowXY(row.sys)
-      if (gc && xy && kmDist(gc.lat, gc.lon, xy.lat, xy.lon) > 50) continue
+      if (gc && xy && kmDist(gc.lat, gc.lon, xy.lat, xy.lon) > 250) continue
       alt = c; altVia = `network:${net}`; break
     }
     if (!alt) {
@@ -821,18 +877,23 @@ async function build() {
   // 與 Wikipedia 基準（Tokyo subway = Metro + Toei）一致；私鐵/第三部門
   //（ゆりかもめ、りんかい線、多摩モノレール…）一律不進東京檔。
   const CITY_NETWORK_ALLOW = new Map([
-    ['tokyo|japan', /tokyo metro|東京メトロ|東京地下鉄|toei|都営|東京都交通局/i],
+    ['tokyo|japan', {
+      allow: /tokyo metro|東京メトロ|東京地下鉄|toei|都営|東京都交通局/i,
+      // 私鐵直通車是「聯合營運」——operator 同時含都營與京急/京成等；
+      // 只要沾到私鐵就不是 Metro/Toei 本體的線（deny 優先於 allow）。
+      deny: /京浜急行|京急|京成|東急|東武|西武|小田急|京王|相鉄|keikyu|keisei|tokyu|tobu|seibu|odakyu|keio|sotetsu|s-train|りんかい|ゆりかもめ|多摩モノレール/i,
+    }],
   ])
   let removedPrivate = 0
-  for (const [ckey, allow] of CITY_NETWORK_ALLOW) {
+  for (const [ckey, rule] of CITY_NETWORK_ALLOW) {
     const [cCity, cCountry] = ckey.split('|')
     for (const grp of cityGroups.values()) {
       if (normCity(grp.info.city) !== cCity || !countryOk(grp.info.country, cCountry)) continue
       const removedTags = new Set()
       grp.lines = grp.lines.filter((f) => {
         const p = f.properties
-        const hay = `${p.network ?? ''} ${p.network_local ?? ''} ${p.operator ?? ''}`
-        if (allow.test(hay) || ovFlags.get(f)) return true
+        const hay = `${p.network ?? ''} ${p.network_local ?? ''} ${p.operator ?? ''} ${p.route_name ?? ''}`
+        if ((rule.allow.test(hay) && !rule.deny.test(hay)) || ovFlags.get(f)) return true
         removedTags.add(featTag.get(f))
         removedPrivate++
         if (process.env.DEBUG_LRT) console.log('  [private-removed]',

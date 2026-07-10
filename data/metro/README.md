@@ -60,24 +60,30 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 ## 欄位 (properties)
 
-**線路 (line feature):**
-`route_id`, `route_name`, `route_name_local`（原文名）, `route_ref`（線路代號如 BL/R）,
-`route_color`（正規化為 `#rrggbb`）, `network`, `network_local`, `operator`,
-`city`, `country`, `wikidata`, `wikipedia`, `osm_route_ids`（來源 OSM relation ids）。
+**路段 (segment feature，MultiLineString；重疊路段只畫一條):**
+`routes`（**list**，行經此路段的每條 route：`route_id`, `route_name`, `route_name_local`,
+`route_ref`（代號如 BL/R）, `route_color`（`#rrggbb`）, `network`, `network_local`, `operator`,
+`wikidata`, `wikipedia`（OSM 有 wiki 標籤時）, `osm_route_ids`, `order_suspect`,
+`stations`（**該 route 所有車站，依站序**，每項 `{ station_id, station_name }`）），
+頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
 
-> 幾何＝該線各 stop 依 relation 順序連成的折線（示意，非軌道線形）。來回方向的路線變體會依
-> OSM `route_master`（或 `network`+`ref`）合併為單一線路，並以 ~100 m 座標格去重反向重複、
-> 保留支線（帶來 >20% 新站的變體）。
+> 幾何＝各 stop 依 relation 順序、吸附到共站合併後的車站點連成的折線（示意，非軌道線形）；
+> 相鄰車站對被多條 route 共用時只輸出一次（路段化）。一條 route 的完整路徑＝所有含它的路段之聯集。
 
 **車站 (station feature):**
 `station_id`, `station_name`, `station_name_local`, `network`, `network_local`,
 `operator`, `city`, `country`,
-`lines`（此站所屬線路代號；線無代號時用線名。**至少一條**——空值屬資料錯誤，verify 會標 `no_line`）,
-`wikidata`。
+`lines`（所屬線路 tag。**至少一條**——空值屬資料錯誤，verify 會標 `no_line`）,
+`line_ids`（所屬線路 `route_id`，依 ref/名排序）, `line_names`（同序線路名）,
+`station_role`（`interchange`＝服務 ≥2 線／`terminus`＝某線端點（環線無端點）／`normal`；交會優先於端點）,
+`is_interchange`, `is_terminus`, `merged_from`（共站合併而來時）,
+`wikidata`, `wikipedia`（OSM 車站有 wiki 標籤時，如 `en:...`；無則 `null`）。
 
 **系統中繼資料（每個 `systems/*.geojson` 的 `metro_system` 欄位）:**
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 OSM network 清單）, `operator`,
-`official_website`, `official_map`, `wikidata`, `line_count`, `station_count`。
+`official_website`, `official_map`, `wikidata`,
+`line_count`（route 數）, `segment_count`（路段 feature 數）, `station_count`,
+`audit`（[[metro-audit]] 逐城市驗證結果；未跑 audit 時 `null`）。
 
 > `continent` / `country` / `city` 由各系統車站中心點經 Nominatim 反向地理編碼取得（座標為準），
 > 檔名即由此三者組成。**一城一檔**：反查到同一城市的多個 OSM network 會合併進同一個檔。
