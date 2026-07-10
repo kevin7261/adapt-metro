@@ -130,6 +130,11 @@ const isThroughService = (t = {}) =>
   /直通運転/.test(t.name || '') ||
   /through service|bypass line/i.test(`${t['name:en'] || ''} ${t.description || ''}`)
 
+// 機廠/車輛段不是客運設施：出入段線 route（新北捷運淡海機廠）與 depot 停靠點
+//（安坑機廠——具名 stop_position 會被當站源）一律排除。
+const DEPOT_NAME = /機廠|机厂|機厰|車輛段|车辆段|\bdepot\b/i
+const isDepot = (t = {}) => DEPOT_NAME.test(`${t.name || ''} ${t['name:en'] || ''}`)
+
 function slugify(s) {
   if (!s) return ''
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '')
@@ -177,14 +182,16 @@ async function build() {
   const routesRaw = await readJSON('routes_tags.json')
   const routesTags = new Map()
   for (const e of routesRaw.elements)
-    if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags))
+    if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags) &&
+        !isDepot(e.tags))
       routesTags.set(e.id, e.tags || {})
   // gap supplements: extra route relations fetched per-city by auditLoop.mjs
   // （或 refreshRelations.mjs 的定向刷新）——gap 比主快取新，一律覆蓋（後載者勝）
   for (const f of cacheFiles.filter((n) => /^gap_routes_.+\.json$/.test(n))) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
     for (const e of d.elements || [])
-      if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags))
+      if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags) &&
+          !isDepot(e.tags))
         routesTags.set(e.id, e.tags || {})
   }
   const ovByRid = await readOverrides()
@@ -215,11 +222,30 @@ async function build() {
     }
   }
 
+  // 人工站序補正（_overrides/member_appends.json）：wiki 已裁決通車、但 OSM route
+  // relation 上游未更新成員時，宣告式補在成員序尾端（例：新加坡環狀線 CCL6 閉合段）。
+  try {
+    const ma = JSON.parse(await readFile(join(OVERRIDES_DIR, 'member_appends.json'), 'utf8'))
+    for (const fix of ma.appends ?? []) {
+      const el = geom.get(fix.relation)
+      if (!el) { console.log(`  !! member_appends: r${fix.relation} not in geom cache`); continue }
+      el.members ??= []
+      for (const nid of fix.append_stops ?? [])
+        el.members.push({ type: 'node', ref: nid, role: 'stop' })
+      if (fix.close_loop) {
+        const first = el.members.find((m) => m.type === 'node' && (m.role || '').includes('stop'))
+        if (first) el.members.push({ ...first })
+      }
+      console.log(`  member_appends: r${fix.relation} +${(fix.append_stops ?? []).length} stops` +
+        (fix.close_loop ? ' (loop closed)' : ''))
+    }
+  } catch { /* no member_appends override */ }
+
   const stRaw = await readJSON('stations.json')
   const stations = []
   const seenStation = new Set()
   const pushStation = (e) => {
-    if (!isOperational(e.tags)) return
+    if (!isOperational(e.tags) || isDepot(e.tags)) return
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }
@@ -357,7 +383,17 @@ async function build() {
       const bucket = role.includes('stop') ? stops : role.includes('platform') ? platforms : plain
       bucket.push({ ref: m.ref, coord })
     }
-    const seq = [stops, platforms, plain].find((b) => b.length >= 2)
+    let seq = [stops, platforms, plain].find((b) => b.length >= 2)
+    // 混標防護：入選 bucket 之外還有 role=stop 的成員（上游 role 標註不一致——
+    // 淡海藍海線 12 個成員只有臺北海洋大學標 stop、其餘空 role），會把該站
+    // 從序列裡漏掉 → 依成員「原始順序」把兩桶合併重建序列。
+    if (seq && seq !== stops && stops.length) {
+      const keep = new Set([...seq, ...stops].map((r) => r.ref))
+      seq = (el.members || [])
+        .filter((m) => m.type === 'node' && keep.has(m.ref))
+        .map((m) => ({ ref: m.ref, coord: m.lat != null ? [m.lon, m.lat] : memberXY.get(m.ref) }))
+        .filter((r) => r.coord)
+    }
     if (!seq) continue
     g.seqs.push(seq)
     for (const r of seq) { g.stopNodes.add(r.ref); stopXY.set(r.ref, r.coord) }
@@ -869,8 +905,12 @@ async function build() {
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
+  // 僅限五個德國 metro 城市：Karlsruhe tram-train 也用 S 開頭 ref，會冒出
+  // Walzbachtal 之類的野城市檔。
+  const SBAHN_DE_CITIES = new Set(['berlin', 'hamburg', 'munich', 'frankfurt', 'nuremberg'])
   const isSbahnDe = (grp, f) =>
     countryOk(grp.info.country || '', 'germany') &&
+    SBAHN_DE_CITIES.has(normCity(grp.info.city)) &&
     (/^S\d/i.test(f.properties.route_ref || '') ||
      /s-bahn/i.test(f.properties.operator || ''))
   const wikiRowOf = (info) => info.city ? (wikiIdx.find((r) =>

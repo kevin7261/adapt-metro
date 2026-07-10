@@ -1,9 +1,9 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1000,
-  "checked_against_infobox": 575,
-  "flagged": 177,
-  "uncovered": 425,
+  "routes_total": 998,
+  "checked_against_infobox": 574,
+  "flagged": 179,
+  "uncovered": 424,
   "flags": [
     {
       "city": "Changzhou",
@@ -188,6 +188,19 @@
       "severity": "warn"
     },
     {
+      "city": "Noida",
+      "country": "India",
+      "route_id": "rm16534370",
+      "route_name": "Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram)",
+      "ours": 6,
+      "lang": "en",
+      "wiki": "en:Delhi–Meerut Regional Rapid Transit System",
+      "wiki_stations": 16,
+      "wiki_basis": "total",
+      "diff": -10,
+      "severity": "warn"
+    },
+    {
       "city": "Suzhou",
       "country": "China",
       "route_id": "rm18356559",
@@ -199,19 +212,6 @@
       "wiki_basis": "operational",
       "diff": -9,
       "severity": "error"
-    },
-    {
-      "city": "Noida",
-      "country": "India",
-      "route_id": "rm16534370",
-      "route_name": "Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram)",
-      "ours": 7,
-      "lang": "en",
-      "wiki": "en:Delhi–Meerut Regional Rapid Transit System",
-      "wiki_stations": 16,
-      "wiki_basis": "total",
-      "diff": -9,
-      "severity": "warn"
     },
     {
       "city": "Navi Mumbai",
@@ -1037,6 +1037,32 @@
       "severity": "warn"
     },
     {
+      "city": "Kaohsiung",
+      "country": "Taiwan",
+      "route_id": "rm5593997",
+      "route_name": "Circular Light Rail",
+      "ours": 37,
+      "lang": "zh",
+      "wiki": "zh:高雄環狀輕軌",
+      "wiki_stations": 38,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Harbin",
+      "country": "China",
+      "route_id": "rm7949019",
+      "route_name": "Harbin Metro Line 3",
+      "ours": 35,
+      "lang": "zh",
+      "wiki": "zh:哈尔滨地铁3号线",
+      "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
       "city": "Xiamen",
       "country": "China",
       "route_id": "rm10488738",
@@ -1423,19 +1449,6 @@
       "lang": "zh",
       "wiki": "en:Line 6 (Zhengzhou Metro)",
       "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm15443527",
-      "route_name": "Ankeng Light Rail",
-      "ours": 10,
-      "lang": "zh",
-      "wiki": "zh:安坑輕軌",
-      "wiki_stations": 9,
       "wiki_basis": "total",
       "diff": 1,
       "severity": "error"
@@ -1960,6 +1973,19 @@
       "wiki": "en:Yellow Line (BART)",
       "wiki_stations": 28,
       "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
+    },
+    {
+      "city": "Singapore",
+      "country": "Singapore",
+      "route_id": "rm7981685",
+      "route_name": "MRT Circle Line (Marina Bay → HarbourFront)",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:Circle MRT line",
+      "wiki_stations": 30,
+      "wiki_basis": "operational",
       "diff": 3,
       "severity": "error"
     },
@@ -5661,26 +5687,6 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Chennai",
-      "country": "India",
-      "route_id": "r18214852",
-      "route_name": "Inter-Corridor Line (Chennai International Airport → Chennai Central)",
-      "ours": 19,
-      "lang": "en",
-      "wiki": "en:Green Line (Chennai Metro)",
-      "reason": "system article shared by several lines (en:Green Line (Chennai Metro))"
-    },
-    {
-      "city": "Chennai",
-      "country": "India",
-      "route_id": "rm7845614",
-      "route_name": "Green Line (Chennai Central ⇔ St. Thomas Mount)",
-      "ours": 17,
-      "lang": "en",
-      "wiki": "en:Green Line (Chennai Metro)",
-      "reason": "system article shared by several lines (en:Green Line (Chennai Metro))"
-    },
-    {
       "city": "Guiyang",
       "country": "China",
       "route_id": "r12791162",
@@ -5934,6 +5940,26 @@
       "lang": "ko",
       "wiki": "ko:인천 도시철도 1호선",
       "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Chennai",
+      "country": "India",
+      "route_id": "rm7845614",
+      "route_name": "Green Line (Chennai Central ⇔ St. Thomas Mount)",
+      "ours": 17,
+      "lang": "en",
+      "wiki": "en:Green Line (Chennai Metro)",
+      "reason": "system article shared by several lines (en:Green Line (Chennai Metro))"
+    },
+    {
+      "city": "Chennai",
+      "country": "India",
+      "route_id": "r18214852",
+      "route_name": "Inter-Corridor Line (Chennai International Airport → Chennai Central)",
+      "ours": 19,
+      "lang": "en",
+      "wiki": "en:Green Line (Chennai Metro)",
+      "reason": "system article shared by several lines (en:Green Line (Chennai Metro))"
     },
     {
       "city": "Bursa",
@@ -6280,16 +6306,6 @@
       "lang": "es",
       "wikidata": "Q25420937",
       "wiki": "es:Línea 2 (Metro de Panamá)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Noida",
-      "country": "India",
-      "route_id": "rm9256785",
-      "route_name": "Aqua Line",
-      "ours": 19,
-      "lang": "en",
-      "wiki": "en:Aqua Line (Noida Metro)",
       "reason": "article has no station count infobox"
     },
     {
