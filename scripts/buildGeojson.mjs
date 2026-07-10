@@ -1,5 +1,6 @@
 // Assemble OSM subway cache into GeoJSON: per-system files + global layers.
-//   stations: station_id, station_name (+ network/city/country/lines)
+//   stations: station_id, station_name (+ network/city/country/lines,
+//             station_role = interchange|terminus|normal)
 //   lines:    route_id, route_name, route_color, route_ref (+ network/city/country)
 // Line geometry connects each route's stops in member order (schematic), not
 // the real track ways. Operational elements only (no construction/proposed).
@@ -7,6 +8,7 @@
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { continentCode, iocCode } from './countryCodes.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
@@ -132,7 +134,10 @@ async function readGeocode() {
 }
 
 const STOP = new Set(['metro', 'subway', 'underground', 'u-bahn', 'the', 'of', 'rapid',
-  'transit', 'railway', 'rail', 'mrt', 'system', 'line', 'lines'])
+  'transit', 'railway', 'rail', 'mrt', 'system', 'line', 'lines',
+  // generic transit words that must never decide a city ("S-Bahn Frankfurt"
+  // token-matching "Berlin U-Bahn" via 'bahn' once sent Frankfurt to Berlin)
+  'bahn', 'ubahn', 'sbahn', 'stadtbahn', 'lrt', 'light', 'tram', 'verkehrsverbund'])
 
 function tokens(s) {
   s = (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
@@ -384,16 +389,27 @@ async function build() {
     ['taoyuan|taiwan', { city: 'Taipei', country: 'Taiwan', continent: 'asia' }],
   ])
   // Resolve each network to a city bucket; networks sharing a city merge into
-  // one file: systems/{continent}/{country}/{continent}-{country}-{city}.geojson
+  // one file. Naming (metro-osm-fetch skill): DIRECTORIES use full names
+  // (north+south america merged as "americas"); the FILENAME uses codes —
+  // continent 2-letter + country IOC 3-letter, lowercased:
+  //   systems/{continent-full}/{country-full}/{cc}-{ioc}-{city}.geojson
+  //   e.g. systems/asia/taiwan/as-twn-taipei.geojson
+  const CONT_DIR = {
+    'north-america': 'americas', 'south-america': 'americas',
+    africa: 'africa', asia: 'asia', europe: 'europe', oceania: 'oceania',
+  }
   const mkInfo = (geo, fallbackName) => {
     const merged = CITY_MERGE.get(`${normCity(geo.city)}|${normCountry(geo.country)}`)
     if (merged) geo = merged
-    const cont = geo.continent || 'unknown'
-    const countrySlug = slugify(geo.country) || 'unknown'
-    const nameParts = [geo.continent, slugify(geo.country), slugify(geo.city)].filter(Boolean)
-    const slug = nameParts.join('-') || slugify(fallbackName) || 'system'
+    const contDir = CONT_DIR[geo.continent] ?? 'unknown'
+    const countryDir = slugify(geo.country) || 'unknown'
+    const cc = continentCode(geo.continent)
+    const ioc = iocCode(geo.country)
+    const slug = geo.city
+      ? [cc, ioc, slugify(geo.city)].join('-')
+      : (slugify(fallbackName) || 'system')
     return { continent: geo.continent, country: geo.country, city: geo.city,
-      key: `${cont}/${countrySlug}/${slug}` }
+      key: `${contDir}/${countryDir}/${slug}` }
   }
   const cityCache = new Map()
   const cityInfo = (network, netTag, own) => {
@@ -499,6 +515,10 @@ async function build() {
     }
     // 一組內全部 relation 都是 light_rail 才算 LRT 線（混合視為 subway）
     const lrtOnly = g.rids.every((r) => (routesTags.get(r) || {}).route === 'light_rail')
+    if (process.env.DEBUG_CITY && new RegExp(process.env.DEBUG_CITY, 'i')
+      .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
+      console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),
+        '| net:', network, '| own:', t.__own, '→', info.key)
     resolved.push({ g, kept, t, network, ov, info, lrtOnly })
   }
 
@@ -683,20 +703,64 @@ async function build() {
     if (isCanon(grp.info)) continue
     if (groupSpreadKm(grp) > 80) continue  // incoherent stray pile — stays unknown
     let alt = null
+    let altVia = null
+    const gc = groupCentroid(grp)
     for (const net of grp.networks) {
       if (net === 'Unknown') continue
       const c = cityInfo(net, null, null)
-      if (isCanon(c) && c.key !== key) { alt = c; break }
+      if (!isCanon(c) || c.key === key) continue
+      // 同一城市＝同一系統：network 名稱解析出的城市必須離群組重心 ≤50 km，
+      // 否則是誤配（全國性營運商/token 撞名），不得整桶搬家。
+      const row = wikiIdx.find((r) => countryOk(c.country || '', r.sys.country) &&
+        normCity(r.sys.city) === normCity(c.city))
+      const xy = row && wikiRowXY(row.sys)
+      if (gc && xy && kmDist(gc.lat, gc.lon, xy.lat, xy.lon) > 50) continue
+      alt = c; altVia = `network:${net}`; break
     }
     if (!alt) {
       const w = nearestWikiCity(grp)
       if (w) {
         const cand = mkInfo({ continent: grp.info.continent,
           country: grp.info.country || w.country, city: w.city }, w.city)
-        if (cand.key !== key) alt = cand
+        if (cand.key !== key) { alt = cand; altVia = 'nearest-wiki' }
       }
     }
+    if (alt && process.env.DEBUG_REBUCKET &&
+        new RegExp(process.env.DEBUG_REBUCKET, 'i').test(key + ' ' + alt.key))
+      console.log('  [rebucket]', key, '→', alt.key, 'via', altVia,
+        '| networks:', [...grp.networks].join(', ').slice(0, 120))
     if (alt) rebucket(grp, key, alt)
+  }
+
+  // Re-derive station memberships against the SURVIVING lines only after a
+  // line-removal pass. Filtering by removed tag string alone is unsafe: refs
+  // collide ("2" = both 東莞地鐵2號線 and the removed 松山湖 tram line 2), and
+  // a station whose nearest stop belonged to a removed line (Embarcadero →
+  // Muni) needs a second chance against the surviving lines' stops.
+  const rederiveStationRefs = (grp, removedTags) => {
+    if (!removedTags.size) return
+    const surviving = new Set(grp.lines.map((f) => featTag.get(f)))
+    const nearestSurvivingRefs = (lon, lat) => {
+      const gx = Math.round(lon / CELL), gy = Math.round(lat / CELL)
+      let best = null, bestD = Infinity
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+        for (const p of stopGrid.get(`${gx + dx}:${gy + dy}`) || []) {
+          const hits = [...p.refs].filter((r) => surviving.has(r))
+          if (!hits.length) continue
+          const d = (p.lon - lon) ** 2 + (p.lat - lat) ** 2
+          if (d < bestD) { bestD = d; best = hits }
+        }
+      return best && Math.sqrt(bestD) < 0.008 ? best : []  // ~900 m
+    }
+    for (const s of grp.stations) {
+      if (!s.properties.lines) continue
+      let left = s.properties.lines.filter((tag) => surviving.has(tag))
+      if (!left.length) {
+        const [lon, lat] = s.geometry.coordinates
+        left = [...new Set(nearestSurvivingRefs(lon, lat))].sort()
+      }
+      s.properties.lines = left.length ? left : null
+    }
   }
 
   // ---- LRT 範圍規則（使用者指定；用 rebucket 後的最終城市判定）----
@@ -747,38 +811,39 @@ async function build() {
         JSON.stringify(grp.info.city), '|', f.properties.route_name)
       return false
     })
-    if (removedTags.size) {
-      // Re-derive station memberships against the SURVIVING lines only.
-      // Filtering by removed tag string alone is unsafe: refs collide
-      // ("2" = both 東莞地鐵2號線 and the removed 松山湖 tram line 2), and a
-      // station whose nearest stop belonged to a removed line (Embarcadero →
-      // Muni) needs a second chance against the surviving lines' stops.
-      const surviving = new Set(grp.lines.map((f) => featTag.get(f)))
-      const nearestSurvivingRefs = (lon, lat) => {
-        const gx = Math.round(lon / CELL), gy = Math.round(lat / CELL)
-        let best = null, bestD = Infinity
-        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
-          for (const p of stopGrid.get(`${gx + dx}:${gy + dy}`) || []) {
-            const hits = [...p.refs].filter((r) => surviving.has(r))
-            if (!hits.length) continue
-            const d = (p.lon - lon) ** 2 + (p.lat - lat) ** 2
-            if (d < bestD) { bestD = d; best = hits }
-          }
-        return best && Math.sqrt(bestD) < 0.008 ? best : []  // ~900 m
-      }
-      for (const s of grp.stations) {
-        if (!s.properties.lines) continue
-        let left = s.properties.lines.filter((tag) => surviving.has(tag))
-        if (!left.length) {
-          const [lon, lat] = s.geometry.coordinates
-          left = [...new Set(nearestSurvivingRefs(lon, lat))].sort()
-        }
-        s.properties.lines = left.length ? left : null
-      }
-    }
+    rederiveStationRefs(grp, removedTags)
   }
   if (skippedLrt) console.log(`  LRT scope: removed ${skippedLrt} light-rail lines ` +
     '(kept Taipei/Kaohsiung add-ons and baseline LRT-only systems)')
+
+  // ---- 城市網路白名單（使用者指定）：東京不含私鐵 ----
+  // 東京檔只收 Tokyo Metro（東京メトロ）與都營（東京都交通局）的路線——
+  // 與 Wikipedia 基準（Tokyo subway = Metro + Toei）一致；私鐵/第三部門
+  //（ゆりかもめ、りんかい線、多摩モノレール…）一律不進東京檔。
+  const CITY_NETWORK_ALLOW = new Map([
+    ['tokyo|japan', /tokyo metro|東京メトロ|東京地下鉄|toei|都営|東京都交通局/i],
+  ])
+  let removedPrivate = 0
+  for (const [ckey, allow] of CITY_NETWORK_ALLOW) {
+    const [cCity, cCountry] = ckey.split('|')
+    for (const grp of cityGroups.values()) {
+      if (normCity(grp.info.city) !== cCity || !countryOk(grp.info.country, cCountry)) continue
+      const removedTags = new Set()
+      grp.lines = grp.lines.filter((f) => {
+        const p = f.properties
+        const hay = `${p.network ?? ''} ${p.network_local ?? ''} ${p.operator ?? ''}`
+        if (allow.test(hay) || ovFlags.get(f)) return true
+        removedTags.add(featTag.get(f))
+        removedPrivate++
+        if (process.env.DEBUG_LRT) console.log('  [private-removed]',
+          JSON.stringify(grp.info.city), '|', p.route_name, '|', p.network, '|', p.operator)
+        return false
+      })
+      rederiveStationRefs(grp, removedTags)
+    }
+  }
+  if (removedPrivate) console.log(`  city network allow-list: removed ${removedPrivate} ` +
+    'non-listed lines (Tokyo = Metro + Toei only)')
   // keep the global line layer consistent with the per-city groups
   {
     const keptFeats = new Set()
@@ -989,6 +1054,78 @@ async function build() {
     delete grp.__vertexOwners
   }
 
+  // ---- station role: terminus / interchange / normal ----
+  // Derived from the FINAL snapped geometry — endpoints are exact station
+  // coords, so this matches what's drawn (and what Wikipedia / urbanrail.net
+  // show). interchange = served by ≥2 lines; terminus = an endpoint of some
+  // line (circle lines excluded — their two ends meet, so no terminus).
+  // Single role, interchange > terminus: an interchange sitting at a line end
+  // reads as an interchange on both wiki and urbanrail diagrams; is_terminus
+  // is kept as a separate flag so that fact isn't lost.
+  for (const grp of cityGroups.values()) {
+    // grp.lines are still per-route here (segmentization is below) — map each
+    // line's tag (as carried in station.lines) to its route id/name/ref/color.
+    const tagMeta = new Map()
+    for (const f of grp.lines) {
+      const tag = featTag.get(f)
+      if (tag != null && !tagMeta.has(tag)) tagMeta.set(tag, f.properties)
+    }
+    const byCoord = new Map()
+    for (const s of grp.stations) {
+      s.properties.is_terminus = false
+      byCoord.set(s.geometry.coordinates.join(','), s)
+    }
+    for (const f of grp.lines) {
+      // ordered station list for this route (vertices ARE station points, in
+      // stop order; dedupe repeats, e.g. a station shared by two branches)
+      const seen = new Set(), sts = []
+      for (const seq of f.geometry.coordinates) {
+        if (seq.length < 2) continue
+        for (const c of seq) {
+          const s = byCoord.get(c.join(','))
+          if (!s) continue
+          const id = s.properties.station_id
+          if (seen.has(id)) continue
+          seen.add(id)
+          sts.push({ station_id: id, station_name: s.properties.station_name })
+        }
+        const a = seq[0], b = seq[seq.length - 1]
+        // closed loop: ends identical, or ~adjacent on a many-stop ring
+        if ((a[0] === b[0] && a[1] === b[1]) ||
+            (seq.length >= 6 && segD(a, b) < 0.011)) continue
+        for (const end of [a, b]) {
+          const s = byCoord.get(end.join(','))
+          if (s) s.properties.is_terminus = true
+        }
+      }
+      f.__stations = sts
+    }
+    for (const s of grp.stations) {
+      // resolve each line tag to its route id + name (dedupe by route id)
+      const seen = new Set(), routes = []
+      for (const tag of s.properties.lines || []) {
+        const p = tagMeta.get(tag)
+        const id = p?.route_id ?? tag
+        if (seen.has(id)) continue
+        seen.add(id)
+        routes.push({
+          route_id: id,
+          route_name: p?.route_name ?? tag,
+          route_ref: p?.route_ref ?? null,
+          route_color: p?.route_color ?? null,
+        })
+      }
+      routes.sort((a, b) => String(a.route_ref ?? a.route_name ?? '')
+        .localeCompare(String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true }))
+      s.properties.line_ids = routes.map((r) => r.route_id)
+      s.properties.line_names = routes.map((r) => r.route_name)
+      const n = routes.length
+      s.properties.is_interchange = n >= 2
+      s.properties.station_role = n >= 2 ? 'interchange'
+        : s.properties.is_terminus ? 'terminus' : 'normal'
+    }
+  }
+
   // ---- 路段化：重疊路段只畫一條（routes list）----
   // Consecutive station pairs (edges) shared by several routes are drawn once.
   // Runs of edges with the identical route set become one segment feature with
@@ -1012,6 +1149,8 @@ async function build() {
           wikidata: p.wikidata, wikipedia: p.wikipedia,
           osm_route_ids: p.osm_route_ids,
           order_suspect: suspectOrder(f),
+          // all stations of this route, in stop order (id + name)
+          stations: f.__stations ?? [],
         })
       }
       return metaCache.get(f)
@@ -1076,10 +1215,14 @@ async function build() {
     '(overlapping stretches drawn once)')
 
   // prune buckets left with neither lines nor stations (stray station nodes /
-  // out-of-scope fragments end up here after the drops; they are not systems)
+  // out-of-scope fragments end up here after the drops; they are not systems),
+  // and buckets that never resolved to a city — 不會有 unknown 輸出：定位不到
+  // 城市的雜訊（機場擺渡、遊樂園軌道…）一律不寫檔、不進 index。
   let pruned = 0
   for (const [key, grp] of [...cityGroups]) {
-    if (!grp.lines.length && !grp.stations.length) { cityGroups.delete(key); pruned++ }
+    if (!grp.info.city || (!grp.lines.length && !grp.stations.length)) {
+      cityGroups.delete(key); pruned++
+    }
   }
 
   // rebuild the global layers from the per-city groups

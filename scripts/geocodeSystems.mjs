@@ -55,7 +55,7 @@ async function centroids() {
       k = netKey(masterTags.get(masterOf.get(e.id)) || {})
     routeNet.set(e.id, k)
   }
-  for (const f of (await readdir(CACHE)).filter((n) => /^geom_\d+\.json$/.test(n))) {
+  for (const f of (await readdir(CACHE)).filter((n) => /^geom_.+\.json$/.test(n))) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
     // node member coords: inline on the member (old `out geom` caches) or as
     // separate skel node elements (current member-list caches)

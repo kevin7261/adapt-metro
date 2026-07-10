@@ -22,9 +22,9 @@
 | 嚴重度 | 城市 | 國家 | 本站數 | wiki站數 | 比值 | 說明 | 參考 |
 |---|---|---|---|---|---|---|---|
 | missing | Taoyuan | Taiwan | — | 22 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Taoyuan_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taoyuan) |
-| order | Rome | Italy | 115 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Rome) |
+| order | Rome | Italy | 114 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Rome) |
 | low | Lagos | Nigeria | 5 | 13 | 0.38 | 站數偏少（5 vs wiki 13） | [wiki](https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos) |
-| low | Samara | Russia | 3 | 10 | 0.3 | 站數偏少（3 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
+| low | Samara | Russia | 2 | 10 | 0.2 | 站數偏少（2 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
 | high | Tokyo | Japan | 230 | 142 | 1.62 | 站數偏多（230 vs wiki 142），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Tokyo_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Tokyo | Japan | 230 | 99 | 2.32 | 站數偏多（230 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Bangkok | Thailand | 112 | 64 | 1.75 | 站數偏多（112 vs wiki 64），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BTS_Skytrain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok) |
@@ -51,14 +51,14 @@
 
 | 檔案 | 城市 | 國家 | 站 | 線 |
 |---|---|---|---|---|
-| systems/europe/germany/europe-germany-dusseldorf.geojson | Dusseldorf | Germany | 105 | 9 |
-| systems/europe/spain/europe-spain-xirivella.geojson | Xirivella | Spain | 98 | 6 |
-| systems/europe/germany/europe-germany-bielefeld.geojson | Bielefeld | Germany | 60 | 4 |
-| systems/europe/germany/europe-germany-ratingen.geojson | Ratingen | Germany | 72 | 2 |
-| systems/europe/germany/europe-germany-essen.geojson | Essen | Germany | 18 | 2 |
-| systems/europe/germany/europe-germany-bochum.geojson | Bochum | Germany | 23 | 1 |
-| systems/unknown/unknown/unknown.geojson | — | — | 3 | 1 |
-| systems/europe/spain/europe-spain-seville.geojson | Seville | Spain | 20 | 1 |
-| systems/europe/austria/europe-austria-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
-| systems/asia/china/asia-china-chuzhou.geojson | Chuzhou | China | 10 | 1 |
-| systems/asia/turkey/asia-turkey-derince.geojson | Derince | Turkey | 11 | 1 |
+| systems/eu/ger/eu-ger-dusseldorf.geojson | Dusseldorf | Germany | 105 | 9 |
+| systems/eu/esp/eu-esp-xirivella.geojson | Xirivella | Spain | 97 | 6 |
+| systems/eu/ger/eu-ger-bielefeld.geojson | Bielefeld | Germany | 60 | 4 |
+| systems/eu/ger/eu-ger-ratingen.geojson | Ratingen | Germany | 72 | 2 |
+| systems/eu/ger/eu-ger-essen.geojson | Essen | Germany | 18 | 2 |
+| systems/eu/ger/eu-ger-bochum.geojson | Bochum | Germany | 23 | 1 |
+| systems/xx/xxx/unknown.geojson | — | — | 3 | 1 |
+| systems/eu/esp/eu-esp-seville.geojson | Seville | Spain | 20 | 1 |
+| systems/eu/aut/eu-aut-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
+| systems/as/chn/as-chn-chuzhou.geojson | Chuzhou | China | 10 | 1 |
+| systems/as/tur/as-tur-derince.geojson | Derince | Turkey | 11 | 1 |

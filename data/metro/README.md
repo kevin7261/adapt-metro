@@ -52,7 +52,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 |---|---|
 | `metro_lines.geojson` | 全球所有地鐵**線路**（MultiLineString） |
 | `metro_stations.geojson` | 全球所有地鐵**車站**（Point） |
-| `systems/{洲}/{國}/{洲}-{國}-{城}.geojson` | 每個城市/系統一個檔，依 `continent/country/` 分層存放，例如 `systems/asia/taiwan/asia-taiwan-taipei.geojson`；含該系統的線路+車站，並附系統中繼資料 |
+| `systems/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 每個城市/系統一個檔；**資料夾用全名**（洲：asia/europe/americas（北美南美合併）/africa/oceania，**不會有 unknown**——定位不到城市的雜訊不輸出；國家 slug 全名），**檔名用代碼**（洲 2 碼 as/eu/am/af/oc＋國家奧運 IOC 3 碼小寫，台灣 twn（ISO，使用者指定）、德國 ger…，對照表 `scripts/countryCodes.mjs`），例如 `systems/asia/taiwan/as-twn-taipei.geojson`；含該系統的路段+車站，並附系統中繼資料 |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
 | `maps/{洲}/{國}/{洲}-{國}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
 | `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-audit` |

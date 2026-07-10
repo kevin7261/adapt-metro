@@ -1,1975 +1,1846 @@
 {
-  "north-america/united-states/north-america-united-states-new-york": {
+  "americas/united-states/am-usa-new-york": {
     "city": "New York",
     "country": "United States",
     "wikidata": "Q7733",
     "map_file": null
   },
-  "asia/china/asia-china-beijing": {
+  "asia/china/as-chn-beijing": {
     "city": "Beijing",
     "country": "China",
     "wikidata": "Q235319",
-    "map_file": "maps/asia/china/asia-china-beijing.svg",
+    "map_file": "maps/asia/china/as-chn-beijing.svg",
     "commons_file": "File:Beijing Subway System Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Beijing_Subway_System_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "unknown/unknown/unknown": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q24238356",
-    "map_file": null
-  },
-  "asia/japan/asia-japan-tokyo": {
+  "asia/japan/as-jpn-tokyo": {
     "city": "Tokyo",
     "country": "Japan",
     "wikidata": "Q247782",
-    "map_file": "maps/asia/japan/asia-japan-tokyo.png",
+    "map_file": "maps/asia/japan/as-jpn-tokyo.png",
     "commons_file": "File:Greater Tokyo rail network.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Greater_Tokyo_rail_network.png",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "FML"
   },
-  "europe/france/europe-france-paris": {
+  "europe/france/eu-fra-paris": {
     "city": "Paris",
     "country": "France",
     "wikidata": "Q50716",
-    "map_file": "maps/europe/france/europe-france-paris.svg",
+    "map_file": "maps/europe/france/eu-fra-paris.svg",
     "commons_file": "File:Paris Metro map complete.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Paris_Metro_map_complete.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Metropolitan, Pmx, nojhan"
   },
-  "asia/china/asia-china-shanghai": {
+  "asia/china/as-chn-shanghai": {
     "city": "Shanghai",
     "country": "China",
     "wikidata": "Q462201",
-    "map_file": "maps/asia/china/asia-china-shanghai.png",
+    "map_file": "maps/asia/china/as-chn-shanghai.png",
     "commons_file": "File:Shanghai Rail Transit Network en.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Shanghai_Rail_Transit_Network_en.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "asia/china/asia-china-guangzhou": {
+  "asia/china/as-chn-guangzhou": {
     "city": "Guangzhou",
     "country": "China",
     "wikidata": "Q660751",
-    "map_file": "maps/asia/china/asia-china-guangzhou.png",
+    "map_file": "maps/asia/china/as-chn-guangzhou.png",
     "commons_file": "File:Guangzhou Metro Network.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Guangzhou_Metro_Network.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "asia/china/asia-china-chengdu": {
+  "asia/china/as-chn-chengdu": {
     "city": "Chengdu",
     "country": "China",
     "wikidata": "Q1660063",
-    "map_file": "maps/asia/china/asia-china-chengdu.png",
+    "map_file": "maps/asia/china/as-chn-chengdu.png",
     "commons_file": "File:Chengdu Metro Network en.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Chengdu_Metro_Network_en.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "asia/china/asia-china-shenzhen": {
+  "asia/china/as-chn-shenzhen": {
     "city": "Shenzhen",
     "country": "China",
     "wikidata": "Q14751",
     "map_file": null
   },
-  "europe/russia/europe-russia-moscow": {
+  "europe/russia/eu-rus-moscow": {
     "city": "Moscow",
     "country": "Russia",
     "wikidata": "Q5499",
-    "map_file": "maps/europe/russia/europe-russia-moscow.svg",
+    "map_file": "maps/europe/russia/eu-rus-moscow.svg",
     "commons_file": "File:Moscow metro lines geographical.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Moscow_metro_lines_geographical.svg",
     "license": "CC BY-SA 2.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
     "artist": "User:Sameboat, User:Crimson Hades"
   },
-  "asia/china/asia-china-nanjing": {
+  "asia/china/as-chn-nanjing": {
     "city": "Nanjing",
     "country": "China",
     "wikidata": "Q429366",
-    "map_file": "maps/asia/china/asia-china-nanjing.png",
+    "map_file": "maps/asia/china/as-chn-nanjing.png",
     "commons_file": "File:Nanjing Metro Network.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Nanjing_Metro_Network.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "europe/spain/europe-spain-barcelona": {
+  "europe/spain/eu-esp-barcelona": {
     "city": "Barcelona",
     "country": "Spain",
     "wikidata": "Q237189",
-    "map_file": "maps/europe/spain/europe-spain-barcelona.svg",
+    "map_file": "maps/europe/spain/eu-esp-barcelona.svg",
     "commons_file": "File:Mapa metro Barcelona actual.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Mapa_metro_Barcelona_actual.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "ItsAstrid"
   },
-  "europe/spain/europe-spain-madrid": {
+  "europe/spain/eu-esp-madrid": {
     "city": "Madrid",
     "country": "Spain",
     "wikidata": "Q191987",
-    "map_file": "maps/europe/spain/europe-spain-madrid.svg",
+    "map_file": "maps/europe/spain/eu-esp-madrid.svg",
     "commons_file": "File:Madrid Metro Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Madrid_Metro_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Javitomad"
   },
-  "asia/south-korea/asia-south-korea-seoul": {
+  "asia/south-korea/as-kor-seoul": {
     "city": "Seoul",
     "country": "South Korea",
     "wikidata": "Q16950",
-    "map_file": "maps/asia/south-korea/asia-south-korea-seoul.svg",
+    "map_file": "maps/asia/south-korea/as-kor-seoul.svg",
     "commons_file": "File:Seoul subway linemap en.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Seoul_subway_linemap_en.svg",
     "license": "Public domain",
     "license_url": null,
     "artist": "IRTC1015"
   },
-  "asia/china/asia-china-tianjin": {
+  "asia/china/as-chn-tianjin": {
     "city": "Tianjin",
     "country": "China",
     "wikidata": "Q515817",
-    "map_file": "maps/asia/china/asia-china-tianjin.svg",
+    "map_file": "maps/asia/china/as-chn-tianjin.svg",
     "commons_file": "File:天津市地铁图.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/%E5%A4%A9%E6%B4%A5%E5%B8%82%E5%9C%B0%E9%93%81%E5%9B%BE.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "KangTyngrwey"
   },
-  "asia/china/asia-china-wuhan": {
+  "asia/china/as-chn-wuhan": {
     "city": "Wuhan",
     "country": "China",
     "wikidata": "Q1660441",
-    "map_file": "maps/asia/china/asia-china-wuhan.svg",
+    "map_file": "maps/asia/china/as-chn-wuhan.svg",
     "commons_file": "File:Route Map of Wuhan Metro.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Wuhan_Metro_System_Map_en.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "asia/china/asia-china-hangzhou": {
+  "asia/china/as-chn-hangzhou": {
     "city": "Hangzhou",
     "country": "China",
     "wikidata": "Q2419742",
-    "map_file": "maps/asia/china/asia-china-hangzhou.png",
+    "map_file": "maps/asia/china/as-chn-hangzhou.png",
     "commons_file": "File:Hangzhou Metro Network.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Hangzhou_Metro_Network.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "asia/china/asia-china-zhengzhou": {
+  "asia/china/as-chn-zhengzhou": {
     "city": "Zhengzhou",
     "country": "China",
     "wikidata": "Q1002598",
     "map_file": null
   },
-  "europe/germany/europe-germany-dusseldorf": {
+  "europe/germany/eu-ger-dusseldorf": {
     "city": "Dusseldorf",
     "country": "Germany",
     "wikidata": "Q448199",
-    "map_file": "maps/europe/germany/europe-germany-dusseldorf.svg",
+    "map_file": "maps/europe/germany/eu-ger-dusseldorf.svg",
     "commons_file": "File:North rhine w VRR.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/North_rhine_w_VRR.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "TUBS"
   },
-  "europe/united-kingdom/europe-united-kingdom-london": {
+  "europe/united-kingdom/eu-gbr-london": {
     "city": "London",
     "country": "United Kingdom",
     "wikidata": "Q20075",
     "map_file": null
   },
-  "north-america/mexico/north-america-mexico-mexico-city": {
+  "americas/mexico/am-mex-mexico-city": {
     "city": "Mexico City",
     "country": "Mexico",
     "wikidata": "Q735042",
-    "map_file": "maps/north-america/mexico/north-america-mexico-mexico-city.jpg",
+    "map_file": "maps/americas/mexico/am-mex-mexico-city.jpg",
     "commons_file": "File:Mapa STC Metro Movilidad Integrada2024.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Mapa_STC_Metro_Movilidad_Integrada2024.jpg",
     "license": "CC BY 4.0",
     "license_url": "https://creativecommons.org/licenses/by/4.0",
     "artist": "Semovi"
   },
-  "asia/china/asia-china-xi-an": {
+  "asia/china/as-chn-xi-an": {
     "city": "Xi'an",
     "country": "China",
     "wikidata": "Q555733",
-    "map_file": "maps/asia/china/asia-china-xi-an.svg",
+    "map_file": "maps/asia/china/as-chn-xi-an.svg",
     "commons_file": "File:Xi'an Metro Linemap.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Xi%27an_Metro_Linemap.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yveltal"
   },
-  "europe/norway/europe-norway-oslo": {
+  "europe/norway/eu-nor-oslo": {
     "city": "Oslo",
     "country": "Norway",
     "wikidata": "Q750292",
     "map_file": null
   },
-  "asia/china/asia-china-chongqing": {
+  "asia/china/as-chn-chongqing": {
     "city": "Chongqing",
     "country": "China",
     "wikidata": "Q1190894",
-    "map_file": "maps/asia/china/asia-china-chongqing.svg",
+    "map_file": "maps/asia/china/as-chn-chongqing.svg",
     "commons_file": "File:重庆轨道交通线路图（2024.12）.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%E9%87%8D%E5%BA%86%E8%BD%A8%E9%81%93%E4%BA%A4%E9%80%9A%E7%BA%BF%E8%B7%AF%E5%9B%BE%EF%BC%882024.12%EF%BC%89.svg",
     "license": "Public domain",
     "license_url": null,
     "artist": "Unknown authorUnknown author"
   },
-  "asia/china/asia-china-hong-kong": {
+  "asia/china/as-chn-hong-kong": {
     "city": "Hong Kong",
     "country": "China",
     "wikidata": "Q14751",
     "map_file": null
   },
-  "asia/turkey/asia-turkey-istanbul": {
+  "asia/turkey/as-tur-istanbul": {
     "city": "Istanbul",
     "country": "Turkey",
     "wikidata": "Q498172",
-    "map_file": "maps/asia/turkey/asia-turkey-istanbul.svg",
+    "map_file": "maps/asia/turkey/as-tur-istanbul.svg",
     "commons_file": "File:Istanbul Railway Systems Network Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Istanbul_Railway_Systems_Network_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alikam1896"
   },
-  "europe/germany/europe-germany-frankfurt": {
+  "europe/germany/eu-ger-frankfurt": {
     "city": "Frankfurt",
     "country": "Germany",
     "wikidata": "Q314042",
     "map_file": null
   },
-  "asia/taiwan/asia-taiwan-taipei": {
+  "asia/taiwan/as-twn-taipei": {
     "city": "Taipei",
     "country": "Taiwan",
     "wikidata": "Q714810",
-    "map_file": "maps/asia/taiwan/asia-taiwan-taipei.png",
+    "map_file": "maps/asia/taiwan/as-twn-taipei.png",
     "commons_file": "File:Taipei Metro official map optimised.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Taipei_Metro_official_map_optimised.png",
     "license": "Attribution",
     "license_url": null,
     "artist": "Own work derived from that of Taipei Rapid Transit Corporation"
   },
-  "asia/japan/asia-japan-osaka": {
+  "asia/japan/as-jpn-osaka": {
     "city": "Osaka",
     "country": "Japan",
     "wikidata": "Q51211653",
     "map_file": null
   },
-  "south-america/chile/south-america-chile-santiago": {
+  "americas/chile/am-chi-santiago": {
     "city": "Santiago",
     "country": "Chile",
     "wikidata": "Q913314",
     "map_file": null
   },
-  "asia/india/asia-india-delhi": {
+  "asia/india/as-ind-delhi": {
     "city": "Delhi",
     "country": "India",
     "wikidata": "Q271195",
     "map_file": null
   },
-  "europe/germany/europe-germany-berlin": {
+  "europe/germany/eu-ger-berlin": {
     "city": "Berlin",
     "country": "Germany",
     "wikidata": "Q315451",
     "map_file": null
   },
-  "asia/china/asia-china-suzhou": {
+  "asia/china/as-chn-suzhou": {
     "city": "Suzhou",
     "country": "China",
     "wikidata": "Q914748",
-    "map_file": "maps/asia/china/asia-china-suzhou.png",
+    "map_file": "maps/asia/china/as-chn-suzhou.png",
     "commons_file": "File:Suzhou Metro Network.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Suzhou_Metro_Network.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "north-america/united-states/north-america-united-states-chicago": {
+  "americas/united-states/am-usa-chicago": {
     "city": "Chicago",
     "country": "United States",
     "wikidata": "Q117309",
     "map_file": null
   },
-  "europe/germany/europe-germany-munich": {
+  "europe/germany/eu-ger-munich": {
     "city": "Munich",
     "country": "Germany",
     "wikidata": "Q259000",
     "map_file": null
   },
-  "asia/china/asia-china-yinzhou-district": {
+  "asia/china/as-chn-yinzhou-district": {
     "city": "Yinzhou District",
     "country": "China",
     "wikidata": "Q1000022",
     "map_file": null
   },
-  "asia/china/asia-china-hefei": {
+  "asia/china/as-chn-hefei": {
     "city": "Hefei",
     "country": "China",
     "wikidata": "Q2688118",
     "map_file": null
   },
-  "asia/china/asia-china-qingdao": {
+  "asia/china/as-chn-qingdao": {
     "city": "Qingdao",
     "country": "China",
     "wikidata": "Q2620251",
-    "map_file": "maps/asia/china/asia-china-qingdao.svg",
+    "map_file": "maps/asia/china/as-chn-qingdao.svg",
     "commons_file": "File:Qingdao Metro Map en.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Qingdao_Metro_Map_en.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "asia/singapore/asia-singapore-singapore": {
+  "asia/singapore/as-sgp-singapore": {
     "city": "Singapore",
     "country": "Singapore",
     "wikidata": "Q40176",
-    "map_file": "maps/asia/singapore/asia-singapore-singapore.svg",
+    "map_file": "maps/asia/singapore/as-sgp-singapore.svg",
     "commons_file": "File:Singapore MRT Network.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Singapore_MRT_Network.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Seloloving"
   },
-  "asia/china/asia-china-changsha": {
+  "asia/china/as-chn-changsha": {
     "city": "Changsha",
     "country": "China",
     "wikidata": "Q1054256",
-    "map_file": "maps/asia/china/asia-china-changsha.svg",
+    "map_file": "maps/asia/china/as-chn-changsha.svg",
     "commons_file": "File:Changsha Rail Transit Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Changsha_Rail_Transit_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "europe/sweden/europe-sweden-stockholm-municipality": {
+  "europe/sweden/eu-swe-stockholm-municipality": {
     "city": "Stockholm Municipality",
     "country": "Sweden",
     "wikidata": "Q970452",
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-washington-d-c": {
+  "americas/united-states/am-usa-washington-d-c": {
     "city": "Washington, D.C.",
     "country": "United States",
     "wikidata": "Q171221",
     "map_file": null
   },
-  "europe/russia/europe-russia-saint-petersburg": {
+  "europe/russia/eu-rus-saint-petersburg": {
     "city": "Saint Petersburg",
     "country": "Russia",
     "wikidata": "Q250225",
-    "map_file": "maps/europe/russia/europe-russia-saint-petersburg.png",
+    "map_file": "maps/europe/russia/eu-rus-saint-petersburg.png",
     "commons_file": "File:Metro SPB Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Metro_SPB_Map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Florstein"
   },
-  "south-america/brazil/south-america-brazil-sao-paulo": {
+  "americas/brazil/am-bra-sao-paulo": {
     "city": "São Paulo",
     "country": "Brazil",
     "wikidata": "Q483343",
     "map_file": null
   },
-  "south-america/argentina/south-america-argentina-buenos-aires": {
+  "americas/argentina/am-arg-buenos-aires": {
     "city": "Buenos Aires",
     "country": "Argentina",
     "wikidata": "Q497044",
-    "map_file": "maps/south-america/argentina/south-america-argentina-buenos-aires.png",
+    "map_file": "maps/americas/argentina/am-arg-buenos-aires.png",
     "commons_file": "File:SubteMapa2019.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/SubteMapa2019.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Quenombre123"
   },
-  "asia/japan/asia-japan-nagoya": {
+  "asia/japan/as-jpn-nagoya": {
     "city": "Nagoya",
     "country": "Japan",
     "wikidata": "Q1144874",
-    "map_file": "maps/asia/japan/asia-japan-nagoya.svg",
+    "map_file": "maps/asia/japan/as-jpn-nagoya.svg",
     "commons_file": "File:Linemap of Nagoya Municipal Subway H29-.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Linemap_of_Nagoya_Municipal_Subway_H29-.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "ButuCC"
   },
-  "asia/iran/asia-iran-tehran": {
+  "asia/iran/as-iri-tehran": {
     "city": "Tehran",
     "country": "Iran",
     "wikidata": "Q714823",
     "map_file": null
   },
-  "asia/turkey/asia-turkey-ankara": {
+  "asia/turkey/as-tur-ankara": {
     "city": "Ankara",
     "country": "Turkey",
     "wikidata": "Q204081",
-    "map_file": "maps/asia/turkey/asia-turkey-ankara.svg",
+    "map_file": "maps/asia/turkey/as-tur-ankara.svg",
     "commons_file": "File:Autoroute A1 (BE).svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Autoroute_A1_%28BE%29.svg",
     "license": "CC BY 2.5",
     "license_url": "https://creativecommons.org/licenses/by/2.5",
     "artist": "Vascer"
   },
-  "north-america/united-states/north-america-united-states-new-york-city": {
+  "americas/united-states/am-usa-new-york-city": {
     "city": "New York City",
     "country": "United States",
     "wikidata": "Q1055811",
-    "map_file": "maps/north-america/united-states/north-america-united-states-new-york-city.svg",
+    "map_file": "maps/americas/united-states/am-usa-new-york-city.svg",
     "commons_file": "File:PATH daytime.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/PATH_daytime.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
     "artist": null
   },
-  "asia/china/asia-china-dalian": {
+  "asia/china/as-chn-dalian": {
     "city": "Dalian",
     "country": "China",
     "wikidata": "Q1660254",
-    "map_file": "maps/asia/china/asia-china-dalian.svg",
+    "map_file": "maps/asia/china/as-chn-dalian.svg",
     "commons_file": "File:Dalian Metro System Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Dalian_Metro_System_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Kmchang28"
   },
-  "asia/india/asia-india-mumbai": {
+  "asia/india/as-ind-mumbai": {
     "city": "Mumbai",
     "country": "India",
     "wikidata": "Q646414",
     "map_file": null
   },
-  "asia/china/asia-china-kunming": {
+  "asia/china/as-chn-kunming": {
     "city": "Kunming",
     "country": "China",
     "wikidata": "Q1660425",
     "map_file": null
   },
-  "asia/china/asia-china-shenyang": {
+  "asia/china/as-chn-shenyang": {
     "city": "Shenyang",
     "country": "China",
     "wikidata": "Q646466",
-    "map_file": "maps/asia/china/asia-china-shenyang.svg",
+    "map_file": "maps/asia/china/as-chn-shenyang.svg",
     "commons_file": "File:Shenyang Metro System Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Shenyang_Metro_System_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "europe/spain/europe-spain-paterna": {
+  "europe/spain/eu-esp-paterna": {
     "city": "Paterna",
     "country": "Spain",
     "wikidata": "Q511171",
-    "map_file": "maps/europe/spain/europe-spain-paterna.svg",
+    "map_file": "maps/europe/spain/eu-esp-paterna.svg",
     "commons_file": "File:Mapa metrovalencia.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Mapa_metrovalencia.svg",
     "license": "FAL",
     "license_url": "http://artlibre.org/licence/lal/en",
     "artist": "FGV"
   },
-  "asia/china/asia-china-fuzhou": {
+  "asia/china/as-chn-fuzhou": {
     "city": "Fuzhou",
     "country": "China",
     "wikidata": "Q1022261",
-    "map_file": "maps/asia/china/asia-china-fuzhou.svg",
+    "map_file": "maps/asia/china/as-chn-fuzhou.svg",
     "commons_file": "File:Map of Fuzhou Metro.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Map_of_Fuzhou_Metro.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "SCJiang"
   },
-  "asia/china/asia-china-licheng-district": {
+  "asia/china/as-chn-licheng-district": {
     "city": "Licheng District",
     "country": "China",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/saudi-arabia/asia-saudi-arabia-riyadh": {
+  "asia/saudi-arabia/as-ksa-riyadh": {
     "city": "Riyadh",
     "country": "Saudi Arabia",
     "wikidata": "Q3855748",
     "map_file": null
   },
-  "europe/netherlands/europe-netherlands-amsterdam": {
+  "europe/netherlands/eu-ned-amsterdam": {
     "city": "Amsterdam",
     "country": "Netherlands",
     "wikidata": "Q137608588",
     "map_file": null
   },
-  "europe/austria/europe-austria-vienna": {
+  "europe/austria/eu-aut-vienna": {
     "city": "Vienna",
     "country": "Austria",
     "wikidata": "Q2516485",
     "map_file": null
   },
-  "europe/romania/europe-romania-bucharest": {
+  "europe/romania/eu-rou-bucharest": {
     "city": "Bucharest",
     "country": "Romania",
     "wikidata": "Q622884",
     "map_file": null
   },
-  "asia/thailand/asia-thailand-bangkok": {
+  "asia/thailand/as-tha-bangkok": {
     "city": "Bangkok",
     "country": "Thailand",
     "wikidata": "Q806501",
     "map_file": null
   },
-  "europe/italy/europe-italy-milan": {
+  "europe/italy/eu-ita-milan": {
     "city": "Milan",
     "country": "Italy",
     "wikidata": "Q65125405",
     "map_file": null
   },
-  "europe/netherlands/europe-netherlands-rotterdam": {
+  "europe/netherlands/eu-ned-rotterdam": {
     "city": "Rotterdam",
     "country": "Netherlands",
     "wikidata": "Q108718112",
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-san-francisco-bay-area": {
+  "americas/united-states/am-usa-san-francisco-bay-area": {
     "city": "San Francisco (Bay Area)",
     "country": "United States",
     "wikidata": "Q610120",
-    "map_file": "maps/north-america/united-states/north-america-united-states-san-francisco-bay-area.png",
+    "map_file": "maps/americas/united-states/am-usa-san-francisco-bay-area.png",
     "commons_file": "File:BART web map effective September 2023.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/BART_web_map_effective_September_2023.png",
     "license": "Public domain",
     "license_url": null,
     "artist": "San Francisco Bay Area Rapid Transit District"
   },
-  "asia/china/asia-china-wuxi": {
+  "asia/china/as-chn-wuxi": {
     "city": "Wuxi",
     "country": "China",
     "wikidata": "Q2620237",
-    "map_file": "maps/asia/china/asia-china-wuxi.png",
+    "map_file": "maps/asia/china/as-chn-wuxi.png",
     "commons_file": "File:Wuxi Metro Network.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Wuxi_Metro_Network.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Alan Fan Pei"
   },
-  "asia/china/asia-china-nanning": {
+  "asia/china/as-chn-nanning": {
     "city": "Nanning",
     "country": "China",
     "wikidata": "Q10907375",
-    "map_file": "maps/asia/china/asia-china-nanning.png",
+    "map_file": "maps/asia/china/as-chn-nanning.png",
     "commons_file": "File:Nanning Rail Transit Diagram.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/92/Nanning_Rail_Transit_Diagram.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "asia/india/asia-india-chennai": {
+  "asia/india/as-ind-chennai": {
     "city": "Chennai",
     "country": "India",
     "wikidata": "Q1639576",
-    "map_file": "maps/asia/india/asia-india-chennai.svg",
+    "map_file": "maps/asia/india/as-ind-chennai.svg",
     "commons_file": "File:Chennai Metro Map updated.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Chennai_Metro_Map_updated.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "TravelLover05"
   },
-  "asia/india/asia-india-kolkata": {
+  "asia/india/as-ind-kolkata": {
     "city": "Kolkata",
     "country": "India",
     "wikidata": "Q1048849",
     "map_file": null
   },
-  "europe/germany/europe-germany-bielefeld": {
+  "europe/germany/eu-ger-bielefeld": {
     "city": "Bielefeld",
     "country": "Germany",
     "wikidata": "Q27926285",
     "map_file": null
   },
-  "europe/belgium/europe-belgium-brussels": {
+  "europe/belgium/eu-bel-brussels": {
     "city": "Brussels",
     "country": "Belgium",
     "wikidata": "Q114957008",
     "map_file": null
   },
-  "north-america/canada/north-america-canada-montreal": {
+  "americas/canada/am-can-montreal": {
     "city": "Montreal",
     "country": "Canada",
     "wikidata": "Q392377",
     "map_file": null
   },
-  "europe/germany/europe-germany-hamburg": {
+  "europe/germany/eu-ger-hamburg": {
     "city": "Hamburg",
     "country": "Germany",
     "wikidata": "Q896916",
     "map_file": null
   },
-  "europe/france/europe-france-lyon": {
+  "europe/france/eu-fra-lyon": {
     "city": "Lyon",
     "country": "France",
     "wikidata": "Q8700",
     "map_file": null
   },
-  "europe/denmark/europe-denmark-sundbyerne": {
+  "europe/denmark/eu-den-sundbyerne": {
     "city": "Sundbyerne",
     "country": "Denmark",
     "wikidata": "Q160236",
     "map_file": null
   },
-  "europe/italy/europe-italy-rome": {
+  "europe/italy/eu-ita-rome": {
     "city": "Rome",
     "country": "Italy",
     "wikidata": "Q140026881",
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-atlanta": {
+  "americas/united-states/am-usa-atlanta": {
     "city": "Atlanta",
     "country": "United States",
     "wikidata": "Q1423792",
     "map_file": null
   },
-  "europe/portugal/europe-portugal-lisbon": {
+  "europe/portugal/eu-por-lisbon": {
     "city": "Lisbon",
     "country": "Portugal",
     "wikidata": "Q746032",
     "map_file": null
   },
-  "europe/bulgaria/europe-bulgaria-sofia": {
+  "europe/bulgaria/eu-bul-sofia": {
     "city": "Sofia",
     "country": "Bulgaria",
     "wikidata": "Q124360139",
     "map_file": null
   },
-  "asia/azerbaijan/asia-azerbaijan-baku": {
+  "asia/azerbaijan/as-aze-baku": {
     "city": "Baku",
     "country": "Azerbaijan",
     "wikidata": "Q213271",
     "map_file": null
   },
-  "europe/hungary/europe-hungary-budapest": {
+  "europe/hungary/eu-hun-budapest": {
     "city": "Budapest",
     "country": "Hungary",
     "wikidata": "Q211044",
     "map_file": null
   },
-  "asia/uzbekistan/asia-uzbekistan-tashkent": {
+  "asia/uzbekistan/as-uzb-tashkent": {
     "city": "Tashkent",
     "country": "Uzbekistan",
     "wikidata": "Q491886",
     "map_file": null
   },
-  "south-america/venezuela/south-america-venezuela-caracas": {
+  "americas/venezuela/am-ven-caracas": {
     "city": "Caracas",
     "country": "Venezuela",
     "wikidata": "Q1363954",
     "map_file": null
   },
-  "asia/china/asia-china-nanchang": {
+  "asia/china/as-chn-nanchang": {
     "city": "Nanchang",
     "country": "China",
     "wikidata": "Q1058531",
-    "map_file": "maps/asia/china/asia-china-nanchang.jpg",
+    "map_file": "maps/asia/china/as-chn-nanchang.jpg",
     "commons_file": "File:Nanchang Metro Official Map.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/Nanchang_Metro_Official_Map.jpg",
     "license": "CC0",
     "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
     "artist": "www.ncmtr.com"
   },
-  "europe/spain/europe-spain-bilbao": {
+  "europe/spain/eu-esp-bilbao": {
     "city": "Bilbao",
     "country": "Spain",
     "wikidata": "Q325309",
     "map_file": null
   },
-  "asia/china/asia-china-xuzhou": {
+  "asia/china/as-chn-xuzhou": {
     "city": "Xuzhou",
     "country": "China",
     "wikidata": "Q11070585",
-    "map_file": "maps/asia/china/asia-china-xuzhou.png",
+    "map_file": "maps/asia/china/as-chn-xuzhou.png",
     "commons_file": "File:Xuzhou Metro System Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Xuzhou_Metro_System_Map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yh6987tla, Pandavid233OpenStreetMap contributors"
   },
-  "asia/india/asia-india-ahmedabad": {
+  "asia/india/as-ind-ahmedabad": {
     "city": "Ahmedabad",
     "country": "India",
     "wikidata": "Q1895288",
-    "map_file": "maps/asia/india/asia-india-ahmedabad.png",
+    "map_file": "maps/asia/india/as-ind-ahmedabad.png",
     "commons_file": "File:Ahmedabad Metro.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Ahmedabad_Metro.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Dilip kabiraj"
   },
-  "asia/japan/asia-japan-setagaya": {
+  "asia/japan/as-jpn-setagaya": {
     "city": "Setagaya",
     "country": "Japan",
     "wikidata": null,
     "map_file": null
   },
-  "asia/turkey/asia-turkey-gebze": {
+  "asia/turkey/as-tur-gebze": {
     "city": "Gebze",
     "country": "Turkey",
     "wikidata": "Q1497484",
     "map_file": null
   },
-  "europe/czechia/europe-czechia-prague": {
+  "europe/czechia/eu-cze-prague": {
     "city": "Prague",
     "country": "Czechia",
     "wikidata": "Q190271",
     "map_file": null
   },
-  "europe/belarus/europe-belarus-minsk": {
+  "europe/belarus/eu-blr-minsk": {
     "city": "Minsk",
     "country": "Belarus",
     "wikidata": "Q232164",
     "map_file": null
   },
-  "north-america/canada/north-america-canada-toronto": {
+  "americas/canada/am-can-toronto": {
     "city": "Toronto",
     "country": "Canada",
     "wikidata": "Q6612865",
     "map_file": null
   },
-  "europe/ukraine/europe-ukraine-kyiv": {
+  "europe/ukraine/eu-ukr-kyiv": {
     "city": "Kyiv",
     "country": "Ukraine",
     "wikidata": "Q215871",
-    "map_file": "maps/europe/ukraine/europe-ukraine-kyiv.svg",
+    "map_file": "maps/europe/ukraine/eu-ukr-kyiv.svg",
     "commons_file": "File:Kiev metro route map uk en.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Kiev_metro_route_map_uk_en.svg",
     "license": "Public domain",
     "license_url": null,
     "artist": "Sameboat; some corrections made by AMY"
   },
-  "north-america/united-states/north-america-united-states-philadelphia": {
+  "americas/united-states/am-usa-philadelphia": {
     "city": "Philadelphia",
     "country": "United States",
     "wikidata": "Q2043730",
-    "map_file": "maps/north-america/united-states/north-america-united-states-philadelphia.png",
+    "map_file": "maps/americas/united-states/am-usa-philadelphia.png",
     "commons_file": "File:PATCO-Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/PATCO-Map.png",
     "license": "CC BY-SA 3.0",
     "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
     "artist": "Darkcore at English Wikipedia"
   },
-  "north-america/canada/north-america-canada-burnaby": {
+  "americas/canada/am-can-burnaby": {
     "city": "Burnaby",
     "country": "Canada",
     "wikidata": "Q1142140",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-rio-de-janeiro": {
+  "americas/brazil/am-bra-rio-de-janeiro": {
     "city": "Rio de Janeiro",
     "country": "Brazil",
     "wikidata": null,
     "map_file": null
   },
-  "europe/ukraine/europe-ukraine-kharkiv": {
+  "europe/ukraine/eu-ukr-kharkiv": {
     "city": "Kharkiv",
     "country": "Ukraine",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "europe/italy/europe-italy-naples": {
+  "europe/italy/eu-ita-naples": {
     "city": "Naples",
     "country": "Italy",
     "wikidata": "Q3601071",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-recife": {
+  "americas/brazil/am-bra-recife": {
     "city": "Recife",
     "country": "Brazil",
     "wikidata": null,
     "map_file": null
   },
-  "africa/egypt/africa-egypt-cairo": {
+  "africa/egypt/af-egy-cairo": {
     "city": "Cairo",
     "country": "Egypt",
     "wikidata": "Q685381",
-    "map_file": "maps/africa/egypt/africa-egypt-cairo.jpg",
+    "map_file": "maps/africa/egypt/af-egy-cairo.jpg",
     "commons_file": "File:CAIRO METRO.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/96/CAIRO_METRO.jpg",
     "license": "CC BY-SA 3.0",
     "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
     "artist": "X49 (talk)"
   },
-  "europe/greece/europe-greece-athens": {
+  "europe/greece/eu-gre-athens": {
     "city": "Athens",
     "country": "Greece",
     "wikidata": "Q336488",
-    "map_file": "maps/europe/greece/europe-greece-athens.png",
+    "map_file": "maps/europe/greece/eu-gre-athens.png",
     "commons_file": "File:Public transport map of Athens.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Public_transport_map_of_Athens.png",
     "license": "CC BY-SA 2.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
     "artist": "Maximilian Dörrbecker (Chumwa)"
   },
-  "europe/germany/europe-germany-furth": {
+  "europe/germany/eu-ger-furth": {
     "city": "Fürth",
     "country": "Germany",
     "wikidata": "Q2516463",
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-boston": {
+  "americas/united-states/am-usa-boston": {
     "city": "Boston",
     "country": "United States",
     "wikidata": "Q171985",
     "map_file": null
   },
-  "asia/india/asia-india-bengaluru": {
+  "asia/india/as-ind-bengaluru": {
     "city": "Bengaluru",
     "country": "India",
     "wikidata": "Q279343",
-    "map_file": "maps/asia/india/asia-india-bengaluru.png",
+    "map_file": "maps/asia/india/as-ind-bengaluru.png",
     "commons_file": "File:Phase 2A with WFD line.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Phase_2A_with_WFD_line.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Doc.aneesh"
   },
-  "unknown/unknown/sapporo-municipal-subway": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q736098",
-    "map_file": "maps/unknown/unknown/sapporo-municipal-subway.gif",
-    "commons_file": "File:Sapporo_subway_map.gif",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/26/Sapporo_subway_map.gif",
-    "license": "CC BY-SA 3.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-    "artist": "Angaurits"
-  },
-  "unknown/unknown/fukuoka-city-subway": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q289242",
-    "map_file": "maps/unknown/unknown/fukuoka-city-subway.png",
-    "commons_file": "File:Fukuoka city subway route map EN (2014).png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Fukuoka_city_subway_route_map_EN_%282014%29.png",
-    "license": "CC BY-SA 3.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-    "artist": "Chihaya Sta"
-  },
-  "asia/japan/asia-japan-yokohama": {
+  "asia/japan/as-jpn-yokohama": {
     "city": "Yokohama",
     "country": "Japan",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/south-korea/asia-south-korea-busan": {
+  "asia/south-korea/as-kor-busan": {
     "city": "Busan",
     "country": "South Korea",
     "wikidata": "Q51972",
-    "map_file": "maps/asia/south-korea/asia-south-korea-busan.svg",
+    "map_file": "maps/asia/south-korea/as-kor-busan.svg",
     "commons_file": "File:Busan_metro_now.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Busan_metro_now.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "Manse5. Original uploader was Manse5 at ko.wikipedia"
   },
-  "north-america/mexico/north-america-mexico-monterrey": {
+  "americas/mexico/am-mex-monterrey": {
     "city": "Monterrey",
     "country": "Mexico",
     "wikidata": "Q2519355",
-    "map_file": "maps/north-america/mexico/north-america-mexico-monterrey.svg",
+    "map_file": "maps/americas/mexico/am-mex-monterrey.svg",
     "commons_file": "File:Milano - mappa metropolitana M3.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Milano_-_mappa_metropolitana_M3.svg",
     "license": "CC BY-SA 2.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
     "artist": "ArbaleteOpenStreetMap contributors"
   },
-  "asia/india/asia-india-hyderabad": {
+  "asia/india/as-ind-hyderabad": {
     "city": "Hyderabad",
     "country": "India",
     "wikidata": "Q646209",
     "map_file": null
   },
-  "unknown/unknown/harbin-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q2688234",
-    "map_file": "maps/unknown/unknown/harbin-metro.png",
-    "commons_file": "File:Harbin Metro Diagram.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Harbin_Metro_Diagram.png",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Painjet"
-  },
-  "asia/china/asia-china-shijiazhuang": {
+  "asia/china/as-chn-shijiazhuang": {
     "city": "Shijiazhuang",
     "country": "China",
     "wikidata": "Q12267378",
-    "map_file": "maps/asia/china/asia-china-shijiazhuang.png",
+    "map_file": "maps/asia/china/as-chn-shijiazhuang.png",
     "commons_file": "File:Shijiazhuang Metro System Map 2017.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/38/Shijiazhuang_Metro_System_Map_2017.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Kmchang28"
   },
-  "asia/china/asia-china-changchun": {
+  "asia/china/as-chn-changchun": {
     "city": "Changchun",
     "country": "China",
     "wikidata": "Q2586148",
-    "map_file": "maps/asia/china/asia-china-changchun.png",
+    "map_file": "maps/asia/china/as-chn-changchun.png",
     "commons_file": "File:Changchun Metro System Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/20/Changchun_Metro_System_Map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Kmchang28 at Chinese Wikipedia"
   },
-  "unknown/unknown/xiamen-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q24238356",
-    "map_file": null
-  },
-  "unknown/unknown/guiyang-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q2688133",
-    "map_file": "maps/unknown/unknown/guiyang-metro.png",
-    "commons_file": "File:Guiyang Urban Rail Transit Map.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Guiyang_Urban_Rail_Transit_Map.png",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Buernia"
-  },
-  "asia/qatar/asia-qatar-doha": {
+  "asia/qatar/as-qat-doha": {
     "city": "Doha",
     "country": "Qatar",
     "wikidata": "Q1234813",
     "map_file": null
   },
-  "asia/vietnam/asia-vietnam-ha-noi": {
+  "asia/vietnam/as-vie-ha-noi": {
     "city": "Hà Nội",
     "country": "Vietnam",
     "wikidata": "Q1934701",
-    "map_file": "maps/asia/vietnam/asia-vietnam-ha-noi.jpg",
+    "map_file": "maps/asia/vietnam/as-vie-ha-noi.jpg",
     "commons_file": "File:Currently functional lines of the Hanoi Metro (June, 2025).jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Currently_functional_lines_of_the_Hanoi_Metro_%28June%2C_2025%29.jpg",
     "license": "CC0",
     "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
     "artist": "Natteru"
   },
-  "asia/japan/asia-japan-kawasaki": {
+  "asia/japan/as-jpn-kawasaki": {
     "city": "Kawasaki",
     "country": "Japan",
     "wikidata": null,
     "map_file": null
   },
-  "europe/france/europe-france-rennes": {
+  "europe/france/eu-fra-rennes": {
     "city": "Rennes",
     "country": "France",
     "wikidata": "Q3480422",
     "map_file": null
   },
-  "asia/georgia/asia-georgia-tbilisi": {
+  "asia/georgia/as-geo-tbilisi": {
     "city": "Tbilisi",
     "country": "Georgia",
     "wikidata": "Q37006",
     "map_file": null
   },
-  "europe/france/europe-france-marcq-en-bar-ul": {
+  "europe/france/eu-fra-marcq-en-bar-ul": {
     "city": "Marcq-en-Barœul",
     "country": "France",
     "wikidata": "Q117215",
     "map_file": null
   },
-  "europe/france/europe-france-toulouse": {
+  "europe/france/eu-fra-toulouse": {
     "city": "Toulouse",
     "country": "France",
     "wikidata": "Q3529461",
     "map_file": null
   },
-  "europe/russia/europe-russia": {
+  "europe/russia/eu-rus-": {
     "city": "Ленинский район",
     "country": "Russia",
     "wikidata": null,
     "map_file": null
   },
-  "asia/united-arab-emirates/asia-united-arab-emirates-dubai": {
+  "asia/united-arab-emirates/as-uae-dubai": {
     "city": "Dubai",
     "country": "United Arab Emirates",
     "wikidata": "Q83787",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-canoas": {
+  "americas/brazil/am-bra-canoas": {
     "city": "Canoas",
     "country": "Brazil",
     "wikidata": "Q61901899",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-aguas-claras": {
+  "americas/brazil/am-bra-aguas-claras": {
     "city": "Águas Claras",
     "country": "Brazil",
     "wikidata": null,
     "map_file": null
   },
-  "unknown/unknown/metro-de-belo-horizonte": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q13224",
-    "map_file": "maps/unknown/unknown/metro-de-belo-horizonte.svg",
-    "commons_file": "File:Plan Linéaire Métro Paris Ligne 1 - 2012-12-15.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Plan_Lin%C3%A9aire_M%C3%A9tro_Paris_Ligne_1_-_2012-12-15.svg",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Chabe01"
-  },
-  "asia/japan/asia-japan-kyoto": {
+  "asia/japan/as-jpn-kyoto": {
     "city": "Kyoto",
     "country": "Japan",
     "wikidata": "Q728081",
-    "map_file": "maps/asia/japan/asia-japan-kyoto.png",
+    "map_file": "maps/asia/japan/as-jpn-kyoto.png",
     "commons_file": "File:KyotoRailwayMap subway.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/KyotoRailwayMap_subway.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Maztani"
   },
-  "asia/north-korea/asia-north-korea-p-yongyang": {
+  "asia/north-korea/as-prk-p-yongyang": {
     "city": "P'yŏngyang",
     "country": "North Korea",
     "wikidata": "Q80872",
-    "map_file": "maps/asia/north-korea/asia-north-korea-p-yongyang.svg",
+    "map_file": "maps/asia/north-korea/as-prk-p-yongyang.svg",
     "commons_file": "File:Pyongang metro EN.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Pyongang_metro_EN.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "Pyongyang_Metro_Map_1.png: Jcornelius derivative work: WilliamTheaker (talk)"
   },
-  "north-america/dominican-republic/north-america-dominican-republic-santo-domingo": {
+  "americas/dominican-republic/am-dom-santo-domingo": {
     "city": "Santo Domingo",
     "country": "Dominican Republic",
     "wikidata": "Q5800032",
     "map_file": null
   },
-  "south-america/peru/south-america-peru-lima": {
+  "americas/peru/am-per-lima": {
     "city": "Lima",
     "country": "Peru",
     "wikidata": "Q2400801",
-    "map_file": "maps/south-america/peru/south-america-peru-lima.svg",
+    "map_file": "maps/americas/peru/am-per-lima.svg",
     "commons_file": "File:Milano - mappa metropolitana M1.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Milano_-_mappa_metropolitana_M1.svg",
     "license": "CC BY-SA 2.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
     "artist": "ArbaleteOpenStreetMap contributors"
   },
-  "south-america/colombia/south-america-colombia-medellin": {
+  "americas/colombia/am-col-medellin": {
     "city": "Medellín",
     "country": "Colombia",
     "wikidata": "Q654751",
-    "map_file": "maps/south-america/colombia/south-america-colombia-medellin.jpg",
+    "map_file": "maps/americas/colombia/am-col-medellin.jpg",
     "commons_file": "File:Mapa_esquemático_del_sistema_2020_page-0001.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Mapa_esquem%C3%A1tico_del_sistema_2020_page-0001.jpg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Metro de Medellín. www.metrodemedellin.gov.co"
   },
-  "north-america/united-states/north-america-united-states-miami": {
+  "americas/united-states/am-usa-miami": {
     "city": "Miami",
     "country": "United States",
     "wikidata": "Q3134980",
     "map_file": null
   },
-  "europe/finland/europe-finland-helsinki": {
+  "europe/finland/eu-fin-helsinki": {
     "city": "Helsinki",
     "country": "Finland",
     "wikidata": "Q7350107",
     "map_file": null
   },
-  "europe/germany/europe-germany-ratingen": {
+  "europe/germany/eu-ger-ratingen": {
     "city": "Ratingen",
     "country": "Germany",
     "wikidata": "Q448199",
-    "map_file": "maps/europe/germany/europe-germany-ratingen.svg",
+    "map_file": "maps/europe/germany/eu-ger-ratingen.svg",
     "commons_file": "File:North rhine w VRR.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/North_rhine_w_VRR.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "TUBS"
   },
-  "north-america/united-states/north-america-united-states-maywood": {
+  "americas/united-states/am-usa-maywood": {
     "city": "Maywood",
     "country": "United States",
     "wikidata": "Q1339558",
     "map_file": null
   },
-  "europe/russia/europe-russia-novosibirsk": {
+  "europe/russia/eu-rus-novosibirsk": {
     "city": "Novosibirsk",
     "country": "Russia",
     "wikidata": "Q272558",
     "map_file": null
   },
-  "asia/taiwan/asia-taiwan-kaohsiung": {
+  "asia/taiwan/as-twn-kaohsiung": {
     "city": "Kaohsiung",
     "country": "Taiwan",
     "wikidata": "Q700041",
     "map_file": null
   },
-  "europe/poland/europe-poland-warsaw": {
+  "europe/poland/eu-pol-warsaw": {
     "city": "Warsaw",
     "country": "Poland",
     "wikidata": "Q11777882",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-salvador": {
+  "americas/brazil/am-bra-salvador": {
     "city": "Salvador",
     "country": "Brazil",
     "wikidata": "Q5380556",
     "map_file": null
   },
-  "unknown/unknown/mashhad-urban-railway": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q4292517",
-    "map_file": "maps/unknown/unknown/mashhad-urban-railway.png",
-    "commons_file": "File:Mashhad Metro map-geo.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Mashhad_Metro_map-geo.png",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    "artist": "Nima Farid"
-  },
-  "asia/malaysia/asia-malaysia-kuala-lumpur": {
+  "asia/malaysia/as-mas-kuala-lumpur": {
     "city": "Kuala Lumpur",
     "country": "Malaysia",
     "wikidata": "Q3271384",
     "map_file": null
   },
-  "unknown/unknown/sendai-subway": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q685945",
-    "map_file": "maps/unknown/unknown/sendai-subway.svg",
-    "commons_file": "File:SendaiSubwayRouteMap.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d9/SendaiSubwayRouteMap.svg",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Nard.tech ‧ | contributions| uploads"
-  },
-  "unknown/unknown/lanzhou-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q10893611",
-    "map_file": "maps/unknown/unknown/lanzhou-metro.svg",
-    "commons_file": "File:Lanzhou Metro System Map.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Lanzhou_Metro_Map.svg",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Painjet"
-  },
-  "unknown/unknown/urumqi-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q24238356",
-    "map_file": null
-  },
-  "europe/france/europe-france-marseille": {
+  "europe/france/eu-fra-marseille": {
     "city": "Marseille",
     "country": "France",
     "wikidata": "Q656807",
     "map_file": null
   },
-  "asia/china/asia-china-dongguan": {
+  "asia/china/as-chn-dongguan": {
     "city": "Dongguan",
     "country": "China",
     "wikidata": "Q1709132",
-    "map_file": "maps/asia/china/asia-china-dongguan.svg",
+    "map_file": "maps/asia/china/as-chn-dongguan.svg",
     "commons_file": "File:Dongguan Rail Transit System Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Dongguan_Rail_Transit_System_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Kmchang28"
   },
-  "asia/south-korea/asia-south-korea-daegu": {
+  "asia/south-korea/as-kor-daegu": {
     "city": "Daegu",
     "country": "South Korea",
     "wikidata": "Q20927",
     "map_file": null
   },
-  "north-america/panama/north-america-panama-panama-city": {
+  "americas/panama/am-pan-panama-city": {
     "city": "Panama City",
     "country": "Panama",
     "wikidata": "Q3295198",
-    "map_file": "maps/north-america/panama/north-america-panama-panama-city.svg",
+    "map_file": "maps/americas/panama/am-pan-panama-city.svg",
     "commons_file": "File:Panama Metro network map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Panama_Metro_network_map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Flappiefh"
   },
-  "asia/japan/asia-japan-kobe": {
+  "asia/japan/as-jpn-kobe": {
     "city": "Kobe",
     "country": "Japan",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/turkey/asia-turkey-bursa": {
+  "asia/turkey/as-tur-bursa": {
     "city": "Bursa",
     "country": "Turkey",
     "wikidata": "Q1784759",
-    "map_file": "maps/asia/turkey/asia-turkey-bursa.svg",
+    "map_file": "maps/asia/turkey/as-tur-bursa.svg",
     "commons_file": "File:Bursaray Haritası.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Bursaray_Haritas%C4%B1.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Timkili"
   },
-  "asia/japan/asia-japan-nerima": {
+  "asia/japan/as-jpn-nerima": {
     "city": "Nerima",
     "country": "Japan",
     "wikidata": null,
     "map_file": null
   },
-  "asia/india/asia-india-nagpur": {
+  "asia/india/as-ind-nagpur": {
     "city": "Nagpur",
     "country": "India",
     "wikidata": "Q6959014",
     "map_file": null
   },
-  "asia/indonesia/asia-indonesia-jakarta": {
+  "asia/indonesia/as-ina-jakarta": {
     "city": "Jakarta",
     "country": "Indonesia",
     "wikidata": "Q3333785",
     "map_file": null
   },
-  "asia/china/asia-china-changzhou": {
+  "asia/china/as-chn-changzhou": {
     "city": "Changzhou",
     "country": "China",
     "wikidata": "Q4507108",
-    "map_file": "maps/asia/china/asia-china-changzhou.svg",
+    "map_file": "maps/asia/china/as-chn-changzhou.svg",
     "commons_file": "File:Changzhou Metro System Map 2025.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Changzhou_Metro_System_Map_2025.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Kmchang28"
   },
-  "asia/china/asia-china-hohhot": {
+  "asia/china/as-chn-hohhot": {
     "city": "Hohhot",
     "country": "China",
     "wikidata": "Q20688234",
-    "map_file": "maps/asia/china/asia-china-hohhot.svg",
+    "map_file": "maps/asia/china/as-chn-hohhot.svg",
     "commons_file": "File:Hohhot Metro Linemap.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Hohhot_Metro_Linemap.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yveltal"
   },
-  "asia/china/asia-china-jinhua": {
+  "asia/china/as-chn-jinhua": {
     "city": "Jinhua",
     "country": "China",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/china/asia-china-taiyuan": {
+  "asia/china/as-chn-taiyuan": {
     "city": "Taiyuan",
     "country": "China",
     "wikidata": "Q10941073",
-    "map_file": "maps/asia/china/asia-china-taiyuan.svg",
+    "map_file": "maps/asia/china/as-chn-taiyuan.svg",
     "commons_file": "File:Taiyuan Metro System Map 2025.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Taiyuan_Metro_System_Map_2025.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Kmchang28"
   },
-  "asia/china/asia-china-luoyang": {
+  "asia/china/as-chn-luoyang": {
     "city": "Luoyang",
     "country": "China",
     "wikidata": "Q11146236",
-    "map_file": "maps/asia/china/asia-china-luoyang.png",
+    "map_file": "maps/asia/china/as-chn-luoyang.png",
     "commons_file": "File:System Map of Luoyang Metro.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/99/System_Map_of_Luoyang_Metro.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Windmemories"
   },
-  "asia/china/asia-china-shaoxing": {
+  "asia/china/as-chn-shaoxing": {
     "city": "Shaoxing",
     "country": "China",
     "wikidata": "Q20063952",
-    "map_file": "maps/asia/china/asia-china-shaoxing.svg",
+    "map_file": "maps/asia/china/as-chn-shaoxing.svg",
     "commons_file": "File:Shaoxing Metro Simplified Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Shaoxing_Metro_Simplified_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "刻晴"
   },
-  "asia/china/asia-china-wenzhou": {
+  "asia/china/as-chn-wenzhou": {
     "city": "Wenzhou",
     "country": "China",
     "wikidata": "Q15906197",
-    "map_file": "maps/asia/china/asia-china-wenzhou.svg",
+    "map_file": "maps/asia/china/as-chn-wenzhou.svg",
     "commons_file": "File:Wenzhou Metro Planning.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Wenzhou_Metro_Planning.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yveltal"
   },
-  "asia/china/asia-china-foshan": {
+  "asia/china/as-chn-foshan": {
     "city": "Foshan",
     "country": "China",
     "wikidata": "Q1660094",
     "map_file": null
   },
-  "asia/india/asia-india-pune": {
+  "asia/india/as-ind-pune": {
     "city": "Pune",
     "country": "India",
     "wikidata": "Q3595697",
     "map_file": null
   },
-  "asia/china/asia-china-chongchuan-district": {
+  "asia/china/as-chn-chongchuan-district": {
     "city": "Chongchuan District",
     "country": "China",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/india/asia-india-fafrana": {
+  "asia/india/as-ind-fafrana": {
     "city": "fafrana",
     "country": "India",
     "wikidata": "Q119294099",
     "map_file": null
   },
-  "europe/switzerland/europe-switzerland-lausanne": {
+  "europe/switzerland/eu-sui-lausanne": {
     "city": "Lausanne",
     "country": "Switzerland",
     "wikidata": "Q2394222",
     "map_file": null
   },
-  "asia/philippines/asia-philippines-manila": {
+  "asia/philippines/as-phi-manila": {
     "city": "Manila",
     "country": "Philippines",
     "wikidata": "Q4165317",
     "map_file": null
   },
-  "europe/russia/europe-russia-samara": {
+  "europe/russia/eu-rus-samara": {
     "city": "Samara",
     "country": "Russia",
     "wikidata": "Q2106",
-    "map_file": "maps/europe/russia/europe-russia-samara.png",
+    "map_file": "maps/europe/russia/eu-rus-samara.png",
     "commons_file": "File:Перспективная карта метро Самары.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/8/87/%D0%9F%D0%B5%D1%80%D1%81%D0%BF%D0%B5%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%B0%D1%8F_%D0%BA%D0%B0%D1%80%D1%82%D0%B0_%D0%BC%D0%B5%D1%82%D1%80%D0%BE_%D0%A1%D0%B0%D0%BC%D0%B0%D1%80%D1%8B.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Maxim Norkus"
   },
-  "europe/united-kingdom/europe-united-kingdom-glasgow": {
+  "europe/united-kingdom/eu-gbr-glasgow": {
     "city": "Glasgow",
     "country": "United Kingdom",
     "wikidata": "Q7622046",
     "map_file": null
   },
-  "europe/spain/europe-spain-seville": {
+  "europe/spain/eu-esp-seville": {
     "city": "Seville",
     "country": "Spain",
     "wikidata": "Q2519355",
-    "map_file": "maps/europe/spain/europe-spain-seville.svg",
+    "map_file": "maps/europe/spain/eu-esp-seville.svg",
     "commons_file": "File:Milano - mappa metropolitana M3.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Milano_-_mappa_metropolitana_M3.svg",
     "license": "CC BY-SA 2.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
     "artist": "ArbaleteOpenStreetMap contributors"
   },
-  "africa/algeria/africa-algeria-algiers": {
+  "africa/algeria/af-alg-algiers": {
     "city": "Algiers",
     "country": "Algeria",
     "wikidata": "Q728045",
     "map_file": null
   },
-  "europe/italy/europe-italy-genoa": {
+  "europe/italy/eu-ita-genoa": {
     "city": "Genoa",
     "country": "Italy",
     "wikidata": "Q399445",
     "map_file": null
   },
-  "europe/italy/europe-italy-turin": {
+  "europe/italy/eu-ita-turin": {
     "city": "Turin",
     "country": "Italy",
     "wikidata": "Q976981",
     "map_file": null
   },
-  "asia/armenia/asia-armenia-yerevan": {
+  "asia/armenia/as-arm-yerevan": {
     "city": "Yerevan",
     "country": "Armenia",
     "wikidata": "Q320337",
     "map_file": null
   },
-  "europe/russia/europe-russia-kazan": {
+  "europe/russia/eu-rus-kazan": {
     "city": "Kazan",
     "country": "Russia",
     "wikidata": "Q494079",
-    "map_file": "maps/europe/russia/europe-russia-kazan.jpg",
+    "map_file": "maps/europe/russia/eu-rus-kazan.jpg",
     "commons_file": "File:Схема-метро-а3-scaled.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/%D0%A1%D1%85%D0%B5%D0%BC%D0%B0-%D0%BC%D0%B5%D1%82%D1%80%D0%BE-%D0%B03-scaled.jpg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "МУП МетроЭлектроТранс"
   },
-  "europe/ukraine/europe-ukraine-dnipro": {
+  "europe/ukraine/eu-ukr-dnipro": {
     "city": "Dnipro",
     "country": "Ukraine",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/saudi-arabia/asia-saudi-arabia-makkah-region": {
+  "asia/saudi-arabia/as-ksa-makkah-region": {
     "city": "Makkah Region",
     "country": "Saudi Arabia",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-baltimore": {
+  "americas/united-states/am-usa-baltimore": {
     "city": "Baltimore",
     "country": "United States",
     "wikidata": "Q805751",
     "map_file": null
   },
-  "asia/taiwan/asia-taiwan-new-taipei": {
+  "asia/taiwan/as-twn-new-taipei": {
     "city": "New Taipei",
     "country": "Taiwan",
     "wikidata": "Q714810",
-    "map_file": "maps/asia/taiwan/asia-taiwan-new-taipei.png",
+    "map_file": "maps/asia/taiwan/as-twn-new-taipei.png",
     "commons_file": "File:Taipei Metro official map optimised.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Taipei_Metro_official_map_optimised.png",
     "license": "Attribution",
     "license_url": null,
     "artist": "Own work derived from that of Taipei Rapid Transit Corporation"
   },
-  "europe/italy/europe-italy-palestrina": {
+  "europe/italy/eu-ita-palestrina": {
     "city": "Palestrina",
     "country": "Italy",
     "wikidata": null,
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-puerto-nuevo": {
+  "americas/united-states/am-usa-puerto-nuevo": {
     "city": "Puerto Nuevo",
     "country": "United States",
     "wikidata": "Q21400436",
     "map_file": null
   },
-  "asia/turkey/asia-turkey-izmir": {
+  "asia/turkey/as-tur-izmir": {
     "city": "İzmir",
     "country": "Turkey",
     "wikidata": null,
     "map_file": null
   },
-  "europe/austria/europe-austria-bezirk-landeck": {
+  "europe/austria/eu-aut-bezirk-landeck": {
     "city": "Bezirk Landeck",
     "country": "Austria",
     "wikidata": "Q701311",
-    "map_file": "maps/europe/austria/europe-austria-bezirk-landeck.svg",
+    "map_file": "maps/europe/austria/eu-aut-bezirk-landeck.svg",
     "commons_file": "File:Dorfbahn Serfaus, Netzplan, schematisch.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Dorfbahn_Serfaus%2C_Netzplan%2C_schematisch.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
     "artist": "Siegele Roland"
   },
-  "europe/italy/europe-italy-brescia": {
+  "europe/italy/eu-ita-brescia": {
     "city": "Brescia",
     "country": "Italy",
     "wikidata": "Q109629049",
     "map_file": null
   },
-  "europe/russia/europe-russia-yekaterinburg": {
+  "europe/russia/eu-rus-yekaterinburg": {
     "city": "Yekaterinburg",
     "country": "Russia",
     "wikidata": "Q750441",
     "map_file": null
   },
-  "europe/france/europe-france-meaux": {
+  "europe/france/eu-fra-meaux": {
     "city": "Meaux",
     "country": "France",
     "wikidata": "Q1023114",
-    "map_file": "maps/europe/france/europe-france-meaux.svg",
+    "map_file": "maps/europe/france/eu-fra-meaux.svg",
     "commons_file": "File:Carte Lignes CDGVAL.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Carte_Lignes_CDGVAL.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Chabe01"
   },
-  "asia/japan/asia-japan-ichikawa": {
+  "asia/japan/as-jpn-ichikawa": {
     "city": "Ichikawa",
     "country": "Japan",
     "wikidata": "Q83538",
-    "map_file": "maps/asia/japan/asia-japan-ichikawa.svg",
+    "map_file": "maps/asia/japan/as-jpn-ichikawa.svg",
     "commons_file": "File:Keisei Electric Railway Linemap.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Keisei_Electric_Railway_Linemap.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "ButuCC"
   },
-  "south-america/venezuela/south-america-venezuela-las-lomitas": {
+  "americas/venezuela/am-ven-las-lomitas": {
     "city": "Las Lomitas",
     "country": "Venezuela",
     "wikidata": null,
     "map_file": null
   },
-  "asia/india/asia-india-gurgaon": {
+  "asia/india/as-ind-gurgaon": {
     "city": "Gurgaon",
     "country": "India",
     "wikidata": "Q7294170",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-fortaleza": {
+  "americas/brazil/am-bra-fortaleza": {
     "city": "Fortaleza",
     "country": "Brazil",
     "wikidata": "Q112828528",
     "map_file": null
   },
-  "asia/japan/asia-japan-hiroshima": {
+  "asia/japan/as-jpn-hiroshima": {
     "city": "Hiroshima",
     "country": "Japan",
     "wikidata": "Q389415",
-    "map_file": "maps/asia/japan/asia-japan-hiroshima.png",
+    "map_file": "maps/asia/japan/as-jpn-hiroshima.png",
     "commons_file": "File:Astramline map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Astramline_map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Hisagi"
   },
-  "asia/india/asia-india-jaipur": {
+  "asia/india/as-ind-jaipur": {
     "city": "Jaipur",
     "country": "India",
     "wikidata": "Q6124135",
-    "map_file": "maps/asia/india/asia-india-jaipur.png",
+    "map_file": "maps/asia/india/as-ind-jaipur.png",
     "commons_file": "File:Map of Jaipur Metro created using Inkscape.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/8/84/Map_of_Jaipur_Metro_created_using_Inkscape.png",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "Johnxxx9"
   },
-  "asia/kazakhstan/asia-kazakhstan-almaty": {
+  "asia/kazakhstan/as-kaz-almaty": {
     "city": "Almaty",
     "country": "Kazakhstan",
     "wikidata": "Q484433",
-    "map_file": "maps/asia/kazakhstan/asia-kazakhstan-almaty.svg",
+    "map_file": "maps/asia/kazakhstan/as-kaz-almaty.svg",
     "commons_file": "File:Metro Almaty Linemap 2019.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Metro_Almaty_Linemap_2019.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "Almaty-Metro-Streckenplan_(Linie1).png: A.Burgermeister *SVG work: Pechristener"
   },
-  "unknown/unknown/system": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q24238356",
-    "map_file": null
-  },
-  "asia/iran/asia-iran-karaj": {
+  "asia/iran/as-iri-karaj": {
     "city": "Karaj",
     "country": "Iran",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "unknown/unknown/shiraz-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q2607679",
-    "map_file": null
-  },
-  "asia/iran/asia-iran-shiraz": {
+  "asia/iran/as-iri-shiraz": {
     "city": "Shiraz",
     "country": "Iran",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "europe/greece/europe-greece-thessaloniki": {
+  "europe/greece/eu-gre-thessaloniki": {
     "city": "Thessaloniki",
     "country": "Greece",
     "wikidata": "Q1326567",
-    "map_file": "maps/europe/greece/europe-greece-thessaloniki.svg",
+    "map_file": "maps/europe/greece/eu-gre-thessaloniki.svg",
     "commons_file": "File:Thessaloniki Metro Topographic Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Thessaloniki_Metro_Topographic_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Philly boy92"
   },
-  "unknown/unknown/tabriz-metro": {
-    "city": null,
-    "country": null,
-    "wikidata": "Q5964315",
-    "map_file": "maps/unknown/unknown/tabriz-metro.png",
-    "commons_file": "File:Tabriz Metro map-geo.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Tabriz_Metro_map-geo.png",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    "artist": "Nima Farid"
-  },
-  "asia/japan/asia-japan-yachiyo": {
+  "asia/japan/as-jpn-yachiyo": {
     "city": "Yachiyo",
     "country": "Japan",
     "wikidata": null,
     "map_file": null
   },
-  "europe/italy/europe-italy-catania": {
+  "europe/italy/eu-ita-catania": {
     "city": "Catania",
     "country": "Italy",
     "wikidata": "Q20108050",
     "map_file": null
   },
-  "asia/japan/asia-japan-kawaguchi": {
+  "asia/japan/as-jpn-kawaguchi": {
     "city": "Kawaguchi",
     "country": "Japan",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/south-korea/asia-south-korea-daejeon": {
+  "asia/south-korea/as-kor-daejeon": {
     "city": "Daejeon",
     "country": "South Korea",
     "wikidata": "Q624200",
-    "map_file": "maps/asia/south-korea/asia-south-korea-daejeon.svg",
+    "map_file": "maps/asia/south-korea/as-kor-daejeon.svg",
     "commons_file": "File:Daejeon Metro routemap.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Daejeon_Metro_routemap.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Mliu92"
   },
-  "north-america/united-states/north-america-united-states-cleveland": {
+  "americas/united-states/am-usa-cleveland": {
     "city": "Cleveland",
     "country": "United States",
     "wikidata": "Q9687",
     "map_file": null
   },
-  "asia/india/asia-india-kochi": {
+  "asia/india/as-ind-kochi": {
     "city": "Kochi",
     "country": "India",
     "wikidata": "Q3522910",
-    "map_file": "maps/asia/india/asia-india-kochi.png",
+    "map_file": "maps/asia/india/as-ind-kochi.png",
     "commons_file": "File:Kochi-metro-route-map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Kochi-metro-route-map.png",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "Arjuncm3"
   },
-  "asia/turkey/asia-turkey-adana": {
+  "asia/turkey/as-tur-adana": {
     "city": "Adana",
     "country": "Turkey",
     "wikidata": "Q1577356",
-    "map_file": "maps/asia/turkey/asia-turkey-adana.png",
+    "map_file": "maps/asia/turkey/as-tur-adana.png",
     "commons_file": "File:Metro map Adana.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Metro_map_Adana.png",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "R1410"
   },
-  "asia/india/asia-india-thane": {
+  "asia/india/as-ind-thane": {
     "city": "Thane",
     "country": "India",
     "wikidata": "Q646414",
     "map_file": null
   },
-  "asia/india/asia-india-lucknow": {
+  "asia/india/as-ind-lucknow": {
     "city": "Lucknow",
     "country": "India",
     "wikidata": "Q6697779",
-    "map_file": "maps/asia/india/asia-india-lucknow.svg",
+    "map_file": "maps/asia/india/as-ind-lucknow.svg",
     "commons_file": "File:Lucknow Metro Route Map (Tentative).svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Lucknow_Metro_Route_Map_%28Tentative%29.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Wikiboy2364 (original)"
   },
-  "oceania/australia/oceania-australia-sydney": {
+  "oceania/australia/oc-aus-sydney": {
     "city": "Sydney",
     "country": "Australia",
     "wikidata": "Q14774571",
-    "map_file": "maps/oceania/australia/oceania-australia-sydney.svg",
+    "map_file": "maps/oceania/australia/oc-aus-sydney.svg",
     "commons_file": "File:Map of Sydney Metro.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_of_Sydney_Metro.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "strata8"
   },
-  "asia/india/asia-india-noida": {
+  "asia/india/as-ind-noida": {
     "city": "Noida",
     "country": "India",
     "wikidata": "Q16909221",
     "map_file": null
   },
-  "asia/japan/asia-japan-matsudo": {
+  "asia/japan/as-jpn-matsudo": {
     "city": "Matsudo",
     "country": "Japan",
     "wikidata": null,
     "map_file": null
   },
-  "south-america/ecuador/south-america-ecuador-quito": {
+  "americas/ecuador/am-ecu-quito": {
     "city": "Quito",
     "country": "Ecuador",
     "wikidata": "Q160236",
     "map_file": null
   },
-  "asia/taiwan/asia-taiwan-taichung": {
+  "asia/taiwan/as-twn-taichung": {
     "city": "Taichung",
     "country": "Taiwan",
     "wikidata": "Q5972247",
     "map_file": null
   },
-  "north-america/mexico/north-america-mexico-guadalajara": {
+  "americas/mexico/am-mex-guadalajara": {
     "city": "Guadalajara",
     "country": "Mexico",
     "wikidata": "Q42894086",
     "map_file": null
   },
-  "asia/pakistan/asia-pakistan-lahore": {
+  "asia/pakistan/as-pak-lahore": {
     "city": "Lahore",
     "country": "Pakistan",
     "wikidata": "Q3029878",
-    "map_file": "maps/asia/pakistan/asia-pakistan-lahore.svg",
+    "map_file": "maps/asia/pakistan/as-pak-lahore.svg",
     "commons_file": "File:Lahore Metro System Map.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/Lahore_Metro_System_Map.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Painjet"
   },
-  "asia/vietnam/asia-vietnam-ho-chi-minh-city": {
+  "asia/vietnam/as-vie-ho-chi-minh-city": {
     "city": "Ho Chi Minh City",
     "country": "Vietnam",
     "wikidata": "Q2198304",
     "map_file": null
   },
-  "asia/china/asia-china-taizhou": {
+  "asia/china/as-chn-taizhou": {
     "city": "Taizhou",
     "country": "China",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "asia/japan/asia-japan-suginami": {
+  "asia/japan/as-jpn-suginami": {
     "city": "Suginami",
     "country": "Japan",
     "wikidata": null,
     "map_file": null
   },
-  "asia/japan/asia-japan-tokorozawa": {
+  "asia/japan/as-jpn-tokorozawa": {
     "city": "Tokorozawa",
     "country": "Japan",
     "wikidata": "Q2288948",
     "map_file": null
   },
-  "asia/south-korea/asia-south-korea-gwangju": {
+  "asia/south-korea/as-kor-gwangju": {
     "city": "Gwangju",
     "country": "South Korea",
     "wikidata": "Q495335",
-    "map_file": "maps/asia/south-korea/asia-south-korea-gwangju.svg",
+    "map_file": "maps/asia/south-korea/as-kor-gwangju.svg",
     "commons_file": "File:Gwangju subway.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Gwangju_subway.svg",
     "license": "CC BY-SA 3.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
     "artist": "Laura Sun"
   },
-  "asia/india/asia-india-kanpur": {
+  "asia/india/as-ind-kanpur": {
     "city": "Kanpur",
     "country": "India",
     "wikidata": "Q17063873",
-    "map_file": "maps/asia/india/asia-india-kanpur.png",
+    "map_file": "maps/asia/india/as-ind-kanpur.png",
     "commons_file": "File:Kanpur Metro.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Kanpur_Metro.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Dilip kabiraj"
   },
-  "asia/bangladesh/asia-bangladesh-dhaka": {
+  "asia/bangladesh/as-ban-dhaka": {
     "city": "Dhaka",
     "country": "Bangladesh",
     "wikidata": "Q5268740",
-    "map_file": "maps/asia/bangladesh/asia-bangladesh-dhaka.svg",
+    "map_file": "maps/asia/bangladesh/as-ban-dhaka.svg",
     "commons_file": "File:Dhaka MRT Network (en).svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Dhaka_MRT_Network_%28en%29.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Tanvir Anjum Adib"
   },
-  "africa/nigeria/africa-nigeria-lagos": {
+  "africa/nigeria/af-ngr-lagos": {
     "city": "Lagos",
     "country": "Nigeria",
     "wikidata": "Q1287549",
-    "map_file": "maps/africa/nigeria/africa-nigeria-lagos.jpg",
+    "map_file": "maps/africa/nigeria/af-ngr-lagos.jpg",
     "commons_file": "File:2lineslagos2.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/2lineslagos2.jpg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "FrankvEck"
   },
-  "asia/china/asia-china-chuzhou": {
+  "asia/china/as-chn-chuzhou": {
     "city": "Chuzhou",
     "country": "China",
     "wikidata": "Q24238356",
     "map_file": null
   },
-  "north-america/united-states/north-america-united-states-honolulu": {
+  "americas/united-states/am-usa-honolulu": {
     "city": "Honolulu",
     "country": "United States",
     "wikidata": "Q487704",
     "map_file": null
   },
-  "asia/india/asia-india-agra": {
+  "asia/india/as-ind-agra": {
     "city": "Agra",
     "country": "India",
     "wikidata": "Q24088780",
-    "map_file": "maps/asia/india/asia-india-agra.jpg",
+    "map_file": "maps/asia/india/as-ind-agra.jpg",
     "commons_file": "File:AgraMetraRouteMap.jpg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/AgraMetraRouteMap.jpg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yellow alligator"
   },
-  "asia/india/asia-india-navi-mumbai": {
+  "asia/india/as-ind-navi-mumbai": {
     "city": "Navi Mumbai",
     "country": "India",
     "wikidata": "Q4503146",
-    "map_file": "maps/asia/india/asia-india-navi-mumbai.png",
+    "map_file": "maps/asia/india/as-ind-navi-mumbai.png",
     "commons_file": "File:Navi Mumbai Metro Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/94/Navi_Mumbai_Metro_Map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yellow alligator"
   },
-  "asia/india/asia-india-meerut": {
+  "asia/india/as-ind-meerut": {
     "city": "Meerut",
     "country": "India",
     "wikidata": "Q28170016",
     "map_file": null
   },
-  "asia/india/asia-india-indore": {
+  "asia/india/as-ind-indore": {
     "city": "Indore",
     "country": "India",
     "wikidata": "Q17056449",
-    "map_file": "maps/asia/india/asia-india-indore.png",
+    "map_file": "maps/asia/india/as-ind-indore.png",
     "commons_file": "File:Indore Metro.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Indore_Metro.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Dilip kabiraj"
   },
-  "asia/india/asia-india-mumbai-zone-2": {
+  "asia/india/as-ind-mumbai-zone-2": {
     "city": "Mumbai Zone 2",
     "country": "India",
     "wikidata": "Q15697080",
     "map_file": null
   },
-  "south-america/colombia/south-america-colombia-bogota": {
+  "americas/colombia/am-col-bogota": {
     "city": "Bogota",
     "country": "Colombia",
     "wikidata": "Q3750760",
     "map_file": null
   },
-  "asia/india/asia-india-patna": {
+  "asia/india/as-ind-patna": {
     "city": "Patna",
     "country": "India",
     "wikidata": "Q7145108",
-    "map_file": "maps/asia/india/asia-india-patna.png",
+    "map_file": "maps/asia/india/as-ind-patna.png",
     "commons_file": "File:Patna Metro Detailed Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Patna_Metro_Detailed_Map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yellow alligator"
   },
-  "asia/india/asia-india-bhopal": {
+  "asia/india/as-ind-bhopal": {
     "city": "Bhopal",
     "country": "India",
     "wikidata": "Q4902010",
-    "map_file": "maps/asia/india/asia-india-bhopal.png",
+    "map_file": "maps/asia/india/as-ind-bhopal.png",
     "commons_file": "File:BHOJ METRO Route Map.png",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/BHOJ_METRO_Route_Map.png",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Nitin maity"
   },
-  "asia/south-korea/asia-south-korea-jincheon-eup": {
+  "asia/south-korea/as-kor-jincheon-eup": {
     "city": "Jincheon-eup",
     "country": "South Korea",
     "wikidata": "Q18169",
     "map_file": null
   },
-  "oceania/australia/oceania-australia-perth": {
+  "oceania/australia/oc-aus-perth": {
     "city": "Perth",
     "country": "Australia",
     "wikidata": "Q1503488",
     "map_file": null
   },
-  "south-america/brazil/south-america-brazil-piracuruca": {
+  "americas/brazil/am-bra-piracuruca": {
     "city": "Piracuruca",
     "country": "Brazil",
     "wikidata": null,
     "map_file": null
   },
-  "europe/belgium/europe-belgium-antwerp": {
+  "europe/belgium/eu-bel-antwerp": {
     "city": "Antwerp",
     "country": "Belgium",
     "wikidata": "Q12481761",
     "map_file": null
   },
-  "asia/japan/asia-japan-kanazawa": {
+  "asia/japan/as-jpn-kanazawa": {
     "city": "Kanazawa",
     "country": "Japan",
     "wikidata": "Q11647548",
     "map_file": null
   },
-  "asia/india/asia-india-amroli": {
+  "asia/india/as-ind-amroli": {
     "city": "Amroli",
     "country": "India",
     "wikidata": "Q7645442",
     "map_file": null
   },
-  "asia/india/asia-india-majura-taluka": {
+  "asia/india/as-ind-majura-taluka": {
     "city": "Majura Taluka",
     "country": "India",
     "wikidata": null,
     "map_file": null
   },
-  "asia/india/asia-india-sachin": {
+  "asia/india/as-ind-sachin": {
     "city": "Sachin",
     "country": "India",
     "wikidata": "Q41661713",
     "map_file": null
   },
-  "asia/china/asia-china-baohe-district": {
+  "asia/china/as-chn-baohe-district": {
     "city": "Baohe District",
     "country": "China",
     "wikidata": null,
     "map_file": null
   },
-  "asia/china/asia-china-chenghua-district": {
+  "asia/china/as-chn-chenghua-district": {
     "city": "Chenghua District",
     "country": "China",
     "wikidata": null,
     "map_file": null
   },
-  "south-america/ecuador/south-america-ecuador-guayaquil": {
+  "americas/ecuador/am-ecu-guayaquil": {
     "city": "Guayaquil",
     "country": "Ecuador",
     "wikidata": null,
     "map_file": null
   },
-  "south-america/venezuela/south-america-venezuela-valencia": {
+  "americas/venezuela/am-ven-valencia": {
     "city": "Valencia",
     "country": "Venezuela",
     "wikidata": "Q511171",
-    "map_file": "maps/south-america/venezuela/south-america-venezuela-valencia.svg",
+    "map_file": "maps/americas/venezuela/am-ven-valencia.svg",
     "commons_file": "File:Mapa metrovalencia.svg",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Mapa_metrovalencia.svg",
     "license": "FAL",
     "license_url": "http://artlibre.org/licence/lal/en",
     "artist": "FGV"
   },
-  "asia/israel/asia-israel-ramat-gan": {
+  "asia/israel/as-isr-ramat-gan": {
     "city": "Ramat Gan",
     "country": "Israel",
     "wikidata": "Q104787839",
     "map_file": null
   },
-  "asia/pakistan/asia-pakistan-blue-area": {
+  "asia/pakistan/as-pak-blue-area": {
     "city": "Blue Area",
     "country": "Pakistan",
     "wikidata": null,
