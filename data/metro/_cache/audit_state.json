@@ -48,7 +48,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.622Z"
+    "audited_at": "2026-07-10T08:31:28.789Z"
   },
   "Buenos Aires|Argentina": {
     "strategies_tried": [],
@@ -101,7 +101,7 @@
     "warnings": [
       "1 條線站序可疑（路徑長 > 1.6× MST）：Tren Universitario 1.69×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T07:56:59.623Z"
+    "audited_at": "2026-07-10T08:31:28.791Z"
   },
   "Yerevan|Armenia": {
     "strategies_tried": [],
@@ -152,7 +152,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.624Z"
+    "audited_at": "2026-07-10T08:31:28.791Z"
   },
   "Sydney|Australia": {
     "strategies_tried": [],
@@ -167,46 +167,45 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "30 lines",
+        "detail": "6 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "170 stations",
+        "detail": "78 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_high",
         "ok": false,
-        "detail": "站數偏多：OSM 170 vs Wikipedia 21（比值 8.10），多營運商合併或含輕軌，需人工判定",
+        "detail": "站數偏多：OSM 78 vs Wikipedia 21（比值 3.71），多營運商合併或含輕軌，需人工判定",
         "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "170/170 站皆有所屬路線",
+        "detail": "78/78 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "170/170 站有名稱",
+        "detail": "78/78 站有名稱",
         "level": "warn"
       },
       {
         "id": "station_order",
-        "ok": false,
-        "detail": "7 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×、Bybanen til Fyllingsdalen, deltrinn 1 1.85×、Bybanen til Fyllingsdalen 2.3×、Princess Nora bint Abdul Rahman University Automated People Mover 1.62×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+        "ok": true,
+        "detail": "所有線路站序合理",
         "level": "warn"
       }
     ],
     "reasons": [],
     "warnings": [
-      "站數偏多：OSM 170 vs Wikipedia 21（比值 8.10），多營運商合併或含輕軌，需人工判定",
-      "7 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×、Bybanen til Fyllingsdalen, deltrinn 1 1.85×、Bybanen til Fyllingsdalen 2.3×、Princess Nora bint Abdul Rahman University Automated People Mover 1.62×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
+      "站數偏多：OSM 78 vs Wikipedia 21（比值 3.71），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.625Z"
+    "audited_at": "2026-07-10T08:31:28.792Z"
   },
   "Vienna|Austria": {
     "strategies_tried": [],
@@ -257,7 +256,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.628Z"
+    "audited_at": "2026-07-10T08:31:28.793Z"
   },
   "Baku|Azerbaijan": {
     "strategies_tried": [],
@@ -308,7 +307,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.628Z"
+    "audited_at": "2026-07-10T08:31:28.794Z"
   },
   "Dhaka|Bangladesh": {
     "strategies_tried": [],
@@ -359,7 +358,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.629Z"
+    "audited_at": "2026-07-10T08:31:28.795Z"
   },
   "Minsk|Belarus": {
     "strategies_tried": [],
@@ -410,7 +409,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.630Z"
+    "audited_at": "2026-07-10T08:31:28.795Z"
   },
   "Brussels|Belgium": {
     "strategies_tried": [],
@@ -461,7 +460,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.631Z"
+    "audited_at": "2026-07-10T08:31:28.798Z"
   },
   "Belo Horizonte|Brazil": {
     "strategies_tried": [],
@@ -512,7 +511,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.631Z"
+    "audited_at": "2026-07-10T08:31:28.800Z"
   },
   "Brasília|Brazil": {
     "strategies_tried": [],
@@ -563,7 +562,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.632Z"
+    "audited_at": "2026-07-10T08:31:28.801Z"
   },
   "Fortaleza|Brazil": {
     "strategies_tried": [],
@@ -616,7 +615,7 @@
     "warnings": [
       "站數偏多：OSM 41 vs Wikipedia 20（比值 2.05），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.633Z"
+    "audited_at": "2026-07-10T08:31:28.802Z"
   },
   "Porto Alegre|Brazil": {
     "strategies_tried": [],
@@ -667,7 +666,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.633Z"
+    "audited_at": "2026-07-10T08:31:28.802Z"
   },
   "Recife|Brazil": {
     "strategies_tried": [],
@@ -718,7 +717,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.634Z"
+    "audited_at": "2026-07-10T08:31:28.803Z"
   },
   "Rio de Janeiro|Brazil": {
     "strategies_tried": [],
@@ -733,31 +732,31 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "10 lines",
+        "detail": "7 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "112 stations",
+        "detail": "80 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_high",
         "ok": false,
-        "detail": "站數偏多：OSM 112 vs Wikipedia 41（比值 2.73），多營運商合併或含輕軌，需人工判定",
+        "detail": "站數偏多：OSM 80 vs Wikipedia 41（比值 1.95），多營運商合併或含輕軌，需人工判定",
         "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "112/112 站皆有所屬路線",
+        "detail": "80/80 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "100/112 站有名稱",
+        "detail": "68/80 站有名稱",
         "level": "warn"
       },
       {
@@ -769,9 +768,9 @@
     ],
     "reasons": [],
     "warnings": [
-      "站數偏多：OSM 112 vs Wikipedia 41（比值 2.73），多營運商合併或含輕軌，需人工判定"
+      "站數偏多：OSM 80 vs Wikipedia 41（比值 1.95），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.634Z"
+    "audited_at": "2026-07-10T08:31:28.803Z"
   },
   "Salvador|Brazil": {
     "strategies_tried": [],
@@ -822,7 +821,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.635Z"
+    "audited_at": "2026-07-10T08:31:28.804Z"
   },
   "São Paulo|Brazil": {
     "strategies_tried": [],
@@ -873,7 +872,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.635Z"
+    "audited_at": "2026-07-10T08:31:28.805Z"
   },
   "Sofia|Bulgaria": {
     "strategies_tried": [],
@@ -924,7 +923,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.636Z"
+    "audited_at": "2026-07-10T08:31:28.805Z"
   },
   "Montreal|Canada": {
     "strategies_tried": [],
@@ -975,7 +974,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.636Z"
+    "audited_at": "2026-07-10T08:31:28.806Z"
   },
   "Toronto|Canada": {
     "strategies_tried": [],
@@ -1026,7 +1025,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.637Z"
+    "audited_at": "2026-07-10T08:31:28.810Z"
   },
   "Vancouver|Canada": {
     "strategies_tried": [],
@@ -1077,7 +1076,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.637Z"
+    "audited_at": "2026-07-10T08:31:28.810Z"
   },
   "Santiago|Chile": {
     "strategies_tried": [],
@@ -1128,7 +1127,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.638Z"
+    "audited_at": "2026-07-10T08:31:28.811Z"
   },
   "Beijing|China": {
     "strategies_tried": [],
@@ -1179,7 +1178,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.639Z"
+    "audited_at": "2026-07-10T08:31:28.812Z"
   },
   "Changchun|China": {
     "strategies_tried": [],
@@ -1230,7 +1229,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.640Z"
+    "audited_at": "2026-07-10T08:31:28.813Z"
   },
   "Changsha|China": {
     "strategies_tried": [],
@@ -1281,7 +1280,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.640Z"
+    "audited_at": "2026-07-10T08:31:28.813Z"
   },
   "Changzhou|China": {
     "strategies_tried": [],
@@ -1332,7 +1331,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.641Z"
+    "audited_at": "2026-07-10T08:31:28.814Z"
   },
   "Chengdu|China": {
     "strategies_tried": [],
@@ -1383,7 +1382,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.642Z"
+    "audited_at": "2026-07-10T08:31:28.815Z"
   },
   "Chongqing|China": {
     "strategies_tried": [],
@@ -1434,7 +1433,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.643Z"
+    "audited_at": "2026-07-10T08:31:28.816Z"
   },
   "Dalian|China": {
     "strategies_tried": [],
@@ -1485,7 +1484,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.644Z"
+    "audited_at": "2026-07-10T08:31:28.816Z"
   },
   "Dongguan|China": {
     "strategies_tried": [],
@@ -1536,7 +1535,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.644Z"
+    "audited_at": "2026-07-10T08:31:28.817Z"
   },
   "Foshan|China": {
     "strategies_tried": [],
@@ -1587,7 +1586,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.645Z"
+    "audited_at": "2026-07-10T08:31:28.818Z"
   },
   "Fuzhou|China": {
     "strategies_tried": [],
@@ -1638,7 +1637,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.645Z"
+    "audited_at": "2026-07-10T08:31:28.818Z"
   },
   "Guangzhou|China": {
     "strategies_tried": [],
@@ -1689,7 +1688,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.646Z"
+    "audited_at": "2026-07-10T08:31:28.819Z"
   },
   "Guiyang|China": {
     "strategies_tried": [],
@@ -1704,31 +1703,31 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "3 lines",
+        "detail": "5 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "65 stations",
+        "detail": "93 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 65 vs Wikipedia 82（比值 0.79）",
+        "detail": "OSM 93 vs Wikipedia 82（比值 1.13）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "65/65 站皆有所屬路線",
+        "detail": "93/93 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "65/65 站有名稱",
+        "detail": "93/93 站有名稱",
         "level": "warn"
       },
       {
@@ -1740,7 +1739,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.647Z"
+    "audited_at": "2026-07-10T08:31:28.820Z"
   },
   "Hangzhou|China": {
     "strategies_tried": [],
@@ -1791,7 +1790,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.648Z"
+    "audited_at": "2026-07-10T08:31:28.821Z"
   },
   "Harbin|China": {
     "strategies_tried": [],
@@ -1842,7 +1841,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.648Z"
+    "audited_at": "2026-07-10T08:31:28.822Z"
   },
   "Hefei|China": {
     "strategies_tried": [],
@@ -1893,7 +1892,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.649Z"
+    "audited_at": "2026-07-10T08:31:28.822Z"
   },
   "Hohhot|China": {
     "strategies_tried": [],
@@ -1944,7 +1943,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.650Z"
+    "audited_at": "2026-07-10T08:31:28.823Z"
   },
   "Hong Kong|China": {
     "strategies_tried": [],
@@ -1997,7 +1996,7 @@
     "warnings": [
       "站數偏多：OSM 190 vs Wikipedia 99（比值 1.92），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.650Z"
+    "audited_at": "2026-07-10T08:31:28.824Z"
   },
   "Jinan|China": {
     "strategies_tried": [],
@@ -2048,7 +2047,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.651Z"
+    "audited_at": "2026-07-10T08:31:28.825Z"
   },
   "Jinhua|China": {
     "strategies_tried": [],
@@ -2099,7 +2098,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.652Z"
+    "audited_at": "2026-07-10T08:31:28.825Z"
   },
   "Kunming|China": {
     "strategies_tried": [],
@@ -2150,7 +2149,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.652Z"
+    "audited_at": "2026-07-10T08:31:28.826Z"
   },
   "Lanzhou|China": {
     "strategies_tried": [],
@@ -2201,7 +2200,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.653Z"
+    "audited_at": "2026-07-10T08:31:28.826Z"
   },
   "Luoyang|China": {
     "strategies_tried": [],
@@ -2252,7 +2251,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.653Z"
+    "audited_at": "2026-07-10T08:31:28.827Z"
   },
   "Macau|China": {
     "strategies_tried": [],
@@ -2303,7 +2302,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.654Z"
+    "audited_at": "2026-07-10T08:31:28.827Z"
   },
   "Nanchang|China": {
     "strategies_tried": [],
@@ -2356,7 +2355,7 @@
     "warnings": [
       "111/133 站有名稱"
     ],
-    "audited_at": "2026-07-10T07:56:59.655Z"
+    "audited_at": "2026-07-10T08:31:28.828Z"
   },
   "Nanjing|China": {
     "strategies_tried": [],
@@ -2407,7 +2406,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.656Z"
+    "audited_at": "2026-07-10T08:31:28.829Z"
   },
   "Nanning|China": {
     "strategies_tried": [],
@@ -2458,7 +2457,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.656Z"
+    "audited_at": "2026-07-10T08:31:28.830Z"
   },
   "Nantong|China": {
     "strategies_tried": [],
@@ -2511,7 +2510,7 @@
     "warnings": [
       "43/53 站有名稱"
     ],
-    "audited_at": "2026-07-10T07:56:59.657Z"
+    "audited_at": "2026-07-10T08:31:28.830Z"
   },
   "Ningbo|China": {
     "strategies_tried": [],
@@ -2562,7 +2561,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.657Z"
+    "audited_at": "2026-07-10T08:31:28.831Z"
   },
   "Qingdao|China": {
     "strategies_tried": [],
@@ -2613,7 +2612,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.658Z"
+    "audited_at": "2026-07-10T08:31:28.833Z"
   },
   "Shanghai|China": {
     "strategies_tried": [],
@@ -2664,7 +2663,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.659Z"
+    "audited_at": "2026-07-10T08:31:28.835Z"
   },
   "Shaoxing|China": {
     "strategies_tried": [],
@@ -2715,7 +2714,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.660Z"
+    "audited_at": "2026-07-10T08:31:28.835Z"
   },
   "Shenyang|China": {
     "strategies_tried": [],
@@ -2766,7 +2765,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.661Z"
+    "audited_at": "2026-07-10T08:31:28.836Z"
   },
   "Shenzhen|China": {
     "strategies_tried": [],
@@ -2817,7 +2816,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.662Z"
+    "audited_at": "2026-07-10T08:31:28.839Z"
   },
   "Shijiazhuang|China": {
     "strategies_tried": [],
@@ -2868,7 +2867,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.662Z"
+    "audited_at": "2026-07-10T08:31:28.842Z"
   },
   "Suzhou|China": {
     "strategies_tried": [],
@@ -2919,7 +2918,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.663Z"
+    "audited_at": "2026-07-10T08:31:28.843Z"
   },
   "Taiyuan|China": {
     "strategies_tried": [],
@@ -2970,7 +2969,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.664Z"
+    "audited_at": "2026-07-10T08:31:28.844Z"
   },
   "Taizhou|China": {
     "strategies_tried": [],
@@ -3021,7 +3020,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.664Z"
+    "audited_at": "2026-07-10T08:31:28.844Z"
   },
   "Tianjin|China": {
     "strategies_tried": [],
@@ -3072,7 +3071,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.665Z"
+    "audited_at": "2026-07-10T08:31:28.845Z"
   },
   "Ürümqi|China": {
     "strategies_tried": [],
@@ -3123,7 +3122,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.666Z"
+    "audited_at": "2026-07-10T08:31:28.846Z"
   },
   "Wenzhou|China": {
     "strategies_tried": [],
@@ -3174,7 +3173,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.667Z"
+    "audited_at": "2026-07-10T08:31:28.847Z"
   },
   "Wuhan|China": {
     "strategies_tried": [],
@@ -3225,33 +3224,69 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.668Z"
+    "audited_at": "2026-07-10T08:31:28.848Z"
   },
   "Wuhu|China": {
     "strategies_tried": [
       "S1",
       "S2",
-      "S3"
+      "S3",
+      "S4"
     ],
     "notes": {
       "S1": "no cached routes within 30 km",
       "S2": "no matching relations within 40 km",
-      "S3": "no matching relations within 80 km"
+      "S3": "no matching relations within 80 km",
+      "S4": "4 new + 0 rebound relations"
     },
-    "passed": false,
+    "passed": true,
     "checks": [
       {
         "id": "system_exists",
-        "ok": false,
-        "detail": "no OSM system matched to this city",
+        "ok": true,
+        "detail": "matched OSM system systems/asia/china/asia-china-wuhu.geojson",
         "level": "error"
+      },
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "35 stations",
+        "level": "error"
+      },
+      {
+        "id": "station_ratio",
+        "ok": true,
+        "detail": "OSM 35 vs Wikipedia 36（比值 0.97）",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "35/35 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "35/35 站有名稱",
+        "level": "warn"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
       }
     ],
-    "reasons": [
-      "OSM 中找不到對應系統（route=subway|light_rail 皆無匹配）"
-    ],
+    "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.670Z"
+    "audited_at": "2026-07-10T08:36:04.252Z"
   },
   "Wuxi|China": {
     "strategies_tried": [],
@@ -3302,7 +3337,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.670Z"
+    "audited_at": "2026-07-10T08:36:04.257Z"
   },
   "Xiamen|China": {
     "strategies_tried": [],
@@ -3353,7 +3388,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.671Z"
+    "audited_at": "2026-07-10T08:36:04.259Z"
   },
   "Xi'an|China": {
     "strategies_tried": [],
@@ -3404,7 +3439,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.672Z"
+    "audited_at": "2026-07-10T08:36:04.262Z"
   },
   "Xuzhou|China": {
     "strategies_tried": [],
@@ -3455,7 +3490,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.673Z"
+    "audited_at": "2026-07-10T08:36:04.262Z"
   },
   "Zhengzhou|China": {
     "strategies_tried": [],
@@ -3506,7 +3541,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.674Z"
+    "audited_at": "2026-07-10T08:36:04.263Z"
   },
   "Medellín|Colombia": {
     "strategies_tried": [],
@@ -3557,7 +3592,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.674Z"
+    "audited_at": "2026-07-10T08:36:04.264Z"
   },
   "Prague|Czech Republic": {
     "strategies_tried": [],
@@ -3608,7 +3643,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.675Z"
+    "audited_at": "2026-07-10T08:36:04.265Z"
   },
   "Prague|Czechia": {
     "strategies_tried": [],
@@ -3659,7 +3694,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.675Z"
+    "audited_at": "2026-07-10T08:36:04.265Z"
   },
   "Copenhagen|Denmark": {
     "strategies_tried": [],
@@ -3712,7 +3747,7 @@
     "warnings": [
       "站數偏多：OSM 130 vs Wikipedia 44（比值 2.95），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.676Z"
+    "audited_at": "2026-07-10T08:36:04.266Z"
   },
   "Santo Domingo|Dominican Republic": {
     "strategies_tried": [],
@@ -3763,7 +3798,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.676Z"
+    "audited_at": "2026-07-10T08:36:04.266Z"
   },
   "Quito|Ecuador": {
     "strategies_tried": [],
@@ -3814,7 +3849,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.677Z"
+    "audited_at": "2026-07-10T08:36:04.267Z"
   },
   "Cairo|Egypt": {
     "strategies_tried": [],
@@ -3865,7 +3900,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.678Z"
+    "audited_at": "2026-07-10T08:36:04.268Z"
   },
   "Helsinki|Finland": {
     "strategies_tried": [],
@@ -3918,7 +3953,7 @@
     "warnings": [
       "站數偏多：OSM 63 vs Wikipedia 30（比值 2.10），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.678Z"
+    "audited_at": "2026-07-10T08:36:04.268Z"
   },
   "Lille|France": {
     "strategies_tried": [],
@@ -3969,7 +4004,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.679Z"
+    "audited_at": "2026-07-10T08:36:04.269Z"
   },
   "Lyon|France": {
     "strategies_tried": [],
@@ -4020,7 +4055,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.680Z"
+    "audited_at": "2026-07-10T08:36:04.270Z"
   },
   "Marseille|France": {
     "strategies_tried": [],
@@ -4071,7 +4106,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.681Z"
+    "audited_at": "2026-07-10T08:36:04.271Z"
   },
   "Paris|France": {
     "strategies_tried": [],
@@ -4122,7 +4157,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.682Z"
+    "audited_at": "2026-07-10T08:36:04.272Z"
   },
   "Rennes|France": {
     "strategies_tried": [],
@@ -4173,7 +4208,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.683Z"
+    "audited_at": "2026-07-10T08:36:04.272Z"
   },
   "Toulouse|France": {
     "strategies_tried": [],
@@ -4224,7 +4259,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.684Z"
+    "audited_at": "2026-07-10T08:36:04.273Z"
   },
   "Tbilisi|Georgia": {
     "strategies_tried": [],
@@ -4275,7 +4310,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.685Z"
+    "audited_at": "2026-07-10T08:36:04.274Z"
   },
   "Berlin|Germany": {
     "strategies_tried": [],
@@ -4328,7 +4363,7 @@
     "warnings": [
       "站數偏多：OSM 405 vs Wikipedia 175（比值 2.31），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.686Z"
+    "audited_at": "2026-07-10T08:36:04.275Z"
   },
   "Hamburg|Germany": {
     "strategies_tried": [],
@@ -4381,7 +4416,7 @@
     "warnings": [
       "站數偏多：OSM 155 vs Wikipedia 93（比值 1.67），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.687Z"
+    "audited_at": "2026-07-10T08:36:04.276Z"
   },
   "Munich|Germany": {
     "strategies_tried": [],
@@ -4432,7 +4467,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.688Z"
+    "audited_at": "2026-07-10T08:36:04.277Z"
   },
   "Nuremberg|Germany": {
     "strategies_tried": [],
@@ -4483,7 +4518,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.689Z"
+    "audited_at": "2026-07-10T08:36:04.277Z"
   },
   "Athens|Greece": {
     "strategies_tried": [],
@@ -4534,7 +4569,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.689Z"
+    "audited_at": "2026-07-10T08:36:04.278Z"
   },
   "Thessaloniki|Greece": {
     "strategies_tried": [],
@@ -4585,7 +4620,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.690Z"
+    "audited_at": "2026-07-10T08:36:04.279Z"
   },
   "Budapest|Hungary": {
     "strategies_tried": [],
@@ -4638,7 +4673,7 @@
     "warnings": [
       "站數偏多：OSM 116 vs Wikipedia 48（比值 2.42），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.691Z"
+    "audited_at": "2026-07-10T08:36:04.280Z"
   },
   "Agra|India": {
     "strategies_tried": [],
@@ -4689,7 +4724,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.692Z"
+    "audited_at": "2026-07-10T08:36:04.280Z"
   },
   "Ahmedabad|India": {
     "strategies_tried": [],
@@ -4740,7 +4775,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.692Z"
+    "audited_at": "2026-07-10T08:36:04.281Z"
   },
   "Bengaluru|India": {
     "strategies_tried": [],
@@ -4791,7 +4826,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.693Z"
+    "audited_at": "2026-07-10T08:36:04.282Z"
   },
   "Bhopal|India": {
     "strategies_tried": [],
@@ -4842,7 +4877,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.694Z"
+    "audited_at": "2026-07-10T08:36:04.283Z"
   },
   "Chennai|India": {
     "strategies_tried": [],
@@ -4893,7 +4928,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.694Z"
+    "audited_at": "2026-07-10T08:36:04.283Z"
   },
   "Delhi|India": {
     "strategies_tried": [],
@@ -4944,7 +4979,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.695Z"
+    "audited_at": "2026-07-10T08:36:04.284Z"
   },
   "Gurgaon|India": {
     "strategies_tried": [],
@@ -4995,7 +5030,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.696Z"
+    "audited_at": "2026-07-10T08:36:04.285Z"
   },
   "Hyderabad|India": {
     "strategies_tried": [],
@@ -5046,7 +5081,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.697Z"
+    "audited_at": "2026-07-10T08:36:04.286Z"
   },
   "Indore|India": {
     "strategies_tried": [],
@@ -5097,7 +5132,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.697Z"
+    "audited_at": "2026-07-10T08:36:04.286Z"
   },
   "Jaipur|India": {
     "strategies_tried": [],
@@ -5148,7 +5183,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.698Z"
+    "audited_at": "2026-07-10T08:36:04.287Z"
   },
   "Kanpur|India": {
     "strategies_tried": [],
@@ -5199,7 +5234,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.699Z"
+    "audited_at": "2026-07-10T08:36:04.288Z"
   },
   "Kochi|India": {
     "strategies_tried": [],
@@ -5250,7 +5285,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.700Z"
+    "audited_at": "2026-07-10T08:36:04.289Z"
   },
   "Kolkata|India": {
     "strategies_tried": [],
@@ -5301,7 +5336,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.700Z"
+    "audited_at": "2026-07-10T08:36:04.290Z"
   },
   "Lucknow|India": {
     "strategies_tried": [],
@@ -5352,7 +5387,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.701Z"
+    "audited_at": "2026-07-10T08:36:04.291Z"
   },
   "Mumbai|India": {
     "strategies_tried": [],
@@ -5403,7 +5438,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.702Z"
+    "audited_at": "2026-07-10T08:36:04.291Z"
   },
   "Meerut|India": {
     "strategies_tried": [],
@@ -5454,7 +5489,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.703Z"
+    "audited_at": "2026-07-10T08:36:04.292Z"
   },
   "Nagpur|India": {
     "strategies_tried": [],
@@ -5505,7 +5540,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.703Z"
+    "audited_at": "2026-07-10T08:36:04.293Z"
   },
   "Navi Mumbai|India": {
     "strategies_tried": [],
@@ -5556,7 +5591,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.704Z"
+    "audited_at": "2026-07-10T08:36:04.294Z"
   },
   "Noida|India": {
     "strategies_tried": [],
@@ -5607,7 +5642,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.707Z"
+    "audited_at": "2026-07-10T08:36:04.294Z"
   },
   "Patna|India": {
     "strategies_tried": [],
@@ -5658,7 +5693,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.707Z"
+    "audited_at": "2026-07-10T08:36:04.295Z"
   },
   "Pune|India": {
     "strategies_tried": [],
@@ -5709,7 +5744,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.708Z"
+    "audited_at": "2026-07-10T08:36:04.296Z"
   },
   "Jakarta|Indonesia": {
     "strategies_tried": [],
@@ -5762,7 +5797,7 @@
     "warnings": [
       "站數偏多：OSM 37 vs Wikipedia 13（比值 2.85），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.709Z"
+    "audited_at": "2026-07-10T08:36:04.297Z"
   },
   "Palembang|Indonesia": {
     "strategies_tried": [],
@@ -5813,7 +5848,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.710Z"
+    "audited_at": "2026-07-10T08:36:04.297Z"
   },
   "Isfahan|Iran": {
     "strategies_tried": [],
@@ -5864,7 +5899,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.711Z"
+    "audited_at": "2026-07-10T08:36:04.298Z"
   },
   "Mashhad|Iran": {
     "strategies_tried": [],
@@ -5915,7 +5950,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.711Z"
+    "audited_at": "2026-07-10T08:36:04.298Z"
   },
   "Shiraz|Iran": {
     "strategies_tried": [],
@@ -5966,7 +6001,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.712Z"
+    "audited_at": "2026-07-10T08:36:04.299Z"
   },
   "Karaj|Iran": {
     "strategies_tried": [],
@@ -6017,7 +6052,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.713Z"
+    "audited_at": "2026-07-10T08:36:04.300Z"
   },
   "Tabriz|Iran": {
     "strategies_tried": [],
@@ -6068,7 +6103,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.714Z"
+    "audited_at": "2026-07-10T08:36:04.301Z"
   },
   "Tehran|Iran": {
     "strategies_tried": [],
@@ -6119,7 +6154,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.715Z"
+    "audited_at": "2026-07-10T08:36:04.301Z"
   },
   "Brescia|Italy": {
     "strategies_tried": [],
@@ -6170,7 +6205,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.716Z"
+    "audited_at": "2026-07-10T08:36:04.302Z"
   },
   "Catania|Italy": {
     "strategies_tried": [],
@@ -6221,7 +6256,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.716Z"
+    "audited_at": "2026-07-10T08:36:04.303Z"
   },
   "Genoa|Italy": {
     "strategies_tried": [],
@@ -6274,7 +6309,7 @@
     "warnings": [
       "站數偏多：OSM 16 vs Wikipedia 8（比值 2.00），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.717Z"
+    "audited_at": "2026-07-10T08:36:04.304Z"
   },
   "Milan|Italy": {
     "strategies_tried": [],
@@ -6325,7 +6360,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.718Z"
+    "audited_at": "2026-07-10T08:36:04.306Z"
   },
   "Naples|Italy": {
     "strategies_tried": [],
@@ -6378,7 +6413,7 @@
     "warnings": [
       "站數偏多：OSM 123 vs Wikipedia 31（比值 3.97），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.719Z"
+    "audited_at": "2026-07-10T08:36:04.307Z"
   },
   "Rome|Italy": {
     "strategies_tried": [],
@@ -6393,43 +6428,46 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "5 lines",
+        "detail": "6 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "99 stations",
+        "detail": "119 stations",
         "level": "error"
       },
       {
-        "id": "station_ratio",
-        "ok": true,
-        "detail": "OSM 99 vs Wikipedia 74（比值 1.34）",
-        "level": "error"
+        "id": "station_ratio_high",
+        "ok": false,
+        "detail": "站數偏多：OSM 119 vs Wikipedia 74（比值 1.61），多營運商合併或含輕軌，需人工判定",
+        "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "99/99 站皆有所屬路線",
+        "detail": "119/119 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "98/99 站有名稱",
+        "detail": "118/119 站有名稱",
         "level": "warn"
       },
       {
         "id": "station_order",
-        "ok": true,
-        "detail": "所有線路站序合理",
+        "ok": false,
+        "detail": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
         "level": "warn"
       }
     ],
     "reasons": [],
-    "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.720Z"
+    "warnings": [
+      "站數偏多：OSM 119 vs Wikipedia 74（比值 1.61），多營運商合併或含輕軌，需人工判定",
+      "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
+    ],
+    "audited_at": "2026-07-10T08:36:04.308Z"
   },
   "Turin|Italy": {
     "strategies_tried": [],
@@ -6480,7 +6518,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.721Z"
+    "audited_at": "2026-07-10T08:36:04.308Z"
   },
   "Chiba Prefecture|Japan": {
     "strategies_tried": [],
@@ -6531,7 +6569,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.722Z"
+    "audited_at": "2026-07-10T08:36:04.309Z"
   },
   "Fukuoka|Japan": {
     "strategies_tried": [],
@@ -6582,7 +6620,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.722Z"
+    "audited_at": "2026-07-10T08:36:04.310Z"
   },
   "Hiroshima|Japan": {
     "strategies_tried": [],
@@ -6633,7 +6671,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.724Z"
+    "audited_at": "2026-07-10T08:36:04.313Z"
   },
   "Kobe|Japan": {
     "strategies_tried": [],
@@ -6686,7 +6724,7 @@
     "warnings": [
       "1 條線站序可疑（路徑長 > 1.6× MST）：Port Liner 1.63×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T07:56:59.724Z"
+    "audited_at": "2026-07-10T08:36:04.313Z"
   },
   "Kyoto|Japan": {
     "strategies_tried": [],
@@ -6737,7 +6775,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.725Z"
+    "audited_at": "2026-07-10T08:36:04.314Z"
   },
   "Nagoya|Japan": {
     "strategies_tried": [],
@@ -6788,7 +6826,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.726Z"
+    "audited_at": "2026-07-10T08:36:04.315Z"
   },
   "Osaka|Japan": {
     "strategies_tried": [],
@@ -6839,7 +6877,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.727Z"
+    "audited_at": "2026-07-10T08:36:04.316Z"
   },
   "Saitama Prefecture|Japan": {
     "strategies_tried": [],
@@ -6854,31 +6892,31 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "17 lines",
+        "detail": "2 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "55 stations",
+        "detail": "21 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_high",
         "ok": false,
-        "detail": "站數偏多：OSM 55 vs Wikipedia 13（比值 4.23），多營運商合併或含輕軌，需人工判定",
+        "detail": "站數偏多：OSM 21 vs Wikipedia 13（比值 1.62），多營運商合併或含輕軌，需人工判定",
         "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "55/55 站皆有所屬路線",
+        "detail": "21/21 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "55/55 站有名稱",
+        "detail": "21/21 站有名稱",
         "level": "warn"
       },
       {
@@ -6890,9 +6928,9 @@
     ],
     "reasons": [],
     "warnings": [
-      "站數偏多：OSM 55 vs Wikipedia 13（比值 4.23），多營運商合併或含輕軌，需人工判定"
+      "站數偏多：OSM 21 vs Wikipedia 13（比值 1.62），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.729Z"
+    "audited_at": "2026-07-10T08:36:04.316Z"
   },
   "Sapporo|Japan": {
     "strategies_tried": [],
@@ -6943,7 +6981,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.730Z"
+    "audited_at": "2026-07-10T08:36:04.317Z"
   },
   "Sendai|Japan": {
     "strategies_tried": [],
@@ -6994,7 +7032,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.731Z"
+    "audited_at": "2026-07-10T08:36:04.318Z"
   },
   "Tokyo|Japan": {
     "strategies_tried": [],
@@ -7009,46 +7047,45 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "28 lines",
+        "detail": "19 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "266 stations",
+        "detail": "265 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_high",
         "ok": false,
-        "detail": "站數偏多：OSM 266 vs Wikipedia 99（比值 2.69），多營運商合併或含輕軌，需人工判定",
+        "detail": "站數偏多：OSM 265 vs Wikipedia 99（比值 2.68），多營運商合併或含輕軌，需人工判定",
         "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "266/266 站皆有所屬路線",
+        "detail": "265/265 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "266/266 站有名稱",
+        "detail": "265/265 站有名稱",
         "level": "warn"
       },
       {
         "id": "station_order",
-        "ok": false,
-        "detail": "3 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Skytree Bypass Line (Hibiya, North->South) 1.85×、Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North) 1.83×、Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya) 1.64×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+        "ok": true,
+        "detail": "所有線路站序合理",
         "level": "warn"
       }
     ],
     "reasons": [],
     "warnings": [
-      "站數偏多：OSM 266 vs Wikipedia 99（比值 2.69），多營運商合併或含輕軌，需人工判定",
-      "3 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Skytree Bypass Line (Hibiya, North->South) 1.85×、Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North) 1.83×、Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya) 1.64×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
+      "站數偏多：OSM 265 vs Wikipedia 99（比值 2.68），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.732Z"
+    "audited_at": "2026-07-10T08:36:04.319Z"
   },
   "Yokohama|Japan": {
     "strategies_tried": [],
@@ -7063,46 +7100,46 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "7 lines",
+        "detail": "6 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "69 stations",
+        "detail": "68 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_high",
         "ok": false,
-        "detail": "站數偏多：OSM 69 vs Wikipedia 40（比值 1.73），多營運商合併或含輕軌，需人工判定",
+        "detail": "站數偏多：OSM 68 vs Wikipedia 40（比值 1.70），多營運商合併或含輕軌，需人工判定",
         "level": "warn"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "69/69 站皆有所屬路線",
+        "detail": "68/68 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "68/69 站有名稱",
+        "detail": "67/68 站有名稱",
         "level": "warn"
       },
       {
         "id": "station_order",
         "ok": false,
-        "detail": "2 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Odawara Bypass Line (southbound) 1.79×、Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound) 1.94×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+        "detail": "1 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Odawara Express Line (northbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
         "level": "warn"
       }
     ],
     "reasons": [],
     "warnings": [
-      "站數偏多：OSM 69 vs Wikipedia 40（比值 1.73），多營運商合併或含輕軌，需人工判定",
-      "2 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Odawara Bypass Line (southbound) 1.79×、Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound) 1.94×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
+      "站數偏多：OSM 68 vs Wikipedia 40（比值 1.70），多營運商合併或含輕軌，需人工判定",
+      "1 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Odawara Express Line (northbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T07:56:59.734Z"
+    "audited_at": "2026-07-10T08:36:04.320Z"
   },
   "Almaty|Kazakhstan": {
     "strategies_tried": [],
@@ -7153,7 +7190,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.735Z"
+    "audited_at": "2026-07-10T08:36:04.321Z"
   },
   "Astana|Kazakhstan": {
     "strategies_tried": [],
@@ -7204,7 +7241,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.736Z"
+    "audited_at": "2026-07-10T08:36:04.322Z"
   },
   "Pyongyang|North Korea": {
     "strategies_tried": [],
@@ -7255,7 +7292,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.737Z"
+    "audited_at": "2026-07-10T08:36:04.323Z"
   },
   "Busan|South Korea": {
     "strategies_tried": [],
@@ -7306,7 +7343,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.738Z"
+    "audited_at": "2026-07-10T08:36:04.323Z"
   },
   "Daegu|South Korea": {
     "strategies_tried": [],
@@ -7357,7 +7394,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.739Z"
+    "audited_at": "2026-07-10T08:36:04.324Z"
   },
   "Daejeon|South Korea": {
     "strategies_tried": [],
@@ -7408,7 +7445,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.740Z"
+    "audited_at": "2026-07-10T08:36:04.325Z"
   },
   "Gimpo|South Korea": {
     "strategies_tried": [],
@@ -7459,7 +7496,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.741Z"
+    "audited_at": "2026-07-10T08:36:04.326Z"
   },
   "Gwangju|South Korea": {
     "strategies_tried": [],
@@ -7510,7 +7547,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.741Z"
+    "audited_at": "2026-07-10T08:36:04.326Z"
   },
   "Incheon|South Korea": {
     "strategies_tried": [],
@@ -7561,7 +7598,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.744Z"
+    "audited_at": "2026-07-10T08:36:04.327Z"
   },
   "Seoul|South Korea": {
     "strategies_tried": [],
@@ -7612,7 +7649,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.746Z"
+    "audited_at": "2026-07-10T08:36:04.329Z"
   },
   "Kuala Lumpur|Malaysia": {
     "strategies_tried": [],
@@ -7663,7 +7700,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.747Z"
+    "audited_at": "2026-07-10T08:36:04.330Z"
   },
   "Guadalajara|Mexico": {
     "strategies_tried": [],
@@ -7716,7 +7753,7 @@
     "warnings": [
       "站數偏多：OSM 86 vs Wikipedia 28（比值 3.07），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:56:59.748Z"
+    "audited_at": "2026-07-10T08:36:04.331Z"
   },
   "Mexico City|Mexico": {
     "strategies_tried": [],
@@ -7767,7 +7804,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.749Z"
+    "audited_at": "2026-07-10T08:36:04.332Z"
   },
   "Monterrey|Mexico": {
     "strategies_tried": [],
@@ -7820,7 +7857,7 @@
     "warnings": [
       "39/59 站有名稱"
     ],
-    "audited_at": "2026-07-10T07:56:59.750Z"
+    "audited_at": "2026-07-10T08:36:04.333Z"
   },
   "Amsterdam|Netherlands": {
     "strategies_tried": [],
@@ -7871,7 +7908,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.751Z"
+    "audited_at": "2026-07-10T08:36:04.334Z"
   },
   "Rotterdam|Netherlands": {
     "strategies_tried": [],
@@ -7922,7 +7959,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:56:59.752Z"
+    "audited_at": "2026-07-10T08:36:04.334Z"
   },
   "Lagos|Nigeria": {
     "strategies_tried": [
@@ -7982,7 +8019,7 @@
       "站數偏少：OSM 5 vs Wikipedia 13（比值 0.38）"
     ],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.395Z"
+    "audited_at": "2026-07-10T08:36:08.026Z"
   },
   "Oslo|Norway": {
     "strategies_tried": [],
@@ -8033,7 +8070,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.397Z"
+    "audited_at": "2026-07-10T08:36:08.027Z"
   },
   "Lahore|Pakistan": {
     "strategies_tried": [],
@@ -8084,7 +8121,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.402Z"
+    "audited_at": "2026-07-10T08:36:08.028Z"
   },
   "Panama City|Panama": {
     "strategies_tried": [],
@@ -8135,7 +8172,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.405Z"
+    "audited_at": "2026-07-10T08:36:08.029Z"
   },
   "Lima|Peru": {
     "strategies_tried": [],
@@ -8186,7 +8223,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.406Z"
+    "audited_at": "2026-07-10T08:36:08.030Z"
   },
   "Manila|Philippines": {
     "strategies_tried": [],
@@ -8237,7 +8274,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.407Z"
+    "audited_at": "2026-07-10T08:36:08.031Z"
   },
   "Warsaw|Poland": {
     "strategies_tried": [],
@@ -8288,7 +8325,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.408Z"
+    "audited_at": "2026-07-10T08:36:08.032Z"
   },
   "Lisbon|Portugal": {
     "strategies_tried": [],
@@ -8339,7 +8376,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:03.409Z"
+    "audited_at": "2026-07-10T08:36:08.033Z"
   },
   "Doha|Qatar": {
     "strategies_tried": [
@@ -8401,7 +8438,7 @@
     "warnings": [
       "2 條線站序可疑（路徑長 > 1.6× MST）：Lusaii LRT - Purple Line 1.85×、Lusail Tram Orange Line: Legtaifiya → Al Yasmeen → Legtaifiya 1.64×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T07:57:06.975Z"
+    "audited_at": "2026-07-10T08:36:11.764Z"
   },
   "Bucharest|Romania": {
     "strategies_tried": [],
@@ -8452,7 +8489,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:06.976Z"
+    "audited_at": "2026-07-10T08:36:11.765Z"
   },
   "Kazan|Russia": {
     "strategies_tried": [],
@@ -8503,7 +8540,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:06.977Z"
+    "audited_at": "2026-07-10T08:36:11.766Z"
   },
   "Moscow|Russia": {
     "strategies_tried": [],
@@ -8554,7 +8591,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:06.978Z"
+    "audited_at": "2026-07-10T08:36:11.768Z"
   },
   "Nizhny Novgorod|Russia": {
     "strategies_tried": [],
@@ -8605,7 +8642,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:06.979Z"
+    "audited_at": "2026-07-10T08:36:11.772Z"
   },
   "Novosibirsk|Russia": {
     "strategies_tried": [],
@@ -8656,7 +8693,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:06.980Z"
+    "audited_at": "2026-07-10T08:36:11.773Z"
   },
   "Saint Petersburg|Russia": {
     "strategies_tried": [],
@@ -8707,7 +8744,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:06.981Z"
+    "audited_at": "2026-07-10T08:36:11.774Z"
   },
   "Samara|Russia": {
     "strategies_tried": [
@@ -8767,7 +8804,7 @@
       "站數偏少：OSM 3 vs Wikipedia 10（比值 0.30）"
     ],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.952Z"
+    "audited_at": "2026-07-10T08:36:15.441Z"
   },
   "Yekaterinburg|Russia": {
     "strategies_tried": [],
@@ -8818,7 +8855,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.954Z"
+    "audited_at": "2026-07-10T08:36:15.442Z"
   },
   "Mecca|Saudi Arabia": {
     "strategies_tried": [],
@@ -8869,7 +8906,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.955Z"
+    "audited_at": "2026-07-10T08:36:15.443Z"
   },
   "Riyadh|Saudi Arabia": {
     "strategies_tried": [],
@@ -8920,7 +8957,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.958Z"
+    "audited_at": "2026-07-10T08:36:15.444Z"
   },
   "Singapore|Singapore": {
     "strategies_tried": [],
@@ -8971,7 +9008,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.959Z"
+    "audited_at": "2026-07-10T08:36:15.445Z"
   },
   "Barcelona|Spain": {
     "strategies_tried": [],
@@ -9022,7 +9059,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.960Z"
+    "audited_at": "2026-07-10T08:36:15.447Z"
   },
   "Bilbao|Spain": {
     "strategies_tried": [],
@@ -9073,7 +9110,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.961Z"
+    "audited_at": "2026-07-10T08:36:15.447Z"
   },
   "Madrid|Spain": {
     "strategies_tried": [],
@@ -9124,7 +9161,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.962Z"
+    "audited_at": "2026-07-10T08:36:15.449Z"
   },
   "Stockholm|Sweden": {
     "strategies_tried": [],
@@ -9175,7 +9212,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.964Z"
+    "audited_at": "2026-07-10T08:36:15.450Z"
   },
   "Lausanne|Switzerland": {
     "strategies_tried": [],
@@ -9228,7 +9265,7 @@
     "warnings": [
       "站數偏多：OSM 27 vs Wikipedia 14（比值 1.93），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:10.966Z"
+    "audited_at": "2026-07-10T08:36:15.451Z"
   },
   "Kaohsiung|Taiwan": {
     "strategies_tried": [],
@@ -9281,7 +9318,7 @@
     "warnings": [
       "站數偏多：OSM 67 vs Wikipedia 38（比值 1.76），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:10.967Z"
+    "audited_at": "2026-07-10T08:36:15.452Z"
   },
   "New Taipei|Taiwan": {
     "strategies_tried": [],
@@ -9332,7 +9369,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.968Z"
+    "audited_at": "2026-07-10T08:36:15.453Z"
   },
   "Taipei|Taiwan": {
     "strategies_tried": [],
@@ -9383,7 +9420,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.970Z"
+    "audited_at": "2026-07-10T08:36:15.454Z"
   },
   "Taichung|Taiwan": {
     "strategies_tried": [],
@@ -9434,7 +9471,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.971Z"
+    "audited_at": "2026-07-10T08:36:15.455Z"
   },
   "Taoyuan|Taiwan": {
     "strategies_tried": [],
@@ -9485,7 +9522,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.972Z"
+    "audited_at": "2026-07-10T08:36:15.456Z"
   },
   "Bangkok|Thailand": {
     "strategies_tried": [],
@@ -9538,7 +9575,7 @@
     "warnings": [
       "站數偏多：OSM 112 vs Wikipedia 64（比值 1.75），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:10.973Z"
+    "audited_at": "2026-07-10T08:36:15.458Z"
   },
   "Adana|Turkey": {
     "strategies_tried": [],
@@ -9589,7 +9626,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.974Z"
+    "audited_at": "2026-07-10T08:36:15.459Z"
   },
   "Ankara|Turkey": {
     "strategies_tried": [],
@@ -9640,7 +9677,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.975Z"
+    "audited_at": "2026-07-10T08:36:15.460Z"
   },
   "Bursa|Turkey": {
     "strategies_tried": [],
@@ -9691,7 +9728,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.975Z"
+    "audited_at": "2026-07-10T08:36:15.461Z"
   },
   "Istanbul|Turkey": {
     "strategies_tried": [],
@@ -9744,7 +9781,7 @@
     "warnings": [
       "161/221 站有名稱"
     ],
-    "audited_at": "2026-07-10T07:57:10.977Z"
+    "audited_at": "2026-07-10T08:36:15.462Z"
   },
   "İzmir|Turkey": {
     "strategies_tried": [],
@@ -9795,7 +9832,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.977Z"
+    "audited_at": "2026-07-10T08:36:15.463Z"
   },
   "Dnipro|Ukraine": {
     "strategies_tried": [],
@@ -9846,7 +9883,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.979Z"
+    "audited_at": "2026-07-10T08:36:15.465Z"
   },
   "Kharkiv|Ukraine": {
     "strategies_tried": [],
@@ -9897,7 +9934,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.985Z"
+    "audited_at": "2026-07-10T08:36:15.467Z"
   },
   "Kyiv|Ukraine": {
     "strategies_tried": [],
@@ -9948,7 +9985,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.987Z"
+    "audited_at": "2026-07-10T08:36:15.468Z"
   },
   "Dubai|United Arab Emirates": {
     "strategies_tried": [],
@@ -9999,7 +10036,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.988Z"
+    "audited_at": "2026-07-10T08:36:15.469Z"
   },
   "Glasgow|United Kingdom": {
     "strategies_tried": [],
@@ -10050,7 +10087,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.988Z"
+    "audited_at": "2026-07-10T08:36:15.470Z"
   },
   "London|United Kingdom": {
     "strategies_tried": [],
@@ -10101,7 +10138,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.990Z"
+    "audited_at": "2026-07-10T08:36:15.471Z"
   },
   "Atlanta|United States": {
     "strategies_tried": [],
@@ -10152,7 +10189,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:10.991Z"
+    "audited_at": "2026-07-10T08:36:15.472Z"
   },
   "Baltimore|United States": {
     "strategies_tried": [],
@@ -10205,7 +10242,7 @@
     "warnings": [
       "站數偏多：OSM 45 vs Wikipedia 14（比值 3.21），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:10.992Z"
+    "audited_at": "2026-07-10T08:36:15.473Z"
   },
   "Boston|United States": {
     "strategies_tried": [],
@@ -10258,7 +10295,7 @@
     "warnings": [
       "站數偏多：OSM 115 vs Wikipedia 52（比值 2.21），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:10.997Z"
+    "audited_at": "2026-07-10T08:36:15.474Z"
   },
   "Chicago|United States": {
     "strategies_tried": [],
@@ -10309,7 +10346,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.000Z"
+    "audited_at": "2026-07-10T08:36:15.475Z"
   },
   "Cleveland|United States": {
     "strategies_tried": [],
@@ -10362,7 +10399,7 @@
     "warnings": [
       "站數偏多：OSM 50 vs Wikipedia 18（比值 2.78），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:11.001Z"
+    "audited_at": "2026-07-10T08:36:15.477Z"
   },
   "Honolulu|United States": {
     "strategies_tried": [],
@@ -10413,7 +10450,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.002Z"
+    "audited_at": "2026-07-10T08:36:15.477Z"
   },
   "Los Angeles|United States": {
     "strategies_tried": [],
@@ -10466,7 +10503,7 @@
     "warnings": [
       "站數偏多：OSM 112 vs Wikipedia 19（比值 5.89），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:11.003Z"
+    "audited_at": "2026-07-10T08:36:15.478Z"
   },
   "Miami|United States": {
     "strategies_tried": [],
@@ -10517,7 +10554,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.004Z"
+    "audited_at": "2026-07-10T08:36:15.479Z"
   },
   "New York City|United States": {
     "strategies_tried": [],
@@ -10532,31 +10569,31 @@
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "44 lines",
+        "detail": "38 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "529 stations",
+        "detail": "468 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 529 vs Wikipedia 424（比值 1.25）",
+        "detail": "OSM 468 vs Wikipedia 424（比值 1.10）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "529/529 站皆有所屬路線",
+        "detail": "468/468 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "529/529 站有名稱",
+        "detail": "468/468 站有名稱",
         "level": "warn"
       },
       {
@@ -10570,7 +10607,7 @@
     "warnings": [
       "2 條線站序可疑（路徑長 > 1.6× MST）：Jamaica Station Route 1.86×、Howard Beach Route 1.79×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T07:57:11.006Z"
+    "audited_at": "2026-07-10T08:36:15.482Z"
   },
   "Philadelphia|United States": {
     "strategies_tried": [],
@@ -10623,7 +10660,7 @@
     "warnings": [
       "站數偏多：OSM 93 vs Wikipedia 53（比值 1.75），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:11.007Z"
+    "audited_at": "2026-07-10T08:36:15.483Z"
   },
   "San Francisco (Bay Area)|United States": {
     "strategies_tried": [],
@@ -10676,7 +10713,7 @@
     "warnings": [
       "站數偏多：OSM 215 vs Wikipedia 47（比值 4.57），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T07:57:11.013Z"
+    "audited_at": "2026-07-10T08:36:15.484Z"
   },
   "Washington, D.C.|United States": {
     "strategies_tried": [],
@@ -10727,7 +10764,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.015Z"
+    "audited_at": "2026-07-10T08:36:15.485Z"
   },
   "San Juan|United States": {
     "strategies_tried": [],
@@ -10778,7 +10815,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.015Z"
+    "audited_at": "2026-07-10T08:36:15.486Z"
   },
   "Tashkent|Uzbekistan": {
     "strategies_tried": [],
@@ -10829,7 +10866,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.016Z"
+    "audited_at": "2026-07-10T08:36:15.488Z"
   },
   "Caracas|Venezuela": {
     "strategies_tried": [],
@@ -10880,7 +10917,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.017Z"
+    "audited_at": "2026-07-10T08:36:15.489Z"
   },
   "Maracaibo|Venezuela": {
     "strategies_tried": [],
@@ -10931,7 +10968,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.018Z"
+    "audited_at": "2026-07-10T08:36:15.490Z"
   },
   "Valencia|Venezuela": {
     "strategies_tried": [],
@@ -10982,7 +11019,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.021Z"
+    "audited_at": "2026-07-10T08:36:15.491Z"
   },
   "Hanoi|Vietnam": {
     "strategies_tried": [],
@@ -11033,7 +11070,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.023Z"
+    "audited_at": "2026-07-10T08:36:15.492Z"
   },
   "Ho Chi Minh City|Vietnam": {
     "strategies_tried": [],
@@ -11084,7 +11121,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.029Z"
+    "audited_at": "2026-07-10T08:36:15.493Z"
   },
   "Stuttgart|Germany": {
     "strategies_tried": [],
@@ -11123,7 +11160,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.031Z"
+    "audited_at": "2026-07-10T08:36:15.495Z"
   },
   "Bad Wildbad|Germany": {
     "strategies_tried": [],
@@ -11162,7 +11199,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.033Z"
+    "audited_at": "2026-07-10T08:36:15.496Z"
   },
   "Dusseldorf|Germany": {
     "strategies_tried": [],
@@ -11201,7 +11238,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.034Z"
+    "audited_at": "2026-07-10T08:36:15.497Z"
   },
   "Xirivella|Spain": {
     "strategies_tried": [],
@@ -11240,7 +11277,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.035Z"
+    "audited_at": "2026-07-10T08:36:15.498Z"
   },
   "Yangon City|Myanmar": {
     "strategies_tried": [],
@@ -11279,7 +11316,46 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.041Z"
+    "audited_at": "2026-07-10T08:36:15.499Z"
+  },
+  "Trenton|United States": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "61 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "61/61 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "61/61 站有名稱",
+        "level": "warn"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T08:36:15.500Z"
   },
   "Denver|United States": {
     "strategies_tried": [],
@@ -11318,7 +11394,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.042Z"
+    "audited_at": "2026-07-10T08:36:15.501Z"
   },
   "Porto|Portugal": {
     "strategies_tried": [],
@@ -11357,7 +11433,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.043Z"
+    "audited_at": "2026-07-10T08:36:15.502Z"
   },
   "Bielefeld|Germany": {
     "strategies_tried": [],
@@ -11396,7 +11472,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.044Z"
+    "audited_at": "2026-07-10T08:36:15.503Z"
   },
   "Sidi Hassine|Tunisia": {
     "strategies_tried": [],
@@ -11435,7 +11511,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.045Z"
+    "audited_at": "2026-07-10T08:36:15.505Z"
   },
   "Minneapolis|United States": {
     "strategies_tried": [],
@@ -11474,7 +11550,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.046Z"
+    "audited_at": "2026-07-10T08:36:15.506Z"
   },
   "Charleroi|Belgium": {
     "strategies_tried": [],
@@ -11513,7 +11589,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.052Z"
+    "audited_at": "2026-07-10T08:36:15.507Z"
   },
   "San Diego|United States": {
     "strategies_tried": [],
@@ -11552,7 +11628,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.053Z"
+    "audited_at": "2026-07-10T08:36:15.508Z"
   },
   "Miller County|United States": {
     "strategies_tried": [],
@@ -11591,7 +11667,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.054Z"
+    "audited_at": "2026-07-10T08:36:15.510Z"
   },
   "Pforzheim|Germany": {
     "strategies_tried": [],
@@ -11630,7 +11706,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.055Z"
+    "audited_at": "2026-07-10T08:36:15.516Z"
   },
   "Taylorsville|United States": {
     "strategies_tried": [],
@@ -11669,7 +11745,46 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.056Z"
+    "audited_at": "2026-07-10T08:36:15.517Z"
+  },
+  "Água Preta|Brazil": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "32 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "32/32 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "32/32 站有名稱",
+        "level": "warn"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-10T08:36:15.518Z"
   },
   "Caldas de Reis|Spain": {
     "strategies_tried": [],
@@ -11708,7 +11823,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.057Z"
+    "audited_at": "2026-07-10T08:36:15.519Z"
   },
   "Edmonton|Canada": {
     "strategies_tried": [],
@@ -11747,7 +11862,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.058Z"
+    "audited_at": "2026-07-10T08:36:15.520Z"
   },
   "Sacramento|United States": {
     "strategies_tried": [],
@@ -11786,7 +11901,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.064Z"
+    "audited_at": "2026-07-10T08:36:15.521Z"
   },
   "San Jose|United States": {
     "strategies_tried": [],
@@ -11825,7 +11940,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.065Z"
+    "audited_at": "2026-07-10T08:36:15.523Z"
   },
   "Pittsburgh|United States": {
     "strategies_tried": [],
@@ -11864,7 +11979,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.067Z"
+    "audited_at": "2026-07-10T08:36:15.524Z"
   },
   "Phoenix|United States": {
     "strategies_tried": [],
@@ -11903,7 +12018,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.068Z"
+    "audited_at": "2026-07-10T08:36:15.525Z"
   },
   "Paradise|United States": {
     "strategies_tried": [],
@@ -11942,7 +12057,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.069Z"
+    "audited_at": "2026-07-10T08:36:15.526Z"
   },
   "Ottawa|Canada": {
     "strategies_tried": [],
@@ -11981,7 +12096,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.071Z"
+    "audited_at": "2026-07-10T08:36:15.527Z"
   },
   "Derince|Turkey": {
     "strategies_tried": [],
@@ -12020,7 +12135,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.077Z"
+    "audited_at": "2026-07-10T08:36:15.528Z"
   },
   "Ratingen|Germany": {
     "strategies_tried": [],
@@ -12059,7 +12174,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.079Z"
+    "audited_at": "2026-07-10T08:36:15.529Z"
   },
   "Essen|Germany": {
     "strategies_tried": [],
@@ -12098,7 +12213,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.080Z"
+    "audited_at": "2026-07-10T08:36:15.530Z"
   },
   "South Tyneside|United Kingdom": {
     "strategies_tried": [],
@@ -12137,7 +12252,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.081Z"
+    "audited_at": "2026-07-10T08:36:15.531Z"
   },
   "Paùli/Monserrato|Italy": {
     "strategies_tried": [],
@@ -12176,7 +12291,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.082Z"
+    "audited_at": "2026-07-10T08:36:15.532Z"
   },
   "Tunis|Tunisia": {
     "strategies_tried": [],
@@ -12215,7 +12330,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.083Z"
+    "audited_at": "2026-07-10T08:36:15.533Z"
   },
   "Palma de Mallorca|Spain": {
     "strategies_tried": [],
@@ -12254,7 +12369,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.085Z"
+    "audited_at": "2026-07-10T08:36:15.535Z"
   },
   "Краснооктябрьский район|Russia": {
     "strategies_tried": [],
@@ -12293,7 +12408,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.086Z"
+    "audited_at": "2026-07-10T08:36:15.536Z"
   },
   "Calgary|Canada": {
     "strategies_tried": [],
@@ -12332,7 +12447,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.092Z"
+    "audited_at": "2026-07-10T08:36:15.537Z"
   },
   "Málaga|Spain": {
     "strategies_tried": [],
@@ -12371,7 +12486,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.094Z"
+    "audited_at": "2026-07-10T08:36:15.538Z"
   },
   "Lideta|Ethiopia": {
     "strategies_tried": [],
@@ -12410,7 +12525,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.095Z"
+    "audited_at": "2026-07-10T08:36:15.539Z"
   },
   "Tranbjerg|Denmark": {
     "strategies_tried": [],
@@ -12449,7 +12564,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.096Z"
+    "audited_at": "2026-07-10T08:36:15.540Z"
   },
   "Tampere|Finland": {
     "strategies_tried": [],
@@ -12488,7 +12603,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.098Z"
+    "audited_at": "2026-07-10T08:36:15.543Z"
   },
   "Nantes|France": {
     "strategies_tried": [],
@@ -12527,7 +12642,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.103Z"
+    "audited_at": "2026-07-10T08:36:15.544Z"
   },
   "Bochum|Germany": {
     "strategies_tried": [],
@@ -12566,7 +12681,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.105Z"
+    "audited_at": "2026-07-10T08:36:15.545Z"
   },
   "Walzbachtal|Germany": {
     "strategies_tried": [],
@@ -12605,7 +12720,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.106Z"
+    "audited_at": "2026-07-10T08:36:15.546Z"
   },
   "Seville|Spain": {
     "strategies_tried": [],
@@ -12644,7 +12759,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.107Z"
+    "audited_at": "2026-07-10T08:36:15.547Z"
   },
   "Vista|United States": {
     "strategies_tried": [],
@@ -12683,7 +12798,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.108Z"
+    "audited_at": "2026-07-10T08:36:15.549Z"
   },
   "Sabae|Japan": {
     "strategies_tried": [],
@@ -12722,7 +12837,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.110Z"
+    "audited_at": "2026-07-10T08:36:15.550Z"
   },
   "Distrito El Resguardo|Argentina": {
     "strategies_tried": [],
@@ -12761,7 +12876,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.115Z"
+    "audited_at": "2026-07-10T08:36:15.551Z"
   },
   "Küsnacht (ZH)|Switzerland": {
     "strategies_tried": [],
@@ -12800,7 +12915,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.117Z"
+    "audited_at": "2026-07-10T08:36:15.552Z"
   },
   "Bezirk Landeck|Austria": {
     "strategies_tried": [],
@@ -12839,7 +12954,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.118Z"
+    "audited_at": "2026-07-10T08:36:15.553Z"
   },
   "Granada|Spain": {
     "strategies_tried": [],
@@ -12878,7 +12993,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.119Z"
+    "audited_at": "2026-07-10T08:36:15.554Z"
   },
   "Kitchener|Canada": {
     "strategies_tried": [],
@@ -12917,7 +13032,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.121Z"
+    "audited_at": "2026-07-10T08:36:15.556Z"
   },
   "Hamhung-si|North Korea": {
     "strategies_tried": [],
@@ -12956,7 +13071,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.122Z"
+    "audited_at": "2026-07-10T08:36:15.557Z"
   },
   "Norfolk|United States": {
     "strategies_tried": [],
@@ -12995,7 +13110,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.123Z"
+    "audited_at": "2026-07-10T08:36:15.558Z"
   },
   "Chiclana de la Frontera|Spain": {
     "strategies_tried": [],
@@ -13034,7 +13149,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.124Z"
+    "audited_at": "2026-07-10T08:36:15.559Z"
   },
   "Juazeiro do Norte|Brazil": {
     "strategies_tried": [],
@@ -13073,7 +13188,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.125Z"
+    "audited_at": "2026-07-10T08:36:15.560Z"
   },
   "Sanya City|China": {
     "strategies_tried": [],
@@ -13112,7 +13227,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.127Z"
+    "audited_at": "2026-07-10T08:36:15.562Z"
   },
   "Newcastle-Maitland|Australia": {
     "strategies_tried": [],
@@ -13151,7 +13266,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.128Z"
+    "audited_at": "2026-07-10T08:36:15.563Z"
   },
   "Douglas|Isle of Man": {
     "strategies_tried": [],
@@ -13190,7 +13305,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.130Z"
+    "audited_at": "2026-07-10T08:36:15.564Z"
   },
   "Charlotte|United States": {
     "strategies_tried": [],
@@ -13229,7 +13344,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.131Z"
+    "audited_at": "2026-07-10T08:36:15.565Z"
   },
   "District of Gungahlin|Australia": {
     "strategies_tried": [],
@@ -13268,7 +13383,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.132Z"
+    "audited_at": "2026-07-10T08:36:15.566Z"
   },
   "Huai'an District|China": {
     "strategies_tried": [],
@@ -13307,7 +13422,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.133Z"
+    "audited_at": "2026-07-10T08:36:15.571Z"
   },
   "Chuzhou|China": {
     "strategies_tried": [],
@@ -13346,7 +13461,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.134Z"
+    "audited_at": "2026-07-10T08:36:15.572Z"
   },
   "Bogota|Colombia": {
     "strategies_tried": [],
@@ -13385,6 +13500,6 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T07:57:11.136Z"
+    "audited_at": "2026-07-10T08:36:15.574Z"
   }
 }

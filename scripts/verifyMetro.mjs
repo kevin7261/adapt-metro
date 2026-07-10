@@ -2,7 +2,7 @@
 // Wikipedia "List of metro systems" baseline (+ urbanrail.net reference links).
 // Emits a discrepancy report that feeds back into the fetch pipeline (metro-osm-fetch):
 //   data/metro/verify_report.json  (structured)  +  verify_report.md  (human summary)
-// Run after buildGeojson.mjs. See skill metro-data-verify.
+// Run after buildGeojson.mjs. See skill metro-audit.
 import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -32,7 +32,7 @@ const urbanrailSearch = (city) =>
 // Line geometry is the stops connected in OSM relation-member order; a shuffled
 // relation shows up as a path far longer than the minimum spanning tree over
 // the same stops. Flagged lines MUST then be manually confirmed against the
-// line's Wikipedia article and urbanrail.net (see skill metro-data-verify).
+// line's Wikipedia article and urbanrail.net (see skill metro-audit).
 const ORDER_RATIO = 1.6
 const dist = (a, b) => {
   const dx = (a[0] - b[0]) * Math.cos(((a[1] + b[1]) / 2) * Math.PI / 180)
@@ -197,7 +197,7 @@ async function main() {
     JSON.stringify({ summary, flags, extras }, null, 2))
   await writeFile(join(BASE, 'verify_report.md'), toMarkdown(summary, flags, extras))
 
-  console.log('=== metro-data-verify ===')
+  console.log('=== metro-audit ===')
   console.log(summary)
   console.log(`report -> ${join(BASE, 'verify_report.json')} / .md`)
 }

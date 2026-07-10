@@ -178,7 +178,7 @@ const suspectOrder = (f) => {
   return worst > ORDER_RATIO ? +worst.toFixed(2) : 0
 }
 
-// Audit one city. Mirrors the metro-data-verify invariants:
+// Audit one city. Mirrors the metro-audit invariants:
 //   error → fails the audit (missing / zero / no_line / low coverage)
 //   warn  → passes but is surfaced (high count / suspect station order)
 // wikiRow is null for extra (non-baseline) systems.
@@ -328,16 +328,21 @@ async function s1BindCached(city, country, wikiRow) {
   return { changed: true, note: `bound ${unbound.length} cached relations` }
 }
 
-// S2/S3: targeted Overpass fetch around the city.
-async function targetedFetch(city, country, wikiRow, radiusKm, gate) {
+// S2/S3/S4: targeted Overpass fetch around the city.
+// modeRegex defaults to the global scope (subway|light_rail); S4 passes
+// 'monorail' for Wikipedia-baseline cities whose metro is a monorail in OSM
+// (e.g. Wuhu) — the only sanctioned widening, per-city and baseline-only.
+async function targetedFetch(city, country, wikiRow, radiusKm, gate, modeRegex = 'subway|light_rail') {
   const xy = await cityCoords(city, country)
   if (!xy) return { changed: false, note: 'no coordinates for city' }
   const slug = slugify(`${country}-${city}`)
   const around = `(around:${radiusKm * 1000},${xy.lat},${xy.lon})`
+  const modes = `["route"~"^(${modeRegex})$"]`
 
-  const tagQ = `[out:json][timeout:120];relation${MODES}${LIFE}${around};out tags;`
+  const tagQ = `[out:json][timeout:120];relation${modes}${LIFE}${around};out tags;`
   const tags = await overpass.query(tagQ,
-    { cacheName: `gap_probe_${slug}_r${radiusKm}.json`, timeout: 120000, maxAttempts: 4 })
+    { cacheName: `gap_probe_${slug}_r${radiusKm}_${modeRegex.replace(/[^a-z]/g, '')}.json`,
+      timeout: 120000, maxAttempts: 4 })
     .catch(() => null)
   if (!tags) return { changed: false, note: `overpass probe failed (r=${radiusKm}km)` }
 
@@ -382,12 +387,13 @@ async function targetedFetch(city, country, wikiRow, radiusKm, gate) {
       ctx.knownRids.add(e.id)
     }
 
-    // stations for the new lines (subway|light_rail flavoured only)
+    // stations for the new lines (same mode flavours as the route query)
+    const stFlavor = `subway|light_rail${modeRegex.includes('monorail') ? '|monorail' : ''}`
     const stQ = `[out:json][timeout:120];(` +
-      `node["station"~"^(subway|light_rail)$"]${LIFE}${around};` +
+      `node["station"~"^(${stFlavor})$"]${LIFE}${around};` +
       `node["railway"="station"]["subway"="yes"]${LIFE}${around};` +
       `node["railway"="station"]["light_rail"="yes"]${LIFE}${around};` +
-      `way["station"~"^(subway|light_rail)$"]${LIFE}${around};` +
+      `way["station"~"^(${stFlavor})$"]${LIFE}${around};` +
       ');out center;'
     const st = await overpass.query(stQ,
       { cacheName: `gap_stations_${slug}.json`, timeout: 120000, maxAttempts: 4 })
@@ -537,7 +543,9 @@ async function processCity(city, country, wikiRow) {
     // choose next untried strategy for this failure shape
     let strategy = null
     if (!sys) {
-      strategy = ['S1', 'S2', 'S3'].find((s) => !st.strategies_tried.includes(s))
+      // S4 (monorail) only for Wikipedia-baseline cities — see metro-audit skill
+      const ladder = wikiRow ? ['S1', 'S2', 'S3', 'S4'] : ['S1', 'S2', 'S3']
+      strategy = ladder.find((s) => !st.strategies_tried.includes(s))
     } else if (failedIds.has('has_stations') || failedIds.has('station_ratio_low')) {
       if (!wikiRow && sys.station_count === 0 && !st.strategies_tried.includes('Z0'))
         strategy = 'Z0'
@@ -550,6 +558,7 @@ async function processCity(city, country, wikiRow) {
     if (strategy === 'S1') res = await s1BindCached(city, country, wikiRow)
     else if (strategy === 'S2') res = await targetedFetch(city, country, wikiRow, 40, 'token')
     else if (strategy === 'S3') res = await targetedFetch(city, country, wikiRow, 80, 'token')
+    else if (strategy === 'S4') res = await targetedFetch(city, country, wikiRow, 40, 'token', 'monorail')
     else if (strategy === 'Z0') res = await z0MergeNeighbor(sys)
     else if (strategy === 'Z1') res = await z1Stations(city, country, verdict.system_file ?? sys.file)
     else if (strategy === 'Z2') res = await z2DeriveStops(city, country, verdict.system_file ?? sys.file)

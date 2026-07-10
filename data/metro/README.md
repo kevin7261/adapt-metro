@@ -13,11 +13,11 @@
 1. Wikipedia 清單上有的城市不可能沒資料；2. 不可能有車站沒有路線（每站 `lines` ≥ 1）；
 3. 站序必須正確（可疑者由 `verify_report` 標 `order`，逐線人工比對確認）。
 
-> **權威依據（三份 skill）**：
+> **權威依據（兩份 skill，互為 fetch⇄audit 迴圈）**：
 > - 取得：`.claude/skills/metro-osm-fetch/SKILL.md`（OSM 資料 + 反查 + 組檔 + 下載官方路網圖）
-> - 驗證：`.claude/skills/metro-data-verify/SKILL.md`（對照 Wikipedia/urbanrail，產 `verify_report`）
-> - 收斂：`.claude/skills/metro-audit/SKILL.md`（**逐城市** audit⇄修補迴圈，策略階梯自動補抓/綁定，
->   結果嵌入每系統 `metro_system.audit`，前端 Info 面板顯示通過與否及原因）
+> - 驗證與收斂：`.claude/skills/metro-audit/SKILL.md`（**逐城市** audit⇄修補迴圈＋全量
+>   `verify_report`；策略階梯自動補抓/綁定，結果嵌入每系統 `metro_system.audit`，
+>   前端 Info 面板顯示通過與否及原因）
 >
 > 任何重抓/更新都遵循該 skill；改動判準、欄位、命名時需同步更新 skill 與本檔。
 
@@ -50,7 +50,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 | `systems/{洲}/{國}/{洲}-{國}-{城}.geojson` | 每個城市/系統一個檔，依 `continent/country/` 分層存放，例如 `systems/asia/taiwan/asia-taiwan-taipei.geojson`；含該系統的線路+車站，並附系統中繼資料 |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
 | `maps/{洲}/{國}/{洲}-{國}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
-| `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-data-verify` |
+| `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-audit` |
 | `_cache/` | Overpass/Wikipedia 原始回應（可刪，重跑會重抓） |
 
 ## 欄位 (properties)

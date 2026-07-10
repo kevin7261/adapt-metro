@@ -75,6 +75,14 @@ const isOperational = (t = {}) =>
   !('disused' in t) && !('abandoned' in t) &&
   !NONOP_NAME.test(t.name || '') && !NONOP_NAME.test(t['name:en'] || '')
 
+// Through-service overlay relations (直通運転): metro trains continuing onto
+// suburban railways (Tokyo Metro → Tobu/Tokyu …). They duplicate the base
+// metro line and extend deep into non-metro rail, so they are not lines of
+// the metro network itself — the base lines have their own relations.
+const isThroughService = (t = {}) =>
+  /直通運転/.test(t.name || '') ||
+  /through service|bypass line/i.test(`${t['name:en'] || ''} ${t.description || ''}`)
+
 function slugify(s) {
   if (!s) return ''
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '')
@@ -119,12 +127,14 @@ async function build() {
   const routesRaw = await readJSON('routes_tags.json')
   const routesTags = new Map()
   for (const e of routesRaw.elements)
-    if (e.type === 'relation' && isOperational(e.tags)) routesTags.set(e.id, e.tags || {})
+    if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags))
+      routesTags.set(e.id, e.tags || {})
   // gap supplements: extra route relations fetched per-city by auditLoop.mjs
   for (const f of cacheFiles.filter((n) => /^gap_routes_.+\.json$/.test(n))) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
     for (const e of d.elements || [])
-      if (e.type === 'relation' && isOperational(e.tags) && !routesTags.has(e.id))
+      if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags) &&
+          !routesTags.has(e.id))
         routesTags.set(e.id, e.tags || {})
   }
   const ovByRid = await readOverrides()
@@ -176,6 +186,12 @@ async function build() {
     sys: s, nameTok: tokens(s.name), cityTok: tokens(s.city),
   }))
   const geocode = await readGeocode()
+  // country -> continent, learned from the geocoded systems (used to place
+  // coordinate-resolved Unknown-network lines under the right continent dir)
+  const countryContinent = new Map()
+  for (const g of Object.values(geocode))
+    if (g?.country && g?.continent && !countryContinent.has(g.country))
+      countryContinent.set(g.country, g.continent)
   let wikiXY = {}
   try { wikiXY = JSON.parse(await readFile(join(CACHE, 'wiki_city_coords.json'), 'utf8')) }
   catch { /* optional; rebucket-by-distance is skipped without it */ }
@@ -394,15 +410,30 @@ async function build() {
     // Override wins outright: bind these relations to the specified city and
     // pin the bucket (no sanity-check drift, no rebucketing).
     const ov = g.rids.map((r) => ovByRid.get(r)).find(Boolean)
-    let info = ov
-      ? mkInfo({ continent: ov.continent, country: ov.country, city: ov.city }, ov.city)
-      : cityInfo(network, t.network, t.__own)
-    if (ov) pinnedKeys.add(info.key)
+    let info
+    if (ov) {
+      info = mkInfo({ continent: ov.continent, country: ov.country, city: ov.city }, ov.city)
+      pinnedKeys.add(info.key)
+    } else if (network === 'Unknown') {
+      // No network to geocode — resolve each line by its own coordinates.
+      // (One shared "Unknown" bucket would smear worldwide strays into
+      // whichever city its accidental centroid lands near.)
+      let sx = 0, sy = 0, n = 0
+      for (const seq of kept) for (const r of seq) { sx += r.coord[0]; sy += r.coord[1]; n++ }
+      const near = n ? nearestWiki(sy / n, sx / n, null) : null
+      info = near && near.km < 15
+        ? mkInfo({ continent: countryContinent.get(near.sys.country) ?? null,
+            country: near.sys.country, city: near.sys.city }, near.sys.city)
+        : mkInfo({ continent: null, country: null, city: null }, 'unknown')
+    } else {
+      info = cityInfo(network, t.network, t.__own)
+    }
     // 座標為準 sanity check: tags can point at the wrong system city — Pune's
     // lines are operated by Nagpur-shared MahaMetro, Incheon's are tagged as
     // the Seoul network. If the resolved city sits far from the line while a
     // same-country wiki city is at least twice as close, the line lives there.
-    if (!ov) {
+    // (skipped for overrides and coordinate-resolved Unknown-network lines)
+    if (!ov && network !== 'Unknown') {
       let sx = 0, sy = 0, n = 0
       for (const seq of kept) for (const r of seq) { sx += r.coord[0]; sy += r.coord[1]; n++ }
       if (n) {
@@ -571,9 +602,20 @@ async function build() {
     tgt.wikidata = tgt.wikidata || grp.wikidata
     cityGroups.delete(key)
   }
+  // A geographically incoherent pile (strays scattered worldwide) must never
+  // be rebucketed as a whole — its centroid is meaningless.
+  const groupSpreadKm = (grp) => {
+    const c = groupCentroid(grp)
+    if (!c) return 0
+    let m = 0
+    for (const f of grp.lines) for (const seg of f.geometry.coordinates)
+      for (const [lon, lat] of seg) m = Math.max(m, kmDist(c.lat, c.lon, lat, lon))
+    return m
+  }
   for (const [key, grp] of [...cityGroups]) {
     if (pinnedKeys.has(key)) continue  // override-bound buckets never move
     if (isCanon(grp.info)) continue
+    if (groupSpreadKm(grp) > 80) continue  // incoherent stray pile — stays unknown
     let alt = null
     for (const net of grp.networks) {
       if (net === 'Unknown') continue

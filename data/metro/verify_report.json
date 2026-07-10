@@ -2,45 +2,33 @@
   "summary": {
     "generated_against": "Wikipedia: List of metro systems (+ urbanrail.net reference)",
     "wikipedia_systems": 233,
-    "our_systems": 308,
+    "our_systems": 313,
     "matched_ok": 187,
     "flagged": 54,
     "invariant_violations": {
-      "wiki_city_without_data": 1,
+      "wiki_city_without_data": 0,
       "stations_without_line": 0,
       "systems_with_stations_without_line": 0
     },
     "order_suspect_systems": 8,
     "by_severity": {
-      "missing": 1,
+      "missing": 0,
       "no_line": 0,
       "order": 8,
       "zero": 0,
       "low": 3,
-      "high": 42
+      "high": 43
     },
-    "extras": 94
+    "extras": 98
   },
   "flags": [
-    {
-      "severity": "missing",
-      "city": "Wuhu",
-      "country": "China",
-      "system": "Wuhu Rail Transit",
-      "our_stations": null,
-      "wiki_stations": 36,
-      "wiki_length_km": 46.2,
-      "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
-      "wiki_url": "https://en.wikipedia.org/wiki/Wuhu_Rail_Transit",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Wuhu"
-    },
     {
       "severity": "order",
       "city": "New York City",
       "country": "United States",
       "our_file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
-      "our_stations": 529,
-      "our_lines": 44,
+      "our_stations": 468,
+      "our_lines": 38,
       "suspect_lines": [
         {
           "name": "Jamaica Station Route",
@@ -56,11 +44,11 @@
     },
     {
       "severity": "order",
-      "city": "Sydney",
-      "country": "Australia",
-      "our_file": "systems/oceania/australia/oceania-australia-sydney.geojson",
-      "our_stations": 170,
-      "our_lines": 30,
+      "city": null,
+      "country": null,
+      "our_file": "systems/unknown/unknown/unknown.geojson",
+      "our_stations": 43,
+      "our_lines": 21,
       "suspect_lines": [
         {
           "name": "Bybanen til Fyllingsdalen",
@@ -75,10 +63,6 @@
           "ratio": 1.81
         },
         {
-          "name": "Metro D",
-          "ratio": 1.78
-        },
-        {
           "name": "华为松山湖有轨电车2号线",
           "ratio": 1.78
         },
@@ -91,32 +75,8 @@
           "ratio": 1.62
         }
       ],
-      "note": "7 條線站序可疑（路徑長 > 1.6× MST）：Bybanen til Fyllingsdalen 2.3×、Bybanen til Fyllingsdalen, deltrinn 1 1.85×、华为松山湖有轨电车3号线 1.81×、Metro D 1.78×…，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney"
-    },
-    {
-      "severity": "order",
-      "city": "Tokyo",
-      "country": "Japan",
-      "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 266,
-      "our_lines": 28,
-      "suspect_lines": [
-        {
-          "name": "Tokyo Metro - Skytree Bypass Line (Hibiya, North->South)",
-          "ratio": 1.85
-        },
-        {
-          "name": "Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North)",
-          "ratio": 1.83
-        },
-        {
-          "name": "Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya)",
-          "ratio": 1.64
-        }
-      ],
-      "note": "3 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Skytree Bypass Line (Hibiya, North->South) 1.85×、Tokyo Metro - Skytree Bypass Line (Hanzomon, South->North) 1.83×、Tokyo Metro - Denentoshi bypass line (Chuo-Rinkan -> Shibuya) 1.64×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
+      "note": "6 條線站序可疑（路徑長 > 1.6× MST）：Bybanen til Fyllingsdalen 2.3×、Bybanen til Fyllingsdalen, deltrinn 1 1.85×、华为松山湖有轨电车3号线 1.81×、华为松山湖有轨电车2号线 1.78×…，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20"
     },
     {
       "severity": "order",
@@ -136,22 +96,34 @@
     },
     {
       "severity": "order",
+      "city": "Rome",
+      "country": "Italy",
+      "our_file": "systems/europe/italy/europe-italy-rome.geojson",
+      "our_stations": 119,
+      "our_lines": 6,
+      "suspect_lines": [
+        {
+          "name": "Metro D",
+          "ratio": 1.78
+        }
+      ],
+      "note": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.78×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Rome"
+    },
+    {
+      "severity": "order",
       "city": "Yokohama",
       "country": "Japan",
       "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "our_stations": 69,
-      "our_lines": 7,
+      "our_stations": 68,
+      "our_lines": 6,
       "suspect_lines": [
         {
-          "name": "Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound)",
-          "ratio": 1.94
-        },
-        {
-          "name": "Tokyo Metro - Odawara Bypass Line (southbound)",
+          "name": "Tokyo Metro - Odawara Express Line (northbound)",
           "ratio": 1.79
         }
       ],
-      "note": "2 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Mukōgaoka-Yuen Bypass Line (westbound) 1.94×、Tokyo Metro - Odawara Bypass Line (southbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "note": "1 條線站序可疑（路徑長 > 1.6× MST）：Tokyo Metro - Odawara Express Line (northbound) 1.79×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
     },
     {
@@ -276,12 +248,12 @@
       "country": "Japan",
       "system": "Tokyo Metro",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 266,
-      "our_lines": 28,
+      "our_stations": 265,
+      "our_lines": 19,
       "wiki_stations": 142,
       "wiki_length_km": 195.1,
       "ratio": 1.87,
-      "note": "站數偏多（266 vs wiki 142），可能混入輕軌",
+      "note": "站數偏多（265 vs wiki 142），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Tokyo_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -308,12 +280,12 @@
       "country": "Japan",
       "system": "Toei Subway",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 266,
-      "our_lines": 28,
+      "our_stations": 265,
+      "our_lines": 19,
       "wiki_stations": 99,
       "wiki_length_km": 109,
-      "ratio": 2.69,
-      "note": "站數偏多（266 vs wiki 99），可能混入輕軌",
+      "ratio": 2.68,
+      "note": "站數偏多（265 vs wiki 99），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Toei_Subway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -333,6 +305,22 @@
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Hamburg_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Hamburg"
+    },
+    {
+      "severity": "high",
+      "city": "Rome",
+      "country": "Italy",
+      "system": "Rome Metro",
+      "our_file": "systems/europe/italy/europe-italy-rome.geojson",
+      "our_stations": 119,
+      "our_lines": 6,
+      "wiki_stations": 74,
+      "wiki_length_km": 62.5,
+      "ratio": 1.61,
+      "note": "站數偏多（119 vs wiki 74），可能混入輕軌",
+      "has_map": false,
+      "wiki_url": "https://en.wikipedia.org/wiki/Rome_Metro",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Rome"
     },
     {
       "severity": "high",
@@ -452,12 +440,12 @@
       "country": "Brazil",
       "system": "Rio de Janeiro Metro",
       "our_file": "systems/south-america/brazil/south-america-brazil-rio-de-janeiro.geojson",
-      "our_stations": 112,
-      "our_lines": 10,
+      "our_stations": 80,
+      "our_lines": 7,
       "wiki_stations": 41,
       "wiki_length_km": 58,
-      "ratio": 2.73,
-      "note": "站數偏多（112 vs wiki 41），可能混入輕軌",
+      "ratio": 1.95,
+      "note": "站數偏多（80 vs wiki 41），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Rio_de_Janeiro_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Rio%20de%20Janeiro"
@@ -468,12 +456,12 @@
       "country": "Japan",
       "system": "Yokohama Municipal Subway",
       "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "our_stations": 69,
-      "our_lines": 7,
+      "our_stations": 68,
+      "our_lines": 6,
       "wiki_stations": 40,
       "wiki_length_km": 53.4,
-      "ratio": 1.73,
-      "note": "站數偏多（69 vs wiki 40），可能混入輕軌",
+      "ratio": 1.7,
+      "note": "站數偏多（68 vs wiki 40），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Yokohama_Municipal_Subway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
@@ -564,12 +552,12 @@
       "country": "Australia",
       "system": "Sydney Metro",
       "our_file": "systems/oceania/australia/oceania-australia-sydney.geojson",
-      "our_stations": 170,
-      "our_lines": 30,
+      "our_stations": 78,
+      "our_lines": 6,
       "wiki_stations": 21,
       "wiki_length_km": 52,
-      "ratio": 8.1,
-      "note": "站數偏多（170 vs wiki 21），可能混入輕軌",
+      "ratio": 3.71,
+      "note": "站數偏多（78 vs wiki 21），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Sydney_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney"
@@ -580,12 +568,12 @@
       "country": "United States",
       "system": "Staten Island Railway",
       "our_file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
-      "our_stations": 529,
-      "our_lines": 44,
+      "our_stations": 468,
+      "our_lines": 38,
       "wiki_stations": 21,
       "wiki_length_km": 22.5,
-      "ratio": 25.19,
-      "note": "站數偏多（529 vs wiki 21），可能混入輕軌",
+      "ratio": 22.29,
+      "note": "站數偏多（468 vs wiki 21），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Staten_Island_Railway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
@@ -676,12 +664,12 @@
       "country": "Japan",
       "system": "Yurikamome",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 266,
-      "our_lines": 28,
+      "our_stations": 265,
+      "our_lines": 19,
       "wiki_stations": 16,
       "wiki_length_km": 14.7,
-      "ratio": 16.63,
-      "note": "站數偏多（266 vs wiki 16），可能混入輕軌",
+      "ratio": 16.56,
+      "note": "站數偏多（265 vs wiki 16），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Yurikamome",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -708,12 +696,12 @@
       "country": "Japan",
       "system": "Kanazawa Seaside Line",
       "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "our_stations": 69,
-      "our_lines": 7,
+      "our_stations": 68,
+      "our_lines": 6,
       "wiki_stations": 14,
       "wiki_length_km": 10.6,
-      "ratio": 4.93,
-      "note": "站數偏多（69 vs wiki 14），可能混入輕軌",
+      "ratio": 4.86,
+      "note": "站數偏多（68 vs wiki 14），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
@@ -788,12 +776,12 @@
       "country": "Japan",
       "system": "New Shuttle",
       "our_file": "systems/asia/japan/asia-japan-saitama-prefecture.geojson",
-      "our_stations": 55,
-      "our_lines": 17,
+      "our_stations": 21,
+      "our_lines": 2,
       "wiki_stations": 13,
       "wiki_length_km": 12.7,
-      "ratio": 4.23,
-      "note": "站數偏多（55 vs wiki 13），可能混入輕軌",
+      "ratio": 1.62,
+      "note": "站數偏多（21 vs wiki 13），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/New_Shuttle",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Saitama%20Prefecture"
@@ -804,12 +792,12 @@
       "country": "Japan",
       "system": "Nippori-Toneri Liner",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 266,
-      "our_lines": 28,
+      "our_stations": 265,
+      "our_lines": 19,
       "wiki_stations": 13,
       "wiki_length_km": 9.7,
-      "ratio": 20.46,
-      "note": "站數偏多（266 vs wiki 13），可能混入輕軌",
+      "ratio": 20.38,
+      "note": "站數偏多（265 vs wiki 13），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Nippori-Toneri_Liner",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -836,12 +824,12 @@
       "country": "United States",
       "system": "PATH",
       "our_file": "systems/north-america/united-states/north-america-united-states-new-york-city.geojson",
-      "our_stations": 529,
-      "our_lines": 44,
+      "our_stations": 468,
+      "our_lines": 38,
       "wiki_stations": 13,
       "wiki_length_km": 22.2,
-      "ratio": 40.69,
-      "note": "站數偏多（529 vs wiki 13），可能混入輕軌",
+      "ratio": 36,
+      "note": "站數偏多（468 vs wiki 13），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/PATH",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
@@ -868,12 +856,12 @@
       "country": "Japan",
       "system": "Saitama Rapid Railway Line",
       "our_file": "systems/asia/japan/asia-japan-saitama-prefecture.geojson",
-      "our_stations": 55,
-      "our_lines": 17,
+      "our_stations": 21,
+      "our_lines": 2,
       "wiki_stations": 8,
       "wiki_length_km": 14.6,
-      "ratio": 6.88,
-      "note": "站數偏多（55 vs wiki 8），可能混入輕軌",
+      "ratio": 2.63,
+      "note": "站數偏多（21 vs wiki 8），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Saitama_Rapid_Railway_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Saitama%20Prefecture"
@@ -884,12 +872,12 @@
       "country": "Japan",
       "system": "Rinkai Line",
       "our_file": "systems/asia/japan/asia-japan-tokyo.geojson",
-      "our_stations": 266,
-      "our_lines": 28,
+      "our_stations": 265,
+      "our_lines": 19,
       "wiki_stations": 8,
       "wiki_length_km": 12.2,
-      "ratio": 33.25,
-      "note": "站數偏多（266 vs wiki 8），可能混入輕軌",
+      "ratio": 33.13,
+      "note": "站數偏多（265 vs wiki 8），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Rinkai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -916,12 +904,12 @@
       "country": "Japan",
       "system": "Minatomirai Line",
       "our_file": "systems/asia/japan/asia-japan-yokohama.geojson",
-      "our_stations": 69,
-      "our_lines": 7,
+      "our_stations": 68,
+      "our_lines": 6,
       "wiki_stations": 6,
       "wiki_length_km": 4.1,
-      "ratio": 11.5,
-      "note": "站數偏多（69 vs wiki 6），可能混入輕軌",
+      "ratio": 11.33,
+      "note": "站數偏多（68 vs wiki 6），可能混入輕軌",
       "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Minatomirai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
@@ -929,11 +917,25 @@
   ],
   "extras": [
     {
+      "file": "systems/unknown/unknown/unknown.geojson",
+      "city": null,
+      "country": null,
+      "station_count": 43,
+      "line_count": 21
+    },
+    {
       "file": "systems/europe/germany/europe-germany-stuttgart.geojson",
       "city": "Stuttgart",
       "country": "Germany",
       "station_count": 203,
       "line_count": 16
+    },
+    {
+      "file": "systems/unknown/unknown/system.geojson",
+      "city": null,
+      "country": null,
+      "station_count": 34,
+      "line_count": 11
     },
     {
       "file": "systems/europe/germany/europe-germany-bad-wildbad.geojson",
@@ -969,6 +971,13 @@
       "country": null,
       "station_count": 0,
       "line_count": 7
+    },
+    {
+      "file": "systems/north-america/united-states/north-america-united-states-trenton.geojson",
+      "city": "Trenton",
+      "country": "United States",
+      "station_count": 61,
+      "line_count": 6
     },
     {
       "file": "systems/north-america/united-states/north-america-united-states-denver.geojson",
@@ -1059,6 +1068,13 @@
       "city": "Taylorsville",
       "country": "United States",
       "station_count": 52,
+      "line_count": 3
+    },
+    {
+      "file": "systems/south-america/brazil/south-america-brazil-agua-preta.geojson",
+      "city": "Água Preta",
+      "country": "Brazil",
+      "station_count": 32,
       "line_count": 3
     },
     {
