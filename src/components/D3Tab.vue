@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { geoMercator, geoPath } from 'd3-geo'
-import { select } from 'd3-selection'
+import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
@@ -32,6 +32,7 @@ const panelLayer = computed(() => (ownData.value ? layer.value : sourceLayer.val
 const host = ref(null)      // container div
 const svgEl = ref(null)     // <svg>
 const gEl = ref(null)       // zoomable <g>
+const tipEl = ref(null)     // hover tooltip
 const loading = ref(false)
 const loadError = ref(null)
 
@@ -115,9 +116,15 @@ async function render() {
     .attr('stroke-linecap', 'round')
     .attr('stroke-linejoin', 'round')
     .style('cursor', 'pointer')
-    .on('click', (e, d) => {
-      e.stopPropagation()
-      selectFeature(d)
+    .on('click', (e, d) => { e.stopPropagation(); selectFeature(d) })
+    .on('mouseenter', function (e, d) {
+      select(this).raise().attr('stroke-width', (panelLayer.value?.strokeWidth ?? 2.5) + 3)
+      showTip(e, lineHtml(d.properties))
+    })
+    .on('mousemove', moveTip)
+    .on('mouseleave', function () {
+      select(this).attr('stroke-width', panelLayer.value?.strokeWidth ?? 2.5)
+      hideTip()
     })
 
   sel.selectAll('circle.station')
@@ -130,12 +137,16 @@ async function render() {
     .attr('stroke', '#3f3f46')
     .attr('stroke-width', 1)
     .style('cursor', 'pointer')
-    .on('click', (e, d) => {
-      e.stopPropagation()
-      selectFeature(d)
+    .on('click', (e, d) => { e.stopPropagation(); selectFeature(d) })
+    .on('mouseenter', function (e, d) {
+      select(this).raise().attr('r', (panelLayer.value?.radius ?? 4) + 3)
+      showTip(e, stationHtml(d.properties))
     })
-    .append('title')
-    .text((d) => d.properties.station_name ?? '')
+    .on('mousemove', moveTip)
+    .on('mouseleave', function () {
+      select(this).attr('r', panelLayer.value?.radius ?? 4)
+      hideTip()
+    })
 
   applyStyle()
 
@@ -161,6 +172,47 @@ function applyStyle() {
 // same as the MapLibre tab does).
 function selectFeature(d) {
   if (panelLayer.value) store.setSelectedFeature(panelLayer.value.id, d.properties)
+}
+
+/* ---- hover popup (same content as the MapLibre tab) ---- */
+function asArray(v) {
+  if (Array.isArray(v)) return v
+  if (typeof v === 'string' && v.startsWith('[')) { try { return JSON.parse(v) } catch { /* */ } }
+  return []
+}
+function stationHtml(p) {
+  const local = p.station_name_local && p.station_name_local !== p.station_name
+    ? `<br/>${p.station_name_local}` : ''
+  const lines = asArray(p.lines)
+  const linesHtml = lines.length ? `<br/>Lines: ${lines.join(', ')}` : ''
+  return `<strong>${p.station_name ?? '—'}</strong>${local}${linesHtml}`
+}
+function lineHtml(p) {
+  const routes = asArray(p.routes)
+  const list = routes.length ? routes : [p]
+  return list.map((r) => {
+    const local = r.route_name_local && r.route_name_local !== r.route_name
+      ? `（${r.route_name_local}）` : ''
+    return `<span style="color:${r.route_color ?? '#e11d48'}">▬</span> `
+      + `<strong>${r.route_ref ? `[${r.route_ref}] ` : ''}${r.route_name ?? '—'}</strong>${local}`
+  }).join('<br/>')
+}
+function showTip(e, html) {
+  const el = tipEl.value
+  if (!el) return
+  el.innerHTML = html
+  el.style.display = 'block'
+  moveTip(e)
+}
+function moveTip(e) {
+  const el = tipEl.value
+  if (!el || el.style.display === 'none') return
+  const [x, y] = pointer(e, host.value)
+  el.style.left = `${x + 14}px`
+  el.style.top = `${y + 14}px`
+}
+function hideTip() {
+  if (tipEl.value) tipEl.value.style.display = 'none'
 }
 
 watch(() => layer.value?.sourceLayerId, render)
@@ -224,6 +276,7 @@ onBeforeUnmount(() => {
           <svg ref="svgEl" class="d3-svg" @click="panelLayer && store.setSelectedFeature(panelLayer.id, null)">
             <g ref="gEl" />
           </svg>
+          <div ref="tipEl" class="d3-tip" />
           <div v-if="loading" class="d3-hint">載入中…</div>
           <div v-else-if="loadError" class="d3-hint error">{{ loadError }}</div>
         </div>
@@ -309,4 +362,19 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 .d3-hint.error { color: hsl(var(--destructive)); }
+.d3-tip {
+  position: absolute;
+  display: none;
+  z-index: 10;
+  pointer-events: none;
+  max-width: 260px;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+}
 </style>

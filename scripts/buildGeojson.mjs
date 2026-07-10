@@ -292,8 +292,10 @@ async function build() {
   const seenStation = new Set()
   const pushStation = (e) => {
     if (!isOperational(e.tags) || isDepot(e.tags)) return
-    if (e.type === 'node' && tombstones.has(e.id)) return
     const ov = nameOverrides[`n${e.id}`] ?? nameOverrides[String(e.id)]
+    // 墓碑判準是「上游還在且還有名字」——被 station_names 人工補名的站
+    // 本來就是「存在但無名」，不得被墓碑誤殺（人工裁決優先）
+    if (e.type === 'node' && tombstones.has(e.id) && !ov) return
     if (ov && !(e.tags || {}).name) e.tags = { ...(e.tags || {}), name: ov }
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
@@ -1161,12 +1163,14 @@ async function build() {
     })
     // (2) same name within ~800 m (greedy clusters, then union each cluster)
     // 每城政策：紐約的同名站多半「不相通」（23rd St 分屬 6 條線各自獨立、
-    // 官方僅以 station complex 定義轉乘）——NYC 關閉同名合併，只信
-    // stop_area ∪ interchanges.json（官方 complex 以 overrides 回補）。
-    const NO_SAMENAME_MERGE = new Set(['newyorkcity'])
-    const sameNameOff = NO_SAMENAME_MERGE.has(normCity(grp.info.city))
+    // 官方僅以 station complex 定義轉乘）——NYC 改嚴格模式：同名合併只在
+    // 「共線（同站的兩個方向節點/同線重複節點）或 <150 m」時成立；跨線
+    // 同名遠站不併，官方 complex 以 interchanges.json 回補。stop_area 為
+    // 每線每方向粒度，救不了方向節點成對的情況，不能全關。
+    const STRICT_SAMENAME = new Set(['newyorkcity'])
+    const sameNameStrict = STRICT_SAMENAME.has(normCity(grp.info.city))
     const byName = new Map()
-    if (!sameNameOff) feats.forEach((f, i) => {
+    feats.forEach((f, i) => {
       const key = normName(f.properties.station_name)
       if (!key || /^n\d+$/.test(key)) return
       if (!byName.has(key)) byName.set(key, [])
@@ -1176,9 +1180,18 @@ async function build() {
       const clusters = []
       for (const i of idxs) {
         const [lon, lat] = feats[i].geometry.coordinates
-        let c = clusters.find((c) =>
-          Math.abs(c.lat - lat) < 0.0072 &&
-          Math.abs((c.lon - lon) * Math.cos((lat * Math.PI) / 180)) < 0.0072)
+        const myLines = feats[i].properties.lines || []
+        let c = clusters.find((c) => {
+          const dLat = Math.abs(c.lat - lat)
+          const dLon = Math.abs((c.lon - lon) * Math.cos((lat * Math.PI) / 180))
+          if (dLat >= 0.0072 || dLon >= 0.0072) return false
+          if (!sameNameStrict) return true
+          if (dLat < 0.0014 && dLon < 0.0014) return true
+          return c.members.some((m) => {
+            const ml = feats[m].properties.lines || []
+            return myLines.some((x) => ml.includes(x))
+          })
+        })
         if (!c) { c = { members: [], lon, lat }; clusters.push(c) }
         c.members.push(i)
         c.lon = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[0], 0) / c.members.length

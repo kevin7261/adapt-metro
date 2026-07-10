@@ -1,10 +1,10 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1137,
-  "checked_against_infobox": 533,
-  "flagged": 86,
-  "uncovered": 604,
-  "adjudicated": 20,
+  "routes_total": 1135,
+  "checked_against_infobox": 532,
+  "flagged": 79,
+  "uncovered": 603,
+  "adjudicated": 21,
   "flags": [
     {
       "city": "Chongqing",
@@ -387,19 +387,6 @@
       "severity": "warn"
     },
     {
-      "city": "Shaoxing",
-      "country": "China",
-      "route_id": "rm12920991",
-      "route_name": "Shaoxing Rail Transit Line 1",
-      "ours": 27,
-      "lang": "zh",
-      "wiki": "zh:绍兴轨道交通1号线",
-      "wiki_stations": 33,
-      "wiki_basis": "operational",
-      "diff": -6,
-      "severity": "error"
-    },
-    {
       "city": "Dhaka",
       "country": "Bangladesh",
       "route_id": "rm15060937",
@@ -476,19 +463,6 @@
       "wiki_stations": 15,
       "wiki_basis": "total",
       "diff": -5,
-      "severity": "warn"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9651536",
-      "route_name": "NYCS - 1 Train",
-      "ours": 34,
-      "lang": "en",
-      "wiki": "en:1 (New York City Subway service)",
-      "wiki_stations": 38,
-      "wiki_basis": "total",
-      "diff": -4,
       "severity": "warn"
     },
     {
@@ -676,19 +650,6 @@
       "severity": "warn"
     },
     {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9663807",
-      "route_name": "NYCS - 3 Train",
-      "ours": 33,
-      "lang": "en",
-      "wiki": "en:3 (New York City Subway service)",
-      "wiki_stations": 34,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "London",
       "country": "United Kingdom",
       "route_id": "rm7671007",
@@ -697,19 +658,6 @@
       "lang": "en",
       "wiki": "en:Circle line (London Underground)",
       "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7919019",
-      "route_name": "Seoul Metropolitan Subway Line 8",
-      "ours": 24,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 8",
-      "wiki_stations": 25,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -736,6 +684,19 @@
       "lang": "zh",
       "wiki": "en:Line 9 (Shanghai Metro)",
       "wiki_stations": 35,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7919019",
+      "route_name": "Seoul Metropolitan Subway Line 8",
+      "ours": 24,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 8",
+      "wiki_stations": 25,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -963,45 +924,6 @@
       "severity": "warn"
     },
     {
-      "city": "Brussels",
-      "country": "Belgium",
-      "route_id": "rm7305855",
-      "route_name": "Metro 2",
-      "ours": 18,
-      "lang": "nl",
-      "wiki": "en:Brussels Metro line 2",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Brussels",
-      "country": "Belgium",
-      "route_id": "rm7927182",
-      "route_name": "Metro 6",
-      "ours": 25,
-      "lang": "nl",
-      "wiki": "en:Brussels Metro line 6",
-      "wiki_stations": 26,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Boston",
-      "country": "United States",
-      "route_id": "rm7874312",
-      "route_name": "MBTA Orange Line",
-      "ours": 19,
-      "lang": "en",
-      "wiki": "en:Orange Line (MBTA)",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "Nanchang",
       "country": "China",
       "route_id": "rm2843401",
@@ -1068,29 +990,16 @@
       "severity": "warn"
     },
     {
-      "city": "Yokohama",
-      "country": "Japan",
-      "route_id": "r10036863",
-      "route_name": "Tokyo Metro - Odawara Express Line (northbound)",
-      "ours": 9,
-      "lang": "ja",
-      "wiki": "ja:小田急多摩線",
-      "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "New York City",
       "country": "United States",
       "route_id": "rm9655665",
       "route_name": "NYCS - 2 Train",
-      "ours": 57,
+      "ours": 60,
       "lang": "en",
       "wiki": "en:2 (New York City Subway service)",
       "wiki_stations": 49,
       "wiki_basis": "total",
-      "diff": 8,
+      "diff": 11,
       "severity": "error"
     },
     {
@@ -1098,25 +1007,12 @@
       "country": "United States",
       "route_id": "rm366768",
       "route_name": "NYCS - N Train",
-      "ours": 44,
+      "ours": 45,
       "lang": "en",
       "wiki": "en:N (New York City Subway service)",
       "wiki_stations": 28,
       "wiki_basis": "total",
-      "diff": 16,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9677108",
-      "route_name": "NYCS - 4 Train",
-      "ours": 53,
-      "lang": "en",
-      "wiki": "en:4 (New York City Subway service)",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": 25,
+      "diff": 17,
       "severity": "error"
     },
     {
@@ -1132,58 +1028,41 @@
       "wiki_basis": "total",
       "diff": 25,
       "severity": "error"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9677108",
+      "route_name": "NYCS - 4 Train",
+      "ours": 54,
+      "lang": "en",
+      "wiki": "en:4 (New York City Subway service)",
+      "wiki_stations": 28,
+      "wiki_basis": "total",
+      "diff": 26,
+      "severity": "error"
     }
   ],
   "uncovered_lines": [
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9767766",
-      "route_name": "NYCS - C Train",
-      "ours": 40,
+      "route_id": "rm9712349",
+      "route_name": "NYCS - M Train",
+      "ours": 36,
       "lang": "en",
-      "wiki": "en:C (New York City Subway service)",
-      "reason": "system article shared by several lines (en:C (New York City Subway service))"
+      "wiki": "en:M (New York City Subway service)",
+      "reason": "system article shared by several lines (en:M (New York City Subway service))"
     },
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm366774",
-      "route_name": "NYCS - A Train",
-      "ours": 59,
+      "route_id": "r9712342",
+      "route_name": "NYCS - M Train: Middle Village–Metropolitan Avenue → Forest Hills–71st Avenue",
+      "ours": 36,
       "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9727210",
-      "route_name": "NYCS - A Train (am rush): Rockaway Park–Beach 116th Street → 207th Street–Inwood",
-      "ours": 35,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9727208",
-      "route_name": "NYCS - A Train: Ozone Park–Lefferts Boulevard → 207th Street–Inwood",
-      "ours": 30,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9767765",
-      "route_name": "NYCS - C Train: 168th Street → Euclid Avenue",
-      "ours": 40,
-      "lang": "en",
-      "wiki": "en:C (New York City Subway service)",
-      "reason": "system article shared by several lines (en:C (New York City Subway service))"
+      "wiki": "en:M (New York City Subway service)",
+      "reason": "system article shared by several lines (en:M (New York City Subway service))"
     },
     {
       "city": "New York City",
@@ -1208,12 +1087,32 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "r11255871",
-      "route_name": "NYCS - A Train (late nights): 207th Street–Inwood → Far Rockaway–Mott Avenue",
-      "ours": 58,
+      "route_id": "rm366780",
+      "route_name": "NYCS - R Train",
+      "ours": 45,
       "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+      "wiki": "en:R (New York City Subway service)",
+      "reason": "system article shared by several lines (en:R (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9712344",
+      "route_name": "NYCS - R Train: Bay Ridge–95th Street → Forest Hills–71st Avenue",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:R (New York City Subway service)",
+      "reason": "system article shared by several lines (en:R (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r20236477",
+      "route_name": "NYCS - F Train (late nights, weekends): Jamaica–179th Street → Coney Island–Stillwell Avenue",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:F (New York City Subway service)",
+      "reason": "system article shared by several lines (en:F (New York City Subway service))"
     },
     {
       "city": "New York City",
@@ -1254,56 +1153,6 @@
       "lang": "en",
       "wiki": "en:D (New York City Subway service)",
       "reason": "system article shared by several lines (en:D (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9712349",
-      "route_name": "NYCS - M Train",
-      "ours": 36,
-      "lang": "en",
-      "wiki": "en:M (New York City Subway service)",
-      "reason": "system article shared by several lines (en:M (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9712342",
-      "route_name": "NYCS - M Train: Middle Village–Metropolitan Avenue → Forest Hills–71st Avenue",
-      "ours": 36,
-      "lang": "en",
-      "wiki": "en:M (New York City Subway service)",
-      "reason": "system article shared by several lines (en:M (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366780",
-      "route_name": "NYCS - R Train",
-      "ours": 45,
-      "lang": "en",
-      "wiki": "en:R (New York City Subway service)",
-      "reason": "system article shared by several lines (en:R (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9712344",
-      "route_name": "NYCS - R Train: Bay Ridge–95th Street → Forest Hills–71st Avenue",
-      "ours": 44,
-      "lang": "en",
-      "wiki": "en:R (New York City Subway service)",
-      "reason": "system article shared by several lines (en:R (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r20236477",
-      "route_name": "NYCS - F Train (late nights, weekends): Jamaica–179th Street → Coney Island–Stillwell Avenue",
-      "ours": 45,
-      "lang": "en",
-      "wiki": "en:F (New York City Subway service)",
-      "reason": "system article shared by several lines (en:F (New York City Subway service))"
     },
     {
       "city": "New York City",
@@ -1350,7 +1199,7 @@
       "country": "United States",
       "route_id": "rm366769",
       "route_name": "NYCS - Q Train",
-      "ours": 33,
+      "ours": 34,
       "lang": "en",
       "wiki": "en:Q (New York City Subway service)",
       "reason": "system article shared by several lines (en:Q (New York City Subway service))"
@@ -1368,6 +1217,56 @@
     {
       "city": "New York City",
       "country": "United States",
+      "route_id": "rm9767766",
+      "route_name": "NYCS - C Train",
+      "ours": 40,
+      "lang": "en",
+      "wiki": "en:C (New York City Subway service)",
+      "reason": "system article shared by several lines (en:C (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9767765",
+      "route_name": "NYCS - C Train: 168th Street → Euclid Avenue",
+      "ours": 40,
+      "lang": "en",
+      "wiki": "en:C (New York City Subway service)",
+      "reason": "system article shared by several lines (en:C (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm366774",
+      "route_name": "NYCS - A Train",
+      "ours": 59,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11255871",
+      "route_name": "NYCS - A Train (late nights): 207th Street–Inwood → Far Rockaway–Mott Avenue",
+      "ours": 58,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9727210",
+      "route_name": "NYCS - A Train (am rush): Rockaway Park–Beach 116th Street → 207th Street–Inwood",
+      "ours": 35,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
       "route_id": "r9727211",
       "route_name": "NYCS - A Train (pm rush): 207th Street–Inwood → Rockaway Park–Beach 116th Street",
       "ours": 34,
@@ -1378,32 +1277,22 @@
     {
       "city": "New York City",
       "country": "United States",
+      "route_id": "r9727208",
+      "route_name": "NYCS - A Train: Ozone Park–Lefferts Boulevard → 207th Street–Inwood",
+      "ours": 30,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
       "route_id": "rm9682651",
       "route_name": "NYCS - 5 Train",
-      "ours": 35,
+      "ours": 36,
       "lang": "en",
       "wiki": "en:5 (New York City Subway service)",
       "reason": "system article shared by several lines (en:5 (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366777",
-      "route_name": "NYCS - 6 Train",
-      "ours": 37,
-      "lang": "en",
-      "wiki": "en:6 (New York City Subway service)",
-      "reason": "system article shared by several lines (en:6 (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9721630",
-      "route_name": "NYCS - <6> Train",
-      "ours": 28,
-      "lang": "en",
-      "wiki": "en:6 (New York City Subway service)",
-      "reason": "system article shared by several lines (en:6 (New York City Subway service))"
     },
     {
       "city": "New York City",
@@ -1414,6 +1303,26 @@
       "lang": "en",
       "wiki": "en:5 (New York City Subway service)",
       "reason": "system article shared by several lines (en:5 (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm366777",
+      "route_name": "NYCS - 6 Train",
+      "ours": 38,
+      "lang": "en",
+      "wiki": "en:6 (New York City Subway service)",
+      "reason": "system article shared by several lines (en:6 (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9721630",
+      "route_name": "NYCS - <6> Train",
+      "ours": 29,
+      "lang": "en",
+      "wiki": "en:6 (New York City Subway service)",
+      "reason": "system article shared by several lines (en:6 (New York City Subway service))"
     },
     {
       "city": "New York City",
@@ -1664,6 +1573,266 @@
       "lang": "en",
       "wiki": "en:Metropolitan line",
       "reason": "system article shared by several lines (en:Metropolitan line)"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm7369771",
+      "route_name": "S-Bahn Circle Line (Clockwise, Ringbahn S41)",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm9942315",
+      "route_name": "S-Bahn Circle Line (Anticlockwise, Ringbahn S42)",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14984",
+      "route_name": "S8: S Wildau <=> S Birkenwerder",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm175267",
+      "route_name": "S85: S Frohnau/S+U Pankow <=> Flughafen BER",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "r2979450",
+      "route_name": "S85: Flughafen BER => S+U Pankow",
+      "ours": 20,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm2413847",
+      "route_name": "S47: S Spindlersfeld <=> S Südkreuz",
+      "ours": 9,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm64094",
+      "route_name": "S46: S Königs Wusterhausen <=> S Westend",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm20982800",
+      "route_name": "S15: S+U Hauptbahnhof <=> S+U Gesundbrunnen",
+      "ours": 3,
+      "lang": "de",
+      "wikidata": "Q100985389",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm304163",
+      "route_name": "S9: S Flughafen BER <=> S Spandau",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm454054",
+      "route_name": "S1: S Wannsee <=> S Oranienburg",
+      "ours": 35,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm61469",
+      "route_name": "S25: S Teltow Stadt< => S Hennigsdorf",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm61466",
+      "route_name": "S2: S Blankenfelde <=> S Bernau",
+      "ours": 28,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm9445376",
+      "route_name": "S26: S Teltow Stadt <=> S Blankenburg",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14809",
+      "route_name": "S7: S Ahrensfelde <=> S Potsdam Hauptbahnhof",
+      "ours": 29,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14811",
+      "route_name": "S5: S Strausberg Nord <=> S Westkreuz",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "r2015959",
+      "route_name": "S5: S Westkreuz => S Strausberg Nord",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14810",
+      "route_name": "S75: S Wartenberg <=> S Ostbahnhof",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm28314",
+      "route_name": "S3: S Erkner< => S Spandau",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58424",
+      "route_name": "U8: S+U Wittenau <=> S+U Hermannstraße",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 8 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58430",
+      "route_name": "U5: U Hönow <=> U Hauptbahnhof",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie U5 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58428",
+      "route_name": "U2: S+U Pankow <=> U Ruhleben",
+      "ours": 29,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 2 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58767",
+      "route_name": "U1: S+U Warschauer Straße <=> U Uhlandstraße",
+      "ours": 13,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 1 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58426",
+      "route_name": "U3: S+U Warschauer Straße <=> U Krumme Lanke",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 3 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58425",
+      "route_name": "U7: S+U Rathaus Spandau <=> U Rudow",
+      "ours": 40,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 7 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58423",
+      "route_name": "U9: U Osloer Straße <=> S+U Rathaus Steglitz",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:U-Bahnlinie 9 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm51942",
+      "route_name": "U6: U Alt-Tegel <=> U Alt-Mariendorf",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:U-Bahnlinie 6 (Berlin)",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Nuremberg",
@@ -1953,266 +2122,6 @@
       "ours": 33,
       "lang": "de",
       "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm7369771",
-      "route_name": "S-Bahn Circle Line (Clockwise, Ringbahn S41)",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm9942315",
-      "route_name": "S-Bahn Circle Line (Anticlockwise, Ringbahn S42)",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm14984",
-      "route_name": "S8: S Wildau <=> S Birkenwerder",
-      "ours": 26,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm175267",
-      "route_name": "S85: S Frohnau/S+U Pankow <=> Flughafen BER",
-      "ours": 26,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "r2979450",
-      "route_name": "S85: Flughafen BER => S+U Pankow",
-      "ours": 20,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm2413847",
-      "route_name": "S47: S Spindlersfeld <=> S Südkreuz",
-      "ours": 9,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm64094",
-      "route_name": "S46: S Königs Wusterhausen <=> S Westend",
-      "ours": 23,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm20982800",
-      "route_name": "S15: S+U Hauptbahnhof <=> S+U Gesundbrunnen",
-      "ours": 3,
-      "lang": "de",
-      "wikidata": "Q100985389",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm304163",
-      "route_name": "S9: S Flughafen BER <=> S Spandau",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm454054",
-      "route_name": "S1: S Wannsee <=> S Oranienburg",
-      "ours": 35,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm61469",
-      "route_name": "S25: S Teltow Stadt< => S Hennigsdorf",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm61466",
-      "route_name": "S2: S Blankenfelde <=> S Bernau",
-      "ours": 28,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm9445376",
-      "route_name": "S26: S Teltow Stadt <=> S Blankenburg",
-      "ours": 21,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm14809",
-      "route_name": "S7: S Ahrensfelde <=> S Potsdam Hauptbahnhof",
-      "ours": 29,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm14811",
-      "route_name": "S5: S Strausberg Nord <=> S Westkreuz",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "r2015959",
-      "route_name": "S5: S Westkreuz => S Strausberg Nord",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm14810",
-      "route_name": "S75: S Wartenberg <=> S Ostbahnhof",
-      "ours": 10,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm28314",
-      "route_name": "S3: S Erkner< => S Spandau",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58424",
-      "route_name": "U8: S+U Wittenau <=> S+U Hermannstraße",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 8 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58430",
-      "route_name": "U5: U Hönow <=> U Hauptbahnhof",
-      "ours": 26,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie U5 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58428",
-      "route_name": "U2: S+U Pankow <=> U Ruhleben",
-      "ours": 29,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 2 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58767",
-      "route_name": "U1: S+U Warschauer Straße <=> U Uhlandstraße",
-      "ours": 13,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 1 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58426",
-      "route_name": "U3: S+U Warschauer Straße <=> U Krumme Lanke",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 3 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58425",
-      "route_name": "U7: S+U Rathaus Spandau <=> U Rudow",
-      "ours": 40,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 7 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58423",
-      "route_name": "U9: U Osloer Straße <=> S+U Rathaus Steglitz",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:U-Bahnlinie 9 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm51942",
-      "route_name": "U6: U Alt-Tegel <=> U Alt-Mariendorf",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:U-Bahnlinie 6 (Berlin)",
       "reason": "article has no station count infobox"
     },
     {
@@ -2616,6 +2525,306 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7420644",
+      "route_name": "Ligne 8 : Balard ↔ Pointe du Lac",
+      "ours": 38,
+      "lang": "fr",
+      "wiki": "fr:Ligne 8 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3328717",
+      "route_name": "Ligne 9 : Pont de Sèvres ↔ Mairie de Montreuil",
+      "ours": 37,
+      "lang": "fr",
+      "wiki": "fr:Ligne 9 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7420642",
+      "route_name": "Ligne 12 : Mairie d'Aubervilliers ↔ Mairie d’Issy",
+      "ours": 31,
+      "lang": "fr",
+      "wiki": "fr:Ligne 12 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3328805",
+      "route_name": "Ligne 7: La Courneuve ↔ Villejuif - Louis Aragon / Mairie d’Ivry",
+      "ours": 34,
+      "lang": "fr",
+      "wiki": "fr:Ligne 7 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r3328811",
+      "route_name": "Ligne 7 : Villejuif - Louis Aragon → La Courneuve - 8 mai 1945",
+      "ours": 33,
+      "lang": "fr",
+      "wiki": "en:Paris Métro Line 7",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7420645",
+      "route_name": "Ligne 5 : Bobigny - Pablo Picasso ↔ Place d’Italie",
+      "ours": 22,
+      "lang": "fr",
+      "wiki": "fr:Ligne 5 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7227705",
+      "route_name": "Ligne 2 : Porte Dauphine ↔ Nation",
+      "ours": 25,
+      "lang": "fr",
+      "wiki": "fr:Ligne 2 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3326845",
+      "route_name": "Ligne 4 : Porte de Clignancourt ↔ Bagneux - Lucie Aubrac",
+      "ours": 29,
+      "lang": "fr",
+      "wiki": "fr:Ligne 4 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3328694",
+      "route_name": "Ligne 14 : Saint-Denis – Pleyel ↔ Aéroport d’Orly",
+      "ours": 21,
+      "lang": "fr",
+      "wiki": "fr:Ligne 14 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3328765",
+      "route_name": "Ligne 6 : Charles de Gaulle - Étoile ↔ Nation",
+      "ours": 28,
+      "lang": "fr",
+      "wiki": "fr:Ligne 6 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3328741",
+      "route_name": "Ligne 10 : Pont de Saint-Cloud ↔ Gare d’Austerlitz",
+      "ours": 20,
+      "lang": "fr",
+      "wiki": "fr:Ligne 10 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r3328740",
+      "route_name": "Ligne 10 : Gare d'Austerlitz → Boulogne - Pont de Saint-Cloud",
+      "ours": 20,
+      "lang": "fr",
+      "wiki": "fr:Ligne 10 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm3328695",
+      "route_name": "Ligne 1 : La Défense (Grande Arche) ↔ Château de Vincennes",
+      "ours": 25,
+      "lang": "fr",
+      "wiki": "fr:Ligne 1 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7420643",
+      "route_name": "Ligne 11 : Châtelet ↔ Rosny - Bois-Perrier",
+      "ours": 19,
+      "lang": "fr",
+      "wiki": "fr:Ligne 11 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7733214",
+      "route_name": "Ligne 3 : Pont de Levallois ↔ Gallieni",
+      "ours": 25,
+      "lang": "fr",
+      "wiki": "fr:Métro de Paris",
+      "reason": "system article shared by several lines (fr:Métro de Paris)"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7420641",
+      "route_name": "Ligne 13 : Les Courtilles / Saint-Denis - Université ↔ Châtillon - Montrouge",
+      "ours": 26,
+      "lang": "fr",
+      "wiki": "fr:Ligne 13 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r7731234",
+      "route_name": "Ligne 13 : Châtillon-Montrouge → (Asnières-Genevilliers) Les Courtilles",
+      "ours": 24,
+      "lang": "fr",
+      "wiki": "fr:Ligne 13 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm7420646",
+      "route_name": "Ligne 3bis : Gambetta ↔ Porte des Lilas",
+      "ours": 4,
+      "lang": "fr",
+      "wiki": "fr:Ligne 3 bis du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm6928902",
+      "route_name": "Orlyval : Antony ↔ Orly 4",
+      "ours": 3,
+      "lang": "fr",
+      "wiki": "fr:Orlyval",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r9921604",
+      "route_name": "Orlyval : Orly 4 → Antony",
+      "ours": 3,
+      "lang": "fr",
+      "wiki": "fr:Métro de Paris",
+      "reason": "system article shared by several lines (fr:Métro de Paris)"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "rm2554103",
+      "route_name": "Ligne 7 bis : Louis Blanc ↔ Pré Saint-Gervais",
+      "ours": 7,
+      "lang": "fr",
+      "wiki": "fr:Ligne 7 bis du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r20704033",
+      "route_name": "Ligne 7 bis : Pré Saint-Gervais → Louis Blanc",
+      "ours": 7,
+      "lang": "fr",
+      "wiki": "fr:Ligne 7 bis du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13298577",
+      "route_name": "北京地铁八通线",
+      "ours": 15,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13623628",
+      "route_name": "Beijing Subway Line 11",
+      "ours": 4,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13625147",
+      "route_name": "Beijing Subway Line 17",
+      "ours": 20,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13625329",
+      "route_name": "Beijing Subway Line 19",
+      "ours": 10,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "r199189",
+      "route_name": "Line 10: Hangzhong Road -> Jilong Road",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:上海地铁",
+      "reason": "system article shared by several lines (zh:上海地铁)"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "rm6806165",
+      "route_name": "Shanghai Metro Line 5",
+      "ours": 15,
+      "lang": "zh",
+      "wiki": "en:Line 5 (Shanghai Metro)",
+      "reason": "system article shared by several lines (en:Line 5 (Shanghai Metro))"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "r214779",
+      "route_name": "Line 5: Minhang Development Zone -> Xinzhuang",
+      "ours": 11,
+      "lang": "zh",
+      "wiki": "en:Line 5 (Shanghai Metro)",
+      "reason": "system article shared by several lines (en:Line 5 (Shanghai Metro))"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "r5611108",
+      "route_name": "Line 11: Disney Resort -> North Jiading",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:上海地铁",
+      "reason": "system article shared by several lines (zh:上海地铁)"
+    },
+    {
       "city": "Seoul",
       "country": "South Korea",
       "route_id": "r4729409",
@@ -2776,306 +2985,6 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7420644",
-      "route_name": "Ligne 8 : Balard ↔ Pointe du Lac",
-      "ours": 38,
-      "lang": "fr",
-      "wiki": "fr:Ligne 8 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3328717",
-      "route_name": "Ligne 9 : Pont de Sèvres ↔ Mairie de Montreuil",
-      "ours": 37,
-      "lang": "fr",
-      "wiki": "fr:Ligne 9 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7420642",
-      "route_name": "Ligne 12 : Mairie d'Aubervilliers ↔ Mairie d’Issy",
-      "ours": 31,
-      "lang": "fr",
-      "wiki": "fr:Ligne 12 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3328805",
-      "route_name": "Ligne 7: La Courneuve ↔ Villejuif - Louis Aragon / Mairie d’Ivry",
-      "ours": 34,
-      "lang": "fr",
-      "wiki": "fr:Ligne 7 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "r3328811",
-      "route_name": "Ligne 7 : Villejuif - Louis Aragon → La Courneuve - 8 mai 1945",
-      "ours": 33,
-      "lang": "fr",
-      "wiki": "en:Paris Métro Line 7",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm2554103",
-      "route_name": "Ligne 7 bis : Louis Blanc ↔ Pré Saint-Gervais",
-      "ours": 7,
-      "lang": "fr",
-      "wiki": "fr:Ligne 7 bis du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "r20704033",
-      "route_name": "Ligne 7 bis : Pré Saint-Gervais → Louis Blanc",
-      "ours": 7,
-      "lang": "fr",
-      "wiki": "fr:Ligne 7 bis du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7420645",
-      "route_name": "Ligne 5 : Bobigny - Pablo Picasso ↔ Place d’Italie",
-      "ours": 22,
-      "lang": "fr",
-      "wiki": "fr:Ligne 5 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7227705",
-      "route_name": "Ligne 2 : Porte Dauphine ↔ Nation",
-      "ours": 25,
-      "lang": "fr",
-      "wiki": "fr:Ligne 2 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3326845",
-      "route_name": "Ligne 4 : Porte de Clignancourt ↔ Bagneux - Lucie Aubrac",
-      "ours": 29,
-      "lang": "fr",
-      "wiki": "fr:Ligne 4 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3328694",
-      "route_name": "Ligne 14 : Saint-Denis – Pleyel ↔ Aéroport d’Orly",
-      "ours": 21,
-      "lang": "fr",
-      "wiki": "fr:Ligne 14 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3328765",
-      "route_name": "Ligne 6 : Charles de Gaulle - Étoile ↔ Nation",
-      "ours": 28,
-      "lang": "fr",
-      "wiki": "fr:Ligne 6 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3328741",
-      "route_name": "Ligne 10 : Pont de Saint-Cloud ↔ Gare d’Austerlitz",
-      "ours": 20,
-      "lang": "fr",
-      "wiki": "fr:Ligne 10 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "r3328740",
-      "route_name": "Ligne 10 : Gare d'Austerlitz → Boulogne - Pont de Saint-Cloud",
-      "ours": 20,
-      "lang": "fr",
-      "wiki": "fr:Ligne 10 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm3328695",
-      "route_name": "Ligne 1 : La Défense (Grande Arche) ↔ Château de Vincennes",
-      "ours": 25,
-      "lang": "fr",
-      "wiki": "fr:Ligne 1 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7420643",
-      "route_name": "Ligne 11 : Châtelet ↔ Rosny - Bois-Perrier",
-      "ours": 19,
-      "lang": "fr",
-      "wiki": "fr:Ligne 11 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7733214",
-      "route_name": "Ligne 3 : Pont de Levallois ↔ Gallieni",
-      "ours": 25,
-      "lang": "fr",
-      "wiki": "fr:Métro de Paris",
-      "reason": "system article shared by several lines (fr:Métro de Paris)"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7420641",
-      "route_name": "Ligne 13 : Les Courtilles / Saint-Denis - Université ↔ Châtillon - Montrouge",
-      "ours": 26,
-      "lang": "fr",
-      "wiki": "fr:Ligne 13 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "r7731234",
-      "route_name": "Ligne 13 : Châtillon-Montrouge → (Asnières-Genevilliers) Les Courtilles",
-      "ours": 24,
-      "lang": "fr",
-      "wiki": "fr:Ligne 13 du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm7420646",
-      "route_name": "Ligne 3bis : Gambetta ↔ Porte des Lilas",
-      "ours": 4,
-      "lang": "fr",
-      "wiki": "fr:Ligne 3 bis du métro de Paris",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm6928902",
-      "route_name": "Orlyval : Antony ↔ Orly 4",
-      "ours": 3,
-      "lang": "fr",
-      "wiki": "fr:Orlyval",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "r9921604",
-      "route_name": "Orlyval : Orly 4 → Antony",
-      "ours": 3,
-      "lang": "fr",
-      "wiki": "fr:Métro de Paris",
-      "reason": "system article shared by several lines (fr:Métro de Paris)"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13298577",
-      "route_name": "北京地铁八通线",
-      "ours": 15,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13623628",
-      "route_name": "Beijing Subway Line 11",
-      "ours": 4,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13625147",
-      "route_name": "Beijing Subway Line 17",
-      "ours": 20,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13625329",
-      "route_name": "Beijing Subway Line 19",
-      "ours": 10,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "r199189",
-      "route_name": "Line 10: Hangzhong Road -> Jilong Road",
-      "ours": 33,
-      "lang": "zh",
-      "wiki": "zh:上海地铁",
-      "reason": "system article shared by several lines (zh:上海地铁)"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm6806165",
-      "route_name": "Shanghai Metro Line 5",
-      "ours": 15,
-      "lang": "zh",
-      "wiki": "en:Line 5 (Shanghai Metro)",
-      "reason": "system article shared by several lines (en:Line 5 (Shanghai Metro))"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "r214779",
-      "route_name": "Line 5: Minhang Development Zone -> Xinzhuang",
-      "ours": 11,
-      "lang": "zh",
-      "wiki": "en:Line 5 (Shanghai Metro)",
-      "reason": "system article shared by several lines (en:Line 5 (Shanghai Metro))"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "r5611108",
-      "route_name": "Line 11: Disney Resort -> North Jiading",
-      "ours": 33,
-      "lang": "zh",
-      "wiki": "zh:上海地铁",
-      "reason": "system article shared by several lines (zh:上海地铁)"
-    },
-    {
       "city": "Guangzhou",
       "country": "China",
       "route_id": "rm9841063",
@@ -3166,6 +3075,46 @@
       "reason": "system article shared by several lines (zh:广州地铁12号线)"
     },
     {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8026069",
+      "route_name": "Tokyo Metro Chiyoda Line",
+      "ours": 18,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Chiyoda Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8015940",
+      "route_name": "Tokyo Metro Marunouchi Line",
+      "ours": 25,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Marunouchi Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "r8015930",
+      "route_name": "Marunouchi Line (Nakano-sakaue --> Honancho)",
+      "ours": 4,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Marunouchi Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "r2790323",
+      "route_name": "Tokyo Metro Chiyoda Line (Kita-ayase → Ayase)",
+      "ours": 2,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Chiyoda Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
+    },
+    {
       "city": "Chicago",
       "country": "United States",
       "route_id": "rm2656070",
@@ -3224,46 +3173,6 @@
       "lang": "en",
       "wiki": "en:Pink Line (CTA)",
       "reason": "system article shared by several lines (en:Pink Line (CTA))"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8026069",
-      "route_name": "Tokyo Metro Chiyoda Line",
-      "ours": 18,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Chiyoda Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8015940",
-      "route_name": "Tokyo Metro Marunouchi Line",
-      "ours": 25,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Marunouchi Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "r8015930",
-      "route_name": "Marunouchi Line (Nakano-sakaue --> Honancho)",
-      "ours": 4,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Marunouchi Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "r2790323",
-      "route_name": "Tokyo Metro Chiyoda Line (Kita-ayase → Ayase)",
-      "ours": 2,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Chiyoda Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
     },
     {
       "city": "Dusseldorf",
@@ -3620,6 +3529,16 @@
     {
       "city": "Hangzhou",
       "country": "China",
+      "route_id": "rm14613133",
+      "route_name": "Hangzhou Metro Line 19",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
       "route_id": "rm13042427",
       "route_name": "杭州地铁8号线",
       "ours": 9,
@@ -3673,16 +3592,6 @@
       "route_id": "rm13535688",
       "route_name": "杭州地铁10号线",
       "ours": 12,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm14613133",
-      "route_name": "Hangzhou Metro Line 19",
-      "ours": 17,
       "lang": "zh",
       "wiki": "zh:杭州地铁",
       "reason": "system article shared by several lines (zh:杭州地铁)"
@@ -3778,6 +3687,146 @@
       "lang": "ru",
       "wikidata": "Q18239278",
       "wiki": "ru:Троицкая линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7842127",
+      "route_name": "Línea 11",
+      "ours": 7,
+      "lang": "es",
+      "wiki": "es:Línea 11 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7842094",
+      "route_name": "Línea 6",
+      "ours": 28,
+      "lang": "es",
+      "wiki": "es:Línea 6 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7838838",
+      "route_name": "Línea 3",
+      "ours": 19,
+      "lang": "es",
+      "wiki": "es:Línea 3 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7827780",
+      "route_name": "Línea 4",
+      "ours": 23,
+      "lang": "es",
+      "wiki": "es:Línea 4 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7834660",
+      "route_name": "Línea 10",
+      "ours": 21,
+      "lang": "es",
+      "wiki": "es:Línea 10 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7831481",
+      "route_name": "Línea 1",
+      "ours": 33,
+      "lang": "es",
+      "wiki": "es:Línea 1 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "r58267",
+      "route_name": "Línea 10: Hospital Infanta Sofía-Tres Olivos",
+      "ours": 11,
+      "lang": "es",
+      "wiki": "es:Línea 10 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7838963",
+      "route_name": "Línea 2",
+      "ours": 20,
+      "lang": "es",
+      "wiki": "es:Línea 2 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7838614",
+      "route_name": "Línea 5",
+      "ours": 32,
+      "lang": "es",
+      "wiki": "es:Línea 5 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7840747",
+      "route_name": "Línea Ramal: Ópera - Príncipe Pío",
+      "ours": 2,
+      "lang": "es",
+      "wiki": "es:Ramal (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7840623",
+      "route_name": "Línea 7",
+      "ours": 31,
+      "lang": "es",
+      "wiki": "es:Línea 7 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7837169",
+      "route_name": "Línea 8",
+      "ours": 8,
+      "lang": "es",
+      "wiki": "es:Línea 8 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7837206",
+      "route_name": "Línea 9",
+      "ours": 29,
+      "lang": "es",
+      "wiki": "es:Línea 9 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "rm7841412",
+      "route_name": "Línea 12. Metrosur",
+      "ours": 28,
+      "lang": "es",
+      "wiki": "es:Línea 12 (Metro de Madrid)",
       "reason": "article has no station count infobox"
     },
     {
@@ -3962,146 +4011,6 @@
       "lang": "zh",
       "wiki": "zh:南京地铁",
       "reason": "system article shared by several lines (zh:南京地铁)"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7842127",
-      "route_name": "Línea 11",
-      "ours": 7,
-      "lang": "es",
-      "wiki": "es:Línea 11 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7842094",
-      "route_name": "Línea 6",
-      "ours": 28,
-      "lang": "es",
-      "wiki": "es:Línea 6 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7838838",
-      "route_name": "Línea 3",
-      "ours": 19,
-      "lang": "es",
-      "wiki": "es:Línea 3 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7827780",
-      "route_name": "Línea 4",
-      "ours": 23,
-      "lang": "es",
-      "wiki": "es:Línea 4 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7834660",
-      "route_name": "Línea 10",
-      "ours": 21,
-      "lang": "es",
-      "wiki": "es:Línea 10 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "r58267",
-      "route_name": "Línea 10: Hospital Infanta Sofía-Tres Olivos",
-      "ours": 11,
-      "lang": "es",
-      "wiki": "es:Línea 10 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7838963",
-      "route_name": "Línea 2",
-      "ours": 20,
-      "lang": "es",
-      "wiki": "es:Línea 2 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7838614",
-      "route_name": "Línea 5",
-      "ours": 32,
-      "lang": "es",
-      "wiki": "es:Línea 5 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7840747",
-      "route_name": "Línea Ramal: Ópera - Príncipe Pío",
-      "ours": 2,
-      "lang": "es",
-      "wiki": "es:Ramal (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7831481",
-      "route_name": "Línea 1",
-      "ours": 33,
-      "lang": "es",
-      "wiki": "es:Línea 1 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7840623",
-      "route_name": "Línea 7",
-      "ours": 31,
-      "lang": "es",
-      "wiki": "es:Línea 7 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7837169",
-      "route_name": "Línea 8",
-      "ours": 8,
-      "lang": "es",
-      "wiki": "es:Línea 8 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7837206",
-      "route_name": "Línea 9",
-      "ours": 29,
-      "lang": "es",
-      "wiki": "es:Línea 9 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Madrid",
-      "country": "Spain",
-      "route_id": "rm7841412",
-      "route_name": "Línea 12. Metrosur",
-      "ours": 28,
-      "lang": "es",
-      "wiki": "es:Línea 12 (Metro de Madrid)",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Tianjin",
@@ -4391,36 +4300,6 @@
       "ours": 40,
       "lang": "es",
       "wiki": "ca:Línia 1 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "rm2827687",
-      "route_name": "Antioch–SFO+Millbrae Line",
-      "ours": 27,
-      "lang": "en",
-      "wiki": "en:Yellow Line (BART)",
-      "reason": "system article shared by several lines (en:Yellow Line (BART))"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "r2827686",
-      "route_name": "BART Yellow Line: Antioch => SFO Airport => Millbrae",
-      "ours": 27,
-      "lang": "en",
-      "wiki": "en:Yellow Line (BART)",
-      "reason": "system article shared by several lines (en:Yellow Line (BART))"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "r2851727",
-      "route_name": "BART Blue Line: Daly City => Dublin/Pleasanton",
-      "ours": 18,
-      "lang": "en",
-      "wiki": "en:Bay Area Rapid Transit",
       "reason": "article has no station count infobox"
     },
     {
@@ -4792,6 +4671,36 @@
       "lang": "en",
       "wiki": "en:Circle MRT line",
       "reason": "system article shared by several lines (en:Circle MRT line)"
+    },
+    {
+      "city": "San Francisco (Bay Area)",
+      "country": "United States",
+      "route_id": "rm2827687",
+      "route_name": "Antioch–SFO+Millbrae Line",
+      "ours": 27,
+      "lang": "en",
+      "wiki": "en:Yellow Line (BART)",
+      "reason": "system article shared by several lines (en:Yellow Line (BART))"
+    },
+    {
+      "city": "San Francisco (Bay Area)",
+      "country": "United States",
+      "route_id": "r2827686",
+      "route_name": "BART Yellow Line: Antioch => SFO Airport => Millbrae",
+      "ours": 27,
+      "lang": "en",
+      "wiki": "en:Yellow Line (BART)",
+      "reason": "system article shared by several lines (en:Yellow Line (BART))"
+    },
+    {
+      "city": "San Francisco (Bay Area)",
+      "country": "United States",
+      "route_id": "r2851727",
+      "route_name": "BART Blue Line: Daly City => Dublin/Pleasanton",
+      "ours": 18,
+      "lang": "en",
+      "wiki": "en:Bay Area Rapid Transit",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Oslo",
@@ -5275,58 +5184,6 @@
       "reason": "suspect system article (zh:青岛地铁: 172)"
     },
     {
-      "city": "Brussels",
-      "country": "Belgium",
-      "route_id": "r7756456",
-      "route_name": "Metro 1: turnaround at Gare de l'Ouest/Weststation",
-      "ours": 2,
-      "lang": "nl",
-      "wikidata": "Q114957008",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Philadelphia",
-      "country": "United States",
-      "route_id": "rm7939445",
-      "route_name": "PATCO Speedline",
-      "ours": 14,
-      "lang": "en",
-      "wikidata": "Q2043730",
-      "wiki": "en:PATCO Speedline",
-      "reason": "system article shared by several lines (en:PATCO Speedline)"
-    },
-    {
-      "city": "Philadelphia",
-      "country": "United States",
-      "route_id": "r7939426",
-      "route_name": "PATCO Speedline: Lindenwold => 15th-16th & Locust",
-      "ours": 14,
-      "lang": "en",
-      "wikidata": "Q2043730",
-      "wiki": "en:PATCO Speedline",
-      "reason": "system article shared by several lines (en:PATCO Speedline)"
-    },
-    {
-      "city": "Philadelphia",
-      "country": "United States",
-      "route_id": "rm7950670",
-      "route_name": "SEPTA Broad Street Line",
-      "ours": 22,
-      "lang": "en",
-      "wiki": "en:B (SEPTA Metro)",
-      "reason": "system article shared by several lines (en:B (SEPTA Metro))"
-    },
-    {
-      "city": "Philadelphia",
-      "country": "United States",
-      "route_id": "r7950638",
-      "route_name": "SEPTA Broad-Ridge Spur: 8th & Market → Fern Rock",
-      "ours": 8,
-      "lang": "en",
-      "wiki": "en:B (SEPTA Metro)",
-      "reason": "system article shared by several lines (en:B (SEPTA Metro))"
-    },
-    {
       "city": "Rome",
       "country": "Italy",
       "route_id": "rm2208346",
@@ -5792,6 +5649,48 @@
       "reason": "system article shared by several lines (ar:الخط الأحمر (قطر))"
     },
     {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "rm7939445",
+      "route_name": "PATCO Speedline",
+      "ours": 14,
+      "lang": "en",
+      "wikidata": "Q2043730",
+      "wiki": "en:PATCO Speedline",
+      "reason": "system article shared by several lines (en:PATCO Speedline)"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "r7939426",
+      "route_name": "PATCO Speedline: Lindenwold => 15th-16th & Locust",
+      "ours": 14,
+      "lang": "en",
+      "wikidata": "Q2043730",
+      "wiki": "en:PATCO Speedline",
+      "reason": "system article shared by several lines (en:PATCO Speedline)"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "rm7950670",
+      "route_name": "SEPTA Broad Street Line",
+      "ours": 22,
+      "lang": "en",
+      "wiki": "en:B (SEPTA Metro)",
+      "reason": "system article shared by several lines (en:B (SEPTA Metro))"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "r7950638",
+      "route_name": "SEPTA Broad-Ridge Spur: 8th & Market → Fern Rock",
+      "ours": 8,
+      "lang": "en",
+      "wiki": "en:B (SEPTA Metro)",
+      "reason": "system article shared by several lines (en:B (SEPTA Metro))"
+    },
+    {
       "city": "Sofia",
       "country": "Bulgaria",
       "route_id": "rm7734093",
@@ -5965,16 +5864,6 @@
       "reason": "system article shared by several lines (en:Red Line (MBTA))"
     },
     {
-      "city": "Yokohama",
-      "country": "Japan",
-      "route_id": "rm7732283",
-      "route_name": "Green Line",
-      "ours": 10,
-      "lang": "ja",
-      "wiki": "en:Green Line",
-      "reason": "article has no station count infobox"
-    },
-    {
       "city": "Wuxi",
       "country": "China",
       "route_id": "rm11798336",
@@ -6146,26 +6035,14 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Pyongyang",
-      "country": "North Korea",
-      "route_id": "rm7734279",
-      "route_name": "Hyŏksin line",
-      "ours": 8,
-      "lang": "ko",
-      "wikidata": "Q712790",
-      "wiki": "ko:평양 지하철도 혁신선",
-      "reason": "system article shared by several lines (ko:평양 지하철도 혁신선)"
-    },
-    {
-      "city": "Pyongyang",
-      "country": "North Korea",
-      "route_id": "r7734277",
-      "route_name": "Hyŏksin line",
-      "ours": 8,
-      "lang": "ko",
-      "wikidata": "Q712790",
-      "wiki": "ko:평양 지하철도 혁신선",
-      "reason": "system article shared by several lines (ko:평양 지하철도 혁신선)"
+      "city": "Yokohama",
+      "country": "Japan",
+      "route_id": "rm7732283",
+      "route_name": "Green Line",
+      "ours": 10,
+      "lang": "ja",
+      "wiki": "en:Green Line",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Tashkent",
@@ -6777,6 +6654,28 @@
       "lang": "hy",
       "wikidata": "Q109733045",
       "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Pyongyang",
+      "country": "North Korea",
+      "route_id": "rm7734279",
+      "route_name": "Hyŏksin line",
+      "ours": 8,
+      "lang": "ko",
+      "wikidata": "Q712790",
+      "wiki": "ko:평양 지하철도 혁신선",
+      "reason": "system article shared by several lines (ko:평양 지하철도 혁신선)"
+    },
+    {
+      "city": "Pyongyang",
+      "country": "North Korea",
+      "route_id": "r7734277",
+      "route_name": "Hyŏksin line",
+      "ours": 8,
+      "lang": "ko",
+      "wikidata": "Q712790",
+      "wiki": "ko:평양 지하철도 혁신선",
+      "reason": "system article shared by several lines (ko:평양 지하철도 혁신선)"
     },
     {
       "city": "Santo Domingo",
@@ -7417,6 +7316,28 @@
       "note": "wiki营运21站（梅园开原寺—无锡东）与我们逐站一致。infobox计22含未开通的安镇站（planned, not opened），故wiki_n=22为含未通车站的过期计法。"
     },
     {
+      "city": "Changchun",
+      "country": "China",
+      "route_id": "rm9642906",
+      "route_name": "Changchun Subway Line 2",
+      "ours": 27,
+      "lang": "zh",
+      "wiki": "en:Line 2 (Changchun Rail Transit)",
+      "wiki_stations": 21,
+      "note": "wiki_n=21 为过期快照。zh wiki 载：2号线东延（东方广场—雾开河大街，含哈尔滨大街、窦家沟、英俊大街、英凯大街、林溪大街、雾开河大街6站）于 2025-09-28 开通，全线竣工，infobox 现为 27 站，与我们 27 站逐站一致。"
+    },
+    {
+      "city": "Shaoxing",
+      "country": "China",
+      "route_id": "rm12920991",
+      "route_name": "Shaoxing Rail Transit Line 1",
+      "ours": 27,
+      "lang": "zh",
+      "wiki": "zh:绍兴轨道交通1号线",
+      "wiki_stations": 33,
+      "note": "主線芳泉—姑娘桥 28 站，张墅暫緩開通→營運 27＝我們；infobox 33＝主線27＋支線6（支線依「以路線自己為準」規則獨立成線）。agent＋WebFetch 查證 2026-07-11。"
+    },
+    {
       "city": "Pyongyang",
       "country": "North Korea",
       "route_id": "rm7734280",
@@ -7427,17 +7348,6 @@
       "wiki": "ko:평양 지하철도 천리마선",
       "wiki_stations": 6,
       "note": "計法不同（線別歸屬）：ko wiki 千里馬線本體僅 6 站（봉화·승리·모란봉·개선·전우·붉은별），榮光（영광）·復興（부흥）兩站 ko wiki 歸入直通運轉的萬景台線（만경대선：부흥—영광—봉화）。我方把直通區間併入千里馬線計 8 站。ko wiki 對 8 站均未記載停業或關閉，榮光·復興視為營運中，非幽靈站。"
-    },
-    {
-      "city": "Changchun",
-      "country": "China",
-      "route_id": "rm9642906",
-      "route_name": "Changchun Subway Line 2",
-      "ours": 27,
-      "lang": "zh",
-      "wiki": "en:Line 2 (Changchun Rail Transit)",
-      "wiki_stations": 21,
-      "note": "wiki_n=21 为过期快照。zh wiki 载：2号线东延（东方广场—雾开河大街，含哈尔滨大街、窦家沟、英俊大街、英凯大街、林溪大街、雾开河大街6站）于 2025-09-28 开通，全线竣工，infobox 现为 27 站，与我们 27 站逐站一致。"
     }
   ]
 }
