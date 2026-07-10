@@ -75,7 +75,16 @@ onMounted(() => {
     e.preventDefault()
     ctxMenu.value = { x: e.point.x, y: e.point.y, lng: e.lngLat.lng, lat: e.lngLat.lat }
   })
-  map.on('click', () => { ctxMenu.value = null; basemapMenuOpen.value = false })
+  // Click a feature -> select it (its properties feed the Object tab); click
+  // empty map -> clear. One handler + queryRenderedFeatures avoids the ordering
+  // race between layer-scoped and global click handlers.
+  map.on('click', (e) => {
+    ctxMenu.value = null
+    basemapMenuOpen.value = false
+    const ids = ['metro-stations', ...ALL_LINE_LAYER_IDS].filter((id) => map.getLayer(id))
+    const hits = ids.length ? map.queryRenderedFeatures(e.point, { layers: ids }) : []
+    store.setSelectedFeature(layerId, hits.length ? hits[0].properties : null)
+  })
 
   // Station hover popup
   const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
@@ -95,6 +104,37 @@ onMounted(() => {
     map.getCanvas().style.cursor = ''
     popup.remove()
   })
+
+  // Line hover popup + highlight. Line features are overlap-deduped SEGMENTS
+  // (`routes` lists every route on the stretch) — the popup shows them all,
+  // the highlight matches the hovered segment by seg_id. Anchor the popup to
+  // the cursor and update it on move rather than to a fixed vertex.
+  const linePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
+  const showLine = (e) => {
+    map.getCanvas().style.cursor = 'pointer'
+    const p = e.features[0].properties
+    map.setFilter('metro-lines-hover', ['==', ['get', 'seg_id'], p.seg_id ?? ''])
+    // nested props arrive JSON-stringified from event features
+    let routes = p.routes
+    if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { routes = [] } }
+    routes = routes ?? []
+    const html = routes.map((r) => {
+      const local = r.route_name_local && r.route_name_local !== r.route_name
+        ? `（${r.route_name_local}）` : ''
+      return `<span style="color:${r.route_color ?? '#e11d48'}">▬</span> ` +
+        `<strong>${r.route_ref ? `[${r.route_ref}] ` : ''}${r.route_name ?? '—'}</strong>${local}`
+    }).join('<br/>')
+    linePopup.setLngLat(e.lngLat).setHTML(html || '—').addTo(map)
+  }
+  for (const id of ALL_LINE_LAYER_IDS) {
+    map.on('mouseenter', id, showLine)
+    map.on('mousemove', id, showLine)
+    map.on('mouseleave', id, () => {
+      map.getCanvas().style.cursor = ''
+      map.setFilter('metro-lines-hover', ['==', ['get', 'seg_id'], ''])
+      linePopup.remove()
+    })
+  }
 
   // Active tab drives the global map handle (toolbar / palette / attr table actions).
   const setHandle = (active) => {
@@ -137,19 +177,68 @@ async function addMetroLayers(fit) {
   }
 }
 
+// Line features are overlap-deduped SEGMENTS: `route_count` routes share the
+// stretch, colors in `route_colors`. Rendering rule (metro-osm-fetch skill):
+//   route_count = 1 → solid line in the route color
+//   route_count = n → n interleaved dashed lines, one per route color, via the
+//     dasharray-offset trick [0, i·D, D, (n−1−i)·D]. dasharray cannot be
+//     data-driven, so one layer per (n, i) slot; n ≥ MAX_OVERLAP clamps and
+//     cycles colors with modulo.
+const MAX_OVERLAP = 6
+const DASH = 2.5
+const ALL_LINE_LAYER_IDS = ['metro-lines']
+for (let n = 2; n <= MAX_OVERLAP; n++)
+  for (let i = 0; i < n; i++) ALL_LINE_LAYER_IDS.push(`metro-lines-d${n}-${i}`)
+
 // Add the metro source + line/station layers (idempotent; re-run after setStyle).
 function addMetroSourceLayers(data) {
   const l = layer.value
   if (!map || map.getSource('metro')) return
   map.addSource('metro', { type: 'geojson', data })
+
+  // single-route segments: solid
   map.addLayer({
     id: 'metro-lines', source: 'metro', type: 'line',
-    filter: ['==', ['geometry-type'], 'LineString'],
+    filter: ['all', ['==', ['geometry-type'], 'LineString'],
+      ['==', ['coalesce', ['get', 'route_count'], 1], 1]],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
       'line-color': ['coalesce', ['get', 'route_color'], '#e11d48'],
       'line-width': l.strokeWidth,
       'line-opacity': l.opacity,
+    },
+  })
+  // overlap segments: n interleaved dashes, one slot per route
+  for (let n = 2; n <= MAX_OVERLAP; n++) {
+    const isN = n < MAX_OVERLAP
+      ? ['==', ['get', 'route_count'], n]
+      : ['>=', ['get', 'route_count'], MAX_OVERLAP]
+    for (let i = 0; i < n; i++) {
+      map.addLayer({
+        id: `metro-lines-d${n}-${i}`, source: 'metro', type: 'line',
+        filter: ['all', ['==', ['geometry-type'], 'LineString'], isN],
+        layout: { 'line-cap': 'butt', 'line-join': 'round' },
+        paint: {
+          'line-color': ['at',
+            ['%', i, ['length', ['get', 'route_colors']]],
+            ['get', 'route_colors']],
+          'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
+          'line-width': l.strokeWidth,
+          'line-opacity': l.opacity,
+        },
+      })
+    }
+  }
+  // Hover highlight: thicker/opaque copy filtered to the hovered segment
+  // (empty match by default). Above the lines, below the stations.
+  map.addLayer({
+    id: 'metro-lines-hover', source: 'metro', type: 'line',
+    filter: ['==', ['get', 'seg_id'], ''],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
+      'line-color': ['coalesce', ['get', 'route_color'], '#e11d48'],
+      'line-width': (l.strokeWidth || 2) + 3,
+      'line-opacity': 1,
     },
   })
   map.addLayer({
@@ -205,10 +294,17 @@ function applyLayerState() {
   const l = layer.value
   if (!map || !l || !map.getLayer('metro-lines')) return
   const vis = l.visible ? 'visible' : 'none'
-  map.setLayoutProperty('metro-lines', 'visibility', vis)
+  for (const id of ALL_LINE_LAYER_IDS) {
+    if (!map.getLayer(id)) continue
+    map.setLayoutProperty(id, 'visibility', vis)
+    map.setPaintProperty(id, 'line-opacity', l.opacity)
+    map.setPaintProperty(id, 'line-width', l.strokeWidth)
+  }
+  if (map.getLayer('metro-lines-hover')) {
+    map.setLayoutProperty('metro-lines-hover', 'visibility', vis)
+    map.setPaintProperty('metro-lines-hover', 'line-width', (l.strokeWidth || 2) + 3)
+  }
   map.setLayoutProperty('metro-stations', 'visibility', vis)
-  map.setPaintProperty('metro-lines', 'line-opacity', l.opacity)
-  map.setPaintProperty('metro-lines', 'line-width', l.strokeWidth)
   map.setPaintProperty('metro-stations', 'circle-opacity', l.opacity)
   map.setPaintProperty('metro-stations', 'circle-stroke-opacity', l.opacity)
   map.setPaintProperty('metro-stations', 'circle-radius', l.radius)

@@ -17,7 +17,7 @@ import * as overpass from './overpass.mjs'
 const BATCH = 120
 // Bump when the Overpass predicates change — stale tag/station caches from an
 // older query shape are discarded automatically (geometry stays incremental).
-const QUERY_VERSION = 2
+const QUERY_VERSION = 3
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const step = (m) => console.log(`\n=== ${m} ===`)
@@ -45,7 +45,8 @@ async function checkQueryVersion() {
   if (meta?.query_version !== QUERY_VERSION) {
     step(`query version ${meta?.query_version ?? 'none'} -> ${QUERY_VERSION}: ` +
       'discarding tag/station caches (geometry cache stays, it is per-relation)')
-    for (const f of ['routes_tags.json', 'route_masters.json', 'stations.json']) {
+    for (const f of ['routes_tags.json', 'route_masters.json', 'stations.json',
+      'stop_areas.json']) {
       await rm(cachePath(f), { force: true })
       await rm(cachePath(f + '.partial'), { force: true })
     }
@@ -63,7 +64,7 @@ const MODES = '["route"~"^(subway|light_rail)$"]'
 const MASTER_MODES = '["route_master"~"^(subway|light_rail)$"]'
 
 async function fetchRouteTags() {
-  step('1/4  route=subway|light_rail relation tags (operational only)')
+  step('1/5  route=subway|light_rail relation tags (operational only)')
   const q = `[out:json][timeout:300];relation${MODES}${LIFE};out tags;`
   const data = await overpass.query(q, { cacheName: 'routes_tags.json', timeout: 300000 })
   const ids = data.elements.filter((e) => e.type === 'relation').map((e) => e.id)
@@ -72,7 +73,7 @@ async function fetchRouteTags() {
 }
 
 async function fetchRouteMasters() {
-  step('2/4  route_master=subway|light_rail relations (line grouping)')
+  step('2/5  route_master=subway|light_rail relations (line grouping)')
   if (await cached('route_masters.json')) { console.log('  cached'); return }
   const q = `[out:json][timeout:180];relation${MASTER_MODES};out body;`
   try {
@@ -91,8 +92,37 @@ async function fetchRouteMasters() {
   }
 }
 
+// stop_area relations group the nodes of one physical station (platforms,
+// stop_positions, station nodes of several lines) — the authoritative signal
+// for the interchange (共站) merge in buildGeojson. Non-fatal on failure:
+// the merge falls back to the same-name heuristic.
+async function fetchStopAreas() {
+  step('5/5  public_transport=stop_area relations (interchange grouping)')
+  if (await cached('stop_areas.json')) {
+    const d = JSON.parse(await readFile(cachePath('stop_areas.json'), 'utf8'))
+    console.log(`  cached: ${d.elements.length} stop_area relations`)
+    return
+  }
+  const q = '[out:json][timeout:300];(' +
+    `node["station"~"^(subway|light_rail)$"]${LIFE};` +
+    `node["railway"="station"]["subway"="yes"]${LIFE};` +
+    `node["railway"="station"]["light_rail"="yes"]${LIFE};` +
+    ')->.s;relation["public_transport"="stop_area"](bn.s);out body;'
+  try {
+    const data = await overpass.query(q,
+      { cacheName: 'stop_areas.json', timeout: 300000, maxAttempts: 6 })
+    console.log(`  ${data.elements.length} stop_area relations`)
+    await clearPartial('stop_areas.json')
+  } catch (e) {
+    console.log(`  !! stop_area fetch failed (${e.message}); ` +
+      'interchange merge falls back to same-name (marked .partial — next run retries)')
+    await writeFile(cachePath('stop_areas.json'), JSON.stringify({ elements: [] }))
+    await markPartial('stop_areas.json', { reason: e.message })
+  }
+}
+
 async function fetchStations() {
-  step('3/4  subway/light_rail stations (nodes + station areas)')
+  step('3/5  subway/light_rail stations (nodes + station areas)')
   if (await cached('stations.json')) {
     const d = JSON.parse(await readFile(cachePath('stations.json'), 'utf8'))
     console.log(`  cached: ${d.elements.length} station elements`)
@@ -153,7 +183,7 @@ async function fetchGeomBatchData(ids, failedIds) {
 // Batch files are content-addressed by their id list, so scope changes (e.g.
 // adding light_rail) only fetch the delta — old batches stay valid.
 async function fetchGeometry(routeIds) {
-  step(`4/4  route members + stop nodes (${routeIds.length} relations)`)
+  step(`4/5  route members + stop nodes (${routeIds.length} relations)`)
   const have = new Set()
   const files = (await readdir(overpass.CACHE)).filter((n) => /^geom_.+\.json$/.test(n))
   for (const f of files) {
@@ -199,6 +229,7 @@ async function main() {
   await fetchRouteMasters()
   await fetchStations()
   await fetchGeometry(routeIds)
+  await fetchStopAreas()
   console.log(`\nDONE fetching in ${((Date.now() - t0) / 1000).toFixed(0)}s. ` +
     `Raw cache: ${overpass.CACHE}\nNext: node scripts/buildGeojson.mjs`)
 }

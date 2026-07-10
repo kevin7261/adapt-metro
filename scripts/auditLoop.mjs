@@ -118,9 +118,13 @@ async function reloadIndex() {
   ctx.index = await readJSON(join(BASE, 'index.json'), null)
   ctx.ridCity = new Map()
   const lines = await readJSON(join(BASE, 'metro_lines.geojson'), { features: [] })
-  for (const f of lines.features)
-    for (const rid of f.properties.osm_route_ids || [])
-      ctx.ridCity.set(rid, f.properties.city)
+  for (const f of lines.features) {
+    // segment features carry their routes' relation ids inside routes[]
+    const routes = f.properties.routes ?? [f.properties]
+    for (const r of routes)
+      for (const rid of r.osm_route_ids || [])
+        ctx.ridCity.set(rid, f.properties.city)
+  }
 }
 
 function rebuild() {
@@ -259,12 +263,18 @@ async function audit(city, country, wikiRow) {
       push('stations_named', named / pts.length >= 0.85,
         `${named}/${pts.length} 站有名稱`, 'warn')
     }
-    // invariant 3: station order must be plausible (suspects need manual confirm)
-    const suspects = g.features
-      .filter((f) => f.geometry?.type === 'MultiLineString')
-      .map((f) => ({ name: f.properties?.route_name || f.properties?.route_id,
-        ratio: suspectOrder(f) }))
-      .filter((l) => l.ratio > 0)
+    // invariant: station order must be plausible — computed by the build per
+    // route (before segmentization) and carried on route meta `order_suspect`
+    const seen = new Set()
+    const suspects = []
+    for (const f of g.features) {
+      if (f.geometry?.type !== 'MultiLineString') continue
+      for (const r of f.properties?.routes || []) {
+        if (!r.order_suspect || seen.has(r.route_id)) continue
+        seen.add(r.route_id)
+        suspects.push({ name: r.route_name || r.route_id, ratio: r.order_suspect })
+      }
+    }
     push('station_order', suspects.length === 0,
       suspects.length
         ? `${suspects.length} 條線站序可疑（路徑長 > ${ORDER_RATIO}× MST）：` +

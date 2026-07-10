@@ -40,6 +40,41 @@ async function readAuditState() {
   catch { return {} }
 }
 
+// --- station-order sanity (per route, computed BEFORE segmentization; the
+// verdict travels on the route meta as `order_suspect`) ---
+const ORDER_RATIO = 1.6
+const segD = (a, b) => {
+  const dx = (a[0] - b[0]) * Math.cos(((a[1] + b[1]) / 2) * Math.PI / 180)
+  return Math.sqrt(dx * dx + (a[1] - b[1]) ** 2)
+}
+const pathLen = (pts) => {
+  let s = 0
+  for (let i = 1; i < pts.length; i++) s += segD(pts[i - 1], pts[i])
+  return s
+}
+const mstLen = (pts) => {
+  const d = pts.map(() => Infinity), used = pts.map(() => false)
+  d[0] = 0
+  let total = 0
+  for (let k = 0; k < pts.length; k++) {
+    let u = -1
+    for (let i = 0; i < pts.length; i++) if (!used[i] && (u < 0 || d[i] < d[u])) u = i
+    used[u] = true; total += d[u]
+    for (let i = 0; i < pts.length; i++) if (!used[i]) d[i] = Math.min(d[i], segD(pts[u], pts[i]))
+  }
+  return total
+}
+const suspectOrder = (f) => {
+  let worst = 0
+  for (const seq of f.geometry?.coordinates || []) {
+    if (seq.length < 4) continue
+    const mst = mstLen(seq)
+    if (mst < 0.01) continue
+    worst = Math.max(worst, pathLen(seq) / mst)
+  }
+  return worst > ORDER_RATIO ? +worst.toFixed(2) : 0
+}
+
 const CSS_COLORS = {
   red: '#e6194b', blue: '#0000ff', green: '#3cb44b', yellow: '#ffe119',
   orange: '#f58231', purple: '#911eb4', cyan: '#42d4f4', magenta: '#f032e6',
@@ -752,50 +787,107 @@ async function build() {
       if (!keptFeats.has(lineFeatures[i])) lineFeatures.splice(i, 1)
   }
 
-  // ---- merge same-named stations within a city (shared point, mean coords) ----
-  // OSM often carries one station node per line at an interchange; the map wants
-  // a single shared point. Same normalized name within a city merges to the
-  // average coordinate — with an ~800 m guard so distinct stations that happen
-  // to share a name stay separate. Unnamed stations (synthetic n123) never merge.
+  // ---- 共站合併（可轉乘＝同一車站；stop_area ∪ 同名近距 ∪ overrides）----
+  // Interchange stations merge to a single point (mean coords, union of lines).
+  // Criteria (union-find): (1) sharing an OSM stop_area relation — the
+  // authoritative same-complex signal; (2) same normalized name within ~800 m
+  // (same-name-nearby is a transfer in practice; synthetic n123 names exempt);
+  // (3) manually adjudicated pairs from _overrides/interchanges.json (cases
+  // resolved against Wikipedia / urbanrail.net per the metro-audit skill).
   const normName = (s) => (s || '').normalize('NFKD').toLowerCase().replace(/\s+/g, ' ').trim()
+  const areaOf = new Map() // station node id -> [stop_area relation ids]
+  try {
+    const sa = JSON.parse(await readFile(join(CACHE, 'stop_areas.json'), 'utf8'))
+    for (const e of sa.elements || []) {
+      if (e.type !== 'relation') continue
+      for (const m of e.members || [])
+        if (m.type === 'node') {
+          if (!areaOf.has(m.ref)) areaOf.set(m.ref, [])
+          areaOf.get(m.ref).push(e.id)
+        }
+    }
+  } catch { /* optional — same-name fallback still applies */ }
+  let ixPairs = []
+  try {
+    ixPairs = JSON.parse(await readFile(
+      join(BASE, '_overrides', 'interchanges.json'), 'utf8')).merge ?? []
+  } catch { /* optional */ }
+
   let mergedAway = 0
   for (const grp of cityGroups.values()) {
-    const keep = []
+    const feats = grp.stations
+    if (feats.length < 2) continue
+    // union-find
+    const parent = feats.map((_, i) => i)
+    const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i] } return i }
+    const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra }
+    const nodeId = (f) => parseInt((f.properties.station_id || '').slice(1), 10)
+
+    // (1) shared stop_area
+    const byArea = new Map()
+    feats.forEach((f, i) => {
+      for (const aid of areaOf.get(nodeId(f)) || []) {
+        if (byArea.has(aid)) union(byArea.get(aid), i)
+        else byArea.set(aid, i)
+      }
+    })
+    // (2) same name within ~800 m (greedy clusters, then union each cluster)
     const byName = new Map()
-    for (const f of grp.stations) {
+    feats.forEach((f, i) => {
       const key = normName(f.properties.station_name)
-      if (!key || /^n\d+$/.test(key)) { keep.push(f); continue }
+      if (!key || /^n\d+$/.test(key)) return
       if (!byName.has(key)) byName.set(key, [])
-      byName.get(key).push(f)
-    }
-    for (const feats of byName.values()) {
-      // greedy spatial clustering within the same name (~800 m)
+      byName.get(key).push(i)
+    })
+    for (const idxs of byName.values()) {
       const clusters = []
-      for (const f of feats) {
-        const [lon, lat] = f.geometry.coordinates
+      for (const i of idxs) {
+        const [lon, lat] = feats[i].geometry.coordinates
         let c = clusters.find((c) =>
           Math.abs(c.lat - lat) < 0.0072 &&
           Math.abs((c.lon - lon) * Math.cos((lat * Math.PI) / 180)) < 0.0072)
         if (!c) { c = { members: [], lon, lat }; clusters.push(c) }
-        c.members.push(f)
-        c.lon = c.members.reduce((s, m) => s + m.geometry.coordinates[0], 0) / c.members.length
-        c.lat = c.members.reduce((s, m) => s + m.geometry.coordinates[1], 0) / c.members.length
+        c.members.push(i)
+        c.lon = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[0], 0) / c.members.length
+        c.lat = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[1], 0) / c.members.length
       }
-      for (const c of clusters) {
-        if (c.members.length === 1) { keep.push(c.members[0]); continue }
-        mergedAway += c.members.length - 1
-        const first = c.members[0]
-        const lines = [...new Set(c.members.flatMap((m) => m.properties.lines || []))].sort()
-        keep.push({
-          type: 'Feature',
-          properties: {
-            ...first.properties,
-            lines: lines.length ? lines : null,
-            merged_from: c.members.length,
-          },
-          geometry: { type: 'Point', coordinates: [c.lon, c.lat] },
-        })
+      for (const c of clusters)
+        for (let k = 1; k < c.members.length; k++) union(c.members[0], c.members[k])
+    }
+    // (3) adjudicated interchange pairs
+    if (ixPairs.length) {
+      const byId = new Map(feats.map((f, i) => [f.properties.station_id, i]))
+      for (const [a, b] of ixPairs) {
+        if (byId.has(a) && byId.has(b)) union(byId.get(a), byId.get(b))
       }
+    }
+
+    // materialize merged stations
+    const groupsByRoot = new Map()
+    feats.forEach((_, i) => {
+      const r = find(i)
+      if (!groupsByRoot.has(r)) groupsByRoot.set(r, [])
+      groupsByRoot.get(r).push(i)
+    })
+    const keep = []
+    for (const idxs of groupsByRoot.values()) {
+      if (idxs.length === 1) { keep.push(feats[idxs[0]]); continue }
+      mergedAway += idxs.length - 1
+      const members = idxs.map((i) => feats[i])
+      // prefer a member with a real name as the representative
+      const first = members.find((m) => !/^n\d+$/.test(m.properties.station_name || '')) ?? members[0]
+      const lines = [...new Set(members.flatMap((m) => m.properties.lines || []))].sort()
+      const lon = members.reduce((s, m) => s + m.geometry.coordinates[0], 0) / members.length
+      const lat = members.reduce((s, m) => s + m.geometry.coordinates[1], 0) / members.length
+      keep.push({
+        type: 'Feature',
+        properties: {
+          ...first.properties,
+          lines: lines.length ? lines : null,
+          merged_from: members.length,
+        },
+        geometry: { type: 'Point', coordinates: [lon, lat] },
+      })
     }
     grp.stations = keep
   }
@@ -897,6 +989,92 @@ async function build() {
     delete grp.__vertexOwners
   }
 
+  // ---- 路段化：重疊路段只畫一條（routes list）----
+  // Consecutive station pairs (edges) shared by several routes are drawn once.
+  // Runs of edges with the identical route set become one segment feature with
+  // `routes: [{...}, ...]`. Per-route station order is checked HERE (the last
+  // moment the full per-route path exists) and recorded as `order_suspect`.
+  let totalSegments = 0, totalRoutes = 0
+  for (const grp of cityGroups.values()) {
+    const routeFeats = grp.lines
+    grp.routeCount = routeFeats.length
+    totalRoutes += routeFeats.length
+    if (!routeFeats.length) continue
+    const metaCache = new Map()
+    const metaOf = (f) => {
+      if (!metaCache.has(f)) {
+        const p = f.properties
+        metaCache.set(f, {
+          route_id: p.route_id, route_name: p.route_name,
+          route_name_local: p.route_name_local, route_ref: p.route_ref,
+          route_color: p.route_color, network: p.network,
+          network_local: p.network_local, operator: p.operator,
+          wikidata: p.wikidata, wikipedia: p.wikipedia,
+          osm_route_ids: p.osm_route_ids,
+          order_suspect: suspectOrder(f),
+        })
+      }
+      return metaCache.get(f)
+    }
+    const cs = (c) => c.join(',')
+    const ekey = (a, b) => { const x = cs(a), y = cs(b); return x < y ? `${x}|${y}` : `${y}|${x}` }
+    // pass 1: which routes traverse each edge
+    const edgeRoutes = new Map()
+    routeFeats.forEach((f, ri) => {
+      for (const seq of f.geometry.coordinates)
+        for (let i = 1; i < seq.length; i++) {
+          const k = ekey(seq[i - 1], seq[i])
+          if (!edgeRoutes.has(k)) edgeRoutes.set(k, new Set())
+          edgeRoutes.get(k).add(ri)
+        }
+    })
+    const sigOf = (k) => [...edgeRoutes.get(k)].sort((a, b) => a - b).join('/')
+    // pass 2: walk each route, emit every edge once, grouped into runs of equal signature
+    const emitted = new Set()
+    const segs = new Map() // signature -> array of coordinate sequences
+    for (const f of routeFeats) {
+      for (const seq of f.geometry.coordinates) {
+        let run = null, runSig = null
+        const flush = () => {
+          if (run && run.length >= 2) {
+            if (!segs.has(runSig)) segs.set(runSig, [])
+            segs.get(runSig).push(run)
+          }
+          run = null; runSig = null
+        }
+        for (let i = 1; i < seq.length; i++) {
+          const k = ekey(seq[i - 1], seq[i])
+          if (emitted.has(k)) { flush(); continue }
+          emitted.add(k)
+          const s = sigOf(k)
+          if (run && runSig === s) run.push(seq[i])
+          else { flush(); runSig = s; run = [seq[i - 1], seq[i]] }
+        }
+        flush()
+      }
+    }
+    grp.lines = [...segs.entries()].map(([sig, seqs], si) => {
+      const routes = sig.split('/').map((i) => metaOf(routeFeats[+i]))
+      const colors = routes.map((r) => r.route_color || '#e11d48')
+      return {
+        type: 'Feature',
+        properties: {
+          seg_id: `${slugify(grp.info.city) || 'x'}-${si}`,
+          routes,
+          route_count: routes.length,
+          route_refs: routes.map((r) => r.route_ref || r.route_name),
+          route_colors: colors,
+          route_color: colors[0],
+          city: grp.info.city, country: grp.info.country,
+        },
+        geometry: { type: 'MultiLineString', coordinates: seqs },
+      }
+    })
+    totalSegments += grp.lines.length
+  }
+  console.log(`  segmented: ${totalRoutes} routes -> ${totalSegments} segment features ` +
+    '(overlapping stretches drawn once)')
+
   // prune buckets left with neither lines nor stations (stray station nodes /
   // out-of-scope fragments end up here after the drops; they are not systems)
   let pruned = 0
@@ -949,7 +1127,11 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
       official_website: grp.official_url,
       official_map: wikiUrl,
       wikidata: grp.wikidata,
-      line_count: grp.lines.length, station_count: grp.stations.length,
+      // line_count = number of ROUTES; the geometry is stored as overlap-deduped
+      // segment features (segment_count) whose `routes` lists the routes on them
+      line_count: grp.routeCount ?? grp.lines.length,
+      segment_count: grp.lines.length,
+      station_count: grp.stations.length,
       // per-city audit verdict (scripts/auditLoop.mjs): passed / reasons / checks
       audit,
     }

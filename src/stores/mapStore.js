@@ -22,6 +22,10 @@ export const useMapStore = defineStore('map', {
     // Layer of the active editor tab (mirrors the dockview active panel).
     selectedLayerId: null,
 
+    // Properties of the last-clicked map feature, per layer id (null = nothing
+    // selected). The map tab writes it on click; the Object tab reads it.
+    selectedFeatures: {},
+
     // Flat list — every layer opens as its own editor tab.
     // Populated by importing metro systems (Import Metro Map).
     layers: [],
@@ -44,6 +48,11 @@ export const useMapStore = defineStore('map', {
     },
     fake(name) {
       this.toast(`「${name}」為 UI 原型 — 功能尚未實作`)
+    },
+
+    // props = the clicked feature's properties object, or null to clear.
+    setSelectedFeature(layerId, props) {
+      this.selectedFeatures[layerId] = props ?? null
     },
 
     // sys = an entry of data/metro/index.json `systems`

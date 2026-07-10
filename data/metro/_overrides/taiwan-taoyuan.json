@@ -1,0 +1,13 @@
+{
+  "city": "Taoyuan",
+  "country": "Taiwan",
+  "continent": "asia",
+  "osm_route_ids": [
+    2108764,
+    6937083,
+    8487050,
+    8487062
+  ],
+  "source": "auditLoop targeted-fetch r=80km (Taoyuan Metro)",
+  "created": "2026-07-10T10:08:48.700Z"
+}

@@ -155,12 +155,19 @@ async function main() {
         note: `${orphans.length}/${pts.length} 站不屬於任何路線（違反不變式：車站必有路線）`,
         urbanrail: urbanrailSearch(s.city) })
     }
-    const suspects = (sys.features || [])
-      .filter((f) => f.geometry?.type === 'MultiLineString')
-      .map((f) => ({ name: f.properties?.route_name || f.properties?.route_id,
-        ratio: suspectOrder(f) }))
-      .filter((l) => l.ratio > 0)
-      .sort((a, b) => b.ratio - a.ratio)
+    // per-route order verdicts are computed by the build (before overlap
+    // segmentization) and carried on each segment's routes[] meta
+    const seenRoutes = new Set()
+    const suspects = []
+    for (const f of sys.features || []) {
+      if (f.geometry?.type !== 'MultiLineString') continue
+      for (const r of f.properties?.routes || []) {
+        if (!r.order_suspect || seenRoutes.has(r.route_id)) continue
+        seenRoutes.add(r.route_id)
+        suspects.push({ name: r.route_name || r.route_id, ratio: r.order_suspect })
+      }
+    }
+    suspects.sort((a, b) => b.ratio - a.ratio)
     if (suspects.length) {
       flags.push({ severity: 'order', city: s.city, country: s.country,
         our_file: s.file, our_stations: s.station_count, our_lines: s.line_count,

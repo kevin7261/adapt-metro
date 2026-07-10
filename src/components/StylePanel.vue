@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
 import {
@@ -17,8 +18,36 @@ const width = ref(300)
 const TABS = [
   { id: 'info', label: 'Info' },
   { id: 'style', label: 'Style' },
+  { id: 'object', label: 'Object' },
 ]
 const activeTab = ref('info')
+
+/* ---- Object: properties of the last-clicked map feature (blank if none) ---- */
+const store = useMapStore()
+const selectedProps = computed(() => store.selectedFeatures[props.layer.id] ?? null)
+const asText = (v) => {
+  if (v === null || v === undefined || v === '') return '—'
+  if (typeof v === 'object') return JSON.stringify(v, null, 2)
+  return String(v)
+}
+// MapLibre serialises nested arrays/objects to JSON strings for GeoJSON source
+// features — parse them back. Arrays render as an ordered list (no brackets);
+// everything else as text.
+const selectedEntries = computed(() => {
+  const p = selectedProps.value
+  if (!p) return []
+  return Object.keys(p).sort().map((k) => {
+    let v = p[k]
+    if (typeof v === 'string' && /^[[{]/.test(v.trim())) {
+      try { v = JSON.parse(v) } catch { /* leave as-is */ }
+    }
+    if (Array.isArray(v)) return { key: k, isList: true, items: v.map(asText) }
+    return { key: k, isList: false, value: asText(v) }
+  })
+})
+
+// Clicking a feature auto-opens the Object tab (only when something is selected).
+watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
 
 const layer = computed(() => props.layer)
 const isMetro = computed(() => layer.value?.type === 'metro')
@@ -29,14 +58,20 @@ const meta = computed(() => layerData[layer.value.id]?.metro_system ?? null)
 const metroLines = computed(() => {
   const d = layerData[layer.value.id]
   if (!d) return []
-  return d.features
-    .filter((f) => f.geometry.type !== 'Point')
-    .map((f) => f.properties)
-    .sort((a, b) =>
-      String(a.route_ref ?? a.route_name ?? '').localeCompare(
-        String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true },
-      ),
-    )
+  // line features are overlap-deduped SEGMENTS carrying `routes: [...]` —
+  // the city's line list is the unique routes across all segments
+  const byId = new Map()
+  for (const f of d.features) {
+    if (f.geometry.type === 'Point') continue
+    for (const r of f.properties.routes ?? [f.properties]) {
+      if (r.route_id && !byId.has(r.route_id)) byId.set(r.route_id, r)
+    }
+  }
+  return [...byId.values()].sort((a, b) =>
+    String(a.route_ref ?? a.route_name ?? '').localeCompare(
+      String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true },
+    ),
+  )
 })
 const wikidataUrl = computed(() =>
   meta.value?.wikidata ? `https://www.wikidata.org/wiki/${meta.value.wikidata}` : null,
@@ -299,6 +334,26 @@ function startResize(e) {
             <input v-model.number="layer.opacity" type="range" min="0" max="1" step="0.05" class="slider" />
           </div>
         </template>
+
+        <template v-else-if="activeTab === 'object'">
+          <div v-if="!selectedEntries.length" class="obj-empty">
+            點地圖上的物件以檢視其屬性
+          </div>
+          <table v-else class="obj-table">
+            <tbody>
+              <tr v-for="row in selectedEntries" :key="row.key">
+                <th class="obj-key">{{ row.key }}</th>
+                <td class="obj-val">
+                  <template v-if="row.isList">
+                    <span v-if="!row.items.length">—</span>
+                    <div v-for="(it, i) in row.items" :key="i" class="obj-li">{{ it }}</div>
+                  </template>
+                  <template v-else>{{ row.value }}</template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
       </div>
     </aside>
   </template>
@@ -349,6 +404,27 @@ function startResize(e) {
 }
 
 .style-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* Object tab: all properties of the clicked feature */
+.obj-empty { color: hsl(var(--muted-foreground)); font-size: 12px; padding: 8px 2px; }
+.obj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.obj-table tr { border-bottom: 1px solid hsl(var(--border)); }
+.obj-key {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 8px 5px 2px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+}
+.obj-val {
+  padding: 5px 2px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  font-variant-numeric: tabular-nums;
+}
+.obj-li { padding: 1px 0; }
+.obj-li + .obj-li { border-top: 1px dotted hsl(var(--border)); }
 .layer-heading {
   display: flex;
   align-items: baseline;

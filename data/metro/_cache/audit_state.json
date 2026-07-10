@@ -54,7 +54,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.739Z"
+    "audited_at": "2026-07-10T10:07:31.341Z"
   },
   "Buenos Aires|Argentina": {
     "strategies_tried": [],
@@ -111,7 +111,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.741Z"
+    "audited_at": "2026-07-10T10:07:31.343Z"
   },
   "Yerevan|Armenia": {
     "strategies_tried": [],
@@ -150,7 +150,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "20 個折點/端點皆為車站",
+        "detail": "11 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -168,7 +168,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.742Z"
+    "audited_at": "2026-07-10T10:07:31.343Z"
   },
   "Sydney|Australia": {
     "strategies_tried": [],
@@ -207,7 +207,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "42 個折點/端點皆為車站",
+        "detail": "21 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -225,7 +225,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.742Z"
+    "audited_at": "2026-07-10T10:07:31.344Z"
   },
   "Vienna|Austria": {
     "strategies_tried": [],
@@ -264,7 +264,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "131 個折點/端點皆為車站",
+        "detail": "110 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -282,7 +282,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.743Z"
+    "audited_at": "2026-07-10T10:07:31.345Z"
   },
   "Baku|Azerbaijan": {
     "strategies_tried": [],
@@ -303,31 +303,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "27 stations",
+        "detail": "26 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 27 vs Wikipedia 25（比值 1.08）",
+        "detail": "OSM 26 vs Wikipedia 25（比值 1.04）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "27/27 站皆有所屬路線",
+        "detail": "26/26 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "40 個折點/端點皆為車站",
+        "detail": "28 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "27/27 站有名稱",
+        "detail": "26/26 站有名稱",
         "level": "warn"
       },
       {
@@ -339,7 +339,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.744Z"
+    "audited_at": "2026-07-10T10:07:31.345Z"
   },
   "Dhaka|Bangladesh": {
     "strategies_tried": [],
@@ -396,7 +396,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.744Z"
+    "audited_at": "2026-07-10T10:07:31.346Z"
   },
   "Minsk|Belarus": {
     "strategies_tried": [],
@@ -417,19 +417,19 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "38 stations",
+        "detail": "36 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 38 vs Wikipedia 33（比值 1.15）",
+        "detail": "OSM 36 vs Wikipedia 33（比值 1.09）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "38/38 站皆有所屬路線",
+        "detail": "36/36 站皆有所屬路線",
         "level": "error"
       },
       {
@@ -441,7 +441,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "38/38 站有名稱",
+        "detail": "36/36 站有名稱",
         "level": "warn"
       },
       {
@@ -453,7 +453,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.745Z"
+    "audited_at": "2026-07-10T10:07:31.346Z"
   },
   "Brussels|Belgium": {
     "strategies_tried": [],
@@ -492,7 +492,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "191 個折點/端點皆為車站",
+        "detail": "71 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -510,7 +510,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.746Z"
+    "audited_at": "2026-07-10T10:07:31.347Z"
   },
   "Belo Horizonte|Brazil": {
     "strategies_tried": [],
@@ -549,7 +549,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "43 個折點/端點皆為車站",
+        "detail": "25 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -567,7 +567,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.746Z"
+    "audited_at": "2026-07-10T10:07:31.348Z"
   },
   "Brasília|Brazil": {
     "strategies_tried": [],
@@ -606,7 +606,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "41 個折點/端點皆為車站",
+        "detail": "29 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -624,7 +624,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.747Z"
+    "audited_at": "2026-07-10T10:07:31.348Z"
   },
   "Fortaleza|Brazil": {
     "strategies_tried": [],
@@ -663,7 +663,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "40 個折點/端點皆為車站",
+        "detail": "20 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -681,7 +681,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.747Z"
+    "audited_at": "2026-07-10T10:07:31.349Z"
   },
   "Porto Alegre|Brazil": {
     "strategies_tried": [],
@@ -738,7 +738,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.748Z"
+    "audited_at": "2026-07-10T10:07:31.349Z"
   },
   "Recife|Brazil": {
     "strategies_tried": [],
@@ -777,7 +777,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "41 個折點/端點皆為車站",
+        "detail": "38 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -795,7 +795,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.748Z"
+    "audited_at": "2026-07-10T10:07:31.350Z"
   },
   "Rio de Janeiro|Brazil": {
     "strategies_tried": [],
@@ -834,7 +834,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "58 個折點/端點皆為車站",
+        "detail": "45 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -854,7 +854,7 @@
     "warnings": [
       "41/50 站有名稱"
     ],
-    "audited_at": "2026-07-10T09:30:23.749Z"
+    "audited_at": "2026-07-10T10:07:31.350Z"
   },
   "Salvador|Brazil": {
     "strategies_tried": [],
@@ -911,7 +911,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.749Z"
+    "audited_at": "2026-07-10T10:07:31.351Z"
   },
   "São Paulo|Brazil": {
     "strategies_tried": [],
@@ -950,7 +950,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "134 個折點/端點皆為車站",
+        "detail": "92 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -968,7 +968,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.749Z"
+    "audited_at": "2026-07-10T10:07:31.351Z"
   },
   "Sofia|Bulgaria": {
     "strategies_tried": [],
@@ -989,31 +989,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "48 stations",
+        "detail": "47 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 48 vs Wikipedia 47（比值 1.02）",
+        "detail": "OSM 47 vs Wikipedia 47（比值 1.00）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "48/48 站皆有所屬路線",
+        "detail": "47/47 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "120 個折點/端點皆為車站",
+        "detail": "49 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "48/48 站有名稱",
+        "detail": "47/47 站有名稱",
         "level": "warn"
       },
       {
@@ -1025,7 +1025,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.750Z"
+    "audited_at": "2026-07-10T10:07:31.352Z"
   },
   "Montreal|Canada": {
     "strategies_tried": [],
@@ -1082,7 +1082,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.750Z"
+    "audited_at": "2026-07-10T10:07:31.352Z"
   },
   "Toronto|Canada": {
     "strategies_tried": [],
@@ -1121,7 +1121,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "110 個折點/端點皆為車站",
+        "detail": "75 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1139,7 +1139,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.751Z"
+    "audited_at": "2026-07-10T10:07:31.353Z"
   },
   "Vancouver|Canada": {
     "strategies_tried": [],
@@ -1178,7 +1178,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "100 個折點/端點皆為車站",
+        "detail": "60 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1196,7 +1196,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.751Z"
+    "audited_at": "2026-07-10T10:07:31.353Z"
   },
   "Santiago|Chile": {
     "strategies_tried": [],
@@ -1253,7 +1253,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.752Z"
+    "audited_at": "2026-07-10T10:07:31.354Z"
   },
   "Beijing|China": {
     "strategies_tried": [],
@@ -1292,7 +1292,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "739 個折點/端點皆為車站",
+        "detail": "526 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1310,7 +1310,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.753Z"
+    "audited_at": "2026-07-10T10:07:31.355Z"
   },
   "Changchun|China": {
     "strategies_tried": [],
@@ -1349,7 +1349,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "64 個折點/端點皆為車站",
+        "detail": "65 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1367,7 +1367,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.754Z"
+    "audited_at": "2026-07-10T10:07:31.356Z"
   },
   "Changsha|China": {
     "strategies_tried": [],
@@ -1406,7 +1406,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "185 個折點/端點皆為車站",
+        "detail": "160 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1424,7 +1424,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.755Z"
+    "audited_at": "2026-07-10T10:07:31.357Z"
   },
   "Changzhou|China": {
     "strategies_tried": [],
@@ -1463,7 +1463,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "59 個折點/端點皆為車站",
+        "detail": "44 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1481,7 +1481,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.755Z"
+    "audited_at": "2026-07-10T10:07:31.357Z"
   },
   "Chengdu|China": {
     "strategies_tried": [],
@@ -1502,31 +1502,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "370 stations",
+        "detail": "369 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 370 vs Wikipedia 363（比值 1.02）",
+        "detail": "OSM 369 vs Wikipedia 363（比值 1.02）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "370/370 站皆有所屬路線",
+        "detail": "369/369 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "497 個折點/端點皆為車站",
+        "detail": "452 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "367/370 站有名稱",
+        "detail": "366/369 站有名稱",
         "level": "warn"
       },
       {
@@ -1538,7 +1538,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.756Z"
+    "audited_at": "2026-07-10T10:07:31.358Z"
   },
   "Chongqing|China": {
     "strategies_tried": [],
@@ -1577,7 +1577,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "331 個折點/端點皆為車站",
+        "detail": "279 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1595,7 +1595,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.757Z"
+    "audited_at": "2026-07-10T10:07:31.359Z"
   },
   "Dalian|China": {
     "strategies_tried": [],
@@ -1616,31 +1616,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "125 stations",
+        "detail": "103 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 125 vs Wikipedia 100（比值 1.25）",
+        "detail": "OSM 103 vs Wikipedia 100（比值 1.03）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "125/125 站皆有所屬路線",
+        "detail": "103/103 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "130 個折點/端點皆為車站",
+        "detail": "108 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "125/125 站有名稱",
+        "detail": "103/103 站有名稱",
         "level": "warn"
       },
       {
@@ -1652,7 +1652,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.758Z"
+    "audited_at": "2026-07-10T10:07:31.360Z"
   },
   "Dongguan|China": {
     "strategies_tried": [],
@@ -1709,7 +1709,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.760Z"
+    "audited_at": "2026-07-10T10:07:31.360Z"
   },
   "Foshan|China": {
     "strategies_tried": [],
@@ -1766,7 +1766,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.760Z"
+    "audited_at": "2026-07-10T10:07:31.361Z"
   },
   "Fuzhou|China": {
     "strategies_tried": [],
@@ -1805,7 +1805,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "158 個折點/端點皆為車站",
+        "detail": "119 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1823,7 +1823,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.761Z"
+    "audited_at": "2026-07-10T10:07:31.361Z"
   },
   "Guangzhou|China": {
     "strategies_tried": [],
@@ -1844,31 +1844,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "331 stations",
+        "detail": "330 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 331 vs Wikipedia 317（比值 1.04）",
+        "detail": "OSM 330 vs Wikipedia 317（比值 1.04）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "331/331 站皆有所屬路線",
+        "detail": "330/330 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "526 個折點/端點皆為車站",
+        "detail": "401 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "329/331 站有名稱",
+        "detail": "328/330 站有名稱",
         "level": "warn"
       },
       {
@@ -1880,7 +1880,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.762Z"
+    "audited_at": "2026-07-10T10:07:31.362Z"
   },
   "Guiyang|China": {
     "strategies_tried": [],
@@ -1919,7 +1919,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "131 個折點/端點皆為車站",
+        "detail": "99 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -1937,7 +1937,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.762Z"
+    "audited_at": "2026-07-10T10:07:31.363Z"
   },
   "Hangzhou|China": {
     "strategies_tried": [],
@@ -1958,31 +1958,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "282 stations",
+        "detail": "280 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 282 vs Wikipedia 254（比值 1.11）",
+        "detail": "OSM 280 vs Wikipedia 254（比值 1.10）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "282/282 站皆有所屬路線",
+        "detail": "280/280 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "372 個折點/端點皆為車站",
+        "detail": "316 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "282/282 站有名稱",
+        "detail": "280/280 站有名稱",
         "level": "warn"
       },
       {
@@ -1994,7 +1994,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.763Z"
+    "audited_at": "2026-07-10T10:07:31.366Z"
   },
   "Harbin|China": {
     "strategies_tried": [],
@@ -2033,7 +2033,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "98 個折點/端點皆為車站",
+        "detail": "79 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2051,7 +2051,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.764Z"
+    "audited_at": "2026-07-10T10:07:31.367Z"
   },
   "Hefei|China": {
     "strategies_tried": [],
@@ -2090,7 +2090,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "228 個折點/端點皆為車站",
+        "detail": "216 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2108,7 +2108,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.765Z"
+    "audited_at": "2026-07-10T10:07:31.368Z"
   },
   "Hohhot|China": {
     "strategies_tried": [],
@@ -2129,31 +2129,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "44 stations",
+        "detail": "43 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 44 vs Wikipedia 43（比值 1.02）",
+        "detail": "OSM 43 vs Wikipedia 43（比值 1.00）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "44/44 站皆有所屬路線",
+        "detail": "43/43 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "64 個折點/端點皆為車站",
+        "detail": "44 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "44/44 站有名稱",
+        "detail": "43/43 站有名稱",
         "level": "warn"
       },
       {
@@ -2165,7 +2165,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.765Z"
+    "audited_at": "2026-07-10T10:07:31.368Z"
   },
   "Hong Kong|China": {
     "strategies_tried": [],
@@ -2204,7 +2204,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "178 個折點/端點皆為車站",
+        "detail": "142 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2222,7 +2222,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.766Z"
+    "audited_at": "2026-07-10T10:07:31.369Z"
   },
   "Jinan|China": {
     "strategies_tried": [],
@@ -2261,7 +2261,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "130 個折點/端點皆為車站",
+        "detail": "115 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2279,7 +2279,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.766Z"
+    "audited_at": "2026-07-10T10:07:31.369Z"
   },
   "Jinhua|China": {
     "strategies_tried": [],
@@ -2336,7 +2336,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.767Z"
+    "audited_at": "2026-07-10T10:07:31.370Z"
   },
   "Kunming|China": {
     "strategies_tried": [],
@@ -2375,7 +2375,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "128 個折點/端點皆為車站",
+        "detail": "116 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2393,7 +2393,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.767Z"
+    "audited_at": "2026-07-10T10:07:31.370Z"
   },
   "Lanzhou|China": {
     "strategies_tried": [],
@@ -2432,7 +2432,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "47 個折點/端點皆為車站",
+        "detail": "28 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2450,7 +2450,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.768Z"
+    "audited_at": "2026-07-10T10:07:31.371Z"
   },
   "Luoyang|China": {
     "strategies_tried": [],
@@ -2489,7 +2489,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "53 個折點/端點皆為車站",
+        "detail": "34 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2507,7 +2507,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.768Z"
+    "audited_at": "2026-07-10T10:07:31.371Z"
   },
   "Macau|China": {
     "strategies_tried": [],
@@ -2546,7 +2546,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "32 個折點/端點皆為車站",
+        "detail": "17 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2564,7 +2564,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.768Z"
+    "audited_at": "2026-07-10T10:07:31.372Z"
   },
   "Nanchang|China": {
     "strategies_tried": [],
@@ -2603,7 +2603,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "134 個折點/端點皆為車站",
+        "detail": "112 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2623,7 +2623,7 @@
     "warnings": [
       "111/133 站有名稱"
     ],
-    "audited_at": "2026-07-10T09:30:23.769Z"
+    "audited_at": "2026-07-10T10:07:31.373Z"
   },
   "Nanjing|China": {
     "strategies_tried": [],
@@ -2644,31 +2644,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "291 stations",
+        "detail": "287 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 291 vs Wikipedia 252（比值 1.15）",
+        "detail": "OSM 287 vs Wikipedia 252（比值 1.14）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "291/291 站皆有所屬路線",
+        "detail": "287/287 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "358 個折點/端點皆為車站",
+        "detail": "290 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "281/291 站有名稱",
+        "detail": "277/287 站有名稱",
         "level": "warn"
       },
       {
@@ -2680,7 +2680,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.770Z"
+    "audited_at": "2026-07-10T10:07:31.374Z"
   },
   "Nanning|China": {
     "strategies_tried": [],
@@ -2719,7 +2719,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "123 個折點/端點皆為車站",
+        "detail": "108 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2737,7 +2737,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.771Z"
+    "audited_at": "2026-07-10T10:07:31.374Z"
   },
   "Nantong|China": {
     "strategies_tried": [],
@@ -2776,7 +2776,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "62 個折點/端點皆為車站",
+        "detail": "45 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2796,7 +2796,7 @@
     "warnings": [
       "43/53 站有名稱"
     ],
-    "audited_at": "2026-07-10T09:30:23.771Z"
+    "audited_at": "2026-07-10T10:07:31.375Z"
   },
   "Ningbo|China": {
     "strategies_tried": [],
@@ -2835,7 +2835,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "227 個折點/端點皆為車站",
+        "detail": "200 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2853,7 +2853,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.772Z"
+    "audited_at": "2026-07-10T10:07:31.376Z"
   },
   "Qingdao|China": {
     "strategies_tried": [],
@@ -2892,7 +2892,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "236 個折點/端點皆為車站",
+        "detail": "189 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2910,7 +2910,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.773Z"
+    "audited_at": "2026-07-10T10:07:31.376Z"
   },
   "Shanghai|China": {
     "strategies_tried": [],
@@ -2949,7 +2949,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "941 個折點/端點皆為車站",
+        "detail": "517 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -2967,7 +2967,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.774Z"
+    "audited_at": "2026-07-10T10:07:31.378Z"
   },
   "Shaoxing|China": {
     "strategies_tried": [],
@@ -3006,7 +3006,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "83 個折點/端點皆為車站",
+        "detail": "42 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3024,7 +3024,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.775Z"
+    "audited_at": "2026-07-10T10:07:31.378Z"
   },
   "Shenyang|China": {
     "strategies_tried": [],
@@ -3063,7 +3063,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "213 個折點/端點皆為車站",
+        "detail": "148 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3081,7 +3081,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.776Z"
+    "audited_at": "2026-07-10T10:07:31.379Z"
   },
   "Shenzhen|China": {
     "strategies_tried": [],
@@ -3120,7 +3120,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "497 個折點/端點皆為車站",
+        "detail": "440 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3138,7 +3138,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.777Z"
+    "audited_at": "2026-07-10T10:07:31.380Z"
   },
   "Shijiazhuang|China": {
     "strategies_tried": [],
@@ -3195,7 +3195,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.777Z"
+    "audited_at": "2026-07-10T10:07:31.381Z"
   },
   "Suzhou|China": {
     "strategies_tried": [],
@@ -3234,7 +3234,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "453 個折點/端點皆為車站",
+        "detail": "275 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3252,7 +3252,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.779Z"
+    "audited_at": "2026-07-10T10:07:31.382Z"
   },
   "Taiyuan|China": {
     "strategies_tried": [],
@@ -3291,7 +3291,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "70 個折點/端點皆為車站",
+        "detail": "47 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3309,7 +3309,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.779Z"
+    "audited_at": "2026-07-10T10:07:31.382Z"
   },
   "Taizhou|China": {
     "strategies_tried": [],
@@ -3366,7 +3366,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.780Z"
+    "audited_at": "2026-07-10T10:07:31.383Z"
   },
   "Tianjin|China": {
     "strategies_tried": [],
@@ -3387,31 +3387,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "245 stations",
+        "detail": "244 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 245 vs Wikipedia 237（比值 1.03）",
+        "detail": "OSM 244 vs Wikipedia 237（比值 1.03）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "245/245 站皆有所屬路線",
+        "detail": "244/244 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "288 個折點/端點皆為車站",
+        "detail": "273 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "243/245 站有名稱",
+        "detail": "242/244 站有名稱",
         "level": "warn"
       },
       {
@@ -3423,7 +3423,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.781Z"
+    "audited_at": "2026-07-10T10:07:31.384Z"
   },
   "Ürümqi|China": {
     "strategies_tried": [],
@@ -3480,7 +3480,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.782Z"
+    "audited_at": "2026-07-10T10:07:31.384Z"
   },
   "Wenzhou|China": {
     "strategies_tried": [],
@@ -3519,7 +3519,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "38 個折點/端點皆為車站",
+        "detail": "40 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3537,7 +3537,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.782Z"
+    "audited_at": "2026-07-10T10:07:31.385Z"
   },
   "Wuhan|China": {
     "strategies_tried": [],
@@ -3576,7 +3576,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "444 個折點/端點皆為車站",
+        "detail": "338 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3594,7 +3594,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.783Z"
+    "audited_at": "2026-07-10T10:07:31.386Z"
   },
   "Wuhu|China": {
     "strategies_tried": [],
@@ -3633,7 +3633,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "72 個折點/端點皆為車站",
+        "detail": "36 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3651,7 +3651,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.784Z"
+    "audited_at": "2026-07-10T10:07:31.387Z"
   },
   "Wuxi|China": {
     "strategies_tried": [],
@@ -3708,7 +3708,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.785Z"
+    "audited_at": "2026-07-10T10:07:31.387Z"
   },
   "Xiamen|China": {
     "strategies_tried": [],
@@ -3747,7 +3747,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "86 個折點/端點皆為車站",
+        "detail": "70 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3765,7 +3765,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.786Z"
+    "audited_at": "2026-07-10T10:07:31.388Z"
   },
   "Xi'an|China": {
     "strategies_tried": [],
@@ -3804,7 +3804,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "337 個折點/端點皆為車站",
+        "detail": "286 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -3822,7 +3822,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.787Z"
+    "audited_at": "2026-07-10T10:07:31.389Z"
   },
   "Xuzhou|China": {
     "strategies_tried": [],
@@ -3879,7 +3879,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.787Z"
+    "audited_at": "2026-07-10T10:07:31.390Z"
   },
   "Zhengzhou|China": {
     "strategies_tried": [],
@@ -3936,7 +3936,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.788Z"
+    "audited_at": "2026-07-10T10:07:31.391Z"
   },
   "Medellín|Colombia": {
     "strategies_tried": [],
@@ -3993,7 +3993,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.789Z"
+    "audited_at": "2026-07-10T10:07:31.392Z"
   },
   "Prague|Czech Republic": {
     "strategies_tried": [],
@@ -4032,7 +4032,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "118 個折點/端點皆為車站",
+        "detail": "59 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4050,7 +4050,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.789Z"
+    "audited_at": "2026-07-10T10:07:31.392Z"
   },
   "Prague|Czechia": {
     "strategies_tried": [],
@@ -4089,7 +4089,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "118 個折點/端點皆為車站",
+        "detail": "59 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4107,7 +4107,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.789Z"
+    "audited_at": "2026-07-10T10:07:31.392Z"
   },
   "Copenhagen|Denmark": {
     "strategies_tried": [],
@@ -4146,7 +4146,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "93 個折點/端點皆為車站",
+        "detail": "53 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4164,7 +4164,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.790Z"
+    "audited_at": "2026-07-10T10:07:31.393Z"
   },
   "Santo Domingo|Dominican Republic": {
     "strategies_tried": [],
@@ -4203,7 +4203,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "55 個折點/端點皆為車站",
+        "detail": "44 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4221,7 +4221,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.791Z"
+    "audited_at": "2026-07-10T10:07:31.393Z"
   },
   "Quito|Ecuador": {
     "strategies_tried": [],
@@ -4278,7 +4278,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.791Z"
+    "audited_at": "2026-07-10T10:07:31.394Z"
   },
   "Cairo|Egypt": {
     "strategies_tried": [],
@@ -4317,7 +4317,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "112 個折點/端點皆為車站",
+        "detail": "90 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4335,7 +4335,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.792Z"
+    "audited_at": "2026-07-10T10:07:31.395Z"
   },
   "Helsinki|Finland": {
     "strategies_tried": [],
@@ -4374,7 +4374,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "92 個折點/端點皆為車站",
+        "detail": "33 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4392,7 +4392,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.792Z"
+    "audited_at": "2026-07-10T10:07:31.396Z"
   },
   "Lille|France": {
     "strategies_tried": [],
@@ -4449,7 +4449,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.793Z"
+    "audited_at": "2026-07-10T10:07:31.397Z"
   },
   "Lyon|France": {
     "strategies_tried": [],
@@ -4506,7 +4506,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.794Z"
+    "audited_at": "2026-07-10T10:07:31.397Z"
   },
   "Marseille|France": {
     "strategies_tried": [],
@@ -4563,7 +4563,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.794Z"
+    "audited_at": "2026-07-10T10:07:31.398Z"
   },
   "Paris|France": {
     "strategies_tried": [],
@@ -4584,31 +4584,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "338 stations",
+        "detail": "337 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 338 vs Wikipedia 321（比值 1.05）",
+        "detail": "OSM 337 vs Wikipedia 321（比值 1.05）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "338/338 站皆有所屬路線",
+        "detail": "337/337 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "596 個折點/端點皆為車站",
+        "detail": "426 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "337/338 站有名稱",
+        "detail": "336/337 站有名稱",
         "level": "warn"
       },
       {
@@ -4620,7 +4620,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.796Z"
+    "audited_at": "2026-07-10T10:07:31.399Z"
   },
   "Rennes|France": {
     "strategies_tried": [],
@@ -4677,7 +4677,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.796Z"
+    "audited_at": "2026-07-10T10:07:31.400Z"
   },
   "Toulouse|France": {
     "strategies_tried": [],
@@ -4734,7 +4734,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.797Z"
+    "audited_at": "2026-07-10T10:07:31.400Z"
   },
   "Tbilisi|Georgia": {
     "strategies_tried": [],
@@ -4791,7 +4791,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.797Z"
+    "audited_at": "2026-07-10T10:07:31.401Z"
   },
   "Berlin|Germany": {
     "strategies_tried": [],
@@ -4830,7 +4830,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "631 個折點/端點皆為車站",
+        "detail": "306 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4848,7 +4848,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.799Z"
+    "audited_at": "2026-07-10T10:07:31.402Z"
   },
   "Hamburg|Germany": {
     "strategies_tried": [],
@@ -4887,7 +4887,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "185 個折點/端點皆為車站",
+        "detail": "105 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4905,7 +4905,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.800Z"
+    "audited_at": "2026-07-10T10:07:31.403Z"
   },
   "Munich|Germany": {
     "strategies_tried": [],
@@ -4944,7 +4944,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "201 個折點/端點皆為車站",
+        "detail": "119 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -4962,7 +4962,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.800Z"
+    "audited_at": "2026-07-10T10:07:31.404Z"
   },
   "Nuremberg|Germany": {
     "strategies_tried": [],
@@ -5001,7 +5001,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "114 個折點/端點皆為車站",
+        "detail": "55 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5019,7 +5019,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.801Z"
+    "audited_at": "2026-07-10T10:07:31.405Z"
   },
   "Athens|Greece": {
     "strategies_tried": [],
@@ -5058,7 +5058,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "142 個折點/端點皆為車站",
+        "detail": "71 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5076,7 +5076,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.802Z"
+    "audited_at": "2026-07-10T10:07:31.405Z"
   },
   "Thessaloniki|Greece": {
     "strategies_tried": [],
@@ -5115,7 +5115,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "26 個折點/端點皆為車站",
+        "detail": "13 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5133,7 +5133,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.802Z"
+    "audited_at": "2026-07-10T10:07:31.406Z"
   },
   "Budapest|Hungary": {
     "strategies_tried": [],
@@ -5172,7 +5172,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "104 個折點/端點皆為車站",
+        "detail": "52 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5190,7 +5190,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.803Z"
+    "audited_at": "2026-07-10T10:07:31.407Z"
   },
   "Agra|India": {
     "strategies_tried": [],
@@ -5247,7 +5247,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.804Z"
+    "audited_at": "2026-07-10T10:07:31.407Z"
   },
   "Ahmedabad|India": {
     "strategies_tried": [],
@@ -5304,7 +5304,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.805Z"
+    "audited_at": "2026-07-10T10:07:31.408Z"
   },
   "Bengaluru|India": {
     "strategies_tried": [],
@@ -5343,7 +5343,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "138 個折點/端點皆為車站",
+        "detail": "85 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5361,7 +5361,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.805Z"
+    "audited_at": "2026-07-10T10:07:31.409Z"
   },
   "Bhopal|India": {
     "strategies_tried": [],
@@ -5418,7 +5418,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.806Z"
+    "audited_at": "2026-07-10T10:07:31.409Z"
   },
   "Chennai|India": {
     "strategies_tried": [],
@@ -5457,7 +5457,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "62 個折點/端點皆為車站",
+        "detail": "45 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5475,7 +5475,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.807Z"
+    "audited_at": "2026-07-10T10:07:31.410Z"
   },
   "Delhi|India": {
     "strategies_tried": [],
@@ -5514,7 +5514,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "321 個折點/端點皆為車站",
+        "detail": "274 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5532,7 +5532,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.808Z"
+    "audited_at": "2026-07-10T10:07:31.411Z"
   },
   "Gurgaon|India": {
     "strategies_tried": [],
@@ -5589,7 +5589,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.808Z"
+    "audited_at": "2026-07-10T10:07:31.412Z"
   },
   "Hyderabad|India": {
     "strategies_tried": [],
@@ -5628,7 +5628,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "97 個折點/端點皆為車站",
+        "detail": "64 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5646,7 +5646,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.809Z"
+    "audited_at": "2026-07-10T10:07:31.413Z"
   },
   "Indore|India": {
     "strategies_tried": [],
@@ -5703,7 +5703,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.810Z"
+    "audited_at": "2026-07-10T10:07:31.413Z"
   },
   "Jaipur|India": {
     "strategies_tried": [],
@@ -5760,7 +5760,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.810Z"
+    "audited_at": "2026-07-10T10:07:31.414Z"
   },
   "Kanpur|India": {
     "strategies_tried": [],
@@ -5817,7 +5817,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.811Z"
+    "audited_at": "2026-07-10T10:07:31.415Z"
   },
   "Kochi|India": {
     "strategies_tried": [],
@@ -5874,7 +5874,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.812Z"
+    "audited_at": "2026-07-10T10:07:31.415Z"
   },
   "Kolkata|India": {
     "strategies_tried": [],
@@ -5913,7 +5913,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "84 個折點/端點皆為車站",
+        "detail": "61 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5931,7 +5931,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.813Z"
+    "audited_at": "2026-07-10T10:07:31.418Z"
   },
   "Lucknow|India": {
     "strategies_tried": [],
@@ -5970,7 +5970,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "42 個折點/端點皆為車站",
+        "detail": "21 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -5988,7 +5988,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.813Z"
+    "audited_at": "2026-07-10T10:07:31.419Z"
   },
   "Mumbai|India": {
     "strategies_tried": [],
@@ -6027,7 +6027,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "118 個折點/端點皆為車站",
+        "detail": "82 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -6045,7 +6045,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.814Z"
+    "audited_at": "2026-07-10T10:07:31.420Z"
   },
   "Meerut|India": {
     "strategies_tried": [],
@@ -6102,7 +6102,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.815Z"
+    "audited_at": "2026-07-10T10:07:31.421Z"
   },
   "Nagpur|India": {
     "strategies_tried": [],
@@ -6159,7 +6159,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.816Z"
+    "audited_at": "2026-07-10T10:07:31.422Z"
   },
   "Navi Mumbai|India": {
     "strategies_tried": [],
@@ -6216,7 +6216,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.817Z"
+    "audited_at": "2026-07-10T10:07:31.422Z"
   },
   "Noida|India": {
     "strategies_tried": [],
@@ -6255,7 +6255,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "29 個折點/端點皆為車站",
+        "detail": "28 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -6273,7 +6273,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.818Z"
+    "audited_at": "2026-07-10T10:07:31.423Z"
   },
   "Patna|India": {
     "strategies_tried": [],
@@ -6330,7 +6330,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.819Z"
+    "audited_at": "2026-07-10T10:07:31.424Z"
   },
   "Pune|India": {
     "strategies_tried": [],
@@ -6369,7 +6369,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "45 個折點/端點皆為車站",
+        "detail": "34 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -6387,7 +6387,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.820Z"
+    "audited_at": "2026-07-10T10:07:31.424Z"
   },
   "Jakarta|Indonesia": {
     "strategies_tried": [],
@@ -6444,7 +6444,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.821Z"
+    "audited_at": "2026-07-10T10:07:31.425Z"
   },
   "Palembang|Indonesia": {
     "strategies_tried": [],
@@ -6501,7 +6501,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.822Z"
+    "audited_at": "2026-07-10T10:07:31.426Z"
   },
   "Isfahan|Iran": {
     "strategies_tried": [],
@@ -6558,7 +6558,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.823Z"
+    "audited_at": "2026-07-10T10:07:31.427Z"
   },
   "Mashhad|Iran": {
     "strategies_tried": [],
@@ -6579,19 +6579,19 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "38 stations",
+        "detail": "37 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 38 vs Wikipedia 40（比值 0.95）",
+        "detail": "OSM 37 vs Wikipedia 40（比值 0.93）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "38/38 站皆有所屬路線",
+        "detail": "37/37 站皆有所屬路線",
         "level": "error"
       },
       {
@@ -6603,7 +6603,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "38/38 站有名稱",
+        "detail": "37/37 站有名稱",
         "level": "warn"
       },
       {
@@ -6615,7 +6615,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.824Z"
+    "audited_at": "2026-07-10T10:07:31.427Z"
   },
   "Shiraz|Iran": {
     "strategies_tried": [],
@@ -6672,7 +6672,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.825Z"
+    "audited_at": "2026-07-10T10:07:31.428Z"
   },
   "Karaj|Iran": {
     "strategies_tried": [],
@@ -6729,7 +6729,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.825Z"
+    "audited_at": "2026-07-10T10:07:31.429Z"
   },
   "Tabriz|Iran": {
     "strategies_tried": [],
@@ -6786,7 +6786,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.826Z"
+    "audited_at": "2026-07-10T10:07:31.430Z"
   },
   "Tehran|Iran": {
     "strategies_tried": [],
@@ -6807,19 +6807,19 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "137 stations",
+        "detail": "134 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 137 vs Wikipedia 132（比值 1.04）",
+        "detail": "OSM 134 vs Wikipedia 132（比值 1.02）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "137/137 站皆有所屬路線",
+        "detail": "134/134 站皆有所屬路線",
         "level": "error"
       },
       {
@@ -6831,7 +6831,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "137/137 站有名稱",
+        "detail": "134/134 站有名稱",
         "level": "warn"
       },
       {
@@ -6843,7 +6843,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.827Z"
+    "audited_at": "2026-07-10T10:07:31.431Z"
   },
   "Brescia|Italy": {
     "strategies_tried": [],
@@ -6900,7 +6900,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.828Z"
+    "audited_at": "2026-07-10T10:07:31.431Z"
   },
   "Catania|Italy": {
     "strategies_tried": [],
@@ -6957,7 +6957,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.829Z"
+    "audited_at": "2026-07-10T10:07:31.432Z"
   },
   "Genoa|Italy": {
     "strategies_tried": [],
@@ -7014,7 +7014,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.830Z"
+    "audited_at": "2026-07-10T10:07:31.433Z"
   },
   "Milan|Italy": {
     "strategies_tried": [],
@@ -7053,7 +7053,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "213 個折點/端點皆為車站",
+        "detail": "137 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7071,7 +7071,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.831Z"
+    "audited_at": "2026-07-10T10:07:31.434Z"
   },
   "Naples|Italy": {
     "strategies_tried": [],
@@ -7128,7 +7128,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.831Z"
+    "audited_at": "2026-07-10T10:07:31.435Z"
   },
   "Rome|Italy": {
     "strategies_tried": [],
@@ -7149,31 +7149,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "115 stations",
+        "detail": "114 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 115 vs Wikipedia 74（比值 1.55）",
+        "detail": "OSM 114 vs Wikipedia 74（比值 1.54）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "115/115 站皆有所屬路線",
+        "detail": "114/114 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "126 個折點/端點皆為車站",
+        "detail": "115 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "114/115 站有名稱",
+        "detail": "113/114 站有名稱",
         "level": "warn"
       },
       {
@@ -7187,7 +7187,7 @@
     "warnings": [
       "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認"
     ],
-    "audited_at": "2026-07-10T09:30:23.834Z"
+    "audited_at": "2026-07-10T10:07:31.436Z"
   },
   "Turin|Italy": {
     "strategies_tried": [],
@@ -7244,7 +7244,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.834Z"
+    "audited_at": "2026-07-10T10:07:31.437Z"
   },
   "Chiba Prefecture|Japan": {
     "strategies_tried": [],
@@ -7301,7 +7301,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.835Z"
+    "audited_at": "2026-07-10T10:07:31.438Z"
   },
   "Fukuoka|Japan": {
     "strategies_tried": [],
@@ -7340,7 +7340,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "56 個折點/端點皆為車站",
+        "detail": "38 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7358,7 +7358,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.836Z"
+    "audited_at": "2026-07-10T10:07:31.438Z"
   },
   "Hiroshima|Japan": {
     "strategies_tried": [],
@@ -7415,7 +7415,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.837Z"
+    "audited_at": "2026-07-10T10:07:31.439Z"
   },
   "Kobe|Japan": {
     "strategies_tried": [],
@@ -7472,7 +7472,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.838Z"
+    "audited_at": "2026-07-10T10:07:31.440Z"
   },
   "Kyoto|Japan": {
     "strategies_tried": [],
@@ -7511,7 +7511,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "49 個折點/端點皆為車站",
+        "detail": "32 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7529,7 +7529,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.839Z"
+    "audited_at": "2026-07-10T10:07:31.441Z"
   },
   "Nagoya|Japan": {
     "strategies_tried": [],
@@ -7568,7 +7568,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "127 個折點/端點皆為車站",
+        "detail": "98 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7586,7 +7586,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.840Z"
+    "audited_at": "2026-07-10T10:07:31.442Z"
   },
   "Osaka|Japan": {
     "strategies_tried": [],
@@ -7625,7 +7625,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "129 個折點/端點皆為車站",
+        "detail": "131 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7643,7 +7643,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.840Z"
+    "audited_at": "2026-07-10T10:07:31.443Z"
   },
   "Saitama Prefecture|Japan": {
     "strategies_tried": [],
@@ -7700,7 +7700,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.841Z"
+    "audited_at": "2026-07-10T10:07:31.444Z"
   },
   "Sapporo|Japan": {
     "strategies_tried": [],
@@ -7739,7 +7739,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "49 個折點/端點皆為車站",
+        "detail": "51 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7757,7 +7757,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.842Z"
+    "audited_at": "2026-07-10T10:07:31.445Z"
   },
   "Sendai|Japan": {
     "strategies_tried": [],
@@ -7814,7 +7814,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.843Z"
+    "audited_at": "2026-07-10T10:07:31.446Z"
   },
   "Tokyo|Japan": {
     "strategies_tried": [],
@@ -7853,7 +7853,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "347 個折點/端點皆為車站",
+        "detail": "318 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7873,7 +7873,7 @@
     "warnings": [
       "站數偏多：OSM 230 vs Wikipedia 99（比值 2.32），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T09:30:23.844Z"
+    "audited_at": "2026-07-10T10:07:31.448Z"
   },
   "Yokohama|Japan": {
     "strategies_tried": [],
@@ -7912,7 +7912,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "45 個折點/端點皆為車站",
+        "detail": "48 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -7930,7 +7930,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.845Z"
+    "audited_at": "2026-07-10T10:07:31.449Z"
   },
   "Almaty|Kazakhstan": {
     "strategies_tried": [],
@@ -7987,7 +7987,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.846Z"
+    "audited_at": "2026-07-10T10:07:31.450Z"
   },
   "Astana|Kazakhstan": {
     "strategies_tried": [],
@@ -8044,7 +8044,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.848Z"
+    "audited_at": "2026-07-10T10:07:31.450Z"
   },
   "Pyongyang|North Korea": {
     "strategies_tried": [],
@@ -8083,7 +8083,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "32 個折點/端點皆為車站",
+        "detail": "19 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8101,7 +8101,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.849Z"
+    "audited_at": "2026-07-10T10:07:31.453Z"
   },
   "Busan|South Korea": {
     "strategies_tried": [],
@@ -8140,7 +8140,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "140 個折點/端點皆為車站",
+        "detail": "100 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8158,7 +8158,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.850Z"
+    "audited_at": "2026-07-10T10:07:31.454Z"
   },
   "Daegu|South Korea": {
     "strategies_tried": [],
@@ -8215,7 +8215,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.851Z"
+    "audited_at": "2026-07-10T10:07:31.454Z"
   },
   "Daejeon|South Korea": {
     "strategies_tried": [],
@@ -8254,7 +8254,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "44 個折點/端點皆為車站",
+        "detail": "25 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8272,7 +8272,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.852Z"
+    "audited_at": "2026-07-10T10:07:31.455Z"
   },
   "Gimpo|South Korea": {
     "strategies_tried": [],
@@ -8329,7 +8329,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.852Z"
+    "audited_at": "2026-07-10T10:07:31.456Z"
   },
   "Gwangju|South Korea": {
     "strategies_tried": [],
@@ -8386,7 +8386,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.853Z"
+    "audited_at": "2026-07-10T10:07:31.457Z"
   },
   "Incheon|South Korea": {
     "strategies_tried": [],
@@ -8407,31 +8407,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "55 stations",
+        "detail": "52 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 55 vs Wikipedia 68（比值 0.81）",
+        "detail": "OSM 52 vs Wikipedia 68（比值 0.76）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "55/55 站皆有所屬路線",
+        "detail": "52/52 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "104 個折點/端點皆為車站",
+        "detail": "52 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "55/55 站有名稱",
+        "detail": "52/52 站有名稱",
         "level": "warn"
       },
       {
@@ -8443,7 +8443,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.854Z"
+    "audited_at": "2026-07-10T10:07:31.458Z"
   },
   "Seoul|South Korea": {
     "strategies_tried": [],
@@ -8482,7 +8482,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "975 個折點/端點皆為車站",
+        "detail": "542 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8500,7 +8500,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.856Z"
+    "audited_at": "2026-07-10T10:07:31.459Z"
   },
   "Kuala Lumpur|Malaysia": {
     "strategies_tried": [],
@@ -8521,31 +8521,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "160 stations",
+        "detail": "159 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 160 vs Wikipedia 156（比值 1.03）",
+        "detail": "OSM 159 vs Wikipedia 156（比值 1.02）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "160/160 站皆有所屬路線",
+        "detail": "159/159 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "205 個折點/端點皆為車站",
+        "detail": "169 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "160/160 站有名稱",
+        "detail": "159/159 站有名稱",
         "level": "warn"
       },
       {
@@ -8557,7 +8557,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.857Z"
+    "audited_at": "2026-07-10T10:07:31.460Z"
   },
   "Guadalajara|Mexico": {
     "strategies_tried": [],
@@ -8614,7 +8614,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.858Z"
+    "audited_at": "2026-07-10T10:07:31.461Z"
   },
   "Mexico City|Mexico": {
     "strategies_tried": [],
@@ -8635,31 +8635,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "186 stations",
+        "detail": "184 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 186 vs Wikipedia 163（比值 1.14）",
+        "detail": "OSM 184 vs Wikipedia 163（比值 1.13）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "186/186 站皆有所屬路線",
+        "detail": "184/184 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "237 個折點/端點皆為車站",
+        "detail": "196 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "186/186 站有名稱",
+        "detail": "184/184 站有名稱",
         "level": "warn"
       },
       {
@@ -8671,7 +8671,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.859Z"
+    "audited_at": "2026-07-10T10:07:31.463Z"
   },
   "Monterrey|Mexico": {
     "strategies_tried": [],
@@ -8730,7 +8730,7 @@
     "warnings": [
       "39/59 站有名稱"
     ],
-    "audited_at": "2026-07-10T09:30:23.860Z"
+    "audited_at": "2026-07-10T10:07:31.463Z"
   },
   "Amsterdam|Netherlands": {
     "strategies_tried": [],
@@ -8769,7 +8769,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "119 個折點/端點皆為車站",
+        "detail": "48 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8787,7 +8787,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.861Z"
+    "audited_at": "2026-07-10T10:07:31.464Z"
   },
   "Rotterdam|Netherlands": {
     "strategies_tried": [],
@@ -8826,7 +8826,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "170 個折點/端點皆為車站",
+        "detail": "82 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8844,7 +8844,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:23.862Z"
+    "audited_at": "2026-07-10T10:07:31.465Z"
   },
   "Lagos|Nigeria": {
     "strategies_tried": [
@@ -8853,7 +8853,7 @@
     ],
     "notes": {
       "Z1": "5 station candidates fetched (r=14km)",
-      "Z2": "6 stations derived from stop nodes"
+      "Z2": "no member nodes in cache"
     },
     "passed": false,
     "checks": [
@@ -8910,7 +8910,7 @@
       "站數偏少：OSM 5 vs Wikipedia 13（比值 0.38）"
     ],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.797Z"
+    "audited_at": "2026-07-10T10:09:22.412Z"
   },
   "Oslo|Norway": {
     "strategies_tried": [],
@@ -8949,7 +8949,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "194 個折點/端點皆為車站",
+        "detail": "102 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -8967,7 +8967,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.799Z"
+    "audited_at": "2026-07-10T10:07:33.638Z"
   },
   "Lahore|Pakistan": {
     "strategies_tried": [],
@@ -9024,7 +9024,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.800Z"
+    "audited_at": "2026-07-10T10:07:33.639Z"
   },
   "Panama City|Panama": {
     "strategies_tried": [],
@@ -9063,7 +9063,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "49 個折點/端點皆為車站",
+        "detail": "34 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9081,7 +9081,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.801Z"
+    "audited_at": "2026-07-10T10:07:33.640Z"
   },
   "Lima|Peru": {
     "strategies_tried": [],
@@ -9138,7 +9138,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.802Z"
+    "audited_at": "2026-07-10T10:07:33.641Z"
   },
   "Manila|Philippines": {
     "strategies_tried": [],
@@ -9177,7 +9177,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "98 個折點/端點皆為車站",
+        "detail": "54 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9195,7 +9195,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.809Z"
+    "audited_at": "2026-07-10T10:07:33.641Z"
   },
   "Warsaw|Poland": {
     "strategies_tried": [],
@@ -9252,7 +9252,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.810Z"
+    "audited_at": "2026-07-10T10:07:33.642Z"
   },
   "Lisbon|Portugal": {
     "strategies_tried": [],
@@ -9309,7 +9309,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.811Z"
+    "audited_at": "2026-07-10T10:07:33.644Z"
   },
   "Doha|Qatar": {
     "strategies_tried": [],
@@ -9348,7 +9348,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "39 個折點/端點皆為車站",
+        "detail": "41 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9366,7 +9366,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.812Z"
+    "audited_at": "2026-07-10T10:07:33.645Z"
   },
   "Bucharest|Romania": {
     "strategies_tried": [],
@@ -9405,7 +9405,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "138 個折點/端點皆為車站",
+        "detail": "75 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9423,7 +9423,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.817Z"
+    "audited_at": "2026-07-10T10:07:33.646Z"
   },
   "Kazan|Russia": {
     "strategies_tried": [],
@@ -9462,7 +9462,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "22 個折點/端點皆為車站",
+        "detail": "11 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9480,7 +9480,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.821Z"
+    "audited_at": "2026-07-10T10:07:33.647Z"
   },
   "Moscow|Russia": {
     "strategies_tried": [],
@@ -9519,7 +9519,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "458 個折點/端點皆為車站",
+        "detail": "278 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9537,7 +9537,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.823Z"
+    "audited_at": "2026-07-10T10:07:33.648Z"
   },
   "Nizhny Novgorod|Russia": {
     "strategies_tried": [],
@@ -9594,7 +9594,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.827Z"
+    "audited_at": "2026-07-10T10:07:33.649Z"
   },
   "Novosibirsk|Russia": {
     "strategies_tried": [],
@@ -9633,7 +9633,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "23 個折點/端點皆為車站",
+        "detail": "14 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9651,7 +9651,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.828Z"
+    "audited_at": "2026-07-10T10:07:33.650Z"
   },
   "Saint Petersburg|Russia": {
     "strategies_tried": [],
@@ -9690,7 +9690,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "146 個折點/端點皆為車站",
+        "detail": "79 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9708,7 +9708,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:27.829Z"
+    "audited_at": "2026-07-10T10:07:33.651Z"
   },
   "Samara|Russia": {
     "strategies_tried": [
@@ -9717,7 +9717,7 @@
     ],
     "notes": {
       "Z1": "9 station candidates fetched (r=9km)",
-      "Z2": "8 stations derived from stop nodes"
+      "Z2": "no member nodes in cache"
     },
     "passed": false,
     "checks": [
@@ -9736,19 +9736,19 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "3 stations",
+        "detail": "2 stations",
         "level": "error"
       },
       {
         "id": "station_ratio_low",
         "ok": false,
-        "detail": "站數偏少：OSM 3 vs Wikipedia 10（比值 0.30）",
+        "detail": "站數偏少：OSM 2 vs Wikipedia 10（比值 0.20）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "3/3 站皆有所屬路線",
+        "detail": "2/2 站皆有所屬路線",
         "level": "error"
       },
       {
@@ -9760,7 +9760,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "3/3 站有名稱",
+        "detail": "2/2 站有名稱",
         "level": "warn"
       },
       {
@@ -9771,10 +9771,10 @@
       }
     ],
     "reasons": [
-      "站數偏少：OSM 3 vs Wikipedia 10（比值 0.30）"
+      "站數偏少：OSM 2 vs Wikipedia 10（比值 0.20）"
     ],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.638Z"
+    "audited_at": "2026-07-10T10:09:22.414Z"
   },
   "Yekaterinburg|Russia": {
     "strategies_tried": [],
@@ -9813,7 +9813,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "18 個折點/端點皆為車站",
+        "detail": "9 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -9831,7 +9831,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.641Z"
+    "audited_at": "2026-07-10T10:07:35.761Z"
   },
   "Mecca|Saudi Arabia": {
     "strategies_tried": [],
@@ -9888,7 +9888,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.642Z"
+    "audited_at": "2026-07-10T10:07:35.762Z"
   },
   "Riyadh|Saudi Arabia": {
     "strategies_tried": [],
@@ -9909,31 +9909,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "90 stations",
+        "detail": "89 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 90 vs Wikipedia 85（比值 1.06）",
+        "detail": "OSM 89 vs Wikipedia 85（比值 1.05）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "90/90 站皆有所屬路線",
+        "detail": "89/89 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "94 個折點/端點皆為車站",
+        "detail": "92 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "88/90 站有名稱",
+        "detail": "88/89 站有名稱",
         "level": "warn"
       },
       {
@@ -9945,7 +9945,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.643Z"
+    "audited_at": "2026-07-10T10:07:35.763Z"
   },
   "Singapore|Singapore": {
     "strategies_tried": [],
@@ -9984,7 +9984,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "233 個折點/端點皆為車站",
+        "detail": "171 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10002,7 +10002,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.645Z"
+    "audited_at": "2026-07-10T10:07:35.764Z"
   },
   "Barcelona|Spain": {
     "strategies_tried": [],
@@ -10041,7 +10041,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "227 個折點/端點皆為車站",
+        "detail": "195 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10059,7 +10059,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.646Z"
+    "audited_at": "2026-07-10T10:07:35.766Z"
   },
   "Bilbao|Spain": {
     "strategies_tried": [],
@@ -10098,7 +10098,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "61 個折點/端點皆為車站",
+        "detail": "52 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10116,7 +10116,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.648Z"
+    "audited_at": "2026-07-10T10:07:35.767Z"
   },
   "Madrid|Spain": {
     "strategies_tried": [],
@@ -10137,31 +10137,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "253 stations",
+        "detail": "252 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 253 vs Wikipedia 242（比值 1.05）",
+        "detail": "OSM 252 vs Wikipedia 242（比值 1.04）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "253/253 站皆有所屬路線",
+        "detail": "252/252 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "334 個折點/端點皆為車站",
+        "detail": "297 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "247/253 站有名稱",
+        "detail": "246/252 站有名稱",
         "level": "warn"
       },
       {
@@ -10173,7 +10173,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.649Z"
+    "audited_at": "2026-07-10T10:07:35.768Z"
   },
   "Stockholm|Sweden": {
     "strategies_tried": [],
@@ -10212,7 +10212,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "211 個折點/端點皆為車站",
+        "detail": "117 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10230,7 +10230,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.651Z"
+    "audited_at": "2026-07-10T10:07:35.769Z"
   },
   "Lausanne|Switzerland": {
     "strategies_tried": [],
@@ -10287,7 +10287,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.652Z"
+    "audited_at": "2026-07-10T10:07:35.770Z"
   },
   "Kaohsiung|Taiwan": {
     "strategies_tried": [],
@@ -10326,7 +10326,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "117 個折點/端點皆為車站",
+        "detail": "78 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10346,7 +10346,7 @@
     "warnings": [
       "站數偏多：OSM 75 vs Wikipedia 38（比值 1.97），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T09:30:31.654Z"
+    "audited_at": "2026-07-10T10:07:35.771Z"
   },
   "New Taipei|Taiwan": {
     "strategies_tried": [],
@@ -10385,7 +10385,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "29 個折點/端點皆為車站",
+        "detail": "24 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10405,7 +10405,7 @@
     "warnings": [
       "站數偏多：OSM 27 vs Wikipedia 12（比值 2.25），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T09:30:31.656Z"
+    "audited_at": "2026-07-10T10:07:35.772Z"
   },
   "Taipei|Taiwan": {
     "strategies_tried": [],
@@ -10444,7 +10444,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "186 個折點/端點皆為車站",
+        "detail": "173 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10462,7 +10462,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.657Z",
+    "audited_at": "2026-07-10T10:07:35.773Z",
     "covers": [
       "Taoyuan Metro"
     ]
@@ -10522,30 +10522,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.658Z"
-  },
-  "Taoyuan|Taiwan": {
-    "strategies_tried": [
-      "S1"
-    ],
-    "notes": {
-      "S1": "routes near Taoyuan already belong to Taipei"
-    },
-    "covered_by": "Taipei",
-    "passed": true,
-    "checks": [
-      {
-        "id": "system_exists",
-        "ok": false,
-        "detail": "no OSM system matched to this city",
-        "level": "error"
-      }
-    ],
-    "reasons": [
-      "由 Taipei 系統檔涵蓋（同都會區，OSM 未區分）"
-    ],
-    "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.660Z"
+    "audited_at": "2026-07-10T10:07:35.774Z"
   },
   "Bangkok|Thailand": {
     "strategies_tried": [],
@@ -10584,7 +10561,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "130 個折點/端點皆為車站",
+        "detail": "111 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10604,7 +10581,7 @@
     "warnings": [
       "站數偏多：OSM 112 vs Wikipedia 64（比值 1.75），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T09:30:31.662Z"
+    "audited_at": "2026-07-10T10:08:51.624Z"
   },
   "Adana|Turkey": {
     "strategies_tried": [],
@@ -10661,7 +10638,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.663Z"
+    "audited_at": "2026-07-10T10:08:51.625Z"
   },
   "Ankara|Turkey": {
     "strategies_tried": [],
@@ -10682,31 +10659,31 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "56 stations",
+        "detail": "55 stations",
         "level": "error"
       },
       {
         "id": "station_ratio",
         "ok": true,
-        "detail": "OSM 56 vs Wikipedia 57（比值 0.98）",
+        "detail": "OSM 55 vs Wikipedia 57（比值 0.96）",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "56/56 站皆有所屬路線",
+        "detail": "55/55 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "71 個折點/端點皆為車站",
+        "detail": "59 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "55/56 站有名稱",
+        "detail": "54/55 站有名稱",
         "level": "warn"
       },
       {
@@ -10718,7 +10695,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.664Z"
+    "audited_at": "2026-07-10T10:08:51.626Z"
   },
   "Bursa|Turkey": {
     "strategies_tried": [],
@@ -10757,7 +10734,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "73 個折點/端點皆為車站",
+        "detail": "45 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10775,7 +10752,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.665Z"
+    "audited_at": "2026-07-10T10:08:51.627Z"
   },
   "Istanbul|Turkey": {
     "strategies_tried": [],
@@ -10814,7 +10791,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "324 個折點/端點皆為車站",
+        "detail": "207 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -10834,7 +10811,7 @@
     "warnings": [
       "160/220 站有名稱"
     ],
-    "audited_at": "2026-07-10T09:30:31.667Z"
+    "audited_at": "2026-07-10T10:08:51.629Z"
   },
   "İzmir|Turkey": {
     "strategies_tried": [],
@@ -10891,7 +10868,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.673Z"
+    "audited_at": "2026-07-10T10:08:51.630Z"
   },
   "Dnipro|Ukraine": {
     "strategies_tried": [],
@@ -10948,7 +10925,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.674Z"
+    "audited_at": "2026-07-10T10:08:51.631Z"
   },
   "Kharkiv|Ukraine": {
     "strategies_tried": [],
@@ -10987,7 +10964,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "39 個折點/端點皆為車站",
+        "detail": "30 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11005,7 +10982,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.683Z"
+    "audited_at": "2026-07-10T10:08:51.632Z"
   },
   "Kyiv|Ukraine": {
     "strategies_tried": [],
@@ -11044,7 +11021,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "70 個折點/端點皆為車站",
+        "detail": "52 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11062,7 +11039,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.686Z"
+    "audited_at": "2026-07-10T10:08:51.633Z"
   },
   "Dubai|United Arab Emirates": {
     "strategies_tried": [],
@@ -11101,7 +11078,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "80 個折點/端點皆為車站",
+        "detail": "50 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11119,7 +11096,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.687Z"
+    "audited_at": "2026-07-10T10:08:51.634Z"
   },
   "Glasgow|United Kingdom": {
     "strategies_tried": [],
@@ -11158,7 +11135,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "32 個折點/端點皆為車站",
+        "detail": "16 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11176,7 +11153,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.688Z"
+    "audited_at": "2026-07-10T10:08:51.635Z"
   },
   "London|United Kingdom": {
     "strategies_tried": [],
@@ -11215,7 +11192,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "907 個折點/端點皆為車站",
+        "detail": "357 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11233,7 +11210,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.690Z"
+    "audited_at": "2026-07-10T10:08:51.636Z"
   },
   "Atlanta|United States": {
     "strategies_tried": [],
@@ -11272,7 +11249,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "65 個折點/端點皆為車站",
+        "detail": "46 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11290,7 +11267,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.691Z"
+    "audited_at": "2026-07-10T10:08:51.638Z"
   },
   "Baltimore|United States": {
     "strategies_tried": [],
@@ -11347,7 +11324,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.691Z"
+    "audited_at": "2026-07-10T10:08:51.639Z"
   },
   "Boston|United States": {
     "strategies_tried": [],
@@ -11386,7 +11363,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "81 個折點/端點皆為車站",
+        "detail": "47 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11404,7 +11381,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.693Z"
+    "audited_at": "2026-07-10T10:08:51.640Z"
   },
   "Chicago|United States": {
     "strategies_tried": [],
@@ -11443,7 +11420,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "345 個折點/端點皆為車站",
+        "detail": "186 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11461,7 +11438,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.694Z"
+    "audited_at": "2026-07-10T10:08:51.641Z"
   },
   "Cleveland|United States": {
     "strategies_tried": [],
@@ -11518,7 +11495,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.695Z"
+    "audited_at": "2026-07-10T10:08:51.643Z"
   },
   "Honolulu|United States": {
     "strategies_tried": [],
@@ -11575,7 +11552,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.696Z"
+    "audited_at": "2026-07-10T10:08:51.644Z"
   },
   "Los Angeles|United States": {
     "strategies_tried": [],
@@ -11614,7 +11591,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "50 個折點/端點皆為車站",
+        "detail": "21 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11632,7 +11609,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.697Z"
+    "audited_at": "2026-07-10T10:08:51.645Z"
   },
   "Miami|United States": {
     "strategies_tried": [],
@@ -11671,7 +11648,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "76 個折點/端點皆為車站",
+        "detail": "25 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11689,7 +11666,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.698Z"
+    "audited_at": "2026-07-10T10:08:51.646Z"
   },
   "New York City|United States": {
     "strategies_tried": [],
@@ -11728,7 +11705,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "1973 個折點/端點皆為車站",
+        "detail": "798 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11746,7 +11723,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.705Z"
+    "audited_at": "2026-07-10T10:08:51.648Z"
   },
   "Philadelphia|United States": {
     "strategies_tried": [],
@@ -11785,7 +11762,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "144 個折點/端點皆為車站",
+        "detail": "77 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11803,7 +11780,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.706Z"
+    "audited_at": "2026-07-10T10:08:51.649Z"
   },
   "San Francisco (Bay Area)|United States": {
     "strategies_tried": [],
@@ -11842,7 +11819,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "224 個折點/端點皆為車站",
+        "detail": "63 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11862,7 +11839,7 @@
     "warnings": [
       "站數偏多：OSM 163 vs Wikipedia 47（比值 3.47），多營運商合併或含輕軌，需人工判定"
     ],
-    "audited_at": "2026-07-10T09:30:31.707Z"
+    "audited_at": "2026-07-10T10:08:51.650Z"
   },
   "Washington, D.C.|United States": {
     "strategies_tried": [],
@@ -11901,7 +11878,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "191 個折點/端點皆為車站",
+        "detail": "116 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -11919,7 +11896,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.708Z"
+    "audited_at": "2026-07-10T10:08:51.652Z"
   },
   "San Juan|United States": {
     "strategies_tried": [],
@@ -11976,7 +11953,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.709Z"
+    "audited_at": "2026-07-10T10:08:51.653Z"
   },
   "Tashkent|Uzbekistan": {
     "strategies_tried": [],
@@ -12015,7 +11992,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "100 個折點/端點皆為車站",
+        "detail": "50 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12033,7 +12010,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.711Z"
+    "audited_at": "2026-07-10T10:08:51.654Z"
   },
   "Caracas|Venezuela": {
     "strategies_tried": [],
@@ -12072,7 +12049,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "77 個折點/端點皆為車站",
+        "detail": "58 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12090,7 +12067,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.712Z"
+    "audited_at": "2026-07-10T10:08:51.655Z"
   },
   "Maracaibo|Venezuela": {
     "strategies_tried": [],
@@ -12147,7 +12124,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.713Z"
+    "audited_at": "2026-07-10T10:08:51.657Z"
   },
   "Valencia|Venezuela": {
     "strategies_tried": [],
@@ -12186,7 +12163,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "18 個折點/端點皆為車站",
+        "detail": "9 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12204,7 +12181,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.714Z"
+    "audited_at": "2026-07-10T10:08:51.658Z"
   },
   "Hanoi|Vietnam": {
     "strategies_tried": [],
@@ -12261,7 +12238,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.715Z"
+    "audited_at": "2026-07-10T10:08:51.659Z"
   },
   "Ho Chi Minh City|Vietnam": {
     "strategies_tried": [],
@@ -12300,7 +12277,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "28 個折點/端點皆為車站",
+        "detail": "14 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12318,7 +12295,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.716Z"
+    "audited_at": "2026-07-10T10:08:51.661Z"
   },
   "Dusseldorf|Germany": {
     "strategies_tried": [],
@@ -12345,7 +12322,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "289 個折點/端點皆為車站",
+        "detail": "138 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12363,7 +12340,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.717Z"
+    "audited_at": "2026-07-10T10:08:51.662Z"
   },
   "Xirivella|Spain": {
     "strategies_tried": [],
@@ -12378,25 +12355,25 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "98 stations",
+        "detail": "97 stations",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "98/98 站皆有所屬路線",
+        "detail": "97/97 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "158 個折點/端點皆為車站",
+        "detail": "110 個折點/端點皆為車站",
         "level": "error"
       },
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "97/98 站有名稱",
+        "detail": "96/97 站有名稱",
         "level": "warn"
       },
       {
@@ -12408,7 +12385,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.719Z"
+    "audited_at": "2026-07-10T10:08:51.663Z"
   },
   "Bielefeld|Germany": {
     "strategies_tried": [],
@@ -12435,7 +12412,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "138 個折點/端點皆為車站",
+        "detail": "68 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12453,7 +12430,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.720Z"
+    "audited_at": "2026-07-10T10:08:51.664Z"
   },
   "Ratingen|Germany": {
     "strategies_tried": [],
@@ -12480,7 +12457,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "94 個折點/端點皆為車站",
+        "detail": "71 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12498,7 +12475,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.721Z"
+    "audited_at": "2026-07-10T10:08:51.665Z"
   },
   "Essen|Germany": {
     "strategies_tried": [],
@@ -12525,7 +12502,7 @@
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "32 個折點/端點皆為車站",
+        "detail": "16 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -12543,7 +12520,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.722Z"
+    "audited_at": "2026-07-10T10:08:51.666Z"
   },
   "Bochum|Germany": {
     "strategies_tried": [],
@@ -12588,7 +12565,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.723Z"
+    "audited_at": "2026-07-10T10:08:51.667Z"
   },
   "Seville|Spain": {
     "strategies_tried": [],
@@ -12633,7 +12610,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.724Z"
+    "audited_at": "2026-07-10T10:08:51.668Z"
   },
   "Bezirk Landeck|Austria": {
     "strategies_tried": [],
@@ -12678,7 +12655,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.726Z"
+    "audited_at": "2026-07-10T10:08:51.669Z"
   },
   "Chuzhou|China": {
     "strategies_tried": [],
@@ -12723,7 +12700,7 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.727Z"
+    "audited_at": "2026-07-10T10:08:51.670Z"
   },
   "Derince|Turkey": {
     "strategies_tried": [],
@@ -12768,6 +12745,29 @@
     ],
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-10T09:30:31.728Z"
+    "audited_at": "2026-07-10T10:08:51.672Z"
+  },
+  "Taoyuan|Taiwan": {
+    "strategies_tried": [
+      "S1"
+    ],
+    "notes": {
+      "S1": "routes near Taoyuan already belong to Taipei"
+    },
+    "covered_by": "Taipei",
+    "passed": true,
+    "checks": [
+      {
+        "id": "system_exists",
+        "ok": false,
+        "detail": "no OSM system matched to this city",
+        "level": "error"
+      }
+    ],
+    "reasons": [
+      "由 Taipei 系統檔涵蓋（同都會區，OSM 未區分）"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-10T10:09:22.416Z"
   }
 }
