@@ -3,6 +3,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
+import { computeOrientation } from '../stores/orientation'
+import OrientationRose from './OrientationRose.vue'
 import {
   PanelRightClose, PanelRightOpen, SlidersHorizontal, ExternalLink,
   CircleCheck, CircleX, TriangleAlert,
@@ -109,6 +111,14 @@ const metroLines = computed(() => {
 const wikidataUrl = computed(() =>
   meta.value?.wikidata ? `https://www.wikidata.org/wiki/${meta.value.wikidata}` : null,
 )
+
+/* ---- Info: network orientation rose (Boeing 2019) ---- */
+// Length-weighted distribution of line bearings + orientation-order φ.
+const orientation = computed(() => {
+  const d = layerData[layer.value.id]
+  if (!isMetro.value || !d) return null
+  return computeOrientation(d)
+})
 
 /* ---- Info: per-city audit verdict (metro_system.audit, from metro:audit) ---- */
 const auditInfo = computed(() => meta.value?.audit ?? null)
@@ -249,6 +259,31 @@ function startResize(e) {
               </div>
             </div>
 
+            <div class="section-title">Orientation</div>
+            <div v-if="!orientation || !orientation.segments" class="info-empty">
+              載入中…
+            </div>
+            <template v-else>
+              <OrientationRose :bins="orientation.bins" :size="200" />
+              <div class="info-rows rose-stats">
+                <div class="info-row">
+                  <span class="info-key">φ 秩序度</span><span>{{ orientation.phi.toFixed(3) }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-key">H<sub>w</sub> 方向熵</span>
+                  <span>{{ orientation.hw.toFixed(3) }} nats</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-key">路線總長</span>
+                  <span>{{ orientation.totalKm.toFixed(1) }} km</span>
+                </div>
+              </div>
+              <div class="rose-note">
+                依 Boeing (2019)：線段方位角分 36 格、雙向、以長度加權。
+                φ = 0 為方向均勻（無序），φ = 1 為完美方格網。
+              </div>
+            </template>
+
             <div class="section-title">Audit</div>
             <div v-if="!auditInfo" class="info-empty">
               尚未執行資料驗證（npm run metro:audit）
@@ -312,6 +347,7 @@ function startResize(e) {
                 <span class="line-name">
                   {{ ln.route_name ?? ln.route_name_local ?? '—' }}
                 </span>
+                <span v-if="ln.status === 'under_construction'" class="line-uc">建設中</span>
               </div>
             </div>
           </template>
@@ -601,6 +637,15 @@ function startResize(e) {
   border-radius: 3px;
   flex-shrink: 0;
 }
+.line-uc {
+  font-size: 10px;
+  color: hsl(38 92% 40%);
+  background: hsl(38 92% 50% / 0.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: auto;
+  flex: none;
+}
 .line-ref {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
@@ -633,5 +678,13 @@ function startResize(e) {
   border-top: 1px solid hsl(var(--border));
   padding-top: 12px;
   margin: 12px 0 10px;
+}
+.rose-stats { margin-top: 10px; }
+.rose-stats sub { font-size: 0.75em; }
+.rose-note {
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
 }
 </style>

@@ -330,19 +330,29 @@ async function audit(city, country, wikiRow) {
         : '所有線路站序合理',
       'warn')
 
-    // 逐線 wiki 站數對照（使用者規則：不算比值，站數必須與該線「當地語言」
-    // wiki 條目完全相等——error 級；無法對照的線列 warn 供補齊）。
+    // 逐線 wiki 站數對照（使用者規則：不算比值，全以「當地語言」wiki 條目為準，
+    // 但「只畫有通車的」不變式優先）——三段式判定（嚴重度由 wikiLineCheck 標定）：
+    //   error：infobox 有「營運中/已啟用」數且不等；或 ours > wiki（未通車解釋不了）
+    //   warn ：infobox 只有全線總數且 ours < total（可能含未通車段，待人工確認）
     // 判定讀 line_check_report.json（系統條目誤標的護欄在 wikiLineCheck 端）。
     if (ctx.lineReport) {
       const inCity = (x) => normCity(x.city) === normCity(city) && countryOk(x.country, country)
-      const lineFlags = (ctx.lineReport.flags ?? []).filter(inCity)
+      const cityFlags = (ctx.lineReport.flags ?? []).filter(inCity)
+      const hard = cityFlags.filter((x) => x.severity !== 'warn')
+        .map((x) => `${x.route_name} ${x.ours}/${x.wiki_stations}`)
+      const soft = cityFlags.filter((x) => x.severity === 'warn')
         .map((x) => `${x.route_name} ${x.ours}/${x.wiki_stations}`)
       const noWiki = (ctx.lineReport.uncovered_lines ?? []).filter(inCity)
-      push('line_wiki_stations', lineFlags.length === 0,
-        lineFlags.length
-          ? `${lineFlags.length} 條線站數與 wiki 條目不符（必須相等）：` +
-            lineFlags.slice(0, 4).join('、')
-          : '各線站數與 wiki 線路條目相符')
+      push('line_wiki_stations', hard.length === 0,
+        hard.length
+          ? `${hard.length} 條線站數與 wiki 條目不符（必須相等）：` +
+            hard.slice(0, 4).join('、')
+          : '各線站數與 wiki 線路條目相符（營運中站數）')
+      if (soft.length) {
+        push('line_wiki_planned', false,
+          `${soft.length} 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：` +
+          soft.slice(0, 4).join('、'), 'warn')
+      }
       if (noWiki.length) {
         push('line_wiki_coverage', false,
           `${noWiki.length} 條線無 wiki 站數對照：` +

@@ -1,0 +1,36 @@
+{
+  "_comment": "未通車例外（使用者裁決：只畫有通車的，但台北例外要加 桃捷綠線/萬大線/汐東線）。enabled=false 表示 OSM 資料不足（萬大線建設中車站無名稱；汐東線無獨立 relation），待人工補站資料後啟用。tag_overrides 會覆蓋原 OSM tags（正規化 route、補 network 供 NETWORK_CITY 綁城市）。",
+  "exceptions": [
+    {
+      "enabled": true,
+      "relation": 11330479,
+      "label": "桃園捷運綠線",
+      "city": "Taipei",
+      "tag_overrides": {
+        "route": "subway",
+        "network": "桃園捷運",
+        "name": "桃園捷運綠線",
+        "name:en": "Taoyuan Metro Green Line",
+        "ref": "G",
+        "colour": "#33A94E",
+        "wikipedia": "zh:桃園捷運綠線"
+      }
+    },
+    {
+      "enabled": false,
+      "relation": 3320719,
+      "label": "萬大-中和-樹林線",
+      "city": "Taipei",
+      "blocked_by": "OSM 建設中車站節點無名稱（railway=construction+construction=station 但缺 name）",
+      "tag_overrides": { "route": "subway", "ref": "LG" }
+    },
+    {
+      "enabled": false,
+      "relation": 3411858,
+      "label": "汐東線（民生汐止線首期）",
+      "city": "Taipei",
+      "blocked_by": "OSM 只有 proposed 民汐全線（大稻埕→汐止）且無任何車站節點；汐東段無獨立 relation",
+      "tag_overrides": { "route": "subway", "ref": "SB" }
+    }
+  ]
+}

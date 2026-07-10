@@ -80,7 +80,10 @@ const quickCities = computed(() => {
   if (!catalog.value) return []
   return QUICK_CITIES.map((q) => ({
     ...q,
-    sys: catalog.value.find((s) => s.city === q.en) ?? null,
+    // 精確比對優先，其次前綴容錯（index 的 "New York City" vs 顯示名 "New York"）
+    sys: catalog.value.find((s) => s.city === q.en)
+      ?? catalog.value.find((s) => (s.city || '').toLowerCase().startsWith(q.en.toLowerCase()))
+      ?? null,
   }))
 })
 

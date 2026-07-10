@@ -1,21 +1,10 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 942,
-  "checked_against_infobox": 567,
-  "flagged": 175,
-  "uncovered": 375,
+  "routes_total": 943,
+  "checked_against_infobox": 575,
+  "flagged": 177,
+  "uncovered": 368,
   "flags": [
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm10658528",
-      "route_name": "Taipei MTR Circular Line",
-      "ours": 14,
-      "lang": "zh",
-      "wiki": "zh:環狀線 (台北捷運)",
-      "wiki_stations": 42,
-      "diff": -28
-    },
     {
       "city": "Changzhou",
       "country": "China",
@@ -25,7 +14,9 @@
       "lang": "zh",
       "wiki": "zh:常州地铁",
       "wiki_stations": 43,
-      "diff": -28
+      "wiki_basis": "total",
+      "diff": -28,
+      "severity": "warn"
     },
     {
       "city": "Nagoya",
@@ -36,18 +27,9 @@
       "lang": "ja",
       "wiki": "en:Meikō Line",
       "wiki_stations": 28,
-      "diff": -21
-    },
-    {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm18356559",
-      "route_name": "苏州轨道交通7号线",
-      "ours": 19,
-      "lang": "zh",
-      "wiki": "zh:苏州地铁7号线",
-      "wiki_stations": 38,
-      "diff": -19
+      "wiki_basis": "total",
+      "diff": -21,
+      "severity": "warn"
     },
     {
       "city": "Luoyang",
@@ -58,7 +40,35 @@
       "lang": "zh",
       "wiki": "zh:洛阳轨道交通",
       "wiki_stations": 34,
-      "diff": -19
+      "wiki_basis": "total",
+      "diff": -19,
+      "severity": "warn"
+    },
+    {
+      "city": "Tianjin",
+      "country": "China",
+      "route_id": "rm13711701",
+      "route_name": "Tianjin Metro Line 8",
+      "ours": 9,
+      "lang": "zh",
+      "wiki": "zh:天津地铁8号线",
+      "wiki_stations": 26,
+      "wiki_basis": "operational",
+      "diff": -17,
+      "severity": "error"
+    },
+    {
+      "city": "Bangkok",
+      "country": "Thailand",
+      "route_id": "rm7725058",
+      "route_name": "MRT Purple Line",
+      "ours": 16,
+      "lang": "th",
+      "wiki": "en:MRT Purple Line",
+      "wiki_stations": 33,
+      "wiki_basis": "total",
+      "diff": -17,
+      "severity": "warn"
     },
     {
       "city": "Wenzhou",
@@ -69,7 +79,9 @@
       "lang": "zh",
       "wiki": "zh:温州轨道交通",
       "wiki_stations": 36,
-      "diff": -17
+      "wiki_basis": "total",
+      "diff": -17,
+      "severity": "warn"
     },
     {
       "city": "Busan",
@@ -80,7 +92,9 @@
       "lang": "ko",
       "wiki": "en:Busan Metro Line 2",
       "wiki_stations": 59,
-      "diff": -16
+      "wiki_basis": "total",
+      "diff": -16,
+      "severity": "warn"
     },
     {
       "city": "Xiamen",
@@ -91,7 +105,9 @@
       "lang": "zh",
       "wiki": "zh:厦门轨道交通3号线",
       "wiki_stations": 31,
-      "diff": -15
+      "wiki_basis": "total",
+      "diff": -15,
+      "severity": "warn"
     },
     {
       "city": "Jinhua",
@@ -102,7 +118,9 @@
       "lang": "zh",
       "wiki": "zh:金华轨道交通金义东线",
       "wiki_stations": 30,
-      "diff": -15
+      "wiki_basis": "total",
+      "diff": -15,
+      "severity": "warn"
     },
     {
       "city": "Wuhan",
@@ -113,7 +131,9 @@
       "lang": "zh",
       "wiki": "en:Line 12 (Wuhan Metro)",
       "wiki_stations": 37,
-      "diff": -14
+      "wiki_basis": "total",
+      "diff": -14,
+      "severity": "warn"
     },
     {
       "city": "Tianjin",
@@ -124,7 +144,9 @@
       "lang": "zh",
       "wiki": "zh:天津地铁Z4线",
       "wiki_stations": 24,
-      "diff": -14
+      "wiki_basis": "total",
+      "diff": -14,
+      "severity": "warn"
     },
     {
       "city": "Mumbai",
@@ -135,7 +157,9 @@
       "lang": "en",
       "wiki": "en:Yellow Line (Mumbai Metro)",
       "wiki_stations": 17,
-      "diff": -12
+      "wiki_basis": "total",
+      "diff": -12,
+      "severity": "warn"
     },
     {
       "city": "Shenyang",
@@ -146,18 +170,9 @@
       "lang": "zh",
       "wiki": "en:Line 3 (Shenyang Metro)",
       "wiki_stations": 27,
-      "diff": -11
-    },
-    {
-      "city": "Singapore",
-      "country": "Singapore",
-      "route_id": "rm9627860",
-      "route_name": "MRT Thomson–East Coast Line (Woodlands North → Bayshore)",
-      "ours": 27,
-      "lang": "en",
-      "wiki": "en:Thomson–East Coast MRT line",
-      "wiki_stations": 37,
-      "diff": -10
+      "wiki_basis": "total",
+      "diff": -11,
+      "severity": "warn"
     },
     {
       "city": "Qingdao",
@@ -168,7 +183,22 @@
       "lang": "zh",
       "wiki": "zh:青岛地铁6号线",
       "wiki_stations": 31,
-      "diff": -10
+      "wiki_basis": "total",
+      "diff": -10,
+      "severity": "warn"
+    },
+    {
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "rm18356559",
+      "route_name": "苏州轨道交通7号线",
+      "ours": 19,
+      "lang": "zh",
+      "wiki": "zh:苏州地铁7号线",
+      "wiki_stations": 28,
+      "wiki_basis": "operational",
+      "diff": -9,
+      "severity": "error"
     },
     {
       "city": "Noida",
@@ -179,7 +209,9 @@
       "lang": "en",
       "wiki": "en:Delhi–Meerut Regional Rapid Transit System",
       "wiki_stations": 16,
-      "diff": -9
+      "wiki_basis": "total",
+      "diff": -9,
+      "severity": "warn"
     },
     {
       "city": "Navi Mumbai",
@@ -190,7 +222,9 @@
       "lang": "en",
       "wiki": "en:Line 1 (Navi Mumbai Metro)",
       "wiki_stations": 20,
-      "diff": -9
+      "wiki_basis": "total",
+      "diff": -9,
+      "severity": "warn"
     },
     {
       "city": "Kunming",
@@ -201,7 +235,9 @@
       "lang": "zh",
       "wiki": "zh:昆明地铁2号线",
       "wiki_stations": 22,
-      "diff": -8
+      "wiki_basis": "total",
+      "diff": -8,
+      "severity": "warn"
     },
     {
       "city": "Samara",
@@ -212,19 +248,9 @@
       "lang": "ru",
       "wiki": "en:Samara Metro",
       "wiki_stations": 10,
-      "diff": -8
-    },
-    {
-      "city": "Lagos",
-      "country": "Nigeria",
-      "route_id": "rm15668739",
-      "route_name": "Blue Line",
-      "ours": 5,
-      "lang": "en",
-      "wikidata": "Q116413296",
-      "wiki": "en:Blue Line (Lagos Transit)",
-      "wiki_stations": 13,
-      "diff": -8
+      "wiki_basis": "total",
+      "diff": -8,
+      "severity": "warn"
     },
     {
       "city": "Agra",
@@ -235,7 +261,9 @@
       "lang": "en",
       "wiki": "en:Yellow Line (Agra Metro)",
       "wiki_stations": 13,
-      "diff": -7
+      "wiki_basis": "total",
+      "diff": -7,
+      "severity": "warn"
     },
     {
       "city": "Patna",
@@ -246,7 +274,9 @@
       "lang": "en",
       "wiki": "en:Blue Line (Patna Metro)",
       "wiki_stations": 12,
-      "diff": -7
+      "wiki_basis": "total",
+      "diff": -7,
+      "severity": "warn"
     },
     {
       "city": "Chengdu",
@@ -257,7 +287,22 @@
       "lang": "zh",
       "wiki": "zh:成都地铁30号线",
       "wiki_stations": 24,
-      "diff": -6
+      "wiki_basis": "total",
+      "diff": -6,
+      "severity": "warn"
+    },
+    {
+      "city": "Tianjin",
+      "country": "China",
+      "route_id": "rm19442546",
+      "route_name": "Tianjin Metro Line 7",
+      "ours": 15,
+      "lang": "zh",
+      "wiki": "zh:天津地铁7号线",
+      "wiki_stations": 21,
+      "wiki_basis": "operational",
+      "diff": -6,
+      "severity": "error"
     },
     {
       "city": "Seoul",
@@ -268,7 +313,9 @@
       "lang": "ko",
       "wiki": "en:Gyeonggang Line",
       "wiki_stations": 18,
-      "diff": -6
+      "wiki_basis": "total",
+      "diff": -6,
+      "severity": "warn"
     },
     {
       "city": "Kuala Lumpur",
@@ -279,7 +326,9 @@
       "lang": "ms",
       "wiki": "en:Ampang and Sri Petaling lines",
       "wiki_stations": 36,
-      "diff": -6
+      "wiki_basis": "total",
+      "diff": -6,
+      "severity": "warn"
     },
     {
       "city": "Kolkata",
@@ -290,7 +339,9 @@
       "lang": "en",
       "wiki": "en:Yellow Line (Kolkata Metro)",
       "wiki_stations": 10,
-      "diff": -6
+      "wiki_basis": "total",
+      "diff": -6,
+      "severity": "warn"
     },
     {
       "city": "Bangkok",
@@ -301,7 +352,9 @@
       "lang": "th",
       "wiki": "th:รถไฟฟ้าบีทีเอส สายสีลม",
       "wiki_stations": 14,
-      "diff": -6
+      "wiki_basis": "total",
+      "diff": -6,
+      "severity": "warn"
     },
     {
       "city": "Beijing",
@@ -312,7 +365,9 @@
       "lang": "zh",
       "wiki": "zh:北京地铁18号线",
       "wiki_stations": 11,
-      "diff": -5
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
     },
     {
       "city": "Shanghai",
@@ -323,18 +378,9 @@
       "lang": "zh",
       "wiki": "en:Line 13 (Shanghai Metro)",
       "wiki_stations": 36,
-      "diff": -5
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm6937084",
-      "route_name": "Taoyuan Airport MRT Commuter to Laojie River",
-      "ours": 22,
-      "lang": "zh",
-      "wiki": "zh:桃園機場捷運",
-      "wiki_stations": 27,
-      "diff": -5
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
     },
     {
       "city": "Hefei",
@@ -345,7 +391,9 @@
       "lang": "zh",
       "wiki": "en:Line 3 (Hefei Metro)",
       "wiki_stations": 45,
-      "diff": -5
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
     },
     {
       "city": "Hyderabad",
@@ -357,7 +405,9 @@
       "wikidata": "Q84767109",
       "wiki": "en:Green Line (Hyderabad Metro)",
       "wiki_stations": 15,
-      "diff": -5
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
     },
     {
       "city": "Foshan",
@@ -368,7 +418,9 @@
       "lang": "zh",
       "wiki": "zh:佛山地铁3号线",
       "wiki_stations": 37,
-      "diff": -5
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
     },
     {
       "city": "Dhaka",
@@ -379,7 +431,9 @@
       "lang": "bn",
       "wiki": "en:MRT Line 6",
       "wiki_stations": 22,
-      "diff": -5
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
     },
     {
       "city": "New York City",
@@ -390,7 +444,22 @@
       "lang": "en",
       "wiki": "en:Newark–World Trade Center",
       "wiki_stations": 6,
-      "diff": -4
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "r11330479",
+      "route_name": "Taoyuan Metro Green Line",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "zh:桃園捷運綠線",
+      "wiki_stations": 21,
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
     },
     {
       "city": "Bangkok",
@@ -401,7 +470,9 @@
       "lang": "th",
       "wiki": "th:รถไฟฟ้ามหานคร สายสีน้ำเงิน",
       "wiki_stations": 42,
-      "diff": -4
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
     },
     {
       "city": "Incheon",
@@ -412,7 +483,9 @@
       "lang": "ko",
       "wiki": "en:Incheon Subway Line 2",
       "wiki_stations": 27,
-      "diff": -4
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
     },
     {
       "city": "Chuzhou",
@@ -424,7 +497,9 @@
       "wikidata": "Q15939013",
       "wiki": "zh:滁宁城际铁路",
       "wiki_stations": 14,
-      "diff": -4
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
     },
     {
       "city": "New York City",
@@ -435,7 +510,9 @@
       "lang": "en",
       "wiki": "en:F (New York City Subway service)",
       "wiki_stations": 55,
-      "diff": -3
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
     },
     {
       "city": "New York City",
@@ -446,7 +523,9 @@
       "lang": "en",
       "wiki": "en:Journal Square–33rd Street (via Hoboken)",
       "wiki_stations": 9,
-      "diff": -3
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
     },
     {
       "city": "Paris",
@@ -457,18 +536,9 @@
       "lang": "fr",
       "wiki": "fr:CDGVAL",
       "wiki_stations": 8,
-      "diff": -3
-    },
-    {
-      "city": "Singapore",
-      "country": "Singapore",
-      "route_id": "rm7981685",
-      "route_name": "MRT Circle Line (Marina Bay → HarbourFront)",
-      "ours": 30,
-      "lang": "en",
-      "wiki": "en:Circle MRT line",
-      "wiki_stations": 33,
-      "diff": -3
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
     },
     {
       "city": "Fuzhou",
@@ -480,7 +550,9 @@
       "wikidata": "Q59135401",
       "wiki": "zh:福州地铁滨海快线",
       "wiki_stations": 15,
-      "diff": -3
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
     },
     {
       "city": "Boston",
@@ -491,7 +563,9 @@
       "lang": "en",
       "wiki": "en:Red Line (MBTA)",
       "wiki_stations": 22,
-      "diff": -3
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
     },
     {
       "city": "New York City",
@@ -502,18 +576,9 @@
       "lang": "en",
       "wiki": "en:Journal Square–33rd Street",
       "wiki_stations": 8,
-      "diff": -2
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm4624915",
-      "route_name": "Beijing Subway Line 14",
-      "ours": 34,
-      "lang": "zh",
-      "wiki": "en:Line 14 (Beijing Subway)",
-      "wiki_stations": 36,
-      "diff": -2
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
     },
     {
       "city": "London",
@@ -524,7 +589,9 @@
       "lang": "en",
       "wiki": "en:Piccadilly line",
       "wiki_stations": 53,
-      "diff": -2
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
     },
     {
       "city": "Chongqing",
@@ -535,18 +602,9 @@
       "lang": "zh",
       "wiki": "zh:重慶軌道交通9號線",
       "wiki_stations": 31,
-      "diff": -2
-    },
-    {
-      "city": "Zhengzhou",
-      "country": "China",
-      "route_id": "rm7871541",
-      "route_name": "Zhengzhou Metro Chengjiao Line",
-      "ours": 17,
-      "lang": "zh",
-      "wiki": "en:Chengjiao line",
-      "wiki_stations": 19,
-      "diff": -2
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
     },
     {
       "city": "Suzhou",
@@ -557,18 +615,9 @@
       "lang": "zh",
       "wiki": "en:Line 3 (Suzhou Rail Transit)",
       "wiki_stations": 37,
-      "diff": -2
-    },
-    {
-      "city": "Singapore",
-      "country": "Singapore",
-      "route_id": "rm7695961",
-      "route_name": "MRT North-South Line (Marina South Pier → Jurong East)",
-      "ours": 27,
-      "lang": "en",
-      "wiki": "en:North South MRT line",
-      "wiki_stations": 29,
-      "diff": -2
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
     },
     {
       "city": "Dalian",
@@ -579,7 +628,9 @@
       "lang": "zh",
       "wiki": "zh:大连地铁3号线",
       "wiki_stations": 20,
-      "diff": -2
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
     },
     {
       "city": "Foshan",
@@ -590,7 +641,9 @@
       "lang": "zh",
       "wiki": "zh:佛山地铁2号线",
       "wiki_stations": 17,
-      "diff": -2
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
     },
     {
       "city": "New York City",
@@ -601,7 +654,9 @@
       "lang": "en",
       "wiki": "en:Hoboken–33rd Street",
       "wiki_stations": 6,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "London",
@@ -612,7 +667,9 @@
       "lang": "en",
       "wiki": "en:Circle line (London Underground)",
       "wiki_stations": 36,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Shanghai",
@@ -623,7 +680,9 @@
       "lang": "zh",
       "wiki": "en:Line 9 (Shanghai Metro)",
       "wiki_stations": 35,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Tokyo",
@@ -634,7 +693,9 @@
       "lang": "ja",
       "wiki": "en:Tokyo Metro Namboku Line",
       "wiki_stations": 19,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Tokyo",
@@ -645,7 +706,9 @@
       "lang": "ja",
       "wiki": "en:Tokyo Metro Chiyoda Line",
       "wiki_stations": 20,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Shenzhen",
@@ -656,18 +719,9 @@
       "lang": "zh",
       "wiki": "zh:深圳地铁7号线",
       "wiki_stations": 30,
-      "diff": -1
-    },
-    {
-      "city": "Guangzhou",
-      "country": "China",
-      "route_id": "rm9841063",
-      "route_name": "Metro Line 3",
-      "ours": 33,
-      "lang": "zh",
-      "wiki": "en:Line 3 (Guangzhou Metro)",
-      "wiki_stations": 34,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Guangzhou",
@@ -678,7 +732,9 @@
       "lang": "zh",
       "wiki": "en:Line 7 (Guangzhou Metro)",
       "wiki_stations": 28,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chongqing",
@@ -689,7 +745,9 @@
       "lang": "zh",
       "wiki": "en:Line 10 (Chongqing Rail Transit)",
       "wiki_stations": 27,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chongqing",
@@ -700,7 +758,9 @@
       "lang": "zh",
       "wiki": "en:Line 4 (Chongqing Rail Transit)",
       "wiki_stations": 33,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chongqing",
@@ -711,18 +771,9 @@
       "lang": "zh",
       "wiki": "zh:重庆市郊铁路璧铜线",
       "wiki_stations": 9,
-      "diff": -1
-    },
-    {
-      "city": "Chengdu",
-      "country": "China",
-      "route_id": "rm8298113",
-      "route_name": "Chengdu Metro Line 2",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "zh:成都地铁2号线",
-      "wiki_stations": 33,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chengdu",
@@ -733,7 +784,9 @@
       "lang": "zh",
       "wiki": "zh:成都市域铁路S3线",
       "wiki_stations": 7,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chengdu",
@@ -744,7 +797,9 @@
       "lang": "zh",
       "wiki": "zh:成都地铁27号线",
       "wiki_stations": 23,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chicago",
@@ -755,7 +810,9 @@
       "lang": "en",
       "wiki": "en:Brown Line (CTA)",
       "wiki_stations": 27,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chicago",
@@ -766,7 +823,9 @@
       "lang": "en",
       "wiki": "en:Pink Line (CTA)",
       "wiki_stations": 22,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chicago",
@@ -777,7 +836,9 @@
       "lang": "en",
       "wiki": "en:Orange Line (CTA)",
       "wiki_stations": 16,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Chicago",
@@ -788,7 +849,9 @@
       "lang": "en",
       "wiki": "en:Green Line (CTA)",
       "wiki_stations": 31,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Hong Kong",
@@ -799,7 +862,9 @@
       "lang": "zh",
       "wiki": "zh:東鐵綫",
       "wiki_stations": 16,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Wuhan",
@@ -810,7 +875,9 @@
       "lang": "zh",
       "wiki": "en:Line 2 (Wuhan Metro)",
       "wiki_stations": 39,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Tianjin",
@@ -821,7 +888,22 @@
       "lang": "zh",
       "wiki": "zh:天津地铁6号线",
       "wiki_stations": 39,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Zhengzhou",
+      "country": "China",
+      "route_id": "rm7871541",
+      "route_name": "Zhengzhou Metro Chengjiao Line",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "en:Chengjiao line",
+      "wiki_stations": 18,
+      "wiki_basis": "operational",
+      "diff": -1,
+      "severity": "error"
     },
     {
       "city": "Zhengzhou",
@@ -832,29 +914,9 @@
       "lang": "zh",
       "wiki": "en:Line 7 (Zhengzhou Metro)",
       "wiki_stations": 21,
-      "diff": -1
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7879871",
-      "route_name": "Seoul Metropolitan Subway Line 5",
-      "ours": 56,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 5",
-      "wiki_stations": 57,
-      "diff": -1
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7919019",
-      "route_name": "Seoul Metropolitan Subway Line 8",
-      "ours": 24,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 8",
-      "wiki_stations": 25,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Taipei",
@@ -865,7 +927,48 @@
       "lang": "zh",
       "wiki": "en:Tamsui–Xinyi line",
       "wiki_stations": 28,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm5576487",
+      "route_name": "Danhai LRT",
+      "ours": 13,
+      "lang": "zh",
+      "wiki": "zh:藍海線",
+      "wiki_stations": 14,
+      "wiki_basis": "operational",
+      "diff": -1,
+      "severity": "error"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7879871",
+      "route_name": "Seoul Metropolitan Subway Line 5",
+      "ours": 56,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 5",
+      "wiki_stations": 57,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7919019",
+      "route_name": "Seoul Metropolitan Subway Line 8",
+      "ours": 24,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 8",
+      "wiki_stations": 25,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Hefei",
@@ -877,7 +980,9 @@
       "wikidata": "Q47519725",
       "wiki": "zh:合肥轨道交通6号线",
       "wiki_stations": 22,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Fuzhou",
@@ -888,7 +993,9 @@
       "lang": "zh",
       "wiki": "en:Line 6 (Fuzhou Metro)",
       "wiki_stations": 16,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Wuxi",
@@ -899,7 +1006,9 @@
       "lang": "zh",
       "wiki": "en:Line 2 (Wuxi Metro)",
       "wiki_stations": 22,
-      "diff": -1
+      "wiki_basis": "operational",
+      "diff": -1,
+      "severity": "error"
     },
     {
       "city": "Vancouver",
@@ -910,18 +1019,9 @@
       "lang": "en",
       "wiki": "en:Canada Line",
       "wiki_stations": 17,
-      "diff": -1
-    },
-    {
-      "city": "Ahmedabad",
-      "country": "India",
-      "route_id": "rm14657624",
-      "route_name": "Red Line",
-      "ours": 14,
-      "lang": "en",
-      "wiki": "en:Red Line (Ahmedabad Metro)",
-      "wiki_stations": 15,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Boston",
@@ -932,7 +1032,9 @@
       "lang": "en",
       "wiki": "en:Blue Line (MBTA)",
       "wiki_stations": 12,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Xiamen",
@@ -943,7 +1045,9 @@
       "lang": "zh",
       "wiki": "zh:厦门轨道交通2号线",
       "wiki_stations": 32,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Dubai",
@@ -954,7 +1058,9 @@
       "lang": "ar",
       "wiki": "en:Red Line (Dubai Metro)",
       "wiki_stations": 35,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Lanzhou",
@@ -965,7 +1071,9 @@
       "lang": "zh",
       "wiki": "en:Line 1 (Lanzhou Metro)",
       "wiki_stations": 20,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "Taiyuan",
@@ -976,7 +1084,22 @@
       "lang": "zh",
       "wiki": "en:Line 2 (Taiyuan Metro)",
       "wiki_stations": 24,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Shaoxing",
+      "country": "China",
+      "route_id": "rm12920991",
+      "route_name": "Shaoxing Rail Transit Line 1",
+      "ours": 32,
+      "lang": "zh",
+      "wiki": "zh:绍兴轨道交通1号线",
+      "wiki_stations": 33,
+      "wiki_basis": "operational",
+      "diff": -1,
+      "severity": "error"
     },
     {
       "city": "Chiba Prefecture",
@@ -987,7 +1110,9 @@
       "lang": "ja",
       "wiki": "ja:東葉高速鉄道東葉高速線",
       "wiki_stations": 9,
-      "diff": -1
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
     },
     {
       "city": "New York City",
@@ -998,7 +1123,9 @@
       "lang": "en",
       "wiki": "en:1 (New York City Subway service)",
       "wiki_stations": 38,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1009,7 +1136,9 @@
       "lang": "en",
       "wiki": "en:C (New York City Subway service)",
       "wiki_stations": 40,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1020,7 +1149,9 @@
       "lang": "en",
       "wiki": "en:3 (New York City Subway service)",
       "wiki_stations": 34,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1031,7 +1162,22 @@
       "lang": "en",
       "wiki": "en:L (New York City Subway service)",
       "wiki_stations": 24,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm4624915",
+      "route_name": "Beijing Subway Line 14",
+      "ours": 34,
+      "lang": "zh",
+      "wiki": "en:Line 14 (Beijing Subway)",
+      "wiki_stations": 33,
+      "wiki_basis": "operational",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Beijing",
@@ -1042,7 +1188,9 @@
       "lang": "zh",
       "wiki": "en:Yanfang line",
       "wiki_stations": 9,
-      "diff": 1
+      "wiki_basis": "operational",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Beijing",
@@ -1053,7 +1201,9 @@
       "lang": "zh",
       "wiki": "en:Line 12 (Beijing Subway)",
       "wiki_stations": 20,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "London",
@@ -1064,7 +1214,9 @@
       "lang": "en",
       "wiki": "en:Jubilee line",
       "wiki_stations": 27,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Shanghai",
@@ -1075,7 +1227,9 @@
       "lang": "zh",
       "wiki": "en:Line 3 (Shanghai Metro)",
       "wiki_stations": 29,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Shanghai",
@@ -1086,7 +1240,9 @@
       "lang": "zh",
       "wiki": "en:Line 10 (Shanghai Metro)",
       "wiki_stations": 37,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Shanghai",
@@ -1097,7 +1253,9 @@
       "lang": "zh",
       "wiki": "en:Line 2 (Shanghai Metro)",
       "wiki_stations": 31,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Shanghai",
@@ -1108,7 +1266,9 @@
       "lang": "zh",
       "wiki": "en:Line 5 (Shanghai Metro)",
       "wiki_stations": 19,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Shanghai",
@@ -1119,7 +1279,9 @@
       "lang": "zh",
       "wiki": "en:Line 14 (Shanghai Metro)",
       "wiki_stations": 30,
-      "diff": 1
+      "wiki_basis": "operational",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Shenzhen",
@@ -1130,7 +1292,9 @@
       "lang": "zh",
       "wiki": "zh:深圳地铁10号线",
       "wiki_stations": 24,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Guangzhou",
@@ -1141,7 +1305,9 @@
       "lang": "zh",
       "wiki": "en:Guangfo line",
       "wiki_stations": 25,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Guangzhou",
@@ -1152,7 +1318,9 @@
       "lang": "zh",
       "wiki": "en:Line 21, Guangzhou Metro",
       "wiki_stations": 20,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Chongqing",
@@ -1163,7 +1331,9 @@
       "lang": "zh",
       "wiki": "en:Line 5 (Chongqing Rail Transit)",
       "wiki_stations": 31,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Chongqing",
@@ -1175,7 +1345,9 @@
       "wikidata": "Q17038985",
       "wiki": "zh:重慶軌道交通18號線",
       "wiki_stations": 19,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Chengdu",
@@ -1186,7 +1358,9 @@
       "lang": "zh",
       "wiki": "zh:成都地铁18号线",
       "wiki_stations": 12,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Hong Kong",
@@ -1197,7 +1371,9 @@
       "lang": "zh",
       "wiki": "en:Tuen Ma line",
       "wiki_stations": 27,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Tianjin",
@@ -1208,7 +1384,9 @@
       "lang": "zh",
       "wiki": "zh:天津地铁9号线",
       "wiki_stations": 21,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Tianjin",
@@ -1219,7 +1397,9 @@
       "lang": "zh",
       "wiki": "zh:天津地铁1号线",
       "wiki_stations": 29,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Zhengzhou",
@@ -1230,7 +1410,9 @@
       "lang": "zh",
       "wiki": "en:Line 14 (Zhengzhou Metro)",
       "wiki_stations": 5,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Zhengzhou",
@@ -1241,18 +1423,9 @@
       "lang": "zh",
       "wiki": "en:Line 6 (Zhengzhou Metro)",
       "wiki_stations": 28,
-      "diff": 1
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7625892",
-      "route_name": "Seoul Metropolitan Subway Line 2",
-      "ours": 52,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 2",
-      "wiki_stations": 51,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Taipei",
@@ -1263,7 +1436,35 @@
       "lang": "zh",
       "wiki": "zh:安坑輕軌",
       "wiki_stations": 9,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7625892",
+      "route_name": "Seoul Metropolitan Subway Line 2",
+      "ours": 52,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 2",
+      "wiki_stations": 51,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "rm8439253",
+      "route_name": "Suzhou Rail Transit Line 2",
+      "ours": 36,
+      "lang": "zh",
+      "wiki": "en:Line 2 (Suzhou Metro)",
+      "wiki_stations": 35,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Singapore",
@@ -1274,7 +1475,9 @@
       "lang": "en",
       "wiki": "en:North East MRT line",
       "wiki_stations": 17,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Qingdao",
@@ -1285,7 +1488,22 @@
       "lang": "zh",
       "wiki": "zh:青岛地铁13号线",
       "wiki_stations": 22,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "city": "Qingdao",
+      "country": "China",
+      "route_id": "rm15051229",
+      "route_name": "Qingdao Metro Line 4",
+      "ours": 25,
+      "lang": "zh",
+      "wiki": "en:Line 4 (Qingdao Metro)",
+      "wiki_stations": 24,
+      "wiki_basis": "operational",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Brussels",
@@ -1296,7 +1514,9 @@
       "lang": "nl",
       "wiki": "en:Brussels Metro line 1",
       "wiki_stations": 21,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Atlanta",
@@ -1307,7 +1527,9 @@
       "lang": "en",
       "wiki": "en:Green Line (MARTA)",
       "wiki_stations": 9,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Bucharest",
@@ -1318,7 +1540,9 @@
       "lang": "ro",
       "wiki": "en:Bucharest Metro Line M3",
       "wiki_stations": 15,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Bucharest",
@@ -1329,7 +1553,9 @@
       "lang": "ro",
       "wiki": "en:Bucharest Metro Line M1",
       "wiki_stations": 22,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Bucharest",
@@ -1340,7 +1566,9 @@
       "lang": "ro",
       "wiki": "en:Bucharest Metro Line M4",
       "wiki_stations": 8,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "São Paulo",
@@ -1351,7 +1579,9 @@
       "lang": "pt",
       "wiki": "pt:Linha 1 do Metrô de São Paulo",
       "wiki_stations": 23,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Kuala Lumpur",
@@ -1362,7 +1592,9 @@
       "lang": "ms",
       "wiki": "en:Kajang line",
       "wiki_stations": 29,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Kolkata",
@@ -1373,7 +1605,9 @@
       "lang": "en",
       "wiki": "en:Blue Line (Kolkata Metro)",
       "wiki_stations": 26,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Manila",
@@ -1385,7 +1619,9 @@
       "wikidata": "Q4165124",
       "wiki": "en:LRT Line 1 (Metro Manila)",
       "wiki_stations": 25,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "Philadelphia",
@@ -1396,7 +1632,9 @@
       "lang": "en",
       "wiki": "en:L (SEPTA Metro)",
       "wiki_stations": 28,
-      "diff": 1
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1407,7 +1645,9 @@
       "lang": "en",
       "wiki": "en:G (New York City Subway service)",
       "wiki_stations": 21,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1418,7 +1658,9 @@
       "lang": "en",
       "wiki": "en:7 (New York City Subway service)",
       "wiki_stations": 22,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Beijing",
@@ -1429,7 +1671,9 @@
       "lang": "zh",
       "wiki": "en:Line 10 (Beijing Subway)",
       "wiki_stations": 45,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Beijing",
@@ -1440,7 +1684,9 @@
       "lang": "zh",
       "wiki": "en:Line 16 (Beijing Subway)",
       "wiki_stations": 30,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Shanghai",
@@ -1451,7 +1697,9 @@
       "lang": "zh",
       "wiki": "en:Line 17 (Shanghai Metro)",
       "wiki_stations": 14,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Chengdu",
@@ -1462,7 +1710,9 @@
       "lang": "zh",
       "wiki": "zh:成都地铁10号线",
       "wiki_stations": 16,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Chengdu",
@@ -1473,7 +1723,9 @@
       "lang": "zh",
       "wiki": "zh:成都地铁17号线",
       "wiki_stations": 19,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Chicago",
@@ -1484,7 +1736,9 @@
       "lang": "en",
       "wiki": "en:Blue Line (CTA)",
       "wiki_stations": 33,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Nanjing",
@@ -1495,7 +1749,9 @@
       "lang": "zh",
       "wiki": "en:Line 1 (Nanjing Metro)",
       "wiki_stations": 32,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Nanjing",
@@ -1506,7 +1762,9 @@
       "lang": "zh",
       "wiki": "en:Line 5 (Nanjing Metro)",
       "wiki_stations": 30,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Seoul",
@@ -1517,7 +1775,9 @@
       "lang": "ko",
       "wiki": "en:Seoul Subway Line 4",
       "wiki_stations": 51,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "San Francisco (Bay Area)",
@@ -1528,7 +1788,9 @@
       "lang": "en",
       "wiki": "en:Red Line (BART)",
       "wiki_stations": 24,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "San Francisco (Bay Area)",
@@ -1539,7 +1801,9 @@
       "lang": "en",
       "wiki": "en:Blue Line (BART)",
       "wiki_stations": 18,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "San Francisco (Bay Area)",
@@ -1550,7 +1814,9 @@
       "lang": "en",
       "wiki": "en:Berryessa/North San José–Daly City line",
       "wiki_stations": 22,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Tehran",
@@ -1561,7 +1827,9 @@
       "lang": "fa",
       "wiki": "en:Tehran Metro Line 4",
       "wiki_stations": 20,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Kuala Lumpur",
@@ -1572,7 +1840,9 @@
       "lang": "ms",
       "wiki": "en:Kelana Jaya line",
       "wiki_stations": 37,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Wuxi",
@@ -1583,7 +1853,9 @@
       "lang": "zh",
       "wiki": "en:Line 1 (Wuxi Metro)",
       "wiki_stations": 27,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Philadelphia",
@@ -1595,7 +1867,9 @@
       "wikidata": "Q2043730",
       "wiki": "en:PATCO Speedline",
       "wiki_stations": 14,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Hyderabad",
@@ -1606,7 +1880,9 @@
       "lang": "en",
       "wiki": "en:Red Line (Hyderabad Metro)",
       "wiki_stations": 27,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "Pyongyang",
@@ -1618,7 +1894,9 @@
       "wikidata": "Q711112",
       "wiki": "ko:평양 지하철도 천리마선",
       "wiki_stations": 6,
-      "diff": 2
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1629,7 +1907,9 @@
       "lang": "en",
       "wiki": "en:W (New York City Subway service)",
       "wiki_stations": 23,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1640,7 +1920,9 @@
       "lang": "en",
       "wiki": "en:M (New York City Subway service)",
       "wiki_stations": 36,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Hong Kong",
@@ -1651,7 +1933,9 @@
       "lang": "zh",
       "wiki": "zh:觀塘綫",
       "wiki_stations": 17,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Wuhan",
@@ -1662,7 +1946,9 @@
       "lang": "zh",
       "wiki": "en:Yangluo Line",
       "wiki_stations": 16,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "San Francisco (Bay Area)",
@@ -1673,7 +1959,9 @@
       "lang": "en",
       "wiki": "en:Yellow Line (BART)",
       "wiki_stations": 28,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Hefei",
@@ -1684,7 +1972,9 @@
       "lang": "zh",
       "wiki": "en:Line 1, Hefei Metro",
       "wiki_stations": 23,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Tehran",
@@ -1695,7 +1985,9 @@
       "lang": "fa",
       "wiki": "en:Tehran Metro Line 1",
       "wiki_stations": 29,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Kuala Lumpur",
@@ -1706,7 +1998,9 @@
       "lang": "ms",
       "wiki": "en:Putrajaya line",
       "wiki_stations": 36,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Mumbai",
@@ -1717,7 +2011,9 @@
       "lang": "en",
       "wiki": "en:Line 1 (Mumbai Metro)",
       "wiki_stations": 12,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
     },
     {
       "city": "Pune",
@@ -1728,7 +2024,22 @@
       "lang": "en",
       "wiki": "en:Aqua Line (Pune Metro)",
       "wiki_stations": 16,
-      "diff": 3
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
+    },
+    {
+      "city": "Chengdu",
+      "country": "China",
+      "route_id": "rm8298113",
+      "route_name": "Chengdu Metro Line 2",
+      "ours": 32,
+      "lang": "zh",
+      "wiki": "zh:成都地铁2号线",
+      "wiki_stations": 28,
+      "wiki_basis": "operational",
+      "diff": 4,
+      "severity": "error"
     },
     {
       "city": "Hefei",
@@ -1739,7 +2050,9 @@
       "lang": "zh",
       "wiki": "zh:合肥轨道交通4号线",
       "wiki_stations": 34,
-      "diff": 4
+      "wiki_basis": "total",
+      "diff": 4,
+      "severity": "error"
     },
     {
       "city": "Osaka",
@@ -1750,7 +2063,9 @@
       "lang": "ja",
       "wiki": "ja:Osaka Metro御堂筋線",
       "wiki_stations": 20,
-      "diff": 5
+      "wiki_basis": "total",
+      "diff": 5,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1761,7 +2076,22 @@
       "lang": "en",
       "wiki": "en:R (New York City Subway service)",
       "wiki_stations": 45,
-      "diff": 6
+      "wiki_basis": "total",
+      "diff": 6,
+      "severity": "error"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm6855054",
+      "route_name": "Солнцевская линия",
+      "ours": 14,
+      "lang": "ru",
+      "wiki": "en:Kalininsko–Solntsevskaya line",
+      "wiki_stations": 8,
+      "wiki_basis": "total",
+      "diff": 6,
+      "severity": "error"
     },
     {
       "city": "Dalian",
@@ -1772,7 +2102,9 @@
       "lang": "zh",
       "wiki": "zh:大连地铁13号线",
       "wiki_stations": 11,
-      "diff": 6
+      "wiki_basis": "total",
+      "diff": 6,
+      "severity": "error"
     },
     {
       "city": "Changchun",
@@ -1783,7 +2115,9 @@
       "lang": "zh",
       "wiki": "en:Line 2 (Changchun Rail Transit)",
       "wiki_stations": 21,
-      "diff": 6
+      "wiki_basis": "total",
+      "diff": 6,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1794,7 +2128,9 @@
       "lang": "en",
       "wiki": "en:D (New York City Subway service)",
       "wiki_stations": 36,
-      "diff": 7
+      "wiki_basis": "total",
+      "diff": 7,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1805,7 +2141,9 @@
       "lang": "en",
       "wiki": "en:Q (New York City Subway service)",
       "wiki_stations": 29,
-      "diff": 7
+      "wiki_basis": "total",
+      "diff": 7,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1816,7 +2154,9 @@
       "lang": "en",
       "wiki": "en:Franklin Avenue Shuttle",
       "wiki_stations": 4,
-      "diff": 7
+      "wiki_basis": "total",
+      "diff": 7,
+      "severity": "error"
     },
     {
       "city": "Suzhou",
@@ -1827,7 +2167,9 @@
       "lang": "zh",
       "wiki": "en:Line 4 (Suzhou Metro)",
       "wiki_stations": 31,
-      "diff": 7
+      "wiki_basis": "total",
+      "diff": 7,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1838,7 +2180,9 @@
       "lang": "en",
       "wiki": "en:2 (New York City Subway service)",
       "wiki_stations": 49,
-      "diff": 11
+      "wiki_basis": "total",
+      "diff": 11,
+      "severity": "error"
     },
     {
       "city": "Shenzhen",
@@ -1849,7 +2193,9 @@
       "lang": "zh",
       "wiki": "zh:深圳地铁2号线",
       "wiki_stations": 32,
-      "diff": 11
+      "wiki_basis": "total",
+      "diff": 11,
+      "severity": "error"
     },
     {
       "city": "Beijing",
@@ -1860,7 +2206,9 @@
       "lang": "zh",
       "wiki": "en:Line 4, Beijing Subway",
       "wiki_stations": 24,
-      "diff": 12
+      "wiki_basis": "total",
+      "diff": 12,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1871,7 +2219,9 @@
       "lang": "en",
       "wiki": "en:E (New York City Subway service)",
       "wiki_stations": 20,
-      "diff": 14
+      "wiki_basis": "total",
+      "diff": 14,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1882,7 +2232,9 @@
       "lang": "en",
       "wiki": "en:5 (New York City Subway service)",
       "wiki_stations": 36,
-      "diff": 14
+      "wiki_basis": "total",
+      "diff": 14,
+      "severity": "error"
     },
     {
       "city": "Beijing",
@@ -1893,7 +2245,9 @@
       "lang": "zh",
       "wiki": "en:Line 1 (Beijing Subway)",
       "wiki_stations": 23,
-      "diff": 14
+      "wiki_basis": "total",
+      "diff": 14,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1904,7 +2258,9 @@
       "lang": "en",
       "wiki": "en:N (New York City Subway service)",
       "wiki_stations": 28,
-      "diff": 22
+      "wiki_basis": "total",
+      "diff": 22,
+      "severity": "error"
     },
     {
       "city": "Suzhou",
@@ -1916,7 +2272,9 @@
       "wikidata": "Q17029788",
       "wiki": "zh:苏州地铁11号线",
       "wiki_stations": 27,
-      "diff": 24
+      "wiki_basis": "total",
+      "diff": 24,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1927,7 +2285,9 @@
       "lang": "en",
       "wiki": "en:A (New York City Subway service)",
       "wiki_stations": 40,
-      "diff": 27
+      "wiki_basis": "total",
+      "diff": 27,
+      "severity": "error"
     },
     {
       "city": "New York City",
@@ -1938,7 +2298,22 @@
       "lang": "en",
       "wiki": "en:4 (New York City Subway service)",
       "wiki_stations": 28,
-      "diff": 31
+      "wiki_basis": "total",
+      "diff": 31,
+      "severity": "error"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8037671",
+      "route_name": "Blue Line",
+      "ours": 57,
+      "lang": "en",
+      "wiki": "en:Blue Line (Delhi Metro)",
+      "wiki_stations": 3,
+      "wiki_basis": "total",
+      "diff": 54,
+      "severity": "error"
     }
   ],
   "uncovered_lines": [
@@ -2694,16 +3069,6 @@
       "ours": 8,
       "lang": "ru",
       "wiki": "ru:Калининская линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm6855054",
-      "route_name": "Солнцевская линия",
-      "ours": 14,
-      "lang": "ru",
-      "wiki": "en:Kalininsko–Solntsevskaya line",
       "reason": "article has no station count infobox"
     },
     {
@@ -3499,26 +3864,6 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm5576487",
-      "route_name": "Danhai LRT",
-      "ours": 13,
-      "lang": "zh",
-      "wiki": "zh:藍海線",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm8439253",
-      "route_name": "Suzhou Rail Transit Line 2",
-      "ours": 36,
-      "lang": "zh",
-      "wiki": "en:Line 2 (Suzhou Metro)",
-      "reason": "article has no station count infobox"
-    },
-    {
       "city": "Suzhou",
       "country": "China",
       "route_id": "rm13091428",
@@ -3677,16 +4022,6 @@
       "lang": "no",
       "wiki": "en:Oslo Metro",
       "reason": "suspect system article (en:Oslo Metro: 101)"
-    },
-    {
-      "city": "Delhi",
-      "country": "India",
-      "route_id": "rm8037671",
-      "route_name": "Blue Line",
-      "ours": 57,
-      "lang": "en",
-      "wiki": "en:Blue Line (Delhi Metro)",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Delhi",
@@ -4238,17 +4573,7 @@
       "ours": 23,
       "lang": "zh",
       "wiki": "zh:南宁轨道交通",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nanning",
-      "country": "China",
-      "route_id": "rm13557463",
-      "route_name": "Line 5, Nanning Rail Transit",
-      "ours": 17,
-      "lang": "zh",
-      "wiki": "zh:南宁轨道交通5号线",
-      "reason": "article has no station count infobox"
+      "reason": "suspect system article (zh:南宁轨道交通: 106)"
     },
     {
       "city": "Rome",
@@ -4662,16 +4987,6 @@
       "ours": 12,
       "lang": "pt",
       "wiki": "pt:Linha Vermelha (Metropolitano de Lisboa)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Bangkok",
-      "country": "Thailand",
-      "route_id": "rm7725058",
-      "route_name": "MRT Purple Line",
-      "ours": 16,
-      "lang": "th",
-      "wiki": "en:MRT Purple Line",
       "reason": "article has no station count infobox"
     },
     {
@@ -5692,17 +6007,6 @@
       "lang": "en",
       "wikidata": "Q113001571",
       "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Indore",
-      "country": "India",
-      "route_id": "rm19218607",
-      "route_name": "Metro Yellow Line: Gandhi Nagar ↔ Super Corridor 3",
-      "ours": 5,
-      "lang": "en",
-      "wikidata": "Q122898420",
-      "wiki": "en:Yellow Line (Indore Metro)",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Bhopal",

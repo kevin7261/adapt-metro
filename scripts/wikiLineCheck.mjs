@@ -12,12 +12,26 @@ import { dirname, join } from 'node:path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
 const CACHE = join(BASE, '_cache')
-const OUT_CACHE = join(CACHE, 'wiki_line_stations.json')
+const OUT_CACHE = join(CACHE, 'wiki_line_stations_v2.json')
 const UA = 'adapt-metro-thesis/1.0 (metro line verification; knowledge.nomads.tw2@gmail.com)'
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-// infobox 站數欄位（多語）
-const STATION_FIELD = /\|\s*(?:stations|number_of_stations|車站數量?|车站数量?|駅数|역수)\s*=\s*([0-9]+)/i
+// infobox 站數欄位（多語）。使用者規則「只畫有通車的」：優先解析「營運中/已啟用」
+// 數字；只有全線總數時另存 total（可能含未通車段，判定時降級處理）。
+const STATION_FIELD = /\|\s*(?:stations|number_of_stations|車站數量?|车站数量?|車站總數|车站总数|駅数|역수)\s*=([^\n|]*)/i
+function parseStations(text) {
+  const m = STATION_FIELD.exec(text)
+  if (!m) return null
+  const val = m[1]
+  // 「42（14座營運中）」「28 (27 in operation)」「14座啟用」等
+  const op = /([0-9]+)\s*(?:座|站|个|個)?\s*(?:營運中|营运中|運營中|运营中|啟用|启用|已通車|已通车|in (?:operation|service)|operational|open)/i.exec(val)
+    ?? /(?:營運中|营运中|運營中|运营中|啟用|启用|opened?)[^0-9]{0,6}([0-9]+)/i.exec(val)
+  const first = /([0-9]+)/.exec(val)
+  return {
+    total: first ? parseInt(first[1], 10) : null,
+    operational: op ? parseInt(op[1], 10) : null,
+  }
+}
 
 async function readJSON(p, fb) { try { return JSON.parse(await readFile(p, 'utf8')) } catch { return fb } }
 
@@ -124,13 +138,13 @@ async function main() {
         const norm = new Map((j.query?.normalized ?? []).map((n) => [n.to, n.from]))
         for (const page of j.query?.pages ?? []) {
           const text = page.revisions?.[0]?.slots?.main?.content ?? ''
-          const m = STATION_FIELD.exec(text)
+          const parsed = parseStations(text)
           // 回推原 title（可能經 normalize/redirect）
           let orig = page.title
           if (redirect.has(orig)) orig = redirect.get(orig)
           if (norm.has(orig)) orig = norm.get(orig)
-          cache[`${lang}:${orig}`] = m ? parseInt(m[1], 10) : null
-          if (orig !== page.title) cache[`${lang}:${page.title}`] = m ? parseInt(m[1], 10) : null
+          cache[`${lang}:${orig}`] = parsed
+          if (orig !== page.title) cache[`${lang}:${page.title}`] = parsed
         }
         await writeFile(OUT_CACHE, JSON.stringify(cache))
         console.log(`  ${lang}: ${Math.min(i + 50, list.length)}/${list.length}`)
@@ -160,7 +174,10 @@ async function main() {
       uncovered.push({ ...l, reason: 'no wikipedia/wikidata tag resolves' })
       continue
     }
-    const wikiN = cache[l.wiki]
+    const entry = cache[l.wiki]
+    // v2 快取為 {total, operational}；「只畫有通車的」⇒ 有營運中數字時以其為準
+    const hasOp = entry && typeof entry === 'object' && entry.operational != null
+    const wikiN = entry && typeof entry === 'object' ? (entry.operational ?? entry.total) : entry
     if (!wikiN || wikiN < 2) {
       uncovered.push({ ...l, reason: 'article has no station count infobox' })
       continue
@@ -175,7 +192,15 @@ async function main() {
     }
     checked++
     if (l.ours !== wikiN) {
-      flags.push({ ...l, wiki_stations: wikiN, diff: l.ours - wikiN })
+      // 使用者裁決「只畫有通車的，沒通車不用」：infobox 只有全線總數時，
+      // ours < total 可能是未通車段造成 → warn（待人工確認是否真缺站）；
+      // ours > wiki 無法用未通車解釋（誤併/多抓）→ error；
+      // 解析得到「營運中/已啟用」數字時 → 嚴格相等 error。
+      const severity = hasOp || l.ours > wikiN ? 'error' : 'warn'
+      flags.push({
+        ...l, wiki_stations: wikiN, wiki_basis: hasOp ? 'operational' : 'total',
+        diff: l.ours - wikiN, severity,
+      })
     }
   }
   flags.sort((a, b) => a.diff - b.diff)

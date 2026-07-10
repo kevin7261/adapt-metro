@@ -196,11 +196,13 @@ const MAX_OVERLAP = 6
 const DASH = 2.5
 const ALL_LINE_LAYER_IDS = ['metro-lines']
 
-// Station fill by role: transfer/interchange → red, terminal/terminus → blue,
-// otherwise white. Interchange wins when a station is both.
+// Station fill by role: transfer → red, terminal → blue, otherwise white.
+// A station is a transfer when >1 distinct route (line) passes through it — the
+// `is_interchange` flag is unreliable, so derive it from the `lines` array.
+// Transfer wins when a station is both a transfer and a terminus.
 const STATION_COLOR = [
   'case',
-  ['coalesce', ['get', 'is_interchange'], false], '#e11d48',
+  ['>', ['length', ['coalesce', ['get', 'lines'], ['literal', []]]], 1], '#e11d48',
   ['coalesce', ['get', 'is_terminus'], false], '#2563eb',
   '#ffffff',
 ]

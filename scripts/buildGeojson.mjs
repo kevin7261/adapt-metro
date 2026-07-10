@@ -35,6 +35,16 @@ async function readOverrides() {
   return byRid
 }
 
+// 未通車例外（使用者裁決：只畫有通車的，但台北例外納入 桃捷綠線/萬大線/汐東線）。
+// 抓取端 scripts/fetchUcExceptions.mjs 已正規化 lifecycle tags；這裡只需知道哪些
+// relation 是例外，好在路線 meta 標 status=under_construction。
+async function readUcRids() {
+  try {
+    const conf = JSON.parse(await readFile(join(OVERRIDES_DIR, 'uc_exceptions.json'), 'utf8'))
+    return new Set((conf.exceptions ?? []).filter((x) => x.enabled).map((x) => x.relation))
+  } catch { return new Set() }
+}
+
 // Per-city audit verdicts (written by scripts/auditLoop.mjs) — embedded into
 // each system's metro_system.audit so the UI can show pass/fail + reasons.
 async function readAuditState() {
@@ -178,6 +188,7 @@ async function build() {
         routesTags.set(e.id, e.tags || {})
   }
   const ovByRid = await readOverrides()
+  const ucRids = await readUcRids()
 
   const mastersRaw = await readJSON('route_masters.json')
   const masterOf = new Map(), masterTags = new Map()
@@ -624,6 +635,8 @@ async function build() {
       wikidata: pick(t, 'wikidata', 'network:wikidata'),
       wikipedia: pick(t, 'wikipedia', 'network:wikipedia'),
       osm_route_ids: g.rids,
+      // 未通車例外線（台北限定）——UI 可依此標示「建設中」
+      status: g.rids.some((r) => ucRids.has(r)) ? 'under_construction' : null,
     }
     const feat = {
       type: 'Feature', properties: props,
@@ -1253,6 +1266,7 @@ async function build() {
           network_local: p.network_local, operator: p.operator,
           wikidata: p.wikidata, wikipedia: p.wikipedia,
           osm_route_ids: p.osm_route_ids,
+          status: p.status ?? null,
           order_suspect: suspectOrder(f),
           // all stations of this route, in stop order (id + name)
           stations: f.__stations ?? [],

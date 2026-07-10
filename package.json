@@ -10,13 +10,14 @@
     "preview": "vite preview",
     "metro:wiki": "node scripts/fetchWikiList.mjs",
     "metro:fetch": "node scripts/fetchMetro.mjs",
+    "metro:fetchuc": "node scripts/fetchUcExceptions.mjs",
     "metro:geocode": "node scripts/geocodeSystems.mjs",
     "metro:build": "node scripts/buildGeojson.mjs",
     "metro:maps": "node scripts/downloadMaps.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
     "metro:audit": "node scripts/auditLoop.mjs",
     "metro:wikilines": "node scripts/wikiLineCheck.mjs",
-    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/auditLoop.mjs"
+    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/fetchUcExceptions.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/wikiLineCheck.mjs && node scripts/auditLoop.mjs"
   },
   "dependencies": {
     "dockview-vue": "^7.0.2",
