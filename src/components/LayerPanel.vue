@@ -27,14 +27,9 @@ function overflow(layer, action) {
     const bbox = data && boundsOfGeojson(data)
     if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
   } else if (action === 'table') {
-    // Toggle the attribute table (close if already open on the active layer,
-    // otherwise focus this layer's tab and open it).
-    if (store.selectedLayerId === layer.id && store.ui.attributeTable) {
-      store.ui.attributeTable = false
-    } else {
-      openLayer(layer)
-      store.ui.attributeTable = true
-    }
+    // Pure toggle of the attribute table for the active tab — must NOT change
+    // the active tab / layer highlight (highlight is driven by tab selection).
+    store.ui.attributeTable = !store.ui.attributeTable
   } else if (action === 'export') {
     exportLayer(layer)
   } else if (action === 'remove') {
@@ -210,6 +205,7 @@ onBeforeUnmount(() => { dragging.value = false })
 .tree { flex: 1; overflow-y: auto; padding: 8px; }
 
 .layer-row {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -219,10 +215,22 @@ onBeforeUnmount(() => { dragging.value = false })
   border: 1px solid transparent;
 }
 .layer-row:hover { background: hsl(var(--accent) / 0.6); }
+/* Active layer = the layer shown in the active editor tab. */
 .layer-row.selected {
-  background: hsl(var(--primary) / 0.1);
-  border-color: hsl(var(--primary) / 0.4);
+  background: hsl(var(--primary) / 0.18);
+  border-color: hsl(var(--primary) / 0.55);
 }
+.layer-row.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 2px;
+  background: hsl(var(--primary));
+}
+.layer-row.selected .layer-name { color: hsl(var(--primary)); font-weight: 600; }
 .layer-title { display: flex; align-items: center; gap: 2px; min-width: 0; }
 .type-icon { flex-shrink: 0; margin: 0 3px; }
 .layer-name {

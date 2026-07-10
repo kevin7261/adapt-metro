@@ -48,5 +48,155 @@
     "refetched": true,
     "relations": 16,
     "tombstones": 4
+  },
+  "Guangzhou|China": {
+    "refetched": true,
+    "relations": 48,
+    "tombstones": 0
+  },
+  "Hefei|China": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 2
+  },
+  "Hong Kong|China": {
+    "refetched": true,
+    "relations": 54,
+    "tombstones": 9
+  },
+  "Nanjing|China": {
+    "refetched": true,
+    "relations": 30,
+    "tombstones": 7
+  },
+  "Qingdao|China": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 1
+  },
+  "Shanghai|China": {
+    "refetched": true,
+    "relations": 48,
+    "tombstones": 7
+  },
+  "Shaoxing|China": {
+    "refetched": true,
+    "relations": 6,
+    "tombstones": 0
+  },
+  "Shenzhen|China": {
+    "refetched": true,
+    "relations": 34,
+    "tombstones": 1
+  },
+  "Suzhou|China": {
+    "refetched": true,
+    "relations": 24,
+    "tombstones": 3
+  },
+  "Tianjin|China": {
+    "refetched": true,
+    "relations": 28,
+    "tombstones": 1
+  },
+  "Wuhan|China": {
+    "refetched": true,
+    "relations": 26,
+    "tombstones": 3
+  },
+  "Wuxi|China": {
+    "refetched": true,
+    "relations": 10,
+    "tombstones": 0
+  },
+  "Zhengzhou|China": {
+    "refetched": true,
+    "relations": 26,
+    "tombstones": 0
+  },
+  "Santo Domingo|Dominican Republic": {
+    "refetched": true,
+    "relations": 4,
+    "tombstones": 0
+  },
+  "Marseille|France": {
+    "refetched": true,
+    "relations": 4,
+    "tombstones": 0
+  },
+  "Delhi|India": {
+    "refetched": true,
+    "relations": 24,
+    "tombstones": 4
+  },
+  "Hyderabad|India": {
+    "refetched": true,
+    "relations": 6,
+    "tombstones": 0
+  },
+  "Kolkata|India": {
+    "refetched": true,
+    "relations": 10,
+    "tombstones": 0
+  },
+  "Mumbai|India": {
+    "refetched": true,
+    "relations": 12,
+    "tombstones": 3
+  },
+  "Pune|India": {
+    "refetched": true,
+    "relations": 4,
+    "tombstones": 4
+  },
+  "Tehran|Iran": {
+    "refetched": true,
+    "relations": 17,
+    "tombstones": 0
+  },
+  "Osaka|Japan": {
+    "refetched": true,
+    "relations": 20,
+    "tombstones": 0
+  },
+  "Pyongyang|North Korea": {
+    "refetched": true,
+    "relations": 4,
+    "tombstones": 0
+  },
+  "Seoul|South Korea": {
+    "refetched": true,
+    "relations": 165,
+    "tombstones": 7
+  },
+  "Kuala Lumpur|Malaysia": {
+    "refetched": true,
+    "relations": 10,
+    "tombstones": 8
+  },
+  "Manila|Philippines": {
+    "refetched": true,
+    "relations": 8,
+    "tombstones": 1
+  },
+  "Doha|Qatar": {
+    "refetched": true,
+    "relations": 8,
+    "tombstones": 2
+  },
+  "Bucharest|Romania": {
+    "refetched": true,
+    "relations": 12,
+    "tombstones": 0
+  },
+  "Moscow|Russia": {
+    "refetched": true,
+    "relations": 32,
+    "tombstones": 0
+  },
+  "Singapore|Singapore": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 2
   }
 }

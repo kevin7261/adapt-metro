@@ -413,7 +413,7 @@ async function build() {
         .filter((r) => r.coord)
     }
     if (!seq) continue
-    g.seqs.push(seq)
+    g.seqs.push({ rows: seq, rid })
     for (const r of seq) { g.stopNodes.add(r.ref); stopXY.set(r.ref, r.coord) }
   }
 
@@ -422,18 +422,20 @@ async function build() {
   // Coverage is keyed by ~100 m coordinate cells, not node ids — the two
   // directions usually use different stop_position nodes at the same station.
   const ckey = (r) => `${Math.round(r.coord[0] / 0.001)}:${Math.round(r.coord[1] / 0.001)}`
+  // 入參/回傳皆為 {rows, rid} 包裝——保留「每段變體來自哪個 relation」，
+  // 好讓分支變體以自己的 relation 身分獨立成線（使用者規則：以路線自己為準）。
   const dedupeSeqs = (seqs) => {
-    const sorted = [...seqs].sort((a, b) => b.length - a.length)
+    const sorted = [...seqs].sort((a, b) => b.rows.length - a.rows.length)
     const covered = new Set(), kept = []
-    for (const seq of sorted) {
-      const fresh = seq.filter((r) => !covered.has(ckey(r))).length
+    for (const w of sorted) {
+      const fresh = w.rows.filter((r) => !covered.has(ckey(r))).length
       // Keep any variant bringing ≥1 unseen station (short branches like
       // 小碧潭支線 add just 1-2 stations); pure reverse/express duplicates
       // (fresh = 0) are dropped. Overlap segmentization dedupes the shared
       // stretch afterwards, so keeping a mostly-overlapping branch is free.
       if (kept.length && fresh === 0) continue
-      kept.push(seq)
-      for (const r of seq) covered.add(ckey(r))
+      kept.push(w)
+      for (const r of w.rows) covered.add(ckey(r))
     }
     return kept
   }
@@ -581,13 +583,32 @@ async function build() {
   const pinnedKeys = new Set()
   const resolved = []
   for (const g of groups.values()) {
-    const kept = dedupeSeqs(g.seqs)
-    if (!kept.length) continue
-    const t = repTags(g)
+    const keptAll = dedupeSeqs(g.seqs)
+    if (!keptAll.length) continue
+    // 同一路線一定是一條線，且**以路線自己為準**（使用者規則）：主線＝最長變體；
+    // 帶來新站的分支變體（小碧潭支線…）不併入主線（hover 不得把支線一起
+    // highlight），各自以「自己 relation 的 tags」獨立成線。
+    const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
+    const mainRids = g.rids.filter((r) => !branchRids.has(r))
+    const units = [{ kept: [keptAll[0].rows],
+      gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
+    for (const w of keptAll.slice(1)) {
+      const bt = { ...(routesTags.get(w.rid) || {}) }
+      bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
+      // key 不能沿用 m| 前綴（phase B 的 route_id 由 key 推導）——分支用 br|rid
+      units.push({ kept: [w.rows],
+        gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt })
+    }
+    for (const unit of units) {
+    const kept = unit.kept
+    const gRef = unit.gU
+    gRef.stopNodes = new Set()
+    for (const rows of kept) for (const r of rows) gRef.stopNodes.add(r.ref)
+    const t = unit.tU && (unit.tU.name || unit.tU['name:en']) ? unit.tU : repTags(g)
     const network = pick(t, 'network:en', 'network') || pick(t, 'operator') || 'Unknown'
     // Override wins outright: bind these relations to the specified city and
     // pin the bucket (no sanity-check drift, no rebucketing).
-    const ov = g.rids.map((r) => ovByRid.get(r)).find(Boolean)
+    const ov = gRef.rids.map((r) => ovByRid.get(r)).find(Boolean)
     // 系統→城市直綁（優先於 geocode 解析；視同 override：pin、不做距離裁決）
     const netBind = !ov ? NETWORK_CITY.find(([re]) =>
       re.test(`${network} ${t.network ?? ''} ${t.operator ?? ''} ${t.__own ?? ''}`))?.[1] : null
@@ -661,12 +682,13 @@ async function build() {
       }
     }
     // 一組內全部 relation 都是 light_rail 才算 LRT 線（混合視為 subway）
-    const lrtOnly = g.rids.every((r) => (routesTags.get(r) || {}).route === 'light_rail')
+    const lrtOnly = gRef.rids.every((r) => (routesTags.get(r) || {}).route === 'light_rail')
     if (process.env.DEBUG_CITY && new RegExp(process.env.DEBUG_CITY, 'i')
       .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
       console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),
         '| net:', network, '| own:', t.__own, '→', info.key)
-    resolved.push({ g, kept, t, network, ov, info, lrtOnly })
+    resolved.push({ g: gRef, kept, t, network, ov, info, lrtOnly })
+    }
   }
 
   // Per-feature flags for the LRT scope rule — the keep/drop decision itself
