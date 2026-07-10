@@ -20,10 +20,9 @@ const theme = {
 function onReady(event) {
   dockHandle.api = event.api
 
-  // Keep "selected layer" in sync with the active editor tab.
-  event.api.onDidActivePanelChange((panel) => {
-    if (panel) store.selectedLayerId = panel.id
-  })
+  // NOTE: "selected layer" is kept in sync with the active tab by each LayerTab
+  // via its per-panel onDidActiveChange — dockview 7's api.onDidActivePanelChange
+  // is mis-wired to group changes and won't fire on same-group tab switches.
 
   // Open the initial tab.
   const first = store.layers.find((l) => l.id === store.selectedLayerId) ?? store.layers[0]

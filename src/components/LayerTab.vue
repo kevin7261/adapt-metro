@@ -144,10 +144,17 @@ onMounted(() => {
     })
   }
 
-  // Active tab drives the global map handle (toolbar / palette / attr table actions).
+  // Active tab drives the global map handle (toolbar / palette / attr table actions)
+  // and the "selected layer" (drives the layer-list highlight). Per-panel
+  // onDidActiveChange is used because dockview 7's api.onDidActivePanelChange is
+  // mis-wired to group changes and won't fire on same-group tab switches.
   const setHandle = (active) => {
-    if (active) mapHandle.map = map
-    else if (mapHandle.map === map) mapHandle.map = null
+    if (active) {
+      mapHandle.map = map
+      store.selectedLayerId = layerId
+    } else if (mapHandle.map === map) {
+      mapHandle.map = null
+    }
   }
   disposables.push(panelApi.onDidActiveChange(({ isActive }) => setHandle(isActive)))
   setHandle(panelApi.isActive)

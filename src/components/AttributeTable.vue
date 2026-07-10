@@ -4,7 +4,7 @@ import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData } from '../stores/layerData'
 import {
-  TableProperties, X, Filter, Download, Sigma, BarChart3,
+  TableProperties, X, Filter,
   ArrowUp, ArrowDown, ZoomIn,
 } from 'lucide-vue-next'
 
@@ -96,15 +96,6 @@ function startResize(e) {
           <Filter :size="12" class="filter-icon" />
           <input v-model="filter" class="filter-input" placeholder="Filter…" />
         </div>
-        <button class="btn-icon" title="Statistics" @click="store.fake('Field statistics')">
-          <Sigma :size="14" />
-        </button>
-        <button class="btn-icon" title="Charts" @click="store.fake('Charts')">
-          <BarChart3 :size="14" />
-        </button>
-        <button class="btn-icon" title="Export" @click="store.fake('Export table')">
-          <Download :size="14" />
-        </button>
         <button class="btn-icon" title="Close" @click="store.ui.attributeTable = false">
           <X :size="14" />
         </button>

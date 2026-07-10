@@ -198,5 +198,25 @@
     "refetched": true,
     "relations": 16,
     "tombstones": 2
+  },
+  "Istanbul|Turkey": {
+    "refetched": true,
+    "relations": 26,
+    "tombstones": 13
+  },
+  "London|United Kingdom": {
+    "refetched": true,
+    "relations": 98,
+    "tombstones": 0
+  },
+  "Atlanta|United States": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 0
+  },
+  "Chicago|United States": {
+    "refetched": true,
+    "relations": 20,
+    "tombstones": 0
   }
 }
