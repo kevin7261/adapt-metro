@@ -51,7 +51,8 @@ const linkFor = (key, v) => {
 const selectedEntries = computed(() => {
   const p = selectedProps.value
   if (!p) return []
-  return Object.keys(p).sort().map((k) => {
+  // Skip internal render-only props (e.g. `_c0.._c5` flattened dash colours).
+  return Object.keys(p).filter((k) => !k.startsWith('_')).sort().map((k) => {
     let v = p[k]
     if (typeof v === 'string' && /^[[{]/.test(v.trim())) {
       try { v = JSON.parse(v) } catch { /* leave as-is */ }

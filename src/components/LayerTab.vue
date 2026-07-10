@@ -213,6 +213,15 @@ for (let n = 2; n <= MAX_OVERLAP; n++)
 function addMetroSourceLayers(data) {
   const l = layer.value
   if (!map || map.getSource('metro')) return
+  // MapLibre serialises array properties to JSON strings, so an expression can't
+  // index into `route_colors` (the dashes then fall back to black). Flatten each
+  // overlap slot's colour into scalar props `_c0.._c{MAX_OVERLAP-1}` up front so
+  // the interleaved-dash layers can just ['get'] them. Idempotent.
+  for (const f of data.features) {
+    const rc = f.properties?.route_colors
+    if (!Array.isArray(rc) || rc.length === 0 || f.properties._c0 != null) continue
+    for (let i = 0; i < MAX_OVERLAP; i++) f.properties[`_c${i}`] = rc[i % rc.length]
+  }
   map.addSource('metro', { type: 'geojson', data })
 
   // single-route segments: solid
@@ -238,9 +247,7 @@ function addMetroSourceLayers(data) {
         filter: ['all', ['==', ['geometry-type'], 'LineString'], isN],
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
         paint: {
-          'line-color': ['at',
-            ['%', i, ['length', ['get', 'route_colors']]],
-            ['get', 'route_colors']],
+          'line-color': ['coalesce', ['get', `_c${i}`], ['get', 'route_color'], '#888888'],
           'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
           'line-width': l.strokeWidth,
           'line-opacity': l.opacity,

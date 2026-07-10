@@ -1,0 +1,11 @@
+{
+  "_comment": "人工站序補正（wiki 已裁決、OSM route relation 上游未更新時用）。appends[].relation 的成員序尾端依序補上 append_stops 節點（role=stop）；close_loop=true 時最後回到第一個 stop（環狀路線不變式）。節點座標與站名由 gap_geom_/gap_stations_ccl_closure 供給（scripts/_fetch_ccl_nodes.mjs）。",
+  "appends": [
+    {
+      "relation": 2076291,
+      "note": "新加坡環狀線 CCL6 閉合段 2026 通車（wiki: Circle Line (MRT)）：HarbourFront 之後 Keppel(CC30)→Cantonment(CC31)→Prince Edward Road(CC32)，回到起點 Marina Bay 成環。OSM 四個 CCL relation 皆尚未加入此三站成員（僅存在 stop_area）。",
+      "append_stops": [12849271710, 12849271709, 12849271708],
+      "close_loop": true
+    }
+  ]
+}

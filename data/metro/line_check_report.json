@@ -1,9 +1,9 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 943,
+  "routes_total": 1000,
   "checked_against_infobox": 575,
   "flagged": 177,
-  "uncovered": 368,
+  "uncovered": 425,
   "flags": [
     {
       "city": "Changzhou",
@@ -2378,6 +2378,806 @@
       "reason": "no wikipedia/wikidata tag resolves"
     },
     {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm7369771",
+      "route_name": "S-Bahn Circle Line (Clockwise, Ringbahn S41)",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm9942315",
+      "route_name": "S-Bahn Circle Line (Anticlockwise, Ringbahn S42)",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14984",
+      "route_name": "S8: S Wildau <=> S Birkenwerder",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm175267",
+      "route_name": "S85: S Frohnau/S+U Pankow <=> Flughafen BER",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm2413847",
+      "route_name": "S47: S Spindlersfeld <=> S Südkreuz",
+      "ours": 9,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm64094",
+      "route_name": "S46: S Königs Wusterhausen <=> S Westend",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm20982800",
+      "route_name": "S15: S+U Hauptbahnhof <=> S+U Gesundbrunnen",
+      "ours": 3,
+      "lang": "de",
+      "wikidata": "Q100985389",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm304163",
+      "route_name": "S9: S Flughafen BER <=> S Spandau",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm454054",
+      "route_name": "S1: S Wannsee <=> S Oranienburg",
+      "ours": 35,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm61469",
+      "route_name": "S25: S Teltow Stadt< => S Hennigsdorf",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm61466",
+      "route_name": "S2: S Blankenfelde <=> S Bernau",
+      "ours": 28,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm9445376",
+      "route_name": "S26: S Teltow Stadt <=> S Blankenburg",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14809",
+      "route_name": "S7: S Ahrensfelde <=> S Potsdam Hauptbahnhof",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14811",
+      "route_name": "S5: S Strausberg Nord <=> S Westkreuz",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm14810",
+      "route_name": "S75: S Wartenberg <=> S Ostbahnhof",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm28314",
+      "route_name": "S3: S Erkner< => S Spandau",
+      "ours": 31,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58424",
+      "route_name": "U8: S+U Wittenau <=> S+U Hermannstraße",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 8 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58430",
+      "route_name": "U5: U Hönow <=> U Hauptbahnhof",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie U5 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58428",
+      "route_name": "U2: S+U Pankow <=> U Ruhleben",
+      "ours": 29,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 2 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58767",
+      "route_name": "U1: S+U Warschauer Straße <=> U Uhlandstraße",
+      "ours": 13,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 1 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58426",
+      "route_name": "U3: S+U Warschauer Straße <=> U Krumme Lanke",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 3 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58425",
+      "route_name": "U7: S+U Rathaus Spandau <=> U Rudow",
+      "ours": 40,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Linie 7 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm58423",
+      "route_name": "U9: U Osloer Straße <=> S+U Rathaus Steglitz",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:U-Bahnlinie 9 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "rm51942",
+      "route_name": "U6: U Alt-Tegel <=> U Alt-Mariendorf",
+      "ours": 24,
+      "lang": "de",
+      "wiki": "de:U-Bahnlinie 6 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656731",
+      "route_name": "U3: Oberursel Hohemark <=> Südbahnhof",
+      "ours": 28,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656735",
+      "route_name": "U8: Riedberg <=> Südbahnhof",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656736",
+      "route_name": "U9: Nieder-Eschbach <=> Ginnheim Mitte",
+      "ours": 12,
+      "lang": "de",
+      "wiki": "fr:Ligne 9 du métro de Francfort",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656730",
+      "route_name": "U1: Ginnheim Mitte <=> Südbahnhof",
+      "ours": 20,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm1150977",
+      "route_name": "U2: Bad Homburg Gonzenheim <=> Südbahnhof",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656732",
+      "route_name": "U4: Bockenheimer Warte <=> Enkheim",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke B (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656733",
+      "route_name": "U5: Hauptbahnhof <=> Preungesheim",
+      "ours": 14,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke B (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm4656734",
+      "route_name": "U7: Praunheim Heerstraße <=> Enkheim",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke C (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "rm3524791",
+      "route_name": "U6: Hausen <=> Ostbahnhof",
+      "ours": 12,
+      "lang": "de",
+      "wiki": "de:U-Bahn-Strecke C (Frankfurt am Main)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r22426",
+      "route_name": "S8: Wiesbaden => Mainz Hbf => Hanau",
+      "ours": 29,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r22583",
+      "route_name": "S9: Wiesbaden => Mainz-Kastel => Hanau",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r22986",
+      "route_name": "S2: Niedernhausen => Dietzenbach",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r27605",
+      "route_name": "S1: Wiesbaden => Rödermark",
+      "ours": 32,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r27634",
+      "route_name": "S3: Bad Soden => Frankfurt (Main) Süd",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r27635",
+      "route_name": "S4: Kronberg => Frankfurt (Main) Süd",
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r27778",
+      "route_name": "S5: Friedrichsdorf => Frankfurt (Main) Süd",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r27779",
+      "route_name": "S6: Langen => Friedberg",
+      "ours": 34,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r91872",
+      "route_name": "S7: Riedstadt-Goddelau => Frankfurt (Main) Hbf",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857639",
+      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1676043",
+      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857497",
+      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
+      "ours": 14,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r536798",
+      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r539312",
+      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
+      "ours": 37,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r10512097",
+      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r959753",
+      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
+      "ours": 2,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2199151",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2213213",
+      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
+      "ours": 11,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r169136",
+      "route_name": "Stadtbahn S1: Hochstetten => Bad Herrenalb",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm17842",
+      "route_name": "Stadtbahn S11: Ittersbach <=> Hochstetten",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm2872365",
+      "route_name": "Stadtbahn S51: Söllingen <=> Germersheim",
+      "ours": 25,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm13566082",
+      "route_name": "Stadtbahn S12: Ittersbach <=> Rheinhafen EILZUG",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm2395148",
+      "route_name": "Stadtbahn S4 Eilzug: Bretten => Albtalbahnhof",
+      "ours": 56,
+      "lang": "de",
+      "wikidata": "Q106362966",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r189816",
+      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Forbach (Schwarzwald)",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r190111",
+      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Bondorf (b Herrenberg)",
+      "ours": 29,
+      "lang": "de",
+      "wikidata": "Q112623864",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r1607109",
+      "route_name": "Stadtbahn S52: Germersheim => Karlsruhe West => Karlsruhe Marktplatz",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm3368507",
+      "route_name": "S42: Sinsheim (Elsenz) Hbf <=> Heilbronn",
+      "ours": 14,
+      "lang": "de",
+      "wikidata": "Q121237874",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm4272651",
+      "route_name": "S41: Heilbronn <=> Mosbach (Baden)",
+      "ours": 17,
+      "lang": "de",
+      "wikidata": "Q121237670",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm53844",
+      "route_name": "S6 - Enztalbahn",
+      "ours": 2,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Pforzheim-Enzkreis",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r187060",
+      "route_name": "S-Bahn S5: Wiesbaden Hbf => Bensheim",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1773068",
+      "route_name": "S-Bahn S1: Flughafen München => Leuchtenbergring",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1843975",
+      "route_name": "S-Bahn S8: Flughafen München => Herrsching",
+      "ours": 32,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1782540",
+      "route_name": "S-Bahn S2: Erding => Petershausen",
+      "ours": 41,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1792662",
+      "route_name": "S-Bahn S3: Holzkirchen => Mammendorf",
+      "ours": 32,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1794890",
+      "route_name": "S-Bahn S4: Ebersberg => Geltendorf",
+      "ours": 35,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1796136",
+      "route_name": "S-Bahn S6: Tutzing => Ebersberg",
+      "ours": 35,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r18420791",
+      "route_name": "S-Bahn S5: Weßling => Kreuzstraße",
+      "ours": 34,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1844088",
+      "route_name": "S-Bahn S20: Höllriegelskreuth => Pasing Bahnhof (S/R/T)",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1796424",
+      "route_name": "S-Bahn S7: Hauptbahnhof => Wolfratshausen",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3328726",
+      "route_name": "U-Bahn U4",
+      "ours": 13,
+      "lang": "de",
+      "wiki": "de:Stammstrecke 3 (U-Bahn München)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3475206",
+      "route_name": "U-Bahn U5",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Stammstrecke 3 (U-Bahn München)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3531714",
+      "route_name": "U-Bahn U7",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "en:Munich U-Bahn",
+      "reason": "system article shared by several lines (en:Munich U-Bahn)"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3531715",
+      "route_name": "U-Bahn U8",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "en:Munich U-Bahn",
+      "reason": "system article shared by several lines (en:Munich U-Bahn)"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3477966",
+      "route_name": "U-Bahn U6",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Stammstrecke 1 (U-Bahn München)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3484056",
+      "route_name": "U-Bahn U3",
+      "ours": 25,
+      "lang": "de",
+      "wiki": "de:Stammstrecke 1 (U-Bahn München)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3531713",
+      "route_name": "U-Bahn U2",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Stammstrecke 2 (U-Bahn München)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "rm3531712",
+      "route_name": "U-Bahn U1",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Stammstrecke 2 (U-Bahn München)",
+      "reason": "article has no station count infobox"
+    },
+    {
       "city": "Beijing",
       "country": "China",
       "route_id": "rm13298577",
@@ -2585,126 +3385,6 @@
       "ours": 3,
       "lang": "fr",
       "wiki": "fr:Orlyval",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857639",
-      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1676043",
-      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
-      "ours": 16,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857497",
-      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
-      "ours": 14,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656731",
-      "route_name": "U3: Oberursel Hohemark <=> Südbahnhof",
-      "ours": 28,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656735",
-      "route_name": "U8: Riedberg <=> Südbahnhof",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656736",
-      "route_name": "U9: Nieder-Eschbach <=> Ginnheim Mitte",
-      "ours": 12,
-      "lang": "de",
-      "wiki": "fr:Ligne 9 du métro de Francfort",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656730",
-      "route_name": "U1: Ginnheim Mitte <=> Südbahnhof",
-      "ours": 20,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1150977",
-      "route_name": "U2: Bad Homburg Gonzenheim <=> Südbahnhof",
-      "ours": 21,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke A (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656732",
-      "route_name": "U4: Bockenheimer Warte <=> Enkheim",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke B (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656733",
-      "route_name": "U5: Hauptbahnhof <=> Preungesheim",
-      "ours": 14,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke B (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4656734",
-      "route_name": "U7: Praunheim Heerstraße <=> Enkheim",
-      "ours": 23,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke C (Frankfurt am Main)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm3524791",
-      "route_name": "U6: Hausen <=> Ostbahnhof",
-      "ours": 12,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Strecke C (Frankfurt am Main)",
       "reason": "article has no station count infobox"
     },
     {
@@ -3374,6 +4054,56 @@
       "reason": "system article shared by several lines (zh:武汉地铁)"
     },
     {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm5607598",
+      "route_name": "S5: Elbgaustraße <=> Stade",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm1727359",
+      "route_name": "S3: Pinneberg <=> Neugraben",
+      "ours": 25,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm5607597",
+      "route_name": "S2: Diebsteich/Altona <=> Aumühle",
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm20193391",
+      "route_name": "S7: Altona <=> Aumühle",
+      "ours": 21,
+      "lang": "de",
+      "wikidata": "Q136881945",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm1660624",
+      "route_name": "S1: Wedel <=> Poppenbüttel / Hamburg Airport",
+      "ours": 31,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
       "city": "Zhengzhou",
       "country": "China",
       "route_id": "rm16441473",
@@ -3391,86 +4121,6 @@
       "ours": 11,
       "lang": "zh",
       "wiki": "en:Line 12 (Zhengzhou Metro)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3328726",
-      "route_name": "U-Bahn U4",
-      "ours": 13,
-      "lang": "de",
-      "wiki": "de:Stammstrecke 3 (U-Bahn München)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3475206",
-      "route_name": "U-Bahn U5",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Stammstrecke 3 (U-Bahn München)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3531714",
-      "route_name": "U-Bahn U7",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "en:Munich U-Bahn",
-      "reason": "system article shared by several lines (en:Munich U-Bahn)"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3531715",
-      "route_name": "U-Bahn U8",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "en:Munich U-Bahn",
-      "reason": "system article shared by several lines (en:Munich U-Bahn)"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3477966",
-      "route_name": "U-Bahn U6",
-      "ours": 26,
-      "lang": "de",
-      "wiki": "de:Stammstrecke 1 (U-Bahn München)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3484056",
-      "route_name": "U-Bahn U3",
-      "ours": 25,
-      "lang": "de",
-      "wiki": "de:Stammstrecke 1 (U-Bahn München)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3531713",
-      "route_name": "U-Bahn U2",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Stammstrecke 2 (U-Bahn München)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Munich",
-      "country": "Germany",
-      "route_id": "rm3531712",
-      "route_name": "U-Bahn U1",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Stammstrecke 2 (U-Bahn München)",
       "reason": "article has no station count infobox"
     },
     {
@@ -3782,86 +4432,6 @@
       "lang": "zh",
       "wiki": "zh:西安地铁",
       "reason": "system article shared by several lines (zh:西安地铁)"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58430",
-      "route_name": "U5: U Hönow <=> U Hauptbahnhof",
-      "ours": 26,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie U5 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58428",
-      "route_name": "U2: S+U Pankow <=> U Ruhleben",
-      "ours": 29,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 2 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58767",
-      "route_name": "U1: S+U Warschauer Straße <=> U Uhlandstraße",
-      "ours": 13,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 1 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58426",
-      "route_name": "U3: S+U Warschauer Straße <=> U Krumme Lanke",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 3 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58425",
-      "route_name": "U7: S+U Rathaus Spandau <=> U Rudow",
-      "ours": 40,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 7 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58424",
-      "route_name": "U8: S+U Wittenau <=> S+U Hermannstraße",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:U-Bahn-Linie 8 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm58423",
-      "route_name": "U9: U Osloer Straße <=> S+U Rathaus Steglitz",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:U-Bahnlinie 9 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "route_id": "rm51942",
-      "route_name": "U6: U Alt-Tegel <=> U Alt-Mariendorf",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:U-Bahnlinie 6 (Berlin)",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Suzhou",

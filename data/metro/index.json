@@ -1,10 +1,10 @@
 {
   "generated_from": "OpenStreetMap via Overpass API (route=subway|light_rail, operational only; line geometry = stops connected in member order; same-named stations merged)",
   "baseline": "Wikipedia: List of metro systems",
-  "system_count": 223,
+  "system_count": 225,
   "wikipedia_system_count": 233,
-  "line_total": 1187,
-  "station_total": 17447,
+  "line_total": 1310,
+  "station_total": 18154,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -29,6 +29,126 @@
       "line_count": 31,
       "segment_count": 83,
       "station_count": 447,
+      "audit": null
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-berlin.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Berlin",
+      "osm_networks": [
+        "BVG",
+        "Berliner Verkehrsbetriebe",
+        "DB InfraGO",
+        "DB InfraGO AG",
+        "DB Station&Service AG",
+        "Unknown",
+        "VBB",
+        "Verkehrsverbund Berlin-Brandenburg"
+      ],
+      "operator": "S-Bahn Berlin GmbH",
+      "official_website": null,
+      "official_map": "https://de.wikipedia.org/wiki/Verkehrsverbund_Berlin-Brandenburg",
+      "wikidata": "Q12374455",
+      "line_count": 25,
+      "segment_count": 52,
+      "station_count": 316,
+      "audit": null
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-frankfurt.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "osm_networks": [
+        "DB InfraGO",
+        "DB InfraGO AG",
+        "DB Station&Service AG",
+        "RMV",
+        "RMV;DB",
+        "Rhein-Main-Verkehrsverbund",
+        "S-Bahn Frankfurt",
+        "U-Bahn Frankfurt",
+        "Unknown",
+        "VGF"
+      ],
+      "operator": "VGF",
+      "official_website": null,
+      "official_map": "https://de.wikipedia.org/wiki/U-Bahn-Strecke_A_(Frankfurt_am_Main)",
+      "wikidata": "Q19862991",
+      "line_count": 18,
+      "segment_count": 38,
+      "station_count": 196,
+      "audit": null
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Nuremberg",
+      "osm_networks": [
+        "AVG",
+        "Albtal-Verkehrs-Gesellschaft mbH",
+        "DB",
+        "DB InfraGO",
+        "DB InfraGO AG",
+        "DB Netz AG",
+        "DB Station&Service AG",
+        "HNV",
+        "Heilbronner Hohenloher Haller Nahverkehr",
+        "Heilbronner Hohenloher Haller Nahverkehr;Karlsruher Verkehrsverbund",
+        "Heilbronner Hohenloher Haller Nahverkehr;Verkehrsverbund Rhein-Neckar",
+        "Infra Fürth GmbH",
+        "Karlsruher Verkehrsverbund",
+        "Karlsruher Verkehrsverbund (KVV)",
+        "Karlsruher Verkehrsverbund;Tarifverbund Ortenau",
+        "Karlsruher Verkehrsverbund;Verkehrs-Gemeinschaft Landkreis Freudenstadt",
+        "Karlsruher Verkehrsverbund;Verkehrsverbund Pforzheim-Enzkreis",
+        "RVV;VGN",
+        "S4",
+        "U-Bahn Nürnberg",
+        "Unknown",
+        "VAG",
+        "VAG Verkehrs-Aktiengesellschaft Nürnberg",
+        "VGN",
+        "Verkehrs-Gemeinschaft Landkreis Freudenstadt",
+        "Verkehrsverbund Großraum Nürnberg",
+        "Verkehrsverbund Pforzheim-Enzkreis",
+        "Verkehrsverbund Rhein-Neckar",
+        "Verkehrsverbund Rhein-Neckar;Rhein-Nahe Nahverkehrsverbund"
+      ],
+      "operator": "VAG Verkehrs-Aktiengesellschaft Nürnberg",
+      "official_website": "http://www.vgn.de/komfortauskunft/ttb/?lineName=U1&exactMatch=1",
+      "official_map": "https://de.wikipedia.org/wiki/U-Bahn_Nürnberg",
+      "wikidata": "Q3433210",
+      "line_count": 22,
+      "segment_count": 35,
+      "station_count": 302,
+      "audit": null
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-munich.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Munich",
+      "osm_networks": [
+        "DB",
+        "DB InfraGO AG",
+        "DB Netz AG",
+        "DB Station&Service AG",
+        "MVG",
+        "MVV",
+        "Münchner Verkehrs- und Tarifverbund",
+        "Münchner Verkehrsgesellschaft",
+        "Unknown"
+      ],
+      "operator": "DB Regio AG/S-Bahn München",
+      "official_website": "https://www.mvv-muenchen.de/",
+      "official_map": "https://de.wikipedia.org/wiki/Münchner_Verkehrs-_und_Tarifverbund",
+      "wikidata": "Q7388207",
+      "line_count": 17,
+      "segment_count": 35,
+      "station_count": 237,
       "audit": null
     },
     {
@@ -157,7 +277,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Beijing Subway Line 18 6/11",
           "4 條線無 wiki 站數對照：北京地铁八通线、Beijing Subway Line 11、Beijing Subway Line 17"
         ],
-        "audited_at": "2026-07-10T15:19:16.736Z"
+        "audited_at": "2026-07-10T15:47:27.433Z"
       }
     },
     {
@@ -341,53 +461,8 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Shanghai Metro Line 13 31/36、Shanghai Metro Line 9 34/35"
         ],
-        "audited_at": "2026-07-10T15:19:43.134Z"
+        "audited_at": "2026-07-10T15:47:54.147Z"
       }
-    },
-    {
-      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Nuremberg",
-      "osm_networks": [
-        "AVG",
-        "Albtal-Verkehrs-Gesellschaft mbH",
-        "DB InfraGO",
-        "DB InfraGO AG",
-        "DB Station&Service AG",
-        "HNV",
-        "Heilbronner Hohenloher Haller Nahverkehr",
-        "Heilbronner Hohenloher Haller Nahverkehr;Karlsruher Verkehrsverbund",
-        "Heilbronner Hohenloher Haller Nahverkehr;Verkehrsverbund Rhein-Neckar",
-        "Infra Fürth GmbH",
-        "Karlsruher Verkehrsverbund",
-        "Karlsruher Verkehrsverbund (KVV)",
-        "Karlsruher Verkehrsverbund;Tarifverbund Ortenau",
-        "Karlsruher Verkehrsverbund;Verkehrs-Gemeinschaft Landkreis Freudenstadt",
-        "Karlsruher Verkehrsverbund;Verkehrsverbund Pforzheim-Enzkreis",
-        "RMV",
-        "Rhein-Main-Verkehrsverbund",
-        "S-Bahn Frankfurt",
-        "S4",
-        "U-Bahn Frankfurt",
-        "U-Bahn Nürnberg",
-        "Unknown",
-        "VAG",
-        "VAG Verkehrs-Aktiengesellschaft Nürnberg",
-        "VGF",
-        "VGN",
-        "Verkehrs-Gemeinschaft Landkreis Freudenstadt",
-        "Verkehrsverbund Großraum Nürnberg",
-        "Verkehrsverbund Pforzheim-Enzkreis"
-      ],
-      "operator": "VAG Verkehrs-Aktiengesellschaft Nürnberg",
-      "official_website": "http://www.vgn.de/komfortauskunft/ttb/?lineName=U1&exactMatch=1",
-      "official_map": "https://de.wikipedia.org/wiki/U-Bahn_Nürnberg",
-      "wikidata": "Q3433210",
-      "line_count": 12,
-      "segment_count": 22,
-      "station_count": 135,
-      "audit": null
     },
     {
       "file": "systems/asia/japan/as-jpn-tokyo.geojson",
@@ -582,7 +657,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30"
         ],
-        "audited_at": "2026-07-10T15:19:50.628Z"
+        "audited_at": "2026-07-10T15:47:59.423Z"
       }
     },
     {
@@ -708,7 +783,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 27/28",
           "3 條線無 wiki 站數對照：Subway Line 1、Subway Line 18、Subway Line 22"
         ],
-        "audited_at": "2026-07-10T15:19:30.068Z"
+        "audited_at": "2026-07-10T15:47:40.763Z"
       }
     },
     {
@@ -826,7 +901,7 @@
           "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27、Line 4 (Chongqing Rail Transit) 32/33、Bitong Line 8/9",
           "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)"
         ],
-        "audited_at": "2026-07-10T15:19:24.654Z"
+        "audited_at": "2026-07-10T15:47:35.488Z"
       }
     },
     {
@@ -946,7 +1021,7 @@
           "3 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Chengdu Metro Line 30 18/24、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
           "1 條線無 wiki 站數對照：成都地铁19号线: 天府站 => 金星"
         ],
-        "audited_at": "2026-07-10T15:19:22.067Z"
+        "audited_at": "2026-07-10T15:47:32.741Z"
       }
     },
     {
@@ -1134,7 +1209,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线"
         ],
-        "audited_at": "2026-07-10T15:19:37.907Z"
+        "audited_at": "2026-07-10T15:47:48.941Z"
       }
     },
     {
@@ -1269,7 +1344,7 @@
         "warnings": [
           "11 條線無 wiki 站數對照：杭州地铁3号线、杭州地铁4号线、Hangzhou Metro Line 5"
         ],
-        "audited_at": "2026-07-10T15:19:30.071Z"
+        "audited_at": "2026-07-10T15:47:40.766Z"
       }
     },
     {
@@ -1412,7 +1487,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：East Rail Line 15/16",
           "1 條線無 wiki 站數對照：Airport Express"
         ],
-        "audited_at": "2026-07-10T15:19:35.328Z"
+        "audited_at": "2026-07-10T15:47:46.278Z"
       }
     },
     {
@@ -1534,8 +1609,35 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Wuhan Metro Line 12 23/37、Wuhan Metro Line 2 (Airport Line) 38/39",
           "2 條線無 wiki 站數對照：武汉地铁16号线、Wuhan Metro Line 5"
         ],
-        "audited_at": "2026-07-10T15:19:58.363Z"
+        "audited_at": "2026-07-10T15:48:07.674Z"
       }
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-hamburg.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Hamburg",
+      "osm_networks": [
+        "AKN Eisenbahn",
+        "DB InfraGO AG",
+        "DB Netz AG",
+        "DB Station&Service AG",
+        "Deutsche Bahn AG",
+        "HVV",
+        "HVV;Hamburger Verkehrsverbund",
+        "Hamburger Hochbahn AG",
+        "Hamburger Verkehrsverbund",
+        "S-Bahn Hamburg GmbH",
+        "Unknown"
+      ],
+      "operator": "Hamburger Hochbahn",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/U2_(Hamburg_U-Bahn)",
+      "wikidata": "Q275451",
+      "line_count": 9,
+      "segment_count": 14,
+      "station_count": 155,
+      "audit": null
     },
     {
       "file": "systems/asia/china/as-chn-tianjin.geojson",
@@ -1645,7 +1747,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Tianjin Metro Line Z4 10/24、Tianjin Metro Line 6 38/39"
         ],
-        "audited_at": "2026-07-10T15:19:55.774Z"
+        "audited_at": "2026-07-10T15:48:04.770Z"
       }
     },
     {
@@ -1666,27 +1768,6 @@
       "line_count": 13,
       "segment_count": 14,
       "station_count": 236,
-      "audit": null
-    },
-    {
-      "file": "systems/europe/germany/eu-ger-munich.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Munich",
-      "osm_networks": [
-        "MVG",
-        "MVV",
-        "Münchner Verkehrs- und Tarifverbund",
-        "Münchner Verkehrsgesellschaft",
-        "Unknown"
-      ],
-      "operator": "Münchner Verkehrsgesellschaft",
-      "official_website": "https://www.mvv-muenchen.de/",
-      "official_map": "https://de.wikipedia.org/wiki/Stammstrecke_3_(U-Bahn_München)",
-      "wikidata": "Q20439761",
-      "line_count": 8,
-      "segment_count": 14,
-      "station_count": 96,
       "audit": null
     },
     {
@@ -1942,32 +2023,8 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Xi`an Metro Line 9、Xi'an Metro Line 5、Xi'an Metro Line 6"
         ],
-        "audited_at": "2026-07-10T15:20:01.044Z"
+        "audited_at": "2026-07-10T15:48:10.539Z"
       }
-    },
-    {
-      "file": "systems/europe/germany/eu-ger-berlin.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Berlin",
-      "osm_networks": [
-        "BVG",
-        "Berliner Verkehrsbetriebe",
-        "DB InfraGO",
-        "DB InfraGO AG",
-        "DB Station&Service AG",
-        "Unknown",
-        "VBB",
-        "Verkehrsverbund Berlin-Brandenburg"
-      ],
-      "operator": "S-Bahn Berlin GmbH",
-      "official_website": null,
-      "official_map": "https://de.wikipedia.org/wiki/Verkehrsverbund_Berlin-Brandenburg",
-      "wikidata": "Q12374455",
-      "line_count": 9,
-      "segment_count": 11,
-      "station_count": 191,
-      "audit": null
     },
     {
       "file": "systems/americas/united-states/am-usa-washington-d-c.geojson",
@@ -2106,7 +2163,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Suzhou Rail Transit Line 3 35/37",
           "1 條線無 wiki 站數對照：Suzhou Rail Transit Line 5"
         ],
-        "audited_at": "2026-07-10T15:19:53.201Z"
+        "audited_at": "2026-07-10T15:48:02.129Z"
       }
     },
     {
@@ -2391,7 +2448,7 @@
         "warnings": [
           "8 條線無 wiki 站數對照：Línea 4、Línea 1、Línea 5"
         ],
-        "audited_at": "2026-07-10T15:19:14.069Z"
+        "audited_at": "2026-07-10T15:47:24.764Z"
       }
     },
     {
@@ -2539,7 +2596,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22"
         ],
-        "audited_at": "2026-07-10T15:19:32.728Z"
+        "audited_at": "2026-07-10T15:47:43.536Z"
       }
     },
     {
@@ -2656,7 +2713,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Qingdao Metro Line 6 21/31",
           "1 條線無 wiki 站數對照：Qingdao Metro Line 8"
         ],
-        "audited_at": "2026-07-10T15:19:40.511Z"
+        "audited_at": "2026-07-10T15:47:51.507Z"
       }
     },
     {
@@ -2750,7 +2807,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:37.910Z"
+        "audited_at": "2026-07-10T15:47:48.945Z"
       }
     },
     {
@@ -2842,7 +2899,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:19.433Z"
+        "audited_at": "2026-07-10T15:47:30.074Z"
       }
     },
     {
@@ -2946,7 +3003,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Binhai Express 12/15、福州地铁6号线 15/16"
         ],
-        "audited_at": "2026-07-10T15:19:27.412Z"
+        "audited_at": "2026-07-10T15:47:38.132Z"
       }
     },
     {
@@ -3085,7 +3142,7 @@
           "1 條線站數與 wiki 條目不符（必須相等）：Metro 1 22/21"
         ],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:11.330Z"
+        "audited_at": "2026-07-10T15:47:22.158Z"
       }
     },
     {
@@ -3191,7 +3248,7 @@
         "warnings": [
           "6 條線無 wiki 站數對照：Línea A、Línea B、Línea C"
         ],
-        "audited_at": "2026-07-10T15:19:08.599Z"
+        "audited_at": "2026-07-10T15:47:19.538Z"
       }
     },
     {
@@ -3398,7 +3455,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Linha 5 - Lilás、Line 2 - Green、Linha 4 - Amarela"
         ],
-        "audited_at": "2026-07-10T15:19:14.065Z"
+        "audited_at": "2026-07-10T15:47:24.760Z"
       }
     },
     {
@@ -3611,7 +3668,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Dalian Metro Line 3 18/20"
         ],
-        "audited_at": "2026-07-10T15:19:27.409Z"
+        "audited_at": "2026-07-10T15:47:38.129Z"
       }
     },
     {
@@ -3735,7 +3792,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Kunming Metro Line 2 14/22"
         ],
-        "audited_at": "2026-07-10T15:19:35.331Z"
+        "audited_at": "2026-07-10T15:47:46.281Z"
       }
     },
     {
@@ -3845,7 +3902,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Shenyang Metro Line 3 16/27",
           "1 條線無 wiki 站數對照：Shenyang Metro Line 4"
         ],
-        "audited_at": "2026-07-10T15:19:48.003Z"
+        "audited_at": "2026-07-10T15:47:56.754Z"
       }
     },
     {
@@ -3947,7 +4004,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Nanning Rail Transit Line 2"
         ],
-        "audited_at": "2026-07-10T15:19:37.908Z"
+        "audited_at": "2026-07-10T15:47:48.942Z"
       }
     },
     {
@@ -4039,7 +4096,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:35.329Z"
+        "audited_at": "2026-07-10T15:47:46.279Z"
       }
     },
     {
@@ -4131,35 +4188,8 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:08.602Z"
+        "audited_at": "2026-07-10T15:47:19.540Z"
       }
-    },
-    {
-      "file": "systems/europe/germany/eu-ger-hamburg.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Hamburg",
-      "osm_networks": [
-        "AKN Eisenbahn",
-        "DB InfraGO AG",
-        "DB Netz AG",
-        "DB Station&Service AG",
-        "Deutsche Bahn AG",
-        "HVV",
-        "HVV;Hamburger Verkehrsverbund",
-        "Hamburger Hochbahn AG",
-        "Hamburger Verkehrsverbund",
-        "S-Bahn Hamburg GmbH",
-        "Unknown"
-      ],
-      "operator": "Hamburger Hochbahn",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/U2_(Hamburg_U-Bahn)",
-      "wikidata": "Q275451",
-      "line_count": 4,
-      "segment_count": 5,
-      "station_count": 100,
-      "audit": null
     },
     {
       "file": "systems/europe/italy/eu-ita-rome.geojson",
@@ -4281,7 +4311,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Line M1、Line M4、Line M2"
         ],
-        "audited_at": "2026-07-10T15:19:14.066Z"
+        "audited_at": "2026-07-10T15:47:24.761Z"
       }
     },
     {
@@ -4388,7 +4418,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Linha Centro - 1、Linha Sul"
         ],
-        "audited_at": "2026-07-10T15:19:11.333Z"
+        "audited_at": "2026-07-10T15:47:22.162Z"
       }
     },
     {
@@ -4489,7 +4519,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Line 2、Line 1、Line 2B"
         ],
-        "audited_at": "2026-07-10T15:19:08.608Z"
+        "audited_at": "2026-07-10T15:47:19.541Z"
       }
     },
     {
@@ -4673,7 +4703,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Wuxi Metro Line 3、Wuxi Metro Line 4"
         ],
-        "audited_at": "2026-07-10T15:20:01.039Z"
+        "audited_at": "2026-07-10T15:48:10.535Z"
       }
     },
     {
@@ -4792,7 +4822,7 @@
           "1/70 站無名稱（n1155282212…）——需補上游名稱或剔除"
         ],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:14.067Z"
+        "audited_at": "2026-07-10T15:47:24.761Z"
       }
     },
     {
@@ -4889,7 +4919,7 @@
           "1/73 站無名稱（n973381909…）——需補上游名稱或剔除"
         ],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:14.067Z"
+        "audited_at": "2026-07-10T15:47:24.762Z"
       }
     },
     {
@@ -5009,7 +5039,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Canada Line 16/17"
         ],
-        "audited_at": "2026-07-10T15:19:14.068Z"
+        "audited_at": "2026-07-10T15:47:24.763Z"
       }
     },
     {
@@ -5114,7 +5144,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico"
         ],
-        "audited_at": "2026-07-10T15:19:11.334Z"
+        "audited_at": "2026-07-10T15:47:22.163Z"
       }
     },
     {
@@ -5324,7 +5354,7 @@
           "1 條線站數與 wiki 條目不符（必須相等）：Changchun Subway Line 2 27/21"
         ],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:19.432Z"
+        "audited_at": "2026-07-10T15:47:30.073Z"
       }
     },
     {
@@ -5428,7 +5458,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Nanchang Metro Line 2、Nanchang Metro Line 4"
         ],
-        "audited_at": "2026-07-10T15:19:35.334Z"
+        "audited_at": "2026-07-10T15:47:46.284Z"
       }
     },
     {
@@ -5542,7 +5572,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:20:01.045Z"
+        "audited_at": "2026-07-10T15:48:10.540Z"
       }
     },
     {
@@ -5660,7 +5690,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Guiyang Metro Line 2、Guiyang Metro Line 2"
         ],
-        "audited_at": "2026-07-10T15:19:30.069Z"
+        "audited_at": "2026-07-10T15:47:40.764Z"
       }
     },
     {
@@ -5824,7 +5854,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Moscow Line、Аўтазаводская лінія、Zielienalužskaja linija"
         ],
-        "audited_at": "2026-07-10T15:19:08.610Z"
+        "audited_at": "2026-07-10T15:47:19.542Z"
       }
     },
     {
@@ -6300,7 +6330,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:30.071Z"
+        "audited_at": "2026-07-10T15:47:40.767Z"
       }
     },
     {
@@ -6392,7 +6422,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:50.629Z"
+        "audited_at": "2026-07-10T15:47:59.424Z"
       }
     },
     {
@@ -6536,7 +6566,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Xiamen Metro Line 3 16/31、Xiamen Metro Line 2 31/32"
         ],
-        "audited_at": "2026-07-10T15:20:01.042Z"
+        "audited_at": "2026-07-10T15:48:10.537Z"
       }
     },
     {
@@ -6631,7 +6661,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:35.333Z"
+        "audited_at": "2026-07-10T15:47:46.283Z"
       }
     },
     {
@@ -6734,7 +6764,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：温州轨道交通S1线 19/36"
         ],
-        "audited_at": "2026-07-10T15:19:55.778Z"
+        "audited_at": "2026-07-10T15:48:04.772Z"
       }
     },
     {
@@ -6839,7 +6869,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Linha Verde、Linha Laranja"
         ],
-        "audited_at": "2026-07-10T15:19:11.331Z"
+        "audited_at": "2026-07-10T15:47:22.160Z"
       }
     },
     {
@@ -7270,7 +7300,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:11.334Z"
+        "audited_at": "2026-07-10T15:47:22.164Z"
       }
     },
     {
@@ -7408,7 +7438,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Lanzhou Metro Line 1 19/20"
         ],
-        "audited_at": "2026-07-10T15:19:35.332Z"
+        "audited_at": "2026-07-10T15:47:46.282Z"
       }
     },
     {
@@ -7508,7 +7538,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Ürümqi Metro Airport Shuttle"
         ],
-        "audited_at": "2026-07-10T15:19:55.777Z"
+        "audited_at": "2026-07-10T15:48:04.771Z"
       }
     },
     {
@@ -7620,7 +7650,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:27.410Z"
+        "audited_at": "2026-07-10T15:47:38.130Z"
       }
     },
     {
@@ -7825,7 +7855,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Changzhou Metro Line 2 15/43"
         ],
-        "audited_at": "2026-07-10T15:19:19.434Z"
+        "audited_at": "2026-07-10T15:47:30.075Z"
       }
     },
     {
@@ -7918,7 +7948,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:32.729Z"
+        "audited_at": "2026-07-10T15:47:43.537Z"
       }
     },
     {
@@ -8032,7 +8062,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Jinyi line: Jinhua Railway Station ↔ Qintang 15/30",
           "1 條線無 wiki 站數對照：Yidong line: Lingyun ↔ Ming & Qing Dynasty Palace"
         ],
-        "audited_at": "2026-07-10T15:19:35.330Z"
+        "audited_at": "2026-07-10T15:47:46.280Z"
       }
     },
     {
@@ -8134,7 +8164,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Taiyuan Metro Line 2 23/24"
         ],
-        "audited_at": "2026-07-10T15:19:53.202Z"
+        "audited_at": "2026-07-10T15:48:02.130Z"
       }
     },
     {
@@ -8237,7 +8267,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Luoyang Subway Line 2 15/34"
         ],
-        "audited_at": "2026-07-10T15:19:35.333Z"
+        "audited_at": "2026-07-10T15:47:46.283Z"
       }
     },
     {
@@ -8341,7 +8371,7 @@
           "1 條線站數與 wiki 條目不符（必須相等）：Shaoxing Rail Transit Line 1 32/33"
         ],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:48.002Z"
+        "audited_at": "2026-07-10T15:47:56.753Z"
       }
     },
     {
@@ -8445,7 +8475,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Foshan Metro Line 3 32/37、Foshan Metro Line 2 15/17"
         ],
-        "audited_at": "2026-07-10T15:19:27.410Z"
+        "audited_at": "2026-07-10T15:47:38.131Z"
       }
     },
     {
@@ -8575,7 +8605,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:58.364Z"
+        "audited_at": "2026-07-10T15:48:07.675Z"
       }
     },
     {
@@ -8676,7 +8706,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Linha 1、Conexão Metrô-Aeroporto"
         ],
-        "audited_at": "2026-07-10T15:19:11.332Z"
+        "audited_at": "2026-07-10T15:47:22.161Z"
       }
     },
     {
@@ -8771,7 +8801,7 @@
           "10/53 站無名稱（n640287341、n640287342、n640287343…）——需補上游名稱或剔除"
         ],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:37.909Z"
+        "audited_at": "2026-07-10T15:47:48.943Z"
       }
     },
     {
@@ -8828,6 +8858,28 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 2,
+      "audit": null
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-walzbachtal.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Walzbachtal",
+      "osm_networks": [
+        "Albtal-Verkehrs-Gesellschaft mbH",
+        "DB InfraGO",
+        "DB InfraGO AG",
+        "DB Netz AG",
+        "Karlsruher Verkehrsverbund",
+        "Unknown"
+      ],
+      "operator": "Albtal-Verkehrs-Gesellschaft mbH;DB Regio",
+      "official_website": null,
+      "official_map": null,
+      "wikidata": null,
+      "line_count": 1,
+      "segment_count": 1,
+      "station_count": 23,
       "audit": null
     },
     {
@@ -8972,7 +9024,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Metro L1R"
         ],
-        "audited_at": "2026-07-10T15:19:08.597Z"
+        "audited_at": "2026-07-10T15:47:19.536Z"
       }
     },
     {
@@ -9094,7 +9146,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Linha 1 - Laranja"
         ],
-        "audited_at": "2026-07-10T15:19:11.331Z"
+        "audited_at": "2026-07-10T15:47:22.159Z"
       }
     },
     {
@@ -9194,7 +9246,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Yerevan Metro Line 1"
         ],
-        "audited_at": "2026-07-10T15:19:08.599Z"
+        "audited_at": "2026-07-10T15:47:19.538Z"
       }
     },
     {
@@ -9297,7 +9349,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Metro North West & Bankstown Line"
         ],
-        "audited_at": "2026-07-10T15:19:08.600Z"
+        "audited_at": "2026-07-10T15:47:19.539Z"
       }
     },
     {
@@ -9595,7 +9647,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-10T15:19:11.332Z"
+        "audited_at": "2026-07-10T15:47:22.160Z"
       }
     },
     {
@@ -10137,7 +10189,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Taizhou Rail Transit Line S1"
         ],
-        "audited_at": "2026-07-10T15:19:53.203Z"
+        "audited_at": "2026-07-10T15:48:02.131Z"
       }
     },
     {
@@ -10274,7 +10326,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Dhaka Metro Rail Line 6 17/22"
         ],
-        "audited_at": "2026-07-10T15:19:08.609Z"
+        "audited_at": "2026-07-10T15:47:19.541Z"
       }
     },
     {

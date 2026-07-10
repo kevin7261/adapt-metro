@@ -180,11 +180,11 @@ async function build() {
     if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags))
       routesTags.set(e.id, e.tags || {})
   // gap supplements: extra route relations fetched per-city by auditLoop.mjs
+  // （或 refreshRelations.mjs 的定向刷新）——gap 比主快取新，一律覆蓋（後載者勝）
   for (const f of cacheFiles.filter((n) => /^gap_routes_.+\.json$/.test(n))) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
     for (const e of d.elements || [])
-      if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags) &&
-          !routesTags.has(e.id))
+      if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags))
         routesTags.set(e.id, e.tags || {})
   }
   const ovByRid = await readOverrides()
@@ -202,8 +202,12 @@ async function build() {
   // nodes. New caches ship node coords as separate skel elements; old `out geom`
   // caches carried lat/lon inline on each node member — support both.
   const geom = new Map(), memberXY = new Map()
-  for (const f of cacheFiles.filter((n) =>
-    /^(geom_.+|gap_geom_.+)\.json$/.test(n) && !n.endsWith('.partial'))) {
+  // 主快取（geom_*）先載、gap_geom_* 後載——gap 是定向補抓/刷新（較新），
+  // 同 id 時「後載者勝」讓刷新資料覆蓋舊快取（如 CCL 環線閉合新增停靠成員）
+  const geomFiles = cacheFiles.filter((n) =>
+    /^(geom_.+|gap_geom_.+)\.json$/.test(n) && !n.endsWith('.partial'))
+    .sort((a, b) => (a.startsWith('gap_') ? 1 : 0) - (b.startsWith('gap_') ? 1 : 0))
+  for (const f of geomFiles) {
     const d = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
     for (const e of d.elements || []) {
       if (e.type === 'relation') geom.set(e.id, e)
@@ -409,6 +413,13 @@ async function build() {
   const NETWORK_CITY = [
     [/臺北捷運|台北捷運|taipei metro|臺北大眾捷運|新北捷運|新北大眾捷運|new taipei metro|淡海輕軌|安坑輕軌|桃園捷運|桃園大眾捷運|桃園機場捷運|taoyuan metro/i,
       { city: 'Taipei', country: 'Taiwan', continent: 'asia' }],
+    // 德國 S-Bahn（使用者指定 U-Bahn＋S-Bahn 都要）：系統名/operator 直綁該城
+    //（network 是運輸聯盟名 VBB/MVV/RMV…，token 對不到城市名，必須 pin）
+    [/s-bahn berlin/i, { city: 'Berlin', country: 'Germany', continent: 'europe' }],
+    [/s-bahn hamburg/i, { city: 'Hamburg', country: 'Germany', continent: 'europe' }],
+    [/s-bahn münchen|münchner s-bahn/i, { city: 'Munich', country: 'Germany', continent: 'europe' }],
+    [/s-bahn rhein-main/i, { city: 'Frankfurt', country: 'Germany', continent: 'europe' }],
+    [/s-bahn nürnberg|s-bahn nuremberg/i, { city: 'Nuremberg', country: 'Germany', continent: 'europe' }],
   ]
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file. Naming (metro-osm-fetch skill): DIRECTORIES use full names
@@ -525,7 +536,7 @@ async function build() {
     const ov = g.rids.map((r) => ovByRid.get(r)).find(Boolean)
     // 系統→城市直綁（優先於 geocode 解析；視同 override：pin、不做距離裁決）
     const netBind = !ov ? NETWORK_CITY.find(([re]) =>
-      re.test(`${network} ${t.network ?? ''} ${t.__own ?? ''}`))?.[1] : null
+      re.test(`${network} ${t.network ?? ''} ${t.operator ?? ''} ${t.__own ?? ''}`))?.[1] : null
     let info
     if (ov) {
       info = mkInfo({ continent: ov.continent, country: ov.country, city: ov.city }, ov.city)
@@ -855,6 +866,13 @@ async function build() {
   // （SkyTrain、澳門輕軌、Stadtbahn…）。非基準、純 LRT 的額外系統一律剔除。
   // Override 綁定的線（audit 逐城判過的）不在剔除範圍。
   const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung'])
+  // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
+  // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
+  // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
+  const isSbahnDe = (grp, f) =>
+    countryOk(grp.info.country || '', 'germany') &&
+    (/^S\d/i.test(f.properties.route_ref || '') ||
+     /s-bahn/i.test(f.properties.operator || ''))
   const wikiRowOf = (info) => info.city ? (wikiIdx.find((r) =>
     countryOk(info.country || '', r.sys.country) &&
     normCity(r.sys.city) === normCity(info.city))?.sys ?? null) : null
@@ -890,7 +908,7 @@ async function build() {
     if (allowed) continue
     const removedTags = new Set()
     grp.lines = grp.lines.filter((f) => {
-      if (!lrtFlags.get(f) || ovFlags.get(f)) return true
+      if (!lrtFlags.get(f) || ovFlags.get(f) || isSbahnDe(grp, f)) return true
       removedTags.add(featTag.get(f))
       skippedLrt++
       if (process.env.DEBUG_LRT) console.log('  [lrt-removed]',
