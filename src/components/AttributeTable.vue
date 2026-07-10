@@ -96,7 +96,7 @@ function startResize(e) {
           <Filter :size="12" class="filter-icon" />
           <input v-model="filter" class="filter-input" placeholder="Filter…" />
         </div>
-        <button class="btn-icon" title="Close" @click="store.ui.attributeTable = false">
+        <button class="btn-icon" title="Close" @click="activeLayer && store.toggleAttributeTable(activeLayer.id, false)">
           <X :size="14" />
         </button>
       </div>

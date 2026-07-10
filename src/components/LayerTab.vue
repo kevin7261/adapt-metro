@@ -509,7 +509,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </div>
-        <AttributeTable v-if="store.ui.attributeTable && layer" :layer="layer" />
+        <AttributeTable v-if="layer && store.ui.attributeTableOpen[layer.id]" :layer="layer" />
       </div>
 
       <StylePanel v-if="layer" :layer="layer" />

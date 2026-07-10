@@ -421,21 +421,30 @@ async function build() {
   // longest sequence, then only variants adding >20% unseen stops (branches).
   // Coverage is keyed by ~100 m coordinate cells, not node ids — the two
   // directions usually use different stop_position nodes at the same station.
-  const ckey = (r) => `${Math.round(r.coord[0] / 0.001)}:${Math.round(r.coord[1] / 0.001)}`
   // 入參/回傳皆為 {rows, rid} 包裝——保留「每段變體來自哪個 relation」，
   // 好讓分支變體以自己的 relation 身分獨立成線（使用者規則：以路線自己為準）。
+  // 「沒見過」用 ~250 m 鄰域判定（對向月台的 stop_position 可相距 >100 m，
+  // 單格 100 m 判定會把反向變體誤判成有新站 → 反向被拆成第二條線）。
+  const cellOf = (r) => [Math.round(r.coord[0] / 0.001), Math.round(r.coord[1] / 0.001)]
   const dedupeSeqs = (seqs) => {
     const sorted = [...seqs].sort((a, b) => b.rows.length - a.rows.length)
     const covered = new Set(), kept = []
+    const near = (r) => {
+      const [cx, cy] = cellOf(r)
+      for (let dx = -2; dx <= 2; dx++)
+        for (let dy = -2; dy <= 2; dy++)
+          if (covered.has(`${cx + dx}:${cy + dy}`)) return true
+      return false
+    }
     for (const w of sorted) {
-      const fresh = w.rows.filter((r) => !covered.has(ckey(r))).length
+      const fresh = w.rows.filter((r) => !near(r)).length
       // Keep any variant bringing ≥1 unseen station (short branches like
       // 小碧潭支線 add just 1-2 stations); pure reverse/express duplicates
       // (fresh = 0) are dropped. Overlap segmentization dedupes the shared
       // stretch afterwards, so keeping a mostly-overlapping branch is free.
       if (kept.length && fresh === 0) continue
       kept.push(w)
-      for (const r of w.rows) covered.add(ckey(r))
+      for (const r of w.rows) { const [cx, cy] = cellOf(r); covered.add(`${cx}:${cy}`) }
     }
     return kept
   }

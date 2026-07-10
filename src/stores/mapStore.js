@@ -10,7 +10,9 @@ export const useMapStore = defineStore('map', {
 
     ui: {
       layerPanelOpen: true,
-      attributeTable: false,
+      // Attribute table open/closed is independent per layer (layerId -> bool);
+      // each layer tab controls its own.
+      attributeTableOpen: {},
       commandPalette: false,
       dialog: null, // 'import-metro' | 'add-data' | 'settings' | 'about' | 'shortcuts' | 'new-project'
       toast: null,
@@ -45,6 +47,12 @@ export const useMapStore = defineStore('map', {
       this.ui.toast = message
       clearTimeout(toastTimer)
       toastTimer = setTimeout(() => { this.ui.toast = null }, 2600)
+    },
+    // Toggle (or force) a single layer's attribute table — independent per layer.
+    toggleAttributeTable(layerId, force) {
+      if (!layerId) return
+      const open = force === undefined ? !this.ui.attributeTableOpen[layerId] : force
+      this.ui.attributeTableOpen = { ...this.ui.attributeTableOpen, [layerId]: open }
     },
     fake(name) {
       this.toast(`「${name}」為 UI 原型 — 功能尚未實作`)
@@ -93,6 +101,7 @@ export const useMapStore = defineStore('map', {
       if (i === -1) return
       this.layers.splice(i, 1)
       delete this.selectedFeatures[id]
+      delete this.ui.attributeTableOpen[id]
       if (this.selectedLayerId === id) {
         this.selectedLayerId = this.layers[0]?.id ?? null
       }

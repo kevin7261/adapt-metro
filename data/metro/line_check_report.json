@@ -1,10 +1,39 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 998,
-  "checked_against_infobox": 574,
-  "flagged": 178,
-  "uncovered": 424,
+  "routes_total": 1136,
+  "checked_against_infobox": 532,
+  "flagged": 123,
+  "uncovered": 604,
+  "adjudicated": 0,
   "flags": [
+    {
+      "city": "Chongqing",
+      "country": "China",
+      "route_id": "r19293565",
+      "route_name": "Line 6: Chongqingdong Railway Station → Liujiaping",
+      "ours": 4,
+      "lang": "zh",
+      "wikidata": "Q5931449",
+      "wiki": "zh:重庆轨道交通6号线",
+      "wiki_stations": 43,
+      "wiki_basis": "total",
+      "diff": -39,
+      "severity": "warn"
+    },
+    {
+      "city": "Chongqing",
+      "country": "China",
+      "route_id": "r3474487",
+      "route_name": "Line 6 – International Expo branch: Lijia → Yuelai",
+      "ours": 13,
+      "lang": "zh",
+      "wikidata": "Q130759548",
+      "wiki": "zh:重庆轨道交通国博线",
+      "wiki_stations": 43,
+      "wiki_basis": "total",
+      "diff": -30,
+      "severity": "warn"
+    },
     {
       "city": "Changzhou",
       "country": "China",
@@ -32,6 +61,19 @@
       "severity": "warn"
     },
     {
+      "city": "Shaoxing",
+      "country": "China",
+      "route_id": "r17438392",
+      "route_name": "1号线：会展中心 -> 芳泉",
+      "ours": 20,
+      "lang": "zh",
+      "wiki": "zh:绍兴轨道交通",
+      "wiki_stations": 40,
+      "wiki_basis": "total",
+      "diff": -20,
+      "severity": "warn"
+    },
+    {
       "city": "Luoyang",
       "country": "China",
       "route_id": "rm13592842",
@@ -42,6 +84,19 @@
       "wiki_stations": 34,
       "wiki_basis": "total",
       "diff": -19,
+      "severity": "warn"
+    },
+    {
+      "city": "Wenzhou",
+      "country": "China",
+      "route_id": "rm13084233",
+      "route_name": "温州轨道交通S1线",
+      "ours": 18,
+      "lang": "zh",
+      "wiki": "zh:温州轨道交通",
+      "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": -18,
       "severity": "warn"
     },
     {
@@ -66,19 +121,6 @@
       "lang": "th",
       "wiki": "en:MRT Purple Line",
       "wiki_stations": 33,
-      "wiki_basis": "total",
-      "diff": -17,
-      "severity": "warn"
-    },
-    {
-      "city": "Wenzhou",
-      "country": "China",
-      "route_id": "rm13084233",
-      "route_name": "温州轨道交通S1线",
-      "ours": 19,
-      "lang": "zh",
-      "wiki": "zh:温州轨道交通",
-      "wiki_stations": 36,
       "wiki_basis": "total",
       "diff": -17,
       "severity": "warn"
@@ -123,19 +165,6 @@
       "severity": "warn"
     },
     {
-      "city": "Wuhan",
-      "country": "China",
-      "route_id": "rm20622654",
-      "route_name": "Wuhan Metro Line 12",
-      "ours": 23,
-      "lang": "zh",
-      "wiki": "en:Line 12 (Wuhan Metro)",
-      "wiki_stations": 37,
-      "wiki_basis": "total",
-      "diff": -14,
-      "severity": "warn"
-    },
-    {
       "city": "Tianjin",
       "country": "China",
       "route_id": "rm19966316",
@@ -144,6 +173,19 @@
       "lang": "zh",
       "wiki": "zh:天津地铁Z4线",
       "wiki_stations": 24,
+      "wiki_basis": "total",
+      "diff": -14,
+      "severity": "warn"
+    },
+    {
+      "city": "Wuhan",
+      "country": "China",
+      "route_id": "rm20622654",
+      "route_name": "Wuhan Metro Line 12",
+      "ours": 23,
+      "lang": "zh",
+      "wiki": "en:Line 12 (Wuhan Metro)",
+      "wiki_stations": 37,
       "wiki_basis": "total",
       "diff": -14,
       "severity": "warn"
@@ -201,6 +243,20 @@
       "severity": "warn"
     },
     {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "r14280624",
+      "route_name": "3号线：星桥 -> 石马",
+      "ours": 28,
+      "lang": "zh",
+      "wikidata": "Q11102442",
+      "wiki": "zh:杭州地铁3号线",
+      "wiki_stations": 37,
+      "wiki_basis": "total",
+      "diff": -9,
+      "severity": "warn"
+    },
+    {
       "city": "Suzhou",
       "country": "China",
       "route_id": "rm18356559",
@@ -227,6 +283,32 @@
       "severity": "warn"
     },
     {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7625892",
+      "route_name": "Seoul Metropolitan Subway Line 2",
+      "ours": 43,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 2",
+      "wiki_stations": 51,
+      "wiki_basis": "total",
+      "diff": -8,
+      "severity": "warn"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7879871",
+      "route_name": "Seoul Metropolitan Subway Line 5",
+      "ours": 49,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 5",
+      "wiki_stations": 57,
+      "wiki_basis": "total",
+      "diff": -8,
+      "severity": "warn"
+    },
+    {
       "city": "Kunming",
       "country": "China",
       "route_id": "rm7909740",
@@ -235,6 +317,19 @@
       "lang": "zh",
       "wiki": "zh:昆明地铁2号线",
       "wiki_stations": 22,
+      "wiki_basis": "total",
+      "diff": -8,
+      "severity": "warn"
+    },
+    {
+      "city": "Dalian",
+      "country": "China",
+      "route_id": "rm7908058",
+      "route_name": "Dalian Metro Line 3",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:大连地铁3号线",
+      "wiki_stations": 20,
       "wiki_basis": "total",
       "diff": -8,
       "severity": "warn"
@@ -250,6 +345,32 @@
       "wiki_stations": 10,
       "wiki_basis": "total",
       "diff": -8,
+      "severity": "warn"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm8735483",
+      "route_name": "Seoul Metropolitan Subway Gyeonggang Line",
+      "ours": 11,
+      "lang": "ko",
+      "wiki": "en:Gyeonggang Line",
+      "wiki_stations": 18,
+      "wiki_basis": "total",
+      "diff": -7,
+      "severity": "warn"
+    },
+    {
+      "city": "Kuala Lumpur",
+      "country": "Malaysia",
+      "route_id": "rm8000405",
+      "route_name": "Sri Petaling Line (Sentul Timur → Putra Heights)",
+      "ours": 29,
+      "lang": "ms",
+      "wiki": "en:Ampang and Sri Petaling lines",
+      "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": -7,
       "severity": "warn"
     },
     {
@@ -305,32 +426,6 @@
       "severity": "error"
     },
     {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm8735483",
-      "route_name": "Seoul Metropolitan Subway Gyeonggang Line",
-      "ours": 12,
-      "lang": "ko",
-      "wiki": "en:Gyeonggang Line",
-      "wiki_stations": 18,
-      "wiki_basis": "total",
-      "diff": -6,
-      "severity": "warn"
-    },
-    {
-      "city": "Kuala Lumpur",
-      "country": "Malaysia",
-      "route_id": "rm8000405",
-      "route_name": "Sri Petaling Line (Sentul Timur → Putra Heights)",
-      "ours": 30,
-      "lang": "ms",
-      "wiki": "en:Ampang and Sri Petaling lines",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": -6,
-      "severity": "warn"
-    },
-    {
       "city": "Kolkata",
       "country": "India",
       "route_id": "rm19508985",
@@ -344,14 +439,27 @@
       "severity": "warn"
     },
     {
-      "city": "Bangkok",
-      "country": "Thailand",
-      "route_id": "rm7989387",
-      "route_name": "BTS Silom Line",
-      "ours": 8,
-      "lang": "th",
-      "wiki": "th:รถไฟฟ้าบีทีเอส สายสีลม",
-      "wiki_stations": 14,
+      "city": "Shaoxing",
+      "country": "China",
+      "route_id": "rm12920991",
+      "route_name": "Shaoxing Rail Transit Line 1",
+      "ours": 27,
+      "lang": "zh",
+      "wiki": "zh:绍兴轨道交通1号线",
+      "wiki_stations": 33,
+      "wiki_basis": "operational",
+      "diff": -6,
+      "severity": "error"
+    },
+    {
+      "city": "Dhaka",
+      "country": "Bangladesh",
+      "route_id": "rm15060937",
+      "route_name": "Dhaka Metro Rail Line 6",
+      "ours": 16,
+      "lang": "bn",
+      "wiki": "en:MRT Line 6",
+      "wiki_stations": 22,
       "wiki_basis": "total",
       "diff": -6,
       "severity": "warn"
@@ -396,6 +504,19 @@
       "severity": "warn"
     },
     {
+      "city": "Dubai",
+      "country": "United Arab Emirates",
+      "route_id": "rm7734262",
+      "route_name": "Red Line",
+      "ours": 30,
+      "lang": "ar",
+      "wiki": "en:Red Line (Dubai Metro)",
+      "wiki_stations": 35,
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
+    },
+    {
       "city": "Hyderabad",
       "country": "India",
       "route_id": "rm8297697",
@@ -423,16 +544,16 @@
       "severity": "warn"
     },
     {
-      "city": "Dhaka",
-      "country": "Bangladesh",
-      "route_id": "rm15060937",
-      "route_name": "Dhaka Metro Rail Line 6",
-      "ours": 17,
-      "lang": "bn",
-      "wiki": "en:MRT Line 6",
-      "wiki_stations": 22,
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9651536",
+      "route_name": "NYCS - 1 Train",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:1 (New York City Subway service)",
+      "wiki_stations": 38,
       "wiki_basis": "total",
-      "diff": -5,
+      "diff": -4,
       "severity": "warn"
     },
     {
@@ -504,19 +625,6 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9753684",
-      "route_name": "NYCS - F Train",
-      "ours": 52,
-      "lang": "en",
-      "wiki": "en:F (New York City Subway service)",
-      "wiki_stations": 55,
-      "wiki_basis": "total",
-      "diff": -3,
-      "severity": "warn"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
       "route_id": "rm11100813",
       "route_name": "PATH Journal Square-33rd via Hoboken",
       "ours": 6,
@@ -541,6 +649,58 @@
       "severity": "warn"
     },
     {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "rm7452119",
+      "route_name": "Shanghai Metro Line 10",
+      "ours": 34,
+      "lang": "zh",
+      "wiki": "en:Line 10 (Shanghai Metro)",
+      "wiki_stations": 37,
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "rm396879",
+      "route_name": "Shanghai Metro Line 11",
+      "ours": 37,
+      "lang": "zh",
+      "wiki": "en:Line 11 (Shanghai Metro)",
+      "wiki_stations": 40,
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "rm272132",
+      "route_name": "East Rail Line",
+      "ours": 13,
+      "lang": "zh",
+      "wiki": "zh:東鐵綫",
+      "wiki_stations": 16,
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "r9154523",
+      "route_name": "Danhai LRT Hongshulin-Kanding (Outbound)",
+      "ours": 11,
+      "lang": "zh",
+      "wiki": "zh:綠山線",
+      "wiki_stations": 14,
+      "wiki_basis": "operational",
+      "diff": -3,
+      "severity": "error"
+    },
+    {
       "city": "Fuzhou",
       "country": "China",
       "route_id": "rm18957313",
@@ -550,19 +710,6 @@
       "wikidata": "Q59135401",
       "wiki": "zh:福州地铁滨海快线",
       "wiki_stations": 15,
-      "wiki_basis": "total",
-      "diff": -3,
-      "severity": "warn"
-    },
-    {
-      "city": "Boston",
-      "country": "United States",
-      "route_id": "rm7874288",
-      "route_name": "MBTA Red Line",
-      "ours": 19,
-      "lang": "en",
-      "wiki": "en:Red Line (MBTA)",
-      "wiki_stations": 22,
       "wiki_basis": "total",
       "diff": -3,
       "severity": "warn"
@@ -581,19 +728,6 @@
       "severity": "warn"
     },
     {
-      "city": "London",
-      "country": "United Kingdom",
-      "route_id": "rm7702940",
-      "route_name": "Piccadilly line",
-      "ours": 51,
-      "lang": "en",
-      "wiki": "en:Piccadilly line",
-      "wiki_stations": 53,
-      "wiki_basis": "total",
-      "diff": -2,
-      "severity": "warn"
-    },
-    {
       "city": "Chongqing",
       "country": "China",
       "route_id": "rm14004564",
@@ -605,6 +739,19 @@
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm5576487",
+      "route_name": "Danhai LRT",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:藍海線",
+      "wiki_stations": 14,
+      "wiki_basis": "operational",
+      "diff": -2,
+      "severity": "error"
     },
     {
       "city": "Suzhou",
@@ -620,14 +767,40 @@
       "severity": "warn"
     },
     {
-      "city": "Dalian",
+      "city": "Fuzhou",
       "country": "China",
-      "route_id": "rm7908058",
-      "route_name": "Dalian Metro Line 3",
-      "ours": 18,
+      "route_id": "rm14509136",
+      "route_name": "福州地铁6号线",
+      "ours": 14,
       "lang": "zh",
-      "wiki": "zh:大连地铁3号线",
-      "wiki_stations": 20,
+      "wiki": "en:Line 6 (Fuzhou Metro)",
+      "wiki_stations": 16,
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
+    },
+    {
+      "city": "Boston",
+      "country": "United States",
+      "route_id": "rm4086917",
+      "route_name": "MBTA Blue Line",
+      "ours": 10,
+      "lang": "en",
+      "wiki": "en:Blue Line (MBTA)",
+      "wiki_stations": 12,
+      "wiki_basis": "total",
+      "diff": -2,
+      "severity": "warn"
+    },
+    {
+      "city": "Xiamen",
+      "country": "China",
+      "route_id": "rm10488738",
+      "route_name": "Xiamen Metro Line 2",
+      "ours": 30,
+      "lang": "zh",
+      "wiki": "zh:厦门轨道交通2号线",
+      "wiki_stations": 32,
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
@@ -643,6 +816,19 @@
       "wiki_stations": 17,
       "wiki_basis": "total",
       "diff": -2,
+      "severity": "warn"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9663807",
+      "route_name": "NYCS - 3 Train",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:3 (New York City Subway service)",
+      "wiki_stations": 34,
+      "wiki_basis": "total",
+      "diff": -1,
       "severity": "warn"
     },
     {
@@ -672,6 +858,32 @@
       "severity": "warn"
     },
     {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7919019",
+      "route_name": "Seoul Metropolitan Subway Line 8",
+      "ours": 24,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 8",
+      "wiki_stations": 25,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm1350622",
+      "route_name": "Beijing Subway Changping Line",
+      "ours": 19,
+      "lang": "zh",
+      "wiki": "en:Changping line",
+      "wiki_stations": 20,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
       "city": "Shanghai",
       "country": "China",
       "route_id": "rm7451835",
@@ -685,45 +897,6 @@
       "severity": "warn"
     },
     {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8026071",
-      "route_name": "Tokyo Metro Namboku Line",
-      "ours": 18,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Namboku Line",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8026069",
-      "route_name": "Tokyo Metro Chiyoda Line",
-      "ours": 19,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Chiyoda Line",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Shenzhen",
-      "country": "China",
-      "route_id": "rm9629866",
-      "route_name": "Subway Line 7",
-      "ours": 29,
-      "lang": "zh",
-      "wiki": "zh:深圳地铁7号线",
-      "wiki_stations": 30,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "Guangzhou",
       "country": "China",
       "route_id": "rm5971692",
@@ -732,6 +905,45 @@
       "lang": "zh",
       "wiki": "en:Line 7 (Guangzhou Metro)",
       "wiki_stations": 28,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "rm2562976",
+      "route_name": "CTA Brown Line",
+      "ours": 26,
+      "lang": "en",
+      "wiki": "en:Brown Line (CTA)",
+      "wiki_stations": 27,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "rm2578312",
+      "route_name": "CTA Orange Line",
+      "ours": 15,
+      "lang": "en",
+      "wiki": "en:Orange Line (CTA)",
+      "wiki_stations": 16,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8026071",
+      "route_name": "Tokyo Metro Namboku Line",
+      "ours": 18,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Namboku Line",
+      "wiki_stations": 19,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -776,6 +988,19 @@
       "severity": "warn"
     },
     {
+      "city": "Shenzhen",
+      "country": "China",
+      "route_id": "rm9629866",
+      "route_name": "Subway Line 7",
+      "ours": 29,
+      "lang": "zh",
+      "wiki": "zh:深圳地铁7号线",
+      "wiki_stations": 30,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
       "city": "Chengdu",
       "country": "China",
       "route_id": "rm18168636",
@@ -802,66 +1027,53 @@
       "severity": "warn"
     },
     {
-      "city": "Chicago",
-      "country": "United States",
-      "route_id": "rm2562976",
-      "route_name": "CTA Brown Line",
-      "ours": 26,
-      "lang": "en",
-      "wiki": "en:Brown Line (CTA)",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Chicago",
-      "country": "United States",
-      "route_id": "rm2656070",
-      "route_name": "CTA Pink Line",
-      "ours": 21,
-      "lang": "en",
-      "wiki": "en:Pink Line (CTA)",
-      "wiki_stations": 22,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Chicago",
-      "country": "United States",
-      "route_id": "rm2578312",
-      "route_name": "CTA Orange Line",
-      "ours": 15,
-      "lang": "en",
-      "wiki": "en:Orange Line (CTA)",
-      "wiki_stations": 16,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Chicago",
-      "country": "United States",
-      "route_id": "rm2613599",
-      "route_name": "CTA Green Line",
-      "ours": 30,
-      "lang": "en",
-      "wiki": "en:Green Line (CTA)",
-      "wiki_stations": 31,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "Hong Kong",
       "country": "China",
-      "route_id": "rm272132",
-      "route_name": "East Rail Line",
-      "ours": 15,
+      "route_id": "rm9736612",
+      "route_name": "MTR Tseung Kwan O Line",
+      "ours": 7,
       "lang": "zh",
-      "wiki": "zh:東鐵綫",
-      "wiki_stations": 16,
+      "wiki": "zh:將軍澳綫",
+      "wiki_stations": 8,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm4250358",
+      "route_name": "Songshan–Xindian line",
+      "ours": 19,
+      "lang": "zh",
+      "wiki": "zh:松山新店線",
+      "wiki_stations": 20,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm447451",
+      "route_name": "Tamsui–Xinyi line",
+      "ours": 27,
+      "lang": "zh",
+      "wiki": "en:Tamsui–Xinyi line",
+      "wiki_stations": 28,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Tianjin",
+      "country": "China",
+      "route_id": "rm8490135",
+      "route_name": "Tianjin Metro Line 6",
+      "ours": 38,
+      "lang": "zh",
+      "wiki": "zh:天津地铁6号线",
+      "wiki_stations": 39,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -880,14 +1092,14 @@
       "severity": "warn"
     },
     {
-      "city": "Tianjin",
+      "city": "Suzhou",
       "country": "China",
-      "route_id": "rm8490135",
-      "route_name": "Tianjin Metro Line 6",
-      "ours": 38,
+      "route_id": "rm18026577",
+      "route_name": "苏州轨道交通8号线",
+      "ours": 28,
       "lang": "zh",
-      "wiki": "zh:天津地铁6号线",
-      "wiki_stations": 39,
+      "wiki": "zh:苏州轨道交通8号线",
+      "wiki_stations": 29,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -919,45 +1131,6 @@
       "severity": "warn"
     },
     {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm447451",
-      "route_name": "Tamsui–Xinyi line",
-      "ours": 27,
-      "lang": "zh",
-      "wiki": "en:Tamsui–Xinyi line",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7879871",
-      "route_name": "Seoul Metropolitan Subway Line 5",
-      "ours": 56,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 5",
-      "wiki_stations": 57,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7919019",
-      "route_name": "Seoul Metropolitan Subway Line 8",
-      "ours": 24,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 8",
-      "wiki_stations": 25,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "Hefei",
       "country": "China",
       "route_id": "rm11803249",
@@ -972,14 +1145,40 @@
       "severity": "warn"
     },
     {
-      "city": "Fuzhou",
-      "country": "China",
-      "route_id": "rm14509136",
-      "route_name": "福州地铁6号线",
-      "ours": 15,
-      "lang": "zh",
-      "wiki": "en:Line 6 (Fuzhou Metro)",
-      "wiki_stations": 16,
+      "city": "Brussels",
+      "country": "Belgium",
+      "route_id": "rm7305855",
+      "route_name": "Metro 2",
+      "ours": 18,
+      "lang": "nl",
+      "wiki": "en:Brussels Metro line 2",
+      "wiki_stations": 19,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Brussels",
+      "country": "Belgium",
+      "route_id": "rm7927182",
+      "route_name": "Metro 6",
+      "ours": 25,
+      "lang": "nl",
+      "wiki": "en:Brussels Metro line 6",
+      "wiki_stations": 26,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "city": "Boston",
+      "country": "United States",
+      "route_id": "rm7874312",
+      "route_name": "MBTA Orange Line",
+      "ours": 19,
+      "lang": "en",
+      "wiki": "en:Orange Line (MBTA)",
+      "wiki_stations": 20,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -998,27 +1197,15 @@
       "severity": "error"
     },
     {
-      "city": "Vancouver",
-      "country": "Canada",
-      "route_id": "rm5881439",
-      "route_name": "Canada Line",
-      "ours": 16,
-      "lang": "en",
-      "wiki": "en:Canada Line",
-      "wiki_stations": 17,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Boston",
-      "country": "United States",
-      "route_id": "rm4086917",
-      "route_name": "MBTA Blue Line",
-      "ours": 11,
-      "lang": "en",
-      "wiki": "en:Blue Line (MBTA)",
-      "wiki_stations": 12,
+      "city": "Nanchang",
+      "country": "China",
+      "route_id": "rm2843401",
+      "route_name": "Nanchang Metro Line 1",
+      "ours": 33,
+      "lang": "zh",
+      "wikidata": "Q6850056",
+      "wiki": "zh:南昌地铁1号线",
+      "wiki_stations": 34,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -1050,32 +1237,6 @@
       "severity": "warn"
     },
     {
-      "city": "Xiamen",
-      "country": "China",
-      "route_id": "rm10488738",
-      "route_name": "Xiamen Metro Line 2",
-      "ours": 31,
-      "lang": "zh",
-      "wiki": "zh:厦门轨道交通2号线",
-      "wiki_stations": 32,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "city": "Dubai",
-      "country": "United Arab Emirates",
-      "route_id": "rm7734262",
-      "route_name": "Red Line",
-      "ours": 34,
-      "lang": "ar",
-      "wiki": "en:Red Line (Dubai Metro)",
-      "wiki_stations": 35,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
       "city": "Lanzhou",
       "country": "China",
       "route_id": "rm10380194",
@@ -1102,19 +1263,6 @@
       "severity": "warn"
     },
     {
-      "city": "Shaoxing",
-      "country": "China",
-      "route_id": "rm12920991",
-      "route_name": "Shaoxing Rail Transit Line 1",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "zh:绍兴轨道交通1号线",
-      "wiki_stations": 33,
-      "wiki_basis": "operational",
-      "diff": -1,
-      "severity": "error"
-    },
-    {
       "city": "Chiba Prefecture",
       "country": "Japan",
       "route_id": "rm5326658",
@@ -1128,58 +1276,6 @@
       "severity": "warn"
     },
     {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9651536",
-      "route_name": "NYCS - 1 Train",
-      "ours": 39,
-      "lang": "en",
-      "wiki": "en:1 (New York City Subway service)",
-      "wiki_stations": 38,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9767766",
-      "route_name": "NYCS - C Train",
-      "ours": 41,
-      "lang": "en",
-      "wiki": "en:C (New York City Subway service)",
-      "wiki_stations": 40,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9663807",
-      "route_name": "NYCS - 3 Train",
-      "ours": 35,
-      "lang": "en",
-      "wiki": "en:3 (New York City Subway service)",
-      "wiki_stations": 34,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9716997",
-      "route_name": "NYCS - L Train",
-      "ours": 25,
-      "lang": "en",
-      "wiki": "en:L (New York City Subway service)",
-      "wiki_stations": 24,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "Beijing",
       "country": "China",
       "route_id": "rm4624915",
@@ -1189,97 +1285,6 @@
       "wiki": "en:Line 14 (Beijing Subway)",
       "wiki_stations": 33,
       "wiki_basis": "operational",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm8469061",
-      "route_name": "Beijing Subway Yanfang Line",
-      "ours": 10,
-      "lang": "zh",
-      "wiki": "en:Yanfang line",
-      "wiki_stations": 9,
-      "wiki_basis": "operational",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm18444658",
-      "route_name": "Subway Line 12",
-      "ours": 21,
-      "lang": "zh",
-      "wiki": "en:Line 12 (Beijing Subway)",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "London",
-      "country": "United Kingdom",
-      "route_id": "rm7673326",
-      "route_name": "Jubilee line",
-      "ours": 28,
-      "lang": "en",
-      "wiki": "en:Jubilee line",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm6817204",
-      "route_name": "Shanghai Metro Line 3",
-      "ours": 30,
-      "lang": "zh",
-      "wiki": "en:Line 3 (Shanghai Metro)",
-      "wiki_stations": 29,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm7452119",
-      "route_name": "Shanghai Metro Line 10",
-      "ours": 38,
-      "lang": "zh",
-      "wiki": "en:Line 10 (Shanghai Metro)",
-      "wiki_stations": 37,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm207417",
-      "route_name": "Shanghai Metro Line 2",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "en:Line 2 (Shanghai Metro)",
-      "wiki_stations": 31,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm6806165",
-      "route_name": "Shanghai Metro Line 5",
-      "ours": 20,
-      "lang": "zh",
-      "wiki": "en:Line 5 (Shanghai Metro)",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
       "diff": 1,
       "severity": "error"
     },
@@ -1297,45 +1302,6 @@
       "severity": "error"
     },
     {
-      "city": "Shenzhen",
-      "country": "China",
-      "route_id": "rm11583622",
-      "route_name": "Subway Line 10",
-      "ours": 25,
-      "lang": "zh",
-      "wiki": "zh:深圳地铁10号线",
-      "wiki_stations": 24,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Guangzhou",
-      "country": "China",
-      "route_id": "rm9612493",
-      "route_name": "Subway Guangfo Line",
-      "ours": 26,
-      "lang": "zh",
-      "wiki": "en:Guangfo line",
-      "wiki_stations": 25,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Guangzhou",
-      "country": "China",
-      "route_id": "rm9611531",
-      "route_name": "Subway Line 21",
-      "ours": 21,
-      "lang": "zh",
-      "wiki": "en:Line 21, Guangzhou Metro",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "Chongqing",
       "country": "China",
       "route_id": "rm8300867",
@@ -1349,20 +1315,6 @@
       "severity": "error"
     },
     {
-      "city": "Chongqing",
-      "country": "China",
-      "route_id": "rm15749314",
-      "route_name": "Line 18 (Chongqing Rail Transit)",
-      "ours": 20,
-      "lang": "zh",
-      "wikidata": "Q17038985",
-      "wiki": "zh:重慶軌道交通18號線",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "Chengdu",
       "country": "China",
       "route_id": "rm11697795",
@@ -1371,32 +1323,6 @@
       "lang": "zh",
       "wiki": "zh:成都地铁18号线",
       "wiki_stations": 12,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "rm272133",
-      "route_name": "MTR Tuen Ma Line",
-      "ours": 28,
-      "lang": "zh",
-      "wiki": "en:Tuen Ma line",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Tianjin",
-      "country": "China",
-      "route_id": "rm8478970",
-      "route_name": "Tianjin Metro Line 9",
-      "ours": 22,
-      "lang": "zh",
-      "wiki": "zh:天津地铁9号线",
-      "wiki_stations": 21,
       "wiki_basis": "total",
       "diff": 1,
       "severity": "error"
@@ -1428,58 +1354,6 @@
       "severity": "error"
     },
     {
-      "city": "Zhengzhou",
-      "country": "China",
-      "route_id": "rm14642983",
-      "route_name": "Zhengzhou Metro Line 6",
-      "ours": 29,
-      "lang": "zh",
-      "wiki": "en:Line 6 (Zhengzhou Metro)",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7625892",
-      "route_name": "Seoul Metropolitan Subway Line 2",
-      "ours": 52,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 2",
-      "wiki_stations": 51,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm8439253",
-      "route_name": "Suzhou Rail Transit Line 2",
-      "ours": 36,
-      "lang": "zh",
-      "wiki": "en:Line 2 (Suzhou Metro)",
-      "wiki_stations": 35,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Singapore",
-      "country": "Singapore",
-      "route_id": "rm7981649",
-      "route_name": "MRT North East Line (Harbourfront → Punggol Coast)",
-      "ours": 18,
-      "lang": "en",
-      "wiki": "en:North East MRT line",
-      "wiki_stations": 17,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
       "city": "Qingdao",
       "country": "China",
       "route_id": "rm10467728",
@@ -1506,14 +1380,14 @@
       "severity": "error"
     },
     {
-      "city": "Brussels",
-      "country": "Belgium",
-      "route_id": "rm7006076",
-      "route_name": "Metro 1",
-      "ours": 22,
-      "lang": "nl",
-      "wiki": "en:Brussels Metro line 1",
-      "wiki_stations": 21,
+      "city": "Dalian",
+      "country": "China",
+      "route_id": "rm13633615",
+      "route_name": "Dalian Metro Line 13",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:大连地铁13号线",
+      "wiki_stations": 11,
       "wiki_basis": "total",
       "diff": 1,
       "severity": "error"
@@ -1532,173 +1406,16 @@
       "severity": "error"
     },
     {
-      "city": "Bucharest",
-      "country": "Romania",
-      "route_id": "rm7772846",
-      "route_name": "Magistrala 3",
-      "ours": 16,
-      "lang": "ro",
-      "wiki": "en:Bucharest Metro Line M3",
-      "wiki_stations": 15,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Bucharest",
-      "country": "Romania",
-      "route_id": "rm7772847",
-      "route_name": "Magistrala 1",
-      "ours": 23,
-      "lang": "ro",
-      "wiki": "en:Bucharest Metro Line M1",
-      "wiki_stations": 22,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Bucharest",
-      "country": "Romania",
-      "route_id": "rm2568424",
-      "route_name": "Magistrala 4",
-      "ours": 9,
-      "lang": "ro",
-      "wiki": "en:Bucharest Metro Line M4",
-      "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "São Paulo",
-      "country": "Brazil",
-      "route_id": "rm3596996",
-      "route_name": "Line 1 - Blue",
-      "ours": 24,
-      "lang": "pt",
-      "wiki": "pt:Linha 1 do Metrô de São Paulo",
-      "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Kuala Lumpur",
-      "country": "Malaysia",
-      "route_id": "rm8000326",
-      "route_name": "Kajang Line",
-      "ours": 30,
-      "lang": "ms",
-      "wiki": "en:Kajang line",
-      "wiki_stations": 29,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Kolkata",
+      "city": "Pune",
       "country": "India",
-      "route_id": "rm8034179",
-      "route_name": "Blue Line (Kavi Subhash ↔ Dakshineshwar)",
-      "ours": 27,
+      "route_id": "rm13917129",
+      "route_name": "Purple Line: PCMC Bhavan ⇔ Phugewadi & Civil Court ⇔ Shivaji Nagar",
+      "ours": 14,
       "lang": "en",
-      "wiki": "en:Blue Line (Kolkata Metro)",
-      "wiki_stations": 26,
+      "wiki": "en:Purple Line (Pune Metro)",
+      "wiki_stations": 13,
       "wiki_basis": "total",
       "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Manila",
-      "country": "Philippines",
-      "route_id": "rm8000262",
-      "route_name": "LRT Line 1",
-      "ours": 26,
-      "lang": "en",
-      "wikidata": "Q4165124",
-      "wiki": "en:LRT Line 1 (Metro Manila)",
-      "wiki_stations": 25,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "Philadelphia",
-      "country": "United States",
-      "route_id": "rm7953598",
-      "route_name": "SEPTA Market-Frankford Line",
-      "ours": 29,
-      "lang": "en",
-      "wiki": "en:L (SEPTA Metro)",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": 1,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366764",
-      "route_name": "NYCS - G Train",
-      "ours": 23,
-      "lang": "en",
-      "wiki": "en:G (New York City Subway service)",
-      "wiki_stations": 21,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366765",
-      "route_name": "NYCS - 7 Train",
-      "ours": 24,
-      "lang": "en",
-      "wiki": "en:7 (New York City Subway service)",
-      "wiki_stations": 22,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm420835",
-      "route_name": "Beijing Subway Line 10",
-      "ours": 47,
-      "lang": "zh",
-      "wiki": "en:Line 10 (Beijing Subway)",
-      "wiki_stations": 45,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm8324250",
-      "route_name": "Beijing Subway Line 16",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "en:Line 16 (Beijing Subway)",
-      "wiki_stations": 30,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Shanghai",
-      "country": "China",
-      "route_id": "rm7845847",
-      "route_name": "Shanghai Metro Line 17",
-      "ours": 16,
-      "lang": "zh",
-      "wiki": "en:Line 17 (Shanghai Metro)",
-      "wiki_stations": 14,
-      "wiki_basis": "total",
-      "diff": 2,
       "severity": "error"
     },
     {
@@ -1728,163 +1445,6 @@
       "severity": "error"
     },
     {
-      "city": "Chicago",
-      "country": "United States",
-      "route_id": "rm2672370",
-      "route_name": "CTA Blue Line",
-      "ours": 35,
-      "lang": "en",
-      "wiki": "en:Blue Line (CTA)",
-      "wiki_stations": 33,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Nanjing",
-      "country": "China",
-      "route_id": "rm3400217",
-      "route_name": "Nanjing Metro Line 1",
-      "ours": 34,
-      "lang": "zh",
-      "wiki": "en:Line 1 (Nanjing Metro)",
-      "wiki_stations": 32,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Nanjing",
-      "country": "China",
-      "route_id": "rm17417178",
-      "route_name": "Nanjing Metro Line 5",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "en:Line 5 (Nanjing Metro)",
-      "wiki_stations": 30,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7625893",
-      "route_name": "Seoul Metropolitan Subway Line 4",
-      "ours": 53,
-      "lang": "ko",
-      "wiki": "en:Seoul Subway Line 4",
-      "wiki_stations": 51,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "rm2851513",
-      "route_name": "Richmond–Millbrae+SFO Line",
-      "ours": 26,
-      "lang": "en",
-      "wiki": "en:Red Line (BART)",
-      "wiki_stations": 24,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "rm2851730",
-      "route_name": "Dublin/Pleasanton–Daly City Line",
-      "ours": 20,
-      "lang": "en",
-      "wiki": "en:Blue Line (BART)",
-      "wiki_stations": 18,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "rm2851729",
-      "route_name": "Berryessa/North San José–Daly City Line",
-      "ours": 24,
-      "lang": "en",
-      "wiki": "en:Berryessa/North San José–Daly City line",
-      "wiki_stations": 22,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Tehran",
-      "country": "Iran",
-      "route_id": "rm7705669",
-      "route_name": "Line 4",
-      "ours": 22,
-      "lang": "fa",
-      "wiki": "en:Tehran Metro Line 4",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Kuala Lumpur",
-      "country": "Malaysia",
-      "route_id": "rm8000461",
-      "route_name": "Kelana Jaya Line",
-      "ours": 39,
-      "lang": "ms",
-      "wiki": "en:Kelana Jaya line",
-      "wiki_stations": 37,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Wuxi",
-      "country": "China",
-      "route_id": "rm7841834",
-      "route_name": "Wuxi Metro Line 1",
-      "ours": 29,
-      "lang": "zh",
-      "wiki": "en:Line 1 (Wuxi Metro)",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Philadelphia",
-      "country": "United States",
-      "route_id": "rm7939445",
-      "route_name": "PATCO Speedline",
-      "ours": 16,
-      "lang": "en",
-      "wikidata": "Q2043730",
-      "wiki": "en:PATCO Speedline",
-      "wiki_stations": 14,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "city": "Hyderabad",
-      "country": "India",
-      "route_id": "rm8297698",
-      "route_name": "Red Line",
-      "ours": 29,
-      "lang": "en",
-      "wiki": "en:Red Line (Hyderabad Metro)",
-      "wiki_stations": 27,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
       "city": "Pyongyang",
       "country": "North Korea",
       "route_id": "rm7734280",
@@ -1899,84 +1459,6 @@
       "severity": "error"
     },
     {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm6942556",
-      "route_name": "NYCS - W Train",
-      "ours": 26,
-      "lang": "en",
-      "wiki": "en:W (New York City Subway service)",
-      "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9712349",
-      "route_name": "NYCS - M Train",
-      "ours": 39,
-      "lang": "en",
-      "wiki": "en:M (New York City Subway service)",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Hong Kong",
-      "country": "China",
-      "route_id": "rm6452936",
-      "route_name": "MTR Kwun Tong Line",
-      "ours": 20,
-      "lang": "zh",
-      "wiki": "zh:觀塘綫",
-      "wiki_stations": 17,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Wuhan",
-      "country": "China",
-      "route_id": "rm9765661",
-      "route_name": "Wuhan Metro Yangluo Line",
-      "ours": 19,
-      "lang": "zh",
-      "wiki": "en:Yangluo Line",
-      "wiki_stations": 16,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "San Francisco (Bay Area)",
-      "country": "United States",
-      "route_id": "rm2827687",
-      "route_name": "Antioch–SFO+Millbrae Line",
-      "ours": 31,
-      "lang": "en",
-      "wiki": "en:Yellow Line (BART)",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Singapore",
-      "country": "Singapore",
-      "route_id": "rm7981685",
-      "route_name": "MRT Circle Line (Marina Bay → HarbourFront)",
-      "ours": 33,
-      "lang": "en",
-      "wiki": "en:Circle MRT line",
-      "wiki_stations": 30,
-      "wiki_basis": "operational",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
       "city": "Hefei",
       "country": "China",
       "route_id": "rm7949047",
@@ -1985,58 +1467,6 @@
       "lang": "zh",
       "wiki": "en:Line 1, Hefei Metro",
       "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Tehran",
-      "country": "Iran",
-      "route_id": "rm7735256",
-      "route_name": "Line 1",
-      "ours": 32,
-      "lang": "fa",
-      "wiki": "en:Tehran Metro Line 1",
-      "wiki_stations": 29,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Kuala Lumpur",
-      "country": "Malaysia",
-      "route_id": "rm8298259",
-      "route_name": "Putrajaya Line",
-      "ours": 39,
-      "lang": "ms",
-      "wiki": "en:Putrajaya line",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Mumbai",
-      "country": "India",
-      "route_id": "rm7684062",
-      "route_name": "Line 1 (Versova ↔ Ghatkopar)",
-      "ours": 15,
-      "lang": "en",
-      "wiki": "en:Line 1 (Mumbai Metro)",
-      "wiki_stations": 12,
-      "wiki_basis": "total",
-      "diff": 3,
-      "severity": "error"
-    },
-    {
-      "city": "Pune",
-      "country": "India",
-      "route_id": "rm13916711",
-      "route_name": "Aqua Line: Ramwadi => Vanaz",
-      "ours": 19,
-      "lang": "en",
-      "wiki": "en:Aqua Line (Pune Metro)",
-      "wiki_stations": 16,
       "wiki_basis": "total",
       "diff": 3,
       "severity": "error"
@@ -2055,19 +1485,6 @@
       "severity": "error"
     },
     {
-      "city": "Hefei",
-      "country": "China",
-      "route_id": "rm13536846",
-      "route_name": "Hefei Metro Line 4",
-      "ours": 38,
-      "lang": "zh",
-      "wiki": "zh:合肥轨道交通4号线",
-      "wiki_stations": 34,
-      "wiki_basis": "total",
-      "diff": 4,
-      "severity": "error"
-    },
-    {
       "city": "Osaka",
       "country": "Japan",
       "route_id": "rm8028805",
@@ -2081,19 +1498,6 @@
       "severity": "error"
     },
     {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366780",
-      "route_name": "NYCS - R Train",
-      "ours": 51,
-      "lang": "en",
-      "wiki": "en:R (New York City Subway service)",
-      "wiki_stations": 45,
-      "wiki_basis": "total",
-      "diff": 6,
-      "severity": "error"
-    },
-    {
       "city": "Moscow",
       "country": "Russia",
       "route_id": "rm6855054",
@@ -2102,19 +1506,6 @@
       "lang": "ru",
       "wiki": "en:Kalininsko–Solntsevskaya line",
       "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": 6,
-      "severity": "error"
-    },
-    {
-      "city": "Dalian",
-      "country": "China",
-      "route_id": "rm13633615",
-      "route_name": "Dalian Metro Line 13",
-      "ours": 17,
-      "lang": "zh",
-      "wiki": "zh:大连地铁13号线",
-      "wiki_stations": 11,
       "wiki_basis": "total",
       "diff": 6,
       "severity": "error"
@@ -2135,64 +1526,25 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9769161",
-      "route_name": "NYCS - D Train",
-      "ours": 43,
-      "lang": "en",
-      "wiki": "en:D (New York City Subway service)",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": 7,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366769",
-      "route_name": "NYCS - Q Train",
-      "ours": 36,
-      "lang": "en",
-      "wiki": "en:Q (New York City Subway service)",
-      "wiki_stations": 29,
-      "wiki_basis": "total",
-      "diff": 7,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm7894362",
-      "route_name": "NYCS - S Franklin Avenue Shuttle",
-      "ours": 11,
-      "lang": "en",
-      "wiki": "en:Franklin Avenue Shuttle",
-      "wiki_stations": 4,
-      "wiki_basis": "total",
-      "diff": 7,
-      "severity": "error"
-    },
-    {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm8439223",
-      "route_name": "Suzhou Rail Transit Line 4",
-      "ours": 38,
-      "lang": "zh",
-      "wiki": "en:Line 4 (Suzhou Metro)",
-      "wiki_stations": 31,
-      "wiki_basis": "total",
-      "diff": 7,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
       "route_id": "rm9655665",
       "route_name": "NYCS - 2 Train",
-      "ours": 60,
+      "ours": 57,
       "lang": "en",
       "wiki": "en:2 (New York City Subway service)",
       "wiki_stations": 49,
+      "wiki_basis": "total",
+      "diff": 8,
+      "severity": "error"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm420838",
+      "route_name": "Beijing Subway Line 4/DX",
+      "ours": 35,
+      "lang": "zh",
+      "wiki": "en:Line 4, Beijing Subway",
+      "wiki_stations": 24,
       "wiki_basis": "total",
       "diff": 11,
       "severity": "error"
@@ -2213,45 +1565,6 @@
     {
       "city": "Beijing",
       "country": "China",
-      "route_id": "rm420838",
-      "route_name": "Beijing Subway Line 4/DX",
-      "ours": 36,
-      "lang": "zh",
-      "wiki": "en:Line 4, Beijing Subway",
-      "wiki_stations": 24,
-      "wiki_basis": "total",
-      "diff": 12,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9769302",
-      "route_name": "NYCS - E Train",
-      "ours": 34,
-      "lang": "en",
-      "wiki": "en:E (New York City Subway service)",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": 14,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9682651",
-      "route_name": "NYCS - 5 Train",
-      "ours": 50,
-      "lang": "en",
-      "wiki": "en:5 (New York City Subway service)",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": 14,
-      "severity": "error"
-    },
-    {
-      "city": "Beijing",
-      "country": "China",
       "route_id": "rm415571",
       "route_name": "Beijing Subway Line 1",
       "ours": 37,
@@ -2267,12 +1580,12 @@
       "country": "United States",
       "route_id": "rm366768",
       "route_name": "NYCS - N Train",
-      "ours": 50,
+      "ours": 44,
       "lang": "en",
       "wiki": "en:N (New York City Subway service)",
       "wiki_stations": 28,
       "wiki_basis": "total",
-      "diff": 22,
+      "diff": 16,
       "severity": "error"
     },
     {
@@ -2292,40 +1605,14 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm366774",
-      "route_name": "NYCS - A Train",
-      "ours": 67,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "wiki_stations": 40,
-      "wiki_basis": "total",
-      "diff": 27,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
       "route_id": "rm9677108",
       "route_name": "NYCS - 4 Train",
-      "ours": 59,
+      "ours": 53,
       "lang": "en",
       "wiki": "en:4 (New York City Subway service)",
       "wiki_stations": 28,
       "wiki_basis": "total",
-      "diff": 31,
-      "severity": "error"
-    },
-    {
-      "city": "Delhi",
-      "country": "India",
-      "route_id": "rm8037671",
-      "route_name": "Blue Line",
-      "ours": 57,
-      "lang": "en",
-      "wiki": "en:Blue Line (Delhi Metro)",
-      "wiki_stations": 3,
-      "wiki_basis": "total",
-      "diff": 54,
+      "diff": 25,
       "severity": "error"
     }
   ],
@@ -2333,9 +1620,189 @@
     {
       "city": "New York City",
       "country": "United States",
+      "route_id": "rm9767766",
+      "route_name": "NYCS - C Train",
+      "ours": 40,
+      "lang": "en",
+      "wiki": "en:C (New York City Subway service)",
+      "reason": "system article shared by several lines (en:C (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm366774",
+      "route_name": "NYCS - A Train",
+      "ours": 59,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9727210",
+      "route_name": "NYCS - A Train (am rush): Rockaway Park–Beach 116th Street → 207th Street–Inwood",
+      "ours": 35,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9727208",
+      "route_name": "NYCS - A Train: Ozone Park–Lefferts Boulevard → 207th Street–Inwood",
+      "ours": 30,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9767765",
+      "route_name": "NYCS - C Train: 168th Street → Euclid Avenue",
+      "ours": 40,
+      "lang": "en",
+      "wiki": "en:C (New York City Subway service)",
+      "reason": "system article shared by several lines (en:C (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9769302",
+      "route_name": "NYCS - E Train",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:E (New York City Subway service)",
+      "reason": "system article shared by several lines (en:E (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256045",
+      "route_name": "NYCS - E Train (late nights): Jamaica Center–Parsons/Archer → World Trade Center",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:E (New York City Subway service)",
+      "reason": "system article shared by several lines (en:E (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11255871",
+      "route_name": "NYCS - A Train (late nights): 207th Street–Inwood → Far Rockaway–Mott Avenue",
+      "ours": 58,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9748435",
+      "route_name": "NYCS - B Train",
+      "ours": 37,
+      "lang": "en",
+      "wiki": "en:B (New York City Subway service)",
+      "reason": "system article shared by several lines (en:B (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9748434",
+      "route_name": "NYCS - B Train (am/pm rush): Bedford Park Boulevard → Brighton Beach",
+      "ours": 37,
+      "lang": "en",
+      "wiki": "en:B (New York City Subway service)",
+      "reason": "system article shared by several lines (en:B (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9769161",
+      "route_name": "NYCS - D Train",
+      "ours": 41,
+      "lang": "en",
+      "wiki": "en:D (New York City Subway service)",
+      "reason": "system article shared by several lines (en:D (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256041",
+      "route_name": "NYCS - D Train (late nights): Norwood–205th Street → Coney Island–Stillwell Avenue",
+      "ours": 41,
+      "lang": "en",
+      "wiki": "en:D (New York City Subway service)",
+      "reason": "system article shared by several lines (en:D (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9712349",
+      "route_name": "NYCS - M Train",
+      "ours": 36,
+      "lang": "en",
+      "wiki": "en:M (New York City Subway service)",
+      "reason": "system article shared by several lines (en:M (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9712342",
+      "route_name": "NYCS - M Train: Middle Village–Metropolitan Avenue → Forest Hills–71st Avenue",
+      "ours": 36,
+      "lang": "en",
+      "wiki": "en:M (New York City Subway service)",
+      "reason": "system article shared by several lines (en:M (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm366780",
+      "route_name": "NYCS - R Train",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:R (New York City Subway service)",
+      "reason": "system article shared by several lines (en:R (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9712344",
+      "route_name": "NYCS - R Train: Bay Ridge–95th Street → Forest Hills–71st Avenue",
+      "ours": 44,
+      "lang": "en",
+      "wiki": "en:R (New York City Subway service)",
+      "reason": "system article shared by several lines (en:R (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r20236477",
+      "route_name": "NYCS - F Train (late nights, weekends): Jamaica–179th Street → Coney Island–Stillwell Avenue",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:F (New York City Subway service)",
+      "reason": "system article shared by several lines (en:F (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9753684",
+      "route_name": "NYCS - F Train",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:F (New York City Subway service)",
+      "reason": "system article shared by several lines (en:F (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
       "route_id": "rm11248274",
       "route_name": "NYCS - <F> Train",
-      "ours": 42,
+      "ours": 39,
       "lang": "en",
       "wiki": "en:New York City Subway",
       "reason": "article has no station count infobox"
@@ -2345,7 +1812,7 @@
       "country": "United States",
       "route_id": "rm7837591",
       "route_name": "NYCS - Z Train",
-      "ours": 22,
+      "ours": 20,
       "lang": "en",
       "wiki": "en:J/Z (New York City Subway service)",
       "reason": "system article shared by several lines (en:J/Z (New York City Subway service))"
@@ -2355,7 +1822,7 @@
       "country": "United States",
       "route_id": "rm9747970",
       "route_name": "NYCS - J Train",
-      "ours": 32,
+      "ours": 30,
       "lang": "en",
       "wiki": "en:J/Z (New York City Subway service)",
       "reason": "system article shared by several lines (en:J/Z (New York City Subway service))"
@@ -2363,9 +1830,49 @@
     {
       "city": "New York City",
       "country": "United States",
+      "route_id": "rm366769",
+      "route_name": "NYCS - Q Train",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:Q (New York City Subway service)",
+      "reason": "system article shared by several lines (en:Q (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256104",
+      "route_name": "NYCS - Q Train (late nights): 96th Street → Coney Island–Stillwell Avenue",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:Q (New York City Subway service)",
+      "reason": "system article shared by several lines (en:Q (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9727211",
+      "route_name": "NYCS - A Train (pm rush): 207th Street–Inwood → Rockaway Park–Beach 116th Street",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "reason": "system article shared by several lines (en:A (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm9682651",
+      "route_name": "NYCS - 5 Train",
+      "ours": 35,
+      "lang": "en",
+      "wiki": "en:5 (New York City Subway service)",
+      "reason": "system article shared by several lines (en:5 (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
       "route_id": "rm366777",
       "route_name": "NYCS - 6 Train",
-      "ours": 40,
+      "ours": 37,
       "lang": "en",
       "wiki": "en:6 (New York City Subway service)",
       "reason": "system article shared by several lines (en:6 (New York City Subway service))"
@@ -2375,7 +1882,7 @@
       "country": "United States",
       "route_id": "rm9721630",
       "route_name": "NYCS - <6> Train",
-      "ours": 31,
+      "ours": 28,
       "lang": "en",
       "wiki": "en:6 (New York City Subway service)",
       "reason": "system article shared by several lines (en:6 (New York City Subway service))"
@@ -2383,12 +1890,262 @@
     {
       "city": "New York City",
       "country": "United States",
+      "route_id": "r366778",
+      "route_name": "NYCS - 5 Train (am rush): Nereid Avenue → Flatbush Avenue–Brooklyn College",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:5 (New York City Subway service)",
+      "reason": "system article shared by several lines (en:5 (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm7894362",
+      "route_name": "NYCS - S Franklin Avenue Shuttle",
+      "ours": 5,
+      "lang": "en",
+      "wiki": "en:Franklin Avenue Shuttle",
+      "reason": "system article shared by several lines (en:Franklin Avenue Shuttle)"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r366809",
+      "route_name": "NYCS - S Franklin Avenue Shuttle: Prospect Park → Franklin Avenue",
+      "ours": 4,
+      "lang": "en",
+      "wiki": "en:Franklin Avenue Shuttle",
+      "reason": "system article shared by several lines (en:Franklin Avenue Shuttle)"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "rm366765",
+      "route_name": "NYCS - 7 Train",
+      "ours": 22,
+      "lang": "en",
+      "wiki": "en:7 (New York City Subway service)",
+      "reason": "system article shared by several lines (en:7 (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9699138",
+      "route_name": "NYCS - 7 Train: Flushing–Main Street → 34th Street–Hudson Yards",
+      "ours": 22,
+      "lang": "en",
+      "wiki": "en:7 (New York City Subway service)",
+      "reason": "system article shared by several lines (en:7 (New York City Subway service))"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
       "route_id": "rm9721629",
       "route_name": "NYCS - <7> Train",
-      "ours": 13,
+      "ours": 12,
       "lang": "en",
       "wikidata": "Q111448876",
       "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "rm7702944",
+      "route_name": "Northern line",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:Northern line",
+      "reason": "system article shared by several lines (en:Northern line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r15345229",
+      "route_name": "Northern line: High Barnet → Charing Cross → Morden",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:Northern line",
+      "reason": "system article shared by several lines (en:Northern line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7702937",
+      "route_name": "Northern line: Morden → Bank → Edgware",
+      "ours": 31,
+      "lang": "en",
+      "wiki": "en:Northern line",
+      "reason": "system article shared by several lines (en:Northern line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r20664389",
+      "route_name": "Northern line: Mill Hill East → Bank → Morden",
+      "ours": 29,
+      "lang": "en",
+      "wiki": "en:Northern line",
+      "reason": "system article shared by several lines (en:Northern line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7702943",
+      "route_name": "Northern line: Battersea Power Station → Charing Cross → High Barnet",
+      "ours": 23,
+      "lang": "en",
+      "wiki": "en:Northern line",
+      "reason": "system article shared by several lines (en:Northern line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "rm7254206",
+      "route_name": "Central line",
+      "ours": 37,
+      "lang": "en",
+      "wiki": "en:Central line (London Underground)",
+      "reason": "system article shared by several lines (en:Central line (London Underground))"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7667069",
+      "route_name": "Central line: Ealing Broadway → Hainault",
+      "ours": 31,
+      "lang": "en",
+      "wiki": "en:Central line (London Underground)",
+      "reason": "system article shared by several lines (en:Central line (London Underground))"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7667066",
+      "route_name": "Central line: Woodford → Hainault",
+      "ours": 5,
+      "lang": "en",
+      "wiki": "en:Central line (London Underground)",
+      "reason": "system article shared by several lines (en:Central line (London Underground))"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7677091",
+      "route_name": "District line: Edgware Road → Wimbledon",
+      "ours": 14,
+      "lang": "en",
+      "wiki": "en:District line",
+      "reason": "system article shared by several lines (en:District line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "rm7673626",
+      "route_name": "Metropolitan line",
+      "ours": 23,
+      "lang": "en",
+      "wiki": "en:Metropolitan line",
+      "reason": "system article shared by several lines (en:Metropolitan line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7673614",
+      "route_name": "Metropolitan line: Aldgate → Chesham",
+      "ours": 23,
+      "lang": "en",
+      "wiki": "en:Metropolitan line",
+      "reason": "system article shared by several lines (en:Metropolitan line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7673617",
+      "route_name": "Metropolitan line: Aldgate → Uxbridge",
+      "ours": 22,
+      "lang": "en",
+      "wiki": "en:Metropolitan line",
+      "reason": "system article shared by several lines (en:Metropolitan line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "rm7677096",
+      "route_name": "District line",
+      "ours": 43,
+      "lang": "en",
+      "wiki": "en:District line",
+      "reason": "system article shared by several lines (en:District line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7677095",
+      "route_name": "District line: Upminster → Richmond",
+      "ours": 42,
+      "lang": "en",
+      "wiki": "en:District line",
+      "reason": "system article shared by several lines (en:District line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r11550818",
+      "route_name": "District line: Barking → Wimbledon",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:District line",
+      "reason": "system article shared by several lines (en:District line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "rm7702940",
+      "route_name": "Piccadilly line",
+      "ours": 40,
+      "lang": "en",
+      "wiki": "en:Piccadilly line",
+      "reason": "system article shared by several lines (en:Piccadilly line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7703380",
+      "route_name": "Piccadilly line: Heathrow Terminal 4 → Cockfosters",
+      "ours": 38,
+      "lang": "en",
+      "wiki": "en:Piccadilly line",
+      "reason": "system article shared by several lines (en:Piccadilly line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7703383",
+      "route_name": "Piccadilly line: Heathrow Terminal 5 → Cockfosters",
+      "ours": 38,
+      "lang": "en",
+      "wiki": "en:Piccadilly line",
+      "reason": "system article shared by several lines (en:Piccadilly line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7677092",
+      "route_name": "District line: High Street Kensington → Kensington (Olympia)",
+      "ours": 3,
+      "lang": "en",
+      "wiki": "en:District line",
+      "reason": "system article shared by several lines (en:District line)"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "route_id": "r7673616",
+      "route_name": "Metropolitan line: Watford → Baker Street",
+      "ours": 13,
+      "lang": "en",
+      "wiki": "en:Metropolitan line",
+      "reason": "system article shared by several lines (en:Metropolitan line)"
     },
     {
       "city": "Berlin",
@@ -2425,7 +2182,17 @@
       "country": "Germany",
       "route_id": "rm175267",
       "route_name": "S85: S Frohnau/S+U Pankow <=> Flughafen BER",
-      "ours": 27,
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "r2979450",
+      "route_name": "S85: Flughafen BER => S+U Pankow",
+      "ours": 20,
       "lang": "de",
       "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
       "reason": "article has no station count infobox"
@@ -2515,7 +2282,7 @@
       "country": "Germany",
       "route_id": "rm14809",
       "route_name": "S7: S Ahrensfelde <=> S Potsdam Hauptbahnhof",
-      "ours": 30,
+      "ours": 29,
       "lang": "de",
       "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
       "reason": "article has no station count infobox"
@@ -2525,6 +2292,16 @@
       "country": "Germany",
       "route_id": "rm14811",
       "route_name": "S5: S Strausberg Nord <=> S Westkreuz",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "route_id": "r2015959",
+      "route_name": "S5: S Westkreuz => S Strausberg Nord",
       "ours": 30,
       "lang": "de",
       "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
@@ -2545,7 +2322,7 @@
       "country": "Germany",
       "route_id": "rm28314",
       "route_name": "S3: S Erkner< => S Spandau",
-      "ours": 31,
+      "ours": 30,
       "lang": "de",
       "wiki": "de:Verkehrsverbund Berlin-Brandenburg",
       "reason": "article has no station count infobox"
@@ -2628,6 +2405,296 @@
       "ours": 24,
       "lang": "de",
       "wiki": "de:U-Bahnlinie 6 (Berlin)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857639",
+      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1676043",
+      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857497",
+      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
+      "ours": 14,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r536798",
+      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r539312",
+      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
+      "ours": 34,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r17013072",
+      "route_name": "S-Bahn S1: Erlangen => Hartmannshof",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r10512097",
+      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r959753",
+      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
+      "ours": 2,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2199151",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r18466074",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Crailsheim",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2213213",
+      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r169136",
+      "route_name": "Stadtbahn S1: Hochstetten => Bad Herrenalb",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r5977154",
+      "route_name": "Stadtbahn S1: KIT-Campus Nord => Bad Herrenalb",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm17842",
+      "route_name": "Stadtbahn S11: Ittersbach <=> Hochstetten",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r5977152",
+      "route_name": "Stadtbahn S11: Ittersbach => KIT-Campus Nord",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm2872365",
+      "route_name": "Stadtbahn S51: Söllingen <=> Germersheim",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r6063261",
+      "route_name": "Stadtbahn S51: Germersheim => Maxau => Söllingen",
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r6063258",
+      "route_name": "Stadtbahn S51: Germersheim => Maxau => Karlsruhe Albtalbahnhof",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r6063259",
+      "route_name": "Stadtbahn S51 Eilzug: Germersheim => Ettlinger Tor => Karlsruhe Tullastraße",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm13566082",
+      "route_name": "Stadtbahn S12: Ittersbach <=> Rheinhafen EILZUG",
+      "ours": 14,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm2395148",
+      "route_name": "Stadtbahn S4 Eilzug: Bretten => Albtalbahnhof",
+      "ours": 55,
+      "lang": "de",
+      "wikidata": "Q106362966",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r189816",
+      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Forbach (Schwarzwald)",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r190111",
+      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Bondorf (b Herrenberg)",
+      "ours": 29,
+      "lang": "de",
+      "wikidata": "Q112623864",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r1607109",
+      "route_name": "Stadtbahn S52: Germersheim => Karlsruhe West => Karlsruhe Marktplatz",
+      "ours": 19,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r1622732",
+      "route_name": "Stadtbahn S52: Karlsruhe Marktplatz => Germersheim",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Karlsruher Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm3368507",
+      "route_name": "S42: Sinsheim (Elsenz) Hbf <=> Heilbronn",
+      "ours": 14,
+      "lang": "de",
+      "wikidata": "Q121237874",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm4272651",
+      "route_name": "S41: Heilbronn <=> Mosbach (Baden)",
+      "ours": 17,
+      "lang": "de",
+      "wikidata": "Q121237670",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm53844",
+      "route_name": "S6 - Enztalbahn",
+      "ours": 2,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Pforzheim-Enzkreis",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r187060",
+      "route_name": "S-Bahn S5: Wiesbaden Hbf => Bensheim",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
       "reason": "article has no station count infobox"
     },
     {
@@ -2765,7 +2832,7 @@
       "country": "Germany",
       "route_id": "r27634",
       "route_name": "S3: Bad Soden => Frankfurt (Main) Süd",
-      "ours": 19,
+      "ours": 18,
       "lang": "de",
       "wiki": "de:Rhein-Main-Verkehrsverbund",
       "reason": "article has no station count infobox"
@@ -2775,7 +2842,7 @@
       "country": "Germany",
       "route_id": "r27635",
       "route_name": "S4: Kronberg => Frankfurt (Main) Süd",
-      "ours": 17,
+      "ours": 16,
       "lang": "de",
       "wiki": "de:Rhein-Main-Verkehrsverbund",
       "reason": "article has no station count infobox"
@@ -2785,7 +2852,27 @@
       "country": "Germany",
       "route_id": "r27778",
       "route_name": "S5: Friedrichsdorf => Frankfurt (Main) Süd",
-      "ours": 18,
+      "ours": 17,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r1880909",
+      "route_name": "S6: Langen => Friedberg",
+      "ours": 29,
+      "lang": "de",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Frankfurt",
+      "country": "Germany",
+      "route_id": "r18429520",
+      "route_name": "S6: Groß Karben => Darmstadt",
+      "ours": 29,
       "lang": "de",
       "wiki": "de:Rhein-Main-Verkehrsverbund",
       "reason": "article has no station count infobox"
@@ -2795,7 +2882,7 @@
       "country": "Germany",
       "route_id": "r27779",
       "route_name": "S6: Langen => Friedberg",
-      "ours": 34,
+      "ours": 28,
       "lang": "de",
       "wiki": "de:Rhein-Main-Verkehrsverbund",
       "reason": "article has no station count infobox"
@@ -2811,213 +2898,13 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Nuremberg",
+      "city": "Frankfurt",
       "country": "Germany",
-      "route_id": "rm1857639",
-      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
-      "ours": 27,
+      "route_id": "r445971",
+      "route_name": "S7: Frankfurt (Main) Hbf => Riedstadt-Goddelau",
+      "ours": 10,
       "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1676043",
-      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
-      "ours": 16,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857497",
-      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
-      "ours": 14,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r536798",
-      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r539312",
-      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
-      "ours": 37,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r10512097",
-      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
-      "ours": 23,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r959753",
-      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
-      "ours": 2,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r2199151",
-      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r2213213",
-      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
-      "ours": 11,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r169136",
-      "route_name": "Stadtbahn S1: Hochstetten => Bad Herrenalb",
-      "ours": 16,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm17842",
-      "route_name": "Stadtbahn S11: Ittersbach <=> Hochstetten",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm2872365",
-      "route_name": "Stadtbahn S51: Söllingen <=> Germersheim",
-      "ours": 25,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm13566082",
-      "route_name": "Stadtbahn S12: Ittersbach <=> Rheinhafen EILZUG",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm2395148",
-      "route_name": "Stadtbahn S4 Eilzug: Bretten => Albtalbahnhof",
-      "ours": 56,
-      "lang": "de",
-      "wikidata": "Q106362966",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r189816",
-      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Forbach (Schwarzwald)",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r190111",
-      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Bondorf (b Herrenberg)",
-      "ours": 29,
-      "lang": "de",
-      "wikidata": "Q112623864",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r1607109",
-      "route_name": "Stadtbahn S52: Germersheim => Karlsruhe West => Karlsruhe Marktplatz",
-      "ours": 19,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm3368507",
-      "route_name": "S42: Sinsheim (Elsenz) Hbf <=> Heilbronn",
-      "ours": 14,
-      "lang": "de",
-      "wikidata": "Q121237874",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4272651",
-      "route_name": "S41: Heilbronn <=> Mosbach (Baden)",
-      "ours": 17,
-      "lang": "de",
-      "wikidata": "Q121237670",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm53844",
-      "route_name": "S6 - Enztalbahn",
-      "ours": 2,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Pforzheim-Enzkreis",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r187060",
-      "route_name": "S-Bahn S5: Wiesbaden Hbf => Bensheim",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
+      "wiki": "de:Rhein-Main-Verkehrsverbund",
       "reason": "article has no station count infobox"
     },
     {
@@ -3025,7 +2912,7 @@
       "country": "Germany",
       "route_id": "r1773068",
       "route_name": "S-Bahn S1: Flughafen München => Leuchtenbergring",
-      "ours": 23,
+      "ours": 21,
       "lang": "de",
       "wiki": "de:Münchner Verkehrs- und Tarifverbund",
       "reason": "article has no station count infobox"
@@ -3043,9 +2930,29 @@
     {
       "city": "Munich",
       "country": "Germany",
+      "route_id": "r1773070",
+      "route_name": "S-Bahn S1: Freising => Leuchtenbergring",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
+      "route_id": "r1782541",
+      "route_name": "S-Bahn S2: Erding => Petershausen",
+      "ours": 37,
+      "lang": "de",
+      "wiki": "de:Münchner Verkehrs- und Tarifverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Munich",
+      "country": "Germany",
       "route_id": "r1782540",
       "route_name": "S-Bahn S2: Erding => Petershausen",
-      "ours": 41,
+      "ours": 32,
       "lang": "de",
       "wiki": "de:Münchner Verkehrs- und Tarifverbund",
       "reason": "article has no station count infobox"
@@ -3055,7 +2962,7 @@
       "country": "Germany",
       "route_id": "r1792662",
       "route_name": "S-Bahn S3: Holzkirchen => Mammendorf",
-      "ours": 32,
+      "ours": 31,
       "lang": "de",
       "wiki": "de:Münchner Verkehrs- und Tarifverbund",
       "reason": "article has no station count infobox"
@@ -3065,7 +2972,7 @@
       "country": "Germany",
       "route_id": "r1794890",
       "route_name": "S-Bahn S4: Ebersberg => Geltendorf",
-      "ours": 35,
+      "ours": 34,
       "lang": "de",
       "wiki": "de:Münchner Verkehrs- und Tarifverbund",
       "reason": "article has no station count infobox"
@@ -3191,44 +3098,164 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13298577",
-      "route_name": "北京地铁八通线",
-      "ours": 15,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r4729409",
+      "route_name": "Seoul Subway Line 2: Inner Circle Line",
+      "ours": 43,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
     },
     {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13623628",
-      "route_name": "Beijing Subway Line 11",
-      "ours": 4,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r12497486",
+      "route_name": "Seoul Subway Line 5 Banghwa → Hanam Geomdansan",
+      "ours": 49,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
     },
     {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13625147",
-      "route_name": "Beijing Subway Line 17",
-      "ours": 20,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r19427674",
+      "route_name": "서울 지하철 5호선: 마천 → 방화",
+      "ours": 46,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
     },
     {
-      "city": "Beijing",
-      "country": "China",
-      "route_id": "rm13625329",
-      "route_name": "Beijing Subway Line 19",
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r4729405",
+      "route_name": "Seoul Subway Line 2 Seongsu Branch: Shinseol-dong → Seongsu",
+      "ours": 5,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r4729407",
+      "route_name": "Seoul Subway Line 2 Sinjeong Branch: Sindorim → Kkachisan",
+      "ours": 5,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7625893",
+      "route_name": "Seoul Metropolitan Subway Line 4",
+      "ours": 48,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 4",
+      "reason": "system article shared by several lines (en:Seoul Subway Line 4)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r4744311",
+      "route_name": "Seoul Metropolitan Subway Line 4: Oido → Buramsan",
+      "ours": 48,
+      "lang": "ko",
+      "wiki": "en:Seoul Subway Line 4",
+      "reason": "system article shared by several lines (en:Seoul Subway Line 4)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r13675922",
+      "route_name": "Seoul Metropolitan Subway Line 4: Namtaeryeong → Jinjeop",
+      "ours": 29,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7919154",
+      "route_name": "Seoul Subway Line 6",
+      "ours": 39,
+      "lang": "ko",
+      "wiki": "ko:서울 지하철 6호선",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm8691899",
+      "route_name": "Seoul Metropolitan Subway Line 1",
+      "ours": 65,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철 1호선",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r16851104",
+      "route_name": "Seoul Metropolitan Subway Line 1 Gyeongin-Gyeongwon System: Incheon → Yeoncheon",
+      "ours": 65,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철 1호선",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r16107776",
+      "route_name": "Seoul Metropolitan Subway Line 1: Gyeongbu-Gyeongwon System Uijeongbu → Seodongtan",
+      "ours": 49,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r8692707",
+      "route_name": "Seoul Metropolitan Subway Line 1 Gyeongbu-Gyeongbu-Gyeongwon-Janghang System: Gwangwoon Univ. → Sinchang",
+      "ours": 58,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철 1호선",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r4748705",
+      "route_name": "Seoul Metropolitan Subway Line 1 Gwangmyeong Shuttle: Gwangmyeong → Yeongdeungpo",
+      "ours": 7,
+      "lang": "ko",
+      "wiki": "ko:수도권 전철 1호선",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "r12144933",
+      "route_name": "Seoul Metropolitan Subway Gyeonggang Line: Pangyo→ Bubal",
       "ours": 10,
-      "lang": "zh",
-      "wiki": "zh:北京地铁",
-      "reason": "system article shared by several lines (zh:北京地铁)"
+      "lang": "ko",
+      "wiki": "ko:수도권 전철",
+      "reason": "system article shared by several lines (ko:수도권 전철)"
+    },
+    {
+      "city": "Seoul",
+      "country": "South Korea",
+      "route_id": "rm7922930",
+      "route_name": "Seoul Metropolitan Subway Line 7",
+      "ours": 52,
+      "lang": "ko",
+      "wiki": "ko:서울 지하철 7호선",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Paris",
@@ -3265,7 +3292,7 @@
       "country": "France",
       "route_id": "rm3328805",
       "route_name": "Ligne 7: La Courneuve ↔ Villejuif - Louis Aragon / Mairie d’Ivry",
-      "ours": 38,
+      "ours": 34,
       "lang": "fr",
       "wiki": "fr:Ligne 7 du métro de Paris",
       "reason": "article has no station count infobox"
@@ -3273,9 +3300,29 @@
     {
       "city": "Paris",
       "country": "France",
+      "route_id": "r3328811",
+      "route_name": "Ligne 7 : Villejuif - Louis Aragon → La Courneuve - 8 mai 1945",
+      "ours": 33,
+      "lang": "fr",
+      "wiki": "en:Paris Métro Line 7",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
       "route_id": "rm2554103",
       "route_name": "Ligne 7 bis : Louis Blanc ↔ Pré Saint-Gervais",
-      "ours": 8,
+      "ours": 7,
+      "lang": "fr",
+      "wiki": "fr:Ligne 7 bis du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r20704033",
+      "route_name": "Ligne 7 bis : Pré Saint-Gervais → Louis Blanc",
+      "ours": 7,
       "lang": "fr",
       "wiki": "fr:Ligne 7 bis du métro de Paris",
       "reason": "article has no station count infobox"
@@ -3335,7 +3382,17 @@
       "country": "France",
       "route_id": "rm3328741",
       "route_name": "Ligne 10 : Pont de Saint-Cloud ↔ Gare d’Austerlitz",
-      "ours": 23,
+      "ours": 20,
+      "lang": "fr",
+      "wiki": "fr:Ligne 10 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r3328740",
+      "route_name": "Ligne 10 : Gare d'Austerlitz → Boulogne - Pont de Saint-Cloud",
+      "ours": 20,
       "lang": "fr",
       "wiki": "fr:Ligne 10 du métro de Paris",
       "reason": "article has no station count infobox"
@@ -3345,7 +3402,7 @@
       "country": "France",
       "route_id": "rm3328695",
       "route_name": "Ligne 1 : La Défense (Grande Arche) ↔ Château de Vincennes",
-      "ours": 26,
+      "ours": 25,
       "lang": "fr",
       "wiki": "fr:Ligne 1 du métro de Paris",
       "reason": "article has no station count infobox"
@@ -3368,14 +3425,24 @@
       "ours": 25,
       "lang": "fr",
       "wiki": "fr:Métro de Paris",
-      "reason": "suspect system article (fr:Métro de Paris: 321)"
+      "reason": "system article shared by several lines (fr:Métro de Paris)"
     },
     {
       "city": "Paris",
       "country": "France",
       "route_id": "rm7420641",
       "route_name": "Ligne 13 : Les Courtilles / Saint-Denis - Université ↔ Châtillon - Montrouge",
-      "ours": 32,
+      "ours": 26,
+      "lang": "fr",
+      "wiki": "fr:Ligne 13 du métro de Paris",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r7731234",
+      "route_name": "Ligne 13 : Châtillon-Montrouge → (Asnières-Genevilliers) Les Courtilles",
+      "ours": 24,
       "lang": "fr",
       "wiki": "fr:Ligne 13 du métro de Paris",
       "reason": "article has no station count infobox"
@@ -3399,6 +3466,146 @@
       "lang": "fr",
       "wiki": "fr:Orlyval",
       "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "route_id": "r9921604",
+      "route_name": "Orlyval : Orly 4 → Antony",
+      "ours": 3,
+      "lang": "fr",
+      "wiki": "fr:Métro de Paris",
+      "reason": "system article shared by several lines (fr:Métro de Paris)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13298577",
+      "route_name": "北京地铁八通线",
+      "ours": 15,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13623628",
+      "route_name": "Beijing Subway Line 11",
+      "ours": 4,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13625147",
+      "route_name": "Beijing Subway Line 17",
+      "ours": 20,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Beijing",
+      "country": "China",
+      "route_id": "rm13625329",
+      "route_name": "Beijing Subway Line 19",
+      "ours": 10,
+      "lang": "zh",
+      "wiki": "zh:北京地铁",
+      "reason": "system article shared by several lines (zh:北京地铁)"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "r199189",
+      "route_name": "Line 10: Hangzhong Road -> Jilong Road",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:上海地铁",
+      "reason": "system article shared by several lines (zh:上海地铁)"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "rm6806165",
+      "route_name": "Shanghai Metro Line 5",
+      "ours": 15,
+      "lang": "zh",
+      "wiki": "en:Line 5 (Shanghai Metro)",
+      "reason": "system article shared by several lines (en:Line 5 (Shanghai Metro))"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "r214779",
+      "route_name": "Line 5: Minhang Development Zone -> Xinzhuang",
+      "ours": 11,
+      "lang": "zh",
+      "wiki": "en:Line 5 (Shanghai Metro)",
+      "reason": "system article shared by several lines (en:Line 5 (Shanghai Metro))"
+    },
+    {
+      "city": "Shanghai",
+      "country": "China",
+      "route_id": "r5611108",
+      "route_name": "Line 11: Disney Resort -> North Jiading",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:上海地铁",
+      "reason": "system article shared by several lines (zh:上海地铁)"
+    },
+    {
+      "city": "Guangzhou",
+      "country": "China",
+      "route_id": "rm9841063",
+      "route_name": "Metro Line 3",
+      "ours": 28,
+      "lang": "zh",
+      "wiki": "en:Line 3 (Guangzhou Metro)",
+      "reason": "system article shared by several lines (en:Line 3 (Guangzhou Metro))"
+    },
+    {
+      "city": "Guangzhou",
+      "country": "China",
+      "route_id": "r444000",
+      "route_name": "Metro Line 3: Tianhe Coach Terminal → Haibang",
+      "ours": 20,
+      "lang": "zh",
+      "wiki": "en:Line 3 (Guangzhou Metro)",
+      "reason": "system article shared by several lines (en:Line 3 (Guangzhou Metro))"
+    },
+    {
+      "city": "Guangzhou",
+      "country": "China",
+      "route_id": "rm19283550",
+      "route_name": "Metro Line 12",
+      "ours": 9,
+      "lang": "zh",
+      "wiki": "zh:广州地铁12号线",
+      "reason": "system article shared by several lines (zh:广州地铁12号线)"
+    },
+    {
+      "city": "Guangzhou",
+      "country": "China",
+      "route_id": "rm6728233",
+      "route_name": "Subway Line 14",
+      "ours": 20,
+      "lang": "zh",
+      "wiki": "en:Line 14 (Guangzhou Metro)",
+      "reason": "system article shared by several lines (en:Line 14 (Guangzhou Metro))"
+    },
+    {
+      "city": "Guangzhou",
+      "country": "China",
+      "route_id": "r6728311",
+      "route_name": "Subway Line 14 Knowledge City Line:Zhenlong -> Xinhe",
+      "ours": 10,
+      "lang": "zh",
+      "wiki": "en:Line 14 (Guangzhou Metro)",
+      "reason": "system article shared by several lines (en:Line 14 (Guangzhou Metro))"
     },
     {
       "city": "Guangzhou",
@@ -3431,11 +3638,121 @@
       "reason": "system article shared by several lines (zh:广州地铁)"
     },
     {
+      "city": "Guangzhou",
+      "country": "China",
+      "route_id": "r19283548",
+      "route_name": "地铁 12号线西段：广州体育馆 → 浔峰岗",
+      "ours": 9,
+      "lang": "zh",
+      "wiki": "zh:广州地铁12号线",
+      "reason": "system article shared by several lines (zh:广州地铁12号线)"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "rm2656070",
+      "route_name": "CTA Pink Line",
+      "ours": 21,
+      "lang": "en",
+      "wiki": "en:Pink Line (CTA)",
+      "reason": "system article shared by several lines (en:Pink Line (CTA))"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "rm2613599",
+      "route_name": "CTA Green Line",
+      "ours": 28,
+      "lang": "en",
+      "wiki": "en:Green Line (CTA)",
+      "reason": "system article shared by several lines (en:Green Line (CTA))"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "r2613596",
+      "route_name": "CTA Green Line: Cottage Grove → Harlem/Lake",
+      "ours": 28,
+      "lang": "en",
+      "wiki": "en:Green Line (CTA)",
+      "reason": "system article shared by several lines (en:Green Line (CTA))"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "rm2672370",
+      "route_name": "CTA Blue Line",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:Blue Line (CTA)",
+      "reason": "system article shared by several lines (en:Blue Line (CTA))"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "r2672369",
+      "route_name": "CTA Blue Line: O'Hare → Forest Park",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:Blue Line (CTA)",
+      "reason": "system article shared by several lines (en:Blue Line (CTA))"
+    },
+    {
+      "city": "Chicago",
+      "country": "United States",
+      "route_id": "r2656069",
+      "route_name": "CTA Pink Line: 54th/Cermak → Loop",
+      "ours": 15,
+      "lang": "en",
+      "wiki": "en:Pink Line (CTA)",
+      "reason": "system article shared by several lines (en:Pink Line (CTA))"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8026069",
+      "route_name": "Tokyo Metro Chiyoda Line",
+      "ours": 18,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Chiyoda Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8015940",
+      "route_name": "Tokyo Metro Marunouchi Line",
+      "ours": 25,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Marunouchi Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "r8015930",
+      "route_name": "Marunouchi Line (Nakano-sakaue --> Honancho)",
+      "ours": 4,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Marunouchi Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "r2790323",
+      "route_name": "Tokyo Metro Chiyoda Line (Kita-ayase → Ayase)",
+      "ours": 2,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Chiyoda Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
+    },
+    {
       "city": "Chongqing",
       "country": "China",
       "route_id": "rm2768662",
       "route_name": "Line 6 (Chongqing Rail Transit)",
-      "ours": 43,
+      "ours": 28,
       "lang": "zh",
       "wiki": "en:Line 6 (Chongqing Rail Transit)",
       "reason": "article has no station count infobox"
@@ -3454,12 +3771,406 @@
     {
       "city": "Chengdu",
       "country": "China",
+      "route_id": "rm2381769",
+      "route_name": "Chengdu Metro Line 1",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:成都地铁1号线",
+      "reason": "system article shared by several lines (zh:成都地铁1号线)"
+    },
+    {
+      "city": "Chengdu",
+      "country": "China",
+      "route_id": "r2381768",
+      "route_name": "Chengdu Metro Line 1: Wugensong => Weijianian",
+      "ours": 24,
+      "lang": "zh",
+      "wiki": "zh:成都地铁1号线",
+      "reason": "system article shared by several lines (zh:成都地铁1号线)"
+    },
+    {
+      "city": "Chengdu",
+      "country": "China",
       "route_id": "r16494768",
       "route_name": "成都地铁19号线: 天府站 => 金星",
       "ours": 23,
       "lang": "zh",
       "wiki": "zh:成都地铁",
       "reason": "suspect system article (zh:成都地铁: 405)"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm5607598",
+      "route_name": "S5: Elbgaustraße <=> Stade",
+      "ours": 26,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "r16818144",
+      "route_name": "S5: Elbgaustraße => Berliner Tor",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm1727359",
+      "route_name": "S3: Pinneberg <=> Neugraben",
+      "ours": 25,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "r20193387",
+      "route_name": "S2: Diebsteich => Aumühle",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm5607597",
+      "route_name": "S2: Diebsteich/Altona <=> Aumühle",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "r20193390",
+      "route_name": "S7: Altona => Aumühle",
+      "ours": 16,
+      "lang": "de",
+      "wikidata": "Q136881945",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm1660624",
+      "route_name": "S1: Wedel <=> Poppenbüttel / Hamburg Airport",
+      "ours": 30,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "r1660618",
+      "route_name": "S1: Hamburg Airport (Flughafen) => Wedel",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:Hamburger Verkehrsverbund",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm20193391",
+      "route_name": "S7: Altona <=> Aumühle",
+      "ours": 18,
+      "lang": "de",
+      "wikidata": "Q136881945",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "rm1687370",
+      "route_name": "U1: Norderstedt Mitte <=> Ohlstedt/Großhansdorf",
+      "ours": 44,
+      "lang": "de",
+      "wiki": "en:U1 (Hamburg U-Bahn)",
+      "reason": "system article shared by several lines (en:U1 (Hamburg U-Bahn))"
+    },
+    {
+      "city": "Hamburg",
+      "country": "Germany",
+      "route_id": "r12044389",
+      "route_name": "U1: Ohlstedt => Norderstedt Mitte",
+      "ours": 41,
+      "lang": "de",
+      "wiki": "en:U1 (Hamburg U-Bahn)",
+      "reason": "system article shared by several lines (en:U1 (Hamburg U-Bahn))"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "r13352937",
+      "route_name": "MTR Tseung Kwan O Line",
+      "ours": 6,
+      "lang": "zh",
+      "wikidata": "Q14751",
+      "wiki": "zh:港鐵",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "r4248590",
+      "route_name": "MTR East Rail Line",
+      "ours": 14,
+      "lang": "zh",
+      "wiki": "zh-yue:港鐵",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "r4250432",
+      "route_name": "MTR East Rail Line",
+      "ours": 13,
+      "lang": "zh",
+      "wiki": "zh:港鐵",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hong Kong",
+      "country": "China",
+      "route_id": "rm272078",
+      "route_name": "Airport Express",
+      "ours": 5,
+      "lang": "zh",
+      "wiki": "zh:機場快綫",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13538221",
+      "route_name": "杭州地铁3号线",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "r13538220",
+      "route_name": "3号线：吴山前村 -> 星桥",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13077360",
+      "route_name": "杭州地铁4号线",
+      "ours": 32,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm10386968",
+      "route_name": "Hangzhou Metro Line 5",
+      "ours": 40,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm11076299",
+      "route_name": "Hangzhou Metro Line 16",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13528567",
+      "route_name": "杭州地铁7号线",
+      "ours": 24,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13042427",
+      "route_name": "杭州地铁8号线",
+      "ours": 9,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13060970",
+      "route_name": "杭州地铁9号线",
+      "ours": 19,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13077350",
+      "route_name": "杭州地铁6号线",
+      "ours": 33,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "r13077348",
+      "route_name": "6号线：枸桔弄 -> 双浦",
+      "ours": 25,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13078550",
+      "route_name": "杭海城际铁路：浙大国际校区 -> 临平南高铁站",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm13535688",
+      "route_name": "杭州地铁10号线",
+      "ours": 12,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Hangzhou",
+      "country": "China",
+      "route_id": "rm14613133",
+      "route_name": "Hangzhou Metro Line 19",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "zh:杭州地铁",
+      "reason": "system article shared by several lines (zh:杭州地铁)"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm1462012",
+      "route_name": "Circle line",
+      "ours": 12,
+      "lang": "ru",
+      "wiki": "ru:Кольцевая линия (Москва)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm1514439",
+      "route_name": "Kaluzhsko-Rizhskaya line",
+      "ours": 24,
+      "lang": "ru",
+      "wiki": "ru:Калужско-Рижская линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm1463287",
+      "route_name": "Filyovskaya",
+      "ours": 11,
+      "lang": "ru",
+      "wiki": "en:Filyovskaya Line",
+      "reason": "suspect system article (en:Filyovskaya Line: 304)"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "r302147",
+      "route_name": "Филёвская линия: Александровский сад → Москва-Сити",
+      "ours": 6,
+      "lang": "ru",
+      "wikidata": "Q834540",
+      "wiki": "ru:Филёвская линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm1532877",
+      "route_name": "Lyublinsko-Dmitrovskaya",
+      "ours": 26,
+      "lang": "ru",
+      "wiki": "ru:Люблинско-Дмитровская линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm1526351",
+      "route_name": "Kalininskaya line",
+      "ours": 8,
+      "lang": "ru",
+      "wiki": "ru:Калининская линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm10011657",
+      "route_name": "Некрасовская линия",
+      "ours": 8,
+      "lang": "ru",
+      "wiki": "ru:Некрасовская линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm8119161",
+      "route_name": "Большая кольцевая линия",
+      "ours": 29,
+      "lang": "ru",
+      "wikidata": "Q617574",
+      "wiki": "ru:Большая кольцевая линия",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm18020157",
+      "route_name": "Троицкая линия",
+      "ours": 11,
+      "lang": "ru",
+      "wikidata": "Q18239278",
+      "wiki": "ru:Троицкая линия",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Dusseldorf",
@@ -3695,6 +4406,26 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm4250359",
+      "route_name": "Zhonghe–Xinlu line",
+      "ours": 21,
+      "lang": "zh",
+      "wiki": "zh:中和新蘆線",
+      "reason": "system article shared by several lines (zh:中和新蘆線)"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "r4250352",
+      "route_name": "Zhonghe–Xinlu line",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "zh:中和新蘆線",
+      "reason": "system article shared by several lines (zh:中和新蘆線)"
+    },
+    {
       "city": "Nanjing",
       "country": "China",
       "route_id": "rm19572432",
@@ -3713,198 +4444,6 @@
       "lang": "zh",
       "wiki": "zh:南京地铁",
       "reason": "system article shared by several lines (zh:南京地铁)"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm1462012",
-      "route_name": "Circle line",
-      "ours": 12,
-      "lang": "ru",
-      "wiki": "ru:Кольцевая линия (Москва)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm1514439",
-      "route_name": "Kaluzhsko-Rizhskaya line",
-      "ours": 24,
-      "lang": "ru",
-      "wiki": "ru:Калужско-Рижская линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm1463287",
-      "route_name": "Filyovskaya",
-      "ours": 13,
-      "lang": "ru",
-      "wiki": "en:Filyovskaya Line",
-      "reason": "suspect system article (en:Filyovskaya Line: 304)"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm1532877",
-      "route_name": "Lyublinsko-Dmitrovskaya",
-      "ours": 26,
-      "lang": "ru",
-      "wiki": "ru:Люблинско-Дмитровская линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm1526351",
-      "route_name": "Kalininskaya line",
-      "ours": 8,
-      "lang": "ru",
-      "wiki": "ru:Калининская линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm10011657",
-      "route_name": "Некрасовская линия",
-      "ours": 8,
-      "lang": "ru",
-      "wiki": "ru:Некрасовская линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm8119161",
-      "route_name": "Большая кольцевая линия",
-      "ours": 29,
-      "lang": "ru",
-      "wikidata": "Q617574",
-      "wiki": "ru:Большая кольцевая линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm18020157",
-      "route_name": "Троицкая линия",
-      "ours": 11,
-      "lang": "ru",
-      "wikidata": "Q18239278",
-      "wiki": "ru:Троицкая линия",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13538221",
-      "route_name": "杭州地铁3号线",
-      "ours": 37,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13077360",
-      "route_name": "杭州地铁4号线",
-      "ours": 32,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm10386968",
-      "route_name": "Hangzhou Metro Line 5",
-      "ours": 40,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm11076299",
-      "route_name": "Hangzhou Metro Line 16",
-      "ours": 12,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13528567",
-      "route_name": "杭州地铁7号线",
-      "ours": 25,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm14613133",
-      "route_name": "Hangzhou Metro Line 19",
-      "ours": 17,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13042427",
-      "route_name": "杭州地铁8号线",
-      "ours": 9,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13060970",
-      "route_name": "杭州地铁9号线",
-      "ours": 19,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13077350",
-      "route_name": "杭州地铁6号线",
-      "ours": 36,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13078550",
-      "route_name": "杭海城际铁路：浙大国际校区 -> 临平南高铁站",
-      "ours": 12,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
-    },
-    {
-      "city": "Hangzhou",
-      "country": "China",
-      "route_id": "rm13535688",
-      "route_name": "杭州地铁10号线",
-      "ours": 12,
-      "lang": "zh",
-      "wiki": "zh:杭州地铁",
-      "reason": "system article shared by several lines (zh:杭州地铁)"
     },
     {
       "city": "Madrid",
@@ -3951,7 +4490,17 @@
       "country": "Spain",
       "route_id": "rm7834660",
       "route_name": "Línea 10",
-      "ours": 31,
+      "ours": 21,
+      "lang": "es",
+      "wiki": "es:Línea 10 (Metro de Madrid)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Madrid",
+      "country": "Spain",
+      "route_id": "r58267",
+      "route_name": "Línea 10: Hospital Infanta Sofía-Tres Olivos",
+      "ours": 11,
       "lang": "es",
       "wiki": "es:Línea 10 (Metro de Madrid)",
       "reason": "article has no station count infobox"
@@ -4037,21 +4586,31 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Hong Kong",
+      "city": "Tianjin",
       "country": "China",
-      "route_id": "rm272078",
-      "route_name": "Airport Express",
-      "ours": 5,
+      "route_id": "rm13652091",
+      "route_name": "天津地铁4号线",
+      "ours": 16,
       "lang": "zh",
-      "wiki": "zh:機場快綫",
-      "reason": "article has no station count infobox"
+      "wiki": "zh:天津地铁4号线",
+      "reason": "system article shared by several lines (zh:天津地铁4号线)"
+    },
+    {
+      "city": "Tianjin",
+      "country": "China",
+      "route_id": "r13652089",
+      "route_name": "地铁4号线（南段）: 新兴村→东南角",
+      "ours": 14,
+      "lang": "zh",
+      "wiki": "zh:天津地铁4号线",
+      "reason": "system article shared by several lines (zh:天津地铁4号线)"
     },
     {
       "city": "Wuhan",
       "country": "China",
       "route_id": "rm13648363",
       "route_name": "武汉地铁16号线",
-      "ours": 15,
+      "ours": 14,
       "lang": "zh",
       "wiki": "zh:武汉地铁",
       "reason": "system article shared by several lines (zh:武汉地铁)"
@@ -4061,60 +4620,180 @@
       "country": "China",
       "route_id": "rm13647962",
       "route_name": "Wuhan Metro Line 5",
-      "ours": 28,
+      "ours": 27,
       "lang": "zh",
       "wiki": "zh:武汉地铁",
       "reason": "system article shared by several lines (zh:武汉地铁)"
     },
     {
-      "city": "Hamburg",
-      "country": "Germany",
-      "route_id": "rm5607598",
-      "route_name": "S5: Elbgaustraße <=> Stade",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:Hamburger Verkehrsverbund",
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm7719081",
+      "route_name": "M1 Metro Hattı",
+      "ours": 18,
+      "lang": "tr",
+      "wiki": "tr:M1 (İstanbul Metrosu)",
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Hamburg",
-      "country": "Germany",
-      "route_id": "rm1727359",
-      "route_name": "S3: Pinneberg <=> Neugraben",
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "r4289712",
+      "route_name": "M1B: Yenikapı - Kirazlı",
+      "ours": 13,
+      "lang": "tr",
+      "wiki": "tr:M1 (İstanbul metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm7719080",
+      "route_name": "M4 Metro Hattı",
+      "ours": 23,
+      "lang": "tr",
+      "wiki": "tr:M4 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm7719082",
+      "route_name": "M3: Bakırköy Sahil → Kayaşehir Merkez",
+      "ours": 20,
+      "lang": "tr",
+      "wiki": "tr:M3 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm12769834",
+      "route_name": "M9: Ataköy → Olimpiyat",
+      "ours": 14,
+      "lang": "tr",
+      "wiki": "tr:M9 (İstanbul metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm7719078",
+      "route_name": "M2: Hacıosman - Yenikapı",
+      "ours": 15,
+      "lang": "tr",
+      "wiki": "tr:M2 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "r7719795",
+      "route_name": "M2: Seyrantepe - Sanayi",
+      "ours": 2,
+      "lang": "tr",
+      "wiki": "tr:M2 (İstanbul metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm7719783",
+      "route_name": "M6 Metro Hattı",
+      "ours": 4,
+      "lang": "tr",
+      "wiki": "tr:M6 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm8061299",
+      "route_name": "M5",
+      "ours": 24,
+      "lang": "tr",
+      "wiki": "tr:M5 (İstanbul metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm11799411",
+      "route_name": "M7 Yıldız - Mahmutbey Metro Hattı",
+      "ours": 15,
+      "lang": "tr",
+      "wiki": "tr:M7 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "r15085833",
+      "route_name": "M7 Yıldız - Mecidiyeköy Metro Hattı",
+      "ours": 3,
+      "lang": "tr",
+      "wiki": "tr:M7 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm14900218",
+      "route_name": "M8: Bostancı - Parseller",
+      "ours": 13,
+      "lang": "tr",
+      "wiki": "tr:M8 (İstanbul metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Istanbul",
+      "country": "Turkey",
+      "route_id": "rm15083966",
+      "route_name": "M11 Kağıthane - Kargo Terminali Metro Hattı",
+      "ours": 15,
+      "lang": "tr",
+      "wiki": "tr:M11 (İstanbul Metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "r18320304",
+      "route_name": "Line 6: Nanxiebu → Sangtiandao",
+      "ours": 3,
+      "lang": "zh",
+      "wiki": "zh:苏州地铁6号线",
+      "reason": "system article shared by several lines (zh:苏州地铁6号线)"
+    },
+    {
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "r8439220",
+      "route_name": "Line 4: Muli → Longdaobang",
       "ours": 25,
-      "lang": "de",
-      "wiki": "de:Hamburger Verkehrsverbund",
-      "reason": "article has no station count infobox"
+      "lang": "zh",
+      "wiki": "zh:苏州轨道交通",
+      "reason": "system article shared by several lines (zh:苏州轨道交通)"
     },
     {
-      "city": "Hamburg",
-      "country": "Germany",
-      "route_id": "rm5607597",
-      "route_name": "S2: Diebsteich/Altona <=> Aumühle",
-      "ours": 17,
-      "lang": "de",
-      "wiki": "de:Hamburger Verkehrsverbund",
-      "reason": "article has no station count infobox"
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "rm13091428",
+      "route_name": "Suzhou Rail Transit Line 5",
+      "ours": 34,
+      "lang": "zh",
+      "wiki": "zh:苏州轨道交通",
+      "reason": "system article shared by several lines (zh:苏州轨道交通)"
     },
     {
-      "city": "Hamburg",
-      "country": "Germany",
-      "route_id": "rm20193391",
-      "route_name": "S7: Altona <=> Aumühle",
-      "ours": 21,
-      "lang": "de",
-      "wikidata": "Q136881945",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Hamburg",
-      "country": "Germany",
-      "route_id": "rm1660624",
-      "route_name": "S1: Wedel <=> Poppenbüttel / Hamburg Airport",
-      "ours": 31,
-      "lang": "de",
-      "wiki": "de:Hamburger Verkehrsverbund",
-      "reason": "article has no station count infobox"
+      "city": "Suzhou",
+      "country": "China",
+      "route_id": "rm17876064",
+      "route_name": "Line 6: Suzhou Xinqu Railway Station → Nanxiebu",
+      "ours": 28,
+      "lang": "zh",
+      "wiki": "zh:苏州地铁6号线",
+      "reason": "system article shared by several lines (zh:苏州地铁6号线)"
     },
     {
       "city": "Zhengzhou",
@@ -4135,6 +4814,116 @@
       "lang": "zh",
       "wiki": "en:Line 12 (Zhengzhou Metro)",
       "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Xirivella",
+      "country": "Spain",
+      "route_id": "rm5626070",
+      "route_name": "Línia 7",
+      "ours": 16,
+      "lang": "es",
+      "wiki": "ca:Línia 7 de Metrovalència",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Xirivella",
+      "country": "Spain",
+      "route_id": "rm178522",
+      "route_name": "Línia 5",
+      "ours": 18,
+      "lang": "es",
+      "wiki": "ca:Línia 5 de Metrovalència",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Xirivella",
+      "country": "Spain",
+      "route_id": "rm178523",
+      "route_name": "Línia 3",
+      "ours": 27,
+      "lang": "es",
+      "wiki": "ca:Línia 3 de Metrovalència",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Xirivella",
+      "country": "Spain",
+      "route_id": "rm5622181",
+      "route_name": "Línia 9",
+      "ours": 23,
+      "lang": "es",
+      "wiki": "ca:Línia 9 de Metrovalència",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Xirivella",
+      "country": "Spain",
+      "route_id": "rm5616937",
+      "route_name": "Línia 2",
+      "ours": 34,
+      "lang": "es",
+      "wiki": "ca:Línia 2 de Metrovalència",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Xirivella",
+      "country": "Spain",
+      "route_id": "rm178526",
+      "route_name": "Línia 1",
+      "ours": 40,
+      "lang": "es",
+      "wiki": "ca:Línia 1 de Metrovalència",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "San Francisco (Bay Area)",
+      "country": "United States",
+      "route_id": "rm2827687",
+      "route_name": "Antioch–SFO+Millbrae Line",
+      "ours": 27,
+      "lang": "en",
+      "wiki": "en:Yellow Line (BART)",
+      "reason": "system article shared by several lines (en:Yellow Line (BART))"
+    },
+    {
+      "city": "San Francisco (Bay Area)",
+      "country": "United States",
+      "route_id": "r2827686",
+      "route_name": "BART Yellow Line: Antioch => SFO Airport => Millbrae",
+      "ours": 27,
+      "lang": "en",
+      "wiki": "en:Yellow Line (BART)",
+      "reason": "system article shared by several lines (en:Yellow Line (BART))"
+    },
+    {
+      "city": "San Francisco (Bay Area)",
+      "country": "United States",
+      "route_id": "r2851727",
+      "route_name": "BART Blue Line: Daly City => Dublin/Pleasanton",
+      "ours": 18,
+      "lang": "en",
+      "wiki": "en:Bay Area Rapid Transit",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Washington, D.C.",
+      "country": "United States",
+      "route_id": "rm7919737",
+      "route_name": "WMATA Silver Line",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:Silver Line (Washington Metro)",
+      "reason": "system article shared by several lines (en:Silver Line (Washington Metro))"
+    },
+    {
+      "city": "Washington, D.C.",
+      "country": "United States",
+      "route_id": "r19274066",
+      "route_name": "WMATA Silver Line: New Carrollton → Ashburn",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:Silver Line (Washington Metro)",
+      "reason": "system article shared by several lines (en:Silver Line (Washington Metro))"
     },
     {
       "city": "Stockholm",
@@ -4207,66 +4996,6 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Xirivella",
-      "country": "Spain",
-      "route_id": "rm5626070",
-      "route_name": "Línia 7",
-      "ours": 16,
-      "lang": "es",
-      "wiki": "ca:Línia 7 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Xirivella",
-      "country": "Spain",
-      "route_id": "rm178522",
-      "route_name": "Línia 5",
-      "ours": 18,
-      "lang": "es",
-      "wiki": "ca:Línia 5 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Xirivella",
-      "country": "Spain",
-      "route_id": "rm178523",
-      "route_name": "Línia 3",
-      "ours": 27,
-      "lang": "es",
-      "wiki": "ca:Línia 3 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Xirivella",
-      "country": "Spain",
-      "route_id": "rm5622181",
-      "route_name": "Línia 9",
-      "ours": 23,
-      "lang": "es",
-      "wiki": "ca:Línia 9 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Xirivella",
-      "country": "Spain",
-      "route_id": "rm5616937",
-      "route_name": "Línia 2",
-      "ours": 34,
-      "lang": "es",
-      "wiki": "ca:Línia 2 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Xirivella",
-      "country": "Spain",
-      "route_id": "rm178526",
-      "route_name": "Línia 1",
-      "ours": 40,
-      "lang": "es",
-      "wiki": "ca:Línia 1 de Metrovalència",
-      "reason": "article has no station count infobox"
-    },
-    {
       "city": "Mexico City",
       "country": "Mexico",
       "route_id": "rm7935439",
@@ -4301,7 +5030,7 @@
       "country": "Mexico",
       "route_id": "rm7935433",
       "route_name": "Línea B",
-      "ours": 22,
+      "ours": 21,
       "lang": "es",
       "wiki": "es:Línea B del Metro de la Ciudad de México",
       "reason": "article has no station count infobox"
@@ -4387,33 +5116,93 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7919154",
-      "route_name": "Seoul Subway Line 6",
-      "ours": 39,
-      "lang": "ko",
-      "wiki": "ko:서울 지하철 6호선",
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8037671",
+      "route_name": "Blue Line",
+      "ours": 50,
+      "lang": "en",
+      "wiki": "en:Blue Line (Delhi Metro)",
+      "reason": "system article shared by several lines (en:Blue Line (Delhi Metro))"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "r2535795",
+      "route_name": "Blue Line (Yamuna Bank → Vaishali)",
+      "ours": 8,
+      "lang": "en",
+      "wiki": "en:Blue Line (Delhi Metro)",
+      "reason": "system article shared by several lines (en:Blue Line (Delhi Metro))"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8037713",
+      "route_name": "Yellow Line",
+      "ours": 37,
+      "lang": "en",
+      "wiki": "hi:दिल्ली मेट्रो",
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm8691899",
-      "route_name": "Seoul Metropolitan Subway Line 1",
-      "ours": 112,
-      "lang": "ko",
-      "wiki": "ko:수도권 전철 1호선",
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8429148",
+      "route_name": "Red Line",
+      "ours": 29,
+      "lang": "en",
+      "wiki": "hi:दिल्ली मेट्रो",
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Seoul",
-      "country": "South Korea",
-      "route_id": "rm7922930",
-      "route_name": "Seoul Metropolitan Subway Line 7",
-      "ours": 52,
-      "lang": "ko",
-      "wiki": "ko:서울 지하철 7호선",
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8037672",
+      "route_name": "Green Line",
+      "ours": 22,
+      "lang": "en",
+      "wiki": "en:Green Line (Delhi Metro)",
+      "reason": "system article shared by several lines (en:Green Line (Delhi Metro))"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "r2535796",
+      "route_name": "Green Line (Kirti Nagar => Ashok Park Main)",
+      "ours": 3,
+      "lang": "en",
+      "wiki": "en:Green Line (Delhi Metro)",
+      "reason": "system article shared by several lines (en:Green Line (Delhi Metro))"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8242438",
+      "route_name": "Pink Line",
+      "ours": 46,
+      "lang": "en",
+      "wiki": "en:Pink Line (Delhi Metro)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "rm8051576",
+      "route_name": "Magenta Line",
+      "ours": 26,
+      "lang": "en",
+      "wiki": "en:Magenta Line (Delhi Metro)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Delhi",
+      "country": "India",
+      "route_id": "r20300114",
+      "route_name": "Magenta Line (Majlis Park → Deepali Chowk)",
+      "ours": 7,
+      "lang": "en",
+      "wiki": "en:Magenta Line (Delhi Metro)",
       "reason": "article has no station count infobox"
     },
     {
@@ -4447,114 +5236,44 @@
       "reason": "system article shared by several lines (zh:西安地铁)"
     },
     {
-      "city": "Suzhou",
-      "country": "China",
-      "route_id": "rm13091428",
-      "route_name": "Suzhou Rail Transit Line 5",
-      "ours": 34,
-      "lang": "zh",
-      "wiki": "zh:苏州轨道交通",
-      "reason": "suspect system article (zh:苏州轨道交通: 275)"
+      "city": "Singapore",
+      "country": "Singapore",
+      "route_id": "rm7981689",
+      "route_name": "MRT East-West Line",
+      "ours": 33,
+      "lang": "en",
+      "wiki": "en:East–West Line (Singapore)",
+      "reason": "system article shared by several lines (en:East–West Line (Singapore))"
     },
     {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm7719081",
-      "route_name": "M1 Metro Hattı",
-      "ours": 29,
-      "lang": "tr",
-      "wiki": "tr:M1 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
+      "city": "Singapore",
+      "country": "Singapore",
+      "route_id": "r7981690",
+      "route_name": "MRT East-West Line (Tanah Merah → Changi Airport)",
+      "ours": 3,
+      "lang": "en",
+      "wiki": "en:East–West Line (Singapore)",
+      "reason": "system article shared by several lines (en:East–West Line (Singapore))"
     },
     {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm7719080",
-      "route_name": "M4 Metro Hattı",
-      "ours": 24,
-      "lang": "tr",
-      "wiki": "tr:M4 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
+      "city": "Singapore",
+      "country": "Singapore",
+      "route_id": "rm7981685",
+      "route_name": "MRT Circle Line (Marina Bay → HarbourFront)",
+      "ours": 30,
+      "lang": "en",
+      "wiki": "en:Circle MRT line",
+      "reason": "system article shared by several lines (en:Circle MRT line)"
     },
     {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm7719082",
-      "route_name": "M3: Bakırköy Sahil → Kayaşehir Merkez",
-      "ours": 29,
-      "lang": "tr",
-      "wiki": "tr:M3 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm12769834",
-      "route_name": "M9: Ataköy → Olimpiyat",
-      "ours": 16,
-      "lang": "tr",
-      "wiki": "tr:M9 (İstanbul metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm7719078",
-      "route_name": "M2: Hacıosman - Yenikapı",
-      "ours": 18,
-      "lang": "tr",
-      "wiki": "tr:M2 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm7719783",
-      "route_name": "M6 Metro Hattı",
-      "ours": 4,
-      "lang": "tr",
-      "wiki": "tr:M6 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm8061299",
-      "route_name": "M5",
-      "ours": 26,
-      "lang": "tr",
-      "wiki": "tr:M5 (İstanbul metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm11799411",
-      "route_name": "M7 Yıldız - Mahmutbey Metro Hattı",
-      "ours": 17,
-      "lang": "tr",
-      "wiki": "tr:M7 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm14900218",
-      "route_name": "M8: Bostancı - Parseller",
-      "ours": 14,
-      "lang": "tr",
-      "wiki": "tr:M8 (İstanbul metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Istanbul",
-      "country": "Turkey",
-      "route_id": "rm15083966",
-      "route_name": "M11 Kağıthane - Kargo Terminali Metro Hattı",
-      "ours": 15,
-      "lang": "tr",
-      "wiki": "tr:M11 (İstanbul Metrosu)",
-      "reason": "article has no station count infobox"
+      "city": "Singapore",
+      "country": "Singapore",
+      "route_id": "r7981667",
+      "route_name": "MRT Circle Line (HarbourFront → Dhoby Ghaut)",
+      "ours": 28,
+      "lang": "en",
+      "wiki": "en:Circle MRT line",
+      "reason": "system article shared by several lines (en:Circle MRT line)"
     },
     {
       "city": "Oslo",
@@ -4605,96 +5324,6 @@
       "lang": "no",
       "wiki": "en:Oslo Metro",
       "reason": "suspect system article (en:Oslo Metro: 101)"
-    },
-    {
-      "city": "Delhi",
-      "country": "India",
-      "route_id": "rm8037713",
-      "route_name": "Yellow Line",
-      "ours": 37,
-      "lang": "en",
-      "wiki": "hi:दिल्ली मेट्रो",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Delhi",
-      "country": "India",
-      "route_id": "rm8429148",
-      "route_name": "Red Line",
-      "ours": 29,
-      "lang": "en",
-      "wiki": "hi:दिल्ली मेट्रो",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Delhi",
-      "country": "India",
-      "route_id": "rm8242438",
-      "route_name": "Pink Line",
-      "ours": 46,
-      "lang": "en",
-      "wiki": "en:Pink Line (Delhi Metro)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Delhi",
-      "country": "India",
-      "route_id": "rm8051576",
-      "route_name": "Magenta Line",
-      "ours": 33,
-      "lang": "en",
-      "wiki": "en:Magenta Line (Delhi Metro)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rotterdam",
-      "country": "Netherlands",
-      "route_id": "rm5955849",
-      "route_name": "Metro E",
-      "ours": 23,
-      "lang": "nl",
-      "wiki": "nl:Lijn E (metro van Rotterdam)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rotterdam",
-      "country": "Netherlands",
-      "route_id": "rm5955848",
-      "route_name": "Metro D",
-      "ours": 17,
-      "lang": "nl",
-      "wiki": "nl:Lijn D (metro van Rotterdam)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rotterdam",
-      "country": "Netherlands",
-      "route_id": "rm5955847",
-      "route_name": "Metro C",
-      "ours": 26,
-      "lang": "nl",
-      "wiki": "nl:Lijn C (metro van Rotterdam)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rotterdam",
-      "country": "Netherlands",
-      "route_id": "rm5955846",
-      "route_name": "Metro B",
-      "ours": 32,
-      "lang": "nl",
-      "wiki": "nl:Lijn B (metro van Rotterdam)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rotterdam",
-      "country": "Netherlands",
-      "route_id": "rm5955845",
-      "route_name": "Metro A",
-      "ours": 20,
-      "lang": "nl",
-      "wiki": "nl:Lijn A (metro van Rotterdam)",
-      "reason": "article has no station count infobox"
     },
     {
       "city": "Santiago",
@@ -4771,20 +5400,554 @@
       "country": "Chile",
       "route_id": "rm18719190",
       "route_name": "Línea 7",
-      "ours": 13,
+      "ours": 11,
       "lang": "es",
       "wiki": "es:Línea 7 del Metro de Santiago",
       "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "rm10803053",
+      "route_name": "Subway M1",
+      "ours": 31,
+      "lang": "it",
+      "wiki": "it:Linea M1 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "r919278",
+      "route_name": "Subway M1: Bisceglie → Sesto 1º Maggio FS",
+      "ours": 27,
+      "lang": "it",
+      "wiki": "it:Linea M1 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "rm10760559",
+      "route_name": "Subway M2",
+      "ours": 30,
+      "lang": "it",
+      "wiki": "it:Linea M2 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "r1576143",
+      "route_name": "Subway M2: Assago Milanofiori Forum → Cologno Nord",
+      "ours": 24,
+      "lang": "it",
+      "wiki": "it:Linea M2 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "rm10788272",
+      "route_name": "Subway M3",
+      "ours": 21,
+      "lang": "it",
+      "wiki": "it:Linea M3 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "rm2753306",
+      "route_name": "Subway M5",
+      "ours": 19,
+      "lang": "it",
+      "wiki": "it:Linea M5 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Milan",
+      "country": "Italy",
+      "route_id": "rm14937470",
+      "route_name": "Subway M4",
+      "ours": 21,
+      "lang": "it",
+      "wiki": "it:Linea M4 (metropolitana di Milano)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "rm13350037",
+      "route_name": "Línea 4 del Metro de Caracas",
+      "ours": 14,
+      "lang": "es",
+      "wiki": "es:Línea 4 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "r3691848",
+      "route_name": "Línea 4: Dirección Zona Rental",
+      "ours": 14,
+      "lang": "es",
+      "wiki": "es:Línea 4 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "rm7927568",
+      "route_name": "Línea 2 del Metro de Caracas",
+      "ours": 11,
+      "lang": "es",
+      "wiki": "es:Línea 2 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "r3691989",
+      "route_name": "Línea 2: Dirección El Silencio",
+      "ours": 11,
+      "lang": "es",
+      "wiki": "es:Línea 2 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "r13350006",
+      "route_name": "Línea 4: Dirección Zona Rental",
+      "ours": 2,
+      "lang": "es",
+      "wiki": "es:Línea 4 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "rm7927573",
+      "route_name": "Línea 3 del Metro de Caracas",
+      "ours": 9,
+      "lang": "es",
+      "wiki": "es:Línea 3 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "rm13335174",
+      "route_name": "Línea 1 del Metro de Caracas",
+      "ours": 22,
+      "lang": "es",
+      "wiki": "es:Línea 1 (Metro de Caracas)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Caracas",
+      "country": "Venezuela",
+      "route_id": "rm8120923",
+      "route_name": "Metro Los Teques, Línea 1",
+      "ours": 5,
+      "lang": "es",
+      "wikidata": "Q56168307",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Rotterdam",
+      "country": "Netherlands",
+      "route_id": "rm5955849",
+      "route_name": "Metro E",
+      "ours": 23,
+      "lang": "nl",
+      "wiki": "nl:Lijn E (metro van Rotterdam)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rotterdam",
+      "country": "Netherlands",
+      "route_id": "rm5955848",
+      "route_name": "Metro D",
+      "ours": 17,
+      "lang": "nl",
+      "wiki": "nl:Lijn D (metro van Rotterdam)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rotterdam",
+      "country": "Netherlands",
+      "route_id": "rm5955847",
+      "route_name": "Metro C",
+      "ours": 26,
+      "lang": "nl",
+      "wiki": "nl:Lijn C (metro van Rotterdam)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rotterdam",
+      "country": "Netherlands",
+      "route_id": "rm5955846",
+      "route_name": "Metro B",
+      "ours": 32,
+      "lang": "nl",
+      "wiki": "nl:Lijn B (metro van Rotterdam)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rotterdam",
+      "country": "Netherlands",
+      "route_id": "rm5955845",
+      "route_name": "Metro A",
+      "ours": 20,
+      "lang": "nl",
+      "wiki": "nl:Lijn A (metro van Rotterdam)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Hefei",
+      "country": "China",
+      "route_id": "r13536844",
+      "route_name": "Hefei Metro Line 4: Zongbaoqu→Qinglonggang",
+      "ours": 31,
+      "lang": "zh",
+      "wiki": "zh:合肥轨道交通",
+      "reason": "suspect system article (zh:合肥轨道交通: 195)"
+    },
+    {
+      "city": "Vancouver",
+      "country": "Canada",
+      "route_id": "rm5881439",
+      "route_name": "Canada Line",
+      "ours": 13,
+      "lang": "en",
+      "wiki": "en:Canada Line",
+      "reason": "system article shared by several lines (en:Canada Line)"
+    },
+    {
+      "city": "Vancouver",
+      "country": "Canada",
+      "route_id": "r5881436",
+      "route_name": "Canada Line: Richmond-Brighouse → Waterfront",
+      "ours": 13,
+      "lang": "en",
+      "wiki": "en:Canada Line",
+      "reason": "system article shared by several lines (en:Canada Line)"
+    },
+    {
+      "city": "Vancouver",
+      "country": "Canada",
+      "route_id": "rm5881298",
+      "route_name": "Expo Line",
+      "ours": 20,
+      "lang": "en",
+      "wiki": "en:Expo Line (SkyTrain)",
+      "reason": "system article shared by several lines (en:Expo Line (SkyTrain))"
+    },
+    {
+      "city": "Vancouver",
+      "country": "Canada",
+      "route_id": "r207814",
+      "route_name": "Expo Line: Production Way-University → Waterfront",
+      "ours": 20,
+      "lang": "en",
+      "wiki": "en:Expo Line (SkyTrain)",
+      "reason": "system article shared by several lines (en:Expo Line (SkyTrain))"
+    },
+    {
+      "city": "Bucharest",
+      "country": "Romania",
+      "route_id": "rm11697885",
+      "route_name": "Magistrala 5",
+      "ours": 9,
+      "lang": "ro",
+      "wiki": "en:Bucharest Metro Line M5",
+      "reason": "system article shared by several lines (en:Bucharest Metro Line M5)"
+    },
+    {
+      "city": "Bucharest",
+      "country": "Romania",
+      "route_id": "r11697878",
+      "route_name": "Magistrala 5 (Valea Ialomiței → Eroilor)",
+      "ours": 8,
+      "lang": "ro",
+      "wiki": "en:Bucharest Metro Line M5",
+      "reason": "system article shared by several lines (en:Bucharest Metro Line M5)"
+    },
+    {
+      "city": "Tehran",
+      "country": "Iran",
+      "route_id": "rm7705669",
+      "route_name": "Line 4",
+      "ours": 20,
+      "lang": "fa",
+      "wiki": "en:Tehran Metro Line 4",
+      "reason": "system article shared by several lines (en:Tehran Metro Line 4)"
+    },
+    {
+      "city": "Tehran",
+      "country": "Iran",
+      "route_id": "r7683584",
+      "route_name": "Line 4",
+      "ours": 3,
+      "lang": "fa",
+      "wiki": "en:Tehran Metro Line 4",
+      "reason": "system article shared by several lines (en:Tehran Metro Line 4)"
+    },
+    {
+      "city": "Tehran",
+      "country": "Iran",
+      "route_id": "r6151834",
+      "route_name": "Line 1: Airport branch",
+      "ours": 4,
+      "lang": "fa",
+      "wikidata": "Q65195214",
+      "wiki": "fa:انشعاب اول خط ۱ (مترو تهران)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Tehran",
+      "country": "Iran",
+      "route_id": "rm9468298",
+      "route_name": "Line 6",
+      "ours": 26,
+      "lang": "fa",
+      "wiki": "fa:متروی تهران",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Tehran",
+      "country": "Iran",
+      "route_id": "rm7705644",
+      "route_name": "Line 7",
+      "ours": 22,
+      "lang": "fa",
+      "wiki": "fa:خط ۷ متروی تهران",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Kunming",
+      "country": "China",
+      "route_id": "rm7909748",
+      "route_name": "Kunming Metro Line 1",
+      "ours": 18,
+      "lang": "zh",
+      "wiki": "zh:昆明地铁1号线",
+      "reason": "system article shared by several lines (zh:昆明地铁1号线)"
+    },
+    {
+      "city": "Kunming",
+      "country": "China",
+      "route_id": "r7909742",
+      "route_name": "Kunming Metro Line 1 (Kunming South Railway → South Ring Road)",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "zh:昆明地铁1号线",
+      "reason": "system article shared by several lines (zh:昆明地铁1号线)"
     },
     {
       "city": "Qingdao",
       "country": "China",
       "route_id": "rm13068450",
       "route_name": "Qingdao Metro Line 8",
-      "ours": 12,
+      "ours": 11,
       "lang": "zh",
       "wiki": "zh:青岛地铁",
       "reason": "suspect system article (zh:青岛地铁: 172)"
+    },
+    {
+      "city": "Brussels",
+      "country": "Belgium",
+      "route_id": "r7756456",
+      "route_name": "Metro 1: turnaround at Gare de l'Ouest/Weststation",
+      "ours": 2,
+      "lang": "nl",
+      "wikidata": "Q114957008",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "rm7939445",
+      "route_name": "PATCO Speedline",
+      "ours": 14,
+      "lang": "en",
+      "wikidata": "Q2043730",
+      "wiki": "en:PATCO Speedline",
+      "reason": "system article shared by several lines (en:PATCO Speedline)"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "r7939426",
+      "route_name": "PATCO Speedline: Lindenwold => 15th-16th & Locust",
+      "ours": 14,
+      "lang": "en",
+      "wikidata": "Q2043730",
+      "wiki": "en:PATCO Speedline",
+      "reason": "system article shared by several lines (en:PATCO Speedline)"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "rm7950670",
+      "route_name": "SEPTA Broad Street Line",
+      "ours": 22,
+      "lang": "en",
+      "wiki": "en:B (SEPTA Metro)",
+      "reason": "system article shared by several lines (en:B (SEPTA Metro))"
+    },
+    {
+      "city": "Philadelphia",
+      "country": "United States",
+      "route_id": "r7950638",
+      "route_name": "SEPTA Broad-Ridge Spur: 8th & Market → Fern Rock",
+      "ours": 8,
+      "lang": "en",
+      "wiki": "en:B (SEPTA Metro)",
+      "reason": "system article shared by several lines (en:B (SEPTA Metro))"
+    },
+    {
+      "city": "Rome",
+      "country": "Italy",
+      "route_id": "rm2208346",
+      "route_name": "Subway B",
+      "ours": 22,
+      "lang": "it",
+      "wiki": "it:Linea B (metropolitana di Roma)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rome",
+      "country": "Italy",
+      "route_id": "r2172804",
+      "route_name": "Metro B (Laurentina)",
+      "ours": 19,
+      "lang": "it",
+      "wiki": "it:Linea B (metropolitana di Roma)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rome",
+      "country": "Italy",
+      "route_id": "rm2207255",
+      "route_name": "Subway A",
+      "ours": 27,
+      "lang": "it",
+      "wiki": "it:Linea A (metropolitana di Roma)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rome",
+      "country": "Italy",
+      "route_id": "rm2208348",
+      "route_name": "Metromare",
+      "ours": 14,
+      "lang": "it",
+      "wiki": "it:Ferrovia Roma-Lido",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rome",
+      "country": "Italy",
+      "route_id": "rm4173958",
+      "route_name": "Linea C",
+      "ours": 24,
+      "lang": "it",
+      "wiki": "it:Linea C (metropolitana di Roma)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Rome",
+      "country": "Italy",
+      "route_id": "r2703073",
+      "route_name": "Metro D",
+      "ours": 22,
+      "lang": "it",
+      "wikidata": "Q3832679",
+      "wiki": "it:Linea D (metropolitana di Roma)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "route_id": "rm7792474",
+      "route_name": "Line 2",
+      "ours": 18,
+      "lang": "az",
+      "wiki": "az:2-ci xətt (Bakı metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "route_id": "r7680414",
+      "route_name": "Line 2: Dərnəgül → Bakmil",
+      "ours": 12,
+      "lang": "az",
+      "wiki": "az:2-ci xətt (Bakı metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "route_id": "rm7792473",
+      "route_name": "Line 1",
+      "ours": 12,
+      "lang": "az",
+      "wiki": "az:1-ci xətt (Bakı metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "route_id": "r7680413",
+      "route_name": "Line 1: İçərişəhər → Bakmil",
+      "ours": 6,
+      "lang": "az",
+      "wiki": "az:1-ci xətt (Bakı metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "route_id": "rm7792472",
+      "route_name": "Line 2B",
+      "ours": 2,
+      "lang": "az",
+      "wiki": "az:2-ci xətt (Bakı metropoliteni)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "route_id": "rm7792475",
+      "route_name": "Line 3",
+      "ours": 4,
+      "lang": "az",
+      "wiki": "az:3-cü xətt (Bakı metrosu)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Dalian",
+      "country": "China",
+      "route_id": "r3123050",
+      "route_name": "Dalian Metro Line 3 (Jiuli Branch): Northbound",
+      "ours": 7,
+      "lang": "zh",
+      "wiki": "zh:大连地铁",
+      "reason": "suspect system article (zh:大连地铁: 107)"
+    },
+    {
+      "city": "Changsha",
+      "country": "China",
+      "route_id": "r11257229",
+      "route_name": "Line 5 (Changsha Metro) Maozhutang → Shuiduhe",
+      "ours": 18,
+      "lang": "zh",
+      "wiki": "zh:长沙地铁",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Bielefeld",
@@ -4831,7 +5994,7 @@
       "country": "Argentina",
       "route_id": "rm1637478",
       "route_name": "Línea A",
-      "ours": 18,
+      "ours": 17,
       "lang": "es",
       "wiki": "es:Línea A (subte de Buenos Aires)",
       "reason": "article has no station count infobox"
@@ -4972,7 +6135,7 @@
       "country": "Russia",
       "route_id": "rm2446076",
       "route_name": "Kirovsko-Vyborgskaya Line: Prospekt Veteranov — Devyatkino",
-      "ours": 20,
+      "ours": 19,
       "lang": "ru",
       "wiki": "ru:Кировско-Выборгская линия",
       "reason": "article has no station count infobox"
@@ -4982,7 +6145,7 @@
       "country": "Russia",
       "route_id": "rm2446077",
       "route_name": "Moskovsko-Petrogradskaya Line: Parnas — Kupchino",
-      "ours": 17,
+      "ours": 16,
       "lang": "ru",
       "wiki": "ru:Московско-Петроградская линия",
       "reason": "article has no station count infobox"
@@ -5039,26 +6202,6 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Tehran",
-      "country": "Iran",
-      "route_id": "rm9468298",
-      "route_name": "Line 6",
-      "ours": 26,
-      "lang": "fa",
-      "wiki": "fa:متروی تهران",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Tehran",
-      "country": "Iran",
-      "route_id": "rm7705644",
-      "route_name": "Line 7",
-      "ours": 22,
-      "lang": "fa",
-      "wiki": "fa:خط ۷ متروی تهران",
-      "reason": "article has no station count infobox"
-    },
-    {
       "city": "Kuala Lumpur",
       "country": "Malaysia",
       "route_id": "rm8000298",
@@ -5066,56 +6209,6 @@
       "ours": 18,
       "lang": "ms",
       "wikidata": "Q113297999",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Caracas",
-      "country": "Venezuela",
-      "route_id": "rm13350037",
-      "route_name": "Línea 4 del Metro de Caracas",
-      "ours": 17,
-      "lang": "es",
-      "wiki": "es:Línea 4 (Metro de Caracas)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Caracas",
-      "country": "Venezuela",
-      "route_id": "rm7927568",
-      "route_name": "Línea 2 del Metro de Caracas",
-      "ours": 13,
-      "lang": "es",
-      "wiki": "es:Línea 2 (Metro de Caracas)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Caracas",
-      "country": "Venezuela",
-      "route_id": "rm7927573",
-      "route_name": "Línea 3 del Metro de Caracas",
-      "ours": 9,
-      "lang": "es",
-      "wiki": "es:Línea 3 (Metro de Caracas)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Caracas",
-      "country": "Venezuela",
-      "route_id": "rm13335174",
-      "route_name": "Línea 1 del Metro de Caracas",
-      "ours": 22,
-      "lang": "es",
-      "wiki": "es:Línea 1 (Metro de Caracas)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Caracas",
-      "country": "Venezuela",
-      "route_id": "rm8120923",
-      "route_name": "Metro Los Teques, Línea 1",
-      "ours": 6,
-      "lang": "es",
-      "wikidata": "Q56168307",
       "reason": "no wikipedia/wikidata tag resolves"
     },
     {
@@ -5159,55 +6252,26 @@
       "reason": "suspect system article (zh:南宁轨道交通: 106)"
     },
     {
-      "city": "Rome",
-      "country": "Italy",
-      "route_id": "rm2208346",
-      "route_name": "Subway B",
-      "ours": 26,
-      "lang": "it",
-      "wiki": "it:Linea B (metropolitana di Roma)",
-      "reason": "article has no station count infobox"
+      "city": "Doha",
+      "country": "Qatar",
+      "route_id": "rm9573815",
+      "route_name": "Metro Red Line",
+      "ours": 17,
+      "lang": "ar",
+      "wikidata": "Q25343681",
+      "wiki": "ar:الخط الأحمر (قطر)",
+      "reason": "system article shared by several lines (ar:الخط الأحمر (قطر))"
     },
     {
-      "city": "Rome",
-      "country": "Italy",
-      "route_id": "rm2207255",
-      "route_name": "Subway A",
-      "ours": 27,
-      "lang": "it",
-      "wiki": "it:Linea A (metropolitana di Roma)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rome",
-      "country": "Italy",
-      "route_id": "rm2208348",
-      "route_name": "Metromare",
-      "ours": 14,
-      "lang": "it",
-      "wiki": "it:Ferrovia Roma-Lido",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rome",
-      "country": "Italy",
-      "route_id": "rm4173958",
-      "route_name": "Linea C",
-      "ours": 24,
-      "lang": "it",
-      "wiki": "it:Linea C (metropolitana di Roma)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Rome",
-      "country": "Italy",
-      "route_id": "r2703073",
-      "route_name": "Metro D",
-      "ours": 22,
-      "lang": "it",
-      "wikidata": "Q3832679",
-      "wiki": "it:Linea D (metropolitana di Roma)",
-      "reason": "article has no station count infobox"
+      "city": "Doha",
+      "country": "Qatar",
+      "route_id": "r10402958",
+      "route_name": "Metro Red Line: Hamad International Airport T1 → Lusail",
+      "ours": 15,
+      "lang": "ar",
+      "wikidata": "Q25343681",
+      "wiki": "ar:الخط الأحمر (قطر)",
+      "reason": "system article shared by several lines (ar:الخط الأحمر (قطر))"
     },
     {
       "city": "Sofia",
@@ -5272,44 +6336,44 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Baku",
-      "country": "Azerbaijan",
-      "route_id": "rm7792474",
-      "route_name": "Line 2",
-      "ours": 19,
-      "lang": "az",
-      "wiki": "az:2-ci xətt (Bakı metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Baku",
-      "country": "Azerbaijan",
-      "route_id": "rm7792473",
-      "route_name": "Line 1",
-      "ours": 13,
-      "lang": "az",
-      "wiki": "az:1-ci xətt (Bakı metrosu)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Baku",
-      "country": "Azerbaijan",
-      "route_id": "rm7792472",
-      "route_name": "Line 2B",
-      "ours": 2,
-      "lang": "az",
-      "wiki": "az:2-ci xətt (Bakı metropoliteni)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Baku",
-      "country": "Azerbaijan",
-      "route_id": "rm7792475",
+      "city": "Cairo",
+      "country": "Egypt",
+      "route_id": "rm7686574",
       "route_name": "Line 3",
-      "ours": 4,
-      "lang": "az",
-      "wiki": "az:3-cü xətt (Bakı metrosu)",
-      "reason": "article has no station count infobox"
+      "ours": 29,
+      "lang": "ar",
+      "wiki": "en:Cairo Metro Line 3",
+      "reason": "system article shared by several lines (en:Cairo Metro Line 3)"
+    },
+    {
+      "city": "Cairo",
+      "country": "Egypt",
+      "route_id": "r17625744",
+      "route_name": "Line 3: Cairo University → Adly Mansour",
+      "ours": 28,
+      "lang": "ar",
+      "wiki": "en:Cairo Metro Line 3",
+      "reason": "system article shared by several lines (en:Cairo Metro Line 3)"
+    },
+    {
+      "city": "Bangkok",
+      "country": "Thailand",
+      "route_id": "rm7989387",
+      "route_name": "BTS Silom Line",
+      "ours": 6,
+      "lang": "th",
+      "wiki": "th:รถไฟฟ้าบีทีเอส สายสีลม",
+      "reason": "system article shared by several lines (th:รถไฟฟ้าบีทีเอส สายสีลม)"
+    },
+    {
+      "city": "Bangkok",
+      "country": "Thailand",
+      "route_id": "r2067854",
+      "route_name": "BTS Silom Line (National Stadium → Bang Wa)",
+      "ours": 3,
+      "lang": "th",
+      "wiki": "th:รถไฟฟ้าบีทีเอส สายสีลม",
+      "reason": "system article shared by several lines (th:รถไฟฟ้าบีทีเอส สายสีลม)"
     },
     {
       "city": "Ankara",
@@ -5363,54 +6427,24 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Milan",
-      "country": "Italy",
-      "route_id": "rm10803053",
-      "route_name": "Subway M1",
-      "ours": 38,
-      "lang": "it",
-      "wiki": "it:Linea M1 (metropolitana di Milano)",
-      "reason": "article has no station count infobox"
+      "city": "Boston",
+      "country": "United States",
+      "route_id": "rm7874288",
+      "route_name": "MBTA Red Line",
+      "ours": 16,
+      "lang": "en",
+      "wiki": "en:Red Line (MBTA)",
+      "reason": "system article shared by several lines (en:Red Line (MBTA))"
     },
     {
-      "city": "Milan",
-      "country": "Italy",
-      "route_id": "rm10760559",
-      "route_name": "Subway M2",
-      "ours": 35,
-      "lang": "it",
-      "wiki": "it:Linea M2 (metropolitana di Milano)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Milan",
-      "country": "Italy",
-      "route_id": "rm10788272",
-      "route_name": "Subway M3",
-      "ours": 21,
-      "lang": "it",
-      "wiki": "it:Linea M3 (metropolitana di Milano)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Milan",
-      "country": "Italy",
-      "route_id": "rm2753306",
-      "route_name": "Subway M5",
-      "ours": 19,
-      "lang": "it",
-      "wiki": "it:Linea M5 (metropolitana di Milano)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Milan",
-      "country": "Italy",
-      "route_id": "rm14937470",
-      "route_name": "Subway M4",
-      "ours": 21,
-      "lang": "it",
-      "wiki": "it:Linea M4 (metropolitana di Milano)",
-      "reason": "article has no station count infobox"
+      "city": "Boston",
+      "country": "United States",
+      "route_id": "r7874285",
+      "route_name": "MBTA Red Line: Alewife → Braintree",
+      "ours": 16,
+      "lang": "en",
+      "wiki": "en:Red Line (MBTA)",
+      "reason": "system article shared by several lines (en:Red Line (MBTA))"
     },
     {
       "city": "Yokohama",
@@ -5573,6 +6607,17 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Dubai",
+      "country": "United Arab Emirates",
+      "route_id": "r12820284",
+      "route_name": "Red2 Line: UAE Exchange → Centrepoint",
+      "ours": 29,
+      "lang": "ar",
+      "wikidata": "Q97940934",
+      "wiki": "ar:مسار 2020",
+      "reason": "article has no station count infobox"
+    },
+    {
       "city": "Budapest",
       "country": "Hungary",
       "route_id": "rm418343",
@@ -5581,6 +6626,28 @@
       "lang": "hu",
       "wiki": "hu:M1-es metróvonal (Budapest)",
       "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Pyongyang",
+      "country": "North Korea",
+      "route_id": "rm7734279",
+      "route_name": "Hyŏksin line",
+      "ours": 8,
+      "lang": "ko",
+      "wikidata": "Q712790",
+      "wiki": "ko:평양 지하철도 혁신선",
+      "reason": "system article shared by several lines (ko:평양 지하철도 혁신선)"
+    },
+    {
+      "city": "Pyongyang",
+      "country": "North Korea",
+      "route_id": "r7734277",
+      "route_name": "Hyŏksin line",
+      "ours": 8,
+      "lang": "ko",
+      "wikidata": "Q712790",
+      "wiki": "ko:평양 지하철도 혁신선",
+      "reason": "system article shared by several lines (ko:평양 지하철도 혁신선)"
     },
     {
       "city": "Tashkent",
@@ -5638,7 +6705,7 @@
       "country": "China",
       "route_id": "rm13681035",
       "route_name": "Nanchang Metro Line 4",
-      "ours": 30,
+      "ours": 29,
       "lang": "zh",
       "wiki": "zh:南昌地铁",
       "reason": "article has no station count infobox"
@@ -5785,6 +6852,26 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Algiers",
+      "country": "Algeria",
+      "route_id": "rm7627370",
+      "route_name": "Metro L1R",
+      "ours": 16,
+      "lang": "ar",
+      "wikidata": "Q20685853",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Algiers",
+      "country": "Algeria",
+      "route_id": "r8210886",
+      "route_name": "Metro L1R-2",
+      "ours": 15,
+      "lang": "ar",
+      "wikidata": "Q20685853",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
       "city": "Naples",
       "country": "Italy",
       "route_id": "rm12341393",
@@ -5927,6 +7014,38 @@
       "lang": "ko",
       "wiki": "ko:인천 도시철도 1호선",
       "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Panama City",
+      "country": "Panama",
+      "route_id": "rm7712343",
+      "route_name": "Line 1",
+      "ours": 15,
+      "lang": "es",
+      "wikidata": "Q25420888",
+      "wiki": "es:Línea 1 (Metro de Panamá)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Panama City",
+      "country": "Panama",
+      "route_id": "rm9536631",
+      "route_name": "Line 2",
+      "ours": 16,
+      "lang": "es",
+      "wikidata": "Q25420937",
+      "wiki": "es:Línea 2 (Metro de Panamá)",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Panama City",
+      "country": "Panama",
+      "route_id": "r15624911",
+      "route_name": "Ramal línea 2 : Corredor Sur → Aeropuerto",
+      "ours": 3,
+      "lang": "es",
+      "wikidata": "Q117213028",
+      "reason": "no wikipedia/wikidata tag resolves"
     },
     {
       "city": "Chennai",
@@ -6122,11 +7241,31 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Yerevan",
+      "country": "Armenia",
+      "route_id": "rm7963913",
+      "route_name": "Yerevan Metro Line 1",
+      "ours": 9,
+      "lang": "hy",
+      "wikidata": "Q10318696",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
+      "city": "Yerevan",
+      "country": "Armenia",
+      "route_id": "r7692726",
+      "route_name": "Yerevan Metro Shuttle Service Charbakh -> Shengavit",
+      "ours": 2,
+      "lang": "hy",
+      "wikidata": "Q109733045",
+      "reason": "no wikipedia/wikidata tag resolves"
+    },
+    {
       "city": "Santo Domingo",
       "country": "Dominican Republic",
       "route_id": "rm7734061",
       "route_name": "Línea 1",
-      "ours": 19,
+      "ours": 16,
       "lang": "es",
       "wikidata": "Q25421357",
       "wiki": "es:Línea 1 del Metro de Santo Domingo",
@@ -6258,7 +7397,7 @@
       "country": "France",
       "route_id": "rm165613",
       "route_name": "Métro 1",
-      "ours": 19,
+      "ours": 18,
       "lang": "fr",
       "wiki": "fr:Ligne 1 du métro de Marseille",
       "reason": "article has no station count infobox"
@@ -6271,28 +7410,6 @@
       "ours": 13,
       "lang": "fr",
       "wiki": "fr:Ligne 2 du métro de Marseille",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Panama City",
-      "country": "Panama",
-      "route_id": "rm7712343",
-      "route_name": "Line 1",
-      "ours": 15,
-      "lang": "es",
-      "wikidata": "Q25420888",
-      "wiki": "es:Línea 1 (Metro de Panamá)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Panama City",
-      "country": "Panama",
-      "route_id": "rm9536631",
-      "route_name": "Line 2",
-      "ours": 18,
-      "lang": "es",
-      "wikidata": "Q25420937",
-      "wiki": "es:Línea 2 (Metro de Panamá)",
       "reason": "article has no station count infobox"
     },
     {
@@ -6366,16 +7483,6 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Algiers",
-      "country": "Algeria",
-      "route_id": "rm7627370",
-      "route_name": "Metro L1R",
-      "ours": 19,
-      "lang": "ar",
-      "wikidata": "Q20685853",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
       "city": "Turin",
       "country": "Italy",
       "route_id": "rm9449959",
@@ -6397,21 +7504,11 @@
       "reason": "article has no station count infobox"
     },
     {
-      "city": "Yerevan",
-      "country": "Armenia",
-      "route_id": "rm7963913",
-      "route_name": "Yerevan Metro Line 1",
-      "ours": 10,
-      "lang": "hy",
-      "wikidata": "Q10318696",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
       "city": "Sydney",
       "country": "Australia",
       "route_id": "rm9487066",
       "route_name": "Metro North West & Bankstown Line",
-      "ours": 24,
+      "ours": 21,
       "lang": "en",
       "wiki": "en:Metro North West & Bankstown Line",
       "reason": "article has no station count infobox"
@@ -6601,5 +7698,6 @@
       "wiki": "ru:Астанинский лёгкий метрополитен",
       "reason": "article has no station count infobox"
     }
-  ]
+  ],
+  "adjudicated_lines": []
 }

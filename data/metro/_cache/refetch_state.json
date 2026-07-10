@@ -218,5 +218,25 @@
     "refetched": true,
     "relations": 20,
     "tombstones": 0
+  },
+  "New York City|United States": {
+    "refetched": true,
+    "relations": 123,
+    "tombstones": 0
+  },
+  "Philadelphia|United States": {
+    "refetched": true,
+    "relations": 14,
+    "tombstones": 0
+  },
+  "San Francisco (Bay Area)|United States": {
+    "refetched": true,
+    "relations": 14,
+    "tombstones": 1
+  },
+  "Caracas|Venezuela": {
+    "refetched": true,
+    "relations": 16,
+    "tombstones": 0
   }
 }

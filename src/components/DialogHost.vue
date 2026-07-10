@@ -360,8 +360,12 @@ const shortcuts = [
           <input v-model="store.ui.layerPanelOpen" type="checkbox" />
         </label>
         <label class="settings-row check">
-          <span>Attribute table</span>
-          <input v-model="store.ui.attributeTable" type="checkbox" />
+          <span>Attribute table（作用中圖層）</span>
+          <input
+            type="checkbox"
+            :checked="!!store.ui.attributeTableOpen[store.selectedLayerId]"
+            @change="store.toggleAttributeTable(store.selectedLayerId)"
+          />
         </label>
       </div>
       <div class="dialog-footer">

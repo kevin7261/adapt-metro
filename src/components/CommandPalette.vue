@@ -30,7 +30,7 @@ const commands = [
   { group: 'Processing', title: 'SQL Workspace', icon: Terminal, run: () => store.fake('SQL Workspace') },
   { group: 'Processing', title: 'Assistant (AI)', icon: Sparkles, run: () => store.fake('Assistant') },
   { group: 'Processing', title: 'Dashboard', icon: LayoutDashboard, run: () => store.fake('Dashboard') },
-  { group: 'Panels', title: 'Toggle Attribute Table', icon: TableProperties, run: () => (store.ui.attributeTable = !store.ui.attributeTable) },
+  { group: 'Panels', title: 'Toggle Attribute Table', icon: TableProperties, run: () => store.toggleAttributeTable(store.selectedLayerId) },
   { group: 'Settings', title: 'Open Settings', icon: Settings, run: () => (store.ui.dialog = 'settings') },
   { group: 'Help', title: 'Keyboard Shortcuts', icon: Keyboard, shortcut: '?', run: () => (store.ui.dialog = 'shortcuts') },
   { group: 'Help', title: 'About', icon: Info, run: () => (store.ui.dialog = 'about') },

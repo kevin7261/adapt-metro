@@ -27,9 +27,9 @@ function overflow(layer, action) {
     const bbox = data && boundsOfGeojson(data)
     if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
   } else if (action === 'table') {
-    // Pure toggle of the attribute table for the active tab — must NOT change
-    // the active tab / layer highlight (highlight is driven by tab selection).
-    store.ui.attributeTable = !store.ui.attributeTable
+    // Toggle THIS layer's own attribute table (independent per layer); does
+    // not touch the active tab / layer highlight.
+    store.toggleAttributeTable(layer.id)
   } else if (action === 'export') {
     exportLayer(layer)
   } else if (action === 'remove') {
@@ -148,7 +148,7 @@ onBeforeUnmount(() => { dragging.value = false })
             </button>
             <button
               class="btn-icon"
-              :class="{ active: store.ui.attributeTable && store.selectedLayerId === layer.id }"
+              :class="{ active: store.ui.attributeTableOpen[layer.id] }"
               title="Attribute table"
               @click="overflow(layer, 'table')"
             >
@@ -219,16 +219,6 @@ onBeforeUnmount(() => { dragging.value = false })
 .layer-row.selected {
   background: hsl(var(--primary) / 0.18);
   border-color: hsl(var(--primary) / 0.55);
-}
-.layer-row.selected::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
-  border-radius: 2px;
-  background: hsl(var(--primary));
 }
 .layer-row.selected .layer-name { color: hsl(var(--primary)); font-weight: 600; }
 .layer-title { display: flex; align-items: center; gap: 2px; min-width: 0; }

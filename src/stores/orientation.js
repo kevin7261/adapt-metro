@@ -58,6 +58,11 @@ export function computeOrientation(geojson) {
   const weights = new Array(NUM_BINS).fill(0)
   let total = 0
   let segments = 0
+  // Length-weighted resultant vector of bearings folded into 90° (grid symmetry),
+  // via angle-quadrupling: map [0,90) → [0,360) so a circular mean is well-defined
+  // for 4-fold axial data. Its angle gives the dominant grid orientation and its
+  // magnitude (R) how strongly one orientation dominates. See notes below.
+  let sx = 0, sy = 0, lenSum = 0
 
   for (const f of geojson?.features ?? []) {
     if (f.geometry?.type === 'Point' || f.geometry?.type === 'MultiPoint') continue
@@ -70,11 +75,16 @@ export function computeOrientation(geojson) {
       weights[binOf((brg + 180) % 360)] += len
       total += len * 2
       segments++
+      // fold to 90° and quadruple the angle for the circular mean
+      const a4 = toRad((brg % 90) * 4)
+      sx += len * Math.cos(a4)
+      sy += len * Math.sin(a4)
+      lenSum += len
     })
   }
 
   if (total === 0) {
-    return { bins: weights, hw: 0, phi: 0, segments: 0, totalKm: 0, numBins: NUM_BINS }
+    return { bins: weights, hw: 0, phi: 0, segments: 0, totalKm: 0, numBins: NUM_BINS, tilt: 0, strength: 0 }
   }
 
   const bins = weights.map((w) => w / total)
@@ -84,6 +94,15 @@ export function computeOrientation(geojson) {
   const norm = (hw - H_GRID) / (H_MAX - H_GRID)
   const phi = Math.max(0, Math.min(1, 1 - norm * norm))
 
+  // Dominant grid orientation α ∈ [0,90) and how far it sits from the nearest
+  // cardinal. `tilt` (−45,45] is the signed deviation (+ = tilted clockwise/east);
+  // rotating the network by −tilt aligns its main axes to N–S / E–W. `strength`
+  // (R ∈ [0,1]) says how grid-like the network is — near 0 the suggestion is weak.
+  const strength = Math.hypot(sx, sy) / lenSum
+  let alpha = (Math.atan2(sy, sx) * 180 / Math.PI) / 4
+  if (alpha < 0) alpha += 90
+  const tilt = alpha <= 45 ? alpha : alpha - 90
+
   return {
     bins,
     hw,
@@ -92,5 +111,7 @@ export function computeOrientation(geojson) {
     // one direction's length in km (weights double-count via the reciprocal)
     totalKm: total / 2 / 1000,
     numBins: NUM_BINS,
+    tilt,
+    strength,
   }
 }

@@ -120,6 +120,13 @@ const orientation = computed(() => {
   if (!isMetro.value || !d) return null
   return computeOrientation(d)
 })
+// Suggested rotation to square the network up (rotate by −tilt): a clockwise tilt
+// is cancelled by a counter-clockwise turn, and vice versa.
+function rotationHint(o) {
+  const t = o?.tilt ?? 0
+  if (Math.abs(t) < 0.05) return '0°（已對齊正南北）'
+  return `${Math.abs(t).toFixed(1)}° ${t > 0 ? '逆時針' : '順時針'}`
+}
 
 /* ---- Info: per-city audit verdict (metro_system.audit, from metro:audit) ---- */
 const auditInfo = computed(() => meta.value?.audit ?? null)
@@ -265,7 +272,12 @@ function startResize(e) {
               載入中…
             </div>
             <template v-else>
-              <OrientationRose :bins="orientation.bins" :size="200" />
+              <OrientationRose
+                :bins="orientation.bins"
+                :size="220"
+                :tilt="orientation.tilt"
+                :strength="orientation.strength"
+              />
               <div class="info-rows rose-stats">
                 <div class="info-row">
                   <span class="info-key">φ 秩序度</span><span>{{ orientation.phi.toFixed(3) }}</span>
@@ -278,10 +290,20 @@ function startResize(e) {
                   <span class="info-key">路線總長</span>
                   <span>{{ orientation.totalKm.toFixed(1) }} km</span>
                 </div>
+                <div class="info-row">
+                  <span class="info-key">建議旋轉</span>
+                  <span>{{ rotationHint(orientation) }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-key">方正度</span>
+                  <span>{{ (orientation.strength * 100).toFixed(0) }}%</span>
+                </div>
               </div>
               <div class="rose-note">
                 依 Boeing (2019)：線段方位角分 36 格、雙向、以長度加權。
                 φ = 0 為方向均勻（無序），φ = 1 為完美方格網。
+                「建議旋轉」為把主軸對齊正南北／東西所需的角度（不改地圖，僅供參考）；
+                方正度越高代表網路越接近單一方格、此建議越可靠。
               </div>
             </template>
 
