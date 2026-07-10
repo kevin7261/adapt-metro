@@ -1,0 +1,4 @@
+{
+  "_comment": "逐線 wiki 站數人工/agent 裁決（使用者規則：全部城市一定要通過資料驗證）。每筆＝開該線 wiki 條目逐站核對後判定「我們的資料正確」（wiki infobox 過期或計法不同）。綁定 (city, wiki, ours)：任一變動即失效重新 flag。note 必填寫明依據。",
+  "adjudications": []
+}

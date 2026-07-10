@@ -168,6 +168,12 @@ async function main() {
   }
   const flags = []
   const uncovered = []
+  const adjudicated = []
+  let adjudications = []
+  try {
+    adjudications = JSON.parse(await readFile(
+      join(BASE, '_overrides', 'wiki_adjudications.json'), 'utf8')).adjudications ?? []
+  } catch { /* none */ }
   let checked = 0
   for (const l of lines) {
     if (!l.wiki) {
@@ -191,6 +197,12 @@ async function main() {
       continue
     }
     checked++
+    // 人工裁決（_overrides/wiki_adjudications.json）：逐線開 wiki 條目核對後
+    // 判定「我們的資料正確、wiki infobox 過期/計法不同」的線——裁決綁定
+    // (city, wiki 條目, ours 站數)：任一變動即失效、重新 flag。
+    const adj = adjudications.find((a) =>
+      a.city === l.city && a.wiki === l.wiki && a.ours === l.ours)
+    if (adj) { adjudicated.push({ ...l, wiki_stations: wikiN, note: adj.note }); continue }
     if (l.ours !== wikiN) {
       // 使用者裁決「只畫有通車的，沒通車不用」：infobox 只有全線總數時，
       // ours < total 可能是未通車段造成 → warn（待人工確認是否真缺站）；
@@ -210,8 +222,10 @@ async function main() {
     checked_against_infobox: checked,
     flagged: flags.length,
     uncovered: uncovered.length,
+    adjudicated: adjudicated.length,
     flags,
     uncovered_lines: uncovered,
+    adjudicated_lines: adjudicated,
   }, null, 2))
   console.log(`checked ${checked} lines against wiki infobox; flagged ${flags.length}`)
   for (const f of flags.slice(0, 20))

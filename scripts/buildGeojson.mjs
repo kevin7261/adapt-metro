@@ -249,11 +249,20 @@ async function build() {
     tombstones = new Set((JSON.parse(await readFile(join(CACHE, 'deleted_nodes.json'), 'utf8'))
       .deleted ?? []))
   } catch { /* no tombstones */ }
+  // 人工站名補正（_overrides/station_names.json）：上游無名、但 wiki 可查得名稱的
+  // 站點——agent/人工逐站核對 wiki 後落地（站名 100% 不變式的裁決出口）。
+  let nameOverrides = {}
+  try {
+    nameOverrides = JSON.parse(
+      await readFile(join(OVERRIDES_DIR, 'station_names.json'), 'utf8')).names ?? {}
+  } catch { /* none */ }
   const stations = []
   const seenStation = new Set()
   const pushStation = (e) => {
     if (!isOperational(e.tags) || isDepot(e.tags)) return
     if (e.type === 'node' && tombstones.has(e.id)) return
+    const ov = nameOverrides[`n${e.id}`] ?? nameOverrides[String(e.id)]
+    if (ov && !(e.tags || {}).name) e.tags = { ...(e.tags || {}), name: ov }
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }

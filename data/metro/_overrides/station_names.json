@@ -1,0 +1,4 @@
+{
+  "_comment": "人工站名補正（站名 100% 不變式的裁決出口）：上游 OSM 無名、但 wiki 可查得名稱的站點。key=node id（n 前綴或純數字皆可）、value=站名（當地語言為主）。查無名稱的站點不要編造——用 pruneDeletedStations 驗證是否上游已刪，或人工判定剔除。",
+  "names": {}
+}

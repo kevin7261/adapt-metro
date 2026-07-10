@@ -1,0 +1,37 @@
+{
+  "Brussels|Belgium": {
+    "refetched": true,
+    "relations": 13,
+    "tombstones": 0
+  },
+  "Recife|Brazil": {
+    "refetched": true,
+    "relations": 6,
+    "tombstones": 0
+  },
+  "São Paulo|Brazil": {
+    "refetched": true,
+    "relations": 10,
+    "tombstones": 1
+  },
+  "Montreal|Canada": {
+    "refetched": true,
+    "relations": 8,
+    "tombstones": 1
+  },
+  "Beijing|China": {
+    "refetched": true,
+    "relations": 56,
+    "tombstones": 4
+  },
+  "Changchun|China": {
+    "refetched": true,
+    "relations": 6,
+    "tombstones": 5
+  },
+  "Chengdu|China": {
+    "refetched": true,
+    "relations": 44,
+    "tombstones": 1
+  }
+}
