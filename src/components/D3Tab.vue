@@ -5,8 +5,10 @@ import { select } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
+import { computeOrientation } from '../stores/orientation'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
+import { RotateCcw, RotateCw, Undo2 } from 'lucide-vue-next'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -32,6 +34,14 @@ const svgEl = ref(null)     // <svg>
 const gEl = ref(null)       // zoomable <g>
 const loading = ref(false)
 const loadError = ref(null)
+
+// Suggested rotation (Boeing-style dominant-axis tilt, from the Info rose).
+// `rotated` re-projects the whole map with projection.angle(tilt) — measured:
+// a positive d3 angle turns the map counter-clockwise, which is exactly what
+// cancels a clockwise (positive) tilt. fitExtent then refits the rotated map.
+const tilt = ref(0)
+const rotated = ref(false)
+const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 const disposables = []
 let zoomBehavior = null
 let resizeObs = null
@@ -85,10 +95,14 @@ async function render() {
   const lines = data.features.filter((f) => f.geometry.type !== 'Point')
   const stations = data.features.filter((f) => f.geometry.type === 'Point')
 
-  const projection = geoMercator().fitExtent(
-    [[24, 24], [w - 24, h - 24]],
-    { type: 'FeatureCollection', features: lines.length ? lines : data.features },
-  )
+  tilt.value = computeOrientation(data).tilt
+
+  const projection = geoMercator()
+    .angle(rotated.value ? tilt.value : 0)
+    .fitExtent(
+      [[24, 24], [w - 24, h - 24]],
+      { type: 'FeatureCollection', features: lines.length ? lines : data.features },
+    )
   const path = geoPath(projection)
 
   sel.selectAll('path.line')
@@ -150,6 +164,7 @@ function selectFeature(d) {
 }
 
 watch(() => layer.value?.sourceLayerId, render)
+watch(rotated, render)
 // Live style sync from the bound layer (Style tab sliders).
 watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
@@ -187,7 +202,19 @@ onBeforeUnmount(() => {
     <div class="tab-body">
       <div class="map-col">
         <div class="d3-toolbar">
-          <span class="d3-label">D3.js view — 資料來源：</span>
+          <button
+            class="d3-rotate-btn"
+            :class="{ active: rotated }"
+            :disabled="!canRotate"
+            :title="canRotate ? '' : '網路已對齊正南北，無需旋轉'"
+            @click="rotated = !rotated"
+          >
+            <Undo2 v-if="rotated" :size="14" />
+            <component :is="tilt > 0 ? RotateCcw : RotateCw" v-else :size="14" />
+            <span>{{ rotated ? '回復原方向' : `依建議旋轉 ${Math.abs(tilt).toFixed(1)}°` }}</span>
+          </button>
+
+          <span class="d3-label">資料來源：</span>
           <span class="d3-source">
             {{ ownData ? `${layer?.name}（匯入 JSON）` : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
           </span>
@@ -242,8 +269,27 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
 }
-.d3-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
+.d3-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; margin-left: auto; }
 .d3-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d3-rotate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+}
+.d3-rotate-btn:hover:not(:disabled) { background: hsl(var(--accent)); }
+.d3-rotate-btn.active {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.1);
+}
+.d3-rotate-btn:disabled { opacity: 0.45; cursor: default; }
 .d3-canvas {
   position: relative;
   flex: 1;
