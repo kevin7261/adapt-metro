@@ -6,10 +6,11 @@ import { mapHandle } from '../stores/mapHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
   DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
-  basemapById, basemapGroups, styleFor,
+  basemapById, basemapGroups, styleFor, solidStyle,
 } from '../stores/basemaps'
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
+import AttributeTable from './AttributeTable.vue'
 import { Copy, Crosshair, ZoomIn, ZoomOut, Layers, Check, TrainFront } from 'lucide-vue-next'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
@@ -33,7 +34,12 @@ const basemapId = ref(DEFAULT_BASEMAP)
 const railwayOn = ref(true)
 const basemapMenuOpen = ref(false)
 const groups = basemapGroups()
-const currentBasemap = computed(() => basemapById(basemapId.value))
+// Solid-color basemap (a plain black/white/custom canvas behind the metro data).
+const solidColor = ref('#ffffff')
+const currentBasemap = computed(() =>
+  basemapId.value === 'solid'
+    ? { id: 'solid', label: `純色 ${solidColor.value}` }
+    : basemapById(basemapId.value))
 
 // Per-tab view state feeding this tab's footer.
 const view = reactive({ lng: null, lat: null, zoom: 1.5, bearing: 0, pitch: 0, bounds: null })
@@ -289,19 +295,38 @@ function setRailway(on) {
   if (on) addRailwayLayer(); else removeRailwayLayer()
 }
 
+// setStyle wipes all sources/layers — re-add our metro data + overlays afterwards.
+function reAddOverlays() {
+  const l = layer.value
+  if (l?.type === 'metro' && layerData[l.id]) addMetroSourceLayers(layerData[l.id])
+  if (railwayOn.value) addRailwayLayer()
+}
+
 function setBasemap(id) {
   const bm = basemapById(id)
   if (bm.needsToken && !MAPBOX_ENABLED) return
   basemapId.value = id
   basemapMenuOpen.value = false
   if (!map) return
-  // setStyle wipes all sources/layers — re-add our overlays once the new style loads.
-  map.setStyle(styleFor(bm))
-  map.once('style.load', () => {
-    const l = layer.value
-    if (l?.type === 'metro' && layerData[l.id]) addMetroSourceLayers(layerData[l.id])
-    if (railwayOn.value) addRailwayLayer()
-  })
+  // diff:false forces a clean reload so `style.load` reliably fires; otherwise a
+  // diffed setStyle can drop our imperatively-added metro source without re-adding it.
+  map.setStyle(styleFor(bm), { diff: false })
+  map.once('style.load', reAddOverlays)
+}
+
+// Solid-color canvas: quick black/white or a custom color from the picker.
+function applySolid(color) {
+  const wasSolid = basemapId.value === 'solid'
+  solidColor.value = color
+  basemapId.value = 'solid'
+  if (!map) return
+  // If already solid, recolor live (smooth); otherwise swap in the solid style.
+  if (wasSolid && map.getLayer('background')) {
+    map.setPaintProperty('background', 'background-color', color)
+  } else {
+    map.setStyle(solidStyle(color))
+    map.once('style.load', reAddOverlays)
+  }
 }
 
 function applyLayerState() {
@@ -425,6 +450,30 @@ onBeforeUnmount(() => {
               </template>
             </div>
             <div class="menu-sep" />
+            <div class="bm-color">
+              <div class="menu-label">底圖顏色</div>
+              <div class="bm-color-row">
+                <button
+                  class="bm-swatch white"
+                  :class="{ active: basemapId === 'solid' && solidColor.toLowerCase() === '#ffffff' }"
+                  title="White"
+                  @click="applySolid('#ffffff')"
+                />
+                <button
+                  class="bm-swatch black"
+                  :class="{ active: basemapId === 'solid' && solidColor.toLowerCase() === '#000000' }"
+                  title="Black"
+                  @click="applySolid('#000000')"
+                />
+                <label class="bm-swatch custom" title="自訂顏色">
+                  <input type="color" :value="solidColor"
+                    @input="applySolid($event.target.value)" />
+                </label>
+                <span class="bm-color-hint">自訂</span>
+              </div>
+            </div>
+
+            <div class="menu-sep" />
             <label class="bm-overlay">
               <input type="checkbox" :checked="railwayOn"
                 @change="setRailway($event.target.checked)" />
@@ -437,6 +486,8 @@ onBeforeUnmount(() => {
 
       <StylePanel v-if="layer" :layer="layer" />
     </div>
+
+    <AttributeTable v-if="store.ui.attributeTable && layer" :layer="layer" />
 
     <StatusBar :view="view" />
   </div>
@@ -539,6 +590,30 @@ onBeforeUnmount(() => {
   color: hsl(var(--foreground));
 }
 .bm-overlay input { accent-color: hsl(var(--primary)); }
+
+/* ---- solid base color ---- */
+.bm-color { padding: 2px 0 4px; }
+.bm-color-row { display: flex; align-items: center; gap: 8px; padding: 2px 8px 4px; }
+.bm-swatch {
+  width: 24px; height: 24px; flex-shrink: 0;
+  border-radius: calc(var(--radius) - 4px);
+  border: 1px solid hsl(var(--border));
+  cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.bm-swatch.white { background: #ffffff; }
+.bm-swatch.black { background: #000000; }
+.bm-swatch.active { border-color: hsl(var(--primary)); box-shadow: 0 0 0 2px hsl(var(--primary) / 0.4); }
+.bm-swatch.custom {
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+  position: relative;
+}
+.bm-swatch.custom input {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  width: 100%; height: 100%; border: none; padding: 0;
+}
+.bm-color-hint { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
 </style>
 
 <style>

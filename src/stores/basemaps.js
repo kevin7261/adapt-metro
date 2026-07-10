@@ -76,8 +76,18 @@ export const RAILWAY_OVERLAY = {
   attribution: '© OpenRailwayMap contributors',
 }
 
+// A plain solid-color background (no tiles) — a clean canvas behind the metro data.
+export function solidStyle(color) {
+  return {
+    version: 8,
+    sources: {},
+    layers: [{ id: 'background', type: 'background', paint: { 'background-color': color } }],
+  }
+}
+
 // Build a MapLibre style spec (or return the vector style URL string) for a basemap.
 export function styleFor(basemap) {
+  if (basemap.background) return solidStyle(basemap.background)
   if (basemap.style) return basemap.style
   return {
     version: 8,

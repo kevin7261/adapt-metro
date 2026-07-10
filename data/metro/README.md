@@ -5,13 +5,18 @@
 抓取的全球地鐵/輕軌路線與車站，以 **Wikipedia [List of metro systems](https://en.wikipedia.org/wiki/List_of_metro_systems)**
 為覆蓋率基準，並對照 [urbanrail.net](https://www.urbanrail.net/) 驗證。
 
-**線路幾何＝「合併後的車站點」依站序連線**（route relation 只提供成員與順序），
-**不是**真實軌道線形——**線永遠壓在站點上**：每個折點、端點都是車站本身。
-**同一城市內同名車站合併為單一點（座標取平均、lines 取聯集，~800 m 距離護欄）**。
+**線路幾何＝「共站合併後的車站點」依站序連線、重疊路段只畫一條**（route relation 只提供
+成員與順序），**不是**真實軌道線形——**線永遠壓在站點上**：每個折點、端點都是車站本身；
+同一路段被多線共用時只有一個幾何（`routes` list 記行經路線）；**快/慢車合併為一條線**。
+**共站＝可轉乘**（OSM stop_area ∪ 同名 ≤800 m ∪ 人工裁決 overrides；非「同名就共站」），
+座標取平均、lines 取聯集。
 
 **城市規則（使用者指定）**：桃園併入台北（一城一檔）；LRT 線只有台北（含新北）/高雄
-附加進城市檔，其他城市僅當其 Wikipedia 基準系統本身是 LRT（無 subway）才整系統保留，
-其餘純 LRT 一律剔除。直通運轉覆蓋線（through-service）排除。
+附加進城市檔，其他城市僅當其 Wikipedia 基準系統本身是 LRT（無 subway，或剔除後覆蓋率
+跌破 0.6）才保留；其餘純 LRT 一律剔除。直通運轉覆蓋線（through-service）排除。
+**東京不含私鐵**（只收 Tokyo Metro＋都營，私鐵直通聯運沾到即剔）。
+**同一城市＝同一系統**：泛用交通詞不得決定城市、network 解析與線位置有 250 km 距離護欄
+（防 Frankfurt→Berlin 類跨城誤配）。詳見 skill。
 
 **不變式（每次抓完必以 Wikipedia＋urbanrail 驗證，違反＝資料有錯）**：
 1. Wikipedia 清單上有的城市不可能沒資料；2. 不可能有車站沒有路線（每站 `lines` ≥ 1）；
@@ -50,11 +55,11 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 | 檔案 | 內容 |
 |---|---|
-| `metro_lines.geojson` | 全球所有地鐵**線路**（MultiLineString） |
-| `metro_stations.geojson` | 全球所有地鐵**車站**（Point） |
+| `metro_lines.geojson` | 全球所有**路段**（MultiLineString，重疊已去重，`routes` list 記行經路線） |
+| `metro_stations.geojson` | 全球所有地鐵**車站**（Point，共站已合併） |
 | `systems/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 每個城市/系統一個檔；**資料夾用全名**（洲：asia/europe/americas（北美南美合併）/africa/oceania，**不會有 unknown**——定位不到城市的雜訊不輸出；國家 slug 全名），**檔名用代碼**（洲 2 碼 as/eu/am/af/oc＋國家奧運 IOC 3 碼小寫，台灣 twn（ISO，使用者指定）、德國 ger…，對照表 `scripts/countryCodes.mjs`），例如 `systems/asia/taiwan/as-twn-taipei.geojson`；含該系統的路段+車站，並附系統中繼資料 |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
-| `maps/{洲}/{國}/{洲}-{國}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
+| `maps/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
 | `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-audit` |
 | `_cache/` | Overpass/Wikipedia 原始回應（可刪，重跑會重抓） |
 
@@ -73,11 +78,9 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 **車站 (station feature):**
 `station_id`, `station_name`, `station_name_local`, `network`, `network_local`,
 `operator`, `city`, `country`,
-`lines`（所屬線路 tag。**至少一條**——空值屬資料錯誤，verify 會標 `no_line`）,
-`line_ids`（所屬線路 `route_id`，依 ref/名排序）, `line_names`（同序線路名）,
-`station_role`（`interchange`＝服務 ≥2 線／`terminus`＝某線端點（環線無端點）／`normal`；交會優先於端點）,
-`is_interchange`, `is_terminus`, `merged_from`（共站合併而來時）,
-`wikidata`, `wikipedia`（OSM 車站有 wiki 標籤時，如 `en:...`；無則 `null`）。
+`lines`（所屬線路 tag，**至少一條**——空值屬資料錯誤，verify 標 `no_line`）,
+`line_ids`, `line_names`, `station_role`（interchange/terminus/normal）,
+`is_interchange`, `is_terminus`, `merged_from`（共站合併來源數）, `wikidata`, `wikipedia`。
 
 **系統中繼資料（每個 `systems/*.geojson` 的 `metro_system` 欄位）:**
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 OSM network 清單）, `operator`,
@@ -92,7 +95,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 官方路網示意圖（schematic diagram）是圖片，**無法內嵌進 GeoJSON**，因此分兩種形式提供：
 
-1. **地理版的地圖**＝這些 `route=subway` 的真實線形與車站座標（在 `metro_lines.geojson` / `systems/**`，可直接畫在地圖上）；
+1. **地理版的地圖**＝這些路線的站序示意線形與車站座標（在 `metro_lines.geojson` / `systems/**`，可直接畫在地圖上）；
    每個系統的 `metro_system.official_map` 另存該系統 Wikipedia 連結、`official_website` 存營運單位官網。
 2. **官方示意圖圖片本身**＝存在 `maps/{洲}/{國}/*.png|svg`，由 `npm run metro:maps` 從
    Wikimedia（Wikidata `P15` route map → Commons）下載，出處與**授權**記在 `maps/maps_index.json`。
@@ -104,5 +107,5 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 - 幾何與屬性：© OpenStreetMap contributors，[ODbL](https://opendatacommons.org/licenses/odbl/)。
 - 系統清單/城市對照：Wikipedia（CC BY-SA）。
-- 使用 `route=subway` 作為「地鐵」的判準，與 Wikipedia 的 metro 定義高度重疊但非 100% 一致；
+- 使用 `route=subway|light_rail` 作為判準（詳細範圍規則見 skill），與 Wikipedia 的 metro 定義高度重疊但非 100% 一致；
   `index.json` 內 `wikipedia_cities_without_match` 會列出未自動比對到的系統供人工檢視。

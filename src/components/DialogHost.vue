@@ -360,16 +360,6 @@ const shortcuts = [
           <span>Attribute table</span>
           <input v-model="store.ui.attributeTable" type="checkbox" />
         </label>
-        <div class="settings-section">Map</div>
-        <div class="settings-row">
-          <span>Basemap</span>
-          <select class="select settings-select" @change="store.fake('Basemap switch')">
-            <option>OpenFreeMap Liberty</option>
-            <option>Protomaps</option>
-            <option>EOX Sentinel-2 cloudless</option>
-            <option>Blank</option>
-          </select>
-        </div>
       </div>
       <div class="dialog-footer">
         <button class="btn-primary" @click="close">Done</button>

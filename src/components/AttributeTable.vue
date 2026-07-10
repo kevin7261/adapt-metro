@@ -10,15 +10,19 @@ import {
 
 const store = useMapStore()
 
+// The tab owning this table passes its layer; fall back to the active layer.
+const props = defineProps({ layer: { type: Object, default: null } })
+const activeLayer = computed(() => props.layer ?? store.selectedLayer)
+
 const columns = ['station_name', 'station_name_local', 'network', 'lines', 'city']
 const filter = ref('')
 const sortBy = ref('station_name')
 const sortDir = ref(1)
 const selectedRow = ref(null)
 
-// Stations of the active tab's metro layer (loaded lazily by its LayerTab).
+// Stations of this tab's metro layer (loaded lazily by its LayerTab).
 const stations = computed(() => {
-  const layer = store.selectedLayer
+  const layer = activeLayer.value
   const data = layer && layerData[layer.id]
   if (!data) return []
   return data.features.filter((f) => f.geometry.type === 'Point')
@@ -84,7 +88,7 @@ function startResize(e) {
       <TableProperties :size="14" class="hdr-icon" />
       <span class="attr-title">Attribute table</span>
       <span class="attr-meta">
-        {{ store.selectedLayer?.name ?? '—' }} — {{ rows.length }} / {{ stations.length }} stations
+        {{ activeLayer?.name ?? '—' }} — {{ rows.length }} / {{ stations.length }} stations
       </span>
 
       <div class="attr-actions">

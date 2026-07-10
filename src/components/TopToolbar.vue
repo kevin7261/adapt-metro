@@ -3,7 +3,8 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
 import { useMapStore } from '../stores/mapStore'
 import {
-  Map as MapIcon, TrainFront, Sparkles, X, Zap, ArrowUpDown, Globe,
+  Map as MapIcon, Sparkles, X, Zap, ArrowUpDown, Globe,
+  ExternalLink,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
@@ -20,6 +21,14 @@ function pickImport(id) {
   importOpen.value = false
   store.ui.dialog = id
 }
+
+/* ---- Info dropdown ---- */
+const infoOpen = ref(false)
+const infoWrap = ref(null)
+const relatedLinks = [
+  { label: 'Metro systems (Wikipedia)', href: 'https://en.wikipedia.org/wiki/List_of_metro_systems' },
+  { label: 'UrbanRail.net', href: 'https://www.urbanrail.net/' },
+]
 
 /* ---- Skills dropdown + modal ---- */
 const skillsOpen = ref(false)
@@ -65,9 +74,12 @@ function onDocClick(e) {
   if (importOpen.value && importWrap.value && !importWrap.value.contains(e.target)) {
     importOpen.value = false
   }
+  if (infoOpen.value && infoWrap.value && !infoWrap.value.contains(e.target)) {
+    infoOpen.value = false
+  }
 }
 function onKeydown(e) {
-  if (e.key === 'Escape') { skillsOpen.value = false; importOpen.value = false; activeSkill.value = null }
+  if (e.key === 'Escape') { skillsOpen.value = false; importOpen.value = false; infoOpen.value = false; activeSkill.value = null }
 }
 onMounted(() => {
   document.addEventListener('mousedown', onDocClick)
@@ -88,7 +100,6 @@ onBeforeUnmount(() => {
 
     <div ref="importWrap" class="skills-wrap">
       <button class="btn-ghost" :class="{ active: importOpen }" @click="importOpen = !importOpen">
-        <TrainFront :size="14" />
         Import
       </button>
       <div v-if="importOpen" class="menu-pop import-menu">
@@ -100,7 +111,6 @@ onBeforeUnmount(() => {
 
     <div ref="menuWrap" class="skills-wrap">
       <button class="btn-ghost" :class="{ active: skillsOpen }" @click="toggleSkills">
-        <Sparkles :size="14" />
         Skills
       </button>
       <div v-if="skillsOpen" class="menu-pop skills-menu">
@@ -117,6 +127,26 @@ onBeforeUnmount(() => {
           </button>
           <div v-if="!skills.length" class="skills-status">沒有找到 skill</div>
         </template>
+      </div>
+    </div>
+
+    <div ref="infoWrap" class="skills-wrap">
+      <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
+        Info
+      </button>
+      <div v-if="infoOpen" class="menu-pop info-menu">
+        <div class="menu-label">Related Links</div>
+        <a
+          v-for="link in relatedLinks"
+          :key="link.href"
+          class="menu-item"
+          :href="link.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click="infoOpen = false"
+        >
+          <ExternalLink :size="14" /> {{ link.label }}
+        </a>
       </div>
     </div>
   </header>
@@ -164,6 +194,8 @@ onBeforeUnmount(() => {
 .skills-wrap { position: relative; }
 .skills-menu { top: 34px; left: 0; min-width: 320px; max-width: 420px; }
 .import-menu { top: 34px; left: 0; min-width: 200px; }
+.info-menu { top: 34px; left: 0; min-width: 220px; }
+.info-menu a.menu-item { text-decoration: none; color: inherit; }
 .skills-status {
   padding: 12px;
   font-size: 12.5px;

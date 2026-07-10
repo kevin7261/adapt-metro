@@ -8691,7 +8691,11 @@
     "country": "Singapore",
     "country_code": "SG",
     "city": "Singapore",
-    "stations": 38
+    "city_candidates": [
+      "Singapore"
+    ],
+    "zoom10": true,
+    "stations": 34
   },
   "济南轨道交通": {
     "continent": "asia",
@@ -12891,5 +12895,858 @@
     ],
     "zoom10": true,
     "stations": 1
+  },
+  "Astana LRT": {
+    "continent": "asia",
+    "country": "Kazakhstan",
+    "country_code": "KZ",
+    "city": "Astana",
+    "city_candidates": [
+      "Astana"
+    ],
+    "zoom10": true,
+    "stations": 36
+  },
+  "Metropolitano Sul do Tejo": {
+    "continent": "europe",
+    "country": "Portugal",
+    "country_code": "PT",
+    "city": "Almada",
+    "city_candidates": [
+      "Almada",
+      "Almada, Cova da Piedade, Pragal e Cacilhas",
+      "Setúbal"
+    ],
+    "zoom10": true,
+    "stations": 68
+  },
+  "Jerusalem": {
+    "continent": "asia",
+    "country": "Israel",
+    "country_code": "IL",
+    "city": "Jerusalem",
+    "city_candidates": [
+      "Jerusalem",
+      "Jerusalem Subdistrict",
+      "Jerusalem District"
+    ],
+    "zoom10": true,
+    "stations": 94
+  },
+  "上海浦东机场旅客捷运系统": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Pudong",
+    "city_candidates": [
+      "Pudong",
+      "Zhuqiao",
+      "Shanghai"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "Skyss": {
+    "continent": "europe",
+    "country": "Norway",
+    "country_code": "NO",
+    "city": "Bergen",
+    "city_candidates": [
+      "Bergen",
+      "Fyllingsdalen",
+      "Vestland"
+    ],
+    "zoom10": true,
+    "stations": 72
+  },
+  "Kereta Layang Bandara Soekarno Hatta": {
+    "continent": "asia",
+    "country": "Indonesia",
+    "country_code": "ID",
+    "city": "Tangerang",
+    "city_candidates": [
+      "Tangerang",
+      "Benda",
+      "Java",
+      "Banten",
+      "Pajang"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "Metro Express Ltd": {
+    "continent": "africa",
+    "country": "Mauritius",
+    "country_code": "MU",
+    "city": "Quatre Bornes",
+    "city_candidates": [
+      "Quatre Bornes",
+      "Town of Quatre-Bornes, Ward 2",
+      "Plaines Wilhems"
+    ],
+    "zoom10": true,
+    "stations": 44
+  },
+  "Paradiski": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Bourg-Saint-Maurice",
+    "city_candidates": [
+      "Bourg-Saint-Maurice",
+      "Albertville",
+      "Savoy",
+      "Metropolitan France",
+      "Auvergne-Rhône-Alpes"
+    ],
+    "zoom10": true,
+    "stations": 3
+  },
+  "local": {
+    "continent": "europe",
+    "country": "Hungary",
+    "country_code": "HU",
+    "city": "Szentendre",
+    "city_candidates": [
+      "Szentendre",
+      "Szentendrei járás",
+      "Pest",
+      "Central Hungary"
+    ],
+    "zoom10": true,
+    "stations": 12
+  },
+  "Jabodebek LRT": {
+    "continent": "asia",
+    "country": "Indonesia",
+    "country_code": "ID",
+    "city": "East Jakarta",
+    "city_candidates": [
+      "East Jakarta",
+      "Makasar",
+      "Java",
+      "Kebon Pala"
+    ],
+    "zoom10": true,
+    "stations": 52
+  },
+  "Tel Aviv LRT": {
+    "continent": "asia",
+    "country": "Israel",
+    "country_code": "IL",
+    "city": "Tel-Aviv",
+    "city_candidates": [
+      "Tel-Aviv",
+      "Tel Aviv Subdistrict",
+      "Tel-Aviv District"
+    ],
+    "zoom10": true,
+    "stations": 141
+  },
+  "北京八达岭畅安地面缆车运营有限公司": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Yanqing District",
+    "city_candidates": [
+      "Yanqing District",
+      "Badaling"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "臺灣桃園國際機場": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Taoyuan City",
+    "city_candidates": [
+      "Taoyuan City",
+      "Dayuan District",
+      "Puxin Village"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "West Midlands Trains": {
+    "continent": "europe",
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "city": "Dudley",
+    "city_candidates": [
+      "Dudley",
+      "Stourbridge",
+      "West Midlands",
+      "England"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "MPK Poznań": {
+    "continent": "europe",
+    "country": "Poland",
+    "country_code": "PL",
+    "city": "Poznan",
+    "city_candidates": [
+      "Poznan",
+      "Warszawskie-Pomet-Maltańskie",
+      "Greater Poland Voivodeship"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "Macao Light Rapid Transit": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Cotai Landfill Zone",
+    "city_candidates": [
+      "Cotai Landfill Zone",
+      "Macau"
+    ],
+    "zoom10": true,
+    "stations": 34
+  },
+  "Ferroclub de Remedios de Escalada": {
+    "continent": "south-america",
+    "country": "Argentina",
+    "country_code": "AR",
+    "city": "Remedios de Escalada",
+    "city_candidates": [
+      "Remedios de Escalada",
+      "Partido de Lanús",
+      "Buenos Aires"
+    ],
+    "zoom10": true,
+    "stations": 22
+  },
+  "Lusail Tram": {
+    "continent": "asia",
+    "country": "Qatar",
+    "country_code": "QA",
+    "city": "Lusail",
+    "city_candidates": [
+      "Lusail",
+      "Al-Daayen"
+    ],
+    "zoom10": true,
+    "stations": 60
+  },
+  "Metro de Palma": {
+    "continent": "europe",
+    "country": "Spain",
+    "country_code": "ES",
+    "city": "Palma de Mallorca",
+    "city_candidates": [
+      "Palma de Mallorca",
+      "Palma",
+      "Balearic Islands"
+    ],
+    "zoom10": true,
+    "stations": 43
+  },
+  "Криворізький Швидкісний Tрамвай": {
+    "continent": "europe",
+    "country": "Ukraine",
+    "country_code": "UA",
+    "city": "Kryvyi Rih",
+    "city_candidates": [
+      "Kryvyi Rih",
+      "Kryvyi Rih Urban Hromada",
+      "Kryvyi Rih Raion",
+      "Dnipropetrovsk Oblast"
+    ],
+    "zoom10": true,
+    "stations": 204
+  },
+  "TER Auvergne-Rhône-Alpes": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Lyon",
+    "city_candidates": [
+      "Lyon",
+      "Métropole de Lyon",
+      "Rhône",
+      "Metropolitan France",
+      "Auvergne-Rhône-Alpes",
+      "Charbonnières-les-Bains"
+    ],
+    "zoom10": true,
+    "stations": 54
+  },
+  "New Shuttle": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Saitama",
+    "city_candidates": [
+      "Saitama",
+      "Kita Ward",
+      "Saitama Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 26
+  },
+  "Isle of Man Public Transport": {
+    "continent": "europe",
+    "country": "Isle of Man",
+    "country_code": "IM",
+    "city": "Lonan",
+    "city_candidates": [
+      "Lonan",
+      "Garff"
+    ],
+    "zoom10": true,
+    "stations": 122
+  },
+  "Karlsruher Verkehrsverbund;Verkehrsverbund Pforzheim-Enzkreis": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Karlsruhe",
+    "city_candidates": [
+      "Karlsruhe",
+      "Durlach",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 287
+  },
+  "FAL": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Potenza",
+    "city_candidates": [
+      "Potenza",
+      "Basilicata"
+    ],
+    "zoom10": true,
+    "stations": 24
+  },
+  "Cosenza": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Cosenza",
+    "city_candidates": [
+      "Cosenza",
+      "Calabria"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "Cagliari": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Cagliari",
+    "city_candidates": [
+      "Cagliari",
+      "Municipalidadi de Pirri/Municipalità di Pirri",
+      "Casteddu/Cagliari",
+      "Sardinia"
+    ],
+    "zoom10": true,
+    "stations": 28
+  },
+  "Heilbronner Hohenloher Haller Nahverkehr;Karlsruher Verkehrsverbund": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Oberderdingen",
+    "city_candidates": [
+      "Oberderdingen",
+      "VVG der Stadt Oberderdingen",
+      "Landkreis Karlsruhe",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 253
+  },
+  "TNW": {
+    "continent": "europe",
+    "country": "Switzerland",
+    "country_code": "CH",
+    "city": "Bezirk Waldenburg",
+    "city_candidates": [
+      "Bezirk Waldenburg",
+      "Basel-Landschaft",
+      "Lampenberg"
+    ],
+    "zoom10": true,
+    "stations": 24
+  },
+  "TEŽ": {
+    "continent": "europe",
+    "country": "Slovakia",
+    "country_code": "SK",
+    "city": "Vysoké Tatry",
+    "city_candidates": [
+      "Vysoké Tatry",
+      "District of Poprad",
+      "Region of Prešov"
+    ],
+    "zoom10": true,
+    "stations": 42
+  },
+  "TER Grand Est;Soléa": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Mulhouse",
+    "city_candidates": [
+      "Mulhouse",
+      "Haut-Rhin",
+      "European Collectivity of Alsace",
+      "Metropolitan France",
+      "Grand Est",
+      "Lutterbach"
+    ],
+    "zoom10": true,
+    "stations": 34
+  },
+  "Rhônexpress": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Lyon",
+    "city_candidates": [
+      "Lyon",
+      "Métropole de Lyon",
+      "Rhône",
+      "Metropolitan France",
+      "Auvergne-Rhône-Alpes",
+      "Chassieu"
+    ],
+    "zoom10": true,
+    "stations": 9
+  },
+  "Hudson–Bergen Light Rail": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Jersey City",
+    "city_candidates": [
+      "Jersey City",
+      "Hudson County",
+      "New Jersey"
+    ],
+    "zoom10": true,
+    "stations": 98
+  },
+  "Verkehrsverbund Mittelsachsen": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Chemnitz",
+    "city_candidates": [
+      "Chemnitz",
+      "Lichtenau",
+      "Saxony"
+    ],
+    "zoom10": true,
+    "stations": 224
+  },
+  "Utrecht Binnen": {
+    "continent": "europe",
+    "country": "Netherlands",
+    "country_code": "NL",
+    "city": "Utrecht",
+    "city_candidates": [
+      "Utrecht"
+    ],
+    "zoom10": true,
+    "stations": 121
+  },
+  "Detroit Transportation Corporation": {
+    "continent": "north-america",
+    "country": "United States",
+    "country_code": "US",
+    "city": "Detroit",
+    "city_candidates": [
+      "Detroit",
+      "Wayne County",
+      "Michigan"
+    ],
+    "zoom10": true,
+    "stations": 14
+  },
+  "Light Rail": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Hong Kong",
+    "city_candidates": [
+      "Hong Kong",
+      "Tuen Mun",
+      "Tuen Mun District",
+      "New Territories"
+    ],
+    "zoom10": true,
+    "stations": 409
+  },
+  "Bari": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Bari",
+    "city_candidates": [
+      "Bari",
+      "Apulia"
+    ],
+    "zoom10": true,
+    "stations": 20
+  },
+  "Yurikamome": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Koto",
+    "city_candidates": [
+      "Koto"
+    ],
+    "zoom10": true,
+    "stations": 32
+  },
+  "Trenitalia": {
+    "continent": "europe",
+    "country": "Italy",
+    "country_code": "IT",
+    "city": "Salerno",
+    "city_candidates": [
+      "Salerno",
+      "Campania"
+    ],
+    "zoom10": true,
+    "stations": 12
+  },
+  "Heilbronner Hohenloher Haller Nahverkehr;Verkehrsverbund Rhein-Neckar": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Heilbronn",
+    "city_candidates": [
+      "Heilbronn",
+      "Biberach",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 47
+  },
+  "Metrô de Sobral": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Sobral",
+    "city_candidates": [
+      "Sobral",
+      "Northeast Region",
+      "Ceará"
+    ],
+    "zoom10": true,
+    "stations": 26
+  },
+  "saarVV": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Saarbrücken",
+    "city_candidates": [
+      "Saarbrücken",
+      "Regionalverband Saarbrücken",
+      "Saarland"
+    ],
+    "zoom10": true,
+    "stations": 122
+  },
+  "金沢シーサイドライン": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Yokohama",
+    "city_candidates": [
+      "Yokohama",
+      "Kanazawa Ward",
+      "Kanagawa Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 28
+  },
+  "淡海輕軌": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "New Taipei",
+    "city_candidates": [
+      "New Taipei",
+      "Tamsui District",
+      "滬尾"
+    ],
+    "zoom10": true,
+    "stations": 35
+  },
+  "環狀輕軌": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "Kaohsiung",
+    "city_candidates": [
+      "Kaohsiung",
+      "Xinxing District"
+    ],
+    "zoom10": true,
+    "stations": 78
+  },
+  "Estrada de Ferro do Corcovado": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Rio de Janeiro",
+    "city_candidates": [
+      "Rio de Janeiro",
+      "Southeast Region"
+    ],
+    "zoom10": true,
+    "stations": 8
+  },
+  "Lusail LRT": {
+    "continent": "asia",
+    "country": "Qatar",
+    "country_code": "QA",
+    "city": "Lusail",
+    "city_candidates": [
+      "Lusail",
+      "Al-Daayen"
+    ],
+    "zoom10": true,
+    "stations": 9
+  },
+  "Metrô de Teresina": {
+    "continent": "south-america",
+    "country": "Brazil",
+    "country_code": "BR",
+    "city": "Barras",
+    "city_candidates": [
+      "Barras",
+      "Northeast Region",
+      "Piauí"
+    ],
+    "zoom10": true,
+    "stations": 48
+  },
+  "天水有轨电车": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Huaniu",
+    "city_candidates": [
+      "Huaniu",
+      "Maiji District",
+      "Tianshui",
+      "Gansu"
+    ],
+    "zoom10": true,
+    "stations": 25
+  },
+  "佛山有轨电车": {
+    "continent": "asia",
+    "country": "China",
+    "country_code": "CN",
+    "city": "Nanhai District",
+    "city_candidates": [
+      "Nanhai District",
+      "Guicheng Subdistrict",
+      "Nanhai",
+      "Guangdong"
+    ],
+    "zoom10": true,
+    "stations": 30
+  },
+  "İstanbul Elektrik Tramvay ve Tünel (̣İETT)": {
+    "continent": "asia",
+    "country": "Turkey",
+    "country_code": "TR",
+    "city": "Beyoğlu",
+    "city_candidates": [
+      "Beyoğlu",
+      "Bereketzade Mahallesi",
+      "Marmara Region",
+      "Istanbul"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "Seoul Metropolitan Subway System;Incheon Subway": {
+    "continent": "asia",
+    "country": "South Korea",
+    "country_code": "KR",
+    "city": "Incheon",
+    "city_candidates": [
+      "Incheon"
+    ],
+    "zoom10": true,
+    "stations": 54
+  },
+  "Metro de Maracaibo": {
+    "continent": "south-america",
+    "country": "Venezuela",
+    "country_code": "VE",
+    "city": "Parroquia Cecilio Acosta",
+    "city_candidates": [
+      "Parroquia Cecilio Acosta",
+      "Municipio Maracaibo",
+      "Zulia State"
+    ],
+    "zoom10": true,
+    "stations": 12
+  },
+  "MHD Košice": {
+    "continent": "europe",
+    "country": "Slovakia",
+    "country_code": "SK",
+    "city": "Košice",
+    "city_candidates": [
+      "Košice",
+      "District of Košice IV",
+      "Region of Košice"
+    ],
+    "zoom10": true,
+    "stations": 304
+  },
+  "Szeged": {
+    "continent": "europe",
+    "country": "Hungary",
+    "country_code": "HU",
+    "city": "Szegedi járás",
+    "city_candidates": [
+      "Szegedi járás",
+      "Csongrád-Csanád",
+      "South Great Plain",
+      "Algyő"
+    ],
+    "zoom10": true,
+    "stations": 40
+  },
+  "Abuja Rail Mass Transit": {
+    "continent": "africa",
+    "country": "Nigeria",
+    "country_code": "NG",
+    "city": "Gwarinpa",
+    "city_candidates": [
+      "Gwarinpa",
+      "Municipal Area Council",
+      "Federal Capital Territory",
+      "Abuja"
+    ],
+    "zoom10": true,
+    "stations": 26
+  },
+  "PKM": {
+    "continent": "europe",
+    "country": "Poland",
+    "country_code": "PL",
+    "city": "Poznan",
+    "city_candidates": [
+      "Poznan",
+      "Strzeszyn",
+      "Greater Poland Voivodeship"
+    ],
+    "zoom10": true,
+    "stations": 52
+  },
+  "New Taipei Metro": {
+    "continent": "asia",
+    "country": "Taiwan",
+    "country_code": "TW",
+    "city": "New Taipei",
+    "city_candidates": [
+      "New Taipei",
+      "Tamsui District",
+      "滬尾"
+    ],
+    "zoom10": true,
+    "stations": 11
+  },
+  "愛知高速交通東部丘陵線": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Nagakute",
+    "city_candidates": [
+      "Nagakute",
+      "Aichi Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 18
+  },
+  "山口線系統": {
+    "continent": "asia",
+    "country": "Japan",
+    "country_code": "JP",
+    "city": "Tokorozawa",
+    "city_candidates": [
+      "Tokorozawa",
+      "Saitama Prefecture"
+    ],
+    "zoom10": true,
+    "stations": 6
+  },
+  "Karlsruher Verkehrsverbund;Tarifverbund Ortenau": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Malsch",
+    "city_candidates": [
+      "Malsch",
+      "Landkreis Karlsruhe",
+      "Baden-Württemberg"
+    ],
+    "zoom10": true,
+    "stations": 48
+  },
+  "Karlsruher Verkehrsverbund;Verkehrs-Gemeinschaft Landkreis Freudenstadt": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Gernsbach",
+    "city_candidates": [
+      "Gernsbach",
+      "VVG der Stadt Gernsbach",
+      "Landkreis Rastatt",
+      "Baden-Württemberg",
+      "Reichental"
+    ],
+    "zoom10": true,
+    "stations": 122
+  },
+  "Parkeisenbahn Chemnitz": {
+    "continent": "europe",
+    "country": "Germany",
+    "country_code": "DE",
+    "city": "Chemnitz",
+    "city_candidates": [
+      "Chemnitz",
+      "Lichtenau",
+      "Saxony"
+    ],
+    "zoom10": true,
+    "stations": 4
+  },
+  "Tramway du Cap Ferret": {
+    "continent": "europe",
+    "country": "France",
+    "country_code": "FR",
+    "city": "Arcachon",
+    "city_candidates": [
+      "Arcachon",
+      "Gironde",
+      "Metropolitan France",
+      "Nouvelle-Aquitaine",
+      "Lège-Cap-Ferret"
+    ],
+    "zoom10": true,
+    "stations": 2
   }
 }

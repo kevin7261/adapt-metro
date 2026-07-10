@@ -1,12 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { useMapStore } from '../stores/mapStore'
-import { Bug } from 'lucide-vue-next'
 
 // Per-tab view state ({ lng, lat, zoom, bearing, pitch, bounds }) from LayerTab.
 const props = defineProps({ view: { type: Object, required: true } })
-
-const store = useMapStore()
 
 const coords = computed(() => {
   const { lng, lat } = props.view
@@ -27,10 +23,6 @@ const bbox = computed(() => {
     <span>Bearing: {{ view.bearing.toFixed(1) }}°</span>
     <span>Pitch: {{ view.pitch.toFixed(1) }}°</span>
     <span class="bbox">BBox: {{ bbox }}</span>
-    <button class="diag" @click="store.fake('Diagnostics')">
-      <Bug :size="12" />
-      <span>0</span>
-    </button>
   </footer>
 </template>
 
@@ -50,20 +42,7 @@ const bbox = computed(() => {
   white-space: nowrap;
   overflow: hidden;
 }
-.bbox { overflow: hidden; text-overflow: ellipsis; }
-.diag {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: hsl(var(--muted-foreground));
-  font-family: inherit;
-  font-size: inherit;
-  padding: 2px 6px;
-  border-radius: calc(var(--radius) - 4px);
-  flex-shrink: 0;
-}
-.diag:hover { background: hsl(var(--accent)); }
+.bbox { overflow: hidden; text-overflow: ellipsis; margin-right: auto; }
 @media (max-width: 900px) {
   .bbox { display: none; }
 }

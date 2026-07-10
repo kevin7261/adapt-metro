@@ -5,9 +5,9 @@ import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import {
-  Map as MapIcon, PenTool, Eye, EyeOff, PanelLeftClose, PanelLeftOpen,
+  Eye, EyeOff, PanelLeftClose, PanelLeftOpen,
   GripVertical, MoreHorizontal,
-  ZoomIn, Palette, TableProperties, RefreshCw, Download, Trash2,
+  ZoomIn, Palette, TableProperties, Download, Trash2,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
 } from 'lucide-vue-next'
 
@@ -81,12 +81,6 @@ onBeforeUnmount(() => { dragging.value = false })
       <div class="panel-header">
         <span class="panel-title">Layers</span>
         <div class="header-actions">
-          <button class="btn-icon" title="Basemaps" @click="store.fake('Basemap picker')">
-            <MapIcon :size="14" />
-          </button>
-          <button class="btn-icon" title="Geo editor" @click="store.fake('Geo editor')">
-            <PenTool :size="14" />
-          </button>
           <button class="btn-icon" :title="store.allLayersVisible ? 'Hide all layers' : 'Show all layers'" @click="toggleAll">
             <Eye v-if="store.allLayersVisible" :size="14" />
             <EyeOff v-else :size="14" />
@@ -139,9 +133,6 @@ onBeforeUnmount(() => { dragging.value = false })
               </button>
               <button class="menu-item" @click="overflow(layer, 'table')">
                 <TableProperties :size="14" /> Attribute table
-              </button>
-              <button class="menu-item" @click="overflow(layer, 'Refresh')">
-                <RefreshCw :size="14" /> Refresh
               </button>
               <button class="menu-item" @click="overflow(layer, 'Export')">
                 <Download :size="14" /> Export

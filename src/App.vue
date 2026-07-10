@@ -4,7 +4,6 @@ import { useMapStore } from './stores/mapStore'
 import TopToolbar from './components/TopToolbar.vue'
 import LayerPanel from './components/LayerPanel.vue'
 import EditorArea from './components/EditorArea.vue'
-import AttributeTable from './components/AttributeTable.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import DialogHost from './components/DialogHost.vue'
 
@@ -52,7 +51,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <EditorArea />
       </main>
     </div>
-    <AttributeTable v-if="store.ui.attributeTable" />
 
     <CommandPalette v-if="store.ui.commandPalette" />
     <DialogHost />
