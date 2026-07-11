@@ -106,7 +106,12 @@ async function render() {
     )
   const path = geoPath(projection)
 
-  sel.selectAll('path.line')
+  // Two sibling groups so stations always sit above lines — hovering a line
+  // .raise()s it only within the lines group, never above the stations group.
+  const linesG = sel.append('g').attr('class', 'lines-layer')
+  const stationsG = sel.append('g').attr('class', 'stations-layer')
+
+  linesG.selectAll('path.line')
     .data(lines)
     .join('path')
     .attr('class', 'line')
@@ -127,7 +132,7 @@ async function render() {
       hideTip()
     })
 
-  sel.selectAll('circle.station')
+  stationsG.selectAll('circle.station')
     .data(stations)
     .join('circle')
     .attr('class', 'station')

@@ -132,6 +132,24 @@
    "wiki": "zh:苏州地铁11号线",
    "ours": 52,
    "note": "3/11 貫通運營（2024-06-29 全線交路貫通，zh wiki）：3號線段 24＋11號線段 28＝52。11號線 wiki 條目站表列 28 站（唯亭…花桥）與我們逐站一致；infobox「27」與其自身站表矛盾（過期）。WebFetch 查證 2026-07-11。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:2 (New York City Subway service)",
+   "ours": 61,
+   "note": "OSM 以「深夜全停」relation 模 2 車（61 站，含快車時段跳過的 local 站）；依快慢車合併與「服務到的站都畫」語義取全停集合。wiki infobox 49 為平日快車停站數。agent 逐站核對＋59 St–Columbus Circle 補插（上游深夜 relation 漏）。2026-07-11。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:N (New York City Subway service)",
+   "ours": 45,
+   "note": "ours 45＝en wiki N 車深夜全停 45 站（平日 28 為快車計法）。agent 逐站核對 2026-07-11。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:4 (New York City Subway service)",
+   "ours": 54,
+   "note": "ours 54＝en wiki 4 車深夜全停（延駛 New Lots Av）54 站（日間 28 為快車計法）。agent 逐站核對 2026-07-11。"
   }
  ]
 }

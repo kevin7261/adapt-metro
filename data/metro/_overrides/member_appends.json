@@ -74,6 +74,30 @@
    "append_stops": [
     5575721417
    ]
+  },
+  {
+   "relation": 7575713,
+   "note": "NYC 2 深夜全停模式停靠 59 St–Columbus Circle（en wiki 2 Train：night 61 站）；OSM 深夜 relation 漏此停靠成員。插在 66 St–Lincoln Center 之後。",
+   "inserts": [
+    {
+     "after": 4460385064,
+     "add": [
+      5111472254
+     ]
+    }
+   ]
+  },
+  {
+   "relation": 9655662,
+   "note": "同上（反向：插在 50th St 之後、66 St 之前）。",
+   "inserts": [
+    {
+     "after": 5111471159,
+     "add": [
+      5111472254
+     ]
+    }
+   ]
   }
  ]
 }
