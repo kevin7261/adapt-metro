@@ -4839,7 +4839,106 @@
       "line_count": 6,
       "segment_count": 6,
       "station_count": 85,
-      "audit": null
+      "audit": {
+        "strategies_tried": [
+          "Z1",
+          "Z2"
+        ],
+        "notes": {
+          "Z1": "108 station candidates fetched (r=32km)",
+          "Z2": "no member nodes in cache"
+        },
+        "passed": false,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-mumbai.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "6 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "85 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 85 站（wiki List 記 73，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "85/85 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "85 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": false,
+            "detail": "1/85 站無名稱（n1218500503…）——需補上游名稱或剔除",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": false,
+            "detail": "2 條線站數與 wiki 條目不符（必須相等）：Line 2 (Andheri West ↔ Dahisar (East)) 18/17、Line 1 (Versova ↔ Ghatkopar) 17/12",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 2B (Diamond Garden ↔ Mandale) 5/17",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "2 條線無 wiki 站數對照：Line 7 (Gundavali ↔ Dahisar (East))、Line 9 (Kashigaon → Dahisar (East))",
+            "level": "warn"
+          }
+        ],
+        "reasons": [
+          "1/85 站無名稱（n1218500503…）——需補上游名稱或剔除",
+          "2 條線站數與 wiki 條目不符（必須相等）：Line 2 (Andheri West ↔ Dahisar (East)) 18/17、Line 1 (Versova ↔ Ghatkopar) 17/12"
+        ],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 2B (Diamond Garden ↔ Mandale) 5/17",
+          "2 條線無 wiki 站數對照：Line 7 (Gundavali ↔ Dahisar (East))、Line 9 (Kashigaon → Dahisar (East))"
+        ],
+        "audited_at": "2026-07-11T08:40:18.595Z"
+      }
     },
     {
       "file": "systems/asia/china/as-chn-shenyang.geojson",
@@ -5916,7 +6015,105 @@
       "line_count": 5,
       "segment_count": 5,
       "station_count": 58,
-      "audit": null
+      "audit": {
+        "strategies_tried": [
+          "Z1",
+          "Z2"
+        ],
+        "notes": {
+          "Z1": "62 station candidates fetched (r=22km)",
+          "Z2": "no member nodes in cache"
+        },
+        "passed": false,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-kolkata.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "5 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "58 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 58 站（wiki List 記 58，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "58/58 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "59 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "58/58 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": false,
+            "detail": "1 條線站數與 wiki 條目不符（必須相等）：Blue Line (Kavi Subhash ↔ Dakshineshwar) 27/26",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Yellow Line (Jai Hind ↔ Noapara) 4/10",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "3 條線無 wiki 站數對照：Green Line (Howrah Maidan ↔ Salt Lake Sector V)、Purple Line (Joka ↔ Majerhat)、Orange Line (Beleghata ↔ Kavi Subhash)",
+            "level": "warn"
+          }
+        ],
+        "reasons": [
+          "1 條線站數與 wiki 條目不符（必須相等）：Blue Line (Kavi Subhash ↔ Dakshineshwar) 27/26"
+        ],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Yellow Line (Jai Hind ↔ Noapara) 4/10",
+          "3 條線無 wiki 站數對照：Green Line (Howrah Maidan ↔ Salt Lake Sector V)、Purple Line (Joka ↔ Majerhat)、Orange Line (Beleghata ↔ Kavi Subhash)"
+        ],
+        "audited_at": "2026-07-11T08:40:15.598Z"
+      }
     },
     {
       "file": "systems/americas/canada/am-can-montreal.geojson",
@@ -10312,7 +10509,81 @@
       "line_count": 2,
       "segment_count": 2,
       "station_count": 37,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-nagpur.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "37 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 37 站（wiki List 記 37，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "37/37 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "38 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "37/37 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-11T08:40:18.598Z"
+      }
     },
     {
       "file": "systems/asia/vietnam/as-vie-hanoi.geojson",
@@ -10990,7 +11261,91 @@
       "line_count": 2,
       "segment_count": 2,
       "station_count": 38,
-      "audit": null
+      "audit": {
+        "strategies_tried": [
+          "Z1",
+          "Z2"
+        ],
+        "notes": {
+          "Z1": "79 station candidates fetched (r=20km)",
+          "Z2": "no member nodes in cache"
+        },
+        "passed": false,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-pune.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "38 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 38 站（wiki List 記 28，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "38/38 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "38 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": false,
+            "detail": "1/38 站無名稱（n1479314591…）——需補上游名稱或剔除",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": false,
+            "detail": "2 條線站數與 wiki 條目不符（必須相等）：Aqua Line: Ramwadi => Vanaz 20/16、Purple Line: PCMC Bhavan ⇔ Phugewadi & Civil Court ⇔ Shivaji Nagar 18/13",
+            "level": "error"
+          }
+        ],
+        "reasons": [
+          "1/38 站無名稱（n1479314591…）——需補上游名稱或剔除",
+          "2 條線站數與 wiki 條目不符（必須相等）：Aqua Line: Ramwadi => Vanaz 20/16、Purple Line: PCMC Bhavan ⇔ Phugewadi & Civil Court ⇔ Shivaji Nagar 18/13"
+        ],
+        "warnings": [],
+        "audited_at": "2026-07-11T08:40:21.360Z"
+      }
     },
     {
       "file": "systems/asia/turkey/as-tur-derince.geojson",
@@ -12049,7 +12404,90 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 12,
-      "audit": null
+      "audit": {
+        "strategies_tried": [
+          "Z1",
+          "Z2"
+        ],
+        "notes": {
+          "Z1": "13 station candidates fetched (r=13km)",
+          "Z2": "no member nodes in cache"
+        },
+        "passed": false,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-jaipur.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "12 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 12 站（wiki List 記 11，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "12/12 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "12 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "12/12 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": false,
+            "detail": "1 條線站數與 wiki 條目不符（必須相等）：Pink Line 12/11",
+            "level": "error"
+          }
+        ],
+        "reasons": [
+          "1 條線站數與 wiki 條目不符（必須相等）：Pink Line 12/11"
+        ],
+        "warnings": [],
+        "audited_at": "2026-07-11T08:40:01.185Z"
+      }
     },
     {
       "file": "systems/asia/kazakhstan/as-kaz-almaty.geojson",
@@ -12340,7 +12778,90 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 27,
-      "audit": null
+      "audit": {
+        "strategies_tried": [
+          "Z1",
+          "Z2"
+        ],
+        "notes": {
+          "Z1": "27 station candidates fetched (r=21km)",
+          "Z2": "no member nodes in cache"
+        },
+        "passed": false,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-kochi.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "27 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 27 站（wiki List 記 25，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "27/27 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "27 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "27/27 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": false,
+            "detail": "1 條線站數與 wiki 條目不符（必須相等）：Kochi Metro Phase I 27/25",
+            "level": "error"
+          }
+        ],
+        "reasons": [
+          "1 條線站數與 wiki 條目不符（必須相等）：Kochi Metro Phase I 27/25"
+        ],
+        "warnings": [],
+        "audited_at": "2026-07-11T08:40:12.609Z"
+      }
     },
     {
       "file": "systems/asia/turkey/as-tur-adana.geojson",
@@ -12374,7 +12895,81 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 21,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-lucknow.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "21 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 21 站（wiki List 記 21，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "21/21 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "21 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "21/21 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-11T08:40:15.599Z"
+      }
     },
     {
       "file": "systems/americas/mexico/am-mex-guadalajara.geojson",
@@ -12747,7 +13342,89 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 14,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-kanpur.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "14 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 14 站（wiki List 記 14，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "14/14 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "14 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "14/14 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "1 條線無 wiki 站數對照：Orange Line",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線無 wiki 站數對照：Orange Line"
+        ],
+        "audited_at": "2026-07-11T08:40:01.187Z"
+      }
     },
     {
       "file": "systems/asia/bangladesh/as-ban-dhaka.geojson",
@@ -13021,7 +13698,89 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 13,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-navi-mumbai.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "13 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 13 站（wiki List 記 11，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "13/13 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "13 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "13/13 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 1 (CBD Belapur ⇔ Pendhar) 13/20",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 1 (CBD Belapur ⇔ Pendhar) 13/20"
+        ],
+        "audited_at": "2026-07-11T08:40:18.599Z"
+      }
     },
     {
       "file": "systems/asia/india/as-ind-meerut.geojson",
@@ -13039,7 +13798,81 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 12,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-meerut.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "12 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 12 站（wiki List 記 13，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "12/12 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "12 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "12/12 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-11T08:40:18.596Z"
+      }
     },
     {
       "file": "systems/asia/india/as-ind-indore.geojson",
@@ -13159,7 +13992,89 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 5,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-patna.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "5 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 5 站（wiki List 記 4，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "5/5 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "5 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "5/5 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Blue Line: Bhootnath ↔ New ISBT 5/12",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Blue Line: Bhootnath ↔ New ISBT 5/12"
+        ],
+        "audited_at": "2026-07-11T08:40:18.601Z"
+      }
     },
     {
       "file": "systems/asia/india/as-ind-bhopal.geojson",
@@ -13295,7 +14210,89 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 14,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-noida.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "14 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 14 站（wiki List 記 21，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "14/14 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "14 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「不同路線數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "14/14 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16"
+        ],
+        "audited_at": "2026-07-11T08:40:18.600Z"
+      }
     },
     {
       "file": "systems/europe/italy/eu-ita-genoa.geojson",
