@@ -1,9 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import {
-  Map as MapIcon,
-  ExternalLink,
-} from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 /* ---- Info dropdown ---- */
 const infoOpen = ref(false)
@@ -36,7 +33,7 @@ onBeforeUnmount(() => {
 <template>
   <header class="toolbar">
     <div class="brand">
-      <MapIcon :size="16" />
+      <MIcon name="map" :size="16" />
       <span class="brand-name">Adapt-Metro</span>
     </div>
 
@@ -55,7 +52,7 @@ onBeforeUnmount(() => {
           rel="noopener noreferrer"
           @click="infoOpen = false"
         >
-          <ExternalLink :size="14" /> {{ link.label }}
+          <MIcon name="open_in_new" :size="14" /> {{ link.label }}
         </a>
       </div>
     </div>

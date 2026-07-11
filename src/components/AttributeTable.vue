@@ -3,10 +3,7 @@ import { ref, computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData } from '../stores/layerData'
-import {
-  TableProperties, X, Filter,
-  ArrowUp, ArrowDown, ZoomIn,
-} from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 const store = useMapStore()
 
@@ -91,7 +88,7 @@ function startResize(e) {
       @pointerdown="startResize"
     />
     <div class="attr-header">
-      <TableProperties :size="14" class="hdr-icon" />
+      <MIcon name="table" :size="14" class="hdr-icon" />
       <span class="attr-title">Attribute table</span>
       <span class="attr-meta">
         {{ activeLayer?.name ?? '—' }} — {{ rows.length }} / {{ stations.length }} stations
@@ -99,11 +96,11 @@ function startResize(e) {
 
       <div class="attr-actions">
         <div class="filter-wrap">
-          <Filter :size="12" class="filter-icon" />
+          <MIcon name="filter_alt" :size="12" class="filter-icon" />
           <input v-model="filter" class="filter-input" placeholder="Filter…" />
         </div>
         <button class="btn-icon" title="Close" @click="toggleId && store.toggleAttributeTable(toggleId, false)">
-          <X :size="14" />
+          <MIcon name="close" :size="14" />
         </button>
       </div>
     </div>
@@ -116,8 +113,8 @@ function startResize(e) {
             <th v-for="col in columns" :key="col" @click="sort(col)">
               <span class="th-inner">
                 {{ col }}
-                <ArrowUp v-if="sortBy === col && sortDir === 1" :size="11" />
-                <ArrowDown v-else-if="sortBy === col" :size="11" />
+                <MIcon name="arrow_upward" v-if="sortBy === col && sortDir === 1" :size="11" />
+                <MIcon name="arrow_downward" v-else-if="sortBy === col" :size="11" />
               </span>
             </th>
           </tr>
@@ -131,7 +128,7 @@ function startResize(e) {
           >
             <td class="row-action-col">
               <button class="btn-icon zoom-btn" title="Zoom to feature" @click.stop="zoomToRow(row)">
-                <ZoomIn :size="12" />
+                <MIcon name="zoom_in" :size="12" />
               </button>
             </td>
             <td v-for="col in columns" :key="col">{{ row[col] ?? '—' }}</td>

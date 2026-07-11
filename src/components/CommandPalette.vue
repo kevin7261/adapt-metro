@@ -2,11 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import {
-  Search, FilePlus2, Save, Share2, FileJson, Server, Layers2,
-  ZoomIn, ZoomOut, Compass, Ruler, Bookmark, Terminal, Sparkles,
-  LayoutDashboard, TableProperties, Settings, Info, Keyboard, Sun,
-} from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 const store = useMapStore()
 
@@ -15,25 +11,25 @@ const activeIdx = ref(0)
 const inputEl = ref(null)
 
 const commands = [
-  { group: 'Project', title: 'New Project…', icon: FilePlus2, run: () => (store.ui.dialog = 'new-project') },
-  { group: 'Project', title: 'Save Project', icon: Save, shortcut: '⌘S', run: () => store.fake('Save') },
-  { group: 'Project', title: 'Share Project…', icon: Share2, run: () => store.fake('Share') },
-  { group: 'Add Data', title: 'Add Vector Layer…', icon: FileJson, run: () => (store.ui.dialog = 'add-data') },
-  { group: 'Add Data', title: 'Add WMS / WMTS…', icon: Server, run: () => (store.ui.dialog = 'add-data') },
-  { group: 'Add Data', title: 'Add PMTiles…', icon: Layers2, run: () => (store.ui.dialog = 'add-data') },
-  { group: 'View', title: 'Zoom In', icon: ZoomIn, run: () => mapHandle.map?.zoomIn() },
-  { group: 'View', title: 'Zoom Out', icon: ZoomOut, run: () => mapHandle.map?.zoomOut() },
-  { group: 'View', title: 'Reset Orientation', icon: Compass, shortcut: 'N', run: () => mapHandle.map?.resetNorth() },
-  { group: 'View', title: 'Toggle Dark Mode', icon: Sun, run: () => (store.dark = !store.dark) },
-  { group: 'Controls', title: 'Measure', icon: Ruler, run: () => store.fake('Measure') },
-  { group: 'Controls', title: 'Bookmark', icon: Bookmark, run: () => store.fake('Bookmark') },
-  { group: 'Processing', title: 'SQL Workspace', icon: Terminal, run: () => store.fake('SQL Workspace') },
-  { group: 'Processing', title: 'Assistant (AI)', icon: Sparkles, run: () => store.fake('Assistant') },
-  { group: 'Processing', title: 'Dashboard', icon: LayoutDashboard, run: () => store.fake('Dashboard') },
-  { group: 'Panels', title: 'Toggle Attribute Table', icon: TableProperties, run: () => store.toggleAttributeTable(store.selectedLayerId) },
-  { group: 'Settings', title: 'Open Settings', icon: Settings, run: () => (store.ui.dialog = 'settings') },
-  { group: 'Help', title: 'Keyboard Shortcuts', icon: Keyboard, shortcut: '?', run: () => (store.ui.dialog = 'shortcuts') },
-  { group: 'Help', title: 'About', icon: Info, run: () => (store.ui.dialog = 'about') },
+  { group: 'Project', title: 'New Project…', icon: 'note_add', run: () => (store.ui.dialog = 'new-project') },
+  { group: 'Project', title: 'Save Project', icon: 'save', shortcut: '⌘S', run: () => store.fake('Save') },
+  { group: 'Project', title: 'Share Project…', icon: 'share', run: () => store.fake('Share') },
+  { group: 'Add Data', title: 'Add Vector Layer…', icon: 'data_object', run: () => (store.ui.dialog = 'add-data') },
+  { group: 'Add Data', title: 'Add WMS / WMTS…', icon: 'dns', run: () => (store.ui.dialog = 'add-data') },
+  { group: 'Add Data', title: 'Add PMTiles…', icon: 'stacks', run: () => (store.ui.dialog = 'add-data') },
+  { group: 'View', title: 'Zoom In', icon: 'zoom_in', run: () => mapHandle.map?.zoomIn() },
+  { group: 'View', title: 'Zoom Out', icon: 'zoom_out', run: () => mapHandle.map?.zoomOut() },
+  { group: 'View', title: 'Reset Orientation', icon: 'explore', shortcut: 'N', run: () => mapHandle.map?.resetNorth() },
+  { group: 'View', title: 'Toggle Dark Mode', icon: 'light_mode', run: () => (store.dark = !store.dark) },
+  { group: 'Controls', title: 'Measure', icon: 'straighten', run: () => store.fake('Measure') },
+  { group: 'Controls', title: 'Bookmark', icon: 'bookmark', run: () => store.fake('Bookmark') },
+  { group: 'Processing', title: 'SQL Workspace', icon: 'terminal', run: () => store.fake('SQL Workspace') },
+  { group: 'Processing', title: 'Assistant (AI)', icon: 'auto_awesome', run: () => store.fake('Assistant') },
+  { group: 'Processing', title: 'Dashboard', icon: 'dashboard', run: () => store.fake('Dashboard') },
+  { group: 'Panels', title: 'Toggle Attribute Table', icon: 'table', run: () => store.toggleAttributeTable(store.selectedLayerId) },
+  { group: 'Settings', title: 'Open Settings', icon: 'settings', run: () => (store.ui.dialog = 'settings') },
+  { group: 'Help', title: 'Keyboard Shortcuts', icon: 'keyboard', shortcut: '?', run: () => (store.ui.dialog = 'shortcuts') },
+  { group: 'Help', title: 'About', icon: 'info', run: () => (store.ui.dialog = 'about') },
 ]
 
 const filtered = computed(() => {
@@ -82,7 +78,7 @@ onMounted(() => inputEl.value?.focus())
   <div class="palette-overlay" @mousedown.self="store.ui.commandPalette = false">
     <div class="palette">
       <div class="palette-input-row">
-        <Search :size="15" class="search-icon" />
+        <MIcon name="search" :size="15" class="search-icon" />
         <input
           ref="inputEl"
           v-model="query"
@@ -103,7 +99,7 @@ onMounted(() => inputEl.value?.focus())
             @mouseenter="activeIdx = item.idx"
             @click="run(item.cmd)"
           >
-            <component :is="item.cmd.icon" :size="14" class="cmd-icon" />
+            <MIcon :name="item.cmd.icon" :size="14" class="cmd-icon" />
             <span>{{ item.cmd.title }}</span>
             <span v-if="item.cmd.shortcut" class="shortcut">{{ item.cmd.shortcut }}</span>
           </button>

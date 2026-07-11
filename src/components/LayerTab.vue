@@ -11,7 +11,7 @@ import {
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
 import AttributeTable from './AttributeTable.vue'
-import { Copy, Crosshair, ZoomIn, ZoomOut, Layers, Check, TrainFront } from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -462,16 +462,16 @@ onBeforeUnmount(() => {
           </div>
           <div class="menu-sep" />
           <button class="menu-item" @click="copyCoords">
-            <Copy :size="14" /> Copy coordinates
+            <MIcon name="content_copy" :size="14" /> Copy coordinates
           </button>
           <button class="menu-item" @click="centerHere">
-            <Crosshair :size="14" /> Center map here
+            <MIcon name="my_location" :size="14" /> Center map here
           </button>
           <button class="menu-item" @click="ctxZoom(1)">
-            <ZoomIn :size="14" /> Zoom in here
+            <MIcon name="zoom_in" :size="14" /> Zoom in here
           </button>
           <button class="menu-item" @click="ctxZoom(-1)">
-            <ZoomOut :size="14" /> Zoom out here
+            <MIcon name="zoom_out" :size="14" /> Zoom out here
           </button>
         </div>
 
@@ -483,7 +483,7 @@ onBeforeUnmount(() => {
             title="Basemaps"
             @click="basemapMenuOpen = !basemapMenuOpen"
           >
-            <Layers :size="16" />
+            <MIcon name="layers" :size="16" />
           </button>
           <div v-if="basemapMenuOpen" class="menu-pop basemap-menu">
             <div class="bm-current">{{ currentBasemap.label }}</div>
@@ -498,7 +498,7 @@ onBeforeUnmount(() => {
                   :disabled="b.needsToken && !MAPBOX_ENABLED"
                   @click="setBasemap(b.id)"
                 >
-                  <Check v-if="basemapId === b.id" :size="13" class="bm-check" />
+                  <MIcon name="check" v-if="basemapId === b.id" :size="13" class="bm-check" />
                   <span v-else class="bm-check-spacer" />
                   <span class="bm-label">{{ b.label }}</span>
                   <span v-if="b.needsToken && !MAPBOX_ENABLED" class="bm-note">需 token</span>
@@ -533,7 +533,7 @@ onBeforeUnmount(() => {
             <label class="bm-overlay">
               <input type="checkbox" :checked="railwayOn"
                 @change="setRailway($event.target.checked)" />
-              <TrainFront :size="14" />
+              <MIcon name="train" :size="14" />
               <span>OpenRailwayMap 鐵路圖層</span>
             </label>
           </div>

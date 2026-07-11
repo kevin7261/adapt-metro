@@ -8,7 +8,7 @@ import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
-import { buildHillClimb } from '../stores/hillClimb'
+import { buildHillClimb, compactGrid } from '../stores/hillClimb'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -66,7 +66,10 @@ const tilt = ref(0)
 // A Hill Climbing view has just 2 tabs: the grid-post input and the optimized
 // layout ('hc', ②, see skill route-hillclimb) — rotation comes from its variant.
 const mode = ref(isHC.value ? 'hc' : 'original')
-const hcMode = computed(() => mode.value === 'hc')
+const hcMode = computed(() => mode.value === 'hc' || mode.value === 'hc-compact')
+// 縮減網格: after hill climbing, drop empty (colour-free) grid rows/columns —
+// smaller grid, identical topology (rank order preserved by compactGrid).
+const hcCompact = computed(() => mode.value === 'hc-compact')
 const rotated = computed(() =>
   isHC.value ? hcVariant.value === 'rot' : /(^rotated|-rot-)/.test(mode.value))
 const skeletonized = computed(() => mode.value.includes('skeleton') || mode.value.startsWith('grid-'))
@@ -80,14 +83,17 @@ const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
+let cachedHCCompact = null
 const hcBusy = ref(false)
 const hcStats = ref(null)
+const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isHC.value) {
     return [
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
       { id: 'hc', label: 'Hill Climbing' },
+      { id: 'hc-compact', label: '縮減網格' },
     ]
   }
   return [
@@ -191,7 +197,9 @@ async function render() {
     tilt.value = computeOrientation(data).tilt
     cachedSkeleton = buildConnectSkeleton(data)
     cachedHC = null
+    cachedHCCompact = null
     hcStats.value = null
+    hcCompactStats.value = null
   }
 
   const projection = geoMercator()
@@ -214,7 +222,9 @@ async function render() {
   // Hill Climbing (②, see skill route-hillclimb): optimize the grid CELLS once
   // per dataset — cells are rank-based, so a resize only changes the pixel
   // mapping below, never the layout. Blacks are re-spread along the new runs.
-  let hcPos = null
+  // 縮減網格 tab additionally drops colour-free rows/columns (compactGrid) —
+  // fewer cells over the same extent, so everything spreads out.
+  let hcPos = null, hcBlue = null
   if (grid && isHC.value && hcMode.value) {
     if (!cachedHC) {
       hcBusy.value = true
@@ -224,13 +234,22 @@ async function render() {
       hcBusy.value = false
     }
     hcStats.value = cachedHC.stats
-    const bx = grid.blueAfter.xs, by = grid.blueAfter.ys
-    const cw = bx[1] - bx[0], ch = by[1] - by[0]
-    hcPos = new Map()
-    for (const [id, [c, r]] of cachedHC.cellAfter) {
-      hcPos.set(id, [bx[0] + (c + 0.5) * cw, by[0] + (r + 0.5) * ch])
+    let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
+    if (hcCompact.value) {
+      if (!cachedHCCompact) cachedHCCompact = compactGrid(cachedHC.cellAfter, grid.cols, grid.rows)
+      cells = cachedHCCompact.cellAfter
+      nC = cachedHCCompact.cols
+      nR = cachedHCCompact.rows
+      hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
     }
+    const cw = (w - 48) / nC, ch = (h - 48) / nR
+    hcPos = new Map()
+    for (const [id, [c, r]] of cells) hcPos.set(id, [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch])
     placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+    hcBlue = {
+      xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
+      ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
+    }
   }
   const posOf = (id) =>
     (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
@@ -294,7 +313,7 @@ async function render() {
   // through a point) + integer cell coordinates centred in each band (column
   // indices along the bottom, row indices down the left).
   if (grid) {
-    const b = gridPost.value ? grid.blueAfter : grid.blueBefore
+    const b = hcBlue ?? (gridPost.value ? grid.blueAfter : grid.blueBefore)
     for (const x of b.xs) {
       gridG.append('line').attr('x1', x).attr('y1', 24).attr('x2', x).attr('y2', h - 24)
         .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
@@ -543,7 +562,10 @@ onBeforeUnmount(() => {
           <span v-if="isHC && hcMode && hcStats" class="hc-stats">
             適應度 {{ fmtFit(hcStats.before) }} → {{ fmtFit(hcStats.after) }}
             · {{ hcStats.rounds }} 輪 · 移動 {{ hcStats.moved }} 站<template
-              v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template>
+              v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template><template
+              v-if="hcCompact && hcCompactStats"> · 網格
+              {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
           </span>
 
           <span class="ma-label">資料來源：</span>

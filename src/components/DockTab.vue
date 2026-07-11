@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
-import { Circle, Spline, Hexagon, Image as ImageIcon, TrainFront, X } from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 // Custom dockview tab: layer-type icon + title + close.
 // Dockview tab props: { params: { layerId }, api, containerApi }
@@ -14,8 +14,8 @@ const inner = computed(() => p.value.params ?? p.value)
 const layerId = computed(() => inner.value.layerId ?? p.value.layerId)
 const layer = computed(() => store.layers.find((l) => l.id === layerId.value) ?? null)
 
-const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline }
-const icon = computed(() => typeIcons[layer.value?.type] ?? Circle)
+const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline' }
+const icon = computed(() => typeIcons[layer.value?.type] ?? 'circle')
 const title = computed(() =>
   layer.value?.name || inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—')
 
@@ -27,10 +27,10 @@ function close(e) {
 
 <template>
   <div class="dock-tab" @pointerdown.middle="close">
-    <component :is="icon" :size="13" class="dock-tab-icon" />
+    <MIcon :name="icon" :size="13" class="dock-tab-icon" />
     <span class="dock-tab-title">{{ title }}</span>
     <button class="dock-tab-close" title="Close" @click="close" @pointerdown.stop>
-      <X :size="12" />
+      <MIcon name="close" :size="12" />
     </button>
   </div>
 </template>

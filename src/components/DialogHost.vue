@@ -4,10 +4,7 @@ import { useMapStore } from '../stores/mapStore'
 import { loadMetroCatalog, prettyContinent } from '../stores/metroCatalog'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
-import {
-  X, FileJson, Mountain, Grid2x2, Server, FileArchive, Layers2,
-  Upload, Map as MapIcon, Github, Globe, TrainFront, Spline,
-} from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 const store = useMapStore()
 
@@ -158,13 +155,13 @@ const byStations = computed(() => {
 
 /* Add Data */
 const sources = [
-  { id: 'vector', label: 'Vector Layer', icon: FileJson },
-  { id: 'raster', label: 'Raster Layer', icon: Mountain },
-  { id: 'xyz', label: 'XYZ Tiles', icon: Grid2x2 },
-  { id: 'wms', label: 'WMS / WMTS', icon: Server },
-  { id: 'wfs', label: 'WFS', icon: Server },
-  { id: 'geoparquet', label: 'GeoParquet', icon: FileArchive },
-  { id: 'pmtiles', label: 'PMTiles', icon: Layers2 },
+  { id: 'vector', label: 'Vector Layer', icon: 'data_object' },
+  { id: 'raster', label: 'Raster Layer', icon: 'terrain' },
+  { id: 'xyz', label: 'XYZ Tiles', icon: 'grid_view' },
+  { id: 'wms', label: 'WMS / WMTS', icon: 'dns' },
+  { id: 'wfs', label: 'WFS', icon: 'dns' },
+  { id: 'geoparquet', label: 'GeoParquet', icon: 'folder_zip' },
+  { id: 'pmtiles', label: 'PMTiles', icon: 'stacks' },
 ]
 const activeSource = ref('vector')
 
@@ -193,7 +190,7 @@ const shortcuts = [
     <div v-if="IMPORT_DIALOGS.includes(dialog)" class="dialog import-modal">
       <div class="dialog-header">
         <h2 class="dialog-title">Import Metro Map</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-tabs" role="tablist">
         <button
@@ -294,7 +291,7 @@ const shortcuts = [
             </div>
 
             <div class="import-preview" :class="{ placeholder: !selectedSystem }">
-              <TrainFront :size="14" />
+              <MIcon name="train" :size="14" />
               <span v-if="selectedSystem">
                 {{ selectedSystem.city }} — {{ selectedSystem.line_count }} 條線 ·
                 {{ selectedSystem.station_count }} 站
@@ -316,7 +313,7 @@ const shortcuts = [
     <div v-else-if="dialog === 'add-d3'" class="dialog add-d3">
       <div class="dialog-header">
         <h2 class="dialog-title">Add D3.js View</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
         <div v-if="!metroLayerChoices.length" class="import-status">
@@ -331,7 +328,7 @@ const shortcuts = [
               class="station-row"
               @click="addD3View(l)"
             >
-              <TrainFront :size="14" />
+              <MIcon name="train" :size="14" />
               <span class="station-city">{{ l.name }}</span>
               <span class="station-country">{{ l.city }}</span>
               <span class="station-count">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
@@ -341,7 +338,7 @@ const shortcuts = [
 
         <div class="menu-sep" />
         <button class="station-row d3-file-row" @click="d3FileInput?.click()">
-          <Upload :size="14" />
+          <MIcon name="upload" :size="14" />
           <span class="station-city">匯入 GeoJSON 檔案…</span>
           <span class="station-count">.geojson / .json</span>
         </button>
@@ -359,7 +356,7 @@ const shortcuts = [
     <div v-else-if="dialog === 'add-hillclimb'" class="dialog add-d3">
       <div class="dialog-header">
         <h2 class="dialog-title">Add Hill Climbing View</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
         <div v-if="!d3LayerChoices.length" class="import-status">
@@ -378,7 +375,7 @@ const shortcuts = [
                 class="station-row"
                 @click="addHillClimbView(l, v.id)"
               >
-                <Spline :size="14" />
+                <MIcon name="polyline" :size="14" />
                 <span class="station-city">{{ l.name }}</span>
                 <span class="station-country">{{ v.label }}</span>
                 <span class="station-count">{{ d3Meta(l) }}</span>
@@ -393,7 +390,7 @@ const shortcuts = [
     <div v-else-if="dialog === 'add-data'" class="dialog add-data">
       <div class="dialog-header">
         <h2 class="dialog-title">Add Data</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="add-data-body">
         <nav class="source-list">
@@ -404,12 +401,12 @@ const shortcuts = [
             :class="{ open: activeSource === s.id }"
             @click="activeSource = s.id"
           >
-            <component :is="s.icon" :size="14" /> {{ s.label }}
+            <MIcon :name="s.icon" :size="14" /> {{ s.label }}
           </button>
         </nav>
         <div class="source-form">
           <div class="drop-zone">
-            <Upload :size="20" />
+            <MIcon name="upload" :size="20" />
             <p>Drag &amp; drop a file here<br /><span class="muted">GeoJSON, Shapefile, GeoPackage, FlatGeobuf, KML, GPX…</span></p>
             <button class="btn-outline" @click="store.fake('Browse file')">Browse…</button>
           </div>
@@ -429,7 +426,7 @@ const shortcuts = [
     <div v-else-if="dialog === 'new-project'" class="dialog">
       <div class="dialog-header">
         <h2 class="dialog-title">New Project</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
         <p>Start a new project? Unsaved changes to the current project will be lost.</p>
@@ -444,7 +441,7 @@ const shortcuts = [
     <div v-else-if="dialog === 'settings'" class="dialog">
       <div class="dialog-header">
         <h2 class="dialog-title">Settings</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
         <div class="settings-section">Appearance</div>
@@ -493,7 +490,7 @@ const shortcuts = [
     <div v-else-if="dialog === 'shortcuts'" class="dialog">
       <div class="dialog-header">
         <h2 class="dialog-title">Keyboard Shortcuts</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
         <div v-for="[key, label] in shortcuts" :key="key" class="shortcut-row">
@@ -507,16 +504,16 @@ const shortcuts = [
     <div v-else-if="dialog === 'about'" class="dialog about">
       <div class="dialog-header">
         <h2 class="dialog-title">About</h2>
-        <button class="btn-icon" @click="close"><X :size="15" /></button>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body about-body">
-        <MapIcon :size="40" class="about-logo" />
+        <MIcon name="map" :size="40" class="about-logo" />
         <h3>Adapt-Metro</h3>
         <p class="muted">UI prototype v0.1.0 — layout inspired by GeoLibre</p>
         <p class="muted">Vue 3 · Vite · MapLibre GL JS</p>
         <div class="about-links">
-          <button class="btn-outline" @click="store.fake('Website')"><Globe :size="13" /> Website</button>
-          <button class="btn-outline" @click="store.fake('GitHub')"><Github :size="13" /> GitHub</button>
+          <button class="btn-outline" @click="store.fake('Website')"><MIcon name="language" :size="13" /> Website</button>
+          <button class="btn-outline" @click="store.fake('GitHub')"><MIcon name="code" :size="13" /> GitHub</button>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
-import { Sparkles, X } from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 import { skillView, closeSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
 
@@ -34,9 +34,9 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
     <div class="dialog skill-dialog">
       <div class="dialog-header">
         <h2 class="dialog-title skill-title">
-          <Sparkles :size="15" /> {{ skillView.id }}
+          <MIcon name="auto_awesome" :size="15" /> {{ skillView.id }}
         </h2>
-        <button class="btn-icon" @click="closeSkillDoc"><X :size="15" /></button>
+        <button class="btn-icon" @click="closeSkillDoc"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
         <div v-if="loading" class="skills-status">載入 SKILL.md…</div>

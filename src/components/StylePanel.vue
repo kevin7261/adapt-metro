@@ -6,10 +6,7 @@ import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import OrientationRose from './OrientationRose.vue'
-import {
-  PanelRightClose, PanelRightOpen, SlidersHorizontal, ExternalLink,
-  CircleCheck, CircleX, TriangleAlert,
-} from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 // The layer this tab edits — passed in by LayerTab.
 const props = defineProps({
@@ -437,9 +434,9 @@ function startResize(e) {
   <!-- Collapsed rail -->
   <aside v-if="!open" class="rail" aria-label="Panel (collapsed)">
     <button class="btn-icon" title="Expand panel" @click="open = true">
-      <PanelRightOpen :size="15" />
+      <MIcon name="right_panel_open" :size="15" />
     </button>
-    <SlidersHorizontal :size="14" class="rail-icon" />
+    <MIcon name="tune" :size="14" class="rail-icon" />
     <span class="rail-label">Info / Style</span>
   </aside>
 
@@ -468,7 +465,7 @@ function startResize(e) {
           </button>
         </div>
         <button class="btn-icon" title="Collapse panel" @click="open = false">
-          <PanelRightClose :size="14" />
+          <MIcon name="right_panel_close" :size="14" />
         </button>
       </div>
 
@@ -496,13 +493,13 @@ function startResize(e) {
                 <span class="info-key">Website</span>
                 <a :href="meta.official_website" target="_blank" rel="noopener" class="info-link">
                   {{ meta.official_website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') }}
-                  <ExternalLink :size="11" />
+                  <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div v-if="wikidataUrl" class="info-row">
                 <span class="info-key">Wikidata</span>
                 <a :href="wikidataUrl" target="_blank" rel="noopener" class="info-link">
-                  {{ meta.wikidata }} <ExternalLink :size="11" />
+                  {{ meta.wikidata }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">
@@ -587,8 +584,8 @@ function startResize(e) {
             </div>
             <template v-else>
               <div class="audit-banner" :class="auditInfo.passed ? 'pass' : 'fail'">
-                <CircleCheck v-if="auditInfo.passed" :size="14" />
-                <CircleX v-else :size="14" />
+                <MIcon name="check_circle" v-if="auditInfo.passed" :size="14" />
+                <MIcon name="cancel" v-else :size="14" />
                 <span>{{ auditInfo.passed ? '資料驗證通過' : '資料驗證未通過' }}</span>
                 <span v-if="auditInfo.audited_at" class="audit-date">
                   {{ auditInfo.audited_at.slice(0, 10) }}
@@ -597,23 +594,23 @@ function startResize(e) {
 
               <div v-if="!auditInfo.passed && auditInfo.reasons?.length" class="audit-list fail">
                 <div v-for="(r, i) in auditInfo.reasons" :key="i" class="audit-item">
-                  <CircleX :size="12" class="audit-ic" /> {{ r }}
+                  <MIcon name="cancel" :size="12" class="audit-ic" /> {{ r }}
                 </div>
               </div>
               <div v-if="auditInfo.covered_by" class="audit-list">
                 <div class="audit-item">
-                  <TriangleAlert :size="12" class="audit-ic warn" />
+                  <MIcon name="warning" :size="12" class="audit-ic warn" />
                   由 {{ auditInfo.covered_by }} 系統檔涵蓋（同都會區）
                 </div>
               </div>
               <div v-if="auditInfo.warnings?.length" class="audit-list warn">
                 <div v-for="(w, i) in auditInfo.warnings" :key="i" class="audit-item">
-                  <TriangleAlert :size="12" class="audit-ic warn" /> {{ w }}
+                  <MIcon name="warning" :size="12" class="audit-ic warn" /> {{ w }}
                 </div>
               </div>
               <div v-if="auditChecks.length" class="audit-list">
                 <div v-for="c in auditChecks.filter((c) => c.ok)" :key="c.id" class="audit-item ok">
-                  <CircleCheck :size="12" class="audit-ic ok" /> {{ c.detail }}
+                  <MIcon name="check_circle" :size="12" class="audit-ic ok" /> {{ c.detail }}
                 </div>
               </div>
             </template>
@@ -622,17 +619,17 @@ function startResize(e) {
             <div class="section-title">Links</div>
             <div class="link-list">
               <a v-if="wikipediaUrl" :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <ExternalLink :size="12" /> Wikipedia — {{ layer.city }} metro
+                <MIcon name="open_in_new" :size="12" /> Wikipedia — {{ layer.city }} metro
               </a>
               <a v-if="websiteUrl" :href="websiteUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <ExternalLink :size="12" /> Official website
+                <MIcon name="open_in_new" :size="12" /> Official website
               </a>
               <a v-if="routeMapUrl" :href="routeMapUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <ExternalLink :size="12" /> Official route map
+                <MIcon name="open_in_new" :size="12" /> Official route map
                 <span v-if="mapEntry" class="link-note">（{{ mapEntry.license ?? 'image' }}）</span>
               </a>
               <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <ExternalLink :size="12" /> urbanrail.net — {{ urbanrailLabel }}
+                <MIcon name="open_in_new" :size="12" /> urbanrail.net — {{ urbanrailLabel }}
               </a>
             </div>
 
@@ -739,7 +736,7 @@ function startResize(e) {
                     <div v-for="(it, i) in row.items" :key="i" class="obj-li">{{ it }}</div>
                   </template>
                   <a v-else-if="row.href" :href="row.href" target="_blank" rel="noopener" class="info-link">
-                    {{ row.value }} <ExternalLink :size="11" />
+                    {{ row.value }} <MIcon name="open_in_new" :size="11" />
                   </a>
                   <template v-else>{{ row.value }}</template>
                 </td>

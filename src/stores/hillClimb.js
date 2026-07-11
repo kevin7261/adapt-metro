@@ -60,6 +60,27 @@ const sharesRoute = (r1, r2) => {
   return false
 }
 
+// Post-pass (縮減網格 tab): drop every column/row that holds no coloured
+// vertex. Cells are remapped by rank, so the relative order — and with it the
+// network topology and every quadrant relation — is untouched; only the grid
+// gets smaller (empty bands the hill climbing left behind disappear).
+export function compactGrid(cellAfter, cols, rows) {
+  const cells = [...cellAfter.values()]
+  const usedC = [...new Set(cells.map((p) => p[0]))].sort((a, b) => a - b)
+  const usedR = [...new Set(cells.map((p) => p[1]))].sort((a, b) => a - b)
+  const mapC = new Map(usedC.map((c, i) => [c, i]))
+  const mapR = new Map(usedR.map((r, i) => [r, i]))
+  const out = new Map()
+  for (const [id, [c, r]] of cellAfter) out.set(id, [mapC.get(c), mapR.get(r)])
+  return {
+    cellAfter: out,
+    cols: usedC.length,
+    rows: usedR.length,
+    removedCols: cols - usedC.length,
+    removedRows: rows - usedR.length,
+  }
+}
+
 export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
   const W = { ...DEFAULT_W, ...(opts.weights ?? {}) }
   const cls = skeleton.stationClass

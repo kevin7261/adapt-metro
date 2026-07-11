@@ -6,16 +6,11 @@ import { openLayerTab, openGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
-import {
-  PanelLeftClose, PanelLeftOpen,
-  ZoomIn, TableProperties, Download, Trash2, Sparkles,
-  Circle, Spline, Hexagon, Image as ImageIcon, TrainFront, Mountain,
-  ChevronDown, ChevronRight, Folder, FolderOpen, Plus, LayoutGrid,
-} from 'lucide-vue-next'
+import MIcon from './MIcon.vue'
 
 const store = useMapStore()
 
-const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline, hillclimb: Mountain }
+const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain' }
 const typeBadges = { metro: 'METRO', d3: 'D3', hillclimb: 'HC' }
 
 // Skills exposed per layer type (moved off the top toolbar into each layer):
@@ -199,7 +194,7 @@ onBeforeUnmount(() => {
   <!-- Collapsed rail -->
   <aside v-if="!store.ui.layerPanelOpen" class="rail" aria-label="Layers (collapsed)">
     <button class="btn-icon" title="Expand layers panel" @click="store.ui.layerPanelOpen = true">
-      <PanelLeftOpen :size="15" />
+      <MIcon name="left_panel_open" :size="15" />
     </button>
     <span class="rail-label">Layers</span>
   </aside>
@@ -210,7 +205,7 @@ onBeforeUnmount(() => {
         <span class="panel-title">Layers</span>
         <div class="header-actions">
           <button class="btn-icon" title="Collapse panel" @click="store.ui.layerPanelOpen = false">
-            <PanelLeftClose :size="14" />
+            <MIcon name="left_panel_close" :size="14" />
           </button>
         </div>
       </div>
@@ -219,8 +214,8 @@ onBeforeUnmount(() => {
         <div v-for="item in store.layerTree" :key="item.group.id" class="group-card">
           <!-- Group header: chevron + folder + name (+ add for the D3 group) -->
           <div class="group-header" @click="item.group.collapsed = !item.group.collapsed">
-            <component :is="item.group.collapsed ? ChevronRight : ChevronDown" :size="14" class="group-chevron" />
-            <component :is="item.group.collapsed ? Folder : FolderOpen" :size="14" class="group-folder" />
+            <MIcon :name="item.group.collapsed ? 'chevron_right' : 'expand_more'" :size="14" class="group-chevron" />
+            <MIcon :name="item.group.collapsed ? 'folder' : 'folder_open'" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
             <span class="group-count">{{ item.children.length }}</span>
             <button
@@ -229,7 +224,7 @@ onBeforeUnmount(() => {
               title="刪除此群組全部圖層"
               @click.stop="removeGroupLayers(item.group.id, item.group.label)"
             >
-              <Trash2 :size="14" />
+              <MIcon name="delete" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'metro-maps'"
@@ -237,7 +232,7 @@ onBeforeUnmount(() => {
               title="Metro Maps gallery（全部城市縮圖）"
               @click.stop="openGalleryTab()"
             >
-              <LayoutGrid :size="14" />
+              <MIcon name="grid_view" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'metro-maps'"
@@ -245,7 +240,7 @@ onBeforeUnmount(() => {
               title="Import metro map"
               @click.stop="store.ui.dialog = 'import-quick'"
             >
-              <Plus :size="14" />
+              <MIcon name="add" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'd3'"
@@ -253,7 +248,7 @@ onBeforeUnmount(() => {
               title="Add D3.js view"
               @click.stop="addD3()"
             >
-              <Plus :size="14" />
+              <MIcon name="add" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'hillclimb'"
@@ -261,7 +256,7 @@ onBeforeUnmount(() => {
               title="Add Hill Climbing view（來源：Map Adjust 格網化後）"
               @click.stop="store.ui.dialog = 'add-hillclimb'"
             >
-              <Plus :size="14" />
+              <MIcon name="add" :size="14" />
             </button>
           </div>
 
@@ -280,8 +275,8 @@ onBeforeUnmount(() => {
               @click="openLayer(layer)"
             >
               <div class="layer-title">
-                <component
-                  :is="typeIcons[layer.type]"
+                <MIcon
+                  :name="typeIcons[layer.type] ?? 'circle'"
                   :size="13"
                   class="type-icon"
                   :style="layer.color ? { color: layer.color } : {}"
@@ -290,15 +285,17 @@ onBeforeUnmount(() => {
                 <span class="type-badge">{{ typeBadges[layer.type] ?? layer.type }}</span>
               </div>
 
-              <div class="layer-actions" @click.stop>
+              <!-- stop only on the buttons — a click on the strip's empty area
+                   must still bubble to the row and open the layer's tab -->
+              <div class="layer-actions">
                 <div v-if="LAYER_SKILLS[layer.type]" class="skill-wrap">
                   <button
                     class="btn-icon"
                     :class="{ active: skillMenuFor === layer.id }"
                     title="Skills"
-                    @click="toggleSkillMenu(layer, $event)"
+                    @click.stop="toggleSkillMenu(layer, $event)"
                   >
-                    <Sparkles :size="14" />
+                    <MIcon name="auto_awesome" :size="14" />
                   </button>
                   <Teleport to="body">
                     <div
@@ -312,7 +309,7 @@ onBeforeUnmount(() => {
                         class="menu-item skill-item"
                         @click="pickSkill(s.id)"
                       >
-                        <Sparkles :size="13" class="skill-icon" />
+                        <MIcon name="auto_awesome" :size="13" class="skill-icon" />
                         <span class="skill-text">
                           <span class="skill-name">{{ s.id }}</span>
                           <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
@@ -325,23 +322,23 @@ onBeforeUnmount(() => {
                   v-if="layer.type === 'metro'"
                   class="btn-icon"
                   title="Zoom to layer"
-                  @click="overflow(layer, 'zoom')"
+                  @click.stop="overflow(layer, 'zoom')"
                 >
-                  <ZoomIn :size="14" />
+                  <MIcon name="zoom_in" :size="14" />
                 </button>
                 <button
                   class="btn-icon"
                   :class="{ active: store.ui.attributeTableOpen[layer.id] }"
                   title="Attribute table"
-                  @click="overflow(layer, 'table')"
+                  @click.stop="overflow(layer, 'table')"
                 >
-                  <TableProperties :size="14" />
+                  <MIcon name="table" :size="14" />
                 </button>
-                <button class="btn-icon" title="Export GeoJSON" @click="overflow(layer, 'export')">
-                  <Download :size="14" />
+                <button class="btn-icon" title="Export GeoJSON" @click.stop="overflow(layer, 'export')">
+                  <MIcon name="download" :size="14" />
                 </button>
-                <button class="btn-icon danger" title="Remove layer" @click="overflow(layer, 'remove')">
-                  <Trash2 :size="14" />
+                <button class="btn-icon danger" title="Remove layer" @click.stop="overflow(layer, 'remove')">
+                  <MIcon name="delete" :size="14" />
                 </button>
               </div>
             </div>
