@@ -7,6 +7,7 @@ import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
+import { buildSchematicGrid } from '../stores/schematicGrid'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -44,9 +45,13 @@ const tilt = ref(0)
 // 4 view modes as tabs; rotated / skeletonized are derived from the mode.
 // (See skill route-skeleton-connect for the skeleton — keeps the geographic
 // shape, only classifies nodes/edges; nothing is moved.)
-const mode = ref('original') // 'original' | 'rotated' | 'skeleton' | 'rotated-skeleton'
-const rotated = computed(() => mode.value === 'rotated' || mode.value === 'rotated-skeleton')
-const skeletonized = computed(() => mode.value === 'skeleton' || mode.value === 'rotated-skeleton')
+// Map Adjust view modes (tabs). Grid modes ('grid-*') do the schematic gridding
+// (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
+const mode = ref('original')
+const rotated = computed(() => /(^rotated|-rot-)/.test(mode.value))
+const skeletonized = computed(() => mode.value.includes('skeleton') || mode.value.startsWith('grid-'))
+const gridMode = computed(() => mode.value.startsWith('grid-'))
+const gridPost = computed(() => mode.value.endsWith('post'))
 const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 
 // Heavy bits precomputed ONCE per dataset so switching tabs is instant: the
@@ -59,6 +64,10 @@ const VIEW_TABS = computed(() => [
   { id: 'rotated', label: rotLabel.value, rot: true },
   { id: 'skeleton', label: '原始骨架化' },
   { id: 'rotated-skeleton', label: `${rotLabel.value}骨架化`, rot: true },
+  { id: 'grid-orig-pre', label: '原始格網化前' },
+  { id: 'grid-orig-post', label: '原始格網化後' },
+  { id: 'grid-rot-pre', label: `${rotLabel.value}格網化前`, rot: true },
+  { id: 'grid-rot-post', label: `${rotLabel.value}格網化後`, rot: true },
 ])
 const disposables = []
 let zoomBehavior = null
@@ -144,10 +153,13 @@ async function render() {
   const path = geoPath(projection)
   const P = (c) => projection(c)
 
-  // Skeleton mode: connect skeleton (骨架2) — keep the geographic line shape,
-  // classify nodes (red/blue/black/purple/pink/gray) and edges (coline/loop/
-  // parallel/plain). See skill route-skeleton-connect.
-  const sk = skeletonized.value ? cachedSkeleton : null
+  // Skeleton is the basis for both skeleton and grid views. Grid views override
+  // each station's position: grid-pre = original projected, grid-post = snapped.
+  const sk = (skeletonized.value || gridMode.value) ? cachedSkeleton : null
+  const projById = new Map(stations.map((f) => [f.properties.station_id, P(f.geometry.coordinates)]))
+  const grid = gridMode.value ? buildSchematicGrid(cachedSkeleton, projById, [24, 24, w - 24, h - 24]) : null
+  const posOf = (id) =>
+    (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
   const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
@@ -159,9 +171,8 @@ async function render() {
 
   let lineData, stationData, highlightData = []
   if (sk) {
-    const coordById = new Map(stations.map((f) => [f.properties.station_id, f.geometry.coordinates]))
     const edgeD = (pathIds) => pathIds
-      .map((id, i) => { const [x, y] = P(coordById.get(id)); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
+      .map((id, i) => { const [x, y] = posOf(id); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
       .join(' ')
     // Line = original metro-map drawing: single route → solid route colour,
     // overlap (≥2 routes) → interleaved route-colour dashes.
@@ -181,7 +192,7 @@ async function render() {
     // Bottom highlight: one translucent underlay per classified edge.
     highlightData = sk.edges.filter((e) => EDGE_HL[e.cls]).map((e) => ({ d: edgeD(e.path), color: EDGE_HL[e.cls] }))
     stationData = stations.map((f) => {
-      const [x, y] = P(f.geometry.coordinates)
+      const [x, y] = posOf(f.properties.station_id)
       return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
     })
   } else {
@@ -192,12 +203,31 @@ async function render() {
     })
   }
 
-  // Bottom-to-top: edge-class highlight underlay, lines, pink reference lines
-  // (shown on hover), then stations.
+  // Bottom-to-top: the blue schematic grid at the very bottom, then edge-class
+  // highlight underlay, lines, pink reference lines (hover), and stations on top.
+  const gridG = sel.append('g').attr('class', 'grid-layer').style('pointer-events', 'none')
   const highlightG = sel.append('g').attr('class', 'hl-layer')
   const linesG = sel.append('g').attr('class', 'lines-layer')
   const refG = sel.append('g').attr('class', 'ref-layer').style('pointer-events', 'none')
   const stationsG = sel.append('g').attr('class', 'stations-layer')
+
+  // Schematic gridding: blue rank-separator lines + integer axis labels (column
+  // indices along the bottom, row indices down the left).
+  if (grid) {
+    const b = gridPost.value ? grid.blueAfter : grid.blueBefore
+    b.xs.forEach((x, c) => {
+      gridG.append('line').attr('x1', x).attr('y1', 24).attr('x2', x).attr('y2', h - 24)
+        .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
+      gridG.append('text').attr('class', 'grid-axis').attr('x', x).attr('y', h - 10)
+        .attr('text-anchor', 'middle').text(c)
+    })
+    b.ys.forEach((y, r) => {
+      gridG.append('line').attr('x1', 24).attr('y1', y).attr('x2', w - 24).attr('y2', y)
+        .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
+      gridG.append('text').attr('class', 'grid-axis').attr('x', 12).attr('y', y)
+        .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').text(r)
+    })
+  }
 
   // Pink reference lines: the whole-edge chord (sinuosity baseline), the DP
   // sub-segment baseline, and this point's perpendicular drop to it.
@@ -266,7 +296,7 @@ async function render() {
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('r', ((panelLayer.value?.radius ?? 4) + 3) / zk)
       const info = sk?.pinkInfo?.get(d.props.station_id)
-      if (info) { drawRef(info); showTip(e, pinkHtml(d.props, info)) }
+      if (info) { if (!gridMode.value) drawRef(info); showTip(e, pinkHtml(d.props, info)) }
       else showTip(e, stationHtml(d.props))
     })
     .on('mousemove', moveTip)
@@ -402,10 +432,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="d3-tab">
+  <div class="ma-tab">
     <div class="tab-body">
       <div class="map-col">
-        <div class="d3-toolbar">
+        <div class="ma-toolbar">
           <div class="view-tabs" role="tablist">
             <button
               v-for="t in VIEW_TABS"
@@ -420,19 +450,19 @@ onBeforeUnmount(() => {
             >{{ t.label }}</button>
           </div>
 
-          <span class="d3-label">資料來源：</span>
-          <span class="d3-source">
+          <span class="ma-label">資料來源：</span>
+          <span class="ma-source">
             {{ ownData ? `${layer?.name}（匯入 JSON）` : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
           </span>
         </div>
 
-        <div ref="host" class="d3-canvas">
-          <svg ref="svgEl" class="d3-svg" @click="panelLayer && store.setSelectedFeature(panelLayer.id, null)">
+        <div ref="host" class="ma-canvas">
+          <svg ref="svgEl" class="ma-svg" @click="panelLayer && store.setSelectedFeature(panelLayer.id, null)">
             <g ref="gEl" />
           </svg>
-          <div ref="tipEl" class="d3-tip" />
-          <div v-if="loading" class="d3-hint">載入中…</div>
-          <div v-else-if="loadError" class="d3-hint error">{{ loadError }}</div>
+          <div ref="tipEl" class="ma-tip" />
+          <div v-if="loading" class="ma-hint">載入中…</div>
+          <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
         </div>
 
         <AttributeTable
@@ -448,7 +478,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.d3-tab {
+.ma-tab {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -468,7 +498,7 @@ onBeforeUnmount(() => {
   min-width: 0;
   min-height: 0;
 }
-.d3-toolbar {
+.ma-toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -476,8 +506,8 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
 }
-.d3-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; margin-left: auto; }
-.d3-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ma-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; margin-left: auto; }
+.ma-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 4 view tabs: 原始 / 旋轉 / 原始骨架化 / 旋轉骨架化 */
 .view-tabs { display: inline-flex; gap: 4px; }
 .view-tab {
@@ -497,15 +527,15 @@ onBeforeUnmount(() => {
   background: hsl(var(--primary) / 0.12);
 }
 .view-tab:disabled { opacity: 0.4; cursor: default; }
-.d3-canvas {
+.ma-canvas {
   position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
-.d3-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
-.d3-svg:active { cursor: grabbing; }
-.d3-hint {
+.ma-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+.ma-svg:active { cursor: grabbing; }
+.ma-hint {
   position: absolute;
   inset: 0;
   display: flex;
@@ -515,14 +545,15 @@ onBeforeUnmount(() => {
   color: hsl(var(--muted-foreground));
   pointer-events: none;
 }
-.d3-hint.error { color: hsl(var(--destructive)); }
+.ma-hint.error { color: hsl(var(--destructive)); }
 /* Strokes stay a constant screen width regardless of the zoom transform, so
    lines/borders/reference lines never thicken when zooming (dot radius & label
    size are counter-scaled in JS). */
-.d3-svg :deep(g path),
-.d3-svg :deep(g line),
-.d3-svg :deep(g circle) { vector-effect: non-scaling-stroke; }
-.d3-svg :deep(text.st-label) {
+.ma-svg :deep(g path),
+.ma-svg :deep(g line),
+.ma-svg :deep(g circle) { vector-effect: non-scaling-stroke; }
+.ma-svg :deep(text.grid-axis) { fill: #3b82f6; font-size: 9px; font-weight: 600; }
+.ma-svg :deep(text.st-label) {
   font-size: 9px;
   fill: #e5e7eb;
   stroke: #111827;
@@ -530,7 +561,7 @@ onBeforeUnmount(() => {
   paint-order: stroke;
   stroke-linejoin: round;
 }
-.d3-tip {
+.ma-tip {
   position: absolute;
   display: none;
   z-index: 10;

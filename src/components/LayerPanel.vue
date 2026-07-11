@@ -20,10 +20,10 @@ const typeBadges = { metro: 'METRO', d3: 'D3' }
 
 // Skills exposed per layer type (moved off the top toolbar into each layer):
 // Metro Maps layers get the two general data-pipeline skills + the cities index;
-// Map Adjust gets the skeleton one.
+// Map Adjust gets the skeleton + gridding skills.
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
-  d3: ['route-skeleton-connect'],
+  d3: ['route-skeleton-connect', 'route-skeleton-grid'],
 }
 // 城市 → 該城專屬 skill（讓每個城市的圖層在下拉多顯示自己的規則 skill）。
 const CITY_SKILL = {
@@ -159,6 +159,18 @@ function removeLayer(layer) {
   store.toast(`已移除圖層「${layer.name}」`)
 }
 
+// Remove every layer in a group (close each tab, free its data), one summary toast.
+function removeGroupLayers(groupId, label) {
+  const inGroup = store.layers.filter((l) => l.groupId === groupId)
+  if (!inGroup.length) return
+  for (const l of inGroup) {
+    dockHandle.api?.getPanel(l.id)?.api.close()
+    delete layerData[l.id]
+    store.removeLayer(l.id)
+  }
+  store.toast(`已刪除「${label}」群組的 ${inGroup.length} 個圖層`)
+}
+
 /* ---- resize ---- */
 const dragging = ref(false)
 function startResize(e) {
@@ -210,6 +222,14 @@ onBeforeUnmount(() => {
             <component :is="item.group.collapsed ? Folder : FolderOpen" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
             <span class="group-count">{{ item.children.length }}</span>
+            <button
+              v-if="item.children.length"
+              class="btn-icon group-add group-del"
+              title="刪除此群組全部圖層"
+              @click.stop="removeGroupLayers(item.group.id, item.group.label)"
+            >
+              <Trash2 :size="14" />
+            </button>
             <button
               v-if="item.group.id === 'metro-maps'"
               class="btn-icon group-add"
@@ -398,6 +418,7 @@ onBeforeUnmount(() => {
 }
 .group-add { width: 22px; height: 22px; color: hsl(var(--muted-foreground)); }
 .group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
+.group-del:hover { color: hsl(var(--destructive)); background: hsl(var(--destructive) / 0.12); }
 .group-add-wrap { position: relative; }
 .group-add-menu { right: 0; top: 26px; min-width: 200px; }
 .group-empty {
