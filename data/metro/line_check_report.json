@@ -2,9 +2,9 @@
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
   "routes_total": 1097,
   "checked_against_infobox": 539,
-  "flagged": 81,
+  "flagged": 76,
   "uncovered": 558,
-  "adjudicated": 25,
+  "adjudicated": 30,
   "flags": [
     {
       "city": "Chongqing",
@@ -1001,71 +1001,6 @@
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11256040",
-      "route_name": "NYCS - D Train (late nights): Coney Island–Stillwell Avenue → Norwood–205th Street",
-      "ours": 41,
-      "lang": "en",
-      "wiki": "en:D (New York City Subway service)",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": 5,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11256103",
-      "route_name": "NYCS - Q Train (late nights): Coney Island–Stillwell Avenue → 96th Street",
-      "ours": 34,
-      "lang": "en",
-      "wiki": "en:Q (New York City Subway service)",
-      "wiki_stations": 29,
-      "wiki_basis": "total",
-      "diff": 5,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r366778",
-      "route_name": "NYCS - 5 Train: Flatbush Avenue–Brooklyn College → Eastchester–Dyre Avenue",
-      "ours": 45,
-      "lang": "en",
-      "wiki": "en:5 (New York City Subway service)",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": 9,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11256044",
-      "route_name": "NYCS - E Train (late nights): World Trade Center → Jamaica Center–Parsons/Archer",
-      "ours": 32,
-      "lang": "en",
-      "wiki": "en:E (New York City Subway service)",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": 12,
-      "severity": "error"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9727208",
-      "route_name": "NYCS - A Train (late nights): Far Rockaway–Mott Avenue → 207th Street–Inwood",
-      "ours": 66,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "wiki_stations": 40,
-      "wiki_basis": "total",
-      "diff": 26,
-      "severity": "error"
     }
   ],
   "uncovered_lines": [
@@ -6706,6 +6641,50 @@
     {
       "city": "New York City",
       "country": "United States",
+      "route_id": "r9727208",
+      "route_name": "NYCS - A Train (late nights): Far Rockaway–Mott Avenue → 207th Street–Inwood",
+      "ours": 66,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "wiki_stations": 40,
+      "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256044",
+      "route_name": "NYCS - E Train (late nights): World Trade Center → Jamaica Center–Parsons/Archer",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:E (New York City Subway service)",
+      "wiki_stations": 20,
+      "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256040",
+      "route_name": "NYCS - D Train (late nights): Coney Island–Stillwell Avenue → Norwood–205th Street",
+      "ours": 41,
+      "lang": "en",
+      "wiki": "en:D (New York City Subway service)",
+      "wiki_stations": 36,
+      "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256103",
+      "route_name": "NYCS - Q Train (late nights): Coney Island–Stillwell Avenue → 96th Street",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:Q (New York City Subway service)",
+      "wiki_stations": 29,
+      "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
       "route_id": "r9712348",
       "route_name": "NYCS - N Train (late nights): Coney Island–Stillwell Avenue → Astoria–Ditmars Boulevard",
       "ours": 45,
@@ -6713,6 +6692,17 @@
       "wiki": "en:N (New York City Subway service)",
       "wiki_stations": 28,
       "note": "ours 45＝en wiki N 車深夜全停 45 站（平日 28 為快車計法）。agent 逐站核對 2026-07-11。"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r366778",
+      "route_name": "NYCS - 5 Train: Flatbush Avenue–Brooklyn College → Eastchester–Dyre Avenue",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:5 (New York City Subway service)",
+      "wiki_stations": 36,
+      "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
     },
     {
       "city": "New York City",

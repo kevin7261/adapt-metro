@@ -13,14 +13,26 @@ MTA 子公司運營）。**PATH**（Port Authority of NY&NJ，跨哈德遜河到
 ＋ deny（`\bpath\b`／port authority）。⚠️ ckey `new york city` 含空格，city 比對兩邊都要
 `normCity`（否則 "newyorkcity" ≠ "new york city"、規則整個失效、PATH 漏剔——這是實際踩過的坑）。
 
-## 共線段只畫 1 條實線（渲染，使用者指定）
+## 共線只畫 1 條（使用者指定，兩個層次）
 
-紐約共線極多（1/2/3 共 7th Av、A/C/E、B/D/F/M、N/Q/R/W…最多 9 線共軌）。**幾何**上
-共軌段本就已路段化成 1 條 feature（`route_count>1`＋`routes[]` list，通用機制）；
-**渲染**上紐約特例——前端 `LayerTab`／`GalleryTile` 對 `city==='New York City'` 把所有
-路段（含共線段）畫成**單一實線、用第一條線代表色（`_c0`／`route_color`）**，**不生成
-n 色交錯虛線**。其他城市維持交錯虛線。`routes[]` 仍在，hover／Object 面板照樣列出該段
-所有線。這是**渲染層**的城市例外，資料（geojson）不變。
+紐約共線極多（1/2/3 共 7th Av、A/C/E、B/D/F/M、N/Q/R/W…最多 9 線共軌）。「畫 1 條」
+分兩處落地：
+
+**（1）資料層——同 ref 變體合併（`mergeVariants`，phase A）**：紐約每條線的上下行／
+深夜全停／尖峰／分支在 OSM 是多個 route_id（A 線 5 個、5/R/Q 各 2 個，共 44 個
+route_id vs 實際 ~30 條）。這些是**同一條線的營運模式**，不拆成獨立分支（≠台北小碧潭
+真支線）。判定 `network` 含 `nyc subway` 時，把 keptAll 的變體**按「共享車站」聚成連通
+分量**、每分量合成 1 條線（用該分量第一個 rid 的 tags）：A 的 5 變體共享 A 走廊→1 條 A；
+**S 的 Franklin／Rockaway Park／42nd St 三條獨立 shuttle 共用 ref S、彼此不共享車站→
+各自獨立成 3 條**（不可無腦全合，否則 S 變 11 站怪物）。合併後 route_id 44→~30。
+- 副作用：線站數變成「該線全服務並集」（深夜全停＋尖峰＋分支所有停靠站），比 wiki
+  infobox 的單一時段多 → `wiki_adjudications.json` 裁決 A/D/Q/5/E/2/N/4 等（計法不同、
+  我方為該線服務的所有站）。
+
+**（2）渲染層——共線段畫單實線（`LayerTab`／`GalleryTile`）**：即使資料層合併，不同線
+在同走廊仍是多個 segment。前端對 `city==='New York City'` 把所有路段（含 `route_count>1`
+共線段）畫成**單一實線、用第一條線代表色（`_c0`／`route_color`）**，不生成 n 色交錯虛線。
+`routes[]` 仍在，hover／Object 面板照列所有線。其他城市維持交錯虛線。
 
 ## 同名合併 STRICT 模式（`STRICT_SAMENAME`，車站不相通不合併）
 

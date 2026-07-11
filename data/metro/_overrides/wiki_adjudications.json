@@ -150,6 +150,36 @@
    "wiki": "en:4 (New York City Subway service)",
    "ours": 54,
    "note": "ours 54＝en wiki 4 車深夜全停（延駛 New Lots Av）54 站（日間 28 為快車計法）。agent 逐站核對 2026-07-11。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:D (New York City Subway service)",
+   "ours": 41,
+   "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:Q (New York City Subway service)",
+   "ours": 34,
+   "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:5 (New York City Subway service)",
+   "ours": 45,
+   "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:E (New York City Subway service)",
+   "ours": 32,
+   "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
+  },
+  {
+   "city": "New York City",
+   "wiki": "en:A (New York City Subway service)",
+   "ours": 66,
+   "note": "紐約共線畫1條→同 ref 的上下行/深夜/尖峰變體合併成1條線，站數為該線「全服務並集」（深夜全停+尖峰+分支所有停靠站），wiki infobox 為單一時段模式，計法不同、我方為該線服務的所有站。2026-07 變體合併後裁決。"
   }
  ]
 }

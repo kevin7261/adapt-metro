@@ -194,8 +194,9 @@ async function render() {
     seg(info.baseA, info.baseB)          // DP baseline
     seg(info.pt, info.foot)              // perpendicular (垂距)
     refG.append('circle')
+      .attr('class', 'ref-foot')
       .attr('cx', P(info.foot)[0]).attr('cy', P(info.foot)[1])
-      .attr('r', 2).attr('fill', '#ec4899')
+      .attr('r', 2 / zk).attr('fill', '#ec4899')
   }
   const clearRef = () => refG.selectAll('*').remove()
 
@@ -509,6 +510,12 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 .d3-hint.error { color: hsl(var(--destructive)); }
+/* Strokes stay a constant screen width regardless of the zoom transform, so
+   lines/borders/reference lines never thicken when zooming (dot radius & label
+   size are counter-scaled in JS). */
+.d3-svg :deep(g path),
+.d3-svg :deep(g line),
+.d3-svg :deep(g circle) { vector-effect: non-scaling-stroke; }
 .d3-svg :deep(text.st-label) {
   font-size: 9px;
   fill: #e5e7eb;

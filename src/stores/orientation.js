@@ -56,6 +56,10 @@ function eachSegment(geom, fn) {
 //   phi   — orientation-order φ ∈ [0,1]: 0 = uniform/disordered, 1 = perfect grid
 export function computeOrientation(geojson) {
   const weights = new Array(NUM_BINS).fill(0)
+  // per-bin length-weighted resultant of the (angle-quadrupled) folded bearing —
+  // lets us take the precise mean direction of just the dominant wedge's lines.
+  const qx = new Array(NUM_BINS).fill(0)
+  const qy = new Array(NUM_BINS).fill(0)
   let total = 0
   let segments = 0
   // Length-weighted resultant vector of bearings folded into 90° (grid symmetry),
@@ -74,17 +78,17 @@ export function computeOrientation(geojson) {
       const w = segLength(a, b)
       if (!(w > 0)) return
       const brg = bearing(a, b)
-      // bearing + reciprocal, each weighted by the same segment length
-      weights[binOf(brg)] += w
-      weights[binOf((brg + 180) % 360)] += w
+      const b1 = binOf(brg), b2 = binOf((brg + 180) % 360) // bearing + reciprocal
+      weights[b1] += w
+      weights[b2] += w
       total += w * 2
       segments++
       // fold to 90° and quadruple the angle for the length-weighted circular mean
-      // (its resultant magnitude also gives the grid-likeness `strength`)
       const a4 = toRad(((brg % 90) + 90) % 90 * 4)
-      sx += w * Math.cos(a4)
-      sy += w * Math.sin(a4)
-      lenSum += w
+      const cw = w * Math.cos(a4), sw = w * Math.sin(a4)
+      sx += cw; sy += sw; lenSum += w   // global resultant → `strength`
+      qx[b1] += cw; qy[b1] += sw         // per-bin resultant → dominant-wedge mean
+      qx[b2] += cw; qy[b2] += sw
     })
   }
 
@@ -103,12 +107,14 @@ export function computeOrientation(geojson) {
   // the bearings are around one orientation; near 0 the suggestion is weak.
   const strength = Math.hypot(sx, sy) / lenSum
 
-  // Rotation angle — a precise value computed from the WHOLE distribution, not
-  // the single tallest wedge. Length-weighted circular mean of all bearings
-  // (angle-quadrupled for the 90° grid symmetry): the resultant (sx, sy) sums
-  // every segment; its angle is the dominant axis. Rotate it to the nearest
+  // Rotation angle = length-weighted mean of ONLY the lines inside the dominant
+  // (red-highlighted) wedge — the tallest 10° bin. Using that bin's resultant
+  // (qx, qy) gives the precise mean bearing of just those lines (not the coarse
+  // bin centre, and not pulled by other directions); rotate it to the nearest
   // cardinal. Folding to 90° caps the turn at 45° (minimum rotation).
-  let alpha = (Math.atan2(sy, sx) * 180 / Math.PI) / 4
+  let mi = 0
+  for (let i = 1; i < NUM_BINS; i++) if (weights[i] > weights[mi]) mi = i
+  let alpha = (Math.atan2(qy[mi], qx[mi]) * 180 / Math.PI) / 4
   if (alpha < 0) alpha += 90
   const tilt = alpha <= 45 ? alpha : alpha - 90
 
