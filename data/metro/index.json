@@ -4,7 +4,7 @@
   "system_count": 224,
   "wikipedia_system_count": 233,
   "line_total": 1461,
-  "station_total": 17757,
+  "station_total": 17805,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -28,7 +28,7 @@
       "wikidata": "Q126093",
       "line_count": 49,
       "segment_count": 89,
-      "station_count": 499,
+      "station_count": 505,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -575,7 +575,7 @@
       "wikidata": "Q50751",
       "line_count": 23,
       "segment_count": 34,
-      "station_count": 334,
+      "station_count": 337,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -808,7 +808,7 @@
       "wikidata": "Q1152341",
       "line_count": 21,
       "segment_count": 28,
-      "station_count": 423,
+      "station_count": 425,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1109,7 +1109,7 @@
       "wikidata": "Q1374502",
       "line_count": 15,
       "segment_count": 24,
-      "station_count": 219,
+      "station_count": 222,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1528,7 +1528,7 @@
       "wikidata": "Q263572",
       "line_count": 13,
       "segment_count": 22,
-      "station_count": 234,
+      "station_count": 235,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3194,7 +3194,7 @@
       "wikidata": "Q1054280",
       "line_count": 11,
       "segment_count": 14,
-      "station_count": 243,
+      "station_count": 244,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4152,7 +4152,7 @@
       "wikidata": "Q6956302",
       "line_count": 7,
       "segment_count": 10,
-      "station_count": 67,
+      "station_count": 86,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -15536,7 +15536,7 @@
       "wikidata": "Q11103955",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 39,
+      "station_count": 52,
       "audit": {
         "strategies_tried": [],
         "passed": true,
