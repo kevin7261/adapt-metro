@@ -1,8 +1,10 @@
+import { assetUrl } from '../lib/assetUrl'
+
 // World metro-system catalog (data/metro/index.json), fetched once and cached.
 let catalogPromise = null
 
 export function loadMetroCatalog() {
-  catalogPromise ??= fetch('/data/metro/index.json')
+  catalogPromise ??= fetch(assetUrl('data/metro/index.json'))
     .then((r) => {
       if (!r.ok) throw new Error(`index.json ${r.status}`)
       return r.json()
@@ -23,7 +25,7 @@ export function loadMetroCatalog() {
 let mapsIndexPromise = null
 
 export function loadMapsIndex() {
-  mapsIndexPromise ??= fetch('/data/metro/maps/maps_index.json')
+  mapsIndexPromise ??= fetch(assetUrl('data/metro/maps/maps_index.json'))
     .then((r) => {
       if (!r.ok) throw new Error(`maps_index.json ${r.status}`)
       return r.json()

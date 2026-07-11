@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
+import { assetUrl } from '../lib/assetUrl'
 
 // One city tile: lazily fetch its GeoJSON when scrolled into view, then draw a
 // lightweight SVG thumbnail of the network (lines in their colour + station
@@ -73,7 +74,7 @@ async function load() {
     const id = props.system.file.split('/').pop().replace(/\.geojson$/, '')
     let data = layerData[id]
     if (!data) {
-      const res = await fetch(`/data/metro/${props.system.file}`)
+      const res = await fetch(assetUrl(`data/metro/${props.system.file}`))
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       data = await res.json()
       layerData[id] = data

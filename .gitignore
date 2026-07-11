@@ -14,5 +14,7 @@ dist/
 .env
 .env.local
 
-# Local AI session
-.claude/
+# Local AI session (keep skills tracked so CI/Pages can ship them)
+.claude/*
+!.claude/skills/
+!.claude/skills/**/

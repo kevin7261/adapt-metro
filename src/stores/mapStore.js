@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { assetUrl } from '../lib/assetUrl'
 import { loadPersisted } from './persist'
 
 let toastTimer = null
@@ -96,7 +97,7 @@ export const useMapStore = defineStore('map', {
           name: id,
           type: 'metro',
           groupId: 'metro-maps',
-          file: `/data/metro/${sys.file}`,
+          file: assetUrl(`data/metro/${sys.file}`),
           continent: sys.continent,
           country: sys.country,
           city: sys.city,

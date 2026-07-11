@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
+import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import OrientationRose from './OrientationRose.vue'
 import {
@@ -160,7 +161,7 @@ const websiteUrl = computed(() => meta.value?.official_website ?? null)
 // Official schematic route map: only the local downloaded image (the wiki URL
 // is surfaced separately as the Wikipedia link, not mislabelled as a map).
 const routeMapUrl = computed(() =>
-  mapEntry.value?.map_file ? `/data/metro/${mapEntry.value.map_file}` : null,
+  mapEntry.value?.map_file ? assetUrl(`data/metro/${mapEntry.value.map_file}`) : null,
 )
 // urbanrail.net continent index (city pages have irregular URLs, so link the
 // continent page — the city is one click away).

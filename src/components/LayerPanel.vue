@@ -5,6 +5,7 @@ import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, openGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
+import { assetUrl } from '../lib/assetUrl'
 import {
   PanelLeftClose, PanelLeftOpen,
   ZoomIn, TableProperties, Download, Trash2, Sparkles,
@@ -27,7 +28,7 @@ const skillIndex = ref({})       // id -> description (for the dropdown subtitle
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
 onMounted(async () => {
   try {
-    const res = await fetch('/skills/index.json')
+    const res = await fetch(assetUrl('skills/index.json'))
     if (res.ok) for (const s of await res.json()) skillIndex.value[s.id] = s.description
   } catch { /* labels fall back to the id */ }
   document.addEventListener('mousedown', onSkillDocClick)

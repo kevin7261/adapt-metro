@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
 import { Sparkles, X } from 'lucide-vue-next'
 import { skillView, closeSkillDoc } from '../stores/skillHandle'
+import { assetUrl } from '../lib/assetUrl'
 
 const html = ref('')
 const loading = ref(false)
@@ -12,7 +13,7 @@ watch(() => skillView.id, async (id) => {
   loading.value = true
   html.value = ''
   try {
-    const res = await fetch(`/skills/${id}.md`)
+    const res = await fetch(assetUrl(`skills/${id}.md`))
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const md = (await res.text()).replace(/^---\n[\s\S]*?\n---\n/, '') // strip frontmatter
     html.value = marked.parse(md)
