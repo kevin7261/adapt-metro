@@ -1,45 +1,51 @@
 // Schematic gridding (⑨) — see skill route-skeleton-grid.
-// Snap a connect-skeleton to an integer grid: the coloured (non-black) points
-// define the columns/rows by RANK of their x/y (equidistant — real distances are
-// dropped); every line is cut at coloured points; endpoints snap to the grid;
-// black (through) points are spread evenly back along each straightened sub-edge.
-// HARD RULE: no grid cell may hold two coloured points — collisions are bumped to
-// the nearest free cell. Pure function: `posById` are already-projected screen coords.
+// Snap a connect-skeleton to an integer grid. Coloured (non-black) points define
+// columns/rows by rank; blue lines are SEPARATORS (they run between points,
+// never through one) and every point sits at its cell's CENTRE.
+//
+// HARD RULE: a cell may hold at most ONE coloured point. Strategy: start from a
+// COARSE banding (chain-clustering, 10 px) so the grid stays sparse, then SPLIT
+// a band locally only where a cell actually holds two coloured points — the
+// grid ends up "coarse + a few extra lines", not one-band-per-point dense.
+// Truly coincident pairs (no gap on either axis) are separated in the post view
+// by bumping to the nearest free cell. Pure function: `posById` are projected
+// screen coords (rotation already baked in).
 
-// Cluster sorted values within `tol`, returning each cluster's mean (ascending).
-function cluster(values, tol) {
-  const sorted = [...values].sort((a, b) => a - b)
-  const out = []
-  let bucket = []
-  for (const v of sorted) {
-    if (bucket.length && v - bucket[bucket.length - 1] > tol) {
-      out.push(bucket.reduce((s, x) => s + x, 0) / bucket.length)
-      bucket = []
-    }
-    bucket.push(v)
+const EPS = 0.5 // px — below this two coords count as coincident
+
+// Chain-cluster cut positions: a cut midway inside every gap > tol.
+function chainCuts(sortedVals, tol) {
+  const cuts = []
+  for (let i = 1; i < sortedVals.length; i++) {
+    if (sortedVals[i] - sortedVals[i - 1] > tol) cuts.push((sortedVals[i] + sortedVals[i - 1]) / 2)
   }
-  if (bucket.length) out.push(bucket.reduce((s, x) => s + x, 0) / bucket.length)
-  return out
+  return cuts
 }
 
-// Nearest index in an ascending array.
-function nearestIdx(arr, v) {
-  let best = 0, bd = Infinity
-  for (let i = 0; i < arr.length; i++) {
-    const d = Math.abs(arr[i] - v)
-    if (d < bd) { bd = d; best = i }
-  }
-  return best
+const rankOf = (v, cuts) => {
+  let r = 0
+  for (const c of cuts) if (v > c) r++
+  return r
 }
 
-// Nearest free cell to (c,r) not in `taken`, searched in expanding Chebyshev
-// rings so a bumped point moves as little as possible.
+// Largest adjacent gap among sorted values: returns { gap, mid }.
+function largestGap(vals) {
+  const s = [...vals].sort((a, b) => a - b)
+  let gap = 0, mid = 0
+  for (let i = 1; i < s.length; i++) {
+    const g = s[i] - s[i - 1]
+    if (g > gap) { gap = g; mid = (s[i] + s[i - 1]) / 2 }
+  }
+  return { gap, mid }
+}
+
+// Nearest free cell to (c,r), expanding Chebyshev rings (minimal displacement).
 function nearestFree(c, r, taken) {
   for (let rad = 1; rad < 4000; rad++) {
     let best = null, bd = Infinity
     for (let dc = -rad; dc <= rad; dc++) {
       for (let dr = -rad; dr <= rad; dr++) {
-        if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue // ring only
+        if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
         const nc = c + dc, nr = r + dr
         if (nc < 0 || nr < 0 || taken.has(`${nc},${nr}`)) continue
         const d = dc * dc + dr * dr
@@ -53,19 +59,43 @@ function nearestFree(c, r, taken) {
 
 export function buildSchematicGrid(skeleton, posById, extent) {
   const [x0, y0, x1, y1] = extent
-  const TOL = 10 // px — points within this on an axis share a column/row
+  const TOL = 10 // px — coarse chain-clustering; splits below refine only where needed
   const cls = skeleton.stationClass
 
   const colored = [...cls].filter(([id, c]) => c !== 'black' && posById.has(id)).map(([id]) => id)
-  const xsCol = cluster(colored.map((id) => posById.get(id)[0]), TOL)
-  const ysRow = cluster(colored.map((id) => posById.get(id)[1]), TOL)
-  const colOf = (x) => nearestIdx(xsCol, x)
-  const rowOf = (y) => nearestIdx(ysRow, y)
+  const pts = colored.map((id) => ({ id, x: posById.get(id)[0], y: posById.get(id)[1] }))
+  const cutsX = chainCuts(pts.map((p) => p.x).sort((a, b) => a - b), TOL)
+  const cutsY = chainCuts(pts.map((p) => p.y).sort((a, b) => a - b), TOL)
 
-  // Assign a UNIQUE integer cell to each coloured point (≤1 coloured per cell).
+  // Split bands until every cell holds ≤1 coloured point (coincident pairs are
+  // left for the post-view bump). Each split adds ONE separator midway across
+  // the widest gap inside the offending cell — grid stays as coarse as possible.
+  for (let guard = 0; guard < 2000; guard++) {
+    const cells = new Map()
+    for (const p of pts) {
+      const k = `${rankOf(p.x, cutsX)},${rankOf(p.y, cutsY)}`
+      if (!cells.has(k)) cells.set(k, [])
+      cells.get(k).push(p)
+    }
+    let split = false
+    for (const group of cells.values()) {
+      if (group.length < 2) continue
+      const gx = largestGap(group.map((p) => p.x))
+      const gy = largestGap(group.map((p) => p.y))
+      if (gx.gap < EPS && gy.gap < EPS) continue // coincident — bump later
+      if (gx.gap >= gy.gap) cutsX.push(gx.mid)
+      else cutsY.push(gy.mid)
+      cutsX.sort((a, b) => a - b); cutsY.sort((a, b) => a - b)
+      split = true
+      break // re-bucket from scratch after each split
+    }
+    if (!split) break
+  }
+
+  // Final unique cell per coloured point (bump only truly coincident leftovers).
   const taken = new Set()
   const cellOf = new Map()
-  const ranked = colored.map((id) => ({ id, c: colOf(posById.get(id)[0]), r: rowOf(posById.get(id)[1]) }))
+  const ranked = pts.map((p) => ({ id: p.id, c: rankOf(p.x, cutsX), r: rankOf(p.y, cutsY) }))
   ranked.sort((A, B) => A.c - B.c || A.r - B.r || (A.id < B.id ? -1 : 1))
   for (const { id, c, r } of ranked) {
     let cc = c, rr = r
@@ -74,13 +104,13 @@ export function buildSchematicGrid(skeleton, posById, extent) {
     cellOf.set(id, [cc, rr])
   }
 
-  // grid size AFTER collision resolution
-  let maxC = 0, maxR = 0
+  let maxC = cutsX.length, maxR = cutsY.length
   for (const [c, r] of cellOf.values()) { if (c > maxC) maxC = c; if (r > maxR) maxR = r }
-  const cellW = (x1 - x0) / Math.max(maxC, 1)
-  const cellH = (y1 - y0) / Math.max(maxR, 1)
-  const cx = (c) => x0 + c * cellW
-  const cy = (r) => y0 + r * cellH
+  const cols = maxC + 1, rows = maxR + 1
+  const cellW = (x1 - x0) / cols
+  const cellH = (y1 - y0) / rows
+  const cx = (c) => x0 + (c + 0.5) * cellW // cell centre
+  const cy = (r) => y0 + (r + 0.5) * cellH
 
   const posAfter = new Map()
   for (const [id, [c, r]] of cellOf) posAfter.set(id, [cx(c), cy(r)])
@@ -95,7 +125,7 @@ export function buildSchematicGrid(skeleton, posById, extent) {
     for (const i of cuts) {
       if (!posAfter.has(path[i]) && posById.has(path[i])) {
         const [x, y] = posById.get(path[i]) // rare: a black endpoint — snap by rank
-        posAfter.set(path[i], [cx(colOf(x)), cy(rowOf(y))])
+        posAfter.set(path[i], [cx(rankOf(x, cutsX)), cy(rankOf(y, cutsY))])
       }
     }
     for (let s = 0; s < cuts.length - 1; s++) {
@@ -110,13 +140,13 @@ export function buildSchematicGrid(skeleton, posById, extent) {
     }
   }
 
-  const range = (n) => Array.from({ length: n + 1 }, (_, i) => i)
+  const seps = (n, o, step) => Array.from({ length: n + 1 }, (_, i) => o + i * step)
   return {
     posAfter,
-    // blue separator lines: BEFORE at real coords (rank preview), AFTER a full
-    // integer grid (0..maxC columns, 0..maxR rows) after collision resolution
-    blueBefore: { xs: xsCol, ys: ysRow },
-    blueAfter: { xs: range(maxC).map(cx), ys: range(maxR).map(cy) },
-    cols: maxC + 1, rows: maxR + 1,
+    // BEFORE: the actual cut positions (always between points) + outer edges.
+    // AFTER: uniform cell boundaries; points sit at cell centres.
+    blueBefore: { xs: [x0, ...cutsX, x1], ys: [y0, ...cutsY, y1] },
+    blueAfter: { xs: seps(cols, x0, cellW), ys: seps(rows, y0, cellH) },
+    cols, rows,
   }
 }

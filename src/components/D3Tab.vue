@@ -211,22 +211,29 @@ async function render() {
   const refG = sel.append('g').attr('class', 'ref-layer').style('pointer-events', 'none')
   const stationsG = sel.append('g').attr('class', 'stations-layer')
 
-  // Schematic gridding: blue rank-separator lines + integer axis labels (column
+  // Schematic gridding: blue SEPARATOR lines (they run between cells — never
+  // through a point) + integer cell coordinates centred in each band (column
   // indices along the bottom, row indices down the left).
   if (grid) {
     const b = gridPost.value ? grid.blueAfter : grid.blueBefore
-    b.xs.forEach((x, c) => {
+    for (const x of b.xs) {
       gridG.append('line').attr('x1', x).attr('y1', 24).attr('x2', x).attr('y2', h - 24)
         .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
-      gridG.append('text').attr('class', 'grid-axis').attr('x', x).attr('y', h - 10)
-        .attr('text-anchor', 'middle').text(c)
-    })
-    b.ys.forEach((y, r) => {
+    }
+    for (const y of b.ys) {
       gridG.append('line').attr('x1', 24).attr('y1', y).attr('x2', w - 24).attr('y2', y)
         .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
-      gridG.append('text').attr('class', 'grid-axis').attr('x', 12).attr('y', y)
+    }
+    for (let c = 0; c < b.xs.length - 1; c++) {
+      gridG.append('text').attr('class', 'grid-axis')
+        .attr('x', (b.xs[c] + b.xs[c + 1]) / 2).attr('y', h - 10)
+        .attr('text-anchor', 'middle').text(c)
+    }
+    for (let r = 0; r < b.ys.length - 1; r++) {
+      gridG.append('text').attr('class', 'grid-axis')
+        .attr('x', 12).attr('y', (b.ys[r] + b.ys[r + 1]) / 2)
         .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').text(r)
-    })
+    }
   }
 
   // Pink reference lines: the whole-edge chord (sinuosity baseline), the DP
