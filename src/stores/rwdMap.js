@@ -145,22 +145,25 @@ function pointOnLeg(P, leg) {
   return t > leg.lo + OVER_TOL && t < leg.hi - OVER_TOL
 }
 
-// Detours for a LEGAL straight line that conflicts with earlier polylines:
-// parallel offsets first (smallest visual displacement), big 1-bend detours
-// last. `u` is the offset unit in pixels (~one grid cell).
+// Detours for a LEGAL straight line that conflicts with earlier polylines.
+// Bend count has ABSOLUTE priority（使用者規則：直線 > 單折 > 雙折）— every
+// 1-bend detour is tried before any 2-bend one, however large its displacement.
+// `u` is the offset unit in pixels (~one grid cell).
 function legalDetours(S, T, dir, u) {
   const dx = T[0] - S[0], dy = T[1] - S[1]
   const sx = Math.sign(dx), sy = Math.sign(dy)
   const ax = Math.abs(dx), ay = Math.abs(dy)
   const out = []
   if (dir === 'H') {
+    // NO 1-bend detour exists for an H line without a 45°→45° corner (the
+    // triangle apex) — and 45°轉45° is forbidden (user rule). 2 bends only:
+    // parallel offsets (45° out, run alongside, 45° back).
     for (const d of [u, 2 * u]) {
       if (ax <= 2 * d) continue
       for (const e of [1, -1]) {
         out.push({ pts: [S, [S[0] + sx * d, S[1] + e * d], [T[0] - sx * d, S[1] + e * d], T], bends: 2 })
       }
     }
-    for (const e of [1, -1]) out.push({ pts: [S, [S[0] + dx / 2, S[1] + e * ax / 2], T], bends: 1 })
   } else if (dir === 'V') {
     for (const d of [u, 2 * u]) {
       if (ay <= 2 * d) continue
@@ -168,16 +171,17 @@ function legalDetours(S, T, dir, u) {
         out.push({ pts: [S, [S[0] + e * d, S[1] + sy * d], [S[0] + e * d, T[1] - sy * d], T], bends: 2 })
       }
     }
-    for (const e of [1, -1]) out.push({ pts: [S, [S[0] + e * ay / 2, S[1] + dy / 2], T], bends: 1 })
-  } else { // D+ / D- : run alongside via a short H or V lead-in/out, L corners last
+  } else { // D+ / D-
     const m = (ax + ay) / 2
+    // 1 bend: L corners
+    out.push({ pts: [S, [T[0], S[1]], T], bends: 1 })
+    out.push({ pts: [S, [S[0], T[1]], T], bends: 1 })
+    // 2 bends: run alongside via a short H or V lead-in/out
     for (const d of [u, 2 * u]) {
       if (m <= d) continue
       out.push({ pts: [S, [S[0] + sx * d, S[1]], [T[0], T[1] - sy * d], T], bends: 2 })
       out.push({ pts: [S, [S[0], S[1] + sy * d], [T[0] - sx * d, T[1]], T], bends: 2 })
     }
-    out.push({ pts: [S, [T[0], S[1]], T], bends: 1 })
-    out.push({ pts: [S, [S[0], T[1]], T], bends: 1 })
   }
   return out
 }
@@ -245,7 +249,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // (may exceed 2 bends); forced = STILL in conflict after even that (should be
   // 0 — only a lattice-router failure leaves one); fallback = an illegal
   // direction nothing could legalize; swapped = soft continuation swaps.
-  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, restarts: 0, segs: 0 }
+  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, straightened: 0, restarts: 0, segs: 0 }
 
   const usable = segs.filter((s) => pos.has(s.a) && pos.has(s.b))
   // Longest corridors route first (they have the fewest workable alternatives);
@@ -366,11 +370,14 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const TURN = 2 * unit
     const macS = macros(S, si, sj)
     const macT = macros(T, ti, tj)
-    // portals: lattice points that can 45°-macro INTO T
-    const portal = new Map() // i*ny+j -> { mid (from lattice pt toward T), len }
+    // portals: lattice points that can 45°-macro INTO T. dirIdx = the entry
+    // path's FIRST leg direction (for the 45°→45° corner ban at the join).
+    const portal = new Map() // i*ny+j -> { mid, len, dirIdx }
     for (const m of macT) {
       const k = m.i * ny + m.j
-      const entry = { mid: [...m.mid].reverse(), len: m.len + m.bendy * TURN }
+      const G = atP(m.i, m.j)
+      const firstB = m.mid.length ? m.mid[m.mid.length - 1] : T // G→D→T (or G→T)
+      const entry = { mid: [...m.mid].reverse(), len: m.len + m.bendy * TURN, dirIdx: -1, G, firstB }
       if (!portal.has(k) || portal.get(k).len > entry.len) portal.set(k, entry)
     }
     // Directed flood probe FROM T TOWARD S (best-first on Manhattan distance,
@@ -427,6 +434,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
     const ND = DIRS.length
     const skey = (i, j, d) => (i * ny + j) * ND + d
+    const dirIdxOf = (A, B) => {
+      const ddx = Math.sign(B[0] - A[0]), ddy = Math.sign(B[1] - A[1])
+      return DIRS.findIndex((D) => D[0] === ddx && D[1] === ddy)
+    }
+    for (const e of portal.values()) e.dirIdx = dirIdxOf(e.G, e.firstB)
     const g = new Map(), from = new Map()
     const heap = makeHeap() // [f, key, i, j, d]
     const h = (i, j) => (Math.abs(ti - i) * sx + Math.abs(tj - j) * sy) * W
@@ -434,7 +446,12 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const seedMid = new Map() // stateKey -> mid pts (between S and that lattice pt)
     for (let d = 0; d < ND; d++) { g.set(skey(si, sj, d), 0); heap.push([h(si, sj), skey(si, sj, d), si, sj, d]) }
     for (const m of macS) {
-      for (let d = 0; d < ND; d++) {
+      // Seed with the macro's TRUE landing direction so the 45°→45° corner ban
+      // below sees the diagonal leg (fallback: axis dirs when it has no index).
+      const G = atP(m.i, m.j)
+      const lastA = m.mid.length ? m.mid[m.mid.length - 1] : S
+      const landDir = dirIdxOf(lastA, G)
+      for (const d of landDir >= 0 ? [landDir] : [0, 1, 2, 3]) {
         const k = skey(m.i, m.j, d)
         const cost = m.len + m.bendy * TURN
         if (cost >= (g.get(k) ?? Infinity)) continue
@@ -450,8 +467,14 @@ export function buildRwdMap(segs, pos, opts = {}) {
       const gk = g.get(k)
       if (i === ti && j === tj) { goal = k; goalEntry = null; break }
       const pk = portal.get(i * ny + j)
-      if (pk && !(i === si && j === sj)) { goal = k; goalEntry = pk; break }
+      if (pk && !(i === si && j === sj) &&
+          !(d >= 4 && pk.dirIdx >= 4 && pk.dirIdx !== d)) { // no 45°→45° at the join
+        goal = k
+        goalEntry = pk
+        break
+      }
       for (let nd = 0; nd < ND; nd++) {
+        if (d >= 4 && nd >= 4 && nd !== d) continue // 45°轉45° forbidden (user rule)
         const [dx, dy, step] = DIRS[nd]
         const ni = i + dx, nj = j + dy
         if (ni < 0 || nj < 0 || ni >= nx || nj >= ny) continue
@@ -675,6 +698,33 @@ export function buildRwdMap(segs, pos, opts = {}) {
       L.squeezed = true
       stats.squeezed++
     }
+  }
+
+  /* ---- bend reduction（使用者規則：可直線就直線，直線 > 單折 > 雙折）: a line
+     bent by a conflict that has since MOVED AWAY never revisited lower-bend
+     shapes — retry every bent line with strictly fewer bends (straight first)
+     and adopt the first conflict-free one. Repeat until stable. ---- */
+  for (let sweep = 0; sweep < 3; sweep++) {
+    let improved = false
+    for (let li = 0; li < lines.length; li++) {
+      const L = lines[li]
+      if (L.fallback || L.forced || L.bends <= 0) continue
+      const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+      const placed = placedOf(li)
+      for (const c of candidates(S, T, unit)) {
+        if (c.fallback || c.bends >= L.bends) continue
+        if (conflictCount(c.pts, L.seg, placed) > 0) continue
+        L.pts = c.pts
+        L.legs = legsOfPts(c.pts)
+        L.bends = c.bends
+        L.routed = false
+        L.squeezed = false
+        stats.straightened++
+        improved = true
+        break
+      }
+    }
+    if (!improved) break
   }
 
   for (const L of lines) {

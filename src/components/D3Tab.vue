@@ -273,44 +273,33 @@ async function render() {
     const cw = (w - 48) / nC, ch = (h - 48) / nR
     const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
     if (rwdMode.value) {
-      // RWD 路網: 八方向約束以「版面 pixel」為準。The polylines are built ONCE in
-      // a FIXED VIRTUAL canvas (1200×800) and mapped to the real canvas with an
-      // ISOTROPIC scale + letterbox — uniform scaling preserves exact 45°, so
-      // the layout is stable across resizes and the heavy routing never reruns.
-      // The interior blacks already sit ON the polylines (no placeBlacks here).
-      if (!cachedRWD) {
+      // RWD 路網: 八方向約束以「版面 pixel」為準 — the map follows the panel shape
+      // (隨板面變形), so the polylines are rebuilt in the CURRENT canvas pixel
+      // space whenever the size changes (with cw ≠ ch a cell-space 45° is not
+      // 45° on screen). Same-size renders reuse the cached result. The interior
+      // blacks already sit ON the polylines (no placeBlacks here).
+      const sizeKey = `${w}x${h}`
+      if (!cachedRWD || cachedRWD.key !== sizeKey) {
         hcBusy.value = true
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
-        // SQUARE virtual cells (24px): ample routing space regardless of grid
-        // size, and the cell diagonal is exactly 45° — the isotropic screen
-        // mapping below preserves both.
-        const VCELL = 24
-        const VW = nC * VCELL, VH = nR * VCELL
-        const vcw = VCELL, vch = VCELL
-        const vPos = new Map()
-        for (const [id, p] of cells) vPos.set(id, [24 + (p[0] + 0.5) * vcw, 24 + (p[1] + 0.5) * vch])
+        const pxPos = new Map()
+        for (const [id, p] of cells) pxPos.set(id, cellPx(p))
         cachedRWD = {
-          ...buildRwdMap(buildHcGraph(cachedSkeleton, grid.cellOf).segs, vPos, {
-            unit: Math.min(vcw, vch),
-            lattice: { x0: 24, y0: 24, sx: vcw / 2, sy: vch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 },
+          key: sizeKey,
+          ...buildRwdMap(buildHcGraph(cachedSkeleton, grid.cellOf).segs, pxPos, {
+            unit: Math.min(cw, ch),
+            lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 },
           }),
-          VW, VH,
         }
         hcBusy.value = false
       }
       rwdStats.value = cachedRWD.stats
-      // isotropic virtual→screen transform (centred letterbox)
-      const sf = Math.min((w - 48) / cachedRWD.VW, (h - 48) / cachedRWD.VH)
-      const ox = 24 + ((w - 48) - cachedRWD.VW * sf) / 2
-      const oy = 24 + ((h - 48) - cachedRWD.VH * sf) / 2
-      const V = (p) => [ox + (p[0] - 24) * sf, oy + (p[1] - 24) * sf]
-      hcPos = new Map()
-      for (const [id, p] of cachedRWD.posAfter) hcPos.set(id, V(p))
-      rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts.map(V) }))
+      hcPos = new Map(cachedRWD.posAfter)
+      rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts }))
       hcBlue = {
-        xs: Array.from({ length: nC + 1 }, (_, i) => ox + i * (cachedRWD.VW / nC) * sf),
-        ys: Array.from({ length: nR + 1 }, (_, i) => oy + i * (cachedRWD.VH / nR) * sf),
+        xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
+        ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
       }
     } else {
       hcPos = new Map()
