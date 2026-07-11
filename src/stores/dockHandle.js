@@ -13,8 +13,8 @@ export function openLayerTab(layer) {
   }
   api.addPanel({
     id: layer.id,
-    // Hill Climbing views reuse the D3 tab (same renderer, different view tabs).
-    component: layer.type === 'd3' || layer.type === 'hillclimb' ? 'd3-tab' : 'layer-tab',
+    // Hill Climbing / RWD views reuse the D3 tab (same renderer, different view tabs).
+    component: ['d3', 'hillclimb', 'rwd'].includes(layer.type) ? 'd3-tab' : 'layer-tab',
     title: layer.name,
     // `title` in params too, so the custom tab (DockTab) can read it directly.
     params: { layerId: layer.id, title: layer.name },

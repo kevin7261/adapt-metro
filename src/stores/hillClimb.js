@@ -81,13 +81,14 @@ export function compactGrid(cellAfter, cols, rows) {
   }
 }
 
-export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
-  const W = { ...DEFAULT_W, ...(opts.weights ?? {}) }
+// The HC graph shared by the optimizer and the RWD drawing (rwdMap.js):
+// vertices = cut points that own a grid cell, segments = cut-to-cut sub-spans
+// of each skeleton edge, with the interior (black) station ids and a back-ref
+// to the parent edge (for route colours / class downstream).
+export function buildHcGraph(skeleton, cellOf) {
   const cls = skeleton.stationClass
-
-  /* ---- HC graph: cut points + cut-to-cut segments ---- */
-  const pos = new Map() // id -> [c, r] (integers, mutated by moves)
-  const segs = []       // { a, b, routes:Set<routeId>, hops }
+  const pos = new Map() // id -> [c, r] (integers, mutated by the optimizer)
+  const segs = []       // { a, b, routes:Set<routeId>, hops, interior:[id], edge }
   const inc = new Map() // id -> [segIndex]
   const addVert = (id) => {
     if (pos.has(id)) return true
@@ -108,11 +109,24 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
       if (a === b) continue // degenerate (tiny ring) — no usable direction
       if (!addVert(a) || !addVert(b)) continue
       const si = segs.length
-      segs.push({ a, b, routes: e.routes ?? new Set(), hops: cuts[s + 1] - cuts[s] })
+      segs.push({
+        a, b,
+        routes: e.routes ?? new Set(),
+        hops: cuts[s + 1] - cuts[s],
+        interior: path.slice(cuts[s] + 1, cuts[s + 1]), // black ids, in a→b order
+        edge: e,
+      })
       inc.get(a).push(si)
       inc.get(b).push(si)
     }
   }
+  return { pos, segs, inc }
+}
+
+export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
+  const W = { ...DEFAULT_W, ...(opts.weights ?? {}) }
+
+  const { pos, segs, inc } = buildHcGraph(skeleton, cellOf)
   if (!pos.size || !segs.length) {
     return { cellAfter: pos, stats: { before: 0, after: 0, rounds: 0, moved: 0, clusterMoves: 0, idealHop: 1 } }
   }

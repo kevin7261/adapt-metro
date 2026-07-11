@@ -126,6 +126,21 @@ function addHillClimbView(src, variant) {
   store.toast(`已建立 Hill Climbing 視圖（來源：${src.name} ${vLabel}）`)
 }
 
+/* Add RWD Maps view — source = a Hill Climbing view's 縮減網格 layout,
+   redrawn with strict H/V/45° polylines (版面路網畫線規則). */
+const hcLayerChoices = computed(() => store.layers.filter((l) => l.type === 'hillclimb'))
+function hcMeta(l) {
+  const d3l = store.layers.find((s) => s.id === l.sourceLayerId)
+  return d3l ? d3Meta(d3l) : ''
+}
+function addRwdView(src) {
+  const rwdLayer = store.addRwdLayer(src.id)
+  if (!rwdLayer) return
+  openLayerTab(rwdLayer)
+  close()
+  store.toast(`已建立 RWD Maps 視圖（來源：${src.name} 縮減網格）`)
+}
+
 /* Quick Selection — 常用城市 */
 const QUICK_CITIES = [
   { zh: '台北', en: 'Taipei' }, { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
@@ -381,6 +396,38 @@ const shortcuts = [
                 <span class="station-count">{{ d3Meta(l) }}</span>
               </button>
             </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Add RWD Maps view: pick a Hill Climbing layer (its 縮減網格 is the input) -->
+    <div v-else-if="dialog === 'add-rwd'" class="dialog add-d3">
+      <div class="dialog-header">
+        <h2 class="dialog-title">Add RWD Maps View</h2>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
+      </div>
+      <div class="dialog-body">
+        <div v-if="!hcLayerChoices.length" class="import-status">
+          Hill Climbing group 還沒有圖層 — 先在 Hill Climbing 用 + 建立一個視圖
+        </div>
+        <template v-else>
+          <p class="add-d3-hint">
+            選擇 Hill Climbing 視圖——其「縮減網格」佈局將以 H/V/45° 折線重繪
+            （版面路網畫線規則，建立後不可更改）：
+          </p>
+          <div class="stations-list">
+            <button
+              v-for="l in hcLayerChoices"
+              :key="l.id"
+              class="station-row"
+              @click="addRwdView(l)"
+            >
+              <MIcon name="route" :size="14" />
+              <span class="station-city">{{ l.name }}</span>
+              <span class="station-country">縮減網格</span>
+              <span class="station-count">{{ hcMeta(l) }}</span>
+            </button>
           </div>
         </template>
       </div>

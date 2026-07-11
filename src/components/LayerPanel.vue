@@ -10,16 +10,17 @@ import MIcon from './MIcon.vue'
 
 const store = useMapStore()
 
-const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain' }
-const typeBadges = { metro: 'METRO', d3: 'D3', hillclimb: 'HC' }
+const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
+const typeBadges = { metro: 'METRO', d3: 'D3', hillclimb: 'HC', rwd: 'RWD' }
 
 // Skills exposed per layer type (moved off the top toolbar into each layer):
 // Metro Maps layers get the two general data-pipeline skills + the cities index;
-// Map Adjust gets the skeleton + gridding skills; Hill Climbing its own.
+// Map Adjust gets the skeleton + gridding skills; Hill Climbing / RWD their own.
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
+  rwd: ['route-rwd-draw', 'route-hillclimb'],
 }
 // 城市 → 該城專屬 skill（讓每個城市的圖層在下拉多顯示自己的規則 skill）。
 const CITY_SKILL = {
@@ -258,6 +259,14 @@ onBeforeUnmount(() => {
             >
               <MIcon name="add" :size="14" />
             </button>
+            <button
+              v-if="item.group.id === 'rwd'"
+              class="btn-icon group-add"
+              title="Add RWD Maps view（來源：Hill Climbing 縮減網格）"
+              @click.stop="store.ui.dialog = 'add-rwd'"
+            >
+              <MIcon name="add" :size="14" />
+            </button>
           </div>
 
           <!-- Group children -->
@@ -265,6 +274,7 @@ onBeforeUnmount(() => {
             <div v-if="!item.children.length" class="group-empty">
               {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖'
                 : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
+                : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「縮減網格」建立 RWD Maps 視圖'
                 : '用 Import 匯入 metro map' }}
             </div>
             <div

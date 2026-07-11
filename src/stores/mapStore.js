@@ -45,6 +45,7 @@ export const useMapStore = defineStore('map', {
         { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
         { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
         { id: 'hillclimb', label: 'Hill Climbing', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
+        { id: 'rwd', label: 'RWD Maps', collapsed: p?.groupCollapsed?.['rwd'] ?? false },
       ],
     }
   },
@@ -194,6 +195,27 @@ export const useMapStore = defineStore('map', {
         groupId: 'hillclimb',
         sourceLayerId: d3LayerId,
         variant: v,
+        visible: true,
+        opacity: 1,
+      }
+      this.layers.push(layer)
+      this.selectedLayerId = layer.id
+      return layer
+    },
+
+    // Add an RWD Maps view (版面路網) — draws a Hill Climbing view's 縮減網格
+    // layout with strict H/V/45° polylines (see skill route-rwd-draw).
+    addRwdLayer(hcLayerId) {
+      const src = this.layers.find((l) => l.id === hcLayerId)
+      if (!src) return null
+      let n = 1
+      while (this.layers.some((l) => l.id === `rwd-view-${n}`)) n++
+      const layer = {
+        id: `rwd-view-${n}`,
+        name: `rwd-${src.name}`,
+        type: 'rwd',
+        groupId: 'rwd',
+        sourceLayerId: hcLayerId,
         visible: true,
         opacity: 1,
       }

@@ -8,7 +8,8 @@ import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
-import { buildHillClimb, compactGrid } from '../stores/hillClimb'
+import { buildHillClimb, compactGrid, buildHcGraph } from '../stores/hillClimb'
+import { buildRwdMap } from '../stores/rwdMap'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -23,18 +24,27 @@ const layer = computed(() => store.layers.find((l) => l.id === layerId) ?? null)
 // A Hill Climbing view (layer group Hill Climbing) reuses this tab: its source
 // is a Map Adjust (d3) layer whose 格網化後 layout it optimizes — the variant
 // ('orig' | 'rot') picks which of the city's two grid-post layouts is the input.
+// An RWD Maps view chains one step further: its source is a Hill Climbing layer
+// whose 縮減網格 layout it redraws with strict H/V/45° polylines.
 const isHC = computed(() => layer.value?.type === 'hillclimb')
-const hcVariant = computed(() => (layer.value?.variant === 'rot' ? 'rot' : 'orig'))
+const isRWD = computed(() => layer.value?.type === 'rwd')
+const needsHC = computed(() => isHC.value || isRWD.value)
+// The hillclimb layer in the chain: the layer itself (HC view) or its source (RWD).
+const hcLayer = computed(() =>
+  isHC.value ? layer.value
+    : isRWD.value ? store.layers.find((l) => l.id === layer.value?.sourceLayerId) ?? null
+      : null)
+const hcVariant = computed(() => (hcLayer.value?.variant === 'rot' ? 'rot' : 'orig'))
 const hcD3Layer = computed(() =>
-  isHC.value ? store.layers.find((l) => l.id === layer.value?.sourceLayerId) ?? null : null)
+  hcLayer.value ? store.layers.find((l) => l.id === hcLayer.value.sourceLayerId) ?? null : null)
 
 // Metro layers currently in the panel — the loadable sources.
 const metroLayers = computed(() => store.layers.filter((l) => l.type === 'metro'))
 // The metro layer this view draws — Info/Style/Object and the attribute table
-// are bound to it, exactly like the MapLibre tab. A Hill Climbing view resolves
-// through its d3 layer to that view's metro source.
+// are bound to it, exactly like the MapLibre tab. Hill Climbing / RWD views
+// resolve through their d3 layer to that view's metro source.
 const sourceLayer = computed(() => {
-  const srcId = isHC.value ? hcD3Layer.value?.sourceLayerId : layer.value?.sourceLayerId
+  const srcId = needsHC.value ? hcD3Layer.value?.sourceLayerId : layer.value?.sourceLayerId
   return metroLayers.value.find((l) => l.id === srcId) ?? null
 })
 // A file-imported view owns its data (stored under its own id in layerData);
@@ -42,7 +52,7 @@ const sourceLayer = computed(() => {
 const ownData = computed(() => !!layerData[layerId])
 const panelLayer = computed(() => {
   if (ownData.value) return layer.value
-  if (isHC.value && hcD3Layer.value && layerData[hcD3Layer.value.id]) return hcD3Layer.value
+  if (needsHC.value && hcD3Layer.value && layerData[hcD3Layer.value.id]) return hcD3Layer.value
   return sourceLayer.value
 })
 
@@ -65,16 +75,20 @@ const tilt = ref(0)
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
 // A Hill Climbing view has just 2 tabs: the grid-post input and the optimized
 // layout ('hc', ②, see skill route-hillclimb) — rotation comes from its variant.
-const mode = ref(isHC.value ? 'hc' : 'original')
-const hcMode = computed(() => mode.value === 'hc' || mode.value === 'hc-compact')
+const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
+// Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
+const hcMode = computed(() => ['hc', 'hc-compact', 'rwd'].includes(mode.value))
 // 縮減網格: after hill climbing, drop empty (colour-free) grid rows/columns —
 // smaller grid, identical topology (rank order preserved by compactGrid).
-const hcCompact = computed(() => mode.value === 'hc-compact')
+// RWD views sit on the compact grid in BOTH of their tabs.
+const hcCompact = computed(() => mode.value === 'hc-compact' || isRWD.value)
+// RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
+const rwdMode = computed(() => mode.value === 'rwd')
 const rotated = computed(() =>
-  isHC.value ? hcVariant.value === 'rot' : /(^rotated|-rot-)/.test(mode.value))
+  needsHC.value ? hcVariant.value === 'rot' : /(^rotated|-rot-)/.test(mode.value))
 const skeletonized = computed(() => mode.value.includes('skeleton') || mode.value.startsWith('grid-'))
-const gridMode = computed(() => isHC.value || mode.value.startsWith('grid-'))
-const gridPost = computed(() => isHC.value || mode.value.endsWith('post'))
+const gridMode = computed(() => needsHC.value || mode.value.startsWith('grid-'))
+const gridPost = computed(() => needsHC.value || mode.value.endsWith('post'))
 const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 
 // Heavy bits precomputed ONCE per dataset so switching tabs is instant: the
@@ -87,8 +101,15 @@ let cachedHCCompact = null
 const hcBusy = ref(false)
 const hcStats = ref(null)
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
+const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
+  if (isRWD.value) {
+    return [
+      { id: 'hc-compact', label: '縮減網格' },
+      { id: 'rwd', label: 'RWD 路網' },
+    ]
+  }
   if (isHC.value) {
     return [
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
@@ -135,11 +156,15 @@ function stationColor(p) {
 async function sourceData() {
   // File-imported view: its own GeoJSON lives under this layer's id.
   if (layerData[layerId]) return layerData[layerId]
-  if (isHC.value) {
-    // Hill Climbing → its Map Adjust layer → that view's data (own or metro).
+  if (needsHC.value) {
+    // Hill Climbing / RWD → (HC layer →) Map Adjust layer → its data (own or metro).
+    if (isRWD.value && !hcLayer.value) {
+      if (layer.value?.sourceLayerId) loadError.value = '來源 Hill Climbing 圖層已被移除，請重新選擇'
+      return null
+    }
     const d3l = hcD3Layer.value
     if (!d3l) {
-      if (layer.value?.sourceLayerId) loadError.value = '來源 Map Adjust 圖層已被移除，請重新選擇'
+      if (hcLayer.value?.sourceLayerId) loadError.value = '來源 Map Adjust 圖層已被移除，請重新選擇'
       return null
     }
     if (layerData[d3l.id]) return layerData[d3l.id]
@@ -200,6 +225,7 @@ async function render() {
     cachedHCCompact = null
     hcStats.value = null
     hcCompactStats.value = null
+    rwdStats.value = null
   }
 
   const projection = geoMercator()
@@ -224,8 +250,8 @@ async function render() {
   // mapping below, never the layout. Blacks are re-spread along the new runs.
   // 縮減網格 tab additionally drops colour-free rows/columns (compactGrid) —
   // fewer cells over the same extent, so everything spreads out.
-  let hcPos = null, hcBlue = null
-  if (grid && isHC.value && hcMode.value) {
+  let hcPos = null, hcBlue = null, rwdLines = null
+  if (grid && needsHC.value && hcMode.value) {
     if (!cachedHC) {
       hcBusy.value = true
       await new Promise((r) => setTimeout(r, 30)) // let the busy hint paint first
@@ -243,9 +269,26 @@ async function render() {
       hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
     }
     const cw = (w - 48) / nC, ch = (h - 48) / nR
-    hcPos = new Map()
-    for (const [id, [c, r]] of cells) hcPos.set(id, [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch])
-    placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+    const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+    if (rwdMode.value) {
+      // RWD 路網: 八方向約束以「版面 pixel」為準 — the polylines are (re)built in
+      // PIXEL space on every render (with cw ≠ ch a cell-space 45° is NOT 45° on
+      // screen), so this is extent-dependent and never cached across resizes.
+      // The interior blacks already sit ON the polylines (no placeBlacks here).
+      const pxPos = new Map()
+      for (const [id, p] of cells) pxPos.set(id, cellPx(p))
+      const rwd = buildRwdMap(
+        buildHcGraph(cachedSkeleton, grid.cellOf).segs, pxPos,
+        { unit: Math.min(cw, ch) },
+      )
+      rwdStats.value = rwd.stats
+      hcPos = rwd.posAfter
+      rwdLines = rwd.lines.map((L) => ({ ...L, px: L.pts }))
+    } else {
+      hcPos = new Map()
+      for (const [id, p] of cells) hcPos.set(id, cellPx(p))
+      placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+    }
     hcBlue = {
       xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
       ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
@@ -269,9 +312,7 @@ async function render() {
       .join(' ')
     // Line = original metro-map drawing: single route → solid route colour,
     // overlap (≥2 routes) → interleaved route-colour dashes.
-    lineData = sk.edges.flatMap((e) => {
-      const d = edgeD(e.path)
-      const html = `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
+    const strokesOf = (e, d, html) => {
       const cols = (e.routeColors ?? []).slice(0, MAX_OVERLAP)
       if (cols.length >= 2) {
         const n = cols.length
@@ -281,9 +322,28 @@ async function render() {
         }))
       }
       return [{ d, stroke: cols[0] ?? e.color ?? '#e11d48', html }]
-    })
-    // Bottom highlight: one translucent underlay per classified edge.
-    highlightData = sk.edges.filter((e) => EDGE_HL[e.cls]).map((e) => ({ d: edgeD(e.path), color: EDGE_HL[e.cls] }))
+    }
+    if (rwdLines) {
+      // RWD 路網: one polyline per cut-to-cut segment (H/V/45° legs), coloured
+      // like its parent skeleton edge; the tooltip reports the bend count.
+      const ptsD = (px) => px
+        .map((p, i) => `${i ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
+        .join(' ')
+      lineData = rwdLines.flatMap((L) => {
+        const e = L.seg.edge
+        const html = `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）· `
+          + (L.fallback ? '兜底直線（非 H/V/45°）' : `轉折 ${L.bends}`)
+        return strokesOf(e, ptsD(L.px), html)
+      })
+      highlightData = rwdLines
+        .filter((L) => EDGE_HL[L.seg.edge.cls])
+        .map((L) => ({ d: ptsD(L.px), color: EDGE_HL[L.seg.edge.cls] }))
+    } else {
+      lineData = sk.edges.flatMap((e) =>
+        strokesOf(e, edgeD(e.path), `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`))
+      // Bottom highlight: one translucent underlay per classified edge.
+      highlightData = sk.edges.filter((e) => EDGE_HL[e.cls]).map((e) => ({ d: edgeD(e.path), color: EDGE_HL[e.cls] }))
+    }
     stationData = stations.map((f) => {
       const [x, y] = posOf(f.properties.station_id)
       return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
@@ -568,9 +628,19 @@ onBeforeUnmount(() => {
               {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
           </span>
 
+          <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
+          <span v-if="isRWD && rwdMode && rwdStats" class="hc-stats">
+            {{ rwdStats.segs }} 段 · 直線 {{ rwdStats.straight }} · 單折 {{ rwdStats.single }}
+            · 雙折 {{ rwdStats.double }}<template v-if="rwdStats.fallback">
+              · 兜底 {{ rwdStats.fallback }}</template><template v-if="rwdStats.forced">
+              · 強制重疊 {{ rwdStats.forced }}</template><template v-if="hcCompactStats"> · 網格
+              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+          </span>
+
           <span class="ma-label">資料來源：</span>
           <span class="ma-source">
             {{ ownData ? `${layer?.name}（匯入 JSON）`
+              : isRWD ? (hcLayer ? `${hcLayer.name}（縮減網格）` : (layer?.sourceLayerId ?? '—'))
               : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
               : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
           </span>
