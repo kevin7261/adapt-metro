@@ -1510,6 +1510,24 @@ async function build() {
         }
       }
     }
+    // 網絡圖「度數」：每站在所有 route 幾何裡的**不同相鄰頂點**數（使用者規則）。
+    // interchange ⇔ degree>2（分歧點／交會點——相鄰站不同）；**同路線共軌重疊段
+    // 中間站**兩線給相同前後鄰 → degree=2，不算 interchange（如淡海輕軌綠山＋藍海
+    // 共軌段）；分歧點 濱海沙崙（往崁頂／往漁人碼頭／往紅樹林 3 鄰）與支線分歧
+    // 七張（新店側／公館側／小碧潭 3 鄰）degree=3 → interchange；terminus degree=1。
+    const degree = new Map()
+    for (const f of grp.lines) {
+      for (const seq of f.geometry.coordinates) {
+        if (seq.length < 2) continue
+        for (let i = 0; i < seq.length; i++) {
+          const k = seq[i].join(',')
+          if (!byCoord.has(k)) continue
+          if (!degree.has(k)) degree.set(k, new Set())
+          if (i > 0) degree.get(k).add(seq[i - 1].join(','))
+          if (i < seq.length - 1) degree.get(k).add(seq[i + 1].join(','))
+        }
+      }
+    }
     for (const f of grp.lines) {
       // ordered station list for this route：各分段頂點**原序串接、不去重**
       //（使用者規則：列表相鄰＝圖上直連。支線的接續站在支線段開頭重複出現、
@@ -1558,12 +1576,14 @@ async function build() {
       const pc = Math.max(
         passCount.get(s.geometry.coordinates.join(',')) ?? 0, routes.length)
       s.properties.pass_count = pc
-      // interchange ⇔ 通過次數 ≥2（使用者規則）：**不同 route 各通過一次都算**——
-      // 支線分歧（七張＝綠線主線＋小碧潭支線）、獨立營運線交會（濱海沙崙＝綠山線
-      // ＋藍海線）皆為 interchange，即使同 ref。**同一條 route** 環線閉合/折返
-      // 經過同站兩次不算（passCount 已將閉合點減 1）。pc 於路段化前逐 route 計。
-      s.properties.is_interchange = pc >= 2
-      s.properties.station_role = pc >= 2 ? 'interchange'
+      // interchange ⇔ 網絡圖度數 >2（使用者規則）：分歧點／交會點（相鄰站不同）算，
+      // **同路線共軌重疊段中間站不算**（degree=2，兩線給相同前後鄰，如淡海輕軌綠山
+      // ＋藍海共軌段）。濱海沙崙／七張分歧 degree=3 → interchange。pass_count 保留
+      // 為參考屬性。
+      const deg = degree.get(s.geometry.coordinates.join(','))?.size ?? 0
+      s.properties.station_degree = deg
+      s.properties.is_interchange = deg > 2
+      s.properties.station_role = deg > 2 ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
     }
     // 快取殭屍清理：無名（合成名 n123…）且不屬於任何線站序的站點＝上游已刪

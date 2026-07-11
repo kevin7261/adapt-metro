@@ -287,20 +287,20 @@ async function audit(city, country, wikiRow) {
           : '各線車站列表與圖面一致')
     }
 
-    // 不變式：interchange ⇔ 通過次數 ≥2（不同 route 各通過一次都算——支線分歧
-    // 七張、獨立營運線交會 濱海沙崙皆為 interchange，即使同 ref；同一 route 環線
-    // 閉合/折返經過同站兩次不算，pass_count 已將閉合點減 1）
+    // 不變式：interchange ⇔ 網絡圖度數 >2（不同相鄰站——分歧點／交會點）。同路線
+    // 共軌重疊段中間站 degree=2 不算；分歧 濱海沙崙／七張 degree=3 算。station_degree
+    // 由 build 記錄；缺欄位時退回線數。
     {
       const bad = pts.filter((f) => {
         const p = f.properties
-        const pc = p.pass_count ?? (p.line_ids?.length ?? 0)
-        return (pc >= 2) !== !!p.is_interchange
+        const deg = p.station_degree ?? (p.line_ids?.length ?? 0)
+        return (deg > 2) !== !!p.is_interchange
       })
       push('interchange_rule', bad.length === 0,
         bad.length
-          ? `${bad.length} 站的 interchange 標記與通過次數不符：` +
+          ? `${bad.length} 站的 interchange 標記與網絡圖度數不符：` +
             bad.slice(0, 4).map((f) => f.properties.station_name).join('、')
-          : '所有車站 interchange 標記符合「通過次數 ≥2」規則')
+          : '所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則')
     }
 
     // 全部車站必須有名稱（使用者規則：100%，無名＝資料錯誤）
