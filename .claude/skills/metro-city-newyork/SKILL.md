@@ -13,13 +13,22 @@ MTA 子公司運營）。**PATH**（Port Authority of NY&NJ，跨哈德遜河到
 ＋ deny（`\bpath\b`／port authority）。⚠️ ckey `new york city` 含空格，city 比對兩邊都要
 `normCity`（否則 "newyorkcity" ≠ "new york city"、規則整個失效、PATH 漏剔——這是實際踩過的坑）。
 
-## 同名合併 STRICT 模式（`STRICT_SAMENAME`）
+## 共線段只畫 1 條實線（渲染，使用者指定）
+
+紐約共線極多（1/2/3 共 7th Av、A/C/E、B/D/F/M、N/Q/R/W…最多 9 線共軌）。**幾何**上
+共軌段本就已路段化成 1 條 feature（`route_count>1`＋`routes[]` list，通用機制）；
+**渲染**上紐約特例——前端 `LayerTab`／`GalleryTile` 對 `city==='New York City'` 把所有
+路段（含共線段）畫成**單一實線、用第一條線代表色（`_c0`／`route_color`）**，**不生成
+n 色交錯虛線**。其他城市維持交錯虛線。`routes[]` 仍在，hover／Object 面板照樣列出該段
+所有線。這是**渲染層**的城市例外，資料（geojson）不變。
+
+## 同名合併 STRICT 模式（`STRICT_SAMENAME`，車站不相通不合併）
 
 紐約同名站多半**不相通**——23rd St 分屬 6 條線各自獨立，官方以 station complex 定義轉乘、
 OSM stop_area 是每線每方向粒度。NYC 的同名合併只在「共線（同站方向節點成對）或 <150 m」
-成立，跨線同名遠站不併；官方 complex 用 `_overrides/interchanges.json` 回補。
-其他城市維持「同名 ≤800 m」（東京大手町／首爾等真轉乘靠它，**不得全域加嚴**）。
-通用共站合併機制見 [[metro-osm-fetch]]。
+成立，**跨線同名遠站不併**（車站不相通就不合併）；官方 complex 用
+`_overrides/interchanges.json` 回補。其他城市維持「同名 ≤800 m」（東京大手町／首爾等
+真轉乘靠它，**不得全域加嚴**）。通用共站合併機制見 [[metro-osm-fetch]]。
 
 `line 頂點吸附對「合併前成員點」找最近再映射回代表點`（質心位移不甩站——NYC 125th St
 案例）是通用機制，見 [[metro-osm-fetch]]。

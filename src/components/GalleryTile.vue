@@ -18,14 +18,18 @@ const W = 168, H = 116, PAD = 7
 // Same rendering rules as the MapLibre metro map (LayerTab).
 const MAX_OVERLAP = 6
 const DASH = 2.5
-// Station fill: transfer (>1 route) red, terminus blue, else white.
+// Station fill — MUST match LayerTab's STATION_COLOR exactly (thumbnail = map):
+// transfer (is_interchange, network-graph degree>2) red, terminus blue, else white.
+// 用資料端的 is_interchange，不是 lines.length（七張/濱海沙崙 lines 只有一個 ref
+// 但 degree=3 是換乘，用 length 會漏、與主地圖不一致）。
 function stationFill(p) {
-  if (Array.isArray(p.lines) && p.lines.length > 1) return '#e11d48'
+  if (p.is_interchange) return '#e11d48'
   if (p.is_terminus) return '#2563eb'
   return '#ffffff'
 }
 
 function build(geojson) {
+  const isNYC = props.system.city === 'New York City'
   const b = boundsOfGeojson(geojson)
   if (!b) return null
   const [w, s, e, n] = b
@@ -46,7 +50,8 @@ function build(geojson) {
       for (const seg of f.geometry.coordinates) {
         const d = seg.map((c, i) => `${i ? 'L' : 'M'}${px(c[0]).toFixed(1)} ${py(c[1]).toFixed(1)}`).join(' ')
         if (!d) continue
-        if (rc > 1 && colors.length) {
+        // 紐約特例：共線段只畫 1 條實線（第一條線代表色），與主地圖 LayerTab 一致。
+        if (rc > 1 && colors.length && !isNYC) {
           // n interleaved coloured dashes, one slot per route (dasharray offset).
           const cnt = Math.min(rc, MAX_OVERLAP)
           for (let i = 0; i < cnt; i++) {
@@ -57,7 +62,7 @@ function build(geojson) {
             })
           }
         } else {
-          lines.push({ d, color: p.route_color || '#e11d48' })
+          lines.push({ d, color: colors[0] || p.route_color || '#e11d48' })
         }
       }
     }
