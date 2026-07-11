@@ -44,6 +44,38 @@ function nearestFree(c, r, taken) {
   return [c, r]
 }
 
+// Spread each edge's interior black stations evenly along the straight run
+// between consecutive cut points (endpoints + non-black interiors). Cut points
+// must already be in posMap; a missing one is resolved via `snap(id)` when
+// given (returns a position or null). Mutates posMap. Shared by the gridding
+// (⑨) and the hill-climbing layout (②, src/stores/hillClimb.js).
+export function placeBlacks(skeleton, posMap, snap) {
+  const cls = skeleton.stationClass
+  for (const e of skeleton.edges) {
+    const path = e.path
+    const cuts = []
+    for (let i = 0; i < path.length; i++) {
+      if (i === 0 || i === path.length - 1 || cls.get(path[i]) !== 'black') cuts.push(i)
+    }
+    for (const i of cuts) {
+      if (!posMap.has(path[i]) && snap) {
+        const p = snap(path[i])
+        if (p) posMap.set(path[i], p)
+      }
+    }
+    for (let s = 0; s < cuts.length - 1; s++) {
+      const a = cuts[s], b = cuts[s + 1]
+      const A = posMap.get(path[a]), B = posMap.get(path[b])
+      if (!A || !B) continue
+      const k = b - a - 1
+      for (let j = 1; j <= k; j++) {
+        const t = j / (k + 1)
+        posMap.set(path[a + j], [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t])
+      }
+    }
+  }
+}
+
 export function buildSchematicGrid(skeleton, posById, extent) {
   const [x0, y0, x1, y1] = extent
   const cls = skeleton.stationClass
@@ -77,29 +109,15 @@ export function buildSchematicGrid(skeleton, posById, extent) {
   for (const [id, [c, r]] of cellOf) posAfter.set(id, [cx(c), cy(r)])
 
   // each line: cut at coloured points, straighten + spread black evenly between
-  for (const e of skeleton.edges) {
-    const path = e.path
-    const cuts = []
-    for (let i = 0; i < path.length; i++) {
-      if (i === 0 || i === path.length - 1 || cls.get(path[i]) !== 'black') cuts.push(i)
-    }
-    for (const i of cuts) {
-      if (!posAfter.has(path[i]) && posById.has(path[i])) {
-        const [x, y] = posById.get(path[i]) // rare: a black endpoint — snap by rank
-        posAfter.set(path[i], [cx(rankOf(x, cutsX)), cy(rankOf(y, cutsY))])
-      }
-    }
-    for (let s = 0; s < cuts.length - 1; s++) {
-      const a = cuts[s], b = cuts[s + 1]
-      const A = posAfter.get(path[a]), B = posAfter.get(path[b])
-      if (!A || !B) continue
-      const k = b - a - 1
-      for (let j = 1; j <= k; j++) {
-        const t = j / (k + 1)
-        posAfter.set(path[a + j], [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t])
-      }
-    }
-  }
+  // (rare black cut endpoints — e.g. a ring's pinned first station — snap by
+  // rank via the fallback, and get a cell so downstream hill climbing sees them)
+  placeBlacks(skeleton, posAfter, (id) => {
+    if (!posById.has(id)) return null
+    const [x, y] = posById.get(id)
+    const c = rankOf(x, cutsX), r = rankOf(y, cutsY)
+    if (!cellOf.has(id)) cellOf.set(id, [c, r])
+    return [cx(c), cy(r)]
+  })
 
   const seps = (n, o, step) => Array.from({ length: n + 1 }, (_, i) => o + i * step)
   return {
@@ -108,6 +126,9 @@ export function buildSchematicGrid(skeleton, posById, extent) {
     // AFTER: uniform cell boundaries; every point sits at a cell centre.
     blueBefore: { xs: [x0, ...cutsX, x1], ys: [y0, ...cutsY, y1] },
     blueAfter: { xs: seps(cols, x0, cellW), ys: seps(rows, y0, cellH) },
+    // integer cell per cut point — the hill-climbing layout (②) works in this
+    // cell space and maps back through the same uniform cell centres.
+    cellOf,
     cols, rows,
   }
 }

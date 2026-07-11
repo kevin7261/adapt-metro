@@ -7,7 +7,8 @@ import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
-import { buildSchematicGrid } from '../stores/schematicGrid'
+import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
+import { buildHillClimb } from '../stores/hillClimb'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -19,16 +20,31 @@ const layerId = props.params.params.layerId
 const panelApi = props.params.api
 const layer = computed(() => store.layers.find((l) => l.id === layerId) ?? null)
 
+// A Hill Climbing view (layer group Hill Climbing) reuses this tab: its source
+// is a Map Adjust (d3) layer whose 格網化後 layout it optimizes — the variant
+// ('orig' | 'rot') picks which of the city's two grid-post layouts is the input.
+const isHC = computed(() => layer.value?.type === 'hillclimb')
+const hcVariant = computed(() => (layer.value?.variant === 'rot' ? 'rot' : 'orig'))
+const hcD3Layer = computed(() =>
+  isHC.value ? store.layers.find((l) => l.id === layer.value?.sourceLayerId) ?? null : null)
+
 // Metro layers currently in the panel — the loadable sources.
 const metroLayers = computed(() => store.layers.filter((l) => l.type === 'metro'))
 // The metro layer this view draws — Info/Style/Object and the attribute table
-// are bound to it, exactly like the MapLibre tab.
-const sourceLayer = computed(() =>
-  metroLayers.value.find((l) => l.id === layer.value?.sourceLayerId) ?? null)
+// are bound to it, exactly like the MapLibre tab. A Hill Climbing view resolves
+// through its d3 layer to that view's metro source.
+const sourceLayer = computed(() => {
+  const srcId = isHC.value ? hcD3Layer.value?.sourceLayerId : layer.value?.sourceLayerId
+  return metroLayers.value.find((l) => l.id === srcId) ?? null
+})
 // A file-imported view owns its data (stored under its own id in layerData);
 // panels and styling then bind to the d3 layer itself instead of a source layer.
 const ownData = computed(() => !!layerData[layerId])
-const panelLayer = computed(() => (ownData.value ? layer.value : sourceLayer.value))
+const panelLayer = computed(() => {
+  if (ownData.value) return layer.value
+  if (isHC.value && hcD3Layer.value && layerData[hcD3Layer.value.id]) return hcD3Layer.value
+  return sourceLayer.value
+})
 
 const host = ref(null)      // container div
 const svgEl = ref(null)     // <svg>
@@ -47,28 +63,44 @@ const tilt = ref(0)
 // shape, only classifies nodes/edges; nothing is moved.)
 // Map Adjust view modes (tabs). Grid modes ('grid-*') do the schematic gridding
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
-const mode = ref('original')
-const rotated = computed(() => /(^rotated|-rot-)/.test(mode.value))
+// A Hill Climbing view has just 2 tabs: the grid-post input and the optimized
+// layout ('hc', ②, see skill route-hillclimb) — rotation comes from its variant.
+const mode = ref(isHC.value ? 'hc' : 'original')
+const hcMode = computed(() => mode.value === 'hc')
+const rotated = computed(() =>
+  isHC.value ? hcVariant.value === 'rot' : /(^rotated|-rot-)/.test(mode.value))
 const skeletonized = computed(() => mode.value.includes('skeleton') || mode.value.startsWith('grid-'))
-const gridMode = computed(() => mode.value.startsWith('grid-'))
-const gridPost = computed(() => mode.value.endsWith('post'))
+const gridMode = computed(() => isHC.value || mode.value.startsWith('grid-'))
+const gridPost = computed(() => isHC.value || mode.value.endsWith('post'))
 const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 
 // Heavy bits precomputed ONCE per dataset so switching tabs is instant: the
-// dominant-axis tilt and the connect skeleton (topology, rotation-independent).
+// dominant-axis tilt, the connect skeleton (topology, rotation-independent) and
+// the hill-climbing cells (rank-based → extent-independent, pixels re-derived).
 let cacheData = null
 let cachedSkeleton = null
+let cachedHC = null
+const hcBusy = ref(false)
+const hcStats = ref(null)
 const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
-const VIEW_TABS = computed(() => [
-  { id: 'original', label: '原始' },
-  { id: 'rotated', label: rotLabel.value, rot: true },
-  { id: 'skeleton', label: '原始骨架化' },
-  { id: 'rotated-skeleton', label: `${rotLabel.value}骨架化`, rot: true },
-  { id: 'grid-orig-pre', label: '原始格網化前' },
-  { id: 'grid-orig-post', label: '原始格網化後' },
-  { id: 'grid-rot-pre', label: `${rotLabel.value}格網化前`, rot: true },
-  { id: 'grid-rot-post', label: `${rotLabel.value}格網化後`, rot: true },
-])
+const VIEW_TABS = computed(() => {
+  if (isHC.value) {
+    return [
+      { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
+      { id: 'hc', label: 'Hill Climbing' },
+    ]
+  }
+  return [
+    { id: 'original', label: '原始' },
+    { id: 'rotated', label: rotLabel.value, rot: true },
+    { id: 'skeleton', label: '原始骨架化' },
+    { id: 'rotated-skeleton', label: `${rotLabel.value}骨架化`, rot: true },
+    { id: 'grid-orig-pre', label: '原始格網化前' },
+    { id: 'grid-orig-post', label: '原始格網化後' },
+    { id: 'grid-rot-pre', label: `${rotLabel.value}格網化前`, rot: true },
+    { id: 'grid-rot-post', label: `${rotLabel.value}格網化後`, rot: true },
+  ]
+})
 const disposables = []
 let zoomBehavior = null
 let resizeObs = null
@@ -97,7 +129,16 @@ function stationColor(p) {
 async function sourceData() {
   // File-imported view: its own GeoJSON lives under this layer's id.
   if (layerData[layerId]) return layerData[layerId]
-  const src = metroLayers.value.find((l) => l.id === layer.value?.sourceLayerId)
+  if (isHC.value) {
+    // Hill Climbing → its Map Adjust layer → that view's data (own or metro).
+    const d3l = hcD3Layer.value
+    if (!d3l) {
+      if (layer.value?.sourceLayerId) loadError.value = '來源 Map Adjust 圖層已被移除，請重新選擇'
+      return null
+    }
+    if (layerData[d3l.id]) return layerData[d3l.id]
+  }
+  const src = sourceLayer.value
   if (!src) {
     // A dangling reference (source layer was removed) — say so instead of a blank canvas.
     if (layer.value?.sourceLayerId) loadError.value = '來源圖層已被移除，請重新選擇'
@@ -121,14 +162,21 @@ async function sourceData() {
 
 // (Re)draw the chosen metro layer with d3: mercator projection fit to the
 // container, lines coloured per route, stations as role-coloured circles.
+// render() is async (data fetch + HC busy-hint delay) and gets re-triggered
+// while in flight (mount + ResizeObserver, mode switches) — without a guard
+// both passes would append and everything is drawn twice. Each render takes a
+// sequence number and bails after every await if a newer render has started.
+let renderSeq = 0
 async function render() {
   const svg = svgEl.value, g = gEl.value, el = host.value
   if (!svg || !g || !el) return
+  const seq = ++renderSeq
   const sel = select(g)
   sel.selectAll('*').remove()
   loadError.value = null
 
   const data = await sourceData()
+  if (seq !== renderSeq) return // superseded — the newer render draws
   if (!data) return
 
   const w = el.clientWidth || 600
@@ -142,6 +190,8 @@ async function render() {
     cacheData = data
     tilt.value = computeOrientation(data).tilt
     cachedSkeleton = buildConnectSkeleton(data)
+    cachedHC = null
+    hcStats.value = null
   }
 
   const projection = geoMercator()
@@ -161,8 +211,29 @@ async function render() {
   // to the grid + edge drawing so split edges and gridding resolve them.
   for (const c of sk?.crossings ?? []) projById.set(c.id, P(c.coord))
   const grid = gridMode.value ? buildSchematicGrid(cachedSkeleton, projById, [24, 24, w - 24, h - 24]) : null
+  // Hill Climbing (②, see skill route-hillclimb): optimize the grid CELLS once
+  // per dataset — cells are rank-based, so a resize only changes the pixel
+  // mapping below, never the layout. Blacks are re-spread along the new runs.
+  let hcPos = null
+  if (grid && isHC.value && hcMode.value) {
+    if (!cachedHC) {
+      hcBusy.value = true
+      await new Promise((r) => setTimeout(r, 30)) // let the busy hint paint first
+      if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
+      cachedHC = buildHillClimb(cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
+      hcBusy.value = false
+    }
+    hcStats.value = cachedHC.stats
+    const bx = grid.blueAfter.xs, by = grid.blueAfter.ys
+    const cw = bx[1] - bx[0], ch = by[1] - by[0]
+    hcPos = new Map()
+    for (const [id, [c, r]] of cachedHC.cellAfter) {
+      hcPos.set(id, [bx[0] + (c + 0.5) * cw, by[0] + (r + 0.5) * ch])
+    }
+    placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+  }
   const posOf = (id) =>
-    (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
+    (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
   const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
@@ -407,6 +478,9 @@ function hideTip() {
   if (tipEl.value) tipEl.value.style.display = 'none'
 }
 
+// Compact fitness numbers for the Hill Climbing stats readout.
+const fmtFit = (x) => (x >= 10000 ? `${(x / 1000).toFixed(1)}k` : Math.round(x).toString())
+
 watch(() => layer.value?.sourceLayerId, () => { cacheData = null; render() })
 watch(mode, render)
 // Live style sync from the bound layer (Style tab sliders).
@@ -465,9 +539,18 @@ onBeforeUnmount(() => {
             >{{ t.label }}</button>
           </div>
 
+          <!-- Hill Climbing: multicriteria fitness before → after (lower = better) -->
+          <span v-if="isHC && hcMode && hcStats" class="hc-stats">
+            適應度 {{ fmtFit(hcStats.before) }} → {{ fmtFit(hcStats.after) }}
+            · {{ hcStats.rounds }} 輪 · 移動 {{ hcStats.moved }} 站<template
+              v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template>
+          </span>
+
           <span class="ma-label">資料來源：</span>
           <span class="ma-source">
-            {{ ownData ? `${layer?.name}（匯入 JSON）` : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
+            {{ ownData ? `${layer?.name}（匯入 JSON）`
+              : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
+              : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
           </span>
         </div>
 
@@ -477,6 +560,7 @@ onBeforeUnmount(() => {
           </svg>
           <div ref="tipEl" class="ma-tip" />
           <div v-if="loading" class="ma-hint">載入中…</div>
+          <div v-else-if="hcBusy" class="ma-hint">爬山最佳化中…（多準則適應度 + 硬規則掃描）</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
         </div>
 
@@ -522,6 +606,13 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 .ma-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; margin-left: auto; }
+/* Hill Climbing fitness readout (before → after, 越低越好) */
+.hc-stats {
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 .ma-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 4 view tabs: 原始 / 旋轉 / 原始骨架化 / 旋轉骨架化 */
 .view-tabs { display: inline-flex; gap: 4px; }

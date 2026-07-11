@@ -9,21 +9,22 @@ import { assetUrl } from '../lib/assetUrl'
 import {
   PanelLeftClose, PanelLeftOpen,
   ZoomIn, TableProperties, Download, Trash2, Sparkles,
-  Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
+  Circle, Spline, Hexagon, Image as ImageIcon, TrainFront, Mountain,
   ChevronDown, ChevronRight, Folder, FolderOpen, Plus, LayoutGrid,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
 
-const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline }
-const typeBadges = { metro: 'METRO', d3: 'D3' }
+const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline, hillclimb: Mountain }
+const typeBadges = { metro: 'METRO', d3: 'D3', hillclimb: 'HC' }
 
 // Skills exposed per layer type (moved off the top toolbar into each layer):
 // Metro Maps layers get the two general data-pipeline skills + the cities index;
-// Map Adjust gets the skeleton + gridding skills.
+// Map Adjust gets the skeleton + gridding skills; Hill Climbing its own.
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
+  hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
 }
 // 城市 → 該城專屬 skill（讓每個城市的圖層在下拉多顯示自己的規則 skill）。
 const CITY_SKILL = {
@@ -254,12 +255,22 @@ onBeforeUnmount(() => {
             >
               <Plus :size="14" />
             </button>
+            <button
+              v-if="item.group.id === 'hillclimb'"
+              class="btn-icon group-add"
+              title="Add Hill Climbing view（來源：Map Adjust 格網化後）"
+              @click.stop="store.ui.dialog = 'add-hillclimb'"
+            >
+              <Plus :size="14" />
+            </button>
           </div>
 
           <!-- Group children -->
           <template v-if="!item.group.collapsed">
             <div v-if="!item.children.length" class="group-empty">
-              {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖' : '用 Import 匯入 metro map' }}
+              {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖'
+                : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
+                : '用 Import 匯入 metro map' }}
             </div>
             <div
               v-for="layer in item.children"

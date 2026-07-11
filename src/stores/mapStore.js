@@ -39,10 +39,12 @@ export const useMapStore = defineStore('map', {
       layers: p?.layers ?? [],
 
       // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
-      // kind of layer: imported metro maps, and D3.js views over a metro layer.
+      // kind of layer: imported metro maps, D3.js views over a metro layer, and
+      // hill-climbing optimizations over a Map Adjust view's gridded layout.
       groups: [
         { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
         { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
+        { id: 'hillclimb', label: 'Hill Climbing', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
       ],
     }
   },
@@ -170,6 +172,30 @@ export const useMapStore = defineStore('map', {
         lineCount: routeIds.size,
         stationCount,
         featureCount: (data?.features ?? []).length,
+      }
+      this.layers.push(layer)
+      this.selectedLayerId = layer.id
+      return layer
+    },
+
+    // Add a Hill Climbing view (Stott et al. 2011 多準則爬山) — optimizes a Map
+    // Adjust view's post-gridding layout. Source = a d3 layer + which grid-post
+    // variant ('orig' 原始格網化後 | 'rot' 旋轉格網化後); both fixed at creation.
+    addHillClimbLayer(d3LayerId, variant) {
+      const src = this.layers.find((l) => l.id === d3LayerId)
+      if (!src) return null
+      const v = variant === 'rot' ? 'rot' : 'orig'
+      let n = 1
+      while (this.layers.some((l) => l.id === `hc-view-${n}`)) n++
+      const layer = {
+        id: `hc-view-${n}`,
+        name: `hc-${src.name}-${v}`,
+        type: 'hillclimb',
+        groupId: 'hillclimb',
+        sourceLayerId: d3LayerId,
+        variant: v,
+        visible: true,
+        opacity: 1,
       }
       this.layers.push(layer)
       this.selectedLayerId = layer.id
