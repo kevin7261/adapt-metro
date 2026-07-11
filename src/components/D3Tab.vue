@@ -9,7 +9,6 @@ import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
-import { RotateCcw, RotateCw, Undo2, GitFork } from 'lucide-vue-next'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -42,13 +41,25 @@ const loadError = ref(null)
 // a positive d3 angle turns the map counter-clockwise, which is exactly what
 // cancels a clockwise (positive) tilt. fitExtent then refits the rotated map.
 const tilt = ref(0)
-const rotated = ref(false)
+// 4 view modes as tabs; rotated / skeletonized are derived from the mode.
+// (See skill route-skeleton-connect for the skeleton — keeps the geographic
+// shape, only classifies nodes/edges; nothing is moved.)
+const mode = ref('original') // 'original' | 'rotated' | 'skeleton' | 'rotated-skeleton'
+const rotated = computed(() => mode.value === 'rotated' || mode.value === 'rotated-skeleton')
+const skeletonized = computed(() => mode.value === 'skeleton' || mode.value === 'rotated-skeleton')
 const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 
-// Skeletonize (see skill route-skeleton-connect): connect skeleton — keep the
-// geographic shape, classify nodes (red/blue/black/purple/pink/gray) and edges
-// (coline/loop/parallel). Nothing is moved.
-const skeletonized = ref(false)
+// Heavy bits precomputed ONCE per dataset so switching tabs is instant: the
+// dominant-axis tilt and the connect skeleton (topology, rotation-independent).
+let cacheData = null
+let cachedSkeleton = null
+const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
+const VIEW_TABS = computed(() => [
+  { id: 'original', label: '原始' },
+  { id: 'rotated', label: rotLabel.value, rot: true },
+  { id: 'skeleton', label: '原始骨架化' },
+  { id: 'rotated-skeleton', label: `${rotLabel.value}骨架化`, rot: true },
+])
 const disposables = []
 let zoomBehavior = null
 let resizeObs = null
@@ -116,7 +127,13 @@ async function render() {
   const stations = data.features.filter((f) => f.geometry.type === 'Point')
   const lineFeats = data.features.filter((f) => f.geometry.type !== 'Point')
 
-  tilt.value = computeOrientation(data).tilt
+  // Precompute tilt + skeleton once per dataset (rotation-independent), so the
+  // four view tabs only re-draw (fast) — never recompute — when switched.
+  if (data !== cacheData) {
+    cacheData = data
+    tilt.value = computeOrientation(data).tilt
+    cachedSkeleton = buildConnectSkeleton(data)
+  }
 
   const projection = geoMercator()
     .angle(rotated.value ? tilt.value : 0)
@@ -130,7 +147,7 @@ async function render() {
   // Skeleton mode: connect skeleton (骨架2) — keep the geographic line shape,
   // classify nodes (red/blue/black/purple/pink/gray) and edges (coline/loop/
   // parallel/plain). See skill route-skeleton-connect.
-  const sk = skeletonized.value ? buildConnectSkeleton(data) : null
+  const sk = skeletonized.value ? cachedSkeleton : null
   const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
@@ -345,9 +362,8 @@ function hideTip() {
   if (tipEl.value) tipEl.value.style.display = 'none'
 }
 
-watch(() => layer.value?.sourceLayerId, render)
-watch(rotated, render)
-watch(skeletonized, render)
+watch(() => layer.value?.sourceLayerId, () => { cacheData = null; render() })
+watch(mode, render)
 // Live style sync from the bound layer (Style tab sliders).
 watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
@@ -390,29 +406,19 @@ onBeforeUnmount(() => {
     <div class="tab-body">
       <div class="map-col">
         <div class="d3-toolbar">
-          <button
-            class="d3-rotate-btn"
-            :class="{ active: skeletonized }"
-            :disabled="!panelLayer"
-            title="把路線圖拉直成示意骨架（再按一次還原）"
-            @click="skeletonized = !skeletonized"
-          >
-            <Undo2 v-if="skeletonized" :size="14" />
-            <GitFork v-else :size="14" />
-            <span>{{ skeletonized ? '還原原形' : '骨架化' }}</span>
-          </button>
-
-          <button
-            class="d3-rotate-btn"
-            :class="{ active: rotated }"
-            :disabled="!canRotate"
-            :title="canRotate ? '' : '網路已對齊正南北，無需旋轉'"
-            @click="rotated = !rotated"
-          >
-            <Undo2 v-if="rotated" :size="14" />
-            <component :is="tilt > 0 ? RotateCcw : RotateCw" v-else :size="14" />
-            <span>{{ rotated ? '回復原方向' : `依建議旋轉 ${Math.abs(tilt).toFixed(0)}°` }}</span>
-          </button>
+          <div class="view-tabs" role="tablist">
+            <button
+              v-for="t in VIEW_TABS"
+              :key="t.id"
+              class="view-tab"
+              :class="{ active: mode === t.id }"
+              role="tab"
+              :aria-selected="mode === t.id"
+              :disabled="!panelLayer || (t.rot && !canRotate)"
+              :title="t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : ''"
+              @click="mode = t.id"
+            >{{ t.label }}</button>
+          </div>
 
           <span class="d3-label">資料來源：</span>
           <span class="d3-source">
@@ -472,25 +478,25 @@ onBeforeUnmount(() => {
 }
 .d3-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; margin-left: auto; }
 .d3-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.d3-rotate-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* 4 view tabs: 原始 / 旋轉 / 原始骨架化 / 旋轉骨架化 */
+.view-tabs { display: inline-flex; gap: 4px; }
+.view-tab {
   height: 26px;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 12.5px;
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px);
-  color: hsl(var(--foreground));
+  color: hsl(var(--muted-foreground));
   white-space: nowrap;
 }
-.d3-rotate-btn:hover:not(:disabled) { background: hsl(var(--accent)); }
-.d3-rotate-btn.active {
+.view-tab:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.view-tab.active {
   color: hsl(var(--primary));
-  border-color: hsl(var(--primary) / 0.5);
-  background: hsl(var(--primary) / 0.1);
+  font-weight: 600;
+  border-color: hsl(var(--primary) / 0.55);
+  background: hsl(var(--primary) / 0.12);
 }
-.d3-rotate-btn:disabled { opacity: 0.45; cursor: default; }
+.view-tab:disabled { opacity: 0.4; cursor: default; }
 .d3-canvas {
   position: relative;
   flex: 1;
