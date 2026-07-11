@@ -1348,7 +1348,6 @@ async function build() {
   // coverage suffers).
   const SNAP = 0.006 // ~600 m
   let snapped = 0, droppedVerts = 0, droppedLines = 0
-  let floatFixed = 0, floatUnlinked = 0
   for (const grp of cityGroups.values()) {
     if (!grp.lines.length) continue
     const sGrid = new Map()
@@ -1396,48 +1395,6 @@ async function build() {
       return false
     })
     droppedLines += before - grp.lines.length
-
-    // ---- 浮空站修正（線壓站點的反向不變式：每個站都必須在某條線上）----
-    // OSM route relation 常漏列 stop 成員（深圳7號線漏文體公園），該站靠
-    // nearbyLineRefs(900 m) 拿到 lines 卻不是任何 route 成員、不在線幾何頂點上，
-    // 視覺上浮在線外。把浮空站當頂點插入它所屬線「投影距離最小」的相鄰站段
-    //（等於補回 OSM 漏掉的 stop）；投影過遠（>~2 km，錯誤 nearby 賦予）則從該站
-    // lines 移除該 ref，全空者交後續 consistency/orphan 剔除。
-    {
-      const onLine = new Set()
-      for (const f of grp.lines) for (const seq of f.geometry.coordinates)
-        for (const c of seq) onLine.add(c.join(','))
-      const linesByTag = new Map()
-      for (const f of grp.lines) {
-        const tg = featTag.get(f); if (tg == null) continue
-        if (!linesByTag.has(tg)) linesByTag.set(tg, [])
-        linesByTag.get(tg).push(f)
-      }
-      const INSERT_MAX = 0.018 // ~2 km 投影上限
-      for (const s of grp.stations) {
-        const sc = s.geometry.coordinates
-        if (onLine.has(sc.join(','))) continue
-        const kept = []
-        for (const ref of s.properties.lines || []) {
-          let best = null
-          for (const f of linesByTag.get(ref) || [])
-            for (const seq of f.geometry.coordinates)
-              for (let i = 0; i + 1 < seq.length; i++) {
-                const pr = projPointSeg(sc, seq[i], seq[i + 1])
-                if (!best || pr.dist < best.dist) best = { seq, i, dist: pr.dist }
-              }
-          if (best && best.dist < INSERT_MAX) {
-            best.seq.splice(best.i + 1, 0, sc.slice())
-            onLine.add(sc.join(','))
-            kept.push(ref)
-            floatFixed++
-          } else floatUnlinked++
-        }
-        // 有插上任一條線就用插上的；一條都插不上則清空 → 由 consistency/orphan 剔除
-        if ((s.properties.lines || []).length && !kept.length) s.properties.lines = []
-        else if (kept.length) s.properties.lines = [...new Set(kept)].sort()
-      }
-    }
 
     // which surviving lines own each vertex coordinate (for the consistency pass)
     grp.__vertexOwners = new Map()
@@ -1689,8 +1646,6 @@ async function build() {
     `dropped ${orphansDropped} stations with no operational line; ` +
     `line vertices: ${snapped} = stations, ${droppedVerts} non-station bends removed, ` +
     `${droppedLines} station-less lines dropped; pruned ${pruned} empty buckets`)
-  console.log(`  floating-station fix: ${floatFixed} stations inserted onto their line, ` +
-    `${floatUnlinked} stray refs unlinked (OSM route missing stop members)`)
 
   await writeOutputs(lineFeatures, stationFeatures, cityGroups, wikiSystems)
 }
