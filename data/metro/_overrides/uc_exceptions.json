@@ -21,24 +21,21 @@
       "relation": 3320719,
       "label": "萬大-中和-樹林線",
       "city": "Taipei",
-      "blocked_by": "OSM 建設中車站節點無名稱（railway=construction+construction=station 但缺 name）",
-      "tag_overrides": { "route": "subway", "ref": "LG" }
+      "blocked_by": "OSM 建設中車站無名。改由 manual_lines 機制建：一期 9 站（LG01-LG08A，站名齊全）已畫（見 _overrides/manual_curated.json）；二期 LG09-LG21 官方尚未公布站名，不畫（站名 100%，不編造），待官方命名後補 manual_curated.json"
     },
     {
       "enabled": false,
       "relation": 3411858,
-      "label": "汐東線（民生汐止線首期）",
+      "label": "民生汐止線 / 汐東線",
       "city": "Taipei",
-      "blocked_by": "OSM 只有 proposed 民汐全線（大稻埕→汐止）且無任何車站節點；汐東段無獨立 relation",
-      "tag_overrides": { "route": "subway", "ref": "SB" }
+      "blocked_by": "OSM 車站無名。改由 manual_lines 建：汐東線首期 6 站（SB10-SB15 東湖~汐止區公所，站名齊全）已畫；台北段 SB04-SB09 官方未命名，不畫，待命名後補"
     },
     {
       "enabled": false,
       "relation": 11122080,
       "label": "環狀線南北環（未通車段）",
       "city": "Taipei",
-      "blocked_by": "OSM r11122080（construction:route=subway）0 個車站成員；建設中車站僅零星佔位名（環狀線Y1A站/Y3/Y4/Y5）——待上游補站名或人工依 wiki 建站資料",
-      "tag_overrides": { "route": "subway", "ref": "Y" }
+      "blocked_by": "南環 6 站僅動物園、北環 12 站僅徐匯中學/士林/劍南路有官方站名，其餘 14 站官方未命名——無法畫（站名 100%，不編造）。待官方公布站名後以 manual_lines 機制建"
     }
   ]
 }

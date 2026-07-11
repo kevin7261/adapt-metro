@@ -886,6 +886,68 @@ async function build() {
     }
   }
 
+  // ---- 手工線（_overrides/manual_lines.json）：未通車特例線（使用者指定，台北專屬）。
+  // OSM 無可用車站（無名/佔位/無節點），站名與站序取自 wiki、座標取自 OSM 線形節點
+  // 或沿線插值（離線於 scripts/buildManualLines.mjs 補齊）。當作一般線＋站注入對應
+  // 城市，後續共站合併／snap／路段化一體適用（萬大線中正紀念堂等自動與既有站共站）；
+  // status=under_construction → wikilines 走 planned warn 不擋 audit。ovFlags 豁免
+  // LRT 剔除與城市白名單過濾。
+  let manualLines = []
+  try {
+    manualLines = JSON.parse(await readFile(join(OVERRIDES_DIR, 'manual_lines.json'), 'utf8')).lines ?? []
+  } catch { /* none */ }
+  for (const ml of manualLines) {
+    const info = mkInfo({ continent: ml.continent || 'asia', country: ml.country, city: ml.city }, ml.city)
+    const grp = groupFor(info)
+    const ref = ml.ref
+    const net = ml.network || '臺北捷運'
+    const coords = ml.stations.map((s) => [s.lon, s.lat])
+    if (ml.closed && coords.length > 2) coords.push(coords[0].slice())
+    const feat = {
+      type: 'Feature',
+      properties: {
+        route_id: 'manual-' + slugify(`${ml.city}-${ref}-${ml.variant || ml.name}`),
+        route_name: ml.name_en || ml.name,
+        route_name_local: ml.name,
+        route_ref: ref,
+        route_color: normColor(ml.colour),
+        network: net, network_local: net, operator: null,
+        city: info.city, country: info.country,
+        wikidata: null, wikipedia: ml.wikipedia || null,
+        osm_route_ids: [], status: 'under_construction',
+      },
+      geometry: { type: 'MultiLineString', coordinates: [coords] },
+    }
+    grp.lines.push(feat)
+    lineFeatures.push(feat)
+    grp.networks.add(net)
+    lrtFlags.set(feat, false)
+    ovFlags.set(feat, true)
+    featTag.set(feat, ref)
+    for (const [lon, lat] of coords) {
+      const k = cellKey(lon, lat)
+      let cks = grid.get(k); if (!cks) { cks = new Set(); grid.set(k, cks) }
+      cks.add(info.key)
+    }
+    for (const s of ml.stations) {
+      const sf = {
+        type: 'Feature',
+        properties: {
+          station_id: 'm' + slugify(`${ml.city}-${ref}-${s.code || s.name_en || s.name}`),
+          station_name: s.name_en || s.name,
+          station_name_local: s.name,
+          network: net, network_local: net, operator: null,
+          city: info.city, country: info.country,
+          lines: [ref], wikidata: null, wikipedia: null,
+        },
+        geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
+      }
+      stationFeatures.push(sf)
+      grp.stations.push(sf)
+    }
+    console.log(`  manual line ${ref} ${ml.name}: ${ml.stations.length} stations`)
+  }
+
   // ---- rebucket: groups whose city never resolved to a Wikipedia city ----
   // 1st chance: a member network resolves (station tags often carry the English
   //   name the routes lack — "Ningbo Rail Transit" on 宁波轨道交通 lines).

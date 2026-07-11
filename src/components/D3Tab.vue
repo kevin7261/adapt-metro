@@ -8,7 +8,7 @@ import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
-import { RotateCcw, RotateCw, Undo2 } from 'lucide-vue-next'
+import { RotateCcw, RotateCw, Undo2, GitFork } from 'lucide-vue-next'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -43,6 +43,10 @@ const loadError = ref(null)
 const tilt = ref(0)
 const rotated = ref(false)
 const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
+
+// Skeletonize (see skill route-skeleton-straight): strip the network to its
+// skeleton — only interchange/terminus nodes; nothing is moved, lines unchanged.
+const skeletonized = ref(false)
 const disposables = []
 let zoomBehavior = null
 let resizeObs = null
@@ -93,8 +97,8 @@ async function render() {
 
   const w = el.clientWidth || 600
   const h = el.clientHeight || 400
-  const lines = data.features.filter((f) => f.geometry.type !== 'Point')
   const stations = data.features.filter((f) => f.geometry.type === 'Point')
+  const lineFeats = data.features.filter((f) => f.geometry.type !== 'Point')
 
   tilt.value = computeOrientation(data).tilt
 
@@ -102,9 +106,23 @@ async function render() {
     .angle(rotated.value ? tilt.value : 0)
     .fitExtent(
       [[24, 24], [w - 24, h - 24]],
-      { type: 'FeatureCollection', features: lines.length ? lines : data.features },
+      { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : data.features },
     )
   const path = geoPath(projection)
+  const P = (c) => projection(c)
+
+  // Skeleton mode keeps the original line shape and moves nothing — it just
+  // strips the network to its skeleton: only interchange (red) + terminus (blue)
+  // nodes stay; intermediate (white) stations are hidden.
+  const shown = skeletonized.value
+    ? stations.filter((f) => (f.properties.station_role ?? 'normal') !== 'normal')
+    : stations
+
+  const lineData = lineFeats.map((f) => ({ d: path(f), stroke: f.properties.route_color ?? '#e11d48', props: f.properties }))
+  const stationData = shown.map((f) => {
+    const [x, y] = P(f.geometry.coordinates)
+    return { x, y, props: f.properties }
+  })
 
   // Two sibling groups so stations always sit above lines — hovering a line
   // .raise()s it only within the lines group, never above the stations group.
@@ -112,19 +130,19 @@ async function render() {
   const stationsG = sel.append('g').attr('class', 'stations-layer')
 
   linesG.selectAll('path.line')
-    .data(lines)
+    .data(lineData)
     .join('path')
     .attr('class', 'line')
-    .attr('d', path)
+    .attr('d', (d) => d.d)
     .attr('fill', 'none')
-    .attr('stroke', (d) => d.properties.route_color ?? '#e11d48')
+    .attr('stroke', (d) => d.stroke)
     .attr('stroke-linecap', 'round')
     .attr('stroke-linejoin', 'round')
     .style('cursor', 'pointer')
-    .on('click', (e, d) => { e.stopPropagation(); selectFeature(d) })
+    .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('stroke-width', (panelLayer.value?.strokeWidth ?? 2.5) + 3)
-      showTip(e, lineHtml(d.properties))
+      showTip(e, lineHtml(d.props))
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -133,19 +151,19 @@ async function render() {
     })
 
   stationsG.selectAll('circle.station')
-    .data(stations)
+    .data(stationData)
     .join('circle')
     .attr('class', 'station')
-    .attr('cx', (d) => projection(d.geometry.coordinates)[0])
-    .attr('cy', (d) => projection(d.geometry.coordinates)[1])
-    .attr('fill', (d) => stationColor(d.properties))
+    .attr('cx', (d) => d.x)
+    .attr('cy', (d) => d.y)
+    .attr('fill', (d) => stationColor(d.props))
     .attr('stroke', '#3f3f46')
     .attr('stroke-width', 1)
     .style('cursor', 'pointer')
-    .on('click', (e, d) => { e.stopPropagation(); selectFeature(d) })
+    .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('r', (panelLayer.value?.radius ?? 4) + 3)
-      showTip(e, stationHtml(d.properties))
+      showTip(e, stationHtml(d.props))
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -171,12 +189,6 @@ function applyStyle() {
   sel.selectAll('circle.station')
     .attr('r', src?.radius ?? 4)
     .attr('opacity', src?.opacity ?? 1)
-}
-
-// Clicking a station/line feeds the Object tab (keyed by the source layer id,
-// same as the MapLibre tab does).
-function selectFeature(d) {
-  if (panelLayer.value) store.setSelectedFeature(panelLayer.value.id, d.properties)
 }
 
 /* ---- hover popup (same content as the MapLibre tab) ---- */
@@ -222,6 +234,7 @@ function hideTip() {
 
 watch(() => layer.value?.sourceLayerId, render)
 watch(rotated, render)
+watch(skeletonized, render)
 // Live style sync from the bound layer (Style tab sliders).
 watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
@@ -259,6 +272,18 @@ onBeforeUnmount(() => {
     <div class="tab-body">
       <div class="map-col">
         <div class="d3-toolbar">
+          <button
+            class="d3-rotate-btn"
+            :class="{ active: skeletonized }"
+            :disabled="!panelLayer"
+            title="把路線圖拉直成示意骨架（再按一次還原）"
+            @click="skeletonized = !skeletonized"
+          >
+            <Undo2 v-if="skeletonized" :size="14" />
+            <GitFork v-else :size="14" />
+            <span>{{ skeletonized ? '還原原形' : '骨架化' }}</span>
+          </button>
+
           <button
             class="d3-rotate-btn"
             :class="{ active: rotated }"

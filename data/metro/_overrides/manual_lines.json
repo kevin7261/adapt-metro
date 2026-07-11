@@ -1,0 +1,140 @@
+{
+ "_comment": "未通車特例線（台北，使用者指定）。只含官方已公布站名的連續段；站名來自 wiki、座標由 OSM 線形插值（scripts/buildManualLines.mjs）。buildGeojson 注入為 status=under_construction 的線。官方公布新站名後補 manual_curated.json 重跑。",
+ "lines": [
+  {
+   "ref": "LG",
+   "name": "萬大-中和-樹林線一期",
+   "name_en": "Wanda–Zhonghe–Shulin Line (Phase 1)",
+   "colour": "#A9D08E",
+   "city": "Taipei",
+   "country": "Taiwan",
+   "continent": "asia",
+   "network": "臺北捷運",
+   "wikipedia": "zh:萬大-中和-樹林線",
+   "variant": "phase1",
+   "closed": false,
+   "stations": [
+    {
+     "code": "LG01",
+     "name": "中正紀念堂",
+     "name_en": "Chiang Kai-Shek Memorial Hall",
+     "lon": 121.517762,
+     "lat": 25.033394
+    },
+    {
+     "code": "LG02",
+     "name": "植物園",
+     "name_en": "Taipei Botanical Garden",
+     "lon": 121.506577,
+     "lat": 25.030479
+    },
+    {
+     "code": "LG03",
+     "name": "廈安",
+     "name_en": "Xiaan",
+     "lon": 121.500254,
+     "lat": 25.024338
+    },
+    {
+     "code": "LG04",
+     "name": "加蚋",
+     "name_en": "Kalah",
+     "lon": 121.499361,
+     "lat": 25.015099
+    },
+    {
+     "code": "LG05",
+     "name": "永和永平國小",
+     "name_en": "Yonghe Yongping Elementary School",
+     "lon": 121.506771,
+     "lat": 25.007052
+    },
+    {
+     "code": "LG06",
+     "name": "中和",
+     "name_en": "Zhonghe",
+     "lon": 121.496212,
+     "lat": 25.002355
+    },
+    {
+     "code": "LG07",
+     "name": "連城錦和",
+     "name_en": "Liancheng Jinhe",
+     "lon": 121.488213,
+     "lat": 24.996173
+    },
+    {
+     "code": "LG08",
+     "name": "中和高中",
+     "name_en": "Zhonghe Senior High School",
+     "lon": 121.477839,
+     "lat": 24.992951
+    },
+    {
+     "code": "LG08A",
+     "name": "莒光",
+     "name_en": "Juguang",
+     "lon": 121.470013,
+     "lat": 24.994455
+    }
+   ]
+  },
+  {
+   "ref": "SB",
+   "name": "汐東線",
+   "name_en": "Xidong Line",
+   "colour": "#7BC8E8",
+   "city": "Taipei",
+   "country": "Taiwan",
+   "continent": "asia",
+   "network": "臺北捷運",
+   "wikipedia": "zh:民生汐止線",
+   "variant": "xidong",
+   "closed": false,
+   "stations": [
+    {
+     "code": "SB10",
+     "name": "東湖",
+     "name_en": "Donghu",
+     "lon": 121.6105,
+     "lat": 25.0648
+    },
+    {
+     "code": "SB11",
+     "name": "下社后",
+     "name_en": "Xiashehou",
+     "lon": 121.6228,
+     "lat": 25.0663
+    },
+    {
+     "code": "SB12",
+     "name": "社后",
+     "name_en": "Shehou",
+     "lon": 121.6331,
+     "lat": 25.066
+    },
+    {
+     "code": "SB13",
+     "name": "樟樹灣",
+     "name_en": "Zhangshuwan",
+     "lon": 121.6397,
+     "lat": 25.0599
+    },
+    {
+     "code": "SB14",
+     "name": "汐科",
+     "name_en": "Xike",
+     "lon": 121.648624,
+     "lat": 25.062829
+    },
+    {
+     "code": "SB15",
+     "name": "汐止區公所",
+     "name_en": "Xizhi District Office",
+     "lon": 121.6578,
+     "lat": 25.064
+    }
+   ]
+  }
+ ]
+}

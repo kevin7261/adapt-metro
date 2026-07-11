@@ -1,8 +1,8 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1135,
-  "checked_against_infobox": 532,
-  "flagged": 75,
+  "routes_total": 1137,
+  "checked_against_infobox": 534,
+  "flagged": 77,
   "uncovered": 603,
   "adjudicated": 25,
   "flags": [
@@ -178,6 +178,19 @@
       "severity": "warn"
     },
     {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "manual-taipei-lg-phase1",
+      "route_name": "Wanda–Zhonghe–Shulin Line (Phase 1)",
+      "ours": 9,
+      "lang": "zh",
+      "wiki": "zh:萬大-中和-樹林線",
+      "wiki_stations": 22,
+      "wiki_basis": "total",
+      "diff": -13,
+      "severity": "warn"
+    },
+    {
       "city": "Mumbai",
       "country": "India",
       "route_id": "rm20403815",
@@ -226,6 +239,19 @@
       "wikidata": "Q11102442",
       "wiki": "zh:杭州地铁3号线",
       "wiki_stations": 37,
+      "wiki_basis": "total",
+      "diff": -9,
+      "severity": "warn"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "manual-taipei-sb-xidong",
+      "route_name": "Xidong Line",
+      "ours": 6,
+      "lang": "zh",
+      "wiki": "zh:民生汐止線",
+      "wiki_stations": 15,
       "wiki_basis": "total",
       "diff": -9,
       "severity": "warn"
@@ -3544,6 +3570,26 @@
       "reason": "system article shared by several lines (zh:杭州地铁)"
     },
     {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "rm4250359",
+      "route_name": "Zhonghe–Xinlu line",
+      "ours": 21,
+      "lang": "zh",
+      "wiki": "zh:中和新蘆線",
+      "reason": "system article shared by several lines (zh:中和新蘆線)"
+    },
+    {
+      "city": "Taipei",
+      "country": "Taiwan",
+      "route_id": "r4250352",
+      "route_name": "Zhonghe–Xinlu line",
+      "ours": 17,
+      "lang": "zh",
+      "wiki": "zh:中和新蘆線",
+      "reason": "system article shared by several lines (zh:中和新蘆線)"
+    },
+    {
       "city": "Moscow",
       "country": "Russia",
       "route_id": "rm1462012",
@@ -3918,26 +3964,6 @@
       "lang": "es",
       "wiki": "ca:Línia 12 del metro de Barcelona",
       "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "rm4250359",
-      "route_name": "Zhonghe–Xinlu line",
-      "ours": 21,
-      "lang": "zh",
-      "wiki": "zh:中和新蘆線",
-      "reason": "system article shared by several lines (zh:中和新蘆線)"
-    },
-    {
-      "city": "Taipei",
-      "country": "Taiwan",
-      "route_id": "r4250352",
-      "route_name": "Zhonghe–Xinlu line",
-      "ours": 17,
-      "lang": "zh",
-      "wiki": "zh:中和新蘆線",
-      "reason": "system article shared by several lines (zh:中和新蘆線)"
     },
     {
       "city": "Nanjing",
@@ -7164,17 +7190,6 @@
       "note": "wiki_n=19 为过期 infobox。zh wiki 载 17号线二期 2025-09-17 开通后现营运 21 站（九江北—高洪），与我们 21 站逐站一致（浣花里=Huanhua Lane、省骨科医院等均对应）。"
     },
     {
-      "city": "Moscow",
-      "country": "Russia",
-      "route_id": "rm6855054",
-      "route_name": "Солнцевская линия",
-      "ours": 14,
-      "lang": "ru",
-      "wiki": "en:Kalininsko–Solntsevskaya line",
-      "wiki_stations": 8,
-      "note": "Line operates as two disconnected segments; wiki_n=8 is the eastern Kalininskaya segment (Novokosino–Tretyakovskaya). Our 14-station route (rm6855054, Солнцевская линия) matches the western Solntsevskaya segment exactly station-for-station: Деловой центр, Парк Победы, Минская, Ломоносовский проспект, Раменки, Мичуринский проспект, Озёрная, Говорово, Солнцево, Боровское шоссе, Новопеределкино, Рассказовка, Пыхтино, Аэропорт Внуково. Wiki infobox states 'West section: 14'."
-    },
-    {
       "city": "Taipei",
       "country": "Taiwan",
       "route_id": "rm5576487",
@@ -7195,6 +7210,17 @@
       "wiki": "zh:綠山線",
       "wiki_stations": 14,
       "note": "綠山線實際 11 站（V01-V11，條目車站表）；infobox「營運中14站」為淡海輕軌全系統數（綠山11＋藍海一期新增3）。WebFetch 查證 2026-07-11。"
+    },
+    {
+      "city": "Moscow",
+      "country": "Russia",
+      "route_id": "rm6855054",
+      "route_name": "Солнцевская линия",
+      "ours": 14,
+      "lang": "ru",
+      "wiki": "en:Kalininsko–Solntsevskaya line",
+      "wiki_stations": 8,
+      "note": "Line operates as two disconnected segments; wiki_n=8 is the eastern Kalininskaya segment (Novokosino–Tretyakovskaya). Our 14-station route (rm6855054, Солнцевская линия) matches the western Solntsevskaya segment exactly station-for-station: Деловой центр, Парк Победы, Минская, Ломоносовский проспект, Раменки, Мичуринский проспект, Озёрная, Говорово, Солнцево, Боровское шоссе, Новопеределкино, Рассказовка, Пыхтино, Аэропорт Внуково. Wiki infobox states 'West section: 14'."
     },
     {
       "city": "Tianjin",
