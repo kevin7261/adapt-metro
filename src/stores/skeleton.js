@@ -8,6 +8,36 @@
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1])
 const setEq = (a, b) => a.size === b.size && [...a].every((x) => b.has(x))
 
+// Perpendicular distance from P to the infinite line through A,B (falls back to
+// |P−A| when A,B coincide, e.g. a loop edge whose ends meet).
+function perpToLine(P, A, B) {
+  const dx = B[0] - A[0], dy = B[1] - A[1]
+  const L = Math.hypot(dx, dy)
+  if (L < 1e-12) return dist(P, A)
+  return Math.abs((P[0] - A[0]) * dy - (P[1] - A[1]) * dx) / L
+}
+
+// Douglas–Peucker with a RELATIVE tolerance: keep the farthest interior point of
+// pts[i0..i1] when its perpDist ÷ chord(A,B) > tol, then recurse each half.
+// Scale-independent — only relative bendiness matters. Fills `keep` with indices.
+function dpKeep(pts, i0, i1, tol, keep) {
+  if (i1 <= i0 + 1) return
+  const A = pts[i0], B = pts[i1]
+  const base = dist(A, B)
+  let maxD = -1, maxI = -1
+  for (let i = i0 + 1; i < i1; i++) {
+    const d = perpToLine(pts[i], A, B)
+    if (d > maxD) { maxD = d; maxI = i }
+  }
+  if (maxI < 0) return
+  const ratio = base > 1e-9 ? maxD / base : Infinity // coincident ends → always keep
+  if (ratio > tol) {
+    keep.add(maxI)
+    dpKeep(pts, i0, maxI, tol, keep)
+    dpKeep(pts, maxI, i1, tol, keep)
+  }
+}
+
 export function buildConnectSkeleton(geojson) {
   // stations
   const coord = new Map() // id -> [lng,lat]
@@ -125,11 +155,14 @@ export function buildConnectSkeleton(geojson) {
     }
     return best
   }
-  // Pink = a representative bend: an interior black station whose DEFLECTION
-  // angle (the turn between its incoming and outgoing segment directions;
-  // 0° = straight through) is ≥ PINK_DEFLECT_DEG.
-  const PINK_DEFLECT_DEG = 30
-  const PINK_DEFLECT = PINK_DEFLECT_DEG * Math.PI / 180
+  // Pink = representative bend, picked per edge in two gates:
+  //   ① edge must be curvy enough: sinuosity = arcLength ÷ chord > PINK_SINUOSITY
+  //      (loops have chord ≈ 0 → treated as extremely curvy). ≤ 1.25 → no pink.
+  //   ② Douglas–Peucker with a relative tolerance keeps the bends: at each split
+  //      the farthest point is kept when perpDist ÷ chord > PINK_DP_TOL.
+  // A kept vertex is marked pink only if it is still a black (through) station.
+  const PINK_SINUOSITY = 1.25
+  const PINK_DP_TOL = 0.25
   for (const e of edges) {
     const { path } = e
     if (path.length < 3) continue
@@ -146,15 +179,18 @@ export function buildConnectSkeleton(geojson) {
       }
     }
 
-    // ⑥ pink bends: interior black whose deflection angle ≥ PINK_DEFLECT_DEG.
-    for (let i = 1; i < path.length - 1; i++) {
-      if (stationClass.get(path[i]) !== 'black') continue
-      const A = coord.get(path[i - 1]), B = coord.get(path[i]), C = coord.get(path[i + 1])
-      const a1 = Math.atan2(B[1] - A[1], B[0] - A[0]) // incoming direction
-      const a2 = Math.atan2(C[1] - B[1], C[0] - B[0]) // outgoing direction
-      let deflect = Math.abs(a2 - a1)
-      if (deflect > Math.PI) deflect = 2 * Math.PI - deflect // 0 = straight, π = U-turn
-      if (deflect >= PINK_DEFLECT) stationClass.set(path[i], 'pink')
+    // ⑥ pink bends: sinuosity gate, then relative Douglas–Peucker.
+    const pts = path.map((id) => coord.get(id))
+    const chord = dist(pts[0], pts[pts.length - 1])
+    const sinuosity = chord > 1e-9 ? cum[cum.length - 1] / chord : Infinity
+    if (sinuosity > PINK_SINUOSITY) {
+      const keep = new Set()
+      dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, keep)
+      for (const i of keep) {
+        if (i > 0 && i < path.length - 1 && stationClass.get(path[i]) === 'black') {
+          stationClass.set(path[i], 'pink')
+        }
+      }
     }
 
     // ⑥ gray separators: within each run of black between boundaries (nodes +

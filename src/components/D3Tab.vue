@@ -117,34 +117,38 @@ async function render() {
   // classify nodes (red/blue/black/purple/pink/gray) and edges (coline/loop/
   // parallel/plain). See skill route-skeleton-connect.
   const sk = skeletonized.value ? buildConnectSkeleton(data) : null
-  const EDGE_COLOR = { loop: '#16a34a', parallel: '#2563eb' }
-  const MAX_OVERLAP = 6, DASH = 5 // co-line interleaved-dash pattern (screen px)
+  const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
   const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af' }
+  // Edge-class colours are drawn as a BOTTOM HIGHLIGHT (underlay) — NOT the line
+  // colour. The line itself is always the original metro-map rendering.
+  const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
   const EDGE_LABEL = { coline: '共線合併', loop: '環線', parallel: '頭尾共點', plain: '一般' }
 
-  let lineData, stationData
+  let lineData, stationData, highlightData = []
   if (sk) {
     const coordById = new Map(stations.map((f) => [f.properties.station_id, f.geometry.coordinates]))
     const edgeD = (pathIds) => pathIds
       .map((id, i) => { const [x, y] = P(coordById.get(id)); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
       .join(' ')
+    // Line = original metro-map drawing: single route → solid route colour,
+    // overlap (≥2 routes) → interleaved route-colour dashes.
     lineData = sk.edges.flatMap((e) => {
       const d = edgeD(e.path)
       const html = `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
-      // Co-line merge: draw the routes' colours as interleaved dashes, exactly
-      // like the metro map's overlap segments.
-      if (e.cls === 'coline' && (e.routeColors?.length ?? 0) >= 2) {
-        const cols = e.routeColors.slice(0, MAX_OVERLAP)
+      const cols = (e.routeColors ?? []).slice(0, MAX_OVERLAP)
+      if (cols.length >= 2) {
         const n = cols.length
         return cols.map((color, i) => ({
           d, stroke: color, html,
           dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
         }))
       }
-      return [{ d, stroke: EDGE_COLOR[e.cls] ?? e.color, html }]
+      return [{ d, stroke: cols[0] ?? e.color ?? '#e11d48', html }]
     })
+    // Bottom highlight: one translucent underlay per classified edge.
+    highlightData = sk.edges.filter((e) => EDGE_HL[e.cls]).map((e) => ({ d: edgeD(e.path), color: EDGE_HL[e.cls] }))
     stationData = stations.map((f) => {
       const [x, y] = P(f.geometry.coordinates)
       return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
@@ -157,10 +161,23 @@ async function render() {
     })
   }
 
-  // Two sibling groups so stations always sit above lines — hovering a line
-  // .raise()s it only within the lines group, never above the stations group.
+  // Bottom-to-top: edge-class highlight underlay, then lines, then stations.
+  const highlightG = sel.append('g').attr('class', 'hl-layer')
   const linesG = sel.append('g').attr('class', 'lines-layer')
   const stationsG = sel.append('g').attr('class', 'stations-layer')
+
+  highlightG.selectAll('path.hl')
+    .data(highlightData)
+    .join('path')
+    .attr('class', 'hl')
+    .attr('d', (d) => d.d)
+    .attr('fill', 'none')
+    .attr('stroke', (d) => d.color)
+    .attr('stroke-opacity', 0.55)
+    .attr('stroke-width', (panelLayer.value?.strokeWidth ?? 2.5) + 11)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round')
+    .style('pointer-events', 'none')
 
   linesG.selectAll('path.line')
     .data(lineData)
@@ -234,6 +251,8 @@ function applyStyle() {
   sel.selectAll('path.line')
     .attr('stroke-width', src?.strokeWidth ?? 2.5)
     .attr('stroke-opacity', src?.opacity ?? 1)
+  sel.selectAll('path.hl')
+    .attr('stroke-width', (src?.strokeWidth ?? 2.5) + 11)
   sel.selectAll('circle.station')
     .attr('r', src?.radius ?? 4)
     .attr('opacity', src?.opacity ?? 1)

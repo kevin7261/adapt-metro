@@ -19,10 +19,20 @@ const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: Image
 const typeBadges = { metro: 'METRO', d3: 'D3' }
 
 // Skills exposed per layer type (moved off the top toolbar into each layer):
-// Metro Maps layers get the two data-pipeline skills, Map Adjust the skeleton one.
+// Metro Maps layers get the two general data-pipeline skills + the cities index;
+// Map Adjust gets the skeleton one.
 const LAYER_SKILLS = {
-  metro: ['metro-osm-fetch', 'metro-audit'],
+  metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
   d3: ['route-skeleton-connect'],
+}
+// 城市 → 該城專屬 skill（讓每個城市的圖層在下拉多顯示自己的規則 skill）。
+const CITY_SKILL = {
+  Taipei: 'metro-city-taipei',
+  Tokyo: 'metro-city-tokyo', Osaka: 'metro-city-tokyo',
+  Berlin: 'metro-city-germany', Hamburg: 'metro-city-germany',
+  Munich: 'metro-city-germany', Frankfurt: 'metro-city-germany',
+  Nuremberg: 'metro-city-germany',
+  'New York City': 'metro-city-newyork',
 }
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
@@ -34,7 +44,10 @@ onMounted(async () => {
   document.addEventListener('mousedown', onSkillDocClick)
 })
 function layerSkills(layer) {
-  return (LAYER_SKILLS[layer.type] ?? []).map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
+  const ids = [...(LAYER_SKILLS[layer.type] ?? [])]
+  const cs = layer.type === 'metro' ? CITY_SKILL[layer.city] : null
+  if (cs && !ids.includes(cs)) ids.push(cs)
+  return ids.map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
 }
 // The menu is teleported to <body> with fixed positioning so it isn't clipped
 // by the layer tree's `overflow-y: auto`.

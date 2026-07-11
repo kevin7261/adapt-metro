@@ -1425,21 +1425,19 @@ async function build() {
     }
   }
 
-  // final consistency: a station's `lines` may only reference lines that
-  // still exist in its bucket (a line dropped above must take its orphaned
-  // stations with it — invariant 2 both ways). A station whose tag refs all
-  // died but whose coordinate IS a vertex of surviving lines was spatially
-  // adopted by them at snap time — re-attribute instead of dropping (else
-  // the line would keep a vertex that is no station).
+  // final consistency（三者一致的唯一權威）：站的 `lines` **只認它座標實際落在
+  // 哪些線頂點上**（`__vertexOwners`＝snap 後每個線頂點座標的 owner tags），
+  // **完全不信任 `nearbyLineRefs` 的 900 m 鄰近猜測**。這保證：
+  //   站在線上 ⟺ 站屬於該線（lines）⟺ 該線站單（__stations）有此站——三者一致。
+  // 不落在任何線頂點的站（浮空點）一律剔除（消除「有站點卻沒路線經過」的點）。
+  // 代價：OSM route 漏列 stop 成員的真站（深圳7號線漏文體公園）會被剔除——那是
+  // 上游資料缺陷，寧缺勿錯（要補得定向 refetch 修好 route 成員，見 [[metro-audit]]）。
   for (const grp of cityGroups.values()) {
     const alive = new Set(grp.lines.map((f) => featTag.get(f)).filter(Boolean))
     const owners = grp.__vertexOwners ?? new Map()
     grp.stations = grp.stations.filter((s) => {
-      let left = (s.properties.lines || []).filter((tag) => alive.has(tag))
-      if (!left.length) {
-        const adopted = owners.get(s.geometry.coordinates.join(','))
-        if (adopted?.size) left = [...adopted].sort()
-      }
+      const adopted = owners.get(s.geometry.coordinates.join(','))
+      const left = adopted?.size ? [...adopted].filter((t) => alive.has(t)).sort() : []
       if (!left.length) return false
       s.properties.lines = left
       return true

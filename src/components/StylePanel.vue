@@ -166,15 +166,17 @@ const routeMapUrl = computed(() =>
 // urbanrail.net：城市頁 URL 不規則（城市碼縮寫沒有算法規律，台北 tw/taip/taipei.htm、
 // 新加坡 sing/singapore.htm），故用實查的城市→URL 映射（key = index.json 的 city）。
 // 沒有映射的城市 fallback 到該洲索引頁（城市離該頁一步之遙）。
+// URL = 洲碼前綴 + 洲索引頁裡的相對 href（href 相對於洲目錄，如 as/asia.htm →
+// 城市頁在 as/tw/taip/taipei.htm）。全部 curl 驗證過 HTTP 200。
 const URBANRAIL_CITIES = {
-  Taipei: 'tw/taip/taipei.htm', Taichung: 'tw/taichung/taichung.htm',
-  Kaohsiung: 'tw/kaoh/kaohsiung.htm', Tokyo: 'jp/tokyo/tokyo.htm',
-  Osaka: 'jp/osaka/osaka.htm', Seoul: 'kr/seoul/seoul.htm',
-  Beijing: 'cn/beij/beijing.htm', Shanghai: 'cn/shan/shanghai.htm',
-  'Hong Kong': 'cn/hong/hong-kong.htm', Singapore: 'sing/singapore.htm',
-  London: 'uk/lon/london.htm', Paris: 'fr/paris/paris.htm',
-  Berlin: 'de/b/berlin.htm', Vienna: 'at/vienna/wien.htm',
-  'New York City': 'nyrk/new-york.htm', 'New York': 'nyrk/new-york.htm',
+  Taipei: 'as/tw/taip/taipei.htm', Taichung: 'as/tw/taichung/taichung.htm',
+  Kaohsiung: 'as/tw/kaoh/kaohsiung.htm', Tokyo: 'as/jp/tokyo/tokyo.htm',
+  Osaka: 'as/jp/osaka/osaka.htm', Seoul: 'as/kr/seoul/seoul.htm',
+  Beijing: 'as/cn/beij/beijing.htm', Shanghai: 'as/cn/shan/shanghai.htm',
+  'Hong Kong': 'as/cn/hong/hong-kong.htm', Singapore: 'as/sing/singapore.htm',
+  London: 'eu/uk/lon/london.htm', Paris: 'eu/fr/paris/paris.htm',
+  Berlin: 'eu/de/b/berlin.htm', Vienna: 'eu/at/vienna/wien.htm',
+  'New York City': 'am/nyrk/new-york.htm', 'New York': 'am/nyrk/new-york.htm',
 }
 const URBANRAIL_CONTINENTS = {
   asia: 'as/asia.htm',
@@ -342,15 +344,18 @@ function startResize(e) {
                   <li><span class="sk-dot" style="background:#2563eb" /> 藍：真端點（degree≤1）</li>
                   <li><span class="sk-dot sk-ring" /> 白：直通中段站（degree=2、兩側同路線；不變）</li>
                   <li><span class="sk-dot" style="background:#a855f7" /> 紫：頭尾共點／環線切斷點</li>
-                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：代表性轉折點（該點進出方向夾角 ≥ 30°）</li>
+                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：代表性轉折點（邊曲折度&gt;1.25 才挑，DP 垂距/弦長&gt;0.25 的黑點）</li>
                   <li><span class="sk-dot" style="background:#9ca3af" /> 灰：過長黑點段的分隔（每段 ≤4，G=⌊N/5⌋）</li>
                 </ul>
-                <p class="sk-sub">邊（收縮後底色）</p>
+                <p class="sk-sub">線畫法（照原本）</p>
                 <ul>
-                  <li><span class="sk-line sk-coline" /> 共線合併：各 route 交錯彩色虛線（≥2 路線；不切紫點）</li>
+                  <li><span class="sk-line sk-plain" /> 單線＝route 原色；重疊＝各 route 交錯彩色虛線</li>
+                </ul>
+                <p class="sk-sub">邊分類（線底下的 highlight 襯底）</p>
+                <ul>
+                  <li><span class="sk-line" style="background:#e11d48" /> 紅：共線合併（≥2 路線；不切紫點）</li>
                   <li><span class="sk-line" style="background:#16a34a" /> 綠：環線（自環；1/3、2/3 切 2 紫）</li>
                   <li><span class="sk-line" style="background:#2563eb" /> 藍：頭尾共點（平行多重邊；1/2 切 1 紫）</li>
-                  <li><span class="sk-line sk-plain" /> 一般：路線原色</li>
                 </ul>
                 <p class="rose-note">
                   依 skill <code>route-skeleton-connect</code>。座標一律照原地理、不移動；
