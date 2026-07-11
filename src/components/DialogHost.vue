@@ -200,9 +200,9 @@ const shortcuts = [
               :title="q.sys ? '' : '資料集中找不到此城市'"
               @click="importSystem(q.sys)"
             >
-              <span class="station-city">{{ q.zh }}</span>
-              <span class="station-country">{{ q.en }}</span>
-              <span class="station-count">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
+              <span class="station-city">{{ q.en }}</span>
+              <span class="station-country">{{ q.sys?.country ?? '' }}</span>
+              <span class="station-count">{{ q.sys ? `${q.sys.station_count} stations · ${q.sys.line_count} lines` : '—' }}</span>
             </button>
           </div>
 

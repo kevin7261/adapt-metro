@@ -1,9 +1,9 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1137,
+  "routes_total": 1119,
   "checked_against_infobox": 534,
   "flagged": 77,
-  "uncovered": 603,
+  "uncovered": 585,
   "adjudicated": 25,
   "flags": [
     {
@@ -1805,296 +1805,6 @@
       "ours": 24,
       "lang": "de",
       "wiki": "de:U-Bahnlinie 6 (Berlin)",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857639",
-      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
-      "ours": 27,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1676043",
-      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
-      "ours": 16,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm1857497",
-      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
-      "ours": 14,
-      "lang": "de",
-      "wiki": "de:U-Bahn Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r536798",
-      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r539312",
-      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
-      "ours": 34,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r17013072",
-      "route_name": "S-Bahn S1: Erlangen => Hartmannshof",
-      "ours": 21,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r10512097",
-      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
-      "ours": 23,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r959753",
-      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
-      "ours": 2,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r2199151",
-      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r18466074",
-      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Crailsheim",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r2213213",
-      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
-      "ours": 10,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r169136",
-      "route_name": "Stadtbahn S1: Hochstetten => Bad Herrenalb",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r5977154",
-      "route_name": "Stadtbahn S1: KIT-Campus Nord => Bad Herrenalb",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm17842",
-      "route_name": "Stadtbahn S11: Ittersbach <=> Hochstetten",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r5977152",
-      "route_name": "Stadtbahn S11: Ittersbach => KIT-Campus Nord",
-      "ours": 18,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm2872365",
-      "route_name": "Stadtbahn S51: Söllingen <=> Germersheim",
-      "ours": 39,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r6063261",
-      "route_name": "Stadtbahn S51: Germersheim => Maxau => Söllingen",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r6063258",
-      "route_name": "Stadtbahn S51: Germersheim => Maxau => Karlsruhe Albtalbahnhof",
-      "ours": 25,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r6063259",
-      "route_name": "Stadtbahn S51 Eilzug: Germersheim => Ettlinger Tor => Karlsruhe Tullastraße",
-      "ours": 24,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm13566082",
-      "route_name": "Stadtbahn S12: Ittersbach <=> Rheinhafen EILZUG",
-      "ours": 15,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm2395148",
-      "route_name": "Stadtbahn S4 Eilzug: Bretten => Albtalbahnhof",
-      "ours": 60,
-      "lang": "de",
-      "wikidata": "Q106362966",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r189816",
-      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Forbach (Schwarzwald)",
-      "ours": 30,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r190111",
-      "route_name": "Stadtbahn S8: Karlsruhe Tullastraße → Bondorf (b Herrenberg)",
-      "ours": 32,
-      "lang": "de",
-      "wikidata": "Q112623864",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r1607109",
-      "route_name": "Stadtbahn S52: Germersheim => Karlsruhe West => Karlsruhe Marktplatz",
-      "ours": 22,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r1622732",
-      "route_name": "Stadtbahn S52: Karlsruhe Marktplatz => Germersheim",
-      "ours": 17,
-      "lang": "de",
-      "wiki": "de:Karlsruher Verkehrsverbund",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm3368507",
-      "route_name": "S42: Sinsheim (Elsenz) Hbf <=> Heilbronn",
-      "ours": 14,
-      "lang": "de",
-      "wikidata": "Q121237874",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm4272651",
-      "route_name": "S41: Heilbronn <=> Mosbach (Baden)",
-      "ours": 17,
-      "lang": "de",
-      "wikidata": "Q121237670",
-      "reason": "no wikipedia/wikidata tag resolves"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "rm53844",
-      "route_name": "S6 - Enztalbahn",
-      "ours": 3,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Pforzheim-Enzkreis",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Nuremberg",
-      "country": "Germany",
-      "route_id": "r187060",
-      "route_name": "S-Bahn S5: Wiesbaden Hbf => Bensheim",
-      "ours": 33,
-      "lang": "de",
-      "wiki": "de:Verkehrsverbund Rhein-Neckar;de:Rhein-Nahe-Nahverkehrsverbund",
       "reason": "article has no station count infobox"
     },
     {
@@ -4024,6 +3734,116 @@
       "lang": "zh",
       "wiki": "zh:武汉地铁",
       "reason": "system article shared by several lines (zh:武汉地铁)"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857639",
+      "route_name": "U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd",
+      "ours": 27,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1676043",
+      "route_name": "U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen",
+      "ours": 16,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "rm1857497",
+      "route_name": "U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
+      "ours": 14,
+      "lang": "de",
+      "wiki": "de:U-Bahn Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r536798",
+      "route_name": "S-Bahn S3: Nürnberg Hauptbahnhof => Neumarkt (Oberpf)",
+      "ours": 15,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r539312",
+      "route_name": "S-Bahn S1: Nürnberg Hauptbahnhof => Erlangen",
+      "ours": 34,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r17013072",
+      "route_name": "S-Bahn S1: Erlangen => Hartmannshof",
+      "ours": 21,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r10512097",
+      "route_name": "S-Bahn S2: Roth => Nürnberg Hauptbahnhof",
+      "ours": 23,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r959753",
+      "route_name": "S-Bahn S5: Allersberg (Rothsee) => Nürnberg",
+      "ours": 2,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2199151",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Dombühl",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r18466074",
+      "route_name": "S-Bahn S4: Nürnberg Hauptbahnhof => Crailsheim",
+      "ours": 18,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "city": "Nuremberg",
+      "country": "Germany",
+      "route_id": "r2213213",
+      "route_name": "S-Bahn S6: Nürnberg Hauptbahnhof => Neustadt (Aisch)",
+      "ours": 10,
+      "lang": "de",
+      "wiki": "de:Verkehrsverbund Großraum Nürnberg",
+      "reason": "article has no station count infobox"
     },
     {
       "city": "Istanbul",

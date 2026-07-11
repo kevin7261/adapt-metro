@@ -121,15 +121,17 @@ function pick(sys) {
 }
 .sort-btn.active { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
 .gallery-count { margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
-.gallery-body { flex: 1; overflow-y: auto; padding: 16px; }
+/* container-type so the grid responds to the PANEL width, not the viewport
+   (the gallery lives in a resizable dockview panel). */
+.gallery-body { flex: 1; overflow-y: auto; padding: 16px; container-type: inline-size; }
 .gallery-status { padding: 32px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px; }
-/* max 4 per row, shrinking to fewer on narrow panels */
+/* max 3 per row, shrinking responsively on narrow panels */
 .tile-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   align-content: start;
 }
-@media (max-width: 860px) { .tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 720px) { .tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 460px) { .tile-grid { grid-template-columns: minmax(0, 1fr); } }
 </style>

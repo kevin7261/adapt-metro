@@ -14,6 +14,15 @@ const state = ref('idle') // idle | loading | done | error
 let observer = null
 
 const W = 168, H = 116, PAD = 7
+// Same rendering rules as the MapLibre metro map (LayerTab).
+const MAX_OVERLAP = 6
+const DASH = 2.5
+// Station fill: transfer (>1 route) red, terminus blue, else white.
+function stationFill(p) {
+  if (Array.isArray(p.lines) && p.lines.length > 1) return '#e11d48'
+  if (p.is_terminus) return '#2563eb'
+  return '#ffffff'
+}
 
 function build(geojson) {
   const b = boundsOfGeojson(geojson)
@@ -28,12 +37,27 @@ function build(geojson) {
   for (const f of geojson.features) {
     if (f.geometry?.type === 'Point') {
       const [lo, la] = f.geometry.coordinates
-      dots.push({ x: +px(lo).toFixed(1), y: +py(la).toFixed(1) })
+      dots.push({ x: +px(lo).toFixed(1), y: +py(la).toFixed(1), fill: stationFill(f.properties ?? {}) })
     } else if (f.geometry?.coordinates) {
-      const color = f.properties?.route_color || '#e11d48'
+      const p = f.properties ?? {}
+      const rc = p.route_count ?? 1
+      const colors = Array.isArray(p.route_colors) ? p.route_colors : []
       for (const seg of f.geometry.coordinates) {
         const d = seg.map((c, i) => `${i ? 'L' : 'M'}${px(c[0]).toFixed(1)} ${py(c[1]).toFixed(1)}`).join(' ')
-        if (d) lines.push({ d, color })
+        if (!d) continue
+        if (rc > 1 && colors.length) {
+          // n interleaved coloured dashes, one slot per route (dasharray offset).
+          const cnt = Math.min(rc, MAX_OVERLAP)
+          for (let i = 0; i < cnt; i++) {
+            lines.push({
+              d,
+              color: colors[i % colors.length],
+              dash: `0 ${(i * DASH).toFixed(2)} ${DASH} ${((cnt - 1 - i) * DASH).toFixed(2)}`,
+            })
+          }
+        } else {
+          lines.push({ d, color: p.route_color || '#e11d48' })
+        }
       }
     }
   }
@@ -81,17 +105,19 @@ onBeforeUnmount(() => observer?.disconnect())
           :key="'l' + i"
           :d="ln.d"
           :stroke="ln.color"
+          :stroke-dasharray="ln.dash || null"
           fill="none"
-          stroke-width="1.7"
+          stroke-width="1.1"
           stroke-linejoin="round"
-          stroke-linecap="round"
+          :stroke-linecap="ln.dash ? 'butt' : 'round'"
         />
         <circle
           v-for="(dt, i) in thumb.dots"
           :key="'d' + i"
           :cx="dt.x"
           :cy="dt.y"
-          r="0.85"
+          r="0.6"
+          :fill="dt.fill"
           class="tile-dot"
         />
       </svg>
@@ -134,7 +160,7 @@ onBeforeUnmount(() => observer?.disconnect())
   border-bottom: 1px solid hsl(var(--border));
 }
 .tile-canvas svg { width: 100%; height: 100%; overflow: visible; }
-.tile-dot { fill: hsl(var(--card)); stroke: hsl(var(--foreground) / 0.45); stroke-width: 0.4; }
+.tile-dot { stroke: #3f3f46; stroke-width: 0.3; }
 .tile-msg { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
 /* shimmer while the geojson streams in */
 .tile-canvas.loading {

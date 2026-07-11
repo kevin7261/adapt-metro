@@ -139,6 +139,10 @@ const isDepot = (t = {}) => DEPOT_NAME.test(`${t.name || ''} ${t['name:en'] || '
 // 各國機場 Skytrain／Aerotrain）不是都會地鐵/輕軌——使用者指定排除（台北不抓
 // 機場內輕軌）。注意：機場「快線」（Airport Express、機場捷運 A 線）是真地鐵，
 // 不在此列——只擋航廈接駁電車，不擋 metro/line/express。
+// 全國性鐵路基礎設施/營運公司名不代表城市——rebucket 時比照 Unknown 跳過
+// （DB Station&Service AG geocode 到紐倫堡，會把卡爾斯魯厄 Stadtbahn 整桶搬進去）。
+const NATIONAL_INFRA = /DB Station|DB InfraGO|\bInfraGO\b|DB Netz|DB Fernverkehr|DB Cargo|Deutsche Bahn|Indian Rail|भारतीय रेल/i
+
 const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*電車|people ?mover|\bapm\b|sky\s?train|aero\s?train|shuttle tram|terminal (?:shuttle|train|tram)/i
 const isAirportApm = (t = {}) =>
   AIRPORT_APM.test(`${t.name || ''} ${t['name:en'] || ''} ${t.network || ''} ${t.operator || ''}`)
@@ -1029,6 +1033,9 @@ async function build() {
     const gc = groupCentroid(grp)
     for (const net of grp.networks) {
       if (net === 'Unknown') continue
+      // 全國性基礎設施/營運公司名不代表城市（DB Station&Service AG geocode 到
+      // 紐倫堡，會把整個卡爾斯魯厄 Stadtbahn 桶搬進紐倫堡）——跳過，比照 Unknown。
+      if (NATIONAL_INFRA.test(net)) continue
       const c = cityInfo(net, null, null)
       if (!isCanon(c) || c.key === key) continue
       // 同一城市＝同一系統：network 名稱解析出的城市必須離群組重心 ≤250 km
