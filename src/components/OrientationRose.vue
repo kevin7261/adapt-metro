@@ -17,14 +17,16 @@ const cy = computed(() => props.size / 2)
 const half = computed(() => 180 / props.bins.length) // half a bin, in degrees
 const maxBin = computed(() => Math.max(...props.bins, 1e-9))
 
-// Highlight the wedges the suggested rotation turns onto a cardinal axis — the
-// directions at bearing ≈ tilt (and its +90/+180/+270 partners), i.e. the ones
-// that become horizontal/vertical. Threshold = half a bin.
-const foldDev = (deg) => {
-  const d = (((deg - props.tilt) % 90) + 90) % 90
-  return Math.min(d, 90 - d)
-}
-const isAligned = (i) => foldDev(i * (360 / props.bins.length)) <= half.value
+// The dominant direction = the rose's tallest wedge (what the rotation aligns).
+// Highlight it AND its reciprocal (bins[i] === bins[i+H], same orientation).
+const peakIdx = computed(() => {
+  let mi = 0
+  for (let i = 1; i < props.bins.length; i++) if (props.bins[i] > props.bins[mi]) mi = i
+  return mi
+})
+const isPeak = (i) =>
+  i === peakIdx.value || i === (peakIdx.value + props.bins.length / 2) % props.bins.length
+
 
 // Point on the compass circle: angle in degrees from north, clockwise.
 function pt(angleDeg, r) {
@@ -104,7 +106,7 @@ const cardinals = computed(() => [
       :key="i"
       :d="d"
       class="rose-wedge"
-      :class="{ 'is-aligned': isAligned(i) }"
+      :class="{ 'is-peak': isPeak(i) }"
     />
 
     <!-- Suggested rotation: a red arc outside the circle, from N by `tilt`. -->
@@ -149,8 +151,8 @@ const cardinals = computed(() => [
   stroke-width: 0.5;
   stroke-linejoin: round;
 }
-/* directions the rotation squares up (→ cardinal) — highlighted red */
-.rose-wedge.is-aligned {
+/* the dominant direction the rotation aligns — highlighted red */
+.rose-wedge.is-peak {
   fill: #e11d48;
   stroke: #9f1239;
   stroke-width: 0.75;

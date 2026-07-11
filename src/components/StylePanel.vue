@@ -132,8 +132,8 @@ const orientation = computed(() => {
 // is cancelled by a counter-clockwise turn, and vice versa.
 function rotationHint(o) {
   const t = o?.tilt ?? 0
-  if (Math.abs(t) < 0.05) return '0°（已對齊正南北）'
-  return `${Math.abs(t).toFixed(1)}° ${t > 0 ? '逆時針' : '順時針'}`
+  if (Math.abs(t) < 0.5) return '0°（已對齊正南北）'
+  return `${Math.abs(t).toFixed(0)}° ${t > 0 ? '逆時針' : '順時針'}`
 }
 
 /* ---- Info: per-city audit verdict (metro_system.audit, from metro:audit) ---- */
@@ -309,10 +309,6 @@ function startResize(e) {
                   <span class="info-key">φ 秩序度</span><span>{{ orientation.phi.toFixed(3) }}</span>
                 </div>
                 <div class="info-row">
-                  <span class="info-key">H<sub>w</sub> 方向熵</span>
-                  <span>{{ orientation.hw.toFixed(3) }} nats</span>
-                </div>
-                <div class="info-row">
                   <span class="info-key">路線總長</span>
                   <span>{{ orientation.totalKm.toFixed(1) }} km</span>
                 </div>
@@ -320,16 +316,17 @@ function startResize(e) {
                   <span class="info-key">建議旋轉</span>
                   <span>{{ rotationHint(orientation) }}</span>
                 </div>
-                <div class="info-row">
-                  <span class="info-key">方正度</span>
-                  <span>{{ (orientation.strength * 100).toFixed(0) }}%</span>
-                </div>
               </div>
               <div class="rose-note">
-                依 Boeing (2019)：線段方位角分 36 格、雙向、以長度加權。
-                φ = 0 為方向均勻（無序），φ = 1 為完美方格網。
-                「建議旋轉」為把主軸對齊正南北／東西所需的角度（不改地圖，僅供參考）；
-                方正度越高代表網路越接近單一方格、此建議越可靠。
+                <strong>玫瑰圖的算法</strong>：把每條線段的羅盤方位角（0°=北、順時針）連同反向
+                （+180°），依<strong>線段長度</strong>加權，分進 36 個 10° 方向格；每根 wedge 的半徑
+                ∝ 該方向的長度佔比（面積等比、雙向對稱）。共用主幹只算一條、不乘路線數。
+                <br />
+                <strong>φ 秩序度</strong>（Boeing 2019 方向熵）：φ = 0 方向均勻（無序），
+                φ = 1 完美方格網——越高代表越接近單一方格、旋轉建議越可靠。
+                <br />
+                <strong>建議旋轉的算法</strong>：取玫瑰圖<span class="rose-red">最長（紅色）的那個方向</span>，
+                轉到<strong>最近</strong>的水平／垂直（摺 90°，轉幅 ≤ 45°，即最小旋轉）。此角度不改地圖、僅供參考。
               </div>
             </template>
 
@@ -790,4 +787,5 @@ function startResize(e) {
   line-height: 1.5;
   color: hsl(var(--muted-foreground));
 }
+.rose-note .rose-red { color: #e11d48; font-weight: 600; }
 </style>

@@ -48,8 +48,13 @@ onMounted(async () => {
 })
 function layerSkills(layer) {
   const ids = [...(LAYER_SKILLS[layer.type] ?? [])]
-  const cs = layer.type === 'metro' ? CITY_SKILL[layer.city] : null
-  if (cs && !ids.includes(cs)) ids.push(cs)
+  if (layer.type === 'metro') {
+    // 使用者：所有城市的 skill 都要在下拉。當前城市的 skill 排最前，其餘城市依序列出。
+    const cur = CITY_SKILL[layer.city]
+    if (cur && !ids.includes(cur)) ids.push(cur)
+    for (const id of Object.keys(skillIndex.value).sort())
+      if (id.startsWith('metro-city-') && !ids.includes(id)) ids.push(id)
+  }
   return ids.map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
 }
 // The menu is teleported to <body> with fixed positioning so it isn't clipped
