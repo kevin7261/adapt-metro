@@ -33,6 +33,9 @@ const CITY_SKILL = {
   Munich: 'metro-city-germany', Frankfurt: 'metro-city-germany',
   Nuremberg: 'metro-city-germany',
   'New York City': 'metro-city-newyork',
+  'Hong Kong': 'metro-city-hongkong', Shanghai: 'metro-city-shanghai',
+  Beijing: 'metro-city-beijing', Chengdu: 'metro-city-chengdu',
+  Suzhou: 'metro-city-suzhou',
 }
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open

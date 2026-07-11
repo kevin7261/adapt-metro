@@ -17,6 +17,15 @@ const cy = computed(() => props.size / 2)
 const half = computed(() => 180 / props.bins.length) // half a bin, in degrees
 const maxBin = computed(() => Math.max(...props.bins, 1e-9))
 
+// Highlight the wedges the suggested rotation turns onto a cardinal axis — the
+// directions at bearing ≈ tilt (and its +90/+180/+270 partners), i.e. the ones
+// that become horizontal/vertical. Threshold = half a bin.
+const foldDev = (deg) => {
+  const d = (((deg - props.tilt) % 90) + 90) % 90
+  return Math.min(d, 90 - d)
+}
+const isAligned = (i) => foldDev(i * (360 / props.bins.length)) <= half.value
+
 // Point on the compass circle: angle in degrees from north, clockwise.
 function pt(angleDeg, r) {
   const a = (angleDeg * Math.PI) / 180
@@ -90,7 +99,13 @@ const cardinals = computed(() => [
       <line :x1="cx" :y1="cy - R" :x2="cx" :y2="cy + R" />
       <line :x1="cx - R" :y1="cy" :x2="cx + R" :y2="cy" />
     </g>
-    <path v-for="(d, i) in wedges" :key="i" :d="d" class="rose-wedge" />
+    <path
+      v-for="(d, i) in wedges"
+      :key="i"
+      :d="d"
+      class="rose-wedge"
+      :class="{ 'is-aligned': isAligned(i) }"
+    />
 
     <!-- Suggested rotation: a red arc outside the circle, from N by `tilt`. -->
     <g v-if="rotationArc" class="rose-rot" :style="{ opacity: overlayOpacity }">
@@ -133,6 +148,12 @@ const cardinals = computed(() => [
   stroke: hsl(var(--primary));
   stroke-width: 0.5;
   stroke-linejoin: round;
+}
+/* directions the rotation squares up (→ cardinal) — highlighted red */
+.rose-wedge.is-aligned {
+  fill: #e11d48;
+  stroke: #9f1239;
+  stroke-width: 0.75;
 }
 .rose-label {
   fill: hsl(var(--muted-foreground));

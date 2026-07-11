@@ -393,7 +393,7 @@ onBeforeUnmount(() => {
           >
             <Undo2 v-if="rotated" :size="14" />
             <component :is="tilt > 0 ? RotateCcw : RotateCw" v-else :size="14" />
-            <span>{{ rotated ? '回復原方向' : `依建議旋轉 ${Math.abs(tilt).toFixed(1)}°` }}</span>
+            <span>{{ rotated ? '回復原方向' : `依建議旋轉 ${Math.abs(tilt).toFixed(0)}°` }}</span>
           </button>
 
           <span class="d3-label">資料來源：</span>

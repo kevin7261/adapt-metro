@@ -152,7 +152,10 @@ const isDepot = (t = {}) => DEPOT_NAME.test(`${t.name || ''} ${t['name:en'] || '
 // （DB Station&Service AG geocode 到紐倫堡，會把卡爾斯魯厄 Stadtbahn 整桶搬進去）。
 const NATIONAL_INFRA = /DB Station|DB InfraGO|\bInfraGO\b|DB Netz|DB Fernverkehr|DB Cargo|Deutsche Bahn|Indian Rail|भारतीय रेल/i
 
-const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*電車|people ?mover|\bapm\b|sky\s?train|aero\s?train|shuttle tram|terminal (?:shuttle|train|tram)/i
+// 機場航廈接駁電車（APM／people mover／VAL）的通用詞 ＋ 各機場的專名。專名精確
+// 匹配以免誤傷真地鐵（巴黎 Ligne 14 終點在 Orly 但名含「Aéroport」不含 CDGVAL）。
+// 注意：不可加「skyline」——檀香山地鐵正式名就叫 Skyline，會誤剔整個系統。
+const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*電車|people ?mover|\bapm\b|sky\s?train|aero\s?train|air\s?train|plane ?train|shuttle tram|terminal (?:shuttle|train|tram)|\bCDGVAL\b|\bOrlyval\b/i
 const isAirportApm = (t = {}) =>
   AIRPORT_APM.test(`${t.name || ''} ${t['name:en'] || ''} ${t.network || ''} ${t.operator || ''}`)
 
@@ -1183,12 +1186,19 @@ async function build() {
       allow: /台北捷運|臺北捷運|taipei metro|新北捷運|新北大眾捷運|new taipei metro|淡海輕軌|安坑輕軌|三鶯|桃園捷運|桃園大眾捷運|桃園機場捷運|taoyuan (?:metro|airport)/i,
       deny: /skytrain|航廈電車/i,
     }],
+    // 紐約（使用者指定）：只收 MTA 的線——NYC Subway ＋ Staten Island Railway（MTA
+    // 子公司運營）。PATH（Port Authority of NY&NJ，跨哈德遜河到新澤西）不是 MTA，剔除。
+    ['new york city|united states', {
+      allow: /nyc subway|new york city transit|nyct|\bmta\b|metropolitan transportation|staten island rail/i,
+      deny: /\bpath\b|port authority/i,
+    }],
   ])
   let removedPrivate = 0
   for (const [ckey, rule] of CITY_NETWORK_ALLOW) {
     const [cCity, cCountry] = ckey.split('|')
     for (const grp of cityGroups.values()) {
-      if (normCity(grp.info.city) !== cCity || !countryOk(grp.info.country, cCountry)) continue
+      // normCity 兩邊都套（ckey 的城市名可能含空格，如 "new york city"→"newyorkcity"）
+      if (normCity(grp.info.city) !== normCity(cCity) || !countryOk(grp.info.country, cCountry)) continue
       const removedTags = new Set()
       grp.lines = grp.lines.filter((f) => {
         const p = f.properties

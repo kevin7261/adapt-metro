@@ -13,6 +13,10 @@ const BIN_DEG = 360 / NUM_BINS // 10°
 const H_MAX = Math.log(NUM_BINS) // 3.584 nats — perfectly uniform
 const H_GRID = Math.log(4) // 1.386 nats — a perfect 4-way grid (2 axes → 4 bins)
 
+// Fine folded-bearing histogram (bearings mod 90°) for the rotation search below.
+const FOLD_BINS = 360
+const FOLD_W = 90 / FOLD_BINS // 0.25°
+
 const toRad = (d) => (d * Math.PI) / 180
 
 // Initial compass bearing (0–360, 0 = north) from point a to b ([lng, lat]).
@@ -56,6 +60,7 @@ function eachSegment(geom, fn) {
 //   phi   — orientation-order φ ∈ [0,1]: 0 = uniform/disordered, 1 = perfect grid
 export function computeOrientation(geojson) {
   const weights = new Array(NUM_BINS).fill(0)
+  const fold = new Array(FOLD_BINS).fill(0) // length per folded bearing (mod 90°)
   let total = 0
   let segments = 0
   // Length-weighted resultant vector of bearings folded into 90° (grid symmetry),
@@ -66,20 +71,27 @@ export function computeOrientation(geojson) {
 
   for (const f of geojson?.features ?? []) {
     if (f.geometry?.type === 'Point' || f.geometry?.type === 'MultiPoint') continue
+    // Line features are overlap-deduped SEGMENTS: a stretch shared by N routes is
+    // drawn once but carries N routes. Weight by length × route_count so a shared
+    // trunk counts as N routes' worth of that direction (true route-km per bearing).
+    const rc = Math.max(1, f.properties?.route_count ?? 1)
     eachSegment(f.geometry, (a, b) => {
       const len = segLength(a, b)
       if (!(len > 0)) return
+      const w = len * rc
       const brg = bearing(a, b)
-      // bearing + reciprocal, each weighted by the same segment length
-      weights[binOf(brg)] += len
-      weights[binOf((brg + 180) % 360)] += len
-      total += len * 2
+      // bearing + reciprocal, each weighted by the same route-length weight
+      weights[binOf(brg)] += w
+      weights[binOf((brg + 180) % 360)] += w
+      total += w * 2
       segments++
-      // fold to 90° and quadruple the angle for the circular mean
-      const a4 = toRad((brg % 90) * 4)
-      sx += len * Math.cos(a4)
-      sy += len * Math.sin(a4)
-      lenSum += len
+      // fold to 90° and quadruple the angle for the circular mean (→ strength)
+      const fb = ((brg % 90) + 90) % 90
+      fold[Math.min(FOLD_BINS - 1, (fb / FOLD_W) | 0)] += w
+      const a4 = toRad(fb * 4)
+      sx += w * Math.cos(a4)
+      sy += w * Math.sin(a4)
+      lenSum += w
     })
   }
 
@@ -94,21 +106,36 @@ export function computeOrientation(geojson) {
   const norm = (hw - H_GRID) / (H_MAX - H_GRID)
   const phi = Math.max(0, Math.min(1, 1 - norm * norm))
 
-  // Dominant grid orientation α ∈ [0,90) and how far it sits from the nearest
-  // cardinal. `tilt` (−45,45] is the signed deviation (+ = tilted clockwise/east);
-  // rotating the network by −tilt aligns its main axes to N–S / E–W. `strength`
-  // (R ∈ [0,1]) says how grid-like the network is — near 0 the suggestion is weak.
+  // `strength` (R ∈ [0,1]) says how grid-like the network is — how concentrated
+  // the bearings are around one orientation; near 0 the suggestion is weak.
   const strength = Math.hypot(sx, sy) / lenSum
-  let alpha = (Math.atan2(sy, sx) * 180 / Math.PI) / 4
-  if (alpha < 0) alpha += 90
-  const tilt = alpha <= 45 ? alpha : alpha - 90
+
+  // Most-square alignment (coverage). Pick tilt ∈ (−45°, 45°] that maximises the
+  // route-km landing within ±EPS of a cardinal after rotating by −tilt — i.e.
+  // makes as much of the network read horizontal/vertical as a single rigid turn
+  // can. On (near-)ties, prefer the smaller turn. Folding to 90° caps it at 45°.
+  const EPS = 10          // ± degrees counted as "aligned" to a cardinal
+  const TOL = total * 1e-9
+  let tilt = 0, bestCov = -1
+  for (let s = -179; s <= 180; s++) {            // θ in 0.25° steps over (−44.75°, 45°]
+    const theta = s * 0.25
+    let cov = 0
+    for (let k = 0; k < FOLD_BINS; k++) {
+      const w = fold[k]
+      if (!w) continue
+      const x = (((k + 0.5) * FOLD_W - theta) % 90 + 90) % 90
+      if (Math.min(x, 90 - x) <= EPS) cov += w   // deviation to nearest cardinal
+    }
+    if (cov > bestCov + TOL) { bestCov = cov; tilt = theta }
+    else if (cov > bestCov - TOL && Math.abs(theta) < Math.abs(tilt)) { tilt = theta }
+  }
 
   return {
     bins,
     hw,
     phi,
     segments,
-    // one direction's length in km (weights double-count via the reciprocal)
+    // one direction's route-km (length × route_count; reciprocal double-counts)
     totalKm: total / 2 / 1000,
     numBins: NUM_BINS,
     tilt,

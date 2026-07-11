@@ -1,9 +1,9 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1119,
-  "checked_against_infobox": 534,
-  "flagged": 77,
-  "uncovered": 585,
+  "routes_total": 1111,
+  "checked_against_infobox": 528,
+  "flagged": 76,
+  "uncovered": 583,
   "adjudicated": 25,
   "flags": [
     {
@@ -529,19 +529,6 @@
       "wiki_stations": 14,
       "wiki_basis": "total",
       "diff": -4,
-      "severity": "warn"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm6928933",
-      "route_name": "CDGVAL : Terminal 1 ↔ Terminal 2 - Gare",
-      "ours": 5,
-      "lang": "fr",
-      "wiki": "fr:CDGVAL",
-      "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": -3,
       "severity": "warn"
     },
     {
@@ -2355,7 +2342,7 @@
       "ours": 25,
       "lang": "fr",
       "wiki": "fr:Métro de Paris",
-      "reason": "system article shared by several lines (fr:Métro de Paris)"
+      "reason": "suspect system article (fr:Métro de Paris: 321)"
     },
     {
       "city": "Paris",
@@ -2386,26 +2373,6 @@
       "lang": "fr",
       "wiki": "fr:Ligne 3 bis du métro de Paris",
       "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "rm6928902",
-      "route_name": "Orlyval : Antony ↔ Orly 4",
-      "ours": 3,
-      "lang": "fr",
-      "wiki": "fr:Orlyval",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "city": "Paris",
-      "country": "France",
-      "route_id": "r9921604",
-      "route_name": "Orlyval : Orly 4 → Antony",
-      "ours": 3,
-      "lang": "fr",
-      "wiki": "fr:Métro de Paris",
-      "reason": "system article shared by several lines (fr:Métro de Paris)"
     },
     {
       "city": "Paris",
