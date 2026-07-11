@@ -15,8 +15,24 @@ export function openLayerTab(layer) {
     id: layer.id,
     component: layer.type === 'd3' ? 'd3-tab' : 'layer-tab',
     title: layer.name,
-    params: { layerId: layer.id },
+    // `title` in params too, so the custom tab (DockTab) can read it directly.
+    params: { layerId: layer.id, title: layer.name },
     // Keep hidden tabs mounted so each tab's map keeps its view state.
+    renderer: 'always',
+  })
+}
+
+// Open (or focus) the Metro Maps gallery tab — a grid of every city's thumbnail.
+export function openGalleryTab() {
+  const api = dockHandle.api
+  if (!api) return
+  const existing = api.getPanel('metro-gallery')
+  if (existing) { existing.api.setActive(); return }
+  api.addPanel({
+    id: 'metro-gallery',
+    component: 'metro-gallery',
+    title: 'Metro Maps',
+    params: { title: 'Metro Maps' },
     renderer: 'always',
   })
 }

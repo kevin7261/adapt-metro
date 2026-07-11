@@ -40,7 +40,7 @@ onBeforeUnmount(() => {
       <span class="brand-name">Adapt-Metro</span>
     </div>
 
-    <div ref="infoWrap" class="skills-wrap">
+    <div ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
         Info
       </button>
@@ -86,6 +86,7 @@ onBeforeUnmount(() => {
 }
 
 .skills-wrap { position: relative; }
-.info-menu { top: 34px; left: 0; min-width: 220px; }
+.info-wrap { margin-left: auto; }
+.info-menu { top: 34px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
 </style>

@@ -8,16 +8,20 @@ import { Circle, Spline, Hexagon, Image as ImageIcon, TrainFront, X } from 'luci
 const props = defineProps({ params: { type: Object, required: true } })
 
 const store = useMapStore()
-const layerId = props.params.params.layerId
-const layer = computed(() => store.layers.find((l) => l.id === layerId) ?? null)
+// Tab renderer props may nest params one or two levels — read both shapes.
+const p = computed(() => props.params ?? {})
+const inner = computed(() => p.value.params ?? p.value)
+const layerId = computed(() => inner.value.layerId ?? p.value.layerId)
+const layer = computed(() => store.layers.find((l) => l.id === layerId.value) ?? null)
 
 const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline }
 const icon = computed(() => typeIcons[layer.value?.type] ?? Circle)
-const title = computed(() => layer.value?.name ?? props.params.api.title ?? layerId)
+const title = computed(() =>
+  layer.value?.name || inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—')
 
 function close(e) {
   e.stopPropagation()
-  props.params.api.close()
+  p.value.api?.close()
 }
 </script>
 

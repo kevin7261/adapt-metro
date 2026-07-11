@@ -2,14 +2,14 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import { openLayerTab, dockHandle } from '../stores/dockHandle'
+import { openLayerTab, openGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
 import {
   PanelLeftClose, PanelLeftOpen,
   ZoomIn, TableProperties, Download, Trash2, Sparkles,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
-  ChevronDown, ChevronRight, Folder, FolderOpen, Plus,
+  ChevronDown, ChevronRight, Folder, FolderOpen, Plus, LayoutGrid,
 } from 'lucide-vue-next'
 
 const store = useMapStore()
@@ -35,15 +35,23 @@ onMounted(async () => {
 function layerSkills(layer) {
   return (LAYER_SKILLS[layer.type] ?? []).map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
 }
-function toggleSkillMenu(layer) {
-  skillMenuFor.value = skillMenuFor.value === layer.id ? null : layer.id
+// The menu is teleported to <body> with fixed positioning so it isn't clipped
+// by the layer tree's `overflow-y: auto`.
+const skillMenuPos = ref({ top: 0, left: 0 })
+function toggleSkillMenu(layer, e) {
+  if (skillMenuFor.value === layer.id) { skillMenuFor.value = null; return }
+  skillMenuFor.value = layer.id
+  const r = e.currentTarget.getBoundingClientRect()
+  skillMenuPos.value = { top: r.bottom + 4, left: Math.max(8, Math.min(r.right - 320, window.innerWidth - 328)) }
 }
 function pickSkill(id) {
   skillMenuFor.value = null
   openSkillDoc(id)
 }
 function onSkillDocClick(e) {
-  if (skillMenuFor.value && !e.target.closest('.skill-wrap')) skillMenuFor.value = null
+  if (skillMenuFor.value && !e.target.closest('.skill-wrap') && !e.target.closest('.skill-menu')) {
+    skillMenuFor.value = null
+  }
 }
 
 // Add a D3.js view: a dialog picks the source metro layer (fixed afterwards).
@@ -183,6 +191,14 @@ onBeforeUnmount(() => {
             <button
               v-if="item.group.id === 'metro-maps'"
               class="btn-icon group-add"
+              title="Metro Maps gallery（全部城市縮圖）"
+              @click.stop="openGalleryTab()"
+            >
+              <LayoutGrid :size="14" />
+            </button>
+            <button
+              v-if="item.group.id === 'metro-maps'"
+              class="btn-icon group-add"
               title="Import metro map"
               @click.stop="store.ui.dialog = 'import-quick'"
             >
@@ -227,24 +243,30 @@ onBeforeUnmount(() => {
                     class="btn-icon"
                     :class="{ active: skillMenuFor === layer.id }"
                     title="Skills"
-                    @click="toggleSkillMenu(layer)"
+                    @click="toggleSkillMenu(layer, $event)"
                   >
                     <Sparkles :size="14" />
                   </button>
-                  <div v-if="skillMenuFor === layer.id" class="menu-pop skill-menu">
-                    <button
-                      v-for="s in layerSkills(layer)"
-                      :key="s.id"
-                      class="menu-item skill-item"
-                      @click="pickSkill(s.id)"
+                  <Teleport to="body">
+                    <div
+                      v-if="skillMenuFor === layer.id"
+                      class="menu-pop skill-menu"
+                      :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
                     >
-                      <Sparkles :size="13" class="skill-icon" />
-                      <span class="skill-text">
-                        <span class="skill-name">{{ s.id }}</span>
-                        <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
-                      </span>
-                    </button>
-                  </div>
+                      <button
+                        v-for="s in layerSkills(layer)"
+                        :key="s.id"
+                        class="menu-item skill-item"
+                        @click="pickSkill(s.id)"
+                      >
+                        <Sparkles :size="13" class="skill-icon" />
+                        <span class="skill-text">
+                          <span class="skill-name">{{ s.id }}</span>
+                          <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
+                        </span>
+                      </button>
+                    </div>
+                  </Teleport>
                 </div>
                 <button
                   v-if="layer.type === 'metro'"
@@ -401,8 +423,6 @@ onBeforeUnmount(() => {
 .layer-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }
 .skill-wrap { position: relative; display: flex; }
 .skill-menu {
-  top: 26px;
-  right: 0;
   min-width: 260px;
   max-width: 340px;
 }

@@ -143,8 +143,8 @@ const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*
 const isAirportApm = (t = {}) =>
   AIRPORT_APM.test(`${t.name || ''} ${t['name:en'] || ''} ${t.network || ''} ${t.operator || ''}`)
 
-// 點到線段的最近距離（度，經度以緯度餘弦校正）與投影參數 t∈[0,1]。
-// 用於浮空站修正：把不在線上的站插入所屬線投影最近的相鄰站段。
+// 點到線段最近距離（度，經度以緯度餘弦校正）與投影點座標。用於浮空站貼線：
+// 把不在線上的站「移動」到所屬線最近投影點——只改站座標，不動線幾何。
 function projPointSeg(p, a, b) {
   const cos = Math.cos((p[1] * Math.PI) / 180)
   const dx = (b[0] - a[0]) * cos, dy = b[1] - a[1]
@@ -153,7 +153,7 @@ function projPointSeg(p, a, b) {
   t = Math.max(0, Math.min(1, t))
   const px = a[0] + t * (b[0] - a[0]), py = a[1] + t * (b[1] - a[1])
   const ex = (p[0] - px) * cos, ey = p[1] - py
-  return { dist: Math.sqrt(ex * ex + ey * ey), t }
+  return { dist: Math.sqrt(ex * ex + ey * ey), pt: [px, py] }
 }
 
 function slugify(s) {
@@ -1348,6 +1348,7 @@ async function build() {
   // coverage suffers).
   const SNAP = 0.006 // ~600 m
   let snapped = 0, droppedVerts = 0, droppedLines = 0
+  let floatMoved = 0, floatDropped = 0
   for (const grp of cityGroups.values()) {
     if (!grp.lines.length) continue
     const sGrid = new Map()
@@ -1395,6 +1396,41 @@ async function build() {
       return false
     })
     droppedLines += before - grp.lines.length
+
+    // ---- 浮空站貼線（使用者：站點不在線上是重大錯誤）----
+    // OSM route relation 漏列 stop 成員時，該 station 節點靠 nearbyLineRefs(900 m)
+    // 拿到 lines 卻不在線幾何上、視覺浮空。把它「移動」到所屬線最近投影點——
+    // **只改站座標，完全不動線幾何**（插入頂點會把線連到錯段、線形大亂，已否決）。
+    // 移動 ≤800 m；投影過遠（>800 m＝錯誤 nearby 賦予）則清空 lines，交後續
+    // consistency/orphan 剔除（那條線本就不該經過它）。
+    {
+      const onLine = new Set()
+      for (const f of grp.lines) for (const seq of f.geometry.coordinates)
+        for (const c of seq) onLine.add(c.join(','))
+      const linesByTag = new Map()
+      for (const f of grp.lines) {
+        const tg = featTag.get(f); if (tg == null) continue
+        if (!linesByTag.has(tg)) linesByTag.set(tg, [])
+        linesByTag.get(tg).push(f)
+      }
+      const MOVE_MAX = 0.008 // ~800 m
+      for (const s of grp.stations) {
+        const sc = s.geometry.coordinates
+        if (onLine.has(sc.join(','))) continue // 已是線頂點
+        let best = null
+        for (const ref of s.properties.lines || [])
+          for (const f of linesByTag.get(ref) || [])
+            for (const seq of f.geometry.coordinates)
+              for (let i = 0; i + 1 < seq.length; i++) {
+                const pr = projPointSeg(sc, seq[i], seq[i + 1])
+                if (!best || pr.dist < best.dist) best = pr
+              }
+        if (best && best.dist < MOVE_MAX) {
+          s.geometry.coordinates = [+best.pt[0].toFixed(6), +best.pt[1].toFixed(6)]
+          floatMoved++
+        } else if (best) { s.properties.lines = []; floatDropped++ }
+      }
+    }
 
     // which surviving lines own each vertex coordinate (for the consistency pass)
     grp.__vertexOwners = new Map()
@@ -1646,6 +1682,8 @@ async function build() {
     `dropped ${orphansDropped} stations with no operational line; ` +
     `line vertices: ${snapped} = stations, ${droppedVerts} non-station bends removed, ` +
     `${droppedLines} station-less lines dropped; pruned ${pruned} empty buckets`)
+  console.log(`  floating-station fix: ${floatMoved} stations moved onto their line ` +
+    `(geometry untouched), ${floatDropped} dropped (>800 m stray nearby-ref)`)
 
   await writeOutputs(lineFeatures, stationFeatures, cityGroups, wikiSystems)
 }
