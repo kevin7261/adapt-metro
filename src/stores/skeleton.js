@@ -17,10 +17,20 @@ function perpToLine(P, A, B) {
   return Math.abs((P[0] - A[0]) * dy - (P[1] - A[1]) * dx) / L
 }
 
+// Foot of the perpendicular from P onto the line A–B (clamped to A if A≈B).
+function footOnLine(P, A, B) {
+  const dx = B[0] - A[0], dy = B[1] - A[1]
+  const L2 = dx * dx + dy * dy
+  if (L2 < 1e-18) return [A[0], A[1]]
+  const t = ((P[0] - A[0]) * dx + (P[1] - A[1]) * dy) / L2
+  return [A[0] + t * dx, A[1] + t * dy]
+}
+
 // Douglas–Peucker with a RELATIVE tolerance: keep the farthest interior point of
 // pts[i0..i1] when its perpDist ÷ chord(A,B) > tol, then recurse each half.
-// Scale-independent — only relative bendiness matters. Fills `keep` with indices.
-function dpKeep(pts, i0, i1, tol, keep) {
+// Scale-independent — only relative bendiness matters. Records each kept index
+// with the sub-segment baseline it was measured against, in `kept` (Map).
+function dpKeep(pts, i0, i1, tol, kept) {
   if (i1 <= i0 + 1) return
   const A = pts[i0], B = pts[i1]
   const base = dist(A, B)
@@ -32,9 +42,9 @@ function dpKeep(pts, i0, i1, tol, keep) {
   if (maxI < 0) return
   const ratio = base > 1e-9 ? maxD / base : Infinity // coincident ends → always keep
   if (ratio > tol) {
-    keep.add(maxI)
-    dpKeep(pts, i0, maxI, tol, keep)
-    dpKeep(pts, maxI, i1, tol, keep)
+    kept.set(maxI, { i0, i1, ratio })
+    dpKeep(pts, i0, maxI, tol, kept)
+    dpKeep(pts, maxI, i1, tol, kept)
   }
 }
 
@@ -141,6 +151,8 @@ export function buildConnectSkeleton(geojson) {
   // final per-station class: start from node class; interior black stations of
   // each edge get pink (bends) / purple (cuts) / gray (over-long separators).
   const stationClass = new Map(cls)
+  // Per pink station: the geometry used to pick it, for the hover reference lines.
+  const pinkInfo = new Map()
   const arcAt = (path) => {
     const cum = [0]
     for (let i = 1; i < path.length; i++) cum.push(cum[i - 1] + dist(coord.get(path[i - 1]), coord.get(path[i])))
@@ -184,11 +196,18 @@ export function buildConnectSkeleton(geojson) {
     const chord = dist(pts[0], pts[pts.length - 1])
     const sinuosity = chord > 1e-9 ? cum[cum.length - 1] / chord : Infinity
     if (sinuosity > PINK_SINUOSITY) {
-      const keep = new Set()
-      dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, keep)
-      for (const i of keep) {
+      const kept = new Map()
+      dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, kept)
+      for (const [i, info] of kept) {
         if (i > 0 && i < path.length - 1 && stationClass.get(path[i]) === 'black') {
           stationClass.set(path[i], 'pink')
+          const A = pts[info.i0], B = pts[info.i1]
+          pinkInfo.set(path[i], {
+            chordA: pts[0], chordB: pts[pts.length - 1], // whole-edge chord (sinuosity)
+            baseA: A, baseB: B, // DP sub-segment baseline this point was kept against
+            pt: pts[i], foot: footOnLine(pts[i], A, B), // the point + its perpendicular foot
+            sinuosity, ratio: info.ratio,
+          })
         }
       }
     }
@@ -210,5 +229,5 @@ export function buildConnectSkeleton(geojson) {
     }
   }
 
-  return { stationClass, edges, yellow: [] }
+  return { stationClass, edges, pinkInfo, yellow: [] }
 }

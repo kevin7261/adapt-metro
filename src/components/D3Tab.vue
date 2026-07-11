@@ -161,10 +161,29 @@ async function render() {
     })
   }
 
-  // Bottom-to-top: edge-class highlight underlay, then lines, then stations.
+  // Bottom-to-top: edge-class highlight underlay, lines, pink reference lines
+  // (shown on hover), then stations.
   const highlightG = sel.append('g').attr('class', 'hl-layer')
   const linesG = sel.append('g').attr('class', 'lines-layer')
+  const refG = sel.append('g').attr('class', 'ref-layer').style('pointer-events', 'none')
   const stationsG = sel.append('g').attr('class', 'stations-layer')
+
+  // Pink reference lines: the whole-edge chord (sinuosity baseline), the DP
+  // sub-segment baseline, and this point's perpendicular drop to it.
+  function drawRef(info) {
+    refG.selectAll('*').remove()
+    const seg = (a, b, dash) => refG.append('line')
+      .attr('x1', P(a)[0]).attr('y1', P(a)[1]).attr('x2', P(b)[0]).attr('y2', P(b)[1])
+      .attr('stroke', '#ec4899').attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', dash || null)
+    seg(info.chordA, info.chordB, '4 3') // edge chord (sinuosity)
+    seg(info.baseA, info.baseB)          // DP baseline
+    seg(info.pt, info.foot)              // perpendicular (垂距)
+    refG.append('circle')
+      .attr('cx', P(info.foot)[0]).attr('cy', P(info.foot)[1])
+      .attr('r', 2).attr('fill', '#ec4899')
+  }
+  const clearRef = () => refG.selectAll('*').remove()
 
   highlightG.selectAll('path.hl')
     .data(highlightData)
@@ -214,11 +233,14 @@ async function render() {
     .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('r', (panelLayer.value?.radius ?? 4) + 3)
-      showTip(e, stationHtml(d.props))
+      const info = sk?.pinkInfo?.get(d.props.station_id)
+      if (info) { drawRef(info); showTip(e, pinkHtml(d.props, info)) }
+      else showTip(e, stationHtml(d.props))
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
       select(this).attr('r', panelLayer.value?.radius ?? 4)
+      clearRef()
       hideTip()
     })
 
@@ -280,6 +302,15 @@ function lineHtml(p) {
     return `<span style="color:${r.route_color ?? '#e11d48'}">▬</span> `
       + `<strong>${r.route_ref ? `[${r.route_ref}] ` : ''}${r.route_name ?? '—'}</strong>${local}`
   }).join('<br/>')
+}
+// Pink (representative bend) hover: explain the two gates + this point's numbers.
+function pinkHtml(p, info) {
+  return `<strong>${p.station_name ?? '—'}</strong>`
+    + '<br/><span style="color:#ec4899">● 代表性轉折點（粉紅）</span>'
+    + `<br/>邊曲折度 = 弧長÷弦長 = <b>${info.sinuosity.toFixed(2)}</b>（&gt;1.25 才挑）`
+    + `<br/>此點 垂距÷弦長 = <b>${info.ratio.toFixed(2)}</b>（&gt;0.25 保留）`
+    + '<br/><span style="color:#9ca3af;font-size:11px">曲折度：整條邊的弧長比兩端直線'
+    + '（弦）長多少——越大越彎；虛線＝弦，實線＝DP 基線與垂距。</span>'
 }
 function showTip(e, html) {
   const el = tipEl.value
