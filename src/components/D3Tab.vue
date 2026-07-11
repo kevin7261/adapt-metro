@@ -340,7 +340,7 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <StylePanel v-if="panelLayer" :layer="panelLayer" />
+      <StylePanel v-if="panelLayer" :layer="panelLayer" context="d3" />
     </div>
   </div>
 </template>

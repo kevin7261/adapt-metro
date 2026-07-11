@@ -11,7 +11,13 @@ import {
 } from 'lucide-vue-next'
 
 // The layer this tab edits — passed in by LayerTab.
-const props = defineProps({ layer: { type: Object, required: true } })
+const props = defineProps({
+  layer: { type: Object, required: true },
+  // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
+  // skeleton rules instead of the audit verdict.
+  context: { type: String, default: 'map' },
+})
+const isD3 = computed(() => props.context === 'd3')
 
 const open = ref(true)
 const width = ref(300)
@@ -308,6 +314,35 @@ function startResize(e) {
               </div>
             </template>
 
+            <!-- Skeleton computation rules (Map Adjust / D3.js view) -->
+            <template v-if="isD3">
+              <div class="section-title">骨架化規則</div>
+              <div class="skeleton-rules">
+                <p>不拉直、保留地理形狀，只做拓撲收縮與標記（connect 骨架）。</p>
+                <p class="sk-sub">節點（依圖 degree）</p>
+                <ul>
+                  <li><span class="sk-dot" style="background:#e11d48" /> 紅：分歧／轉乘（degree≥3，或兩側路線不同的 degree-2）</li>
+                  <li><span class="sk-dot" style="background:#2563eb" /> 藍：真端點（degree≤1）</li>
+                  <li><span class="sk-dot sk-ring" /> 白：直通中段站（degree=2、兩側同路線；不變）</li>
+                  <li><span class="sk-dot" style="background:#a855f7" /> 紫：頭尾共點／環線切斷點</li>
+                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：曲折邊的代表性轉折點</li>
+                  <li><span class="sk-dot" style="background:#9ca3af" /> 灰：過長黑點段的分隔（每段 ≤4，G=⌊N/5⌋）</li>
+                </ul>
+                <p class="sk-sub">邊（收縮後底色）</p>
+                <ul>
+                  <li><span class="sk-line" style="background:#e11d48" /> 紅底：共線合併（≥2 路線；不切紫點）</li>
+                  <li><span class="sk-line" style="background:#16a34a" /> 綠：環線（自環；1/3、2/3 切 2 紫）</li>
+                  <li><span class="sk-line" style="background:#2563eb" /> 藍：頭尾共點（平行多重邊；1/2 切 1 紫）</li>
+                  <li><span class="sk-line sk-plain" /> 一般：路線原色</li>
+                </ul>
+                <p class="rose-note">
+                  依 skill <code>route-skeleton-connect</code>。座標一律照原地理、不移動；
+                  黃色幾何交叉為 v2（metro 交叉多為轉乘站，罕見）。
+                </p>
+              </div>
+            </template>
+
+            <template v-if="!isD3">
             <div class="section-title">Audit</div>
             <div v-if="!auditInfo" class="info-empty">
               尚未執行資料驗證（npm run metro:audit）
@@ -343,6 +378,7 @@ function startResize(e) {
                   <CircleCheck :size="12" class="audit-ic ok" /> {{ c.detail }}
                 </div>
               </div>
+            </template>
             </template>
 
             <div class="section-title">Links</div>
@@ -693,6 +729,19 @@ function startResize(e) {
   background: transparent;
   cursor: pointer;
 }
+.skeleton-rules { font-size: 12px; line-height: 1.55; color: hsl(var(--foreground)); }
+.skeleton-rules p { margin: 4px 0; }
+.skeleton-rules .sk-sub { font-weight: 600; margin-top: 10px; color: hsl(var(--muted-foreground)); }
+.skeleton-rules ul { list-style: none; margin: 4px 0; padding: 0; }
+.skeleton-rules li { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+.sk-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid #3f3f46;
+}
+.sk-dot.sk-ring { background: #fff; }
+.sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+.sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
+.skeleton-rules .rose-note { margin-top: 10px; font-size: 11px; color: hsl(var(--muted-foreground)); }
 .section-title {
   font-size: 11px;
   font-weight: 600;
