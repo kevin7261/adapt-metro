@@ -135,6 +135,27 @@ const isThroughService = (t = {}) =>
 const DEPOT_NAME = /機廠|机厂|機厰|車輛段|车辆段|\bdepot\b/i
 const isDepot = (t = {}) => DEPOT_NAME.test(`${t.name || ''} ${t['name:en'] || ''}`)
 
+// 機場航廈間接駁電車（APM／people mover，如桃園機場「旅客自動電車運輸系統」、
+// 各國機場 Skytrain／Aerotrain）不是都會地鐵/輕軌——使用者指定排除（台北不抓
+// 機場內輕軌）。注意：機場「快線」（Airport Express、機場捷運 A 線）是真地鐵，
+// 不在此列——只擋航廈接駁電車，不擋 metro/line/express。
+const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*電車|people ?mover|\bapm\b|sky\s?train|aero\s?train|shuttle tram|terminal (?:shuttle|train|tram)/i
+const isAirportApm = (t = {}) =>
+  AIRPORT_APM.test(`${t.name || ''} ${t['name:en'] || ''} ${t.network || ''} ${t.operator || ''}`)
+
+// 點到線段的最近距離（度，經度以緯度餘弦校正）與投影參數 t∈[0,1]。
+// 用於浮空站修正：把不在線上的站插入所屬線投影最近的相鄰站段。
+function projPointSeg(p, a, b) {
+  const cos = Math.cos((p[1] * Math.PI) / 180)
+  const dx = (b[0] - a[0]) * cos, dy = b[1] - a[1]
+  const l2 = dx * dx + dy * dy
+  let t = l2 > 0 ? (((p[0] - a[0]) * cos * dx + (p[1] - a[1]) * dy) / l2) : 0
+  t = Math.max(0, Math.min(1, t))
+  const px = a[0] + t * (b[0] - a[0]), py = a[1] + t * (b[1] - a[1])
+  const ex = (p[0] - px) * cos, ey = p[1] - py
+  return { dist: Math.sqrt(ex * ex + ey * ey), t }
+}
+
 function slugify(s) {
   if (!s) return ''
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '')
@@ -183,7 +204,7 @@ async function build() {
   const routesTags = new Map()
   for (const e of routesRaw.elements)
     if (e.type === 'relation' && isOperational(e.tags) && !isThroughService(e.tags) &&
-        !isDepot(e.tags))
+        !isDepot(e.tags) && !isAirportApm(e.tags))
       routesTags.set(e.id, e.tags || {})
   // gap supplements: extra route relations fetched per-city by auditLoop.mjs
   // （或 refreshRelations.mjs 的定向刷新）——gap 比主快取新，一律覆蓋（後載者勝）
@@ -291,7 +312,7 @@ async function build() {
   const stations = []
   const seenStation = new Set()
   const pushStation = (e) => {
-    if (!isOperational(e.tags) || isDepot(e.tags)) return
+    if (!isOperational(e.tags) || isDepot(e.tags) || isAirportApm(e.tags)) return
     const ov = nameOverrides[`n${e.id}`] ?? nameOverrides[String(e.id)]
     // 墓碑判準是「上游還在且還有名字」——被 station_names 人工補名的站
     // 本來就是「存在但無名」，不得被墓碑誤殺（人工裁決優先）
@@ -1327,6 +1348,7 @@ async function build() {
   // coverage suffers).
   const SNAP = 0.006 // ~600 m
   let snapped = 0, droppedVerts = 0, droppedLines = 0
+  let floatFixed = 0, floatUnlinked = 0
   for (const grp of cityGroups.values()) {
     if (!grp.lines.length) continue
     const sGrid = new Map()
@@ -1374,6 +1396,49 @@ async function build() {
       return false
     })
     droppedLines += before - grp.lines.length
+
+    // ---- 浮空站修正（線壓站點的反向不變式：每個站都必須在某條線上）----
+    // OSM route relation 常漏列 stop 成員（深圳7號線漏文體公園），該站靠
+    // nearbyLineRefs(900 m) 拿到 lines 卻不是任何 route 成員、不在線幾何頂點上，
+    // 視覺上浮在線外。把浮空站當頂點插入它所屬線「投影距離最小」的相鄰站段
+    //（等於補回 OSM 漏掉的 stop）；投影過遠（>~2 km，錯誤 nearby 賦予）則從該站
+    // lines 移除該 ref，全空者交後續 consistency/orphan 剔除。
+    {
+      const onLine = new Set()
+      for (const f of grp.lines) for (const seq of f.geometry.coordinates)
+        for (const c of seq) onLine.add(c.join(','))
+      const linesByTag = new Map()
+      for (const f of grp.lines) {
+        const tg = featTag.get(f); if (tg == null) continue
+        if (!linesByTag.has(tg)) linesByTag.set(tg, [])
+        linesByTag.get(tg).push(f)
+      }
+      const INSERT_MAX = 0.018 // ~2 km 投影上限
+      for (const s of grp.stations) {
+        const sc = s.geometry.coordinates
+        if (onLine.has(sc.join(','))) continue
+        const kept = []
+        for (const ref of s.properties.lines || []) {
+          let best = null
+          for (const f of linesByTag.get(ref) || [])
+            for (const seq of f.geometry.coordinates)
+              for (let i = 0; i + 1 < seq.length; i++) {
+                const pr = projPointSeg(sc, seq[i], seq[i + 1])
+                if (!best || pr.dist < best.dist) best = { seq, i, dist: pr.dist }
+              }
+          if (best && best.dist < INSERT_MAX) {
+            best.seq.splice(best.i + 1, 0, sc.slice())
+            onLine.add(sc.join(','))
+            kept.push(ref)
+            floatFixed++
+          } else floatUnlinked++
+        }
+        // 有插上任一條線就用插上的；一條都插不上則清空 → 由 consistency/orphan 剔除
+        if ((s.properties.lines || []).length && !kept.length) s.properties.lines = []
+        else if (kept.length) s.properties.lines = [...new Set(kept)].sort()
+      }
+    }
+
     // which surviving lines own each vertex coordinate (for the consistency pass)
     grp.__vertexOwners = new Map()
     for (const f of grp.lines) {
@@ -1493,8 +1558,12 @@ async function build() {
       const pc = Math.max(
         passCount.get(s.geometry.coordinates.join(',')) ?? 0, routes.length)
       s.properties.pass_count = pc
-      s.properties.is_interchange = pc >= 2
-      s.properties.station_role = pc >= 2 ? 'interchange'
+      // interchange = 服務該站的「不同路線」數 ≥2（使用者規則：同一路線——含其
+      // 支線，featTag 為同一 ref——通過同站兩次不算換乘，如七張＝綠線主線＋小碧潭
+      // 支線同為 G，不紅點）。pass_count（含同線多次通過）保留為參考屬性。
+      const distinctLines = (s.properties.lines || []).length
+      s.properties.is_interchange = distinctLines >= 2
+      s.properties.station_role = distinctLines >= 2 ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
     }
     // 快取殭屍清理：無名（合成名 n123…）且不屬於任何線站序的站點＝上游已刪
@@ -1620,6 +1689,8 @@ async function build() {
     `dropped ${orphansDropped} stations with no operational line; ` +
     `line vertices: ${snapped} = stations, ${droppedVerts} non-station bends removed, ` +
     `${droppedLines} station-less lines dropped; pruned ${pruned} empty buckets`)
+  console.log(`  floating-station fix: ${floatFixed} stations inserted onto their line, ` +
+    `${floatUnlinked} stray refs unlinked (OSM route missing stop members)`)
 
   await writeOutputs(lineFeatures, stationFeatures, cityGroups, wikiSystems)
 }

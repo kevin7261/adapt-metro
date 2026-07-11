@@ -1,13 +1,20 @@
 <script setup>
 import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { useMapStore } from './stores/mapStore'
+import { schedulePersist, restoreLayerData } from './stores/persist'
 import TopToolbar from './components/TopToolbar.vue'
 import LayerPanel from './components/LayerPanel.vue'
 import EditorArea from './components/EditorArea.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import DialogHost from './components/DialogHost.vue'
+import SkillViewer from './components/SkillViewer.vue'
 
 const store = useMapStore()
+
+// Re-seed imported-file data before the dock opens its tabs, then persist the
+// session (layers + settings) to localStorage on every change (debounced).
+restoreLayerData()
+store.$subscribe(() => schedulePersist(store))
 
 watch(
   () => store.dark,
@@ -54,6 +61,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
     <CommandPalette v-if="store.ui.commandPalette" />
     <DialogHost />
+    <SkillViewer />
 
     <Transition name="toast">
       <div v-if="store.ui.toast" class="toast">{{ store.ui.toast }}</div>

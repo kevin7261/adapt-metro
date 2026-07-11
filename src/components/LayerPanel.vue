@@ -1,12 +1,13 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
+import { openSkillDoc } from '../stores/skillHandle'
 import {
   PanelLeftClose, PanelLeftOpen,
-  ZoomIn, TableProperties, Download, Trash2,
+  ZoomIn, TableProperties, Download, Trash2, Sparkles,
   Circle, Spline, Hexagon, Image as ImageIcon, TrainFront,
   ChevronDown, ChevronRight, Folder, FolderOpen, Plus,
 } from 'lucide-vue-next'
@@ -15,6 +16,35 @@ const store = useMapStore()
 
 const typeIcons = { point: Circle, line: Spline, polygon: Hexagon, raster: ImageIcon, metro: TrainFront, d3: Spline }
 const typeBadges = { metro: 'METRO', d3: 'D3' }
+
+// Skills exposed per layer type (moved off the top toolbar into each layer):
+// Metro Maps layers get the two data-pipeline skills, Map Adjust the skeleton one.
+const LAYER_SKILLS = {
+  metro: ['metro-osm-fetch', 'metro-audit'],
+  d3: ['route-skeleton-connect'],
+}
+const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
+const skillMenuFor = ref(null)   // layer id whose skill menu is open
+onMounted(async () => {
+  try {
+    const res = await fetch('/skills/index.json')
+    if (res.ok) for (const s of await res.json()) skillIndex.value[s.id] = s.description
+  } catch { /* labels fall back to the id */ }
+  document.addEventListener('mousedown', onSkillDocClick)
+})
+function layerSkills(layer) {
+  return (LAYER_SKILLS[layer.type] ?? []).map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
+}
+function toggleSkillMenu(layer) {
+  skillMenuFor.value = skillMenuFor.value === layer.id ? null : layer.id
+}
+function pickSkill(id) {
+  skillMenuFor.value = null
+  openSkillDoc(id)
+}
+function onSkillDocClick(e) {
+  if (skillMenuFor.value && !e.target.closest('.skill-wrap')) skillMenuFor.value = null
+}
 
 // Add a D3.js view: a dialog picks the source metro layer (fixed afterwards).
 function addD3() {
@@ -118,6 +148,7 @@ function startResize(e) {
 }
 onBeforeUnmount(() => {
   dragging.value = false
+  document.removeEventListener('mousedown', onSkillDocClick)
 })
 </script>
 
@@ -191,6 +222,30 @@ onBeforeUnmount(() => {
               </div>
 
               <div class="layer-actions" @click.stop>
+                <div v-if="LAYER_SKILLS[layer.type]" class="skill-wrap">
+                  <button
+                    class="btn-icon"
+                    :class="{ active: skillMenuFor === layer.id }"
+                    title="Skills"
+                    @click="toggleSkillMenu(layer)"
+                  >
+                    <Sparkles :size="14" />
+                  </button>
+                  <div v-if="skillMenuFor === layer.id" class="menu-pop skill-menu">
+                    <button
+                      v-for="s in layerSkills(layer)"
+                      :key="s.id"
+                      class="menu-item skill-item"
+                      @click="pickSkill(s.id)"
+                    >
+                      <Sparkles :size="13" class="skill-icon" />
+                      <span class="skill-text">
+                        <span class="skill-name">{{ s.id }}</span>
+                        <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
                 <button
                   v-if="layer.type === 'metro'"
                   class="btn-icon"
@@ -342,8 +397,27 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   padding-left: 6px;
 }
-/* second row: the four actions, aligned bottom-right */
+/* second row: the actions, aligned bottom-right */
 .layer-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }
+.skill-wrap { position: relative; display: flex; }
+.skill-menu {
+  top: 26px;
+  right: 0;
+  min-width: 260px;
+  max-width: 340px;
+}
+.skill-item { align-items: flex-start; }
+.skill-icon { flex-shrink: 0; margin-top: 2px; color: hsl(var(--primary)); }
+.skill-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; white-space: normal; text-align: left; }
+.skill-name { font-weight: 600; font-size: 12.5px; }
+.skill-desc {
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .layer-actions .btn-icon { width: 24px; height: 24px; color: hsl(var(--muted-foreground)); }
 .layer-actions .btn-icon:hover { color: hsl(var(--foreground)); }
 .layer-actions .btn-icon.active {

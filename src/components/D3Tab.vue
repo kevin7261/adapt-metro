@@ -6,6 +6,7 @@ import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
+import { buildConnectSkeleton } from '../stores/skeleton'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 import { RotateCcw, RotateCw, Undo2, GitFork } from 'lucide-vue-next'
@@ -44,8 +45,9 @@ const tilt = ref(0)
 const rotated = ref(false)
 const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 
-// Skeletonize (see skill route-skeleton-straight): strip the network to its
-// skeleton — only interchange/terminus nodes; nothing is moved, lines unchanged.
+// Skeletonize (see skill route-skeleton-connect): connect skeleton — keep the
+// geographic shape, classify nodes (red/blue/black/purple/pink/gray) and edges
+// (coline/loop/parallel). Nothing is moved.
 const skeletonized = ref(false)
 const disposables = []
 let zoomBehavior = null
@@ -111,18 +113,38 @@ async function render() {
   const path = geoPath(projection)
   const P = (c) => projection(c)
 
-  // Skeleton mode keeps the original line shape and moves nothing — it just
-  // strips the network to its skeleton: only interchange (red) + terminus (blue)
-  // nodes stay; intermediate (white) stations are hidden.
-  const shown = skeletonized.value
-    ? stations.filter((f) => (f.properties.station_role ?? 'normal') !== 'normal')
-    : stations
+  // Skeleton mode: connect skeleton (骨架2) — keep the geographic line shape,
+  // classify nodes (red/blue/black/purple/pink/gray) and edges (coline/loop/
+  // parallel/plain). See skill route-skeleton-connect.
+  const sk = skeletonized.value ? buildConnectSkeleton(data) : null
+  const EDGE_COLOR = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
+  // 'black' = untouched through station → keep the normal white fill; only the
+  // specially-marked nodes get a colour. All keep the dark border (set below).
+  const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af' }
+  const EDGE_LABEL = { coline: '共線合併', loop: '環線', parallel: '頭尾共點', plain: '一般' }
 
-  const lineData = lineFeats.map((f) => ({ d: path(f), stroke: f.properties.route_color ?? '#e11d48', props: f.properties }))
-  const stationData = shown.map((f) => {
-    const [x, y] = P(f.geometry.coordinates)
-    return { x, y, props: f.properties }
-  })
+  let lineData, stationData
+  if (sk) {
+    const coordById = new Map(stations.map((f) => [f.properties.station_id, f.geometry.coordinates]))
+    const edgeD = (pathIds) => pathIds
+      .map((id, i) => { const [x, y] = P(coordById.get(id)); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
+      .join(' ')
+    lineData = sk.edges.map((e) => ({
+      d: edgeD(e.path),
+      stroke: EDGE_COLOR[e.cls] ?? e.color,
+      html: `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`,
+    }))
+    stationData = stations.map((f) => {
+      const [x, y] = P(f.geometry.coordinates)
+      return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
+    })
+  } else {
+    lineData = lineFeats.map((f) => ({ d: path(f), stroke: f.properties.route_color ?? '#e11d48', props: f.properties }))
+    stationData = stations.map((f) => {
+      const [x, y] = P(f.geometry.coordinates)
+      return { x, y, props: f.properties, fill: stationColor(f.properties) }
+    })
+  }
 
   // Two sibling groups so stations always sit above lines — hovering a line
   // .raise()s it only within the lines group, never above the stations group.
@@ -139,10 +161,10 @@ async function render() {
     .attr('stroke-linecap', 'round')
     .attr('stroke-linejoin', 'round')
     .style('cursor', 'pointer')
-    .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
+    .on('click', (e, d) => { e.stopPropagation(); if (d.props) store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('stroke-width', (panelLayer.value?.strokeWidth ?? 2.5) + 3)
-      showTip(e, lineHtml(d.props))
+      showTip(e, d.html ?? lineHtml(d.props))
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -156,7 +178,7 @@ async function render() {
     .attr('class', 'station')
     .attr('cx', (d) => d.x)
     .attr('cy', (d) => d.y)
-    .attr('fill', (d) => stationColor(d.props))
+    .attr('fill', (d) => d.fill)
     .attr('stroke', '#3f3f46')
     .attr('stroke-width', 1)
     .style('cursor', 'pointer')

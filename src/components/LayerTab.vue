@@ -204,16 +204,13 @@ const DASH = 2.5
 const ALL_LINE_LAYER_IDS = ['metro-lines']
 
 // Station fill by role: transfer → red, terminal → blue, otherwise white.
-// A station is a transfer when a line passes through it ≥2 times (build derives
-// `is_interchange` from geometric pass_count — a branch of the SAME ref counts,
-// e.g. 七張 where 松山新店線 main + 小碧潭支線 both pass, so `lines` dedupes to
-// one "G" and length alone would miss it). Fall back to lines.length>1 for
-// cross-ref interchanges. Transfer wins when a station is both transfer+terminus.
+// A station is a transfer when ≥2 DISTINCT lines serve it (build sets
+// `is_interchange` = distinct-line-count ≥2). The same line passing twice —
+// incl. a branch of the same ref, e.g. 七張 served only by 綠線 G (main +
+// 小碧潭支線) — is NOT an interchange and stays white. Transfer > terminus.
 const STATION_COLOR = [
   'case',
-  ['any',
-    ['coalesce', ['get', 'is_interchange'], false],
-    ['>', ['length', ['coalesce', ['get', 'lines'], ['literal', []]]], 1]], '#e11d48',
+  ['coalesce', ['get', 'is_interchange'], false], '#e11d48',
   ['coalesce', ['get', 'is_terminus'], false], '#2563eb',
   '#ffffff',
 ]

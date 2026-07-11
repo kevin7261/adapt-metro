@@ -1,44 +1,50 @@
 import { defineStore } from 'pinia'
+import { loadPersisted } from './persist'
 
 let toastTimer = null
 
 export const useMapStore = defineStore('map', {
-  state: () => ({
-    dark: true,
-    accent: 'blue',
-    projectName: 'adapt-metro.geolibre.json',
+  // Hydrate from the persisted session (localStorage) so layers survive reloads.
+  // Group labels stay code-defined; only their collapsed state is restored.
+  state: () => {
+    const p = loadPersisted()
+    return {
+      dark: p?.dark ?? true,
+      accent: p?.accent ?? 'blue',
+      projectName: 'adapt-metro.geolibre.json',
 
-    ui: {
-      layerPanelOpen: true,
-      // Attribute table open/closed is independent per layer (layerId -> bool);
-      // each layer tab controls its own.
-      attributeTableOpen: {},
-      commandPalette: false,
-      dialog: null, // 'import-metro' | 'add-data' | 'settings' | 'about' | 'shortcuts' | 'new-project'
-      toast: null,
-    },
+      ui: {
+        layerPanelOpen: p?.layerPanelOpen ?? true,
+        // Attribute table open/closed is independent per layer (layerId -> bool);
+        // each layer tab controls its own.
+        attributeTableOpen: p?.attributeTableOpen ?? {},
+        commandPalette: false,
+        dialog: null, // 'import-metro' | 'add-data' | 'settings' | 'about' | 'shortcuts' | 'new-project'
+        toast: null,
+      },
 
-    layerPanelWidth: 300,
-    attributeTableHeight: 260,
+      layerPanelWidth: p?.layerPanelWidth ?? 300,
+      attributeTableHeight: p?.attributeTableHeight ?? 260,
 
-    // Layer of the active editor tab (mirrors the dockview active panel).
-    selectedLayerId: null,
+      // Layer of the active editor tab (mirrors the dockview active panel).
+      selectedLayerId: p?.selectedLayerId ?? null,
 
-    // Properties of the last-clicked map feature, per layer id (null = nothing
-    // selected). The map tab writes it on click; the Object tab reads it.
-    selectedFeatures: {},
+      // Properties of the last-clicked map feature, per layer id (null = nothing
+      // selected). The map tab writes it on click; the Object tab reads it.
+      selectedFeatures: {},
 
-    // Flat list — every layer opens as its own editor tab.
-    // Populated by importing metro systems (Import Metro Map).
-    layers: [],
+      // Flat list — every layer opens as its own editor tab.
+      // Populated by importing metro systems (Import Metro Map).
+      layers: p?.layers ?? [],
 
-    // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
-    // kind of layer: imported metro maps, and D3.js views over a metro layer.
-    groups: [
-      { id: 'metro-maps', label: 'Metro Maps', collapsed: false },
-      { id: 'd3', label: 'Map Adjust', collapsed: false },
-    ],
-  }),
+      // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
+      // kind of layer: imported metro maps, and D3.js views over a metro layer.
+      groups: [
+        { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
+        { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
+      ],
+    }
+  },
 
   getters: {
     selectedLayer(state) {

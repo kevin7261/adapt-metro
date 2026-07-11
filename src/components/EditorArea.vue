@@ -26,9 +26,11 @@ function onReady(event) {
   // via its per-panel onDidActiveChange — dockview 7's api.onDidActivePanelChange
   // is mis-wired to group changes and won't fire on same-group tab switches.
 
-  // Open the initial tab.
-  const first = store.layers.find((l) => l.id === store.selectedLayerId) ?? store.layers[0]
-  openLayerTab(first)
+  // Re-open a tab for every persisted layer, then focus the selected one
+  // (openLayerTab focuses instead of duplicating if the panel already exists).
+  for (const l of store.layers) openLayerTab(l)
+  const sel = store.layers.find((l) => l.id === store.selectedLayerId) ?? store.layers[0]
+  if (sel) openLayerTab(sel)
 }
 
 onBeforeUnmount(() => { dockHandle.api = null })

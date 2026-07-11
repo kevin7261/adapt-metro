@@ -287,18 +287,19 @@ async function audit(city, country, wikiRow) {
           : '各線車站列表與圖面一致')
     }
 
-    // 不變式：interchange ⇔ 通過次數 ≥2（同路線通過兩次也算；pass_count 由 build 記錄）
+    // 不變式：interchange ⇔ 服務該站的「不同路線」數 ≥2（使用者規則：同一路線——
+    // 含其支線——通過同站兩次不算換乘，如七張＝綠線主線＋小碧潭支線同為 G，非交會）
     {
       const bad = pts.filter((f) => {
         const p = f.properties
-        const pc = p.pass_count ?? (p.line_ids?.length ?? 0)
-        return (pc >= 2) !== !!p.is_interchange
+        const distinct = (p.lines?.length ?? p.line_ids?.length ?? 0)
+        return (distinct >= 2) !== !!p.is_interchange
       })
       push('interchange_rule', bad.length === 0,
         bad.length
-          ? `${bad.length} 站的 interchange 標記與通過次數不符：` +
+          ? `${bad.length} 站的 interchange 標記與「不同路線數」不符：` +
             bad.slice(0, 4).map((f) => f.properties.station_name).join('、')
-          : '所有車站 interchange 標記符合「通過次數 ≥2」規則')
+          : '所有車站 interchange 標記符合「不同路線數 ≥2」規則')
     }
 
     // 全部車站必須有名稱（使用者規則：100%，無名＝資料錯誤）

@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 224,
   "wikipedia_system_count": 233,
-  "line_total": 1495,
-  "station_total": 18001,
+  "line_total": 1552,
+  "station_total": 18195,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -27,8 +27,8 @@
       "official_map": "https://en.wikipedia.org/wiki/1_(New_York_City_Subway_service)",
       "wikidata": "Q126093",
       "line_count": 49,
-      "segment_count": 89,
-      "station_count": 505,
+      "segment_count": 108,
+      "station_count": 499,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -142,7 +142,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Waterloo_&_City_line",
       "wikidata": "Q207699",
       "line_count": 26,
-      "segment_count": 52,
+      "segment_count": 58,
       "station_count": 288,
       "audit": {
         "strategies_tried": [],
@@ -255,7 +255,7 @@
       "official_map": "https://de.wikipedia.org/wiki/Verkehrsverbund_Berlin-Brandenburg",
       "wikidata": "Q12374455",
       "line_count": 27,
-      "segment_count": 51,
+      "segment_count": 53,
       "station_count": 316,
       "audit": {
         "strategies_tried": [],
@@ -383,7 +383,7 @@
       "wikidata": "Q3433210",
       "line_count": 31,
       "segment_count": 50,
-      "station_count": 331,
+      "station_count": 327,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -672,6 +672,143 @@
       }
     },
     {
+      "file": "systems/asia/south-korea/as-kor-seoul.geojson",
+      "continent": "asia",
+      "country": "South Korea",
+      "city": "Seoul",
+      "osm_networks": [
+        "(주)우진메트로",
+        "110",
+        "KTX",
+        "Korail",
+        "Seoul Metropolitan Subway",
+        "Seoul Metropolitan Subway System",
+        "Unknown",
+        "공항철도주식회사",
+        "구리도시공사",
+        "김포골드라인SRS",
+        "남양주도시공사",
+        "네오트랜스주식회사",
+        "로템SRS",
+        "서울 지하철",
+        "서울 지하철 4호선",
+        "서울교통공사",
+        "서울교통공사;네오트랜스주식회사",
+        "서울교통공사;서울시메트로9호선",
+        "서울메트로",
+        "서울시메트로9호선",
+        "서해철도주식회사",
+        "수도권 전철",
+        "수도권전철4호선",
+        "에스알",
+        "용인경전철",
+        "용인에버라인운영(주)",
+        "우이신설경전철운영(주)",
+        "인천교통공사",
+        "코레일",
+        "한국철도공사",
+        "한국철도공사;공항철도주식회사",
+        "한국철도공사;서울교통공사"
+      ],
+      "operator": "서울교통공사;한국철도공사",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Seoul_Subway_Line_3",
+      "wikidata": "Q20393",
+      "line_count": 23,
+      "segment_count": 37,
+      "station_count": 467,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/south-korea/as-kor-seoul.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "23 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "461 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 461 站（wiki List 記 338，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "461/461 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "509 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "461/461 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Seoul Metropolitan Subway Line 2 43/51、Seoul Metropolitan Subway Line 5 49/57、Seoul Metropolitan Subway Gyeonggang Line 11/18、Seoul Metropolitan Subway Line 8 24/25",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "16 條線無 wiki 站數對照：Seoul Subway Line 2: Inner Circle Line、Seoul Subway Line 5 Banghwa → Hanam Geomdansan、서울 지하철 5호선: 마천 → 방화",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Seoul Metropolitan Subway Line 2 43/51、Seoul Metropolitan Subway Line 5 49/57、Seoul Metropolitan Subway Gyeonggang Line 11/18、Seoul Metropolitan Subway Line 8 24/25",
+          "16 條線無 wiki 站數對照：Seoul Subway Line 2: Inner Circle Line、Seoul Subway Line 5 Banghwa → Hanam Geomdansan、서울 지하철 5호선: 마천 → 방화"
+        ],
+        "audited_at": "2026-07-11T08:06:45.778Z"
+      }
+    },
+    {
       "file": "systems/europe/france/eu-fra-paris.geojson",
       "continent": "europe",
       "country": "France",
@@ -702,7 +839,7 @@
       "wikidata": "Q50751",
       "line_count": 23,
       "segment_count": 34,
-      "station_count": 337,
+      "station_count": 335,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -821,7 +958,7 @@
       "wikidata": "Q734917",
       "line_count": 27,
       "segment_count": 29,
-      "station_count": 412,
+      "station_count": 420,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -935,7 +1072,7 @@
       "wikidata": "Q1152341",
       "line_count": 21,
       "segment_count": 28,
-      "station_count": 425,
+      "station_count": 427,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1028,143 +1165,6 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-seoul.geojson",
-      "continent": "asia",
-      "country": "South Korea",
-      "city": "Seoul",
-      "osm_networks": [
-        "(주)우진메트로",
-        "110",
-        "KTX",
-        "Korail",
-        "Seoul Metropolitan Subway",
-        "Seoul Metropolitan Subway System",
-        "Unknown",
-        "공항철도주식회사",
-        "구리도시공사",
-        "김포골드라인SRS",
-        "남양주도시공사",
-        "네오트랜스주식회사",
-        "로템SRS",
-        "서울 지하철",
-        "서울 지하철 4호선",
-        "서울교통공사",
-        "서울교통공사;네오트랜스주식회사",
-        "서울교통공사;서울시메트로9호선",
-        "서울메트로",
-        "서울시메트로9호선",
-        "서해철도주식회사",
-        "수도권 전철",
-        "수도권전철4호선",
-        "에스알",
-        "용인경전철",
-        "용인에버라인운영(주)",
-        "우이신설경전철운영(주)",
-        "인천교통공사",
-        "코레일",
-        "한국철도공사",
-        "한국철도공사;공항철도주식회사",
-        "한국철도공사;서울교통공사"
-      ],
-      "operator": "서울교통공사;한국철도공사",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Seoul_Subway_Line_3",
-      "wikidata": "Q20393",
-      "line_count": 23,
-      "segment_count": 28,
-      "station_count": 461,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/south-korea/as-kor-seoul.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "23 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "461 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 461 站（wiki List 記 338，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "461/461 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "509 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "461/461 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_planned",
-            "ok": false,
-            "detail": "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Seoul Metropolitan Subway Line 2 43/51、Seoul Metropolitan Subway Line 5 49/57、Seoul Metropolitan Subway Gyeonggang Line 11/18、Seoul Metropolitan Subway Line 8 24/25",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "16 條線無 wiki 站數對照：Seoul Subway Line 2: Inner Circle Line、Seoul Subway Line 5 Banghwa → Hanam Geomdansan、서울 지하철 5호선: 마천 → 방화",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Seoul Metropolitan Subway Line 2 43/51、Seoul Metropolitan Subway Line 5 49/57、Seoul Metropolitan Subway Gyeonggang Line 11/18、Seoul Metropolitan Subway Line 8 24/25",
-          "16 條線無 wiki 站數對照：Seoul Subway Line 2: Inner Circle Line、Seoul Subway Line 5 Banghwa → Hanam Geomdansan、서울 지하철 5호선: 마천 → 방화"
-        ],
-        "audited_at": "2026-07-11T08:06:45.778Z"
-      }
-    },
-    {
       "file": "systems/asia/china/as-chn-guangzhou.geojson",
       "continent": "asia",
       "country": "China",
@@ -1188,7 +1188,7 @@
       "wikidata": "Q862941",
       "line_count": 21,
       "segment_count": 24,
-      "station_count": 349,
+      "station_count": 350,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1281,163 +1281,6 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-tokyo.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Tokyo",
-      "osm_networks": [
-        "Keisei",
-        "S-Train",
-        "Toei Shinjuku Line",
-        "Toei Subway",
-        "Toei subway",
-        "Tokyo Metro",
-        "Tokyo Metro Ginza Line",
-        "Tokyu Railways",
-        "Tokyu Railways;Tokyo Metro",
-        "Unknown",
-        "Yurikamome",
-        "ゆりかもめ",
-        "ゆりかもめ東京臨海新交通臨海線",
-        "りんかい線",
-        "ロ丸ノ内線",
-        "ロ銀座線",
-        "丸ノ内線",
-        "京成電鉄;東京都交通局",
-        "京成電鉄押上線",
-        "京浜急行電鉄",
-        "京浜急行電鉄 (Keikyu Corporation)",
-        "京王電鉄",
-        "副都心線",
-        "千代田線",
-        "千代田線, 丸ノ内線, 銀座線, 南北線",
-        "半蔵門線",
-        "日比谷線",
-        "東京メト",
-        "東京メトロ",
-        "東京メトロ;東葉高速線",
-        "東京メトロ丸ノ内線",
-        "東京メトロ丸ノ内線;銀座線",
-        "東京メトロ副都心線",
-        "東京メトロ千代田線",
-        "東京メトロ半蔵門線",
-        "東京メトロ南北線",
-        "東京メトロ有楽町線",
-        "東京メトロ東西線",
-        "東京メトロ銀座線",
-        "東京地下鉄",
-        "東京地下鉄;東京都交通局",
-        "東京急行電鉄",
-        "東京急行電鉄;東京地下鉄",
-        "東京臨海高速鉄道",
-        "東京都交通局",
-        "東京都交通局;東急電鉄",
-        "東急世田谷線",
-        "東急電鉄",
-        "東日本旅客鉄道",
-        "東日本旅客鉄道;東京地下鉄",
-        "東武鉄道;東京地下鉄",
-        "西武鉄道",
-        "西武鉄道;東京地下鉄",
-        "都営地下鉄",
-        "都営地下鉄;東京メトロ",
-        "都営地下鉄三田線",
-        "都営地下鉄新宿線",
-        "銀座線",
-        "銀座線;千代田線;半蔵門線"
-      ],
-      "operator": "東京都交通局",
-      "official_website": "http://www.yurikamome.tokyo",
-      "official_map": "https://en.wikipedia.org/wiki/Toei_Shinjuku_Line",
-      "wikidata": "Q1374502",
-      "line_count": 15,
-      "segment_count": 23,
-      "station_count": 223,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/japan/as-jpn-tokyo.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "15 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "223 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 223 站（wiki List 記 99，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "223/223 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "293 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "223/223 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)"
-        ],
-        "audited_at": "2026-07-11T08:06:45.762Z"
-      }
-    },
-    {
       "file": "systems/americas/united-states/am-usa-chicago.geojson",
       "continent": "north-america",
       "country": "United States",
@@ -1453,7 +1296,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Yellow_Line_(CTA)",
       "wikidata": "Q595450",
       "line_count": 11,
-      "segment_count": 22,
+      "segment_count": 23,
       "station_count": 145,
       "audit": {
         "strategies_tried": [],
@@ -1544,6 +1387,163 @@
           "6 條線無 wiki 站數對照：CTA Pink Line、CTA Green Line、CTA Green Line: Cottage Grove → Harlem/Lake"
         ],
         "audited_at": "2026-07-11T08:06:45.873Z"
+      }
+    },
+    {
+      "file": "systems/asia/japan/as-jpn-tokyo.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Tokyo",
+      "osm_networks": [
+        "Keisei",
+        "S-Train",
+        "Toei Shinjuku Line",
+        "Toei Subway",
+        "Toei subway",
+        "Tokyo Metro",
+        "Tokyo Metro Ginza Line",
+        "Tokyu Railways",
+        "Tokyu Railways;Tokyo Metro",
+        "Unknown",
+        "Yurikamome",
+        "ゆりかもめ",
+        "ゆりかもめ東京臨海新交通臨海線",
+        "りんかい線",
+        "ロ丸ノ内線",
+        "ロ銀座線",
+        "丸ノ内線",
+        "京成電鉄;東京都交通局",
+        "京成電鉄押上線",
+        "京浜急行電鉄",
+        "京浜急行電鉄 (Keikyu Corporation)",
+        "京王電鉄",
+        "副都心線",
+        "千代田線",
+        "千代田線, 丸ノ内線, 銀座線, 南北線",
+        "半蔵門線",
+        "日比谷線",
+        "東京メト",
+        "東京メトロ",
+        "東京メトロ;東葉高速線",
+        "東京メトロ丸ノ内線",
+        "東京メトロ丸ノ内線;銀座線",
+        "東京メトロ副都心線",
+        "東京メトロ千代田線",
+        "東京メトロ半蔵門線",
+        "東京メトロ南北線",
+        "東京メトロ有楽町線",
+        "東京メトロ東西線",
+        "東京メトロ銀座線",
+        "東京地下鉄",
+        "東京地下鉄;東京都交通局",
+        "東京急行電鉄",
+        "東京急行電鉄;東京地下鉄",
+        "東京臨海高速鉄道",
+        "東京都交通局",
+        "東京都交通局;東急電鉄",
+        "東急世田谷線",
+        "東急電鉄",
+        "東日本旅客鉄道",
+        "東日本旅客鉄道;東京地下鉄",
+        "東武鉄道;東京地下鉄",
+        "西武鉄道",
+        "西武鉄道;東京地下鉄",
+        "都営地下鉄",
+        "都営地下鉄;東京メトロ",
+        "都営地下鉄三田線",
+        "都営地下鉄新宿線",
+        "銀座線",
+        "銀座線;千代田線;半蔵門線"
+      ],
+      "operator": "東京都交通局",
+      "official_website": "http://www.yurikamome.tokyo",
+      "official_map": "https://en.wikipedia.org/wiki/Toei_Shinjuku_Line",
+      "wikidata": "Q1374502",
+      "line_count": 15,
+      "segment_count": 23,
+      "station_count": 220,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/japan/as-jpn-tokyo.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "15 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "223 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 223 站（wiki List 記 99，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "223/223 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "293 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "223/223 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)"
+        ],
+        "audited_at": "2026-07-11T08:06:45.762Z"
       }
     },
     {
@@ -1748,6 +1748,232 @@
       }
     },
     {
+      "file": "systems/asia/china/as-chn-hangzhou.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Hangzhou",
+      "osm_networks": [
+        "Hangzhou Metro",
+        "Unknown",
+        "杭州地铁",
+        "杭州地铁运营有限公司",
+        "杭州地铁集团责任有限公司",
+        "杭州地铁集团责任有限公司；杭州杭港地铁有限公司",
+        "杭州地铁集团运营分公司",
+        "杭州地铁集团运营分公司，杭州杭港地铁五号线有限公司",
+        "杭州地铁集团运营分公司，浙江轨道运营集团海宁分公司",
+        "杭州地铁集团运营有限公司",
+        "杭州地铁集团运营有限公司、杭州杭港地铁五号线有限公司",
+        "杭州地铁集团运营有限公司，杭州杭港地铁五号线有限公司",
+        "杭州市地铁集团有限责任公司",
+        "杭州杭港地铁五号线有限公司",
+        "杭州杭港地铁有限公司",
+        "杭州杭港地铁有限公司、杭州地铁运营有限公司",
+        "杭州杭港地铁有限公司、杭州杭港地铁五号线有限公司",
+        "杭州杭港地铁有限公司，杭州地铁集团运营分公司"
+      ],
+      "operator": "杭州杭港地铁有限公司",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Line_1_(Hangzhou_Metro)",
+      "wikidata": "Q133748",
+      "line_count": 16,
+      "segment_count": 22,
+      "station_count": 286,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/china/as-chn-hangzhou.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "16 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "286 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 286 站（wiki List 記 254，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "286/286 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "325 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "286/286 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：3号线：星桥 -> 石马 28/37",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "13 條線無 wiki 站數對照：杭州地铁3号线、3号线：吴山前村 -> 星桥、杭州地铁4号线",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：3号线：星桥 -> 石马 28/37",
+          "13 條線無 wiki 站數對照：杭州地铁3号线、3号线：吴山前村 -> 星桥、杭州地铁4号线"
+        ],
+        "audited_at": "2026-07-11T08:06:45.635Z"
+      }
+    },
+    {
+      "file": "systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
+      "continent": "north-america",
+      "country": "United States",
+      "city": "San Francisco (Bay Area)",
+      "osm_networks": [
+        "BART",
+        "BART;Muni",
+        "Muni",
+        "SFO AirTrain",
+        "VTA"
+      ],
+      "operator": "San Francisco Municipal Transportation Agency",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/San_Francisco_Municipal_Railway",
+      "wikidata": "Q6956302",
+      "line_count": 7,
+      "segment_count": 21,
+      "station_count": 71,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "7 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "86 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 86 站（wiki List 記 47，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "86/86 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "59 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "86/86 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton"
+        ],
+        "audited_at": "2026-07-11T08:06:45.888Z"
+      }
+    },
+    {
       "file": "systems/asia/china/as-chn-hong-kong.geojson",
       "continent": "asia",
       "country": "China",
@@ -1766,7 +1992,7 @@
       "wikidata": "Q1194568",
       "line_count": 13,
       "segment_count": 21,
-      "station_count": 149,
+      "station_count": 159,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1859,118 +2085,6 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shenzhen.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Shenzhen",
-      "osm_networks": [
-        "Light Rail",
-        "MTR",
-        "SZMC",
-        "Shenzhen Metro",
-        "Shenzhen Metro Line 3 Operations Branch Corporation",
-        "Shenzhen Metro Line 3 Operations Branch Corporation & Shenzhen Metro Co.,Ltd",
-        "Unknown",
-        "深圳地铁",
-        "深圳地铁集团 SZMC",
-        "深圳宝安国际机场旅客捷运系统",
-        "深圳市地铁集团",
-        "深圳市轨道交通",
-        "深圳有轨电车",
-        "港铁中铁电化轨道交通（深圳）有限公司"
-      ],
-      "operator": "深圳市地铁集团有限公司",
-      "official_website": "https://www.mtrsz.com.cn/frontend/default/src/channel/line_introduce_13Line.html",
-      "official_map": "https://zh.wikipedia.org/wiki/深圳地铁1号线",
-      "wikidata": "Q842103",
-      "line_count": 16,
-      "segment_count": 21,
-      "station_count": 404,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-shenzhen.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "16 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "404 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 404 站（wiki List 記 339，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "404/404 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "440 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "404/404 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_planned",
-            "ok": false,
-            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30"
-        ],
-        "audited_at": "2026-07-11T08:06:45.661Z"
-      }
-    },
-    {
       "file": "systems/asia/china/as-chn-chengdu.geojson",
       "continent": "asia",
       "country": "China",
@@ -1988,7 +2102,7 @@
       "wikidata": "Q6118988",
       "line_count": 18,
       "segment_count": 21,
-      "station_count": 361,
+      "station_count": 364,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2190,37 +2304,33 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-hangzhou.geojson",
+      "file": "systems/asia/china/as-chn-shenzhen.geojson",
       "continent": "asia",
       "country": "China",
-      "city": "Hangzhou",
+      "city": "Shenzhen",
       "osm_networks": [
-        "Hangzhou Metro",
+        "Light Rail",
+        "MTR",
+        "SZMC",
+        "Shenzhen Metro",
+        "Shenzhen Metro Line 3 Operations Branch Corporation",
+        "Shenzhen Metro Line 3 Operations Branch Corporation & Shenzhen Metro Co.,Ltd",
         "Unknown",
-        "杭州地铁",
-        "杭州地铁运营有限公司",
-        "杭州地铁集团责任有限公司",
-        "杭州地铁集团责任有限公司；杭州杭港地铁有限公司",
-        "杭州地铁集团运营分公司",
-        "杭州地铁集团运营分公司，杭州杭港地铁五号线有限公司",
-        "杭州地铁集团运营分公司，浙江轨道运营集团海宁分公司",
-        "杭州地铁集团运营有限公司",
-        "杭州地铁集团运营有限公司、杭州杭港地铁五号线有限公司",
-        "杭州地铁集团运营有限公司，杭州杭港地铁五号线有限公司",
-        "杭州市地铁集团有限责任公司",
-        "杭州杭港地铁五号线有限公司",
-        "杭州杭港地铁有限公司",
-        "杭州杭港地铁有限公司、杭州地铁运营有限公司",
-        "杭州杭港地铁有限公司、杭州杭港地铁五号线有限公司",
-        "杭州杭港地铁有限公司，杭州地铁集团运营分公司"
+        "深圳地铁",
+        "深圳地铁集团 SZMC",
+        "深圳宝安国际机场旅客捷运系统",
+        "深圳市地铁集团",
+        "深圳市轨道交通",
+        "深圳有轨电车",
+        "港铁中铁电化轨道交通（深圳）有限公司"
       ],
-      "operator": "杭州杭港地铁有限公司",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_1_(Hangzhou_Metro)",
-      "wikidata": "Q133748",
+      "operator": "深圳市地铁集团有限公司",
+      "official_website": "https://www.mtrsz.com.cn/frontend/default/src/channel/line_introduce_13Line.html",
+      "official_map": "https://zh.wikipedia.org/wiki/深圳地铁1号线",
+      "wikidata": "Q842103",
       "line_count": 16,
       "segment_count": 20,
-      "station_count": 286,
+      "station_count": 404,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2228,7 +2338,7 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-hangzhou.geojson",
+            "detail": "matched OSM system systems/asia/china/as-chn-shenzhen.geojson",
             "level": "error"
           },
           {
@@ -2240,25 +2350,25 @@
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "286 stations",
+            "detail": "404 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 286 站（wiki List 記 254，計法含轉乘重複，僅參考）",
+            "detail": "OSM 404 站（wiki List 記 339，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "286/286 站皆有所屬路線",
+            "detail": "404/404 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "325 個折點/端點皆為車站",
+            "detail": "440 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -2276,7 +2386,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "286/286 站皆有名稱",
+            "detail": "404/404 站皆有名稱",
             "level": "error"
           },
           {
@@ -2294,22 +2404,15 @@
           {
             "id": "line_wiki_planned",
             "ok": false,
-            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：3号线：星桥 -> 石马 28/37",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "13 條線無 wiki 站數對照：杭州地铁3号线、3号线：吴山前村 -> 星桥、杭州地铁4号线",
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：3号线：星桥 -> 石马 28/37",
-          "13 條線無 wiki 站數對照：杭州地铁3号线、3号线：吴山前村 -> 星桥、杭州地铁4号线"
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30"
         ],
-        "audited_at": "2026-07-11T08:06:45.635Z"
+        "audited_at": "2026-07-11T08:06:45.661Z"
       }
     },
     {
@@ -2319,7 +2422,6 @@
       "city": "Taipei",
       "osm_networks": [
         "New Taipei Metro",
-        "Skytrain",
         "Taipei Metro",
         "Taoyuan Metro",
         "Unknown",
@@ -2331,8 +2433,7 @@
         "桃園機場捷運",
         "淡海輕軌",
         "臺北大眾捷運股份有限公司",
-        "臺北捷運",
-        "臺灣桃園國際機場"
+        "臺北捷運"
       ],
       "operator": "臺北大眾捷運股份有限公司",
       "official_website": "http://www.trtc.com.tw/",
@@ -2340,7 +2441,7 @@
       "wikidata": "Q708378",
       "line_count": 17,
       "segment_count": 19,
-      "station_count": 200,
+      "station_count": 199,
       "audit": {
         "strategies_tried": [],
         "covers": [
@@ -2538,25 +2639,30 @@
       }
     },
     {
-      "file": "systems/europe/spain/eu-esp-madrid.geojson",
-      "continent": "europe",
-      "country": "Spain",
-      "city": "Madrid",
+      "file": "systems/asia/china/as-chn-nanjing.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Nanjing",
       "osm_networks": [
-        "Línea 7",
-        "Metro Ligero de Madrid",
-        "Metro de Madrid",
-        "Metrosur",
-        "Transportes Ferroviarios de Madrid",
-        "Unknown"
+        "Nanjing Metro",
+        "Unknown",
+        "南京地铁",
+        "南京地铁10号线",
+        "南京地铁1号线",
+        "南京地铁2号线",
+        "南京地铁4号线",
+        "南京地铁S1号线,南京地铁S7号线",
+        "南京地铁S7号线",
+        "南京有轨电车",
+        "南医大·江苏经贸学院"
       ],
-      "operator": "Metro de Madrid",
-      "official_website": null,
-      "official_map": "https://es.wikipedia.org/wiki/Línea_11_(Metro_de_Madrid)",
-      "wikidata": "Q608251",
-      "line_count": 14,
-      "segment_count": 17,
-      "station_count": 246,
+      "operator": "Nanjing Metro Group",
+      "official_website": "http://www.njmetro.com.cn/",
+      "official_map": "https://en.wikipedia.org/wiki/Line_10_(Nanjing_Metro)",
+      "wikidata": "Q6553053",
+      "line_count": 15,
+      "segment_count": 18,
+      "station_count": 285,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2564,37 +2670,37 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/europe/spain/eu-esp-madrid.geojson",
+            "detail": "matched OSM system systems/asia/china/as-chn-nanjing.geojson",
             "level": "error"
           },
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "14 lines",
+            "detail": "15 lines",
             "level": "error"
           },
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "246 stations",
+            "detail": "276 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 246 站（wiki List 記 242，計法含轉乘重複，僅參考）",
+            "detail": "OSM 276 站（wiki List 記 252，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "246/246 站皆有所屬路線",
+            "detail": "276/276 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "299 個折點/端點皆為車站",
+            "detail": "290 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -2612,7 +2718,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "246/246 站皆有名稱",
+            "detail": "276/276 站皆有名稱",
             "level": "error"
           },
           {
@@ -2630,15 +2736,15 @@
           {
             "id": "line_wiki_coverage",
             "ok": false,
-            "detail": "14 條線無 wiki 站數對照：Línea 11、Línea 6、Línea 3",
+            "detail": "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "14 條線無 wiki 站數對照：Línea 11、Línea 6、Línea 3"
+          "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线"
         ],
-        "audited_at": "2026-07-11T08:06:45.825Z"
+        "audited_at": "2026-07-11T08:06:45.651Z"
       }
     },
     {
@@ -2751,30 +2857,25 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-nanjing.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Nanjing",
+      "file": "systems/europe/spain/eu-esp-madrid.geojson",
+      "continent": "europe",
+      "country": "Spain",
+      "city": "Madrid",
       "osm_networks": [
-        "Nanjing Metro",
-        "Unknown",
-        "南京地铁",
-        "南京地铁10号线",
-        "南京地铁1号线",
-        "南京地铁2号线",
-        "南京地铁4号线",
-        "南京地铁S1号线,南京地铁S7号线",
-        "南京地铁S7号线",
-        "南京有轨电车",
-        "南医大·江苏经贸学院"
+        "Línea 7",
+        "Metro Ligero de Madrid",
+        "Metro de Madrid",
+        "Metrosur",
+        "Transportes Ferroviarios de Madrid",
+        "Unknown"
       ],
-      "operator": "Nanjing Metro Group",
-      "official_website": "http://www.njmetro.com.cn/",
-      "official_map": "https://en.wikipedia.org/wiki/Line_10_(Nanjing_Metro)",
-      "wikidata": "Q6553053",
-      "line_count": 15,
-      "segment_count": 17,
-      "station_count": 276,
+      "operator": "Metro de Madrid",
+      "official_website": null,
+      "official_map": "https://es.wikipedia.org/wiki/Línea_11_(Metro_de_Madrid)",
+      "wikidata": "Q608251",
+      "line_count": 14,
+      "segment_count": 16,
+      "station_count": 252,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2782,37 +2883,37 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-nanjing.geojson",
+            "detail": "matched OSM system systems/europe/spain/eu-esp-madrid.geojson",
             "level": "error"
           },
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "15 lines",
+            "detail": "14 lines",
             "level": "error"
           },
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "276 stations",
+            "detail": "246 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 276 站（wiki List 記 252，計法含轉乘重複，僅參考）",
+            "detail": "OSM 246 站（wiki List 記 242，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "276/276 站皆有所屬路線",
+            "detail": "246/246 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "290 個折點/端點皆為車站",
+            "detail": "299 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -2830,7 +2931,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "276/276 站皆有名稱",
+            "detail": "246/246 站皆有名稱",
             "level": "error"
           },
           {
@@ -2848,15 +2949,15 @@
           {
             "id": "line_wiki_coverage",
             "ok": false,
-            "detail": "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线",
+            "detail": "14 條線無 wiki 站數對照：Línea 11、Línea 6、Línea 3",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线"
+          "14 條線無 wiki 站數對照：Línea 11、Línea 6、Línea 3"
         ],
-        "audited_at": "2026-07-11T08:06:45.651Z"
+        "audited_at": "2026-07-11T08:06:45.825Z"
       }
     },
     {
@@ -2874,8 +2975,8 @@
       "official_map": "https://zh.wikipedia.org/wiki/天津地铁9号线",
       "wikidata": "Q3125123",
       "line_count": 14,
-      "segment_count": 15,
-      "station_count": 250,
+      "segment_count": 16,
+      "station_count": 252,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2987,7 +3088,7 @@
       "wikidata": "Q5963161",
       "line_count": 13,
       "segment_count": 15,
-      "station_count": 299,
+      "station_count": 314,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3080,122 +3181,6 @@
       }
     },
     {
-      "file": "systems/asia/turkey/as-tur-istanbul.geojson",
-      "continent": "asia",
-      "country": "Turkey",
-      "city": "Istanbul",
-      "osm_networks": [
-        "M1",
-        "M1 Yenikapı - Atatürk Havalimanı/Kirazlı Metro Hattı",
-        "M11",
-        "M2 Yenikapı - Hacıosman Metro Hattı",
-        "M3",
-        "M4",
-        "M6",
-        "M8",
-        "M9",
-        "Metro İstanbul",
-        "T4",
-        "Unknown",
-        "metro",
-        "stop",
-        "İstanbul Elektrik Tramvay ve Tünel (̣İETT)",
-        "İstanbul M1A Metro Hattı",
-        "İstanbul Metrosu",
-        "İstanbul metrosu"
-      ],
-      "operator": "Metro İstanbul",
-      "official_website": null,
-      "official_map": "https://tr.wikipedia.org/wiki/F1_(İstanbul_Füniküleri)",
-      "wikidata": "Q503503",
-      "line_count": 13,
-      "segment_count": 14,
-      "station_count": 162,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/turkey/as-tur-istanbul.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "13 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "162 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 162 站（wiki List 記 155，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "162/162 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "173 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "162/162 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "13 條線無 wiki 站數對照：M1 Metro Hattı、M1B: Yenikapı - Kirazlı、M4 Metro Hattı",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "13 條線無 wiki 站數對照：M1 Metro Hattı、M1B: Yenikapı - Kirazlı、M4 Metro Hattı"
-        ],
-        "audited_at": "2026-07-11T08:06:45.847Z"
-      }
-    },
-    {
       "file": "systems/asia/china/as-chn-suzhou.geojson",
       "continent": "asia",
       "country": "China",
@@ -3212,8 +3197,8 @@
       "official_map": "https://en.wikipedia.org/wiki/Line_2_(Suzhou_Metro)",
       "wikidata": "Q1054280",
       "line_count": 11,
-      "segment_count": 14,
-      "station_count": 244,
+      "segment_count": 15,
+      "station_count": 253,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3306,6 +3291,224 @@
       }
     },
     {
+      "file": "systems/americas/united-states/am-usa-washington-d-c.geojson",
+      "continent": "north-america",
+      "country": "United States",
+      "city": "Washington, D.C.",
+      "osm_networks": [
+        "Montgomery County",
+        "United States Capitol Subway System",
+        "Unknown",
+        "Washington Metro"
+      ],
+      "operator": "Washington Metropolitan Area Transit Authority",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Red_Line_(Washington_Metro)",
+      "wikidata": "Q2193330",
+      "line_count": 7,
+      "segment_count": 14,
+      "station_count": 104,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/americas/united-states/am-usa-washington-d-c.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "7 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "103 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 103 站（wiki List 記 98，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "103/103 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "114 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "103/103 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn"
+        ],
+        "audited_at": "2026-07-11T08:06:45.889Z"
+      }
+    },
+    {
+      "file": "systems/asia/turkey/as-tur-istanbul.geojson",
+      "continent": "asia",
+      "country": "Turkey",
+      "city": "Istanbul",
+      "osm_networks": [
+        "M1",
+        "M1 Yenikapı - Atatürk Havalimanı/Kirazlı Metro Hattı",
+        "M11",
+        "M2 Yenikapı - Hacıosman Metro Hattı",
+        "M3",
+        "M4",
+        "M6",
+        "M8",
+        "M9",
+        "Metro İstanbul",
+        "T4",
+        "Unknown",
+        "metro",
+        "stop",
+        "İstanbul Elektrik Tramvay ve Tünel (̣İETT)",
+        "İstanbul M1A Metro Hattı",
+        "İstanbul Metrosu",
+        "İstanbul metrosu"
+      ],
+      "operator": "Metro İstanbul",
+      "official_website": null,
+      "official_map": "https://tr.wikipedia.org/wiki/F1_(İstanbul_Füniküleri)",
+      "wikidata": "Q503503",
+      "line_count": 13,
+      "segment_count": 14,
+      "station_count": 201,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/turkey/as-tur-istanbul.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "13 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "162 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 162 站（wiki List 記 155，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "162/162 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "173 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "162/162 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "13 條線無 wiki 站數對照：M1 Metro Hattı、M1B: Yenikapı - Kirazlı、M4 Metro Hattı",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "13 條線無 wiki 站數對照：M1 Metro Hattı、M1B: Yenikapı - Kirazlı、M4 Metro Hattı"
+        ],
+        "audited_at": "2026-07-11T08:06:45.847Z"
+      }
+    },
+    {
       "file": "systems/asia/china/as-chn-zhengzhou.geojson",
       "continent": "asia",
       "country": "China",
@@ -3322,7 +3525,7 @@
       "wikidata": "Q15303225",
       "line_count": 13,
       "segment_count": 14,
-      "station_count": 236,
+      "station_count": 237,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3437,7 +3640,7 @@
       "wikidata": "Q11690013",
       "line_count": 6,
       "segment_count": 13,
-      "station_count": 96,
+      "station_count": 97,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3511,108 +3714,6 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-washington-d-c.geojson",
-      "continent": "north-america",
-      "country": "United States",
-      "city": "Washington, D.C.",
-      "osm_networks": [
-        "Montgomery County",
-        "United States Capitol Subway System",
-        "Unknown",
-        "Washington Metro"
-      ],
-      "operator": "Washington Metropolitan Area Transit Authority",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Red_Line_(Washington_Metro)",
-      "wikidata": "Q2193330",
-      "line_count": 7,
-      "segment_count": 12,
-      "station_count": 103,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/americas/united-states/am-usa-washington-d-c.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "7 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "103 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 103 站（wiki List 記 98，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "103/103 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "114 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "103/103 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn"
-        ],
-        "audited_at": "2026-07-11T08:06:45.889Z"
-      }
-    },
-    {
       "file": "systems/europe/sweden/eu-swe-stockholm.geojson",
       "continent": "europe",
       "country": "Sweden",
@@ -3627,7 +3728,7 @@
       "wikidata": "Q1432090",
       "line_count": 7,
       "segment_count": 12,
-      "station_count": 107,
+      "station_count": 108,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3843,7 +3944,7 @@
       "wikidata": "Q1029921",
       "line_count": 12,
       "segment_count": 12,
-      "station_count": 265,
+      "station_count": 266,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3950,7 +4051,7 @@
       "wikidata": "Q14917524",
       "line_count": 12,
       "segment_count": 12,
-      "station_count": 253,
+      "station_count": 255,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4154,109 +4255,6 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
-      "continent": "north-america",
-      "country": "United States",
-      "city": "San Francisco (Bay Area)",
-      "osm_networks": [
-        "BART",
-        "BART;Muni",
-        "Muni",
-        "SFO AirTrain",
-        "VTA"
-      ],
-      "operator": "San Francisco Municipal Transportation Agency",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/San_Francisco_Municipal_Railway",
-      "wikidata": "Q6956302",
-      "line_count": 7,
-      "segment_count": 10,
-      "station_count": 86,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "7 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "86 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 86 站（wiki List 記 47，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "86/86 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "59 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "86/86 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton"
-        ],
-        "audited_at": "2026-07-11T08:06:45.888Z"
-      }
-    },
-    {
       "file": "systems/europe/norway/eu-nor-oslo.geojson",
       "continent": "europe",
       "country": "Norway",
@@ -4386,7 +4384,7 @@
       "wikidata": "Q284828",
       "line_count": 9,
       "segment_count": 10,
-      "station_count": 116,
+      "station_count": 118,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4461,6 +4459,115 @@
         "reasons": [],
         "warnings": [],
         "audited_at": "2026-07-11T08:06:45.757Z"
+      }
+    },
+    {
+      "file": "systems/asia/china/as-chn-hefei.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Hefei",
+      "osm_networks": [
+        "Hefei Metro",
+        "Unknown",
+        "合肥市轨道交通集团有限公司",
+        "合肥轨道交通集团有限公司"
+      ],
+      "operator": "合肥轨道交通集团有限公司",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Line_2_(Hefei_Metro)",
+      "wikidata": "Q10916960",
+      "line_count": 8,
+      "segment_count": 10,
+      "station_count": 189,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/china/as-chn-hefei.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "8 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "188 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 188 站（wiki List 記 195，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "188/188 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "203 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "188/188 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "1 條線無 wiki 站數對照：Hefei Metro Line 4: Zongbaoqu→Qinglonggang",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22",
+          "1 條線無 wiki 站數對照：Hefei Metro Line 4: Zongbaoqu→Qinglonggang"
+        ],
+        "audited_at": "2026-07-11T08:06:45.637Z"
       }
     },
     {
@@ -4693,7 +4800,7 @@
       "wikidata": "Q21659772",
       "line_count": 8,
       "segment_count": 9,
-      "station_count": 58,
+      "station_count": 59,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4798,7 +4905,7 @@
       "wikidata": "Q2687418",
       "line_count": 5,
       "segment_count": 9,
-      "station_count": 73,
+      "station_count": 75,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4884,115 +4991,6 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-hefei.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Hefei",
-      "osm_networks": [
-        "Hefei Metro",
-        "Unknown",
-        "合肥市轨道交通集团有限公司",
-        "合肥轨道交通集团有限公司"
-      ],
-      "operator": "合肥轨道交通集团有限公司",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_2_(Hefei_Metro)",
-      "wikidata": "Q10916960",
-      "line_count": 8,
-      "segment_count": 9,
-      "station_count": 188,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-hefei.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "8 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "188 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 188 站（wiki List 記 195，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "188/188 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "203 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "188/188 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_planned",
-            "ok": false,
-            "detail": "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "1 條線無 wiki 站數對照：Hefei Metro Line 4: Zongbaoqu→Qinglonggang",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22",
-          "1 條線無 wiki 站數對照：Hefei Metro Line 4: Zongbaoqu→Qinglonggang"
-        ],
-        "audited_at": "2026-07-11T08:06:45.637Z"
-      }
-    },
-    {
       "file": "systems/europe/netherlands/eu-ned-amsterdam.geojson",
       "continent": "europe",
       "country": "Netherlands",
@@ -5012,7 +5010,7 @@
       "wikidata": "Q2183200",
       "line_count": 5,
       "segment_count": 8,
-      "station_count": 39,
+      "station_count": 41,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -5705,6 +5703,110 @@
       }
     },
     {
+      "file": "systems/americas/united-states/am-usa-philadelphia.geojson",
+      "continent": "north-america",
+      "country": "United States",
+      "city": "Philadelphia",
+      "osm_networks": [
+        "NJ Transit",
+        "PATCO",
+        "SEPTA",
+        "SNJRG",
+        "Southeastern Pennsylvania Transportation Authority",
+        "Unknown"
+      ],
+      "operator": "Delaware River Port Authority",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/L_(SEPTA_Metro)",
+      "wikidata": "Q2043730",
+      "line_count": 5,
+      "segment_count": 7,
+      "station_count": 70,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/americas/united-states/am-usa-philadelphia.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "5 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "70 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 70 站（wiki List 記 53，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "70/70 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "74 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "70/70 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line"
+        ],
+        "audited_at": "2026-07-11T08:06:45.886Z"
+      }
+    },
+    {
       "file": "systems/europe/italy/eu-ita-rome.geojson",
       "continent": "europe",
       "country": "Italy",
@@ -5724,7 +5826,7 @@
       "wikidata": "Q2666571",
       "line_count": 6,
       "segment_count": 7,
-      "station_count": 115,
+      "station_count": 116,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -6137,7 +6239,7 @@
       "wikidata": "Q15941872",
       "line_count": 6,
       "segment_count": 7,
-      "station_count": 105,
+      "station_count": 110,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -6239,7 +6341,7 @@
       "wikidata": "Q106740369",
       "line_count": 6,
       "segment_count": 7,
-      "station_count": 88,
+      "station_count": 89,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -6942,7 +7044,7 @@
       "wikidata": "Q3308465",
       "line_count": 5,
       "segment_count": 6,
-      "station_count": 80,
+      "station_count": 82,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7274,7 +7376,7 @@
       "wikidata": "Q6553099",
       "line_count": 6,
       "segment_count": 6,
-      "station_count": 84,
+      "station_count": 85,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7382,7 +7484,7 @@
       "wikidata": "Q5934658",
       "line_count": 6,
       "segment_count": 6,
-      "station_count": 135,
+      "station_count": 137,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7595,7 +7697,7 @@
       "wikidata": "Q25343681",
       "line_count": 4,
       "segment_count": 6,
-      "station_count": 40,
+      "station_count": 41,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7865,25 +7967,24 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-philadelphia.geojson",
-      "continent": "north-america",
-      "country": "United States",
-      "city": "Philadelphia",
+      "file": "systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
+      "continent": "south-america",
+      "country": "Brazil",
+      "city": "Rio de Janeiro",
       "osm_networks": [
-        "NJ Transit",
-        "PATCO",
-        "SEPTA",
-        "SNJRG",
-        "Southeastern Pennsylvania Transportation Authority",
+        "Estrada de Ferro do Corcovado",
+        "Linha 2 - Verde",
+        "Metrô Rio",
+        "MetrôRio",
         "Unknown"
       ],
-      "operator": "Delaware River Port Authority",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/L_(SEPTA_Metro)",
-      "wikidata": "Q2043730",
-      "line_count": 5,
+      "operator": "Metrô Rio",
+      "official_website": "http://www.corcovado.com.br/",
+      "official_map": "https://pt.wikipedia.org/wiki/Linha_1_do_Metrô_do_Rio_de_Janeiro",
+      "wikidata": "Q2333617",
+      "line_count": 3,
       "segment_count": 5,
-      "station_count": 70,
+      "station_count": 50,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7891,37 +7992,37 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/americas/united-states/am-usa-philadelphia.geojson",
+            "detail": "matched OSM system systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
             "level": "error"
           },
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "5 lines",
+            "detail": "3 lines",
             "level": "error"
           },
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "70 stations",
+            "detail": "41 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 70 站（wiki List 記 53，計法含轉乘重複，僅參考）",
+            "detail": "OSM 41 站（wiki List 記 41，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "70/70 站皆有所屬路線",
+            "detail": "41/41 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "74 個折點/端點皆為車站",
+            "detail": "45 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -7939,7 +8040,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "70/70 站皆有名稱",
+            "detail": "41/41 站皆有名稱",
             "level": "error"
           },
           {
@@ -7957,15 +8058,15 @@
           {
             "id": "line_wiki_coverage",
             "ok": false,
-            "detail": "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line",
+            "detail": "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line"
+          "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico"
         ],
-        "audited_at": "2026-07-11T08:06:45.886Z"
+        "audited_at": "2026-07-11T08:06:45.604Z"
       }
     },
     {
@@ -8088,7 +8189,7 @@
       "wikidata": "Q104231463",
       "line_count": 3,
       "segment_count": 5,
-      "station_count": 30,
+      "station_count": 32,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -8414,7 +8515,7 @@
       "wikidata": "Q770771",
       "line_count": 5,
       "segment_count": 5,
-      "station_count": 54,
+      "station_count": 55,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -8932,7 +9033,7 @@
       "wikidata": "Q54371",
       "line_count": 3,
       "segment_count": 4,
-      "station_count": 72,
+      "station_count": 73,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -9112,109 +9213,6 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
-      "continent": "south-america",
-      "country": "Brazil",
-      "city": "Rio de Janeiro",
-      "osm_networks": [
-        "Estrada de Ferro do Corcovado",
-        "Linha 2 - Verde",
-        "Metrô Rio",
-        "MetrôRio",
-        "Unknown"
-      ],
-      "operator": "Metrô Rio",
-      "official_website": "http://www.corcovado.com.br/",
-      "official_map": "https://pt.wikipedia.org/wiki/Linha_1_do_Metrô_do_Rio_de_Janeiro",
-      "wikidata": "Q2333617",
-      "line_count": 3,
-      "segment_count": 4,
-      "station_count": 41,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "3 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "41 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 41 站（wiki List 記 41，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "41/41 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "45 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「通過次數 ≥2」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "41/41 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico"
-        ],
-        "audited_at": "2026-07-11T08:06:45.604Z"
-      }
-    },
-    {
       "file": "systems/europe/portugal/eu-por-lisbon.geojson",
       "continent": "europe",
       "country": "Portugal",
@@ -9334,7 +9332,7 @@
       "wikidata": "Q1369034",
       "line_count": 3,
       "segment_count": 4,
-      "station_count": 52,
+      "station_count": 53,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -9945,7 +9943,7 @@
       "wikidata": "Q6850047",
       "line_count": 4,
       "segment_count": 4,
-      "station_count": 111,
+      "station_count": 133,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -10443,7 +10441,7 @@
       "wikidata": "Q24835360",
       "line_count": 3,
       "segment_count": 4,
-      "station_count": 40,
+      "station_count": 42,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -11138,7 +11136,7 @@
       "wikidata": "Q20685853",
       "line_count": 2,
       "segment_count": 3,
-      "station_count": 20,
+      "station_count": 21,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -11832,7 +11830,7 @@
       "wikidata": "Q86467",
       "line_count": 3,
       "segment_count": 3,
-      "station_count": 100,
+      "station_count": 101,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -12140,7 +12138,7 @@
       "wikidata": "Q2842186",
       "line_count": 3,
       "segment_count": 3,
-      "station_count": 39,
+      "station_count": 59,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -12944,7 +12942,7 @@
       "wikidata": "Q56067295",
       "line_count": 2,
       "segment_count": 3,
-      "station_count": 40,
+      "station_count": 42,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -13242,7 +13240,7 @@
       "wikidata": "Q15910427",
       "line_count": 2,
       "segment_count": 3,
-      "station_count": 39,
+      "station_count": 40,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -13843,7 +13841,7 @@
       "wikidata": "Q3238658",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 60,
+      "station_count": 61,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -14354,7 +14352,7 @@
       "wikidata": "Q25421357",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 39,
+      "station_count": 41,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -15060,7 +15058,7 @@
       "wikidata": "Q66782266",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 27,
+      "station_count": 31,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -15453,7 +15451,7 @@
       "wikidata": "Q3238660",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 30,
+      "station_count": 34,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -15555,7 +15553,7 @@
       "wikidata": "Q11103955",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 52,
+      "station_count": 39,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -15931,7 +15929,7 @@
       "wikidata": "Q66660306",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 46,
+      "station_count": 50,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -16129,7 +16127,7 @@
       "wikidata": "Q117782475",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 29,
+      "station_count": 32,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -16540,7 +16538,7 @@
       "wikidata": "Q59155699",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 37,
+      "station_count": 38,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -16906,7 +16904,7 @@
       "wikidata": "Q47015943",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 43,
+      "station_count": 53,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -19128,7 +19126,7 @@
       "wikidata": "Q104230289",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 26,
+      "station_count": 27,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -19421,7 +19419,7 @@
       "wikidata": "Q21034316",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 18,
+      "station_count": 19,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -19614,7 +19612,7 @@
       "wikidata": "Q239927",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 12,
+      "station_count": 14,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -19715,7 +19713,7 @@
       "wikidata": "Q200310",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 22,
+      "station_count": 23,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -19814,7 +19812,7 @@
       "wikidata": "Q2136023",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 21,
+      "station_count": 23,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -21708,7 +21706,7 @@
       "wikidata": "Q113001571",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 13,
+      "station_count": 14,
       "audit": {
         "strategies_tried": [],
         "passed": true,
