@@ -669,16 +669,51 @@ async function build() {
     // 同一路線一定是一條線，且**以路線自己為準**（使用者規則）：主線＝最長變體；
     // 帶來新站的分支變體（小碧潭支線…）不併入主線（hover 不得把支線一起
     // highlight），各自以「自己 relation 的 tags」獨立成線。
-    const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
-    const mainRids = g.rids.filter((r) => !branchRids.has(r))
-    const units = [{ kept: [keptAll[0].rows],
-      gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
-    for (const w of keptAll.slice(1)) {
+    // 紐約特例（使用者：紐約共線只畫 1 條）：同 ref 的上下行／深夜／尖峰變體是
+    // 同一條線的營運模式（A 線 5 個 route_id、5/R/Q 各 2 個），**與主線共享車站**者
+    // 併成 1 條（否則變體各自成段、幾何重疊、一條走廊畫成好幾條）。但**完全分離**
+    // 的同 ref 線（S 的 Franklin／Rockaway Park／42nd St 三條獨立 shuttle 共用 ref S）
+    // 不併——各自獨立成線。判定：變體與（累積的）主線車站有無交集。
+    const gNet = pick(repTags(g), 'network:en', 'network') || ''
+    const mergeVariants = /nyc subway|new york city subway/i.test(gNet)
+    const vkey = (r) => `${Math.round(r.coord[0] / 0.001)}:${Math.round(r.coord[1] / 0.001)}`
+    const branchUnit = (w) => {
       const bt = { ...(routesTags.get(w.rid) || {}) }
       bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
       // key 不能沿用 m| 前綴（phase B 的 route_id 由 key 推導）——分支用 br|rid
-      units.push({ kept: [w.rows],
-        gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt })
+      return { kept: [w.rows], gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt }
+    }
+    let units
+    if (mergeVariants) {
+      // 按「共享車站」聚成連通分量：A 的 5 變體共享 A 走廊 → 1 分量；S 的 Franklin
+      // （含上下行）／Rockaway／42nd 各自不共享 → 3 分量。每分量合成 1 條線，用自己
+      // 第一個 rid 的 tags（Franklin 用 Franklin 名、A 用 A 名）。
+      const comps = []
+      for (const w of keptAll) {
+        const ws = w.rows.map(vkey)
+        const hits = comps.filter((c) => ws.some((k) => c.stops.has(k)))
+        if (hits.length) {
+          const m = hits[0]
+          for (const h of hits.slice(1)) {
+            for (const k of h.stops) m.stops.add(k)
+            m.rows.push(...h.rows); m.rids.push(...h.rids)
+            comps.splice(comps.indexOf(h), 1)
+          }
+          for (const k of ws) m.stops.add(k)
+          m.rows.push(w.rows); m.rids.push(w.rid)
+        } else comps.push({ stops: new Set(ws), rows: [w.rows], rids: [w.rid] })
+      }
+      units = comps.map((c) => {
+        const bt = { ...(routesTags.get(c.rids[0]) || {}) }
+        bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
+        return { kept: c.rows, gU: { key: `nyc|${Math.min(...c.rids)}`, rids: c.rids }, tU: bt }
+      })
+    } else {
+      const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
+      const mainRids = g.rids.filter((r) => !branchRids.has(r))
+      units = [{ kept: [keptAll[0].rows],
+        gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
+      for (const w of keptAll.slice(1)) units.push(branchUnit(w))
     }
     for (const unit of units) {
     const kept = unit.kept

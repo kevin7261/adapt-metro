@@ -1,9 +1,9 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality)",
-  "routes_total": 1111,
-  "checked_against_infobox": 528,
-  "flagged": 76,
-  "uncovered": 583,
+  "routes_total": 1097,
+  "checked_against_infobox": 539,
+  "flagged": 81,
+  "uncovered": 558,
   "adjudicated": 25,
   "flags": [
     {
@@ -1001,109 +1001,74 @@
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256040",
+      "route_name": "NYCS - D Train (late nights): Coney Island–Stillwell Avenue → Norwood–205th Street",
+      "ours": 41,
+      "lang": "en",
+      "wiki": "en:D (New York City Subway service)",
+      "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": 5,
+      "severity": "error"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256103",
+      "route_name": "NYCS - Q Train (late nights): Coney Island–Stillwell Avenue → 96th Street",
+      "ours": 34,
+      "lang": "en",
+      "wiki": "en:Q (New York City Subway service)",
+      "wiki_stations": 29,
+      "wiki_basis": "total",
+      "diff": 5,
+      "severity": "error"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r366778",
+      "route_name": "NYCS - 5 Train: Flatbush Avenue–Brooklyn College → Eastchester–Dyre Avenue",
+      "ours": 45,
+      "lang": "en",
+      "wiki": "en:5 (New York City Subway service)",
+      "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": 9,
+      "severity": "error"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r11256044",
+      "route_name": "NYCS - E Train (late nights): World Trade Center → Jamaica Center–Parsons/Archer",
+      "ours": 32,
+      "lang": "en",
+      "wiki": "en:E (New York City Subway service)",
+      "wiki_stations": 20,
+      "wiki_basis": "total",
+      "diff": 12,
+      "severity": "error"
+    },
+    {
+      "city": "New York City",
+      "country": "United States",
+      "route_id": "r9727208",
+      "route_name": "NYCS - A Train (late nights): Far Rockaway–Mott Avenue → 207th Street–Inwood",
+      "ours": 66,
+      "lang": "en",
+      "wiki": "en:A (New York City Subway service)",
+      "wiki_stations": 40,
+      "wiki_basis": "total",
+      "diff": 26,
+      "severity": "error"
     }
   ],
   "uncovered_lines": [
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9767766",
-      "route_name": "NYCS - C Train",
-      "ours": 40,
-      "lang": "en",
-      "wiki": "en:C (New York City Subway service)",
-      "reason": "system article shared by several lines (en:C (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9767765",
-      "route_name": "NYCS - C Train: 168th Street → Euclid Avenue",
-      "ours": 40,
-      "lang": "en",
-      "wiki": "en:C (New York City Subway service)",
-      "reason": "system article shared by several lines (en:C (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366774",
-      "route_name": "NYCS - A Train",
-      "ours": 59,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11255871",
-      "route_name": "NYCS - A Train (late nights): 207th Street–Inwood → Far Rockaway–Mott Avenue",
-      "ours": 58,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9712349",
-      "route_name": "NYCS - M Train",
-      "ours": 36,
-      "lang": "en",
-      "wiki": "en:M (New York City Subway service)",
-      "reason": "system article shared by several lines (en:M (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9712342",
-      "route_name": "NYCS - M Train: Middle Village–Metropolitan Avenue → Forest Hills–71st Avenue",
-      "ours": 36,
-      "lang": "en",
-      "wiki": "en:M (New York City Subway service)",
-      "reason": "system article shared by several lines (en:M (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9769302",
-      "route_name": "NYCS - E Train",
-      "ours": 32,
-      "lang": "en",
-      "wiki": "en:E (New York City Subway service)",
-      "reason": "system article shared by several lines (en:E (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11256045",
-      "route_name": "NYCS - E Train (late nights): Jamaica Center–Parsons/Archer → World Trade Center",
-      "ours": 32,
-      "lang": "en",
-      "wiki": "en:E (New York City Subway service)",
-      "reason": "system article shared by several lines (en:E (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366780",
-      "route_name": "NYCS - R Train",
-      "ours": 45,
-      "lang": "en",
-      "wiki": "en:R (New York City Subway service)",
-      "reason": "system article shared by several lines (en:R (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9712344",
-      "route_name": "NYCS - R Train: Bay Ridge–95th Street → Forest Hills–71st Avenue",
-      "ours": 45,
-      "lang": "en",
-      "wiki": "en:R (New York City Subway service)",
-      "reason": "system article shared by several lines (en:R (New York City Subway service))"
-    },
     {
       "city": "New York City",
       "country": "United States",
@@ -1117,48 +1082,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9748435",
-      "route_name": "NYCS - B Train",
-      "ours": 37,
-      "lang": "en",
-      "wiki": "en:B (New York City Subway service)",
-      "reason": "system article shared by several lines (en:B (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9748434",
-      "route_name": "NYCS - B Train (am/pm rush): Bedford Park Boulevard → Brighton Beach",
-      "ours": 37,
-      "lang": "en",
-      "wiki": "en:B (New York City Subway service)",
-      "reason": "system article shared by several lines (en:B (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9769161",
-      "route_name": "NYCS - D Train",
-      "ours": 41,
-      "lang": "en",
-      "wiki": "en:D (New York City Subway service)",
-      "reason": "system article shared by several lines (en:D (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11256041",
-      "route_name": "NYCS - D Train (late nights): Norwood–205th Street → Coney Island–Stillwell Avenue",
-      "ours": 41,
-      "lang": "en",
-      "wiki": "en:D (New York City Subway service)",
-      "reason": "system article shared by several lines (en:D (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9753684",
-      "route_name": "NYCS - F Train",
+      "route_id": "r366772",
+      "route_name": "NYCS - F Train: Coney Island–Stillwell Avenue → Jamaica–179th Street",
       "ours": 45,
       "lang": "en",
       "wiki": "en:F (New York City Subway service)",
@@ -1167,8 +1092,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm11248274",
-      "route_name": "NYCS - <F> Train",
+      "route_id": "r11248272",
+      "route_name": "NYCS - <F> Train (pm rush): Jamaica–179th Street → Coney Island–Stillwell Avenue",
       "ours": 39,
       "lang": "en",
       "wiki": "en:New York City Subway",
@@ -1177,8 +1102,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm7837591",
-      "route_name": "NYCS - Z Train",
+      "route_id": "r366773",
+      "route_name": "NYCS - Z Train (pm rush): Broad Street → Jamaica Center–Parsons/Archer",
       "ours": 20,
       "lang": "en",
       "wiki": "en:J/Z (New York City Subway service)",
@@ -1187,8 +1112,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9747970",
-      "route_name": "NYCS - J Train",
+      "route_id": "r366782",
+      "route_name": "NYCS - J Train: Broad Street → Jamaica Center–Parsons/Archer",
       "ours": 30,
       "lang": "en",
       "wiki": "en:J/Z (New York City Subway service)",
@@ -1197,78 +1122,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm366769",
-      "route_name": "NYCS - Q Train",
-      "ours": 34,
-      "lang": "en",
-      "wiki": "en:Q (New York City Subway service)",
-      "reason": "system article shared by several lines (en:Q (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r11256104",
-      "route_name": "NYCS - Q Train (late nights): 96th Street → Coney Island–Stillwell Avenue",
-      "ours": 34,
-      "lang": "en",
-      "wiki": "en:Q (New York City Subway service)",
-      "reason": "system article shared by several lines (en:Q (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9727210",
-      "route_name": "NYCS - A Train (am rush): Rockaway Park–Beach 116th Street → 207th Street–Inwood",
-      "ours": 35,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9727211",
-      "route_name": "NYCS - A Train (pm rush): 207th Street–Inwood → Rockaway Park–Beach 116th Street",
-      "ours": 34,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9727208",
-      "route_name": "NYCS - A Train: Ozone Park–Lefferts Boulevard → 207th Street–Inwood",
-      "ours": 30,
-      "lang": "en",
-      "wiki": "en:A (New York City Subway service)",
-      "reason": "system article shared by several lines (en:A (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9682651",
-      "route_name": "NYCS - 5 Train",
-      "ours": 36,
-      "lang": "en",
-      "wiki": "en:5 (New York City Subway service)",
-      "reason": "system article shared by several lines (en:5 (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r366778",
-      "route_name": "NYCS - 5 Train (am rush): Nereid Avenue → Flatbush Avenue–Brooklyn College",
-      "ours": 33,
-      "lang": "en",
-      "wiki": "en:5 (New York City Subway service)",
-      "reason": "system article shared by several lines (en:5 (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366777",
-      "route_name": "NYCS - 6 Train",
+      "route_id": "r9699135",
+      "route_name": "NYCS - 6 Train: Pelham Bay Park → Brooklyn Bridge–City Hall",
       "ours": 38,
       "lang": "en",
       "wiki": "en:6 (New York City Subway service)",
@@ -1277,8 +1132,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9721630",
-      "route_name": "NYCS - <6> Train",
+      "route_id": "r9720364",
+      "route_name": "NYCS - <6> Train (am rush): Pelham Bay Park → Brooklyn Bridge–City Hall",
       "ours": 29,
       "lang": "en",
       "wiki": "en:6 (New York City Subway service)",
@@ -1287,48 +1142,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm7894362",
-      "route_name": "NYCS - S Franklin Avenue Shuttle",
-      "ours": 5,
-      "lang": "en",
-      "wiki": "en:Franklin Avenue Shuttle",
-      "reason": "system article shared by several lines (en:Franklin Avenue Shuttle)"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r366809",
-      "route_name": "NYCS - S Franklin Avenue Shuttle: Prospect Park → Franklin Avenue",
-      "ours": 4,
-      "lang": "en",
-      "wiki": "en:Franklin Avenue Shuttle",
-      "reason": "system article shared by several lines (en:Franklin Avenue Shuttle)"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm366765",
-      "route_name": "NYCS - 7 Train",
-      "ours": 22,
-      "lang": "en",
-      "wiki": "en:7 (New York City Subway service)",
-      "reason": "system article shared by several lines (en:7 (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "r9699138",
-      "route_name": "NYCS - 7 Train: Flushing–Main Street → 34th Street–Hudson Yards",
-      "ours": 22,
-      "lang": "en",
-      "wiki": "en:7 (New York City Subway service)",
-      "reason": "system article shared by several lines (en:7 (New York City Subway service))"
-    },
-    {
-      "city": "New York City",
-      "country": "United States",
-      "route_id": "rm9721629",
-      "route_name": "NYCS - <7> Train",
+      "route_id": "r9720366",
+      "route_name": "NYCS - <7> Train (pm rush): 34th Street–Hudson Yards → Flushing–Main Street",
       "ours": 12,
       "lang": "en",
       "wikidata": "Q111448876",
@@ -6880,8 +6695,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9655665",
-      "route_name": "NYCS - 2 Train",
+      "route_id": "r7575713",
+      "route_name": "NYCS - 2 Train (late nights): Wakefield–241st Street → Flatbush Avenue–Brooklyn College",
       "ours": 61,
       "lang": "en",
       "wiki": "en:2 (New York City Subway service)",
@@ -6891,8 +6706,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm366768",
-      "route_name": "NYCS - N Train",
+      "route_id": "r9712348",
+      "route_name": "NYCS - N Train (late nights): Coney Island–Stillwell Avenue → Astoria–Ditmars Boulevard",
       "ours": 45,
       "lang": "en",
       "wiki": "en:N (New York City Subway service)",
@@ -6902,8 +6717,8 @@
     {
       "city": "New York City",
       "country": "United States",
-      "route_id": "rm9677108",
-      "route_name": "NYCS - 4 Train",
+      "route_id": "r9830179",
+      "route_name": "NYCS - 4 Train (late nights): Woodlawn → New Lots Avenue",
       "ours": 54,
       "lang": "en",
       "wiki": "en:4 (New York City Subway service)",

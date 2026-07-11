@@ -3,7 +3,7 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 224,
   "wikipedia_system_count": 233,
-  "line_total": 1449,
+  "line_total": 1437,
   "station_total": 16926,
   "systems": [
     {
@@ -25,12 +25,19 @@
       "official_website": "https://www.mta.info/",
       "official_map": "https://en.wikipedia.org/wiki/1_(New_York_City_Subway_service)",
       "wikidata": "Q126093",
-      "line_count": 44,
-      "segment_count": 79,
+      "line_count": 30,
+      "segment_count": 67,
       "station_count": 465,
       "audit": {
-        "strategies_tried": [],
-        "passed": true,
+        "strategies_tried": [
+          "Z1",
+          "Z2"
+        ],
+        "notes": {
+          "Z1": "586 station candidates fetched (r=43km)",
+          "Z2": "no member nodes in cache"
+        },
+        "passed": false,
         "checks": [
           {
             "id": "system_exists",
@@ -41,7 +48,7 @@
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "44 lines",
+            "detail": "27 lines",
             "level": "error"
           },
           {
@@ -65,7 +72,7 @@
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "673 個折點/端點皆為車站",
+            "detail": "663 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -94,22 +101,31 @@
           },
           {
             "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "ok": false,
+            "detail": "6 條線站數與 wiki 條目不符（必須相等）：NYCS - D Train 41/36、NYCS - Q Train 34/29、NYCS - S Franklin Avenue Shuttle 11/4、NYCS - 5 Train 45/36",
             "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：NYCS - F Train 49/55",
+            "level": "warn"
           },
           {
             "id": "line_wiki_coverage",
             "ok": false,
-            "detail": "33 條線無 wiki 站數對照：NYCS - C Train、NYCS - C Train: 168th Street → Euclid Avenue、NYCS - A Train",
+            "detail": "6 條線無 wiki 站數對照：NYCS - <F> Train、NYCS - Z Train、NYCS - J Train",
             "level": "warn"
           }
         ],
-        "reasons": [],
-        "warnings": [
-          "33 條線無 wiki 站數對照：NYCS - C Train、NYCS - C Train: 168th Street → Euclid Avenue、NYCS - A Train"
+        "reasons": [
+          "6 條線站數與 wiki 條目不符（必須相等）：NYCS - D Train 41/36、NYCS - Q Train 34/29、NYCS - S Franklin Avenue Shuttle 11/4、NYCS - 5 Train 45/36"
         ],
-        "audited_at": "2026-07-11T12:35:16.335Z"
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：NYCS - F Train 49/55",
+          "6 條線無 wiki 站數對照：NYCS - <F> Train、NYCS - Z Train、NYCS - J Train"
+        ],
+        "audited_at": "2026-07-11T15:16:40.829Z"
       }
     },
     {
@@ -231,7 +247,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Circle line 35/36",
           "20 條線無 wiki 站數對照：Northern line、Northern line: High Barnet → Charing Cross → Morden、Northern line: Morden → Bank → Edgware"
         ],
-        "audited_at": "2026-07-11T12:35:16.316Z"
+        "audited_at": "2026-07-11T15:16:37.915Z"
       }
     },
     {
@@ -337,7 +353,7 @@
         "warnings": [
           "26 條線無 wiki 站數對照：S-Bahn Circle Line (Clockwise, Ringbahn S41)、S-Bahn Circle Line (Anticlockwise, Ringbahn S42)、S8: S Wildau <=> S Birkenwerder"
         ],
-        "audited_at": "2026-07-11T12:35:16.138Z"
+        "audited_at": "2026-07-11T15:16:37.739Z"
       }
     },
     {
@@ -433,7 +449,7 @@
         "warnings": [
           "21 條線無 wiki 站數對照：U3: Oberursel Hohemark <=> Südbahnhof、U8: Riedberg <=> Südbahnhof、U9: Nieder-Eschbach <=> Ginnheim Mitte"
         ],
-        "audited_at": "2026-07-11T12:35:16.356Z"
+        "audited_at": "2026-07-11T15:16:40.850Z"
       }
     },
     {
@@ -540,7 +556,7 @@
         "warnings": [
           "19 條線無 wiki 站數對照：S-Bahn S1: Flughafen München => Leuchtenbergring、S-Bahn S8: Flughafen München => Herrsching、S-Bahn S1: Freising => Leuchtenbergring"
         ],
-        "audited_at": "2026-07-11T12:35:16.142Z"
+        "audited_at": "2026-07-11T15:16:37.747Z"
       }
     },
     {
@@ -655,7 +671,7 @@
         "warnings": [
           "20 條線無 wiki 站數對照：Ligne 8 : Balard ↔ Pointe du Lac、Ligne 9 : Pont de Sèvres ↔ Mairie de Montreuil、Ligne 12 : Mairie d'Aubervilliers ↔ Mairie d’Issy"
         ],
-        "audited_at": "2026-07-11T12:35:16.131Z"
+        "audited_at": "2026-07-11T15:16:37.728Z"
       }
     },
     {
@@ -774,7 +790,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Beijing Subway Line 18 6/11、Beijing Subway Changping Line 19/20",
           "4 條線無 wiki 站數對照：北京地铁八通线、Beijing Subway Line 11、Beijing Subway Line 17"
         ],
-        "audited_at": "2026-07-11T12:35:16.064Z"
+        "audited_at": "2026-07-11T15:16:37.668Z"
       }
     },
     {
@@ -888,7 +904,7 @@
           "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Shanghai Metro Line 13 31/36、Shanghai Metro Line 10 34/37、Shanghai Metro Line 11 37/40、Shanghai Metro Line 9 34/35",
           "4 條線無 wiki 站數對照：Line 10: Hangzhong Road -> Jilong Road、Shanghai Metro Line 5、Line 5: Minhang Development Zone -> Xinzhuang"
         ],
-        "audited_at": "2026-07-11T12:35:16.095Z"
+        "audited_at": "2026-07-11T15:16:37.698Z"
       }
     },
     {
@@ -1025,7 +1041,7 @@
           "4 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Seoul Metropolitan Subway Line 2 43/51、Seoul Metropolitan Subway Line 5 49/57、Seoul Metropolitan Subway Gyeonggang Line 11/18、Seoul Metropolitan Subway Line 8 24/25",
           "16 條線無 wiki 站數對照：Seoul Subway Line 2: Inner Circle Line、Seoul Subway Line 5 Banghwa → Hanam Geomdansan、서울 지하철 5호선: 마천 → 방화"
         ],
-        "audited_at": "2026-07-11T12:35:16.234Z"
+        "audited_at": "2026-07-11T15:16:37.836Z"
       }
     },
     {
@@ -1182,7 +1198,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：東京メトロ丸ノ内線 : 荻窪→池袋、東京メトロ千代田線 (代々木上原->綾瀬)、東京メトロ丸ノ内線 : 中野坂上→方南町"
         ],
-        "audited_at": "2026-07-11T12:35:16.213Z"
+        "audited_at": "2026-07-11T15:16:37.821Z"
       }
     },
     {
@@ -1298,7 +1314,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 27/28",
           "9 條線無 wiki 站數對照：Metro Line 3、Metro Line 3: Tianhe Coach Terminal → Haibang、Metro Line 12"
         ],
-        "audited_at": "2026-07-11T12:35:16.075Z"
+        "audited_at": "2026-07-11T15:16:37.678Z"
       }
     },
     {
@@ -1407,7 +1423,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：CTA Brown Line 26/27、CTA Orange Line 15/16",
           "6 條線無 wiki 站數對照：CTA Pink Line、CTA Green Line、CTA Green Line: Cottage Grove → Harlem/Lake"
         ],
-        "audited_at": "2026-07-11T12:35:16.322Z"
+        "audited_at": "2026-07-11T15:16:37.923Z"
       }
     },
     {
@@ -1499,7 +1515,7 @@
         "warnings": [
           "9 條線無 wiki 站數對照：Subway U77、Subway U76、Subway U75"
         ],
-        "audited_at": "2026-07-11T12:35:16.358Z"
+        "audited_at": "2026-07-11T15:16:40.852Z"
       }
     },
     {
@@ -1608,7 +1624,7 @@
           "6 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 6: Chongqingdong Railway Station → Liujiaping 4/43、Line 6 – International Expo branch: Lijia → Yuelai 13/43、Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27",
           "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)"
         ],
-        "audited_at": "2026-07-11T12:35:16.069Z"
+        "audited_at": "2026-07-11T15:16:37.673Z"
       }
     },
     {
@@ -1719,7 +1735,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：East Rail Line 14/16、MTR Tseung Kwan O Line 7/8",
           "4 條線無 wiki 站數對照：MTR Tseung Kwan O Line、MTR East Rail Line、MTR East Rail Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.082Z"
+        "audited_at": "2026-07-11T15:16:37.685Z"
       }
     },
     {
@@ -1831,7 +1847,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30"
         ],
-        "audited_at": "2026-07-11T12:35:16.101Z"
+        "audited_at": "2026-07-11T15:16:37.701Z"
       }
     },
     {
@@ -1941,7 +1957,7 @@
           "3 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Chengdu Metro Line 30 18/24、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
           "3 條線無 wiki 站數對照：Chengdu Metro Line 1、Chengdu Metro Line 1: Wugensong => Weijianian、成都地铁19号线: 天府站 => 金星"
         ],
-        "audited_at": "2026-07-11T12:35:16.068Z"
+        "audited_at": "2026-07-11T15:16:37.671Z"
       }
     },
     {
@@ -2050,7 +2066,7 @@
         "warnings": [
           "11 條線無 wiki 站數對照：S5: Elbgaustraße <=> Stade、S5: Elbgaustraße => Berliner Tor、S3: Pinneberg <=> Neugraben"
         ],
-        "audited_at": "2026-07-11T12:35:16.139Z"
+        "audited_at": "2026-07-11T15:16:37.744Z"
       }
     },
     {
@@ -2173,7 +2189,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：3号线：星桥 -> 石马 28/37",
           "13 條線無 wiki 站數對照：杭州地铁3号线、3号线：吴山前村 -> 星桥、杭州地铁4号线"
         ],
-        "audited_at": "2026-07-11T12:35:16.078Z"
+        "audited_at": "2026-07-11T15:16:37.681Z"
       }
     },
     {
@@ -2295,7 +2311,7 @@
           "5 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Wanda–Zhonghe–Shulin Line (Phase 1) 9/22、Xidong Line 6/15、Taoyuan Metro Green Line 17/21、Songshan–Xindian line 19/20",
           "2 條線無 wiki 站數對照：Zhonghe–Xinlu line、Zhonghe–Xinlu line"
         ],
-        "audited_at": "2026-07-11T12:35:16.292Z"
+        "audited_at": "2026-07-11T15:16:37.890Z"
       }
     },
     {
@@ -2396,7 +2412,7 @@
         "warnings": [
           "9 條線無 wiki 站數對照：Circle line、Kaluzhsko-Rizhskaya line、Filyovskaya"
         ],
-        "audited_at": "2026-07-11T12:35:16.265Z"
+        "audited_at": "2026-07-11T15:16:37.860Z"
       }
     },
     {
@@ -2500,7 +2516,7 @@
         "warnings": [
           "14 條線無 wiki 站數對照：Línea 11、Línea 6、Línea 3"
         ],
-        "audited_at": "2026-07-11T12:35:16.282Z"
+        "audited_at": "2026-07-11T15:16:37.879Z"
       }
     },
     {
@@ -2609,7 +2625,7 @@
         "warnings": [
           "14 條線無 wiki 站數對照：L3: Zona Universitària - Trinitat Nova、L4: La Pau - Trinitat Nova、L2: Paral·lel - Badalona Pompeu Fabra"
         ],
-        "audited_at": "2026-07-11T12:35:16.279Z"
+        "audited_at": "2026-07-11T15:16:37.875Z"
       }
     },
     {
@@ -2718,7 +2734,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Nanjing Metro Line S1-S7 Express、南京地铁S6号线"
         ],
-        "audited_at": "2026-07-11T12:35:16.089Z"
+        "audited_at": "2026-07-11T15:16:37.692Z"
       }
     },
     {
@@ -2826,7 +2842,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Tianjin Metro Line Z4 10/24、Tianjin Metro Line 6 38/39",
           "2 條線無 wiki 站數對照：天津地铁4号线、地铁4号线（南段）: 新兴村→东南角"
         ],
-        "audited_at": "2026-07-11T12:35:16.107Z"
+        "audited_at": "2026-07-11T15:16:37.707Z"
       }
     },
     {
@@ -2938,7 +2954,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Wuhan Metro Line 12 23/37、Wuhan Metro Line 2 (Airport Line) 38/39",
           "2 條線無 wiki 站數對照：武汉地铁16号线、Wuhan Metro Line 5"
         ],
-        "audited_at": "2026-07-11T12:35:16.111Z"
+        "audited_at": "2026-07-11T15:16:37.710Z"
       }
     },
     {
@@ -3048,7 +3064,7 @@
         "warnings": [
           "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring"
         ],
-        "audited_at": "2026-07-11T12:35:16.143Z"
+        "audited_at": "2026-07-11T15:16:37.748Z"
       }
     },
     {
@@ -3164,7 +3180,7 @@
         "warnings": [
           "13 條線無 wiki 站數對照：M1 Metro Hattı、M1B: Yenikapı - Kirazlı、M4 Metro Hattı"
         ],
-        "audited_at": "2026-07-11T12:35:16.303Z"
+        "audited_at": "2026-07-11T15:16:37.902Z"
       }
     },
     {
@@ -3274,7 +3290,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Suzhou Rail Transit Line 3 35/37、苏州轨道交通8号线 28/29",
           "4 條線無 wiki 站數對照：Line 6: Nanxiebu → Sangtiandao、Line 4: Muli → Longdaobang、Suzhou Rail Transit Line 5"
         ],
-        "audited_at": "2026-07-11T12:35:16.104Z"
+        "audited_at": "2026-07-11T15:16:37.704Z"
       }
     },
     {
@@ -3383,7 +3399,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Zhengzhou Metro Line 7 20/21",
           "2 條線無 wiki 站數對照：Subway line 10、Zhengzhou Metro Line 12"
         ],
-        "audited_at": "2026-07-11T12:35:16.118Z"
+        "audited_at": "2026-07-11T15:16:37.716Z"
       }
     },
     {
@@ -3479,7 +3495,7 @@
         "warnings": [
           "6 條線無 wiki 站數對照：Línia 7、Línia 5、Línia 3"
         ],
-        "audited_at": "2026-07-11T12:35:16.360Z"
+        "audited_at": "2026-07-11T15:16:40.854Z"
       }
     },
     {
@@ -3581,7 +3597,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：WMATA Silver Line、WMATA Silver Line: New Carrollton → Ashburn"
         ],
-        "audited_at": "2026-07-11T12:35:16.341Z"
+        "audited_at": "2026-07-11T15:16:40.835Z"
       }
     },
     {
@@ -3681,7 +3697,7 @@
         "warnings": [
           "7 條線無 wiki 站數對照：T10、T11、T13"
         ],
-        "audited_at": "2026-07-11T12:35:16.284Z"
+        "audited_at": "2026-07-11T15:16:37.882Z"
       }
     },
     {
@@ -3789,7 +3805,7 @@
         "warnings": [
           "12 條線無 wiki 站數對照：Línea 2、Línea 8、Línea 4"
         ],
-        "audited_at": "2026-07-11T12:35:16.242Z"
+        "audited_at": "2026-07-11T15:16:37.840Z"
       }
     },
     {
@@ -3897,7 +3913,7 @@
         "warnings": [
           "9 條線無 wiki 站數對照：Blue Line、Blue Line (Yamuna Bank → Vaishali)、Yellow Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.153Z"
+        "audited_at": "2026-07-11T15:16:37.762Z"
       }
     },
     {
@@ -4004,7 +4020,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Xi`an Metro Line 9、Xi'an Metro Line 5、Xi'an Metro Line 6"
         ],
-        "audited_at": "2026-07-11T12:35:16.115Z"
+        "audited_at": "2026-07-11T15:16:37.714Z"
       }
     },
     {
@@ -4122,7 +4138,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)"
         ],
-        "audited_at": "2026-07-11T12:35:16.277Z"
+        "audited_at": "2026-07-11T15:16:37.871Z"
       }
     },
     {
@@ -4224,7 +4240,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Antioch–SFO+Millbrae Line、BART Yellow Line: Antioch => SFO Airport => Millbrae、BART Blue Line: Daly City => Dublin/Pleasanton"
         ],
-        "audited_at": "2026-07-11T12:35:16.339Z"
+        "audited_at": "2026-07-11T15:16:40.833Z"
       }
     },
     {
@@ -4324,7 +4340,7 @@
         "warnings": [
           "5 條線無 wiki 站數對照：4 Bergkrystallen → Majorstuen → Vestli、1 Bergkrystallen → Frognerseteren、2 Ellingsrudåsen → Østerås"
         ],
-        "audited_at": "2026-07-11T12:35:16.249Z"
+        "audited_at": "2026-07-11T15:16:37.846Z"
       }
     },
     {
@@ -4431,7 +4447,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.207Z"
+        "audited_at": "2026-07-11T15:16:37.815Z"
       }
     },
     {
@@ -4538,7 +4554,7 @@
         "warnings": [
           "8 條線無 wiki 站數對照：Línea 4、Línea 1、Línea 5"
         ],
-        "audited_at": "2026-07-11T12:35:16.061Z"
+        "audited_at": "2026-07-11T15:16:37.666Z"
       }
     },
     {
@@ -4641,7 +4657,7 @@
         "warnings": [
           "7 條線無 wiki 站數對照：Subway M1、Subway M1: Bisceglie → Sesto 1º Maggio FS、Subway M2"
         ],
-        "audited_at": "2026-07-11T12:35:16.194Z"
+        "audited_at": "2026-07-11T15:16:37.802Z"
       }
     },
     {
@@ -4746,7 +4762,7 @@
         "warnings": [
           "8 條線無 wiki 站數對照：Línea 4 del Metro de Caracas、Línea 4: Dirección Zona Rental、Línea 2 del Metro de Caracas"
         ],
-        "audited_at": "2026-07-11T12:35:16.346Z"
+        "audited_at": "2026-07-11T15:16:40.840Z"
       }
     },
     {
@@ -4851,7 +4867,7 @@
         "warnings": [
           "5 條線無 wiki 站數對照：Metro E、Metro D、Metro C"
         ],
-        "audited_at": "2026-07-11T12:35:16.246Z"
+        "audited_at": "2026-07-11T15:16:37.844Z"
       }
     },
     {
@@ -4960,7 +4976,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Hefei Metro Line 3 40/45、Hefei Metro Line 6 21/22",
           "1 條線無 wiki 站數對照：Hefei Metro Line 4: Zongbaoqu→Qinglonggang"
         ],
-        "audited_at": "2026-07-11T12:35:16.080Z"
+        "audited_at": "2026-07-11T15:16:37.683Z"
       }
     },
     {
@@ -5057,7 +5073,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.245Z"
+        "audited_at": "2026-07-11T15:16:37.842Z"
       }
     },
     {
@@ -5157,7 +5173,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Canada Line、Canada Line: Richmond-Brighouse → Waterfront、Expo Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.061Z"
+        "audited_at": "2026-07-11T15:16:37.665Z"
       }
     },
     {
@@ -5257,7 +5273,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Magistrala 5、Magistrala 5 (Valea Ialomiței → Eroilor)"
         ],
-        "audited_at": "2026-07-11T12:35:16.261Z"
+        "audited_at": "2026-07-11T15:16:37.856Z"
       }
     },
     {
@@ -5361,7 +5377,7 @@
         "warnings": [
           "5 條線無 wiki 站數對照：Line 4、Line 4、Line 1: Airport branch"
         ],
-        "audited_at": "2026-07-11T12:35:16.189Z"
+        "audited_at": "2026-07-11T15:16:37.791Z"
       }
     },
     {
@@ -5470,7 +5486,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Kunming Metro Line 2 14/22",
           "2 條線無 wiki 站數對照：Kunming Metro Line 1、Kunming Metro Line 1 (Kunming South Railway → South Ring Road)"
         ],
-        "audited_at": "2026-07-11T12:35:16.084Z"
+        "audited_at": "2026-07-11T15:16:37.687Z"
       }
     },
     {
@@ -5578,7 +5594,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Qingdao Metro Line 6 21/31",
           "1 條線無 wiki 站數對照：Qingdao Metro Line 8"
         ],
-        "audited_at": "2026-07-11T12:35:16.093Z"
+        "audited_at": "2026-07-11T15:16:37.696Z"
       }
     },
     {
@@ -5672,7 +5688,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.092Z"
+        "audited_at": "2026-07-11T15:16:37.695Z"
       }
     },
     {
@@ -5778,7 +5794,7 @@
           "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
           "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A"
         ],
-        "audited_at": "2026-07-11T12:35:16.197Z"
+        "audited_at": "2026-07-11T15:16:37.804Z"
       }
     },
     {
@@ -5879,7 +5895,7 @@
         "warnings": [
           "6 條線無 wiki 站數對照：Line 2、Line 2: Dərnəgül → Bakmil、Line 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.051Z"
+        "audited_at": "2026-07-11T15:16:37.655Z"
       }
     },
     {
@@ -5988,7 +6004,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Dalian Metro Line 3 12/20",
           "1 條線無 wiki 站數對照：Dalian Metro Line 3 (Jiuli Branch): Northbound"
         ],
-        "audited_at": "2026-07-11T12:35:16.071Z"
+        "audited_at": "2026-07-11T15:16:37.674Z"
       }
     },
     {
@@ -6088,7 +6104,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Line 5 (Changsha Metro) Maozhutang → Shuiduhe"
         ],
-        "audited_at": "2026-07-11T12:35:16.065Z"
+        "audited_at": "2026-07-11T15:16:37.669Z"
       }
     },
     {
@@ -6190,7 +6206,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Binhai Express 12/15、福州地铁6号线 14/16"
         ],
-        "audited_at": "2026-07-11T12:35:16.073Z"
+        "audited_at": "2026-07-11T15:16:37.676Z"
       }
     },
     {
@@ -6284,7 +6300,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.275Z"
+        "audited_at": "2026-07-11T15:16:37.870Z"
       }
     },
     {
@@ -6372,7 +6388,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：StadtBahn 2、StadtBahn 1、StadtBahn 3"
         ],
-        "audited_at": "2026-07-11T12:35:16.362Z"
+        "audited_at": "2026-07-11T15:16:40.855Z"
       }
     },
     {
@@ -6464,7 +6480,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.052Z"
+        "audited_at": "2026-07-11T15:16:37.657Z"
       }
     },
     {
@@ -6570,7 +6586,7 @@
         "warnings": [
           "6 條線無 wiki 站數對照：Línea A、Línea B、Línea C"
         ],
-        "audited_at": "2026-07-11T12:35:16.047Z"
+        "audited_at": "2026-07-11T15:16:37.653Z"
       }
     },
     {
@@ -6675,7 +6691,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Metro M1、Metro M2、Cityringen"
         ],
-        "audited_at": "2026-07-11T12:35:16.121Z"
+        "audited_at": "2026-07-11T15:16:37.719Z"
       }
     },
     {
@@ -6776,7 +6792,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：MARTA Red Line、MARTA Gold Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.317Z"
+        "audited_at": "2026-07-11T15:16:37.917Z"
       }
     },
     {
@@ -6877,7 +6893,7 @@
         "warnings": [
           "6 條線無 wiki 站數對照：Nevsko-Vasileostrovskaya Line: Rybatskoe — Begovaya、Правобережная линия、Kirovsko-Vyborgskaya Line: Prospekt Veteranov — Devyatkino"
         ],
-        "audited_at": "2026-07-11T12:35:16.269Z"
+        "audited_at": "2026-07-11T15:16:37.864Z"
       }
     },
     {
@@ -6995,7 +7011,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Linha 5 - Lilás、Line 2 - Green、Linha 4 - Amarela"
         ],
-        "audited_at": "2026-07-11T12:35:16.058Z"
+        "audited_at": "2026-07-11T15:16:37.662Z"
       }
     },
     {
@@ -7103,7 +7119,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：名古屋市営名港線 (金山→名古屋港) 7/28"
         ],
-        "audited_at": "2026-07-11T12:35:16.205Z"
+        "audited_at": "2026-07-11T15:16:37.814Z"
       }
     },
     {
@@ -7223,7 +7239,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Sri Petaling Line (Sentul Timur → Putra Heights) 29/36",
           "1 條線無 wiki 站數對照：Ampang Line (Sentul Timur → Ampang)"
         ],
-        "audited_at": "2026-07-11T12:35:16.239Z"
+        "audited_at": "2026-07-11T15:16:37.837Z"
       }
     },
     {
@@ -7334,7 +7350,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 2B (Diamond Garden ↔ Mandale) 5/17",
           "2 條線無 wiki 站數對照：Line 7 (Gundavali ↔ Dahisar (East))、Line 9 (Kashigaon → Dahisar (East))"
         ],
-        "audited_at": "2026-07-11T12:35:16.163Z"
+        "audited_at": "2026-07-11T15:16:37.771Z"
       }
     },
     {
@@ -7442,7 +7458,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Shenyang Metro Line 3 16/27",
           "1 條線無 wiki 站數對照：Shenyang Metro Line 4"
         ],
-        "audited_at": "2026-07-11T12:35:16.098Z"
+        "audited_at": "2026-07-11T15:16:37.700Z"
       }
     },
     {
@@ -7544,7 +7560,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Nanning Rail Transit Line 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.090Z"
+        "audited_at": "2026-07-11T15:16:37.693Z"
       }
     },
     {
@@ -7648,7 +7664,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Metro Red Line、Metro Red Line: Hamad International Airport T1 → Lusail"
         ],
-        "audited_at": "2026-07-11T12:35:16.260Z"
+        "audited_at": "2026-07-11T15:16:37.855Z"
       }
     },
     {
@@ -7740,7 +7756,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.083Z"
+        "audited_at": "2026-07-11T15:16:37.686Z"
       }
     },
     {
@@ -7832,7 +7848,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.050Z"
+        "audited_at": "2026-07-11T15:16:37.655Z"
       }
     },
     {
@@ -7936,7 +7952,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.337Z"
+        "audited_at": "2026-07-11T15:16:40.831Z"
       }
     },
     {
@@ -8036,7 +8052,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Line M1、Line M4、Line M2"
         ],
-        "audited_at": "2026-07-11T12:35:16.059Z"
+        "audited_at": "2026-07-11T15:16:37.663Z"
       }
     },
     {
@@ -8141,7 +8157,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Linha Centro - 1、Linha Sul"
         ],
-        "audited_at": "2026-07-11T12:35:16.056Z"
+        "audited_at": "2026-07-11T15:16:37.660Z"
       }
     },
     {
@@ -8247,7 +8263,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Line 3、Line 3: Cairo University → Adly Mansour"
         ],
-        "audited_at": "2026-07-11T12:35:16.125Z"
+        "audited_at": "2026-07-11T15:16:37.722Z"
       }
     },
     {
@@ -8361,7 +8377,7 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：MRT Purple Line 16/33、MRT Blue Line 38/42",
           "2 條線無 wiki 站數對照：BTS Silom Line、BTS Silom Line (National Stadium → Bang Wa)"
         ],
-        "audited_at": "2026-07-11T12:35:16.297Z"
+        "audited_at": "2026-07-11T15:16:37.895Z"
       }
     },
     {
@@ -8467,7 +8483,7 @@
         "warnings": [
           "5 條線無 wiki 站數對照：Ankaray AŞTİ↔Dikimevi、M1 Kızılay↔Batıkent subway、M2 Koru ↔ Kızılay subway"
         ],
-        "audited_at": "2026-07-11T12:35:16.300Z"
+        "audited_at": "2026-07-11T15:16:37.899Z"
       }
     },
     {
@@ -8575,7 +8591,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：MBTA Blue Line 10/12",
           "2 條線無 wiki 站數對照：MBTA Red Line、MBTA Red Line: Alewife → Braintree"
         ],
-        "audited_at": "2026-07-11T12:35:16.320Z"
+        "audited_at": "2026-07-11T15:16:37.921Z"
       }
     },
     {
@@ -8676,7 +8692,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Wuxi Metro Line 3、Wuxi Metro Line 4"
         ],
-        "audited_at": "2026-07-11T12:35:16.113Z"
+        "audited_at": "2026-07-11T15:16:37.712Z"
       }
     },
     {
@@ -8785,7 +8801,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Yellow Line (Jai Hind ↔ Noapara) 4/10",
           "3 條線無 wiki 站數對照：Green Line (Howrah Maidan ↔ Salt Lake Sector V)、Purple Line (Joka ↔ Majerhat)、Orange Line (Beleghata ↔ Kavi Subhash)"
         ],
-        "audited_at": "2026-07-11T12:35:16.160Z"
+        "audited_at": "2026-07-11T15:16:37.769Z"
       }
     },
     {
@@ -8882,7 +8898,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.059Z"
+        "audited_at": "2026-07-11T15:16:37.663Z"
       }
     },
     {
@@ -8977,7 +8993,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.060Z"
+        "audited_at": "2026-07-11T15:16:37.664Z"
       }
     },
     {
@@ -9079,7 +9095,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Métro D、Métro C、Métro B"
         ],
-        "audited_at": "2026-07-11T12:35:16.128Z"
+        "audited_at": "2026-07-11T15:16:37.725Z"
       }
     },
     {
@@ -9182,7 +9198,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Metrô Rio Linha 1、Linha 4: General Osório ↔ Jardim Oceânico"
         ],
-        "audited_at": "2026-07-11T12:35:16.057Z"
+        "audited_at": "2026-07-11T15:16:37.661Z"
       }
     },
     {
@@ -9286,7 +9302,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Yellow Line、Blue Line、Green Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.258Z"
+        "audited_at": "2026-07-11T15:16:37.854Z"
       }
     },
     {
@@ -9394,7 +9410,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Red Line 30/35",
           "1 條線無 wiki 站數對照：Red2 Line: UAE Exchange → Centrepoint"
         ],
-        "audited_at": "2026-07-11T12:35:16.311Z"
+        "audited_at": "2026-07-11T15:16:37.910Z"
       }
     },
     {
@@ -9499,7 +9515,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Millennium Underground Railway"
         ],
-        "audited_at": "2026-07-11T12:35:16.146Z"
+        "audited_at": "2026-07-11T15:16:37.751Z"
       }
     },
     {
@@ -9591,7 +9607,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.210Z"
+        "audited_at": "2026-07-11T15:16:37.817Z"
       }
     },
     {
@@ -9701,7 +9717,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：横浜市営地下鉄グリーンライン"
         ],
-        "audited_at": "2026-07-11T12:35:16.215Z"
+        "audited_at": "2026-07-11T15:16:37.822Z"
       }
     },
     {
@@ -9802,7 +9818,7 @@
         "warnings": [
           "4 條線無 wiki 站數對照：Chilonzor Line、Oʻzbekiston Line、Yunusobod Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.344Z"
+        "audited_at": "2026-07-11T15:16:40.838Z"
       }
     },
     {
@@ -9896,7 +9912,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.064Z"
+        "audited_at": "2026-07-11T15:16:37.668Z"
       }
     },
     {
@@ -10005,7 +10021,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Nanchang Metro Line 1 33/34",
           "2 條線無 wiki 站數對照：Nanchang Metro Line 2、Nanchang Metro Line 4"
         ],
-        "audited_at": "2026-07-11T12:35:16.087Z"
+        "audited_at": "2026-07-11T15:16:37.690Z"
       }
     },
     {
@@ -10108,7 +10124,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：L2、L1、L3 (Matiko → Kukullaga)"
         ],
-        "audited_at": "2026-07-11T12:35:16.280Z"
+        "audited_at": "2026-07-11T15:16:37.877Z"
       }
     },
     {
@@ -10201,7 +10217,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.116Z"
+        "audited_at": "2026-07-11T15:16:37.715Z"
       }
     },
     {
@@ -10301,7 +10317,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Guiyang Metro Line 2、Guiyang Metro Line 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.076Z"
+        "audited_at": "2026-07-11T15:16:37.680Z"
       }
     },
     {
@@ -10394,7 +10410,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.148Z"
+        "audited_at": "2026-07-11T15:16:37.757Z"
       }
     },
     {
@@ -10496,7 +10512,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：1号线：会展中心 -> 芳泉 19/40"
         ],
-        "audited_at": "2026-07-11T12:35:16.097Z"
+        "audited_at": "2026-07-11T15:16:37.699Z"
       }
     },
     {
@@ -10601,7 +10617,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Subway line C、Subway line A、Subway line B"
         ],
-        "audited_at": "2026-07-11T12:35:16.120Z"
+        "audited_at": "2026-07-11T15:16:37.718Z"
       }
     },
     {
@@ -10701,7 +10717,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Moscow Line、Аўтазаводская лінія、Zielienalužskaja linija"
         ],
-        "audited_at": "2026-07-11T12:35:16.052Z"
+        "audited_at": "2026-07-11T15:16:37.657Z"
       }
     },
     {
@@ -10791,7 +10807,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Subway line U18、Subway line U17"
         ],
-        "audited_at": "2026-07-11T12:35:16.363Z"
+        "audited_at": "2026-07-11T15:16:40.857Z"
       }
     },
     {
@@ -10892,7 +10908,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.256Z"
+        "audited_at": "2026-07-11T15:16:37.851Z"
       }
     },
     {
@@ -10986,7 +11002,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.310Z"
+        "audited_at": "2026-07-11T15:16:37.909Z"
       }
     },
     {
@@ -11087,7 +11103,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Métro B: Borderouge/Ramonville、Métro A: Basso Cambo/Balma Gramont、Métro Ligne C: Direction Colomiers Gare"
         ],
-        "audited_at": "2026-07-11T12:35:16.134Z"
+        "audited_at": "2026-07-11T15:16:37.731Z"
       }
     },
     {
@@ -11191,7 +11207,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Metro L1R、Metro L1R-2"
         ],
-        "audited_at": "2026-07-11T12:35:16.046Z"
+        "audited_at": "2026-07-11T15:16:37.651Z"
       }
     },
     {
@@ -11284,7 +11300,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.308Z"
+        "audited_at": "2026-07-11T15:16:37.907Z"
       }
     },
     {
@@ -11389,7 +11405,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Linea 1、Linea 6、Linea 11"
         ],
-        "audited_at": "2026-07-11T12:35:16.195Z"
+        "audited_at": "2026-07-11T15:16:37.803Z"
       }
     },
     {
@@ -11485,7 +11501,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.144Z"
+        "audited_at": "2026-07-11T15:16:37.749Z"
       }
     },
     {
@@ -11584,7 +11600,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Orange Line、Green Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.329Z"
+        "audited_at": "2026-07-11T15:16:37.929Z"
       }
     },
     {
@@ -11675,7 +11691,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.149Z"
+        "audited_at": "2026-07-11T15:16:37.758Z"
       }
     },
     {
@@ -11779,7 +11795,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：福岡市地下鉄空港線、福岡市地下鉄箱崎線"
         ],
-        "audited_at": "2026-07-11T12:35:16.200Z"
+        "audited_at": "2026-07-11T15:16:37.807Z"
       }
     },
     {
@@ -11885,7 +11901,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Busan Metro Line 2 (Green Line) 43/59"
         ],
-        "audited_at": "2026-07-11T12:35:16.220Z"
+        "audited_at": "2026-07-11T15:16:37.827Z"
       }
     },
     {
@@ -11982,7 +11998,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.328Z"
+        "audited_at": "2026-07-11T15:16:37.927Z"
       }
     },
     {
@@ -12085,7 +12101,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：M1 Vuosaari–Matinkylä、M2 Mellunmäki–Tapiola"
         ],
-        "audited_at": "2026-07-11T12:35:16.125Z"
+        "audited_at": "2026-07-11T15:16:37.723Z"
       }
     },
     {
@@ -12193,7 +12209,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Line 2、Line 1、Line 3"
         ],
-        "audited_at": "2026-07-11T12:35:16.243Z"
+        "audited_at": "2026-07-11T15:16:37.841Z"
       }
     },
     {
@@ -12296,7 +12312,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Circular Light Rail 37/38"
         ],
-        "audited_at": "2026-07-11T12:35:16.287Z"
+        "audited_at": "2026-07-11T15:16:37.885Z"
       }
     },
     {
@@ -12396,7 +12412,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Green Line 10/15"
         ],
-        "audited_at": "2026-07-11T12:35:16.155Z"
+        "audited_at": "2026-07-11T15:16:37.763Z"
       }
     },
     {
@@ -12496,7 +12512,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Harbin Metro Line 3 35/36"
         ],
-        "audited_at": "2026-07-11T12:35:16.079Z"
+        "audited_at": "2026-07-11T15:16:37.682Z"
       }
     },
     {
@@ -12588,7 +12604,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.102Z"
+        "audited_at": "2026-07-11T15:16:37.702Z"
       }
     },
     {
@@ -12694,7 +12710,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Incheon International Airport Shuttle Train、Incheon Subway Line 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.231Z"
+        "audited_at": "2026-07-11T15:16:37.833Z"
       }
     },
     {
@@ -12797,7 +12813,7 @@
         "warnings": [
           "3 條線無 wiki 站數對照：Line 1、Line 2、Ramal línea 2 : Corredor Sur → Aeropuerto"
         ],
-        "audited_at": "2026-07-11T12:35:16.253Z"
+        "audited_at": "2026-07-11T15:16:37.849Z"
       }
     },
     {
@@ -12897,7 +12913,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Green Line (Chennai Central ⇔ St. Thomas Mount)、Inter-Corridor Line (Chennai International Airport → Chennai Central)"
         ],
-        "audited_at": "2026-07-11T12:35:16.151Z"
+        "audited_at": "2026-07-11T15:16:37.760Z"
       }
     },
     {
@@ -12997,7 +13013,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：BursaRay 1、BursaRay 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.301Z"
+        "audited_at": "2026-07-11T15:16:37.900Z"
       }
     },
     {
@@ -13099,7 +13115,7 @@
         "warnings": [
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Xiamen Metro Line 3 16/31、Xiamen Metro Line 2 30/32"
         ],
-        "audited_at": "2026-07-11T12:35:16.114Z"
+        "audited_at": "2026-07-11T15:16:37.713Z"
       }
     },
     {
@@ -13194,7 +13210,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.087Z"
+        "audited_at": "2026-07-11T15:16:37.689Z"
       }
     },
     {
@@ -13295,7 +13311,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：温州轨道交通S1线 18/36"
         ],
-        "audited_at": "2026-07-11T12:35:16.109Z"
+        "audited_at": "2026-07-11T15:16:37.708Z"
       }
     },
     {
@@ -13400,7 +13416,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Linha Verde、Linha Laranja"
         ],
-        "audited_at": "2026-07-11T12:35:16.054Z"
+        "audited_at": "2026-07-11T15:16:37.659Z"
       }
     },
     {
@@ -13501,7 +13517,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Métro Rennes Ligne a、Métro Rennes Ligne b"
         ],
-        "audited_at": "2026-07-11T12:35:16.132Z"
+        "audited_at": "2026-07-11T15:16:37.730Z"
       }
     },
     {
@@ -13594,7 +13610,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Subway line U11、Subway U79"
         ],
-        "audited_at": "2026-07-11T12:35:16.365Z"
+        "audited_at": "2026-07-11T15:16:40.858Z"
       }
     },
     {
@@ -13694,7 +13710,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Saburtalo Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.135Z"
+        "audited_at": "2026-07-11T15:16:37.732Z"
       }
     },
     {
@@ -13795,7 +13811,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Line 2、Line 3"
         ],
-        "audited_at": "2026-07-11T12:35:16.183Z"
+        "audited_at": "2026-07-11T15:16:37.787Z"
       }
     },
     {
@@ -13896,7 +13912,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Métro Ligne 1、Métro Ligne 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.127Z"
+        "audited_at": "2026-07-11T15:16:37.724Z"
       }
     },
     {
@@ -13996,7 +14012,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Сормовско-Мещерская линия、Автозаводско-Нагорная линия"
         ],
-        "audited_at": "2026-07-11T12:35:16.266Z"
+        "audited_at": "2026-07-11T15:16:37.861Z"
       }
     },
     {
@@ -14096,7 +14112,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Yerevan Metro Line 1、Yerevan Metro Shuttle Service Charbakh -> Shengavit"
         ],
-        "audited_at": "2026-07-11T12:35:16.048Z"
+        "audited_at": "2026-07-11T15:16:37.653Z"
       }
     },
     {
@@ -14199,7 +14215,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.203Z"
+        "audited_at": "2026-07-11T15:16:37.812Z"
       }
     },
     {
@@ -14301,7 +14317,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Hyŏksin line、Hyŏksin line"
         ],
-        "audited_at": "2026-07-11T12:35:16.218Z"
+        "audited_at": "2026-07-11T15:16:37.826Z"
       }
     },
     {
@@ -14407,7 +14423,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Línea 1、Línea 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.123Z"
+        "audited_at": "2026-07-11T15:16:37.720Z"
       }
     },
     {
@@ -14510,7 +14526,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Línea 1 by Lima Metro、Línea 2 by Lima Metro"
         ],
-        "audited_at": "2026-07-11T12:35:16.254Z"
+        "audited_at": "2026-07-11T15:16:37.850Z"
       }
     },
     {
@@ -14611,7 +14627,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Metro Línea A、Metro Línea B"
         ],
-        "audited_at": "2026-07-11T12:35:16.119Z"
+        "audited_at": "2026-07-11T15:16:37.717Z"
       }
     },
     {
@@ -14710,7 +14726,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.202Z"
+        "audited_at": "2026-07-11T15:16:37.811Z"
       }
     },
     {
@@ -14810,7 +14826,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Leninskaya Line、Dzerzhinskaya Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.268Z"
+        "audited_at": "2026-07-11T15:16:37.862Z"
       }
     },
     {
@@ -14912,7 +14928,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：II linia metra、Linia metra M1"
         ],
-        "audited_at": "2026-07-11T12:35:16.257Z"
+        "audited_at": "2026-07-11T15:16:37.852Z"
       }
     },
     {
@@ -15012,7 +15028,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.057Z"
+        "audited_at": "2026-07-11T15:16:37.662Z"
       }
     },
     {
@@ -15113,7 +15129,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Shiraz Metro Line 1、Line 2: Emam Hossein <=> Ghahramanan"
         ],
-        "audited_at": "2026-07-11T12:35:16.185Z"
+        "audited_at": "2026-07-11T15:16:37.788Z"
       }
     },
     {
@@ -15206,7 +15222,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.211Z"
+        "audited_at": "2026-07-11T15:16:37.819Z"
       }
     },
     {
@@ -15306,7 +15322,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Lanzhou Metro Line 1 19/20"
         ],
-        "audited_at": "2026-07-11T12:35:16.085Z"
+        "audited_at": "2026-07-11T15:16:37.688Z"
       }
     },
     {
@@ -15406,7 +15422,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Ürümqi Metro Airport Shuttle"
         ],
-        "audited_at": "2026-07-11T12:35:16.108Z"
+        "audited_at": "2026-07-11T15:16:37.708Z"
       }
     },
     {
@@ -15506,7 +15522,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Métro 1、Metro 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.129Z"
+        "audited_at": "2026-07-11T15:16:37.726Z"
       }
     },
     {
@@ -15600,7 +15616,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.071Z"
+        "audited_at": "2026-07-11T15:16:37.674Z"
       }
     },
     {
@@ -15696,7 +15712,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.222Z"
+        "audited_at": "2026-07-11T15:16:37.828Z"
       }
     },
     {
@@ -15789,7 +15805,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.165Z"
+        "audited_at": "2026-07-11T15:16:37.779Z"
       }
     },
     {
@@ -15881,7 +15897,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.350Z"
+        "audited_at": "2026-07-11T15:16:40.845Z"
       }
     },
     {
@@ -15984,7 +16000,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Changzhou Metro Line 2 15/43"
         ],
-        "audited_at": "2026-07-11T12:35:16.066Z"
+        "audited_at": "2026-07-11T15:16:37.670Z"
       }
     },
     {
@@ -16077,7 +16093,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.081Z"
+        "audited_at": "2026-07-11T15:16:37.684Z"
       }
     },
     {
@@ -16189,7 +16205,7 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Jinyi line: Jinhua Railway Station ↔ Qintang 15/30",
           "1 條線無 wiki 站數對照：Yidong line: Lingyun ↔ Ming & Qing Dynasty Palace"
         ],
-        "audited_at": "2026-07-11T12:35:16.084Z"
+        "audited_at": "2026-07-11T15:16:37.686Z"
       }
     },
     {
@@ -16291,7 +16307,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Taiyuan Metro Line 2 23/24"
         ],
-        "audited_at": "2026-07-11T12:35:16.105Z"
+        "audited_at": "2026-07-11T15:16:37.705Z"
       }
     },
     {
@@ -16394,7 +16410,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Luoyang Subway Line 2 15/34"
         ],
-        "audited_at": "2026-07-11T12:35:16.086Z"
+        "audited_at": "2026-07-11T15:16:37.689Z"
       }
     },
     {
@@ -16491,7 +16507,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.072Z"
+        "audited_at": "2026-07-11T15:16:37.675Z"
       }
     },
     {
@@ -16585,7 +16601,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.178Z"
+        "audited_at": "2026-07-11T15:16:37.782Z"
       }
     },
     {
@@ -16665,7 +16681,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.367Z"
+        "audited_at": "2026-07-11T15:16:40.860Z"
       }
     },
     {
@@ -16757,7 +16773,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.112Z"
+        "audited_at": "2026-07-11T15:16:37.711Z"
       }
     },
     {
@@ -16858,7 +16874,7 @@
         "warnings": [
           "2 條線無 wiki 站數對照：Linha 1、Conexão Metrô-Aeroporto"
         ],
-        "audited_at": "2026-07-11T12:35:16.055Z"
+        "audited_at": "2026-07-11T15:16:37.660Z"
       }
     },
     {
@@ -16951,7 +16967,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.090Z"
+        "audited_at": "2026-07-11T15:16:37.693Z"
       }
     },
     {
@@ -17041,7 +17057,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：U-Bahn U35 CampusLinie"
         ],
-        "audited_at": "2026-07-11T12:35:16.369Z"
+        "audited_at": "2026-07-11T15:16:40.862Z"
       }
     },
     {
@@ -17141,7 +17157,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Metro m2"
         ],
-        "audited_at": "2026-07-11T12:35:16.285Z"
+        "audited_at": "2026-07-11T15:16:37.883Z"
       }
     },
     {
@@ -17241,7 +17257,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Самарское Метро 2/10"
         ],
-        "audited_at": "2026-07-11T12:35:16.271Z"
+        "audited_at": "2026-07-11T15:16:37.865Z"
       }
     },
     {
@@ -17342,7 +17358,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Glasgow Subway"
         ],
-        "audited_at": "2026-07-11T12:35:16.313Z"
+        "audited_at": "2026-07-11T15:16:37.912Z"
       }
     },
     {
@@ -17432,7 +17448,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Línea 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.370Z"
+        "audited_at": "2026-07-11T15:16:40.864Z"
       }
     },
     {
@@ -17532,7 +17548,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：M1"
         ],
-        "audited_at": "2026-07-11T12:35:16.198Z"
+        "audited_at": "2026-07-11T15:16:37.805Z"
       }
     },
     {
@@ -17636,7 +17652,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Linha 1 - Laranja"
         ],
-        "audited_at": "2026-07-11T12:35:16.053Z"
+        "audited_at": "2026-07-11T15:16:37.658Z"
       }
     },
     {
@@ -17739,7 +17755,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Metro North West & Bankstown Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.049Z"
+        "audited_at": "2026-07-11T15:16:37.654Z"
       }
     },
     {
@@ -17839,7 +17855,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Метро 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.263Z"
+        "audited_at": "2026-07-11T15:16:37.858Z"
       }
     },
     {
@@ -17931,7 +17947,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.306Z"
+        "audited_at": "2026-07-11T15:16:37.905Z"
       }
     },
     {
@@ -18035,7 +18051,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Baltimore Metro SubwayLink"
         ],
-        "audited_at": "2026-07-11T12:35:16.319Z"
+        "audited_at": "2026-07-11T15:16:37.919Z"
       }
     },
     {
@@ -18139,7 +18155,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.209Z"
+        "audited_at": "2026-07-11T15:16:37.816Z"
       }
     },
     {
@@ -18230,7 +18246,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.342Z"
+        "audited_at": "2026-07-11T15:16:40.837Z"
       }
     },
     {
@@ -18326,7 +18342,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.305Z"
+        "audited_at": "2026-07-11T15:16:37.904Z"
       }
     },
     {
@@ -18407,7 +18423,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.375Z"
+        "audited_at": "2026-07-11T15:16:40.865Z"
       }
     },
     {
@@ -18499,7 +18515,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.190Z"
+        "audited_at": "2026-07-11T15:16:37.792Z"
       }
     },
     {
@@ -18601,7 +18617,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：1: Prospekt Kosmonavtov → Botanicheskaya"
         ],
-        "audited_at": "2026-07-11T12:35:16.272Z"
+        "audited_at": "2026-07-11T15:16:37.867Z"
       }
     },
     {
@@ -18700,7 +18716,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Rapid MetroRail Gurgaon"
         ],
-        "audited_at": "2026-07-11T12:35:16.153Z"
+        "audited_at": "2026-07-11T15:16:37.762Z"
       }
     },
     {
@@ -18797,7 +18813,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.055Z"
+        "audited_at": "2026-07-11T15:16:37.659Z"
       }
     },
     {
@@ -18889,7 +18905,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.201Z"
+        "audited_at": "2026-07-11T15:16:37.809Z"
       }
     },
     {
@@ -18981,7 +18997,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.156Z"
+        "audited_at": "2026-07-11T15:16:37.766Z"
       }
     },
     {
@@ -19081,7 +19097,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Line 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.216Z"
+        "audited_at": "2026-07-11T15:16:37.823Z"
       }
     },
     {
@@ -19181,7 +19197,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Line 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.182Z"
+        "audited_at": "2026-07-11T15:16:37.786Z"
       }
     },
     {
@@ -19282,7 +19298,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Line 2"
         ],
-        "audited_at": "2026-07-11T12:35:16.186Z"
+        "audited_at": "2026-07-11T15:16:37.789Z"
       }
     },
     {
@@ -19374,7 +19390,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.145Z"
+        "audited_at": "2026-07-11T15:16:37.750Z"
       }
     },
     {
@@ -19474,7 +19490,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Line 1 of Tabriz LRT"
         ],
-        "audited_at": "2026-07-11T12:35:16.187Z"
+        "audited_at": "2026-07-11T15:16:37.790Z"
       }
     },
     {
@@ -19566,7 +19582,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.199Z"
+        "audited_at": "2026-07-11T15:16:37.806Z"
       }
     },
     {
@@ -19667,7 +19683,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Metropolitana 1: Stesicoro ↔ Nesima"
         ],
-        "audited_at": "2026-07-11T12:35:16.191Z"
+        "audited_at": "2026-07-11T15:16:37.793Z"
       }
     },
     {
@@ -19768,7 +19784,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Daejeon Metro Line 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.227Z"
+        "audited_at": "2026-07-11T15:16:37.829Z"
       }
     },
     {
@@ -19859,7 +19875,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.324Z"
+        "audited_at": "2026-07-11T15:16:37.924Z"
       }
     },
     {
@@ -19951,7 +19967,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.347Z"
+        "audited_at": "2026-07-11T15:16:40.842Z"
       }
     },
     {
@@ -20043,7 +20059,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.349Z"
+        "audited_at": "2026-07-11T15:16:40.844Z"
       }
     },
     {
@@ -20134,7 +20150,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.158Z"
+        "audited_at": "2026-07-11T15:16:37.767Z"
       }
     },
     {
@@ -20225,7 +20241,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.298Z"
+        "audited_at": "2026-07-11T15:16:37.897Z"
       }
     },
     {
@@ -20316,7 +20332,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.161Z"
+        "audited_at": "2026-07-11T15:16:37.770Z"
       }
     },
     {
@@ -20417,7 +20433,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Mi Tren Línea 3"
         ],
-        "audited_at": "2026-07-11T12:35:16.240Z"
+        "audited_at": "2026-07-11T15:16:37.838Z"
       }
     },
     {
@@ -20514,7 +20530,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.179Z"
+        "audited_at": "2026-07-11T15:16:37.784Z"
       }
     },
     {
@@ -20605,7 +20621,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.181Z"
+        "audited_at": "2026-07-11T15:16:37.785Z"
       }
     },
     {
@@ -20706,7 +20722,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Gimpo Goldline"
         ],
-        "audited_at": "2026-07-11T12:35:16.228Z"
+        "audited_at": "2026-07-11T15:16:37.830Z"
       }
     },
     {
@@ -20807,7 +20823,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Metro Line 1"
         ],
-        "audited_at": "2026-07-11T12:35:16.123Z"
+        "audited_at": "2026-07-11T15:16:37.721Z"
       }
     },
     {
@@ -20900,7 +20916,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.293Z"
+        "audited_at": "2026-07-11T15:16:37.891Z"
       }
     },
     {
@@ -20993,7 +21009,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.251Z"
+        "audited_at": "2026-07-11T15:16:37.847Z"
       }
     },
     {
@@ -21087,7 +21103,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.352Z"
+        "audited_at": "2026-07-11T15:16:40.847Z"
       }
     },
     {
@@ -21187,7 +21203,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Taizhou Rail Transit Line S1"
         ],
-        "audited_at": "2026-07-11T12:35:16.105Z"
+        "audited_at": "2026-07-11T15:16:37.705Z"
       }
     },
     {
@@ -21280,7 +21296,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.229Z"
+        "audited_at": "2026-07-11T15:16:37.832Z"
       }
     },
     {
@@ -21379,7 +21395,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Orange Line"
         ],
-        "audited_at": "2026-07-11T12:35:16.157Z"
+        "audited_at": "2026-07-11T15:16:37.767Z"
       }
     },
     {
@@ -21480,7 +21496,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Dhaka Metro Rail Line 6 16/22"
         ],
-        "audited_at": "2026-07-11T12:35:16.051Z"
+        "audited_at": "2026-07-11T15:16:37.656Z"
       }
     },
     {
@@ -21572,7 +21588,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.248Z"
+        "audited_at": "2026-07-11T15:16:37.845Z"
       }
     },
     {
@@ -21660,7 +21676,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：宁滁线 10/14"
         ],
-        "audited_at": "2026-07-11T12:35:16.376Z"
+        "audited_at": "2026-07-11T15:16:40.867Z"
       }
     },
     {
@@ -21761,7 +21777,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Skyline"
         ],
-        "audited_at": "2026-07-11T12:35:16.326Z"
+        "audited_at": "2026-07-11T15:16:37.926Z"
       }
     },
     {
@@ -21860,7 +21876,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Metro 1 6/13"
         ],
-        "audited_at": "2026-07-11T12:35:16.147Z"
+        "audited_at": "2026-07-11T15:16:37.756Z"
       }
     },
     {
@@ -21961,7 +21977,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 1 (CBD Belapur ⇔ Pendhar) 11/20"
         ],
-        "audited_at": "2026-07-11T12:35:16.170Z"
+        "audited_at": "2026-07-11T15:16:37.780Z"
       }
     },
     {
@@ -22053,7 +22069,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.164Z"
+        "audited_at": "2026-07-11T15:16:37.778Z"
       }
     },
     {
@@ -22146,7 +22162,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.155Z"
+        "audited_at": "2026-07-11T15:16:37.765Z"
       }
     },
     {
@@ -22246,7 +22262,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Blue Line: Bhootnath ↔ New ISBT 5/12"
         ],
-        "audited_at": "2026-07-11T12:35:16.177Z"
+        "audited_at": "2026-07-11T15:16:37.781Z"
       }
     },
     {
@@ -22346,7 +22362,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Orange Line: Subhash Nagar → AIIMS"
         ],
-        "audited_at": "2026-07-11T12:35:16.150Z"
+        "audited_at": "2026-07-11T15:16:37.759Z"
       }
     },
     {
@@ -22446,7 +22462,7 @@
         "warnings": [
           "1 條線無 wiki 站數對照：Astana LRT: Nurly Zhol → Airport"
         ],
-        "audited_at": "2026-07-11T12:35:16.217Z"
+        "audited_at": "2026-07-11T15:16:37.824Z"
       }
     },
     {
@@ -22546,7 +22562,7 @@
         "warnings": [
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16"
         ],
-        "audited_at": "2026-07-11T12:35:16.175Z"
+        "audited_at": "2026-07-11T15:16:37.781Z"
       }
     },
     {
@@ -22640,7 +22656,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.192Z"
+        "audited_at": "2026-07-11T15:16:37.800Z"
       }
     },
     {
@@ -22732,7 +22748,7 @@
         ],
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-11T12:35:16.273Z"
+        "audited_at": "2026-07-11T15:16:37.868Z"
       }
     }
   ],

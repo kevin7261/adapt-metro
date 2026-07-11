@@ -325,8 +325,10 @@ function startResize(e) {
                 <strong>φ 秩序度</strong>（Boeing 2019 方向熵）：φ = 0 方向均勻（無序），
                 φ = 1 完美方格網——越高代表越接近單一方格、旋轉建議越可靠。
                 <br />
-                <strong>建議旋轉的算法</strong>：取玫瑰圖<span class="rose-red">最長（紅色）的那個方向</span>，
-                轉到<strong>最近</strong>的水平／垂直（摺 90°，轉幅 ≤ 45°，即最小旋轉）。此角度不改地圖、僅供參考。
+                <strong>建議旋轉的算法</strong>：由<strong>全部方向</strong>的長度做加權圓形平均，
+                算出精確的主軸角度（非取單一最長格），再轉到<strong>最近</strong>的水平／垂直
+                （摺 90°，轉幅 ≤ 45°，即最小旋轉）。玫瑰圖<span class="rose-red">紅色</span>標出最長的單一方向
+                （供參考）。此角度不改地圖。
               </div>
             </template>
 

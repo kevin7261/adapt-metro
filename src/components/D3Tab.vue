@@ -52,6 +52,20 @@ const skeletonized = ref(false)
 const disposables = []
 let zoomBehavior = null
 let resizeObs = null
+let zk = 1 // current zoom scale — mark sizes are divided by it so they stay constant
+
+// Keep dot radius and label size constant on zoom (strokes use non-scaling-stroke
+// via CSS; only geometric sizes need counter-scaling by the zoom factor k).
+function applyZoomSizing(k) {
+  zk = k
+  const g = select(gEl.value)
+  const r0 = panelLayer.value?.radius ?? 4
+  g.selectAll('circle.station').attr('r', r0 / k)
+  g.selectAll('circle.ref-foot').attr('r', 2 / k)
+  g.selectAll('text.st-label')
+    .style('font-size', `${9 / k}px`)
+    .attr('y', (d) => d.y - (r0 + 3) / k)
+}
 
 // Same station-role colouring as the MapLibre tab: transfer red, terminus blue.
 function stationColor(p) {
@@ -232,14 +246,14 @@ async function render() {
     .style('cursor', 'pointer')
     .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
-      select(this).raise().attr('r', (panelLayer.value?.radius ?? 4) + 3)
+      select(this).raise().attr('r', ((panelLayer.value?.radius ?? 4) + 3) / zk)
       const info = sk?.pinkInfo?.get(d.props.station_id)
       if (info) { drawRef(info); showTip(e, pinkHtml(d.props, info)) }
       else showTip(e, stationHtml(d.props))
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
-      select(this).attr('r', panelLayer.value?.radius ?? 4)
+      select(this).attr('r', (panelLayer.value?.radius ?? 4) / zk)
       clearRef()
       hideTip()
     })
@@ -276,7 +290,7 @@ function applyStyle() {
   sel.selectAll('path.hl')
     .attr('stroke-width', (src?.strokeWidth ?? 2.5) + 11)
   sel.selectAll('circle.station')
-    .attr('r', src?.radius ?? 4)
+    .attr('r', (src?.radius ?? 4) / zk)
     .attr('opacity', src?.opacity ?? 1)
 }
 
@@ -345,7 +359,10 @@ onMounted(() => {
   // d3-zoom drives the inner <g> transform (wheel zoom + drag pan).
   zoomBehavior = zoom()
     .scaleExtent([0.5, 20])
-    .on('zoom', (e) => select(gEl.value).attr('transform', e.transform))
+    .on('zoom', (e) => {
+      select(gEl.value).attr('transform', e.transform)
+      applyZoomSizing(e.transform.k)
+    })
   select(svgEl.value).call(zoomBehavior)
 
   // Redraw when the panel is resized (dockview) or first laid out.
