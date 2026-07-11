@@ -163,8 +163,19 @@ const websiteUrl = computed(() => meta.value?.official_website ?? null)
 const routeMapUrl = computed(() =>
   mapEntry.value?.map_file ? assetUrl(`data/metro/${mapEntry.value.map_file}`) : null,
 )
-// urbanrail.net continent index (city pages have irregular URLs, so link the
-// continent page — the city is one click away).
+// urbanrail.net：城市頁 URL 不規則（城市碼縮寫沒有算法規律，台北 tw/taip/taipei.htm、
+// 新加坡 sing/singapore.htm），故用實查的城市→URL 映射（key = index.json 的 city）。
+// 沒有映射的城市 fallback 到該洲索引頁（城市離該頁一步之遙）。
+const URBANRAIL_CITIES = {
+  Taipei: 'tw/taip/taipei.htm', Taichung: 'tw/taichung/taichung.htm',
+  Kaohsiung: 'tw/kaoh/kaohsiung.htm', Tokyo: 'jp/tokyo/tokyo.htm',
+  Osaka: 'jp/osaka/osaka.htm', Seoul: 'kr/seoul/seoul.htm',
+  Beijing: 'cn/beij/beijing.htm', Shanghai: 'cn/shan/shanghai.htm',
+  'Hong Kong': 'cn/hong/hong-kong.htm', Singapore: 'sing/singapore.htm',
+  London: 'uk/lon/london.htm', Paris: 'fr/paris/paris.htm',
+  Berlin: 'de/b/berlin.htm', Vienna: 'at/vienna/wien.htm',
+  'New York City': 'nyrk/new-york.htm', 'New York': 'nyrk/new-york.htm',
+}
 const URBANRAIL_CONTINENTS = {
   asia: 'as/asia.htm',
   europe: 'eu/euromet.htm',
@@ -174,9 +185,14 @@ const URBANRAIL_CONTINENTS = {
   oceania: 'au/oceania.htm',
 }
 const urbanrailUrl = computed(() => {
+  const city = URBANRAIL_CITIES[layer.value.city]
+  if (city) return `https://www.urbanrail.net/${city}`
   const path = URBANRAIL_CONTINENTS[layer.value.continent]
   return path ? `https://www.urbanrail.net/${path}` : 'https://www.urbanrail.net/'
 })
+// 有城市頁映射 → 顯示城市名；否則顯示洲（連到洲索引頁）
+const urbanrailLabel = computed(() =>
+  URBANRAIL_CITIES[layer.value.city] ? layer.value.city : prettyContinent(layer.value.continent))
 
 /* ---- resize ---- */
 const dragging = ref(false)
@@ -395,7 +411,7 @@ function startResize(e) {
                 <span v-if="mapEntry" class="link-note">（{{ mapEntry.license ?? 'image' }}）</span>
               </a>
               <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <ExternalLink :size="12" /> urbanrail.net — {{ prettyContinent(layer.continent) }}
+                <ExternalLink :size="12" /> urbanrail.net — {{ urbanrailLabel }}
               </a>
             </div>
 

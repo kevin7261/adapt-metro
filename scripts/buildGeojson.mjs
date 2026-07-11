@@ -110,6 +110,15 @@ function normColor(c) {
 
 const pick = (tags, ...keys) => { for (const k of keys) if (tags[k]) return tags[k]; return null }
 
+// 顯示名的語言：預設英文優先（name:en → name）。使用者指定「日本車站/路線文字
+// 都要日文」——日本改用當地語言優先（name:ja → name → name:en）。OSM 日本 name
+// 本就是日文（name=新宿、name:en=Shinjuku），故 name 優先即得日文。
+const LOCAL_NAME_COUNTRIES = /^japan$/i
+const nameFor = (t, country) =>
+  LOCAL_NAME_COUNTRIES.test((country || '').replace(/[^a-zA-Z]/g, ''))
+    ? pick(t, 'name:ja', 'name', 'name:en')
+    : pick(t, 'name:en', 'name')
+
 // Operational only: an element carrying a lifecycle tag (under construction,
 // proposed, disused…) is not part of the running network. The fetch queries
 // already exclude these; this re-filters older caches fetched without the guard.
@@ -773,14 +782,14 @@ async function build() {
     const routeId = g.key.startsWith('m|') ? `rm${g.key.slice(2)}` : `r${Math.min(...g.rids)}`
     // Stations must always resolve to a line (verify invariant), so fall back
     // to the route name when the relation carries no ref.
-    const lineTag = routeRef || pick(t, 'name:en', 'name') || routeId
+    const lineTag = routeRef || nameFor(t, info.country) || routeId
     for (const n of g.stopNodes) {
       if (!nodeLineRefs.has(n)) nodeLineRefs.set(n, new Set())
       nodeLineRefs.get(n).add(lineTag)
     }
     const props = {
       route_id: routeId,
-      route_name: pick(t, 'name:en', 'name') || routeRef || routeId,
+      route_name: nameFor(t, info.country) || routeRef || routeId,
       route_name_local: t.name || null,
       route_ref: routeRef,
       route_color: normColor(pick(t, 'colour')),
@@ -878,7 +887,7 @@ async function build() {
     lines = [...new Set(lines)].sort()
     const props = {
       station_id: `n${s.id}`,
-      station_name: pick(t, 'name:en', 'name') || `n${s.id}`,
+      station_name: nameFor(t, info.country) || `n${s.id}`,
       station_name_local: t.name || null,
       network,
       network_local: t.network || null,

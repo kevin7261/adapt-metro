@@ -6,7 +6,9 @@ description: 驗證 data/metro 資料的正確性與完整性——逐城市 aud
 # 地鐵資料驗證與收斂 (metro-audit)
 
 此 skill 是 `data/metro/` **正確性**的唯一權威依據，涵蓋兩個互補的工具
-（[[metro-osm-fetch]] 負責「取得」；本 skill 負責「驗證與收斂」）：
+（[[metro-osm-fetch]] 負責「取得」；本 skill 負責「驗證與收斂」）。**城市／地區專屬的
+驗證例外與逐城裁決索引**（各城 `_overrides/` 裁決、未通車例外、機場排除等）見
+[[metro-cities]]——先查該城有無專屬規則，通用判準仍以本檔為準：
 
 ```bash
 npm run metro:audit      # 逐城市 audit⇄修補到收斂（scripts/auditLoop.mjs，自動）

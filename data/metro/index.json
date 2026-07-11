@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 224,
   "wikipedia_system_count": 233,
-  "line_total": 1460,
-  "station_total": 17759,
+  "line_total": 1461,
+  "station_total": 17757,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -1038,6 +1038,163 @@
       }
     },
     {
+      "file": "systems/asia/japan/as-jpn-tokyo.geojson",
+      "continent": "asia",
+      "country": "Japan",
+      "city": "Tokyo",
+      "osm_networks": [
+        "Keisei",
+        "S-Train",
+        "Toei Shinjuku Line",
+        "Toei Subway",
+        "Toei subway",
+        "Tokyo Metro",
+        "Tokyo Metro Ginza Line",
+        "Tokyu Railways",
+        "Tokyu Railways;Tokyo Metro",
+        "Unknown",
+        "Yurikamome",
+        "ゆりかもめ",
+        "ゆりかもめ東京臨海新交通臨海線",
+        "りんかい線",
+        "ロ丸ノ内線",
+        "ロ銀座線",
+        "丸ノ内線",
+        "京成電鉄;東京都交通局",
+        "京成電鉄押上線",
+        "京浜急行電鉄",
+        "京浜急行電鉄 (Keikyu Corporation)",
+        "京王電鉄",
+        "副都心線",
+        "千代田線",
+        "千代田線, 丸ノ内線, 銀座線, 南北線",
+        "半蔵門線",
+        "日比谷線",
+        "東京メト",
+        "東京メトロ",
+        "東京メトロ;東葉高速線",
+        "東京メトロ丸ノ内線",
+        "東京メトロ丸ノ内線;銀座線",
+        "東京メトロ副都心線",
+        "東京メトロ千代田線",
+        "東京メトロ半蔵門線",
+        "東京メトロ南北線",
+        "東京メトロ有楽町線",
+        "東京メトロ東西線",
+        "東京メトロ銀座線",
+        "東京地下鉄",
+        "東京地下鉄;東京都交通局",
+        "東京急行電鉄",
+        "東京急行電鉄;東京地下鉄",
+        "東京臨海高速鉄道",
+        "東京都交通局",
+        "東京都交通局;東急電鉄",
+        "東急世田谷線",
+        "東急電鉄",
+        "東日本旅客鉄道",
+        "東日本旅客鉄道;東京地下鉄",
+        "東武鉄道;東京地下鉄",
+        "西武鉄道",
+        "西武鉄道;東京地下鉄",
+        "都営地下鉄",
+        "都営地下鉄;東京メトロ",
+        "都営地下鉄三田線",
+        "都営地下鉄新宿線",
+        "銀座線",
+        "銀座線;千代田線;半蔵門線"
+      ],
+      "operator": "東京都交通局",
+      "official_website": "http://www.yurikamome.tokyo",
+      "official_map": "https://en.wikipedia.org/wiki/Toei_Shinjuku_Line",
+      "wikidata": "Q1374502",
+      "line_count": 15,
+      "segment_count": 24,
+      "station_count": 219,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/japan/as-jpn-tokyo.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "15 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "220 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 220 站（wiki List 記 99，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "220/220 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "293 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "220/220 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)"
+        ],
+        "audited_at": "2026-07-11T09:30:32.760Z"
+      }
+    },
+    {
       "file": "systems/asia/china/as-chn-guangzhou.geojson",
       "continent": "asia",
       "country": "China",
@@ -1151,163 +1308,6 @@
           "9 條線無 wiki 站數對照：Metro Line 3、Metro Line 3: Tianhe Coach Terminal → Haibang、Metro Line 12"
         ],
         "audited_at": "2026-07-11T09:30:32.648Z"
-      }
-    },
-    {
-      "file": "systems/asia/japan/as-jpn-tokyo.geojson",
-      "continent": "asia",
-      "country": "Japan",
-      "city": "Tokyo",
-      "osm_networks": [
-        "Keisei",
-        "S-Train",
-        "Toei Shinjuku Line",
-        "Toei Subway",
-        "Toei subway",
-        "Tokyo Metro",
-        "Tokyo Metro Ginza Line",
-        "Tokyu Railways",
-        "Tokyu Railways;Tokyo Metro",
-        "Unknown",
-        "Yurikamome",
-        "ゆりかもめ",
-        "ゆりかもめ東京臨海新交通臨海線",
-        "りんかい線",
-        "ロ丸ノ内線",
-        "ロ銀座線",
-        "丸ノ内線",
-        "京成電鉄;東京都交通局",
-        "京成電鉄押上線",
-        "京浜急行電鉄",
-        "京浜急行電鉄 (Keikyu Corporation)",
-        "京王電鉄",
-        "副都心線",
-        "千代田線",
-        "千代田線, 丸ノ内線, 銀座線, 南北線",
-        "半蔵門線",
-        "日比谷線",
-        "東京メト",
-        "東京メトロ",
-        "東京メトロ;東葉高速線",
-        "東京メトロ丸ノ内線",
-        "東京メトロ丸ノ内線;銀座線",
-        "東京メトロ副都心線",
-        "東京メトロ千代田線",
-        "東京メトロ半蔵門線",
-        "東京メトロ南北線",
-        "東京メトロ有楽町線",
-        "東京メトロ東西線",
-        "東京メトロ銀座線",
-        "東京地下鉄",
-        "東京地下鉄;東京都交通局",
-        "東京急行電鉄",
-        "東京急行電鉄;東京地下鉄",
-        "東京臨海高速鉄道",
-        "東京都交通局",
-        "東京都交通局;東急電鉄",
-        "東急世田谷線",
-        "東急電鉄",
-        "東日本旅客鉄道",
-        "東日本旅客鉄道;東京地下鉄",
-        "東武鉄道;東京地下鉄",
-        "西武鉄道",
-        "西武鉄道;東京地下鉄",
-        "都営地下鉄",
-        "都営地下鉄;東京メトロ",
-        "都営地下鉄三田線",
-        "都営地下鉄新宿線",
-        "銀座線",
-        "銀座線;千代田線;半蔵門線"
-      ],
-      "operator": "東京都交通局",
-      "official_website": "http://www.yurikamome.tokyo",
-      "official_map": "https://en.wikipedia.org/wiki/Toei_Shinjuku_Line",
-      "wikidata": "Q1374502",
-      "line_count": 15,
-      "segment_count": 23,
-      "station_count": 220,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/japan/as-jpn-tokyo.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "15 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "220 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 220 站（wiki List 記 99，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "220/220 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "293 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "220/220 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "4 條線無 wiki 站數對照：Tokyo Metro Chiyoda Line、Tokyo Metro Marunouchi Line、Marunouchi Line (Nakano-sakaue --> Honancho)"
-        ],
-        "audited_at": "2026-07-11T09:30:32.760Z"
       }
     },
     {
@@ -4367,7 +4367,7 @@
       "wikidata": "Q284828",
       "line_count": 9,
       "segment_count": 10,
-      "station_count": 116,
+      "station_count": 114,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7031,7 +7031,7 @@
       "wikidata": "Q1132799",
       "line_count": 6,
       "segment_count": 6,
-      "station_count": 87,
+      "station_count": 88,
       "audit": {
         "strategies_tried": [],
         "passed": true,
