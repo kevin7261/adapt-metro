@@ -3,22 +3,20 @@
 // columns/rows by rank; blue lines are SEPARATORS (they run between points,
 // never through one) and every point sits at its cell's CENTRE.
 //
-// HARD RULE: a cell may hold at most ONE coloured point. Strategy: start from a
-// COARSE banding (chain-clustering, 10 px) so the grid stays sparse, then SPLIT
-// a band locally only where a cell actually holds two coloured points — the
-// grid ends up "coarse + a few extra lines", not one-band-per-point dense.
-// Truly coincident pairs (no gap on either axis) are separated in the post view
-// by bumping to the nearest free cell. Pure function: `posById` are projected
-// screen coords (rotation already baked in).
+// HARD RULE: a cell may hold at most ONE coloured point (incl. yellow crossings,
+// which can be near-coincident). To guarantee this the grid is the DENSEST one:
+// a separator sits between EVERY pair of distinct coordinates on each axis, so
+// each distinct x → its own column and each distinct y → its own row. Truly
+// coincident points (gap below EPS) are separated in the result by bumping to
+// the nearest free cell. Pure function: `posById` are projected screen coords.
 
-const EPS = 0.5 // px — below this two coords count as coincident
+const EPS = 1e-6 // below this gap two coords count as coincident (unsplittable)
 
-// Chain-cluster cut positions: a cut midway inside every gap > tol.
-function chainCuts(sortedVals, tol) {
+// A separator midway between every pair of adjacent DISTINCT values (densest).
+function denseCuts(values) {
+  const s = [...values].sort((a, b) => a - b)
   const cuts = []
-  for (let i = 1; i < sortedVals.length; i++) {
-    if (sortedVals[i] - sortedVals[i - 1] > tol) cuts.push((sortedVals[i] + sortedVals[i - 1]) / 2)
-  }
+  for (let i = 1; i < s.length; i++) if (s[i] - s[i - 1] > EPS) cuts.push((s[i] + s[i - 1]) / 2)
   return cuts
 }
 
@@ -26,17 +24,6 @@ const rankOf = (v, cuts) => {
   let r = 0
   for (const c of cuts) if (v > c) r++
   return r
-}
-
-// Largest adjacent gap among sorted values: returns { gap, mid }.
-function largestGap(vals) {
-  const s = [...vals].sort((a, b) => a - b)
-  let gap = 0, mid = 0
-  for (let i = 1; i < s.length; i++) {
-    const g = s[i] - s[i - 1]
-    if (g > gap) { gap = g; mid = (s[i] + s[i - 1]) / 2 }
-  }
-  return { gap, mid }
 }
 
 // Nearest free cell to (c,r), expanding Chebyshev rings (minimal displacement).
@@ -59,40 +46,14 @@ function nearestFree(c, r, taken) {
 
 export function buildSchematicGrid(skeleton, posById, extent) {
   const [x0, y0, x1, y1] = extent
-  const TOL = 10 // px — coarse chain-clustering; splits below refine only where needed
   const cls = skeleton.stationClass
 
   const colored = [...cls].filter(([id, c]) => c !== 'black' && posById.has(id)).map(([id]) => id)
   const pts = colored.map((id) => ({ id, x: posById.get(id)[0], y: posById.get(id)[1] }))
-  const cutsX = chainCuts(pts.map((p) => p.x).sort((a, b) => a - b), TOL)
-  const cutsY = chainCuts(pts.map((p) => p.y).sort((a, b) => a - b), TOL)
+  const cutsX = denseCuts(pts.map((p) => p.x))
+  const cutsY = denseCuts(pts.map((p) => p.y))
 
-  // Split bands until every cell holds ≤1 coloured point (coincident pairs are
-  // left for the post-view bump). Each split adds ONE separator midway across
-  // the widest gap inside the offending cell — grid stays as coarse as possible.
-  for (let guard = 0; guard < 2000; guard++) {
-    const cells = new Map()
-    for (const p of pts) {
-      const k = `${rankOf(p.x, cutsX)},${rankOf(p.y, cutsY)}`
-      if (!cells.has(k)) cells.set(k, [])
-      cells.get(k).push(p)
-    }
-    let split = false
-    for (const group of cells.values()) {
-      if (group.length < 2) continue
-      const gx = largestGap(group.map((p) => p.x))
-      const gy = largestGap(group.map((p) => p.y))
-      if (gx.gap < EPS && gy.gap < EPS) continue // coincident — bump later
-      if (gx.gap >= gy.gap) cutsX.push(gx.mid)
-      else cutsY.push(gy.mid)
-      cutsX.sort((a, b) => a - b); cutsY.sort((a, b) => a - b)
-      split = true
-      break // re-bucket from scratch after each split
-    }
-    if (!split) break
-  }
-
-  // Final unique cell per coloured point (bump only truly coincident leftovers).
+  // Unique cell per coloured point (bump only truly-coincident leftovers).
   const taken = new Set()
   const cellOf = new Map()
   const ranked = pts.map((p) => ({ id: p.id, c: rankOf(p.x, cutsX), r: rankOf(p.y, cutsY) }))
@@ -143,8 +104,8 @@ export function buildSchematicGrid(skeleton, posById, extent) {
   const seps = (n, o, step) => Array.from({ length: n + 1 }, (_, i) => o + i * step)
   return {
     posAfter,
-    // BEFORE: the actual cut positions (always between points) + outer edges.
-    // AFTER: uniform cell boundaries; points sit at cell centres.
+    // BEFORE: separators at the real cut positions (always between points) + edges.
+    // AFTER: uniform cell boundaries; every point sits at a cell centre.
     blueBefore: { xs: [x0, ...cutsX, x1], ys: [y0, ...cutsY, y1] },
     blueAfter: { xs: seps(cols, x0, cellW), ys: seps(rows, y0, cellH) },
     cols, rows,

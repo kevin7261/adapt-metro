@@ -68,6 +68,69 @@ export function buildConnectSkeleton(geojson) {
     }
   }
 
+  // ② geometric crossings → synthetic YELLOW nodes, inserted into BOTH routes'
+  // station sequences so the crossing splits the edges there (a shared vertex on
+  // both polylines). Detect on the ORIGINAL polylines (interior of both segments,
+  // t,u strictly in (0,1) → shared-station endpoints excluded), then splice.
+  const crossings = []        // { id, coord } for the renderer
+  const crossIds = new Set()  // synthetic ids — forced 'yellow' after classification
+  {
+    const routeArr = [...routes.values()]
+    const ptsOf = (rt) => rt.stations.map((id) => coord.get(id))
+    const keyToId = new Map()
+    const perRoute = new Map(routeArr.map((rt) => [rt, []])) // rt -> [{seg, t, id}]
+    let xn = 0
+    const segX = (p1, p2, p3, p4) => {
+      const d1x = p2[0] - p1[0], d1y = p2[1] - p1[1]
+      const d2x = p4[0] - p3[0], d2y = p4[1] - p3[1]
+      const den = d1x * d2y - d1y * d2x
+      if (Math.abs(den) < 1e-14) return null
+      const t = ((p3[0] - p1[0]) * d2y - (p3[1] - p1[1]) * d2x) / den
+      const u = ((p3[0] - p1[0]) * d1y - (p3[1] - p1[1]) * d1x) / den
+      const E = 1e-6
+      if (t <= E || t >= 1 - E || u <= E || u >= 1 - E) return null
+      return { x: [p1[0] + t * d1x, p1[1] + t * d1y], t, u }
+    }
+    for (let a = 0; a < routeArr.length; a++) {
+      const A = ptsOf(routeArr[a])
+      for (let b = a + 1; b < routeArr.length; b++) {
+        const B = ptsOf(routeArr[b])
+        for (let i = 1; i < A.length; i++) {
+          const aMinX = Math.min(A[i - 1][0], A[i][0]), aMaxX = Math.max(A[i - 1][0], A[i][0])
+          const aMinY = Math.min(A[i - 1][1], A[i][1]), aMaxY = Math.max(A[i - 1][1], A[i][1])
+          for (let j = 1; j < B.length; j++) {
+            if (Math.min(B[j - 1][0], B[j][0]) > aMaxX || Math.max(B[j - 1][0], B[j][0]) < aMinX ||
+                Math.min(B[j - 1][1], B[j][1]) > aMaxY || Math.max(B[j - 1][1], B[j][1]) < aMinY) continue
+            const r = segX(A[i - 1], A[i], B[j - 1], B[j])
+            if (!r) continue
+            const key = `${r.x[0].toFixed(6)},${r.x[1].toFixed(6)}`
+            let id = keyToId.get(key)
+            if (!id) {
+              id = `x${xn++}`
+              keyToId.set(key, id); coord.set(id, r.x)
+              crossings.push({ id, coord: r.x }); crossIds.add(id)
+            }
+            perRoute.get(routeArr[a]).push({ seg: i, t: r.t, id })
+            perRoute.get(routeArr[b]).push({ seg: j, t: r.u, id })
+          }
+        }
+      }
+    }
+    // splice synthetic ids into each route (descending seg index so earlier
+    // segment positions stay valid; within a segment, ordered along it by t)
+    for (const rt of routeArr) {
+      const ins = perRoute.get(rt)
+      if (!ins.length) continue
+      const bySeg = new Map()
+      for (const it of ins) { if (!bySeg.has(it.seg)) bySeg.set(it.seg, []); bySeg.get(it.seg).push(it) }
+      for (const seg of [...bySeg.keys()].sort((p, q) => q - p)) {
+        const ids = bySeg.get(seg).sort((p, q) => p.t - q.t).map((p) => p.id)
+        const uniq = ids.filter((id, k) => k === 0 || id !== ids[k - 1])
+        rt.stations.splice(seg, 0, ...uniq)
+      }
+    }
+  }
+
   // adjacency graph: neighbours + which routes traverse each undirected edge
   const nbr = new Map()        // id -> Set(neighbourId)
   const edgeRoutes = new Map() // "a|b" -> Set(routeId)
@@ -95,7 +158,10 @@ export function buildConnectSkeleton(geojson) {
     const r1 = edgeRoutes.get(pk(id, n1)), r2 = edgeRoutes.get(pk(id, n2))
     cls.set(id, setEq(r1, r2) ? 'black' : 'red')
   }
-  const isNode = (id) => cls.get(id) !== 'black' // red/blue are skeleton nodes
+  // Geometric crossings are yellow skeleton nodes (override the degree rule) —
+  // they split the edges they sit on.
+  for (const id of crossIds) cls.set(id, 'yellow')
+  const isNode = (id) => cls.get(id) !== 'black' // red/blue/yellow are skeleton nodes
 
   // contract degree-2 black chains into edges between nodes
   const edges = []
@@ -229,5 +295,5 @@ export function buildConnectSkeleton(geojson) {
     }
   }
 
-  return { stationClass, edges, pinkInfo, yellow: [] }
+  return { stationClass, edges, pinkInfo, crossings }
 }

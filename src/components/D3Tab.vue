@@ -157,13 +157,16 @@ async function render() {
   // each station's position: grid-pre = original projected, grid-post = snapped.
   const sk = (skeletonized.value || gridMode.value) ? cachedSkeleton : null
   const projById = new Map(stations.map((f) => [f.properties.station_id, P(f.geometry.coordinates)]))
+  // Synthetic crossing (yellow) nodes are not real stations — feed their coords
+  // to the grid + edge drawing so split edges and gridding resolve them.
+  for (const c of sk?.crossings ?? []) projById.set(c.id, P(c.coord))
   const grid = gridMode.value ? buildSchematicGrid(cachedSkeleton, projById, [24, 24, w - 24, h - 24]) : null
   const posOf = (id) =>
     (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
   const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
-  const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af' }
+  const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
   // Edge-class colours are drawn as a BOTTOM HIGHLIGHT (underlay) — NOT the line
   // colour. The line itself is always the original metro-map rendering.
   const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
@@ -195,6 +198,11 @@ async function render() {
       const [x, y] = posOf(f.properties.station_id)
       return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
     })
+    // synthetic yellow crossing nodes (not real stations)
+    for (const c of sk.crossings ?? []) {
+      const p = posOf(c.id)
+      if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: c.id, station_name: '路線交叉點' }, fill: NODE_COLOR.yellow })
+    }
   } else {
     lineData = lineFeats.map((f) => ({ d: path(f), stroke: f.properties.route_color ?? '#e11d48', props: f.properties }))
     stationData = stations.map((f) => {
