@@ -7,13 +7,17 @@
 // on screen, so the polylines must be (re)built in pixel space. The caller
 // therefore passes PIXEL positions and re-runs this after every remap/resize.
 //
-// For every cut-to-cut segment generate candidate polylines sorted by bend
-// count, pick the first one that neither overlaps another route collinearly
-// nor runs over a foreign node, and re-spread the interior black stations
-// along the CHOSEN polyline by arc length.
+// Hard constraints (a candidate violating any is vetoed):
+//   · legs are H / V / 45° only (±TOL px)
+//   · no route overlap — collinear sharing, PARALLEL HUGGING (nearly the same
+//     line with overlapping projection, gap < minGap) and SEGMENT CROSSINGS
+//     all count; routes may only meet at shared node positions
+//   · no leg may run over a foreign node (endpoint-in-other-line included)
+//   · at most 2 bends; with conflict-free candidates available, an overlapping
+//     path must never be chosen
 //
 // Candidate order (fewest bends first):
-//   0 bends  straight S→T when it already is H / V / 45° (±TOL px)
+//   0 bends  straight S→T when it already is H / V / 45°
 //   1 bend   45° diagonal to the shorter delta, then H/V to T;
 //            pure L (H then V; V then H); mirror (H/V first, 45° last)
 //   2 bends  45°–H–45° (|Δx|>|Δy|) or 45°–V–45° (|Δy|>|Δx|) with the middle
@@ -21,20 +25,59 @@
 //   last     the raw straight S→T (illegal direction) as the final fallback
 //
 // A LEGAL straight that conflicts (parallel edges between the same two nodes,
-// or a corridor already claimed by an earlier polyline) gets detour candidates
-// too: parallel offsets (45° out, run alongside at 1 then 2 units, 45° back —
-// small detour first) and finally the big 1-bend detours (45° triangle apex
-// for H/V, L corners for 45° lines). If even those conflict the straight is
-// drawn anyway and counted in stats.forced.
+// or a corridor already claimed) gets detours too: parallel offsets (45° out,
+// run alongside at 1 then 2 units, 45° back — small detour first), then the
+// big 1-bend detours (45° triangle apex for H/V, L corners for 45° lines).
+// If even those conflict the straight is drawn anyway → stats.forced.
 //
-// Leg direction test: Δy≈0 → H, Δx≈0 → V, |Δx|≈|Δy| → 45°, anything else X.
+// Soft pass (衝突消解後微調): swap a line's choice ONLY among conflict-free
+// candidates with the SAME bend count AND the SAME number of 45° legs (never
+// straightens a settled diagonal), maximizing straight continuation with
+// same-route lines at shared nodes (straight-through scores best, sharp 45°
+// worst). Two sweeps; swaps are counted in stats.swapped.
+//
 // Pure function; `pos` are pixel coordinates, `opts.unit` is the detour offset
-// in pixels (the caller passes ~one grid cell).
+// in pixels (the caller passes ~one grid cell), `opts.minGap` the parallel-
+// hugging veto distance (default 0.35 × unit).
 
 const Z = 1e-9        // exact-zero guard
+const FAKE_BLOCK = { li: -1 } // blocker sentinel for non-line obstacles (nodes, X legs)
+
+// Minimal binary min-heap over [key, ...payload] tuples.
+function makeHeap() {
+  const a = []
+  return {
+    get size() { return a.length },
+    push(it) {
+      a.push(it)
+      let c = a.length - 1
+      while (c > 0) {
+        const p = (c - 1) >> 1
+        if (a[p][0] <= a[c][0]) break
+        const t = a[p]; a[p] = a[c]; a[c] = t; c = p
+      }
+    },
+    pop() {
+      const top = a[0], last = a.pop()
+      if (a.length) {
+        a[0] = last
+        let p = 0
+        for (;;) {
+          const l = 2 * p + 1, r = l + 1
+          let m = p
+          if (l < a.length && a[l][0] < a[m][0]) m = l
+          if (r < a.length && a[r][0] < a[m][0]) m = r
+          if (m === p) break
+          const t = a[p]; a[p] = a[m]; a[m] = t; p = m
+        }
+      }
+      return top
+    },
+  }
+}
 const TOL = 0.75      // px — direction classification (≈45° within a pixel is 45°)
-const KEY_TOL = 0.5   // px — two legs count as the same line within this
 const OVER_TOL = 0.5  // px — collinear extents must share more than this
+const END_TOL = 0.5   // px — contact this close to BOTH endpoints = shared node
 
 const dist = (A, B) => Math.hypot(B[0] - A[0], B[1] - A[1])
 
@@ -61,20 +104,45 @@ function legOf(A, B) {
   const dir = dirOf(A, B)
   if (!dir || dir === 'X') return null
   const [lo, hi] = spanOf(dir, A, B)
-  return { dir, key: lineKey(dir, A), lo, hi }
+  return { dir, key: lineKey(dir, A), lo, hi, A, B }
 }
 
-// Collinear overlap (same family, same line, shared extent beyond a point).
-const legsOverlap = (p, q) =>
-  p.dir === q.dir && Math.abs(p.key - q.key) < KEY_TOL &&
+// Perpendicular gap between two same-family lines (key units → px).
+const perpGap = (p, q) =>
+  (p.dir === 'H' || p.dir === 'V') ? Math.abs(p.key - q.key) : Math.abs(p.key - q.key) / Math.SQRT2
+
+// Same family: collinear overlap OR parallel hugging (gap < minGap) with a
+// shared projected extent beyond a point.
+const legsHug = (p, q, minGap) =>
+  p.dir === q.dir && perpGap(p, q) < minGap &&
   Math.min(p.hi, q.hi) - Math.max(p.lo, q.lo) > OVER_TOL
 
+// Different families: segments may only touch endpoint-to-endpoint AND at a
+// REAL NODE position (`isNodePt`) — a bend corner is a leg endpoint too, but
+// two lines touching at a bend is still a visual crossing. Any other contact
+// (proper crossing, endpoint inside the other leg) is a conflict.
+function legsCross(p, q, isNodePt) {
+  const A = p.A, B = p.B, C = q.A, D = q.B
+  const r = [B[0] - A[0], B[1] - A[1]], s = [D[0] - C[0], D[1] - C[1]]
+  const den = r[0] * s[1] - r[1] * s[0]
+  if (Math.abs(den) < Z) return false // parallel — the hug test owns this case
+  const t = ((C[0] - A[0]) * s[1] - (C[1] - A[1]) * s[0]) / den
+  const u = ((C[0] - A[0]) * r[1] - (C[1] - A[1]) * r[0]) / den
+  const lp = dist(A, B), lq = dist(C, D)
+  const inT = t * lp > -END_TOL && (1 - t) * lp > -END_TOL
+  const inU = u * lq > -END_TOL && (1 - u) * lq > -END_TOL
+  if (!inT || !inU) return false // no contact within either segment
+  const endT = Math.min(Math.abs(t), Math.abs(1 - t)) * lp
+  const endU = Math.min(Math.abs(u), Math.abs(1 - u)) * lq
+  if (!(endT < END_TOL && endU < END_TOL)) return true
+  return !isNodePt(A[0] + t * r[0], A[1] + t * r[1]) // endpoint contact must sit ON a node
+}
+
 // P strictly inside leg A–B (endpoint contact excluded).
-function pointOnLeg(P, A, B, dir) {
-  if (Math.abs(lineKey(dir, P) - lineKey(dir, A)) > KEY_TOL) return false
-  const t = dir === 'V' ? P[1] : P[0]
-  const [lo, hi] = spanOf(dir, A, B)
-  return t > lo + OVER_TOL && t < hi - OVER_TOL
+function pointOnLeg(P, leg) {
+  if (Math.abs(lineKey(leg.dir, P) - leg.key) > OVER_TOL) return false
+  const t = leg.dir === 'V' ? P[1] : P[0]
+  return t > leg.lo + OVER_TOL && t < leg.hi - OVER_TOL
 }
 
 // Detours for a LEGAL straight line that conflicts with earlier polylines:
@@ -102,8 +170,6 @@ function legalDetours(S, T, dir, u) {
     }
     for (const e of [1, -1]) out.push({ pts: [S, [S[0] + e * ay / 2, S[1] + dy / 2], T], bends: 1 })
   } else { // D+ / D- : run alongside via a short H or V lead-in/out, L corners last
-    // A ±TOL-tolerated "45°" input can have ax ≠ ay; rebuild exact-45 diagonals
-    // from the average so the detour legs are strictly diagonal on screen.
     const m = (ax + ay) / 2
     for (const d of [u, 2 * u]) {
       if (m <= d) continue
@@ -150,16 +216,36 @@ function candidates(S, T, u) {
   return out
 }
 
+const legsOfPts = (pts) => {
+  const out = []
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const leg = legOf(pts[i], pts[i + 1])
+    if (leg) out.push(leg)
+  }
+  return out
+}
+const diagCount = (pts) =>
+  legsOfPts(pts).filter((l) => l.dir === 'D+' || l.dir === 'D-').length
+
 // `pos` = Map<id, [x, y]> PIXEL positions of the (compact-grid) cut points.
-// opts.unit = detour offset in pixels (default 12, callers pass ~a cell).
+// opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);
+// opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
+// A* fallback (node centres sit on odd indices).
 export function buildRwdMap(segs, pos, opts = {}) {
   const unit = opts.unit ?? 12
-  const placed = [] // accepted legs of every routed segment
+  const minGap = opts.minGap ?? unit * 0.35
   const nodes = [...pos.entries()] // [id, [x,y]] — foreign-node test
+  // Node-position lookup (0.5px buckets) — legsCross may only exempt
+  // endpoint-to-endpoint contact when it happens AT one of these.
+  const nodeKeys = new Set()
+  for (const P of pos.values()) nodeKeys.add(`${Math.round(P[0] * 2)}:${Math.round(P[1] * 2)}`)
+  const isNodePt = (x, y) => nodeKeys.has(`${Math.round(x * 2)}:${Math.round(y * 2)}`)
   const lines = []
-  // forced = a legal straight drawn although every candidate (incl. detours)
-  // conflicted; fallback = an illegal direction that nothing could legalize.
-  const stats = { straight: 0, single: 0, double: 0, fallback: 0, forced: 0, segs: 0 }
+  // rerouted = lines the A* lattice router re-drew to kill a residual crossing
+  // (may exceed 2 bends); forced = STILL in conflict after even that (should be
+  // 0 — only a lattice-router failure leaves one); fallback = an illegal
+  // direction nothing could legalize; swapped = soft continuation swaps.
+  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, restarts: 0, segs: 0 }
 
   const usable = segs.filter((s) => pos.has(s.a) && pos.has(s.b))
   // Longest corridors route first (they have the fewest workable alternatives);
@@ -168,47 +254,509 @@ export function buildRwdMap(segs, pos, opts = {}) {
     .map((s, i) => ({ s, i, len: dist(pos.get(s.a), pos.get(s.b)) }))
     .sort((p, q) => q.len - p.len || p.i - q.i)
 
-  function conflicts(pts, seg) {
-    for (let i = 0; i + 1 < pts.length; i++) {
-      const leg = legOf(pts[i], pts[i + 1])
-      if (!leg) return true // X-direction leg → only the fallback may use it
-      for (const p of placed) if (legsOverlap(leg, p)) return true
+  // Number of hard-rule violations of a candidate against the placed legs
+  // (hug / cross / node-on-leg). 0 = clean; Infinity = an illegal X leg.
+  function conflictCount(pts, seg, placed) {
+    const legs = legsOfPts(pts)
+    if (legs.length !== pts.length - 1) return Infinity // X leg → fallback only
+    let n = 0
+    for (const leg of legs) {
+      for (const p of placed) {
+        if (leg.dir === p.dir ? legsHug(leg, p, minGap) : legsCross(leg, p, isNodePt)) n++
+      }
       for (const [id, P] of nodes) {
         if (id === seg.a || id === seg.b) continue
-        if (pointOnLeg(P, pts[i], pts[i + 1], leg.dir)) return true
+        if (pointOnLeg(P, leg)) n++
+      }
+    }
+    return n
+  }
+
+  /* ---- lattice A* fallback (絕不交叉): when no bounded-bend candidate is
+     conflict-free, route rectilinearly (H/V steps — still legal directions) on
+     the half-cell lattice, only through space free of placed legs and nodes.
+     Crossing-free BY CONSTRUCTION; bends may exceed 2 (turn-penalized).
+     A cheap flood probe runs first: if T is UNREACHABLE (the other lines wall
+     S or T into a closed face — Jordan), it fails fast and reports WHICH lines
+     form the wall via failInfo.blockers (fuel for rip-up-and-reroute). ---- */
+  function routeLattice(S, T, seg, placed, failInfo, gapOverride) {
+    const lat = opts.lattice
+    if (!lat) return null
+    const gap = gapOverride ?? minGap // hug distance (salvage pass squeezes it)
+    const { x0, y0, sx, sy, nx, ny } = lat
+    const toI = (x) => Math.round((x - x0) / sx)
+    const toJ = (y) => Math.round((y - y0) / sy)
+    const atP = (i, j) => [x0 + i * sx, y0 + j * sy]
+    const si = toI(S[0]), sj = toJ(S[1]), ti = toI(T[0]), tj = toJ(T[1])
+    if (Math.min(si, sj, ti, tj) < 0 || si >= nx || ti >= nx || sj >= ny || tj >= ny) return null
+    const blockedPt = new Set() // other nodes' lattice points
+    for (const [id, P] of nodes) {
+      if (id === seg.a || id === seg.b) continue
+      blockedPt.add(toI(P[0]) * ny + toJ(P[1]))
+    }
+    // spatial buckets of placed legs (padded by minGap) → fast per-step tests
+    const BW = Math.max(sx, sy) * 6
+    const buckets = new Map()
+    for (const p of placed) {
+      const x1 = Math.min(p.A[0], p.B[0]) - minGap, x2 = Math.max(p.A[0], p.B[0]) + minGap
+      const y1 = Math.min(p.A[1], p.B[1]) - minGap, y2 = Math.max(p.A[1], p.B[1]) + minGap
+      for (let bx = Math.floor(x1 / BW); bx <= Math.floor(x2 / BW); bx++) {
+        for (let by = Math.floor(y1 / BW); by <= Math.floor(y2 / BW); by++) {
+          const k = bx * 100003 + by
+          if (!buckets.has(k)) buckets.set(k, [])
+          buckets.get(k).push(p)
+        }
+      }
+    }
+    const blockerOf = (A, B) => {
+      const leg = legOf(A, B)
+      if (!leg) return FAKE_BLOCK
+      const bx1 = Math.floor((Math.min(A[0], B[0]) - minGap) / BW), bx2 = Math.floor((Math.max(A[0], B[0]) + minGap) / BW)
+      const by1 = Math.floor((Math.min(A[1], B[1]) - minGap) / BW), by2 = Math.floor((Math.max(A[1], B[1]) + minGap) / BW)
+      for (let bx = bx1; bx <= bx2; bx++) {
+        for (let by = by1; by <= by2; by++) {
+          for (const p of buckets.get(bx * 100003 + by) ?? []) {
+            if (leg.dir === p.dir ? legsHug(leg, p, gap) : legsCross(leg, p, isNodePt)) return p
+          }
+        }
+      }
+      // Only MACRO legs (longer than a half-step) can sweep over a node — a
+      // half-step's interior contains no lattice point, so skip the O(nodes)
+      // scan on the A* hot path.
+      if (leg.hi - leg.lo > Math.max(sx, sy) + 1e-6) {
+        for (const [id, P] of nodes) {
+          if (id === seg.a || id === seg.b) continue
+          if (pointOnLeg(P, leg)) return FAKE_BLOCK
+        }
+      }
+      return null
+    }
+    const legFree = (A, B) => !blockerOf(A, B)
+    // 45° macro connectors (diag + axis, 1 bend) between a node and the lattice
+    // points up to 2 cells away — the escape hatch when every rectilinear
+    // half-step at a hub is already occupied by a same-family leg.
+    function macros(P, pi, pj) {
+      const out = [] // { i, j, mid: [pts between node and lattice pt], len }
+      for (const da of [1, 2, 3, 4]) {
+        for (const db of [1, 2, 3, 4]) {
+          for (const sxn of [1, -1]) {
+            for (const syn of [1, -1]) {
+              const gi = pi + sxn * da, gj = pj + syn * db
+              if (gi < 0 || gj < 0 || gi >= nx || gj >= ny) continue
+              if (blockedPt.has(gi * ny + gj)) continue
+              const G = atP(gi, gj)
+              const ax = Math.abs(G[0] - P[0]), ay = Math.abs(G[1] - P[1])
+              const t = Math.min(ax, ay)
+              const D = [P[0] + sxn * t, P[1] + syn * t]
+              const pureDiag = Math.abs(ax - ay) < TOL
+              if (!legFree(P, pureDiag ? G : D)) continue
+              if (!pureDiag && !legFree(D, G)) continue
+              out.push({
+                i: gi, j: gj,
+                mid: pureDiag ? [] : [D],
+                len: dist(P, D) + (pureDiag ? 0 : dist(D, G)),
+                bendy: pureDiag ? 0 : 1,
+              })
+            }
+          }
+        }
+      }
+      return out
+    }
+    const TURN = 2 * unit
+    const macS = macros(S, si, sj)
+    const macT = macros(T, ti, tj)
+    // portals: lattice points that can 45°-macro INTO T
+    const portal = new Map() // i*ny+j -> { mid (from lattice pt toward T), len }
+    for (const m of macT) {
+      const k = m.i * ny + m.j
+      const entry = { mid: [...m.mid].reverse(), len: m.len + m.bendy * TURN }
+      if (!portal.has(k) || portal.get(k).len > entry.len) portal.set(k, entry)
+    }
+    // Directed flood probe FROM T TOWARD S (best-first on Manhattan distance,
+    // positions only — the same move set and reachability as the A* below):
+    // open space hits S quickly, a walled-off pocket exhausts quickly, and the
+    // legs the frontier bumped into name the wall lines for rip-up.
+    const FLOOD_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    if (Math.abs(sx - sy) < 1e-9) FLOOD_DIRS.push([1, 1], [1, -1], [-1, 1], [-1, -1])
+    {
+      const targets = new Set([si * ny + sj])
+      for (const m of macS) targets.add(m.i * ny + m.j)
+      const seen = new Set()
+      const fq = makeHeap()
+      const dTo = (i, j) => Math.abs(si - i) * sx + Math.abs(sj - j) * sy
+      const seed = (i, j) => {
+        const k = i * ny + j
+        if (!seen.has(k)) { seen.add(k); fq.push([dTo(i, j), i, j]) }
+      }
+      seed(ti, tj)
+      for (const m of macT) seed(m.i, m.j)
+      let reached = false
+      const blockers = new Map() // line index -> hit count
+      while (fq.size) {
+        const [, i, j] = fq.pop()
+        if (targets.has(i * ny + j)) { reached = true; break }
+        for (const [dx, dy] of FLOOD_DIRS) {
+          const ni = i + dx, nj = j + dy
+          if (ni < 0 || nj < 0 || ni >= nx || nj >= ny) continue
+          const k = ni * ny + nj
+          if (seen.has(k)) continue
+          if (blockedPt.has(k) && !targets.has(k)) continue
+          const b = blockerOf(atP(i, j), atP(ni, nj))
+          if (b) {
+            if (b.li >= 0) blockers.set(b.li, (blockers.get(b.li) ?? 0) + 1)
+            continue
+          }
+          seen.add(k)
+          fq.push([dTo(ni, nj), ni, nj])
+        }
+      }
+      if (!reached) {
+        if (failInfo) failInfo.blockers = blockers
+        return null
+      }
+    }
+    // Weighted A* over (i, j, incoming-dir): px cost + turn penalty; any clean
+    // path beats none, so the inflated heuristic (faster, near-greedy) is fine.
+    // On a SQUARE lattice (sx === sy) diagonal steps are exact 45° — 8 moves.
+    const W = 1.4
+    const DIRS = [[1, 0, sx], [-1, 0, sx], [0, 1, sy], [0, -1, sy]]
+    if (Math.abs(sx - sy) < 1e-9) {
+      const dl = sx * Math.SQRT2
+      DIRS.push([1, 1, dl], [1, -1, dl], [-1, 1, dl], [-1, -1, dl])
+    }
+    const ND = DIRS.length
+    const skey = (i, j, d) => (i * ny + j) * ND + d
+    const g = new Map(), from = new Map()
+    const heap = makeHeap() // [f, key, i, j, d]
+    const h = (i, j) => (Math.abs(ti - i) * sx + Math.abs(tj - j) * sy) * W
+    // seeds: plain rectilinear exits + 45° macro exits from S
+    const seedMid = new Map() // stateKey -> mid pts (between S and that lattice pt)
+    for (let d = 0; d < ND; d++) { g.set(skey(si, sj, d), 0); heap.push([h(si, sj), skey(si, sj, d), si, sj, d]) }
+    for (const m of macS) {
+      for (let d = 0; d < ND; d++) {
+        const k = skey(m.i, m.j, d)
+        const cost = m.len + m.bendy * TURN
+        if (cost >= (g.get(k) ?? Infinity)) continue
+        g.set(k, cost)
+        seedMid.set(k, m.mid)
+        heap.push([cost + h(m.i, m.j), k, m.i, m.j, d])
+      }
+    }
+    let goal = null, goalEntry = null, pops = 0
+    while (heap.size && pops < 400000) {
+      const [, k, i, j, d] = heap.pop()
+      pops++
+      const gk = g.get(k)
+      if (i === ti && j === tj) { goal = k; goalEntry = null; break }
+      const pk = portal.get(i * ny + j)
+      if (pk && !(i === si && j === sj)) { goal = k; goalEntry = pk; break }
+      for (let nd = 0; nd < ND; nd++) {
+        const [dx, dy, step] = DIRS[nd]
+        const ni = i + dx, nj = j + dy
+        if (ni < 0 || nj < 0 || ni >= nx || nj >= ny) continue
+        if (blockedPt.has(ni * ny + nj) && !(ni === ti && nj === tj)) continue
+        const nk = skey(ni, nj, nd)
+        const cost = gk + step + (nd !== d ? TURN : 0)
+        if (cost >= (g.get(nk) ?? Infinity)) continue
+        if (!legFree(atP(i, j), atP(ni, nj))) continue
+        g.set(nk, cost)
+        from.set(nk, k)
+        heap.push([cost + h(ni, nj), nk, ni, nj, nd])
+      }
+    }
+    if (opts.debug) console.log(`[rwd A*] pops=${pops} goal=${goal != null}`)
+    if (goal == null) return null
+    // reconstruct lattice chain, prepend seed mid pts, append portal entry + T
+    const idx = []
+    let head = goal
+    for (let k = goal; k !== undefined; k = from.get(k)) { head = k; idx.push([Math.floor(k / ND / ny), Math.floor(k / ND) % ny]) }
+    idx.reverse()
+    const chain = idx.map(([i, j]) => atP(i, j))
+    const pts = [S, ...(seedMid.get(head) ?? []), ...chain.filter((p) => dist(p, S) > Z && dist(p, T) > Z)]
+    if (goalEntry) pts.push(...goalEntry.mid)
+    pts.push(T)
+    // merge collinear runs (same H/V/D family and line) into single legs
+    const merged = [pts[0]]
+    for (let i = 1; i < pts.length - 1; i++) {
+      const d1 = dirOf(merged[merged.length - 1], pts[i])
+      const d2 = dirOf(pts[i], pts[i + 1])
+      if (d1 && d2 && d1 === d2 && d1 !== 'X') continue
+      if (dist(pts[i], merged[merged.length - 1]) < Z) continue
+      merged.push(pts[i])
+    }
+    merged.push(pts[pts.length - 1])
+    return merged.length >= 2 ? merged : null
+  }
+
+  const placedOf = (skipIdx) => {
+    const out = []
+    for (let i = 0; i < lines.length; i++) {
+      if (i === skipIdx) continue
+      for (const lg of lines[i].legs) {
+        lg.li = i // owner tag — lets the flood probe name the wall lines
+        out.push(lg)
+      }
+    }
+    return out
+  }
+
+  // Rip-up & reroute（PCB 佈線手法）: L is walled in by the lines the flood
+  // probe hit. Tear the busiest wall(s) down, route L through the opening,
+  // then re-route each wall line around L. Commit only if EVERYONE ends clean.
+  function ripUpAndRoute(L, li, blockers) {
+    const snap = (X) => ({ pts: X.pts, legs: X.legs, bends: X.bends, routed: X.routed, forced: X.forced })
+    const tryRip = (wallIdxs) => {
+      const walls = wallIdxs.map((wi) => lines[wi]).filter((w) => w && !w.fallback)
+      if (walls.length !== wallIdxs.length) return false
+      const saves = [snap(L), ...walls.map(snap)]
+      const undo = () => {
+        Object.assign(L, saves[0])
+        walls.forEach((w, i) => Object.assign(w, saves[i + 1]))
+      }
+      for (const w of walls) w.legs = [] // rip up
+      const mine = routeLattice(pos.get(L.seg.a), pos.get(L.seg.b), L.seg, placedOf(li))
+      if (!mine) { undo(); return false }
+      L.pts = mine
+      L.legs = legsOfPts(mine)
+      L.bends = mine.length - 2
+      L.routed = true
+      L.forced = false
+      for (const w of walls) { // re-route each wall with L (and prior walls) placed
+        const wi = lines.indexOf(w)
+        const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
+        const placedW = placedOf(wi)
+        let done = null
+        for (const c of candidates(S2, T2, unit)) {
+          if (c.fallback) continue
+          if (conflictCount(c.pts, w.seg, placedW) === 0) { done = { pts: c.pts, bends: c.bends, routed: false }; break }
+        }
+        if (!done) {
+          const r = routeLattice(S2, T2, w.seg, placedW)
+          if (r) done = { pts: r, bends: r.length - 2, routed: true }
+        }
+        if (!done) { undo(); return false }
+        w.pts = done.pts
+        w.legs = legsOfPts(done.pts)
+        w.bends = done.bends
+        w.routed = done.routed
+        w.forced = false
+      }
+      return true
+    }
+    const ranked = [...blockers.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map((e) => e[0])
+    for (const wi of ranked) if (tryRip([wi])) return true
+    for (let a = 0; a < ranked.length; a++) { // two walls jointly sealing the face
+      for (let b = a + 1; b < ranked.length; b++) {
+        if (tryRip([ranked[a], ranked[b]])) return true
       }
     }
     return false
   }
 
-  for (const { s } of order) {
-    const S = pos.get(s.a), T = pos.get(s.b)
-    const cands = candidates(S, T, unit)
-    let chosen = null
-    for (const c of cands) {
-      if (c.fallback) continue // only ever taken when everything else conflicts
-      if (!conflicts(c.pts, s)) { chosen = c; break }
+  /* ---- one routing attempt: pass 1 (bend-ordered, veto) + conflict sweeps
+     with the A* fallback. `priority` segments route FIRST (see below). ---- */
+  function routeAll(priority) {
+    lines.length = 0
+    const noRoute = new Set() // segs whose A* already failed this attempt
+    const ordered = [
+      ...order.filter((o) => priority.has(o.s)),
+      ...order.filter((o) => !priority.has(o.s)),
+    ]
+    for (const { s } of ordered) {
+      const S = pos.get(s.a), T = pos.get(s.b)
+      const cands = candidates(S, T, unit)
+      const placed = placedOf(-1)
+      // First conflict-FREE candidate wins (bend order). If none exists, keep
+      // H/V/45° legality and take the candidate with the FEWEST violations;
+      // the off-angle raw straight is a last resort only when there is no
+      // legal-direction candidate at all (degenerate spans).
+      let chosen = null, chosenN = Infinity
+      for (const c of cands) {
+        if (c.fallback) continue
+        const n = conflictCount(c.pts, s, placed)
+        if (n === 0) { chosen = c; chosenN = 0; break }
+        if (n < chosenN) { chosen = c; chosenN = n }
+      }
+      if (!chosen) chosen = cands.find((c) => c.fallback) ?? cands[0]
+      // Priority segments are the previously-trapped ones — if even now no
+      // candidate is clean, let A* carve a corridor while the plane is open.
+      if (chosenN > 0 && priority.has(s)) {
+        const routed = routeLattice(S, T, s, placed)
+        if (routed) {
+          lines.push({ seg: s, pts: routed, bends: routed.length - 2, routed: true, legs: legsOfPts(routed) })
+          continue
+        }
+      }
+      lines.push({
+        seg: s, pts: chosen.pts, bends: chosen.bends,
+        fallback: !!chosen.fallback, forced: chosenN > 0 && !chosen.fallback,
+        legs: legsOfPts(chosen.pts),
+      })
     }
-    if (!chosen) {
-      // Nothing conflict-free: an illegal span falls back to its raw straight,
-      // a legal span keeps its straight — either way it is drawn (and counted).
-      chosen = cands.find((c) => c.fallback) ?? cands[0]
-      if (!chosen.fallback) stats.forced++
+    // conflict-reduction sweeps: retry every line still in conflict (both
+    // parties of a crossing qualify) — min-conflict candidate first, then the
+    // A* lattice router (clean by construction when it succeeds).
+    for (let sweep = 0; sweep < 4; sweep++) {
+      let improved = false, dirty = 0
+      for (let li = 0; li < lines.length; li++) {
+        const L = lines[li]
+        if (L.fallback) continue
+        const placed = placedOf(li)
+        const curN = conflictCount(L.pts, L.seg, placed)
+        if (curN === 0) { L.forced = false; continue }
+        const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+        let best = null, bestN = curN
+        for (const c of candidates(S, T, unit)) {
+          if (c.fallback) continue
+          const n = conflictCount(c.pts, L.seg, placed)
+          if (n < bestN) { best = c; bestN = n; if (n === 0) break }
+        }
+        if (bestN > 0 && !noRoute.has(L.seg)) {
+          const failInfo = {}
+          const routed = routeLattice(S, T, L.seg, placed, failInfo)
+          if (routed) {
+            best = { pts: routed, bends: routed.length - 2, routed: true }
+            bestN = 0
+          } else {
+            noRoute.add(L.seg)
+            if (failInfo.blockers?.size && ripUpAndRoute(L, li, failInfo.blockers)) {
+              improved = true
+              continue // L (and the wall) already updated in place
+            }
+          }
+        }
+        if (best) {
+          L.pts = best.pts
+          L.legs = legsOfPts(best.pts)
+          L.bends = best.bends
+          L.routed = !!best.routed
+          L.forced = bestN > 0
+          improved = true
+        }
+        if (bestN > 0) dirty++
+      }
+      if (!improved || !dirty) break
     }
-    stats.segs++
-    if (chosen.fallback) stats.fallback++
-    else if (chosen.bends === 0) stats.straight++
-    else if (chosen.bends === 1) stats.single++
-    else stats.double++
-    for (let i = 0; i + 1 < chosen.pts.length; i++) {
-      const leg = legOf(chosen.pts[i], chosen.pts[i + 1])
-      if (leg) placed.push(leg)
-    }
-    lines.push({ seg: s, pts: chosen.pts, bends: chosen.bends, fallback: !!chosen.fallback })
   }
 
-  // Interior black stations: j-th of k sits at arc-length fraction j/(k+1)
-  // of the chosen polyline (a→b order matches seg.interior).
+  /* ---- restart-with-priority（negotiation rerouting）: a segment that stays
+     FORCED was WALLED IN — the lines routed before it enclosed its endpoint in
+     a face the target is not on, and then NO crossing-free path exists at all
+     (Jordan). Re-run the whole routing with the trapped segments FIRST: they
+     get clean corridors while the plane is still open, and the former walls
+     (routed later) bend around them instead. ---- */
+  const priority = new Set()
+  for (let round = 0; ; round++) {
+    routeAll(priority)
+    stats.restarts = round
+    const bad = lines.filter((L) => L.forced)
+    if (!bad.length || round >= 6) break
+    let grew = false
+    for (const L of bad) {
+      if (!priority.has(L.seg)) { priority.add(L.seg); grew = true }
+    }
+    if (!grew) break // same offenders as last round — no progress possible
+  }
+
+  // Last-ditch salvage（窄縫）: for the very few segments with NO clean route
+  // at normal spacing, try once more with the hug distance squeezed to 60% —
+  // closer parallels, but crossings stay absolutely forbidden.
+  for (let li = 0; li < lines.length; li++) {
+    const L = lines[li]
+    if (!L.forced) continue
+    const r = routeLattice(pos.get(L.seg.a), pos.get(L.seg.b), L.seg, placedOf(li), null, minGap * 0.6)
+    if (r) {
+      L.pts = r
+      L.legs = legsOfPts(r)
+      L.bends = r.length - 2
+      L.routed = true
+      L.forced = false
+      L.squeezed = true
+      stats.squeezed++
+    }
+  }
+
+  for (const L of lines) {
+    stats.segs++
+    if (L.fallback) stats.fallback++
+    else if (L.routed) { stats.rerouted++; if (L.bends >= 3) stats.multi++; else if (L.bends === 2) stats.double++; else if (L.bends === 1) stats.single++; else stats.straight++ }
+    else if (L.bends === 0) stats.straight++
+    else if (L.bends === 1) stats.single++
+    else if (L.bends === 2) stats.double++
+    else stats.multi++
+    if (L.forced) stats.forced++
+  }
+
+  /* ---- pass 2 (soft, 衝突消解後微調): same-bends / same-45°-count swaps that
+     improve straight continuation with same-route lines at shared nodes ---- */
+  const sharesRoute = (r1, r2) => {
+    for (const id of r1) if (r2.has(id)) return true
+    return false
+  }
+  // Unit direction AWAY from the node along a polyline's end.
+  function awayDir(L, nodeId) {
+    const pts = L.seg.a === nodeId ? L.pts : [...L.pts].reverse()
+    const d = dist(pts[0], pts[1])
+    if (d < Z) return null
+    return [(pts[1][0] - pts[0][0]) / d, (pts[1][1] - pts[0][1]) / d]
+  }
+  const atNode = new Map() // nodeId -> [lineIdx]
+  lines.forEach((L, i) => {
+    for (const id of [L.seg.a, L.seg.b]) {
+      if (!atNode.has(id)) atNode.set(id, [])
+      atNode.get(id).push(i)
+    }
+  })
+  // Straight-through with a same-route neighbour scores +1 (away-directions
+  // opposite), a 45° kink −0.707; overlapping direction −1.
+  function contScore(L, pts) {
+    let score = 0
+    const probe = { ...L, pts }
+    for (const nodeId of [L.seg.a, L.seg.b]) {
+      const my = awayDir(probe, nodeId)
+      if (!my) continue
+      for (const oi of atNode.get(nodeId) ?? []) {
+        const O = lines[oi]
+        if (O === L || !sharesRoute(L.seg.routes, O.seg.routes)) continue
+        const their = awayDir(O, nodeId)
+        if (!their) continue
+        score += -(my[0] * their[0] + my[1] * their[1])
+      }
+    }
+    return score
+  }
+  for (let sweep = 0; sweep < 2; sweep++) {
+    let improved = false
+    for (let i = 0; i < lines.length; i++) {
+      const L = lines[i]
+      if (L.fallback || L.forced || L.routed) continue // routed shapes are bespoke
+      const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+      const want45 = diagCount(L.pts)
+      const alts = candidates(S, T, unit).filter((c) =>
+        !c.fallback && c.bends === L.bends && diagCount(c.pts) === want45)
+      if (alts.length < 2) continue
+      const placed = placedOf(i)
+      let best = null, bestScore = contScore(L, L.pts) + 1e-6
+      for (const c of alts) {
+        const m = contScore(L, c.pts)
+        if (m <= bestScore) continue
+        if (conflictCount(c.pts, L.seg, placed) > 0) continue
+        best = c
+        bestScore = m
+      }
+      if (best) {
+        L.pts = best.pts
+        L.legs = legsOfPts(best.pts)
+        stats.swapped++
+        improved = true
+      }
+    }
+    if (!improved) break
+  }
+
+  /* ---- interior black stations: j-th of k sits at arc-length fraction
+     j/(k+1) of the FINAL polyline (a→b order matches seg.interior) ---- */
   const posAfter = new Map(pos)
   for (const L of lines) {
     const ids = L.seg.interior

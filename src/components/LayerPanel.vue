@@ -2,7 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import { openLayerTab, openGalleryTab, dockHandle } from '../stores/dockHandle'
+import { openLayerTab, openGalleryTab, openViewGalleryTab, openHcGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
@@ -246,10 +246,26 @@ onBeforeUnmount(() => {
             <button
               v-if="item.group.id === 'd3'"
               class="btn-icon group-add"
+              title="8 視圖畫廊（全部城市 · 九宮格）"
+              @click.stop="openViewGalleryTab()"
+            >
+              <MIcon name="window" :size="14" />
+            </button>
+            <button
+              v-if="item.group.id === 'd3'"
+              class="btn-icon group-add"
               title="Add D3.js view"
               @click.stop="addD3()"
             >
               <MIcon name="add" :size="14" />
+            </button>
+            <button
+              v-if="item.group.id === 'hillclimb'"
+              class="btn-icon group-add"
+              title="6 視圖畫廊（全部城市 · 格網化後／Hill Climbing／縮減網格 ×2）"
+              @click.stop="openHcGalleryTab()"
+            >
+              <MIcon name="window" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'hillclimb'"

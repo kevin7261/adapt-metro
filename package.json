@@ -21,11 +21,12 @@
     "metro:refetchfailed": "node scripts/refetchFailedCities.mjs",
     "metro:geocode": "node scripts/geocodeSystems.mjs",
     "metro:build": "node scripts/buildGeojson.mjs",
+    "metro:views": "node scripts/buildViews.mjs",
     "metro:maps": "node scripts/downloadMaps.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
     "metro:audit": "node scripts/auditLoop.mjs",
     "metro:wikilines": "node scripts/wikiLineCheck.mjs",
-    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/fetchUcExceptions.mjs && node scripts/fetchSbahnDe.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/wikiLineCheck.mjs && node scripts/auditLoop.mjs"
+    "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/fetchUcExceptions.mjs && node scripts/fetchSbahnDe.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/buildViews.mjs && node scripts/wikiLineCheck.mjs && node scripts/auditLoop.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

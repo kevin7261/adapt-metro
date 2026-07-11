@@ -1,0 +1,144 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useMapStore } from '../stores/mapStore'
+import { openLayerTab } from '../stores/dockHandle'
+import { assetUrl } from '../lib/assetUrl'
+import ViewNineGrid from './ViewNineGrid.vue'
+
+// A dockview tab that shows EVERY city's 8 pre-computed Map Adjust views as a
+// 3×3 九宮格 card (data/metro/views/, built by scripts/buildViews.mjs). Three
+// sub-tabs mirror the Metro Maps gallery. Clicking a card imports that city and
+// builds a Map Adjust (D3) view — optionally deep-linked to one of the 8 views.
+const store = useMapStore()
+
+const catalog = ref(null)   // data/metro/views/index.json → systems[]
+const error = ref(null)
+onMounted(async () => {
+  try {
+    const res = await fetch(assetUrl('data/metro/views/index.json'))
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    catalog.value = (await res.json()).systems ?? []
+  } catch (err) {
+    error.value = String(err)
+  }
+})
+
+const TABS = [
+  { id: 'quick', label: 'Quick Selection' },
+  { id: 'stations', label: 'Sort by Station Count' },
+  { id: 'global', label: 'Global Metro Map' },
+]
+const tab = ref('stations')
+const stationSort = ref('desc')
+
+const QUICK = ['Taipei', 'Taichung', 'Kaohsiung', 'Tokyo', 'Osaka', 'Seoul',
+  'Beijing', 'Shanghai', 'Hong Kong', 'Singapore', 'London', 'Paris',
+  'Berlin', 'Vienna', 'New York']
+
+const tiles = computed(() => {
+  const all = catalog.value ?? []
+  if (tab.value === 'quick') {
+    return QUICK
+      .map((c) => all.find((s) => s.city === c)
+        ?? all.find((s) => (s.city || '').toLowerCase().startsWith(c.toLowerCase())))
+      .filter(Boolean)
+  }
+  if (tab.value === 'stations') {
+    const dir = stationSort.value === 'asc' ? 1 : -1
+    return [...all].sort((a, b) => ((a.station_count ?? 0) - (b.station_count ?? 0)) * dir)
+  }
+  return [...all].sort((a, b) =>
+    String(a.continent).localeCompare(String(b.continent)) ||
+    String(a.country).localeCompare(String(b.country)) ||
+    String(a.city).localeCompare(String(b.city)))
+})
+
+// Card click: import the city's metro layer, build a Map Adjust (D3) view, open
+// it. `viewId` is the specific view thumbnail clicked (for a future deep-link;
+// the D3 tab currently opens on 原始).
+function pick(entry, viewId) {
+  const metro = store.importMetroSystem(entry)
+  const d3 = store.addD3Layer(metro.id)
+  if (!d3) { store.toast('無法建立 Map Adjust 視圖'); return }
+  openLayerTab(d3)
+  const label = viewId ? `（${viewId}）` : ''
+  store.toast(`已建立 ${entry.city} Map Adjust 視圖${label}`)
+}
+</script>
+
+<template>
+  <div class="gallery">
+    <div class="gallery-tabs" role="tablist">
+      <button
+        v-for="t in TABS"
+        :key="t.id"
+        class="gallery-tab"
+        :class="{ active: tab === t.id }"
+        role="tab"
+        :aria-selected="tab === t.id"
+        @click="tab = t.id"
+      >{{ t.label }}</button>
+
+      <div v-if="tab === 'stations'" class="sort-toggle">
+        <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
+        <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
+      </div>
+      <span class="gallery-count">{{ tiles.length }} 城市 · 每城 8 視圖</span>
+    </div>
+
+    <div class="gallery-body">
+      <div v-if="error" class="gallery-status">載入視圖清單失敗：{{ error }}<br />（請先執行 <code>npm run metro:views</code>）</div>
+      <div v-else-if="!catalog" class="gallery-status">載入全球地鐵視圖清單…</div>
+      <div v-else class="tile-grid">
+        <ViewNineGrid v-for="s in tiles" :key="s.id" :entry="s" @pick="pick" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.gallery { display: flex; flex-direction: column; height: 100%; background: hsl(var(--background)); }
+.gallery-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 12px;
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+}
+.gallery-tab {
+  padding: 9px 12px;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.gallery-tab:hover { color: hsl(var(--foreground)); }
+.gallery-tab.active {
+  color: hsl(var(--primary));
+  font-weight: 600;
+  border-bottom-color: hsl(var(--primary));
+}
+.sort-toggle { display: flex; gap: 2px; margin-left: 10px; }
+.sort-btn {
+  padding: 3px 10px;
+  font-size: 12px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 3px);
+  color: hsl(var(--muted-foreground));
+}
+.sort-btn.active { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
+.gallery-count { margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.gallery-body { flex: 1; overflow-y: auto; padding: 16px; container-type: inline-size; }
+.gallery-status { padding: 32px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px; line-height: 1.7; }
+.gallery-status code { font-size: 12px; background: hsl(var(--muted) / 0.6); padding: 1px 5px; border-radius: 4px; }
+/* each card is a 九宮格; keep them comfortably wide (2 per row, 1 when narrow) */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+@container (max-width: 620px) { .tile-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>

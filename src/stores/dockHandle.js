@@ -37,3 +37,35 @@ export function openGalleryTab() {
     renderer: 'always',
   })
 }
+
+// Open (or focus) the Map Adjust gallery tab — every city's 8 pre-computed
+// views as a 3×3 九宮格 card grid (data/metro/views/).
+export function openViewGalleryTab() {
+  const api = dockHandle.api
+  if (!api) return
+  const existing = api.getPanel('map-adjust-gallery')
+  if (existing) { existing.api.setActive(); return }
+  api.addPanel({
+    id: 'map-adjust-gallery',
+    component: 'map-adjust-gallery',
+    title: 'Map Adjust · 8 視圖',
+    params: { title: 'Map Adjust · 8 視圖' },
+    renderer: 'always',
+  })
+}
+
+// Open (or focus) the Hill Climbing gallery tab — every city's 6 pre-computed
+// HC views as a 2×3 card grid (data/metro/hcviews/).
+export function openHcGalleryTab() {
+  const api = dockHandle.api
+  if (!api) return
+  const existing = api.getPanel('hill-climb-gallery')
+  if (existing) { existing.api.setActive(); return }
+  api.addPanel({
+    id: 'hill-climb-gallery',
+    component: 'hill-climb-gallery',
+    title: 'Hill Climbing · 6 視圖',
+    params: { title: 'Hill Climbing · 6 視圖' },
+    renderer: 'always',
+  })
+}

@@ -1,0 +1,187 @@
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { assetUrl } from '../lib/assetUrl'
+import { HC_VIEW_ORDER, hcViewLabels } from '../stores/viewGeometry'
+
+// One city's Hill Climbing card: a title header + a 2×3 grid of the 6
+// pre-computed HC views — rows are the variant (原始 / 旋轉 N°), columns the
+// stage (格網化後 → Hill Climbing → 縮減網格). Geometry is fetched lazily
+// (data/metro/hcviews/<id>.json) when the card scrolls into view.
+const props = defineProps({ entry: { type: Object, required: true } })
+const emit = defineEmits(['pick'])
+
+const root = ref(null)
+const data = ref(null)          // { W, H, tilt, views:{...}, stats:{...} }
+const state = ref('idle')       // idle | loading | done | error
+const order = HC_VIEW_ORDER
+let labels = hcViewLabels(props.entry.tilt ?? 0)
+let observer = null
+
+async function load() {
+  if (state.value !== 'idle') return
+  state.value = 'loading'
+  try {
+    const res = await fetch(assetUrl(`data/metro/hcviews/${props.entry.id}.json`))
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = await res.json()
+    labels = hcViewLabels(json.tilt ?? 0)
+    data.value = json
+    state.value = 'done'
+  } catch {
+    state.value = 'error'
+  }
+}
+
+onMounted(() => {
+  observer = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      if (en.isIntersecting) { load(); observer.disconnect(); observer = null; break }
+    }
+  }, { rootMargin: '300px' })
+  observer.observe(root.value)
+})
+onBeforeUnmount(() => observer?.disconnect())
+</script>
+
+<template>
+  <div ref="root" class="sgrid-card">
+    <button class="sgrid-head" :title="`建立 ${entry.city} Hill Climbing 視圖`" @click="emit('pick', entry)">
+      <span class="sh-city">{{ entry.city }}</span>
+      <span class="sh-sub">{{ entry.country }}</span>
+      <span class="sh-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
+      <span class="sh-open">建立 Hill Climbing ›</span>
+    </button>
+
+    <div class="sgrid">
+      <button
+        v-for="id in order"
+        :key="id"
+        class="cell view-cell"
+        :title="labels[id]"
+        @click="emit('pick', entry, id)"
+      >
+        <div class="vc-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
+          <svg
+            v-if="data"
+            :viewBox="`0 0 ${data.W} ${data.H}`"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <template v-if="data.views[id].grid">
+              <line
+                v-for="(x, i) in data.views[id].grid.xs"
+                :key="'gx' + i"
+                :x1="x" y1="0" :x2="x" :y2="data.H"
+                class="grid-sep"
+              />
+              <line
+                v-for="(y, i) in data.views[id].grid.ys"
+                :key="'gy' + i"
+                x1="0" :y1="y" :x2="data.W" :y2="y"
+                class="grid-sep"
+              />
+            </template>
+            <path
+              v-for="(h, i) in data.views[id].hl"
+              :key="'h' + i"
+              :d="h.d"
+              :stroke="h.color"
+              class="hl"
+            />
+            <path
+              v-for="(ln, i) in data.views[id].lines"
+              :key="'l' + i"
+              :d="ln.d"
+              :stroke="ln.color"
+              :stroke-dasharray="ln.dash || null"
+              :stroke-linecap="ln.dash ? 'butt' : 'round'"
+              class="ln"
+            />
+            <circle
+              v-for="(dt, i) in data.views[id].dots"
+              :key="'d' + i"
+              :cx="dt.x"
+              :cy="dt.y"
+              r="1"
+              :fill="dt.fill"
+              class="dot"
+            />
+          </svg>
+          <span v-if="state === 'error'" class="vc-msg">載入失敗</span>
+        </div>
+        <span class="vc-label">{{ labels[id] }}</span>
+      </button>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.sgrid-card {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: hsl(var(--card));
+}
+.sgrid-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  text-align: left;
+  background: hsl(var(--muted) / 0.35);
+  border-bottom: 1px solid hsl(var(--border));
+  cursor: pointer;
+}
+.sh-city { font-size: 13px; font-weight: 600; }
+.sgrid-head:hover .sh-city { color: hsl(var(--primary)); }
+.sh-sub { font-size: 11px; color: hsl(var(--muted-foreground)); }
+.sh-stats { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); }
+.sh-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; }
+.sgrid-head:hover .sh-open { opacity: 1; }
+
+.sgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: hsl(var(--border));
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  background: hsl(var(--card));
+  min-width: 0;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.view-cell:hover { background: hsl(var(--accent) / 0.6); }
+.vc-canvas {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: radial-gradient(120% 120% at 50% 0%, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.2));
+}
+.vc-canvas svg { width: 100%; height: 100%; overflow: visible; }
+.grid-sep { stroke: #3b82f6; stroke-width: 0.2; stroke-opacity: 0.18; }
+.hl { fill: none; stroke-width: 3.2; stroke-opacity: 0.28; stroke-linecap: round; stroke-linejoin: round; }
+.ln { fill: none; stroke-width: 1.4; stroke-linejoin: round; }
+.dot { stroke: #3f3f46; stroke-width: 0.3; }
+.vc-msg { font-size: 10px; color: hsl(var(--muted-foreground)); }
+.vc-label {
+  padding: 3px 5px 5px;
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.view-cell:hover .vc-label { color: hsl(var(--foreground)); }
+
+.vc-canvas.loading {
+  background: linear-gradient(100deg,
+    hsl(var(--muted) / 0.3) 30%, hsl(var(--muted) / 0.5) 50%, hsl(var(--muted) / 0.3) 70%);
+  background-size: 200% 100%;
+  animation: sg-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes sg-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+</style>

@@ -98,6 +98,7 @@ let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
 let cachedHCCompact = null
+let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const hcStats = ref(null)
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
@@ -223,6 +224,7 @@ async function render() {
     cachedSkeleton = buildConnectSkeleton(data)
     cachedHC = null
     cachedHCCompact = null
+    cachedRWD = null
     hcStats.value = null
     hcCompactStats.value = null
     rwdStats.value = null
@@ -271,27 +273,53 @@ async function render() {
     const cw = (w - 48) / nC, ch = (h - 48) / nR
     const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
     if (rwdMode.value) {
-      // RWD 路網: 八方向約束以「版面 pixel」為準 — the polylines are (re)built in
-      // PIXEL space on every render (with cw ≠ ch a cell-space 45° is NOT 45° on
-      // screen), so this is extent-dependent and never cached across resizes.
+      // RWD 路網: 八方向約束以「版面 pixel」為準。The polylines are built ONCE in
+      // a FIXED VIRTUAL canvas (1200×800) and mapped to the real canvas with an
+      // ISOTROPIC scale + letterbox — uniform scaling preserves exact 45°, so
+      // the layout is stable across resizes and the heavy routing never reruns.
       // The interior blacks already sit ON the polylines (no placeBlacks here).
-      const pxPos = new Map()
-      for (const [id, p] of cells) pxPos.set(id, cellPx(p))
-      const rwd = buildRwdMap(
-        buildHcGraph(cachedSkeleton, grid.cellOf).segs, pxPos,
-        { unit: Math.min(cw, ch) },
-      )
-      rwdStats.value = rwd.stats
-      hcPos = rwd.posAfter
-      rwdLines = rwd.lines.map((L) => ({ ...L, px: L.pts }))
+      if (!cachedRWD) {
+        hcBusy.value = true
+        await new Promise((r) => setTimeout(r, 30))
+        if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
+        // SQUARE virtual cells (24px): ample routing space regardless of grid
+        // size, and the cell diagonal is exactly 45° — the isotropic screen
+        // mapping below preserves both.
+        const VCELL = 24
+        const VW = nC * VCELL, VH = nR * VCELL
+        const vcw = VCELL, vch = VCELL
+        const vPos = new Map()
+        for (const [id, p] of cells) vPos.set(id, [24 + (p[0] + 0.5) * vcw, 24 + (p[1] + 0.5) * vch])
+        cachedRWD = {
+          ...buildRwdMap(buildHcGraph(cachedSkeleton, grid.cellOf).segs, vPos, {
+            unit: Math.min(vcw, vch),
+            lattice: { x0: 24, y0: 24, sx: vcw / 2, sy: vch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 },
+          }),
+          VW, VH,
+        }
+        hcBusy.value = false
+      }
+      rwdStats.value = cachedRWD.stats
+      // isotropic virtual→screen transform (centred letterbox)
+      const sf = Math.min((w - 48) / cachedRWD.VW, (h - 48) / cachedRWD.VH)
+      const ox = 24 + ((w - 48) - cachedRWD.VW * sf) / 2
+      const oy = 24 + ((h - 48) - cachedRWD.VH * sf) / 2
+      const V = (p) => [ox + (p[0] - 24) * sf, oy + (p[1] - 24) * sf]
+      hcPos = new Map()
+      for (const [id, p] of cachedRWD.posAfter) hcPos.set(id, V(p))
+      rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts.map(V) }))
+      hcBlue = {
+        xs: Array.from({ length: nC + 1 }, (_, i) => ox + i * (cachedRWD.VW / nC) * sf),
+        ys: Array.from({ length: nR + 1 }, (_, i) => oy + i * (cachedRWD.VH / nR) * sf),
+      }
     } else {
       hcPos = new Map()
       for (const [id, p] of cells) hcPos.set(id, cellPx(p))
       placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
-    }
-    hcBlue = {
-      xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
-      ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
+      hcBlue = {
+        xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
+        ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
+      }
     }
   }
   const posOf = (id) =>
@@ -333,11 +361,15 @@ async function render() {
         const e = L.seg.edge
         const html = `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）· `
           + (L.fallback ? '兜底直線（非 H/V/45°）' : `轉折 ${L.bends}`)
+          + (L.routed ? ' · A* 繞行（避開交叉）' : '')
+          + (L.forced ? '<br/><span style="color:#f59e0b">殘留衝突：連 A* 繞行也找不到無交叉路徑</span>' : '')
         return strokesOf(e, ptsD(L.px), html)
       })
+      // Residual-conflict segments glow amber so leftover crossings explain
+      // themselves; otherwise the usual edge-class underlay.
       highlightData = rwdLines
-        .filter((L) => EDGE_HL[L.seg.edge.cls])
-        .map((L) => ({ d: ptsD(L.px), color: EDGE_HL[L.seg.edge.cls] }))
+        .filter((L) => L.forced || EDGE_HL[L.seg.edge.cls])
+        .map((L) => ({ d: ptsD(L.px), color: L.forced ? '#f59e0b' : EDGE_HL[L.seg.edge.cls] }))
     } else {
       lineData = sk.edges.flatMap((e) =>
         strokesOf(e, edgeD(e.path), `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`))
@@ -631,9 +663,13 @@ onBeforeUnmount(() => {
           <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
           <span v-if="isRWD && rwdMode && rwdStats" class="hc-stats">
             {{ rwdStats.segs }} 段 · 直線 {{ rwdStats.straight }} · 單折 {{ rwdStats.single }}
-            · 雙折 {{ rwdStats.double }}<template v-if="rwdStats.fallback">
+            · 雙折 {{ rwdStats.double }}<template v-if="rwdStats.multi">
+              · 多折 {{ rwdStats.multi }}</template><template v-if="rwdStats.rerouted">
+              · 繞行 {{ rwdStats.rerouted }}</template><template v-if="rwdStats.swapped">
+              · 順接調整 {{ rwdStats.swapped }}</template><template v-if="rwdStats.squeezed">
+              · 窄縫 {{ rwdStats.squeezed }}</template><template v-if="rwdStats.fallback">
               · 兜底 {{ rwdStats.fallback }}</template><template v-if="rwdStats.forced">
-              · 強制重疊 {{ rwdStats.forced }}</template><template v-if="hcCompactStats"> · 網格
+              · 殘留衝突 {{ rwdStats.forced }}</template><template v-if="hcCompactStats"> · 網格
               {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
           </span>
 
