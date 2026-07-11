@@ -299,6 +299,25 @@ function addMetroSourceLayers(data) {
       'circle-stroke-width': 2,
     },
   })
+  // Station name labels, placed above the dot (toggled by the Style tab).
+  map.addLayer({
+    id: 'metro-labels', source: 'metro', type: 'symbol',
+    filter: ['==', ['geometry-type'], 'Point'],
+    layout: {
+      'text-field': ['coalesce', ['get', 'station_name'], ''],
+      'text-size': 11,
+      'text-anchor': 'bottom',
+      'text-offset': [0, -0.6],
+      'text-allow-overlap': false,
+      'text-optional': true,
+      visibility: 'none',
+    },
+    paint: {
+      'text-color': '#e5e7eb',
+      'text-halo-color': '#111827',
+      'text-halo-width': 1.4,
+    },
+  })
   applyLayerState()
 }
 
@@ -376,6 +395,9 @@ function applyLayerState() {
   if (map.getLayer('metro-stations-hover')) {
     map.setLayoutProperty('metro-stations-hover', 'visibility', vis)
     map.setPaintProperty('metro-stations-hover', 'circle-radius', (l.radius || 4) + 3)
+  }
+  if (map.getLayer('metro-labels')) {
+    map.setLayoutProperty('metro-labels', 'visibility', l.visible && l.showLabels ? 'visible' : 'none')
   }
 }
 

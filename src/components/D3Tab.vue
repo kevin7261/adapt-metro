@@ -193,6 +193,20 @@ async function render() {
       hideTip()
     })
 
+  // Station name labels above the dots (toggled by the Style tab).
+  if (panelLayer.value?.showLabels) {
+    const r = panelLayer.value?.radius ?? 4
+    stationsG.selectAll('text.st-label')
+      .data(stationData)
+      .join('text')
+      .attr('class', 'st-label')
+      .attr('x', (d) => d.x)
+      .attr('y', (d) => d.y - r - 3)
+      .attr('text-anchor', 'middle')
+      .style('pointer-events', 'none')
+      .text((d) => d.props.station_name ?? '')
+  }
+
   applyStyle()
 
   // reset zoom to identity on re-render
@@ -262,6 +276,8 @@ watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
   applyStyle,
 )
+// Toggling station labels needs a re-render (add/remove text nodes).
+watch(() => panelLayer.value?.showLabels, render)
 
 onMounted(() => {
   // d3-zoom drives the inner <g> transform (wheel zoom + drag pan).
@@ -414,6 +430,14 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 .d3-hint.error { color: hsl(var(--destructive)); }
+.d3-svg :deep(text.st-label) {
+  font-size: 9px;
+  fill: #e5e7eb;
+  stroke: #111827;
+  stroke-width: 2.4px;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}
 .d3-tip {
   position: absolute;
   display: none;

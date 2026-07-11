@@ -426,6 +426,11 @@ function startResize(e) {
               <label class="field-label">Station radius — {{ layer.radius }} px</label>
               <input v-model.number="layer.radius" type="range" min="1" max="10" step="0.5" class="slider" />
             </div>
+
+            <label class="field check-field">
+              <input type="checkbox" :checked="layer.showLabels" @change="layer.showLabels = $event.target.checked" />
+              <span>顯示站名（在站點上方）</span>
+            </label>
           </template>
 
           <template v-if="editable">
@@ -719,6 +724,8 @@ function startResize(e) {
 
 /* Style */
 .field { margin-bottom: 12px; flex: 1; min-width: 0; }
+.check-field { display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer; }
+.check-field input { accent-color: hsl(var(--primary)); }
 .field-row { display: flex; gap: 10px; }
 .color-input {
   width: 100%;

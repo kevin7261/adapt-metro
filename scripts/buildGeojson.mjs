@@ -1558,12 +1558,12 @@ async function build() {
       const pc = Math.max(
         passCount.get(s.geometry.coordinates.join(',')) ?? 0, routes.length)
       s.properties.pass_count = pc
-      // interchange = 服務該站的「不同路線」數 ≥2（使用者規則：同一路線——含其
-      // 支線，featTag 為同一 ref——通過同站兩次不算換乘，如七張＝綠線主線＋小碧潭
-      // 支線同為 G，不紅點）。pass_count（含同線多次通過）保留為參考屬性。
-      const distinctLines = (s.properties.lines || []).length
-      s.properties.is_interchange = distinctLines >= 2
-      s.properties.station_role = distinctLines >= 2 ? 'interchange'
+      // interchange ⇔ 通過次數 ≥2（使用者規則）：**不同 route 各通過一次都算**——
+      // 支線分歧（七張＝綠線主線＋小碧潭支線）、獨立營運線交會（濱海沙崙＝綠山線
+      // ＋藍海線）皆為 interchange，即使同 ref。**同一條 route** 環線閉合/折返
+      // 經過同站兩次不算（passCount 已將閉合點減 1）。pc 於路段化前逐 route 計。
+      s.properties.is_interchange = pc >= 2
+      s.properties.station_role = pc >= 2 ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
     }
     // 快取殭屍清理：無名（合成名 n123…）且不屬於任何線站序的站點＝上游已刪
