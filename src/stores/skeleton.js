@@ -72,6 +72,8 @@ export function buildConnectSkeleton(geojson) {
   // station sequences so the crossing splits the edges there (a shared vertex on
   // both polylines). Detect on the ORIGINAL polylines (interior of both segments,
   // t,u strictly in (0,1) → shared-station endpoints excluded), then splice.
+  // Includes SAME-route self-crossings (a route that loops back over itself): the
+  // b = a pass compares a route's non-adjacent segments against each other.
   const crossings = []        // { id, coord } for the renderer
   const crossIds = new Set()  // synthetic ids — forced 'yellow' after classification
   {
@@ -93,12 +95,15 @@ export function buildConnectSkeleton(geojson) {
     }
     for (let a = 0; a < routeArr.length; a++) {
       const A = ptsOf(routeArr[a])
-      for (let b = a + 1; b < routeArr.length; b++) {
+      for (let b = a; b < routeArr.length; b++) { // b = a → same-route self-crossings
         const B = ptsOf(routeArr[b])
+        const self = a === b
         for (let i = 1; i < A.length; i++) {
           const aMinX = Math.min(A[i - 1][0], A[i][0]), aMaxX = Math.max(A[i - 1][0], A[i][0])
           const aMinY = Math.min(A[i - 1][1], A[i][1]), aMaxY = Math.max(A[i - 1][1], A[i][1])
-          for (let j = 1; j < B.length; j++) {
+          // self: start at i+2 so a segment is never tested against itself or its
+          // vertex-sharing neighbour, and each self pair is tested once.
+          for (let j = self ? i + 2 : 1; j < B.length; j++) {
             if (Math.min(B[j - 1][0], B[j][0]) > aMaxX || Math.max(B[j - 1][0], B[j][0]) < aMinX ||
                 Math.min(B[j - 1][1], B[j][1]) > aMaxY || Math.max(B[j - 1][1], B[j][1]) < aMinY) continue
             const r = segX(A[i - 1], A[i], B[j - 1], B[j])
