@@ -342,12 +342,12 @@ function startResize(e) {
                   <li><span class="sk-dot" style="background:#2563eb" /> 藍：真端點（degree≤1）</li>
                   <li><span class="sk-dot sk-ring" /> 白：直通中段站（degree=2、兩側同路線；不變）</li>
                   <li><span class="sk-dot" style="background:#a855f7" /> 紫：頭尾共點／環線切斷點</li>
-                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：曲折邊的代表性轉折點</li>
+                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：代表性轉折點（該點進出方向夾角 ≥ 30°）</li>
                   <li><span class="sk-dot" style="background:#9ca3af" /> 灰：過長黑點段的分隔（每段 ≤4，G=⌊N/5⌋）</li>
                 </ul>
                 <p class="sk-sub">邊（收縮後底色）</p>
                 <ul>
-                  <li><span class="sk-line" style="background:#e11d48" /> 紅底：共線合併（≥2 路線；不切紫點）</li>
+                  <li><span class="sk-line sk-coline" /> 共線合併：各 route 交錯彩色虛線（≥2 路線；不切紫點）</li>
                   <li><span class="sk-line" style="background:#16a34a" /> 綠：環線（自環；1/3、2/3 切 2 紫）</li>
                   <li><span class="sk-line" style="background:#2563eb" /> 藍：頭尾共點（平行多重邊；1/2 切 1 紫）</li>
                   <li><span class="sk-line sk-plain" /> 一般：路線原色</li>
@@ -765,6 +765,7 @@ function startResize(e) {
 .sk-dot.sk-ring { background: #fff; }
 .sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
 .sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
+.sk-line.sk-coline { background: repeating-linear-gradient(90deg, #e11d48 0 4px, #2563eb 4px 8px); }
 .skeleton-rules .rose-note { margin-top: 10px; font-size: 11px; color: hsl(var(--muted-foreground)); }
 .section-title {
   font-size: 11px;

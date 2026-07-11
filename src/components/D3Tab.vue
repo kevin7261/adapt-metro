@@ -117,7 +117,8 @@ async function render() {
   // classify nodes (red/blue/black/purple/pink/gray) and edges (coline/loop/
   // parallel/plain). See skill route-skeleton-connect.
   const sk = skeletonized.value ? buildConnectSkeleton(data) : null
-  const EDGE_COLOR = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
+  const EDGE_COLOR = { loop: '#16a34a', parallel: '#2563eb' }
+  const MAX_OVERLAP = 6, DASH = 5 // co-line interleaved-dash pattern (screen px)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
   const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af' }
@@ -129,11 +130,21 @@ async function render() {
     const edgeD = (pathIds) => pathIds
       .map((id, i) => { const [x, y] = P(coordById.get(id)); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
       .join(' ')
-    lineData = sk.edges.map((e) => ({
-      d: edgeD(e.path),
-      stroke: EDGE_COLOR[e.cls] ?? e.color,
-      html: `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`,
-    }))
+    lineData = sk.edges.flatMap((e) => {
+      const d = edgeD(e.path)
+      const html = `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
+      // Co-line merge: draw the routes' colours as interleaved dashes, exactly
+      // like the metro map's overlap segments.
+      if (e.cls === 'coline' && (e.routeColors?.length ?? 0) >= 2) {
+        const cols = e.routeColors.slice(0, MAX_OVERLAP)
+        const n = cols.length
+        return cols.map((color, i) => ({
+          d, stroke: color, html,
+          dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
+        }))
+      }
+      return [{ d, stroke: EDGE_COLOR[e.cls] ?? e.color, html }]
+    })
     stationData = stations.map((f) => {
       const [x, y] = P(f.geometry.coordinates)
       return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
@@ -158,7 +169,8 @@ async function render() {
     .attr('d', (d) => d.d)
     .attr('fill', 'none')
     .attr('stroke', (d) => d.stroke)
-    .attr('stroke-linecap', 'round')
+    .attr('stroke-dasharray', (d) => d.dash ?? null)
+    .attr('stroke-linecap', (d) => (d.dash ? 'butt' : 'round'))
     .attr('stroke-linejoin', 'round')
     .style('cursor', 'pointer')
     .on('click', (e, d) => { e.stopPropagation(); if (d.props) store.setSelectedFeature(panelLayer.value?.id, d.props) })

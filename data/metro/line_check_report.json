@@ -51,7 +51,7 @@
       "city": "Nagoya",
       "country": "Japan",
       "route_id": "rm8030779",
-      "route_name": "Meikō Line",
+      "route_name": "名古屋市営名港線 (金山→名古屋港)",
       "ours": 7,
       "lang": "ja",
       "wiki": "en:Meikō Line",
@@ -2668,6 +2668,46 @@
       "reason": "article has no station count infobox"
     },
     {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8015940",
+      "route_name": "東京メトロ丸ノ内線 : 荻窪→池袋",
+      "ours": 25,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Marunouchi Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "rm8026069",
+      "route_name": "東京メトロ千代田線 (代々木上原->綾瀬)",
+      "ours": 18,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Chiyoda Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "r8015930",
+      "route_name": "東京メトロ丸ノ内線 : 中野坂上→方南町",
+      "ours": 4,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Marunouchi Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "route_id": "r2790323",
+      "route_name": "東京メトロ千代田線 : 北綾瀬→綾瀬",
+      "ours": 2,
+      "lang": "ja",
+      "wiki": "en:Tokyo Metro Chiyoda Line",
+      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
+    },
+    {
       "city": "Guangzhou",
       "country": "China",
       "route_id": "rm9841063",
@@ -2756,46 +2796,6 @@
       "lang": "zh",
       "wiki": "zh:广州地铁12号线",
       "reason": "system article shared by several lines (zh:广州地铁12号线)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8026069",
-      "route_name": "Tokyo Metro Chiyoda Line",
-      "ours": 18,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Chiyoda Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "rm8015940",
-      "route_name": "Tokyo Metro Marunouchi Line",
-      "ours": 25,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Marunouchi Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "r8015930",
-      "route_name": "Marunouchi Line (Nakano-sakaue --> Honancho)",
-      "ours": 4,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Marunouchi Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Marunouchi Line)"
-    },
-    {
-      "city": "Tokyo",
-      "country": "Japan",
-      "route_id": "r2790323",
-      "route_name": "Tokyo Metro Chiyoda Line (Kita-ayase → Ayase)",
-      "ours": 2,
-      "lang": "ja",
-      "wiki": "en:Tokyo Metro Chiyoda Line",
-      "reason": "system article shared by several lines (en:Tokyo Metro Chiyoda Line)"
     },
     {
       "city": "Chicago",
@@ -5831,7 +5831,7 @@
       "city": "Yokohama",
       "country": "Japan",
       "route_id": "rm7732283",
-      "route_name": "Green Line",
+      "route_name": "横浜市営地下鉄グリーンライン",
       "ours": 10,
       "lang": "ja",
       "wiki": "en:Green Line",
@@ -6134,7 +6134,7 @@
       "city": "Fukuoka",
       "country": "Japan",
       "route_id": "rm7703353",
-      "route_name": "Fukuoka City Subway Kūkō Line",
+      "route_name": "福岡市地下鉄空港線",
       "ours": 13,
       "lang": "ja",
       "wiki": "en:Kūkō Line",
@@ -6144,7 +6144,7 @@
       "city": "Fukuoka",
       "country": "Japan",
       "route_id": "rm7702769",
-      "route_name": "Fukuoka City Subway Hakozaki Line",
+      "route_name": "福岡市地下鉄箱崎線",
       "ours": 7,
       "lang": "ja",
       "wiki": "en:Hakozaki Line",
@@ -7080,7 +7080,7 @@
       "city": "Osaka",
       "country": "Japan",
       "route_id": "rm8028805",
-      "route_name": "Osaka Municipal Subway Midōsuji Line",
+      "route_name": "Osaka Metro御堂筋線 (箕面萱野 => 中百舌鳥)",
       "ours": 25,
       "lang": "ja",
       "wiki": "ja:Osaka Metro御堂筋線",

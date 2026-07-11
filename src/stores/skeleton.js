@@ -102,10 +102,10 @@ export function buildConnectSkeleton(geojson) {
     else if (e.a === e.b) e.cls = 'loop'
     else if ((pairCount.get(pk(e.a, e.b)) ?? 0) >= 2) e.cls = 'parallel'
     else e.cls = 'plain'
-    if (e.cls === 'plain') {
-      const rid = [...e.routes][0]
-      e.color = rid ? routes.get(rid)?.color ?? '#e11d48' : '#e11d48'
-    }
+    // Colours of the routes on this edge — a co-line edge is drawn as their
+    // interleaved dashes (same as the metro map's overlap), plain uses the first.
+    e.routeColors = [...e.routes].map((id) => routes.get(id)?.color ?? '#e11d48')
+    if (e.cls === 'plain') e.color = e.routeColors[0] ?? '#e11d48'
   }
 
   // final per-station class: start from node class; interior black stations of
@@ -125,7 +125,11 @@ export function buildConnectSkeleton(geojson) {
     }
     return best
   }
-  const TURN = 28 * Math.PI / 180 // pink bend threshold
+  // Pink = a representative bend: an interior black station whose DEFLECTION
+  // angle (the turn between its incoming and outgoing segment directions;
+  // 0° = straight through) is ≥ PINK_DEFLECT_DEG.
+  const PINK_DEFLECT_DEG = 30
+  const PINK_DEFLECT = PINK_DEFLECT_DEG * Math.PI / 180
   for (const e of edges) {
     const { path } = e
     if (path.length < 3) continue
@@ -142,14 +146,15 @@ export function buildConnectSkeleton(geojson) {
       }
     }
 
-    // ⑥ pink bends (representative turning points among interior black)
+    // ⑥ pink bends: interior black whose deflection angle ≥ PINK_DEFLECT_DEG.
     for (let i = 1; i < path.length - 1; i++) {
       if (stationClass.get(path[i]) !== 'black') continue
       const A = coord.get(path[i - 1]), B = coord.get(path[i]), C = coord.get(path[i + 1])
-      const a1 = Math.atan2(B[1] - A[1], B[0] - A[0])
-      const a2 = Math.atan2(C[1] - B[1], C[0] - B[0])
-      let dth = Math.abs(a2 - a1); if (dth > Math.PI) dth = 2 * Math.PI - dth
-      if (dth >= TURN) stationClass.set(path[i], 'pink')
+      const a1 = Math.atan2(B[1] - A[1], B[0] - A[0]) // incoming direction
+      const a2 = Math.atan2(C[1] - B[1], C[0] - B[0]) // outgoing direction
+      let deflect = Math.abs(a2 - a1)
+      if (deflect > Math.PI) deflect = 2 * Math.PI - deflect // 0 = straight, π = U-turn
+      if (deflect >= PINK_DEFLECT) stationClass.set(path[i], 'pink')
     }
 
     // ⑥ gray separators: within each run of black between boundaries (nodes +
