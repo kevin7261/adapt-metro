@@ -696,6 +696,35 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
   }
 }
 
+// ④ LLM 對齊 executor: the fourth post-pass. The TARGETS come from outside —
+// an LLM session (scripts/llmAlign.mjs + skill route-llm-align) proposes them
+// round by round; this function only does what the other three passes do after
+// deciding: run every proposal through the SAME hard rules (applyTargets, incl.
+// the net-HV revert) and report the stats. targetEntries: [[id,[c,r]], ...] —
+// unknown ids are ignored, partial proposals are fine.
+export function applyLlmTargets(skeleton, cells, cols, rows, targetEntries) {
+  const { pos, segs, inc } = buildHcGraph(skeleton, cells)
+  if (!pos.size || !segs.length) {
+    return { cellAfter: pos, stats: { hvBefore: 0, hvAfter: 0, segs: 0, verts: pos.size, moved: 0, passes: 0, reverted: false } }
+  }
+  const M = makeMover(pos, segs, inc, cols, rows)
+  const hvBefore = countHV(pos, segs)
+  const targets = new Map()
+  for (const [id, t] of targetEntries) {
+    if (!pos.has(id)) continue
+    if (!Array.isArray(t) || !Number.isInteger(t[0]) || !Number.isInteger(t[1])) continue
+    targets.set(id, [t[0], t[1]])
+  }
+  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs)
+  return {
+    cellAfter: pos,
+    stats: {
+      hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size,
+      moved, passes, reverted, proposed: targets.size,
+    },
+  }
+}
+
 // ③ 整數規劃: per-axis 0-1 integer program, solved EXACTLY. Every vertex
 // incident to an alignable segment gets an offset variable in [-window,
 // window]; objective = maximise the number of aligned segments with total

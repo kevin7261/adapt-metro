@@ -4,6 +4,7 @@ import { geoMercator, geoPath } from 'd3-geo'
 import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
+import { assetUrl } from '../lib/assetUrl'
 import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
@@ -82,9 +83,16 @@ const tilt = ref(0)
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
-  ['hc', 'hc-rect', 'hc-align', 'hc-ilp',
-    'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'rwd']
-    .includes(mode.value))
+  ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
+    'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
+    'rwd'].includes(mode.value))
+// 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
+// route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
+// 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
+const llmMode = computed(() => isHC.value && mode.value.startsWith('hc-llm'))
+const llmInfo = ref(null)  // { rounds, model } once loaded
+const llmStats = ref(null) // stats from the llmview file
+const llmMsg = ref(null)   // hint when the result is missing / stale
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
 // re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
@@ -122,7 +130,8 @@ let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
 let cachedPost = {}    // rect / align / ilp post-pass results, keyed by kind
-let cachedCompact = {} // compactGrid results, keyed by 'hc' / 'rect' / 'align' / 'ilp'
+let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
+let cachedCompact = {} // compactGrid results, keyed by 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
@@ -146,10 +155,13 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-rect', label: `直角爬山${iterBadge('rect')}` },
       { id: 'hc-align', label: `軸對齊${iterBadge('align')}` },
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
+      // 第四種（LLM）: the badge carries the rounds AND the model that produced it
+      { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       { id: 'hc-compact', label: '縮減網格' },
       { id: 'hc-rect-compact', label: '直角爬山縮減' },
       { id: 'hc-align-compact', label: '軸對齊縮減' },
       { id: 'hc-ilp-compact', label: '整數規劃縮減' },
+      { id: 'hc-llm-compact', label: 'LLM 對齊縮減' },
     ]
   }
   return [
@@ -240,6 +252,7 @@ async function render() {
   const sel = select(g)
   sel.selectAll('*').remove()
   loadError.value = null
+  llmMsg.value = null
 
   const data = await sourceData()
   if (seq !== renderSeq) return // superseded — the newer render draws
@@ -258,11 +271,14 @@ async function render() {
     cachedSkeleton = buildConnectSkeleton(data)
     cachedHC = null
     cachedPost = {}
+    cachedLlm = null
     cachedCompact = {}
     cachedRWD = null
     hcStats.value = null
     postStats.value = null
     postIters.value = {}
+    llmInfo.value = null
+    llmStats.value = null
     hcCompactStats.value = null
     rwdStats.value = null
   }
@@ -319,10 +335,44 @@ async function render() {
       postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }
       cells = cachedPost[kind].cellAfter
     }
+    // 第四種「LLM 對齊」: precomputed offline (skill route-llm-align) — fetch
+    // the llmview for this city+variant and verify it matches THIS dataset's
+    // HC result (fingerprint), otherwise explain how to (re)generate it.
+    if (llmMode.value) {
+      if (!cachedLlm) {
+        const cid = sourceLayer.value?.id
+        cachedLlm = { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
+        if (cid) {
+          try {
+            const res = await fetch(assetUrl(`data/metro/llmviews/${cid}.${hcVariant.value}.json`))
+            const isJson = (res.headers.get('content-type') ?? '').includes('json')
+            const j = res.ok && isJson ? await res.json() : null
+            if (!j) {
+              cachedLlm = { miss: `尚未產生 LLM 對齊——請在 Claude Code 對 ${cid}（${hcVariant.value}）跑 route-llm-align skill` }
+            } else if (j.fingerprint?.verts !== cachedHC.stats.verts
+              || j.fingerprint?.segs !== cachedHC.stats.segs
+              || j.fingerprint?.cols !== grid.cols || j.fingerprint?.rows !== grid.rows
+              || j.fingerprint?.hvStart !== cachedHC.stats.hvAfter) {
+              cachedLlm = { miss: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生' }
+            } else {
+              cachedLlm = { cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }
+            }
+          } catch { cachedLlm = { miss: '無法載入 LLM 對齊結果' } }
+        }
+        if (seq !== renderSeq) return // superseded during fetch
+      }
+      if (!cachedLlm.cells) {
+        llmMsg.value = cachedLlm.miss
+        return // nothing to draw — the hint overlay explains why
+      }
+      cells = cachedLlm.cells
+      llmStats.value = cachedLlm.stats
+      llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
+    }
     if (hcCompact.value) {
-      // compacts the CURRENT layout: the HC result, or the post-pass one when
-      // this is a 縮減 tab of 直角爬山/軸對齊/整數規劃 (cells already swapped).
-      const ckey = postKind.value ?? 'hc'
+      // compacts the CURRENT layout: the HC result, or the post-pass/LLM one
+      // when this is one of the 縮減 tabs (cells already swapped above).
+      const ckey = llmMode.value ? 'llm' : postKind.value ?? 'hc'
       if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
       cells = cachedCompact[ckey].cellAfter
       nC = cachedCompact[ckey].cols
@@ -727,6 +777,16 @@ onBeforeUnmount(() => {
               {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
           </span>
 
+          <!-- LLM 對齊: precomputed offline — rounds and the model that made it -->
+          <span v-if="llmMode && llmStats" class="hc-stats">
+            水平垂直 {{ llmStats.hvBefore }} → {{ llmStats.hvAfter }}／{{ llmStats.segs }} 段
+            · 迭代 {{ llmStats.rounds }} 輪 · 移動 {{ llmStats.moved }} 站
+            · 模型 {{ llmStats.model }}<template
+              v-if="hcCompact && hcCompactStats"> · 網格
+              {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+          </span>
+
           <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
           <span v-if="isRWD && rwdMode && rwdStats" class="hc-stats">
             {{ rwdStats.segs }} 段 · 直線 {{ rwdStats.straight }} · 單折 {{ rwdStats.single }}
@@ -759,6 +819,7 @@ onBeforeUnmount(() => {
           <div v-if="loading" class="ma-hint">載入中…</div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
+          <div v-else-if="llmMsg" class="ma-hint">{{ llmMsg }}</div>
         </div>
 
         <AttributeTable
