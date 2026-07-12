@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { marked } from 'marked'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
 import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
@@ -11,6 +12,10 @@ import MIcon from './MIcon.vue'
 // The layer this tab edits — passed in by LayerTab.
 const props = defineProps({
   layer: { type: Object, required: true },
+  // LLM 對齊 provenance (the llmview file: model / prompt / per-round
+  // transcript / finalOutput) — passed by D3Tab for Hill Climbing views;
+  // when present, an extra「LLM對齊」tab appears after Object.
+  llmRecord: { type: Object, default: null },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -20,12 +25,14 @@ const isD3 = computed(() => props.context === 'd3')
 const open = ref(true)
 const width = ref(300)
 
-// Panel sections — add more entries here later (e.g. Analysis, Export).
-const TABS = [
+// Panel sections — the LLM對齊 tab appears only once a run has produced a
+// record (llmRecord prop from D3Tab).
+const TABS = computed(() => [
   { id: 'info', label: 'Info' },
   { id: 'style', label: 'Style' },
   { id: 'object', label: 'Object' },
-]
+  ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
+])
 const activeTab = ref('info')
 
 /* ---- Object: properties of the last-clicked map feature (blank if none) ---- */
@@ -69,6 +76,23 @@ const selectedEntries = computed(() => {
 
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
+// The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
+watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
+
+// The skill that drove the run — fetched once when the LLM對齊 tab first opens
+// (same source + rendering as SkillViewer: /skills/<id>.md, frontmatter off).
+const llmSkillHtml = ref('')
+watch(activeTab, async (t) => {
+  if (t !== 'llm' || llmSkillHtml.value) return
+  try {
+    const res = await fetch(assetUrl('skills/route-llm-align.md'))
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const md = (await res.text()).replace(/^---\n[\s\S]*?\n---\n/, '')
+    llmSkillHtml.value = marked.parse(md)
+  } catch (err) {
+    llmSkillHtml.value = `<p>SKILL.md 載入失敗：${err}</p>`
+  }
+})
 
 // 點到路段時：顯示每條行經 route 的完整車站列表（依站序）。
 // 列表來自 route meta 的 stations（build 保證與圖面一致——audit 有不變式檢查）。
@@ -744,6 +768,45 @@ function startResize(e) {
             </tbody>
           </table>
         </template>
+
+        <!-- ============ LLM對齊: run provenance (prompt / responses / model) ============ -->
+        <template v-else-if="activeTab === 'llm' && llmRecord">
+          <div class="info-rows">
+            <div class="info-row"><span class="info-key">模型</span><span>{{ llmRecord.model ?? '—' }}</span></div>
+            <div class="info-row"><span class="info-key">輪數</span><span>{{ llmRecord.rounds }}</span></div>
+            <div class="info-row">
+              <span class="info-key">水平垂直</span>
+              <span>{{ llmRecord.hvBefore }} → {{ llmRecord.hvAfter }}／{{ llmRecord.segs }} 段</span>
+            </div>
+            <div class="info-row"><span class="info-key">移動</span><span>{{ llmRecord.moved }} 站</span></div>
+          </div>
+
+          <h4 class="llm-h">輸入的 skill / prompt</h4>
+          <pre class="llm-pre">{{ llmRecord.prompt ?? '（此結果產生於紀錄功能之前，無 prompt 紀錄——重跑一次即可補上）' }}</pre>
+
+          <h4 class="llm-h">使用的 skill：route-llm-align</h4>
+          <details class="llm-skill">
+            <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
+            <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
+          </details>
+
+          <h4 class="llm-h">LLM 回傳（逐輪）</h4>
+          <div v-for="(t, i) in llmRecord.transcript ?? []" :key="i" class="llm-round">
+            <div class="llm-round-head">
+              {{ t.round ? `第 ${t.round} 輪` : '附註' }} · 提案 {{ t.proposed }} 點
+              · HV {{ t.hv }}<template v-if="t.rejected"> · 硬規則拒絕 {{ t.rejected }}</template>
+            </div>
+            <div class="llm-note">{{ t.note ?? '（無說明）' }}</div>
+          </div>
+          <div v-if="!(llmRecord.transcript ?? []).length" class="llm-note">
+            （無逐輪紀錄——重跑一次即可補上）
+          </div>
+
+          <template v-if="llmRecord.finalOutput">
+            <h4 class="llm-h">最終輸出</h4>
+            <pre class="llm-pre">{{ llmRecord.finalOutput }}</pre>
+          </template>
+        </template>
       </div>
     </aside>
   </template>
@@ -812,6 +875,56 @@ function startResize(e) {
   color: hsl(var(--foreground));
 }
 .obj-station-list li::marker { color: hsl(var(--muted-foreground)); font-size: 10.5px; }
+/* LLM對齊 tab: run provenance */
+.llm-h {
+  margin: 14px 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+.llm-pre {
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 10px;
+  max-height: 220px;
+  overflow: auto;
+}
+.llm-round {
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.llm-round-head {
+  font-size: 11px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.llm-note { font-size: 11.5px; line-height: 1.6; color: hsl(var(--muted-foreground)); white-space: pre-wrap; }
+.llm-skill summary {
+  cursor: pointer;
+  font-size: 11.5px;
+  color: hsl(var(--primary));
+  user-select: none;
+  margin-bottom: 6px;
+}
+.llm-skill summary:hover { text-decoration: underline; }
+.llm-skill-md {
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 12px;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 12px;
+}
+
 .obj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .obj-table tr { border-bottom: 1px solid hsl(var(--border)); }
 .obj-key {

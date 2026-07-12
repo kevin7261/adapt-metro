@@ -30,6 +30,15 @@ scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json>
   網頁會顯示「與目前資料不符」，用 `reset` 後重跑即可。
 - 網頁端：D3Tab 的「LLM 對齊」＋「LLM 對齊縮減」tab；**按鈕 badge 顯示
   「n輪 · 模型名」**，工具列顯示 水平垂直 before → after／段數、輪數、模型。
+- **按鈕觸發（不自動開始）**：切到 tab 只載入既有結果；沒有結果時畫面上有
+  「開始 LLM 對齊」鈕（有結果時是「重跑」）——按下去 POST `/llm-align/run`，
+  vite dev plugin（vite.config.js `llmAlignTrigger`）spawn **headless
+  `claude -p`** 跑本 skill，頁面輪詢 `/llm-align/status`、每輪 apply 落檔後
+  畫面即時更新。GH Pages 沒有 dev server → 按鈕會回報需要本機 `npm run dev`。
+  測試替身：`LLM_ALIGN_CMD` 環境變數可換掉 `claude` 指令。
+- **右側面板「LLM對齊」tab**（Object 後面，StylePanel）：顯示 模型／輪數／
+  prompt／逐輪 note／headless run 的最終輸出。資料來源＝結果檔的
+  `prompt`、`transcript`、`finalOutput`（trigger plugin 在 run 結束時併入）。
 
 ## 執行迴圈（你要做的事）
 
@@ -39,13 +48,18 @@ scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json>
    dx/dy = b 端減 a 端的格差）、`hvSegs[{a,b,dir}]`（**已對齊、不要弄斷**——
    先由 hvSegs 建每個頂點的鎖定方向表：出現在 V 段的點 col 被鎖、H 段的點
    row 被鎖；同時被鎖 col 和 row 的樞紐點不要動）。
-2. 分析 offSegs、提出移動，寫 moves.json 到 scratchpad：
-   `{ "model": "<你的模型名，如 Fable 5>", "moves": { "<i>": [col, row], … } }`
-   - `model` 必填——會顯示在網頁按鈕上，寫你實際的模型名。
+2. 分析 offSegs、提出移動，寫 moves.json 到 scratchpad（或系統暫存）：
+   `{ "model": "<你的模型名，如 Fable 5>", "moves": { "<i>": [col, row], … },
+     "note": "<本輪思路摘要>", "prompt": "<第一輪附：觸發本次執行的指示>" }`
+   - `model` 必填——顯示在網頁按鈕與右側面板；寫你實際的模型名。
+   - `note` 每輪都要寫——顯示在右側「LLM對齊」面板的逐輪紀錄。
+   - `prompt` 第一輪寫一次即可（互動 session 摘述使用者要求；headless run
+     照 -p 收到的指示寫）。
    - 移動要**短距離**（±1～3 格內），座標是絕對格座標（不是位移）。
    - 策略提示：|dy|<|dx| 的段把兩端 row 對齊（改 dy→0 成水平）、反之對齊 col；
      整條鏈（多段相連）對到同一 row/col 收益最大；別動已經對齊的鏈的
      公共座標，除非整群一起搬；一格只能一個頂點，撞格的提案會被拒。
+   - `moves` 留空 = 純記錄 note/prompt（不計輪、佈局不動）。
 3. `node scripts/llmAlign.mjs apply <cityId> <variant> <moves.json>`。
    讀輸出的 `hv`（有沒有進步）、`reverted`（整批被退回＝這輪淨值變差）、
    `rejected`（哪些點沒到位：want vs got）。

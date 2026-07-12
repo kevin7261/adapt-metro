@@ -91,8 +91,57 @@ const hcMode = computed(() =>
 // 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
 const llmMode = computed(() => isHC.value && mode.value.startsWith('hc-llm'))
 const llmInfo = ref(null)  // { rounds, model } once loaded
-const llmStats = ref(null) // stats from the llmview file
+const llmStats = ref(null) // the whole llmview file (stats + prompt + transcript)
 const llmMsg = ref(null)   // hint when the result is missing / stale
+// 按鈕觸發：POST 給 dev server 的 /llm-align/run（vite plugin 起 headless
+// Claude Code 跑 route-llm-align skill），輪詢 /llm-align/status，每輪 apply
+// 寫檔後畫面就跟著更新，跑完載入最終結果。GH Pages 上沒有 dev server → 報錯。
+const llmRun = ref(null)     // null | 'running' | 'error'
+const llmRunTail = ref('')
+let llmPollTimer = null
+const llmCityId = computed(() => sourceLayer.value?.id ?? null)
+async function startLlmRun() {
+  const cid = llmCityId.value
+  if (!cid || llmRun.value === 'running') return
+  llmRun.value = 'running'
+  llmRunTail.value = ''
+  try {
+    const res = await fetch('/llm-align/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city: cid, variant: hcVariant.value }),
+    })
+    if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
+    pollLlmRun()
+  } catch {
+    llmRun.value = 'error'
+    llmRunTail.value = '無法觸發——需要本機 npm run dev（vite）＋已安裝 Claude Code CLI'
+  }
+}
+function pollLlmRun() {
+  clearTimeout(llmPollTimer)
+  llmPollTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`/llm-align/status?city=${llmCityId.value}&variant=${hcVariant.value}`)
+      const s = await res.json()
+      llmRunTail.value = s.tail ?? ''
+      cachedLlm = null // pick up rounds as the headless run lands them
+      if (s.running) {
+        if (llmMode.value) render()
+        pollLlmRun()
+      } else if (s.exit === 0) {
+        llmRun.value = null
+        render()
+      } else {
+        llmRun.value = 'error'
+        if (llmMode.value) render() // a partial result may still exist
+      }
+    } catch {
+      llmRun.value = 'error'
+      llmRunTail.value = '狀態輪詢失敗'
+    }
+  }, 5000)
+}
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
 // re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
@@ -727,6 +776,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   disposables.forEach((d) => d?.dispose?.())
   resizeObs?.disconnect()
+  clearTimeout(llmPollTimer)
 })
 </script>
 
@@ -777,14 +827,21 @@ onBeforeUnmount(() => {
               {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
           </span>
 
-          <!-- LLM 對齊: precomputed offline — rounds and the model that made it -->
+          <!-- LLM 對齊: button-triggered offline run — rounds + the model -->
           <span v-if="llmMode && llmStats" class="hc-stats">
             水平垂直 {{ llmStats.hvBefore }} → {{ llmStats.hvAfter }}／{{ llmStats.segs }} 段
             · 迭代 {{ llmStats.rounds }} 輪 · 移動 {{ llmStats.moved }} 站
             · 模型 {{ llmStats.model }}<template
               v-if="hcCompact && hcCompactStats"> · 網格
               {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
-              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template><template
+              v-if="llmRun === 'running'"> · <b>執行中…</b></template>
+            <button
+              v-if="llmCityId && llmRun !== 'running'"
+              class="llm-rerun"
+              title="重新啟動 headless Claude Code 繼續改善"
+              @click="startLlmRun"
+            >重跑</button>
           </span>
 
           <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
@@ -819,7 +876,21 @@ onBeforeUnmount(() => {
           <div v-if="loading" class="ma-hint">載入中…</div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
-          <div v-else-if="llmMsg" class="ma-hint">{{ llmMsg }}</div>
+          <div v-else-if="llmMsg" class="ma-hint llm-hint">
+            <div class="llm-box">
+              <div>{{ llmMsg }}</div>
+              <div v-if="llmRun === 'running'" class="llm-tail">
+                Claude Code 執行中…（每輪 apply 後畫面自動更新）
+                <pre v-if="llmRunTail">{{ llmRunTail }}</pre>
+              </div>
+              <div v-else-if="llmRun === 'error'" class="llm-tail err">{{ llmRunTail }}</div>
+              <button
+                v-if="llmCityId && llmRun !== 'running'"
+                class="llm-btn"
+                @click="startLlmRun"
+              >開始 LLM 對齊</button>
+            </div>
+          </div>
         </div>
 
         <AttributeTable
@@ -829,7 +900,7 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <StylePanel v-if="panelLayer" :layer="panelLayer" context="d3" />
+      <StylePanel v-if="panelLayer" :layer="panelLayer" context="d3" :llm-record="isHC ? llmStats : null" />
     </div>
   </div>
 </template>
@@ -910,6 +981,48 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 .ma-hint.error { color: hsl(var(--destructive)); }
+/* LLM 對齊: the hint hosts a real button (the default hint is click-through) */
+.ma-hint.llm-hint { pointer-events: auto; }
+.llm-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 420px;
+  text-align: center;
+}
+.llm-tail { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
+.llm-tail pre {
+  margin-top: 6px;
+  max-height: 90px;
+  overflow: auto;
+  text-align: left;
+  font-size: 10.5px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.llm-tail.err { color: hsl(var(--destructive)); }
+.llm-btn {
+  height: 28px;
+  padding: 0 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid hsl(var(--primary) / 0.55);
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+}
+.llm-btn:hover { background: hsl(var(--primary) / 0.22); }
+.llm-rerun {
+  margin-left: 6px;
+  height: 18px;
+  padding: 0 8px;
+  font-size: 10.5px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+  color: hsl(var(--muted-foreground));
+}
+.llm-rerun:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 /* Strokes stay a constant screen width regardless of the zoom transform, so
    lines/borders/reference lines never thicken when zooming (dot radius & label
    size are counter-scaled in JS). */

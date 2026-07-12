@@ -7,7 +7,12 @@
 //   node scripts/llmAlign.mjs apply  <cityId> <orig|rot> <moves.json>
 //   node scripts/llmAlign.mjs reset  <cityId> <orig|rot>
 //
-// moves.json: { "model": "<模型名>", "moves": { "<vertIndex>": [col, row], ... } }
+// moves.json: {
+//   "model": "<模型名>",                        // 必填，顯示在網頁按鈕與面板
+//   "moves": { "<vertIndex>": [col, row], … },  // 可空（純記錄 note，不計輪）
+//   "note": "<本輪思路，顯示在右側 LLM對齊 面板>",
+//   "prompt": "<觸發這次執行的 skill/prompt，第一次提供時寫入>"
+// }
 // vertIndex 來自最近一次 export 的 verts[i].i（= 依 id 排序的索引，穩定）。
 // 佈局的格子是排名制、與視窗無關 → node 端重建的鏈與 D3Tab 完全一致。
 
@@ -112,6 +117,7 @@ if (cmd === 'export') {
   if (!movesPath) { console.error('apply 需要 moves.json 路徑'); process.exit(1) }
   const spec = JSON.parse(await readFile(movesPath, 'utf8'))
   if (!spec.model) { console.error('moves.json 必須含 "model"（顯示在網頁按鈕上）'); process.exit(1) }
+  const noteOnly = !spec.moves || !Object.keys(spec.moves).length
   const targetEntries = Object.entries(spec.moves ?? {}).map(([i, t]) => [ids[+i], t])
   const res = applyLlmTargets(skeleton, baseCells, grid.cols, grid.rows, targetEntries)
   const rejected = targetEntries
@@ -122,15 +128,30 @@ if (cmd === 'export') {
     const q = hc.cellAfter.get(id)
     if (q && (q[0] !== p[0] || q[1] !== p[1])) movedVsHC++
   }
+  // A note-only apply (no moves) documents the session without counting a round.
+  const rounds = (saved?.rounds ?? 0) + (noteOnly ? 0 : 1)
+  const transcript = saved?.transcript ?? []
+  if (spec.note || !noteOnly) {
+    transcript.push({
+      round: noteOnly ? null : rounds,
+      note: spec.note ?? null,
+      proposed: targetEntries.length,
+      hv: `${res.stats.hvBefore} → ${res.stats.hvAfter}`,
+      rejected: rejected.length,
+    })
+  }
   await mkdir(OUT, { recursive: true })
   await writeFile(outFile, JSON.stringify({
-    fingerprint, model: spec.model, rounds: (saved?.rounds ?? 0) + 1,
+    fingerprint, model: spec.model, rounds,
+    prompt: saved?.prompt ?? spec.prompt ?? null,
+    finalOutput: saved?.finalOutput, // trigger plugin's merge survives re-applies
+    transcript,
     hvBefore: fingerprint.hvStart, hvAfter: res.stats.hvAfter,
     segs: segs.length, moved: movedVsHC,
     cellAfter: [...res.cellAfter].map(([id, [c, r]]) => [id, c, r]),
   }))
   console.log(JSON.stringify({
-    round: (saved?.rounds ?? 0) + 1,
+    round: rounds,
     hv: `${res.stats.hvBefore} -> ${res.stats.hvAfter} / ${segs.length}`,
     hvFromHC: fingerprint.hvStart,
     reverted: res.stats.reverted, movedThisRound: res.stats.moved, movedVsHC,
