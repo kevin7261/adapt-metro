@@ -203,11 +203,12 @@ function candidates(S, T, u) {
     return out
   }
   const m = Math.min(ax, ay)
-  // 單轉折：45° 先走到與較短邊等長處再 H/V；純 L 形；鏡像（H/V 先、45° 收尾）
-  out.push({ pts: [S, [S[0] + sx * m, S[1] + sy * m], T], bends: 1 })
-  out.push({ pts: [S, [T[0], S[1]], T], bends: 1 }) // L: H → V
-  out.push({ pts: [S, [S[0], T[1]], T], bends: 1 }) // L: V → H
-  out.push({ pts: [S, [T[0] - sx * m, T[1] - sy * m], T], bends: 1 }) // H/V → 45°
+  // 單轉折。同折數內以「轉折角最大」優先（使用者規則：先180 再135 再90 再45）：
+  // 45° 接直線的內角是 135°，兩個方向都排在內角只有 90° 的純 L 形之前。
+  out.push({ pts: [S, [S[0] + sx * m, S[1] + sy * m], T], bends: 1 }) // 45° → H/V（內角135°）
+  out.push({ pts: [S, [T[0] - sx * m, T[1] - sy * m], T], bends: 1 }) // H/V → 45°（內角135°）
+  out.push({ pts: [S, [T[0], S[1]], T], bends: 1 }) // L: H → V（內角90°）
+  out.push({ pts: [S, [S[0], T[1]], T], bends: 1 }) // L: V → H（內角90°）
   // 雙轉折：45–H–45（ax>ay）或 45–V–45（ay>ax），中段預設 1/2，替代 1/4、3/4
   for (const t of [0.5, 0.25, 0.75]) {
     const k = m * t
@@ -249,7 +250,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // (may exceed 2 bends); forced = STILL in conflict after even that (should be
   // 0 — only a lattice-router failure leaves one); fallback = an illegal
   // direction nothing could legalize; swapped = soft continuation swaps.
-  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, straightened: 0, restarts: 0, segs: 0 }
+  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, straightened: 0, diag45: 0, restarts: 0, segs: 0 }
 
   const usable = segs.filter((s) => pos.has(s.a) && pos.has(s.b))
   // Longest corridors route first (they have the fewest workable alternatives);
@@ -524,11 +525,49 @@ export function buildRwdMap(segs, pos, opts = {}) {
     return out
   }
 
+  const snapLine = (X) => ({ pts: X.pts, legs: X.legs, bends: X.bends, routed: X.routed, forced: X.forced })
+
+  // Re-route line w around the CURRENT layout: cleanest bounded-bend candidate
+  // first, the A* lattice router as backup. null = no clean shape exists.
+  function rerouteAround(w, wi) {
+    const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
+    const placedW = placedOf(wi)
+    for (const c of candidates(S2, T2, unit)) {
+      if (c.fallback) continue
+      if (conflictCount(c.pts, w.seg, placedW) === 0) return { pts: c.pts, bends: c.bends, routed: false }
+    }
+    const r = routeLattice(S2, T2, w.seg, placedW)
+    return r ? { pts: r, bends: r.length - 2, routed: true } : null
+  }
+
+  // Like conflictCount but names WHICH lines block（協商式拉直要知道找誰讓路）.
+  // other = a blocker that cannot be negotiated away (node on leg, X leg).
+  function conflictLines(pts, seg, placed) {
+    const legs = legsOfPts(pts)
+    if (legs.length !== pts.length - 1) return { count: Infinity, lines: new Set(), other: true }
+    let count = 0, other = false
+    const ls = new Set()
+    for (const leg of legs) {
+      for (const p of placed) {
+        if (leg.dir === p.dir ? legsHug(leg, p, minGap) : legsCross(leg, p, isNodePt)) {
+          count++
+          if (p.li >= 0) ls.add(p.li)
+          else other = true
+        }
+      }
+      for (const [id, P] of nodes) {
+        if (id === seg.a || id === seg.b) continue
+        if (pointOnLeg(P, leg)) { count++; other = true }
+      }
+    }
+    return { count, lines: ls, other }
+  }
+
   // Rip-up & reroute（PCB 佈線手法）: L is walled in by the lines the flood
   // probe hit. Tear the busiest wall(s) down, route L through the opening,
   // then re-route each wall line around L. Commit only if EVERYONE ends clean.
   function ripUpAndRoute(L, li, blockers) {
-    const snap = (X) => ({ pts: X.pts, legs: X.legs, bends: X.bends, routed: X.routed, forced: X.forced })
+    const snap = snapLine
     const tryRip = (wallIdxs) => {
       const walls = wallIdxs.map((wi) => lines[wi]).filter((w) => w && !w.fallback)
       if (walls.length !== wallIdxs.length) return false
@@ -700,44 +739,6 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
   }
 
-  /* ---- bend reduction（使用者規則：可直線就直線，直線 > 單折 > 雙折）: a line
-     bent by a conflict that has since MOVED AWAY never revisited lower-bend
-     shapes — retry every bent line with strictly fewer bends (straight first)
-     and adopt the first conflict-free one. Repeat until stable. ---- */
-  for (let sweep = 0; sweep < 3; sweep++) {
-    let improved = false
-    for (let li = 0; li < lines.length; li++) {
-      const L = lines[li]
-      if (L.fallback || L.forced || L.bends <= 0) continue
-      const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
-      const placed = placedOf(li)
-      for (const c of candidates(S, T, unit)) {
-        if (c.fallback || c.bends >= L.bends) continue
-        if (conflictCount(c.pts, L.seg, placed) > 0) continue
-        L.pts = c.pts
-        L.legs = legsOfPts(c.pts)
-        L.bends = c.bends
-        L.routed = false
-        L.squeezed = false
-        stats.straightened++
-        improved = true
-        break
-      }
-    }
-    if (!improved) break
-  }
-
-  for (const L of lines) {
-    stats.segs++
-    if (L.fallback) stats.fallback++
-    else if (L.routed) { stats.rerouted++; if (L.bends >= 3) stats.multi++; else if (L.bends === 2) stats.double++; else if (L.bends === 1) stats.single++; else stats.straight++ }
-    else if (L.bends === 0) stats.straight++
-    else if (L.bends === 1) stats.single++
-    else if (L.bends === 2) stats.double++
-    else stats.multi++
-    if (L.forced) stats.forced++
-  }
-
   /* ---- pass 2 (soft, 衝突消解後微調): same-bends / same-45°-count swaps that
      improve straight continuation with same-route lines at shared nodes ---- */
   const sharesRoute = (r1, r2) => {
@@ -776,33 +777,181 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
     return score
   }
-  for (let sweep = 0; sweep < 2; sweep++) {
-    let improved = false
-    for (let i = 0; i < lines.length; i++) {
-      const L = lines[i]
-      if (L.fallback || L.forced || L.routed) continue // routed shapes are bespoke
-      const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
-      const want45 = diagCount(L.pts)
-      const alts = candidates(S, T, unit).filter((c) =>
-        !c.fallback && c.bends === L.bends && diagCount(c.pts) === want45)
-      if (alts.length < 2) continue
-      const placed = placedOf(i)
-      let best = null, bestScore = contScore(L, L.pts) + 1e-6
-      for (const c of alts) {
-        const m = contScore(L, c.pts)
-        if (m <= bestScore) continue
-        if (conflictCount(c.pts, L.seg, placed) > 0) continue
-        best = c
-        bestScore = m
+  // 使用者規則：**同名路線盡量不轉折**——same-BEND swaps (any leg family) that
+  // maximize straight continuation with same-route lines at shared nodes. Bend
+  // count stays fixed (絕對優先序不動)，只重擺形狀讓路線穿過節點連成直線。
+  function softPass() {
+    for (let sweep = 0; sweep < 3; sweep++) {
+      let improved = false
+      for (let i = 0; i < lines.length; i++) {
+        const L = lines[i]
+        if (L.fallback || L.forced || L.routed) continue // routed shapes are bespoke
+        const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+        const alts = candidates(S, T, unit).filter((c) =>
+          !c.fallback && c.bends === L.bends)
+        if (alts.length < 2) continue
+        const placed = placedOf(i)
+        let best = null, bestScore = contScore(L, L.pts) + 1e-6
+        for (const c of alts) {
+          const m = contScore(L, c.pts)
+          if (m <= bestScore) continue
+          if (conflictCount(c.pts, L.seg, placed) > 0) continue
+          best = c
+          bestScore = m
+        }
+        if (best) {
+          L.pts = best.pts
+          L.legs = legsOfPts(best.pts)
+          stats.swapped++
+          improved = true
+        }
       }
-      if (best) {
-        L.pts = best.pts
-        L.legs = legsOfPts(best.pts)
-        stats.swapped++
-        improved = true
+      if (!improved) break
+    }
+  }
+
+  /* ---- bend reduction（使用者規則：可直線就直線，直線 > 單折 > 雙折——
+     不會有可以直線的沒畫直線）: retry every bent line with strictly fewer
+     bends (straight first) and adopt the first conflict-free one; runs TO A
+     FIXPOINT, so at exit NO line still has a conflict-free lower-bend shape.
+     NEGOTIATED straightening（使用者規則：讓擋路的線調整、這條變直）: when the
+     lower-bend shape is blocked by 1–2 other LINES only, rip them up, adopt
+     the straighter shape, and re-route the blockers around it — commit only
+     if everyone ends clean AND the TOTAL bend count strictly drops (never
+     straighten yourself by bending someone else even more). ---- */
+  function bendReductionToFixpoint() {
+    for (let sweep = 0; sweep < 20; sweep++) {
+      let improved = false
+      for (let li = 0; li < lines.length; li++) {
+        const L = lines[li]
+        if (L.fallback || L.forced || L.bends <= 0) continue
+        const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+        const placed = placedOf(li)
+        let adopted = false
+        const ripsToTry = []
+        for (const c of candidates(S, T, unit)) {
+          if (c.fallback || c.bends >= L.bends) continue
+          const info = conflictLines(c.pts, L.seg, placed)
+          if (info.count === 0) {
+            L.pts = c.pts
+            L.legs = legsOfPts(c.pts)
+            L.bends = c.bends
+            L.routed = false
+            L.squeezed = false
+            stats.straightened++
+            improved = true
+            adopted = true
+            break
+          }
+          if (!info.other && info.lines.size <= 2) ripsToTry.push({ c, walls: [...info.lines] })
+        }
+        if (adopted) continue
+        for (const { c, walls } of ripsToTry) {
+          if (walls.some((wi) => !lines[wi] || lines[wi].fallback || lines[wi].forced)) continue
+          const before = L.bends + walls.reduce((s, wi) => s + lines[wi].bends, 0)
+          const saves = [snapLine(L), ...walls.map((wi) => snapLine(lines[wi]))]
+          const undo = () => {
+            Object.assign(L, saves[0])
+            walls.forEach((wi, k) => Object.assign(lines[wi], saves[k + 1]))
+          }
+          for (const wi of walls) lines[wi].legs = [] // rip the blockers up
+          if (conflictCount(c.pts, L.seg, placedOf(li)) > 0) { undo(); continue }
+          L.pts = c.pts
+          L.legs = legsOfPts(c.pts)
+          L.bends = c.bends
+          L.routed = false
+          L.squeezed = false
+          let ok = true
+          for (const wi of walls) { // blockers bend around the straightened line
+            const done = rerouteAround(lines[wi], wi)
+            if (!done) { ok = false; break }
+            const w = lines[wi]
+            w.pts = done.pts
+            w.legs = legsOfPts(done.pts)
+            w.bends = done.bends
+            w.routed = done.routed
+            w.forced = false
+          }
+          const after = c.bends + walls.reduce((s, wi) => s + lines[wi].bends, 0)
+          if (!ok || after >= before) { undo(); continue } // 總折數必須嚴格下降
+          stats.straightened++
+          improved = true
+          break
+        }
+      }
+      if (!improved) break
+    }
+  }
+
+  /* ---- L→45（使用者最終規則）: a pure horizontal+vertical corner turns one
+     side into 45° when that does not overlap any other line. The side whose
+     node CONTINUES a same-route 45° leg in the same direction wins, so the
+     diagonal reads as one line flowing through the node. ---- */
+  const isAxis = (d) => d === 'H' || d === 'V'
+  function l45Pass() {
+    for (let li = 0; li < lines.length; li++) {
+      const L = lines[li]
+      if (L.fallback || L.forced || L.pts.length !== 3) continue
+      const d1 = dirOf(L.pts[0], L.pts[1]), d2 = dirOf(L.pts[1], L.pts[2])
+      if (!isAxis(d1) || !isAxis(d2) || d1 === d2) continue // not a pure L corner
+      const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+      const dx = T[0] - S[0], dy = T[1] - S[1]
+      const sx = Math.sign(dx), sy = Math.sign(dy)
+      const m = Math.min(Math.abs(dx), Math.abs(dy))
+      if (m < Z) continue
+      // continuation score at a node for a 45° leg leaving along unit vector v:
+      // a same-route neighbour leaving along −v (straight through) is the prize.
+      const contAt = (nodeId, v) => {
+        let s = 0
+        for (const oi of atNode.get(nodeId) ?? []) {
+          const O = lines[oi]
+          if (O === L || !sharesRoute(L.seg.routes, O.seg.routes)) continue
+          const u = awayDir(O, nodeId)
+          if (!u) continue
+          const du = dirOf([0, 0], [u[0] * 10, u[1] * 10])
+          if (du !== 'D+' && du !== 'D-') continue // 只認鄰段的 45° 腿
+          s += u[0] * v[0] + u[1] * v[1] < -0.9 ? 2 : 0.5 // 同方向連起來優先
+        }
+        return s
+      }
+      const dl = Math.hypot(sx * m, sy * m)
+      const cands45 = [
+        { pts: [S, [S[0] + sx * m, S[1] + sy * m], T], score: contAt(L.seg.a, [sx * m / dl, sy * m / dl]) },
+        { pts: [S, [T[0] - sx * m, T[1] - sy * m], T], score: contAt(L.seg.b, [-sx * m / dl, -sy * m / dl]) },
+      ].sort((a, b) => b.score - a.score)
+      // 使用者規則：L→45 是最後一步、能改就改（不重疊即轉）；兩個變體間以
+      // 「同路線同方向 45° 鄰段」優先，其次整體續接分數。
+      cands45.forEach((c) => { c.cont = contScore(L, c.pts) })
+      cands45.sort((a, b) => b.score - a.score || b.cont - a.cont)
+      const placed = placedOf(li)
+      for (const c of cands45) {
+        if (conflictCount(c.pts, L.seg, placed) > 0) continue
+        L.pts = c.pts
+        L.legs = legsOfPts(c.pts)
+        stats.diag45++
+        break
       }
     }
-    if (!improved) break
+  }
+
+  // 〔順接軟調整 → 降折到定點 → L→45〕跑兩輪：每一步挪動走廊後都可能冒出
+  // 新的可直線/可順接機會，回頭再撿一次，保證「不會有可以直線的沒畫直線」
+  // 且「同名路線盡量不轉折」。
+  for (let phase = 0; phase < 2; phase++) {
+    softPass()
+    bendReductionToFixpoint()
+    l45Pass()
+  }
+
+  for (const L of lines) {
+    stats.segs++
+    if (L.fallback) stats.fallback++
+    else if (L.routed) { stats.rerouted++; if (L.bends >= 3) stats.multi++; else if (L.bends === 2) stats.double++; else if (L.bends === 1) stats.single++; else stats.straight++ }
+    else if (L.bends === 0) stats.straight++
+    else if (L.bends === 1) stats.single++
+    else if (L.bends === 2) stats.double++
+    else stats.multi++
+    if (L.forced) stats.forced++
   }
 
   /* ---- interior black stations: j-th of k sits at arc-length fraction
