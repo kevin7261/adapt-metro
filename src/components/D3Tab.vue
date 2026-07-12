@@ -102,7 +102,7 @@ const llmRunText = ref('')   // live streamed assistant transcript (LLM 回傳�
 const llmLogEl = ref(null)   // overlay <pre>, auto-scrolled to the newest text
 let llmPollTimer = null
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
-async function startLlmRun() {
+async function startLlmRun(userPrompt = '') {
   const cid = llmCityId.value
   if (!cid || llmRun.value === 'running') return
   llmRun.value = 'running'
@@ -116,7 +116,10 @@ async function startLlmRun() {
     const res = await fetch('/llm-align/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city: cid, variant: hcVariant.value }),
+      body: JSON.stringify({
+        city: cid, variant: hcVariant.value,
+        userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
+      }),
     })
     if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
     pollLlmRun()

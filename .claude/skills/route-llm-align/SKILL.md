@@ -39,6 +39,13 @@ scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json>
 - **右側面板「LLM對齊」tab**（Object 後面，StylePanel）：顯示 模型／輪數／
   prompt／逐輪 note／headless run 的最終輸出。資料來源＝結果檔的
   `prompt`、`transcript`、`finalOutput`（trigger plugin 在 run 結束時併入）。
+  執行中畫布留白、蓋上執行中 overlay，並**即時串流** LLM 回傳文字
+  （`claude -p --output-format stream-json --verbose` → plugin 解析
+  assistant text／tool_use／tool_result → `/llm-align/status` 的 `text`）。
+- **自訂 prompt 調整座標**：面板「用 prompt 調整座標」輸入框＋「確定」——
+  使用者的自由指示（例「優先把紅線拉成水平」「東側幾條線對齊同一欄」）POST 到
+  `/llm-align/run` 的 `userPrompt`，plugin 併入本 skill 的指示，引導模型決定
+  **移動哪些座標、往哪對齊**（一樣經硬規則把關）；最後存進結果檔的 `userPrompt`。
 
 ## 執行迴圈（你要做的事）
 

@@ -25,6 +25,7 @@ const props = defineProps({
   context: { type: String, default: 'map' },
 })
 const emit = defineEmits(['run-llm'])
+const llmUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
 
 const open = ref(true)
@@ -816,9 +817,28 @@ function startResize(e) {
             v-if="llmCanRun"
             class="llm-run-btn"
             :disabled="llmRunning"
-            @click="emit('run-llm')"
+            @click="emit('run-llm', '')"
           >{{ llmRunning ? '執行中…' : '重新開始 LLM 對齊' }}</button>
           <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-align skill 重跑並更新此結果。</p>
+
+          <!-- 自訂 prompt：使用者的指示會併入 route-llm-align，引導模型移動哪些座標 -->
+          <template v-if="llmCanRun">
+            <h4 class="llm-h">用 prompt 調整座標</h4>
+            <p v-if="llmRecord.userPrompt" class="llm-run-hint">上次指示：{{ llmRecord.userPrompt }}</p>
+            <textarea
+              v-model="llmUserPrompt"
+              class="llm-prompt-box"
+              rows="3"
+              :disabled="llmRunning"
+              placeholder="例：優先把紅線拉成水平；讓東側幾條線對齊同一欄；把環狀線盡量收成矩形…"
+            />
+            <button
+              class="llm-run-btn"
+              :disabled="llmRunning || !llmUserPrompt.trim()"
+              @click="emit('run-llm', llmUserPrompt.trim())"
+            >{{ llmRunning ? '執行中…' : '確定，依此 prompt 重跑' }}</button>
+            <p class="llm-run-hint">你的指示會併入 skill、引導模型「移動哪些點、往哪對齊」——一樣經硬規則把關，不會弄壞佈局。</p>
+          </template>
         </template>
       </div>
     </aside>
@@ -951,6 +971,22 @@ function startResize(e) {
 .llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
 .llm-run-btn:disabled { opacity: 0.55; cursor: default; }
 .llm-run-hint { margin: 6px 0 0; font-size: 10.5px; color: hsl(var(--muted-foreground)); }
+.llm-prompt-box {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.llm-prompt-box:focus { outline: none; border-color: hsl(var(--primary) / 0.6); }
+.llm-prompt-box:disabled { opacity: 0.6; }
 
 .obj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .obj-table tr { border-bottom: 1px solid hsl(var(--border)); }

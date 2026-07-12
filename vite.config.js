@@ -122,9 +122,13 @@ function llmAlignTrigger() {
         res.end(JSON.stringify({ running: true }))
         return
       }
+      // Optional user steering: a free-text instruction typed in the panel that
+      // biases which coordinates the model moves (e.g.「優先把紅線拉成水平」).
+      const userPrompt = typeof body?.userPrompt === 'string' ? body.userPrompt.trim().slice(0, 1000) : ''
       const prompt = `使用 route-llm-align skill：幫城市 ${city}（變體 ${variant}）產生或更新 LLM 對齊結果。`
         + '反覆 export → 分析 → apply 迭代到收斂（上限 10 輪）；每輪 moves.json 都要含 model 與 note（本輪思路），'
         + '第一輪另附 prompt 欄位記錄本段指示。完成後只輸出最終的 水平垂直 before → after 數字與一句總結。'
+        + (userPrompt ? `\n\n使用者的額外指示（請據此決定要移動哪些座標、往哪對齊）：${userPrompt}` : '')
       const cmd = process.env.LLM_ALIGN_CMD ?? 'claude'
       // stream-json (needs --verbose in print mode) emits one JSON event per
       // line as the run unfolds — so we can surface the model's replies live
@@ -188,6 +192,7 @@ function llmAlignTrigger() {
           if (existsSync(f)) {
             const j = JSON.parse(readFileSync(f, 'utf8'))
             j.prompt = j.prompt ?? prompt
+            if (userPrompt) j.userPrompt = userPrompt // last steering instruction
             j.finalOutput = job.final || job.text.slice(-1500)
             writeFileSync(f, JSON.stringify(j))
           }
