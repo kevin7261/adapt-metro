@@ -8,7 +8,10 @@ import { layerData } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
-import { buildHillClimb, compactGrid, buildHcGraph } from '../stores/hillClimb'
+import {
+  buildHillClimb, compactGrid, buildHcGraph,
+  buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
+} from '../stores/hillClimb'
 import { buildRwdMap } from '../stores/rwdMap'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
@@ -73,15 +76,36 @@ const tilt = ref(0)
 // shape, only classifies nodes/edges; nothing is moved.)
 // Map Adjust view modes (tabs). Grid modes ('grid-*') do the schematic gridding
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
-// A Hill Climbing view has just 2 tabs: the grid-post input and the optimized
-// layout ('hc', ②, see skill route-hillclimb) — rotation comes from its variant.
+// A Hill Climbing view chains: the grid-post input, the optimized layout
+// ('hc', ②, see skill route-hillclimb), three H/V-maximising post-passes
+// (直角爬山/軸對齊/整數規劃) and the 縮減網格 — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
-const hcMode = computed(() => ['hc', 'hc-compact', 'rwd'].includes(mode.value))
-// 縮減網格: after hill climbing, drop empty (colour-free) grid rows/columns —
-// smaller grid, identical topology (rank order preserved by compactGrid).
-// RWD views sit on the compact grid in BOTH of their tabs.
-const hcCompact = computed(() => mode.value === 'hc-compact' || isRWD.value)
+const hcMode = computed(() =>
+  ['hc', 'hc-rect', 'hc-align', 'hc-ilp',
+    'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'rwd']
+    .includes(mode.value))
+// The three H/V-maximising post-passes (short-distance moves of coloured
+// vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
+// re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
+// coordinates, 整數規劃 solves per-axis offset programs exactly. Each is
+// iterated to a FIXED POINT (fed its own output until nothing moves, cap
+// POST_ITER_CAP) and each also has its own 縮減網格 tab (compactGrid over
+// that pass's layout). postIters drives the 「n/20」 badge on the tab button.
+const postIters = ref({}) // kind -> iterations used (set once computed)
+const iterBadge = (kind) =>
+  (postIters.value[kind] ? ` ${postIters.value[kind]}/${POST_ITER_CAP}` : '')
+const POST_KIND = {
+  'hc-rect': 'rect', 'hc-align': 'align', 'hc-ilp': 'ilp',
+  'hc-rect-compact': 'rect', 'hc-align-compact': 'align', 'hc-ilp-compact': 'ilp',
+}
+const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+const postKind = computed(() => (isHC.value ? POST_KIND[mode.value] ?? null : null))
+// 縮減網格 (4 tabs): drop empty (colour-free) grid rows/columns from the
+// hill-climbing layout or from one of the three post-pass layouts — smaller
+// grid, identical topology (rank order preserved by compactGrid).
+// RWD views sit on the HC compact grid in BOTH of their tabs.
+const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
 const rwdMode = computed(() => mode.value === 'rwd')
 const rotated = computed(() =>
@@ -97,10 +121,13 @@ const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
-let cachedHCCompact = null
+let cachedPost = {}    // rect / align / ilp post-pass results, keyed by kind
+let cachedCompact = {} // compactGrid results, keyed by 'hc' / 'rect' / 'align' / 'ilp'
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
+const busyText = ref('')
 const hcStats = ref(null)
+const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
@@ -115,7 +142,14 @@ const VIEW_TABS = computed(() => {
     return [
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
       { id: 'hc', label: 'Hill Climbing' },
+      // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
+      { id: 'hc-rect', label: `直角爬山${iterBadge('rect')}` },
+      { id: 'hc-align', label: `軸對齊${iterBadge('align')}` },
+      { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       { id: 'hc-compact', label: '縮減網格' },
+      { id: 'hc-rect-compact', label: '直角爬山縮減' },
+      { id: 'hc-align-compact', label: '軸對齊縮減' },
+      { id: 'hc-ilp-compact', label: '整數規劃縮減' },
     ]
   }
   return [
@@ -223,9 +257,12 @@ async function render() {
     tilt.value = computeOrientation(data).tilt
     cachedSkeleton = buildConnectSkeleton(data)
     cachedHC = null
-    cachedHCCompact = null
+    cachedPost = {}
+    cachedCompact = {}
     cachedRWD = null
     hcStats.value = null
+    postStats.value = null
+    postIters.value = {}
     hcCompactStats.value = null
     rwdStats.value = null
   }
@@ -256,6 +293,7 @@ async function render() {
   if (grid && needsHC.value && hcMode.value) {
     if (!cachedHC) {
       hcBusy.value = true
+      busyText.value = '爬山最佳化中…（多準則適應度 + 硬規則掃描）'
       await new Promise((r) => setTimeout(r, 30)) // let the busy hint paint first
       if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
       cachedHC = buildHillClimb(cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
@@ -263,11 +301,32 @@ async function render() {
     }
     hcStats.value = cachedHC.stats
     let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
+    // H/V-maximising post-pass tabs: same grid, short-distance vertex moves on
+    // top of the hill-climbing result (each kind cached once per dataset).
+    if (postKind.value) {
+      const kind = postKind.value
+      if (!cachedPost[kind]) {
+        hcBusy.value = true
+        busyText.value = { rect: '直角爬山中…（|sin 2θ| 短半徑再爬，迭代到不動）',
+          align: '軸對齊中…（群組合併 + 中位數座標，迭代到不動）',
+          ilp: '整數規劃中…（逐軸樹 DP 精確解，迭代到不動）' }[kind]
+        await new Promise((r) => setTimeout(r, 30))
+        if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
+        cachedPost[kind] = iteratePost(POST_BUILD[kind], cachedSkeleton, cachedHC.cellAfter, grid.cols, grid.rows)
+        hcBusy.value = false
+      }
+      postStats.value = cachedPost[kind].stats
+      postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }
+      cells = cachedPost[kind].cellAfter
+    }
     if (hcCompact.value) {
-      if (!cachedHCCompact) cachedHCCompact = compactGrid(cachedHC.cellAfter, grid.cols, grid.rows)
-      cells = cachedHCCompact.cellAfter
-      nC = cachedHCCompact.cols
-      nR = cachedHCCompact.rows
+      // compacts the CURRENT layout: the HC result, or the post-pass one when
+      // this is a 縮減 tab of 直角爬山/軸對齊/整數規劃 (cells already swapped).
+      const ckey = postKind.value ?? 'hc'
+      if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
+      cells = cachedCompact[ckey].cellAfter
+      nC = cachedCompact[ckey].cols
+      nR = cachedCompact[ckey].rows
       hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
     }
     const cw = (w - 48) / nC, ch = (h - 48) / nR
@@ -281,6 +340,7 @@ async function render() {
       const sizeKey = `${w}x${h}`
       if (!cachedRWD || cachedRWD.key !== sizeKey) {
         hcBusy.value = true
+        busyText.value = 'RWD 路網畫線中…（H/V/45° 候選折線）'
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
         const pxPos = new Map()
@@ -640,10 +700,28 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Hill Climbing: multicriteria fitness before → after (lower = better) -->
-          <span v-if="isHC && hcMode && hcStats" class="hc-stats">
+          <span v-if="isHC && (mode === 'hc' || mode === 'hc-compact') && hcStats" class="hc-stats">
             適應度 {{ fmtFit(hcStats.before) }} → {{ fmtFit(hcStats.after) }}
             · {{ hcStats.rounds }} 輪 · 移動 {{ hcStats.moved }} 站<template
               v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template><template
+              v-if="hcCompact && hcCompactStats"> · 網格
+              {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+          </span>
+
+          <!-- H/V-maximising post-passes: aligned-segment count before → after -->
+          <span v-if="postKind && postStats" class="hc-stats">
+            水平垂直 {{ postStats.hvBefore }} → {{ postStats.hvAfter }}／{{ postStats.segs }} 段
+            · 迭代 {{ postStats.iters }}/{{ postStats.iterCap }}<template
+              v-if="!postStats.converged">（達上限未收斂）</template>
+            · 移動 {{ postStats.moved }} 站<template
+              v-if="postStats.reverted">（淨值未改善，退回）</template><template
+              v-if="postKind === 'rect'"> · 適應度 {{ fmtFit(postStats.before) }} →
+              {{ fmtFit(postStats.after) }} · {{ postStats.rounds }} 輪</template><template
+              v-else-if="postKind === 'align'"> · 橫群 {{ postStats.groupsH }}
+              · 縱群 {{ postStats.groupsV }}</template><template
+              v-else-if="postKind === 'ilp'"> · {{ postStats.comps }} 元件<template
+                v-if="postStats.fallback">（{{ postStats.fallback }} 退回）</template></template><template
               v-if="hcCompact && hcCompactStats"> · 網格
               {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
               {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
@@ -679,7 +757,7 @@ onBeforeUnmount(() => {
           </svg>
           <div ref="tipEl" class="ma-tip" />
           <div v-if="loading" class="ma-hint">載入中…</div>
-          <div v-else-if="hcBusy" class="ma-hint">爬山最佳化中…（多準則適應度 + 硬規則掃描）</div>
+          <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
         </div>
 

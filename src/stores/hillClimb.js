@@ -60,6 +60,113 @@ const sharesRoute = (r1, r2) => {
   return false
 }
 
+// A segment counts as horizontal/vertical when exactly ONE coordinate matches
+// (both matching = degenerate). Shared readout of the three post-pass tabs.
+function countHV(pos, segs) {
+  let n = 0
+  for (const s of segs) {
+    const A = pos.get(s.a), B = pos.get(s.b)
+    if ((A[0] === B[0]) !== (A[1] === B[1])) n++
+  }
+  return n
+}
+
+function cyclicEqual(a, b) {
+  if (a.length !== b.length) return false
+  if (!a.length) return true
+  const start = b.indexOf(a[0])
+  if (start < 0) return false
+  for (let i = 1; i < a.length; i++) if (a[i] !== b[(start + i) % b.length]) return false
+  return true
+}
+
+// Movement machinery shared by the optimizer and the post-passes (直角爬山 /
+// 軸對齊 / 整數規劃): neighbourhood lookups, the §5 hard rules and the mutating
+// move primitive. Closes over the LIVE `pos`; cellOwner mirrors it.
+function makeMover(pos, segs, inc, cols, rows) {
+  const other = (s, u) => (s.a === u ? s.b : s.a)
+  const nbrsOf = (v) => {
+    const out = new Set()
+    for (const si of inc.get(v)) out.add(other(segs[si], v))
+    out.delete(v)
+    return out
+  }
+
+  const cellOwner = new Map() // "c,r" -> vertex id
+  for (const [id, [c, r]] of pos) cellOwner.set(ckey(c, r), id)
+
+  // ④ edge ordering: cyclic sequence of incident segment ids around u by angle
+  function orderKey(u, at) {
+    const pu = at(u)
+    const items = []
+    for (const si of inc.get(u)) {
+      const o = at(other(segs[si], u))
+      if (o[0] === pu[0] && o[1] === pu[1]) continue
+      items.push([Math.atan2(o[1] - pu[1], o[0] - pu[0]), si])
+    }
+    items.sort((p, q) => p[0] - q[0] || p[1] - q[1])
+    return items.map((it) => it[1])
+  }
+
+  // All hard rules for moving single vertex v to P (does not mutate `pos`).
+  function validMove(v, P) {
+    const [c, r] = P
+    // ① bounding area + one vertex per cell
+    if (c < 0 || r < 0 || c >= cols || r >= rows) return false
+    const owner = cellOwner.get(ckey(c, r))
+    if (owner !== undefined && owner !== v) return false
+    const cur = pos.get(v)
+    const nbrs = nbrsOf(v)
+    // ② relative position: stay in the same quadrant w.r.t. every neighbour
+    // (a vertex on a quadrant boundary may enter either side → sign 0 is free)
+    for (const u of nbrs) {
+      const pu = pos.get(u)
+      const dxo = cur[0] - pu[0], dyo = cur[1] - pu[1]
+      const dxn = c - pu[0], dyn = r - pu[1]
+      if ((dxo > 0 && dxn < 0) || (dxo < 0 && dxn > 0)) return false
+      if ((dyo > 0 && dyn < 0) || (dyo < 0 && dyn > 0)) return false
+    }
+    const incSet = new Set(inc.get(v))
+    // ③a occlusion: P must not land on somebody else's segment
+    for (let si = 0; si < segs.length; si++) {
+      if (incSet.has(si)) continue
+      const s = segs[si]
+      if (onSeg(P, pos.get(s.a), pos.get(s.b))) return false
+    }
+    // ③b/③c: v's re-routed segments must not swallow a vertex or cross an edge
+    for (const u of nbrs) {
+      const pu = pos.get(u)
+      for (const [w, pw] of pos) {
+        if (w === v || w === u) continue
+        if (onSeg(pw, P, pu)) return false
+      }
+      for (let si = 0; si < segs.length; si++) {
+        if (incSet.has(si)) continue
+        const s = segs[si]
+        if (s.a === u || s.b === u) continue // legitimately meet at u
+        if (segsIntersect(P, pu, pos.get(s.a), pos.get(s.b))) return false
+      }
+    }
+    // ④ edge ordering unchanged at v and at each neighbour
+    const atCur = (id) => pos.get(id)
+    const atNew = (id) => (id === v ? P : pos.get(id))
+    for (const u of [v, ...nbrs]) {
+      if (inc.get(u).length < 3) continue // ≤2 edges: order is always preserved
+      if (!cyclicEqual(orderKey(u, atCur), orderKey(u, atNew))) return false
+    }
+    return true
+  }
+
+  function applyMove(v, P) {
+    const cur = pos.get(v)
+    if (cellOwner.get(ckey(cur[0], cur[1])) === v) cellOwner.delete(ckey(cur[0], cur[1]))
+    pos.set(v, [P[0], P[1]])
+    cellOwner.set(ckey(P[0], P[1]), v)
+  }
+
+  return { other, nbrsOf, cellOwner, orderKey, validMove, applyMove }
+}
+
 // Post-pass (縮減網格 tab): drop every column/row that holds no coloured
 // vertex. Cells are remapped by rank, so the relative order — and with it the
 // network topology and every quadrant relation — is untouched; only the grid
@@ -128,16 +235,11 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
 
   const { pos, segs, inc } = buildHcGraph(skeleton, cellOf)
   if (!pos.size || !segs.length) {
-    return { cellAfter: pos, stats: { before: 0, after: 0, rounds: 0, moved: 0, clusterMoves: 0, idealHop: 1 } }
+    return { cellAfter: pos, stats: { before: 0, after: 0, rounds: 0, moved: 0, clusterMoves: 0, idealHop: 1, hvBefore: 0, hvAfter: 0 } }
   }
 
-  const other = (s, u) => (s.a === u ? s.b : s.a)
-  const nbrsOf = (v) => {
-    const out = new Set()
-    for (const si of inc.get(v)) out.add(other(segs[si], v))
-    out.delete(v)
-    return out
-  }
+  const { other, nbrsOf, cellOwner, orderKey, validMove, applyMove } =
+    makeMover(pos, segs, inc, cols, rows)
   const segLen = (s) => {
     const A = pos.get(s.a), B = pos.get(s.b)
     return Math.hypot(B[0] - A[0], B[1] - A[1])
@@ -197,13 +299,16 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
     }
     return m
   }
-  // c_N2 + c_N5 per segment
+  // c_N2 + c_N5 per segment. |sin(kθ)| with 4 lobes = octilinear (paper); the
+  // 直角爬山 post-pass sets opts.rect → 2 lobes, so only H/V are free and 45°
+  // becomes the most expensive direction.
+  const dirLobes = opts.rect ? 2 : 4
   function segCost(s) {
     const A = pos.get(s.a), B = pos.get(s.b)
     const dx = B[0] - A[0], dy = B[1] - A[1]
     const len = Math.hypot(dx, dy)
     const lenC = Math.abs(len / (s.hops * L) - 1)
-    const octiC = len < 1e-9 ? 0 : Math.abs(Math.sin(4 * Math.atan2(dy, dx)))
+    const octiC = len < 1e-9 ? 0 : Math.abs(Math.sin(dirLobes * Math.atan2(dy, dx)))
     return W.length * lenC + W.octi * octiC
   }
   const nodeCost = (u) =>
@@ -230,86 +335,7 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
     return m
   }
 
-  /* ---- hard rules (§5) ---- */
-  const cellOwner = new Map() // "c,r" -> vertex id
-  for (const [id, [c, r]] of pos) cellOwner.set(ckey(c, r), id)
-
-  // ④ edge ordering: cyclic sequence of incident segment ids around u by angle
-  function orderKey(u, at) {
-    const pu = at(u)
-    const items = []
-    for (const si of inc.get(u)) {
-      const o = at(other(segs[si], u))
-      if (o[0] === pu[0] && o[1] === pu[1]) continue
-      items.push([Math.atan2(o[1] - pu[1], o[0] - pu[0]), si])
-    }
-    items.sort((p, q) => p[0] - q[0] || p[1] - q[1])
-    return items.map((it) => it[1])
-  }
-  function cyclicEqual(a, b) {
-    if (a.length !== b.length) return false
-    if (!a.length) return true
-    const start = b.indexOf(a[0])
-    if (start < 0) return false
-    for (let i = 1; i < a.length; i++) if (a[i] !== b[(start + i) % b.length]) return false
-    return true
-  }
-
-  // All hard rules for moving single vertex v to P (does not mutate `pos`).
-  function validMove(v, P) {
-    const [c, r] = P
-    // ① bounding area + one vertex per cell
-    if (c < 0 || r < 0 || c >= cols || r >= rows) return false
-    const owner = cellOwner.get(ckey(c, r))
-    if (owner !== undefined && owner !== v) return false
-    const cur = pos.get(v)
-    const nbrs = nbrsOf(v)
-    // ② relative position: stay in the same quadrant w.r.t. every neighbour
-    // (a vertex on a quadrant boundary may enter either side → sign 0 is free)
-    for (const u of nbrs) {
-      const pu = pos.get(u)
-      const dxo = cur[0] - pu[0], dyo = cur[1] - pu[1]
-      const dxn = c - pu[0], dyn = r - pu[1]
-      if ((dxo > 0 && dxn < 0) || (dxo < 0 && dxn > 0)) return false
-      if ((dyo > 0 && dyn < 0) || (dyo < 0 && dyn > 0)) return false
-    }
-    const incSet = new Set(inc.get(v))
-    // ③a occlusion: P must not land on somebody else's segment
-    for (let si = 0; si < segs.length; si++) {
-      if (incSet.has(si)) continue
-      const s = segs[si]
-      if (onSeg(P, pos.get(s.a), pos.get(s.b))) return false
-    }
-    // ③b/③c: v's re-routed segments must not swallow a vertex or cross an edge
-    for (const u of nbrs) {
-      const pu = pos.get(u)
-      for (const [w, pw] of pos) {
-        if (w === v || w === u) continue
-        if (onSeg(pw, P, pu)) return false
-      }
-      for (let si = 0; si < segs.length; si++) {
-        if (incSet.has(si)) continue
-        const s = segs[si]
-        if (s.a === u || s.b === u) continue // legitimately meet at u
-        if (segsIntersect(P, pu, pos.get(s.a), pos.get(s.b))) return false
-      }
-    }
-    // ④ edge ordering unchanged at v and at each neighbour
-    const atCur = (id) => pos.get(id)
-    const atNew = (id) => (id === v ? P : pos.get(id))
-    for (const u of [v, ...nbrs]) {
-      if (inc.get(u).length < 3) continue // ≤2 edges: order is always preserved
-      if (!cyclicEqual(orderKey(u, atCur), orderKey(u, atNew))) return false
-    }
-    return true
-  }
-
-  function applyMove(v, P) {
-    const cur = pos.get(v)
-    if (cellOwner.get(ckey(cur[0], cur[1])) === v) cellOwner.delete(ckey(cur[0], cur[1]))
-    pos.set(v, [P[0], P[1]])
-    cellOwner.set(ckey(P[0], P[1]), v)
-  }
+  // Hard rules (§5) + move primitive come from makeMover above.
 
   // Scan the (2R+1)² rectangle around v (paper: findLowestStationCriteria).
   // Cheap fitness first, expensive geometric hard rules only on improvements.
@@ -467,6 +493,7 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
   const radii = opts.radii ?? (pos.size > 300 ? [4, 3, 2, 1] : [8, 6, 4, 3, 2])
   const vertIds = [...pos.keys()].sort()
   const before = totalFitness()
+  const hvBefore = countHV(pos, segs)
   let rounds = 0, moved = 0, clusterMoves = 0
   for (const R of radii) {
     rounds++
@@ -485,6 +512,433 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
 
   return {
     cellAfter: pos, // id -> [col,row]; caller maps to pixels + placeBlacks
-    stats: { before, after, rounds, moved, clusterMoves, idealHop: L, verts: pos.size, segs: segs.length },
+    stats: {
+      before, after, rounds, moved, clusterMoves, idealHop: L,
+      verts: pos.size, segs: segs.length, hvBefore, hvAfter: countHV(pos, segs),
+    },
+  }
+}
+
+/* ==================== post-passes（三個後處理 tab） ====================
+   All three take the finished hill-climbing layout (cellAfter) as their input
+   and move coloured vertices SHORT distances to maximise the number of
+   horizontal/vertical segments. Same return shape { cellAfter, stats };
+   stats always carry hvBefore / hvAfter / segs / verts / moved. */
+
+// Apply per-vertex target cells through the hard rules: sequential passes over
+// the sorted ids; each vertex tries its full target first, then one axis at a
+// time (a blocked diagonal move often succeeds axis-wise, or only after a
+// blocking vertex has itself moved in a later pass). Deterministic. The
+// targets assume simultaneous moves, so a partially applied solution can break
+// more alignments than it lands — if the net H/V count got worse, the whole
+// application is rolled back and the input layout kept.
+function applyTargets(pos, M, targets, segs, maxPasses = 6) {
+  const start = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
+  const hv0 = countHV(pos, segs)
+  const ids = [...targets.keys()].sort()
+  let passes = 0
+  for (let p = 0; p < maxPasses; p++) {
+    passes++
+    let changed = false
+    for (const v of ids) {
+      const cur = pos.get(v)
+      const t = targets.get(v)
+      if (cur[0] === t[0] && cur[1] === t[1]) continue
+      for (const P of [[t[0], t[1]], [t[0], cur[1]], [cur[0], t[1]]]) {
+        if (P[0] === cur[0] && P[1] === cur[1]) continue
+        if (!M.validMove(v, P)) continue
+        M.applyMove(v, P)
+        changed = true
+        break
+      }
+    }
+    if (!changed) break
+  }
+  if (countHV(pos, segs) < hv0) {
+    for (const [id, p] of start) pos.set(id, [p[0], p[1]])
+    return { moved: 0, passes, reverted: true }
+  }
+  let moved = 0
+  for (const [id, p] of pos) {
+    const s = start.get(id)
+    if (s[0] !== p[0] || s[1] !== p[1]) moved++
+  }
+  return { moved, passes, reverted: false }
+}
+
+// 迭代到不動點: feed a post-pass its own output until nothing moves (or the
+// cap hits). One run is NOT a fixed point for any of the three — 直角爬山's
+// radius schedule runs out before a no-improvement round, and 軸對齊/整數規劃
+// create fresh alignment chances by moving (near-axis segments appear, the ±k
+// window re-centres). 直角爬山 terminates by monotone fitness; the other two
+// rely on the cap (measured: 2–12 iterations to converge, no cycles).
+// Aggregated stats: hvBefore/before from the first run, hvAfter/after from the
+// last, counters summed, moved = vertices that differ from the ORIGINAL input,
+// plus { iters, iterCap, converged }.
+export const POST_ITER_CAP = 20
+export function iteratePost(build, skeleton, cells, cols, rows, opts = {}) {
+  let cur = cells
+  let iters = 0
+  let first = null
+  let last = null
+  const acc = { rounds: 0, clusterMoves: 0, groupsH: 0, groupsV: 0, comps: 0, fallback: 0, passes: 0 }
+  let reverted = false
+  while (iters < POST_ITER_CAP) {
+    const res = build(skeleton, cur, cols, rows, opts)
+    iters++
+    first ??= res.stats
+    last = res.stats
+    for (const k of Object.keys(acc)) {
+      if (typeof res.stats[k] === 'number') acc[k] += res.stats[k]
+    }
+    reverted ||= !!res.stats.reverted
+    cur = res.cellAfter
+    if (!res.stats.moved) break
+  }
+  let moved = 0
+  for (const [id, p] of cur) {
+    const q = cells.get(id)
+    if (q && (q[0] !== p[0] || q[1] !== p[1])) moved++
+  }
+  return {
+    cellAfter: cur,
+    stats: {
+      ...last, ...acc, reverted,
+      hvBefore: first.hvBefore, hvAfter: last.hvAfter,
+      before: first.before, after: last.after, // rect fitness (undefined elsewhere)
+      moved, iters, iterCap: POST_ITER_CAP, converged: last.moved === 0,
+    },
+  }
+}
+
+// ① 直角爬山: a second, short-radius hill-climbing polish with the direction
+// criterion switched from octilinear |sin 4θ| to RECTILINEAR |sin 2θ| — 45°
+// legs now cost as much as the worst direction, so segments get pulled onto
+// horizontals/verticals wherever the hard rules allow. Criteria, hard rules
+// and cluster moves are otherwise identical; the boosted weight compensates
+// for the stricter 4-direction ideal.
+export function buildRectPolish(skeleton, cells, cols, rows, opts = {}) {
+  return buildHillClimb(skeleton, cells, cols, rows, {
+    rect: true,
+    radii: [2, 1, 1],
+    weights: { octi: DEFAULT_W.octi * 3 },
+    ...opts,
+  })
+}
+
+// ② 軸對齊: orientation assignment + coordinate assignment. Per axis, every
+// segment strictly closer to that axis (45° stays diagonal) and closable
+// within maxShift votes its endpoints into one union-find group; each group
+// aligns on the median member coordinate (L1-minimal total movement; members
+// farther than maxShift drop out and the median re-settles). x and y are two
+// independent 1-D problems; the merged targets then go through the SAME hard
+// rules as the optimizer, so the result is always a valid layout (unreachable
+// targets simply stay put).
+export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
+  const maxShift = opts.maxShift ?? 2
+  const { pos, segs, inc } = buildHcGraph(skeleton, cells)
+  if (!pos.size || !segs.length) {
+    return { cellAfter: pos, stats: { hvBefore: 0, hvAfter: 0, segs: 0, verts: pos.size, moved: 0, passes: 0, groupsH: 0, groupsV: 0 } }
+  }
+  const M = makeMover(pos, segs, inc, cols, rows)
+  const hvBefore = countHV(pos, segs)
+
+  const targets = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
+  const groups = [0, 0] // aligned groups per axis (0 = x/vertical, 1 = y/horizontal)
+  for (const axis of [0, 1]) {
+    const parent = new Map([...pos.keys()].map((id) => [id, id]))
+    const find = (x) => {
+      let r = x
+      while (parent.get(r) !== r) r = parent.get(r)
+      let c = x
+      while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
+      return r
+    }
+    for (const s of segs) {
+      const A = pos.get(s.a), B = pos.get(s.b)
+      const d = Math.abs(B[axis] - A[axis])              // must shrink to 0
+      const dOther = Math.abs(B[1 - axis] - A[1 - axis]) // stays as the run
+      if (d < dOther && d <= 2 * maxShift) {
+        const ra = find(s.a), rb = find(s.b)
+        if (ra !== rb) parent.set(ra, rb)
+      }
+    }
+    const comp = new Map()
+    for (const id of pos.keys()) {
+      const r = find(id)
+      if (!comp.has(r)) comp.set(r, [])
+      comp.get(r).push(id)
+    }
+    for (const g of comp.values()) {
+      if (g.length < 2) continue
+      let members = g.slice().sort()
+      for (;;) {
+        const vals = members.map((id) => pos.get(id)[axis]).sort((x, y) => x - y)
+        const med = vals[vals.length >> 1]
+        const keep = members.filter((id) => Math.abs(pos.get(id)[axis] - med) <= maxShift)
+        if (keep.length === members.length) {
+          for (const id of members) targets.get(id)[axis] = med
+          groups[axis]++
+          break
+        }
+        if (keep.length < 2) break // group dissolved — everyone keeps their own
+        members = keep
+      }
+    }
+  }
+  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs)
+  return {
+    cellAfter: pos,
+    stats: {
+      hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size,
+      moved, passes, reverted, groupsV: groups[0], groupsH: groups[1],
+    },
+  }
+}
+
+// ③ 整數規劃: per-axis 0-1 integer program, solved EXACTLY. Every vertex
+// incident to an alignable segment gets an offset variable in [-window,
+// window]; objective = maximise the number of aligned segments with total
+// displacement as tie-breaker; quadrant preservation (no sign flip) is a
+// pairwise constraint. x and y are separable → two independent programs, each
+// decomposing into connected components solved by spanning-tree DP; cycles are
+// conditioned away on a small feedback vertex set (enumeration capped,
+// otherwise that component falls back to "no move"). Cross-axis hard rules
+// (occlusion, one-vertex-per-cell) cannot enter the separable program, so the
+// combined targets go through the same hard-rule application as 軸對齊.
+export function buildAxisIlp(skeleton, cells, cols, rows, opts = {}) {
+  const k = opts.window ?? 2
+  const REWARD = 1_000_000 // one alignment always beats any total displacement
+  const { pos, segs, inc } = buildHcGraph(skeleton, cells)
+  if (!pos.size || !segs.length) {
+    return { cellAfter: pos, stats: { hvBefore: 0, hvAfter: 0, segs: 0, verts: pos.size, moved: 0, passes: 0, comps: 0, fallback: 0 } }
+  }
+  const M = makeMover(pos, segs, inc, cols, rows)
+  const hvBefore = countHV(pos, segs)
+
+  // One axis = one integer program. Returns Map<id, offset> (missing = 0).
+  function solveAxis(axis, limit) {
+    // Variables: endpoints of alignable segments (strictly nearer this axis,
+    // closable within ±k on both ends). Everything else is fixed (offset 0).
+    const varSet = new Set()
+    for (const s of segs) {
+      const A = pos.get(s.a), B = pos.get(s.b)
+      const d = Math.abs(B[axis] - A[axis])
+      const dOther = Math.abs(B[1 - axis] - A[1 - axis])
+      if (d < dOther && d <= 2 * k) { varSet.add(s.a); varSet.add(s.b) }
+    }
+    const out = { off: new Map(), comps: 0, fallback: 0 }
+    if (!varSet.size) return out
+
+    // Pair graph: every segment whose axis-gap could reach 0 or flip sign
+    // within ±k and that touches a variable. Parallel segments on the same
+    // vertex pair collapse into one pair with a summed alignment reward.
+    const plist = [] // { a, b, du, reward } with a < b, du = pos[b] - pos[a]
+    const pIdx = new Map()
+    const adj = new Map() // id -> [pair index]
+    for (const s of segs) {
+      const dAB = pos.get(s.b)[axis] - pos.get(s.a)[axis]
+      if (Math.abs(dAB) > 2 * k) continue // can neither flip nor close
+      if (!varSet.has(s.a) && !varSet.has(s.b)) continue
+      const [a, b] = s.a < s.b ? [s.a, s.b] : [s.b, s.a]
+      const key = `${a}|${b}`
+      if (!pIdx.has(key)) {
+        pIdx.set(key, plist.length)
+        plist.push({ a, b, du: pos.get(b)[axis] - pos.get(a)[axis], reward: 0 })
+        if (!adj.has(a)) adj.set(a, [])
+        if (!adj.has(b)) adj.set(b, [])
+        adj.get(a).push(plist.length - 1)
+        adj.get(b).push(plist.length - 1)
+      }
+      const dOther = Math.abs(pos.get(s.b)[1 - axis] - pos.get(s.a)[1 - axis])
+      if (Math.abs(dAB) < dOther) plist[pIdx.get(key)].reward += REWARD
+    }
+    for (const list of adj.values()) list.sort((x, y) => x - y)
+
+    // Offset domain per node; fixed nodes have the singleton {0}.
+    const dom = new Map()
+    for (const id of adj.keys()) {
+      if (!varSet.has(id)) { dom.set(id, [0]); continue }
+      const base = pos.get(id)[axis]
+      const d = []
+      for (let o = -k; o <= k; o++) if (base + o >= 0 && base + o < limit) d.push(o)
+      dom.set(id, d)
+    }
+    // pair score for offsets (oa on p.a, ob on p.b): sign flip vetoes,
+    // closing the gap earns the reward, movement is charged as unary below.
+    const pairScore = (p, oa, ob) => {
+      const dn = p.du + ob - oa
+      if ((p.du > 0 && dn < 0) || (p.du < 0 && dn > 0)) return -Infinity
+      return dn === 0 ? p.reward : 0
+    }
+    const unary = (o) => -Math.abs(o)
+
+    // Connected components of the pair graph.
+    const compSeen = new Set()
+    const nodesSorted = [...adj.keys()].sort()
+    for (const start of nodesSorted) {
+      if (compSeen.has(start)) continue
+      const nodes = []
+      const stack = [start]
+      compSeen.add(start)
+      while (stack.length) {
+        const u = stack.pop()
+        nodes.push(u)
+        for (const pi of adj.get(u)) {
+          const p = plist[pi]
+          const v = p.a === u ? p.b : p.a
+          if (!compSeen.has(v)) { compSeen.add(v); stack.push(v) }
+        }
+      }
+      nodes.sort()
+      out.comps++
+
+      // Spanning tree (BFS) + back edges → feedback vertex set to condition on.
+      const treeAdj = new Map(nodes.map((id) => [id, []]))
+      const backEdges = []
+      const seen = new Set([nodes[0]])
+      const queue = [nodes[0]]
+      const usedPair = new Set()
+      while (queue.length) {
+        const u = queue.shift()
+        for (const pi of adj.get(u)) {
+          if (usedPair.has(pi)) continue
+          usedPair.add(pi)
+          const p = plist[pi]
+          const v = p.a === u ? p.b : p.a
+          if (seen.has(v)) { backEdges.push(pi); continue }
+          seen.add(v)
+          treeAdj.get(u).push({ v, pi })
+          treeAdj.get(v).push({ v: u, pi })
+          queue.push(v)
+        }
+      }
+      const fb = []
+      for (const pi of backEdges) {
+        const p = plist[pi]
+        if (fb.includes(p.a) || fb.includes(p.b)) continue
+        // prefer a fixed endpoint (domain 1 → conditioning is free)
+        fb.push(dom.get(p.a).length <= dom.get(p.b).length ? p.a : p.b)
+      }
+      let trials = 1
+      for (const id of fb) trials *= dom.get(id).length
+      if (trials > 3125 || trials * nodes.length > 2e6) { out.fallback++; continue } // stay put
+
+      const fbSet = new Set(fb)
+      // Forest = spanning tree minus the feedback vertices; every pair with a
+      // conditioned endpoint becomes a unary term (or a constant, if both are).
+      const fixedVal = new Map() // trial assignment of the feedback set
+      const nodeUnary = (u, o) => {
+        let sc = unary(o)
+        for (const pi of adj.get(u)) {
+          const p = plist[pi]
+          const v = p.a === u ? p.b : p.a
+          if (!fbSet.has(v)) continue
+          const ov = fixedVal.get(v)
+          sc += p.a === u ? pairScore(p, o, ov) : pairScore(p, ov, o)
+          if (sc === -Infinity) return sc
+        }
+        return sc
+      }
+      let bestScore = -Infinity, bestOff = null
+      const trialOff = new Map()
+      const runTrial = () => {
+        let total = 0
+        trialOff.clear()
+        for (const id of fb) {
+          const o = fixedVal.get(id)
+          total += unary(o)
+          trialOff.set(id, o)
+        }
+        for (const pi of backEdges) { // fb–fb pairs score as constants
+          const p = plist[pi]
+          if (!fbSet.has(p.a) || !fbSet.has(p.b)) continue
+          total += pairScore(p, fixedVal.get(p.a), fixedVal.get(p.b))
+        }
+        if (total === -Infinity) return
+        // DP over each tree of the forest, rooted at its smallest id.
+        const done = new Set(fb)
+        for (const r of nodes) {
+          if (done.has(r)) continue
+          const dpOf = new Map()     // node -> score per domain index
+          const choiceOf = new Map() // node -> per parent-domain-index best own index
+          const orderStack = [[r, null]]
+          const post = []
+          while (orderStack.length) {
+            const [u, par] = orderStack.pop()
+            done.add(u)
+            post.push([u, par])
+            for (const { v } of treeAdj.get(u)) {
+              if (v === par || fbSet.has(v)) continue
+              orderStack.push([v, u])
+            }
+          }
+          for (let i = post.length - 1; i >= 0; i--) {
+            const [u, par] = post[i]
+            const domU = dom.get(u)
+            const dp = domU.map((o) => nodeUnary(u, o))
+            for (const { v, pi } of treeAdj.get(u)) {
+              if (v === par || fbSet.has(v)) continue
+              const p = plist[pi]
+              const domV = dom.get(v), dpv = dpOf.get(v)
+              const pick = new Array(domU.length)
+              for (let a = 0; a < domU.length; a++) {
+                if (dp[a] === -Infinity) continue
+                let best = -Infinity, bestJ = -1
+                for (let j = 0; j < domV.length; j++) {
+                  if (dpv[j] === -Infinity) continue
+                  const ps = p.a === u ? pairScore(p, domU[a], domV[j]) : pairScore(p, domV[j], domU[a])
+                  const sc = dpv[j] + ps
+                  if (sc > best) { best = sc; bestJ = j }
+                }
+                dp[a] = bestJ < 0 ? -Infinity : dp[a] + best
+                pick[a] = bestJ
+              }
+              choiceOf.set(`${u}|${v}`, pick)
+            }
+            dpOf.set(u, dp)
+          }
+          // pick the root's best offset, then walk the choices down
+          const domR = dom.get(r), dpr = dpOf.get(r)
+          let bi = -1, bv = -Infinity
+          for (let a = 0; a < domR.length; a++) if (dpr[a] > bv) { bv = dpr[a]; bi = a }
+          if (bi < 0) { total = -Infinity; break }
+          total += bv
+          const walk = [[r, null, bi]]
+          while (walk.length) {
+            const [u, par, ai] = walk.pop()
+            trialOff.set(u, dom.get(u)[ai])
+            for (const { v } of treeAdj.get(u)) {
+              if (v === par || fbSet.has(v)) continue
+              walk.push([v, u, choiceOf.get(`${u}|${v}`)[ai]])
+            }
+          }
+        }
+        if (total > bestScore) { bestScore = total; bestOff = new Map(trialOff) }
+      }
+      // odometer over the feedback set's domains (trials is small by the cap)
+      const spin = (i) => {
+        if (i === fb.length) { runTrial(); return }
+        for (const o of dom.get(fb[i])) { fixedVal.set(fb[i], o); spin(i + 1) }
+      }
+      spin(0)
+      if (bestOff) for (const [id, o] of bestOff) { if (o) out.off.set(id, o) }
+    }
+    return out
+  }
+
+  const sx = solveAxis(0, cols)
+  const sy = solveAxis(1, rows)
+  const targets = new Map()
+  for (const [id, p] of pos) {
+    targets.set(id, [p[0] + (sx.off.get(id) ?? 0), p[1] + (sy.off.get(id) ?? 0)])
+  }
+  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs)
+  return {
+    cellAfter: pos,
+    stats: {
+      hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size,
+      moved, passes, reverted, comps: sx.comps + sy.comps, fallback: sx.fallback + sy.fallback,
+    },
   }
 }
