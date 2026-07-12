@@ -16,10 +16,15 @@ const props = defineProps({
   // transcript / finalOutput) — passed by D3Tab for Hill Climbing views;
   // when present, an extra「LLM對齊」tab appears after Object.
   llmRecord: { type: Object, default: null },
+  // Run controls, wired to D3Tab's headless trigger: whether a run is in
+  // flight, and whether this view has a city id to run against.
+  llmRunning: { type: Boolean, default: false },
+  llmCanRun: { type: Boolean, default: false },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
 })
+const emit = defineEmits(['run-llm'])
 const isD3 = computed(() => props.context === 'd3')
 
 const open = ref(true)
@@ -806,6 +811,14 @@ function startResize(e) {
             <h4 class="llm-h">最終輸出</h4>
             <pre class="llm-pre">{{ llmRecord.finalOutput }}</pre>
           </template>
+
+          <button
+            v-if="llmCanRun"
+            class="llm-run-btn"
+            :disabled="llmRunning"
+            @click="emit('run-llm')"
+          >{{ llmRunning ? '執行中…' : '重新開始 LLM 對齊' }}</button>
+          <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-align skill 重跑並更新此結果。</p>
         </template>
       </div>
     </aside>
@@ -924,6 +937,20 @@ function startResize(e) {
   overflow: auto;
   font-size: 12px;
 }
+.llm-run-btn {
+  width: 100%;
+  height: 30px;
+  margin-top: 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid hsl(var(--primary) / 0.55);
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+}
+.llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
+.llm-run-btn:disabled { opacity: 0.55; cursor: default; }
+.llm-run-hint { margin: 6px 0 0; font-size: 10.5px; color: hsl(var(--muted-foreground)); }
 
 .obj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .obj-table tr { border-bottom: 1px solid hsl(var(--border)); }

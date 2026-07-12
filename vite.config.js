@@ -100,8 +100,12 @@ function llmAlignTrigger() {
     if (p === '/llm-align/status') {
       const job = jobs.get(`${q.get('city')}.${q.get('variant')}`)
       res.end(JSON.stringify(job
-        ? { running: job.exit === null, exit: job.exit, tail: job.log.slice(-6).join('\n') }
-        : { running: false, exit: null, tail: '' }))
+        ? {
+            running: job.exit === null, exit: job.exit,
+            tail: job.log.slice(-6).join('\n'),
+            text: job.text.slice(-4000), // live assistant transcript (streamed)
+          }
+        : { running: false, exit: null, tail: '', text: '' }))
       return
     }
     if (p === '/llm-align/run' && req.method === 'POST') {
@@ -122,18 +126,56 @@ function llmAlignTrigger() {
         + '反覆 export → 分析 → apply 迭代到收斂（上限 10 輪）；每輪 moves.json 都要含 model 與 note（本輪思路），'
         + '第一輪另附 prompt 欄位記錄本段指示。完成後只輸出最終的 水平垂直 before → after 數字與一句總結。'
       const cmd = process.env.LLM_ALIGN_CMD ?? 'claude'
+      // stream-json (needs --verbose in print mode) emits one JSON event per
+      // line as the run unfolds — so we can surface the model's replies live
+      // instead of only its final text. A stub command (LLM_ALIGN_CMD) that
+      // prints plain lines still works: unparseable lines fall back to raw text.
       const child = spawn(cmd, [
         '-p', prompt,
+        '--output-format', 'stream-json', '--verbose',
         '--permission-mode', 'acceptEdits',
         '--allowedTools', 'Bash(node:*),Read,Write,Glob,Grep,Skill',
       ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
-      const job = { child, log: [], exit: null, prompt }
+      const job = { child, log: [], text: '', final: '', exit: null, prompt, buf: '' }
       jobs.set(key, job)
-      const push = (buf) => {
-        for (const line of buf.toString().split('\n')) {
-          if (line.trim()) job.log.push(line)
+      const append = (s) => {
+        job.text += s
+        if (job.text.length > 8000) job.text = job.text.slice(-8000)
+      }
+      // Turn one stream-json event into readable「LLM 回傳文字」: assistant text
+      // verbatim, tool calls as a compact marker, tool results as a short head.
+      const onEvent = (ev) => {
+        if (ev.type === 'assistant' && ev.message?.content) {
+          for (const b of ev.message.content) {
+            if (b.type === 'text' && b.text) append(b.text)
+            else if (b.type === 'tool_use') {
+              const arg = b.name === 'Bash' ? (b.input?.command ?? '') : b.name === 'Skill' ? (b.input?.skill ?? '') : ''
+              append(`\n  ⟶ ${b.name}${arg ? `：${String(arg).slice(0, 80)}` : ''}\n`)
+            }
+          }
+        } else if (ev.type === 'user' && Array.isArray(ev.message?.content)) {
+          for (const b of ev.message.content) {
+            if (b.type === 'tool_result') {
+              const t = typeof b.content === 'string' ? b.content
+                : (b.content ?? []).map((c) => c.text ?? '').join('')
+              append(`  ⟵ ${t.split('\n')[0].slice(0, 90)}\n`)
+            }
+          }
+        } else if (ev.type === 'result' && ev.result) {
+          job.final = ev.result
+          append(`\n${ev.result}`)
         }
-        if (job.log.length > 200) job.log.splice(0, job.log.length - 200)
+      }
+      const push = (buf) => {
+        job.buf += buf.toString()
+        const lines = job.buf.split('\n')
+        job.buf = lines.pop() ?? '' // keep the trailing partial line
+        for (const line of lines) {
+          if (!line.trim()) continue
+          job.log.push(line)
+          try { onEvent(JSON.parse(line)) } catch { append(`${line}\n`) } // stub / plain
+        }
+        if (job.log.length > 400) job.log.splice(0, job.log.length - 400)
       }
       child.stdout.on('data', push)
       child.stderr.on('data', push)
@@ -146,14 +188,14 @@ function llmAlignTrigger() {
           if (existsSync(f)) {
             const j = JSON.parse(readFileSync(f, 'utf8'))
             j.prompt = j.prompt ?? prompt
-            j.finalOutput = job.log.slice(-30).join('\n')
+            j.finalOutput = job.final || job.text.slice(-1500)
             writeFileSync(f, JSON.stringify(j))
           }
         } catch { /* provenance is best-effort */ }
       })
       child.on('error', (err) => {
         job.exit = -1
-        job.log.push(`spawn 失敗：${err.message}（需要本機安裝 Claude Code CLI）`)
+        append(`spawn 失敗：${err.message}（需要本機安裝 Claude Code CLI）`)
       })
       res.end(JSON.stringify({ started: true }))
       return

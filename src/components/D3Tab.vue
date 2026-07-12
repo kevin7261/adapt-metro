@@ -97,7 +97,9 @@ const llmMsg = ref(null)   // hint when the result is missing / stale
 // Claude Code 跑 route-llm-align skill），輪詢 /llm-align/status，每輪 apply
 // 寫檔後畫面就跟著更新，跑完載入最終結果。GH Pages 上沒有 dev server → 報錯。
 const llmRun = ref(null)     // null | 'running' | 'error'
-const llmRunTail = ref('')
+const llmRunTail = ref('')   // short error tail
+const llmRunText = ref('')   // live streamed assistant transcript (LLM 回傳文字)
+const llmLogEl = ref(null)   // overlay <pre>, auto-scrolled to the newest text
 let llmPollTimer = null
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
 async function startLlmRun() {
@@ -105,6 +107,11 @@ async function startLlmRun() {
   if (!cid || llmRun.value === 'running') return
   llmRun.value = 'running'
   llmRunTail.value = ''
+  llmRunText.value = ''
+  // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
+  // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
+  cachedLlm = null
+  if (llmMode.value) render()
   try {
     const res = await fetch('/llm-align/run', {
       method: 'POST',
@@ -125,22 +132,30 @@ function pollLlmRun() {
       const res = await fetch(`/llm-align/status?city=${llmCityId.value}&variant=${hcVariant.value}`)
       const s = await res.json()
       llmRunTail.value = s.tail ?? ''
-      cachedLlm = null // pick up rounds as the headless run lands them
+      if (s.text != null) {
+        llmRunText.value = s.text
+        // stick to the bottom so the newest reply is always visible
+        requestAnimationFrame(() => {
+          if (llmLogEl.value) llmLogEl.value.scrollTop = llmLogEl.value.scrollHeight
+        })
+      }
       if (s.running) {
-        if (llmMode.value) render()
+        // still running — keep the map blank + overlay up, just refresh the log
         pollLlmRun()
       } else if (s.exit === 0) {
+        cachedLlm = null // reload the finished result
         llmRun.value = null
         render()
       } else {
+        cachedLlm = null
         llmRun.value = 'error'
-        if (llmMode.value) render() // a partial result may still exist
+        if (llmMode.value) render() // fall to the 開始 LLM 對齊 retry state
       }
     } catch {
       llmRun.value = 'error'
       llmRunTail.value = '狀態輪詢失敗'
     }
-  }, 5000)
+  }, 2500)
 }
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
@@ -388,6 +403,9 @@ async function render() {
     // the llmview for this city+variant and verify it matches THIS dataset's
     // HC result (fingerprint), otherwise explain how to (re)generate it.
     if (llmMode.value) {
+      // 執行中：不畫任何佈局，canvas 留白給執行中 overlay 蓋上（已在 render
+      // 開頭 remove 全部節點），跑完 poll 會清 cachedLlm 再 render 出新結果。
+      if (llmRun.value === 'running') return
       if (!cachedLlm) {
         const cid = sourceLayer.value?.id
         cachedLlm = { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
@@ -876,16 +894,22 @@ onBeforeUnmount(() => {
           <div v-if="loading" class="ma-hint">載入中…</div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
+          <!-- 執行中 overlay：蓋住整個畫布，舊地圖已清空，跑完才出現新結果 -->
+          <div v-else-if="llmMode && llmRun === 'running'" class="ma-hint llm-hint">
+            <div class="llm-run-card">
+              <div class="llm-spinner" />
+              <div class="llm-run-title">LLM 對齊執行中…</div>
+              <div class="llm-run-desc">headless Claude Code 依 route-llm-align skill 逐輪最佳化，完成後結果會自動出現</div>
+              <div class="llm-run-label">LLM 回傳（即時串流）</div>
+              <pre ref="llmLogEl" class="llm-run-log">{{ llmRunText || '等待模型回應…' }}</pre>
+            </div>
+          </div>
           <div v-else-if="llmMsg" class="ma-hint llm-hint">
             <div class="llm-box">
               <div>{{ llmMsg }}</div>
-              <div v-if="llmRun === 'running'" class="llm-tail">
-                Claude Code 執行中…（每輪 apply 後畫面自動更新）
-                <pre v-if="llmRunTail">{{ llmRunTail }}</pre>
-              </div>
-              <div v-else-if="llmRun === 'error'" class="llm-tail err">{{ llmRunTail }}</div>
+              <div v-if="llmRun === 'error'" class="llm-tail err">執行失敗：{{ llmRunTail }}</div>
               <button
-                v-if="llmCityId && llmRun !== 'running'"
+                v-if="llmCityId"
                 class="llm-btn"
                 @click="startLlmRun"
               >開始 LLM 對齊</button>
@@ -900,7 +924,15 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <StylePanel v-if="panelLayer" :layer="panelLayer" context="d3" :llm-record="isHC ? llmStats : null" />
+      <StylePanel
+      v-if="panelLayer"
+      :layer="panelLayer"
+      context="d3"
+      :llm-record="isHC ? llmStats : null"
+      :llm-running="llmRun === 'running'"
+      :llm-can-run="!!llmCityId"
+      @run-llm="startLlmRun"
+    />
     </div>
   </div>
 </template>
@@ -983,6 +1015,53 @@ onBeforeUnmount(() => {
 .ma-hint.error { color: hsl(var(--destructive)); }
 /* LLM 對齊: the hint hosts a real button (the default hint is click-through) */
 .ma-hint.llm-hint { pointer-events: auto; }
+/* 執行中 overlay: spinner card centred over a blanked canvas */
+.llm-run-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 440px;
+  padding: 24px 28px;
+  text-align: center;
+  background: hsl(var(--card) / 0.96);
+  border: 1px solid hsl(var(--primary) / 0.4);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.28);
+}
+.llm-spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid hsl(var(--primary) / 0.2);
+  border-top-color: hsl(var(--primary));
+  animation: llm-spin 0.8s linear infinite;
+}
+@keyframes llm-spin { to { transform: rotate(360deg); } }
+.llm-run-title { font-size: 14px; font-weight: 700; color: hsl(var(--foreground)); }
+.llm-run-desc { font-size: 11.5px; line-height: 1.6; color: hsl(var(--muted-foreground)); }
+.llm-run-label {
+  width: 100%;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+}
+.llm-run-log {
+  width: 100%;
+  min-width: 340px;
+  height: 200px;
+  overflow: auto;
+  text-align: left;
+  font-size: 10.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding: 8px 10px;
+  background: hsl(var(--muted) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+}
 .llm-box {
   display: flex;
   flex-direction: column;
