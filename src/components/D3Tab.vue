@@ -67,6 +67,27 @@ const tipEl = ref(null)     // hover tooltip
 const loading = ref(false)
 const loadError = ref(null)
 
+// Left view-list rail width — draggable via the divider (canvas re-renders on
+// resize through the ResizeObserver on host).
+const viewNavWidth = ref(132)
+const navDragging = ref(false)
+function startNavResize(e) {
+  e.preventDefault()
+  navDragging.value = true
+  const startX = e.clientX
+  const startW = viewNavWidth.value
+  const move = (ev) => {
+    viewNavWidth.value = Math.min(300, Math.max(90, startW + (ev.clientX - startX)))
+  }
+  const up = () => {
+    navDragging.value = false
+    window.removeEventListener('pointermove', move)
+    window.removeEventListener('pointerup', up)
+  }
+  window.addEventListener('pointermove', move)
+  window.addEventListener('pointerup', up)
+}
+
 // Suggested rotation (Boeing-style dominant-axis tilt, from the Info rose).
 // `rotated` re-projects the whole map with projection.angle(tilt) — measured:
 // a positive d3 angle turns the map counter-clockwise, which is exactly what
@@ -831,12 +852,12 @@ onBeforeUnmount(() => {
   <div class="ma-tab">
     <div class="tab-body">
       <div class="map-col">
-        <div class="ma-toolbar">
-          <div class="view-tabs" role="tablist">
+        <div class="map-main">
+          <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
             <button
               v-for="t in VIEW_TABS"
               :key="t.id"
-              class="view-tab"
+              class="view-nav-item"
               :class="{ active: mode === t.id }"
               role="tab"
               :aria-selected="mode === t.id"
@@ -845,9 +866,15 @@ onBeforeUnmount(() => {
               @click="mode = t.id"
             >{{ t.label }}</button>
           </div>
-        </div>
+          <div
+            class="view-nav-resize"
+            :class="{ dragging: navDragging }"
+            role="separator"
+            aria-orientation="vertical"
+            @pointerdown="startNavResize"
+          />
 
-        <div ref="host" class="ma-canvas">
+          <div ref="host" class="ma-canvas">
           <svg ref="svgEl" class="ma-svg" @click="panelLayer && store.setSelectedFeature(panelLayer.id, null)">
             <g ref="gEl" />
           </svg>
@@ -875,6 +902,7 @@ onBeforeUnmount(() => {
                 @click="startLlmRun"
               >開始 LLM 對齊</button>
             </div>
+          </div>
           </div>
         </div>
 
@@ -992,14 +1020,49 @@ onBeforeUnmount(() => {
   min-width: 0;
   min-height: 0;
 }
-.ma-toolbar {
+/* Map area: a left view-list rail + the canvas to its right. */
+.map-main {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  border-bottom: 1px solid hsl(var(--border));
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
+.view-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 6px;
+  overflow-y: auto;
+}
+/* Draggable divider between the view list and the canvas. */
+.view-nav-resize {
+  width: 5px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  border-left: 1px solid hsl(var(--border));
+  background: transparent;
+}
+.view-nav-resize:hover, .view-nav-resize.dragging { background: hsl(var(--primary) / 0.3); }
+.view-nav-item {
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.view-nav-item:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.view-nav-item.active {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+.view-nav-item:disabled { opacity: 0.4; cursor: default; }
 /* Footer status bar — mirrors the metro map tab's StatusBar. Sits full-width
    below tab-body; holds the per-mode stats + data source moved off the toolbar. */
 .ma-statusbar {
@@ -1025,28 +1088,6 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
 }
 .ma-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* 4 view tabs: 原始 / 旋轉 / 原始骨架化 / 旋轉骨架化 */
-/* Underline-style tab bar (not standalone buttons) */
-.view-tabs { display: inline-flex; gap: 2px; border-bottom: 1px solid hsl(var(--border)); }
-.view-tab {
-  height: 30px;
-  padding: 0 11px;
-  font-size: 12.5px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  margin-bottom: -1px; /* sit on the bar's baseline */
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-  white-space: nowrap;
-}
-.view-tab:hover:not(:disabled) { color: hsl(var(--foreground)); }
-.view-tab.active {
-  color: hsl(var(--primary));
-  font-weight: 600;
-  border-bottom-color: hsl(var(--primary));
-}
-.view-tab:disabled { opacity: 0.4; cursor: default; }
 .ma-canvas {
   position: relative;
   flex: 1;

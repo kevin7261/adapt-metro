@@ -804,7 +804,7 @@ async function build() {
       .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
       console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),
         '| net:', network, '| own:', t.__own, '→', info.key)
-    resolved.push({ g: gRef, kept, t, network, ov, info, lrtOnly })
+    resolved.push({ g: gRef, kept, passCoords, t, network, ov, info, lrtOnly })
     }
   }
 
@@ -816,7 +816,7 @@ async function build() {
 
   // ---- phase B: emit features ----
   for (const e of resolved) {
-    const { g, kept, t, network, ov, info } = e
+    const { g, kept, passCoords, t, network, ov, info } = e
     const routeRef = t.ref || null
     const routeId = g.key.startsWith('m|') ? `rm${g.key.slice(2)}` : `r${Math.min(...g.rids)}`
     // Stations must always resolve to a line (verify invariant), so fall back
@@ -1459,12 +1459,64 @@ async function build() {
     })
     droppedLines += before - grp.lines.length
 
+    // ---- 自動快車跨站共線（使用者：像雪梨官方 CityRail 圖，很多路線共線、跳過的站是 pass）----
+    // 路線的長跳站邊 A→C（快車直達，>2 km），若另一條線走 A→中間站→C 的近直線路徑（總長
+    // ≤1.35× 直線，非繞路），就把中間站插入此線幾何當 pass-through 頂點，使共用走廊被路段化
+    // 判為共線、畫在一起（雪梨 T1 跳內西區＝T2 慢車、Seven Hills–Westmead＝T5）。中間站
+    // **不算此線停靠**（記入 __passCoords，__stations/__vertexOwners 排除）。此時幾何已 snap
+    // 成站座標，同站＝同座標字串。手動 override 已注入者（已是短邊）自然跳過。
+    if (grp.lines.length >= 2) {
+      const kmd = (a, b) => Math.hypot((a[0] - b[0]) * 111 * Math.cos(a[1] * Math.PI / 180), (a[1] - b[1]) * 111)
+      const coordOf = new Map()
+      for (const s of grp.stations) coordOf.set(s.geometry.coordinates.join(','), s.geometry.coordinates)
+      const others = grp.lines.map((f) => f.geometry.coordinates.map((seq) => seq.map((c) => c.join(','))))
+      for (let fi = 0; fi < grp.lines.length; fi++) {
+        const F = grp.lines[fi]
+        for (const seq of F.geometry.coordinates) {
+          for (let i = 0; i < seq.length - 1; i++) {
+            const A = seq[i], C = seq[i + 1], ak = A.join(','), ck = C.join(',')
+            if (ak === ck || kmd(A, C) < 2) continue
+            const d = kmd(A, C)
+            let bestVia = null
+            for (let gi = 0; gi < others.length; gi++) {
+              if (gi === fi) continue
+              for (const gs of others[gi]) {
+                const ai = gs.indexOf(ak), ci = gs.indexOf(ck)
+                if (ai < 0 || ci < 0 || Math.abs(ci - ai) < 2) continue
+                const lo = Math.min(ai, ci), hi = Math.max(ai, ci)
+                const subKeys = gs.slice(lo, hi + 1)
+                const sub = subKeys.map((k) => coordOf.get(k))
+                if (sub.some((c) => !c)) continue
+                let len = 0; for (let k = 1; k < sub.length; k++) len += kmd(sub[k - 1], sub[k])
+                if (len > d * 1.35) continue
+                let inner = subKeys.slice(1, -1)
+                if (ai > ci) inner = inner.slice().reverse()
+                if (!bestVia || inner.length > bestVia.length) bestVia = inner
+              }
+            }
+            if (bestVia && bestVia.length) {
+              const viaCoords = bestVia.map((k) => coordOf.get(k))
+              F.__passCoords = F.__passCoords || new Set()
+              for (const c of viaCoords) F.__passCoords.add(c.join(','))
+              seq.splice(i + 1, 0, ...viaCoords)
+              i += viaCoords.length
+            }
+          }
+        }
+      }
+    }
+
     // which surviving lines own each vertex coordinate (for the consistency pass)
     grp.__vertexOwners = new Map()
     for (const f of grp.lines) {
       const tag = featTag.get(f)
       for (const seq of f.geometry.coordinates)
         for (const c of seq) {
+          // 快車 pass-through 頂點：幾何經過但不「擁有」該站（Olympic 等不列 AEL）
+          if (f.__passCoords && [...f.__passCoords].some((pk) => {
+            const [pl, pt] = pk.split(',').map(Number)
+            return Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3
+          })) continue
           const k = c.join(',')
           if (!grp.__vertexOwners.has(k)) grp.__vertexOwners.set(k, new Set())
           if (tag) grp.__vertexOwners.get(k).add(tag)
@@ -1555,8 +1607,12 @@ async function build() {
       for (const seq of f.geometry.coordinates) {
         if (seq.length < 2) continue
         for (const c of seq) {
-          // 快車 pass-through 頂點：幾何經過但不算此線停靠站（機場快線跳過的東涌線中間站）
-          if (f.__passCoords?.has(c.join(','))) continue
+          // 快車 pass-through 頂點：幾何經過但不算此線停靠站（機場快線跳過的東涌線中間
+          // 站）。snap 後座標精度變了，用鄰近比對（~110 m；快車真停靠站離 pass 站夠遠）。
+          if (f.__passCoords && [...f.__passCoords].some((k) => {
+            const [pl, pt] = k.split(',').map(Number)
+            return Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3
+          })) continue
           const s = byCoord.get(c.join(','))
           if (!s) continue
           sts.push({ station_id: s.properties.station_id,

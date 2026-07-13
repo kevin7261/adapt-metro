@@ -170,7 +170,9 @@ async function addMetroLayers(fit) {
   let data = layerData[l.id]
   if (!data) {
     try {
-      const res = await fetch(l.file)
+      // no-cache: always revalidate the geojson with the server (ETag) so a
+      // rebuilt data file shows up on reload instead of a stale HTTP-cached copy.
+      const res = await fetch(l.file, { cache: 'no-cache' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       data = await res.json()
       layerData[l.id] = data

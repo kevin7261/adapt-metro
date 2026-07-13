@@ -36,10 +36,17 @@ watch(dialog, (d) => {
 
 // Browse columns keep the English value (for filtering) and show 中文 + English,
 // sorted by the English name so the A→Z order is visible.
+// Fixed continent order for both Quick Selection and the browse column:
+// 亞洲 → 歐洲 → 北美洲 → 南美洲 → 非洲 → 大洋洲.
+const CONTINENT_ORDER = ['asia', 'europe', 'north-america', 'south-america', 'africa', 'oceania']
+const continentRank = (slug) => {
+  const i = CONTINENT_ORDER.indexOf(slug)
+  return i === -1 ? CONTINENT_ORDER.length : i
+}
 const continents = computed(() => {
   if (!catalog.value) return []
   return [...new Set(catalog.value.map((s) => s.continent))]
-    .sort((a, b) => a.localeCompare(b))
+    .sort((a, b) => continentRank(a) - continentRank(b))
     .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
 })
 const countries = computed(() => {
@@ -168,6 +175,18 @@ const quickCities = computed(() => {
       ?? null,
   }))
 })
+// 快選依洲別分組（洲別依中文名排序，各洲內維持原順序）。
+const quickByContinent = computed(() => {
+  const groups = new Map()
+  for (const q of quickCities.value) {
+    const cont = q.sys?.continent ?? 'zzz'
+    if (!groups.has(cont)) groups.set(cont, [])
+    groups.get(cont).push(q)
+  }
+  return [...groups.entries()]
+    .map(([continent, cities]) => ({ continent, label: continentZh(continent), cities }))
+    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
+})
 
 /* 依車站數排序 */
 const stationSort = ref('desc') // 'desc' 多到少 | 'asc' 少到多
@@ -233,20 +252,26 @@ const shortcuts = [
         <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
 
         <template v-else>
-          <!-- Quick Selection：九宮格，一排 5 個 -->
-          <div v-if="dialog === 'import-quick'" class="quick-grid">
-            <button
-              v-for="q in quickCities"
-              :key="q.en"
-              class="quick-cell"
-              :disabled="!q.sys"
-              :title="q.sys ? '' : '資料集中找不到此城市'"
-              @click="importSystem(q.sys)"
-            >
-              <span class="quick-zh">{{ q.zh }}</span>
-              <span class="quick-en">{{ q.en }}</span>
-              <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
-            </button>
+          <!-- Quick Selection：依洲別分組，每組九宮格一排 5 個 -->
+          <div v-if="dialog === 'import-quick'" class="quick-groups">
+            <div v-for="g in quickByContinent" :key="g.continent" class="quick-group">
+              <div class="quick-group-title">{{ g.label }}</div>
+              <div class="quick-grid">
+                <button
+                  v-for="q in g.cities"
+                  :key="q.en"
+                  class="quick-cell"
+                  :disabled="!q.sys"
+                  :title="q.sys ? '' : '資料集中找不到此城市'"
+                  @click="importSystem(q.sys)"
+                >
+                  <span class="quick-zh">{{ q.zh }}</span>
+                  <span class="quick-country">{{ q.sys?.countryZh ?? '' }}</span>
+                  <span class="quick-en">{{ q.en }}<template v-if="q.sys?.country"> · {{ q.sys.country }}</template></span>
+                  <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Sort by Station Count -->
@@ -256,19 +281,18 @@ const shortcuts = [
               <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
               <span class="sort-meta">{{ byStations.length }} 個系統</span>
             </div>
-            <div class="stations-list">
+            <div class="quick-grid">
               <button
                 v-for="(s, i) in byStations"
                 :key="s.file"
-                class="station-row"
+                class="quick-cell"
                 @click="importSystem(s)"
               >
-                <span class="station-rank">{{ i + 1 }}</span>
-                <span class="station-name">
-                  <span class="nm-zh">{{ s.cityZh ?? s.city }} · {{ s.countryZh ?? s.country }}</span>
-                  <span class="nm-en">{{ s.city }} · {{ s.country }}</span>
-                </span>
-                <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
+                <span class="quick-rank">#{{ i + 1 }}</span>
+                <span class="quick-zh">{{ s.cityZh ?? s.city }}</span>
+                <span class="quick-country">{{ s.countryZh ?? s.country }}</span>
+                <span class="quick-en">{{ s.city }} · {{ s.country }}</span>
+                <span class="quick-meta">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
               </button>
             </div>
           </template>
@@ -347,17 +371,16 @@ const shortcuts = [
         </div>
         <template v-else>
           <p class="add-d3-hint">選擇一個 metro map 圖層作為 D3.js 視圖的資料來源（建立後不可更改）：</p>
-          <div class="stations-list">
+          <div class="quick-grid">
             <button
               v-for="l in metroLayerChoices"
               :key="l.id"
-              class="station-row"
+              class="quick-cell"
               @click="addD3View(l)"
             >
-              <MIcon name="train" :size="14" />
-              <span class="station-city">{{ l.name }}</span>
-              <span class="station-country">{{ l.countryZh ?? l.country ?? '' }}</span>
-              <span class="station-count">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
+              <span class="quick-zh">{{ l.name }}</span>
+              <span class="quick-country">{{ l.countryZh ?? l.country ?? '' }}</span>
+              <span class="quick-meta">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
             </button>
           </div>
         </template>
@@ -393,20 +416,18 @@ const shortcuts = [
             選擇 Map Adjust 視圖的「格網化後」佈局作為爬山法最佳化的輸入
             （每個城市 2 個：原始／旋轉，建立後不可更改）：
           </p>
-          <div class="stations-list">
-            <template v-for="l in d3LayerChoices" :key="l.id">
+          <!-- 同一城市同一排：城市名 + 原始/旋轉兩個變體並排 -->
+          <div class="hc-city-list">
+            <div v-for="l in d3LayerChoices" :key="l.id" class="hc-city-row">
+              <span class="hc-city-name">{{ l.name }}</span>
+              <span class="hc-city-meta">{{ d3Meta(l) }}</span>
               <button
                 v-for="v in HC_VARIANTS"
                 :key="`${l.id}-${v.id}`"
-                class="station-row"
+                class="hc-variant-btn"
                 @click="addHillClimbView(l, v.id)"
-              >
-                <MIcon name="polyline" :size="14" />
-                <span class="station-city">{{ l.name }}</span>
-                <span class="station-country">{{ v.label }}</span>
-                <span class="station-count">{{ d3Meta(l) }}</span>
-              </button>
-            </template>
+              >{{ v.label }}</button>
+            </div>
           </div>
         </template>
       </div>
@@ -427,17 +448,16 @@ const shortcuts = [
             選擇 Hill Climbing 視圖——其「縮減網格」佈局將以 H/V/45° 折線重繪
             （版面路網畫線規則，建立後不可更改）：
           </p>
-          <div class="stations-list">
+          <div class="quick-grid">
             <button
               v-for="l in hcLayerChoices"
               :key="l.id"
-              class="station-row"
+              class="quick-cell"
               @click="addRwdView(l)"
             >
-              <MIcon name="route" :size="14" />
-              <span class="station-city">{{ l.name }}</span>
-              <span class="station-country">縮減網格</span>
-              <span class="station-count">{{ hcMeta(l) }}</span>
+              <span class="quick-zh">{{ l.name }}</span>
+              <span class="quick-country">縮減網格</span>
+              <span class="quick-meta">{{ hcMeta(l) }}</span>
             </button>
           </div>
         </template>
@@ -602,7 +622,36 @@ const shortcuts = [
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-.add-d3 { width: min(520px, calc(100vw - 32px)); }
+.add-d3 { width: min(720px, calc(100vw - 32px)); }
+/* Add Straighten：同一城市一排，原始/旋轉兩個變體並排 */
+.hc-city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 2px;
+}
+.hc-city-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
+.hc-city-name { font-weight: 600; font-size: 13px; white-space: nowrap; }
+.hc-city-meta { font-size: 11px; color: hsl(var(--muted-foreground)); margin-right: auto; white-space: nowrap; }
+.hc-variant-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+  white-space: nowrap;
+}
+.hc-variant-btn:hover { background: hsl(var(--primary) / 0.2); }
 .add-d3-hint { font-size: 12.5px; color: hsl(var(--muted-foreground)); margin: 0 0 10px; }
 .d3-file-row { width: 100%; margin-top: 8px; color: hsl(var(--primary)); }
 
@@ -639,14 +688,27 @@ const shortcuts = [
   border-radius: calc(var(--radius) - 2px);
   padding: 4px;
 }
-/* Quick Selection 九宮格：一排 5 個城市卡 */
+/* Quick Selection：依洲別分組，各組九宮格一排 5 個 */
+.quick-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 56vh;
+  overflow-y: auto;
+  padding: 2px;
+}
+.quick-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: hsl(var(--primary));
+  padding: 2px 2px 6px;
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 8px;
+}
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
-  max-height: 52vh;
-  overflow-y: auto;
-  padding: 2px;
 }
 .quick-cell {
   display: flex;
@@ -666,7 +728,9 @@ const shortcuts = [
   transform: translateY(-1px);
 }
 .quick-cell:disabled { opacity: 0.4; cursor: default; }
+.quick-rank { font-size: 10.5px; font-weight: 700; color: hsl(var(--primary)); }
 .quick-zh { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.quick-country { font-size: 11.5px; color: hsl(var(--foreground)); white-space: nowrap; }
 .quick-en { font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 .quick-meta { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); margin-top: 2px; }
 .station-row {

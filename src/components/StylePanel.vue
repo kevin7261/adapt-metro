@@ -183,23 +183,28 @@ onMounted(() => {
 const systemKey = computed(() => layer.value.file?.match(/systems\/(.+)\.geojson$/)?.[1] ?? null)
 const mapEntry = computed(() => (systemKey.value && mapsIndex.value?.[systemKey.value]) || null)
 
+// The zh-Wikipedia search term for this system. Default "{城市}地鐵" lands
+// directly on the system article (台北地鐵 → 臺北捷運, 紐約地鐵 → 紐約地鐵), but
+// a few systems in the catalog aren't subways — e.g. Sydney is the Sydney Trains
+// / CityRail suburban network, so "雪梨地鐵" is wrong; "雪梨城市鐵路" → 悉尼火車.
+const WIKI_TERM = {
+  'oc-aus-sydney': '雪梨城市鐵路',
+}
+const wikiTerm = computed(() =>
+  WIKI_TERM[layer.value?.id] ?? `${layer.value?.cityZh ?? layer.value?.city}地鐵`)
 // Wikipedia article of this metro SYSTEM. Neither the metadata's `wikidata` nor
 // `official_map` can be trusted — both often point to a single LINE (checked:
 // NYC's Q126093 = 紐約地鐵1號線, London's Q207699 = 滑鐵盧及城市線). Instead we
-// hit zh.wikipedia's Go-or-search with "{城市}地鐵": it lands DIRECTLY on the
-// system article (台北地鐵 → 臺北捷運, 紐約地鐵 → 紐約地鐵) and never on a line.
-const wikipediaUrl = computed(() => {
-  const city = layer.value?.cityZh ?? layer.value?.city
-  return city ? `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(`${city}地鐵`)}` : null
-})
+// hit zh.wikipedia's Go-or-search with the term above, landing on the system.
+const wikipediaUrl = computed(() =>
+  layer.value ? `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(wikiTerm.value)}` : null)
 // Official schematic route map. Only 91/232 systems have a downloaded image;
 // the rest fall back to a Google image search for the city's route map, so
 // every city gets a working 官方路線圖 link.
 const routeMapUrl = computed(() => {
   if (mapEntry.value?.map_file) return assetUrl(`data/metro/${mapEntry.value.map_file}`)
-  const city = layer.value?.cityZh ?? layer.value?.city
-  return city
-    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${city}地鐵路線圖`)}`
+  return layer.value
+    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${wikiTerm.value}路線圖`)}`
     : null
 })
 // Whether the route-map link is a real local image vs. a Google search.
@@ -548,7 +553,7 @@ function startResize(e) {
               <div v-if="wikipediaUrl" class="info-row">
                 <span class="info-key">Wikipedia</span>
                 <a :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link">
-                  {{ (layer.cityZh ?? layer.city) }}地鐵 <MIcon name="open_in_new" :size="11" />
+                  {{ wikiTerm }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div class="info-row">

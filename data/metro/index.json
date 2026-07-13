@@ -26,7 +26,7 @@
       "official_map": "https://en.wikipedia.org/wiki/1_(New_York_City_Subway_service)",
       "wikidata": "Q126093",
       "line_count": 44,
-      "segment_count": 79,
+      "segment_count": 69,
       "station_count": 465,
       "audit": {
         "strategies_tried": [],
@@ -141,7 +141,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Waterloo_&_City_line",
       "wikidata": "Q207699",
       "line_count": 26,
-      "segment_count": 52,
+      "segment_count": 53,
       "station_count": 267,
       "audit": {
         "strategies_tried": [],
@@ -572,7 +572,7 @@
       "official_map": "https://fr.wikipedia.org/wiki/Ligne_8_du_métro_de_Paris",
       "wikidata": "Q50751",
       "line_count": 20,
-      "segment_count": 32,
+      "segment_count": 33,
       "station_count": 321,
       "audit": {
         "strategies_tried": [],
@@ -676,7 +676,7 @@
       "official_map": "https://en.wikipedia.org/wiki/Dulwich_Hill_Line",
       "wikidata": "Q14543324",
       "line_count": 15,
-      "segment_count": 32,
+      "segment_count": 33,
       "station_count": 178,
       "audit": {
         "strategies_tried": [],
@@ -1133,6 +1133,122 @@
       }
     },
     {
+      "file": "systems/asia/china/as-chn-guangzhou.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Guangzhou",
+      "osm_networks": [
+        "Guangzhou Metro",
+        "Unknown",
+        "佛山地铁",
+        "佛山市轨道交通发展有限公司",
+        "广东城际铁路运营有限公司",
+        "广东广佛轨道交通有限公司",
+        "广州地铁",
+        "广州地铁二号线",
+        "广州地铁集团有限公司",
+        "广州地铁集团有限公司;广东广佛轨道交通有限公司",
+        "广州有轨电车"
+      ],
+      "operator": "广州地铁集团有限公司",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Line_3_(Guangzhou_Metro)",
+      "wikidata": "Q862941",
+      "line_count": 21,
+      "segment_count": 25,
+      "station_count": 310,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/china/as-chn-guangzhou.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "21 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "310 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 310 站（wiki List 記 317，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "310/310 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "395 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "310/310 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 27/28",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "9 條線無 wiki 站數對照：Metro Line 3、Metro Line 3: Tianhe Coach Terminal → Haibang、Metro Line 12",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 27/28",
+          "9 條線無 wiki 站數對照：Metro Line 3、Metro Line 3: Tianhe Coach Terminal → Haibang、Metro Line 12"
+        ],
+        "audited_at": "2026-07-11T15:22:16.624Z"
+      }
+    },
+    {
       "file": "systems/asia/japan/as-jpn-tokyo.geojson",
       "continent": "asia",
       "country": "Japan",
@@ -1290,30 +1406,24 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-guangzhou.geojson",
+      "file": "systems/asia/china/as-chn-chengdu.geojson",
       "continent": "asia",
       "country": "China",
-      "city": "Guangzhou",
+      "city": "Chengdu",
       "osm_networks": [
-        "Guangzhou Metro",
+        "CDRT",
+        "Chengdu Metro",
         "Unknown",
-        "佛山地铁",
-        "佛山市轨道交通发展有限公司",
-        "广东城际铁路运营有限公司",
-        "广东广佛轨道交通有限公司",
-        "广州地铁",
-        "广州地铁二号线",
-        "广州地铁集团有限公司",
-        "广州地铁集团有限公司;广东广佛轨道交通有限公司",
-        "广州有轨电车"
+        "成都地铁",
+        "成都轨道交通"
       ],
-      "operator": "广州地铁集团有限公司",
+      "operator": "成都轨道交通集团有限公司",
       "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_3_(Guangzhou_Metro)",
-      "wikidata": "Q862941",
-      "line_count": 21,
-      "segment_count": 24,
-      "station_count": 310,
+      "official_map": "https://zh.wikipedia.org/wiki/成都地铁1号线",
+      "wikidata": "Q6118988",
+      "line_count": 18,
+      "segment_count": 23,
+      "station_count": 353,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1321,37 +1431,37 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-guangzhou.geojson",
+            "detail": "matched OSM system systems/asia/china/as-chn-chengdu.geojson",
             "level": "error"
           },
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "21 lines",
+            "detail": "18 lines",
             "level": "error"
           },
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "310 stations",
+            "detail": "353 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 310 站（wiki List 記 317，計法含轉乘重複，僅參考）",
+            "detail": "OSM 353 站（wiki List 記 363，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "310/310 站皆有所屬路線",
+            "detail": "353/353 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "395 個折點/端點皆為車站",
+            "detail": "444 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -1369,7 +1479,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "310/310 站皆有名稱",
+            "detail": "353/353 站皆有名稱",
             "level": "error"
           },
           {
@@ -1387,22 +1497,22 @@
           {
             "id": "line_wiki_planned",
             "ok": false,
-            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 27/28",
+            "detail": "3 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Chengdu Metro Line 30 18/24、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
             "level": "warn"
           },
           {
             "id": "line_wiki_coverage",
             "ok": false,
-            "detail": "9 條線無 wiki 站數對照：Metro Line 3、Metro Line 3: Tianhe Coach Terminal → Haibang、Metro Line 12",
+            "detail": "3 條線無 wiki 站數對照：Chengdu Metro Line 1、Chengdu Metro Line 1: Wugensong => Weijianian、成都地铁19号线: 天府站 => 金星",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 27/28",
-          "9 條線無 wiki 站數對照：Metro Line 3、Metro Line 3: Tianhe Coach Terminal → Haibang、Metro Line 12"
+          "3 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Chengdu Metro Line 30 18/24、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
+          "3 條線無 wiki 站數對照：Chengdu Metro Line 1、Chengdu Metro Line 1: Wugensong => Weijianian、成都地铁19号线: 天府站 => 金星"
         ],
-        "audited_at": "2026-07-11T15:22:16.624Z"
+        "audited_at": "2026-07-11T15:22:16.617Z"
       }
     },
     {
@@ -1515,6 +1625,118 @@
       }
     },
     {
+      "file": "systems/asia/china/as-chn-shenzhen.geojson",
+      "continent": "asia",
+      "country": "China",
+      "city": "Shenzhen",
+      "osm_networks": [
+        "Light Rail",
+        "MTR",
+        "SZMC",
+        "Shenzhen Metro",
+        "Shenzhen Metro Line 3 Operations Branch Corporation",
+        "Shenzhen Metro Line 3 Operations Branch Corporation & Shenzhen Metro Co.,Ltd",
+        "Unknown",
+        "深圳地铁",
+        "深圳地铁集团 SZMC",
+        "深圳宝安国际机场旅客捷运系统",
+        "深圳市地铁集团",
+        "深圳市轨道交通",
+        "深圳有轨电车",
+        "港铁中铁电化轨道交通（深圳）有限公司"
+      ],
+      "operator": "深圳市地铁集团有限公司",
+      "official_website": "https://www.mtrsz.com.cn/frontend/default/src/channel/line_introduce_13Line.html",
+      "official_map": "https://zh.wikipedia.org/wiki/深圳地铁1号线",
+      "wikidata": "Q842103",
+      "line_count": 16,
+      "segment_count": 22,
+      "station_count": 351,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/china/as-chn-shenzhen.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "16 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "351 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 351 站（wiki List 記 339，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "351/351 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "440 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "351/351 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_planned",
+            "ok": false,
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30"
+        ],
+        "audited_at": "2026-07-11T15:22:16.648Z"
+      }
+    },
+    {
       "file": "systems/europe/germany/eu-ger-dusseldorf.geojson",
       "continent": "europe",
       "country": "Germany",
@@ -1604,115 +1826,6 @@
           "9 條線無 wiki 站數對照：Subway U77、Subway U76、Subway U75"
         ],
         "audited_at": "2026-07-11T15:22:16.895Z"
-      }
-    },
-    {
-      "file": "systems/asia/china/as-chn-chongqing.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Chongqing",
-      "osm_networks": [
-        "Bishan Skyshuttle",
-        "Chongqing Rail Transit",
-        "Unknown",
-        "重庆轨道交通运营"
-      ],
-      "operator": "重庆轨道交通运营",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Line_1_(Chongqing_Rail_Transit)",
-      "wikidata": "Q263572",
-      "line_count": 13,
-      "segment_count": 22,
-      "station_count": 215,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-chongqing.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "13 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "215 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 215 站（wiki List 記 286，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "215/215 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "279 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "215/215 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_planned",
-            "ok": false,
-            "detail": "6 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 6: Chongqingdong Railway Station → Liujiaping 4/43、Line 6 – International Expo branch: Lijia → Yuelai 13/43、Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "6 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 6: Chongqingdong Railway Station → Liujiaping 4/43、Line 6 – International Expo branch: Lijia → Yuelai 13/43、Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27",
-          "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)"
-        ],
-        "audited_at": "2026-07-11T15:22:16.618Z"
       }
     },
     {
@@ -1827,136 +1940,23 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shenzhen.geojson",
+      "file": "systems/asia/china/as-chn-chongqing.geojson",
       "continent": "asia",
       "country": "China",
-      "city": "Shenzhen",
+      "city": "Chongqing",
       "osm_networks": [
-        "Light Rail",
-        "MTR",
-        "SZMC",
-        "Shenzhen Metro",
-        "Shenzhen Metro Line 3 Operations Branch Corporation",
-        "Shenzhen Metro Line 3 Operations Branch Corporation & Shenzhen Metro Co.,Ltd",
+        "Bishan Skyshuttle",
+        "Chongqing Rail Transit",
         "Unknown",
-        "深圳地铁",
-        "深圳地铁集团 SZMC",
-        "深圳宝安国际机场旅客捷运系统",
-        "深圳市地铁集团",
-        "深圳市轨道交通",
-        "深圳有轨电车",
-        "港铁中铁电化轨道交通（深圳）有限公司"
+        "重庆轨道交通运营"
       ],
-      "operator": "深圳市地铁集团有限公司",
-      "official_website": "https://www.mtrsz.com.cn/frontend/default/src/channel/line_introduce_13Line.html",
-      "official_map": "https://zh.wikipedia.org/wiki/深圳地铁1号线",
-      "wikidata": "Q842103",
-      "line_count": 16,
-      "segment_count": 21,
-      "station_count": 351,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-shenzhen.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "16 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "351 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 351 站（wiki List 記 339，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "351/351 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "440 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "351/351 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_planned",
-            "ok": false,
-            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Subway Line 7 29/30"
-        ],
-        "audited_at": "2026-07-11T15:22:16.648Z"
-      }
-    },
-    {
-      "file": "systems/asia/china/as-chn-chengdu.geojson",
-      "continent": "asia",
-      "country": "China",
-      "city": "Chengdu",
-      "osm_networks": [
-        "CDRT",
-        "Chengdu Metro",
-        "Unknown",
-        "成都地铁",
-        "成都轨道交通"
-      ],
-      "operator": "成都轨道交通集团有限公司",
+      "operator": "重庆轨道交通运营",
       "official_website": null,
-      "official_map": "https://zh.wikipedia.org/wiki/成都地铁1号线",
-      "wikidata": "Q6118988",
-      "line_count": 18,
+      "official_map": "https://en.wikipedia.org/wiki/Line_1_(Chongqing_Rail_Transit)",
+      "wikidata": "Q263572",
+      "line_count": 13,
       "segment_count": 21,
-      "station_count": 353,
+      "station_count": 215,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1964,37 +1964,37 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/asia/china/as-chn-chengdu.geojson",
+            "detail": "matched OSM system systems/asia/china/as-chn-chongqing.geojson",
             "level": "error"
           },
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "18 lines",
+            "detail": "13 lines",
             "level": "error"
           },
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "353 stations",
+            "detail": "215 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 353 站（wiki List 記 363，計法含轉乘重複，僅參考）",
+            "detail": "OSM 215 站（wiki List 記 286，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "353/353 站皆有所屬路線",
+            "detail": "215/215 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "444 個折點/端點皆為車站",
+            "detail": "279 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -2012,7 +2012,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "353/353 站皆有名稱",
+            "detail": "215/215 站皆有名稱",
             "level": "error"
           },
           {
@@ -2030,22 +2030,22 @@
           {
             "id": "line_wiki_planned",
             "ok": false,
-            "detail": "3 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Chengdu Metro Line 30 18/24、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
+            "detail": "6 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 6: Chongqingdong Railway Station → Liujiaping 4/43、Line 6 – International Expo branch: Lijia → Yuelai 13/43、Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27",
             "level": "warn"
           },
           {
             "id": "line_wiki_coverage",
             "ok": false,
-            "detail": "3 條線無 wiki 站數對照：Chengdu Metro Line 1、Chengdu Metro Line 1: Wugensong => Weijianian、成都地铁19号线: 天府站 => 金星",
+            "detail": "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "3 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Chengdu Metro Line 30 18/24、Chengdu Intercity Railway Ziyang Line (S3) 6/7、Chengdu Metro Line 27 22/23",
-          "3 條線無 wiki 站數對照：Chengdu Metro Line 1、Chengdu Metro Line 1: Wugensong => Weijianian、成都地铁19号线: 天府站 => 金星"
+          "6 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Line 6: Chongqingdong Railway Station → Liujiaping 4/43、Line 6 – International Expo branch: Lijia → Yuelai 13/43、Line 9 (Chongqing Rail Transit) 29/31、Line 10 (Chongqing Rail Transit) 26/27",
+          "2 條線無 wiki 站數對照：Line 6 (Chongqing Rail Transit)、4–Loop–5 Express (Chongqing Rail Transit)"
         ],
-        "audited_at": "2026-07-11T15:22:16.617Z"
+        "audited_at": "2026-07-11T15:22:16.618Z"
       }
     },
     {
@@ -2717,6 +2717,116 @@
       }
     },
     {
+      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Nuremberg",
+      "osm_networks": [
+        "DB",
+        "DB InfraGO",
+        "DB InfraGO AG",
+        "DB Station&Service AG",
+        "Infra Fürth GmbH",
+        "RVV;VGN",
+        "U-Bahn Nürnberg",
+        "Unknown",
+        "VAG",
+        "VAG Verkehrs-Aktiengesellschaft Nürnberg",
+        "VGN",
+        "Verkehrsverbund Großraum Nürnberg"
+      ],
+      "operator": "VAG Verkehrs-Aktiengesellschaft Nürnberg",
+      "official_website": "http://www.vgn.de/komfortauskunft/ttb/?lineName=U1&exactMatch=1",
+      "official_map": "https://de.wikipedia.org/wiki/U-Bahn_Nürnberg",
+      "wikidata": "Q3433210",
+      "line_count": 11,
+      "segment_count": 17,
+      "station_count": 138,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/europe/germany/eu-ger-nuremberg.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "11 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "138 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 138 站（wiki List 記 49，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "138/138 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "162 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "138/138 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring"
+        ],
+        "audited_at": "2026-07-11T15:22:16.689Z"
+      }
+    },
+    {
       "file": "systems/asia/china/as-chn-nanjing.geojson",
       "continent": "asia",
       "country": "China",
@@ -3043,116 +3153,6 @@
           "2 條線無 wiki 站數對照：武汉地铁16号线、Wuhan Metro Line 5"
         ],
         "audited_at": "2026-07-11T15:22:16.658Z"
-      }
-    },
-    {
-      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Nuremberg",
-      "osm_networks": [
-        "DB",
-        "DB InfraGO",
-        "DB InfraGO AG",
-        "DB Station&Service AG",
-        "Infra Fürth GmbH",
-        "RVV;VGN",
-        "U-Bahn Nürnberg",
-        "Unknown",
-        "VAG",
-        "VAG Verkehrs-Aktiengesellschaft Nürnberg",
-        "VGN",
-        "Verkehrsverbund Großraum Nürnberg"
-      ],
-      "operator": "VAG Verkehrs-Aktiengesellschaft Nürnberg",
-      "official_website": "http://www.vgn.de/komfortauskunft/ttb/?lineName=U1&exactMatch=1",
-      "official_map": "https://de.wikipedia.org/wiki/U-Bahn_Nürnberg",
-      "wikidata": "Q3433210",
-      "line_count": 11,
-      "segment_count": 15,
-      "station_count": 138,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/europe/germany/eu-ger-nuremberg.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "11 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "138 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 138 站（wiki List 記 49，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "138/138 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "162 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "138/138 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring"
-        ],
-        "audited_at": "2026-07-11T15:22:16.689Z"
       }
     },
     {
@@ -4559,7 +4559,7 @@
       "official_map": "https://es.wikipedia.org/wiki/Línea_4_del_Metro_de_Santiago",
       "wikidata": "Q9025952",
       "line_count": 9,
-      "segment_count": 9,
+      "segment_count": 10,
       "station_count": 135,
       "audit": {
         "strategies_tried": [],
@@ -5265,6 +5265,112 @@
       }
     },
     {
+      "file": "systems/europe/italy/eu-ita-rome.geojson",
+      "continent": "europe",
+      "country": "Italy",
+      "city": "Rome",
+      "osm_networks": [
+        "ASTRAL",
+        "ATAC",
+        "COTRAL",
+        "Metro C",
+        "Metropolitana di Roma",
+        "Rete Ferroviaria Italiana",
+        "Unknown"
+      ],
+      "operator": "ATAC",
+      "official_website": null,
+      "official_map": "https://it.wikipedia.org/wiki/Linea_B_(metropolitana_di_Roma)",
+      "wikidata": "Q2666571",
+      "line_count": 6,
+      "segment_count": 8,
+      "station_count": 105,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/europe/italy/eu-ita-rome.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "6 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "105 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 105 站（wiki List 記 74，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "105/105 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "115 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "105/105 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": false,
+            "detail": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+          "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A"
+        ],
+        "audited_at": "2026-07-11T15:22:16.736Z"
+      }
+    },
+    {
       "file": "systems/europe/romania/eu-rou-bucharest.geojson",
       "continent": "europe",
       "country": "Romania",
@@ -5777,112 +5883,6 @@
         "reasons": [],
         "warnings": [],
         "audited_at": "2026-07-11T15:22:16.641Z"
-      }
-    },
-    {
-      "file": "systems/europe/italy/eu-ita-rome.geojson",
-      "continent": "europe",
-      "country": "Italy",
-      "city": "Rome",
-      "osm_networks": [
-        "ASTRAL",
-        "ATAC",
-        "COTRAL",
-        "Metro C",
-        "Metropolitana di Roma",
-        "Rete Ferroviaria Italiana",
-        "Unknown"
-      ],
-      "operator": "ATAC",
-      "official_website": null,
-      "official_map": "https://it.wikipedia.org/wiki/Linea_B_(metropolitana_di_Roma)",
-      "wikidata": "Q2666571",
-      "line_count": 6,
-      "segment_count": 7,
-      "station_count": 105,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/europe/italy/eu-ita-rome.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "6 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "105 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 105 站（wiki List 記 74，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "105/105 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "115 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "105/105 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": false,
-            "detail": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
-          "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A"
-        ],
-        "audited_at": "2026-07-11T15:22:16.736Z"
       }
     },
     {

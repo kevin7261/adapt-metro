@@ -83,7 +83,7 @@ async function load() {
     const id = props.system.file.split('/').pop().replace(/\.geojson$/, '')
     let data = layerData[id]
     if (!data) {
-      const res = await fetch(assetUrl(`data/metro/${props.system.file}`))
+      const res = await fetch(assetUrl(`data/metro/${props.system.file}`), { cache: 'no-cache' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       data = await res.json()
       layerData[id] = data
