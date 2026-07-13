@@ -493,10 +493,12 @@ function startResize(e) {
   dragging.value = true
   const startX = e.clientX
   const startW = width.value
-  // 拖到極限：上限＝容器寬 − 留給畫布的一小條（不越過），下限縮到很小；不設固定 180/560。
+  // 拖到極限但**不越過左邊面板**：上限＝容器寬 − 左側視圖導覽條寬 − 畫布一小條。
   const host = e.currentTarget?.parentElement
+  const leftNav = host?.querySelector('.view-nav')
   const move = (ev) => {
-    const maxW = host ? Math.max(120, host.clientWidth - 80) : 2000
+    const navW = leftNav ? leftNav.offsetWidth : 0
+    const maxW = host ? Math.max(120, host.clientWidth - navW - 60) : 2000
     width.value = Math.min(maxW, Math.max(60, startW - (ev.clientX - startX)))
   }
   const up = () => {
@@ -899,9 +901,10 @@ function startResize(e) {
               </ol>
             </div>
             <p class="weight-hint">
-              開啟後，只有某段站距 &lt; 「最小站距」才刪白點（直通站），刪法是**逐級升高
-              weight 差門檻**：先刪差 = 0，均分後仍太擠再刪 ≤ 1、≤ 2…直到站距達標或刪光。
-              流量幾乎沒變（差小）的冗餘站先刪。彩色錨點（紅／藍／黃）不會被藏。
+              開啟後：由最擠的路段決定一個**全域 weight 差 cutoff T**（升高 T 直到最擠段
+              均分後站距 ≥「最小站距」），然後**全圖**任何白點（直通站）只要左右兩段 weight
+              差 ≤ T 就一律隱藏——所以「刪到 ≤ T」與畫面完全一致（寬鬆段的低差白點也一起
+              消失、相鄰標籤合併取 max）。彩色錨點（紅／藍／黃）不會被藏。
             </p>
           </div>
         </template>

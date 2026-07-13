@@ -956,43 +956,42 @@ export function buildRwdMap(segs, pos, opts = {}) {
   }
 
   /* ---- interior 白點（直通站）: 第 j/(k+1) 弧長處放回（a→b order = seg.interior）。
-     可選：自動隱藏白點（opts.hideStops）——**站距觸發 + 逐級 weight 差**（使用者裁決）：
-     只有某段站距 < opts.minStopPx（預設 20px）才刪；刪法是逐級升高 weight 差門檻 T——
-     先刪 diff ≤ 0，若均分後站距仍 < 門檻再刪 ≤ 1、≤ 2…（**整級整級刪**），直到站距 ≥ 門檻
-     或白點刪光為止。彩色錨點（a/b）是拓撲錨點不可刪。保留的白點沿折線弧長**重新均分**。
-     hidden：被藏的白點 id；hiddenMaxT：全圖用到的最深 weight 差門檻（供讀數）。---- */
+     自動隱藏白點（opts.hideStops）——**站距決定全域 cutoff、全圖一致**（使用者裁決）：
+     ① 逐段找「讓該段均分後站距 ≥ opts.minStopPx 所需的最小 weight 差門檻」（站距夠寬鬆的
+        段需求為 −1，不需刪）；全域 cutoff T = 各段需求的**最大值**。
+     ② 全圖任何白點只要其左右 link 的 weight 差 |左−右| ≤ T 就一律隱藏——這樣「刪到 ≤ T」
+        與畫面完全一致（寬鬆段的低差白點也一起消失、標籤合併取 max）。
+     彩色錨點（a/b）是拓撲錨點不可刪；保留的白點沿弧長**重新均分**。
+     hidden：被藏白點 id；hiddenMaxT = T（供讀數）。---- */
   const posAfter = new Map(pos)
   const hidden = new Set()
-  let hiddenMaxT = -1
   const minStopPx = opts.minStopPx ?? 5
   const wOf = opts.linkWeight || (() => 1)
-  for (const L of lines) {
+  // 每條線預先算好弧長與各白點 weight 差。
+  const meta = lines.map((L) => {
     const ids = L.seg.interior
-    if (!ids.length) continue
     const cum = [0]
     for (let i = 1; i < L.pts.length; i++) cum.push(cum[i - 1] + dist(L.pts[i - 1], L.pts[i]))
-    const total = cum[cum.length - 1]
-    let keep = ids
-    if (opts.hideStops && minStopPx > 0 && total / (ids.length + 1) < minStopPx) {
-      const chain = [L.seg.a, ...ids, L.seg.b]
-      const diffs = ids.map((id, j) => Math.abs(wOf(chain[j], chain[j + 1]) - wOf(chain[j + 1], chain[j + 2])))
-      // 逐級升高門檻 T：keep = diff > T；均分後站距 total/(keep+1) ≥ minStopPx 就停。
+    const chain = [L.seg.a, ...ids, L.seg.b]
+    const diffs = ids.map((id, j) => Math.abs(wOf(chain[j], chain[j + 1]) - wOf(chain[j + 1], chain[j + 2])))
+    return { L, ids, cum, total: cum[cum.length - 1], diffs }
+  })
+  // ① 全域 cutoff T：各段「達到最小站距所需的最小門檻」取最大。
+  let globalT = -1
+  if (opts.hideStops && minStopPx > 0) {
+    for (const { ids, total, diffs } of meta) {
+      if (!ids.length || total / (ids.length + 1) >= minStopPx) continue // 夠寬鬆，不需刪
       const maxD = Math.max(...diffs)
       let T = 0
-      while (T <= maxD) {
-        const keptCount = diffs.filter((d) => d > T).length
-        if (total / (keptCount + 1) >= minStopPx) break // 站距夠了
-        T++
-      }
-      const kept = []
-      for (let j = 0; j < ids.length; j++) {
-        if (diffs[j] <= T) hidden.add(ids[j])
-        else kept.push(ids[j])
-      }
-      keep = kept
-      hiddenMaxT = Math.max(hiddenMaxT, T)
+      while (T <= maxD && total / (diffs.filter((d) => d > T).length + 1) < minStopPx) T++
+      globalT = Math.max(globalT, T)
     }
-    // 沿折線弧長 frac 取座標。
+  }
+  // ② 全圖依 T 隱藏 + 放回座標。
+  for (const { L, ids, cum, total, diffs } of meta) {
+    if (!ids.length) continue
+    const keep = globalT >= 0 ? ids.filter((_, j) => diffs[j] > globalT) : ids
+    if (globalT >= 0) for (let j = 0; j < ids.length; j++) if (diffs[j] <= globalT) hidden.add(ids[j])
     const at = (frac) => {
       const target = frac * total
       let i = 1
@@ -1002,12 +1001,10 @@ export function buildRwdMap(segs, pos, opts = {}) {
       const A = L.pts[i - 1], B = L.pts[i]
       return [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]
     }
-    // 被隱藏的白點也放回**原本**位置（供 ghost 顯示；否則 posOf 會退回地理座標畫到畫面外）。
-    for (let j = 1; j <= ids.length; j++) posAfter.set(ids[j - 1], at(j / (ids.length + 1)))
-    // 保留的白點**重新均分**（覆蓋上面的原位置）。
+    for (let j = 1; j <= ids.length; j++) posAfter.set(ids[j - 1], at(j / (ids.length + 1))) // 原位（含被藏者）
     const m = keep.length
-    for (let j = 1; j <= m; j++) posAfter.set(keep[j - 1], at(j / (m + 1)))
+    for (let j = 1; j <= m; j++) posAfter.set(keep[j - 1], at(j / (m + 1))) // 保留者重新均分
   }
 
-  return { lines, posAfter, stats, hidden, hiddenMaxT: hiddenMaxT >= 0 ? hiddenMaxT : null }
+  return { lines, posAfter, stats, hidden, hiddenMaxT: globalT >= 0 ? globalT : null }
 }
