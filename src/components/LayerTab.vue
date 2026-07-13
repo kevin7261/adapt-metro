@@ -229,6 +229,12 @@ function addMetroSourceLayers(data) {
     const rc = f.properties?.route_colors
     if (!Array.isArray(rc) || rc.length === 0 || f.properties._c0 != null) continue
     for (let i = 0; i < MAX_OVERLAP; i++) f.properties[`_c${i}`] = rc[i % rc.length]
+    // Distinct colour count. The interleaved dashes exist to show MULTIPLE line
+    // colours sharing a stretch; when every overlapping route is the same colour
+    // (e.g. Singapore CCL, whose loop is two same-ref relations that overlap on
+    // the main arc), n same-colour dashes just look like a broken line — draw one
+    // solid line instead. Keyed on colour so genuinely multi-colour overlaps stay dashed.
+    f.properties._nc = new Set(rc).size
   }
   map.addSource('metro', { type: 'geojson', data })
 
@@ -243,7 +249,9 @@ function addMetroSourceLayers(data) {
     filter: isNYC
       ? ['==', ['geometry-type'], 'LineString']
       : ['all', ['==', ['geometry-type'], 'LineString'],
-        ['==', ['coalesce', ['get', 'route_count'], 1], 1]],
+        ['any',
+          ['==', ['coalesce', ['get', 'route_count'], 1], 1],
+          ['==', ['coalesce', ['get', '_nc'], 1], 1]]],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
       'line-color': ['coalesce', ['get', 'route_color'], ['get', '_c0'], '#e11d48'],
@@ -259,7 +267,9 @@ function addMetroSourceLayers(data) {
     for (let i = 0; i < n; i++) {
       map.addLayer({
         id: `metro-lines-d${n}-${i}`, source: 'metro', type: 'line',
-        filter: ['all', ['==', ['geometry-type'], 'LineString'], isN],
+        // only when ≥2 DISTINCT colours share the stretch (else it's drawn solid)
+        filter: ['all', ['==', ['geometry-type'], 'LineString'], isN,
+          ['>=', ['coalesce', ['get', '_nc'], 1], 2]],
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
         paint: {
           'line-color': ['coalesce', ['get', `_c${i}`], ['get', 'route_color'], '#888888'],

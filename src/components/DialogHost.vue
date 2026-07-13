@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
-import { loadMetroCatalog, prettyContinent } from '../stores/metroCatalog'
+import { loadMetroCatalog, continentZh } from '../stores/metroCatalog'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
 import MIcon from './MIcon.vue'
@@ -36,20 +36,27 @@ watch(dialog, (d) => {
 
 const continents = computed(() => {
   if (!catalog.value) return []
-  return [...new Set(catalog.value.map((s) => s.continent))].sort()
+  return [...new Set(catalog.value.map((s) => s.continent))]
+    .map((value) => ({ value, label: continentZh(value) }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'zh'))
 })
+// Browse columns keep the English value (for filtering) but show the 中文 label.
 const countries = computed(() => {
   if (!catalog.value || !selContinent.value) return []
-  return [...new Set(
-    catalog.value.filter((s) => s.continent === selContinent.value).map((s) => s.country),
-  )].sort()
+  const seen = new Map()
+  for (const s of catalog.value) {
+    if (s.continent === selContinent.value && !seen.has(s.country)) {
+      seen.set(s.country, { value: s.country, label: s.countryZh ?? s.country })
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.label.localeCompare(b.label, 'zh'))
 })
 const cities = computed(() => {
   if (!catalog.value || !selCountry.value) return []
   return catalog.value
     .filter((s) => s.continent === selContinent.value && s.country === selCountry.value)
-    .map((s) => s.city)
-    .sort()
+    .map((s) => ({ value: s.city, label: s.cityZh ?? s.city }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'zh'))
 })
 const selectedSystem = computed(() =>
   catalog.value?.find(
@@ -65,7 +72,7 @@ function importSystem(sys) {
   const layer = store.importMetroSystem(sys)
   openLayerTab(layer)
   close()
-  store.toast(`已匯入 ${sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
+  store.toast(`已匯入 ${sys.cityZh ?? sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
 }
 
 function importMetro() {
@@ -148,6 +155,7 @@ const QUICK_CITIES = [
   { zh: '北京', en: 'Beijing' }, { zh: '上海', en: 'Shanghai' }, { zh: '香港', en: 'Hong Kong' },
   { zh: '新加坡', en: 'Singapore' }, { zh: '倫敦', en: 'London' }, { zh: '巴黎', en: 'Paris' },
   { zh: '柏林', en: 'Berlin' }, { zh: '維也納', en: 'Vienna' }, { zh: '紐約', en: 'New York' },
+  { zh: '雪梨', en: 'Sydney' }, { zh: '墨西哥城', en: 'Mexico City' },
 ]
 const quickCities = computed(() => {
   if (!catalog.value) return []
@@ -234,8 +242,8 @@ const shortcuts = [
               :title="q.sys ? '' : '資料集中找不到此城市'"
               @click="importSystem(q.sys)"
             >
-              <span class="station-city">{{ q.en }}</span>
-              <span class="station-country">{{ q.sys?.country ?? '' }}</span>
+              <span class="station-city">{{ q.zh }}</span>
+              <span class="station-country">{{ q.sys?.countryZh ?? q.sys?.country ?? '' }}</span>
               <span class="station-count">{{ q.sys ? `${q.sys.station_count} stations · ${q.sys.line_count} lines` : '—' }}</span>
             </button>
           </div>
@@ -255,8 +263,8 @@ const shortcuts = [
                 @click="importSystem(s)"
               >
                 <span class="station-rank">{{ i + 1 }}</span>
-                <span class="station-city">{{ s.city }}</span>
-                <span class="station-country">{{ s.country }}</span>
+                <span class="station-city">{{ s.cityZh ?? s.city }}</span>
+                <span class="station-country">{{ s.countryZh ?? s.country }}</span>
                 <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
               </button>
             </div>
@@ -270,11 +278,11 @@ const shortcuts = [
                 <div class="miller-list">
                   <button
                     v-for="c in continents"
-                    :key="c"
+                    :key="c.value"
                     class="miller-item"
-                    :class="{ active: selContinent === c }"
-                    @click="selContinent = c"
-                  >{{ prettyContinent(c) }}</button>
+                    :class="{ active: selContinent === c.value }"
+                    @click="selContinent = c.value"
+                  >{{ c.label }}</button>
                 </div>
               </div>
               <div class="miller-col">
@@ -283,11 +291,11 @@ const shortcuts = [
                   <div v-if="!selContinent" class="miller-empty">← 先選洲別</div>
                   <button
                     v-for="c in countries"
-                    :key="c"
+                    :key="c.value"
                     class="miller-item"
-                    :class="{ active: selCountry === c }"
-                    @click="selCountry = c"
-                  >{{ c }}</button>
+                    :class="{ active: selCountry === c.value }"
+                    @click="selCountry = c.value"
+                  >{{ c.label }}</button>
                 </div>
               </div>
               <div class="miller-col">
@@ -296,11 +304,11 @@ const shortcuts = [
                   <div v-if="!selCountry" class="miller-empty">← 先選國家</div>
                   <button
                     v-for="c in cities"
-                    :key="c"
+                    :key="c.value"
                     class="miller-item"
-                    :class="{ active: selCity === c }"
-                    @click="selCity = c"
-                  >{{ c }}</button>
+                    :class="{ active: selCity === c.value }"
+                    @click="selCity = c.value"
+                  >{{ c.label }}</button>
                 </div>
               </div>
             </div>
@@ -308,7 +316,7 @@ const shortcuts = [
             <div class="import-preview" :class="{ placeholder: !selectedSystem }">
               <MIcon name="train" :size="14" />
               <span v-if="selectedSystem">
-                {{ selectedSystem.city }} — {{ selectedSystem.line_count }} 條線 ·
+                {{ selectedSystem.cityZh ?? selectedSystem.city }} — {{ selectedSystem.line_count }} 條線 ·
                 {{ selectedSystem.station_count }} 站
                 <template v-if="selectedSystem.operator">（{{ selectedSystem.operator }}）</template>
               </span>
@@ -345,7 +353,7 @@ const shortcuts = [
             >
               <MIcon name="train" :size="14" />
               <span class="station-city">{{ l.name }}</span>
-              <span class="station-country">{{ l.city }}</span>
+              <span class="station-country">{{ l.countryZh ?? l.country ?? '' }}</span>
               <span class="station-count">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
             </button>
           </div>
@@ -591,39 +599,11 @@ const shortcuts = [
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-.import-metro { width: min(720px, calc(100vw - 32px)); }
 .add-d3 { width: min(520px, calc(100vw - 32px)); }
 .add-d3-hint { font-size: 12.5px; color: hsl(var(--muted-foreground)); margin: 0 0 10px; }
 .d3-file-row { width: 100%; margin-top: 8px; color: hsl(var(--primary)); }
 
-/* Quick Selection */
-.import-quick { width: min(560px, calc(100vw - 32px)); }
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.quick-city {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 10px 6px;
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
-  background: hsl(var(--muted) / 0.25);
-}
-.quick-city:hover:not(:disabled) {
-  border-color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.08);
-}
-.quick-city:disabled { opacity: 0.4; cursor: default; }
-.quick-zh { font-size: 15px; font-weight: 600; }
-.quick-en { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
-.quick-count { font-size: 10.5px; color: hsl(var(--muted-foreground)); }
-
 /* 依車站數排序 */
-.import-stations { width: min(560px, calc(100vw - 32px)); }
 .stations-body { display: flex; flex-direction: column; min-height: 0; }
 .sort-toggle {
   display: flex;

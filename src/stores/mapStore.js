@@ -1,8 +1,55 @@
 import { defineStore } from 'pinia'
 import { assetUrl } from '../lib/assetUrl'
 import { loadPersisted } from './persist'
+import CITY_ZH from './cityNamesZh.json'
 
 let toastTimer = null
+
+// Display name for a metro system = Chinese 國名－城市名 (from cityNamesZh.json,
+// keyed by the geojson file stem). Falls back to the id if a city is missing.
+function metroDisplayName(id) {
+  const zh = CITY_ZH[id]
+  return zh ? `${zh.country}－${zh.city}` : id
+}
+// Straighten (hillclimb) layers carry which grid-post variant they optimized.
+const variantLabel = (v) => (v === 'rot' ? '旋轉' : '原始')
+
+// One-time migration for sessions saved before layer names dropped their type
+// prefixes (d3- / hc-d3- / rwd-hc-d3-). Recompute each derived layer's name
+// from its source chain — exactly what the add* actions now do — so the result
+// matches new layers and is idempotent (running it again is a no-op). Imported
+// D3 views (no source) and metro layers keep their own names.
+// Recover the metro geojson stem from a legacy prefixed name
+// ("rwd-hc-d3-am-mex-mexico-city-orig" → "am-mex-mexico-city"), so a derived
+// layer can still be renamed even if its source metro layer was removed.
+function legacyMetroId(name) {
+  if (typeof name !== 'string') return null
+  const stem = name.replace(/^(rwd-)?(hc-)?(d3-)?/, '').replace(/-(orig|rot)$/, '')
+  return CITY_ZH[stem] ? stem : null
+}
+
+function migrateLayerNames(layers) {
+  const byId = new Map(layers.map((l) => [l.id, l]))
+  // Backfill Chinese city/country on metro layers imported before this field.
+  for (const l of layers) {
+    if (l.type === 'metro' && CITY_ZH[l.id]) {
+      l.countryZh ??= CITY_ZH[l.id].country
+      l.cityZh ??= CITY_ZH[l.id].city
+    }
+  }
+  const nameOf = (l) => {
+    if (!l) return undefined
+    if (l.type === 'metro') return metroDisplayName(l.id)
+    const src = l.sourceLayerId ? byId.get(l.sourceLayerId) : null
+    // Prefer the source chain; fall back to parsing the old prefixed name.
+    const base = src ? nameOf(src) : (legacyMetroId(l.name) ? metroDisplayName(legacyMetroId(l.name)) : null)
+    if (base == null) return l.name // imported view or unknown → keep as-is
+    if (l.type === 'hillclimb') return `${base}（${variantLabel(l.variant)}）`
+    return base // d3 / rwd
+  }
+  for (const l of layers) l.name = nameOf(l)
+  return layers
+}
 
 export const useMapStore = defineStore('map', {
   // Hydrate from the persisted session (localStorage) so layers survive reloads.
@@ -36,7 +83,7 @@ export const useMapStore = defineStore('map', {
 
       // Flat list — every layer opens as its own editor tab.
       // Populated by importing metro systems (Import Metro Map).
-      layers: p?.layers ?? [],
+      layers: migrateLayerNames(p?.layers ?? []),
 
       // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
       // kind of layer: imported metro maps, D3.js views over a metro layer, and
@@ -44,7 +91,7 @@ export const useMapStore = defineStore('map', {
       groups: [
         { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
         { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
-        { id: 'hillclimb', label: 'Hill Climbing', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
+        { id: 'hillclimb', label: 'Straighten', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
         { id: 'rwd', label: 'RWD Maps', collapsed: p?.groupCollapsed?.['rwd'] ?? false },
       ],
     }
@@ -53,9 +100,6 @@ export const useMapStore = defineStore('map', {
   getters: {
     selectedLayer(state) {
       return state.layers.find((l) => l.id === state.selectedLayerId) ?? null
-    },
-    allLayersVisible(state) {
-      return state.layers.every((l) => l.visible)
     },
     // Panel rows: each group with its member layers (groups always shown).
     layerTree(state) {
@@ -96,14 +140,16 @@ export const useMapStore = defineStore('map', {
       if (!layer) {
         layer = {
           id,
-          // Default layer name = the geojson filename (without extension).
-          name: id,
+          // Display name = Chinese 國名－城市名 (falls back to the id).
+          name: metroDisplayName(id),
           type: 'metro',
           groupId: 'metro-maps',
           file: assetUrl(`data/metro/${sys.file}`),
           continent: sys.continent,
           country: sys.country,
           city: sys.city,
+          countryZh: CITY_ZH[id]?.country ?? sys.country,
+          cityZh: CITY_ZH[id]?.city ?? sys.city,
           visible: true,
           opacity: 1,
           strokeWidth: 2.5,
@@ -128,7 +174,9 @@ export const useMapStore = defineStore('map', {
       while (this.layers.some((l) => l.id === `d3-view-${n}`)) n++
       const layer = {
         id: `d3-view-${n}`,
-        name: `d3-${src.name}`,
+        // Layer names carry no type prefix — the group (Map Adjust / Straighten
+        // / RWD Maps) already tells the type; only the source + variant matter.
+        name: src.name,
         type: 'd3',
         groupId: 'd3',
         sourceLayerId,
@@ -190,7 +238,7 @@ export const useMapStore = defineStore('map', {
       while (this.layers.some((l) => l.id === `hc-view-${n}`)) n++
       const layer = {
         id: `hc-view-${n}`,
-        name: `hc-${src.name}-${v}`,
+        name: `${src.name}（${variantLabel(v)}）`,
         type: 'hillclimb',
         groupId: 'hillclimb',
         sourceLayerId: d3LayerId,
@@ -212,7 +260,7 @@ export const useMapStore = defineStore('map', {
       while (this.layers.some((l) => l.id === `rwd-view-${n}`)) n++
       const layer = {
         id: `rwd-view-${n}`,
-        name: `rwd-${src.name}`,
+        name: src.name,
         type: 'rwd',
         groupId: 'rwd',
         sourceLayerId: hcLayerId,

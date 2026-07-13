@@ -819,74 +819,6 @@ onBeforeUnmount(() => {
               @click="mode = t.id"
             >{{ t.label }}</button>
           </div>
-
-          <!-- Hill Climbing: multicriteria fitness before → after (lower = better) -->
-          <span v-if="isHC && (mode === 'hc' || mode === 'hc-compact') && hcStats" class="hc-stats">
-            適應度 {{ fmtFit(hcStats.before) }} → {{ fmtFit(hcStats.after) }}
-            · {{ hcStats.rounds }} 輪 · 移動 {{ hcStats.moved }} 站<template
-              v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template><template
-              v-if="hcCompact && hcCompactStats"> · 網格
-              {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
-              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
-          </span>
-
-          <!-- H/V-maximising post-passes: aligned-segment count before → after -->
-          <span v-if="postKind && postStats" class="hc-stats">
-            水平垂直 {{ postStats.hvBefore }} → {{ postStats.hvAfter }}／{{ postStats.segs }} 段
-            · 迭代 {{ postStats.iters }}/{{ postStats.iterCap }}<template
-              v-if="!postStats.converged">（達上限未收斂）</template>
-            · 移動 {{ postStats.moved }} 站<template
-              v-if="postStats.reverted">（淨值未改善，退回）</template><template
-              v-if="postKind === 'rect'"> · 適應度 {{ fmtFit(postStats.before) }} →
-              {{ fmtFit(postStats.after) }} · {{ postStats.rounds }} 輪</template><template
-              v-else-if="postKind === 'align'"> · 橫群 {{ postStats.groupsH }}
-              · 縱群 {{ postStats.groupsV }}</template><template
-              v-else-if="postKind === 'ilp'"> · {{ postStats.comps }} 元件<template
-                v-if="postStats.fallback">（{{ postStats.fallback }} 退回）</template></template><template
-              v-if="hcCompact && hcCompactStats"> · 網格
-              {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
-              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
-          </span>
-
-          <!-- LLM 對齊: button-triggered offline run — rounds + the model -->
-          <span v-if="llmMode && llmStats" class="hc-stats">
-            水平垂直 {{ llmStats.hvBefore }} → {{ llmStats.hvAfter }}／{{ llmStats.segs }} 段
-            · 迭代 {{ llmStats.rounds }} 輪 · 移動 {{ llmStats.moved }} 站
-            · 模型 {{ llmStats.model }}<template
-              v-if="hcCompact && hcCompactStats"> · 網格
-              {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
-              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template><template
-              v-if="llmRun === 'running'"> · <b>執行中…</b></template>
-            <button
-              v-if="llmCityId && llmRun !== 'running'"
-              class="llm-rerun"
-              title="重新啟動 headless Claude Code 繼續改善"
-              @click="startLlmRun"
-            >重跑</button>
-          </span>
-
-          <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
-          <span v-if="isRWD && rwdMode && rwdStats" class="hc-stats">
-            {{ rwdStats.segs }} 段 · 直線 {{ rwdStats.straight }} · 單折 {{ rwdStats.single }}
-            · 雙折 {{ rwdStats.double }}<template v-if="rwdStats.multi">
-              · 多折 {{ rwdStats.multi }}</template><template v-if="rwdStats.rerouted">
-              · 繞行 {{ rwdStats.rerouted }}</template><template v-if="rwdStats.swapped">
-              · 順接調整 {{ rwdStats.swapped }}</template><template v-if="rwdStats.straightened">
-              · 直線化 {{ rwdStats.straightened }}</template><template v-if="rwdStats.diag45">
-              · 轉45 {{ rwdStats.diag45 }}</template><template v-if="rwdStats.squeezed">
-              · 窄縫 {{ rwdStats.squeezed }}</template><template v-if="rwdStats.fallback">
-              · 兜底 {{ rwdStats.fallback }}</template><template v-if="rwdStats.forced">
-              · 殘留衝突 {{ rwdStats.forced }}</template><template v-if="hcCompactStats"> · 網格
-              {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
-          </span>
-
-          <span class="ma-label">資料來源：</span>
-          <span class="ma-source">
-            {{ ownData ? `${layer?.name}（匯入 JSON）`
-              : isRWD ? (hcLayer ? `${hcLayer.name}（縮減網格）` : (layer?.sourceLayerId ?? '—'))
-              : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
-              : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
-          </span>
         </div>
 
         <div ref="host" class="ma-canvas">
@@ -931,12 +863,85 @@ onBeforeUnmount(() => {
       v-if="panelLayer"
       :layer="panelLayer"
       context="d3"
+      :view-kind="isRWD ? 'rwd' : isHC ? 'hillclimb' : 'map-adjust'"
       :llm-record="isHC ? llmStats : null"
       :llm-running="llmRun === 'running'"
       :llm-can-run="!!llmCityId"
       @run-llm="startLlmRun"
     />
     </div>
+
+    <!-- Footer status bar (mirrors the metro map tab's StatusBar): the toolbar's
+         right-side readouts — per-mode stats + data source — live here now. -->
+    <footer class="ma-statusbar">
+      <!-- Hill Climbing: multicriteria fitness before → after (lower = better) -->
+      <span v-if="isHC && (mode === 'hc' || mode === 'hc-compact') && hcStats" class="hc-stats">
+        適應度 {{ fmtFit(hcStats.before) }} → {{ fmtFit(hcStats.after) }}
+        · {{ hcStats.rounds }} 輪 · 移動 {{ hcStats.moved }} 站<template
+          v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template><template
+          v-if="hcCompact && hcCompactStats"> · 網格
+          {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+          {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+      </span>
+
+      <!-- H/V-maximising post-passes: aligned-segment count before → after -->
+      <span v-if="postKind && postStats" class="hc-stats">
+        水平垂直 {{ postStats.hvBefore }} → {{ postStats.hvAfter }}／{{ postStats.segs }} 段
+        · 迭代 {{ postStats.iters }}/{{ postStats.iterCap }}<template
+          v-if="!postStats.converged">（達上限未收斂）</template>
+        · 移動 {{ postStats.moved }} 站<template
+          v-if="postStats.reverted">（淨值未改善，退回）</template><template
+          v-if="postKind === 'rect'"> · 適應度 {{ fmtFit(postStats.before) }} →
+          {{ fmtFit(postStats.after) }} · {{ postStats.rounds }} 輪</template><template
+          v-else-if="postKind === 'align'"> · 橫群 {{ postStats.groupsH }}
+          · 縱群 {{ postStats.groupsV }}</template><template
+          v-else-if="postKind === 'ilp'"> · {{ postStats.comps }} 元件<template
+            v-if="postStats.fallback">（{{ postStats.fallback }} 退回）</template></template><template
+          v-if="hcCompact && hcCompactStats"> · 網格
+          {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+          {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+      </span>
+
+      <!-- LLM 對齊: button-triggered offline run — rounds + the model -->
+      <span v-if="llmMode && llmStats" class="hc-stats">
+        水平垂直 {{ llmStats.hvBefore }} → {{ llmStats.hvAfter }}／{{ llmStats.segs }} 段
+        · 迭代 {{ llmStats.rounds }} 輪 · 移動 {{ llmStats.moved }} 站
+        · 模型 {{ llmStats.model }}<template
+          v-if="hcCompact && hcCompactStats"> · 網格
+          {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+          {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template><template
+          v-if="llmRun === 'running'"> · <b>執行中…</b></template>
+        <button
+          v-if="llmCityId && llmRun !== 'running'"
+          class="llm-rerun"
+          title="重新啟動 headless Claude Code 繼續改善"
+          @click="startLlmRun"
+        >重跑</button>
+      </span>
+
+      <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
+      <span v-if="isRWD && rwdMode && rwdStats" class="hc-stats">
+        {{ rwdStats.segs }} 段 · 直線 {{ rwdStats.straight }} · 單折 {{ rwdStats.single }}
+        · 雙折 {{ rwdStats.double }}<template v-if="rwdStats.multi">
+          · 多折 {{ rwdStats.multi }}</template><template v-if="rwdStats.rerouted">
+          · 繞行 {{ rwdStats.rerouted }}</template><template v-if="rwdStats.swapped">
+          · 順接調整 {{ rwdStats.swapped }}</template><template v-if="rwdStats.straightened">
+          · 直線化 {{ rwdStats.straightened }}</template><template v-if="rwdStats.diag45">
+          · 轉45 {{ rwdStats.diag45 }}</template><template v-if="rwdStats.squeezed">
+          · 窄縫 {{ rwdStats.squeezed }}</template><template v-if="rwdStats.fallback">
+          · 兜底 {{ rwdStats.fallback }}</template><template v-if="rwdStats.forced">
+          · 殘留衝突 {{ rwdStats.forced }}</template><template v-if="hcCompactStats"> · 網格
+          {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+      </span>
+
+      <span class="ma-label">資料來源：</span>
+      <span class="ma-source">
+        {{ ownData ? `${layer?.name}（匯入 JSON）`
+          : isRWD ? (hcLayer ? `${hcLayer.name}（縮減網格）` : (layer?.sourceLayerId ?? '—'))
+          : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
+          : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
+      </span>
+    </footer>
   </div>
 </template>
 
@@ -969,6 +974,22 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
 }
+/* Footer status bar — mirrors the metro map tab's StatusBar. Sits full-width
+   below tab-body; holds the per-mode stats + data source moved off the toolbar. */
+.ma-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 28px;
+  flex-shrink: 0;
+  padding: 3px 12px;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.4);
+  color: hsl(var(--muted-foreground));
+  overflow: hidden;
+}
+/* long stats (esp. RWD histogram) truncate rather than shove the source off-screen */
+.ma-statusbar .hc-stats { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .ma-label { font-size: 12.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; margin-left: auto; }
 /* Hill Climbing fitness readout (before → after, 越低越好) */
 .hc-stats {

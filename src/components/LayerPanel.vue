@@ -11,29 +11,19 @@ import MIcon from './MIcon.vue'
 const store = useMapStore()
 
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
-const typeBadges = { metro: 'METRO', d3: 'D3', hillclimb: 'HC', rwd: 'RWD' }
 
-// Skills exposed per layer type (moved off the top toolbar into each layer):
-// Metro Maps layers get the two general data-pipeline skills + the cities index;
-// Map Adjust gets the skeleton + gridding skills; Hill Climbing / RWD their own.
+// Skills exposed per layer type, surfaced in each GROUP header (left of the
+// delete icon): Metro Maps gets the data-pipeline skills + the cities index,
+// Map Adjust the skeleton + gridding skills, Hill Climbing / RWD their own.
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
   rwd: ['route-rwd-draw', 'route-hillclimb'],
 }
-// 城市 → 該城專屬 skill（讓每個城市的圖層在下拉多顯示自己的規則 skill）。
-const CITY_SKILL = {
-  Taipei: 'metro-city-taipei',
-  Tokyo: 'metro-city-tokyo', Osaka: 'metro-city-tokyo',
-  Berlin: 'metro-city-germany', Hamburg: 'metro-city-germany',
-  Munich: 'metro-city-germany', Frankfurt: 'metro-city-germany',
-  Nuremberg: 'metro-city-germany',
-  'New York City': 'metro-city-newyork',
-  'Hong Kong': 'metro-city-hongkong', Shanghai: 'metro-city-shanghai',
-  Beijing: 'metro-city-beijing', Chengdu: 'metro-city-chengdu',
-  Suzhou: 'metro-city-suzhou',
-}
+// Each layer group maps to one layer type → the skills shown in its header.
+// (Metro appends every metro-city-* rule, so no per-city table is needed.)
+const GROUP_TYPE = { 'metro-maps': 'metro', d3: 'd3', hillclimb: 'hillclimb', rwd: 'rwd' }
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
 onMounted(async () => {
@@ -43,23 +33,23 @@ onMounted(async () => {
   } catch { /* labels fall back to the id */ }
   document.addEventListener('mousedown', onSkillDocClick)
 })
-function layerSkills(layer) {
-  const ids = [...(LAYER_SKILLS[layer.type] ?? [])]
-  if (layer.type === 'metro') {
-    // 使用者：所有城市的 skill 都要在下拉。當前城市的 skill 排最前，其餘城市依序列出。
-    const cur = CITY_SKILL[layer.city]
-    if (cur && !ids.includes(cur)) ids.push(cur)
+// Skills for a group's header menu: the type's general skills, plus (metro)
+// every city rule sorted after them.
+function groupSkills(groupId) {
+  const type = GROUP_TYPE[groupId]
+  const ids = [...(LAYER_SKILLS[type] ?? [])]
+  if (type === 'metro') {
     for (const id of Object.keys(skillIndex.value).sort())
       if (id.startsWith('metro-city-') && !ids.includes(id)) ids.push(id)
   }
   return ids.map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
 }
 // The menu is teleported to <body> with fixed positioning so it isn't clipped
-// by the layer tree's `overflow-y: auto`.
+// by the layer tree's `overflow-y: auto`. skillMenuFor holds the group id.
 const skillMenuPos = ref({ top: 0, left: 0 })
-function toggleSkillMenu(layer, e) {
-  if (skillMenuFor.value === layer.id) { skillMenuFor.value = null; return }
-  skillMenuFor.value = layer.id
+function toggleSkillMenu(groupId, e) {
+  if (skillMenuFor.value === groupId) { skillMenuFor.value = null; return }
+  skillMenuFor.value = groupId
   const r = e.currentTarget.getBoundingClientRect()
   skillMenuPos.value = { top: r.bottom + 4, left: Math.max(8, Math.min(r.right - 320, window.innerWidth - 328)) }
 }
@@ -218,7 +208,36 @@ onBeforeUnmount(() => {
             <MIcon :name="item.group.collapsed ? 'chevron_right' : 'expand_more'" :size="14" class="group-chevron" />
             <MIcon :name="item.group.collapsed ? 'folder' : 'folder_open'" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
-            <span class="group-count">{{ item.children.length }}</span>
+            <div v-if="GROUP_TYPE[item.group.id]" class="skill-wrap">
+              <button
+                class="btn-icon group-add"
+                :class="{ active: skillMenuFor === item.group.id }"
+                title="Skills"
+                @click.stop="toggleSkillMenu(item.group.id, $event)"
+              >
+                <MIcon name="auto_awesome" :size="14" />
+              </button>
+              <Teleport to="body">
+                <div
+                  v-if="skillMenuFor === item.group.id"
+                  class="menu-pop skill-menu"
+                  :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
+                >
+                  <button
+                    v-for="s in groupSkills(item.group.id)"
+                    :key="s.id"
+                    class="menu-item skill-item"
+                    @click="pickSkill(s.id)"
+                  >
+                    <MIcon name="auto_awesome" :size="13" class="skill-icon" />
+                    <span class="skill-text">
+                      <span class="skill-name">{{ s.id }}</span>
+                      <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
+                    </span>
+                  </button>
+                </div>
+              </Teleport>
+            </div>
             <button
               v-if="item.children.length"
               class="btn-icon group-add group-del"
@@ -308,42 +327,11 @@ onBeforeUnmount(() => {
                   :style="layer.color ? { color: layer.color } : {}"
                 />
                 <span class="layer-name">{{ layer.name }}</span>
-                <span class="type-badge">{{ typeBadges[layer.type] ?? layer.type }}</span>
               </div>
 
               <!-- stop only on the buttons — a click on the strip's empty area
                    must still bubble to the row and open the layer's tab -->
               <div class="layer-actions">
-                <div v-if="LAYER_SKILLS[layer.type]" class="skill-wrap">
-                  <button
-                    class="btn-icon"
-                    :class="{ active: skillMenuFor === layer.id }"
-                    title="Skills"
-                    @click.stop="toggleSkillMenu(layer, $event)"
-                  >
-                    <MIcon name="auto_awesome" :size="14" />
-                  </button>
-                  <Teleport to="body">
-                    <div
-                      v-if="skillMenuFor === layer.id"
-                      class="menu-pop skill-menu"
-                      :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
-                    >
-                      <button
-                        v-for="s in layerSkills(layer)"
-                        :key="s.id"
-                        class="menu-item skill-item"
-                        @click="pickSkill(s.id)"
-                      >
-                        <MIcon name="auto_awesome" :size="13" class="skill-icon" />
-                        <span class="skill-text">
-                          <span class="skill-name">{{ s.id }}</span>
-                          <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
-                        </span>
-                      </button>
-                    </div>
-                  </Teleport>
-                </div>
                 <button
                   v-if="layer.type === 'metro'"
                   class="btn-icon"
@@ -442,19 +430,9 @@ onBeforeUnmount(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.group-count {
-  font-size: 10.5px;
-  color: hsl(var(--muted-foreground));
-  border: 1px solid hsl(var(--border));
-  border-radius: 999px;
-  padding: 0 6px;
-  line-height: 16px;
-}
 .group-add { width: 22px; height: 22px; color: hsl(var(--muted-foreground)); }
 .group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
 .group-del:hover { color: hsl(var(--destructive)); background: hsl(var(--destructive) / 0.12); }
-.group-add-wrap { position: relative; }
-.group-add-menu { right: 0; top: 26px; min-width: 200px; }
 .group-empty {
   font-size: 11.5px;
   color: hsl(var(--muted-foreground));
@@ -487,14 +465,6 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.type-badge {
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: hsl(var(--muted-foreground));
-  flex-shrink: 0;
-  padding-left: 6px;
 }
 /* second row: the actions, aligned bottom-right */
 .layer-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }

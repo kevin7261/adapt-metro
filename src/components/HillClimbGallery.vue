@@ -63,7 +63,7 @@ function pick(entry, viewId) {
   const hc = store.addHillClimbLayer(d3.id, variant)
   if (!hc) { store.toast('無法建立 Hill Climbing 視圖'); return }
   openLayerTab(hc)
-  store.toast(`已建立 ${entry.city} Hill Climbing 視圖（${variant === 'rot' ? '旋轉' : '原始'}）`)
+  store.toast(`已建立 ${entry.cityZh ?? entry.city} Straighten 視圖（${variant === 'rot' ? '旋轉' : '原始'}）`)
 }
 </script>
 

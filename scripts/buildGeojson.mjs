@@ -557,6 +557,9 @@ async function build() {
     [/s-bahn münchen|münchner s-bahn/i, { city: 'Munich', country: 'Germany', continent: 'europe' }],
     [/s-bahn rhein-main/i, { city: 'Frankfurt', country: 'Germany', continent: 'europe' }],
     [/s-bahn nürnberg|s-bahn nuremberg/i, { city: 'Nuremberg', country: 'Germany', continent: 'europe' }],
+    // 雪梨 Sydney Trains（舊稱 CityRail）市郊 T 線（route=train，由 fetchSydneyTrains.mjs
+    // 補抓，使用者指定「雪梨要抓 CityRail」）：network=Sydney Trains 直綁雪梨。
+    [/sydney trains|cityrail/i, { city: 'Sydney', country: 'Australia', continent: 'oceania' }],
   ]
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file. Naming (metro-osm-fetch skill): DIRECTORIES use full names

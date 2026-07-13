@@ -229,8 +229,6 @@ const legsOfPts = (pts) => {
   }
   return out
 }
-const diagCount = (pts) =>
-  legsOfPts(pts).filter((l) => l.dir === 'D+' || l.dir === 'D-').length
 
 // `pos` = Map<id, [x, y]> PIXEL positions of the (compact-grid) cut points.
 // opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);

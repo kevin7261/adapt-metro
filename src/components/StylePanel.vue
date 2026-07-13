@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { marked } from 'marked'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
-import { prettyContinent, loadMapsIndex } from '../stores/metroCatalog'
+import { prettyContinent, continentZh, loadMapsIndex } from '../stores/metroCatalog'
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import OrientationRose from './OrientationRose.vue'
@@ -23,10 +23,17 @@ const props = defineProps({
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
+  // Which D3 view this is: 'map-adjust' | 'hillclimb' | 'rwd' (D3Tab sets it),
+  // or 'metro' for the MapLibre tab. Orientation shows only for metro maps and
+  // Map Adjust; the skeleton rules only for Map Adjust.
+  viewKind: { type: String, default: 'metro' },
 })
 const emit = defineEmits(['run-llm'])
 const llmUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
+const isMapAdjust = computed(() => isD3.value && props.viewKind === 'map-adjust')
+// Orientation rose: metro maps (MapLibre) + Map Adjust only, not HC / RWD.
+const showOrientation = computed(() => !isD3.value || isMapAdjust.value)
 
 const open = ref(true)
 const width = ref(300)
@@ -502,17 +509,16 @@ function startResize(e) {
       <div class="style-body">
         <div class="layer-heading">
           <span class="layer-name">{{ layer.name }}</span>
-          <span class="layer-type">{{ layer.type }}</span>
         </div>
 
         <!-- ============ Info ============ -->
         <template v-if="activeTab === 'info'">
           <template v-if="isMetro">
             <div class="info-rows">
-              <div class="info-row"><span class="info-key">City</span><span>{{ layer.city }}</span></div>
-              <div class="info-row"><span class="info-key">Country</span><span>{{ layer.country }}</span></div>
+              <div class="info-row"><span class="info-key">城市</span><span>{{ layer.cityZh ?? layer.city }}</span></div>
+              <div class="info-row"><span class="info-key">國家</span><span>{{ layer.countryZh ?? layer.country }}</span></div>
               <div class="info-row">
-                <span class="info-key">Continent</span><span>{{ prettyContinent(layer.continent) }}</span>
+                <span class="info-key">洲別</span><span>{{ continentZh(layer.continent) }}</span>
               </div>
               <div class="info-row"><span class="info-key">Lines</span><span>{{ layer.lineCount }}</span></div>
               <div class="info-row"><span class="info-key">Stations</span><span>{{ layer.stationCount }}</span></div>
@@ -538,6 +544,7 @@ function startResize(e) {
               </div>
             </div>
 
+            <template v-if="showOrientation">
             <div class="section-title">Orientation</div>
             <div v-if="!orientation || !orientation.segments" class="info-empty">
               載入中…
@@ -575,9 +582,10 @@ function startResize(e) {
                 （摺 90°，轉幅 ≤ 45°，即最小旋轉）。其他方向不參與。此角度不改地圖。
               </div>
             </template>
+            </template>
 
-            <!-- Skeleton computation rules (Map Adjust / D3.js view) -->
-            <template v-if="isD3">
+            <!-- Skeleton computation rules — Map Adjust view only -->
+            <template v-if="isMapAdjust">
               <div class="section-title">骨架化規則</div>
               <div class="skeleton-rules">
                 <p>不拉直、保留地理形狀，只做拓撲收縮與標記（connect 骨架）。</p>
@@ -1020,13 +1028,6 @@ function startResize(e) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.layer-type {
-  font-size: 10.5px;
-  color: hsl(var(--muted-foreground));
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
-}
 
 /* Info */
 .info-rows { display: flex; flex-direction: column; gap: 2px; }
@@ -1159,7 +1160,6 @@ function startResize(e) {
 .sk-dot.sk-ring { background: #fff; }
 .sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
 .sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
-.sk-line.sk-coline { background: repeating-linear-gradient(90deg, #e11d48 0 4px, #2563eb 4px 8px); }
 .skeleton-rules .rose-note { margin-top: 10px; font-size: 11px; color: hsl(var(--muted-foreground)); }
 .section-title {
   font-size: 11px;
@@ -1172,7 +1172,6 @@ function startResize(e) {
   margin: 12px 0 10px;
 }
 .rose-stats { margin-top: 10px; }
-.rose-stats sub { font-size: 0.75em; }
 .rose-note {
   margin-top: 8px;
   font-size: 11px;

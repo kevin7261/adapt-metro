@@ -14,7 +14,10 @@ const inner = computed(() => p.value.params ?? p.value)
 const layerId = computed(() => inner.value.layerId ?? p.value.layerId)
 const layer = computed(() => store.layers.find((l) => l.id === layerId.value) ?? null)
 
-const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline' }
+// Keep in sync with LayerPanel.vue's typeIcons so a layer shows the same glyph
+// in its dock tab and in the layer list (hillclimb/rwd were missing → fell back
+// to 'circle' in the tab while the panel showed terrain/route).
+const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 const icon = computed(() => typeIcons[layer.value?.type] ?? 'circle')
 const title = computed(() =>
   layer.value?.name || inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—')

@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 224,
   "wikipedia_system_count": 233,
-  "line_total": 1437,
-  "station_total": 16926,
+  "line_total": 1468,
+  "station_total": 17083,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -656,6 +656,110 @@
           "20 條線無 wiki 站數對照：Ligne 8 : Balard ↔ Pointe du Lac、Ligne 9 : Pont de Sèvres ↔ Mairie de Montreuil、Ligne 12 : Mairie d'Aubervilliers ↔ Mairie d’Issy"
         ],
         "audited_at": "2026-07-11T15:22:16.676Z"
+      }
+    },
+    {
+      "file": "systems/oceania/australia/oc-aus-sydney.geojson",
+      "continent": "oceania",
+      "country": "Australia",
+      "city": "Sydney",
+      "osm_networks": [
+        "NSW TrainLink",
+        "Sydney Light Rail",
+        "Sydney Metro",
+        "Sydney Trains",
+        "Transdev Sydney Light Rail",
+        "Unknown"
+      ],
+      "operator": "Transdev Sydney",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Dulwich_Hill_Line",
+      "wikidata": "Q14543324",
+      "line_count": 15,
+      "segment_count": 32,
+      "station_count": 178,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/oceania/australia/oc-aus-sydney.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "21 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 21 站（wiki List 記 21，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "21/21 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "21 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "21/21 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "1 條線無 wiki 站數對照：Metro North West & Bankstown Line",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線無 wiki 站數對照：Metro North West & Bankstown Line"
+        ],
+        "audited_at": "2026-07-11T15:22:16.599Z"
       }
     },
     {
@@ -17637,109 +17741,6 @@
           "1 條線無 wiki 站數對照：Linha 1 - Laranja"
         ],
         "audited_at": "2026-07-11T15:22:16.603Z"
-      }
-    },
-    {
-      "file": "systems/oceania/australia/oc-aus-sydney.geojson",
-      "continent": "oceania",
-      "country": "Australia",
-      "city": "Sydney",
-      "osm_networks": [
-        "Sydney Light Rail",
-        "Sydney Metro",
-        "Sydney Trains",
-        "Transdev Sydney Light Rail",
-        "Unknown"
-      ],
-      "operator": "Transdev Sydney",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Dulwich_Hill_Line",
-      "wikidata": "Q14543324",
-      "line_count": 1,
-      "segment_count": 1,
-      "station_count": 21,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/oceania/australia/oc-aus-sydney.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "1 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "21 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 21 站（wiki List 記 21，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "21/21 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "21 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "21/21 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "1 條線無 wiki 站數對照：Metro North West & Bankstown Line",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線無 wiki 站數對照：Metro North West & Bankstown Line"
-        ],
-        "audited_at": "2026-07-11T15:22:16.599Z"
       }
     },
     {

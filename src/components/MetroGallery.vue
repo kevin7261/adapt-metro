@@ -53,7 +53,7 @@ const tiles = computed(() => {
 function pick(sys) {
   const layer = store.importMetroSystem(sys)
   openLayerTab(layer)
-  store.toast(`已匯入 ${sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
+  store.toast(`已匯入 ${sys.cityZh ?? sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
 }
 </script>
 

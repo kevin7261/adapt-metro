@@ -52,6 +52,14 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   Green、平壤千里馬線 等——wiki infobox 過期或計法不同、我方資料正確者。
 - **Istanbul 是真實的歐亞兩岸**（博斯普鲁斯海峡分隔，欧洲侧 M1/M2/M3/M6/M7/M9/M11 ＋
   亞洲侧 M4/M5/M8 兩個不相連網絡）——**不是抓錯**，勿合併。
+- **雪梨 Sydney Trains（舊稱 CityRail）市郊線＝route=train scope 例外**（使用者指定「雪梨
+  要抓 CityRail」，性質同德國 S-Bahn）：市郊 T 線 T1–T9 在 OSM 標 `route=train`，不在基準
+  查詢範圍，由 `scripts/fetchSydneyTrains.mjs`（`npm run metro:fetchsydney`）以雪梨 bbox＋
+  `ref~"^T[0-9]"`＋network=Sydney Trains 補抓，寫 `gap_*_sydney` 快取；build 端 `NETWORK_CITY`
+  以 network/operator「Sydney Trains」pin 到雪梨。**站源用乾淨的 `railway=station`＋`train=yes`
+  節點與 way 中心**（不用月台 stop_position 具名——OSM 把 Sydney Trains 月台逐個具名成
+  「Central, Platform 18」會把一站拆成多個點；Olympic Park 是 way，需 `out center` 才抓得到，
+  否則 T7 只剩 1 站被丟）。NSW TrainLink 城際線 ref 非 T#，天然排除。詳見 [[metro-osm-fetch]]。
 
 ## 新增城市專屬規則時
 

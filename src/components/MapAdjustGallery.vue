@@ -62,7 +62,7 @@ function pick(entry, viewId) {
   if (!d3) { store.toast('無法建立 Map Adjust 視圖'); return }
   openLayerTab(d3)
   const label = viewId ? `（${viewId}）` : ''
-  store.toast(`已建立 ${entry.city} Map Adjust 視圖${label}`)
+  store.toast(`已建立 ${entry.cityZh ?? entry.city} Map Adjust 視圖${label}`)
 }
 </script>
 

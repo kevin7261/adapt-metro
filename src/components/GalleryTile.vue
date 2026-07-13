@@ -47,11 +47,14 @@ function build(geojson) {
       const p = f.properties ?? {}
       const rc = p.route_count ?? 1
       const colors = Array.isArray(p.route_colors) ? p.route_colors : []
+      // Only interleave dashes when ≥2 DISTINCT colours share the stretch; same-
+      // colour overlaps (e.g. Singapore CCL) draw as one solid line (matches LayerTab).
+      const distinct = new Set(colors).size
       for (const seg of f.geometry.coordinates) {
         const d = seg.map((c, i) => `${i ? 'L' : 'M'}${px(c[0]).toFixed(1)} ${py(c[1]).toFixed(1)}`).join(' ')
         if (!d) continue
         // 紐約特例：共線段只畫 1 條實線（第一條線代表色），與主地圖 LayerTab 一致。
-        if (rc > 1 && colors.length && !isNYC) {
+        if (rc > 1 && distinct > 1 && !isNYC) {
           // n interleaved coloured dashes, one slot per route (dasharray offset).
           const cnt = Math.min(rc, MAX_OVERLAP)
           for (let i = 0; i < cnt; i++) {
@@ -103,7 +106,7 @@ onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
-  <button ref="root" class="tile" :title="`匯入 ${system.city}`" @click="emit('pick', system)">
+  <button ref="root" class="tile" :title="`匯入 ${system.cityZh ?? system.city}`" @click="emit('pick', system)">
     <div class="tile-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
       <svg v-if="thumb" :viewBox="`0 0 ${thumb.W} ${thumb.H}`" preserveAspectRatio="xMidYMid meet">
         <path
@@ -130,8 +133,8 @@ onBeforeUnmount(() => observer?.disconnect())
       <span v-if="state === 'error'" class="tile-msg">載入失敗</span>
     </div>
     <div class="tile-meta">
-      <span class="tile-city">{{ system.city }}</span>
-      <span class="tile-sub">{{ system.country }}</span>
+      <span class="tile-city">{{ system.cityZh ?? system.city }}</span>
+      <span class="tile-sub">{{ system.countryZh ?? system.country }}</span>
       <span class="tile-stats">{{ system.line_count }} 線 · {{ system.station_count }} 站</span>
     </div>
   </button>
