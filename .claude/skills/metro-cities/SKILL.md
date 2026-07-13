@@ -59,7 +59,10 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   以 network/operator「Sydney Trains」pin 到雪梨。**站源用乾淨的 `railway=station`＋`train=yes`
   節點與 way 中心**（不用月台 stop_position 具名——OSM 把 Sydney Trains 月台逐個具名成
   「Central, Platform 18」會把一站拆成多個點；Olympic Park 是 way，需 `out center` 才抓得到，
-  否則 T7 只剩 1 站被丟）。NSW TrainLink 城際線 ref 非 T#，天然排除。詳見 [[metro-osm-fetch]]。
+  否則 T7 只剩 1 站被丟）。NSW TrainLink 城際線 ref 非 T#，天然排除。**T 線的分支/快車變體
+  （T1 Richmond／Emu Plains、T4 Cronulla／Waterfall、T8 南線／機場支線…）＝同一條線**，
+  network「Sydney Trains」已納入 `mergeVariants`（見 [[metro-city-newyork]]），收斂成 T1–T9
+  各 1 條（雪梨 15→10 route_id）。詳見 [[metro-osm-fetch]]。
 
 ## 新增城市專屬規則時
 

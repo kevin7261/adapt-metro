@@ -238,20 +238,17 @@ function addMetroSourceLayers(data) {
   }
   map.addSource('metro', { type: 'geojson', data })
 
-  // 紐約特例（使用者：紐約共線很多，共線段只畫 1 條）——所有路段（含共線段）都畫
-  // 成單一實線、用代表色（第一條線色 _c0），不生成 n 色交錯虛線。routes list 仍在，
-  // hover 照樣列出該段所有線。其他城市維持「共線 n 色交錯虛線」。
-  const isNYC = l?.city === 'New York City'
-
-  // single-route segments: solid（紐約：所有段都走這條，用第一條線代表色）
+  // Solid line when a stretch has a single distinct colour — either one route
+  // (route_count=1) or several same-colour routes sharing it (_nc=1, e.g. same-ref
+  // variants, or NYC's same-trunk overlaps like B+D). ≥2 distinct colours →
+  // interleaved dashes below（含紐約：使用者要多色共線顯示各色，如 F+G 橘+綠、
+  // 1+C+2+A 紅+藍；同色共線如 B+D 仍畫 1 條實線）。
   map.addLayer({
     id: 'metro-lines', source: 'metro', type: 'line',
-    filter: isNYC
-      ? ['==', ['geometry-type'], 'LineString']
-      : ['all', ['==', ['geometry-type'], 'LineString'],
-        ['any',
-          ['==', ['coalesce', ['get', 'route_count'], 1], 1],
-          ['==', ['coalesce', ['get', '_nc'], 1], 1]]],
+    filter: ['all', ['==', ['geometry-type'], 'LineString'],
+      ['any',
+        ['==', ['coalesce', ['get', 'route_count'], 1], 1],
+        ['==', ['coalesce', ['get', '_nc'], 1], 1]]],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
       'line-color': ['coalesce', ['get', 'route_color'], ['get', '_c0'], '#e11d48'],
@@ -259,8 +256,8 @@ function addMetroSourceLayers(data) {
       'line-opacity': l.opacity,
     },
   })
-  // overlap segments: n interleaved dashes, one slot per route（紐約不生成，共線畫 1 條）
-  for (let n = 2; !isNYC && n <= MAX_OVERLAP; n++) {
+  // overlap segments with ≥2 distinct colours: n interleaved dashes, one slot per route
+  for (let n = 2; n <= MAX_OVERLAP; n++) {
     const isN = n < MAX_OVERLAP
       ? ['==', ['get', 'route_count'], n]
       : ['>=', ['get', 'route_count'], MAX_OVERLAP]

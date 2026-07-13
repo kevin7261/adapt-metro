@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
-import { loadMetroCatalog, continentZh } from '../stores/metroCatalog'
+import { loadMetroCatalog, continentZh, prettyContinent } from '../stores/metroCatalog'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
 import MIcon from './MIcon.vue'
@@ -21,9 +21,9 @@ const selCity = ref('')
 const IMPORT_DIALOGS = ['import-metro', 'import-quick', 'import-stations']
 // The three import methods are tabs of one modal (the dialog id = the active tab).
 const importTabs = [
-  { id: 'import-quick', label: 'Quick Selection' },
-  { id: 'import-stations', label: 'Sort by Station Count' },
-  { id: 'import-metro', label: 'Global Metro Map' },
+  { id: 'import-quick', label: '快速選擇' },
+  { id: 'import-stations', label: '依車站數排序' },
+  { id: 'import-metro', label: '全球地鐵地圖' },
 ]
 
 watch(dialog, (d) => {
@@ -34,29 +34,30 @@ watch(dialog, (d) => {
     .catch((err) => { catalogError.value = String(err) })
 })
 
+// Browse columns keep the English value (for filtering) and show 中文 + English,
+// sorted by the English name so the A→Z order is visible.
 const continents = computed(() => {
   if (!catalog.value) return []
   return [...new Set(catalog.value.map((s) => s.continent))]
-    .map((value) => ({ value, label: continentZh(value) }))
-    .sort((a, b) => a.label.localeCompare(b.label, 'zh'))
+    .sort((a, b) => a.localeCompare(b))
+    .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
 })
-// Browse columns keep the English value (for filtering) but show the 中文 label.
 const countries = computed(() => {
   if (!catalog.value || !selContinent.value) return []
   const seen = new Map()
   for (const s of catalog.value) {
     if (s.continent === selContinent.value && !seen.has(s.country)) {
-      seen.set(s.country, { value: s.country, label: s.countryZh ?? s.country })
+      seen.set(s.country, { value: s.country, zh: s.countryZh ?? s.country, en: s.country })
     }
   }
-  return [...seen.values()].sort((a, b) => a.label.localeCompare(b.label, 'zh'))
+  return [...seen.values()].sort((a, b) => a.en.localeCompare(b.en))
 })
 const cities = computed(() => {
   if (!catalog.value || !selCountry.value) return []
   return catalog.value
     .filter((s) => s.continent === selContinent.value && s.country === selCountry.value)
-    .map((s) => ({ value: s.city, label: s.cityZh ?? s.city }))
-    .sort((a, b) => a.label.localeCompare(b.label, 'zh'))
+    .map((s) => ({ value: s.city, zh: s.cityZh ?? s.city, en: s.city }))
+    .sort((a, b) => a.en.localeCompare(b.en))
 })
 const selectedSystem = computed(() =>
   catalog.value?.find(
@@ -212,7 +213,7 @@ const shortcuts = [
     <!-- Import Metro Map: one modal, three tabs (Quick / Sort / Global) -->
     <div v-if="IMPORT_DIALOGS.includes(dialog)" class="dialog import-modal">
       <div class="dialog-header">
-        <h2 class="dialog-title">Import Metro Map</h2>
+        <h2 class="dialog-title">匯入地鐵地圖</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-tabs" role="tablist">
@@ -242,7 +243,7 @@ const shortcuts = [
               :title="q.sys ? '' : '資料集中找不到此城市'"
               @click="importSystem(q.sys)"
             >
-              <span class="station-city">{{ q.zh }}</span>
+              <span class="station-city">{{ q.zh }} <span class="row-en">{{ q.en }}</span></span>
               <span class="station-country">{{ q.sys?.countryZh ?? q.sys?.country ?? '' }}</span>
               <span class="station-count">{{ q.sys ? `${q.sys.station_count} stations · ${q.sys.line_count} lines` : '—' }}</span>
             </button>
@@ -263,7 +264,7 @@ const shortcuts = [
                 @click="importSystem(s)"
               >
                 <span class="station-rank">{{ i + 1 }}</span>
-                <span class="station-city">{{ s.cityZh ?? s.city }}</span>
+                <span class="station-city">{{ s.cityZh ?? s.city }} <span class="row-en">{{ s.city }}</span></span>
                 <span class="station-country">{{ s.countryZh ?? s.country }}</span>
                 <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
               </button>
@@ -282,7 +283,7 @@ const shortcuts = [
                     class="miller-item"
                     :class="{ active: selContinent === c.value }"
                     @click="selContinent = c.value"
-                  >{{ c.label }}</button>
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
                 </div>
               </div>
               <div class="miller-col">
@@ -295,7 +296,7 @@ const shortcuts = [
                     class="miller-item"
                     :class="{ active: selCountry === c.value }"
                     @click="selCountry = c.value"
-                  >{{ c.label }}</button>
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
                 </div>
               </div>
               <div class="miller-col">
@@ -308,7 +309,7 @@ const shortcuts = [
                     class="miller-item"
                     :class="{ active: selCity === c.value }"
                     @click="selCity = c.value"
-                  >{{ c.label }}</button>
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
                 </div>
               </div>
             </div>
@@ -335,7 +336,7 @@ const shortcuts = [
     <!-- Add D3.js view: pick a loaded metro map layer (fixed once chosen) -->
     <div v-else-if="dialog === 'add-d3'" class="dialog add-d3">
       <div class="dialog-header">
-        <h2 class="dialog-title">Add D3.js View</h2>
+        <h2 class="dialog-title">新增 Map Adjust 視圖</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -378,7 +379,7 @@ const shortcuts = [
     <!-- Add Hill Climbing view: pick a Map Adjust layer's 格網化後 variant (2 per city) -->
     <div v-else-if="dialog === 'add-hillclimb'" class="dialog add-d3">
       <div class="dialog-header">
-        <h2 class="dialog-title">Add Hill Climbing View</h2>
+        <h2 class="dialog-title">新增 Straighten 視圖</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -412,7 +413,7 @@ const shortcuts = [
     <!-- Add RWD Maps view: pick a Hill Climbing layer (its 縮減網格 is the input) -->
     <div v-else-if="dialog === 'add-rwd'" class="dialog add-d3">
       <div class="dialog-header">
-        <h2 class="dialog-title">Add RWD Maps View</h2>
+        <h2 class="dialog-title">新增 RWD Maps 視圖</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -444,7 +445,7 @@ const shortcuts = [
     <!-- Add Data -->
     <div v-else-if="dialog === 'add-data'" class="dialog add-data">
       <div class="dialog-header">
-        <h2 class="dialog-title">Add Data</h2>
+        <h2 class="dialog-title">新增資料</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="add-data-body">
@@ -480,7 +481,7 @@ const shortcuts = [
     <!-- New project -->
     <div v-else-if="dialog === 'new-project'" class="dialog">
       <div class="dialog-header">
-        <h2 class="dialog-title">New Project</h2>
+        <h2 class="dialog-title">新增專案</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -495,7 +496,7 @@ const shortcuts = [
     <!-- Settings -->
     <div v-else-if="dialog === 'settings'" class="dialog">
       <div class="dialog-header">
-        <h2 class="dialog-title">Settings</h2>
+        <h2 class="dialog-title">設定</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -544,7 +545,7 @@ const shortcuts = [
     <!-- Keyboard shortcuts -->
     <div v-else-if="dialog === 'shortcuts'" class="dialog">
       <div class="dialog-header">
-        <h2 class="dialog-title">Keyboard Shortcuts</h2>
+        <h2 class="dialog-title">鍵盤快捷鍵</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body">
@@ -558,7 +559,7 @@ const shortcuts = [
     <!-- About -->
     <div v-else-if="dialog === 'about'" class="dialog about">
       <div class="dialog-header">
-        <h2 class="dialog-title">About</h2>
+        <h2 class="dialog-title">關於</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
       <div class="dialog-body about-body">
@@ -716,6 +717,8 @@ const shortcuts = [
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.miller-item .miller-en { color: hsl(var(--muted-foreground)); font-size: 11px; }
+.miller-item.active .miller-en { color: hsl(var(--primary) / 0.7); }
 .miller-item:hover { background: hsl(var(--accent) / 0.6); }
 .miller-item.active {
   background: hsl(var(--primary) / 0.14);

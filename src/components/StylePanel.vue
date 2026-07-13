@@ -41,9 +41,9 @@ const width = ref(300)
 // Panel sections — the LLM對齊 tab appears only once a run has produced a
 // record (llmRecord prop from D3Tab).
 const TABS = computed(() => [
-  { id: 'info', label: 'Info' },
-  { id: 'style', label: 'Style' },
-  { id: 'object', label: 'Object' },
+  { id: 'info', label: '資訊' },
+  { id: 'style', label: '樣式' },
+  { id: 'object', label: '物件' },
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
 ])
 const activeTab = ref('info')
@@ -545,7 +545,7 @@ function startResize(e) {
             </div>
 
             <template v-if="showOrientation">
-            <div class="section-title">Orientation</div>
+            <div class="section-title">方位</div>
             <div v-if="!orientation || !orientation.segments" class="info-empty">
               載入中…
             </div>
@@ -616,7 +616,7 @@ function startResize(e) {
             </template>
 
             <template v-if="!isD3">
-            <div class="section-title">Audit</div>
+            <div class="section-title">資料驗證</div>
             <div v-if="!auditInfo" class="info-empty">
               尚未執行資料驗證（npm run metro:audit）
             </div>
@@ -654,7 +654,7 @@ function startResize(e) {
             </template>
             </template>
 
-            <div class="section-title">Links</div>
+            <div class="section-title">連結</div>
             <div class="link-list">
               <a v-if="wikipediaUrl" :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link link-item">
                 <MIcon name="open_in_new" :size="12" /> Wikipedia — {{ layer.city }} metro
@@ -671,7 +671,7 @@ function startResize(e) {
               </a>
             </div>
 
-            <div class="section-title">Lines</div>
+            <div class="section-title">路線</div>
             <div v-if="!metroLines.length" class="info-empty">載入中…</div>
             <div v-else class="line-list">
               <div v-for="ln in metroLines" :key="ln.route_id" class="line-row">

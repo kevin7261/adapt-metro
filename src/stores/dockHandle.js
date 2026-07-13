@@ -33,7 +33,7 @@ export function openGalleryTab() {
     id: 'metro-gallery',
     component: 'metro-gallery',
     title: 'Metro Maps',
-    params: { title: 'Metro Maps' },
+    params: { title: 'Metro Maps', icon: 'train' },
     renderer: 'always',
   })
 }
@@ -49,7 +49,7 @@ export function openViewGalleryTab() {
     id: 'map-adjust-gallery',
     component: 'map-adjust-gallery',
     title: 'Map Adjust · 8 視圖',
-    params: { title: 'Map Adjust · 8 視圖' },
+    params: { title: 'Map Adjust · 8 視圖', icon: 'polyline' },
     renderer: 'always',
   })
 }
@@ -64,8 +64,8 @@ export function openHcGalleryTab() {
   api.addPanel({
     id: 'hill-climb-gallery',
     component: 'hill-climb-gallery',
-    title: 'Hill Climbing · 6 視圖',
-    params: { title: 'Hill Climbing · 6 視圖' },
+    title: 'Straighten · 6 視圖',
+    params: { title: 'Straighten · 6 視圖', icon: 'terrain' },
     renderer: 'always',
   })
 }

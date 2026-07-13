@@ -268,7 +268,7 @@ onBeforeUnmount(() => {
               title="8 視圖畫廊（全部城市 · 九宮格）"
               @click.stop="openViewGalleryTab()"
             >
-              <MIcon name="window" :size="14" />
+              <MIcon name="grid_view" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'd3'"
@@ -284,7 +284,7 @@ onBeforeUnmount(() => {
               title="6 視圖畫廊（全部城市 · 格網化後／Hill Climbing／縮減網格 ×2）"
               @click.stop="openHcGalleryTab()"
             >
-              <MIcon name="window" :size="14" />
+              <MIcon name="grid_view" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'hillclimb'"

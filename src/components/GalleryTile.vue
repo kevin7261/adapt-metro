@@ -29,7 +29,6 @@ function stationFill(p) {
 }
 
 function build(geojson) {
-  const isNYC = props.system.city === 'New York City'
   const b = boundsOfGeojson(geojson)
   if (!b) return null
   const [w, s, e, n] = b
@@ -53,8 +52,10 @@ function build(geojson) {
       for (const seg of f.geometry.coordinates) {
         const d = seg.map((c, i) => `${i ? 'L' : 'M'}${px(c[0]).toFixed(1)} ${py(c[1]).toFixed(1)}`).join(' ')
         if (!d) continue
-        // 紐約特例：共線段只畫 1 條實線（第一條線代表色），與主地圖 LayerTab 一致。
-        if (rc > 1 && distinct > 1 && !isNYC) {
+        // ≥2 distinct colours share the stretch → interleaved coloured dashes
+        // (same rule as LayerTab, incl. NYC's multi-colour overlaps); same-colour
+        // overlaps fall through to one solid line.
+        if (rc > 1 && distinct > 1) {
           // n interleaved coloured dashes, one slot per route (dasharray offset).
           const cnt = Math.min(rc, MAX_OVERLAP)
           for (let i = 0; i < cnt; i++) {

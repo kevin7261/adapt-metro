@@ -18,7 +18,15 @@ const layer = computed(() => store.layers.find((l) => l.id === layerId.value) ??
 // in its dock tab and in the layer list (hillclimb/rwd were missing → fell back
 // to 'circle' in the tab while the panel showed terrain/route).
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
-const icon = computed(() => typeIcons[layer.value?.type] ?? 'circle')
+// Gallery panels have no layer — derive their icon from the panel id (always
+// known by dockview, so it works even for panels opened before params gained an
+// icon) so each gallery tab matches its group's glyph in the layer list.
+const GALLERY_ICON = {
+  'metro-gallery': 'train', 'map-adjust-gallery': 'polyline', 'hill-climb-gallery': 'terrain',
+}
+const panelId = computed(() => p.value.api?.id ?? inner.value.id)
+const icon = computed(() =>
+  typeIcons[layer.value?.type] ?? GALLERY_ICON[panelId.value] ?? inner.value.icon ?? p.value.icon ?? 'circle')
 const title = computed(() =>
   layer.value?.name || inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—')
 
