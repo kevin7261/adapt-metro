@@ -233,21 +233,19 @@ const shortcuts = [
         <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
 
         <template v-else>
-          <!-- Quick Selection -->
-          <div v-if="dialog === 'import-quick'" class="stations-list">
+          <!-- Quick Selection：九宮格，一排 5 個 -->
+          <div v-if="dialog === 'import-quick'" class="quick-grid">
             <button
               v-for="q in quickCities"
               :key="q.en"
-              class="station-row"
+              class="quick-cell"
               :disabled="!q.sys"
               :title="q.sys ? '' : '資料集中找不到此城市'"
               @click="importSystem(q.sys)"
             >
-              <span class="station-name">
-                <span class="nm-zh">{{ q.zh }}<template v-if="q.sys?.countryZh"> · {{ q.sys.countryZh }}</template></span>
-                <span class="nm-en">{{ q.en }}<template v-if="q.sys?.country"> · {{ q.sys.country }}</template></span>
-              </span>
-              <span class="station-count">{{ q.sys ? `${q.sys.station_count} stations · ${q.sys.line_count} lines` : '—' }}</span>
+              <span class="quick-zh">{{ q.zh }}</span>
+              <span class="quick-en">{{ q.en }}</span>
+              <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
             </button>
           </div>
 
@@ -641,6 +639,36 @@ const shortcuts = [
   border-radius: calc(var(--radius) - 2px);
   padding: 4px;
 }
+/* Quick Selection 九宮格：一排 5 個城市卡 */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 2px;
+}
+.quick-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 6px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.25);
+  text-align: center;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+}
+.quick-cell:hover:not(:disabled) {
+  border-color: hsl(var(--primary) / 0.6);
+  background: hsl(var(--primary) / 0.08);
+  transform: translateY(-1px);
+}
+.quick-cell:disabled { opacity: 0.4; cursor: default; }
+.quick-zh { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.quick-en { font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
+.quick-meta { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); margin-top: 2px; }
 .station-row {
   display: flex;
   align-items: center;

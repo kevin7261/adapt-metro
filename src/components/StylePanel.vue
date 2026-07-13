@@ -183,22 +183,27 @@ onMounted(() => {
 const systemKey = computed(() => layer.value.file?.match(/systems\/(.+)\.geojson$/)?.[1] ?? null)
 const mapEntry = computed(() => (systemKey.value && mapsIndex.value?.[systemKey.value]) || null)
 
-// Wikipedia article of this metro SYSTEM (not a single line): the Wikidata item
-// maps straight to the matching 中文 Wikipedia article; without a Wikidata id we
-// fall back to a zh.wikipedia search by the city name. (The old fallback to
-// metro_system.official_map linked a single line's article → wrong page.)
+// Wikipedia article of this metro SYSTEM. Neither the metadata's `wikidata` nor
+// `official_map` can be trusted — both often point to a single LINE (checked:
+// NYC's Q126093 = 紐約地鐵1號線, London's Q207699 = 滑鐵盧及城市線). Instead we
+// hit zh.wikipedia's Go-or-search with "{城市}地鐵": it lands DIRECTLY on the
+// system article (台北地鐵 → 臺北捷運, 紐約地鐵 → 紐約地鐵) and never on a line.
 const wikipediaUrl = computed(() => {
-  if (meta.value?.wikidata) {
-    return `https://www.wikidata.org/wiki/Special:GoToLinkedPage/zhwiki/${meta.value.wikidata}`
-  }
   const city = layer.value?.cityZh ?? layer.value?.city
-  return city ? `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(`${city} 地鐵`)}` : null
+  return city ? `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(`${city}地鐵`)}` : null
 })
-// Official schematic route map: only the local downloaded image (the wiki URL
-// is surfaced separately as the Wikipedia link, not mislabelled as a map).
-const routeMapUrl = computed(() =>
-  mapEntry.value?.map_file ? assetUrl(`data/metro/${mapEntry.value.map_file}`) : null,
-)
+// Official schematic route map. Only 91/232 systems have a downloaded image;
+// the rest fall back to a Google image search for the city's route map, so
+// every city gets a working 官方路線圖 link.
+const routeMapUrl = computed(() => {
+  if (mapEntry.value?.map_file) return assetUrl(`data/metro/${mapEntry.value.map_file}`)
+  const city = layer.value?.cityZh ?? layer.value?.city
+  return city
+    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${city}地鐵路線圖`)}`
+    : null
+})
+// Whether the route-map link is a real local image vs. a Google search.
+const routeMapIsImage = computed(() => !!mapEntry.value?.map_file)
 // urbanrail.net：城市頁 URL 不規則（城市碼縮寫沒有算法規律，台北 tw/taip/taipei.htm、
 // 新加坡 sing/singapore.htm、蒙特雷 mony/monterrey.htm），故用實查的城市→URL 映射
 // （key = index.json 的 city）。映射是把 urbanrail 五大洲索引頁（as/asia.htm 等）的
@@ -543,19 +548,19 @@ function startResize(e) {
               <div v-if="wikipediaUrl" class="info-row">
                 <span class="info-key">Wikipedia</span>
                 <a :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link">
-                  開啟 <MIcon name="open_in_new" :size="11" />
+                  {{ (layer.cityZh ?? layer.city) }}地鐵 <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div class="info-row">
                 <span class="info-key">urbanrail</span>
                 <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link">
-                  開啟 <MIcon name="open_in_new" :size="11" />
+                  UrbanRail.Net：{{ urbanrailLabel }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div v-if="routeMapUrl" class="info-row">
                 <span class="info-key">官方路線圖</span>
                 <a :href="routeMapUrl" target="_blank" rel="noopener" class="info-link">
-                  開啟 <MIcon name="open_in_new" :size="11" />
+                  {{ routeMapIsImage ? '開啟圖片' : 'Google 圖片搜尋' }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">

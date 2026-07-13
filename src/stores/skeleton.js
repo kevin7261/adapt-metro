@@ -2,7 +2,7 @@
 // Topological contraction of the network: keeps the original geographic line
 // shape (nothing is straightened / moved) and only CLASSIFIES nodes and edges.
 // Nodes by graph degree: red (junction / route-change), blue (endpoint),
-// black (through). Edges: coline (≥2 routes) / loop / parallel / plain. Then
+// black (through). Edges: coline (≥2 distinct colours) / loop / parallel / plain. Then
 // purple cuts, pink bends and gray separators. Pure function: input unchanged.
 
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1])
@@ -209,13 +209,19 @@ export function buildConnectSkeleton(geojson) {
   const pairCount = new Map() // "a|b" (non-loop) -> count of distinct edges
   for (const e of edges) if (e.a !== e.b) pairCount.set(pk(e.a, e.b), (pairCount.get(pk(e.a, e.b)) ?? 0) + 1)
   for (const e of edges) {
-    if (e.routes.size >= 2) e.cls = 'coline'
+    // Colours of the routes on this edge. Co-line means ≥2 DISTINCT colours share
+    // the stretch (drawn as interleaved dashes). Same-colour route_ids on one edge
+    // are the SAME line (e.g. Singapore CCL's two route_ids for the Marina Bay↔
+    // HarbourFront loop and the HarbourFront↔Dhoby Ghaut section) — NOT co-line;
+    // classifying them coline drew the arc as offset parallels that broke at the
+    // HarbourFront junction where they met the single-line closure. Matches the
+    // metro map's distinct-colour rule (LayerTab `_nc`).
+    e.routeColors = [...e.routes].map((id) => routes.get(id)?.color ?? '#e11d48')
+    const distinctColors = new Set(e.routeColors).size
+    if (distinctColors >= 2) e.cls = 'coline'
     else if (e.a === e.b) e.cls = 'loop'
     else if ((pairCount.get(pk(e.a, e.b)) ?? 0) >= 2) e.cls = 'parallel'
     else e.cls = 'plain'
-    // Colours of the routes on this edge — a co-line edge is drawn as their
-    // interleaved dashes (same as the metro map's overlap), plain uses the first.
-    e.routeColors = [...e.routes].map((id) => routes.get(id)?.color ?? '#e11d48')
     if (e.cls === 'plain') e.color = e.routeColors[0] ?? '#e11d48'
   }
 

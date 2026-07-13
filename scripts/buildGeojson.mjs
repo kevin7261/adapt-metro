@@ -289,6 +289,16 @@ async function build() {
     }
   } catch { /* no member_appends override */ }
 
+  // 快車跨站共線（_overrides/express_passthrough.json）：快車 route 的某段幾何沿慢車的
+  // 中間站畫（pass-through 頂點），使共線段被判為共線畫成雙色，但中間站不算快車停靠站。
+  let expressPass = []
+  try {
+    expressPass = (JSON.parse(await readFile(join(OVERRIDES_DIR, 'express_passthrough.json'), 'utf8')).passthrough) ?? []
+  } catch { /* none */ }
+  // 容差 ~0.003°（≈300 m）：序列頂點是月台座標、與站座標差 ~100–200 m；快車跨站的
+  // from/to 站相距數 km，放寬不會誤配。注入後 snap 會把頂點對齊共站合併點。
+  const coordNear = (a, b) => Math.abs(a[0] - b[0]) < 3e-3 && Math.abs(a[1] - b[1]) < 3e-3
+
   const stRaw = await readJSON('stations.json')
   // 墓碑：上游已刪除的節點（scripts/pruneDeletedStations.mjs 驗證）——快取殭屍
   // 會被頂點吸附撿走變成多出來的站（香港 KTL 舊 stop_position 案例），拒收。
@@ -669,74 +679,48 @@ async function build() {
   for (const g of groups.values()) {
     const keptAll = dedupeSeqs(g.seqs)
     if (!keptAll.length) continue
-    // 同一路線一定是一條線，且**以路線自己為準**（使用者規則）：主線＝最長變體；
-    // 帶來新站的分支變體（小碧潭支線…）不併入主線（hover 不得把支線一起
-    // highlight），各自以「自己 relation 的 tags」獨立成線。
-    // 同 ref 變體合併（使用者：紐約／雪梨／香港的快車與分支其實是同一條線）：同 ref
-    // 的上下行／快慢車／分支變體是同一條線的營運模式（紐約 A 線 5 個 route_id；雪梨
-    // T1 的 Richmond／Emu Plains 兩支、T4 的 Cronulla／Waterfall；香港東鐵綫 EAL 的
-    // 馬場／落馬洲支線、將軍澳綫 TKL 的康城支線），**與主線共享車站**者併成 1 條
-    //（否則一條走廊被拆成好幾個 route_id、line_count 虛胖、共線段畫成虛線）。但**完全
-    // 分離**的同 ref 線（紐約 S 的 Franklin／Rockaway Park／42nd St 三條獨立 shuttle 共用
-    // ref S）不併——各自獨立成線。判定：變體與（累積的）主線車站有無交集。
-    // 只對這三個 network 啟用——其他城市的「帶新站分支」仍獨立成線（台北小碧潭支線
-    // 的 hover 不得把支線一起 highlight）。
-    const gNet = pick(repTags(g), 'network:en', 'network') || ''
-    const mergeVariants = /nyc subway|new york city subway|sydney trains|^mtr$/i.test(gNet)
-    const vkey = (r) => `${Math.round(r.coord[0] / 0.001)}:${Math.round(r.coord[1] / 0.001)}`
+    // 支線/分支＝獨立路線（使用者 Option 1：凡有新站的分岔都算支線→獨立 route_id，
+    // 只有「0 新站」的純重複/反向/子集短交路才併）。dedupeSeqs 已丟掉 0 新站的重複；
+    // keptAll 剩下的每個變體都帶來新站 → 主線＝最長變體、其餘各自獨立成 route_id。
+    //   例：香港東鐵綫 EAL 主線 + 羅湖/落馬洲兩端 + 馬場支線各自獨立；台北小碧潭獨立；
+    //       雪梨 T1 Richmond/Emu Plains 兩支各自獨立。
+    // 同色的多個 route_id（同一條線的兩支、東鐵綫主線 vs 馬場…）在**渲染層**已用「相異
+    // 色數」畫成一條連續線（LayerTab `_nc`／skeleton coline），故不在資料層強合併——強合併
+    // 會串接站序、幾何來回鋸齒（曾把東鐵綫併成 42 站 Admiralty↔Lo Wu↔Racecourse 來回跳）。
     const branchUnit = (w) => {
       const bt = { ...(routesTags.get(w.rid) || {}) }
       bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
       // key 不能沿用 m| 前綴（phase B 的 route_id 由 key 推導）——分支用 br|rid
       return { kept: [w.rows], gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt }
     }
-    let units
-    if (mergeVariants) {
-      // 按「共享車站」聚成連通分量：A 的 5 變體共享 A 走廊 → 1 分量；S 的 Franklin
-      // （含上下行）／Rockaway／42nd 各自不共享 → 3 分量。每分量合成 1 條線，用自己
-      // 第一個 rid 的 tags（Franklin 用 Franklin 名、A 用 A 名）。
-      const comps = []
-      // 共享判定容差：同一站的上下行／快慢車常用不同月台節點，座標可差一兩格
-      //（~100–200m，如雪梨 T8 南線 vs 機場支線共用市中心＋南段主幹）。把已納入分量的
-      // 每站展開成 5×5 鄰域（±2 格 ≈ ±222m）再比對——同站對得上；地理上遠離的同 ref
-      // 獨立線（紐約 S 的 Franklin／Rockaway／42nd St 三段 shuttle）仍不共享、各自成線。
-      const claim = (rows) => rows.flatMap((r) => {
-        const cx = Math.round(r.coord[0] / 0.001), cy = Math.round(r.coord[1] / 0.001)
-        const out = []
-        for (let dx = -2; dx <= 2; dx++) for (let dy = -2; dy <= 2; dy++) out.push(`${cx + dx}:${cy + dy}`)
-        return out
-      })
-      for (const w of keptAll) {
-        const ws = w.rows.map(vkey)
-        const hits = comps.filter((c) => ws.some((k) => c.stops.has(k)))
-        if (hits.length) {
-          const m = hits[0]
-          for (const h of hits.slice(1)) {
-            for (const k of h.stops) m.stops.add(k)
-            m.rows.push(...h.rows); m.rids.push(...h.rids)
-            comps.splice(comps.indexOf(h), 1)
-          }
-          for (const k of claim(w.rows)) m.stops.add(k)
-          m.rows.push(w.rows); m.rids.push(w.rid)
-        } else comps.push({ stops: new Set(claim(w.rows)), rows: [w.rows], rids: [w.rid] })
-      }
-      units = comps.map((c) => {
-        const bt = { ...(routesTags.get(c.rids[0]) || {}) }
-        bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
-        return { kept: c.rows, gU: { key: `var|${Math.min(...c.rids)}`, rids: c.rids }, tU: bt }
-      })
-    } else {
-      const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
-      const mainRids = g.rids.filter((r) => !branchRids.has(r))
-      units = [{ kept: [keptAll[0].rows],
-        gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
-      for (const w of keptAll.slice(1)) units.push(branchUnit(w))
-    }
+    const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
+    const mainRids = g.rids.filter((r) => !branchRids.has(r))
+    const units = [{ kept: [keptAll[0].rows],
+      gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
+    for (const w of keptAll.slice(1)) units.push(branchUnit(w))
     for (const unit of units) {
     const kept = unit.kept
     const gRef = unit.gU
     gRef.stopNodes = new Set()
     for (const rows of kept) for (const r of rows) gRef.stopNodes.add(r.ref)
+    // 快車跨站共線：注入 pass-through 頂點（在 stopNodes 建好之後 → 這些中間站不會
+    // 變成快車的 stop node，但會進幾何、與慢車共線）。passCoords 供 __stations 排除。
+    const passCoords = new Set()
+    for (const pt of expressPass) {
+      if (!gRef.rids.some((r) => (pt.route_osm ?? []).includes(r))) continue
+      for (const seq of kept) {
+        for (let i = 0; i < seq.length - 1; i++) {
+          const hit = (coordNear(seq[i].coord, pt.from) && coordNear(seq[i + 1].coord, pt.to)) ||
+                      (coordNear(seq[i].coord, pt.to) && coordNear(seq[i + 1].coord, pt.from))
+          if (!hit) continue
+          const rev = coordNear(seq[i].coord, pt.to)
+          const via = (rev ? [...pt.via].reverse() : pt.via).map((c) => ({ ref: null, coord: c, pass: true }))
+          seq.splice(i + 1, 0, ...via)
+          for (const c of pt.via) passCoords.add(c.join(','))
+          i += via.length
+        }
+      }
+    }
     const t = unit.tU && (unit.tU.name || unit.tU['name:en']) ? unit.tU : repTags(g)
     const network = pick(t, 'network:en', 'network') || pick(t, 'operator') || 'Unknown'
     // Override wins outright: bind these relations to the specified city and
@@ -863,6 +847,7 @@ async function build() {
       geometry: { type: 'MultiLineString',
         coordinates: kept.map((seq) => seq.map((r) => r.coord)) },
     }
+    if (passCoords.size) feat.__passCoords = passCoords  // pass-through 頂點：不算此線停靠站
     lineFeatures.push(feat)
     lrtFlags.set(feat, e.lrtOnly)
     ovFlags.set(feat, !!ov)
@@ -1570,6 +1555,8 @@ async function build() {
       for (const seq of f.geometry.coordinates) {
         if (seq.length < 2) continue
         for (const c of seq) {
+          // 快車 pass-through 頂點：幾何經過但不算此線停靠站（機場快線跳過的東涌線中間站）
+          if (f.__passCoords?.has(c.join(','))) continue
           const s = byCoord.get(c.join(','))
           if (!s) continue
           sts.push({ station_id: s.properties.station_id,

@@ -1026,22 +1026,25 @@ onBeforeUnmount(() => {
 }
 .ma-source { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 4 view tabs: 原始 / 旋轉 / 原始骨架化 / 旋轉骨架化 */
-.view-tabs { display: inline-flex; gap: 4px; }
+/* Underline-style tab bar (not standalone buttons) */
+.view-tabs { display: inline-flex; gap: 2px; border-bottom: 1px solid hsl(var(--border)); }
 .view-tab {
-  height: 26px;
-  padding: 0 12px;
+  height: 30px;
+  padding: 0 11px;
   font-size: 12.5px;
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  margin-bottom: -1px; /* sit on the bar's baseline */
+  background: transparent;
   color: hsl(var(--muted-foreground));
   white-space: nowrap;
 }
-.view-tab:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.view-tab:hover:not(:disabled) { color: hsl(var(--foreground)); }
 .view-tab.active {
   color: hsl(var(--primary));
   font-weight: 600;
-  border-color: hsl(var(--primary) / 0.55);
-  background: hsl(var(--primary) / 0.12);
+  border-bottom-color: hsl(var(--primary));
 }
 .view-tab:disabled { opacity: 0.4; cursor: default; }
 .ma-canvas {
