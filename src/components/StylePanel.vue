@@ -31,8 +31,11 @@ const props = defineProps({
   // RWD Maps 權重驅動版面（論文 §九）：目前模式（'uniform' | 'weight'），tab 在物件之後。
   weightMode: { type: String, default: 'uniform' },
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽是否開啟
+  hideStops: { type: Boolean, default: false },  // 自動隱藏白點
+  minStopPx: { type: Number, default: 5 },       // 最小站距門檻（pt），站距 < 此值才刪
+  stopStat: { type: Object, default: null },     // { high, wide, hidden, hiddenNames, hiddenMaxT }
 })
-const emit = defineEmits(['run-llm', 'weight-mode', 'weight-random', 'weight-auto'])
+const emit = defineEmits(['run-llm', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px'])
 const llmUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
 const isMapAdjust = computed(() => isD3.value && props.viewKind === 'map-adjust')
@@ -865,6 +868,38 @@ function startResize(e) {
               ——數字越小越常見，少數主走廊、多數次要邊。「每 5 秒自動重抽」開啟後每 5 秒
               整表重抽一次，network 點跟著新版面變形（自動切到 weight 模式）。
             </p>
+            <div class="weight-hide-row">
+              <label class="weight-hide-toggle">
+                <input type="checkbox" :checked="hideStops" @change="emit('hide-stops', $event.target.checked)" />
+                自動隱藏白點
+              </label>
+              <label class="weight-hide-px">
+                最小站距
+                <input type="number" min="1" step="1" :value="minStopPx"
+                  @change="emit('min-stop-px', $event.target.value)" />
+                pt
+              </label>
+            </div>
+            <div v-if="stopStat" class="weight-stat">
+              目前最小站距　高
+              <b>{{ stopStat.high != null ? stopStat.high.toFixed(1) : '—' }}</b> pt　寬
+              <b>{{ stopStat.wide != null ? stopStat.wide.toFixed(1) : '—' }}</b> pt
+            </div>
+            <div v-if="hideStops && stopStat" class="weight-stat">
+              已隱藏 <b>{{ stopStat.hidden }}</b> 站<template v-if="stopStat.hidden > 0 && stopStat.hiddenMaxT != null">
+              　·　目前刪到 weight 差 ≤ <b>{{ stopStat.hiddenMaxT }}</b></template>
+            </div>
+            <div v-if="hideStops && stopStat && stopStat.hidden > 0" class="hidden-list">
+              <div class="hidden-list-title">被隱藏的站</div>
+              <ol class="hidden-list-items">
+                <li v-for="(n, i) in stopStat.hiddenNames" :key="i">{{ n }}</li>
+              </ol>
+            </div>
+            <p class="weight-hint">
+              開啟後，只有某段站距 &lt; 「最小站距」才刪白點（直通站），刪法是**逐級升高
+              weight 差門檻**：先刪差 = 0，均分後仍太擠再刪 ≤ 1、≤ 2…直到站距達標或刪光。
+              流量幾乎沒變（差小）的冗餘站先刪。彩色錨點（紅／藍／黃）不會被藏。
+            </p>
           </div>
         </template>
 
@@ -1159,6 +1194,24 @@ function startResize(e) {
   border-color: hsl(var(--primary)); font-weight: 600;
 }
 .weight-auto.active:hover { background: hsl(var(--primary) / 0.9); }
+.weight-hide-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px; }
+.weight-hide-toggle { display: flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer; }
+.weight-hide-px { display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: hsl(var(--muted-foreground)); }
+.weight-hide-px input {
+  width: 46px; padding: 3px 5px; font-size: 12.5px; text-align: right;
+  border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--background)); color: hsl(var(--foreground));
+}
+.weight-stat { font-size: 12px; color: hsl(var(--muted-foreground)); padding: 0 2px; }
+.weight-stat b { color: hsl(var(--foreground)); font-variant-numeric: tabular-nums; }
+.hidden-list { padding: 2px; }
+.hidden-list-title { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+.hidden-list-items {
+  margin: 0; padding: 6px 8px 6px 26px; max-height: 160px; overflow-y: auto;
+  border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.4); font-size: 12px; line-height: 1.6;
+}
+.hidden-list-items li { color: hsl(var(--foreground)); }
 .info-rows { display: flex; flex-direction: column; gap: 2px; }
 .info-row {
   display: flex;

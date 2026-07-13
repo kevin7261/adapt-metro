@@ -31,41 +31,43 @@ function stationColor(p) {
   return '#ffffff'
 }
 
-// Single route → solid colour; overlap (≥2 routes) → interleaved dashes.
+// Single colour → solid; overlap (≥2 DISTINCT colours) → interleaved dashes.
+// Distinct-colour test (not route count) matches the skeleton's coline rule.
 function strokesOf(routeColors, color, d) {
   const cols = (routeColors ?? []).slice(0, MAX_OVERLAP)
-  if (cols.length >= 2) {
+  if (new Set(cols).size >= 2) {
     const n = cols.length
     return cols.map((c, i) => ({ d, color: c, dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}` }))
   }
   return [{ d, color: cols[0] ?? color ?? '#e11d48' }]
 }
 
-// One skeleton edge → its polyline `d` in whatever position space posMap holds.
-function edgePathD(ids, posMap) {
-  const parts = []
-  let started = false
-  for (const id of ids) {
-    const p = posMap.get(id)
-    if (!p) continue
-    parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
-    started = true
-  }
-  return parts.join(' ')
-}
-
-// Draw a skeleton-based view from an explicit id→[x,y] position map: coloured
-// lines (+ overlap dashes), edge-class highlight underlays, role-coloured
-// station dots (+ yellow crossings). `sep` = optional blue grid separators.
-// Used by both the schematic-grid views and the Hill Climbing views.
-function drawFromPos(skeleton, stations, posMap, sep) {
+// Draw a view from an explicit id→[x,y] position map: the SAME line features as
+// the original/geographic drawing (single colour / interleaved co-line dashes),
+// only with each vertex's station re-placed via posMap — so a moved view (格網化
+// 後 / Hill Climbing) is the original network snapped to those positions, colours
+// and co-line merging identical. Plus role-coloured station dots (+ yellow
+// crossings). `sep` = optional blue grid separators.
+function drawFromPos(skeleton, stations, lineFeats, posMap, sep) {
+  const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+  const coordId = new Map()
+  for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
   const lines = []
   const hl = []
-  for (const e of skeleton.edges) {
-    const d = edgePathD(e.path, posMap)
-    if (!d) continue
-    for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
-    if (EDGE_HL[e.cls]) hl.push({ d, color: EDGE_HL[e.cls] })
+  for (const f of lineFeats) {
+    const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+    const parts = []
+    for (const seg of segs) {
+      let started = false
+      for (const c of seg) {
+        const id = coordId.get(coordKey(c))
+        const p = id != null ? posMap.get(id) : null
+        if (!p) continue
+        parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
+      }
+    }
+    const d = parts.join(' ')
+    if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) lines.push(s)
   }
   const dots = []
   for (const f of stations) {
@@ -123,6 +125,30 @@ export function computeCityViews(geojson, opts = {}) {
     }
     return out
   }
+  // 格網化後 draws the SAME features, only with each vertex's STATION re-placed
+  // onto its grid cell (movedOf) — so 後 = 前 pixel-for-pixel, just snapped.
+  const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+  const coordId = new Map()
+  for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
+  const movedFeatureLines = (movedOf) => {
+    const out = []
+    for (const f of lineFeats) {
+      const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+      const parts = []
+      for (const seg of segs) {
+        let started = false
+        for (const c of seg) {
+          const id = coordId.get(coordKey(c))
+          const p = id != null ? movedOf(id) : null
+          if (!p) continue
+          parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
+        }
+      }
+      const d = parts.join(' ')
+      if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) out.push(s)
+    }
+    return out
+  }
   // Edge-class underlay along each edge's REAL folded geometry (e.geom) — hugs the
   // line's curve instead of straightening skips. Geographic views only.
   const geomHl = (projection) => {
@@ -171,26 +197,12 @@ export function computeCityViews(geojson, opts = {}) {
         lines = featureLines(projection)
         hl = geomHl(projection)
       } else {
-        // 格網化後：座標已搬到格子上，feature 幾何失效，改用車站點的拓撲邊。
-        const edgeD = (ids) => {
-          const parts = []
-          let started = false
-          for (const id of ids) {
-            const p = posOf(id)
-            if (!p) continue
-            parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
-            started = true
-          }
-          return parts.join(' ')
-        }
-        lines = []
+        // 格網化後 ＝ 跟格網化前畫**完全一樣的 feature**（同色、共線交錯），只是每個
+        // 頂點的車站改對應到格子座標 → 後＝前的同一張圖、只搬到格子上。不再用骨架拓撲
+        // 邊 edgeD（那會讓共線交錯樣式/合併方式跟前不同）。
+        const movedOf = (id) => (grid && post && grid.posAfter.get(id)) || null
+        lines = movedFeatureLines(movedOf)
         hl = []
-        for (const e of skeleton.edges) {
-          const d = edgeD(e.path)
-          if (!d) continue
-          for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
-          if (EDGE_HL[e.cls]) hl.push({ d, color: EDGE_HL[e.cls] })
-        }
       }
       const dots = []
       for (const f of stations) {
@@ -316,7 +328,7 @@ export function computeCityHcViews(geojson, opts = {}) {
     // 1) 格網化後 — the HC layer's input tab (= Map Adjust's grid-*-post).
     const postPos = new Map(projById)
     for (const [id, p] of grid.posAfter) postPos.set(id, p)
-    views[`grid-${variant}-post`] = drawFromPos(skeleton, stations, postPos, grid.blueAfter)
+    views[`grid-${variant}-post`] = drawFromPos(skeleton, stations, lineFeats, postPos, grid.blueAfter)
 
     // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
     const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
@@ -324,7 +336,7 @@ export function computeCityHcViews(geojson, opts = {}) {
     const hcPos = new Map()
     for (const [id, cell] of hc.cellAfter) hcPos.set(id, m1.cellPx(cell))
     placeBlacks(skeleton, hcPos, snap)
-    views[`hc-${variant}`] = drawFromPos(skeleton, stations, hcPos, m1.sep)
+    views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
 
     // 3) 縮減網格 — drop colour-free rows/cols, re-map over the smaller grid.
     const comp = compactGrid(hc.cellAfter, grid.cols, grid.rows)
@@ -332,7 +344,7 @@ export function computeCityHcViews(geojson, opts = {}) {
     const compPos = new Map()
     for (const [id, cell] of comp.cellAfter) compPos.set(id, m2.cellPx(cell))
     placeBlacks(skeleton, compPos, snap)
-    views[`compact-${variant}`] = drawFromPos(skeleton, stations, compPos, m2.sep)
+    views[`compact-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m2.sep)
 
     stats[variant] = {
       before: +(hc.stats?.before ?? 0).toFixed(1),

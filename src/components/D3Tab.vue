@@ -242,6 +242,10 @@ const rwdWeightMode = ref('uniform') // 'uniform' | 'weight'
 const rwdWeights = ref(new Map())    // segKey -> 1..9
 let rwdWeightSeq = 0                  // 重抽計數，併進 RWD 快取鍵
 let cachedSegs = null                 // 本資料的 cut-to-cut segs（供權重面板重抽）
+// 自動隱藏白點（直通站）：站距 < 門檻(pt)才刪，逐級升高 weight 差門檻直到站距達標。
+const rwdHideStops = ref(false)
+const rwdMinStopPx = ref(5)
+const rwdStopStat = ref(null) // { high, wide, hidden, hiddenNames, hiddenMaxT }
 // 動畫狀態：weight 改變時不瞬跳，而是內插欄／列格線位置、每幀在新像素空間重算
 // H/V/45°（fast 模式，見 rwdMap.js opts.fast 與 skill §8.3）。最後一幀走完整品質。
 let rwdAnimActive = false, rwdAnimFrom = null, rwdAnimTo = null, rwdAnimT = 0, rwdAnimRaf = 0
@@ -292,6 +296,14 @@ function setRwdAutoShuffle(on) {
   }
 }
 function toggleRwdAutoShuffle() { setRwdAutoShuffle(!rwdAutoShuffle.value) }
+function setRwdHideStops(on) { rwdHideStops.value = on; cachedRWD = null; render() }
+function setRwdMinStopPx(px) {
+  const v = Math.max(1, Math.round(+px || 5))
+  if (v === rwdMinStopPx.value) return
+  rwdMinStopPx.value = v
+  cachedRWD = null
+  render()
+}
 const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isRWD.value) {
@@ -444,6 +456,11 @@ async function render() {
     )
   const path = geoPath(projection)
   const P = (c) => projection(c)
+  // coord → station id, so a line feature's vertices can be re-placed onto the
+  // grid (格網化後 draws the SAME features as 格網化前, only snapped to cells).
+  const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+  const coordId = new Map()
+  for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
 
   // Skeleton is the basis for both skeleton and grid views. Grid views override
   // each station's position: grid-pre = original projected, grid-post = snapped.
@@ -576,6 +593,10 @@ async function render() {
           // 候選＋兜底；動畫幀再加 fast（略過多輪衝突消解，換每幀夠快）；均勻格照舊帶 lattice。
           ...buildRwdMap(cachedSegs, pxPos, {
             unit: Math.min(cw, ch),
+            // 自動隱藏白點：站距 < 門檻才刪，逐級升高 weight 差門檻（見 rwdMap.js）。
+            hideStops: rwdHideStops.value,
+            minStopPx: rwdMinStopPx.value,
+            linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
             ...(animing ? { fast: true } : weighted ? {} : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
           }),
         }
@@ -633,13 +654,16 @@ async function render() {
     const edgeD = (pathIds) => pathIds
       .map((id, i) => { const [x, y] = posOf(id); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
       .join(' ')
-    // 骨架 = Metro Maps drawing but 共線變成「一條線」：a shared corridor (an edge
-    // with ≥2 routes) is drawn as ONE solid line (its first route colour) instead
-    // of the interleaved multi-colour dashes Metro Maps uses. That single-line
-    // merge is exactly what makes it the skeleton. Single-route edges are
-    // unchanged (their own colour).
+    // 線的顏色一律照原始 Metro Maps：單色 route → 實線原色；共線（≥2 相異色）→ 交錯
+    // 彩色虛線（dasharray）。格網化後/HC/RWD 的線都經此，確保共線顯示與原始同樣的多色，
+    // 不是併成單色（使用者要「色彩跟原來一樣」）。「共線變一條線」＝一條折線帶多色，
+    // 不是變單色。
     const strokesOf = (e, d, html) => {
-      const cols = e.routeColors ?? []
+      const cols = (e.routeColors ?? []).slice(0, MAX_OVERLAP)
+      if (new Set(cols).size >= 2) {
+        const n = cols.length
+        return cols.map((c, i) => ({ d, stroke: c, html, dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}` }))
+      }
       return [{ d, stroke: cols[0] ?? e.color ?? '#e11d48', html }]
     }
     if (rwdLines) {
@@ -695,19 +719,50 @@ async function render() {
         .filter((e) => EDGE_HL[e.cls] && e.geom?.length >= 2)
         .map((e) => ({ d: geomD(e.geom), color: EDGE_HL[e.cls] }))
     } else {
-      // 格網化後 / HC / 縮減：座標已被示意化搬動到格子上，feature 幾何失效，改用骨架的
-      // 拓撲邊（車站點直線相連）；共線同樣併一條線。
-      lineData = sk.edges.flatMap((e) => {
-        const routes = routesHtml([...e.routes])
-        const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
-        return strokesOf(e, edgeD(e.path), html)
+      // 格網化後 / HC / 縮減 ＝ **跟格網化前/原始畫的完全一樣**（同樣的 line feature、
+      // 同樣單色實線／共線交錯彩色虛線），唯一差別是把每個 feature 頂點的**車站**改
+      // 對應到它的格子座標（movedOf）。這樣「格網化後」就是「格網化前」的同一張圖、
+      // 只是座標搬到格子上——顏色、共線交錯、哪些線併在一起，全部一致。（先前改用骨架
+      // 拓撲邊 edgeD 畫，導致共線交錯樣式、合併方式跟格網化前不同，使用者回報「跟格網化
+      // 前不一樣」。）非車站頂點（真實軌道折點）在格子上無對應 → 略過，格線間直連。
+      const movedOf = (id) => (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || null
+      const featMovedD = (f) => {
+        const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+        const parts = []
+        for (const seg of segs) {
+          let started = false
+          for (const c of seg) {
+            const id = coordId.get(coordKey(c))
+            const p = id != null ? movedOf(id) : null
+            if (!p) continue
+            parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
+          }
+        }
+        return parts.join(' ')
+      }
+      lineData = lineFeats.flatMap((f) => {
+        const d = featMovedD(f)
+        if (!d) return []
+        const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
+        if (new Set(cols).size >= 2) {
+          const n = cols.length
+          return cols.map((color, i) => ({
+            d, stroke: color, props: f.properties,
+            dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
+          }))
+        }
+        return [{ d, stroke: cols[0] ?? f.properties.route_color ?? '#e11d48', props: f.properties }]
       })
       highlightData = []
     }
-    stationData = stations.map((f) => {
-      const [x, y] = posOf(f.properties.station_id)
-      return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
-    })
+    // RWD 路網：自動隱藏的白點（直通站）不畫（cachedRWD.hidden）。
+    const hiddenWhite = (rwdLines && cachedRWD?.hidden) || null
+    stationData = stations
+      .filter((f) => !(hiddenWhite && hiddenWhite.has(f.properties.station_id)))
+      .map((f) => {
+        const [x, y] = posOf(f.properties.station_id)
+        return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
+      })
     // synthetic yellow crossing nodes (not real stations)
     for (const c of sk.crossings ?? []) {
       const p = posOf(c.id)
@@ -771,24 +826,50 @@ async function render() {
   }
 
   // 權重數字：只要有 weight 就一定顯示（不限 weight 模式）。粒度是「相鄰兩站」——
-  // 每個 cut-to-cut 段展開成站鏈 [a, ...interior 黑點, b]，鏈上每一對相鄰站各標一個
-  // weight 在兩站連線中點（白色描邊底、讀得清楚）。interior 黑點位置：RWD 用 posAfter、
-  // 縮減網格用 placeBlacks，兩者 posOf 都取得到。
-  if (isRWD.value && cachedSegs && rwdWeights.value.size > 0) {
-    const wg = sel.append('g').attr('class', 'weight-layer').style('pointer-events', 'none')
+  // 每個 cut-to-cut 段展開成站鏈 [a, ...interior 白點, b]，鏈上每一對「可見」相鄰站各標
+  // 一個 weight 在兩站連線中點（白色描邊底、讀得清楚）。白點位置：RWD 用 posAfter、縮減
+  // 網格用 placeBlacks，posOf 都取得到。被隱藏的白點（cachedRWD.hidden）跨過去，合併後的
+  // 可見路段標所跨原始 link 的**最大** weight。
+  // 同時：量目前可見相鄰站的最小站距，分「高（垂直向）／寬（水平向）」——顯示在權重
+  // tab「最小站距」下方，讓使用者看到隱藏後實際撐開到多少（45° link 兩向都計）。
+  if (isRWD.value && cachedSegs) {
+    const hiddenW = (rwdLines && cachedRWD?.hidden) || null
+    const hasW = rwdWeights.value.size > 0
+    const wg = hasW ? sel.append('g').attr('class', 'weight-layer').style('pointer-events', 'none') : null
+    let minHigh = Infinity, minWide = Infinity
     for (const s of cachedSegs) {
       const chain = [s.a, ...s.interior, s.b]
-      for (let i = 0; i + 1 < chain.length; i++) {
-        const u = chain[i], v = chain[i + 1]
-        const a = posOf(u), b = posOf(v)
-        if (!a || !b) continue
-        wg.append('text').attr('class', 'weight-label')
-          .attr('x', (a[0] + b[0]) / 2).attr('y', (a[1] + b[1]) / 2)
-          .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
-          .text(linkWeight(rwdWeights.value, u, v))
+      let prev = chain[0], accMax = 0
+      for (let i = 1; i < chain.length; i++) {
+        accMax = Math.max(accMax, linkWeight(rwdWeights.value, chain[i - 1], chain[i]))
+        const visible = i === chain.length - 1 || !(hiddenW && hiddenW.has(chain[i]))
+        if (!visible) continue
+        const a = posOf(prev), b = posOf(chain[i])
+        if (a && b) {
+          const dx = Math.abs(a[0] - b[0]), dy = Math.abs(a[1] - b[1]), d = Math.hypot(dx, dy)
+          if (dx >= dy) minWide = Math.min(minWide, d)
+          if (dy >= dx) minHigh = Math.min(minHigh, d)
+          if (wg) wg.append('text').attr('class', 'weight-label')
+            .attr('x', (a[0] + b[0]) / 2).attr('y', (a[1] + b[1]) / 2)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
+            .text(accMax)
+        }
+        prev = chain[i]; accMax = 0
       }
     }
-  }
+    let hiddenNames = []
+    if (hiddenW && hiddenW.size) {
+      const nameById = new Map(stations.map((f) => [f.properties.station_id, f.properties.station_name]))
+      hiddenNames = [...hiddenW].map((id) => nameById.get(id) || id).sort()
+    }
+    rwdStopStat.value = {
+      high: isFinite(minHigh) ? minHigh : null,
+      wide: isFinite(minWide) ? minWide : null,
+      hidden: hiddenW ? hiddenW.size : 0,
+      hiddenNames,
+      hiddenMaxT: (rwdLines && cachedRWD?.hiddenMaxT != null) ? cachedRWD.hiddenMaxT : null,
+    }
+  } else rwdStopStat.value = null
 
   // Pink reference lines: the whole-edge chord (sinuosity baseline), the DP
   // sub-segment baseline, and this point's perpendicular drop to it.
@@ -1076,10 +1157,15 @@ onBeforeUnmount(() => {
       :llm-can-run="!!llmCityId"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
+      :hide-stops="rwdHideStops"
+      :min-stop-px="rwdMinStopPx"
+      :stop-stat="rwdStopStat"
       @run-llm="startLlmRun"
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"
+      @hide-stops="setRwdHideStops"
+      @min-stop-px="setRwdMinStopPx"
     />
     </div>
 

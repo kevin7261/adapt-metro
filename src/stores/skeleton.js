@@ -222,11 +222,11 @@ export function buildConnectSkeleton(geojson) {
   // orients the stored coords. The edge-class highlight underlay is drawn from
   // this so it hugs the same curve as the line (drawing it from station points
   // would straighten express-skip legs and stick out from under the line).
+  const keyOf = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+  const stByCoord = new Map()
+  for (const [id, c] of coord) stByCoord.set(keyOf(c), id)
   const geomByPair = new Map()
   {
-    const keyOf = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
-    const stByCoord = new Map()
-    for (const [id, c] of coord) stByCoord.set(keyOf(c), id)
     // Split each feature polyline at THIS route's STOPS — not at every station
     // vertex. An express feature's geometry runs THROUGH the intermediate
     // stations it skips (they're vertices but not stops), so its Strathfield→

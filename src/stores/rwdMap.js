@@ -955,25 +955,59 @@ export function buildRwdMap(segs, pos, opts = {}) {
     if (L.forced) stats.forced++
   }
 
-  /* ---- interior black stations: j-th of k sits at arc-length fraction
-     j/(k+1) of the FINAL polyline (a→b order matches seg.interior) ---- */
+  /* ---- interior 白點（直通站）: 第 j/(k+1) 弧長處放回（a→b order = seg.interior）。
+     可選：自動隱藏白點（opts.hideStops）——**站距觸發 + 逐級 weight 差**（使用者裁決）：
+     只有某段站距 < opts.minStopPx（預設 20px）才刪；刪法是逐級升高 weight 差門檻 T——
+     先刪 diff ≤ 0，若均分後站距仍 < 門檻再刪 ≤ 1、≤ 2…（**整級整級刪**），直到站距 ≥ 門檻
+     或白點刪光為止。彩色錨點（a/b）是拓撲錨點不可刪。保留的白點沿折線弧長**重新均分**。
+     hidden：被藏的白點 id；hiddenMaxT：全圖用到的最深 weight 差門檻（供讀數）。---- */
   const posAfter = new Map(pos)
+  const hidden = new Set()
+  let hiddenMaxT = -1
+  const minStopPx = opts.minStopPx ?? 5
+  const wOf = opts.linkWeight || (() => 1)
   for (const L of lines) {
     const ids = L.seg.interior
     if (!ids.length) continue
     const cum = [0]
     for (let i = 1; i < L.pts.length; i++) cum.push(cum[i - 1] + dist(L.pts[i - 1], L.pts[i]))
     const total = cum[cum.length - 1]
-    for (let j = 1; j <= ids.length; j++) {
-      const target = (j / (ids.length + 1)) * total
+    let keep = ids
+    if (opts.hideStops && minStopPx > 0 && total / (ids.length + 1) < minStopPx) {
+      const chain = [L.seg.a, ...ids, L.seg.b]
+      const diffs = ids.map((id, j) => Math.abs(wOf(chain[j], chain[j + 1]) - wOf(chain[j + 1], chain[j + 2])))
+      // 逐級升高門檻 T：keep = diff > T；均分後站距 total/(keep+1) ≥ minStopPx 就停。
+      const maxD = Math.max(...diffs)
+      let T = 0
+      while (T <= maxD) {
+        const keptCount = diffs.filter((d) => d > T).length
+        if (total / (keptCount + 1) >= minStopPx) break // 站距夠了
+        T++
+      }
+      const kept = []
+      for (let j = 0; j < ids.length; j++) {
+        if (diffs[j] <= T) hidden.add(ids[j])
+        else kept.push(ids[j])
+      }
+      keep = kept
+      hiddenMaxT = Math.max(hiddenMaxT, T)
+    }
+    // 沿折線弧長 frac 取座標。
+    const at = (frac) => {
+      const target = frac * total
       let i = 1
       while (i < cum.length - 1 && cum[i] < target) i++
       const segLen = cum[i] - cum[i - 1]
       const t = segLen > Z ? (target - cum[i - 1]) / segLen : 0
       const A = L.pts[i - 1], B = L.pts[i]
-      posAfter.set(ids[j - 1], [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t])
+      return [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]
     }
+    // 被隱藏的白點也放回**原本**位置（供 ghost 顯示；否則 posOf 會退回地理座標畫到畫面外）。
+    for (let j = 1; j <= ids.length; j++) posAfter.set(ids[j - 1], at(j / (ids.length + 1)))
+    // 保留的白點**重新均分**（覆蓋上面的原位置）。
+    const m = keep.length
+    for (let j = 1; j <= m; j++) posAfter.set(keep[j - 1], at(j / (m + 1)))
   }
 
-  return { lines, posAfter, stats }
+  return { lines, posAfter, stats, hidden, hiddenMaxT: hiddenMaxT >= 0 ? hiddenMaxT : null }
 }
