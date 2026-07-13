@@ -661,6 +661,7 @@ function startResize(e) {
                   <li><span class="sk-line" style="background:#e11d48" /> 紅：共線合併（≥2 路線；不切紫點）</li>
                   <li><span class="sk-line" style="background:#16a34a" /> 綠：環線（自環；1/3、2/3 切 2 紫）</li>
                   <li><span class="sk-line" style="background:#2563eb" /> 藍：頭尾共點（平行多重邊；1/2 切 1 紫）</li>
+                  <li><span class="sk-line" style="background:#7c3aed" /> 紫：<b>非分類</b>——紅、藍襯底半透明重疊處的疊色（同走廊既是共線又有平行邊）</li>
                 </ul>
                 <p class="rose-note">
                   依 skill <code>route-skeleton-connect</code>。座標一律照原地理、不移動；

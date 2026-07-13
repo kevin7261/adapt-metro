@@ -664,13 +664,15 @@ async function render() {
       highlightData = rwdLines
         .filter((L) => L.forced || EDGE_HL[L.seg.edge.cls])
         .map((L) => ({ d: ptsD(L.px), color: L.forced ? '#f59e0b' : EDGE_HL[L.seg.edge.cls] }))
-    } else if (!gridMode.value) {
-      // 純骨架（地理視圖）= 原始「一模一樣」的畫法：直接畫線 feature 的**真實折線
-      // 幾何** path(f)，連顏色也一樣（單線實色、共線＝交錯彩色虛線）。為何不用車站點
-      // 的拓撲邊 edgeD：資料的線幾何含非車站折點（特快跳站段仍沿真實走廊彎，如 Sydney
-      // North Shore & Western 快車段有 11 個折點），edgeD 只連相鄰「停靠站」會把跳站段
-      // 拉成橫越空白的長直線。共線本來就是一筆 feature（route_count≥2）→ 一條線。
-      // hover 用 props（與 Metro Maps 相同）；節點分類色仍由 sk.stationClass 疊上。
+    } else if (!hcPos && !(grid && gridPost.value)) {
+      // 節點仍在**地理座標**（純骨架 `skeleton`，或**格網化前** `grid-*-pre`——後者只是
+      // 疊上目標格線、節點還沒搬）→ 線一律照原始 feature 幾何 `path(f)` 畫，**與原始
+      // 地圖一模一樣**（單線實色、共線＝交錯彩色虛線）。為何不用車站點的拓撲邊 edgeD：
+      // 資料的線幾何含非車站折點（特快跳站段仍沿真實走廊彎，如 Sydney North Shore &
+      // Western 快車段有 11 個折點），edgeD 只連相鄰「停靠站」會把跳站段拉成橫越空白的
+      // 長直線。共線本來就是一筆 feature（route_count≥2）→ 一條線。hover 用 props（與
+      // Metro Maps 相同）；節點分類色 + 邊分類襯底疊上。只有**格網化後/HC**（座標真的
+      // 被搬到格子上）才改用 edgeD（見下方 else）。
       lineData = lineFeats.flatMap((f) => {
         const d = path(f)
         const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
@@ -693,8 +695,8 @@ async function render() {
         .filter((e) => EDGE_HL[e.cls] && e.geom?.length >= 2)
         .map((e) => ({ d: geomD(e.geom), color: EDGE_HL[e.cls] }))
     } else {
-      // 格網化 / HC / 縮減：座標已被示意化搬動，feature 幾何失效，改用骨架的拓撲
-      // 邊（車站點直線相連）；共線同樣併一條線。
+      // 格網化後 / HC / 縮減：座標已被示意化搬動到格子上，feature 幾何失效，改用骨架的
+      // 拓撲邊（車站點直線相連）；共線同樣併一條線。
       lineData = sk.edges.flatMap((e) => {
         const routes = routesHtml([...e.routes])
         const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
