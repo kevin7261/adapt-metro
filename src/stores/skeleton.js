@@ -62,6 +62,7 @@ export function buildConnectSkeleton(geojson) {
       if (!r.route_id || routes.has(r.route_id)) continue
       routes.set(r.route_id, {
         id: r.route_id,
+        name: r.route_name ?? '',
         color: r.route_color ?? '#e11d48',
         stations: (r.stations ?? []).map((s) => s.station_id).filter((id) => coord.has(id)),
       })
@@ -136,45 +137,14 @@ export function buildConnectSkeleton(geojson) {
     }
   }
 
-  // Express-over-local merge (chord-proximity): a route that SKIPS stations runs
-  // on the SAME tracks as the local stations lying ALONG its segment chord — HK
-  // Airport Express 青衣→機場 passes 欣澳 (a 東涌線 stop, 0.04·chord off the
-  // chord), 青衣→九龍 passes 荔景/南昌/奧運. For each consecutive pair (A,B) of a
-  // route, insert every OTHER-route station that sits on the A–B chord (tight
-  // perpendicular tolerance, projecting strictly between A and B) in projection
-  // order, so the shared corridor merges as one co-line edge. Local routes have
-  // short adjacent-stop segments with nothing between → untouched.
-  {
-    const arr = [...routes.values()]
-    const stationIds = [...coord.keys()].filter((id) => !crossIds.has(id))
-    const PERP = 0.08 // max perpendicular distance / chord length
-    for (const X of arr) {
-      const stops = new Set(X.stations)
-      const src = X.stations
-      const out = src.length ? [src[0]] : []
-      for (let i = 1; i < src.length; i++) {
-        const A = src[i - 1], B = src[i]
-        const pA = coord.get(A), pB = coord.get(B)
-        const dx = pB[0] - pA[0], dy = pB[1] - pA[1], len2 = dx * dx + dy * dy
-        const mids = []
-        if (len2 > 1e-18) {
-          const chord = Math.sqrt(len2)
-          for (const s of stationIds) {
-            if (stops.has(s)) continue
-            const P = coord.get(s)
-            const t = ((P[0] - pA[0]) * dx + (P[1] - pA[1]) * dy) / len2
-            if (t <= 0.02 || t >= 0.98) continue
-            const perp = Math.hypot(P[0] - (pA[0] + t * dx), P[1] - (pA[1] + t * dy))
-            if (perp <= PERP * chord) mids.push({ s, t })
-          }
-          mids.sort((p, q) => p.t - q.t)
-        }
-        for (const m of mids) out.push(m.s)
-        out.push(B)
-      }
-      X.stations = out
-    }
-  }
+  // NOTE: the skeleton is a pure TOPOLOGICAL contraction of the Metro Maps
+  // network — it never adds edges/lines the original drawing doesn't have. An
+  // earlier "express-over-local" step inserted skipped stations into express
+  // routes to merge shared corridors (HK Airport Express + 東涌線), but that
+  // fabricated junctions/edges (Sunny Bay became degree-3) and made the skeleton
+  // show MORE lines than Metro Maps — wrong. Express/local that Metro Maps draws
+  // as separate lines stay separate here. The pass/stop relation is surfaced for
+  // display only (computePassThrough, 物件 tab); it does NOT touch the topology.
 
   // adjacency graph: neighbours + which routes traverse each undirected edge
   const nbr = new Map()        // id -> Set(neighbourId)
@@ -243,6 +213,61 @@ export function buildConnectSkeleton(geojson) {
     if (path[0] !== path[path.length - 1]) path.push(path[0]) // close ring
     edges.push({ path, a: first, b: first, routes: new Set([rt.id]), color: rt.color })
     for (const id of path) covered.add(id)
+  }
+
+  // Real folded geometry per adjacent-station pair, from the line features — so a
+  // contracted edge can carry its TRUE geographic shape even where the polyline
+  // holds NON-station vertices (a route running express over a corridor bends
+  // along the real track; 見 SKILL 資料前提). Keyed by station pair; `from`
+  // orients the stored coords. The edge-class highlight underlay is drawn from
+  // this so it hugs the same curve as the line (drawing it from station points
+  // would straighten express-skip legs and stick out from under the line).
+  const geomByPair = new Map()
+  {
+    const keyOf = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+    const stByCoord = new Map()
+    for (const [id, c] of coord) stByCoord.set(keyOf(c), id)
+    // Split each feature polyline at THIS route's STOPS — not at every station
+    // vertex. An express feature's geometry runs THROUGH the intermediate
+    // stations it skips (they're vertices but not stops), so its Strathfield→
+    // Redfern edge must own the whole folded polyline through them, not a
+    // straight chord. Per route: keep only vertices that are stops of that route.
+    for (const f of geojson?.features ?? []) {
+      if (!f.geometry || f.geometry.type === 'Point') continue
+      const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+      for (const r of f.properties?.routes ?? []) {
+        const stops = routes.get(r.route_id)?.stations
+        if (!stops) continue
+        const stopSet = new Set(stops.filter((id) => coord.has(id)))
+        for (const seg of segs) {
+          const stIdx = []
+          for (let i = 0; i < seg.length; i++) {
+            const id = stByCoord.get(keyOf(seg[i]))
+            if (id != null && stopSet.has(id)) stIdx.push([i, id])
+          }
+          for (let k = 1; k < stIdx.length; k++) {
+            const [i0, a] = stIdx[k - 1], [i1, b] = stIdx[k]
+            const key = pk(a, b)
+            if (!geomByPair.has(key)) geomByPair.set(key, { from: a, coords: seg.slice(i0, i1 + 1) })
+          }
+        }
+      }
+    }
+  }
+  const posAll = new Map(coord) // real stations + synthetic yellow-crossing coords
+  for (const c of crossings) posAll.set(c.id, c.coord)
+  for (const e of edges) {
+    const g = []
+    const push = (c) => { const l = g[g.length - 1]; if (!l || l[0] !== c[0] || l[1] !== c[1]) g.push(c) }
+    for (let i = 1; i < e.path.length; i++) {
+      const a = e.path[i - 1], b = e.path[i]
+      const rec = geomByPair.get(pk(a, b))
+      let leg
+      if (rec) leg = rec.from === a ? rec.coords : [...rec.coords].reverse()
+      else { const pa = posAll.get(a), pb = posAll.get(b); leg = pa && pb ? [pa, pb] : [] }
+      for (const c of leg) push(c)
+    }
+    e.geom = g
   }
 
   // edge classification

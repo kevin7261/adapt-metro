@@ -26,8 +26,11 @@ const importTabs = [
   { id: 'import-metro', label: '全球地鐵地圖' },
 ]
 
+// 匯入 dialog 需要 catalog；新增視圖 dialog 也要（cityParts 的中文名由 catalog 對應——
+// 否則城市只顯示英文）。任一開啟且尚未載入就載。
+const NEED_CATALOG = [...IMPORT_DIALOGS, 'add-d3', 'add-hillclimb', 'add-rwd']
 watch(dialog, (d) => {
-  if (!IMPORT_DIALOGS.includes(d) || catalog.value) return
+  if (!NEED_CATALOG.includes(d) || catalog.value) return
   catalogError.value = null
   loadMetroCatalog()
     .then((systems) => { catalog.value = systems })

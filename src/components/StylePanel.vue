@@ -28,8 +28,11 @@ const props = defineProps({
   // or 'metro' for the MapLibre tab. Orientation shows only for metro maps and
   // Map Adjust; the skeleton rules only for Map Adjust.
   viewKind: { type: String, default: 'metro' },
+  // RWD Maps 權重驅動版面（論文 §九）：目前模式（'uniform' | 'weight'），tab 在物件之後。
+  weightMode: { type: String, default: 'uniform' },
+  weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽是否開啟
 })
-const emit = defineEmits(['run-llm'])
+const emit = defineEmits(['run-llm', 'weight-mode', 'weight-random', 'weight-auto'])
 const llmUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
 const isMapAdjust = computed(() => isD3.value && props.viewKind === 'map-adjust')
@@ -45,6 +48,7 @@ const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   { id: 'style', label: '樣式' },
   { id: 'object', label: '物件' },
+  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }] : []),
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
 ])
 const activeTab = ref('info')
@@ -837,6 +841,32 @@ function startResize(e) {
           </table>
         </template>
 
+        <!-- ============ 權重（RWD Maps）: weight 驅動版面簡化（論文 §九）============ -->
+        <template v-else-if="activeTab === 'weight'">
+          <div class="weight-panel">
+            <p class="weight-hint">
+              版面簡化不改拓撲：用各欄／列**最忙路段的流量（weight）**決定該欄多寬、該列多高
+              ——主走廊變寬、次要區壓窄，外框固定，路線在新像素座標重畫成 H/V/45°。
+            </p>
+            <div class="weight-modes">
+              <button class="weight-mode" :class="{ active: weightMode === 'uniform' }"
+                @click="emit('weight-mode', 'uniform')">均勻網格</button>
+              <button class="weight-mode" :class="{ active: weightMode === 'weight' }"
+                @click="emit('weight-mode', 'weight')">顯示 weight 比例</button>
+            </div>
+            <button class="weight-random" @click="emit('weight-random')">全部隨機（1–9）</button>
+            <button class="weight-random weight-auto" :class="{ active: weightAuto }"
+              @click="emit('weight-auto')">
+              {{ weightAuto ? '⏸ 停止自動重抽' : '▶ 每 5 秒自動重抽' }}
+            </button>
+            <p class="weight-hint">
+              「全部隨機」每按一次整表重抽：每個沿路相鄰站對抽 1–9，反等比（機率 ∝ 1/2ᵏ）
+              ——數字越小越常見，少數主走廊、多數次要邊。「每 5 秒自動重抽」開啟後每 5 秒
+              整表重抽一次，network 點跟著新版面變形（自動切到 weight 模式）。
+            </p>
+          </div>
+        </template>
+
         <!-- ============ LLM對齊: run provenance (prompt / responses / model) ============ -->
         <template v-else-if="activeTab === 'llm' && llmRecord">
           <div class="info-rows">
@@ -1098,6 +1128,36 @@ function startResize(e) {
 }
 
 /* Info */
+/* 權重 tab（RWD Maps 版面簡化控制）*/
+.weight-panel { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; }
+.weight-hint { font-size: 11.5px; color: hsl(var(--muted-foreground)); line-height: 1.6; }
+.weight-modes { display: flex; flex-direction: column; gap: 4px; }
+.weight-mode {
+  text-align: left;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+.weight-mode:hover { background: hsl(var(--accent)); }
+.weight-mode.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); border-color: hsl(var(--primary)); font-weight: 600; }
+.weight-random {
+  padding: 8px 12px;
+  font-size: 12.5px;
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-weight: 500;
+}
+.weight-random:hover { background: hsl(var(--primary) / 0.2); }
+.weight-auto.active {
+  background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary)); font-weight: 600;
+}
+.weight-auto.active:hover { background: hsl(var(--primary) / 0.9); }
 .info-rows { display: flex; flex-direction: column; gap: 2px; }
 .info-row {
   display: flex;

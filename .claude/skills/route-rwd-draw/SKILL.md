@@ -128,11 +128,43 @@ A* 也禁止斜向轉斜向的步進與 macro 接合。
 - 純函式、無亂數；同輸入同輸出。
 - 繪製沿用 D3Tab 的路線著色（單線實色、共線交錯虛線）與節點分類色。
 
-## 未實作（原規格屬另一專案的機制，此處明確排除）
+## 權重驅動版面簡化（論文 §九，右側「權重」tab，v1 已實作）
 
-- 非均勻欄寬列高（AI 權重／線 weight max／黑點 max 三種比例來源）——目前**恆為均勻網格**。
-- 黑點精簡（依鄰站 weight 差值隱藏黑點）。
-- 若之後要做，非均勻映射後**必須在新像素座標上重跑 buildRwdMap**（見頂部硬規則）。
+版面簡化**不改拓撲**：weight（流量／重要性）→ 非均勻欄寬列高 → 在**新像素座標重跑
+buildRwdMap**（八方向約束以版面 pixel 為準）。UI：StylePanel 的「權重」tab（`viewKind==='rwd'`
+時、物件 tab 之後），控制 D3Tab 的 `rwdWeightMode`／`regenRwdWeights`。實作：
+`src/stores/rwdWeight.js`（純函式）。
+
+- **weight 粒度＝相鄰兩站（link），不是 cut-to-cut 段的兩端點**（使用者規則：weight
+  是 2 個站點就要有）。一個 cut-to-cut 段展開成站鏈 `[a, ...interior 黑點, b]`，鏈上
+  每一對相鄰站是一個無向 link（`segLinks`／`linkKey`）。
+- **weight 產生**：`randomWeights(segs)`——每個 **link** 抽一次 1–9，**反等比**
+  （機率 ∝ 1/2ᵏ，小數字常見）→ 少數主走廊、多數次要邊。「全部隨機」整表重抽。
+- **數字顯示**：只要有 weight 就一定顯示（不限 weight 模式），標在每個 link 兩站連線
+  中點（interior 黑點位置：RWD 用 `posAfter`、縮減網格用 `placeBlacks`）。
+- **每 5 秒自動重抽**（`setRwdAutoShuffle`）：開啟後 `setInterval` 每 5 秒
+  `regenRwdWeights` 整表重抽 → 動畫過渡到新版面（離開 tab／unmount 清 timer）。
+- **動畫過渡（§8.3，`animateToWeights`）**：weight 改變不瞬跳，而是 `requestAnimationFrame`
+  ~700ms 內**內插起點 axes → 目標 axes 的格線位置**（`uniformAxes`／`lerpAxes`），每幀用
+  內插後的 cellPx 重算 pxPos 並跑 `buildRwdMap(..., {fast:true})`。**內插的是欄／列格線
+  比例，不是折線頂點**——否則中間幀違反八方向。`opts.fast`（rwdMap.js）中間幀只跑一次
+  `routeAll`（含 4 輪衝突消掃），略過 6 輪重排／rip-up／窄縫救援／pass 2 軟調整，換每幀
+  夠快；**最後一幀（t=1）走完整品質**（無 fast，settle 到無交叉版面）。動畫幀不進 RWD
+  快取（sizeKey 含 `a{t}`）、不顯示 spinner。
+- **非均勻欄列**（`weightedAxes`）：欄寬列高由 link weight **取 max 不取 sum**（這一欄
+  多重要看最忙那條）；方向相容——算 X 欄看 H/45° link、Y 列看 V/45° link。interior 黑點
+  無格座標 → 依鏈上索引在 a→b 之間**線性內插**取該 link 所跨的欄／列。權重 0 的欄／列
+  不消失（保留 `minFrac`≈0.25× 均勻寬，其餘依正權重分配）；外框固定。
+- **模式**：`uniform`（均勻，預設）／`weight`（顯示 weight 比例）。切換或重抽都重跑
+  buildRwdMap；快取鍵含模式＋重抽序號。
+
+### 尚未做（後續）
+
+- **黑點精簡**（依鄰站 weight 差值由小到大隱藏次要黑點、剩下的沿線重新均分）。
+- **CSV 真實流量**（站名對照）、「顯示黑點比例」與「AI 改網格長寬」兩種比例來源。
+- **非均勻格的 A\* lattice**：`routeLattice` 目前吃均勻 `{sx,sy}`；權重模式暫**不傳
+  lattice**（衝突走候選＋兜底，無 A* 救援）。之後要讓 `routeLattice` 吃非均勻座標陣列
+  （欄列格線＋格心），權重模式才有完整絕不交叉消解。
 
 ## 修改此轉換時
 

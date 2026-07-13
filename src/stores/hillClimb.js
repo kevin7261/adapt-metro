@@ -488,9 +488,9 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
   }
 
   /* ---- main loop (Algorithm 1): per-vertex moves + cluster moves, cooling ---- */
-  // Search rectangle shrinks each round (paper: max move 8, 5 iterations); big
-  // graphs default to a smaller schedule to stay interactive.
-  const radii = opts.radii ?? (pos.size > 300 ? [4, 3, 2, 1] : [8, 6, 4, 3, 2])
+  // Search rectangle shrinks each round. Cap at ±2 cells so stations don't
+  // wander far from the schematic-grid input (paper used up to 8).
+  const radii = opts.radii ?? [2, 1, 1]
   const vertIds = [...pos.keys()].sort()
   const before = totalFitness()
   const hvBefore = countHV(pos, segs)

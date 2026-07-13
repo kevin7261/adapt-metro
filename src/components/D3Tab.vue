@@ -14,6 +14,7 @@ import {
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
 } from '../stores/hillClimb'
 import { buildRwdMap } from '../stores/rwdMap'
+import { randomWeights, weightedAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -234,6 +235,63 @@ const hcStats = ref(null)
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
+// ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
+// weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
+// 重跑 buildRwdMap。'uniform' = 均勻網格（預設）。全部隨機每按一次整表重抽。
+const rwdWeightMode = ref('uniform') // 'uniform' | 'weight'
+const rwdWeights = ref(new Map())    // segKey -> 1..9
+let rwdWeightSeq = 0                  // 重抽計數，併進 RWD 快取鍵
+let cachedSegs = null                 // 本資料的 cut-to-cut segs（供權重面板重抽）
+// 動畫狀態：weight 改變時不瞬跳，而是內插欄／列格線位置、每幀在新像素空間重算
+// H/V/45°（fast 模式，見 rwdMap.js opts.fast 與 skill §8.3）。最後一幀走完整品質。
+let rwdAnimActive = false, rwdAnimFrom = null, rwdAnimTo = null, rwdAnimT = 0, rwdAnimRaf = 0
+const RWD_ANIM_MS = 700
+function animateToWeights(newWeights) {
+  if (!cachedSegs) return
+  // 起點幾何：目前顯示的是 weight 版面就從現有 weights，否則從均勻網格。
+  rwdAnimFrom = (rwdWeightMode.value === 'weight' && rwdWeights.value.size) ? rwdWeights.value : null
+  rwdAnimTo = newWeights
+  rwdWeights.value = newWeights   // 數字立刻顯示目標權重
+  rwdWeightMode.value = 'weight'  // 點要變化 → 非均勻版面
+  rwdAnimActive = true
+  rwdAnimT = 0
+  if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
+  let start = null
+  const step = (ts) => {
+    if (start == null) start = ts
+    rwdAnimT = Math.min(1, (ts - start) / RWD_ANIM_MS)
+    render()
+    if (rwdAnimT < 1) { rwdAnimRaf = requestAnimationFrame(step) }
+    else { rwdAnimActive = false; rwdAnimRaf = 0; rwdWeightSeq++; cachedRWD = null; render() } // 收尾：完整品質
+  }
+  rwdAnimRaf = requestAnimationFrame(step)
+}
+function regenRwdWeights() {
+  if (!cachedSegs) return
+  animateToWeights(randomWeights(cachedSegs))
+}
+function setRwdWeightMode(m) {
+  if (rwdWeightMode.value === m) return
+  if (m === 'weight') {
+    animateToWeights(rwdWeights.value.size ? rwdWeights.value : randomWeights(cachedSegs)) // 均勻→加權：動畫過去
+    return
+  }
+  rwdWeightMode.value = m // 回均勻：瞬時
+  cachedRWD = null
+  render()
+}
+// 每 5 秒自動整表重抽 weight，network 點跟著版面變形（動畫過渡，見 animateToWeights）。
+const rwdAutoShuffle = ref(false)
+let rwdAutoTimer = null
+function setRwdAutoShuffle(on) {
+  rwdAutoShuffle.value = on
+  if (rwdAutoTimer) { clearInterval(rwdAutoTimer); rwdAutoTimer = null }
+  if (on) {
+    regenRwdWeights()
+    rwdAutoTimer = setInterval(() => { if (rwdAutoShuffle.value) regenRwdWeights() }, 5000)
+  }
+}
+function toggleRwdAutoShuffle() { setRwdAutoShuffle(!rwdAutoShuffle.value) }
 const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isRWD.value) {
@@ -400,7 +458,7 @@ async function render() {
   // mapping below, never the layout. Blacks are re-spread along the new runs.
   // 縮減網格 tab additionally drops colour-free rows/columns (compactGrid) —
   // fewer cells over the same extent, so everything spreads out.
-  let hcPos = null, hcBlue = null, rwdLines = null
+  let hcPos = null, hcBlue = null, rwdLines = null, weighted = false
   if (grid && needsHC.value && hcMode.value) {
     if (!cachedHC) {
       hcBusy.value = true
@@ -478,26 +536,47 @@ async function render() {
       hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
     }
     const cw = (w - 48) / nC, ch = (h - 48) / nR
-    const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+    const area = [24, 24, w - 24, h - 24]
+    // 權重驅動版面：'weight' 模式時 weight → 非均勻欄寬列高（weightedAxes）；否則均勻。
+    // 動畫中（rwdAnimActive）：內插「起點 axes → 目標 axes」的格線位置，每幀重算。
+    // 動畫幀不重算 buildHcGraph（骨架／格不變）——省每幀成本，cachedSegs 沿用。
+    if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = buildHcGraph(cachedSkeleton, grid.cellOf).segs
+    const animing = rwdAnimActive && isRWD.value && !!cachedSegs
+    weighted = animing || (isRWD.value && rwdWeightMode.value === 'weight' && rwdWeights.value.size > 0)
+    let axes = null
+    if (animing) {
+      const toAx = weightedAxes(cells, cachedSegs, rwdAnimTo, nC, nR, area)
+      const fromAx = rwdAnimFrom && rwdAnimFrom.size
+        ? weightedAxes(cells, cachedSegs, rwdAnimFrom, nC, nR, area)
+        : uniformAxes(nC, nR, area)
+      axes = lerpAxes(fromAx, toAx, rwdAnimT)
+    } else if (weighted) {
+      axes = weightedAxes(cells, cachedSegs, rwdWeights.value, nC, nR, area)
+    }
+    const cellPx = axes ? axes.cellPx : ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
     if (rwdMode.value) {
       // RWD 路網: 八方向約束以「版面 pixel」為準 — the map follows the panel shape
       // (隨板面變形), so the polylines are rebuilt in the CURRENT canvas pixel
       // space whenever the size changes (with cw ≠ ch a cell-space 45° is not
       // 45° on screen). Same-size renders reuse the cached result. The interior
       // blacks already sit ON the polylines (no placeBlacks here).
-      const sizeKey = `${w}x${h}`
+      const sizeKey = `${w}x${h}|${animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : 'u'}`
       if (!cachedRWD || cachedRWD.key !== sizeKey) {
-        hcBusy.value = true
-        busyText.value = 'RWD 路網畫線中…（H/V/45° 候選折線）'
-        await new Promise((r) => setTimeout(r, 30))
-        if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
+        if (!animing) {
+          hcBusy.value = true
+          busyText.value = 'RWD 路網畫線中…（H/V/45° 候選折線）'
+          await new Promise((r) => setTimeout(r, 30))
+          if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
+        }
         const pxPos = new Map()
         for (const [id, p] of cells) pxPos.set(id, cellPx(p))
         cachedRWD = {
           key: sizeKey,
-          ...buildRwdMap(buildHcGraph(cachedSkeleton, grid.cellOf).segs, pxPos, {
+          // 非均勻格的半格 A* lattice 尚未做（見 skill）——權重／動畫不傳 lattice，衝突走
+          // 候選＋兜底；動畫幀再加 fast（略過多輪衝突消解，換每幀夠快）；均勻格照舊帶 lattice。
+          ...buildRwdMap(cachedSegs, pxPos, {
             unit: Math.min(cw, ch),
-            lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 },
+            ...(animing ? { fast: true } : weighted ? {} : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
           }),
         }
         hcBusy.value = false
@@ -505,10 +584,12 @@ async function render() {
       rwdStats.value = cachedRWD.stats
       hcPos = new Map(cachedRWD.posAfter)
       rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts }))
-      hcBlue = {
-        xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
-        ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
-      }
+      hcBlue = axes
+        ? { xs: axes.colX, ys: axes.rowY }
+        : {
+          xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
+          ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
+        }
     } else {
       hcPos = new Map()
       for (const [id, p] of cells) hcPos.set(id, cellPx(p))
@@ -552,17 +633,13 @@ async function render() {
     const edgeD = (pathIds) => pathIds
       .map((id, i) => { const [x, y] = posOf(id); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
       .join(' ')
-    // Line = original metro-map drawing: single route → solid route colour,
-    // overlap (≥2 routes) → interleaved route-colour dashes.
+    // 骨架 = Metro Maps drawing but 共線變成「一條線」：a shared corridor (an edge
+    // with ≥2 routes) is drawn as ONE solid line (its first route colour) instead
+    // of the interleaved multi-colour dashes Metro Maps uses. That single-line
+    // merge is exactly what makes it the skeleton. Single-route edges are
+    // unchanged (their own colour).
     const strokesOf = (e, d, html) => {
-      const cols = (e.routeColors ?? []).slice(0, MAX_OVERLAP)
-      if (cols.length >= 2) {
-        const n = cols.length
-        return cols.map((color, i) => ({
-          d, stroke: color, html,
-          dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
-        }))
-      }
+      const cols = e.routeColors ?? []
       return [{ d, stroke: cols[0] ?? e.color ?? '#e11d48', html }]
     }
     if (rwdLines) {
@@ -587,14 +664,43 @@ async function render() {
       highlightData = rwdLines
         .filter((L) => L.forced || EDGE_HL[L.seg.edge.cls])
         .map((L) => ({ d: ptsD(L.px), color: L.forced ? '#f59e0b' : EDGE_HL[L.seg.edge.cls] }))
+    } else if (!gridMode.value) {
+      // 純骨架（地理視圖）= 原始「一模一樣」的畫法：直接畫線 feature 的**真實折線
+      // 幾何** path(f)，連顏色也一樣（單線實色、共線＝交錯彩色虛線）。為何不用車站點
+      // 的拓撲邊 edgeD：資料的線幾何含非車站折點（特快跳站段仍沿真實走廊彎，如 Sydney
+      // North Shore & Western 快車段有 11 個折點），edgeD 只連相鄰「停靠站」會把跳站段
+      // 拉成橫越空白的長直線。共線本來就是一筆 feature（route_count≥2）→ 一條線。
+      // hover 用 props（與 Metro Maps 相同）；節點分類色仍由 sk.stationClass 疊上。
+      lineData = lineFeats.flatMap((f) => {
+        const d = path(f)
+        const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
+        if (new Set(cols).size >= 2) {
+          const n = cols.length
+          return cols.map((color, i) => ({
+            d, stroke: color, props: f.properties,
+            dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
+          }))
+        }
+        return [{ d, stroke: cols[0] ?? f.properties.route_color ?? '#e11d48', props: f.properties }]
+      })
+      // 邊分類襯底（線底下的 highlight）：沿骨架邊的**真實折線幾何 e.geom** 畫一條較寬
+      // 半透明底色線（共線紅底 / 環線綠 / 頭尾共點藍），貼著線的彎曲、不會像用車站點
+      // 那樣在跳站段戳出直線。plain 不畫襯底。
+      const geomD = (geom) => geom
+        .map((c, i) => { const [x, y] = P(c); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
+        .join(' ')
+      highlightData = sk.edges
+        .filter((e) => EDGE_HL[e.cls] && e.geom?.length >= 2)
+        .map((e) => ({ d: geomD(e.geom), color: EDGE_HL[e.cls] }))
     } else {
+      // 格網化 / HC / 縮減：座標已被示意化搬動，feature 幾何失效，改用骨架的拓撲
+      // 邊（車站點直線相連）；共線同樣併一條線。
       lineData = sk.edges.flatMap((e) => {
         const routes = routesHtml([...e.routes])
         const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
         return strokesOf(e, edgeD(e.path), html)
       })
-      // Bottom highlight: one translucent underlay per classified edge.
-      highlightData = sk.edges.filter((e) => EDGE_HL[e.cls]).map((e) => ({ d: edgeD(e.path), color: EDGE_HL[e.cls] }))
+      highlightData = []
     }
     stationData = stations.map((f) => {
       const [x, y] = posOf(f.properties.station_id)
@@ -606,7 +712,20 @@ async function render() {
       if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: c.id, station_name: '路線交叉點' }, fill: NODE_COLOR.yellow })
     }
   } else {
-    lineData = lineFeats.map((f) => ({ d: path(f), stroke: f.properties.route_color ?? '#e11d48', props: f.properties }))
+    // 原始 = EXACTLY the Metro Maps drawing: single route → solid colour, overlap
+    // (≥2 distinct route colours) → interleaved coloured dashes (same as LayerTab).
+    lineData = lineFeats.flatMap((f) => {
+      const d = path(f)
+      const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
+      if (new Set(cols).size >= 2) {
+        const n = cols.length
+        return cols.map((color, i) => ({
+          d, stroke: color, props: f.properties,
+          dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
+        }))
+      }
+      return [{ d, stroke: cols[0] ?? f.properties.route_color ?? '#e11d48', props: f.properties }]
+    })
     stationData = stations.map((f) => {
       const [x, y] = P(f.geometry.coordinates)
       return { x, y, props: f.properties, fill: stationColor(f.properties) }
@@ -621,28 +740,51 @@ async function render() {
   const refG = sel.append('g').attr('class', 'ref-layer').style('pointer-events', 'none')
   const stationsG = sel.append('g').attr('class', 'stations-layer')
 
-  // Schematic gridding: blue SEPARATOR lines (they run between cells — never
-  // through a point) + integer cell coordinates centred in each band (column
-  // indices along the bottom, row indices down the left).
+  // Schematic gridding: blue lines run ON the ticks — i.e. THROUGH the cell
+  // centres (cx/cy), which is where every network node sits (使用者規則：格線在
+  // 刻度上、節點端點落在網格交叉線上，不是格子中間). The integer coordinate for
+  // each column/row therefore sits right on its own grid line.
   if (grid) {
     const b = hcBlue ?? (gridPost.value ? grid.blueAfter : grid.blueBefore)
-    for (const x of b.xs) {
+    const cx = [], cy = []
+    for (let c = 0; c < b.xs.length - 1; c++) cx.push((b.xs[c] + b.xs[c + 1]) / 2)
+    for (let r = 0; r < b.ys.length - 1; r++) cy.push((b.ys[r] + b.ys[r + 1]) / 2)
+    for (const x of cx) {
       gridG.append('line').attr('x1', x).attr('y1', 24).attr('x2', x).attr('y2', h - 24)
-        .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
+        .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.5)
     }
-    for (const y of b.ys) {
+    for (const y of cy) {
       gridG.append('line').attr('x1', 24).attr('y1', y).attr('x2', w - 24).attr('y2', y)
-        .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.55)
+        .attr('stroke', '#3b82f6').attr('stroke-width', 0.7).attr('stroke-opacity', 0.5)
     }
-    for (let c = 0; c < b.xs.length - 1; c++) {
+    for (let c = 0; c < cx.length; c++) {
       gridG.append('text').attr('class', 'grid-axis')
-        .attr('x', (b.xs[c] + b.xs[c + 1]) / 2).attr('y', h - 10)
-        .attr('text-anchor', 'middle').text(c)
+        .attr('x', cx[c]).attr('y', h - 10).attr('text-anchor', 'middle').text(c)
     }
-    for (let r = 0; r < b.ys.length - 1; r++) {
+    for (let r = 0; r < cy.length; r++) {
       gridG.append('text').attr('class', 'grid-axis')
-        .attr('x', 12).attr('y', (b.ys[r] + b.ys[r + 1]) / 2)
+        .attr('x', 12).attr('y', cy[r])
         .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').text(r)
+    }
+  }
+
+  // 權重數字：只要有 weight 就一定顯示（不限 weight 模式）。粒度是「相鄰兩站」——
+  // 每個 cut-to-cut 段展開成站鏈 [a, ...interior 黑點, b]，鏈上每一對相鄰站各標一個
+  // weight 在兩站連線中點（白色描邊底、讀得清楚）。interior 黑點位置：RWD 用 posAfter、
+  // 縮減網格用 placeBlacks，兩者 posOf 都取得到。
+  if (isRWD.value && cachedSegs && rwdWeights.value.size > 0) {
+    const wg = sel.append('g').attr('class', 'weight-layer').style('pointer-events', 'none')
+    for (const s of cachedSegs) {
+      const chain = [s.a, ...s.interior, s.b]
+      for (let i = 0; i + 1 < chain.length; i++) {
+        const u = chain[i], v = chain[i + 1]
+        const a = posOf(u), b = posOf(v)
+        if (!a || !b) continue
+        wg.append('text').attr('class', 'weight-label')
+          .attr('x', (a[0] + b[0]) / 2).attr('y', (a[1] + b[1]) / 2)
+          .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
+          .text(linkWeight(rwdWeights.value, u, v))
+      }
     }
   }
 
@@ -852,6 +994,8 @@ onBeforeUnmount(() => {
   disposables.forEach((d) => d?.dispose?.())
   resizeObs?.disconnect()
   clearTimeout(llmPollTimer)
+  if (rwdAutoTimer) clearInterval(rwdAutoTimer)
+  if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
 })
 </script>
 
@@ -928,7 +1072,12 @@ onBeforeUnmount(() => {
       :llm-record="isHC ? llmStats : null"
       :llm-running="llmRun === 'running'"
       :llm-can-run="!!llmCityId"
+      :weight-mode="rwdWeightMode"
+      :weight-auto="rwdAutoShuffle"
       @run-llm="startLlmRun"
+      @weight-mode="setRwdWeightMode"
+      @weight-random="regenRwdWeights"
+      @weight-auto="toggleRwdAutoShuffle"
     />
     </div>
 
@@ -1210,6 +1359,10 @@ onBeforeUnmount(() => {
 .ma-svg :deep(g line),
 .ma-svg :deep(g circle) { vector-effect: non-scaling-stroke; }
 .ma-svg :deep(text.grid-axis) { fill: #3b82f6; font-size: 9px; font-weight: 600; }
+.ma-svg :deep(text.weight-label) {
+  fill: #b91c1c; font-size: 11px; font-weight: 700;
+  paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round;
+}
 .ma-svg :deep(text.st-label) {
   font-size: 9px;
   fill: #e5e7eb;

@@ -710,6 +710,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
   for (let round = 0; ; round++) {
     routeAll(priority)
     stats.restarts = round
+    // 動畫中間幀（opts.fast）只跑一次 routeAll——過渡是暫態，不需完美無交叉，
+    // 略過多輪重排／rip-up／救援／軟調整，換每幀夠快（最後一幀走完整品質）。
+    if (opts.fast) break
     const bad = lines.filter((L) => L.forced)
     if (!bad.length || round >= 6) break
     let grew = false
@@ -722,7 +725,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // Last-ditch salvage（窄縫）: for the very few segments with NO clean route
   // at normal spacing, try once more with the hug distance squeezed to 60% —
   // closer parallels, but crossings stay absolutely forbidden.
-  for (let li = 0; li < lines.length; li++) {
+  if (!opts.fast) for (let li = 0; li < lines.length; li++) {
     const L = lines[li]
     if (!L.forced) continue
     const r = routeLattice(pos.get(L.seg.a), pos.get(L.seg.b), L.seg, placedOf(li), null, minGap * 0.6)
@@ -935,7 +938,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 〔順接軟調整 → 降折到定點 → L→45〕跑兩輪：每一步挪動走廊後都可能冒出
   // 新的可直線/可順接機會，回頭再撿一次，保證「不會有可以直線的沒畫直線」
   // 且「同名路線盡量不轉折」。
-  for (let phase = 0; phase < 2; phase++) {
+  if (!opts.fast) for (let phase = 0; phase < 2; phase++) {
     softPass()
     bendReductionToFixpoint()
     l45Pass()
