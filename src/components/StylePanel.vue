@@ -890,6 +890,9 @@ function startResize(e) {
               <b>{{ stopStat.high != null ? stopStat.high.toFixed(1) : '—' }}</b> pt　寬
               <b>{{ stopStat.wide != null ? stopStat.wide.toFixed(1) : '—' }}</b> pt
             </div>
+            <div v-if="stopStat && stopStat.canvas" class="weight-stat">
+              畫布 <b>{{ stopStat.canvas[0] }}</b> × <b>{{ stopStat.canvas[1] }}</b> px（resize 診斷）
+            </div>
             <div v-if="hideStops && stopStat" class="weight-stat">
               已隱藏 <b>{{ stopStat.hidden }}</b> 站<template v-if="stopStat.hidden > 0 && stopStat.hiddenMaxT != null">
               　·　目前刪到 weight 差 ≤ <b>{{ stopStat.hiddenMaxT }}</b></template>

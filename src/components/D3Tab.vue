@@ -895,6 +895,7 @@ async function render() {
       hidden: hiddenW ? hiddenW.size : 0,
       hiddenNames,
       hiddenMaxT: (rwdLines && cachedRWD?.hiddenMaxT != null) ? cachedRWD.hiddenMaxT : null,
+      canvas: [Math.round(w), Math.round(h)], // 診斷：目前畫布像素尺寸
     }
   } else rwdStopStat.value = null
 
@@ -1087,8 +1088,16 @@ onMounted(() => {
     })
   select(svgEl.value).call(zoomBehavior)
 
-  // Redraw when the panel is resized (dockview) or first laid out.
-  resizeObs = new ResizeObserver(() => render())
+  // Redraw when the panel is resized (dockview) or first laid out. Debounced:
+  // during a continuous drag-resize the observer fires every frame, and the RWD
+  // build's 30ms busy-delay + supersede check means each render bails before it
+  // rebuilds — so nothing (incl. 白點隱藏 by pixel spacing) recomputes until the
+  // drag stops. Wait for the size to settle, then run ONE full render.
+  let resizeTimer = null
+  resizeObs = new ResizeObserver(() => {
+    clearTimeout(resizeTimer)
+    resizeTimer = setTimeout(() => render(), 90)
+  })
   resizeObs.observe(host.value)
 
   // Active tab keeps the layer-list highlight in sync (same per-panel event as
