@@ -65,7 +65,19 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 **快/慢車合併（使用者指定）**：同一路線的快車/慢車/區間車（同 `network`＋`ref`，或無 ref 時
 同「去掉快慢字樣的基底名稱」）合併為**一條線**；只跳站不加站的快車變體由去重規則捨棄。
 network 無法辨識（Unknown）時**絕不跨組合併**——否則各城市無 network 的「1 號線」會被
-揉成跨國怪物群組。
+揉成跨國怪物群組。**以慢車車站為主**（使用者指定）：`dedupeSeqs` 依站數由多到少處理，
+最長變體（＝各停/慢車，站最多）當主線／代表 tags，快車（子集）fresh=0 捨棄——全球一律
+保留慢車的完整站表。
+
+**同 ref 變體＝同一條線（`mergeVariants`，使用者：紐約/雪梨/香港的快車與分支也是同一條線）**：
+「快/慢車合併」之後，同 ref 內**帶來新站的分支/快車變體**預設仍各自獨立成線（台北小碧潭
+支線 hover 不得連主線一起 highlight）。但對 `network` 命中名單者（`nyc subway`／`sydney trains`／
+`^mtr$`——紐約、雪梨 Sydney Trains、香港港鐵）改為：把變體**按「共享車站」聚成連通分量、
+每分量併成 1 條線**（紐約 A 線 5 變體→1、雪梨 T8 南線+機場支線→1、港鐵東鐵綫含馬場/落馬洲
+支線→1），代表 tags 取最長變體（慢車）、其餘變體車站聯集；**完全分離的同 ref 獨立線**
+（紐約 S 的 Franklin/Rockaway/42nd St 三段 shuttle）不共享車站→仍各自成線。共享判定用站座標
+**±2 格（~222m）容差**（同站的上下行/快慢車常掛不同月台節點）。細節與名單見 [[metro-city-newyork]]、
+[[metro-city-hongkong]]、[[metro-cities]]（雪梨）。
 
 **城市網路白名單（`CITY_NETWORK_ALLOW`）**：對特定城市正面表列/黑名單其收錄的 network
 （判定 allow＋deny 雙向，聯合營運沾到黑名單即剔除）。具體城市規則見 [[metro-cities]]
@@ -173,8 +185,13 @@ route relation 只提供兩件事——**哪些站屬於這條線、停靠順序
      network_local, operator, wikidata, wikipedia, osm_route_ids, order_suspect }`；
 - 頂層便利欄位：`route_count`（=routes.length）、`route_refs[]`、`route_colors[]`、
   `route_color`（=第一條的色，單色渲染退路）、`city`、`country`。
-- **渲染規則**：`route_count=1` → 實線該 route 色；`route_count=n>1` → **n 色交錯虛線**
-  （前端以 dasharray 偏移 `[0, i×D, D, (n−1−i)×D]` 疊 n 層實作）。
+- **渲染規則（依「相異色數」，全球一致；`LayerTab`／`GalleryTile`）**：共線段看
+  `route_colors` 的**相異色數**——**只有 1 種色（含同色多線共線，如同 ref 快慢車變體、
+  紐約同 trunk 的 B+D 都橘）→ 1 條實線**（用 `route_color`／`_c0`）；**≥2 種色（不同色的線
+  共軌，如紐約 F+G 橘+綠、1+C+2+A 紅+藍）→ n 色交錯虛線**（前端以 dasharray 偏移
+  `[0, i×D, D, (n−1−i)×D]` 疊 n 層、依 `route_count` 取 slot）。前端用 `_nc`＝`new Set(route_colors).size`
+  判定。**早期紐約特例「共線一律 1 條」已移除**（會蓋掉不同色線；使用者改為此通則，見
+  [[metro-city-newyork]]）。
 
 **不變式（invariants，抓完必須成立；抓完/重抓後一定要跑 [[metro-audit]] 稽核，
 驗證一律對照 Wikipedia 與 urbanrail.net）**：
@@ -248,7 +265,9 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 （來回方向常用不同的 stop_position 節點，不能用節點 id 去重），保留最長的變體，
 其餘變體只要帶來 **≥1 個未見過的站**就保留（短支線如小碧潭/新北投只多 1–2 站；
 純反向/快車重複 fresh=0 捨棄——重疊路段化會吸收共用段，保留支線零成本），
-合併成 `MultiLineString`。
+合併成 `MultiLineString`。**這些保留的分支/快車變體預設各自獨立成 route_id**（小碧潭
+支線 hover 不連主線）；**但紐約/雪梨/香港例外**——同 ref 變體共享車站者併成一條線
+（`mergeVariants`，見前文「同 ref 變體＝同一條線」與 [[metro-city-newyork]]）。
 代表性 tags：優先取「有 colour 且有 name」的變體，master 的 name/ref/colour 覆蓋之。
 
 ## 欄位 schema（必要欄位不可刪）

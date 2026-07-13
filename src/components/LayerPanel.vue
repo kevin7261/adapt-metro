@@ -187,13 +187,13 @@ onBeforeUnmount(() => {
     <button class="btn-icon" title="Expand layers panel" @click="store.ui.layerPanelOpen = true">
       <MIcon name="left_panel_open" :size="15" />
     </button>
-    <span class="rail-label">Layers</span>
+    <span class="rail-label">圖層</span>
   </aside>
 
   <template v-else>
     <aside class="layer-panel" aria-label="Layers" :style="{ width: store.layerPanelWidth + 'px' }">
       <div class="panel-header">
-        <span class="panel-title">Layers</span>
+        <span class="panel-title">圖層</span>
         <div class="header-actions">
           <button class="btn-icon" title="Collapse panel" @click="store.ui.layerPanelOpen = false">
             <MIcon name="left_panel_close" :size="14" />

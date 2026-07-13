@@ -39,10 +39,10 @@ onBeforeUnmount(() => {
 
     <div ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
-        Info
+        資訊
       </button>
       <div v-if="infoOpen" class="menu-pop info-menu">
-        <div class="menu-label">Related Links</div>
+        <div class="menu-label">相關連結</div>
         <a
           v-for="link in relatedLinks"
           :key="link.href"

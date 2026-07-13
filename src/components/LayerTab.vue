@@ -101,7 +101,7 @@ onMounted(() => {
     const local = p.station_name_local && p.station_name_local !== p.station_name
       ? `<br/>${p.station_name_local}` : ''
     const lines = p.lines && p.lines !== '[]'
-      ? `<br/>Lines: ${JSON.parse(p.lines).join(', ')}` : ''
+      ? `<br/>路線：${JSON.parse(p.lines).join(', ')}` : ''
     popup
       .setLngLat(e.features[0].geometry.coordinates)
       .setHTML(`<strong>${p.station_name ?? '—'}</strong>${local}${lines}`)

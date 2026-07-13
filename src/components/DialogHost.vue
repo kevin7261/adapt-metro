@@ -243,8 +243,10 @@ const shortcuts = [
               :title="q.sys ? '' : '資料集中找不到此城市'"
               @click="importSystem(q.sys)"
             >
-              <span class="station-city">{{ q.zh }} <span class="row-en">{{ q.en }}</span></span>
-              <span class="station-country">{{ q.sys?.countryZh ?? q.sys?.country ?? '' }}</span>
+              <span class="station-name">
+                <span class="nm-zh">{{ q.zh }}<template v-if="q.sys?.countryZh"> · {{ q.sys.countryZh }}</template></span>
+                <span class="nm-en">{{ q.en }}<template v-if="q.sys?.country"> · {{ q.sys.country }}</template></span>
+              </span>
               <span class="station-count">{{ q.sys ? `${q.sys.station_count} stations · ${q.sys.line_count} lines` : '—' }}</span>
             </button>
           </div>
@@ -264,8 +266,10 @@ const shortcuts = [
                 @click="importSystem(s)"
               >
                 <span class="station-rank">{{ i + 1 }}</span>
-                <span class="station-city">{{ s.cityZh ?? s.city }} <span class="row-en">{{ s.city }}</span></span>
-                <span class="station-country">{{ s.countryZh ?? s.country }}</span>
+                <span class="station-name">
+                  <span class="nm-zh">{{ s.cityZh ?? s.city }} · {{ s.countryZh ?? s.country }}</span>
+                  <span class="nm-en">{{ s.city }} · {{ s.country }}</span>
+                </span>
                 <span class="station-count">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
               </button>
             </div>
@@ -641,6 +645,7 @@ const shortcuts = [
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 40px;
   width: 100%;
   padding: 5px 8px;
   border-radius: calc(var(--radius) - 4px);
@@ -658,6 +663,10 @@ const shortcuts = [
   text-align: right;
 }
 .station-city { font-weight: 500; white-space: nowrap; }
+/* Bilingual name: Chinese line then English line — same language grouped. */
+.station-name { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.nm-zh { font-weight: 500; white-space: nowrap; }
+.nm-en { font-weight: 400; font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 .station-country {
   color: hsl(var(--muted-foreground));
   overflow: hidden;

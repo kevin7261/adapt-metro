@@ -136,6 +136,7 @@ onBeforeUnmount(() => observer?.disconnect())
     <div class="tile-meta">
       <span class="tile-city">{{ system.cityZh ?? system.city }}</span>
       <span class="tile-sub">{{ system.countryZh ?? system.country }}</span>
+      <span class="tile-en">{{ system.city }} · {{ system.country }}</span>
       <span class="tile-stats">{{ system.line_count }} 線 · {{ system.station_count }} 站</span>
     </div>
   </button>
@@ -187,6 +188,7 @@ onBeforeUnmount(() => observer?.disconnect())
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .tile:hover .tile-city { color: hsl(var(--primary)); }
+.tile-en { font-weight: 400; font-size: 10.5px; color: hsl(var(--muted-foreground)); }
 .tile-sub {
   font-size: 11px; color: hsl(var(--muted-foreground));
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

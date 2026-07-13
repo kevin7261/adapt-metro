@@ -183,15 +183,17 @@ onMounted(() => {
 const systemKey = computed(() => layer.value.file?.match(/systems\/(.+)\.geojson$/)?.[1] ?? null)
 const mapEntry = computed(() => (systemKey.value && mapsIndex.value?.[systemKey.value]) || null)
 
-// Wikipedia article of this metro system: via its Wikidata item, else the
-// wiki URL recorded in the system metadata (metro_system.official_map).
-const wikipediaUrl = computed(() =>
-  meta.value?.wikidata
-    ? `https://www.wikidata.org/wiki/Special:GoToLinkedPage/enwiki/${meta.value.wikidata}`
-    : (meta.value?.official_map ?? null),
-)
-// Official operator website.
-const websiteUrl = computed(() => meta.value?.official_website ?? null)
+// Wikipedia article of this metro SYSTEM (not a single line): the Wikidata item
+// maps straight to the matching 中文 Wikipedia article; without a Wikidata id we
+// fall back to a zh.wikipedia search by the city name. (The old fallback to
+// metro_system.official_map linked a single line's article → wrong page.)
+const wikipediaUrl = computed(() => {
+  if (meta.value?.wikidata) {
+    return `https://www.wikidata.org/wiki/Special:GoToLinkedPage/zhwiki/${meta.value.wikidata}`
+  }
+  const city = layer.value?.cityZh ?? layer.value?.city
+  return city ? `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(`${city} 地鐵`)}` : null
+})
 // Official schematic route map: only the local downloaded image (the wiki URL
 // is surfaced separately as the Wikipedia link, not mislabelled as a map).
 const routeMapUrl = computed(() =>
@@ -474,7 +476,7 @@ function startResize(e) {
       <MIcon name="right_panel_open" :size="15" />
     </button>
     <MIcon name="tune" :size="14" class="rail-icon" />
-    <span class="rail-label">Info / Style</span>
+    <span class="rail-label">資訊 / 樣式</span>
   </aside>
 
   <template v-else>
@@ -520,13 +522,13 @@ function startResize(e) {
               <div class="info-row">
                 <span class="info-key">洲別</span><span>{{ continentZh(layer.continent) }}</span>
               </div>
-              <div class="info-row"><span class="info-key">Lines</span><span>{{ layer.lineCount }}</span></div>
-              <div class="info-row"><span class="info-key">Stations</span><span>{{ layer.stationCount }}</span></div>
+              <div class="info-row"><span class="info-key">路線數</span><span>{{ layer.lineCount }}</span></div>
+              <div class="info-row"><span class="info-key">車站數</span><span>{{ layer.stationCount }}</span></div>
               <div v-if="meta?.operator" class="info-row">
-                <span class="info-key">Operator</span><span>{{ meta.operator }}</span>
+                <span class="info-key">營運單位</span><span>{{ meta.operator }}</span>
               </div>
               <div v-if="meta?.official_website" class="info-row">
-                <span class="info-key">Website</span>
+                <span class="info-key">官網</span>
                 <a :href="meta.official_website" target="_blank" rel="noopener" class="info-link">
                   {{ meta.official_website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') }}
                   <MIcon name="open_in_new" :size="11" />
@@ -538,8 +540,26 @@ function startResize(e) {
                   {{ meta.wikidata }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
+              <div v-if="wikipediaUrl" class="info-row">
+                <span class="info-key">Wikipedia</span>
+                <a :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link">
+                  開啟 <MIcon name="open_in_new" :size="11" />
+                </a>
+              </div>
+              <div class="info-row">
+                <span class="info-key">urbanrail</span>
+                <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link">
+                  開啟 <MIcon name="open_in_new" :size="11" />
+                </a>
+              </div>
+              <div v-if="routeMapUrl" class="info-row">
+                <span class="info-key">官方路線圖</span>
+                <a :href="routeMapUrl" target="_blank" rel="noopener" class="info-link">
+                  開啟 <MIcon name="open_in_new" :size="11" />
+                </a>
+              </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">
-                <span class="info-key">Networks</span>
+                <span class="info-key">路網</span>
                 <span>{{ meta.osm_networks.join(', ') }}</span>
               </div>
             </div>
@@ -654,35 +674,21 @@ function startResize(e) {
             </template>
             </template>
 
-            <div class="section-title">連結</div>
-            <div class="link-list">
-              <a v-if="wikipediaUrl" :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <MIcon name="open_in_new" :size="12" /> Wikipedia — {{ layer.city }} metro
-              </a>
-              <a v-if="websiteUrl" :href="websiteUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <MIcon name="open_in_new" :size="12" /> Official website
-              </a>
-              <a v-if="routeMapUrl" :href="routeMapUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <MIcon name="open_in_new" :size="12" /> Official route map
-                <span v-if="mapEntry" class="link-note">（{{ mapEntry.license ?? 'image' }}）</span>
-              </a>
-              <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link link-item">
-                <MIcon name="open_in_new" :size="12" /> urbanrail.net — {{ urbanrailLabel }}
-              </a>
-            </div>
-
-            <div class="section-title">路線</div>
-            <div v-if="!metroLines.length" class="info-empty">載入中…</div>
-            <div v-else class="line-list">
-              <div v-for="ln in metroLines" :key="ln.route_id" class="line-row">
-                <span class="line-swatch" :style="{ background: ln.route_color ?? '#e11d48' }" />
-                <span v-if="ln.route_ref" class="line-ref">{{ ln.route_ref }}</span>
-                <span class="line-name">
-                  {{ ln.route_name ?? ln.route_name_local ?? '—' }}
-                </span>
-                <span v-if="ln.status === 'under_construction'" class="line-uc">建設中</span>
+            <!-- 路線 list: only on the Metro Maps (MapLibre) view -->
+            <template v-if="!isD3">
+              <div class="section-title">路線</div>
+              <div v-if="!metroLines.length" class="info-empty">載入中…</div>
+              <div v-else class="line-list">
+                <div v-for="ln in metroLines" :key="ln.route_id" class="line-row">
+                  <span class="line-swatch" :style="{ background: ln.route_color ?? '#e11d48' }" />
+                  <span v-if="ln.route_ref" class="line-ref">{{ ln.route_ref }}</span>
+                  <span class="line-name">
+                    {{ ln.route_name ?? ln.route_name_local ?? '—' }}
+                  </span>
+                  <span v-if="ln.status === 'under_construction'" class="line-uc">建設中</span>
+                </div>
               </div>
-            </div>
+            </template>
           </template>
           <div v-else class="info-empty">此圖層沒有 metro 資訊。</div>
         </template>
@@ -1055,9 +1061,6 @@ function startResize(e) {
 .info-link:hover { text-decoration: underline; }
 .info-empty { font-size: 12.5px; color: hsl(var(--muted-foreground)); padding: 8px 0; }
 
-.link-list { display: flex; flex-direction: column; gap: 6px; }
-.link-item { font-size: 12.5px; }
-.link-note { color: hsl(var(--muted-foreground)); font-size: 11px; }
 
 /* Audit */
 .audit-banner {

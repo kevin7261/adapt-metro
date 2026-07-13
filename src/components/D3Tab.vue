@@ -502,6 +502,23 @@ async function render() {
   const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
   const EDGE_LABEL = { coline: '共線合併', loop: '環線', parallel: '頭尾共點', plain: '一般' }
 
+  // Route details by id (from the source metro GeoJSON) so skeleton / grid / HC /
+  // RWD edges can show the SAME route list as the Metro Maps (MapLibre) hover —
+  // the view-specific edge info (class / bend count) is then appended below it.
+  const routeById = new Map()
+  for (const f of lineFeats) {
+    for (const r of (f.properties.routes ?? [f.properties])) {
+      if (r?.route_id && !routeById.has(r.route_id)) routeById.set(r.route_id, r)
+    }
+  }
+  const routesHtml = (ids) => ids.map((id) => {
+    const r = routeById.get(id)
+    if (!r) return null
+    const local = r.route_name_local && r.route_name_local !== r.route_name ? `（${r.route_name_local}）` : ''
+    return `<span style="color:${r.route_color ?? '#e11d48'}">▬</span> `
+      + `<strong>${r.route_ref ? `[${r.route_ref}] ` : ''}${r.route_name ?? '—'}</strong>${local}`
+  }).filter(Boolean).join('<br/>')
+
   let lineData, stationData, highlightData = []
   if (sk) {
     const edgeD = (pathIds) => pathIds
@@ -528,10 +545,13 @@ async function render() {
         .join(' ')
       lineData = rwdLines.flatMap((L) => {
         const e = L.seg.edge
-        const html = `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）· `
+        // Metro Maps route list first, then this view's routing detail below.
+        const edgeInfo = `${EDGE_LABEL[e.cls]} · `
           + (L.fallback ? '兜底直線（非 H/V/45°）' : `轉折 ${L.bends}`)
           + (L.routed ? ' · A* 繞行（避開交叉）' : '')
           + (L.forced ? '<br/><span style="color:#f59e0b">殘留衝突：連 A* 繞行也找不到無交叉路徑</span>' : '')
+        const routes = routesHtml([...e.routes])
+        const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + edgeInfo
         return strokesOf(e, ptsD(L.px), html)
       })
       // Residual-conflict segments glow amber so leftover crossings explain
@@ -540,8 +560,11 @@ async function render() {
         .filter((L) => L.forced || EDGE_HL[L.seg.edge.cls])
         .map((L) => ({ d: ptsD(L.px), color: L.forced ? '#f59e0b' : EDGE_HL[L.seg.edge.cls] }))
     } else {
-      lineData = sk.edges.flatMap((e) =>
-        strokesOf(e, edgeD(e.path), `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`))
+      lineData = sk.edges.flatMap((e) => {
+        const routes = routesHtml([...e.routes])
+        const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + `${EDGE_LABEL[e.cls]}（${e.routes.size} 線）`
+        return strokesOf(e, edgeD(e.path), html)
+      })
       // Bottom highlight: one translucent underlay per classified edge.
       highlightData = sk.edges.filter((e) => EDGE_HL[e.cls]).map((e) => ({ d: edgeD(e.path), color: EDGE_HL[e.cls] }))
     }
@@ -661,9 +684,11 @@ async function render() {
     .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('r', ((panelLayer.value?.radius ?? 4) + 3) / zk)
+      // Same station hover as Metro Maps (name + local + lines); a pink bend
+      // point appends its sinuosity detail below rather than replacing it.
       const info = sk?.pinkInfo?.get(d.props.station_id)
-      if (info) { if (!gridMode.value) drawRef(info); showTip(e, pinkHtml(d.props, info)) }
-      else showTip(e, stationHtml(d.props))
+      if (info && !gridMode.value) drawRef(info)
+      showTip(e, stationHtml(d.props) + (info ? pinkExtra(info) : ''))
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -718,7 +743,7 @@ function stationHtml(p) {
   const local = p.station_name_local && p.station_name_local !== p.station_name
     ? `<br/>${p.station_name_local}` : ''
   const lines = asArray(p.lines)
-  const linesHtml = lines.length ? `<br/>Lines: ${lines.join(', ')}` : ''
+  const linesHtml = lines.length ? `<br/>路線：${lines.join(', ')}` : ''
   return `<strong>${p.station_name ?? '—'}</strong>${local}${linesHtml}`
 }
 function lineHtml(p) {
@@ -732,9 +757,10 @@ function lineHtml(p) {
   }).join('<br/>')
 }
 // Pink (representative bend) hover: explain the two gates + this point's numbers.
-function pinkHtml(p, info) {
-  return `<strong>${p.station_name ?? '—'}</strong>`
-    + '<br/><span style="color:#ec4899">● 代表性轉折點（粉紅）</span>'
+// Pink (representative bend) EXTRA — appended below the shared station hover,
+// not replacing it (the station name + lines come from stationHtml first).
+function pinkExtra(info) {
+  return '<hr class="tip-sep"/><span style="color:#ec4899">● 代表性轉折點（粉紅）</span>'
     + `<br/>邊曲折度 = 弧長÷弦長 = <b>${info.sinuosity.toFixed(2)}</b>（&gt;1.25 才挑）`
     + `<br/>此點 垂距÷弦長 = <b>${info.ratio.toFixed(2)}</b>（&gt;0.25 保留）`
     + '<br/><span style="color:#9ca3af;font-size:11px">曲折度：整條邊的弧長比兩端直線'
@@ -1155,5 +1181,11 @@ onBeforeUnmount(() => {
   line-height: 1.5;
   padding: 8px 10px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+}
+/* Separator between the shared (Metro Maps) hover and this view's extra info. */
+.ma-tip :deep(hr.tip-sep) {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 5px 0;
 }
 </style>
