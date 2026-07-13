@@ -6,6 +6,7 @@ import { layerData } from '../stores/layerData'
 import { prettyContinent, continentZh, loadMapsIndex } from '../stores/metroCatalog'
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
+import { computePassThrough } from '../stores/skeleton'
 import OrientationRose from './OrientationRose.vue'
 import MIcon from './MIcon.vue'
 
@@ -89,6 +90,18 @@ const selectedEntries = computed(() => {
 
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
+
+// Pass-through relation (chord-proximity, skeleton.js): routes passing each
+// station + stations each route passes. Computed once per dataset.
+const passThrough = computed(() => {
+  const d = layerData[layer.value?.id]
+  return d ? computePassThrough(d) : null
+})
+// Station object: routes that PASS this station without stopping.
+const passRoutes = computed(() => {
+  const sid = selectedProps.value?.station_id
+  return (sid && passThrough.value?.byStation.get(sid)) || []
+})
 // The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
 watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
 
@@ -123,6 +136,8 @@ const selectedRouteLists = computed(() => {
     stations: r.stations ?? [],
     // stations 保序不去重（支線接續站/環線閉合站重複出現）——計數用唯一站數
     uniqueCount: new Set((r.stations ?? []).map((s) => s.station_id)).size,
+    // 通過但不停靠的車站（跳站特快共軌，chord-proximity）
+    passStations: passThrough.value?.byRoute.get(r.route_id) ?? [],
   }))
 })
 
@@ -774,12 +789,29 @@ function startResize(e) {
               <span class="line-swatch" :style="{ background: rt.color }" />
               <span v-if="rt.ref" class="line-ref">{{ rt.ref }}</span>
               <span class="obj-route-name">{{ rt.name }}</span>
-              <span class="obj-route-count">{{ rt.uniqueCount }} 站</span>
+              <span class="obj-route-count">停靠 {{ rt.uniqueCount }} 站</span>
             </div>
             <ol class="obj-station-list">
               <li v-for="st in rt.stations" :key="st.station_id">{{ st.station_name }}</li>
             </ol>
+            <!-- 通過但不停靠的車站（跳站特快共軌） -->
+            <template v-if="rt.passStations.length">
+              <div class="obj-pass-sub">通過（不停靠） {{ rt.passStations.length }} 站</div>
+              <ol class="obj-station-list obj-pass-list">
+                <li v-for="st in rt.passStations" :key="st.station_id">{{ st.station_name }}</li>
+              </ol>
+            </template>
           </template>
+          <!-- 行經但不停靠此站的路線（跳站特快共軌）—— 標記 pass -->
+          <div v-if="passRoutes.length" class="obj-pass">
+            <div class="obj-route-head">行經（不停靠）</div>
+            <div v-for="r in passRoutes" :key="r.route_name" class="obj-pass-row">
+              <span class="line-swatch" :style="{ background: r.route_color ?? '#e11d48' }" />
+              <span v-if="r.route_ref" class="line-ref">{{ r.route_ref }}</span>
+              <span class="obj-route-name">{{ r.route_name ?? '—' }}</span>
+              <span class="obj-pass-tag">pass</span>
+            </div>
+          </div>
           <table v-if="selectedEntries.length" class="obj-table">
             <tbody>
               <tr v-for="row in selectedEntries" :key="row.key">
@@ -926,6 +958,20 @@ function startResize(e) {
 .obj-route-count {
   margin-left: auto; flex-shrink: 0;
   font-weight: 400; font-size: 11px; color: hsl(var(--muted-foreground));
+}
+/* 通過（不停靠）站列表 */
+.obj-pass-sub { margin: 2px 0 2px; font-size: 11.5px; font-weight: 600; color: hsl(var(--muted-foreground)); }
+.obj-pass-list { color: hsl(var(--muted-foreground)); }
+/* 行經（不停靠）路線 */
+.obj-pass { margin: 6px 0 10px; }
+.obj-pass-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; padding: 2px 0; min-width: 0;
+}
+.obj-pass-tag {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 10.5px; font-weight: 600; color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border)); border-radius: 999px; padding: 0 7px;
 }
 .obj-station-list {
   margin: 0 0 10px; padding-left: 26px; font-size: 12px; line-height: 1.7;

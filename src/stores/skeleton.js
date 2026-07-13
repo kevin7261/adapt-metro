@@ -136,6 +136,46 @@ export function buildConnectSkeleton(geojson) {
     }
   }
 
+  // Express-over-local merge (chord-proximity): a route that SKIPS stations runs
+  // on the SAME tracks as the local stations lying ALONG its segment chord — HK
+  // Airport Express 青衣→機場 passes 欣澳 (a 東涌線 stop, 0.04·chord off the
+  // chord), 青衣→九龍 passes 荔景/南昌/奧運. For each consecutive pair (A,B) of a
+  // route, insert every OTHER-route station that sits on the A–B chord (tight
+  // perpendicular tolerance, projecting strictly between A and B) in projection
+  // order, so the shared corridor merges as one co-line edge. Local routes have
+  // short adjacent-stop segments with nothing between → untouched.
+  {
+    const arr = [...routes.values()]
+    const stationIds = [...coord.keys()].filter((id) => !crossIds.has(id))
+    const PERP = 0.08 // max perpendicular distance / chord length
+    for (const X of arr) {
+      const stops = new Set(X.stations)
+      const src = X.stations
+      const out = src.length ? [src[0]] : []
+      for (let i = 1; i < src.length; i++) {
+        const A = src[i - 1], B = src[i]
+        const pA = coord.get(A), pB = coord.get(B)
+        const dx = pB[0] - pA[0], dy = pB[1] - pA[1], len2 = dx * dx + dy * dy
+        const mids = []
+        if (len2 > 1e-18) {
+          const chord = Math.sqrt(len2)
+          for (const s of stationIds) {
+            if (stops.has(s)) continue
+            const P = coord.get(s)
+            const t = ((P[0] - pA[0]) * dx + (P[1] - pA[1]) * dy) / len2
+            if (t <= 0.02 || t >= 0.98) continue
+            const perp = Math.hypot(P[0] - (pA[0] + t * dx), P[1] - (pA[1] + t * dy))
+            if (perp <= PERP * chord) mids.push({ s, t })
+          }
+          mids.sort((p, q) => p.t - q.t)
+        }
+        for (const m of mids) out.push(m.s)
+        out.push(B)
+      }
+      X.stations = out
+    }
+  }
+
   // adjacency graph: neighbours + which routes traverse each undirected edge
   const nbr = new Map()        // id -> Set(neighbourId)
   const edgeRoutes = new Map() // "a|b" -> Set(routeId)
@@ -307,4 +347,68 @@ export function buildConnectSkeleton(geojson) {
   }
 
   return { stationClass, edges, pinkInfo, crossings }
+}
+
+// Pass-through relation (物件 tab 用): a route whose track PASSES a station it
+// doesn't stop at — an express skipping a local's stop (HK Airport Express
+// passes 欣澳/荔景…). Same chord-proximity test the skeleton uses to merge
+// express corridors, but exposed for display. Pure function. Returns
+//   { byStation: Map<station_id, [{route_ref, route_name, route_color}]>,   // routes PASSING a station
+//     byRoute:   Map<route_id,   [{station_id, station_name}]>,             // stations a route passes
+//     stopByStation: Map<station_id, [{route_ref, route_name, route_color}]> } // routes STOPPING at a station
+export function computePassThrough(geojson, opts = {}) {
+  const PERP = opts.perp ?? 0.08
+  const coord = new Map()
+  const nameById = new Map()
+  for (const f of geojson?.features ?? []) {
+    if (f.geometry?.type === 'Point') {
+      coord.set(f.properties.station_id, f.geometry.coordinates)
+      nameById.set(f.properties.station_id, f.properties.station_name)
+    }
+  }
+  const routes = new Map()
+  for (const f of geojson?.features ?? []) {
+    if (f.geometry?.type === 'Point') continue
+    for (const r of f.properties?.routes ?? []) {
+      if (!r.route_id || routes.has(r.route_id)) continue
+      routes.set(r.route_id, {
+        ref: r.route_ref, name: r.route_name, color: r.route_color,
+        stations: (r.stations ?? []).map((s) => s.station_id).filter((id) => coord.has(id)),
+      })
+    }
+  }
+  const stationIds = [...coord.keys()]
+  const pairs = [] // [routeId, stationId] passes
+  for (const [rid, rt] of routes) {
+    const stops = new Set(rt.stations)
+    for (let i = 1; i < rt.stations.length; i++) {
+      const pA = coord.get(rt.stations[i - 1]), pB = coord.get(rt.stations[i])
+      const dx = pB[0] - pA[0], dy = pB[1] - pA[1], len2 = dx * dx + dy * dy
+      if (len2 < 1e-18) continue
+      const chord = Math.sqrt(len2)
+      for (const s of stationIds) {
+        if (stops.has(s)) continue
+        const P = coord.get(s)
+        const t = ((P[0] - pA[0]) * dx + (P[1] - pA[1]) * dy) / len2
+        if (t <= 0.02 || t >= 0.98) continue
+        if (Math.hypot(P[0] - (pA[0] + t * dx), P[1] - (pA[1] + t * dy)) <= PERP * chord) {
+          pairs.push([rid, s])
+        }
+      }
+    }
+  }
+  const byStation = new Map()
+  const byRoute = new Map()
+  const seen = new Set()
+  for (const [rid, sid] of pairs) {
+    const k = `${rid}|${sid}`
+    if (seen.has(k)) continue
+    seen.add(k)
+    const r = routes.get(rid)
+    if (!byStation.has(sid)) byStation.set(sid, [])
+    byStation.get(sid).push({ route_ref: r.ref, route_name: r.name, route_color: r.color })
+    if (!byRoute.has(rid)) byRoute.set(rid, [])
+    byRoute.get(rid).push({ station_id: sid, station_name: nameById.get(sid) })
+  }
+  return { byStation, byRoute }
 }

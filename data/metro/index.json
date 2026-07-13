@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 224,
   "wikipedia_system_count": 233,
-  "line_total": 1480,
-  "station_total": 17083,
+  "line_total": 1485,
+  "station_total": 17123,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -2936,6 +2936,126 @@
       }
     },
     {
+      "file": "systems/asia/singapore/as-sgp-singapore.geojson",
+      "continent": "asia",
+      "country": "Singapore",
+      "city": "Singapore",
+      "osm_networks": [
+        "Bukit Panjang LRT Line (BPLRT)",
+        "Circle Line (CCL)",
+        "Cross Island Line",
+        "Downtown Line (DTL)",
+        "East West Line (EWL)",
+        "Jurong Region Line (JRL)",
+        "MRT",
+        "Mass Rapid Transit",
+        "North East Line",
+        "North East Line (NEL)",
+        "North East Line (NEL)/Punggol LRT",
+        "North South Line",
+        "North South Line (NSL)",
+        "Punggol LRT Line",
+        "Punggol LRT l ine",
+        "SBS Transit",
+        "SMRT",
+        "Sengkang LRT Line",
+        "Singapore Rail",
+        "Singapore–Johor Bahru Rapid Transit System (RTS Link)",
+        "Thomson–East Coast Line (TEL)",
+        "Unknown"
+      ],
+      "operator": "SMRT Trains",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/East–West_Line_(Singapore)",
+      "wikidata": "Q1895425",
+      "line_count": 13,
+      "segment_count": 16,
+      "station_count": 186,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/singapore/as-sgp-singapore.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "8 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "146 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 146 站（wiki List 記 143，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "146/146 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "182 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "146/146 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)"
+        ],
+        "audited_at": "2026-07-11T15:22:16.810Z"
+      }
+    },
+    {
       "file": "systems/asia/china/as-chn-tianjin.geojson",
       "continent": "asia",
       "country": "China",
@@ -4109,124 +4229,6 @@
           "3 條線無 wiki 站數對照：Xi`an Metro Line 9、Xi'an Metro Line 5、Xi'an Metro Line 6"
         ],
         "audited_at": "2026-07-11T15:22:16.662Z"
-      }
-    },
-    {
-      "file": "systems/asia/singapore/as-sgp-singapore.geojson",
-      "continent": "asia",
-      "country": "Singapore",
-      "city": "Singapore",
-      "osm_networks": [
-        "Circle Line (CCL)",
-        "Cross Island Line",
-        "Downtown Line (DTL)",
-        "East West Line (EWL)",
-        "Jurong Region Line (JRL)",
-        "MRT",
-        "Mass Rapid Transit",
-        "North East Line",
-        "North East Line (NEL)",
-        "North East Line (NEL)/Punggol LRT",
-        "North South Line",
-        "North South Line (NSL)",
-        "Punggol LRT Line",
-        "SBS Transit",
-        "SMRT",
-        "Sengkang LRT Line",
-        "Singapore Rail",
-        "Singapore–Johor Bahru Rapid Transit System (RTS Link)",
-        "Thomson–East Coast Line (TEL)",
-        "Unknown"
-      ],
-      "operator": "SMRT Trains",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/East–West_Line_(Singapore)",
-      "wikidata": "Q1895425",
-      "line_count": 8,
-      "segment_count": 11,
-      "station_count": 146,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/singapore/as-sgp-singapore.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "8 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "146 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 146 站（wiki List 記 143，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "146/146 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "182 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "146/146 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)"
-        ],
-        "audited_at": "2026-07-11T15:22:16.810Z"
       }
     },
     {

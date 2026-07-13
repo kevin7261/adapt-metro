@@ -1147,7 +1147,9 @@ async function build() {
   // 系統本身就是 LRT（該城完全沒有 subway 線）才保留整個 LRT 系統
   // （SkyTrain、澳門輕軌、Stadtbahn…）。非基準、純 LRT 的額外系統一律剔除。
   // Override 綁定的線（audit 逐城判過的）不在剔除範圍。
-  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung'])
+  // 附加 LRT 的城市（使用者指定）：該城有 MRT/subway，但也要收其輕軌（台北淡海/安坑/
+  // 環狀、高雄輕軌；新加坡 Bukit Panjang/Sengkang/Punggol LRT）。
+  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore'])
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。

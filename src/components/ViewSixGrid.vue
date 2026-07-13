@@ -46,8 +46,7 @@ onBeforeUnmount(() => observer?.disconnect())
 <template>
   <div ref="root" class="sgrid-card">
     <button class="sgrid-head" :title="`建立 ${entry.city} Hill Climbing 視圖`" @click="emit('pick', entry)">
-      <span class="sh-city">{{ entry.city }}</span>
-      <span class="sh-sub">{{ entry.country }}</span>
+      <span class="sh-city">{{ entry.city }} · {{ entry.country }}</span>
       <span class="sh-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
       <span class="sh-open">建立 Hill Climbing ›</span>
     </button>

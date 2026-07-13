@@ -24,9 +24,9 @@ onMounted(async () => {
 })
 
 const TABS = [
-  { id: 'quick', label: 'Quick Selection' },
-  { id: 'stations', label: 'Sort by Station Count' },
-  { id: 'global', label: 'Global Metro Map' },
+  { id: 'quick', label: '快速選擇' },
+  { id: 'stations', label: '依車站數排序' },
+  { id: 'global', label: '全球地鐵地圖' },
 ]
 const tab = ref('stations')
 const stationSort = ref('desc')
@@ -84,7 +84,7 @@ function pick(entry, viewId) {
         <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
         <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
       </div>
-      <span class="gallery-count">{{ tiles.length }} 城市 · 每城 6 視圖</span>
+      <span class="gallery-count">{{ tiles.length }} 城市</span>
     </div>
 
     <div class="gallery-body">
@@ -136,9 +136,9 @@ function pick(entry, viewId) {
 .gallery-status code { font-size: 12px; background: hsl(var(--muted) / 0.6); padding: 1px 5px; border-radius: 4px; }
 .tile-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   align-content: start;
 }
-@container (max-width: 620px) { .tile-grid { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 460px) { .tile-grid { grid-template-columns: minmax(0, 1fr); } }
 </style>

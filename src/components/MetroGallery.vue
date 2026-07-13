@@ -19,9 +19,9 @@ onMounted(() => {
 })
 
 const TABS = [
-  { id: 'quick', label: 'Quick Selection' },
-  { id: 'stations', label: 'Sort by Station Count' },
-  { id: 'global', label: 'Global Metro Map' },
+  { id: 'quick', label: '快速選擇' },
+  { id: 'stations', label: '依車站數排序' },
+  { id: 'global', label: '全球地鐵地圖' },
 ]
 const tab = ref('stations')
 const stationSort = ref('desc')

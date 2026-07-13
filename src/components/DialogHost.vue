@@ -132,6 +132,18 @@ function d3Meta(l) {
   const src = l.sourceLayerId ? store.layers.find((s) => s.id === l.sourceLayerId) : l
   return src?.stationCount ? `${src.stationCount} 站 · ${src.lineCount} 線` : ''
 }
+// 「城市 · 國家」標籤——沿來源鏈追到 metro 圖層（d3→metro、hillclimb→d3→metro），
+// 與 gallery 九宮格/六宮格的標題一致。檔案匯入的 d3（無來源）退回圖層名。
+function cityLabel(l) {
+  let cur = l
+  const seen = new Set()
+  while (cur && cur.type !== 'metro' && cur.sourceLayerId && !seen.has(cur.id)) {
+    seen.add(cur.id)
+    cur = store.layers.find((s) => s.id === cur.sourceLayerId)
+  }
+  const city = cur?.city ?? l.name
+  return cur?.country ? `${city} · ${cur.country}` : city
+}
 function addHillClimbView(src, variant) {
   const hcLayer = store.addHillClimbLayer(src.id, variant)
   if (!hcLayer) return
@@ -252,7 +264,7 @@ const shortcuts = [
         <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
 
         <template v-else>
-          <!-- Quick Selection：依洲別分組，每組九宮格一排 5 個 -->
+          <!-- Quick Selection：依洲別分組，每組一排 3 個 -->
           <div v-if="dialog === 'import-quick'" class="quick-groups">
             <div v-for="g in quickByContinent" :key="g.continent" class="quick-group">
               <div class="quick-group-title">{{ g.label }}</div>
@@ -378,8 +390,7 @@ const shortcuts = [
               class="quick-cell"
               @click="addD3View(l)"
             >
-              <span class="quick-zh">{{ l.name }}</span>
-              <span class="quick-country">{{ l.countryZh ?? l.country ?? '' }}</span>
+              <span class="quick-zh">{{ cityLabel(l) }}</span>
               <span class="quick-meta">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
             </button>
           </div>
@@ -419,7 +430,7 @@ const shortcuts = [
           <!-- 同一城市同一排：城市名 + 原始/旋轉兩個變體並排 -->
           <div class="hc-city-list">
             <div v-for="l in d3LayerChoices" :key="l.id" class="hc-city-row">
-              <span class="hc-city-name">{{ l.name }}</span>
+              <span class="hc-city-name">{{ cityLabel(l) }}</span>
               <span class="hc-city-meta">{{ d3Meta(l) }}</span>
               <button
                 v-for="v in HC_VARIANTS"
@@ -455,7 +466,7 @@ const shortcuts = [
               class="quick-cell"
               @click="addRwdView(l)"
             >
-              <span class="quick-zh">{{ l.name }}</span>
+              <span class="quick-zh">{{ cityLabel(l) }}</span>
               <span class="quick-country">縮減網格</span>
               <span class="quick-meta">{{ hcMeta(l) }}</span>
             </button>
@@ -707,9 +718,10 @@ const shortcuts = [
 }
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
+@media (max-width: 460px) { .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .quick-cell {
   display: flex;
   flex-direction: column;

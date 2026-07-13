@@ -48,8 +48,7 @@ onBeforeUnmount(() => observer?.disconnect())
     <div class="ngrid">
       <!-- title cell -->
       <button class="cell title-cell" :title="`建立 ${entry.city} Map Adjust 視圖`" @click="emit('pick', entry)">
-        <span class="tc-city">{{ entry.city }}</span>
-        <span class="tc-sub">{{ entry.country }}</span>
+        <span class="tc-city">{{ entry.city }} · {{ entry.country }}</span>
         <span class="tc-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
         <span class="tc-open">建立 Map Adjust ›</span>
       </button>

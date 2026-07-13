@@ -37,7 +37,12 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 要再改判準必須先更新本文件。
 
 **LRT 範圍規則（build 端，使用者指定）**——LRT 線進入城市檔的條件：
-1. **附加 LRT 的城市**：城市檔「附加」LRT 線（哪些城市見 [[metro-cities]]，如台北／高雄）。
+1. **附加 LRT 的城市**（`LRT_ADDON_CITIES`）：城市檔「附加」LRT 線（哪些城市見
+   [[metro-cities]]，如台北／高雄／**新加坡**）。新加坡 Sengkang（SKLRT）是 `route=light_rail`
+   （基準查詢抓得到，靠此規則保留）；但 **Bukit Panjang（BPLRT）／Punggol（PGLRT）標
+   `route=monorail`**，不在基準查詢——由 `scripts/fetchSingaporeLrt.mjs`（`npm run metro:fetchsglrt`）
+   補抓（route=monorail＋名稱含 LRT，**排除 Changi 機場 Skytrain**）。monorail 非 `light_rail`
+   → 不被 lrtOnly 標記 → 自動保留、不受 LRT 範圍規則剔除。
 2. **其他 Wikipedia 基準城市**：僅當該城**完全沒有 subway 線**、其 metro 系統本身就是
    LRT tagging（Vancouver SkyTrain、澳門輕軌、德國 Stadtbahn…）→ 整系統保留。
 3. **其他情況的純 LRT 線**（有 subway 的城市之附掛輕軌、非基準的純 LRT 系統）→ 原則剔除，
