@@ -120,15 +120,22 @@ function pick(entry, viewId) {
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-.sort-toggle { display: flex; gap: 2px; margin-left: 10px; }
-.sort-btn {
-  padding: 3px 10px;
-  font-size: 12px;
+/* segmented group button：多到少／少到多 併成一組 */
+.sort-toggle {
+  display: inline-flex;
+  margin-left: 10px;
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 3px);
-  color: hsl(var(--muted-foreground));
+  overflow: hidden;
 }
-.sort-btn.active { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
+.sort-btn {
+  padding: 3px 12px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  border-right: 1px solid hsl(var(--border));
+}
+.sort-btn:last-child { border-right: none; }
+.sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
 .gallery-count { margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
 .gallery-body { flex: 1; overflow-y: auto; padding: 16px; container-type: inline-size; }
 .gallery-status { padding: 32px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px; line-height: 1.7; }

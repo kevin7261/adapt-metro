@@ -5,7 +5,7 @@ import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
-import { layerData } from '../stores/layerData'
+import { layerData, localizeStationNames } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
@@ -111,6 +111,8 @@ const hcMode = computed(() =>
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
 // 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
 const llmMode = computed(() => isHC.value && mode.value.startsWith('hc-llm'))
+// RWD 也能建立在「LLM 對齊縮減」之上（layer.compact === 'llm'）→ 同樣走載檔案路徑。
+const useLlm = computed(() => llmMode.value || (isRWD.value && layer.value?.compact === 'llm'))
 const llmInfo = ref(null)  // { rounds, model } once loaded
 const llmStats = ref(null) // the whole llmview file (stats + prompt + transcript)
 const llmMsg = ref(null)   // hint when the result is missing / stale
@@ -196,7 +198,12 @@ const POST_KIND = {
   'hc-rect-compact': 'rect', 'hc-align-compact': 'align', 'hc-ilp-compact': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
-const postKind = computed(() => (isHC.value ? POST_KIND[mode.value] ?? null : null))
+// RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
+// 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
+const postKind = computed(() =>
+  isHC.value ? POST_KIND[mode.value] ?? null
+    : isRWD.value && ['rect', 'align', 'ilp'].includes(layer.value?.compact) ? layer.value.compact
+      : null)
 // 縮減網格 (4 tabs): drop empty (colour-free) grid rows/columns from the
 // hill-climbing layout or from one of the three post-pass layouts — smaller
 // grid, identical topology (rank order preserved by compactGrid).
@@ -315,7 +322,7 @@ async function sourceData() {
   try {
     const res = await fetch(src.file)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
+    const data = localizeStationNames(await res.json())
     layerData[src.id] = data
     return data
   } catch (err) {
@@ -426,7 +433,7 @@ async function render() {
     // 第四種「LLM 對齊」: precomputed offline (skill route-llm-align) — fetch
     // the llmview for this city+variant and verify it matches THIS dataset's
     // HC result (fingerprint), otherwise explain how to (re)generate it.
-    if (llmMode.value) {
+    if (useLlm.value) {
       // 執行中：不畫任何佈局，canvas 留白給執行中 overlay 蓋上（已在 render
       // 開頭 remove 全部節點），跑完 poll 會清 cachedLlm 再 render 出新結果。
       if (llmRun.value === 'running') return
@@ -463,7 +470,7 @@ async function render() {
     if (hcCompact.value) {
       // compacts the CURRENT layout: the HC result, or the post-pass/LLM one
       // when this is one of the 縮減 tabs (cells already swapped above).
-      const ckey = llmMode.value ? 'llm' : postKind.value ?? 'hc'
+      const ckey = useLlm.value ? 'llm' : postKind.value ?? 'hc'
       if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
       cells = cachedCompact[ckey].cellAfter
       nC = cachedCompact[ckey].cols

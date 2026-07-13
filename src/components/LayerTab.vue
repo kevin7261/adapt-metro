@@ -3,7 +3,7 @@ import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import maplibregl from 'maplibre-gl'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import { layerData, boundsOfGeojson } from '../stores/layerData'
+import { layerData, boundsOfGeojson, localizeStationNames } from '../stores/layerData'
 import {
   DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
   basemapById, basemapGroups, styleFor, solidStyle,
@@ -174,7 +174,7 @@ async function addMetroLayers(fit) {
       // rebuilt data file shows up on reload instead of a stale HTTP-cached copy.
       const res = await fetch(l.file, { cache: 'no-cache' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      data = await res.json()
+      data = localizeStationNames(await res.json())
       layerData[l.id] = data
     } catch (err) {
       loading.value = false

@@ -91,16 +91,20 @@ const selectedEntries = computed(() => {
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
 
-// Pass-through relation (chord-proximity, skeleton.js): routes passing each
-// station + stations each route passes. Computed once per dataset.
+// Pass-through relation (chord-proximity, skeleton.js): per-station stop/pass
+// routes + per-route merged station order. Computed once per dataset.
 const passThrough = computed(() => {
   const d = layerData[layer.value?.id]
   return d ? computePassThrough(d) : null
 })
-// Station object: routes that PASS this station without stopping.
+// Station object: routes that STOP here vs PASS here without stopping.
+const stopRoutes = computed(() => {
+  const sid = selectedProps.value?.station_id
+  return (sid && passThrough.value?.stopByStation.get(sid)) || []
+})
 const passRoutes = computed(() => {
   const sid = selectedProps.value?.station_id
-  return (sid && passThrough.value?.byStation.get(sid)) || []
+  return (sid && passThrough.value?.passByStation.get(sid)) || []
 })
 // The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
 watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
@@ -133,11 +137,12 @@ const selectedRouteLists = computed(() => {
     name: r.route_name ?? r.route_id,
     ref: r.route_ref,
     color: r.route_color ?? '#e11d48',
-    stations: r.stations ?? [],
-    // stations 保序不去重（支線接續站/環線閉合站重複出現）——計數用唯一站數
+    // Merged order: stops + 通過不停(pass:true) interleaved by position; falls
+    // back to the raw stop list if the pass-through map isn't ready.
+    stations: passThrough.value?.seqByRoute.get(r.route_id)
+      ?? (r.stations ?? []).map((s) => ({ ...s, pass: false })),
+    // 站數只算停靠站（保序不去重——支線接續/環線閉合站重複）
     uniqueCount: new Set((r.stations ?? []).map((s) => s.station_id)).size,
-    // 通過但不停靠的車站（跳站特快共軌，chord-proximity）
-    passStations: passThrough.value?.byRoute.get(r.route_id) ?? [],
   }))
 })
 
@@ -783,7 +788,7 @@ function startResize(e) {
           <div v-if="!selectedEntries.length" class="obj-empty">
             點地圖上的物件以檢視其屬性
           </div>
-          <!-- 路段：每條行經 route 的車站列表（依站序，與圖面一致——audit 不變式保證） -->
+          <!-- 路段：站序中同時列停靠與通過(不停)站，pass 站標記、灰字並排在正確位置 -->
           <template v-for="rt in selectedRouteLists" :key="rt.route_id">
             <div class="obj-route-head">
               <span class="line-swatch" :style="{ background: rt.color }" />
@@ -792,20 +797,21 @@ function startResize(e) {
               <span class="obj-route-count">停靠 {{ rt.uniqueCount }} 站</span>
             </div>
             <ol class="obj-station-list">
-              <li v-for="st in rt.stations" :key="st.station_id">{{ st.station_name }}</li>
+              <li v-for="(st, i) in rt.stations" :key="`${st.station_id}-${i}`" :class="{ 'st-pass': st.pass }">
+                {{ st.station_name }}<span v-if="st.pass" class="obj-pass-tag">pass</span>
+              </li>
             </ol>
-            <!-- 通過但不停靠的車站（跳站特快共軌） -->
-            <template v-if="rt.passStations.length">
-              <div class="obj-pass-sub">通過（不停靠） {{ rt.passStations.length }} 站</div>
-              <ol class="obj-station-list obj-pass-list">
-                <li v-for="st in rt.passStations" :key="st.station_id">{{ st.station_name }}</li>
-              </ol>
-            </template>
           </template>
-          <!-- 行經但不停靠此站的路線（跳站特快共軌）—— 標記 pass -->
-          <div v-if="passRoutes.length" class="obj-pass">
-            <div class="obj-route-head">行經（不停靠）</div>
-            <div v-for="r in passRoutes" :key="r.route_name" class="obj-pass-row">
+          <!-- 車站：停靠此站的路線 + 行經(不停靠)的路線 -->
+          <div v-if="stopRoutes.length || passRoutes.length" class="obj-pass">
+            <div v-if="stopRoutes.length" class="obj-pass-sub">停靠路線</div>
+            <div v-for="r in stopRoutes" :key="`s-${r.route_name}`" class="obj-pass-row">
+              <span class="line-swatch" :style="{ background: r.route_color ?? '#e11d48' }" />
+              <span v-if="r.route_ref" class="line-ref">{{ r.route_ref }}</span>
+              <span class="obj-route-name">{{ r.route_name ?? '—' }}</span>
+            </div>
+            <div v-if="passRoutes.length" class="obj-pass-sub">行經（不停靠）</div>
+            <div v-for="r in passRoutes" :key="`p-${r.route_name}`" class="obj-pass-row">
               <span class="line-swatch" :style="{ background: r.route_color ?? '#e11d48' }" />
               <span v-if="r.route_ref" class="line-ref">{{ r.route_ref }}</span>
               <span class="obj-route-name">{{ r.route_name ?? '—' }}</span>
@@ -959,9 +965,9 @@ function startResize(e) {
   margin-left: auto; flex-shrink: 0;
   font-weight: 400; font-size: 11px; color: hsl(var(--muted-foreground));
 }
-/* 通過（不停靠）站列表 */
-.obj-pass-sub { margin: 2px 0 2px; font-size: 11.5px; font-weight: 600; color: hsl(var(--muted-foreground)); }
-.obj-pass-list { color: hsl(var(--muted-foreground)); }
+/* 站序中的通過(不停)站：灰字 + pass 標記 */
+.obj-station-list .st-pass { color: hsl(var(--muted-foreground)); }
+.obj-pass-sub { margin: 8px 0 2px; font-size: 11.5px; font-weight: 600; color: hsl(var(--muted-foreground)); }
 /* 行經（不停靠）路線 */
 .obj-pass { margin: 6px 0 10px; }
 .obj-pass-row {

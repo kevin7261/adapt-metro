@@ -132,9 +132,9 @@ function d3Meta(l) {
   const src = l.sourceLayerId ? store.layers.find((s) => s.id === l.sourceLayerId) : l
   return src?.stationCount ? `${src.stationCount} 站 · ${src.lineCount} 線` : ''
 }
-// 「城市 · 國家」標籤——沿來源鏈追到 metro 圖層（d3→metro、hillclimb→d3→metro），
-// 與 gallery 九宮格/六宮格的標題一致。檔案匯入的 d3（無來源）退回圖層名。
-function cityLabel(l) {
+// 城市中英文標籤——沿來源鏈追到 metro 圖層（d3→metro、hillclimb→d3→metro），中文由
+// catalog（含 cityZh/countryZh）以城市名對應。回傳 { zh:'城市·國家', en:'City · Country' }。
+function cityParts(l) {
   let cur = l
   const seen = new Set()
   while (cur && cur.type !== 'metro' && cur.sourceLayerId && !seen.has(cur.id)) {
@@ -142,7 +142,10 @@ function cityLabel(l) {
     cur = store.layers.find((s) => s.id === cur.sourceLayerId)
   }
   const city = cur?.city ?? l.name
-  return cur?.country ? `${city} · ${cur.country}` : city
+  const en = cur?.country ? `${city} · ${cur.country}` : city
+  const cat = catalog.value?.find((s) => s.city === city)
+  const zh = cat ? `${cat.cityZh ?? cat.city} · ${cat.countryZh ?? cat.country}` : ''
+  return { zh, en }
 }
 function addHillClimbView(src, variant) {
   const hcLayer = store.addHillClimbLayer(src.id, variant)
@@ -156,16 +159,25 @@ function addHillClimbView(src, variant) {
 /* Add RWD Maps view — source = a Hill Climbing view's 縮減網格 layout,
    redrawn with strict H/V/45° polylines (版面路網畫線規則). */
 const hcLayerChoices = computed(() => store.layers.filter((l) => l.type === 'hillclimb'))
+// RWD 可建立在任一「縮減網格」變體之上（對應 D3Tab 的後處理 + compactGrid）。
+const RWD_VARIANTS = [
+  { id: 'hc', label: '縮減網格' },
+  { id: 'rect', label: '直角爬山縮減' },
+  { id: 'align', label: '軸對齊縮減' },
+  { id: 'ilp', label: '整數規劃縮減' },
+  { id: 'llm', label: 'LLM 對齊縮減' },
+]
 function hcMeta(l) {
   const d3l = store.layers.find((s) => s.id === l.sourceLayerId)
   return d3l ? d3Meta(d3l) : ''
 }
-function addRwdView(src) {
-  const rwdLayer = store.addRwdLayer(src.id)
+function addRwdView(src, compact = 'hc') {
+  const rwdLayer = store.addRwdLayer(src.id, compact)
   if (!rwdLayer) return
   openLayerTab(rwdLayer)
   close()
-  store.toast(`已建立 RWD Maps 視圖（來源：${src.name} 縮減網格）`)
+  const vLabel = RWD_VARIANTS.find((v) => v.id === compact)?.label ?? '縮減網格'
+  store.toast(`已建立 RWD Maps 視圖（來源：${src.name} ${vLabel}）`)
 }
 
 /* Quick Selection — 常用城市 */
@@ -277,8 +289,7 @@ const shortcuts = [
                   :title="q.sys ? '' : '資料集中找不到此城市'"
                   @click="importSystem(q.sys)"
                 >
-                  <span class="quick-zh">{{ q.zh }}</span>
-                  <span class="quick-country">{{ q.sys?.countryZh ?? '' }}</span>
+                  <span class="quick-zh">{{ q.zh }}<template v-if="q.sys?.countryZh"> · {{ q.sys.countryZh }}</template></span>
                   <span class="quick-en">{{ q.en }}<template v-if="q.sys?.country"> · {{ q.sys.country }}</template></span>
                   <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
                 </button>
@@ -288,9 +299,11 @@ const shortcuts = [
 
           <!-- Sort by Station Count -->
           <template v-else-if="dialog === 'import-stations'">
-            <div class="sort-toggle">
-              <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
-              <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
+            <div class="sort-bar">
+              <div class="sort-toggle">
+                <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
+                <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
+              </div>
               <span class="sort-meta">{{ byStations.length }} 個系統</span>
             </div>
             <div class="quick-grid">
@@ -301,8 +314,7 @@ const shortcuts = [
                 @click="importSystem(s)"
               >
                 <span class="quick-rank">#{{ i + 1 }}</span>
-                <span class="quick-zh">{{ s.cityZh ?? s.city }}</span>
-                <span class="quick-country">{{ s.countryZh ?? s.country }}</span>
+                <span class="quick-zh">{{ s.cityZh ?? s.city }} · {{ s.countryZh ?? s.country }}</span>
                 <span class="quick-en">{{ s.city }} · {{ s.country }}</span>
                 <span class="quick-meta">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
               </button>
@@ -383,16 +395,15 @@ const shortcuts = [
         </div>
         <template v-else>
           <p class="add-d3-hint">選擇一個 metro map 圖層作為 D3.js 視圖的資料來源（建立後不可更改）：</p>
-          <div class="quick-grid">
-            <button
-              v-for="l in metroLayerChoices"
-              :key="l.id"
-              class="quick-cell"
-              @click="addD3View(l)"
-            >
-              <span class="quick-zh">{{ cityLabel(l) }}</span>
-              <span class="quick-meta">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
-            </button>
+          <div class="hc-city-list">
+            <div v-for="l in metroLayerChoices" :key="l.id" class="hc-city-row">
+              <div class="hc-city-name">
+                <span class="hc-city-zh">{{ cityParts(l).zh || cityParts(l).en }}</span>
+                <span v-if="cityParts(l).zh" class="hc-city-en">{{ cityParts(l).en }}</span>
+              </div>
+              <span class="hc-city-meta">{{ l.stationCount }} 站 · {{ l.lineCount }} 線</span>
+              <button class="hc-variant-btn" @click="addD3View(l)">建立</button>
+            </div>
           </div>
         </template>
 
@@ -430,7 +441,10 @@ const shortcuts = [
           <!-- 同一城市同一排：城市名 + 原始/旋轉兩個變體並排 -->
           <div class="hc-city-list">
             <div v-for="l in d3LayerChoices" :key="l.id" class="hc-city-row">
-              <span class="hc-city-name">{{ cityLabel(l) }}</span>
+              <div class="hc-city-name">
+                <span class="hc-city-zh">{{ cityParts(l).zh || cityParts(l).en }}</span>
+                <span v-if="cityParts(l).zh" class="hc-city-en">{{ cityParts(l).en }}</span>
+              </div>
               <span class="hc-city-meta">{{ d3Meta(l) }}</span>
               <button
                 v-for="v in HC_VARIANTS"
@@ -456,20 +470,23 @@ const shortcuts = [
         </div>
         <template v-else>
           <p class="add-d3-hint">
-            選擇 Hill Climbing 視圖——其「縮減網格」佈局將以 H/V/45° 折線重繪
+            選擇 Hill Climbing 視圖與縮減網格變體——該佈局將以 H/V/45° 折線重繪
             （版面路網畫線規則，建立後不可更改）：
           </p>
-          <div class="quick-grid">
-            <button
-              v-for="l in hcLayerChoices"
-              :key="l.id"
-              class="quick-cell"
-              @click="addRwdView(l)"
-            >
-              <span class="quick-zh">{{ cityLabel(l) }}</span>
-              <span class="quick-country">縮減網格</span>
-              <span class="quick-meta">{{ hcMeta(l) }}</span>
-            </button>
+          <div class="hc-city-list">
+            <div v-for="l in hcLayerChoices" :key="l.id" class="hc-city-row">
+              <div class="hc-city-name">
+                <span class="hc-city-zh">{{ cityParts(l).zh || cityParts(l).en }}</span>
+                <span v-if="cityParts(l).zh" class="hc-city-en">{{ cityParts(l).en }}</span>
+              </div>
+              <span class="hc-city-meta">{{ hcMeta(l) }}</span>
+              <button
+                v-for="v in RWD_VARIANTS"
+                :key="`${l.id}-${v.id}`"
+                class="hc-variant-btn"
+                @click="addRwdView(l, v.id)"
+              >{{ v.label }}</button>
+            </div>
           </div>
         </template>
       </div>
@@ -612,7 +629,7 @@ const shortcuts = [
 <style scoped>
 /* Import Metro Map: one tabbed modal. Fixed width so switching tabs (grid /
    list / miller columns) doesn't resize the dialog. */
-.import-modal { width: min(720px, calc(100vw - 32px)); }
+.import-modal { width: min(960px, calc(100vw - 32px)); }
 .dialog-tabs {
   display: flex;
   gap: 2px;
@@ -633,7 +650,7 @@ const shortcuts = [
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-.add-d3 { width: min(720px, calc(100vw - 32px)); }
+.add-d3 { width: min(960px, calc(100vw - 32px)); }
 /* Add Straighten：同一城市一排，原始/旋轉兩個變體並排 */
 .hc-city-list {
   display: flex;
@@ -651,7 +668,10 @@ const shortcuts = [
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px);
 }
-.hc-city-name { font-weight: 600; font-size: 13px; white-space: nowrap; }
+/* 城市名中英文分兩排 */
+.hc-city-name { display: flex; flex-direction: column; gap: 1px; }
+.hc-city-zh { font-weight: 600; font-size: 13px; white-space: nowrap; }
+.hc-city-en { font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 .hc-city-meta { font-size: 11px; color: hsl(var(--muted-foreground)); margin-right: auto; white-space: nowrap; }
 .hc-variant-btn {
   padding: 5px 12px;
@@ -668,27 +688,22 @@ const shortcuts = [
 
 /* 依車站數排序 */
 .stations-body { display: flex; flex-direction: column; min-height: 0; }
+.sort-bar { display: flex; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
+/* segmented group button：與 gallery 一致——多到少／少到多 併成一組 */
 .sort-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
-  flex-shrink: 0;
+  display: inline-flex;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 3px);
+  overflow: hidden;
 }
 .sort-btn {
-  padding: 5px 14px;
-  font-size: 12.5px;
-  border: 1px solid hsl(var(--border));
-  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 12px;
   color: hsl(var(--muted-foreground));
+  border-right: 1px solid hsl(var(--border));
 }
-.sort-btn:hover { background: hsl(var(--accent)); }
-.sort-btn.active {
-  background: hsl(var(--primary) / 0.12);
-  border-color: hsl(var(--primary));
-  color: hsl(var(--primary));
-  font-weight: 500;
-}
+.sort-btn:last-child { border-right: none; }
+.sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
 .sort-meta { margin-left: auto; font-size: 11.5px; color: hsl(var(--muted-foreground)); }
 .stations-list {
   flex: 1;
@@ -718,10 +733,10 @@ const shortcuts = [
 }
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
-@media (max-width: 460px) { .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .quick-cell {
   display: flex;
   flex-direction: column;

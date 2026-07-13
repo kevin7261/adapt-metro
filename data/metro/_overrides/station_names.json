@@ -1,6 +1,13 @@
 {
  "_comment": "人工站名補正（站名 100% 不變式的裁決出口）：上游 OSM 無名、但 wiki 可查得名稱的站點。key=node id（n 前綴或純數字皆可）、value=站名（當地語言為主）。查無名稱的站點不要編造——用 pruneDeletedStations 驗證是否上游已刪，或人工判定剔除。",
  "names": {
+  "_sydney_central": "雪梨 Central 上游拆成 Platform 26/27（Metro）＋ Chalmers Street（Sydney Trains，4 節點）多個異名節點，全部改名 Central → 同名近距合併成一站",
+  "n5851315775": "Central",
+  "n11581307563": "Central",
+  "n6914569337": "Central",
+  "n6914569338": "Central",
+  "n11508285800": "Central",
+  "n740050932": "Central",
   "n891180455": "富丰桥",
   "n891180464": "红莲南路",
   "n1016804242": "首经贸",

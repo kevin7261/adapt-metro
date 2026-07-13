@@ -352,10 +352,10 @@ export function buildConnectSkeleton(geojson) {
 // Pass-through relation (物件 tab 用): a route whose track PASSES a station it
 // doesn't stop at — an express skipping a local's stop (HK Airport Express
 // passes 欣澳/荔景…). Same chord-proximity test the skeleton uses to merge
-// express corridors, but exposed for display. Pure function. Returns
-//   { byStation: Map<station_id, [{route_ref, route_name, route_color}]>,   // routes PASSING a station
-//     byRoute:   Map<route_id,   [{station_id, station_name}]>,             // stations a route passes
-//     stopByStation: Map<station_id, [{route_ref, route_name, route_color}]> } // routes STOPPING at a station
+// express corridors, but exposed for display. Pure function. Returns:
+//   stopByStation: Map<station_id, [{route_ref, route_name, route_color}]>  routes STOPPING here
+//   passByStation: Map<station_id, [{route_ref, route_name, route_color}]>  routes PASSING here (no stop)
+//   seqByRoute:    Map<route_id, [{station_id, station_name, pass}]>        merged station order, pass=通過不停
 export function computePassThrough(geojson, opts = {}) {
   const PERP = opts.perp ?? 0.08
   const coord = new Map()
@@ -378,37 +378,40 @@ export function computePassThrough(geojson, opts = {}) {
     }
   }
   const stationIds = [...coord.keys()]
-  const pairs = [] // [routeId, stationId] passes
+  const stopByStation = new Map()
+  const passByStation = new Map()
+  const seqByRoute = new Map()
+  const add = (map, key, val) => { if (!map.has(key)) map.set(key, []); map.get(key).push(val) }
   for (const [rid, rt] of routes) {
+    const meta = { route_ref: rt.ref, route_name: rt.name, route_color: rt.color }
+    for (const sid of new Set(rt.stations)) add(stopByStation, sid, meta)
     const stops = new Set(rt.stations)
+    const seq = rt.stations.length
+      ? [{ station_id: rt.stations[0], station_name: nameById.get(rt.stations[0]), pass: false }]
+      : []
     for (let i = 1; i < rt.stations.length; i++) {
-      const pA = coord.get(rt.stations[i - 1]), pB = coord.get(rt.stations[i])
+      const A = rt.stations[i - 1], B = rt.stations[i]
+      const pA = coord.get(A), pB = coord.get(B)
       const dx = pB[0] - pA[0], dy = pB[1] - pA[1], len2 = dx * dx + dy * dy
-      if (len2 < 1e-18) continue
-      const chord = Math.sqrt(len2)
-      for (const s of stationIds) {
-        if (stops.has(s)) continue
-        const P = coord.get(s)
-        const t = ((P[0] - pA[0]) * dx + (P[1] - pA[1]) * dy) / len2
-        if (t <= 0.02 || t >= 0.98) continue
-        if (Math.hypot(P[0] - (pA[0] + t * dx), P[1] - (pA[1] + t * dy)) <= PERP * chord) {
-          pairs.push([rid, s])
+      const mids = []
+      if (len2 > 1e-18) {
+        const chord = Math.sqrt(len2)
+        for (const s of stationIds) {
+          if (stops.has(s)) continue
+          const P = coord.get(s)
+          const t = ((P[0] - pA[0]) * dx + (P[1] - pA[1]) * dy) / len2
+          if (t <= 0.02 || t >= 0.98) continue
+          if (Math.hypot(P[0] - (pA[0] + t * dx), P[1] - (pA[1] + t * dy)) <= PERP * chord) mids.push({ s, t })
         }
+        mids.sort((p, q) => p.t - q.t)
       }
+      for (const m of mids) {
+        seq.push({ station_id: m.s, station_name: nameById.get(m.s), pass: true })
+        add(passByStation, m.s, meta)
+      }
+      seq.push({ station_id: B, station_name: nameById.get(B), pass: false })
     }
+    seqByRoute.set(rid, seq)
   }
-  const byStation = new Map()
-  const byRoute = new Map()
-  const seen = new Set()
-  for (const [rid, sid] of pairs) {
-    const k = `${rid}|${sid}`
-    if (seen.has(k)) continue
-    seen.add(k)
-    const r = routes.get(rid)
-    if (!byStation.has(sid)) byStation.set(sid, [])
-    byStation.get(sid).push({ route_ref: r.ref, route_name: r.name, route_color: r.color })
-    if (!byRoute.has(rid)) byRoute.set(rid, [])
-    byRoute.get(rid).push({ station_id: sid, station_name: nameById.get(sid) })
-  }
-  return { byStation, byRoute }
+  return { stopByStation, passByStation, seqByRoute }
 }

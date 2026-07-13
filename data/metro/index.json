@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 224,
   "wikipedia_system_count": 233,
-  "line_total": 1485,
-  "station_total": 17123,
+  "line_total": 1483,
+  "station_total": 17121,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -676,8 +676,8 @@
       "official_map": "https://en.wikipedia.org/wiki/Dulwich_Hill_Line",
       "wikidata": "Q14543324",
       "line_count": 15,
-      "segment_count": 33,
-      "station_count": 178,
+      "segment_count": 31,
+      "station_count": 176,
       "audit": {
         "strategies_tried": [],
         "passed": true,

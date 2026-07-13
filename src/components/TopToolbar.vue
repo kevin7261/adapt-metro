@@ -2,6 +2,11 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import MIcon from './MIcon.vue'
 
+// Brand links to the app root — clicking reloads the whole app (fresh session,
+// re-applies store migrations + data localisation). BASE_URL matches the Vite
+// base (GitHub Pages: /adapt-metro/).
+const homeUrl = import.meta.env.BASE_URL
+
 /* ---- Info dropdown ---- */
 const infoOpen = ref(false)
 const infoWrap = ref(null)
@@ -32,14 +37,14 @@ onBeforeUnmount(() => {
 
 <template>
   <header class="toolbar">
-    <div class="brand">
+    <a class="brand" :href="homeUrl" title="重新載入">
       <MIcon name="map" :size="16" />
       <span class="brand-name">Adapt-Metro</span>
-    </div>
+    </a>
 
     <div ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
-        資訊
+        相關連結
       </button>
       <div v-if="infoOpen" class="menu-pop info-menu">
         <div class="menu-label">相關連結</div>
@@ -80,6 +85,7 @@ onBeforeUnmount(() => {
   color: hsl(var(--primary));
   white-space: nowrap;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
 .skills-wrap { position: relative; }

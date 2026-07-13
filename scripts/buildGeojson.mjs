@@ -343,7 +343,10 @@ async function build() {
     // 墓碑判準是「上游還在且還有名字」——被 station_names 人工補名的站
     // 本來就是「存在但無名」，不得被墓碑誤殺（人工裁決優先）
     if (e.type === 'node' && tombstones.has(e.id) && !ov) return
-    if (ov && !(e.tags || {}).name) e.tags = { ...(e.tags || {}), name: ov }
+    // station_names.json 是站名的權威裁決出口——**覆寫**既有名（不只補無名）：
+    // 上游把同一站拆成多個異名節點時（雪梨 Central 的 Platform 26/27、Chalmers
+    // Street），統一改成同名 → 同名近距合併成一站。
+    if (ov) e.tags = { ...(e.tags || {}), name: ov }
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }

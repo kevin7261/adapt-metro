@@ -45,8 +45,11 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   红庙／福寿岭／八角游乐园、成都天府机场3/4航站楼＋2 號線停運段、重庆玉河沟、紹興张墅、
   蘇州白荡南、天津咸水沽北、鄭州须水、Pune Range Hills——OSM 標營運但 wiki 證實未開通/
   封站/停運。
-- **無名站補名（`station_names.json`）**：Seoul／Istanbul／Wuhan／Marseille／Montreal／
-  Recife／Doha 等的上游無名站，由 agent 查 wiki 站序命名（豁免墓碑）。
+- **站名裁決（`station_names.json`，key=node id → 站名，會**覆寫**既有名）**：Seoul／
+  Istanbul／Wuhan／Marseille／Montreal／Recife／Doha 等的上游無名站補名（豁免墓碑）；
+  **亦用於統一異名節點**——上游把同一站拆成多個異名點時（雪梨 **Central**：Metro 的
+  Platform 26/27 ＋ Sydney Trains 的 Chalmers Street 共 7 個節點），全部改成同名
+  「Central」→ 同名近距（≤800 m）自動合併成一站。
 - **逐線 wiki 站數裁決（`wiki_adjudications.json`，綁 city+wiki+ours）**：北京 1／4 號線、
   成都 2／10／17／18 號線、蘇州 11 號線、青島 13／4 號線、Moscow 索爾采沃線、Atlanta
   Green、平壤千里馬線 等——wiki infobox 過期或計法不同、我方資料正確者。
