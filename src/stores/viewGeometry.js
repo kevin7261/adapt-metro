@@ -108,15 +108,38 @@ export function computeCityViews(geojson, opts = {}) {
 
   const round = (p) => [+p[0].toFixed(1), +p[1].toFixed(1)]
 
+  // Feature-geometry lines = the ORIGINAL metro-map drawing (single route = solid
+  // colour, overlap = interleaved dashes). Shared by the geographic view AND every
+  // view whose nodes stay at geographic positions (骨架 / 格網化前) — those must
+  // look EXACTLY like 原始, so they draw the real folded polyline `path(f)`, never
+  // station-point edges (which straighten express skips into chords across empty
+  // space). Mirrors D3Tab.vue.
+  const featureLines = (projection) => {
+    const path = geoPath(projection)
+    const out = []
+    for (const f of lineFeats) {
+      const d = path(f)
+      if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) out.push(s)
+    }
+    return out
+  }
+  // Edge-class underlay along each edge's REAL folded geometry (e.geom) — hugs the
+  // line's curve instead of straightening skips. Geographic views only.
+  const geomHl = (projection) => {
+    const out = []
+    for (const e of skeleton.edges) {
+      if (!EDGE_HL[e.cls] || !(e.geom?.length >= 2)) continue
+      const parts = []
+      e.geom.forEach((c, i) => { const p = projection(c); if (p) parts.push(`${i ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`) })
+      if (parts.length >= 2) out.push({ d: parts.join(' '), color: EDGE_HL[e.cls] })
+    }
+    return out
+  }
+
   // --- Geographic view (original metro-map drawing) ---
   function geoView(angle) {
     const projection = projFor(angle)
-    const path = geoPath(projection)
-    const lines = []
-    for (const f of lineFeats) {
-      const d = path(f)
-      if (d) lines.push({ d, color: f.properties?.route_color ?? '#e11d48' })
-    }
+    const lines = featureLines(projection)
     const dots = []
     for (const f of stations) {
       const p = projection(f.geometry.coordinates)
@@ -140,25 +163,34 @@ export function computeCityViews(geojson, opts = {}) {
     const grid = withGrid ? buildSchematicGrid(skeleton, projById, extArr) : null
 
     const buildAt = (post, sep) => {
+      const geographic = !(grid && post) // nodes still at projById (骨架 / 格網化前)
       const posOf = (id) => (grid && post && grid.posAfter.get(id)) || projById.get(id)
-      const edgeD = (ids) => {
-        const parts = []
-        let started = false
-        for (const id of ids) {
-          const p = posOf(id)
-          if (!p) continue
-          parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
-          started = true
+      let lines, hl
+      if (geographic) {
+        // 骨架 / 格網化前 = 原始一模一樣的線（feature 幾何）＋沿 e.geom 的邊分類襯底。
+        lines = featureLines(projection)
+        hl = geomHl(projection)
+      } else {
+        // 格網化後：座標已搬到格子上，feature 幾何失效，改用車站點的拓撲邊。
+        const edgeD = (ids) => {
+          const parts = []
+          let started = false
+          for (const id of ids) {
+            const p = posOf(id)
+            if (!p) continue
+            parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
+            started = true
+          }
+          return parts.join(' ')
         }
-        return parts.join(' ')
-      }
-      const lines = []
-      const hl = []
-      for (const e of skeleton.edges) {
-        const d = edgeD(e.path)
-        if (!d) continue
-        for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
-        if (EDGE_HL[e.cls]) hl.push({ d, color: EDGE_HL[e.cls] })
+        lines = []
+        hl = []
+        for (const e of skeleton.edges) {
+          const d = edgeD(e.path)
+          if (!d) continue
+          for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
+          if (EDGE_HL[e.cls]) hl.push({ d, color: EDGE_HL[e.cls] })
+        }
       }
       const dots = []
       for (const f of stations) {
