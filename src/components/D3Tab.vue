@@ -77,8 +77,11 @@ function startNavResize(e) {
   navDragging.value = true
   const startX = e.clientX
   const startW = viewNavWidth.value
+  // 拖到極限：上限＝容器寬 − 留給畫布的一小條；下限縮到很小；不設固定 90/300。
+  const host = e.currentTarget?.parentElement
   const move = (ev) => {
-    viewNavWidth.value = Math.min(300, Math.max(90, startW + (ev.clientX - startX)))
+    const maxW = host ? Math.max(90, host.clientWidth - 80) : 600
+    viewNavWidth.value = Math.min(maxW, Math.max(40, startW + (ev.clientX - startX)))
   }
   const up = () => {
     navDragging.value = false
@@ -726,16 +729,40 @@ async function render() {
       // 拓撲邊 edgeD 畫，導致共線交錯樣式、合併方式跟格網化前不同，使用者回報「跟格網化
       // 前不一樣」。）非車站頂點（真實軌道折點）在格子上無對應 → 略過，格線間直連。
       const movedOf = (id) => (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || null
+      // A yellow crossing is a synthetic node sitting on a station→station segment
+      // (not a feature vertex). At grid/HC positions the feature would skip its
+      // cell → the yellow node floats off-line and the two routes stop meeting.
+      // So on each station segment, splice in any crossing that lies on it (route
+      // through its moved cell), keeping lines crossing exactly at the yellow node.
+      const crossPts = sk.crossings ?? []
+      const crossOnSeg = (A, B) => {
+        if (!crossPts.length) return []
+        const dx = B[0] - A[0], dy = B[1] - A[1], L2 = dx * dx + dy * dy
+        if (L2 < 1e-18) return []
+        const out = []
+        for (const c of crossPts) {
+          const ex = c.coord[0] - A[0], ey = c.coord[1] - A[1]
+          if (Math.abs(dx * ey - dy * ex) > 1e-8) continue // not collinear
+          const t = (ex * dx + ey * dy) / L2
+          if (t > 1e-3 && t < 1 - 1e-3) out.push({ t, id: c.id })
+        }
+        return out.sort((p, q) => p.t - q.t)
+      }
       const featMovedD = (f) => {
         const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
         const parts = []
         for (const seg of segs) {
-          let started = false
+          let started = false, prevC = null
           for (const c of seg) {
             const id = coordId.get(coordKey(c))
             const p = id != null ? movedOf(id) : null
             if (!p) continue
+            if (prevC) for (const x of crossOnSeg(prevC, c)) {
+              const xp = movedOf(x.id)
+              if (xp) parts.push(`L ${xp[0].toFixed(2)} ${xp[1].toFixed(2)}`)
+            }
             parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
+            prevC = c
           }
         }
         return parts.join(' ')

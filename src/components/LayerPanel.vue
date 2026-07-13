@@ -165,7 +165,9 @@ function startResize(e) {
   const startX = e.clientX
   const startW = store.layerPanelWidth
   const move = (ev) => {
-    store.layerPanelWidth = Math.min(560, Math.max(180, startW + ev.clientX - startX))
+    // 拖到極限：可一路拖到編輯區只剩一小條（不越過），另一邊縮到很小——不設固定上下限。
+    const maxW = Math.max(120, window.innerWidth - 80)
+    store.layerPanelWidth = Math.min(maxW, Math.max(44, startW + ev.clientX - startX))
   }
   const up = () => {
     dragging.value = false

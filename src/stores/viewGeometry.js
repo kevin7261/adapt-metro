@@ -42,6 +42,47 @@ function strokesOf(routeColors, color, d) {
   return [{ d, color: cols[0] ?? color ?? '#e11d48' }]
 }
 
+const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+
+// A line feature's polyline `d` at MOVED positions: map each station vertex via
+// movedOf, and splice in any yellow crossing lying on a station→station segment.
+// Features don't carry the synthetic crossing vertices, so without this the
+// crossing's grid/HC cell is skipped and its yellow node floats off the line /
+// the two routes stop meeting there. Non-station vertices (real track bends) have
+// no cell → dropped (grid is schematic anyway).
+function movedFeatD(f, coordId, movedOf, crossPts) {
+  const crossOnSeg = (A, B) => {
+    if (!crossPts.length) return []
+    const dx = B[0] - A[0], dy = B[1] - A[1], L2 = dx * dx + dy * dy
+    if (L2 < 1e-18) return []
+    const out = []
+    for (const c of crossPts) {
+      const ex = c.coord[0] - A[0], ey = c.coord[1] - A[1]
+      if (Math.abs(dx * ey - dy * ex) > 1e-8) continue
+      const t = (ex * dx + ey * dy) / L2
+      if (t > 1e-3 && t < 1 - 1e-3) out.push({ t, id: c.id })
+    }
+    return out.sort((p, q) => p.t - q.t)
+  }
+  const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+  const parts = []
+  for (const seg of segs) {
+    let started = false, prevC = null
+    for (const c of seg) {
+      const id = coordId.get(coordKey(c))
+      const p = id != null ? movedOf(id) : null
+      if (!p) continue
+      if (prevC) for (const x of crossOnSeg(prevC, c)) {
+        const xp = movedOf(x.id)
+        if (xp) parts.push(`L ${xp[0].toFixed(2)} ${xp[1].toFixed(2)}`)
+      }
+      parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
+      prevC = c
+    }
+  }
+  return parts.join(' ')
+}
+
 // Draw a view from an explicit id→[x,y] position map: the SAME line features as
 // the original/geographic drawing (single colour / interleaved co-line dashes),
 // only with each vertex's station re-placed via posMap — so a moved view (格網化
@@ -49,24 +90,13 @@ function strokesOf(routeColors, color, d) {
 // and co-line merging identical. Plus role-coloured station dots (+ yellow
 // crossings). `sep` = optional blue grid separators.
 function drawFromPos(skeleton, stations, lineFeats, posMap, sep) {
-  const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
   const coordId = new Map()
   for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
+  const crossPts = skeleton.crossings ?? []
   const lines = []
   const hl = []
   for (const f of lineFeats) {
-    const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
-    const parts = []
-    for (const seg of segs) {
-      let started = false
-      for (const c of seg) {
-        const id = coordId.get(coordKey(c))
-        const p = id != null ? posMap.get(id) : null
-        if (!p) continue
-        parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
-      }
-    }
-    const d = parts.join(' ')
+    const d = movedFeatD(f, coordId, (id) => posMap.get(id) ?? null, crossPts)
     if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) lines.push(s)
   }
   const dots = []
@@ -126,25 +156,15 @@ export function computeCityViews(geojson, opts = {}) {
     return out
   }
   // 格網化後 draws the SAME features, only with each vertex's STATION re-placed
-  // onto its grid cell (movedOf) — so 後 = 前 pixel-for-pixel, just snapped.
-  const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+  // onto its grid cell (movedOf) — so 後 = 前 pixel-for-pixel, just snapped. Yellow
+  // crossings on a station segment are spliced in (movedFeatD) so they don't float.
   const coordId = new Map()
   for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
+  const crossPts = skeleton.crossings ?? []
   const movedFeatureLines = (movedOf) => {
     const out = []
     for (const f of lineFeats) {
-      const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
-      const parts = []
-      for (const seg of segs) {
-        let started = false
-        for (const c of seg) {
-          const id = coordId.get(coordKey(c))
-          const p = id != null ? movedOf(id) : null
-          if (!p) continue
-          parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
-        }
-      }
-      const d = parts.join(' ')
+      const d = movedFeatD(f, coordId, movedOf, crossPts)
       if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) out.push(s)
     }
     return out

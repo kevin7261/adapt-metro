@@ -493,8 +493,11 @@ function startResize(e) {
   dragging.value = true
   const startX = e.clientX
   const startW = width.value
+  // 拖到極限：上限＝容器寬 − 留給畫布的一小條（不越過），下限縮到很小；不設固定 180/560。
+  const host = e.currentTarget?.parentElement
   const move = (ev) => {
-    width.value = Math.min(560, Math.max(180, startW - (ev.clientX - startX)))
+    const maxW = host ? Math.max(120, host.clientWidth - 80) : 2000
+    width.value = Math.min(maxW, Math.max(60, startW - (ev.clientX - startX)))
   }
   const up = () => {
     dragging.value = false
