@@ -242,6 +242,7 @@ const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
 // 重跑 buildRwdMap。'uniform' = 均勻網格（預設）。全部隨機每按一次整表重抽。
 const rwdWeightMode = ref('uniform') // 'uniform' | 'weight'
+const rwdShowWeights = ref(true)     // 是否顯示 weight 數字（開關）
 const rwdWeights = ref(new Map())    // segKey -> 1..9
 let rwdWeightSeq = 0                  // 重抽計數，併進 RWD 快取鍵
 let cachedSegs = null                 // 本資料的 cut-to-cut segs（供權重面板重抽）
@@ -299,6 +300,7 @@ function setRwdAutoShuffle(on) {
   }
 }
 function toggleRwdAutoShuffle() { setRwdAutoShuffle(!rwdAutoShuffle.value) }
+function setRwdShowWeights(on) { rwdShowWeights.value = on; render() }
 function setRwdHideStops(on) { rwdHideStops.value = on; cachedRWD = null; render() }
 function setRwdMinStopPx(px) {
   const v = Math.max(1, Math.round(+px || 5))
@@ -861,7 +863,7 @@ async function render() {
   // tab「最小站距」下方，讓使用者看到隱藏後實際撐開到多少（45° link 兩向都計）。
   if (isRWD.value && cachedSegs) {
     const hiddenW = (rwdLines && cachedRWD?.hidden) || null
-    const hasW = rwdWeights.value.size > 0
+    const hasW = rwdShowWeights.value && rwdWeights.value.size > 0
     const wg = hasW ? sel.append('g').attr('class', 'weight-layer').style('pointer-events', 'none') : null
     let minHigh = Infinity, minWide = Infinity
     for (const s of cachedSegs) {
@@ -1193,6 +1195,7 @@ onBeforeUnmount(() => {
       :llm-can-run="!!llmCityId"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
+      :show-weights="rwdShowWeights"
       :hide-stops="rwdHideStops"
       :min-stop-px="rwdMinStopPx"
       :stop-stat="rwdStopStat"
@@ -1200,6 +1203,7 @@ onBeforeUnmount(() => {
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"
+      @show-weights="setRwdShowWeights"
       @hide-stops="setRwdHideStops"
       @min-stop-px="setRwdMinStopPx"
     />

@@ -31,11 +31,12 @@ const props = defineProps({
   // RWD Maps 權重驅動版面（論文 §九）：目前模式（'uniform' | 'weight'），tab 在物件之後。
   weightMode: { type: String, default: 'uniform' },
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽是否開啟
+  showWeights: { type: Boolean, default: true },  // 是否顯示 weight 數字
   hideStops: { type: Boolean, default: false },  // 自動隱藏白點
   minStopPx: { type: Number, default: 5 },       // 最小站距門檻（pt），站距 < 此值才刪
   stopStat: { type: Object, default: null },     // { high, wide, hidden, hiddenNames, hiddenMaxT }
 })
-const emit = defineEmits(['run-llm', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px'])
+const emit = defineEmits(['run-llm', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights'])
 const llmUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
 const isMapAdjust = computed(() => isD3.value && props.viewKind === 'map-adjust')
@@ -857,6 +858,10 @@ function startResize(e) {
               版面簡化不改拓撲：用各欄／列**最忙路段的流量（weight）**決定該欄多寬、該列多高
               ——主走廊變寬、次要區壓窄，外框固定，路線在新像素座標重畫成 H/V/45°。
             </p>
+            <label class="weight-hide-toggle" style="padding: 0 2px;">
+              <input type="checkbox" :checked="showWeights" @change="emit('show-weights', $event.target.checked)" />
+              顯示 weight 數字
+            </label>
             <div class="weight-modes">
               <button class="weight-mode" :class="{ active: weightMode === 'uniform' }"
                 @click="emit('weight-mode', 'uniform')">均勻網格</button>
