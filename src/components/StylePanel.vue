@@ -7,6 +7,7 @@ import { prettyContinent, continentZh, loadMapsIndex } from '../stores/metroCata
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import { computePassThrough } from '../stores/skeleton'
+import { resolveWikiLink } from '../utils/wikiLang'
 import OrientationRose from './OrientationRose.vue'
 import MIcon from './MIcon.vue'
 
@@ -282,6 +283,26 @@ const wikiTerm = computed(() =>
 // hit zh.wikipedia's Go-or-search with the term above, landing on the system.
 const wikipediaUrl = computed(() =>
   layer.value ? `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(wikiTerm.value)}` : null)
+// 系統維基連結維持 zh 搜尋（Go-or-search，可靠落在系統條目）：系統的 meta.wikidata
+// 常指向「單一路線」而非系統（實測 Tbilisi Q340562 → 阿赫梅特利-瓦爾克蒂利線），
+// 用 sitelinks 反而會連到某條線，比 zh 搜尋更糟，故不套語言 fallback。
+
+// 車站維基連結的語言 fallback：優先用車站自己的 wikidata 解 sitelinks；沒有 wikidata
+// 時退回 OSM `wikipedia` tag（其原生語言）。物件 tab 標題下顯示一個維基連結。
+const stationWiki = ref(null)
+watch(selectedProps, async (p) => {
+  stationWiki.value = null
+  if (!p || !p.station_id) return
+  if (p.wikidata) {
+    const r = await resolveWikiLink(p.wikidata, meta.value?.country)
+    if (r && selectedProps.value === p) { stationWiki.value = r; return }
+  }
+  const href = linkFor('wikipedia', p.wikipedia)
+  if (href && selectedProps.value === p) {
+    const lang = (String(p.wikipedia).match(/^([a-z-]+):/) || [])[1] || null
+    stationWiki.value = { url: href, lang, title: null }
+  }
+}, { immediate: true })
 // Official schematic route map. Only 91/232 systems have a downloaded image;
 // the rest fall back to a Google image search for the city's route map, so
 // every city gets a working 官方路線圖 link.
@@ -615,9 +636,12 @@ function startResize(e) {
         <!-- ============ Info ============ -->
         <template v-if="activeTab === 'info'">
           <template v-if="isMetro">
+            <!-- 城市標題：中文城市。中文國名 / 英文城市。英文國名 -->
+            <div class="info-title">
+              <div class="info-title-zh">{{ layer.cityZh ?? layer.city }}。{{ layer.countryZh ?? layer.country }}</div>
+              <div class="info-title-en">{{ layer.city }}。{{ layer.country }}</div>
+            </div>
             <div class="info-rows">
-              <div class="info-row"><span class="info-key">城市</span><span>{{ layer.cityZh ?? layer.city }}</span></div>
-              <div class="info-row"><span class="info-key">國家</span><span>{{ layer.countryZh ?? layer.country }}</span></div>
               <div class="info-row">
                 <span class="info-key">洲別</span><span>{{ continentZh(layer.continent) }}</span>
               </div>
@@ -863,6 +887,11 @@ function startResize(e) {
             {{ objectTitle.name }}
             <span v-if="objectTitle.nameLocal" class="obj-title-local">{{ objectTitle.nameLocal }}</span>
           </div>
+          <!-- 車站維基連結（沒中文→英文→當地語言） -->
+          <a v-if="stationWiki" :href="stationWiki.url" target="_blank" rel="noopener" class="info-link obj-wiki-link">
+            Wikipedia <span v-if="stationWiki.lang" class="wiki-lang">{{ stationWiki.lang }}</span>
+            <MIcon name="open_in_new" :size="11" />
+          </a>
           <!-- 路段：站序中同時列停靠與通過(不停)站，pass 站標記、灰字並排在正確位置 -->
           <template v-for="rt in selectedRouteLists" :key="rt.route_id">
             <div class="obj-route-head">
@@ -1373,6 +1402,10 @@ function startResize(e) {
   background: hsl(var(--muted) / 0.4); font-size: 12px; line-height: 1.6;
 }
 .hidden-list-items li { color: hsl(var(--foreground)); }
+/* Info tab 城市標題（中英雙行） */
+.info-title { margin: 0 0 10px; }
+.info-title-zh { font-size: 16px; font-weight: 700; line-height: 1.3; color: hsl(var(--foreground)); }
+.info-title-en { margin-top: 1px; font-size: 12px; color: hsl(var(--muted-foreground)); }
 .info-rows { display: flex; flex-direction: column; gap: 2px; }
 .info-row {
   display: flex;
@@ -1397,6 +1430,15 @@ function startResize(e) {
 }
 .info-link:hover { text-decoration: underline; }
 .info-empty { font-size: 12.5px; color: hsl(var(--muted-foreground)); padding: 8px 0; }
+/* 維基連結解出的語言代碼小徽章（zh / en / ka…） */
+.wiki-lang {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px; text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted)); border-radius: 4px; padding: 0 4px;
+}
+/* 物件 tab 標題下的車站維基連結 */
+.obj-wiki-link { font-size: 12px; margin: 0 0 8px; }
 
 
 /* Audit */

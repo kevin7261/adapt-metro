@@ -1409,7 +1409,20 @@ async function build() {
         keyMap.set(kName, entry)
         if (kLocal) keyMap.set(kLocal, entry)
       }
-      const mergedNames = entries.map((e) => ({
+      // 折疊同站前綴噪音名：OSM 常給同一站的出入口/代碼變體不同名（Baku
+      // "28 May"／"28 May 2nd entrance"／"28 May mst" 其實同站）。某名正規化字串
+      // 以另一個較短名為前綴者＝同站，把 lines 併進短名、丟長名。以長度升序找 base
+      // 確保短名先定；輸出仍照原本 entries 順序（代表點排第一）。
+      const byLen = [...entries].sort(
+        (a, b) => normName(a.station_name).length - normName(b.station_name).length)
+      const removed = new Set()
+      for (const e of byLen) {
+        const ke = normName(e.station_name)
+        const base = byLen.find((b) => b !== e && !removed.has(b)
+          && normName(b.station_name).length < ke.length && ke.startsWith(normName(b.station_name)))
+        if (base) { for (const l of e.lines) base.lines.add(l); removed.add(e) }
+      }
+      const mergedNames = entries.filter((e) => !removed.has(e)).map((e) => ({
         station_id: e.station_id,
         station_name: e.station_name,
         station_name_local: e.station_name_local,
