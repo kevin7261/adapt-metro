@@ -14,7 +14,7 @@ import {
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
 } from '../stores/hillClimb'
 import { buildRwdMap } from '../stores/rwdMap'
-import { randomWeights, weightedAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
+import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -110,7 +110,7 @@ const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 const hcMode = computed(() =>
   ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
     'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
-    'rwd'].includes(mode.value))
+    'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
 // 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
@@ -187,6 +187,84 @@ function pollLlmRun() {
     }
   }, 2500)
 }
+// ---- LLM 調整（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
+// 與 LLM 對齊同一套離線模式：使用者的一句話 POST 給 /llm-grid/run（vite plugin
+// spawn headless Claude Code），模型推理每個 X 欄／Y 列區間的顯示權重、存到
+// data/metro/llmgrids/<city>.<variant>.<compact>.json，這裡只載入＋fingerprint
+// 驗證，axes 由 intervalAxes 正規化進固定外框。不改任何格座標拓撲。
+const gridInfo = ref(null)     // { model } once loaded — 顯示在 tab 按鈕 badge
+const gridStats = ref(null)    // the whole llmgrid file（右側 LLM調整 面板）
+const gridMsg = ref(null)      // hint when the result is missing / stale
+const gridRun = ref(null)      // null | 'running' | 'error'
+const gridRunTail = ref('')
+const gridRunText = ref('')
+const gridLogEl = ref(null)
+const gridOverlayPrompt = ref('') // canvas overlay 的一句話輸入框
+let gridPollTimer = null
+let cachedGrid = null          // fetched llmgrid: { colW, rowW, stats } or { miss }
+let rwdGridSeq = 0             // 載入序號，併進 RWD 快取鍵
+// 新結果到達時的動畫：從舊區間權重（無則均勻）內插格線位置到新權重。
+let rwdAnimGridFrom = null, rwdAnimGridTo = null, pendingGridAnim = null
+// RWD 圖層蓋在哪個縮減網格上（llmgrid 檔名的第三段）。
+const rwdCompactKey = computed(() => (useLlm.value ? 'llm' : postKind.value ?? 'hc'))
+async function startGridRun(userPrompt = '') {
+  const cid = llmCityId.value
+  if (!cid || gridRun.value === 'running') return
+  gridRun.value = 'running'
+  gridRunTail.value = ''
+  gridRunText.value = ''
+  // 動畫起點快照：跑完從目前版面過渡到新版面（沒有舊結果就從均勻網格）。
+  pendingGridAnim = { from: cachedGrid?.colW ? { colW: cachedGrid.colW, rowW: cachedGrid.rowW } : null }
+  cachedGrid = null
+  if (isRWD.value) mode.value = 'rwd-llm' // 從面板觸發時自動切到 LLM調整 視圖
+  if (rwdLlmMode.value) render()
+  try {
+    const res = await fetch('/llm-grid/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        city: cid, variant: hcVariant.value, compact: rwdCompactKey.value,
+        userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
+      }),
+    })
+    if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
+    pollGridRun()
+  } catch {
+    gridRun.value = 'error'
+    gridRunTail.value = '無法觸發——需要本機 npm run dev（vite）＋已安裝 Claude Code CLI'
+  }
+}
+function pollGridRun() {
+  clearTimeout(gridPollTimer)
+  gridPollTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`/llm-grid/status?city=${llmCityId.value}&variant=${hcVariant.value}&compact=${rwdCompactKey.value}`)
+      const s = await res.json()
+      gridRunTail.value = s.tail ?? ''
+      if (s.text != null) {
+        gridRunText.value = s.text
+        requestAnimationFrame(() => {
+          if (gridLogEl.value) gridLogEl.value.scrollTop = gridLogEl.value.scrollHeight
+        })
+      }
+      if (s.running) {
+        pollGridRun()
+      } else if (s.exit === 0) {
+        cachedGrid = null // reload the finished result（render 內載檔並啟動動畫）
+        gridRun.value = null
+        render()
+      } else {
+        cachedGrid = null
+        pendingGridAnim = null
+        gridRun.value = 'error'
+        if (rwdLlmMode.value) render()
+      }
+    } catch {
+      gridRun.value = 'error'
+      gridRunTail.value = '狀態輪詢失敗'
+    }
+  }, 2500)
+}
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
 // re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
@@ -214,7 +292,10 @@ const postKind = computed(() =>
 // RWD views sit on the HC compact grid in BOTH of their tabs.
 const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
-const rwdMode = computed(() => mode.value === 'rwd')
+// 「LLM調整」（rwd-llm）畫的是同一套 RWD 路網，只是欄寬列高由 LLM 推理的
+// 區間權重決定（skill route-llm-grid，結果檔 data/metro/llmgrids/）。
+const rwdMode = computed(() => mode.value === 'rwd' || mode.value === 'rwd-llm')
+const rwdLlmMode = computed(() => mode.value === 'rwd-llm')
 const rotated = computed(() =>
   needsHC.value ? hcVariant.value === 'rot' : /(^rotated|-rot-)/.test(mode.value))
 const skeletonized = computed(() => mode.value.includes('skeleton') || mode.value.startsWith('grid-'))
@@ -254,13 +335,9 @@ const rwdStopStat = ref(null) // { high, wide, hidden, hiddenNames, hiddenMaxT }
 // H/V/45°（fast 模式，見 rwdMap.js opts.fast 與 skill §8.3）。最後一幀走完整品質。
 let rwdAnimActive = false, rwdAnimFrom = null, rwdAnimTo = null, rwdAnimT = 0, rwdAnimRaf = 0
 const RWD_ANIM_MS = 700
-function animateToWeights(newWeights) {
-  if (!cachedSegs) return
-  // 起點幾何：目前顯示的是 weight 版面就從現有 weights，否則從均勻網格。
-  rwdAnimFrom = (rwdWeightMode.value === 'weight' && rwdWeights.value.size) ? rwdWeights.value : null
-  rwdAnimTo = newWeights
-  rwdWeights.value = newWeights   // 數字立刻顯示目標權重
-  rwdWeightMode.value = 'weight'  // 點要變化 → 非均勻版面
+// 共同的 rAF 迴圈：t 從 0 走到 1、每幀 render（fast 重畫），最後一幀完整品質。
+// weight 動畫與 LLM 調整的網格動畫都走這裡；內插的對象由 render 依模式選。
+function runRwdAnim(onDone) {
   rwdAnimActive = true
   rwdAnimT = 0
   if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
@@ -270,9 +347,18 @@ function animateToWeights(newWeights) {
     rwdAnimT = Math.min(1, (ts - start) / RWD_ANIM_MS)
     render()
     if (rwdAnimT < 1) { rwdAnimRaf = requestAnimationFrame(step) }
-    else { rwdAnimActive = false; rwdAnimRaf = 0; rwdWeightSeq++; cachedRWD = null; render() } // 收尾：完整品質
+    else { rwdAnimActive = false; rwdAnimRaf = 0; rwdWeightSeq++; cachedRWD = null; onDone?.(); render() } // 收尾：完整品質
   }
   rwdAnimRaf = requestAnimationFrame(step)
+}
+function animateToWeights(newWeights) {
+  if (!cachedSegs) return
+  // 起點幾何：目前顯示的是 weight 版面就從現有 weights，否則從均勻網格。
+  rwdAnimFrom = (rwdWeightMode.value === 'weight' && rwdWeights.value.size) ? rwdWeights.value : null
+  rwdAnimTo = newWeights
+  rwdWeights.value = newWeights   // 數字立刻顯示目標權重
+  rwdWeightMode.value = 'weight'  // 點要變化 → 非均勻版面
+  runRwdAnim()
 }
 function regenRwdWeights() {
   if (!cachedSegs) return
@@ -315,6 +401,8 @@ const VIEW_TABS = computed(() => {
     return [
       { id: 'hc-compact', label: '縮減網格' },
       { id: 'rwd', label: 'RWD 路網' },
+      // LLM 調整（AI 改網格長寬）: the badge carries the model that produced it
+      { id: 'rwd-llm', label: `LLM調整${gridInfo.value ? ` · ${gridInfo.value.model}` : ''}` },
     ]
   }
   if (isHC.value) {
@@ -423,6 +511,7 @@ async function render() {
   sel.selectAll('*').remove()
   loadError.value = null
   llmMsg.value = null
+  gridMsg.value = null
 
   const data = await sourceData()
   if (seq !== renderSeq) return // superseded — the newer render draws
@@ -442,6 +531,7 @@ async function render() {
     cachedHC = null
     cachedPost = {}
     cachedLlm = null
+    cachedGrid = null
     cachedCompact = {}
     cachedRWD = null
     hcStats.value = null
@@ -449,6 +539,8 @@ async function render() {
     postIters.value = {}
     llmInfo.value = null
     llmStats.value = null
+    gridInfo.value = null
+    gridStats.value = null
     hcCompactStats.value = null
     rwdStats.value = null
   }
@@ -550,7 +642,7 @@ async function render() {
     if (hcCompact.value) {
       // compacts the CURRENT layout: the HC result, or the post-pass/LLM one
       // when this is one of the 縮減 tabs (cells already swapped above).
-      const ckey = useLlm.value ? 'llm' : postKind.value ?? 'hc'
+      const ckey = rwdCompactKey.value
       if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
       cells = cachedCompact[ckey].cellAfter
       nC = cachedCompact[ckey].cols
@@ -563,10 +655,66 @@ async function render() {
     // 動畫中（rwdAnimActive）：內插「起點 axes → 目標 axes」的格線位置，每幀重算。
     // 動畫幀不重算 buildHcGraph（骨架／格不變）——省每幀成本，cachedSegs 沿用。
     if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = buildHcGraph(cachedSkeleton, grid.cellOf).segs
-    const animing = rwdAnimActive && isRWD.value && !!cachedSegs
-    weighted = animing || (isRWD.value && rwdWeightMode.value === 'weight' && rwdWeights.value.size > 0)
+    // 「LLM調整」（rwd-llm）：欄寬列高不看流量 weight，改用 LLM 推理的區間權重
+    // （llmgrids 結果檔）——先載入＋fingerprint 驗證，沒有結果就留白給 overlay。
+    let gridAniming = false
+    if (rwdLlmMode.value) {
+      if (gridRun.value === 'running') return // 執行中：畫布留白、overlay 蓋上
+      if (!cachedGrid) {
+        const cid = sourceLayer.value?.id
+        cachedGrid = { miss: '匯入資料不支援 LLM 調整（沒有城市 id 可對應結果檔）' }
+        if (cid) {
+          try {
+            const res = await fetch(assetUrl(`data/metro/llmgrids/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`))
+            const isJson = (res.headers.get('content-type') ?? '').includes('json')
+            const j = res.ok && isJson ? await res.json() : null
+            if (!j) {
+              cachedGrid = { miss: '尚未產生 LLM 調整——輸入一句話（例：把市中心那幾欄拉開），讓模型推理每欄／列該佔多大' }
+            } else if (j.fingerprint?.verts !== cachedHC.stats.verts
+              || j.fingerprint?.segs !== cachedHC.stats.segs
+              || j.fingerprint?.cols !== nC || j.fingerprint?.rows !== nR) {
+              cachedGrid = { miss: 'LLM 調整結果與目前資料不符（資料已更新）——請重新產生' }
+            } else {
+              cachedGrid = { colW: j.colW, rowW: j.rowW, stats: j }
+              rwdGridSeq++
+            }
+          } catch { cachedGrid = { miss: '無法載入 LLM 調整結果' } }
+        }
+        if (seq !== renderSeq) return // superseded during fetch
+      }
+      if (!cachedGrid.colW) {
+        gridMsg.value = cachedGrid.miss
+        pendingGridAnim = null
+        return // nothing to draw — the hint overlay explains why
+      }
+      gridStats.value = cachedGrid.stats
+      gridInfo.value = { model: cachedGrid.stats.model }
+      // 剛跑完的新結果：從舊版面（無則均勻）動畫過渡到新區間權重。
+      if (pendingGridAnim) {
+        rwdAnimGridFrom = pendingGridAnim.from
+        rwdAnimGridTo = { colW: cachedGrid.colW, rowW: cachedGrid.rowW }
+        pendingGridAnim = null
+        runRwdAnim(() => { rwdAnimGridFrom = null; rwdAnimGridTo = null })
+      }
+      gridAniming = rwdAnimActive && !!rwdAnimGridTo
+    }
+    // rwdAnimTo 必須存在（grid 動畫共用同一個 rAF 迴圈，途中切 tab 時這裡不能誤入）。
+    const animing = !rwdLlmMode.value && rwdAnimActive && isRWD.value && !!cachedSegs && !!rwdAnimTo
+    weighted = !rwdLlmMode.value
+      && (animing || (isRWD.value && rwdWeightMode.value === 'weight' && rwdWeights.value.size > 0))
     let axes = null
-    if (animing) {
+    if (rwdLlmMode.value) {
+      // 區間權重 → 格線位置（外框固定、minFrac 保底）；動畫中內插兩組格線。
+      const toAx = intervalAxes(
+        (gridAniming ? rwdAnimGridTo : cachedGrid).colW,
+        (gridAniming ? rwdAnimGridTo : cachedGrid).rowW, area)
+      if (gridAniming) {
+        const fromAx = rwdAnimGridFrom
+          ? intervalAxes(rwdAnimGridFrom.colW, rwdAnimGridFrom.rowW, area)
+          : uniformAxes(nC, nR, area)
+        axes = lerpAxes(fromAx, toAx, rwdAnimT)
+      } else axes = toAx
+    } else if (animing) {
       const toAx = weightedAxes(cells, cachedSegs, rwdAnimTo, nC, nR, area)
       const fromAx = rwdAnimFrom && rwdAnimFrom.size
         ? weightedAxes(cells, cachedSegs, rwdAnimFrom, nC, nR, area)
@@ -582,9 +730,11 @@ async function render() {
       // space whenever the size changes (with cw ≠ ch a cell-space 45° is not
       // 45° on screen). Same-size renders reuse the cached result. The interior
       // blacks already sit ON the polylines (no placeBlacks here).
-      const sizeKey = `${w}x${h}|${animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : 'u'}`
+      const sizeKey = `${w}x${h}|${gridAniming ? `ga${rwdAnimT.toFixed(3)}`
+        : rwdLlmMode.value ? `g${rwdGridSeq}`
+        : animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : 'u'}`
       if (!cachedRWD || cachedRWD.key !== sizeKey) {
-        if (!animing) {
+        if (!animing && !gridAniming) {
           hcBusy.value = true
           busyText.value = 'RWD 路網畫線中…（H/V/45° 候選折線）'
           await new Promise((r) => setTimeout(r, 30))
@@ -602,7 +752,9 @@ async function render() {
             hideStops: rwdHideStops.value,
             minStopPx: rwdMinStopPx.value,
             linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
-            ...(animing ? { fast: true } : weighted ? {} : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
+            ...((animing || gridAniming) ? { fast: true }
+              : (weighted || rwdLlmMode.value) ? {}
+                : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
           }),
         }
         hcBusy.value = false
@@ -1115,6 +1267,7 @@ onBeforeUnmount(() => {
   disposables.forEach((d) => d?.dispose?.())
   resizeObs?.disconnect()
   clearTimeout(llmPollTimer)
+  clearTimeout(gridPollTimer)
   if (rwdAutoTimer) clearInterval(rwdAutoTimer)
   if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
 })
@@ -1175,6 +1328,31 @@ onBeforeUnmount(() => {
               >開始 LLM 對齊</button>
             </div>
           </div>
+          <!-- LLM 調整（AI 改網格長寬）執行中 overlay：畫布留白、跑完動畫過渡到新版面 -->
+          <div v-else-if="rwdLlmMode && gridRun === 'running'" class="ma-hint llm-hint">
+            <div class="llm-run-card">
+              <div class="llm-spinner" />
+              <div class="llm-run-title">LLM 調整執行中…</div>
+              <div class="llm-run-desc">headless Claude Code 依 route-llm-grid skill 推理每個 X 欄／Y 列的顯示權重，完成後版面會動畫過渡</div>
+              <div class="llm-run-label">LLM 回傳（即時串流）</div>
+              <pre ref="gridLogEl" class="llm-run-log">{{ gridRunText || '等待模型回應…' }}</pre>
+            </div>
+          </div>
+          <div v-else-if="gridMsg" class="ma-hint llm-hint">
+            <div class="llm-box">
+              <div>{{ gridMsg }}</div>
+              <div v-if="gridRun === 'error'" class="llm-tail err">執行失敗：{{ gridRunTail }}</div>
+              <template v-if="llmCityId">
+                <textarea
+                  v-model="gridOverlayPrompt"
+                  class="grid-prompt-box"
+                  rows="2"
+                  placeholder="例：把市中心那幾欄拉開；中間幾列拉高；東側壓縮一點…"
+                />
+                <button class="llm-btn" @click="startGridRun(gridOverlayPrompt.trim())">開始 LLM 調整</button>
+              </template>
+            </div>
+          </div>
           </div>
         </div>
 
@@ -1193,6 +1371,9 @@ onBeforeUnmount(() => {
       :llm-record="isHC ? llmStats : null"
       :llm-running="llmRun === 'running'"
       :llm-can-run="!!llmCityId"
+      :grid-record="isRWD ? gridStats : null"
+      :grid-running="gridRun === 'running'"
+      :grid-can-run="!!llmCityId"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
       :show-weights="rwdShowWeights"
@@ -1200,6 +1381,7 @@ onBeforeUnmount(() => {
       :min-stop-px="rwdMinStopPx"
       :stop-stat="rwdStopStat"
       @run-llm="startLlmRun"
+      @run-grid="startGridRun"
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"
@@ -1255,6 +1437,13 @@ onBeforeUnmount(() => {
           title="重新啟動 headless Claude Code 繼續改善"
           @click="startLlmRun"
         >重跑</button>
+      </span>
+
+      <!-- LLM 調整: interval-weight run — the model + how big the core got -->
+      <span v-if="rwdLlmMode && gridStats" class="hc-stats">
+        LLM 調整 · 模型 {{ gridStats.model }}
+        · 最大倍率 {{ Math.max(...gridStats.colW, ...gridStats.rowW).toFixed(1) }}<template
+          v-if="gridRun === 'running'"> · <b>執行中…</b></template>
       </span>
 
       <!-- RWD 路網: how each segment got routed (H/V/45° bend histogram) -->
@@ -1459,6 +1648,19 @@ onBeforeUnmount(() => {
   word-break: break-all;
 }
 .llm-tail.err { color: hsl(var(--destructive)); }
+/* LLM 調整 overlay 的一句話輸入框（畫布中央、開始鈕上方） */
+.grid-prompt-box {
+  width: 100%;
+  min-width: 300px;
+  resize: vertical;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 6px 8px;
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
 .llm-btn {
   height: 28px;
   padding: 0 16px;

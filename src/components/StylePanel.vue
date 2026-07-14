@@ -21,6 +21,12 @@ const props = defineProps({
   // flight, and whether this view has a city id to run against.
   llmRunning: { type: Boolean, default: false },
   llmCanRun: { type: Boolean, default: false },
+  // LLM 調整（RWD Maps「AI 改網格長寬」，skill route-llm-grid）：結果檔
+  // （model / userPrompt / note / colW / rowW）＋run 控制——D3Tab 對 RWD 視圖
+  // 傳入；「LLM調整」tab 對 rwd 常駐（輸入一句話就從這裡觸發）。
+  gridRecord: { type: Object, default: null },
+  gridRunning: { type: Boolean, default: false },
+  gridCanRun: { type: Boolean, default: false },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -36,8 +42,9 @@ const props = defineProps({
   minStopPx: { type: Number, default: 5 },       // 最小站距門檻（pt），站距 < 此值才刪
   stopStat: { type: Object, default: null },     // { high, wide, hidden, hiddenNames, hiddenMaxT }
 })
-const emit = defineEmits(['run-llm', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights'])
+const emit = defineEmits(['run-llm', 'run-grid', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights'])
 const llmUserPrompt = ref('')
+const gridUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
 const isMapAdjust = computed(() => isD3.value && props.viewKind === 'map-adjust')
 // Orientation rose: metro maps (MapLibre) + Map Adjust only, not HC / RWD.
@@ -52,7 +59,7 @@ const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   { id: 'style', label: '樣式' },
   { id: 'object', label: '物件' },
-  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }] : []),
+  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM調整' }] : []),
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
 ])
 const activeTab = ref('info')
@@ -117,19 +124,23 @@ const passRoutes = computed(() => {
 // The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
 watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
 
-// The skill that drove the run — fetched once when the LLM對齊 tab first opens
-// (same source + rendering as SkillViewer: /skills/<id>.md, frontmatter off).
+// The skill that drove the run — fetched once when the LLM對齊 / LLM調整 tab
+// first opens (same source + rendering as SkillViewer: /skills/<id>.md).
 const llmSkillHtml = ref('')
-watch(activeTab, async (t) => {
-  if (t !== 'llm' || llmSkillHtml.value) return
+const gridSkillHtml = ref('')
+const fetchSkillHtml = async (id, target) => {
   try {
-    const res = await fetch(assetUrl('skills/route-llm-align.md'))
+    const res = await fetch(assetUrl(`skills/${id}.md`))
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const md = (await res.text()).replace(/^---\n[\s\S]*?\n---\n/, '')
-    llmSkillHtml.value = marked.parse(md)
+    target.value = marked.parse(md)
   } catch (err) {
-    llmSkillHtml.value = `<p>SKILL.md 載入失敗：${err}</p>`
+    target.value = `<p>SKILL.md 載入失敗：${err}</p>`
   }
+}
+watch(activeTab, (t) => {
+  if (t === 'llm' && !llmSkillHtml.value) fetchSkillHtml('route-llm-align', llmSkillHtml)
+  if (t === 'grid' && !gridSkillHtml.value) fetchSkillHtml('route-llm-grid', gridSkillHtml)
 })
 
 // 點到路段時：顯示每條行經 route 的完整車站列表（依站序）。
@@ -914,6 +925,63 @@ function startResize(e) {
               差 ≤ T 就一律隱藏——所以「刪到 ≤ T」與畫面完全一致（寬鬆段的低差白點也一起
               消失、相鄰標籤合併取 max）。彩色錨點（紅／藍／黃）不會被藏。
             </p>
+          </div>
+        </template>
+
+        <!-- ============ LLM調整（RWD Maps）: AI 改網格長寬（skill route-llm-grid）============ -->
+        <template v-else-if="activeTab === 'grid'">
+          <div class="weight-panel">
+            <p class="weight-hint">
+              用一句話改網格大小：模型推理**每個 X 欄／Y 列區間**在畫面上該佔多大（顯示權重，
+              1=原尺寸、&gt;1 放大、&lt;1 壓縮），不搬任何站的格座標；系統把權重正規化進固定
+              外框、在新像素座標重畫 H/V/45°。與「權重」tab 的流量比例是同一種變形、
+              不同的權重來源。
+            </p>
+            <template v-if="gridCanRun">
+              <textarea
+                v-model="gridUserPrompt"
+                class="llm-prompt-box"
+                rows="3"
+                :disabled="gridRunning"
+                placeholder="例：把市中心那幾欄拉開；中間幾列拉高；東側壓縮一點、把空間讓給核心…"
+              />
+              <button
+                class="llm-run-btn"
+                :disabled="gridRunning || !gridUserPrompt.trim()"
+                @click="emit('run-grid', gridUserPrompt.trim())"
+              >{{ gridRunning ? '執行中…' : '開始 LLM 調整' }}</button>
+              <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-grid skill 推理權重並存檔——放大會明顯（核心 3–5 倍）且由核心向外漸近。</p>
+            </template>
+            <p v-else class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
+
+            <template v-if="gridRecord">
+              <div class="info-rows">
+                <div class="info-row"><span class="info-key">模型</span><span>{{ gridRecord.model ?? '—' }}</span></div>
+                <div class="info-row"><span class="info-key">網格</span><span>{{ gridRecord.cols }} 欄 × {{ gridRecord.rows }} 列</span></div>
+                <div class="info-row">
+                  <span class="info-key">最大倍率</span>
+                  <span>{{ Math.max(...gridRecord.colW, ...gridRecord.rowW).toFixed(1) }}</span>
+                </div>
+              </div>
+              <p v-if="gridRecord.userPrompt" class="llm-run-hint">上次指示：{{ gridRecord.userPrompt }}</p>
+              <h4 class="llm-h">模型的思路</h4>
+              <div class="llm-note">{{ gridRecord.note ?? '（無說明）' }}</div>
+              <h4 class="llm-h">欄權重（西 → 東）</h4>
+              <pre class="llm-pre">{{ gridRecord.colW.map((w) => (+w).toFixed(1)).join(' ') }}</pre>
+              <h4 class="llm-h">列權重（北 → 南）</h4>
+              <pre class="llm-pre">{{ gridRecord.rowW.map((w) => (+w).toFixed(1)).join(' ') }}</pre>
+              <template v-if="gridRecord.finalOutput">
+                <h4 class="llm-h">最終輸出</h4>
+                <pre class="llm-pre">{{ gridRecord.finalOutput }}</pre>
+              </template>
+            </template>
+            <p v-else class="llm-note">尚未產生結果——切到「LLM調整」視圖或直接在上面輸入一句話執行。</p>
+
+            <h4 class="llm-h">使用的 skill：route-llm-grid</h4>
+            <details class="llm-skill">
+              <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
+              <div class="skill-md llm-skill-md" v-html="gridSkillHtml || '<p>載入中…</p>'" />
+            </details>
           </div>
         </template>
 

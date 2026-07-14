@@ -59,6 +59,28 @@ export function lerpAxes(a, b, t) {
   return { colX, rowY, cellPx: ([c, r]) => [(colX[c] + colX[c + 1]) / 2, (rowY[r] + rowY[r + 1]) / 2] }
 }
 
+// 權重陣列 → 一軸的格線位置：每區間保底 minFrac × 均勻寬（權重 0 也不消失），
+// 其餘空間依正權重分配；外框固定（總長不變）。weightedAxes 與 intervalAxes 共用。
+function axisEdges(wArr, n, total, o, minFrac) {
+  const minU = (total / n) * minFrac
+  const sumW = wArr.reduce((a, b) => a + b, 0)
+  const rest = total - minU * n
+  const size = wArr.map((w) => minU + (sumW > 0 ? rest * (w / sumW) : rest / n))
+  const edges = [o]
+  for (let i = 0; i < n; i++) edges.push(edges[i] + size[i])
+  return { edges, center: size.map((_, i) => (edges[i] + edges[i + 1]) / 2) }
+}
+
+// LLM 調整（skill route-llm-grid）：模型直接給每個 X 欄／Y 列區間的顯示權重
+// （1=原尺寸、>1 放大、<1 壓縮），這裡只做正規化進固定外框——與 weightedAxes
+// 的末端變形完全相同，差別只在權重由誰填入（流量彙總 vs 模型推理）。
+export function intervalAxes(colW, rowW, area, minFrac = 0.25) {
+  const [x0, y0, x1, y1] = area
+  const X = axisEdges(colW, colW.length, x1 - x0, x0, minFrac)
+  const Y = axisEdges(rowW, rowW.length, y1 - y0, y0, minFrac)
+  return { colX: X.edges, rowY: Y.edges, cellPx: ([c, r]) => [X.center[c], Y.center[r]] }
+}
+
 // weight → 非均勻欄寬列高。pos: Map<id,[c,r]>（只含 cut 節點 a/b；interior 黑點的格
 // 座標沿 a→b 線性內插）；segs：cut-to-cut。area=[x0,y0,x1,y1]。
 // 「取 max 不取 sum」（這一欄多重要，看最忙那條，不把所有線加起來膨脹）。
@@ -81,16 +103,7 @@ export function weightedAxes(pos, segs, weights, cols, rows, area, minFrac = 0.2
       if (dr >= dc) for (let r = Math.min(P0[1], P1[1]); r < Math.max(P0[1], P1[1]); r++) { if (r >= 0 && r < rows) rowW[r] = Math.max(rowW[r], w) }
     }
   }
-  const axis = (wArr, n, total, o) => {
-    const minU = (total / n) * minFrac
-    const sumW = wArr.reduce((a, b) => a + b, 0)
-    const rest = total - minU * n
-    const size = wArr.map((w) => minU + (sumW > 0 ? rest * (w / sumW) : rest / n))
-    const edges = [o]
-    for (let i = 0; i < n; i++) edges.push(edges[i] + size[i])
-    return { edges, center: size.map((_, i) => (edges[i] + edges[i + 1]) / 2) }
-  }
-  const X = axis(colW, cols, x1 - x0, x0)
-  const Y = axis(rowW, rows, y1 - y0, y0)
+  const X = axisEdges(colW, cols, x1 - x0, x0, minFrac)
+  const Y = axisEdges(rowW, rows, y1 - y0, y0, minFrac)
   return { colX: X.edges, rowY: Y.edges, colW, rowW, cellPx: ([c, r]) => [X.center[c], Y.center[r]] }
 }
