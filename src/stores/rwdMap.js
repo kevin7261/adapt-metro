@@ -276,7 +276,17 @@ export function mergeParallelSegs(segs) {
   for (const group of byPair.values()) {
     if (group.length < 2) continue
     const rep = group.reduce((best, e) => (stations(e) > stations(best) ? e : best), group[0])
-    for (const e of group) if (e !== rep) { absorb(e, rep); dropped.add(e) }
+    const repSt = new Set(rep.path ?? [])
+    for (const e of group) {
+      if (e === rep) continue
+      // Coverage guard: never absorb an edge that has a station the rep lacks —
+      // dropping its segment would leave that station with NO line through it
+      // (a separate line sharing endpoints but with its own stops, e.g. a metro
+      // running the same corridor as suburban rail). Merge only truly-redundant
+      // twins (a direct express whose stops are all on the local).
+      if (!(e.path ?? []).every((id) => repSt.has(id))) continue
+      absorb(e, rep); dropped.add(e)
+    }
   }
 
   // (B) geometry-overlap absorption (express over a junction on the same rails).
@@ -314,6 +324,11 @@ export function mergeParallelSegs(segs) {
     if (!chain.length || !connects(chain, E.a, E.b)) continue
     const chainStations = new Set(); for (const x of chain) for (const id of (x.path ?? [])) chainStations.add(id)
     if (chainStations.size <= stations(E)) continue // E must be the sparser (express) side
+    // Coverage guard (critical): every station of E must already sit on the
+    // chain, or dropping E orphans it. A line that shares rails but has its OWN
+    // stops (Sydney Metro over the suburban corridor) fails this and stays
+    // separate — geometry overlap alone must never merge distinct lines.
+    if (!(E.path ?? []).every((id) => chainStations.has(id))) continue
     chains.push({ E, chain })
   }
   // Absorb fewest-station (most express) first; skip if the chain hit a dropped edge.
