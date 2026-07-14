@@ -3,7 +3,7 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1481,
+  "line_total": 1480,
   "station_total": 16928,
   "systems": [
     {
@@ -572,7 +572,7 @@
       "official_map": "https://fr.wikipedia.org/wiki/Ligne_8_du_métro_de_Paris",
       "wikidata": "Q50751",
       "line_count": 20,
-      "segment_count": 33,
+      "segment_count": 32,
       "station_count": 321,
       "audit": {
         "strategies_tried": [],

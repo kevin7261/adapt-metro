@@ -1,5 +1,13 @@
 {
   "_comment": "快車跨站共線（使用者：機場快線與東涌線共線到欣澳／青衣）。快車（如香港機場快線 AEL）與慢車（東涌線 TCL）共用物理軌道，但快車跳過中間站，站對站幾何走不同站段，抓不到共線。此 override 讓快車 route 的某段『幾何沿慢車的中間站畫』（pass-through 頂點），使共線段被路段化判為共線、畫成雙色——但這些中間站**不算快車的停靠站**（不進 route.stations／station_count，車站的 lines 也不加該快車）。以 route_osm 認 route（其 osm_route_ids 任一命中即套用）；在幾何序列中找相鄰的 from→to 頂點（座標近似匹配），於其間依序插入 via 座標並標記 pass。",
+  "_comment_no_auto": "自動快車跨站共線偵測（buildGeojson.mjs：長跳站邊沿另一條線的近直線路徑畫）的排除名單。用於獨立路線的跳站長邊剛好與另一條線『大致平行』但實際不共軌的誤判——該線 osm_route_ids 任一命中即整條線不參與自動偵測（仍可被手動 passthrough 指定）。每筆附依據。",
+  "no_auto": [
+    {
+      "city": "Paris",
+      "route_osm": [123737, 3328693],
+      "note": "巴黎地鐵 14 號線：全線獨立深層自動化隧道，Châtelet→Gare de Lyon 直達（跳過 1 號線的 Hôtel de Ville、Bastille），但與 1 號線並無共軌。自動偵測因 1 號線那段近直線而誤判成共線，故排除。"
+    }
+  ],
   "passthrough": [
     {
       "city": "Hong Kong",

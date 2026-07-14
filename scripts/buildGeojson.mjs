@@ -333,8 +333,11 @@ async function build() {
   // 快車跨站共線（_overrides/express_passthrough.json）：快車 route 的某段幾何沿慢車的
   // 中間站畫（pass-through 頂點），使共線段被判為共線畫成雙色，但中間站不算快車停靠站。
   let expressPass = []
+  const noAutoPassRids = new Set()  // route osm ids excluded from AUTO express pass-through
   try {
-    expressPass = (JSON.parse(await readFile(join(OVERRIDES_DIR, 'express_passthrough.json'), 'utf8')).passthrough) ?? []
+    const epFile = JSON.parse(await readFile(join(OVERRIDES_DIR, 'express_passthrough.json'), 'utf8'))
+    expressPass = epFile.passthrough ?? []
+    for (const e of epFile.no_auto ?? []) for (const r of e.route_osm ?? []) noAutoPassRids.add(r)
   } catch { /* none */ }
   // 容差 ~0.003°（≈300 m）：序列頂點是月台座標、與站座標差 ~100–200 m；快車跨站的
   // from/to 站相距數 km，放寬不會誤配。注入後 snap 會把頂點對齊共站合併點。
@@ -1602,6 +1605,8 @@ async function build() {
       const others = grp.lines.map((f) => f.geometry.coordinates.map((seq) => seq.map((c) => c.join(','))))
       for (let fi = 0; fi < grp.lines.length; fi++) {
         const F = grp.lines[fi]
+        // 排除名單：獨立路線的跳站長邊剛好與另一條線平行但不共軌（如巴黎 14 號線）
+        if ((F.properties.osm_route_ids || []).some((r) => noAutoPassRids.has(r))) continue
         for (const seq of F.geometry.coordinates) {
           for (let i = 0; i < seq.length - 1; i++) {
             const A = seq[i], C = seq[i + 1], ak = A.join(','), ck = C.join(',')
