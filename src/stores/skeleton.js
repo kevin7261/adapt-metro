@@ -75,6 +75,14 @@ export function buildConnectSkeleton(geojson) {
   // t,u strictly in (0,1) → shared-station endpoints excluded), then splice.
   // Includes SAME-route self-crossings (a route that loops back over itself): the
   // b = a pass compares a route's non-adjacent segments against each other.
+  //
+  // The station-CHORD (station→station straight line) is only a candidate filter:
+  // two chords can cross where the REAL curved tracks don't (the chord shortcuts a
+  // bend), yielding a yellow node on empty space and lifting the edge highlight off
+  // the line. So every chord candidate is validated against the two routes' REAL
+  // folded geometry between those stops — the crossing survives only if the tracks
+  // actually intersect, and its coordinate is that EXACT real intersection (dead on
+  // both lines). 使用者規則：沒交叉的地方不可出現黃點、算多少就是多少不可有偏差。
   const crossings = []        // { id, coord } for the renderer
   const crossIds = new Set()  // synthetic ids — forced 'yellow' after classification
   {
@@ -83,6 +91,7 @@ export function buildConnectSkeleton(geojson) {
     const keyToId = new Map()
     const perRoute = new Map(routeArr.map((rt) => [rt, []])) // rt -> [{seg, t, id}]
     let xn = 0
+    const pkc = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
     const segX = (p1, p2, p3, p4) => {
       const d1x = p2[0] - p1[0], d1y = p2[1] - p1[1]
       const d2x = p4[0] - p3[0], d2y = p4[1] - p3[1]
@@ -93,6 +102,49 @@ export function buildConnectSkeleton(geojson) {
       const E = 1e-6
       if (t <= E || t >= 1 - E || u <= E || u >= 1 - E) return null
       return { x: [p1[0] + t * d1x, p1[1] + t * d1y], t, u }
+    }
+    // Real folded geometry between each route's consecutive STOPS, from the line
+    // features (coord holds no crossings yet). Keyed by route + unordered stop
+    // pair. Used to confirm a chord candidate is a real track intersection.
+    const keyOfC = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+    const stByCoordC = new Map()
+    for (const [id, c] of coord) stByCoordC.set(keyOfC(c), id)
+    const realLeg = new Map()
+    for (const f of geojson?.features ?? []) {
+      if (!f.geometry || f.geometry.type === 'Point') continue
+      const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+      for (const r of f.properties?.routes ?? []) {
+        const rt = routes.get(r.route_id)
+        if (!rt) continue
+        const stopSet = new Set(rt.stations)
+        for (const seg of segs) {
+          const marks = []
+          for (let i = 0; i < seg.length; i++) {
+            const id = stByCoordC.get(keyOfC(seg[i]))
+            if (id != null && stopSet.has(id)) marks.push([i, id])
+          }
+          for (let k = 1; k < marks.length; k++) {
+            const [i0, sa] = marks[k - 1], [i1, sb] = marks[k]
+            const kk = `${rt.id}|${pkc(sa, sb)}`
+            if (!realLeg.has(kk)) realLeg.set(kk, seg.slice(Math.min(i0, i1), Math.max(i0, i1) + 1))
+          }
+        }
+      }
+    }
+    // Nearest real track intersection of two stop-to-stop legs (null if the real
+    // tracks don't meet between those stops → the chord crossing is spurious).
+    const realHit = (legA, legB, near) => {
+      if (!legA || !legB) return null
+      let best = null, bestD = Infinity
+      for (let p = 1; p < legA.length; p++) {
+        for (let q = 1; q < legB.length; q++) {
+          const h = segX(legA[p - 1], legA[p], legB[q - 1], legB[q])
+          if (!h) continue
+          const d = Math.hypot(h.x[0] - near[0], h.x[1] - near[1])
+          if (d < bestD) { bestD = d; best = h.x }
+        }
+      }
+      return best
     }
     for (let a = 0; a < routeArr.length; a++) {
       const A = ptsOf(routeArr[a])
@@ -109,12 +161,26 @@ export function buildConnectSkeleton(geojson) {
                 Math.min(B[j - 1][1], B[j][1]) > aMaxY || Math.max(B[j - 1][1], B[j][1]) < aMinY) continue
             const r = segX(A[i - 1], A[i], B[j - 1], B[j])
             if (!r) continue
-            const key = `${r.x[0].toFixed(6)},${r.x[1].toFixed(6)}`
+            // Confirm against the real tracks. Conservative: only DROP when we
+            // have both real legs AND they provably don't meet (the chord
+            // shortcut a bend → spurious node); when real geometry is present we
+            // also relocate the node onto the EXACT real intersection. If a leg's
+            // real geometry can't be extracted we can't disprove it, so keep the
+            // chord candidate as before (never lose a real crossing to a gap).
+            const legA = realLeg.get(`${routeArr[a].id}|${pkc(routeArr[a].stations[i - 1], routeArr[a].stations[i])}`)
+            const legB = realLeg.get(`${routeArr[b].id}|${pkc(routeArr[b].stations[j - 1], routeArr[b].stations[j])}`)
+            let cx = r.x
+            if (legA && legB) {
+              const rx = realHit(legA, legB, r.x)
+              if (!rx) continue // proven spurious — real tracks don't cross here
+              cx = rx // exact real intersection (dead on both lines)
+            }
+            const key = `${cx[0].toFixed(6)},${cx[1].toFixed(6)}`
             let id = keyToId.get(key)
             if (!id) {
               id = `x${xn++}`
-              keyToId.set(key, id); coord.set(id, r.x)
-              crossings.push({ id, coord: r.x }); crossIds.add(id)
+              keyToId.set(key, id); coord.set(id, cx)
+              crossings.push({ id, coord: cx }); crossIds.add(id)
             }
             perRoute.get(routeArr[a]).push({ seg: i, t: r.t, id })
             perRoute.get(routeArr[b]).push({ seg: j, t: r.u, id })
@@ -232,6 +298,20 @@ export function buildConnectSkeleton(geojson) {
     // stations it skips (they're vertices but not stops), so its Strathfield→
     // Redfern edge must own the whole folded polyline through them, not a
     // straight chord. Per route: keep only vertices that are stops of that route.
+    // A synthetic crossing (yellow) is spliced into the route's stops but is an
+    // INTERIOR point of a feature segment (an interpolated intersection, never a
+    // polyline vertex). We locate it on the segment it lies on and cut there too,
+    // so a leg ending at a crossing carries the REAL track up to the exact
+    // crossing point — not a straight chord that lifts the edge highlight off the
+    // curved line (使用者規則：算多少就是多少，不可有偏差).
+    const paramOnSeg = (p, a, b) => {
+      const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy
+      if (L2 < 1e-18) return null
+      const t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2
+      if (t <= 1e-9 || t >= 1 - 1e-9) return null // strictly interior of this segment
+      const ex = p[0] - (a[0] + t * dx), ey = p[1] - (a[1] + t * dy)
+      return ex * ex + ey * ey < 1e-12 ? t : null // and actually ON it (collinear)
+    }
     for (const f of geojson?.features ?? []) {
       if (!f.geometry || f.geometry.type === 'Point') continue
       const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
@@ -239,16 +319,35 @@ export function buildConnectSkeleton(geojson) {
         const stops = routes.get(r.route_id)?.stations
         if (!stops) continue
         const stopSet = new Set(stops.filter((id) => coord.has(id)))
+        const xOnRoute = [...new Set(stops.filter((id) => crossIds.has(id)))] // crossings on this route
         for (const seg of segs) {
-          const stIdx = []
+          // Cut points along this polyline, ordered by real-valued position
+          // `pos` (integer = at that vertex; fractional = interpolated on the
+          // segment starting at floor(pos)). Real stops sit at vertices; crossings
+          // are located on the segment interior they fall on.
+          const cuts = []
           for (let i = 0; i < seg.length; i++) {
             const id = stByCoord.get(keyOf(seg[i]))
-            if (id != null && stopSet.has(id)) stIdx.push([i, id])
+            if (id != null && stopSet.has(id) && !crossIds.has(id)) cuts.push({ pos: i, id, coord: seg[i] })
           }
-          for (let k = 1; k < stIdx.length; k++) {
-            const [i0, a] = stIdx[k - 1], [i1, b] = stIdx[k]
-            const key = pk(a, b)
-            if (!geomByPair.has(key)) geomByPair.set(key, { from: a, coords: seg.slice(i0, i1 + 1) })
+          for (let i = 1; i < seg.length; i++) {
+            for (const xid of xOnRoute) {
+              const t = paramOnSeg(coord.get(xid), seg[i - 1], seg[i])
+              if (t != null) cuts.push({ pos: (i - 1) + t, id: xid, coord: coord.get(xid) })
+            }
+          }
+          cuts.sort((p, q) => p.pos - q.pos)
+          for (let k = 1; k < cuts.length; k++) {
+            const A = cuts[k - 1], B = cuts[k]
+            if (A.id === B.id) continue
+            const key = pk(A.id, B.id)
+            if (geomByPair.has(key)) continue
+            // Exact sub-polyline: crossing endpoint verbatim, then every real
+            // vertex strictly between the two cuts, then the other endpoint.
+            const coords = [A.coord.slice()]
+            for (let v = Math.ceil(A.pos + 1e-9); v <= Math.floor(B.pos - 1e-9); v++) coords.push(seg[v])
+            coords.push(B.coord.slice())
+            geomByPair.set(key, { from: A.id, coords })
           }
         }
       }
