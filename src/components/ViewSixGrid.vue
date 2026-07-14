@@ -45,8 +45,11 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <template>
   <div ref="root" class="sgrid-card">
-    <button class="sgrid-head" :title="`建立 ${entry.city} Hill Climbing 視圖`" @click="emit('pick', entry)">
-      <span class="sh-city">{{ entry.city }} · {{ entry.country }}</span>
+    <button class="sgrid-head" :title="`建立 ${entry.cityZh ?? entry.city} Hill Climbing 視圖`" @click="emit('pick', entry)">
+      <span class="sh-name">
+        <span class="sh-zh">{{ entry.cityZh ?? entry.city }} · {{ entry.countryZh ?? entry.country }}</span>
+        <span class="sh-en">{{ entry.city }} · {{ entry.country }}</span>
+      </span>
       <span class="sh-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
       <span class="sh-open">建立 Hill Climbing ›</span>
     </button>
@@ -122,20 +125,22 @@ onBeforeUnmount(() => observer?.disconnect())
 }
 .sgrid-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 8px 12px;
   text-align: left;
   background: hsl(var(--muted) / 0.35);
   border-bottom: 1px solid hsl(var(--border));
   cursor: pointer;
 }
-.sh-city { font-size: 13px; font-weight: 600; }
-.sgrid-head:hover .sh-city { color: hsl(var(--primary)); }
-.sh-sub { font-size: 11px; color: hsl(var(--muted-foreground)); }
-.sh-stats { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); }
-.sh-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; }
+/* 中文「城市 · 國家」一排、英文「City · Country」一排（同語言同排） */
+.sh-name { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sh-zh { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sgrid-head:hover .sh-zh { color: hsl(var(--primary)); }
+.sh-en { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sh-stats { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; }
+.sh-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
 .sgrid-head:hover .sh-open { opacity: 1; }
 
 .sgrid {

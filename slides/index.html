@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>系統介紹 · Adapt-Metro</title>
+<meta name="description" content="Adapt-Metro 系統演算法投影片：從 Metro Maps 到 Map Adjust、Straighten、RWD Maps 的四階段管線細節。" />
+<style>
+  :root{
+    --page-bg:#eef1f6; --dot:rgba(15,23,42,.08);
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#64748b; --muted2:#94a3b8;
+    --blue:#2563eb; --purple:#7c3aed; --rose:#e11d48; --amber:#d97706; --green:#16a34a;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang TC', 'Noto Sans TC', Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page-bg:#0b1220; --dot:rgba(226,232,240,.07);
+      --card-bg:#141b2c; --border:#263043;
+      --ink:#e8ecf3; --muted:#9aa7bd; --muted2:#7885a0;
+      --code-bg:#060a13; --code-ink:#cbd5e1;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--page-bg);
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  strong,b{font-weight:700;}
+
+  .deck{
+    position:relative; width:100%; height:100vh; height:100dvh; overflow:hidden;
+    background-color:var(--page-bg);
+    background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center;
+    padding: clamp(18px,5vw,72px) clamp(20px,7vw,104px);
+    opacity:0; visibility:hidden; pointer-events:none;
+    transform: translateY(8px);
+    transition: opacity .3s ease, transform .35s ease, visibility 0s linear .3s;
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+    transition: opacity .3s ease, transform .35s ease;
+  }
+
+  .eyebrow{ display:flex; align-items:center; gap:14px; margin-bottom:18px; color:var(--muted); flex-shrink:0; }
+  .eyebrow .tag{ font-size:12px; letter-spacing:.04em; white-space:nowrap; }
+  .eyebrow .tag b{ color:var(--blue); font-family:var(--mono); margin-right:6px; }
+  .eyebrow .rule{ flex:1; height:1px; background:var(--border); min-width:24px; }
+  .eyebrow .eng{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--muted2); white-space:nowrap; }
+
+  h1.title{ font-size:clamp(22px,3vw,36px); font-weight:800; line-height:1.22; margin:0 0 12px; letter-spacing:-.01em; }
+  p.subtitle{ font-size:clamp(13px,1.2vw,15.5px); color:var(--muted); line-height:1.65; max-width:960px; margin:0 0 6px; }
+  p.subtitle strong{ color:var(--ink); }
+
+  .grid{ display:grid; gap:14px; margin-top:20px; }
+  .grid.cols-2{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+  .grid.cols-3{ grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+  .grid.cols-4{ grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+
+  .card{
+    background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+    padding:15px 18px; border-top:3px solid var(--border);
+  }
+  .card.blue{ border-top-color:var(--blue); }
+  .card.purple{ border-top-color:var(--purple); }
+  .card.rose{ border-top-color:var(--rose); }
+  .card.amber{ border-top-color:var(--amber); }
+  .card.green{ border-top-color:var(--green); }
+  .card .label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted2); margin-bottom:7px; font-family:var(--mono); }
+  .card h3{ font-size:14.5px; margin:0 0 5px; font-weight:700; }
+  .card p{ font-size:12.5px; color:var(--muted); line-height:1.58; margin:0; }
+  .card .big{ font-size:clamp(24px,2.6vw,32px); font-weight:800; margin:0 0 4px; letter-spacing:-.01em; }
+
+  .stack{ margin-top:16px; }
+  .row{ display:flex; gap:14px; padding:11px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .row:last-child{ border-bottom:none; }
+  .row .num-badge{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%;
+    background:var(--blue); color:#fff; font-size:11.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-family:var(--mono); margin-top:1px;
+  }
+  .row .rowtext h4{ margin:0 0 3px; font-size:13.5px; font-weight:700; }
+  .row .rowtext p{ margin:0; font-size:12.5px; color:var(--muted); line-height:1.58; }
+
+  table.tbl{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:16px; }
+  table.tbl th{
+    text-align:left; font-weight:600; color:var(--muted); text-transform:uppercase;
+    font-size:10px; letter-spacing:.05em; border-bottom:1px solid var(--border); padding:7px 9px;
+    font-family:var(--mono);
+  }
+  table.tbl td{ padding:8px 9px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.tbl tr:last-child td{ border-bottom:none; }
+  table.tbl td.num, table.tbl th.num{ text-align:right; font-family:var(--mono); }
+  table.tbl td.err{ color:var(--rose); font-weight:700; font-size:11px; font-family:var(--mono); }
+  table.tbl td.warn{ color:var(--amber); font-weight:700; font-size:11px; font-family:var(--mono); }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:16px; }
+  .legend .item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink); }
+  .legend .dot{ width:11px; height:11px; border-radius:50%; flex-shrink:0; border:1px solid rgba(0,0,0,.12); }
+
+  .pillrow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+  .pill{
+    display:inline-flex; align-items:center; height:26px; padding:0 12px; border-radius:999px;
+    border:1px solid var(--border); background:var(--card-bg); font-size:12px; color:var(--ink); white-space:nowrap;
+  }
+
+  code.mono{ font-family:var(--mono); font-size:.92em; background:hsl(0 0% 50% / .1); padding:1px 5px; border-radius:4px; }
+
+  .codebox{
+    background:var(--code-bg); color:var(--code-ink); font-family:var(--mono); font-size:11.5px;
+    border-radius:10px; padding:12px 16px; margin-top:14px; line-height:1.65; overflow-x:auto;
+    white-space:pre;
+  }
+  .codebox .k{ color:#7dd3fc; } .codebox .s{ color:#86efac; } .codebox .c{ color:#7885a0; }
+
+  .flowrow{ display:flex; align-items:stretch; gap:8px; margin-top:18px; flex-wrap:wrap; }
+  .flowrow .fstep{ flex:1; min-width:150px; }
+  .flowrow .farrow{ display:flex; align-items:center; justify-content:center; color:var(--muted2); font-size:18px; flex:0 0 auto; }
+
+  .svgrow{ display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; }
+  .svgbox{ flex:1; min-width:220px; text-align:center; }
+  .svgbox svg{ width:100%; max-width:260px; height:auto; }
+  .svgbox .cap{ font-size:12px; color:var(--muted); margin-top:6px; }
+
+  .bendrow{ display:flex; gap:14px; margin-top:18px; flex-wrap:wrap; }
+  .bendcard{ flex:1; min-width:140px; text-align:center; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px; }
+  .bendcard svg{ width:100%; max-width:110px; height:70px; }
+  .bendcard .t{ font-size:12.5px; font-weight:700; margin-top:6px; }
+  .bendcard .d{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+  .badge{
+    display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:999px;
+    font-size:10.5px; font-weight:700; letter-spacing:.02em;
+  }
+  .badge.ok{ background:rgba(22,163,74,.14); color:#16a34a; }
+  .badge.part{ background:rgba(217,119,6,.14); color:#d97706; }
+  .badge.no{ background:rgba(100,116,139,.14); color:#64748b; }
+
+  /* Divider (part) slides */
+  .slide.divider{ justify-content:center; }
+  .divider .roman{
+    position:absolute; left:clamp(20px,7vw,110px); top:50%; transform:translateY(-56%);
+    font-size:clamp(100px,16vw,190px); font-weight:800; line-height:1; letter-spacing:-.02em;
+    color:var(--blue); opacity:.12; user-select:none; pointer-events:none;
+  }
+  .divider .stagechip{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px;
+    color:var(--muted); margin-bottom:16px; letter-spacing:.04em;
+  }
+  .divider .stagechip .sw{ width:10px; height:10px; border-radius:3px; }
+  .divider h1.title{ position:relative; font-size:clamp(26px,4vw,44px); }
+  .divider p.subtitle{ position:relative; }
+  .divider .pillrow{ position:relative; }
+
+  /* Title slide */
+  .slide.titleslide{ align-items:flex-start; }
+  .titleslide .kicker{
+    display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--muted);
+    border:1px solid var(--border); border-radius:999px; padding:5px 14px 5px 10px; margin-bottom:22px;
+    background:var(--card-bg);
+  }
+  .titleslide .kicker .bullet{ width:7px; height:7px; border-radius:50%; background:var(--blue); }
+  .titleslide h1.title{ font-size:clamp(30px,4.6vw,50px); max-width:960px; }
+
+  /* Closing slide */
+  .slide.closing{ align-items:center; text-align:center; }
+  .closing h1.title{ max-width:none; }
+  .closing p.subtitle{ max-width:640px; margin-left:auto; margin-right:auto; }
+  .closing .cta{ display:flex; gap:12px; margin-top:26px; flex-wrap:wrap; justify-content:center; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; height:38px; padding:0 20px;
+    border-radius:10px; font-size:14px; font-weight:600; text-decoration:none; border:1px solid var(--border);
+  }
+  .btn.primary{ background:var(--ink); color:var(--page-bg); border-color:var(--ink); }
+  .btn.ghost{ background:var(--card-bg); color:var(--ink); }
+
+  /* Nav chrome */
+  .chrome{ position:fixed; inset:0; pointer-events:none; z-index:40; }
+  .progress{ position:absolute; top:0; left:0; height:3px; background:var(--blue); transition:width .3s ease; }
+  .backlink{
+    position:absolute; top:14px; left:14px; pointer-events:auto;
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted);
+    background:var(--card-bg); border:1px solid var(--border); border-radius:999px; padding:5px 11px 5px 9px;
+    text-decoration:none;
+  }
+  .backlink:hover{ color:var(--ink); }
+  .fsbtn{
+    position:absolute; top:14px; right:14px; pointer-events:auto;
+    width:32px; height:32px; border-radius:999px; border:1px solid var(--border); background:var(--card-bg);
+    color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .fsbtn:hover{ color:var(--ink); }
+  .navbar{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%); pointer-events:auto;
+    display:flex; align-items:center; gap:10px;
+    background:var(--card-bg); border:1px solid var(--border); border-radius:999px; padding:5px 7px;
+  }
+  .navbtn{
+    width:28px; height:28px; border-radius:50%; border:none; background:transparent; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px;
+  }
+  .navbtn:hover{ background:hsl(0 0% 50% / .12); }
+  .navbtn:disabled{ opacity:.3; cursor:default; }
+  .counter{ font-family:var(--mono); font-size:12px; color:var(--muted); min-width:52px; text-align:center; user-select:none; }
+
+  .edgezone{ position:absolute; top:0; bottom:0; width:56px; pointer-events:auto; cursor:pointer; z-index:5; }
+  .edgezone.left{ left:0; } .edgezone.right{ right:0; }
+
+  @media (max-width: 640px){
+    .navbar{ bottom:8px; }
+    .backlink span.txt{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- 1: TITLE -->
+  <section class="slide titleslide active" data-title="系統介紹">
+    <div class="kicker"><span class="bullet"></span> Adapt-Metro · SYSTEM INTRODUCTION</div>
+    <h1 class="title">從地鐵路網到<br/>響應式八向示意圖</h1>
+    <p class="subtitle">一個純前端、零求解器依賴的四階段管線 —— <strong>Metro Maps → Map Adjust → Straighten → RWD Maps</strong>。
+      228 座城市的真實路網、多準則爬山最佳化、嚴格 H/V/45° 折線，全部在瀏覽器裡完成，隨版面即時重排。這份投影片逐一拆解每個階段實際在做的事。</p>
+    <div class="grid cols-2" style="max-width:820px;">
+      <div class="card blue">
+        <div class="label">INPUT</div>
+        <h3>真實地理路網</h3>
+        <p>OpenStreetMap / Overpass 抓取的地鐵與輕軌路線、車站座標——保留真實地理形狀，經清理與逐城驗證。</p>
+      </div>
+      <div class="card amber">
+        <div class="label">OUTPUT</div>
+        <h3>響應式八向示意圖</h3>
+        <p>只用水平／垂直／45° 三種方向的折線，版面一變就在新像素座標重新求解，絕不交叉。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2: PIPELINE OVERVIEW -->
+  <section class="slide" data-title="系統管線">
+    <div class="eyebrow"><span class="tag"><b>01</b>系統管線</span><span class="rule"></span><span class="eng">PIPELINE</span></div>
+    <h1 class="title">四個圖層群組，串成一條產線</h1>
+    <p class="subtitle">每個階段都是介面「Layers」面板裡的一個群組，可以逐步檢視、比較、回溯——不是黑盒子一次生成。後面每一節會逐項拆解這四個階段內部的機制。</p>
+    <div class="grid cols-4">
+      <div class="card blue"><div class="label">STAGE 1 · METRO MAPS</div><h3>真實路網</h3><p>匯入城市地鐵/輕軌 GeoJSON，原始地理座標與官方顏色。</p></div>
+      <div class="card purple"><div class="label">STAGE 2 · MAP ADJUST</div><h3>骨架與格網</h3><p>拓撲收縮成骨架，再吸附到整數格路網。</p></div>
+      <div class="card rose"><div class="label">STAGE 3 · STRAIGHTEN</div><h3>爬山法拉直</h3><p>多準則最佳化 + 水平垂直最大化後處理。</p></div>
+      <div class="card amber"><div class="label">STAGE 4 · RWD MAPS</div><h3>版面畫線</h3><p>H/V/45° 折線繪製，依版面與流量權重即時重排。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:18px;">純函式、確定性、無亂數——同一份輸入永遠得到同一份輸出，唯一的例外是選用性的 LLM 對齊／調整（離線預算、存檔、網頁只載入）。</p>
+  </section>
+
+  <!-- 3: WHAT IS A SCHEMATIC MAP -->
+  <section class="slide" data-title="示意圖是什麼">
+    <div class="eyebrow"><span class="tag"><b>02</b>示意圖的定義</span><span class="rule"></span><span class="eng">WHAT IS A SCHEMATIC MAP</span></div>
+    <h1 class="title">扭曲真實地理，只保留拓撲關係</h1>
+    <p class="subtitle">捷運路線圖是一種 <strong>schematic map</strong>：犧牲精確地理位置，換取每條路線都走水平／垂直／45°（<strong>八向</strong>）的可讀性。整條管線做的事，就是把左邊的真實路網，逐步變成右邊的樣子。</p>
+    <div class="svgrow">
+      <div class="svgbox">
+        <svg viewBox="0 0 220 160">
+          <path d="M15,30 C40,70 55,20 78,66 S 122,112 142,55 175,92 205,40" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+          <path d="M15,140 C48,98 68,132 96,76 S 148,42 205,96" fill="none" stroke="#e11d48" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="15" cy="30" r="5" fill="#2563eb"/><circle cx="205" cy="40" r="5" fill="#2563eb"/>
+          <circle cx="15" cy="140" r="5" fill="#e11d48"/><circle cx="205" cy="96" r="5" fill="#e11d48"/>
+        </svg>
+        <div class="cap">真實地理路網（Metro Maps）</div>
+      </div>
+      <div class="svgbox">
+        <svg viewBox="0 0 220 160">
+          <path d="M20,50 H80 L110,80 H190" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20,130 L50,100 H150 L180,70" fill="none" stroke="#e11d48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="20" cy="50" r="5" fill="#2563eb"/><circle cx="190" cy="80" r="5" fill="#2563eb"/>
+          <circle cx="20" cy="130" r="5" fill="#e11d48"/><circle cx="180" cy="70" r="5" fill="#e11d48"/>
+        </svg>
+        <div class="cap">八向示意圖（RWD Maps 的輸出）</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4: DIVIDER I -->
+  <section class="slide divider" data-title="Metro Maps">
+    <div class="roman">I</div>
+    <div class="stagechip"><span class="sw" style="background:var(--blue);"></span>STAGE 1 · METRO MAPS</div>
+    <h1 class="title">Metro Maps ——<br/>真實路網輸入</h1>
+    <p class="subtitle">OpenStreetMap / Overpass 抓取全球地鐵與輕軌，統一成一份乾淨、可驗證的 GeoJSON 規格，是後面每一階段的地基。</p>
+    <div class="pillrow">
+      <span class="pill">資料來源與判準</span><span class="pill">城市判定與合併</span><span class="pill">清理規則</span><span class="pill">fetch ⇄ audit 驗證</span>
+    </div>
+  </section>
+
+  <!-- 5: sources & query criteria -->
+  <section class="slide" data-title="資料來源">
+    <div class="eyebrow"><span class="tag"><b>03</b>資料來源與判準</span><span class="rule"></span><span class="eng">SOURCES &amp; CRITERIA</span></div>
+    <h1 class="title">五個資料來源，各司其職</h1>
+    <p class="subtitle">判準只收 <code class="mono">route=subway</code>（地鐵）與 <code class="mono">route=light_rail</code>（輕軌/LRT）——不抓一般 <code class="mono">railway</code>、<code class="mono">route=train</code>、<code class="mono">route=tram</code>，也排除「直通運轉」覆蓋線 relation。</p>
+    <table class="tbl">
+      <tr><th>用途</th><th>來源</th></tr>
+      <tr><td>路線幾何＋車站＋屬性</td><td>OpenStreetMap，經 Overpass API</td></tr>
+      <tr><td>系統覆蓋率基準（哪些城市有地鐵）</td><td>Wikipedia「List of metro systems」</td></tr>
+      <tr><td>洲／國／城命名</td><td>Nominatim 反向地理編碼（以車站中心點座標為準）</td></tr>
+      <tr><td>官方路網圖（metro map）</td><td>Wikidata P15（route map）→ Wikimedia Commons；後備 Wikipedia infobox</td></tr>
+      <tr><td>交叉驗證參考</td><td>Wikipedia 站數/線數 ＋ urbanrail.net</td></tr>
+    </table>
+    <p class="subtitle" style="margin-top:14px;">Overpass 查詢固定套用營運中過濾條件 <code class="mono">LIFE</code>：<code class="mono">["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]</code>——已通車的路線必須全部收錄，未通車/建設中/規劃中/停用一律排除，這是不變式不是偏好。</p>
+  </section>
+
+  <!-- 6: city resolution & merging -->
+  <section class="slide" data-title="城市判定">
+    <div class="eyebrow"><span class="tag"><b>04</b>城市判定與合併</span><span class="rule"></span><span class="eng">CITY RESOLUTION</span></div>
+    <h1 class="title">「同一城市＝同一系統」的三層防護</h1>
+    <p class="subtitle">OSM 車站常無 network 標籤，城市名稱解析容易撞名（如 S-Bahn Frankfurt 的 bahn token 撞上 Berlin U-Bahn）——三層護欄避免抓錯城市。</p>
+    <div class="grid cols-3">
+      <div class="card blue"><div class="label">1 · token 黑名單</div><p>泛用交通詞（bahn／ubahn／sbahn／lrt／tram／verkehrsverbund…）不得參與城市名稱比對。</p></div>
+      <div class="card blue"><div class="label">2 · rebucket 距離護欄</div><p>member network 解析出的目標城市，須離群組重心 ≤250 km 才准搬家；全國性營運商（如 DB）重心無意義。</p></div>
+      <div class="card blue"><div class="label">3 · 線級距離護欄</div><p>解析出的 wiki 城市離該線重心 &gt;250 km ⇒ 改用線自身座標或原始反查城市，自成獨立系統檔。</p></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:14px;">
+      <div class="card purple"><div class="label">都會圈合併 CITY_MERGE</div><p>鄰接行政市併成一城一檔（如桃園→台北）；被併城市在驗證時以 <code class="mono">covered_by</code> 標註通過。</p></div>
+      <div class="card purple"><div class="label">LRT 範圍規則</div><p>附掛輕軌的城市（台北／高雄／新加坡）附加收錄；整系統即為 LRT tagging 者（Vancouver SkyTrain）全收；純附掛輕軌原則剔除，但覆蓋率 &lt;0.6 時例外保留。</p></div>
+    </div>
+  </section>
+
+  <!-- 7: dataset scale -->
+  <section class="slide" data-title="資料集規模">
+    <div class="eyebrow"><span class="tag"><b>05</b>資料集規模</span><span class="rule"></span><span class="eng">GLOBAL DATASET</span></div>
+    <h1 class="title">228 座城市，六大洲，一份 GeoJSON 規格</h1>
+    <p class="subtitle">每條路線是一個路段 feature（<code class="mono">MultiLineString</code>，重疊路段只畫一條）、每個車站是一個 <code class="mono">Point</code>（帶 <code class="mono">station_name</code>／<code class="mono">station_id</code>）。</p>
+    <div class="grid cols-3">
+      <div class="card blue"><div class="big">228</div><p>城市路網資料集，涵蓋六大洲的地鐵與輕軌系統。</p></div>
+      <div class="card blue"><div class="big">~54 MB</div><p>228 個 GeoJSON 檔，依洲／國／市分層存放（<code class="mono">systems/亞洲/台灣/as-twn-taipei.geojson</code>）。</p></div>
+      <div class="card blue"><div class="big"><code class="mono" style="font-size:.6em;">index.json</code></div><p>總索引：id／城市／國家／洲／bbox／每城 <code class="mono">audit</code> 驗證結果，供前端 Info 面板直接顯示。</p></div>
+    </div>
+  </section>
+
+  <!-- 8: cleaning rules -->
+  <section class="slide" data-title="資料清理">
+    <div class="eyebrow"><span class="tag"><b>06</b>資料清理總覽</span><span class="rule"></span><span class="eng">CLEANING RULES</span></div>
+    <h1 class="title">把雜亂的 OSM 變成可靠路網</h1>
+    <p class="subtitle">抓取只是第一步——每座城市都要經過以下清理規則，才進入下游管線。</p>
+    <div class="grid cols-2">
+      <div class="stack" style="margin-top:4px;">
+        <div class="row"><span class="num-badge">1</span><div class="rowtext"><h4>只留營運中路線</h4><p>興建中／規劃中／停用線段一律移除，靠 lifecycle 標籤與站名括號註記雙重過濾。</p></div></div>
+        <div class="row"><span class="num-badge">2</span><div class="rowtext"><h4>共站合併（非「同名就合併」）</h4><p>依序：stop_area 權威分組 → 同名 ≤800m 輔助 → 人工裁決 <code class="mono">interchanges.json</code>，union-find 取聯集。</p></div></div>
+        <div class="row"><span class="num-badge">3</span><div class="rowtext"><h4>環狀線收尾</h4><p>真實閉環用 closeRing 補上最後一段，不斷開。</p></div></div>
+        <div class="row"><span class="num-badge">4</span><div class="rowtext"><h4>快慢車合併</h4><p>同 network+ref 的快車/慢車/區間車合併為一條線，以慢車（站最多）的完整站表為準。</p></div></div>
+      </div>
+      <div class="stack" style="margin-top:4px;">
+        <div class="row"><span class="num-badge">5</span><div class="rowtext"><h4>機廠與機場接駁電車排除</h4><p>車輛段出入段線、旅客自動電車／APM／people mover 一律剔除；機場「快線」不受影響。</p></div></div>
+        <div class="row"><span class="num-badge">6</span><div class="rowtext"><h4>官方顏色與代碼</h4><p>套用各線官方色與車站官方代碼，貼近官方地圖觀感。</p></div></div>
+        <div class="row"><span class="num-badge">7</span><div class="rowtext"><h4>墓碑驗證</h4><p>站源殭屍（上游已刪節點）批次驗證存在性，死者拒收，避免頂點吸附誤撿。</p></div></div>
+        <div class="row"><span class="num-badge">8</span><div class="rowtext"><h4>對照 Wikipedia／urbanrail.net</h4><p>逐城比對線數與站名，抓漏抓多抓雜訊——收斂到全部通過才算完成。</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9: city-specific exceptions -->
+  <section class="slide" data-title="城市專屬例外">
+    <div class="eyebrow"><span class="tag"><b>07</b>城市專屬例外案例</span><span class="rule"></span><span class="eng">CITY-SPECIFIC EXCEPTIONS</span></div>
+    <h1 class="title">通用規則之外，逐城落地的裁決</h1>
+    <p class="subtitle">大城市各有專屬規則索引（台北／東京／德國五城／紐約各有獨立 skill），其餘城市的個案裁決集中登記，重跑資料時可直接查詢，不必每次重新調查。</p>
+    <table class="tbl">
+      <tr><th>類型</th><th>案例</th></tr>
+      <tr><td>定向刷新（上游更新不會自動生效）</td><td>香港觀塘綫／屯馬綫／東鐵綫漏 stop 成員；新加坡環狀線 2026 閉合段</td></tr>
+      <tr><td>人工站序補正</td><td>成都 10 號線高升桥中途插站；蘇州 7 號線南段 prepend；NYC 2 車 59 St–Columbus Circle</td></tr>
+      <tr><td>未開通站剔除</td><td>上海龙居路；北京红庙／福寿岭；成都天府机场航站樓；蘇州白荡南</td></tr>
+      <tr><td>站名裁決／統一異名節點</td><td>Seoul／Istanbul／Wuhan 等無名站補名；雪梨 Central 站 7 個異名節點統一</td></tr>
+      <tr><td>逐線 wiki 站數裁決</td><td>北京 1／4 號線貫通計法；成都 2／10／17／18 號線；蘇州 11 號線貫通運營</td></tr>
+      <tr><td>route=train 城市例外</td><td>德國五城 S-Bahn；雪梨 Sydney Trains（CityRail）市郊 T 線</td></tr>
+    </table>
+  </section>
+
+  <!-- 10: audit invariants -->
+  <section class="slide" data-title="驗證不變式">
+    <div class="eyebrow"><span class="tag"><b>08</b>驗證不變式</span><span class="rule"></span><span class="eng">VALIDATION INVARIANTS</span></div>
+    <h1 class="title">六項 error 級不變式，違反必修到 0</h1>
+    <p class="subtitle">驗證一律對照 Wikipedia 與 urbanrail.net；error 全過才算通過，warn 不擋通過但一定列出。</p>
+    <table class="tbl">
+      <tr><th>檢查</th><th>等級</th><th>規則</th></tr>
+      <tr><td>system_exists</td><td class="err">error</td><td>Wikipedia 清單城市不可能沒資料</td></tr>
+      <tr><td>stations_named</td><td class="err">error</td><td>全部車站必須有名稱（100%），合成名即資料錯誤</td></tr>
+      <tr><td>stations_have_lines</td><td class="err">error</td><td>不可能有車站沒有路線</td></tr>
+      <tr><td>line_geometry_stations</td><td class="err">error</td><td>不可能有路線沒有車站；折點/端點必為車站</td></tr>
+      <tr><td>line_wiki_stations</td><td class="err">error</td><td>逐線站數以 wiki 為準（三段式判定，扣除未通車段）</td></tr>
+      <tr><td>interchange_rule</td><td class="err">error</td><td>interchange ⇔ 不同路線通過次數 ≥2</td></tr>
+      <tr><td>station_order</td><td class="warn">warn</td><td>站序須與 wiki／urbanrail 一致，可疑者標記人工核對</td></tr>
+    </table>
+  </section>
+
+  <!-- 11: fetch⇄audit loop -->
+  <section class="slide" data-title="驗證收斂迴圈">
+    <div class="eyebrow"><span class="tag"><b>09</b>fetch ⇄ audit 收斂迴圈</span><span class="rule"></span><span class="eng">CONVERGENCE LOOP</span></div>
+    <h1 class="title">逐城市 audit，未過就換招重試</h1>
+    <p class="subtitle">全球底料一次批抓；「對不對」的判定與定向補抓都發生在逐城迴圈——每城獨立跑完，需要才抓、抓完立刻驗，直到全部通過或列入人工裁決清單。</p>
+    <div class="flowrow">
+      <div class="card blue fstep"><div class="label">缺系統</div><p>S1 綁定既有快取 → S2 定向補抓 40km → S3 放寬 80km → S4 單軌例外</p></div>
+      <div class="farrow">→</div>
+      <div class="card blue fstep"><div class="label">站數不足</div><p>Z0 併入鄰城 → Z1 定向補站 → Z2 由 stop 衍生 → Z3 定向刷新 relation</p></div>
+      <div class="farrow">→</div>
+      <div class="card blue fstep"><div class="label">仍未通過</div><p>metro:refetchfailed 全量刷新＋墓碑驗證 → 人工裁決落地 _overrides/</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:16px;">策略有限且每招只試一次 → 必然終止；未過城市留下「試過什麼、為何失敗」的完整紀錄，即人工裁決的工作清單。裁決落地後只重驗該城，不影響已通過的城市。</p>
+  </section>
+
+  <!-- 12: DIVIDER II -->
+  <section class="slide divider" data-title="Map Adjust">
+    <div class="roman">II</div>
+    <div class="stagechip"><span class="sw" style="background:var(--purple);"></span>STAGE 2 · MAP ADJUST</div>
+    <h1 class="title">Map Adjust ——<br/>收成拓撲骨架與整數格</h1>
+    <p class="subtitle">把地理路網收縮成示意圖用的骨架，保留拓撲關係、標出關鍵節點，再吸附到整數格路網，交給下一階段最佳化。</p>
+    <div class="pillrow"><span class="pill">① 骨架化六步驟</span><span class="pill">節點與邊分類</span><span class="pill">跳站特快特殊案例</span><span class="pill">② 示意格網化</span></div>
+  </section>
+
+  <!-- 13: skeleton 6-step pipeline -->
+  <section class="slide" data-title="骨架化流程">
+    <div class="eyebrow"><span class="tag"><b>10</b>骨架化六步驟</span><span class="rule"></span><span class="eng">TOPOLOGY SKELETON PIPELINE</span></div>
+    <h1 class="title">拓撲收縮，不拉直、不新增</h1>
+    <p class="subtitle">「路線圖轉換骨架2」把「選擇路線圖」的地理路網收成示意圖佈局用的骨架——保留地理折線形狀，只做拓撲收縮與標記，與早期「會拉直」的直線骨架不同。</p>
+    <table class="tbl">
+      <tr><th>步驟</th><th>內容</th></tr>
+      <tr><td>① 建圖、分節點</td><td>以 route 站序相鄰兩站建無向圖，依 degree 分類紅／藍／黑</td></tr>
+      <tr><td>② 找真交叉</td><td>逐 route 對檢查線段是否內部相交，補合成黃點節點（含同線自相交）</td></tr>
+      <tr><td>③ 收縮成邊</td><td>從紅/藍節點沿degree=2黑點鏈直到下一節點，收成一條保留原折線的「邊」</td></tr>
+      <tr><td>④ 邊分類</td><td>共線合併紅底／環線綠／頭尾共點藍，沿真實 <code class="mono">edge.geom</code> 畫襯底</td></tr>
+      <tr><td>⑤ 切紫點</td><td>頭尾共點邊弧長 1/2 處切 1 個；環線邊 1/3、2/3 處切 2 個</td></tr>
+      <tr><td>⑥ 標粉紅／灰</td><td>代表性轉折（曲折度 &gt;1.25 且 Douglas–Peucker 篩選）標粉紅；過長黑點段每 5 站分隔標灰</td></tr>
+    </table>
+  </section>
+
+  <!-- 14: node/edge legend -->
+  <section class="slide" data-title="節點與邊分類">
+    <div class="eyebrow"><span class="tag"><b>11</b>節點與邊分類</span><span class="rule"></span><span class="eng">NODE &amp; EDGE CLASSIFICATION</span></div>
+    <h1 class="title">七種節點角色，三種邊分類</h1>
+    <p class="subtitle">分類依節點 degree（相異鄰站數），不是車站的 <code class="mono">station_role</code>——共軌段上多線一起過的站鄰居仍只有兩個，正確歸為黑點，不會整條共軌冒出一串紅。</p>
+    <div class="legend">
+      <div class="item"><span class="dot" style="background:#e11d48;"></span>紅 · 分歧／轉乘（degree≥3，或兩側 route 不同的 degree-2）</div>
+      <div class="item"><span class="dot" style="background:#2563eb;"></span>藍 · 真端點（degree≤1）</div>
+      <div class="item"><span class="dot" style="background:#0f172a;"></span>黑 · 直通中段站（degree=2 且兩側 route 相同）</div>
+      <div class="item"><span class="dot" style="background:#eab308;"></span>黃 · 幾何交叉新點（合成節點，非車站）</div>
+      <div class="item"><span class="dot" style="background:#7c3aed;"></span>紫 · 頭尾共點／環線切斷點</div>
+      <div class="item"><span class="dot" style="background:#ec4899;"></span>粉紅 · 曲折邊的代表性轉折</div>
+      <div class="item"><span class="dot" style="background:#94a3b8;"></span>灰 · 過長黑點段的分隔點</div>
+    </div>
+    <div class="grid cols-2" style="margin-top:8px;">
+      <div class="card purple"><div class="label">邊分類（線底下的襯底）</div><h3>共線合併 · 環線 · 頭尾共點</h3><p>共線合併（≥2 相異色）標紅底；環線（自環）標綠、優先於頭尾共點；同對節點間 ≥2 條不同幾何邊標藍——都沿真實折線畫。</p></div>
+      <div class="card purple"><div class="label">核心原則</div><h3>線一律照原始畫法</h3><p>「原始怎麼畫，骨架就怎麼畫，只是共線變一條線」——絕不用「相鄰車站直線相連」畫線，避免特快跳站段被拉直成穿越空白的長直線。</p></div>
+    </div>
+  </section>
+
+  <!-- 15: express skip-stop special case -->
+  <section class="slide" data-title="特殊案例">
+    <div class="eyebrow"><span class="tag"><b>12</b>特殊案例</span><span class="rule"></span><span class="eng">EXPRESS SKIP-STOP HANDLING</span></div>
+    <h1 class="title">跳站特快：折點不一定是車站</h1>
+    <p class="subtitle">多數折點是車站，但跳站特快段例外——特快沿本地線的真實走廊彎行卻不停中間站，那段線 feature 的幾何會有一串非車站折點（雪梨北岸線快車 Strathfield→Redfern 段有 11 個折點，只有頭尾兩個是停靠站）。</p>
+    <div class="grid cols-2">
+      <div class="card rose"><div class="label">建圖只看停靠站</div><p>拓撲（degree／route 集合）一律由 <code class="mono">routes[].stations</code>（停靠站）建圖，不受跳站折點影響。</p></div>
+      <div class="card rose"><div class="label">畫線一定用原始幾何</div><p>繪製一律用 feature 的原始幾何 <code class="mono">path(f)</code>，不可用「相鄰停靠站直線相連」——否則跳站段會被拉成橫越空白的長直線，骨架冒出原始沒有的線。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;"><strong>邊帶真實幾何 <code class="mono">edge.geom</code></strong>：依該路線的停靠站切段，特快邊因此擁有整段穿過中段站的多折點曲線，供邊分類襯底貼線畫。曾試過「把跳站特快途經的本地站插入特快站序」合併共軌走廊，會捏造岔口與邊——已否決，只做純顯示層的 pass/stop 標記。</p>
+  </section>
+
+  <!-- 16: schematic gridding -->
+  <section class="slide" data-title="示意格網化">
+    <div class="eyebrow"><span class="tag"><b>13</b>示意格網化</span><span class="rule"></span><span class="eng">SCHEMATIC GRIDDING</span></div>
+    <h1 class="title">彩色點排出藍格排名，路線吸附到整數座標</h1>
+    <p class="subtitle">彩色點（所有非黑節點）用最密切法排出 x/y 排名，形成整數格；每條路線在彩色點切開，端點吸附、黑點在兩端之間平均放回。</p>
+    <div class="grid cols-4">
+      <div class="card purple"><div class="label">① 排名吸附</div><p>每兩個相鄰不同座標間下一條分隔線，一格至多一個彩色點，撞格用 Chebyshev 環狀外擴解衝突。</p></div>
+      <div class="card purple"><div class="label">② 邊界切線</div><p>每條路線在彩色點處切開，只在線內切、不跨線合併。</p></div>
+      <div class="card purple"><div class="label">③ 端點吸附</div><p>每段兩端吸到整數格 (欄, 列)，與預覽藍格同一套排名。</p></div>
+      <div class="card purple"><div class="label">④ 黑點均分</div><p>中段黑點沿新（拉直）小段平均放回，第 j 個站落在 j/(k+1) 處。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:16px;">格網規模依城市密度而異——<strong>台北約 67×67</strong>、<strong>北京約 165×165</strong>、<strong>紐約約 270×270</strong>；欄列是等距排名，不再保留真實地理距離比例，代價交由下游最佳化處理。</p>
+  </section>
+
+  <!-- 17: DIVIDER III -->
+  <section class="slide divider" data-title="Straighten">
+    <div class="roman">III</div>
+    <div class="stagechip"><span class="sw" style="background:var(--rose);"></span>STAGE 3 · STRAIGHTEN</div>
+    <h1 class="title">Straighten ——<br/>多準則爬山法拉直</h1>
+    <p class="subtitle">依 Stott, Rodgers, Martínez-Ovando &amp; Walker (2011) 的多準則最佳化演算法，把整數格佈局爬山到接近理想示意圖，再用四種方法把水平／垂直線段最大化。</p>
+    <div class="pillrow"><span class="pill">五項準則</span><span class="pill">硬規則與冷卻</span><span class="pill">H/V 最大化三法</span><span class="pill">LLM 對齊</span><span class="pill">收斂統計</span></div>
+  </section>
+
+  <!-- 18: hill climbing criteria -->
+  <section class="slide" data-title="爬山法準則">
+    <div class="eyebrow"><span class="tag"><b>14</b>多準則爬山法</span><span class="rule"></span><span class="eng">MULTICRITERIA OPTIMIZATION</span></div>
+    <h1 class="title">五項準則，逐頂點爬山</h1>
+    <p class="subtitle">逐頂點掃描以自身為中心、半徑 R 內所有格點，取局部適應度最低且通過硬規則者移動；先算便宜的適應度，只有更優者才跑昂貴的幾何硬規則。</p>
+    <table class="tbl">
+      <tr><th>準則</th><th>內容</th><th class="num">相對權重</th></tr>
+      <tr><td>c_N1 角解析度</td><td>相鄰邊夾角 → 趨近 2π/度數</td><td class="num">30000</td></tr>
+      <tr><td>c_N5 八方向</td><td>|sin(4θ)|，鼓勵八個標準方向</td><td class="num">9250</td></tr>
+      <tr><td>c_N2 邊長</td><td>每小段長 → hops × 理想格數 L（取初始長/hops 中位數，clamp 1–8）</td><td class="num">50</td></tr>
+      <tr><td>c_N3 平衡邊長</td><td>度 2 頂點兩側鄰段等長</td><td class="num">45</td></tr>
+      <tr><td>c_N4 平直</td><td>共路線相鄰段穿站直行（只算共享 route 的邊對）</td><td class="num">220</td></tr>
+    </table>
+    <p class="subtitle" style="margin-top:14px;">權重差距懸殊（角解析度 30000 vs 平衡邊長 45）反映論文原始設計：先保證路口清楚可辨識，再談美觀微調。</p>
+  </section>
+
+  <!-- 19: hard rules, cooling, cluster moves -->
+  <section class="slide" data-title="硬規則與冷卻">
+    <div class="eyebrow"><span class="tag"><b>15</b>硬規則、冷卻與群集移動</span><span class="rule"></span><span class="eng">HARD RULES &amp; COOLING</span></div>
+    <h1 class="title">四條硬規則否決候選，半徑逐輪冷卻</h1>
+    <div class="grid cols-2">
+      <div class="stack" style="margin-top:0;">
+        <div class="row"><span class="num-badge">1</span><div class="rowtext"><h4>邊界</h4><p>0 ≤ c &lt; cols、0 ≤ r &lt; rows，且一格一頂點。</p></div></div>
+        <div class="row"><span class="num-badge">2</span><div class="rowtext"><h4>相對位置</h4><p>對每個鄰居保持象限，符號不得翻轉。</p></div></div>
+        <div class="row"><span class="num-badge">3</span><div class="rowtext"><h4>無遮蔽</h4><p>候選點不落在他段上、移動後的段不吞掉其他頂點、不與不共端點的段相交。</p></div></div>
+        <div class="row"><span class="num-badge">4</span><div class="rowtext"><h4>邊環繞順序</h4><p>與每個鄰居的入射段依角度循環序，移動前後必須循環相等（度 ≤2 恆成立）。</p></div></div>
+      </div>
+      <div class="card rose">
+        <div class="label">冷卻與增量計算</div>
+        <h3>半徑 [2,1,1]，超長邊群集平移</h3>
+        <p>每站每輪最多 ±2 格，逐輪縮小；移動只重算受影響的節點項與鄰接小段。超長邊（段長 &gt;hops×L）以非超長邊做連通分量，每個真子集（≤200 頂點）整體平移，只檢查跨界硬規則。一整輪無改善即收斂。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20: HV maximization -->
+  <section class="slide" data-title="H/V 最大化">
+    <div class="eyebrow"><span class="tag"><b>16</b>H/V 最大化後處理</span><span class="rule"></span><span class="eng">RECTILINEAR REFINEMENT</span></div>
+    <h1 class="title">三種確定性方法，各自迭代到不動點</h1>
+    <p class="subtitle">爬山完成後，再短距離移動彩色頂點讓水平/垂直段最多（一段是 H/V ⇔ 兩端恰有一個座標相同）。三者互相獨立、可比較，共用同一套硬規則與移動原語，都迭代到不動點（上限 20 次）。</p>
+    <div class="grid cols-3">
+      <div class="card rose"><div class="label">直角爬山</div><h3>八方向準則換方向</h3><p>|sin(4θ)| 換成 |sin(2θ)|（45° 變最貴），權重 ×3、半徑 [2,1,1] 再爬一次。</p></div>
+      <div class="card rose"><div class="label">軸對齊</div><h3>方向指派＋座標指派</h3><p>逐軸把貼近該軸（45° 不算）、垂距 ≤2·maxShift 的段用 union-find 併群，每群吸到成員座標中位數（L1 最小移動）。</p></div>
+      <div class="card rose"><div class="label">整數規劃</div><h3>逐軸 0-1 精確解</h3><p>每個可對齊端點一個 offset 變數 ∈[-k,k]，最大化對齊段數（位移當 tie-break）；配對圖分連通元件，生成樹 DP 求解，環用小 feedback set 枚舉。</p></div>
+    </div>
+  </section>
+
+  <!-- 21: LLM align workflow -->
+  <section class="slide" data-title="LLM 對齊">
+    <div class="eyebrow"><span class="tag"><b>17</b>LLM 對齊工作流程</span><span class="rule"></span><span class="eng">LLM AS OPTIMIZER</span></div>
+    <h1 class="title">第四種方法：語言模型直接讀圖提案</h1>
+    <p class="subtitle">瀏覽器端沒有 API key、無法即時推論，結果離線預算、存檔，網頁只載入。提案「動哪些點」是模型的判斷；合法性不是——每輪提案都經與其他三種完全相同的硬規則套用，淨 H/V 變差整批退回。</p>
+    <div class="flowrow">
+      <div class="card green fstep"><div class="label">1 · export</div><p>印出目前佈局：offSegs（未對齊的段）、hvSegs（已對齊、鎖定方向的段）</p></div>
+      <div class="farrow">→</div>
+      <div class="card green fstep"><div class="label">2 · 模型推理</div><p>分析 offSegs，短距離提案移動（±1~3 格），寫 moves.json（含 model／note）</p></div>
+      <div class="farrow">→</div>
+      <div class="card green fstep"><div class="label">3 · apply</div><p>經硬規則套用，回報 H/V 有沒有進步、reverted、rejected 清單</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;">重複 1–3 直到 H/V 不再有進步空間，<strong>上限 10 輪</strong>。網頁按鈕顯示「n 輪 · 模型名」；<strong>絕不手改</strong>結果檔——一律經 apply 驗證。</p>
+  </section>
+
+  <!-- 22: convergence stats -->
+  <section class="slide" data-title="收斂統計">
+    <div class="eyebrow"><span class="tag"><b>18</b>收斂結果與實測統計</span><span class="rule"></span><span class="eng">CONVERGENCE STATS</span></div>
+    <h1 class="title">224 城實測，全數收斂</h1>
+    <p class="subtitle">單跑一次不是不動點——直角爬山半徑排程先用完、軸對齊/整數規劃移動後會冒出新的可對齊機會，因此都套 <code class="mono">iteratePost</code>：餵自己的輸出直到一步都沒動，上限 <code class="mono">POST_ITER_CAP = 20</code>。</p>
+    <table class="tbl">
+      <tr><th>方法</th><th>全網 H/V 改善</th><th class="num">最大迭代次數</th></tr>
+      <tr><td>整數規劃 ILP</td><td>+47.8%</td><td class="num">8</td></tr>
+      <tr><td>直角爬山</td><td>+42.9%</td><td class="num">12</td></tr>
+      <tr><td>軸對齊</td><td>+28.5%</td><td class="num">5</td></tr>
+    </table>
+    <p class="subtitle" style="margin-top:14px;">全 224 城實測 ≤12 次收斂、無循環；單城最慢（NYC 直角爬山）約 1.4 秒。每個後處理各有自己的縮減網格 tab；「縮減網格」本體 tab 與 RWD Maps 仍吃 Hill Climbing 的原始 <code class="mono">cellAfter</code>，不吃後處理結果。</p>
+  </section>
+
+  <!-- 23: DIVIDER IV -->
+  <section class="slide divider" data-title="RWD Maps">
+    <div class="roman">IV</div>
+    <div class="stagechip"><span class="sw" style="background:var(--amber);"></span>STAGE 4 · RWD MAPS</div>
+    <h1 class="title">RWD Maps ——<br/>版面路網畫線</h1>
+    <p class="subtitle">把 Straighten 的縮減網格重繪成嚴格 H/V/45° 折線；八方向約束以「畫面像素」為準，版面一變就在新像素座標重新求解，圖隨板面變形。</p>
+    <div class="pillrow"><span class="pill">同軌路線合併</span><span class="pill">候選折線</span><span class="pill">絕不交叉的五層消解</span><span class="pill">軟目標收尾</span><span class="pill">流量權重</span><span class="pill">LLM 調整</span></div>
+  </section>
+
+  <!-- 24: parallel route merging -->
+  <section class="slide" data-title="同軌路線合併">
+    <div class="eyebrow"><span class="tag"><b>19</b>同軌路線合併</span><span class="rule"></span><span class="eng">PARALLEL SEG MERGING</span></div>
+    <h1 class="title">重疊就一條，不錯開成平行線</h1>
+    <p class="subtitle">使用者裁決：RWD 要跟匯入的 network 一樣，同軌路線重疊就畫一條、不錯開。判準一律看匯入的真實幾何，不管官方圖語意。</p>
+    <div class="grid cols-2">
+      <div class="card amber"><div class="label">(A) 同端點</div><h3>共用兩個 cut 端點</h3><p>快車直達＋普通車等共端點路線，站數最多的當代表、其餘 routes 併入，其 seg 丟棄。</p></div>
+      <div class="card amber"><div class="label">(B) 幾何重疊</div><h3>快車跨過中間轉乘節點</h3><p>快車邊整條 edge.geom 都貼在另一組邊的軌道上（偏差 &lt;10m），即使跳過中間 junction，仍併入這條鏈。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;"><strong>涵蓋性防呆（絕不可省）：</strong>只有當被併掉的邊每一站都已在保留路徑上才併——否則被丟掉的獨有站會孤立。一條獨立線（如 Sydney Metro）可以和市郊鐵路共軌但有自己的車站，這種一律不併。實測全 224 城 <strong>0 孤立站</strong>。</p>
+  </section>
+
+  <!-- 25: candidate polylines -->
+  <section class="slide" data-title="候選折線">
+    <div class="eyebrow"><span class="tag"><b>20</b>候選折線與轉折優先序</span><span class="rule"></span><span class="eng">CANDIDATE ROUTING</span></div>
+    <h1 class="title">直線 &gt; 單折 &gt; 雙折，轉折數絕對優先</h1>
+    <p class="subtitle">每段依轉折數由少到多產生候選折線，所有選擇點都取「第一個零衝突候選」。方向判準：Δy≈0→H、Δx≈0→V、|Δx|≈|Δy|→45°。</p>
+    <div class="bendrow">
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,30 H90" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round"/><circle cx="10" cy="30" r="4" fill="#0f172a"/><circle cx="90" cy="30" r="4" fill="#0f172a"/></svg><div class="t">直線</div><div class="d">0 轉折</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,15 H55 L90,50" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="4" fill="#0f172a"/><circle cx="90" cy="50" r="4" fill="#0f172a"/></svg><div class="t">單轉折</div><div class="d">L 形或 45°收尾</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,15 L35,40 H65 L90,15" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="4" fill="#0f172a"/><circle cx="90" cy="15" r="4" fill="#0f172a"/></svg><div class="t">雙轉折</div><div class="d">45–H–45 或 45–V–45</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,10 L90,50" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="5 4"/><circle cx="10" cy="10" r="4" fill="#0f172a"/><circle cx="90" cy="50" r="4" fill="#0f172a"/></svg><div class="t">兜底</div><div class="d">全衝突才用非法角度</div></div>
+    </div>
+    <p class="subtitle" style="margin-top:16px;"><strong>45°轉45° 禁止：</strong>折線不得有兩條相鄰腿皆為斜線（不同族），因此 H/V 線沒有合法單折繞行（唯一單折是被禁的 45-45 三角），只剩雙折平行偏移。</p>
+  </section>
+
+  <!-- 26: conflict escalation -->
+  <section class="slide" data-title="絕不交叉">
+    <div class="eyebrow"><span class="tag"><b>21</b>絕不交叉的五層消解</span><span class="rule"></span><span class="eng">CONFLICT ESCALATION</span></div>
+    <h1 class="title">候選都衝突時，依序升級五個層級</h1>
+    <p class="subtitle">「路線交叉絕不允許」是最高優先硬規則；衝突判定含共線重疊/平行貼線、線段相交（端點對端點除外）、壓過節點三種。</p>
+    <div class="stack" style="margin-top:8px;">
+      <div class="row"><span class="num-badge">1</span><div class="rowtext"><h4>衝突消減重掃</h4><p>全部繞線完後重訪每條仍有衝突的線，以完整資訊重選最少衝突候選，至多 4 輪。</p></div></div>
+      <div class="row"><span class="num-badge">2</span><div class="rowtext"><h4>A* 格點佈線</h4><p>半格 lattice 上找只穿過自由空間的路徑；正方虛擬格時斜向步進也合法（8 方向）。</p></div></div>
+      <div class="row"><span class="num-badge">3</span><div class="rowtext"><h4>Rip-up &amp; Reroute</h4><p>PCB 佈線手法：被封死（Jordan 曲線圍死）時，拆掉最常撞到的牆線，先畫被關的段、再讓牆線改繞。</p></div></div>
+      <div class="row"><span class="num-badge">4</span><div class="rowtext"><h4>Restart-with-priority</h4><p>仍失敗的段下一輪全圖重排時最先繞線（牆還沒築起來），原牆線改繞它們；至多 6 輪。</p></div></div>
+      <div class="row"><span class="num-badge">5</span><div class="rowtext"><h4>窄縫救援</h4><p>最後仍無路的段以 60% 貼線距離再 A* 一次，交叉依然絕禁。</p></div></div>
+    </div>
+    <p class="subtitle" style="margin-top:12px;"><strong>實測：</strong>台北／倫敦／北京 0 殘留衝突；全 224 城 0 孤立站、0 非法角度兜底；紐約曼哈頓密網 5/451 段列為已知極限。</p>
+  </section>
+
+  <!-- 27: soft goals -->
+  <section class="slide" data-title="軟目標收尾">
+    <div class="eyebrow"><span class="tag"><b>22</b>軟目標與收尾迭代</span><span class="rule"></span><span class="eng">SOFT GOALS</span></div>
+    <h1 class="title">同名路線盡量不轉折，L 形能改 45° 就改</h1>
+    <p class="subtitle">衝突消解後的微調，排在折數絕對優先序之後——不會為此增加任何段的折數。</p>
+    <div class="grid cols-2">
+      <div class="card amber"><div class="label">順接軟調整</div><h3>續接角評分</h3><p>同轉折數的候選間互換，分數＝與共站同路線折線的續接角——直線續接(180°) 最佳，依序 135°、90°、45°。</p></div>
+      <div class="card amber"><div class="label">L→45（最後一步）</div><h3>能改就必須改</h3><p>純水平接垂直的單折 L 形，若改成「45°＋直線」不與任何線重疊，就必須改——排在收尾迭代的最末，結果不再被其他 pass 改動。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;">收尾迭代跑兩輪：〔順接軟調整 → 降折到定點 → L→45（最後）〕，每步挪動走廊後回頭重撿。</p>
+  </section>
+
+  <!-- 28: traffic weight -->
+  <section class="slide" data-title="流量權重">
+    <div class="eyebrow"><span class="tag"><b>23</b>流量權重與響應式概括化</span><span class="rule"></span><span class="eng">WEIGHT-DRIVEN GENERALIZATION</span></div>
+    <h1 class="title">依流量放大主幹、隱藏次要站</h1>
+    <p class="subtitle">版面簡化不改拓撲——只把權重轉成非均勻的欄寬列高，在新像素座標重跑 RWD 繪線。weight 粒度＝相鄰兩站的 link，不是段的兩端點。</p>
+    <div class="grid cols-2">
+      <div class="card amber"><div class="label">非均勻欄列</div><h3>取 max 不取 sum</h3><p>欄寬列高由 link weight 取最忙那條決定；權重 0 的欄列不消失（保留 ≈0.25× 均勻寬的下限），外框固定。</p></div>
+      <div class="card amber"><div class="label">自動隱藏白點</div><h3>全域 cutoff 一致</h3><p>逐段算「均分後站距 ≥ 最小站距 pt 所需的 weight 差門檻」，取 max 為全域 cutoff T；任何白點左右 link 差 ≤T 就隱藏，剩餘站沿弧長重新分配。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;">權重改變不瞬跳——~700ms 內內插起點到目標的格線位置，每幀用內插後座標重算並跑快速版 buildRwdMap，最後一幀走完整品質（settle 到無交叉版面）。</p>
+  </section>
+
+  <!-- 29: LLM grid -->
+  <section class="slide" data-title="LLM 調整">
+    <div class="eyebrow"><span class="tag"><b>24</b>LLM 調整工作流程</span><span class="rule"></span><span class="eng">NATURAL-LANGUAGE GRID WEIGHTS</span></div>
+    <h1 class="title">一句話，讓 AI 推理每欄每列的顯示權重</h1>
+    <p class="subtitle">第二種「權重＝大小」來源：使用者說「把市中心那幾欄拉開」，語言模型逐欄／逐列推理顯示權重——不搬任何站的整數格座標，只改顯示比例，不做任何幾何求解。</p>
+    <div class="codebox">{ <span class="k">"model"</span>: <span class="s">"Fable 5"</span>, <span class="k">"colW"</span>: [1, 1, 4.5, 3, 1, 0.8], <span class="k">"rowW"</span>: [0.9, 1, 3.8, 1.2],
+  <span class="k">"note"</span>: <span class="s">"市中心兩欄放大 4.5x／3x，緊鄰一欄緩衝"</span>,
+  <span class="k">"userPrompt"</span>: <span class="s">"把市中心那幾欄拉開"</span> }</div>
+    <p class="subtitle" style="margin-top:14px;"><strong>規則：</strong>必須給全部區間權重、只能回區間 weight（不可回單點座標）；核心目標區間縮放要明顯（3–5 倍，至少一組 ≥3）；漸近而非單格尖峰——核心最大、緊鄰緩衝、外層回到 1。系統負責正規化外框與重畫，模型只決定意圖與強度。</p>
+  </section>
+
+  <!-- 30: system at a glance -->
+  <section class="slide" data-title="系統總覽">
+    <div class="eyebrow"><span class="tag"><b>25</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
+    <h1 class="title">一個瀏覽器，跑完整條產線</h1>
+    <div class="grid cols-4">
+      <div class="card blue"><div class="big">228</div><p>城市路網資料集</p></div>
+      <div class="card purple"><div class="big">4</div><p>圖層群組階段</p></div>
+      <div class="card rose"><div class="big">100%</div><p>前端純函式求解</p></div>
+      <div class="card amber"><div class="big">RWD</div><p>響應式交付（桌機/平板/手機）</p></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:16px;">
+      <div class="card"><div class="label">技術堆疊</div><h3>Vue 3 · Pinia · MapLibre · D3 v7</h3><p>地理底圖用 MapLibre，示意圖渲染用 D3；佈局最佳化與畫線全部在瀏覽器執行，部署於 GitHub Pages 靜態站台。</p></div>
+      <div class="card"><div class="label">介面</div><h3>多面板・圖層即產線</h3><p>每個「圖層分頁」對應產線一個階段，可逐步檢視與調整；LLM 對齊／調整為選用性離線步驟，其餘全零網路、零 token。</p></div>
+    </div>
+  </section>
+
+  <!-- 31: Closing -->
+  <section class="slide closing" data-title="查看實際運作">
+    <div class="eyebrow" style="justify-content:center;"><span class="eng">THANK YOU</span></div>
+    <h1 class="title">查看實際運作</h1>
+    <p class="subtitle">回到系統，逐一開啟 Metro Maps → Map Adjust → Straighten → RWD Maps 四個圖層群組，看真實城市如何一步步變成響應式示意圖。</p>
+    <div class="cta">
+      <a class="btn primary" href="../">回到系統</a>
+      <a class="btn ghost" href="#" onclick="history.back();return false;">‹ 返回上一頁</a>
+    </div>
+  </section>
+
+</div>
+
+<div class="chrome">
+  <div class="progress" id="progress"></div>
+  <a class="backlink" href="../"><span>‹</span><span class="txt">回到系統</span></a>
+  <button class="fsbtn" id="fsBtn" title="全螢幕 (F)" aria-label="全螢幕">⤢</button>
+  <div class="edgezone left" id="edgeLeft"></div>
+  <div class="edgezone right" id="edgeRight"></div>
+  <div class="navbar">
+    <button class="navbtn" id="prevBtn" aria-label="上一頁">‹</button>
+    <span class="counter" id="counter">1 / 31</span>
+    <button class="navbtn" id="nextBtn" aria-label="下一頁">›</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0;
+
+  var progressEl = document.getElementById('progress');
+  var counterEl = document.getElementById('counter');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var fsBtn = document.getElementById('fsBtn');
+
+  function clamp(n){ return Math.max(0, Math.min(total - 1, n)); }
+
+  function render(){
+    slides.forEach(function(s, i){ s.classList.toggle('active', i === idx); });
+    if (slides[idx]) slides[idx].scrollTop = 0;
+    counterEl.textContent = (idx + 1) + ' / ' + total;
+    progressEl.style.width = ((idx + 1) / total * 100) + '%';
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === total - 1;
+    var title = slides[idx].getAttribute('data-title') || '';
+    document.title = (title ? title + ' · ' : '') + '系統介紹 · Adapt-Metro';
+    history.replaceState(null, '', '#' + (idx + 1));
+  }
+
+  function go(n){ idx = clamp(n); render(); }
+  function next(){ go(idx + 1); }
+  function prev(){ go(idx - 1); }
+
+  var hash = parseInt((location.hash || '').replace('#', ''), 10);
+  if (!isNaN(hash)) idx = clamp(hash - 1);
+  render();
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  document.getElementById('edgeLeft').addEventListener('click', prev);
+  document.getElementById('edgeRight').addEventListener('click', next);
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); go(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
+    else if (e.key === 'Escape' && document.fullscreenElement) { document.exitFullscreen(); }
+  });
+
+  var touchStartX = null;
+  document.addEventListener('touchstart', function(e){ touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function(e){
+    if (touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 44) { dx < 0 ? next() : prev(); }
+    touchStartX = null;
+  }, { passive: true });
+
+  function toggleFullscreen(){
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(function(){});
+  }
+  fsBtn.addEventListener('click', toggleFullscreen);
+})();
+</script>
+
+</body>
+</html>

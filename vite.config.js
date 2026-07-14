@@ -285,6 +285,10 @@ function copyStaticAssets() {
       for (const { id } of skills) {
         cpSync(join(skillsRoot, id, 'SKILL.md'), join(skillsDest, `${id}.md`))
       }
+
+      // 系統介紹（/slides）：純靜態頁，不需要 Vite 打包，直接照抄進 dist。
+      const slidesSrc = resolve(process.cwd(), 'slides')
+      if (existsSync(slidesSrc)) cpSync(slidesSrc, join(dist, 'slides'), { recursive: true })
     },
   }
 }

@@ -6,6 +6,7 @@ import MIcon from './MIcon.vue'
 // re-applies store migrations + data localisation). BASE_URL matches the Vite
 // base (GitHub Pages: /adapt-metro/).
 const homeUrl = import.meta.env.BASE_URL
+const slidesUrl = `${import.meta.env.BASE_URL}slides/`
 
 /* ---- Info dropdown ---- */
 const infoOpen = ref(false)
@@ -41,6 +42,8 @@ onBeforeUnmount(() => {
       <MIcon name="map" :size="16" />
       <span class="brand-name">Adapt-Metro</span>
     </a>
+
+    <a class="btn-ghost intro-link" :href="slidesUrl">系統介紹</a>
 
     <div ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
@@ -88,8 +91,8 @@ onBeforeUnmount(() => {
   text-decoration: none;
 }
 
+.intro-link { margin-left: auto; text-decoration: none; }
 .skills-wrap { position: relative; }
-.info-wrap { margin-left: auto; }
 .info-menu { top: 34px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
 </style>

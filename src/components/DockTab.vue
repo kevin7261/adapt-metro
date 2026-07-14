@@ -23,6 +23,7 @@ const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raste
 // icon) so each gallery tab matches its group's glyph in the layer list.
 const GALLERY_ICON = {
   'metro-gallery': 'train', 'map-adjust-gallery': 'polyline', 'hill-climb-gallery': 'terrain',
+  'rwd-gallery': 'route',
 }
 const panelId = computed(() => p.value.api?.id ?? inner.value.id)
 const icon = computed(() =>

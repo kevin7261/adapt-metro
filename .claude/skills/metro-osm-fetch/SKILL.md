@@ -308,7 +308,13 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `lines`（所屬線路 ref/名 tag；線無 ref 時用線名。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
 `line_ids`（所屬線路的 `route_id`，依 ref/名排序）, `line_names`（同序的線路名），
 `station_role`（`interchange`＝服務 ≥2 線／`terminus`＝某線端點（環線無端點）／`normal`；
-交會優先於端點）, `is_interchange`, `is_terminus`, `merged_from`（若由共站合併而來）,
+交會優先於端點）, `is_interchange`, `is_terminus`, `merged_from`（若由共站合併而來，
+＝被併成員數）, `merged_names`（**異名轉乘站合併後保留所有成員站名的 list**——
+每項 `{ station_id, station_name, station_name_local, lines }`，`lines` 是**該站名所屬的路線
+list**（同名多成員的 lines 取聯集），代表點排第一、依 `normName` 去重；只有 1 個相異名時為
+`null`。合併只留代表點一個 `station_name`＋全線聯集 `lines`，此欄留住被丟掉的別名及其對應路線
+——如 Novosibirsk Krasnyi Prospekt(1) 併掉的 Sibirskaya(2)、Pyongyang Chonu(1) 併掉的
+Chonsung(2)，讓地圖能標「哪個名字屬哪條線」）,
 `wikidata`, `wikipedia`（OSM 車站有 `wikipedia` 標籤時帶入，如 `en:...`；無則 `null`）。
 
 **系統中繼資料（`systems/*.geojson` 的 `metro_system` 外部成員）**：
@@ -376,7 +382,8 @@ OSM 車站常無 `network` 標籤或與路線不同，故車站**不依標籤分
 ## 共站（可轉乘＝同一車站；**不是「同名就共站」**）
 
 OSM 換乘站常是「一線一個站點」；本資料把**可轉乘（同一車站實體）**的站點合併為
-**單一點**（座標取平均、`lines` 取聯集、記 `merged_from: n`）。合併判準依序：
+**單一點**（座標取平均、`lines` 取聯集、記 `merged_from: n`；異名成員的站名以
+`merged_names` list 全數保留，見車站 schema）。合併判準依序：
 
 1. **OSM `public_transport=stop_area`（權威）**：同一 stop_area relation 內的車站節點
    ＝同一站體 → 合併（涵蓋異名/多線共構的情況）。stop_area 由 fetch 第 5 步抓取

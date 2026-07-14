@@ -15,7 +15,11 @@ import { geoMercator, geoPath } from 'd3-geo'
 import { computeOrientation } from './orientation.js'
 import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
-import { buildHillClimb, compactGrid } from './hillClimb.js'
+import {
+  buildHillClimb, compactGrid, buildHcGraph, iteratePost,
+  buildRectPolish, buildAxisAlign, buildAxisIlp,
+} from './hillClimb.js'
+import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 
 // Same palettes as D3Tab.vue.
 const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
@@ -399,3 +403,124 @@ export function hcViewLabels(tilt) {
     'compact-rot': `${rot} · 縮減網格`,
   }
 }
+
+// ---- RWD Maps gallery: 4 縮減網格變體 × (縮減網格 | RWD 路網) = 8 views ----
+// The polyline `pts` (pixel) of one routed segment → an SVG path string.
+function rwdPtsD(pts) {
+  return pts.map((p, i) => `${i ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join(' ')
+}
+
+// Serialize one RWD result (buildRwdMap output) like drawFromPos: interleaved
+// co-line strokes per routed segment, edge-class / residual-conflict highlight
+// underlay, and role-coloured station dots re-placed onto the polylines
+// (posAfter). Mirrors D3Tab.vue's RWD branch.
+function drawRwd(skeleton, stations, rwd, sep) {
+  const lines = []
+  const hl = []
+  for (const L of rwd.lines) {
+    const e = L.seg.edge
+    const d = rwdPtsD(L.pts)
+    for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
+    if (L.forced) hl.push({ d, color: '#f59e0b' })
+    else if (EDGE_HL[e.cls]) hl.push({ d, color: EDGE_HL[e.cls] })
+  }
+  const dots = []
+  for (const f of stations) {
+    const p = rwd.posAfter.get(f.properties.station_id)
+    if (!p) continue
+    dots.push({ x: +p[0].toFixed(1), y: +p[1].toFixed(1), fill: NODE_COLOR[skeleton.stationClass.get(f.properties.station_id)] ?? '#ffffff' })
+  }
+  for (const c of skeleton.crossings ?? []) {
+    const p = rwd.posAfter.get(c.id)
+    if (!p) continue
+    dots.push({ x: +p[0].toFixed(1), y: +p[1].toFixed(1), fill: NODE_COLOR.yellow })
+  }
+  const out = { lines, hl, dots }
+  if (sep) out.grid = { xs: sep.xs.map((v) => +v.toFixed(1)), ys: sep.ys.map((v) => +v.toFixed(1)) }
+  return out
+}
+
+// Compute the 8 RWD Maps gallery views for one city (原始 variant): each of the
+// four 縮減網格 sources (基本 / 直角爬山 / 軸對齊 / 整數規劃) as both the compact
+// grid AND its RWD 路網 redraw. Same pure stores the live RWD tab uses.
+export function computeCityRwdViews(geojson, opts = {}) {
+  const W = opts.W ?? 200
+  const H = opts.H ?? 150
+  const pad = opts.pad ?? 14
+  const extPair = [[pad, pad], [W - pad, H - pad]]
+  const extArr = [pad, pad, W - pad, H - pad]
+  const x0 = pad, y0 = pad, x1 = W - pad, y1 = H - pad
+
+  const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
+  const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
+  const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
+
+  const tilt = computeOrientation(geojson).tilt
+  const skeleton = buildConnectSkeleton(geojson)
+  const projection = geoMercator().angle(0).fitExtent(extPair, fitFC) // gallery = 原始 variant
+  const projById = new Map()
+  for (const f of stations) { const p = projection(f.geometry.coordinates); if (p) projById.set(f.properties.station_id, p) }
+  for (const c of skeleton.crossings ?? []) { const p = projection(c.coord); if (p) projById.set(c.id, p) }
+  const grid = buildSchematicGrid(skeleton, projById, extArr)
+  const snap = (id) => grid.posAfter.get(id) ?? null
+  const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+  // Topology segments (from the original grid cellOf), parallel/same-track merged
+  // — positions come from each compact layout below.
+  const segs = mergeParallelSegs(buildHcGraph(skeleton, grid.cellOf).segs)
+  const cellMapper = (nC, nR) => {
+    const cw = (x1 - x0) / nC, ch = (y1 - y0) / nR
+    return {
+      cw, ch,
+      cellPx: ([c, r]) => [x0 + (c + 0.5) * cw, y0 + (r + 0.5) * ch],
+      sep: {
+        xs: Array.from({ length: nC + 1 }, (_, i) => x0 + i * cw),
+        ys: Array.from({ length: nR + 1 }, (_, i) => y0 + i * ch),
+      },
+    }
+  }
+  const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+  const views = {}
+  for (const kind of ['hc', 'rect', 'align', 'ilp']) {
+    const cells = POST[kind]
+      ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+      : hc.cellAfter
+    const comp = compactGrid(cells, grid.cols, grid.rows)
+    const m = cellMapper(comp.cols, comp.rows)
+    // 縮減網格: original network snapped to the compact cells (per-feature).
+    const compPos = new Map()
+    for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
+    placeBlacks(skeleton, compPos, snap)
+    views[`compact-${kind}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
+    // RWD 路網: strict H/V/45° redraw of that compact layout.
+    const pxPos = new Map()
+    for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
+    const rwd = buildRwdMap(segs, pxPos, {
+      unit: Math.min(m.cw, m.ch),
+      lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
+    })
+    views[`rwd-${kind}`] = drawRwd(skeleton, stations, rwd, m.sep)
+  }
+  return { W, H, tilt, canRotate: Math.abs(tilt) >= 0.5, views }
+}
+
+// The 8 RWD gallery views, in display order: 縮減網格 | RWD 路網 per compact source.
+export const RWD_VIEW_ORDER = [
+  'compact-hc', 'rwd-hc',
+  'compact-rect', 'rwd-rect',
+  'compact-align', 'rwd-align',
+  'compact-ilp', 'rwd-ilp',
+]
+
+// View id → 中文 caption for the RWD gallery.
+export const RWD_VIEW_LABELS = {
+  'compact-hc': '縮減網格',
+  'rwd-hc': '縮減網格 · RWD 路網',
+  'compact-rect': '直角爬山縮減',
+  'rwd-rect': '直角爬山縮減 · RWD 路網',
+  'compact-align': '軸對齊縮減',
+  'rwd-align': '軸對齊縮減 · RWD 路網',
+  'compact-ilp': '整數規劃縮減',
+  'rwd-ilp': '整數規劃縮減 · RWD 路網',
+}
+// The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp').
+export const rwdCellCompact = (viewId) => (viewId ?? '').replace(/^(compact|rwd)-/, '') || 'hc'

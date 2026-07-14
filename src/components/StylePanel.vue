@@ -92,7 +92,9 @@ const selectedEntries = computed(() => {
   const p = selectedProps.value
   if (!p) return []
   // Skip internal render-only props (e.g. `_c0.._c5` flattened dash colours).
-  return Object.keys(p).filter((k) => !k.startsWith('_')).sort().map((k) => {
+  // merged_names is rendered as its own formatted block (per-name line chips),
+  // so keep it out of the raw key/value table.
+  return Object.keys(p).filter((k) => !k.startsWith('_') && k !== 'merged_names').sort().map((k) => {
     let v = p[k]
     if (typeof v === 'string' && /^[[{]/.test(v.trim())) {
       try { v = JSON.parse(v) } catch { /* leave as-is */ }
@@ -120,6 +122,48 @@ const stopRoutes = computed(() => {
 const passRoutes = computed(() => {
   const sid = selectedProps.value?.station_id
   return (sid && passThrough.value?.passByStation.get(sid)) || []
+})
+// 共站合併：異名轉乘站（merged_names）——各成員站名＋該名所屬路線。
+// 路線色以 ref 對應 metroLines 的 route_color；ref 找不到色時退玫瑰紅。
+const mergedNames = computed(() => {
+  let v = selectedProps.value?.merged_names
+  if (typeof v === 'string') { try { v = JSON.parse(v) } catch { return [] } }
+  if (!Array.isArray(v)) return []
+  const colorByRef = new Map()
+  for (const r of metroLines.value)
+    if (r.route_ref != null) colorByRef.set(String(r.route_ref), r.route_color ?? '#e11d48')
+  return v.map((e) => ({
+    station_id: e.station_id,
+    name: e.station_name,
+    nameLocal: e.station_name_local && e.station_name_local !== e.station_name ? e.station_name_local : null,
+    lines: (e.lines ?? []).map((ref) => ({ ref: String(ref), color: colorByRef.get(String(ref)) ?? '#e11d48' })),
+  }))
+})
+// 物件 tab 最上方標題（車站與路段同一版面）：
+//  · 車站（有 station_id）：站名（英文 + 在地名）；共站異名轉乘以 " / " 併（"a / b"）。
+//  · 路段（有 routes）：行經的路線名以 " / " 併（共線段多條）。
+// 兩者都回 { name, nameLocal }，用同一個 .obj-title 樣式渲染。
+const joinTitle = (list) => {
+  const name = list.map((e) => e.name).join(' / ')
+  const local = list.map((e) => e.nameLocal || e.name).join(' / ')
+  return { name, nameLocal: local !== name ? local : null }
+}
+const objectTitle = computed(() => {
+  const p = selectedProps.value
+  if (!p) return null
+  if (p.station_id) {
+    const mn = mergedNames.value
+    if (mn.length > 1) return joinTitle(mn)
+    const name = p.station_name || p.station_name_local
+    if (!name) return null
+    return {
+      name,
+      nameLocal: p.station_name_local && p.station_name_local !== name ? p.station_name_local : null,
+    }
+  }
+  const rl = selectedRouteLists.value
+  if (rl.length) return joinTitle(rl)
+  return null
 })
 // The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
 watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
@@ -154,6 +198,7 @@ const selectedRouteLists = computed(() => {
   return routes.map((r) => ({
     route_id: r.route_id,
     name: r.route_name ?? r.route_id,
+    nameLocal: r.route_name_local && r.route_name_local !== r.route_name ? r.route_name_local : null,
     ref: r.route_ref,
     color: r.route_color ?? '#e11d48',
     // Merged order: stops + 通過不停(pass:true) interleaved by position; falls
@@ -813,6 +858,11 @@ function startResize(e) {
           <div v-if="!selectedEntries.length" class="obj-empty">
             點地圖上的物件以檢視其屬性
           </div>
+          <!-- 車站/路段：最上方顯示名稱（英文 + 在地名），共站/共線以 " / " 併 -->
+          <div v-if="objectTitle" class="obj-title">
+            {{ objectTitle.name }}
+            <span v-if="objectTitle.nameLocal" class="obj-title-local">{{ objectTitle.nameLocal }}</span>
+          </div>
           <!-- 路段：站序中同時列停靠與通過(不停)站，pass 站標記、灰字並排在正確位置 -->
           <template v-for="rt in selectedRouteLists" :key="rt.route_id">
             <div class="obj-route-head">
@@ -827,6 +877,16 @@ function startResize(e) {
               </li>
             </ol>
           </template>
+          <!-- 共站合併：異名轉乘站——每條線在此站的不同站名 -->
+          <div v-if="mergedNames.length" class="obj-merged">
+            <div class="obj-pass-sub">共站站名（各線不同名）</div>
+            <div v-for="mn in mergedNames" :key="mn.station_id" class="obj-merged-row">
+              <span class="obj-merged-name">{{ mn.name
+                }}<span v-if="mn.nameLocal" class="obj-merged-local">{{ mn.nameLocal }}</span></span>
+              <span v-for="ln in mn.lines" :key="ln.ref" class="line-ref obj-merged-line"
+                :style="{ background: ln.color }">{{ ln.ref }}</span>
+            </div>
+          </div>
           <!-- 車站：停靠此站的路線 + 行經(不停靠)的路線 -->
           <div v-if="stopRoutes.length || passRoutes.length" class="obj-pass">
             <div v-if="stopRoutes.length" class="obj-pass-sub">停靠路線</div>
@@ -1127,6 +1187,25 @@ function startResize(e) {
   font-size: 10.5px; font-weight: 600; color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border)); border-radius: 999px; padding: 0 7px;
 }
+/* 物件標題（車站名 / 路線名，物件 tab 最上方） */
+.obj-title {
+  margin: 0 0 8px; font-size: 15px; font-weight: 700; line-height: 1.3;
+  color: hsl(var(--foreground));
+}
+.obj-title-local {
+  display: block; margin-top: 1px;
+  font-size: 12px; font-weight: 400; color: hsl(var(--muted-foreground));
+}
+/* 共站合併：異名轉乘站的各線站名 */
+.obj-merged { margin: 6px 0 10px; }
+.obj-merged-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; padding: 2px 0; min-width: 0;
+}
+.obj-merged-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.obj-merged-local { margin-left: 5px; font-size: 11px; color: hsl(var(--muted-foreground)); }
+.obj-merged-line { margin-left: auto; color: #fff; flex-shrink: 0; }
+.obj-merged-row .obj-merged-line + .obj-merged-line { margin-left: 4px; }
 .obj-station-list {
   margin: 0 0 10px; padding-left: 26px; font-size: 12px; line-height: 1.7;
   color: hsl(var(--foreground));

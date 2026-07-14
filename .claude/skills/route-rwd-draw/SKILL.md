@@ -56,6 +56,10 @@ Hill Climbing 圖層的 縮減網格（compactGrid cells）
 - Tab 有 3 個視圖：**縮減網格**（輸入）、**RWD 路網**（結果）與 **LLM調整**
   （同一套 RWD 畫線，欄寬列高改由 LLM 推理的區間權重決定，見 [[route-llm-grid]]
   與下方「LLM 調整」節）；工具列顯示段數與轉折直方圖（直線/單折/雙折/兜底/強制重疊）。
+- **8 視圖畫廊**（RWD Maps group 的方格鈕 → `openRwdGalleryTab`）：全城市預算縮圖，
+  每城 4 種縮減網格（基本/直角爬山/軸對齊/整數規劃）× (縮減網格 | RWD 路網)＝8 格。
+  離線由 `computeCityRwdViews`（viewGeometry.js）算、存 `data/metro/rwdviews/<id>.json`，
+  `RwdGallery.vue`＋`RwdViewGrid.vue` 載入；點一格＝建立 metro→d3→HC(原始)→RWD(該縮減)。
 
 ## 候選折線（轉折數由少到多）
 

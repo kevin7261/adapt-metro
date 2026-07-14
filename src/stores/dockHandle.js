@@ -69,3 +69,19 @@ export function openHcGalleryTab() {
     renderer: 'always',
   })
 }
+
+// Open (or focus) the RWD Maps gallery tab — every city's 8 pre-computed RWD
+// views as a 4×2 card grid (data/metro/rwdviews/): 4 縮減網格變體 × 縮減網格|RWD 路網.
+export function openRwdGalleryTab() {
+  const api = dockHandle.api
+  if (!api) return
+  const existing = api.getPanel('rwd-gallery')
+  if (existing) { existing.api.setActive(); return }
+  api.addPanel({
+    id: 'rwd-gallery',
+    component: 'rwd-gallery',
+    title: 'RWD Maps · 8 視圖',
+    params: { title: 'RWD Maps · 8 視圖', icon: 'route' },
+    renderer: 'always',
+  })
+}

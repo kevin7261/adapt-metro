@@ -1380,12 +1380,48 @@ async function build() {
       const lines = [...new Set(members.flatMap((m) => m.properties.lines || []))].sort()
       const lon = members.reduce((s, m) => s + m.geometry.coordinates[0], 0) / members.length
       const lat = members.reduce((s, m) => s + m.geometry.coordinates[1], 0) / members.length
+      // 異名轉乘站合併後只留代表點一個 station_name，其餘成員名會消失
+      // （Sibirskaya→Krasnyi Prospekt、Chonsung→Chonu）——用 merged_names 保留
+      // 每個相異站名的 id/英文名/在地名＋該名所屬路線，依 normName 去重、
+      // 代表點排第一；同名多成員（上下行/快慢車月台）的 lines 取聯集。
+      // keyMap 同時以英文名與在地名正規化為鍵指向同一 entry——避免只有 Cyrillic
+      // name（無 name:en）的成員與有 name:en＋同 name:local 的成員被當成兩個名字
+      // （Novosibirsk 的 "Сибирская" vs "Sibirskaya"/local "Сибирская"）。
+      const entries = []
+      const keyMap = new Map()
+      for (const m of [first, ...members.filter((m) => m !== first)]) {
+        const nm = m.properties.station_name || ''
+        if (/^n\d+$/.test(nm)) continue
+        const kName = normName(nm)
+        const kLocal = normName(m.properties.station_name_local || '')
+        if (!kName) continue
+        let entry = keyMap.get(kName) || (kLocal && keyMap.get(kLocal))
+        if (!entry) {
+          entry = {
+            station_id: m.properties.station_id,
+            station_name: m.properties.station_name,
+            station_name_local: m.properties.station_name_local ?? null,
+            lines: new Set(),
+          }
+          entries.push(entry)
+        }
+        for (const l of m.properties.lines || []) entry.lines.add(l)
+        keyMap.set(kName, entry)
+        if (kLocal) keyMap.set(kLocal, entry)
+      }
+      const mergedNames = entries.map((e) => ({
+        station_id: e.station_id,
+        station_name: e.station_name,
+        station_name_local: e.station_name_local,
+        lines: [...e.lines].sort(),
+      }))
       keep.push({
         type: 'Feature',
         properties: {
           ...first.properties,
           lines: lines.length ? lines : null,
           merged_from: members.length,
+          merged_names: mergedNames.length > 1 ? mergedNames : null,
         },
         geometry: { type: 'Point', coordinates: [lon, lat] },
       })

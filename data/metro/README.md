@@ -80,7 +80,9 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 `operator`, `city`, `country`,
 `lines`（所屬線路 tag，**至少一條**——空值屬資料錯誤，verify 標 `no_line`）,
 `line_ids`, `line_names`, `station_role`（interchange/terminus/normal）,
-`is_interchange`, `is_terminus`, `merged_from`（共站合併來源數）, `wikidata`, `wikipedia`。
+`is_interchange`, `is_terminus`, `merged_from`（共站合併來源數）,
+`merged_names`（異名轉乘站合併後保留所有成員站名的 list，每項含 station_id/站名/在地名／
+該名所屬路線 lines，單一名時為 null）, `wikidata`, `wikipedia`。
 
 **系統中繼資料（每個 `systems/*.geojson` 的 `metro_system` 欄位）:**
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 OSM network 清單）, `operator`,

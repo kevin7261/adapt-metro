@@ -16,15 +16,20 @@
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { computeCityViews, computeCityHcViews } from '../src/stores/viewGeometry.js'
+import { computeCityViews, computeCityHcViews, computeCityRwdViews, RWD_VIEW_ORDER } from '../src/stores/viewGeometry.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
 const OUT = join(BASE, 'views')
 const HC_OUT = join(BASE, 'hcviews')
+const RWD_OUT = join(BASE, 'rwdviews')
 
 // Same id the gallery/layer derive from a system file: the basename sans ext.
 const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
+
+// 中文城市／國名（cityNamesZh.json，以 geojson stem 為 key）—— 寫進每個 view
+// index.json，讓三個視圖畫廊的卡片標題能中英並列（同 loadMetroCatalog）。
+const CITY_ZH = JSON.parse(await readFile(join(__dirname, '..', 'src', 'stores', 'cityNamesZh.json'), 'utf8'))
 
 async function main() {
   const index = JSON.parse(await readFile(join(BASE, 'index.json'), 'utf8'))
@@ -37,21 +42,28 @@ async function main() {
   // Fresh output dirs so removed cities don't leave stale view files behind.
   await rm(OUT, { recursive: true, force: true })
   await rm(HC_OUT, { recursive: true, force: true })
+  await rm(RWD_OUT, { recursive: true, force: true })
   await mkdir(OUT, { recursive: true })
   await mkdir(HC_OUT, { recursive: true })
+  await mkdir(RWD_OUT, { recursive: true })
 
   const catalog = []
   const hcCatalog = []
+  const rwdCatalog = []
   let ok = 0
   let hcOk = 0
+  let rwdOk = 0
   const failures = []
   const hcFailures = []
+  const rwdFailures = []
 
   const meta = (sys, id, r) => ({
     id,
     file: sys.file,
     city: sys.city,
     country: sys.country,
+    cityZh: CITY_ZH[id]?.city ?? sys.city,
+    countryZh: CITY_ZH[id]?.country ?? sys.country,
     continent: sys.continent,
     line_count: sys.line_count,
     station_count: sys.station_count,
@@ -93,6 +105,18 @@ async function main() {
     } catch (err) {
       hcFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
     }
+
+    // 8 RWD Maps views (4 縮減網格變體 × 縮減網格|RWD 路網)
+    try {
+      const r = computeCityRwdViews(geojson)
+      await writeFile(join(RWD_OUT, `${id}.json`), JSON.stringify({
+        ...meta(sys, id, r), W: r.W, H: r.H, views: r.views,
+      }))
+      rwdCatalog.push(meta(sys, id, r))
+      rwdOk++
+    } catch (err) {
+      rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
+    }
   }
 
   // Keep catalogs in index.json order (already sorted upstream).
@@ -110,11 +134,19 @@ async function main() {
     system_count: hcCatalog.length,
     systems: hcCatalog,
   }))
+  await writeFile(join(RWD_OUT, 'index.json'), JSON.stringify({
+    generated_from: 'scripts/buildViews.mjs',
+    view_ids: RWD_VIEW_ORDER,
+    system_count: rwdCatalog.length,
+    systems: rwdCatalog,
+  }))
 
   console.log(`views:   ${ok}/${systems.length} 城市 → data/metro/views/`)
   console.log(`hcviews: ${hcOk}/${systems.length} 城市 → data/metro/hcviews/`)
+  console.log(`rwdviews: ${rwdOk}/${systems.length} 城市 → data/metro/rwdviews/`)
   for (const f of failures) console.log(`  ✗ views   ${f.id} (${f.city}) — ${f.error}`)
   for (const f of hcFailures) console.log(`  ✗ hcviews ${f.id} (${f.city}) — ${f.error}`)
+  for (const f of rwdFailures) console.log(`  ✗ rwdviews ${f.id} (${f.city}) — ${f.error}`)
 }
 
 main().catch((err) => { console.error(err); process.exit(1) })

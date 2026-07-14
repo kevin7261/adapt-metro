@@ -48,8 +48,7 @@ onBeforeUnmount(() => observer?.disconnect())
     <div class="ngrid">
       <!-- title cell -->
       <button class="cell title-cell" :title="`建立 ${entry.cityZh ?? entry.city} Map Adjust 視圖`" @click="emit('pick', entry)">
-        <span class="tc-city">{{ entry.cityZh ?? entry.city }}</span>
-        <span class="tc-sub">{{ entry.countryZh ?? entry.country }}</span>
+        <span class="tc-city">{{ entry.cityZh ?? entry.city }} · {{ entry.countryZh ?? entry.country }}</span>
         <span class="tc-en">{{ entry.city }} · {{ entry.country }}</span>
         <span class="tc-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
         <span class="tc-open">建立 Map Adjust ›</span>
@@ -150,8 +149,7 @@ onBeforeUnmount(() => observer?.disconnect())
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .title-cell:hover .tc-city { color: hsl(var(--primary)); }
-.tc-sub { font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tc-en { font-weight: 400; font-size: 10.5px; color: hsl(var(--muted-foreground)); }
+.tc-en { font-weight: 400; font-size: 10.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tc-stats { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); margin-top: 2px; }
 .tc-open { font-size: 10.5px; color: hsl(var(--primary)); margin-top: 6px; opacity: 0; transition: opacity 0.12s; }
 .title-cell:hover .tc-open { opacity: 1; }

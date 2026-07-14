@@ -2,7 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import { openLayerTab, openGalleryTab, openViewGalleryTab, openHcGalleryTab, dockHandle } from '../stores/dockHandle'
+import { openLayerTab, openGalleryTab, openViewGalleryTab, openHcGalleryTab, openRwdGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
@@ -295,6 +295,14 @@ onBeforeUnmount(() => {
               @click.stop="store.ui.dialog = 'add-hillclimb'"
             >
               <MIcon name="add" :size="14" />
+            </button>
+            <button
+              v-if="item.group.id === 'rwd'"
+              class="btn-icon group-add"
+              title="8 視圖畫廊（全部城市 · 4 縮減網格 × 縮減網格／RWD 路網）"
+              @click.stop="openRwdGalleryTab()"
+            >
+              <MIcon name="grid_view" :size="14" />
             </button>
             <button
               v-if="item.group.id === 'rwd'"
