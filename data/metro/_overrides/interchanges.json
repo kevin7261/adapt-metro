@@ -8,7 +8,10 @@
     ["n10020463976", "n10020463977"],
     ["n289381738", "n729551828"],
     ["n4427541290", "n2295524457"],
-    ["n7944597685", "n11097510274"]
+    ["n7944597685", "n11097510274"],
+    ["n267466050", "n267309438"],
+    ["n267309843", "n267309437"],
+    ["n267310306", "n267466152"]
   ],
   "_pairs": [
     "前鎮之星 C3 ↔ 凱旋（紅線）",
@@ -18,6 +21,9 @@
     "Chonu 전우（Pyongyang 1號線千里馬線）↔ Chonsung 전승（2號線革新線）轉乘站，~230m 異名同站",
     "Station Square-1 სადგურის მოედანი-1（Tbilisi 1號線）↔ Station Square-2（2號線）轉乘站，~130m 異名同站",
     "28 May（Baku 1/2號線）↔ Cəfər Cabbarlı（2B 支線）轉乘站，~100m 異名同站",
-    "District Court（Pune 1號紫線 ↔ 2號 Aqua 線）轉乘站，~90m 異名同站"
+    "District Court（Pune 1號紫線 ↔ 2號 Aqua 線）轉乘站，~90m 異名同站",
+    "Kharkiv Derzhprom（3號線）↔ University（2號線）轉乘站，~150m 異名同站",
+    "Kharkiv Maidan Konstytutsii（1號線）↔ Istorychny Muzey（2號線）轉乘站，~30m 異名同站",
+    "Kharkiv Sportyvna（1號線）↔ Metrobudivnykiv（3號線）轉乘站，~120m 異名同站"
   ]
 }

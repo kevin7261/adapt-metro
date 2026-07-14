@@ -160,6 +160,12 @@ gap 檔一律**後載且覆蓋主快取**（後載者勝）。發現「某線 wi
   除上述值外也擋 `planned`、`razed`）。
 - 另過濾**站名括號註記**「(建設中/在建/未开通/未開通/規劃/规划/under construction/u/c)」的車站——
   中國 OSM 常只在名字標建設狀態、無 lifecycle 標籤。
+- **整條線剔除（`_overrides/route_excludes.json`）**：OSM 把實際**未通車/建設中**的線誤標成
+  營運中 `route=subway`（無 lifecycle 標籤，通過 `isOperational`），違反本不變式。列出其
+  `exclude: [<osm_route_id>...]`，build 端在 `routesTags` 組好後最前面 `delete` 這些 relation
+  （車站失去線路歸屬由 orphan-drop 清掉）。例：Kocaeli/Gebze **M1（2026 才通車）＋Körfezray
+  M2（2028）** 皆建設中，剔除後整個 Derince/Kocaeli 系統消失（Kocaeli 非 wiki 營運中 metro 城市）。
+  每筆附 wiki 依據，上游改標或實際通車後刪除該筆。
 
 **機廠/車輛段不是客運設施（`isDepot`）**：名稱含 機廠/机厂/車輛段/车辆段/depot 的
 route relation（出入段線，如「新北捷運淡海機廠」在 OSM 是一條 `route=light_rail`）與

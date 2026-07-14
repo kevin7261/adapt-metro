@@ -1,0 +1,9 @@
+{
+  "_comment": "整條線剔除（by OSM route relation id）。用於 OSM 把實際未通車/建設中的線誤標成營運中 route=subway/light_rail（通過 isOperational 過濾器）、違反 operational-only 不變式的特例。build 端在最前面把這些 relation id 從 routes 移除；連帶車站失去線路歸屬會被 orphan-drop 清掉。每筆必附 wiki 依據，上游改標或實際通車後應刪除該筆。",
+  "exclude": [19664874, 19675921, 20186679],
+  "_notes": [
+    "19675921 = Kocaeli/Gebze M1 Darıca Sahil–Gebze OSB：2026 才預定通車（查證 2026-07，尚未確認營運），建設中。",
+    "19664874, 20186679 = Kocaeli M2 Körfezray（北環輕軌）：2024-10 動工、2028 完工，建設中。",
+    "兩線剔除後 Derince/Kocaeli 整個系統消失——Kocaeli 非 Wikipedia 營運中 metro 城市，本就不該出現。"
+  ]
+}

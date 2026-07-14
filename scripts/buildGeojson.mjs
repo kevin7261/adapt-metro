@@ -250,6 +250,18 @@ async function build() {
     }
   } catch { /* no route_tag_patches override */ }
 
+  // 整條線剔除（_overrides/route_excludes.json）：OSM 誤標未通車/建設中的線為營運中
+  // route=subway（通過 isOperational），違反 operational-only 不變式。把這些 relation id
+  // 從 routesTags 移除；連帶車站失去線路歸屬由後面的 orphan-drop 清掉（如 Kocaeli/Gebze
+  // M1/Körfezray 皆建設中→整個 Derince 系統消失）。
+  try {
+    const excl = new Set(JSON.parse(
+      await readFile(join(OVERRIDES_DIR, 'route_excludes.json'), 'utf8')).exclude ?? [])
+    let n = 0
+    for (const rid of excl) if (routesTags.delete(rid)) n++
+    if (n) console.log(`  route_excludes: dropped ${n} under-construction/out-of-scope routes`)
+  } catch { /* no route_excludes override */ }
+
   const ovByRid = await readOverrides()
   const ucRids = await readUcRids()
 
@@ -1394,8 +1406,27 @@ async function build() {
       if (idxs.length === 1) { keep.push(feats[idxs[0]]); continue }
       mergedAway += idxs.length - 1
       const members = idxs.map((i) => feats[i])
-      // prefer a member with a real name as the representative
-      const first = members.find((m) => !/^n\d+$/.test(m.properties.station_name || '')) ?? members[0]
+      // 代表點站名：在有真名的成員裡挑最好的——依序：①拉丁/英文名優先（管線本來就
+      // name:en 優先，別被只有 Cyrillic name 的節點搶走：Novosibirsk 取 "Sibirskaya"
+      // 而非 "Сибирская"）②無括號註記（"District Court" 勝過 "District Court (Aqua Line)"）
+      // ③服務線最多者（主轉乘站，Baku 取 "28 May"[1,2] 而非 "Cəfər Cabbarlı"[2B]）
+      // ④最短名。代表 tags 亦取自它。
+      const isNamed = (m) => m.properties.station_name && !/^n\d+$/.test(m.properties.station_name)
+      const nonLatin = (s) => {
+        const letters = [...String(s)].filter((c) => /\p{L}/u.test(c))
+        if (!letters.length) return 1
+        return letters.filter((c) => !/[A-Za-zÀ-ɏ]/.test(c)).length / letters.length > 0.5 ? 1 : 0
+      }
+      const first = (members.some(isNamed) ? members.filter(isNamed) : members).slice().sort((a, b) => {
+        const na = a.properties.station_name || '', nb = b.properties.station_name || ''
+        const lat = nonLatin(na) - nonLatin(nb)
+        if (lat) return lat
+        const pa = /[(（]/.test(na) ? 1 : 0, pb = /[(（]/.test(nb) ? 1 : 0
+        if (pa !== pb) return pa - pb
+        const la = (a.properties.lines || []).length, lb = (b.properties.lines || []).length
+        if (la !== lb) return lb - la
+        return normName(na).length - normName(nb).length
+      })[0]
       const lines = [...new Set(members.flatMap((m) => m.properties.lines || []))].sort()
       const lon = members.reduce((s, m) => s + m.geometry.coordinates[0], 0) / members.length
       const lat = members.reduce((s, m) => s + m.geometry.coordinates[1], 0) / members.length

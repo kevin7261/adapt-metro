@@ -638,8 +638,8 @@ function startResize(e) {
           <template v-if="isMetro">
             <!-- 城市標題：中文城市。中文國名 / 英文城市。英文國名 -->
             <div class="info-title">
-              <div class="info-title-zh">{{ layer.cityZh ?? layer.city }}。{{ layer.countryZh ?? layer.country }}</div>
-              <div class="info-title-en">{{ layer.city }}。{{ layer.country }}</div>
+              <div class="info-title-zh">{{ layer.cityZh ?? layer.city }}・{{ layer.countryZh ?? layer.country }}</div>
+              <div class="info-title-en">{{ layer.city }}・{{ layer.country }}</div>
             </div>
             <div class="info-rows">
               <div class="info-row">

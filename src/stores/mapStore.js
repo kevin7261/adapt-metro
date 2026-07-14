@@ -5,11 +5,12 @@ import CITY_ZH from './cityNamesZh.json'
 
 let toastTimer = null
 
-// Display name for a metro system = Chinese 國名－城市名 (from cityNamesZh.json,
-// keyed by the geojson file stem). Falls back to the id if a city is missing.
+// Display name for a metro system = Chinese 城市・國名 (from cityNamesZh.json,
+// keyed by the geojson file stem; 中點分隔，與 Info tab 城市標題一致)。
+// Falls back to the id if a city is missing.
 function metroDisplayName(id) {
   const zh = CITY_ZH[id]
-  return zh ? `${zh.country}－${zh.city}` : id
+  return zh ? `${zh.city}・${zh.country}` : id
 }
 // Straighten (hillclimb) layers carry which grid-post variant they optimized.
 const variantLabel = (v) => (v === 'rot' ? '旋轉' : '原始')
