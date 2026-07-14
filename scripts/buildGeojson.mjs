@@ -1316,10 +1316,17 @@ async function build() {
   // (same-name-nearby is a transfer in practice; synthetic n123 names exempt);
   // (3) manually adjudicated pairs from _overrides/interchanges.json (cases
   // resolved against Wikipedia / urbanrail.net per the metro-audit skill).
-  // NFKD 拆解後把組合用變音符（U+0300–036F）去掉，讓「Gómez」與「Gomez」正規化後
-  // 相等——否則只差重音的同名站不會同名合併（Monterrey Félix U. Gómez L1/L3）。
+  // 同名正規化，供同名合併/去重用：
+  //  · NFKD＋去組合變音符：「Gómez」＝「Gomez」（Monterrey Félix U. Gómez L1/L3）。
+  //  · 去消歧義括號註記：「Anand Vihar (Blue Line)」＝「(Pink Line)」＝同站（Delhi/
+  //    Hyderabad/Kolkata/Mumbai/Istanbul…同站分屬多線各掛一個節點）。
+  //  · 去結尾羅馬數字月台序（Serdika II＝Serdika）——**不去純阿拉伯數字**，那會誤併
+  //    Terminal 1/2、Line 1/2 之類真的不同站。
   const normName = (s) => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/\s+/g, ' ').trim()
+    .replace(/[([（【].*?[)\]）】]/g, ' ')
+    .toLowerCase()
+    .replace(/\s+(?:i{2,3}|iv)$/, '')
+    .replace(/\s+/g, ' ').trim()
   const areaOf = new Map() // station node id -> [stop_area relation ids]
   try {
     const sa = JSON.parse(await readFile(join(CACHE, 'stop_areas.json'), 'utf8'))
