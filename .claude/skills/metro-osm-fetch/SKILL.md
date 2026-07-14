@@ -337,8 +337,10 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `line_ids`（所屬線路的 `route_id`，依 ref/名排序）, `line_names`（同序的線路名），
 `station_role`（`interchange`／`terminus`／`normal`，交會優先於端點。**interchange ⇔
 網絡圖 degree>2（分歧/交會，相鄰站不同）或 ≥2 條不同線在此終止（terminus-interchange，
-如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）**——兩者都是「≥2 路段相交」
-的紅點；**共軌重疊段中間站**兩線給相同前後鄰、無線在此終止 → degree=2＋termCount=0，
+如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）或**端點站且停靠 ≥2 條線**
+（全域鐵律：藍色端點站不可能有超過 1 條路線；若有＝可轉乘＝紅點——涵蓋「A 線在此為終點、
+B 線經過並停靠、共用進站方向使 degree=2」的漏判；停靠線數以 pass 排除後的 `lines` 計）**
+——三者都是「≥2 路段相交」的紅點；**共軌重疊段中間站**兩線給相同前後鄰、無線在此終止 → degree=2＋termCount=0，
 不算 interchange。**快車 pass 頂點不計入 degree**（此線只是經過不停靠，被經過的 local 站
 不因此變紅點——使用者：紐約共線 pass 不用因此畫紅點；HK AEL 經過 Tsing Yi 亦然）。
 `terminus`＝某線端點（環線無端點）；`station_degree` 存網絡圖度數）,

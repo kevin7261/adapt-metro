@@ -1835,9 +1835,11 @@ async function build() {
       const termCount = termLines.get(coordKey)?.size ?? 0
       s.properties.station_degree = deg
       // interchange ⇔ degree>2（分歧/交會）**或** ≥2 條不同線在此終止（terminus-
-      // interchange，如 Zaragoza）。兩者都是「≥2 路段相交」＝紅點；共軌中間站
-      // （degree=2、termCount=0）仍不算。
-      const isIx = deg > 2 || termCount >= 2
+      // interchange，如 Zaragoza）**或** 端點站且停靠 ≥2 條線（使用者全域規則：藍色
+      // 端點站不可能有超過 1 條路線；若有＝可轉乘＝紅點——涵蓋「A 線在此為終點、B 線
+      // 經過並停靠、共用進站方向使 degree=2」的漏判）。三者皆為「≥2 路段相交」；共軌
+      // 中間站（非端點、degree=2、termCount=0）仍不算。
+      const isIx = deg > 2 || termCount >= 2 || (s.properties.is_terminus && routes.length >= 2)
       s.properties.is_interchange = isIx
       s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
