@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1484,
-  "station_total": 16958,
+  "line_total": 1481,
+  "station_total": 16928,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -5267,112 +5267,6 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-rome.geojson",
-      "continent": "europe",
-      "country": "Italy",
-      "city": "Rome",
-      "osm_networks": [
-        "ASTRAL",
-        "ATAC",
-        "COTRAL",
-        "Metro C",
-        "Metropolitana di Roma",
-        "Rete Ferroviaria Italiana",
-        "Unknown"
-      ],
-      "operator": "ATAC",
-      "official_website": null,
-      "official_map": "https://it.wikipedia.org/wiki/Linea_B_(metropolitana_di_Roma)",
-      "wikidata": "Q2666571",
-      "line_count": 6,
-      "segment_count": 8,
-      "station_count": 104,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/europe/italy/eu-ita-rome.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "6 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "105 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 105 站（wiki List 記 74，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "105/105 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "115 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "105/105 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": false,
-            "detail": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
-          "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A"
-        ],
-        "audited_at": "2026-07-11T15:22:16.736Z"
-      }
-    },
-    {
       "file": "systems/europe/romania/eu-rou-bucharest.geojson",
       "continent": "europe",
       "country": "Romania",
@@ -8043,6 +7937,112 @@
           "4 條線無 wiki 站數對照：PATCO Speedline、PATCO Speedline: Lindenwold => 15th-16th & Locust、SEPTA Broad Street Line"
         ],
         "audited_at": "2026-07-11T15:22:16.873Z"
+      }
+    },
+    {
+      "file": "systems/europe/italy/eu-ita-rome.geojson",
+      "continent": "europe",
+      "country": "Italy",
+      "city": "Rome",
+      "osm_networks": [
+        "ASTRAL",
+        "ATAC",
+        "COTRAL",
+        "Metro C",
+        "Metropolitana di Roma",
+        "Rete Ferroviaria Italiana",
+        "Unknown"
+      ],
+      "operator": "ATAC",
+      "official_website": null,
+      "official_map": "https://it.wikipedia.org/wiki/Linea_B_(metropolitana_di_Roma)",
+      "wikidata": "Q2666571",
+      "line_count": 4,
+      "segment_count": 5,
+      "station_count": 74,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/europe/italy/eu-ita-rome.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "6 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "105 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 105 站（wiki List 記 74，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "105/105 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "115 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "105/105 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": false,
+            "detail": "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線站序可疑（路徑長 > 1.6× MST）：Metro D 1.77×，需以 Wikipedia 線路條目與 urbanrail.net 人工確認",
+          "6 條線無 wiki 站數對照：Subway B、Metro B (Laurentina)、Subway A"
+        ],
+        "audited_at": "2026-07-11T15:22:16.736Z"
       }
     },
     {
