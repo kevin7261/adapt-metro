@@ -653,7 +653,7 @@ const shortcuts = [
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-.add-d3 { width: min(960px, calc(100vw - 32px)); }
+.add-d3 { width: min(820px, calc(100vw - 32px)); }
 /* Add Straighten：同一城市一排，原始/旋轉兩個變體並排 */
 .hc-city-list {
   display: flex;
