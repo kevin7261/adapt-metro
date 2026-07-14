@@ -4,7 +4,7 @@
   "system_count": 223,
   "wikipedia_system_count": 233,
   "line_total": 1481,
-  "station_total": 17084,
+  "station_total": 17073,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -6901,7 +6901,7 @@
       "wikidata": "Q1509576",
       "line_count": 6,
       "segment_count": 6,
-      "station_count": 73,
+      "station_count": 64,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7019,7 +7019,7 @@
       "wikidata": "Q3308465",
       "line_count": 5,
       "segment_count": 6,
-      "station_count": 76,
+      "station_count": 75,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -12217,7 +12217,7 @@
       "wikidata": "Q2842186",
       "line_count": 3,
       "segment_count": 3,
-      "station_count": 39,
+      "station_count": 38,
       "audit": {
         "strategies_tried": [],
         "passed": true,

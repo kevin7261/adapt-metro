@@ -1306,7 +1306,10 @@ async function build() {
   // (same-name-nearby is a transfer in practice; synthetic n123 names exempt);
   // (3) manually adjudicated pairs from _overrides/interchanges.json (cases
   // resolved against Wikipedia / urbanrail.net per the metro-audit skill).
-  const normName = (s) => (s || '').normalize('NFKD').toLowerCase().replace(/\s+/g, ' ').trim()
+  // NFKD 拆解後把組合用變音符（U+0300–036F）去掉，讓「Gómez」與「Gomez」正規化後
+  // 相等——否則只差重音的同名站不會同名合併（Monterrey Félix U. Gómez L1/L3）。
+  const normName = (s) => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/\s+/g, ' ').trim()
   const areaOf = new Map() // station node id -> [stop_area relation ids]
   try {
     const sa = JSON.parse(await readFile(join(CACHE, 'stop_areas.json'), 'utf8'))
@@ -1454,6 +1457,12 @@ async function build() {
             lines: new Set(),
           }
           entries.push(entry)
+        } else if (nonLatin(m.properties.station_name) < nonLatin(entry.station_name)) {
+          // 同站有拉丁與 Cyrillic 兩種名時，顯示名升級成拉丁/英文版
+          // （St Petersburg "Владимирская" → "Vladimirskaya"）。
+          entry.station_id = m.properties.station_id
+          entry.station_name = m.properties.station_name
+          entry.station_name_local = m.properties.station_name_local ?? null
         }
         for (const l of m.properties.lines || []) entry.lines.add(l)
         keyMap.set(kName, entry)

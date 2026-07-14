@@ -629,7 +629,7 @@ function startResize(e) {
       </div>
 
       <div class="style-body">
-        <div class="layer-heading">
+        <div v-if="!(activeTab === 'info' && isMetro)" class="layer-heading">
           <span class="layer-name">{{ layer.name }}</span>
         </div>
 

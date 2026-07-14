@@ -11,7 +11,17 @@
     ["n7944597685", "n11097510274"],
     ["n267466050", "n267309438"],
     ["n267309843", "n267309437"],
-    ["n267310306", "n267466152"]
+    ["n267310306", "n267466152"],
+    ["n92580819", "n94857612"],
+    ["n94857612", "n1109163153"],
+    ["n94858991", "n5369186787"],
+    ["n94890886", "n4946155636"],
+    ["n97036546", "n5369186762"],
+    ["n249307183", "n291557399"],
+    ["n313476034", "n13408956405"],
+    ["n1669571976", "n1669571977"],
+    ["n2080777576", "n2194446558"],
+    ["n5148131318", "n5159984416"]
   ],
   "_pairs": [
     "前鎮之星 C3 ↔ 凱旋（紅線）",
@@ -24,6 +34,15 @@
     "District Court（Pune 1號紫線 ↔ 2號 Aqua 線）轉乘站，~90m 異名同站",
     "Kharkiv Derzhprom（3號線）↔ University（2號線）轉乘站，~150m 異名同站",
     "Kharkiv Maidan Konstytutsii（1號線）↔ Istorychny Muzey（2號線）轉乘站，~30m 異名同站",
-    "Kharkiv Sportyvna（1號線）↔ Metrobudivnykiv（3號線）轉乘站，~120m 異名同站"
+    "Kharkiv Sportyvna（1號線）↔ Metrobudivnykiv（3號線）轉乘站，~120m 異名同站",
+    "St Petersburg Sadovaya(5)↔Sennaya ploschad(2)↔Spasskaya(4) 三線轉乘（two pairs union）",
+    "St Petersburg Dostoyevskaya(4)↔Vladimirskaya(1) 轉乘",
+    "St Petersburg Ploschad Aleksandra Nevskogo 1(3)↔2(4) 同名轉乘",
+    "St Petersburg Ploschad Vosstaniya(1)↔Mayakovskaya(3) 轉乘",
+    "St Petersburg Gostiny dvor(3)↔Nevskiy prospekt(2) 轉乘",
+    "St Petersburg Kirovskiy zavod(1)↔Putilovskaya(6) 轉乘（2025-12 通車，wiki 查證）",
+    "St Petersburg Tekhnologicheskiy institut 1(2)↔2(1) 同名跨月台轉乘",
+    "St Petersburg Zvenigorodskaya(5)↔Pushkinskaya(1) 轉乘",
+    "São Paulo Paulista - Pernambucanas（4號黃線）↔ Consolação（2號綠線）轉乘站，異名同站"
   ]
 }
