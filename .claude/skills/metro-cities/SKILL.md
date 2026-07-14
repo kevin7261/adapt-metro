@@ -67,6 +67,10 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   [[metro-osm-fetch]]「支線/分支＝獨立路線」），同色由渲染層畫成一條。**T1 等快車跳站**
   （跳 T2/T5 慢車的內西區站）由**自動快車跨站共線**（[[metro-osm-fetch]]「快車跨站共線」）
   沿慢車路徑畫成共線、跳過的站是 pass。詳見 [[metro-osm-fetch]]。
+- **缺標籤補丁（`route_tag_patches.json`）**：巴拿馬城「Ramal línea 2 : Corredor Sur →
+  Aeropuerto」（機場支線，relation `15624911`）OSM 完全沒標 colour/ref，退回預設紅色、
+  與 Line 1 撞色；補 `ref: L2`＋`colour` 使其併入 Line 2 分組（同 [[metro-osm-fetch]]
+  「個別 relation 缺標籤補丁」）。
 - **新加坡 LRT（使用者：新加坡加上抓 LRT）**：三條 LRT——**Sengkang（SKLRT）標
   `route=light_rail`**（基準查詢抓到，靠 `LRT_ADDON_CITIES` 含 singapore 保留，否則覆蓋率
   arbitrate ratio>0.6 會被剔除）；**Bukit Panjang（BPLRT）／Punggol（PGLRT）標 `route=monorail`**

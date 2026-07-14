@@ -1,0 +1,9 @@
+{
+  "patches": [
+    {
+      "relation": 15624911,
+      "set": { "ref": "L2", "colour": "#48a23e" },
+      "note": "Panama City: 'Ramal línea 2 : Corredor Sur → Aeropuerto' (OSM relation 15624911) is the 3-station airport branch of Line 2 (shares Corredor Sur with the main L2 route; ITSE/Aeropuerto are its own stations). Upstream OSM tags have no colour and no ref, so it grouped as its own untagged line and fell back to the default red — visually indistinguishable from Line 1. Wikipedia/mapa-metro.com confirm the airport branch is operationally part of Line 2 and shares its green livery. Setting ref=L2 lets it merge into Line 2's group via the normal same-network+ref grouping (colour then inherited from the coloured variant); colour is set directly too as belt-and-braces. Remove once upstream OSM adds these tags."
+    }
+  ]
+}

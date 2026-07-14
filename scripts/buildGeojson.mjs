@@ -94,6 +94,8 @@ const CSS_COLORS = {
   brown: '#9a6324', beige: '#fffac8', maroon: '#800000', navy: '#000080',
   grey: '#808080', gray: '#808080', black: '#000000', white: '#ffffff',
   silver: '#c0c0c0', gold: '#ffd700', violet: '#ee82ee', indigo: '#4b0082',
+  // CSS 具名色的其餘常見值（aqua≡cyan、fuchsia≡magenta）——Pune Aqua Line 標 "aqua"
+  aqua: '#42d4f4', fuchsia: '#f032e6', olive: '#808000', turquoise: '#40e0d0',
 }
 
 function normColor(c) {
@@ -231,6 +233,23 @@ async function build() {
           !isDepot(e.tags))
         routesTags.set(e.id, e.tags || {})
   }
+  // 個別 relation 缺標籤補丁（_overrides/route_tag_patches.json）：少數 OSM route
+  // relation 本身缺 colour／ref（如巴拿馬機場支線 Ramal línea 2 relation 15624911
+  // 完全沒有 colour/ref 標籤），既非 route_master 成員也無 ref 可分組，會自成一條
+  // 沒有顏色的獨立線、退回預設色，視覺上像是抓錯顏色。這裡補回 wiki/官方來源查得
+  // 的正確標籤（通常是 ref，讓既有的「同 network+ref 分組」機制自然把它併成該線的
+  // 分支，顏色隨之從代表變體繼承）；上游補齊標籤後應移除對應條目。
+  try {
+    const patches = JSON.parse(
+      await readFile(join(OVERRIDES_DIR, 'route_tag_patches.json'), 'utf8')).patches ?? []
+    for (const p of patches) {
+      const t = routesTags.get(p.relation)
+      if (!t) { console.log(`  !! route_tag_patches: r${p.relation} not in routes cache`); continue }
+      Object.assign(t, p.set)
+      console.log(`  route_tag_patches: r${p.relation} ← ${JSON.stringify(p.set)}`)
+    }
+  } catch { /* no route_tag_patches override */ }
+
   const ovByRid = await readOverrides()
   const ucRids = await readUcRids()
 
