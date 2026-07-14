@@ -230,6 +230,120 @@ const legsOfPts = (pts) => {
   return out
 }
 
+// Collapse lines that the IMPORTED NETWORK draws on the SAME track into ONE line
+// with every route's colour interleaved — instead of the router offsetting them
+// into separate parallel lines (使用者裁決：跟匯入的 network 一樣，重疊就一條).
+// Two mechanisms, both keyed on the real imported geometry, never on official-map
+// semantics:
+//   (A) same two cut nodes — an express/direct edge + a local that stops between,
+//       or any lines sharing both endpoints.
+//   (B) geometry overlap — an express edge whose whole real track (edge.geom)
+//       lies on a CHAIN of other edges' tracks even though it skips an interior
+//       junction (so it doesn't share both endpoints). The express physically
+//       runs the same rails, just without stopping, so the network draws it on
+//       that track; RWD must too. A geometric gate (max deviation < TAU) keeps a
+//       genuinely different corridor — kilometres away — from ever being merged.
+// The most-detailed edge (longest path) carries the geometry; absorbed edges'
+// routes/colours union onto EVERY segment of it (whole chain renders interleaved)
+// and their own segments drop. Pure — builds fresh edge objects, never mutates
+// the skeleton; segment order preserved (the router is order-sensitive).
+export function mergeParallelSegs(segs) {
+  const pk = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+  const edges = []
+  const edgeSeen = new Set()
+  for (const s of segs) { const e = s.edge; if (e && !edgeSeen.has(e)) { edgeSeen.add(e); edges.push(e) } }
+
+  // Per surviving edge: accumulated routes/colours (starts from its own); plus a
+  // drop set and a rebuild map from original edge → its merged replacement.
+  const accum = new Map() // edge -> { routes:Set, colors:[] }
+  for (const e of edges) accum.set(e, { routes: new Set(e.routes ?? []), colors: [...(e.routeColors ?? [])] })
+  const dropped = new Set()
+  const absorb = (from, into) => { // fold `from`'s routes/colours into `into`
+    const a = accum.get(into)
+    for (const r of (from.routes ?? [])) a.routes.add(r)
+    for (const c of (from.routeColors ?? [])) a.colors.push(c)
+  }
+  const stations = (e) => (e.path?.length ?? 2)
+
+  // (A) same-endpoint groups: longest path is the rep, others fold into it.
+  const byPair = new Map()
+  for (const e of edges) {
+    if (e.a === e.b) continue // loops are their own class, never merged
+    const k = pk(e.a, e.b)
+    if (!byPair.has(k)) byPair.set(k, [])
+    byPair.get(k).push(e)
+  }
+  for (const group of byPair.values()) {
+    if (group.length < 2) continue
+    const rep = group.reduce((best, e) => (stations(e) > stations(best) ? e : best), group[0])
+    for (const e of group) if (e !== rep) { absorb(e, rep); dropped.add(e) }
+  }
+
+  // (B) geometry-overlap absorption (express over a junction on the same rails).
+  const ptSegD = (p, a, b) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-18
+    let t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2
+    t = t < 0 ? 0 : t > 1 ? 1 : t
+    return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy))
+  }
+  const maxDev = (A, B) => { // max distance of A's vertices to polyline B
+    if (!A || !B || A.length < 1 || B.length < 2) return Infinity
+    let m = 0
+    for (const p of A) { let d = Infinity; for (let i = 1; i < B.length; i++) d = Math.min(d, ptSegD(p, B[i - 1], B[i])); if (d > m) m = d }
+    return m
+  }
+  // ~10m in degrees. Routes sharing a track reuse the SAME imported polyline
+  // (deviation ≈ 0); even closely parallel-but-separate tracks sit further apart
+  // than this, so a tight gate merges only true same-rail overlaps.
+  const TAU = 1e-4
+  const live = edges.filter((e) => !dropped.has(e) && e.a !== e.b && (e.geom?.length ?? 0) >= 2)
+  const connects = (es, a, b) => { // do edges `es` link a to b?
+    const g = new Map(); const t = (id) => { if (!g.has(id)) g.set(id, []); return g.get(id) }
+    for (const e of es) { t(e.a).push(e.b); t(e.b).push(e.a) }
+    const q = [a], seen = new Set([a])
+    while (q.length) { const n = q.shift(); if (n === b) return true; for (const m of (g.get(n) ?? [])) if (!seen.has(m)) { seen.add(m); q.push(m) } }
+    return false
+  }
+  // Candidate express E → the chain of other edges lying fully on E's track.
+  const chains = []
+  for (const E of live) {
+    // Each chain edge must lie ON E's track (its whole geom within TAU of E's).
+    // NOT the reverse: E (the express) is LONGER than any single piece, so it
+    // extends past each — coverage is instead guaranteed by connects()+stations.
+    const chain = live.filter((x) => x !== E && maxDev(x.geom, E.geom) < TAU)
+    if (!chain.length || !connects(chain, E.a, E.b)) continue
+    const chainStations = new Set(); for (const x of chain) for (const id of (x.path ?? [])) chainStations.add(id)
+    if (chainStations.size <= stations(E)) continue // E must be the sparser (express) side
+    chains.push({ E, chain })
+  }
+  // Absorb fewest-station (most express) first; skip if the chain hit a dropped edge.
+  chains.sort((p, q) => stations(p.E) - stations(q.E))
+  for (const { E, chain } of chains) {
+    if (dropped.has(E) || chain.some((x) => dropped.has(x))) continue
+    for (const x of chain) absorb(E, x)
+    dropped.add(E)
+  }
+
+  // Rebuild: drop absorbed edges' segments; give survivors a merged edge object
+  // (coline when it now carries ≥2 distinct colours → strokesOf interleaves).
+  const mergedOf = new Map()
+  for (const e of edges) {
+    if (dropped.has(e)) continue
+    const a = accum.get(e)
+    if (a.colors.length === (e.routeColors?.length ?? 0) && a.routes.size === (e.routes?.size ?? 0)) continue // unchanged
+    const cls = new Set(a.colors).size >= 2 ? 'coline' : (e.cls ?? 'plain')
+    mergedOf.set(e, { ...e, routes: a.routes, routeColors: a.colors, cls, color: a.colors[0] ?? e.color })
+  }
+  if (!dropped.size && !mergedOf.size) return segs
+  const out = []
+  for (const s of segs) {
+    if (dropped.has(s.edge)) continue
+    const merged = mergedOf.get(s.edge)
+    out.push(merged ? { ...s, routes: merged.routes, edge: merged } : s)
+  }
+  return out
+}
+
 // `pos` = Map<id, [x, y]> PIXEL positions of the (compact-grid) cut points.
 // opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the

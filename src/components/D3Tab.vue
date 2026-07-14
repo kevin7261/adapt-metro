@@ -13,7 +13,7 @@ import {
   buildHillClimb, compactGrid, buildHcGraph,
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
 } from '../stores/hillClimb'
-import { buildRwdMap } from '../stores/rwdMap'
+import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
@@ -654,7 +654,8 @@ async function render() {
     // 權重驅動版面：'weight' 模式時 weight → 非均勻欄寬列高（weightedAxes）；否則均勻。
     // 動畫中（rwdAnimActive）：內插「起點 axes → 目標 axes」的格線位置，每幀重算。
     // 動畫幀不重算 buildHcGraph（骨架／格不變）——省每幀成本，cachedSegs 沿用。
-    if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = buildHcGraph(cachedSkeleton, grid.cellOf).segs
+    // 平行邊（共用同兩端點的快車直達＋普通車 coline）收成一條交錯線，見 mergeParallelSegs。
+    if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = mergeParallelSegs(buildHcGraph(cachedSkeleton, grid.cellOf).segs)
     // 「LLM調整」（rwd-llm）：欄寬列高不看流量 weight，改用 LLM 推理的區間權重
     // （llmgrids 結果檔）——先載入＋fingerprint 驗證，沒有結果就留白給 overlay。
     let gridAniming = false
