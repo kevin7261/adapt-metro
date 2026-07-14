@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1482,
-  "station_total": 17045,
+  "line_total": 1484,
+  "station_total": 16958,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -255,7 +255,7 @@
       "wikidata": "Q12374455",
       "line_count": 27,
       "segment_count": 51,
-      "station_count": 311,
+      "station_count": 310,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -363,7 +363,7 @@
       "wikidata": "Q19862991",
       "line_count": 21,
       "segment_count": 42,
-      "station_count": 195,
+      "station_count": 190,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -458,7 +458,7 @@
       "wikidata": "Q7388207",
       "line_count": 19,
       "segment_count": 38,
-      "station_count": 237,
+      "station_count": 235,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -789,7 +789,7 @@
       "wikidata": "Q734917",
       "line_count": 27,
       "segment_count": 29,
-      "station_count": 394,
+      "station_count": 393,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -903,7 +903,7 @@
       "wikidata": "Q1152341",
       "line_count": 21,
       "segment_count": 28,
-      "station_count": 408,
+      "station_count": 407,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1040,7 +1040,7 @@
       "wikidata": "Q20393",
       "line_count": 23,
       "segment_count": 28,
-      "station_count": 427,
+      "station_count": 426,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1320,7 +1320,7 @@
       "wikidata": "Q1374502",
       "line_count": 15,
       "segment_count": 24,
-      "station_count": 215,
+      "station_count": 212,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2072,7 +2072,7 @@
       "wikidata": "Q275451",
       "line_count": 14,
       "segment_count": 20,
-      "station_count": 155,
+      "station_count": 154,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2188,7 +2188,7 @@
       "wikidata": "Q133748",
       "line_count": 16,
       "segment_count": 20,
-      "station_count": 267,
+      "station_count": 266,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2403,6 +2403,116 @@
       }
     },
     {
+      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
+      "continent": "europe",
+      "country": "Germany",
+      "city": "Nuremberg",
+      "osm_networks": [
+        "DB",
+        "DB InfraGO",
+        "DB InfraGO AG",
+        "DB Station&Service AG",
+        "Infra Fürth GmbH",
+        "RVV;VGN",
+        "U-Bahn Nürnberg",
+        "Unknown",
+        "VAG",
+        "VAG Verkehrs-Aktiengesellschaft Nürnberg",
+        "VGN",
+        "Verkehrsverbund Großraum Nürnberg"
+      ],
+      "operator": "VAG Verkehrs-Aktiengesellschaft Nürnberg",
+      "official_website": "http://www.vgn.de/komfortauskunft/ttb/?lineName=U1&exactMatch=1",
+      "official_map": "https://de.wikipedia.org/wiki/U-Bahn_Nürnberg",
+      "wikidata": "Q3433210",
+      "line_count": 11,
+      "segment_count": 19,
+      "station_count": 135,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/europe/germany/eu-ger-nuremberg.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "11 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "138 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 138 站（wiki List 記 49，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "138/138 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "162 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "138/138 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring"
+        ],
+        "audited_at": "2026-07-11T15:22:16.689Z"
+      }
+    },
+    {
       "file": "systems/europe/russia/eu-rus-moscow.geojson",
       "continent": "europe",
       "country": "Russia",
@@ -2418,7 +2528,7 @@
       "wikidata": "Q831673",
       "line_count": 16,
       "segment_count": 18,
-      "station_count": 239,
+      "station_count": 216,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2631,7 +2741,7 @@
       "wikidata": "Q385168",
       "line_count": 14,
       "segment_count": 17,
-      "station_count": 160,
+      "station_count": 157,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2717,116 +2827,6 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
-      "continent": "europe",
-      "country": "Germany",
-      "city": "Nuremberg",
-      "osm_networks": [
-        "DB",
-        "DB InfraGO",
-        "DB InfraGO AG",
-        "DB Station&Service AG",
-        "Infra Fürth GmbH",
-        "RVV;VGN",
-        "U-Bahn Nürnberg",
-        "Unknown",
-        "VAG",
-        "VAG Verkehrs-Aktiengesellschaft Nürnberg",
-        "VGN",
-        "Verkehrsverbund Großraum Nürnberg"
-      ],
-      "operator": "VAG Verkehrs-Aktiengesellschaft Nürnberg",
-      "official_website": "http://www.vgn.de/komfortauskunft/ttb/?lineName=U1&exactMatch=1",
-      "official_map": "https://de.wikipedia.org/wiki/U-Bahn_Nürnberg",
-      "wikidata": "Q3433210",
-      "line_count": 11,
-      "segment_count": 17,
-      "station_count": 137,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/europe/germany/eu-ger-nuremberg.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "11 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "138 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 138 站（wiki List 記 49，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "138/138 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "162 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "138/138 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "11 條線無 wiki 站數對照：U-Bahn U1: Fürth Hardhöhe <=> Nürnberg Langwasser Süd、U-Bahn U2: Nürnberg Röthenbach <=> Nürnberg Flughafen、U-Bahn U3: Nürnberg Großreuth bei Schweinau <=> Nürnberg Nordwestring"
-        ],
-        "audited_at": "2026-07-11T15:22:16.689Z"
-      }
-    },
-    {
       "file": "systems/asia/china/as-chn-nanjing.geojson",
       "continent": "asia",
       "country": "China",
@@ -2850,7 +2850,7 @@
       "wikidata": "Q6553053",
       "line_count": 15,
       "segment_count": 17,
-      "station_count": 250,
+      "station_count": 249,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -2970,7 +2970,7 @@
       "wikidata": "Q1895425",
       "line_count": 13,
       "segment_count": 16,
-      "station_count": 186,
+      "station_count": 184,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3071,7 +3071,7 @@
       "wikidata": "Q3125123",
       "line_count": 14,
       "segment_count": 15,
-      "station_count": 238,
+      "station_count": 237,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3306,7 +3306,7 @@
       "wikidata": "Q503503",
       "line_count": 13,
       "segment_count": 14,
-      "station_count": 159,
+      "station_count": 157,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3409,7 +3409,7 @@
       "wikidata": "Q1054280",
       "line_count": 11,
       "segment_count": 14,
-      "station_count": 236,
+      "station_count": 235,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -3729,7 +3729,7 @@
       "wikidata": "Q1029921",
       "line_count": 12,
       "segment_count": 13,
-      "station_count": 245,
+      "station_count": 244,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4039,7 +4039,7 @@
       "wikidata": "Q1152993",
       "line_count": 12,
       "segment_count": 12,
-      "station_count": 166,
+      "station_count": 164,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -4770,7 +4770,7 @@
       "wikidata": "Q21659772",
       "line_count": 8,
       "segment_count": 9,
-      "station_count": 52,
+      "station_count": 51,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -5286,7 +5286,7 @@
       "wikidata": "Q2666571",
       "line_count": 6,
       "segment_count": 8,
-      "station_count": 105,
+      "station_count": 104,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -5387,7 +5387,7 @@
       "wikidata": "Q2735258",
       "line_count": 6,
       "segment_count": 8,
-      "station_count": 63,
+      "station_count": 59,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -6594,7 +6594,7 @@
       "wikidata": "Q3538439",
       "line_count": 6,
       "segment_count": 6,
-      "station_count": 87,
+      "station_count": 75,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7351,7 +7351,7 @@
       "wikidata": "Q6553099",
       "line_count": 6,
       "segment_count": 6,
-      "station_count": 76,
+      "station_count": 75,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -7960,7 +7960,7 @@
       "wikidata": "Q2043730",
       "line_count": 5,
       "segment_count": 5,
-      "station_count": 65,
+      "station_count": 63,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -8378,7 +8378,7 @@
       "wikidata": "Q4921598",
       "line_count": 5,
       "segment_count": 5,
-      "station_count": 106,
+      "station_count": 104,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -9826,7 +9826,7 @@
       "wikidata": "Q4515924",
       "line_count": 4,
       "segment_count": 4,
-      "station_count": 50,
+      "station_count": 46,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -10725,7 +10725,7 @@
       "wikidata": "Q28604",
       "line_count": 3,
       "segment_count": 3,
-      "station_count": 36,
+      "station_count": 33,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -10924,7 +10924,7 @@
       "wikidata": "Q13422345",
       "line_count": 3,
       "segment_count": 3,
-      "station_count": 51,
+      "station_count": 50,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -11018,7 +11018,7 @@
       "wikidata": "Q2334153",
       "line_count": 3,
       "segment_count": 3,
-      "station_count": 52,
+      "station_count": 51,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -16315,7 +16315,7 @@
       "wikidata": "Q97325177",
       "line_count": 2,
       "segment_count": 2,
-      "station_count": 47,
+      "station_count": 46,
       "audit": {
         "strategies_tried": [],
         "passed": true,
