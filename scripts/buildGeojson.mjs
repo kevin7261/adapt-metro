@@ -239,16 +239,17 @@ async function build() {
   // 沒有顏色的獨立線、退回預設色，視覺上像是抓錯顏色。這裡補回 wiki/官方來源查得
   // 的正確標籤（通常是 ref，讓既有的「同 network+ref 分組」機制自然把它併成該線的
   // 分支，顏色隨之從代表變體繼承）；上游補齊標籤後應移除對應條目。
+  let routePatches = []
   try {
-    const patches = JSON.parse(
+    routePatches = JSON.parse(
       await readFile(join(OVERRIDES_DIR, 'route_tag_patches.json'), 'utf8')).patches ?? []
-    for (const p of patches) {
-      const t = routesTags.get(p.relation)
-      if (!t) { console.log(`  !! route_tag_patches: r${p.relation} not in routes cache`); continue }
-      Object.assign(t, p.set)
-      console.log(`  route_tag_patches: r${p.relation} ← ${JSON.stringify(p.set)}`)
-    }
   } catch { /* no route_tag_patches override */ }
+  for (const p of routePatches) {
+    const t = routesTags.get(p.relation)
+    if (!t) continue // may be a route_master id — patched after masters load
+    Object.assign(t, p.set)
+    console.log(`  route_tag_patches: r${p.relation} ← ${JSON.stringify(p.set)}`)
+  }
 
   // 整條線剔除（_overrides/route_excludes.json）：OSM 誤標未通車/建設中的線為營運中
   // route=subway（通過 isOperational），違反 operational-only 不變式。把這些 relation id
@@ -271,6 +272,15 @@ async function build() {
     if (e.type !== 'relation') continue
     masterTags.set(e.id, e.tags || {})
     for (const m of e.members || []) if (m.type === 'relation') masterOf.set(m.ref, e.id)
+  }
+  // route_tag_patches whose target is a route_master (master colour/ref overrides
+  // the variant tags, so patching only the route relations wasn't enough——Bursaray
+  // B2 master r7869622 carries colour=black). Apply to masterTags now.
+  for (const p of routePatches) {
+    const mt = masterTags.get(p.relation)
+    if (!mt) continue
+    Object.assign(mt, p.set)
+    console.log(`  route_tag_patches (master): r${p.relation} ← ${JSON.stringify(p.set)}`)
   }
 
   // geom_* cache: relations with ordered member lists + coordinates for member
