@@ -1721,6 +1721,15 @@ async function build() {
         }
       }
     }
+    // 每站有幾條**不同的線在此終止**（端點）。terminus-interchange：兩條線各自從
+    // 不同方向到此為終點站（Monterrey General I. Zaragoza：L2、L3 都在此止），
+    // degree=2 被 degree>2 漏判——但這是真的轉乘點（使用者：≥2 路段相交＝紅點）。
+    // 與「共軌中間站」不同：共軌站沒有線在此終止（termLines=0）→ 仍不算 interchange。
+    const termLines = new Map()
+    const addTerm = (k, rid) => {
+      if (!termLines.has(k)) termLines.set(k, new Set())
+      termLines.get(k).add(rid)
+    }
     for (const f of grp.lines) {
       // ordered station list for this route：各分段頂點**原序串接、不去重**
       //（使用者規則：列表相鄰＝圖上直連。支線的接續站在支線段開頭重複出現、
@@ -1745,9 +1754,11 @@ async function build() {
         // closed loop: ends identical, or ~adjacent on a many-stop ring
         if ((a[0] === b[0] && a[1] === b[1]) ||
             (seq.length >= 6 && segD(a, b) < 0.011)) continue
+        const fRid = tagMeta.get(featTag.get(f))?.route_id ?? featTag.get(f)
         for (const end of [a, b]) {
-          const s = byCoord.get(end.join(','))
-          if (s) s.properties.is_terminus = true
+          const k = end.join(',')
+          const s = byCoord.get(k)
+          if (s) { s.properties.is_terminus = true; addTerm(k, fRid) }
         }
       }
       f.__stations = sts
@@ -1779,10 +1790,16 @@ async function build() {
       // **同路線共軌重疊段中間站不算**（degree=2，兩線給相同前後鄰，如淡海輕軌綠山
       // ＋藍海共軌段）。濱海沙崙／七張分歧 degree=3 → interchange。pass_count 保留
       // 為參考屬性。
-      const deg = degree.get(s.geometry.coordinates.join(','))?.size ?? 0
+      const coordKey = s.geometry.coordinates.join(',')
+      const deg = degree.get(coordKey)?.size ?? 0
+      const termCount = termLines.get(coordKey)?.size ?? 0
       s.properties.station_degree = deg
-      s.properties.is_interchange = deg > 2
-      s.properties.station_role = deg > 2 ? 'interchange'
+      // interchange ⇔ degree>2（分歧/交會）**或** ≥2 條不同線在此終止（terminus-
+      // interchange，如 Zaragoza）。兩者都是「≥2 路段相交」＝紅點；共軌中間站
+      // （degree=2、termCount=0）仍不算。
+      const isIx = deg > 2 || termCount >= 2
+      s.properties.is_interchange = isIx
+      s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
     }
     // 快取殭屍清理：無名（合成名 n123…）且不屬於任何線站序的站點＝上游已刪

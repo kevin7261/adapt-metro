@@ -313,8 +313,12 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `network`, `network_local`, `operator`, `city`, `country`,
 `lines`（所屬線路 ref/名 tag；線無 ref 時用線名。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
 `line_ids`（所屬線路的 `route_id`，依 ref/名排序）, `line_names`（同序的線路名），
-`station_role`（`interchange`＝服務 ≥2 線／`terminus`＝某線端點（環線無端點）／`normal`；
-交會優先於端點）, `is_interchange`, `is_terminus`, `merged_from`（若由共站合併而來，
+`station_role`（`interchange`／`terminus`／`normal`，交會優先於端點。**interchange ⇔
+網絡圖 degree>2（分歧/交會，相鄰站不同）或 ≥2 條不同線在此終止（terminus-interchange，
+如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）**——兩者都是「≥2 路段相交」
+的紅點；**共軌重疊段中間站**兩線給相同前後鄰、無線在此終止 → degree=2＋termCount=0，
+不算 interchange。`terminus`＝某線端點（環線無端點）；`station_degree` 存網絡圖度數）,
+`is_interchange`, `is_terminus`, `merged_from`（若由共站合併而來，
 ＝被併成員數）, `merged_names`（**異名轉乘站合併後保留所有成員站名的 list**——
 每項 `{ station_id, station_name, station_name_local, lines }`，`lines` 是**該站名所屬的路線
 list**（同名多成員的 lines 取聯集），代表點排第一、依 `normName` 去重；只有 1 個相異名時為
