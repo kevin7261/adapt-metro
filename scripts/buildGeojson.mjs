@@ -263,6 +263,26 @@ async function build() {
     if (n) console.log(`  route_excludes: dropped ${n} under-construction/out-of-scope routes`)
   } catch { /* no route_excludes override */ }
 
+  // NYC 服務時段變體收斂：OSM 把每條線拆成 daytime／(late nights)／(am/pm rush)… 多個
+  // 變體，(late nights) 常是「各停」全停版（4 號 daytime express 28 站 vs late-night 54 站）。
+  // 「最長變體勝＋站聯集」規則會讓快車吃下所有 local 站、畫成各停。對**有 daytime 基本
+  // 變體**的 ref，丟掉服務時段限定變體，只留 daytime express 站型——跳過的 local 站由既有
+  // pass-through auto 偵測畫成共線（AEL/TCL 式）。<6>/<7>/<F>/Z 等「只有尖峰變體、無 base」
+  // 的 ref 保留不動（否則整條線消失）。僅限 network=NYC Subway。
+  {
+    const QUAL = /\((?:late nights?|am rush|pm rush|rush hours?|evenings?|weekends?|weekday|middays?)\b/i
+    const isNyc = (t) => t.network === 'NYC Subway' || t['network:en'] === 'NYC Subway'
+    const baseRefs = new Set()
+    for (const t of routesTags.values())
+      if (isNyc(t) && t.ref && !QUAL.test(t.name || '')) baseRefs.add(t.ref)
+    let dropped = 0
+    for (const [rid, t] of [...routesTags])
+      if (isNyc(t) && t.ref && baseRefs.has(t.ref) && QUAL.test(t.name || '')) {
+        routesTags.delete(rid); dropped++
+      }
+    if (dropped) console.log(`  NYC variant prune: dropped ${dropped} late-night/rush variants (kept daytime express pattern)`)
+  }
+
   const ovByRid = await readOverrides()
   const ucRids = await readUcRids()
 
@@ -1599,6 +1619,10 @@ async function build() {
     // **不算此線停靠**（記入 __passCoords，__stations/__vertexOwners 排除）。此時幾何已 snap
     // 成站座標，同站＝同座標字串。手動 override 已注入者（已是短邊）自然跳過。
     if (grp.lines.length >= 2) {
+      // 紐約特例：快車跳站的長邊常 <2 km（曼哈頓 express 跳 1 個 local 站 ~0.6–1.5 km），
+      // 通用 2 km 門檻會漏掉（A 跳 Spring St、B 跳 Cortelyou）。NYC 降到 0.35 km，仍靠
+      // ≤1.35× 繞路守衛擋偽陽性（跳邊必須另有一線走 A→…→C 的近直線共軌路徑）。
+      const passMinKm = /new york city/i.test(grp.info.city || '') ? 0.35 : 2
       const kmd = (a, b) => Math.hypot((a[0] - b[0]) * 111 * Math.cos(a[1] * Math.PI / 180), (a[1] - b[1]) * 111)
       const coordOf = new Map()
       for (const s of grp.stations) coordOf.set(s.geometry.coordinates.join(','), s.geometry.coordinates)
@@ -1610,7 +1634,7 @@ async function build() {
         for (const seq of F.geometry.coordinates) {
           for (let i = 0; i < seq.length - 1; i++) {
             const A = seq[i], C = seq[i + 1], ak = A.join(','), ck = C.join(',')
-            if (ak === ck || kmd(A, C) < 2) continue
+            if (ak === ck || kmd(A, C) < passMinKm) continue
             const d = kmd(A, C)
             let bestVia = null
             for (let gi = 0; gi < others.length; gi++) {
@@ -1722,11 +1746,15 @@ async function build() {
     // 七張（新店側／公館側／小碧潭 3 鄰）degree=3 → interchange；terminus degree=1。
     const degree = new Map()
     for (const f of grp.lines) {
+      // 快車 pass 頂點：此線只是**經過**、不停靠，不該讓被經過的 local 站因此變成交會
+      // 紅點（使用者：紐約共線 pass 不用因此畫紅點）。跳過此線在其 pass 頂點的度數貢獻。
+      const passArr = f.__passCoords ? [...f.__passCoords].map((k) => k.split(',').map(Number)) : []
+      const isPass = (c) => passArr.some(([pl, pt]) => Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3)
       for (const seq of f.geometry.coordinates) {
         if (seq.length < 2) continue
         for (let i = 0; i < seq.length; i++) {
           const k = seq[i].join(',')
-          if (!byCoord.has(k)) continue
+          if (!byCoord.has(k) || isPass(seq[i])) continue
           if (!degree.has(k)) degree.set(k, new Set())
           if (i > 0) degree.get(k).add(seq[i - 1].join(','))
           if (i < seq.length - 1) degree.get(k).add(seq[i + 1].join(','))

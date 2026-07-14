@@ -51,6 +51,15 @@ Hill Climbing 圖層的 縮減網格（compactGrid cells）
 純函式、依序決定（router 對 seg 順序敏感），routing 前套用。附帶效果：線變少 →
 衝突也變少。全 224 城 0 fallback、0 例外、0 孤立站。
 
+**環邊正反去重（`buildRwdMap` 內，routing 前）**：`buildHcGraph` 會把環（含
+單線自交叉，如拿坡里 Line 1 的 Vomero 髮夾彎——`skeleton.js` 的自交叉補黃點使該線
+被切成 `cls==='loop'` 的環）以**兩個方向**輸出——每條環邊出現兩次、端點對調。兩份畫在
+同一條軌上，router 為避重疊會把它們平行錯開成**糾纏的雙層輪廓**。故 routing 前把
+`cls==='loop'` 且無序端點對 `{a,b}` 已出現過的 seg 丟掉，每條環邊只畫一次：孿生邊是
+冗餘幾何（同 routes／色），丟掉無損，環改以單一乾淨環呈現。實測封閉性不變（環城市
+去重後所有環節點仍偶數度＝封閉）：Glasgow 4、Gurgaon 8→4、Singapore 28→24、
+拿坡里（自交叉假環）6→3（乾淨直角三角形）。真環線（單向遍歷、各邊端點對唯一）不受影響。
+
 - 新圖層由 Layers 面板 RWD Maps group 的 **+** 建立：選一個 Hill Climbing 圖層
   （來源即其縮減網格，存在 `layer.sourceLayerId`）。
 - Tab 有 3 個視圖：**縮減網格**（輸入）、**RWD 路網**（結果）與 **LLM調整**

@@ -3,7 +3,7 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1480,
+  "line_total": 1466,
   "station_total": 16928,
   "systems": [
     {
@@ -25,8 +25,8 @@
       "official_website": "https://www.mta.info/",
       "official_map": "https://en.wikipedia.org/wiki/1_(New_York_City_Subway_service)",
       "wikidata": "Q126093",
-      "line_count": 44,
-      "segment_count": 69,
+      "line_count": 40,
+      "segment_count": 55,
       "station_count": 465,
       "audit": {
         "strategies_tried": [],

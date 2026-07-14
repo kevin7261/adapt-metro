@@ -379,7 +379,22 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // direction nothing could legalize; swapped = soft continuation swaps.
   const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, straightened: 0, diag45: 0, restarts: 0, segs: 0 }
 
-  const usable = segs.filter((s) => pos.has(s.a) && pos.has(s.b))
+  // A self-crossing loop (a single line's tracks physically cross, e.g. Naples
+  // Line 1's Vomero hairpin) is emitted by buildHcGraph as the SAME cycle in both
+  // directions — every loop edge appears twice with swapped endpoints. Drawing
+  // both puts two identical polylines on the same track, which the router then
+  // offsets into a tangled double outline. Draw each loop edge once: the twin is
+  // redundant geometry (same routes/colours), so dropping it loses nothing and
+  // lets the cycle render as one clean ring.
+  const seenLoop = new Set()
+  const usable = segs.filter((s) => {
+    if (!(pos.has(s.a) && pos.has(s.b))) return false
+    if (s.edge?.cls !== 'loop') return true
+    const k = s.a < s.b ? `${s.a}|${s.b}` : `${s.b}|${s.a}`
+    if (seenLoop.has(k)) return false
+    seenLoop.add(k)
+    return true
+  })
   // Longest corridors route first (they have the fewest workable alternatives);
   // stable tie-break keeps the result deterministic.
   const order = usable
