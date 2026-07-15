@@ -190,8 +190,9 @@ function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
       const dd = haversine([named[i].lon, named[i].lat], [named[k].lon, named[k].lat])
       const sameName = named[i].name && named[k].name && norm(named[i].name) === norm(named[k].name)
       const sameBase = named[i].base && named[i].base === named[k].base && shareRoad(i, k)
-      // 同名＋同出口編號＋同路＝同一交流道的南北匝道群，可以離很遠（楠梓/太平 ~3km）
-      if ((sameName && sameBase && dd < 6000) || (sameName && dd < 2500) || (sameBase && dd < 2000) || dd < 250) union(i, k)
+      // 同名＋同出口編號＋同路＝同一交流道的南北匝道群，可以離很遠（楠梓/太平 ~3km、
+      // 宜蘭 6.1km）——一條路的出口編號唯一，不可能是兩座，上限放寬到 15km
+      if ((sameName && sameBase && dd < 15000) || (sameName && dd < 2500) || (sameBase && dd < 2000) || dd < 250) union(i, k)
     }
   }
   const ic = new Map()
@@ -426,23 +427,53 @@ function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
     if (!globalEdges.has(k)) globalEdges.set(k, { a, b, refs: [] })
     if (!globalEdges.get(k).refs.includes(ref)) globalEdges.get(k).refs.push(ref)
   }
-  let segN = 0
+  // 路段化最終步（同 metro；使用者：路線不應該一段一段、要整個串起來）：
+  // 「連續且行經路線集合相同」的邊串成**一個路段 feature**（座標連續的長折線）。
+  // 無共線的路＝整條一個 feature；共線邊界才切分。
+  const bySig = new Map() // refs 簽名 → [[a,b]…]
   for (const { a, b, refs } of globalEdges.values()) {
+    const sig = refs.slice().sort().join(' ')
+    if (!bySig.has(sig)) bySig.set(sig, { refs: refs.slice().sort(), edges: [] })
+    bySig.get(sig).edges.push([a, b])
+  }
+  let segN = 0, segTotal = 0
+  for (const { refs, edges } of bySig.values()) {
+    // 同簽名的邊串成極大路徑（端點走訪；環留一圈）
+    const adj = new Map()
+    const addA = (x, y) => { if (!adj.has(x)) adj.set(x, new Set()); adj.get(x).add(y) }
+    for (const [a, b] of edges) { addA(a, b); addA(b, a) }
+    const usedE = new Set()
+    const runs = []
+    const walk = (start) => {
+      const path = [start]
+      let cur = start
+      for (;;) {
+        const nxt = [...(adj.get(cur) || [])].find((m) => !usedE.has(ekey(cur, m)))
+        if (nxt === undefined) break
+        usedE.add(ekey(cur, nxt)); path.push(nxt); cur = nxt
+      }
+      if (path.length > 1) runs.push(path)
+    }
+    // 先從奇數度端點起走（路徑端），再收剩下的環
+    for (const n of adj.keys()) if ((adj.get(n).size % 2) === 1) walk(n)
+    for (const [a, b] of edges) if (!usedE.has(ekey(a, b))) walk(a)
     const routes = refs.map((ref) => ({ ...routeMeta(ref), stations: refStationList(ref), pass_stations: [] }))
     const colors = routes.map((r) => r.route_color)
-    const ea = ic.get(a), eb = ic.get(b)
-    features.push({
-      type: 'Feature',
-      properties: {
-        seg_id: `${slug}-${segN++}`,
-        routes, route_count: routes.length, route_refs: refs,
-        route_colors: colors, route_color: colors[0],
-        city, country,
-      },
-      geometry: { type: 'MultiLineString', coordinates: [[[ea.lon, ea.lat], [eb.lon, eb.lat]]] },
-    })
+    for (const path of runs) {
+      const coords = path.map((root) => { const e = ic.get(root); return [e.lon, e.lat] })
+      features.push({
+        type: 'Feature',
+        properties: {
+          seg_id: `${slug}-${segN++}`,
+          routes, route_count: routes.length, route_refs: refs,
+          route_colors: colors, route_color: colors[0],
+          city, country,
+        },
+        geometry: { type: 'MultiLineString', coordinates: [coords] },
+      })
+      segTotal += coords.length - 1
+    }
   }
-  const segTotal = globalEdges.size
   const refCount = [...refEdges.values()].filter((e) => e.length).length
   const meta = {
     continent, country, country_zh: countryZh, city, city_zh: cityZh, unit: raw.unit || 'country',

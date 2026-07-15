@@ -25,7 +25,7 @@
     "metro:build": "node scripts/buildGeojson.mjs && node scripts/buildViews.mjs",
     "metro:buildonly": "node scripts/buildGeojson.mjs",
     "metro:views": "node scripts/buildViews.mjs",
-    "metro:maps": "node scripts/downloadMaps.mjs",
+    "metro:sites": "node scripts/fetchOfficialSites.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
     "metro:audit": "node scripts/auditLoop.mjs",
     "metro:wikilines": "node scripts/wikiLineCheck.mjs",

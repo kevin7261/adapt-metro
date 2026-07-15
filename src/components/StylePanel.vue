@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { marked } from 'marked'
 import { useMapStore } from '../stores/mapStore'
 import { layerData } from '../stores/layerData'
-import { prettyContinent, continentZh, loadMapsIndex } from '../stores/metroCatalog'
+import { prettyContinent, continentZh, loadSitesIndex } from '../stores/metroCatalog'
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import OrientationRose from './OrientationRose.vue'
@@ -336,14 +336,18 @@ function rotationHint(o) {
 const auditInfo = computed(() => meta.value?.audit ?? null)
 const auditChecks = computed(() => auditInfo.value?.checks ?? [])
 
-/* ---- Info: external links (wiki / official route map / urbanrail) ---- */
-const mapsIndex = ref(null)
+/* ---- Info: external links (wiki / official website / urbanrail) ---- */
+// 官方網站索引（official_sites.json，metro:sites 產出）——官方路線圖圖檔不再抓
+// （使用者 2026-07 裁決改抓官方網站）；缺項 fallback 到 meta.official_website。
+const sitesIndex = ref(null)
 onMounted(() => {
-  if (isMetro.value) loadMapsIndex().then((v) => { mapsIndex.value = v }).catch(() => {})
+  if (isMetro.value) loadSitesIndex().then((v) => { sitesIndex.value = v }).catch(() => {})
 })
 // '/data/metro/systems/asia/taiwan/asia-taiwan-taipei.geojson' → 'asia/taiwan/asia-taiwan-taipei'
 const systemKey = computed(() => layer.value.file?.match(/systems\/(.+)\.geojson$/)?.[1] ?? null)
-const mapEntry = computed(() => (systemKey.value && mapsIndex.value?.[systemKey.value]) || null)
+const officialSite = computed(() =>
+  (systemKey.value && sitesIndex.value?.[systemKey.value]?.website) ||
+  meta.value?.official_website || null)
 
 // The zh-Wikipedia search term for this system. Default "{城市}地鐵" lands
 // directly on the system article (台北地鐵 → 臺北捷運, 紐約地鐵 → 紐約地鐵), but
@@ -366,17 +370,7 @@ const wikipediaUrl = computed(() =>
 
 // （物件 tab 標題下原有車站維基連結——使用者 2026-07 移除：下方屬性表的
 //  wikipedia 列已是可點連結，不重複顯示。）
-// Official schematic route map. Only 91/232 systems have a downloaded image;
-// the rest fall back to a Google image search for the city's route map, so
-// every city gets a working 官方路線圖 link.
-const routeMapUrl = computed(() => {
-  if (mapEntry.value?.map_file) return assetUrl(`data/metro/${mapEntry.value.map_file}`)
-  return layer.value
-    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${wikiTerm.value}路線圖`)}`
-    : null
-})
-// Whether the route-map link is a real local image vs. a Google search.
-const routeMapIsImage = computed(() => !!mapEntry.value?.map_file)
+// （官方路線圖列——使用者 2026-07 移除：改抓官方網站，見上 officialSite。）
 // urbanrail.net：城市頁 URL 不規則（城市碼縮寫沒有算法規律，台北 tw/taip/taipei.htm、
 // 新加坡 sing/singapore.htm、蒙特雷 mony/monterrey.htm），故用實查的城市→URL 映射
 // （key = index.json 的 city）。映射是把 urbanrail 五大洲索引頁（as/asia.htm 等）的
@@ -713,10 +707,10 @@ function startResize(e) {
               <div v-if="meta?.operator" class="info-row">
                 <span class="info-key">營運單位</span><span>{{ meta.operator }}</span>
               </div>
-              <div v-if="meta?.official_website" class="info-row">
+              <div v-if="officialSite" class="info-row">
                 <span class="info-key">官網</span>
-                <a :href="meta.official_website" target="_blank" rel="noopener" class="info-link">
-                  {{ meta.official_website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') }}
+                <a :href="officialSite" target="_blank" rel="noopener" class="info-link">
+                  {{ officialSite.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') }}
                   <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
@@ -730,12 +724,6 @@ function startResize(e) {
                 <span class="info-key">urbanrail</span>
                 <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link">
                   UrbanRail.Net：{{ urbanrailLabel }} <MIcon name="open_in_new" :size="11" />
-                </a>
-              </div>
-              <div v-if="!isHighway && routeMapUrl" class="info-row">
-                <span class="info-key">官方路線圖</span>
-                <a :href="routeMapUrl" target="_blank" rel="noopener" class="info-link">
-                  {{ routeMapIsImage ? '開啟圖片' : 'Google 圖片搜尋' }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">

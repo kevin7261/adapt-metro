@@ -498,10 +498,11 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // hc 鏈：HC → 端點拉直 → 縮減網格（同 D3Tab）；後處理鏈仍壓縮各自原結果。
-    const cells = POST[kind]
+    // 每條鏈（同 D3Tab）：該鏈結果 → 端點拉直 → 縮減網格。
+    const base = POST[kind]
       ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-      : iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+      : hc.cellAfter
+    const cells = iteratePost(buildEndpointStraighten, skeleton, base, grid.cols, grid.rows).cellAfter
     const comp = compactGrid(cells, grid.cols, grid.rows)
     const m = cellMapper(comp.cols, comp.rows)
     // 縮減網格: original network snapped to the compact cells (per-feature).

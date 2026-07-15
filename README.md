@@ -181,17 +181,21 @@ data/metro/
 
 **幾何語意（三條鐵律）**：
 1. **線永遠壓在站點上**——路段幾何＝共站合併後的車站點依站序連線，每個折點/端點都是車站
-   （唯一例外：跳站特快沿本地走廊彎行的非停靠折點，下游以 `pass_stations` 標記）；
-2. **重疊路段只畫一條**——相鄰站對被多線共用時只輸出一個 feature，`routes[]` 記行經路線，
+   （唯一例外：跳站服務沿本地走廊彎行的 pass-through 頂點，資料以 `pass` 標記）；
+2. **重疊路段只畫一條、且每段必連續**——相鄰站對被多線共用時只輸出一個 feature，`routes[]`
+   記行經路線；同 route 集合的**不相連走廊會拆成多個 feature**（每段單一連通，hover 不斷開），
    一條 route 的完整路徑＝所有含它的路段之聯集；
-3. **快慢車合併**——同 network＋ref 的快車/區間車合併為一條線，以站最多的慢車站表為準。
+3. **快車一律不抓**——只跳站的快車（站點是慢車子集）不另成線，各停站表為準；
+   交錯停站（NYC J/Z）或獨立編號快線（香港 AEL）自然保留，跳過的站標 `pass` 畫共線。
 
 **車站（Point）properties**：
 
 | 欄位 | 內容 |
 |---|---|
-| `station_id` / `station_name` / `station_name_local` | 穩定 id、英文站名、在地語站名 |
-| `lines` / `line_ids` / `line_names` | 所屬路線（**至少一條**，空值＝資料錯誤，verify 標 `no_line`） |
+| `station_id` / `station_name`(`_local`/`_en`) | 穩定 id、**在地語言**站名（台繁/中簡/港繁/日日）＋英文名 |
+| `routes[]` | 此站的路線清單 `{ref, name, pass?}`——`pass:true`＝行經但不停靠（快車跳站） |
+| `lines` | 停靠 refs（**至少一條**，空值＝資料錯誤，verify 標 `no_line`） |
+| `codes` | 官方站碼清單（台北車站 `[A1, BL12, R10]`；無則 null） |
 | `station_role` / `is_interchange` / `is_terminus` | interchange／terminus／normal |
 | `merged_from` / `merged_names` | 共站合併來源數；異名轉乘站保留所有成員站名（含各名所屬 lines） |
 | `pass_count` / `station_degree` | 路線通過次數／相異鄰站數（interchange 不變式用） |
@@ -202,10 +206,11 @@ data/metro/
 | 欄位 | 內容 |
 |---|---|
 | `seg_id` | 路段 id（重疊已去重） |
-| `routes[]` | 行經此路段的每條路線：`route_id`・`route_name`(`_local`)・`route_ref`（BL/R…）・`route_color`（#rrggbb 官方色）・`network`・`operator`・`wikidata`・`osm_route_ids`・`order_suspect` |
-| `routes[].stations` | 該線**依站序**的全部車站 `{station_id, station_name}` —— 下游一切拓撲由此建圖 |
-| `routes[].pass_stations` | 跳站特快「過站不停」清單（純顯示層標記） |
-| `route_count` / `route_refs` / `route_colors` / `route_color` | 共線摘要（交錯色線繪製用） |
+| `routes[]` | 行經此路段的每條路線：`route_id`・`route_name`(`_local`/`_en`，在地語言＋去方向尾綴)・`route_ref`（BL/R…）・`route_color`（#rrggbb 官方色）・`network`・`operator`・`wikidata`・`osm_route_ids`・`order_suspect` |
+| `routes[].stations` | 該線的**完整行經序** `{station_id, station_name, code?, pass?}`——pass 站就地標記、依官方站碼正規化方向（A1 在前）；下游拓撲取非 pass 項建圖 |
+| `route_count` / `route_refs` / `route_colors` | 共線摘要（交錯色線繪製用；**無單數 `route_color`**——路段可多線） |
+
+> 每站輸出**完全相同的欄位集**（21 鍵，缺值 null/false）——223 城的物件面板/hover 表格全球一致。
 
 **共站＝可轉乘**：OSM `stop_area` ∪ 同名 ≤800 m ∪ 人工裁決 `_overrides/interchanges.json`
 （**非**「同名就共站」；紐約同名不相通的站按 STRICT 規則不併）。合併站座標取平均、lines 取聯集。

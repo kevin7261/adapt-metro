@@ -35,6 +35,13 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
 通用「未通過城市自動重抓」與「逐線 wiki 裁決」機制（見 [[metro-audit]]）在具體城市的落地
 紀錄。機制通用、內容城市專屬——重跑資料若某城回退，先查這裡是否有既有裁決。
 
+- **芝加哥（使用者 2026-07-16）**：①官方路網圖＝Commons `Chicago_L_diagram_sb.svg`
+  （使用者指定；`maps_index.json` 原自動抓圖誤配 1889 年古地圖，已手動改，重跑
+  `metro:maps` 勿覆蓋）。②紫線與紅線 Howard–Belmont 走廊共線、中間站紫線 pass——
+  **auto pass-through 已正確處理**（紫線 26 停靠＋Lawrence…Jarvis 9 站 `pass:true`，
+  Sheridan/Wilson 是 OSM 上游列的真停靠）。讀 `routes[].stations` 時注意它是**完整行經序**
+  （stop＋pass 交錯、pass 項標 `pass:true`），計站數要 filter 掉 pass——曾誤判為 bug。
+
 - **定向刷新（`refreshRelations.mjs` → `gap_*_refresh_*`）**：香港觀塘綫／屯馬綫／東鐵綫
   （route 漏 stop 成員／殭屍節點）；蘇州 7 號線、鄭州城郊線、紹興 1 號線（上游延伸段
   舊快取不更新）。

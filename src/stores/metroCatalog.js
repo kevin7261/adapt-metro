@@ -34,21 +34,23 @@ export function loadMetroCatalog() {
   return catalogPromise
 }
 
-// Official route-map image index (data/metro/maps/maps_index.json),
-// keyed by '{continent}/{country}/{slug}'.
-let mapsIndexPromise = null
+// Official-website index (data/metro/official_sites.json, from metro:sites),
+// keyed by '{continent}/{country}/{slug}'. 官方路線圖圖檔不再抓（使用者 2026-07
+// 裁決改抓官方網站）——資訊 tab 的「官網」列優先讀這裡，缺項 fallback 到
+// metro_system.official_website（OSM build 舊值，常是深層頁）。
+let sitesIndexPromise = null
 
-export function loadMapsIndex() {
-  mapsIndexPromise ??= fetch(assetUrl('data/metro/maps/maps_index.json'))
+export function loadSitesIndex() {
+  sitesIndexPromise ??= fetch(assetUrl('data/metro/official_sites.json'))
     .then((r) => {
-      if (!r.ok) throw new Error(`maps_index.json ${r.status}`)
+      if (!r.ok) throw new Error(`official_sites.json ${r.status}`)
       return r.json()
     })
     .catch((err) => {
-      mapsIndexPromise = null // allow retry
+      sitesIndexPromise = null // allow retry
       throw err
     })
-  return mapsIndexPromise
+  return sitesIndexPromise
 }
 
 // 'north-america' → 'North America'

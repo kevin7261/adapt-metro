@@ -188,6 +188,25 @@ function audit(fc, wikiRefs) {
   add('mileage_order', suspectLines === 0, 'warn',
     suspectLines ? `${suspectLines} 條道路里程序不單調（排序待查）` : '各道路里程序單調（排序合理）')
 
+  // 7b) 相鄰同名站：一條路的序列裡連續兩站同名＝同一交流道的匝道群沒併成一點
+  //     （宜蘭交流道 6.1km 案例；不靠 wiki 表也抓得到）
+  {
+    const dup = []
+    for (const l of lines) {
+      const st = l.properties.routes?.[0]?.stations ?? []
+      for (let i = 1; i < st.length; i++) {
+        const a = st[i - 1], b = st[i]
+        if (!b.station_name || b.station_name !== a.station_name || b.station_id === a.station_id) continue
+        if (/^交流道/.test(b.station_name)) continue // 無名佔位，同名不代表同座
+        // 兩站里程都有且差 ≥1km ＝上游刻意分開的不同出口（台61 林口 14/16）→ 合法
+        if (a.mileage != null && b.mileage != null && Math.abs(a.mileage - b.mileage) >= 1) continue
+        dup.push(`${l.properties.route_refs[0]}:${b.station_name}`)
+      }
+    }
+    add('no_adjacent_dup_names', dup.length === 0, 'error',
+      dup.length ? `相鄰同名站未併：${[...new Set(dup)].join('、')}` : '無相鄰同名未併站')
+  }
+
   // 8) wiki 交叉比對（有 wiki 里程表的國家：台灣）
   if (wikiRefs && fc.highway_system?.country === 'Taiwan') checks.push(...wikiCrossCheck(fc, wikiRefs))
 

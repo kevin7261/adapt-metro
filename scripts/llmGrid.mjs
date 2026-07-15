@@ -79,9 +79,10 @@ for (const c of skeleton.crossings ?? []) {
 const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
 const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
 
-// The RWD view compacts the layout its layer.compact picks: the HC chain
-// (HC → 端點拉直, same as D3Tab), a post-pass ('rect'/'align'/'ilp'), or the
-// offline LLM 對齊 (llmviews file).
+// The RWD view compacts the layout its layer.compact picks — the HC result,
+// a post-pass ('rect'/'align'/'ilp'), or the offline LLM 對齊 (llmviews
+// file) — then, same as D3Tab, EVERY chain gets the endpoint straighten
+// before compacting (chain result → 端點拉直 → compactGrid).
 let baseCells
 if (POST_BUILD[compact]) {
   baseCells = iteratePost(POST_BUILD[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
@@ -94,8 +95,9 @@ if (POST_BUILD[compact]) {
   const j = JSON.parse(await readFile(f, 'utf8'))
   baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
 } else {
-  baseCells = iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+  baseCells = hc.cellAfter
 }
+baseCells = iteratePost(buildEndpointStraighten, skeleton, baseCells, grid.cols, grid.rows).cellAfter
 const comp = compactGrid(baseCells, grid.cols, grid.rows)
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows

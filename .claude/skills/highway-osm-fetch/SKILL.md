@@ -127,10 +127,11 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
    (error) 把關：同一 ref 內每交流道 degree ≤2（路徑或環，絕無分叉/辮子）。
 5. **degree／角色**：由各 ref 序列的相鄰交流道對建鄰接圖。`is_interchange` ⇔ **屬於 ≥2 條 ref
    （系統交流道）或 degree>2**；`is_terminus` ⇔ degree==1（框邊界被切斷的端點）。
-6. **一個交流道對＝一個 segment feature（全域邊去重，使用者：單一路線只能一條線）**：把各 ref
-   的相鄰邊**跨 ref 去重**，共線走廊（concurrent、local/express 並行）只畫**一次**，`routes[]` 列
-   所有行經它的 ref（同 metro 路段化）。一條國道的完整路徑＝所有 `routes` 含它的 segment 之聯集、
-   同 class 同色 → 讀成一條連續線。只輸出出現在某段上的交流道（orphan-drop）。
+6. **路段化（同 metro；使用者：單一路線只能一條線、路要整個串起來不能一段一段）**：
+   ①各 ref 的相鄰邊**跨 ref 去重**——共線走廊（concurrent）只畫一次、`routes[]` 列所有行經 ref；
+   ②「**連續且行經 ref 集合相同**」的邊串成**一個路段 feature**（端點走訪成極大路徑，座標連續
+   長折線）——無共線的路＝整條一個 feature（國1 台北段＝38 頂點一條），共線邊界才切分，
+   hover/點選是整段而非零碎小段。只輸出出現在某段上的交流道（orphan-drop）。
 
 **已知限制**：無出口編號國家走 fallback（骨幹＋最小繞路插入），順序偶有小幅跳動（audit 的
 `mileage_order` warn 監看）；序列排錯時因畫直線會露出小段折返（不像真實路形被藏住），

@@ -104,10 +104,10 @@ const tilt = ref(0)
 // Map Adjust view modes (tabs). Grid modes ('grid-*') do the schematic gridding
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
 // A Hill Climbing view chains: the grid-post input, the optimized layout
-// ('hc', ②, see skill route-hillclimb), the 端點拉直 ('hc-end', endpoint-only
-// H/V pass — the hc 縮減網格 compacts ITS output), three H/V-maximising
-// post-passes (直角爬山/軸對齊/整數規劃) and the 縮減網格s — rotation comes
-// from its variant.
+// ('hc', ②, see skill route-hillclimb), the 端點拉直 ('*-end', endpoint-only
+// H/V pass — every 縮減網格 compacts its chain's straightened output), three
+// H/V-maximising post-passes (直角爬山/軸對齊/整數規劃) and the 縮減網格s —
+// rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
@@ -142,7 +142,8 @@ async function startLlmRun(userPrompt = '') {
   // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
   // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
   cachedLlm = null
-  delete cachedEndp.llm // LLM 對齊端點拉直 跟著舊結果一起作廢
+  delete cachedEndp.llm // LLM 對齊端點拉直／縮減網格 跟著舊結果一起作廢
+  delete cachedCompact.llm
   if (llmMode.value) render()
   try {
     const res = await fetch('/llm-align/run', {
@@ -289,7 +290,7 @@ const POST_KIND = {
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
 // 端點拉直區塊（左選單第 4 部份）：每條鏈一個 tab——在該鏈的結果「之上」再做
-// 端點拉直（原 tab 不變）。'hc' 的結果同時是 hc 縮減網格／RWD 底圖的輸入。
+// 端點拉直（原 tab 不變）。各鏈的拉直結果同時是該鏈縮減網格／RWD 底圖的輸入。
 const END_KIND = {
   'hc-end': 'hc', 'hc-rect-end': 'rect', 'hc-align-end': 'align',
   'hc-ilp-end': 'ilp', 'hc-llm-end': 'llm',
@@ -300,9 +301,9 @@ const postKind = computed(() =>
   isHC.value ? POST_KIND[mode.value] ?? null
     : isRWD.value && ['rect', 'align', 'ilp'].includes(layer.value?.compact) ? layer.value.compact
       : null)
-// 縮減網格 (4 tabs): drop empty (colour-free) grid rows/columns from the
-// hill-climbing layout or from one of the three post-pass layouts — smaller
-// grid, identical topology (rank order preserved by compactGrid).
+// 縮減網格 tabs: drop empty (colour-free) grid rows/columns from the chain's
+// ENDPOINT-STRAIGHTENED layout (chain result → 端點拉直 → compactGrid) —
+// smaller grid, identical topology (rank order preserved by compactGrid).
 // RWD views sit on the HC compact grid in BOTH of their tabs.
 const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
@@ -482,7 +483,7 @@ const VIEW_TABS = computed(() => {
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       // 端點拉直：每條鏈一個 tab（在該鏈結果之上做端點拉直，原 tab 不變）；
-      // hc 鏈：Hill Climbing → 端點拉直 → 縮減網格（hc 縮減網格壓縮拉直後的結果）
+      // 每條鏈：該鏈結果 → 端點拉直 → 縮減網格（縮減網格壓縮拉直後的結果）
       { header: '端點拉直' },
       { id: 'hc-end', label: 'Hill Climbing端點拉直' },
       { id: 'hc-rect-end', label: '直角爬山端點拉直' },
@@ -728,12 +729,11 @@ async function render() {
     }
     // 端點拉直區塊: endpoint straighten ON TOP of the current chain's result
     // (原 tab 不動)。每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，
-    // 走同一套硬規則、迭代到不動點。'hc' 的拉直結果同時餵 hc 縮減網格／RWD 底圖
-    // （hc 鏈 = HC → 端點拉直 → 縮減網格）；rect/align/ilp/llm 的縮減網格仍壓縮
-    // 各自的原結果。
+    // 走同一套硬規則、迭代到不動點。每條鏈的縮減網格（含 RWD 底圖）都壓縮
+    // 「拉直後」的結果：鏈 = 該鏈結果 → 端點拉直 → 縮減網格。
     {
       const endKind = END_KIND[mode.value]
-        ?? (hcCompact.value && rwdCompactKey.value === 'hc' ? 'hc' : null)
+        ?? (hcCompact.value ? rwdCompactKey.value : null)
       if (endKind) {
         if (!cachedEndp[endKind]) cachedEndp[endKind] = iteratePost(buildEndpointStraighten, cachedSkeleton, cells, nC, nR)
         cells = cachedEndp[endKind].cellAfter

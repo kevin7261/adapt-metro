@@ -65,24 +65,35 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 ## 欄位 (properties)
 
-**路段 (segment feature，MultiLineString；重疊路段只畫一條):**
-`routes`（**list**，行經此路段的每條 route：`route_id`, `route_name`, `route_name_local`,
-`route_ref`（代號如 BL/R）, `route_color`（`#rrggbb`）, `network`, `network_local`, `operator`,
-`wikidata`, `wikipedia`（OSM 有 wiki 標籤時）, `osm_route_ids`, `order_suspect`,
-`stations`（**該 route 所有車站，依站序**，每項 `{ station_id, station_name }`）），
-頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
+**路段 (segment feature，MultiLineString；重疊路段只畫一條、每段必連續):**
+`routes`（**list**，行經此路段的每條 route：`route_id`, `route_name`（在地語言＋去方向尾綴）,
+`route_name_local`, `route_name_en`, `route_ref`（代號如 BL/R）, `route_color`（`#rrggbb`）,
+`network`, `network_local`, `operator`, `wikidata`, `wikipedia`, `osm_route_ids`, `order_suspect`,
+`stations`（該 route 的**完整行經序**，每項 `{ station_id, station_name, code?, pass? }`——
+`pass:true`＝行經但不停靠（快車跳站）、`code`＝該線官方站碼，站序依碼正規化方向（A1 在前）；
+站數/建圖一律取非 pass 項）），
+頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `city`, `country`
+（**無單數 `route_color`**——路段可多線）。
 
 > 幾何＝各 stop 依 relation 順序、吸附到共站合併後的車站點連成的折線（示意，非軌道線形）；
-> 相鄰車站對被多條 route 共用時只輸出一次（路段化）。一條 route 的完整路徑＝所有含它的路段之聯集。
+> 相鄰車站對被多條 route 共用時只輸出一次（路段化），同 route 集合的**不相連走廊拆成多個
+> feature**（每段單一連通、hover 不斷開）。一條 route 的完整路徑＝所有含它的路段之聯集。
+> **快車一律不抓**：只跳站的快車（子集）不另成 route；交錯停站（NYC J/Z）或獨立編號快線
+> （香港 AEL）自然保留，跳過的站標 pass 畫共線。
 
 **車站 (station feature):**
-`station_id`, `station_name`, `station_name_local`, `network`, `network_local`,
+`station_id`, `station_name`（**在地語言**：台繁/中簡/港繁/日日）, `station_name_local`,
+`station_name_en`（英文名，標題/hover 第二行）, `network`, `network_local`,
 `operator`, `city`, `country`,
-`lines`（所屬線路 tag，**至少一條**——空值屬資料錯誤，verify 標 `no_line`）,
-`line_ids`, `line_names`, `station_role`（interchange/terminus/normal）,
+`routes`（此站的路線清單，每項 `{ ref, name, pass? }`——`pass:true`＝行經但不停靠）,
+`lines`（停靠 refs，**至少一條**——空值屬資料錯誤，verify 標 `no_line`）,
+`codes`（官方站碼清單，如台北車站 `[A1, BL12, R10]`；無則 null）,
+`station_role`（interchange/terminus/normal）,
 `is_interchange`, `is_terminus`, `merged_from`（共站合併來源數）,
 `merged_names`（異名轉乘站合併後保留所有成員站名的 list，每項含 station_id/站名/在地名／
-該名所屬路線 lines，單一名時為 null）, `wikidata`, `wikipedia`。
+該名所屬路線 lines，單一名時為 null）, `pass_count`, `station_degree`, `wikidata`, `wikipedia`。
+
+> 每站輸出**完全相同的欄位集**（缺值 null/false）——223 城的顯示表格全球一致。
 
 **系統中繼資料（每個 `systems/*.geojson` 的 `metro_system` 欄位）:**
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 OSM network 清單）, `operator`,

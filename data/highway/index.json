@@ -2,7 +2,7 @@
  "generated_from": "OpenStreetMap highway=motorway + motorway_junction; one file per country, anchored on data/metro",
  "system_count": 3,
  "line_total": 27,
- "station_total": 263,
+ "station_total": 262,
  "systems": [
   {
    "file": "systems/asia/taiwan/as-twn-kaohsiung.geojson",
@@ -75,8 +75,8 @@
    ],
    "operator": null,
    "line_count": 13,
-   "segment_count": 129,
-   "station_count": 128
+   "segment_count": 128,
+   "station_count": 127
   }
  ]
 }

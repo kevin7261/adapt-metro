@@ -1,0 +1,9 @@
+{
+  "_comment": "官方網站釘選（fetchOfficialSites.mjs）。key=rel（洲/國/檔名slug）。website:null＝該城固定無官網；website:'https://...'＝固定用該 URL。每筆必附 note。",
+  "overrides": {
+    "europe/spain/eu-esp-seville": {
+      "website": "https://metrodesevilla.net/",
+      "note": "Wikidata P856 是舊域名 metro-sevilla.es（已死），官方現為 metrodesevilla.net（實測 200，2026-07）。"
+    }
+  }
+}
