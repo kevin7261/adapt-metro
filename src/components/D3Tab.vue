@@ -624,6 +624,19 @@ async function sourceData() {
 // while in flight (mount + ResizeObserver, mode switches) — without a guard
 // both passes would append and everything is drawn twice. Each render takes a
 // sequence number and bails after every await if a newer render has started.
+// 有色點中位數格位（黃色圓標用）：欄、列各自取中位數；偶數個點取平均 →
+// 可能落在半格。cells 的頂點都是非白點（白/黑直通站不是頂點）。
+function cellMedian(cellsMap) {
+  if (!cellsMap?.size) return null
+  const median = (vals) => {
+    const s = [...vals].sort((a, b) => a - b)
+    const m = s.length >> 1
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+  }
+  const ps = [...cellsMap.values()]
+  return [median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))]
+}
+
 let renderSeq = 0
 async function render() {
   const svg = svgEl.value, g = gEl.value, el = host.value
@@ -789,17 +802,6 @@ async function render() {
         cells = cachedEndp[endKind].cellAfter
         endpStats.value = cachedEndp[endKind].stats
       }
-      // 端點拉直 tab：標出所有有色點（cells 的頂點都是非白點——白/黑直通站
-      // 不是頂點）欄、列各自的中位數位置，畫成網格上的黃色底標。
-      if (END_KIND[mode.value] && cells.size) {
-        const median = (vals) => {
-          const s = [...vals].sort((a, b) => a - b)
-          const m = s.length >> 1
-          return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
-        }
-        const ps = [...cells.values()]
-        endpMedian = [median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))]
-      }
     }
     // ② 直線縮減: rigid PERPENDICULAR shifts of whole straight lines
     // (stitched across intersections; H lines move vertically, V lines
@@ -840,6 +842,10 @@ async function render() {
         loopStats.value = cachedLoop[loopKind].stats
       }
     }
+    // 每一個網格 tab 都畫（使用者規則）：目前 tab 最終佈局的有色點（頂點都
+    // 非白——白/黑直通站不是頂點）欄、列中位數位置 → 黃色圓標（RWD 除外，
+    // 它的頂點已被路網畫線挪到像素座標）。
+    if (!isRWD.value) endpMedian = cellMedian(cells)
     const cw = (w - 48) / nC, ch = (h - 48) / nR
     const area = [24, 24, w - 24, h - 24]
     // 權重驅動版面：'weight' 模式時 weight → 非均勻欄寬列高（weightedAxes）；否則均勻。
@@ -970,6 +976,9 @@ async function render() {
       }
     }
   }
+  // HC 圖層的「原始格網化後」tab（不走上面的 hcMode 分支）也畫中位數圓標：
+  // 用格網化後的 cellOf（同一套有色點格位）。
+  if (!endpMedian && grid && needsHC.value && !isRWD.value) endpMedian = cellMedian(grid.cellOf)
   const posOf = (id) =>
     (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
   const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
@@ -1179,7 +1188,7 @@ async function render() {
     const cx = [], cy = []
     for (let c = 0; c < b.xs.length - 1; c++) cx.push((b.xs[c] + b.xs[c + 1]) / 2)
     for (let r = 0; r < b.ys.length - 1; r++) cy.push((b.ys[r] + b.ys[r + 1]) / 2)
-    // 每個端點拉直 tab 的網格都畫：有色點中位數位置的黃色圓標（半徑固定
+    // 每一個網格 tab 都畫：目前佈局有色點中位數位置的黃色圓標（半徑固定
     // 24pt），畫在格線之前 → 墊在網格座標最底下。中位數可能落在半格
     // （偶數個點取平均）——像素位置用相鄰格中心內插。
     if (endpMedian) {

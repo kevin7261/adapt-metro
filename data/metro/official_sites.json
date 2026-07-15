@@ -519,7 +519,9 @@
   "asia/saudi-arabia/as-ksa-riyadh": {
     "city": "Riyadh",
     "country": "Saudi Arabia",
-    "website": null
+    "website": "https://rpt.sa/en/",
+    "source": "override",
+    "wikidata": null
   },
   "americas/canada/am-can-toronto": {
     "city": "Toronto",
@@ -716,7 +718,9 @@
   "europe/germany/eu-ger-essen": {
     "city": "Essen",
     "country": "Germany",
-    "website": null
+    "website": "https://www.ruhrbahn.de/essen",
+    "source": "override",
+    "wikidata": null
   },
   "europe/france/eu-fra-lyon": {
     "city": "Lyon",
@@ -936,7 +940,9 @@
   "americas/mexico/am-mex-monterrey": {
     "city": "Monterrey",
     "country": "Mexico",
-    "website": null
+    "website": "https://www.metrorrey.mx/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/taiwan/as-twn-kaohsiung": {
     "city": "Kaohsiung",
@@ -1029,7 +1035,9 @@
   "europe/germany/eu-ger-ratingen": {
     "city": "Ratingen",
     "country": "Germany",
-    "website": null
+    "website": "https://www.rheinbahn.com/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/georgia/as-geo-tbilisi": {
     "city": "Tbilisi",
@@ -1271,7 +1279,9 @@
   "asia/china/as-chn-wuhu": {
     "city": "Wuhu",
     "country": "China",
-    "website": null
+    "website": "https://www.wuhurailtransit.com/",
+    "source": "override",
+    "wikidata": null
   },
   "americas/brazil/am-bra-porto-alegre": {
     "city": "Porto Alegre",
@@ -1379,7 +1389,9 @@
   "americas/united-states/am-usa-san-juan": {
     "city": "San Juan",
     "country": "United States",
-    "website": null
+    "website": "https://www.ati.pr.gov/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/turkey/as-tur-izmir": {
     "city": "İzmir",
@@ -1416,7 +1428,9 @@
   "asia/india/as-ind-gurgaon": {
     "city": "Gurgaon",
     "country": "India",
-    "website": null
+    "website": "https://www.delhimetrorail.com/rapid-metro",
+    "source": "override",
+    "wikidata": null
   },
   "americas/brazil/am-bra-fortaleza": {
     "city": "Fortaleza",
@@ -1485,7 +1499,9 @@
   "asia/japan/as-jpn-chiba-prefecture": {
     "city": "Chiba Prefecture",
     "country": "Japan",
-    "website": null
+    "website": "https://chiba-monorail.co.jp/",
+    "source": "override",
+    "wikidata": null
   },
   "europe/italy/eu-ita-catania": {
     "city": "Catania",
@@ -1602,7 +1618,9 @@
   "asia/pakistan/as-pak-lahore": {
     "city": "Lahore",
     "country": "Pakistan",
-    "website": null
+    "website": "https://pma.punjab.gov.pk/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/vietnam/as-vie-ho-chi-minh-city": {
     "city": "Ho Chi Minh City",
@@ -1615,7 +1633,9 @@
   "asia/china/as-chn-taizhou": {
     "city": "Taizhou",
     "country": "China",
-    "website": null
+    "website": "https://www.tz-mtr.com/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/south-korea/as-kor-gwangju": {
     "city": "Gwangju",
@@ -1652,7 +1672,9 @@
   "asia/china/as-chn-chuzhou": {
     "city": "Chuzhou",
     "country": "China",
-    "website": null
+    "website": "http://czctgs.cn/",
+    "source": "override",
+    "wikidata": null
   },
   "americas/united-states/am-usa-honolulu": {
     "city": "Honolulu",
@@ -1681,7 +1703,9 @@
   "asia/india/as-ind-meerut": {
     "city": "Meerut",
     "country": "India",
-    "website": null
+    "website": "https://ncrtc.in/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/india/as-ind-indore": {
     "city": "Indore",
@@ -1710,7 +1734,9 @@
   "asia/kazakhstan/as-kaz-astana": {
     "city": "Astana",
     "country": "Kazakhstan",
-    "website": null
+    "website": "https://cts.gov.kz/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/india/as-ind-noida": {
     "city": "Noida",
