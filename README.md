@@ -50,7 +50,7 @@ npm run deploy     # build:pages + gh-pages 部署到 GitHub Pages（base=/adapt
 | 區域 | 內容 |
 |---|---|
 | 頂部選單列 | Project／Edit／View／Add Data／Processing／Controls／Plugins／Settings／Help，右側深淺色切換 |
-| 左側 Layers 面板 | 四個圖層群組（Metro Maps／Map Adjust／Straighten／RWD Maps）＋圖層樹、顯示切換、每層動作選單 |
+| 左側 Layers 面板 | 五個圖層群組（Metro Maps／Highways／Map Adjust／Straighten／RWD Maps）＋圖層樹、顯示切換、每層動作選單 |
 | 中間編輯區 | Dockview 多分頁：MapLibre 地理地圖、D3 示意圖分頁（每個圖層一個 tab）、三個城市畫廊 |
 | 右側 Style 面板 | 依分頁型態切換的樣式與演算法參數控制 |
 | 底部屬性表／狀態列 | 可排序過濾的 feature 屬性表；座標／Zoom／演算法統計讀數 |

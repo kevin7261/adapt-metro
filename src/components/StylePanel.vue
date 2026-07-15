@@ -217,14 +217,23 @@ const selectedRouteLists = computed(() => {
     nameLocal: r.route_name_local && r.route_name_local !== r.route_name ? r.route_name_local : null,
     ref: r.route_ref,
     color: r.route_color ?? '#e11d48',
-    // Merged order: stops + 通過不停(pass:true) interleaved by position; falls
-    // back to the raw stop list if the pass-through map isn't ready.
-    stations: passThrough.value?.seqByRoute.get(r.route_id)
-      ?? (r.stations ?? []).map((s) => ({ ...s, pass: false })),
+    // 停靠站列表——直接用 route.stations（build 端已依**官方站碼**排序、每站帶 `code`，
+    // A1 在前）。不再用幾何猜測 seqByRoute（與資料一致）。
+    stations: (r.stations ?? []).map((s) => ({ ...s, pass: false })),
     // 站數只算停靠站（保序不去重——支線接續/環線閉合站重複）
     uniqueCount: new Set((r.stations ?? []).map((s) => s.station_id)).size,
   }))
 })
+
+// 路線車站 list 預設收合（高速公路一條可有數十個交流道，展開會拉太長）——
+// 點路線標題切換展開。切換選取物件時重置回收合。
+const expandedRoutes = ref(new Set())
+function toggleRoute(routeId) {
+  const next = new Set(expandedRoutes.value)
+  next.has(routeId) ? next.delete(routeId) : next.add(routeId)
+  expandedRoutes.value = next
+}
+watch(() => selectedProps.value, () => { expandedRoutes.value = new Set() })
 
 const layer = computed(() => props.layer)
 // metroLike: a D3 view created from an imported metro GeoJSON — same panels.
@@ -882,15 +891,17 @@ function startResize(e) {
           <!-- 標題下不放維基連結（使用者 2026-07：下方屬性表的 wikipedia 列已有連結） -->
           <!-- 路段：站序中同時列停靠與通過(不停)站，pass 站標記、灰字並排在正確位置 -->
           <template v-for="rt in selectedRouteLists" :key="rt.route_id">
-            <div class="obj-route-head">
+            <button type="button" class="obj-route-head obj-route-toggle"
+              :aria-expanded="expandedRoutes.has(rt.route_id)" @click="toggleRoute(rt.route_id)">
+              <MIcon :name="expandedRoutes.has(rt.route_id) ? 'expand_more' : 'chevron_right'" class="obj-route-caret" />
               <span class="line-swatch" :style="{ background: rt.color }" />
               <span v-if="rt.ref" class="line-ref">{{ rt.ref }}</span>
               <span class="obj-route-name">{{ rt.name }}</span>
               <span class="obj-route-count">停靠 {{ rt.uniqueCount }} 站</span>
-            </div>
-            <ol class="obj-station-list">
+            </button>
+            <ol v-if="expandedRoutes.has(rt.route_id)" class="obj-station-list">
               <li v-for="(st, i) in rt.stations" :key="`${st.station_id}-${i}`" :class="{ 'st-pass': st.pass }">
-                {{ st.station_name }}<span v-if="st.pass" class="obj-pass-tag">pass</span>
+                <span v-if="st.code" class="obj-st-code">{{ st.code }}</span>{{ st.station_name }}<span v-if="st.pass" class="obj-pass-tag">pass</span>
               </li>
             </ol>
           </template>
@@ -1185,6 +1196,14 @@ function startResize(e) {
   margin: 10px 0 4px; font-size: 12.5px; font-weight: 600; min-width: 0;
 }
 .obj-route-head:first-of-type { margin-top: 0; }
+/* 收合切換：整條路線標題可點，caret 指示展開狀態 */
+.obj-route-toggle {
+  width: 100%; border: 0; background: none; cursor: pointer; text-align: left;
+  padding: 2px 0; color: inherit; font: inherit; font-weight: 600;
+  border-radius: 4px;
+}
+.obj-route-toggle:hover { background: hsl(var(--muted) / 0.45); }
+.obj-route-caret { flex-shrink: 0; color: hsl(var(--muted-foreground)); font-size: 16px; }
 .obj-route-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .obj-route-count {
   margin-left: auto; flex-shrink: 0;
@@ -1192,6 +1211,12 @@ function startResize(e) {
 }
 /* 站序中的通過(不停)站：灰字 + pass 標記 */
 .obj-station-list .st-pass { color: hsl(var(--muted-foreground)); }
+/* 官方站碼（A1、BL12…）小徽章 */
+.obj-st-code {
+  display: inline-block; min-width: 22px; margin-right: 6px; padding: 0 4px;
+  font-size: 9.5px; font-weight: 600; text-align: center; border-radius: 3px;
+  background: hsl(var(--muted) / 0.6); color: hsl(var(--muted-foreground));
+}
 .obj-pass-sub { margin: 8px 0 2px; font-size: 11.5px; font-weight: 600; color: hsl(var(--muted-foreground)); }
 /* 行經（不停靠）路線 */
 .obj-pass { margin: 6px 0 10px; }

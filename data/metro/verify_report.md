@@ -27,7 +27,7 @@
 | low | Lagos | Nigeria | 5 | 13 | 0.38 | 站數偏少（5 vs wiki 13） | [wiki](https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos) |
 | low | Samara | Russia | 2 | 10 | 0.2 | 站數偏少（2 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
 | high | Berlin | Germany | 310 | 175 | 1.77 | 站數偏多（310 vs wiki 175），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Berlin_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin) |
-| high | Taipei | Taiwan | 200 | 119 | 1.68 | 站數偏多（200 vs wiki 119），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Taipei_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taipei) |
+| high | Taipei | Taiwan | 197 | 119 | 1.66 | 站數偏多（197 vs wiki 119），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Taipei_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taipei) |
 | high | Tokyo | Japan | 212 | 99 | 2.14 | 站數偏多（212 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Munich | Germany | 235 | 96 | 2.45 | 站數偏多（235 vs wiki 96），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Munich_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Munich) |
 | high | Hamburg | Germany | 154 | 93 | 1.66 | 站數偏多（154 vs wiki 93），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Hamburg_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Hamburg) |

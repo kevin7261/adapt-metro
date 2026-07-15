@@ -350,7 +350,9 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `wikidata`, `wikipedia`, `osm_route_ids`, `order_suspect`,
 `stations`（**該 route 的所有車站，依站序、各分段原序串接、不去重**——列表相鄰＝圖上
 直連；支線的接續站在支線段開頭重複出現、**環狀線最後回到第一個車站**；
-站數統計一律取唯一站數。每項 `{ station_id, station_name }`）,
+站數統計一律取唯一站數。每項 `{ station_id, station_name, code? }`——`code`＝**該線官方站碼**
+（機捷 A1、東京 T22、港鐵…），**站序依此碼正規化方向（官方碼升序、A1 在前）**，只反轉整條
+序列不破壞相鄰性；ref 缺或碼不齊維持成員順序）,
 `pass_stations`（此服務**行經但不停靠**的站——快車跳站；空陣列＝各停。每項
 `{ station_id, station_name }`。與車站的 `pass_lines` 互為對照，見下））；
 頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
@@ -390,7 +392,12 @@ list**（同名多成員的 lines 取聯集），代表點排第一、依 `normN
 `null`。合併只留代表點一個 `station_name`＋全線聯集 `lines`，此欄留住被丟掉的別名及其對應路線
 ——如 Novosibirsk Krasnyi Prospekt(1) 併掉的 Sibirskaya(2)、Pyongyang Chonu(1) 併掉的
 Chonsung(2)，讓地圖能標「哪個名字屬哪條線」）,
-`wikidata`, `wikipedia`（OSM 車站有 `wikipedia` 標籤時帶入，如 `en:...`；無則 `null`）。
+`wikidata`, `wikipedia`（OSM 車站有 `wikipedia` 標籤時帶入，如 `en:...`；無則 `null`）,
+`codes`（**官方站碼清單**，如台北車站 `[A1, BL12, R10]`——各線各自的碼；來源＝各線 station
+節點的 `ref`〔路線引用的 stop_position 節點無碼，碼在 station 節點上〕，共站合併時聚成此清單。
+路線的 `route.stations` 每站再依該線 ref 字首挑出**該線的 code**〔A1↔ref A、T22↔ref T〕並據以
+排序方向。`ref` 為 GTFS/非官方純數字碼〔NYC 302N、HK 430〕者不挑、不影響站序。全球 99/223 城
+有碼。無則不設此欄）。
 
 **系統中繼資料（`systems/*.geojson` 的 `metro_system` 外部成員）**：
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 network 字串清單）, `operator`,

@@ -53,6 +53,7 @@ onMounted(() => {
     attributionControl: false,  // no on-map copyright overlay (per request)
   })
 
+  if (import.meta.env.DEV) window.__map = map // debug probe (dev only)
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
   map.addControl(new maplibregl.FullscreenControl(), 'top-right')
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')

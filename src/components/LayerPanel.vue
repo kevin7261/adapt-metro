@@ -17,13 +17,14 @@ const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raste
 // Map Adjust the skeleton + gridding skills, Hill Climbing / RWD their own.
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
+  highway: ['highway-osm-fetch', 'metro-osm-fetch'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
   rwd: ['route-rwd-draw', 'route-hillclimb'],
 }
 // Each layer group maps to one layer type → the skills shown in its header.
 // (Metro appends every metro-city-* rule, so no per-city table is needed.)
-const GROUP_TYPE = { 'metro-maps': 'metro', d3: 'd3', hillclimb: 'hillclimb', rwd: 'rwd' }
+const GROUP_TYPE = { 'metro-maps': 'metro', 'highway-maps': 'highway', d3: 'd3', hillclimb: 'hillclimb', rwd: 'rwd' }
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
 onMounted(async () => {
@@ -265,6 +266,14 @@ onBeforeUnmount(() => {
               <MIcon name="add" :size="14" />
             </button>
             <button
+              v-if="item.group.id === 'highway-maps'"
+              class="btn-icon group-add"
+              title="Import highway network（高速公路交流道網）"
+              @click.stop="store.ui.dialog = 'import-highway'"
+            >
+              <MIcon name="add" :size="14" />
+            </button>
+            <button
               v-if="item.group.id === 'd3'"
               class="btn-icon group-add"
               title="8 視圖畫廊（全部城市 · 九宮格）"
@@ -320,6 +329,7 @@ onBeforeUnmount(() => {
               {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖'
                 : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
                 : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「縮減網格」建立 RWD Maps 視圖'
+                : item.group.id === 'highway-maps' ? '按 + 匯入高速公路交流道網'
                 : '用 Import 匯入 metro map' }}
             </div>
             <div
@@ -331,7 +341,7 @@ onBeforeUnmount(() => {
             >
               <div class="layer-title">
                 <MIcon
-                  :name="typeIcons[layer.type] ?? 'circle'"
+                  :name="layer.highway ? 'add_road' : (typeIcons[layer.type] ?? 'circle')"
                   :size="13"
                   class="type-icon"
                   :style="layer.color ? { color: layer.color } : {}"

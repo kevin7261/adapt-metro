@@ -276,6 +276,15 @@ function copyStaticAssets() {
           filter: (src) => !src.split(/[/\\]/).includes('_cache'),
         })
       }
+      // Highway networks (data/highway) mirror the metro layout — copy them too.
+      const highwaySrc = resolve(process.cwd(), 'data/highway')
+      if (existsSync(highwaySrc)) {
+        mkdirSync(join(dist, 'data'), { recursive: true })
+        cpSync(highwaySrc, join(dist, 'data', 'highway'), {
+          recursive: true,
+          filter: (src) => !src.split(/[/\\]/).includes('_cache'),
+        })
+      }
 
       const skillsRoot = resolve(process.cwd(), '.claude/skills')
       const skillsDest = join(dist, 'skills')

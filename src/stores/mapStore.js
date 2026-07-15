@@ -91,6 +91,7 @@ export const useMapStore = defineStore('map', {
       // hill-climbing optimizations over a Map Adjust view's gridded layout.
       groups: [
         { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
+        { id: 'highway-maps', label: 'Highways', collapsed: p?.groupCollapsed?.['highway-maps'] ?? false },
         { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
         { id: 'hillclimb', label: 'Straighten', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
         { id: 'rwd', label: 'RWD Maps', collapsed: p?.groupCollapsed?.['rwd'] ?? false },
@@ -151,6 +152,43 @@ export const useMapStore = defineStore('map', {
           city: sys.city,
           countryZh: CITY_ZH[id]?.country ?? sys.country,
           cityZh: CITY_ZH[id]?.city ?? sys.city,
+          visible: true,
+          opacity: 1,
+          strokeWidth: 2.5,
+          radius: 4,
+          symbology: 'categorized',
+          lineCount: sys.line_count ?? 0,
+          stationCount: sys.station_count ?? 0,
+          featureCount: (sys.line_count ?? 0) + (sys.station_count ?? 0),
+        }
+        this.layers.push(layer)
+      }
+      this.selectedLayerId = layer.id
+      return layer
+    },
+
+    // sys = an entry of data/highway/index.json `systems`. Highway networks
+    // mirror the metro GeoJSON schema, so they load as type 'metro' and reuse
+    // the same map/D3 renderers; the `highway` flag only drives the row icon.
+    // The slug matches its metro anchor (as-twn-taipei), so metroDisplayName /
+    // CITY_ZH give the same 國名－城市名 labels.
+    importHighwaySystem(sys) {
+      const slug = sys.file.split('/').pop().replace(/\.geojson$/, '')
+      const id = `hw-${slug}`
+      let layer = this.layers.find((l) => l.id === id)
+      if (!layer) {
+        layer = {
+          id,
+          name: metroDisplayName(slug),
+          type: 'metro',
+          highway: true,
+          groupId: 'highway-maps',
+          file: assetUrl(`data/highway/${sys.file}`),
+          continent: sys.continent,
+          country: sys.country,
+          city: sys.city,
+          countryZh: CITY_ZH[slug]?.country ?? sys.country,
+          cityZh: CITY_ZH[slug]?.city ?? sys.city,
           visible: true,
           opacity: 1,
           strokeWidth: 2.5,

@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { loadMetroCatalog, continentZh, prettyContinent } from '../stores/metroCatalog'
+import { loadHighwayCatalog } from '../stores/highwayCatalog'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
 import MIcon from './MIcon.vue'
@@ -84,6 +85,31 @@ function importSystem(sys) {
   openLayerTab(layer)
   close()
   store.toast(`已匯入 ${sys.cityZh ?? sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
+}
+
+/* Import Highway Network — highway systems mirror the metro schema (see skill
+   highway-osm-fetch); browse data/highway/index.json and load one as a layer. */
+const highwayCatalog = ref(null)
+const highwayError = ref(null)
+const highwaySort = ref('desc') // 'desc' 多到少 | 'asc' 少到多（依交流道數）
+watch(dialog, (d) => {
+  if (d !== 'import-highway' || highwayCatalog.value) return
+  highwayError.value = null
+  loadHighwayCatalog()
+    .then((systems) => { highwayCatalog.value = systems })
+    .catch((err) => { highwayError.value = String(err) })
+})
+const highwaysByStations = computed(() => {
+  if (!highwayCatalog.value) return []
+  const dir = highwaySort.value === 'asc' ? 1 : -1
+  return [...highwayCatalog.value].sort((a, b) => (a.station_count - b.station_count) * dir)
+})
+function importHighway(sys) {
+  if (!sys) return
+  const layer = store.importHighwaySystem(sys)
+  openLayerTab(layer)
+  close()
+  store.toast(`已匯入 ${sys.cityZh ?? sys.city} 高速公路網（${sys.line_count} 條 / ${sys.station_count} 交流道）`)
 }
 
 function importMetro() {
@@ -383,6 +409,42 @@ const shortcuts = [
       <div v-if="dialog === 'import-metro'" class="dialog-footer">
         <button class="btn-outline" @click="close">取消</button>
         <button class="btn-primary" :disabled="!selectedSystem" @click="importMetro">確定</button>
+      </div>
+    </div>
+
+    <!-- Import Highway Network: browse data/highway systems (交流道網) -->
+    <div v-else-if="dialog === 'import-highway'" class="dialog import-modal">
+      <div class="dialog-header">
+        <h2 class="dialog-title">匯入高速公路網</h2>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
+      </div>
+      <div class="dialog-body stations-body">
+        <div v-if="highwayError" class="import-status error">載入高速公路清單失敗：{{ highwayError }}</div>
+        <div v-else-if="!highwayCatalog" class="import-status">載入高速公路系統清單…</div>
+        <div v-else-if="!highwaysByStations.length" class="import-status">
+          尚無高速公路資料 — 先執行 <code>npm run highway:all</code>（或 <code>highway:fetch twn</code> 試抓一國）
+        </div>
+        <template v-else>
+          <div class="sort-bar">
+            <div class="sort-toggle">
+              <button class="sort-btn" :class="{ active: highwaySort === 'desc' }" @click="highwaySort = 'desc'">交流道多到少</button>
+              <button class="sort-btn" :class="{ active: highwaySort === 'asc' }" @click="highwaySort = 'asc'">少到多</button>
+            </div>
+            <span class="sort-meta">{{ highwaysByStations.length }} 個都會區</span>
+          </div>
+          <div class="quick-grid">
+            <button
+              v-for="s in highwaysByStations"
+              :key="s.file"
+              class="quick-cell"
+              @click="importHighway(s)"
+            >
+              <span class="quick-zh">{{ s.cityZh ?? s.city }} · {{ s.countryZh ?? s.country }}</span>
+              <span class="quick-en">{{ s.city }} · {{ s.country }}</span>
+              <span class="quick-meta">{{ s.station_count }} 交流道 · {{ s.line_count }} 條高速公路</span>
+            </button>
+          </div>
+        </template>
       </div>
     </div>
 

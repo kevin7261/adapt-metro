@@ -1,0 +1,58 @@
+{
+ "generated_from": "OpenStreetMap highway=motorway + motorway_junction; anchored on data/metro",
+ "system_count": 3,
+ "line_total": 14,
+ "station_total": 175,
+ "systems": [
+  {
+   "file": "systems/asia/taiwan/as-twn-kaohsiung.geojson",
+   "continent": "asia",
+   "country": "Taiwan",
+   "city": "Kaohsiung",
+   "osm_networks": [
+    "1",
+    "10",
+    "3",
+    "8"
+   ],
+   "operator": null,
+   "line_count": 4,
+   "segment_count": 48,
+   "station_count": 43
+  },
+  {
+   "file": "systems/asia/taiwan/as-twn-taichung.geojson",
+   "continent": "asia",
+   "country": "Taiwan",
+   "city": "Taichung",
+   "osm_networks": [
+    "1",
+    "3",
+    "4",
+    "6"
+   ],
+   "operator": null,
+   "line_count": 4,
+   "segment_count": 52,
+   "station_count": 49
+  },
+  {
+   "file": "systems/asia/taiwan/as-twn-taipei.geojson",
+   "continent": "asia",
+   "country": "Taiwan",
+   "city": "Taipei",
+   "osm_networks": [
+    "1",
+    "2",
+    "2甲",
+    "3",
+    "3甲",
+    "5"
+   ],
+   "operator": null,
+   "line_count": 6,
+   "segment_count": 102,
+   "station_count": 83
+  }
+ ]
+}

@@ -1074,6 +1074,9 @@ async function build() {
       type: 'Feature', properties: props,
       geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
     }
+    // 官方站碼（`ref`，如機捷 A1、環狀 Y20、板南 BL12、港鐵 FOH）——各線的 station 節點自帶
+    // 該線的碼；共站合併時聚成 codes，路線再依 ref 字首挑出自己的碼、供官方順序排序。內部欄位。
+    if (t.ref && /^[A-Za-z]{1,4}\d|^\d/.test(t.ref)) feat.__codes = new Set(String(t.ref).split(/[;、,\s]+/).filter(Boolean))
     if (process.env.DEBUG_ST && /榴花公园|Embarcadero/.test((t.name || '') + (t['name:en'] || '')))
       console.log('  [st]', t.name, '| id:', s.id, '| bucket:', info.key,
         '| direct-refs:', !!nodeLineRefs.get(s.id), '| lines:', JSON.stringify(props.lines))
@@ -1113,7 +1116,9 @@ async function build() {
       type: 'Feature',
       properties: {
         route_id: 'manual-' + slugify(`${ml.city}-${ref}-${ml.variant || ml.name}`),
-        route_name: ml.name_en || ml.name,
+        // 手工線目前皆為台北（台灣顯示繁中，nameFor 慣例）：route_name 用中文，
+        // 與 OSM 路線一致（淡水信義線等）；英文名留在 manual_curated 供查考。
+        route_name: ml.name,
         route_name_local: ml.name,
         route_ref: ref,
         route_color: normColor(ml.colour),
@@ -1140,7 +1145,9 @@ async function build() {
         type: 'Feature',
         properties: {
           station_id: 'm' + slugify(`${ml.city}-${ref}-${s.code || s.name_en || s.name}`),
-          station_name: s.name_en || s.name,
+          // station_name 用中文（台灣 nameFor＝繁中）——否則與 OSM 站（中正紀念堂／
+          // 東湖）異名、同名 ≤800m 合併對不上，轉乘站會分裂成兩點（藍點蓋掉紅點）。
+          station_name: s.name,
           station_name_local: s.name,
           network: net, network_local: net, operator: null,
           city: info.city, country: info.country,
@@ -1592,6 +1599,8 @@ async function build() {
         station_name_local: e.station_name_local,
         lines: [...e.lines].sort(),
       }))
+      const allCodes = new Set()
+      for (const m of members) for (const c of (m.__codes || [])) allCodes.add(c)
       keep.push({
         type: 'Feature',
         properties: {
@@ -1601,6 +1610,7 @@ async function build() {
           merged_names: mergedNames.length > 1 ? mergedNames : null,
         },
         geometry: { type: 'Point', coordinates: [lon, lat] },
+        ...(allCodes.size ? { __codes: allCodes } : {}),
       })
       for (const m of members)
         aliases.push({ c: m.geometry.coordinates, rep: [lon, lat] })
@@ -1837,6 +1847,11 @@ async function build() {
       termLines.get(k).add(rid)
     }
     const passByStation = new Map() // station_id -> Set<routeTag>（行經但不停靠此站的服務）
+    // station_id → 官方站碼集（共站合併時各成員節點的 ref 聚成，如台北車站 {A1,R10,BL12}）
+    const codesById = new Map()
+    for (const s of grp.stations) if (s.__codes?.size) codesById.set(s.properties.station_id, s.__codes)
+    // 依本線 ref 字首挑出該線的碼（機捷 ref「A」→ A1；板南「BL」→ BL12），供官方順序排序。
+    const codeKey = (c) => { const m = String(c).match(/^([A-Za-z]+)(\d+)([a-z]*)/); return m ? [m[1].toUpperCase(), +m[2], m[3]] : null }
     for (const f of grp.lines) {
       // ordered station list for this route：各分段頂點**原序串接、不去重**
       //（使用者規則：列表相鄰＝圖上直連。支線的接續站在支線段開頭重複出現、
@@ -1878,6 +1893,21 @@ async function build() {
           if (s) { s.properties.is_terminus = true; addTerm(k, fRid) }
         }
       }
+      // 官方站碼：依本線 ref 字首挑碼，寫進每站 `code`；並依碼**正規化方向**（官方碼升序、
+      // A1 在前）——只反轉整條序列（保留相鄰性/圖上直連不變）。ref 缺或碼不齊則維持成員順序。
+      const ref = f.properties.route_ref
+      if (ref) {
+        // 只挑「字母字首＝本線 ref」的官方碼（機捷 A1↔ref A、東京 T22↔ref T、港鐵 TML…）；
+        // 純數字 GTFS/非官方碼（NYC 302N、HK 430）codeKey 無字母字首→不挑、不影響排序。
+        const refU = String(ref).toUpperCase()
+        const pickCode = (sid) => { const cs = codesById.get(sid); if (cs) for (const c of cs) { const k = codeKey(c); if (k && k[0] === refU) return c } return null }
+        for (const st of sts) { const c = pickCode(st.station_id); if (c) st.code = c }
+        const coded = sts.filter((s) => s.code && codeKey(s.code))
+        if (coded.length >= 2) {
+          const a = codeKey(coded[0].code), b = codeKey(coded[coded.length - 1].code)
+          if (a[1] > b[1]) sts.reverse() // 首站碼 > 末站碼 → 降序 → 反轉成 A1 在前
+        }
+      }
       f.__stations = sts
       f.__passStations = passSts
     }
@@ -1913,6 +1943,10 @@ async function build() {
       s.properties.line_ids = routes.map((r) => r.route_id)
       s.properties.line_names = routes.map((r) => r.route_name)
       s.properties.lines = routes.map((r) => r.route_ref ?? r.route_name) // refs（顯示/相容，與 line_ids 同序、可重複）
+      // 官方站碼清單（如台北車站 [A1, BL12, R10]）——各線各自的碼；route.stations 每站另帶
+      // 依該線 ref 挑出的 `code`。內部 Set 清掉（避免序列化成 {}）。
+      if (s.__codes?.size) s.properties.codes = [...s.__codes].sort()
+      delete s.__codes
       // 行經但不停靠（快車跳站）：route_id 直接來自 __passStations；排除也停靠者。
       const passIds = [...(passRoutesBySt.get(sid) ?? [])].filter((id) => !stopIds.has(id))
       if (passIds.length) {
