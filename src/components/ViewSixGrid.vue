@@ -3,10 +3,10 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { HC_VIEW_ORDER, hcViewLabels } from '../stores/viewGeometry'
 
-// One city's Hill Climbing card: a title header + a 2×3 grid of the 6
+// One city's Hill Climbing card: a title header + a 2×4 grid of the 8
 // pre-computed HC views — rows are the variant (原始 / 旋轉 N°), columns the
-// stage (格網化後 → Hill Climbing → 縮減網格). Geometry is fetched lazily
-// (data/metro/hcviews/<id>.json) when the card scrolls into view.
+// stage (格網化後 → Hill Climbing → 縮減網格 → 端點拉直). Geometry is fetched
+// lazily (data/metro/hcviews/<id>.json) when the card scrolls into view.
 const props = defineProps({ entry: { type: Object, required: true } })
 const emit = defineEmits(['pick'])
 
@@ -64,7 +64,7 @@ onBeforeUnmount(() => observer?.disconnect())
       >
         <div class="vc-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
           <svg
-            v-if="data"
+            v-if="data && data.views[id]"
             :viewBox="`0 0 ${data.W} ${data.H}`"
             preserveAspectRatio="xMidYMid meet"
           >
@@ -145,7 +145,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 .sgrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: hsl(var(--border));
 }

@@ -16,7 +16,7 @@ import { computeOrientation } from './orientation.js'
 import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
-  buildHillClimb, compactGrid, buildHcGraph, iteratePost,
+  buildHillClimb, compactGrid, buildHcGraph, iteratePost, buildEndpointStraighten,
   buildRectPolish, buildAxisAlign, buildAxisIlp,
 } from './hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
@@ -297,11 +297,12 @@ export const VIEW_ORDER = [
 ]
 
 /**
- * Compute the 6 Hill Climbing views for one city — the 3 HC-layer tabs
- * (格網化後 input → Hill Climbing → 縮減網格) for both variants (orig / rot).
- * Mirrors D3Tab's hill-climbing pipeline: schematic gridding → buildHillClimb
- * on the integer cells → compactGrid, mapping cells to pixel cell-centres and
- * re-spreading black through-stations (placeBlacks) each stage.
+ * Compute the 8 Hill Climbing views for one city — the 4 HC-layer tabs
+ * (格網化後 input → Hill Climbing → 縮減網格 → 端點拉直) for both variants
+ * (orig / rot). Mirrors D3Tab's hill-climbing pipeline: schematic gridding →
+ * buildHillClimb on the integer cells → compactGrid → buildEndpointStraighten,
+ * mapping cells to pixel cell-centres and re-spreading black through-stations
+ * (placeBlacks) each stage.
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
@@ -372,6 +373,15 @@ export function computeCityHcViews(geojson, opts = {}) {
     placeBlacks(skeleton, compPos, snap)
     views[`compact-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m2.sep)
 
+    // 4) 端點拉直 — NEW view on top of the 縮減 (which itself stays untouched):
+    // degree-1 route endpoints move so their single segment turns H/V, through
+    // the same hard rules, iterated to a fixed point (buildEndpointStraighten).
+    const endp = iteratePost(buildEndpointStraighten, skeleton, comp.cellAfter, comp.cols, comp.rows)
+    const endpPos = new Map()
+    for (const [id, cell] of endp.cellAfter) endpPos.set(id, m2.cellPx(cell))
+    placeBlacks(skeleton, endpPos, snap)
+    views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, m2.sep)
+
     stats[variant] = {
       before: +(hc.stats?.before ?? 0).toFixed(1),
       after: +(hc.stats?.after ?? 0).toFixed(1),
@@ -387,10 +397,10 @@ export function computeCityHcViews(geojson, opts = {}) {
   return { W, H, tilt, canRotate, views, stats }
 }
 
-// The 6 Hill Climbing views, in display order: variant (原始/旋轉) × stage.
+// The 8 Hill Climbing views, in display order: variant (原始/旋轉) × stage.
 export const HC_VIEW_ORDER = [
-  'grid-orig-post', 'hc-orig', 'compact-orig',
-  'grid-rot-post', 'hc-rot', 'compact-rot',
+  'grid-orig-post', 'hc-orig', 'compact-orig', 'endp-orig',
+  'grid-rot-post', 'hc-rot', 'compact-rot', 'endp-rot',
 ]
 
 // View id → 中文 caption for the HC gallery. N° filled per city.
@@ -400,9 +410,11 @@ export function hcViewLabels(tilt) {
     'grid-orig-post': '原始 · 格網化後',
     'hc-orig': '原始 · Hill Climbing',
     'compact-orig': '原始 · Hill Climbing縮減',
+    'endp-orig': '原始 · 端點拉直',
     'grid-rot-post': `${rot} · 格網化後`,
     'hc-rot': `${rot} · Hill Climbing`,
     'compact-rot': `${rot} · Hill Climbing縮減`,
+    'endp-rot': `${rot} · 端點拉直`,
   }
 }
 

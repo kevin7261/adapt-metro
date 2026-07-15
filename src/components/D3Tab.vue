@@ -10,7 +10,7 @@ import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
 import {
-  buildHillClimb, compactGrid, buildHcGraph,
+  buildHillClimb, compactGrid, buildHcGraph, buildEndpointStraighten,
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
@@ -109,7 +109,7 @@ const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
   ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
-    'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
+    'hc-compact', 'hc-compact-end', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
     'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
@@ -290,7 +290,10 @@ const postKind = computed(() =>
 // hill-climbing layout or from one of the three post-pass layouts — smaller
 // grid, identical topology (rank order preserved by compactGrid).
 // RWD views sit on the HC compact grid in BOTH of their tabs.
-const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
+// 端點拉直 ('hc-compact-end') is also compact-based: it draws the hc 縮減 plus an
+// endpoint-only H/V pass on top (the 縮減 itself stays untouched).
+const hcCompact = computed(() =>
+  mode.value.endsWith('compact') || mode.value === 'hc-compact-end' || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
 // 「LLM調整」（rwd-llm）畫的是同一套 RWD 路網，只是欄寬列高由 LLM 推理的
 // 區間權重決定（skill route-llm-grid，結果檔 data/metro/llmgrids/）。
@@ -357,12 +360,14 @@ function saveHcCache(key, hc, posts) {
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
 let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
 let cachedCompact = {} // compactGrid results, keyed by 'hc'/'rect'/'align'/'ilp'/'llm'
+let cachedEndp = null  // 端點拉直 (iteratePost over buildEndpointStraighten) on the hc 縮減
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
 const hcStats = ref(null)
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
+const endpStats = ref(null)      // 端點拉直: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
@@ -461,6 +466,7 @@ const VIEW_TABS = computed(() => {
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       { id: 'hc-compact', label: 'Hill Climbing縮減' },
+      { id: 'hc-compact-end', label: '端點拉直' },
       { id: 'hc-rect-compact', label: '直角爬山縮減' },
       { id: 'hc-align-compact', label: '軸對齊縮減' },
       { id: 'hc-ilp-compact', label: '整數規劃縮減' },
@@ -580,6 +586,7 @@ async function render() {
     cachedLlm = null
     cachedGrid = null
     cachedCompact = {}
+    cachedEndp = null
     cachedRWD = null
     hcStats.value = null
     postStats.value = null
@@ -589,6 +596,7 @@ async function render() {
     gridInfo.value = null
     gridStats.value = null
     hcCompactStats.value = null
+    endpStats.value = null
     rwdStats.value = null
     // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
     // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
@@ -702,6 +710,16 @@ async function render() {
       nC = cachedCompact[ckey].cols
       nR = cachedCompact[ckey].rows
       hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
+      // 端點拉直 tab: a NEW view layered on the hc 縮減 — the 縮減 itself (and the
+      // RWD base that reuses cachedCompact.hc) is untouched. Route endpoints
+      // (degree-1 coloured vertices, 非白點) move so their single segment turns
+      // H/V, through the SAME hard rules (no new crossing / no landing on
+      // another line), iterated to a fixed point.
+      if (mode.value === 'hc-compact-end') {
+        if (!cachedEndp) cachedEndp = iteratePost(buildEndpointStraighten, cachedSkeleton, cells, nC, nR)
+        cells = cachedEndp.cellAfter
+        endpStats.value = cachedEndp.stats
+      }
     }
     const cw = (w - 48) / nC, ch = (h - 48) / nR
     const area = [24, 24, w - 24, h - 24]
@@ -1461,6 +1479,16 @@ onBeforeUnmount(() => {
           v-if="hcStats.clusterMoves"> · {{ hcStats.clusterMoves }} 群集</template><template
           v-if="hcCompact && hcCompactStats"> · 網格
           {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
+          {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+      </span>
+
+      <!-- 端點拉直: endpoint-only H/V pass on top of the hc 縮減 -->
+      <span v-if="isHC && mode === 'hc-compact-end' && endpStats" class="hc-stats">
+        端點拉直 {{ endpStats.moved }}/{{ endpStats.endpoints }} 端點
+        · 水平垂直 {{ endpStats.hvBefore }} → {{ endpStats.hvAfter }}／{{ endpStats.segs }} 段
+        · 迭代 {{ endpStats.iters }}/{{ endpStats.iterCap }}<template
+          v-if="!endpStats.converged">（達上限未收斂）</template><template
+          v-if="hcCompactStats"> · 網格
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
       </span>
 
