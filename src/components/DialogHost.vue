@@ -164,7 +164,7 @@ function addHillClimbView(src, variant) {
 const hcLayerChoices = computed(() => store.layers.filter((l) => l.type === 'hillclimb'))
 // RWD 可建立在任一「縮減網格」變體之上（對應 D3Tab 的後處理 + compactGrid）。
 const RWD_VARIANTS = [
-  { id: 'hc', label: '縮減網格' },
+  { id: 'hc', label: 'Hill Climbing縮減' },
   { id: 'rect', label: '直角爬山縮減' },
   { id: 'align', label: '軸對齊縮減' },
   { id: 'ilp', label: '整數規劃縮減' },
@@ -179,7 +179,7 @@ function addRwdView(src, compact = 'hc') {
   if (!rwdLayer) return
   openLayerTab(rwdLayer)
   close()
-  const vLabel = RWD_VARIANTS.find((v) => v.id === compact)?.label ?? '縮減網格'
+  const vLabel = RWD_VARIANTS.find((v) => v.id === compact)?.label ?? 'Hill Climbing縮減'
   store.toast(`已建立 RWD Maps 視圖（來源：${src.name} ${vLabel}）`)
 }
 

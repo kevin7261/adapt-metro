@@ -397,10 +397,10 @@ export function hcViewLabels(tilt) {
   return {
     'grid-orig-post': '原始 · 格網化後',
     'hc-orig': '原始 · Hill Climbing',
-    'compact-orig': '原始 · 縮減網格',
+    'compact-orig': '原始 · Hill Climbing縮減',
     'grid-rot-post': `${rot} · 格網化後`,
     'hc-rot': `${rot} · Hill Climbing`,
-    'compact-rot': `${rot} · 縮減網格`,
+    'compact-rot': `${rot} · Hill Climbing縮減`,
   }
 }
 
@@ -513,8 +513,8 @@ export const RWD_VIEW_ORDER = [
 
 // View id → 中文 caption for the RWD gallery.
 export const RWD_VIEW_LABELS = {
-  'compact-hc': '縮減網格',
-  'rwd-hc': '縮減網格 · RWD 路網',
+  'compact-hc': 'Hill Climbing縮減',
+  'rwd-hc': 'Hill Climbing縮減 · RWD 路網',
   'compact-rect': '直角爬山縮減',
   'rwd-rect': '直角爬山縮減 · RWD 路網',
   'compact-align': '軸對齊縮減',

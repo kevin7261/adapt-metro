@@ -283,7 +283,7 @@ onBeforeUnmount(() => {
             <button
               v-if="item.group.id === 'hillclimb'"
               class="btn-icon group-add"
-              title="6 視圖畫廊（全部城市 · 格網化後／Hill Climbing／縮減網格 ×2）"
+              title="6 視圖畫廊（全部城市 · 格網化後／Hill Climbing／Hill Climbing縮減 ×2）"
               @click.stop="openHcGalleryTab()"
             >
               <MIcon name="grid_view" :size="14" />

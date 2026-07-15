@@ -399,7 +399,7 @@ const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isRWD.value) {
     return [
-      { id: 'hc-compact', label: '縮減網格' },
+      { id: 'hc-compact', label: 'Hill Climbing縮減' },
       { id: 'rwd', label: 'RWD 路網' },
       // LLM 調整（AI 改網格長寬）: the badge carries the model that produced it
       { id: 'rwd-llm', label: `LLM調整${gridInfo.value ? ` · ${gridInfo.value.model}` : ''}` },
@@ -415,7 +415,7 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
-      { id: 'hc-compact', label: '縮減網格' },
+      { id: 'hc-compact', label: 'Hill Climbing縮減' },
       { id: 'hc-rect-compact', label: '直角爬山縮減' },
       { id: 'hc-align-compact', label: '軸對齊縮減' },
       { id: 'hc-ilp-compact', label: '整數規劃縮減' },
@@ -1465,7 +1465,7 @@ onBeforeUnmount(() => {
       <span class="ma-label">資料來源：</span>
       <span class="ma-source">
         {{ ownData ? `${layer?.name}（匯入 JSON）`
-          : isRWD ? (hcLayer ? `${hcLayer.name}（縮減網格）` : (layer?.sourceLayerId ?? '—'))
+          : isRWD ? (hcLayer ? `${hcLayer.name}（Hill Climbing縮減）` : (layer?.sourceLayerId ?? '—'))
           : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
           : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
       </span>
