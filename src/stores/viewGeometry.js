@@ -300,10 +300,11 @@ export const VIEW_ORDER = [
  * Compute the 8 Hill Climbing views for one city — the 4 HC-layer tabs
  * (格網化後 input → Hill Climbing → Hill Climbing端點拉直 → Hill Climbing縮減網格)
  * for both variants (orig / rot). Mirrors D3Tab's hill-climbing chain:
- * schematic gridding → buildHillClimb on the integer cells → buildLineCompact
- * (直線縮減, rigid line shifts) → buildEndpointStraighten (endpoint-only H/V
- * pass) → compactGrid over that layout, mapping cells to pixel cell-centres
- * and re-spreading black through-stations (placeBlacks) each stage.
+ * schematic gridding → buildHillClimb on the integer cells →
+ * buildEndpointStraighten (endpoint-only H/V pass) → buildLineCompact
+ * (直線縮減, rigid line shifts) → compactGrid over that layout, mapping cells
+ * to pixel cell-centres and re-spreading black through-stations (placeBlacks)
+ * each stage.
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
@@ -366,21 +367,21 @@ export function computeCityHcViews(geojson, opts = {}) {
     placeBlacks(skeleton, hcPos, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
 
-    // 3) Hill Climbing端點拉直 — the chain's first two steps (同 D3Tab)：
-    // 直線縮減 (rigid line shifts, grid dims unchanged) then endpoint
-    // straighten — every coloured vertex may snap onto a neighbour's
-    // row/column when that nets more H/V segments, through the same hard
-    // rules, iterated to a fixed point. Same full grid as the HC view.
-    const lined = buildLineCompact(skeleton, hc.cellAfter, grid.cols, grid.rows)
-    const endp = iteratePost(buildEndpointStraighten, skeleton, lined.cellAfter, grid.cols, grid.rows)
+    // 3) Hill Climbing端點拉直 — the chain's first step (同 D3Tab): every
+    // coloured vertex may snap onto a neighbour's row/column when that nets
+    // more H/V segments, through the same hard rules, iterated to a fixed
+    // point (buildEndpointStraighten). Same full grid as the HC view.
+    const endp = iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows)
     const endpPos = new Map()
     for (const [id, cell] of endp.cellAfter) endpPos.set(id, m1.cellPx(cell))
     placeBlacks(skeleton, endpPos, snap)
     views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, m1.sep)
 
-    // 4) Hill Climbing縮減網格 — drop colour-free rows/cols from the
-    // straightened layout, re-map over the smaller grid.
-    const comp = compactGrid(endp.cellAfter, grid.cols, grid.rows)
+    // 4) Hill Climbing縮減網格 — 直線縮減 (rigid line shifts, grid dims
+    // unchanged) on the straightened layout, then drop colour-free rows/cols
+    // and re-map over the smaller grid (chain: 端點拉直 → 直線縮減 → 縮減網格).
+    const lined = buildLineCompact(skeleton, endp.cellAfter, grid.cols, grid.rows)
+    const comp = compactGrid(lined.cellAfter, grid.cols, grid.rows)
     const m2 = cellMapper(comp.cols, comp.rows)
     const compPos = new Map()
     for (const [id, cell] of comp.cellAfter) compPos.set(id, m2.cellPx(cell))
@@ -500,12 +501,12 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // 每條鏈（同 D3Tab）：該鏈結果 → 直線縮減 → 端點拉直 → 縮減網格。
+    // 每條鏈（同 D3Tab）：該鏈結果 → 端點拉直 → 直線縮減 → 縮減網格。
     const base = POST[kind]
       ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
       : hc.cellAfter
-    const lined = buildLineCompact(skeleton, base, grid.cols, grid.rows).cellAfter
-    const cells = iteratePost(buildEndpointStraighten, skeleton, lined, grid.cols, grid.rows).cellAfter
+    const straightened = iteratePost(buildEndpointStraighten, skeleton, base, grid.cols, grid.rows).cellAfter
+    const cells = buildLineCompact(skeleton, straightened, grid.cols, grid.rows).cellAfter
     const comp = compactGrid(cells, grid.cols, grid.rows)
     const m = cellMapper(comp.cols, comp.rows)
     // 縮減網格: original network snapped to the compact cells (per-feature).

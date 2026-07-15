@@ -798,18 +798,21 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
 
 // 直線縮減 one sweep: move whole straight LINES so FEWER distinct columns +
 // rows are occupied (= how small the later 縮減網格 can compact to) — the
-// grid DIMENSIONS are untouched; this pass runs BEFORE 端點拉直/縮減網格 in
-// the chain. A "line" is a maximal collinear chain of horizontal (or
+// grid DIMENSIONS are untouched; in the chain this pass runs AFTER 端點拉直
+// and BEFORE 縮減網格. A "line" is a maximal collinear chain of horizontal (or
 // vertical) segments stitched ACROSS intersection vertices — the connected
 // component over same-axis straight segments, so transfers, branches and
-// yellow crossings a line runs straight through move with it. Candidates:
-// rigid shifts — perpendicular jumps onto the nearest occupied rows/columns
-// (any distance; the input grid is sparse, ±2 would reach nothing) plus
-// short ±1/±2 slides on both axes. A shift is accepted only when it STRICTLY
-// shrinks the occupied column+row count and passes the SAME rigid-shift hard
-// rules as the optimizer's cluster moves (validShift: no new crossing/
+// yellow crossings a line runs straight through move with it. Moves are
+// PERPENDICULAR ONLY (使用者規則：水平線只能上下移、垂直線只能左右移):
+// jumps onto the nearest occupied rows/columns (any distance; the input grid
+// may be sparse, ±2 would reach nothing) plus ±1/±2 steps. A shift is
+// accepted only when it STRICTLY shrinks the occupied column+row count,
+// does NOT reduce the network-wide H/V segment count (only boundary segments
+// change under a rigid shift, so their net delta must be ≥ 0 — 使用者規則:
+// 移動後不可以讓整個 network 的直線變少), and passes the SAME rigid-shift
+// hard rules as the optimizer's cluster moves (validShift: no new crossing/
 // occlusion, quadrant + edge order preserved) — the network structure is
-// untouched. Tie-breaks: bigger gain → smaller H/V damage on the boundary
+// untouched. Tie-breaks: bigger gain → bigger H/V gain on the boundary
 // segments → smaller displacement.
 function lineCompactPass(skeleton, cells, cols, rows) {
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
@@ -906,14 +909,17 @@ function lineCompactPass(skeleton, cells, cols, rows) {
       const inC = new Set(comp)
       const perpAx = horiz ? 1 : 0
       const lineAt = pos.get(comp[0])[perpAx] // shared coordinate of the line
-      const deltas = new Set(['0,-1', '0,1', '-1,0', '1,0', '0,-2', '0,2', '-2,0', '2,0'])
-      for (const d of perpTargets(lineAt, perpAx)) deltas.add(horiz ? `0,${d}` : `${d},0`)
+      // perpendicular moves only: 水平線只能上下移、垂直線只能左右移
+      const deltas = new Set([-1, 1, -2, 2])
+      for (const d of perpTargets(lineAt, perpAx)) deltas.add(d)
       const scored = []
-      for (const key of deltas) {
-        const [dc, dr] = key.split(',').map(Number)
+      for (const d of deltas) {
+        const [dc, dr] = horiz ? [0, d] : [d, 0]
         const gain = gainOf(comp, dc, dr)
         if (gain <= 0) continue // must strictly shrink the occupied cols+rows
-        scored.push({ dc, dr, gain, hv: hvDelta(inC, dc, dr), dist: Math.abs(dc) + Math.abs(dr) })
+        const hv = hvDelta(inC, dc, dr)
+        if (hv < 0) continue // 整個 network 的直線（H/V 段）不可變少
+        scored.push({ dc, dr, gain, hv, dist: Math.abs(dc) + Math.abs(dr) })
       }
       scored.sort((a, b) => b.gain - a.gain || b.hv - a.hv
         || a.dist - b.dist || a.dc - b.dc || a.dr - b.dr)
@@ -966,8 +972,8 @@ export function buildLineCompact(skeleton, cells, cols, rows) {
   }
 }
 
-// 直線縮減+端點拉直+縮減網格循環: each round runs 直線縮減 (itself iterated
-// to a fixed point) → 端點拉直 (itself iterated) → compactGrid, until a round
+// 端點拉直+直線縮減+縮減網格循環: each round runs 端點拉直 (itself iterated
+// to a fixed point) → 直線縮減 (itself iterated) → compactGrid, until a round
 // where NOTHING moves. Compaction changes every cell's rank coordinates, so
 // hard-rule blocks (occlusion, landing on another vertex) shift and new
 // moves can open up; a straighten can empty more rows/columns; a line shift
@@ -981,11 +987,11 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let rounds = 0, moved = 0, lineMoved = 0
   let first = null, lastEndp = null, lastLine = null
   while (rounds < POST_ITER_CAP) {
-    const line = buildLineCompact(skeleton, cur, nC, nR)
-    const endp = iteratePost(buildEndpointStraighten, skeleton, line.cellAfter, nC, nR)
-    const comp = compactGrid(endp.cellAfter, nC, nR)
+    const endp = iteratePost(buildEndpointStraighten, skeleton, cur, nC, nR)
+    const line = buildLineCompact(skeleton, endp.cellAfter, nC, nR)
+    const comp = compactGrid(line.cellAfter, nC, nR)
     rounds++
-    first ??= line.stats
+    first ??= endp.stats
     lastEndp = endp.stats
     lastLine = line.stats
     moved += endp.stats.moved
@@ -993,14 +999,14 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     cur = comp.cellAfter
     nC = comp.cols
     nR = comp.rows
-    if (!line.stats.moved && !endp.stats.moved) break
+    if (!endp.stats.moved && !line.stats.moved) break
   }
   return {
     cellAfter: cur,
     cols: nC,
     rows: nR,
     stats: {
-      hvBefore: first.hvBefore, hvAfter: lastEndp.hvAfter,
+      hvBefore: first.hvBefore, hvAfter: lastLine.hvAfter,
       segs: lastEndp.segs, verts: lastEndp.verts, moved, lineMoved,
       rounds, roundCap: POST_ITER_CAP,
       converged: lastEndp.moved === 0 && lastLine.moved === 0,

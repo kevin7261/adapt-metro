@@ -1,6 +1,22 @@
 {
   "_comment": "官方網站釘選（fetchOfficialSites.mjs）。key=rel（洲/國/檔名slug）。website:null＝該城固定無官網；website:'https://...'＝固定用該 URL。每筆必附 note。",
   "overrides": {
+    "oceania/australia/oc-aus-sydney": {
+      "website": "https://transportnsw.info/",
+      "note": "P137 追鏈曾抓到輕軌承包商 Transdev Sydney——外包商不是官網。雪梨市郊鐵路＋Metro 官方入口為 Transport for NSW。"
+    },
+    "europe/italy/eu-ita-milan": {
+      "website": "https://www.atm.it/",
+      "note": "P856 曾給 ATM 票價子站 nuovosistematariffario.atm.it，官網應為 atm.it 首頁。"
+    },
+    "europe/united-kingdom/eu-gbr-london": {
+      "website": "https://tfl.gov.uk/",
+      "note": "P137 operator 追鏈曾抓到 DLR 承包商 Serco（serco.com）——外包商不是系統官網。London Underground 官方為 TfL。"
+    },
+    "asia/united-arab-emirates/as-uae-dubai": {
+      "website": "https://www.rta.ae/",
+      "note": "同 London：杜拜地鐵營運承包商 Serco 的 serco.com 不是官網，官方為 RTA（道路交通管理局）。"
+    },
     "europe/spain/eu-esp-seville": {
       "website": "https://metrodesevilla.net/",
       "note": "Wikidata P856 是舊域名 metro-sevilla.es（已死），官方現為 metrodesevilla.net（實測 200，2026-07）。"

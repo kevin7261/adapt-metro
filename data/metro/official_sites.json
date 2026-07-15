@@ -10,10 +10,9 @@
   "europe/united-kingdom/eu-gbr-london": {
     "city": "London",
     "country": "United Kingdom",
-    "website": "https://www.serco.com/",
-    "source": "wikidata-operator",
-    "wikidata": "Q499104",
-    "http_status": 403
+    "website": "https://tfl.gov.uk/",
+    "source": "override",
+    "wikidata": null
   },
   "europe/germany/eu-ger-berlin": {
     "city": "Berlin",
@@ -58,10 +57,9 @@
   "oceania/australia/oc-aus-sydney": {
     "city": "Sydney",
     "country": "Australia",
-    "website": "http://www.transdevsydney.com.au/",
-    "source": "wikidata-operator",
-    "wikidata": "Q19800015",
-    "http_status": 200
+    "website": "https://transportnsw.info/",
+    "source": "override",
+    "wikidata": null
   },
   "europe/germany/eu-ger-dusseldorf": {
     "city": "Dusseldorf",
@@ -338,10 +336,9 @@
   "europe/italy/eu-ita-milan": {
     "city": "Milan",
     "country": "Italy",
-    "website": "https://nuovosistematariffario.atm.it/",
-    "source": "wikidata",
-    "wikidata": "Q65125405",
-    "http_status": 200
+    "website": "https://www.atm.it/",
+    "source": "override",
+    "wikidata": null
   },
   "europe/netherlands/eu-ned-rotterdam": {
     "city": "Rotterdam",
@@ -740,10 +737,9 @@
   "asia/united-arab-emirates/as-uae-dubai": {
     "city": "Dubai",
     "country": "United Arab Emirates",
-    "website": "https://www.serco.com/",
-    "source": "wikidata-operator",
-    "wikidata": "Q499104",
-    "http_status": 403
+    "website": "https://www.rta.ae/",
+    "source": "override",
+    "wikidata": null
   },
   "asia/thailand/as-tha-bangkok": {
     "city": "Bangkok",
@@ -1275,6 +1271,466 @@
   "asia/china/as-chn-wuhu": {
     "city": "Wuhu",
     "country": "China",
+    "website": null
+  },
+  "americas/brazil/am-bra-porto-alegre": {
+    "city": "Porto Alegre",
+    "country": "Brazil",
+    "website": "https://www.trensurb.gov.br",
+    "source": "wikipedia",
+    "wikidata": "Q23891467",
+    "http_status": null
+  },
+  "asia/china/as-chn-nantong": {
+    "city": "Nantong",
+    "country": "China",
+    "website": "https://www.ntrailway.com/",
+    "source": "wikidata",
+    "wikidata": "Q18110961",
+    "http_status": null
+  },
+  "europe/germany/eu-ger-bochum": {
+    "city": "Bochum",
+    "country": "Germany",
+    "website": "https://www.bogestra.de/",
+    "source": "wikidata",
+    "wikidata": "Q889060",
+    "http_status": 200
+  },
+  "europe/switzerland/eu-sui-lausanne": {
+    "city": "Lausanne",
+    "country": "Switzerland",
+    "website": "http://www.mobilis-vaud.ch/",
+    "source": "wikidata",
+    "wikidata": "Q2394222",
+    "http_status": 200
+  },
+  "europe/russia/eu-rus-samara": {
+    "city": "Samara",
+    "country": "Russia",
+    "website": "http://metrosamara.ru/",
+    "source": "wikidata",
+    "wikidata": "Q2106",
+    "http_status": 200
+  },
+  "europe/united-kingdom/eu-gbr-glasgow": {
+    "city": "Glasgow",
+    "country": "United Kingdom",
+    "website": "https://www.spt.co.uk/",
+    "source": "wikidata",
+    "wikidata": "Q7622046",
+    "http_status": 200
+  },
+  "europe/spain/eu-esp-seville": {
+    "city": "Seville",
+    "country": "Spain",
+    "website": "https://metrodesevilla.net/",
+    "source": "override",
+    "wikidata": null
+  },
+  "europe/italy/eu-ita-turin": {
+    "city": "Turin",
+    "country": "Italy",
+    "website": "https://www.formula1.com",
+    "source": "wikidata",
+    "wikidata": "Q1968",
+    "http_status": 200
+  },
+  "americas/brazil/am-bra-belo-horizonte": {
+    "city": "Belo Horizonte",
+    "country": "Brazil",
+    "website": "https://www.metrobh.com.br",
+    "source": "wikidata",
+    "wikidata": "Q1537708",
+    "http_status": 403
+  },
+  "europe/russia/eu-rus-kazan": {
+    "city": "Kazan",
+    "country": "Russia",
+    "website": "http://www.kazanmetro.ru",
+    "source": "wikidata",
+    "wikidata": "Q494079",
+    "http_status": 200
+  },
+  "europe/ukraine/eu-ukr-dnipro": {
+    "city": "Dnipro",
+    "country": "Ukraine",
+    "website": "http://metro.dp.ua",
+    "source": "wikidata",
+    "wikidata": "Q219374",
+    "http_status": 200
+  },
+  "americas/united-states/am-usa-baltimore": {
+    "city": "Baltimore",
+    "country": "United States",
+    "website": "https://mta.maryland.gov/",
+    "source": "wikidata-operator",
+    "wikidata": "Q1863801",
+    "http_status": 200
+  },
+  "asia/japan/as-jpn-saitama-prefecture": {
+    "city": "Saitama Prefecture",
+    "country": "Japan",
+    "website": "https://www.new-shuttle.jp/",
+    "source": "wikidata-operator",
+    "wikidata": "Q11248603",
+    "http_status": 200
+  },
+  "americas/united-states/am-usa-san-juan": {
+    "city": "San Juan",
+    "country": "United States",
+    "website": null
+  },
+  "asia/turkey/as-tur-izmir": {
+    "city": "İzmir",
+    "country": "Turkey",
+    "website": "https://www.izmirmetro.com.tr",
+    "source": "wikidata",
+    "wikidata": "Q1503686",
+    "http_status": 200
+  },
+  "europe/austria/eu-aut-bezirk-landeck": {
+    "city": "Bezirk Landeck",
+    "country": "Austria",
+    "website": "https://www.vvt.at/",
+    "source": "wikidata",
+    "wikidata": "Q1668732",
+    "http_status": 200
+  },
+  "europe/italy/eu-ita-brescia": {
+    "city": "Brescia",
+    "country": "Italy",
+    "website": "https://www.bresciainfrastrutture.it",
+    "source": "wikidata-operator",
+    "wikidata": "Q109629145",
+    "http_status": 200
+  },
+  "europe/russia/eu-rus-yekaterinburg": {
+    "city": "Yekaterinburg",
+    "country": "Russia",
+    "website": "http://metro-ektb.ru",
+    "source": "wikidata",
+    "wikidata": "Q750441",
+    "http_status": 200
+  },
+  "asia/india/as-ind-gurgaon": {
+    "city": "Gurgaon",
+    "country": "India",
+    "website": null
+  },
+  "americas/brazil/am-bra-fortaleza": {
+    "city": "Fortaleza",
+    "country": "Brazil",
+    "website": "http://www.metrofor.ce.gov.br/",
+    "source": "wikidata",
+    "wikidata": "Q1847969",
+    "http_status": null
+  },
+  "asia/japan/as-jpn-hiroshima": {
+    "city": "Hiroshima",
+    "country": "Japan",
+    "website": "https://www.astramline.co.jp/",
+    "source": "wikidata",
+    "wikidata": "Q389415",
+    "http_status": 200
+  },
+  "asia/india/as-ind-jaipur": {
+    "city": "Jaipur",
+    "country": "India",
+    "website": "http://jaipurmetrorail.in/",
+    "source": "wikidata",
+    "wikidata": "Q6124135",
+    "http_status": 200
+  },
+  "asia/kazakhstan/as-kaz-almaty": {
+    "city": "Almaty",
+    "country": "Kazakhstan",
+    "website": "http://www.metroalmaty.kz/",
+    "source": "wikidata",
+    "wikidata": "Q484433",
+    "http_status": 200
+  },
+  "asia/iran/as-iri-isfahan": {
+    "city": "Isfahan",
+    "country": "Iran",
+    "website": "http://www.isfahan.ir/index.aspx?lang=1&sub=54&back=0",
+    "source": "wikidata",
+    "wikidata": "Q5963929",
+    "http_status": null
+  },
+  "asia/iran/as-iri-karaj": {
+    "city": "Karaj",
+    "country": "Iran",
+    "website": "https://metro.karaj.ir/portal/home/",
+    "source": "wikipedia",
+    "wikidata": "Q5881569",
+    "http_status": null
+  },
+  "europe/greece/eu-gre-thessaloniki": {
+    "city": "Thessaloniki",
+    "country": "Greece",
+    "website": "https://www.thessmetro.gr",
+    "source": "wikidata",
+    "wikidata": "Q1326567",
+    "http_status": 200
+  },
+  "asia/iran/as-iri-tabriz": {
+    "city": "Tabriz",
+    "country": "Iran",
+    "website": "http://tabrizmetro.ir/",
+    "source": "wikidata",
+    "wikidata": "Q5964315",
+    "http_status": 200
+  },
+  "asia/japan/as-jpn-chiba-prefecture": {
+    "city": "Chiba Prefecture",
+    "country": "Japan",
+    "website": null
+  },
+  "europe/italy/eu-ita-catania": {
+    "city": "Catania",
+    "country": "Italy",
+    "website": "https://www.circumetnea.it/",
+    "source": "wikidata-operator",
+    "wikidata": "Q111902045",
+    "http_status": 200
+  },
+  "asia/south-korea/as-kor-daejeon": {
+    "city": "Daejeon",
+    "country": "South Korea",
+    "website": "https://www.djtc.kr/",
+    "source": "wikidata",
+    "wikidata": "Q624200",
+    "http_status": 200
+  },
+  "americas/united-states/am-usa-cleveland": {
+    "city": "Cleveland",
+    "country": "United States",
+    "website": "http://www.clevelandmetroschools.org/",
+    "source": "wikidata",
+    "wikidata": "Q5132193",
+    "http_status": 200
+  },
+  "americas/venezuela/am-ven-maracaibo": {
+    "city": "Maracaibo",
+    "country": "Venezuela",
+    "website": "http://www.metrodemaracaibo.gob.ve",
+    "source": "wikidata",
+    "wikidata": "Q1940526",
+    "http_status": 200
+  },
+  "americas/venezuela/am-ven-valencia": {
+    "city": "Valencia",
+    "country": "Venezuela",
+    "website": "http://www.metrovalencia.gob.ve",
+    "source": "wikidata",
+    "wikidata": "Q587753",
+    "http_status": 403
+  },
+  "asia/india/as-ind-kochi": {
+    "city": "Kochi",
+    "country": "India",
+    "website": "https://kochimetro.org/",
+    "source": "wikidata",
+    "wikidata": "Q3522910",
+    "http_status": 200
+  },
+  "asia/turkey/as-tur-adana": {
+    "city": "Adana",
+    "country": "Turkey",
+    "website": "http://www.adana.bel.tr/",
+    "source": "wikidata",
+    "wikidata": "Q28320680",
+    "http_status": 200
+  },
+  "asia/india/as-ind-lucknow": {
+    "city": "Lucknow",
+    "country": "India",
+    "website": "http://www.lmrcl.com/",
+    "source": "wikidata",
+    "wikidata": "Q6697779",
+    "http_status": 200
+  },
+  "americas/mexico/am-mex-guadalajara": {
+    "city": "Guadalajara",
+    "country": "Mexico",
+    "website": "http://www.siteur.gob.mx",
+    "source": "wikidata-operator",
+    "wikidata": "Q2309232",
+    "http_status": null
+  },
+  "asia/indonesia/as-ina-jakarta": {
+    "city": "Jakarta",
+    "country": "Indonesia",
+    "website": "https://www.jakartamrt.co.id/",
+    "source": "wikidata",
+    "wikidata": "Q3333785",
+    "http_status": 200
+  },
+  "asia/indonesia/as-ina-palembang": {
+    "city": "Palembang",
+    "country": "Indonesia",
+    "website": "https://www.kai.id",
+    "source": "wikidata-operator",
+    "wikidata": "Q2745027",
+    "http_status": 403
+  },
+  "asia/south-korea/as-kor-gimpo": {
+    "city": "Gimpo",
+    "country": "South Korea",
+    "website": "https://gimpogoldline.com/",
+    "source": "wikidata",
+    "wikidata": "Q12589088",
+    "http_status": 200
+  },
+  "americas/ecuador/am-ecu-quito": {
+    "city": "Quito",
+    "country": "Ecuador",
+    "website": "http://www.metrodequito.gob.ec/",
+    "source": "wikidata",
+    "wikidata": "Q3333791",
+    "http_status": 200
+  },
+  "asia/taiwan/as-twn-taichung": {
+    "city": "Taichung",
+    "country": "Taiwan",
+    "website": "https://www.tmrt.com.tw/",
+    "source": "wikidata",
+    "wikidata": "Q5972247",
+    "http_status": 200
+  },
+  "asia/pakistan/as-pak-lahore": {
+    "city": "Lahore",
+    "country": "Pakistan",
+    "website": null
+  },
+  "asia/vietnam/as-vie-ho-chi-minh-city": {
+    "city": "Ho Chi Minh City",
+    "country": "Vietnam",
+    "website": "https://maur.hochiminhcity.gov.vn/",
+    "source": "wikipedia",
+    "wikidata": "Q2198304",
+    "http_status": null
+  },
+  "asia/china/as-chn-taizhou": {
+    "city": "Taizhou",
+    "country": "China",
+    "website": null
+  },
+  "asia/south-korea/as-kor-gwangju": {
+    "city": "Gwangju",
+    "country": "South Korea",
+    "website": "https://www.grtc.co.kr/",
+    "source": "wikidata",
+    "wikidata": "Q495335",
+    "http_status": null
+  },
+  "asia/india/as-ind-kanpur": {
+    "city": "Kanpur",
+    "country": "India",
+    "website": "https://kanpur.upmetrorail.com/",
+    "source": "wikidata",
+    "wikidata": "Q17063873",
+    "http_status": 200
+  },
+  "asia/bangladesh/as-ban-dhaka": {
+    "city": "Dhaka",
+    "country": "Bangladesh",
+    "website": "http://www.dmtcl.gov.bd/",
+    "source": "wikidata-operator",
+    "wikidata": "Q105676237",
+    "http_status": null
+  },
+  "africa/nigeria/af-ngr-lagos": {
+    "city": "Lagos",
+    "country": "Nigeria",
+    "website": "https://www.lamata-ng.com/",
+    "source": "wikidata-operator",
+    "wikidata": "Q28407262",
+    "http_status": 200
+  },
+  "asia/china/as-chn-chuzhou": {
+    "city": "Chuzhou",
+    "country": "China",
+    "website": null
+  },
+  "americas/united-states/am-usa-honolulu": {
+    "city": "Honolulu",
+    "country": "United States",
+    "website": "http://www.honolulu.gov/",
+    "source": "wikipedia",
+    "wikidata": "Q487704",
+    "http_status": null
+  },
+  "asia/india/as-ind-agra": {
+    "city": "Agra",
+    "country": "India",
+    "website": "https://agra.upmetrorail.com/",
+    "source": "wikidata",
+    "wikidata": "Q24088780",
+    "http_status": 200
+  },
+  "asia/india/as-ind-navi-mumbai": {
+    "city": "Navi Mumbai",
+    "country": "India",
+    "website": "http://www.cidco.maharashtra.gov.in",
+    "source": "wikidata-operator",
+    "wikidata": "Q5123529",
+    "http_status": null
+  },
+  "asia/india/as-ind-meerut": {
+    "city": "Meerut",
+    "country": "India",
+    "website": null
+  },
+  "asia/india/as-ind-indore": {
+    "city": "Indore",
+    "country": "India",
+    "website": "http://www.mpmetrorail.com/index.php",
+    "source": "wikipedia",
+    "wikidata": "Q17056449",
+    "http_status": null
+  },
+  "asia/india/as-ind-patna": {
+    "city": "Patna",
+    "country": "India",
+    "website": "http://www.patnametro.in",
+    "source": "wikidata",
+    "wikidata": "Q7145108",
+    "http_status": 200
+  },
+  "asia/india/as-ind-bhopal": {
+    "city": "Bhopal",
+    "country": "India",
+    "website": "http://www.mpmetrorail.com/index.php",
+    "source": "wikidata",
+    "wikidata": "Q4902010",
+    "http_status": null
+  },
+  "asia/kazakhstan/as-kaz-astana": {
+    "city": "Astana",
+    "country": "Kazakhstan",
+    "website": null
+  },
+  "asia/india/as-ind-noida": {
+    "city": "Noida",
+    "country": "India",
+    "website": "http://www.nmrcnoida.com/",
+    "source": "wikidata",
+    "wikidata": "Q16909221",
+    "http_status": 200
+  },
+  "europe/italy/eu-ita-genoa": {
+    "city": "Genoa",
+    "country": "Italy",
+    "website": "http://www.amt.genova.it/",
+    "source": "wikidata",
+    "wikidata": "Q295335",
+    "http_status": 403
+  },
+  "asia/saudi-arabia/as-ksa-mecca": {
+    "city": "Mecca",
+    "country": "Saudi Arabia",
     "website": null
   }
 }
