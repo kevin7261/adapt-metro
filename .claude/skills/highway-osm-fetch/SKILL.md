@@ -85,9 +85,11 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
 1. **依 `ref` 分組**成「線」：`ref="1"`→國道1號、`"3甲"`→國道3甲號各自成線。
    線名優先取 `ref:zh`（國道X號）＞`ref:en`＞`name:zh`；顯示語言比照 metro `nameFor`
    （台/中/港/澳→中文、日→日文、其餘→英文）。
-2. **交流道合併**（對應 metro 共站）：南下/北上車道各有一個 motorway_junction 節點，同一
-   交流道名、出口編號常不同（桃園交流道 49／49A／49B）。以 **union-find**：正規化同名且
-   ≤2500m、或任意 <150m ⇒ 併為一交流道；代表座標取成員平均、id 取最小節點 id。
+2. **交流道合併＝一交流道一個點在中間（對應 metro 共站；使用者：同一交流道只能一個點）**：
+   一個交流道有多個 motorway_junction 子節點（南下/北上、各匝道、A/B 子出口）。**union-find**
+   併為一個，判準（任一成立）：正規化**同名** ≤2500m｜**同 exit 編號 base**（美國 36/36A/36B
+   去尾碼字母→"36"，多半無名）≤2000m｜純距離 <250m（無名車道對）。代表座標取成員**質心**
+   （＝落在交流道中間）、id 取最小節點 id。**沒併好會畫成多點＋平行重複線**（見步驟 6）。
 3. **車道串接**（`buildPolylines`）：同 ref 的 ways 依**共用端點座標**貪婪串成極大 polyline，
    每條車道（oneway）成一條，南下/北上→兩條。
 4. **一個 ref＝一條線，只連「路上真正相鄰」的交流道（使用者：長直線一看就是錯的）**：
@@ -106,7 +108,10 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
    共線 concurrent 路段）各掃一遍。刪後仍連通（兩短邊仍串起三點）。verify 有 `no_triangles`(error) 把關。
 5. **degree／角色**：由各 ref 序列的相鄰交流道對建鄰接圖。`is_interchange` ⇔ **屬於 ≥2 條 ref
    （系統交流道）或 degree>2**；`is_terminus` ⇔ degree==1（框邊界被切斷的端點）。
-6. 只輸出**出現在某條國道線上**的交流道（對應 metro 的 orphan-drop）。
+6. **一個交流道對＝一個 segment feature（全域邊去重，使用者：單一路線只能一條線）**：把各 ref
+   的相鄰邊**跨 ref 去重**，共線走廊（concurrent、local/express 並行）只畫**一次**，`routes[]` 列
+   所有行經它的 ref（同 metro 路段化）。一條國道的完整路徑＝所有 `routes` 含它的 segment 之聯集、
+   同 class 同色 → 讀成一條連續線。只輸出出現在某段上的交流道（orphan-drop）。
 
 **已知限制（ordering imperfection）**：部分國道有**與主線平行、同 `ref` 的高架路段**
 （如國道1號五股楊梅高架），其交流道與主線交錯，`orderAlongPath` 排序在該處可能小幅跳動。線是
@@ -125,8 +130,8 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
 `station_role`（interchange/terminus/normal）, `station_degree`, `is_interchange`, `is_terminus`,
 `merged_from`（併入的車道節點數）, `merged_names`（異名成員，單一名時 null）, `wikidata`, `wikipedia`。
 
-**高速公路線 feature（MultiLineString，一個 ref 一條，≙ metro 路線；非逐段）**：
-`seg_id`（`{slug}-{n}`）, `routes`（**只含該 ref 一項**，每項 `route_id`＝`hw-{slug}-{ref}`, `route_name`
+**高速公路路段 feature（MultiLineString，一個交流道對一段，≙ metro 路段；全域去重）**：
+`seg_id`（`{slug}-{n}`）, `routes`（**行經此段的所有 ref**，共線走廊會有多項，每項 `route_id`＝`hw-{slug}-{ref}`, `route_name`
 （國道X號）, `route_name_local`, `route_ref`,
 `road_class`（`'motorway'`＝國道／`'expressway'`＝封閉式快速公路，依該 ref 的 way 是否含 motorway 判定）,
 `route_color`（**依道路層級上色，非每線一色**——使用者：同一層同同色、可參考該國路標選色；
@@ -184,7 +189,9 @@ npm run highway:all            # fetch + build（全部國家）
 的 `groups` 新增 `highway-maps`），每個系統以與 metro 相同的 metro 圖層渲染流程開成 tab
 （schema 相同，D3／MapLibre 渲染器不需改）。**匯入對話框與 metro 一樣三分頁**（`DialogHost.vue`
 的 `HIGHWAY_DIALOGS`）：**快速選擇**（常用國家依洲別分組）／**依交流道數排序**／**全球高速公路
-地圖**（洲別→國家 miller browse）；一國一檔故無城市欄。物件 tab 站序以「里程 K」徽章顯示。
+地圖**（**洲別→國家→都會區** 三欄 miller，同 metro）。物件 tab 站序以「里程 K」徽章顯示。
+Info 面板對 highway 圖層（`isHighway`）藏掉地鐵專屬連結（Wikipedia 地鐵/urbanrail/官方路線圖）、
+標籤改「道路數/交流道數」。
 
 ## 授權與標註
 

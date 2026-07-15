@@ -70,10 +70,13 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 **快/慢車合併（使用者指定）**：同一路線的快車/慢車/區間車（同 `network`＋`ref`，或無 ref 時
 同「去掉快慢字樣的基底名稱」）先合併成**同一個線路群組**。network 無法辨識（Unknown）時
 **絕不跨組合併**——否則各城市無 network 的「1 號線」會被揉成跨國怪物群組。
-**以慢車車站為主**（使用者指定）：`dedupeSeqs` 依站數由多到少處理，最長變體（＝各停/慢車，
-站最多）當主線／代表 tags；fresh=0 的子集變體（純反向/短交路）捨棄——**但名字含快車字樣的
-「真快車」保留成獨立 route**（詳見「線路分組規則」的快車例外與車站 schema 的 `pass_lines`：
-機捷直達車、Seoul 급행等，快車繼承主線色＋「（快車）」標記、跳站就地標進 stations（pass:true））。
+**以慢車車站為主、快車一律不抓**（使用者裁決 2026-07，全球）：`dedupeSeqs` 依站數由多到少
+處理，最長變體（＝各停/慢車，站最多）當主線／代表 tags；**fresh=0 的子集變體一律捨棄**——
+含純反向/短交路**與「只跳站的快車」**（機捷直達車、東京急行/快速、Seoul 급행等：各停已涵蓋
+全部車站，不另成 route、無 pass 標記）。**例外＝像紐約那種「不同車交錯停站」**（J/Z skip-stop
+彼此有對方沒有的站 → fresh>0）**或獨立編號的快線**（香港 AEL 自有 ref、廣州 14/21 快車、
+成都 18 號線快車）——本來就 fresh>0／獨立分組而自然保留，**不需例外機制**；其跳過的站仍由
+pass-through 偵測就地標進 stations（pass:true）畫共線。
 
 **同 ref 分支變體＝獨立 route、渲染層同色收斂（現行；`mergeVariants` 已於 2026-07-13 移除）**：
 同 ref 內**帶來新站的分支/快車變體**一律各自獨立成 route（台北小碧潭支線 hover 不得連
@@ -329,12 +332,8 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 幾何為每個 relation 的**站序折線**（見上），同組去重規則：以 ~100 m 座標格為鍵
 （來回方向常用不同的 stop_position 節點，不能用節點 id 去重），保留最長的變體，
 其餘變體只要帶來 **≥1 個未見過的站**就保留（短支線如小碧潭/新北投只多 1–2 站；
-純反向/短交路 fresh=0 捨棄——重疊路段化會吸收共用段，保留支線零成本）。**例外：真正的
-「快車」保留成獨立 route**（fresh=0 但**名字含快車字樣**〔Express/Rapid/直達/快速/急行/特急…〕
-＋站數 <0.85×主線＋有中間跳站；去回程以 ±2 格容差同站集只留一條）——與 NYC 快車一致的
-全球統一格式，其跳站由 pass-through 偵測就地標進 route `stations`（pass:true）／車站 `routes`（見 schema）。
-**快車與主線是同一條線 → route_color 繼承主線色**（`branchUnit`：OSM 常給快車變體不同色，
-如機捷直達車淺紫 #d4cde7，改用主線 #800080）；`route_name` 另加「（快車）/(Express)」標記，
+純反向/短交路/**只跳站的快車** fresh=0 **一律捨棄**——快車不抓〔使用者裁決 2026-07，全球，
+見「快/慢車合併」〕；重疊路段化會吸收共用段，保留支線零成本），
 合併成 `MultiLineString`。**這些保留的分支/快車變體預設各自獨立成 route_id**（小碧潭
 支線 hover 不連主線）；**但紐約/雪梨/香港例外**——同 ref 變體共享車站者併成一條線
 （`mergeVariants`，見前文「同 ref 變體＝同一條線」與 [[metro-city-newyork]]）。
@@ -362,11 +361,6 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 > 「to B」「(西向)/(東向)/(上行)/(下行)/(順向)/(逆向)/(上)/(下)/(内/外)/(往X)/(inbound)…」；
 > 括號內「分支名＋方向詞」（如「(蘆洲逆向)」）只去方向詞留分支名 →「(蘆洲)」。實測全 223 城
 > **0 方向殘留**。**環線的內/外環兩向亦併**。
->
-> **快車標記（`expressMark`）**：dedupeSeqs 保留的快車（見「快/慢車合併」的快車例外）其
-> `route_name` 加「（快車）」（中日台港）／「 (Express)」（其餘），與普通車區分（**非方向**）——
-> 機捷＝「桃園國際機場捷運」＋「桃園國際機場捷運（快車）」。名字本身已含快車字樣（急行/快速/
-> 直達/Express…）則不重複加（東京「都営新宿線 急行」不變）。
 
 **路段 feature（MultiLineString；重疊只畫一條）**：
 `routes`（list，每項 `route_id`, `route_name`（依上「顯示名語言」＋去方向＋快車標記）, `route_name_local`,
@@ -390,10 +384,8 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 不輸出 OSM 內部 id）——每項 `{ ref, name, pass? }`：`ref`＝官方線路代碼（可重複，機捷普通/
 直達都「A」；無 ref 用線名）、`name`＝線名（區分同 ref 服務）、**`pass:true`＝行經但不停靠**
 （快車跳站——機捷直達車、NYC 快車/Z、Seoul 급행、Tokyo 快速、香港 AEL…；無 pass 鍵＝停靠）。
-順序＝停靠在前、pass 在後。快車機制：**快車＝獨立 route**——`dedupeSeqs` 對 fresh=0（站點是
-主線子集）的變體預設丟棄，**例外：名字含快車字樣（Express/Rapid/直達/快速/急行/特急…）＋站數
-<0.85×主線＋有中間跳站者保留成獨立 route**（去回程同站集只留一條）；其跳過的站由 pass-through
-偵測算成該 route 的 `pass_stations`、並在被跳過的站的 `routes` 標 pass。站↔線**歸屬**在 build
+順序＝停靠在前、pass 在後。pass 來源＝pass-through 偵測（交錯停站/獨立 ref 快線沿慢車
+走廊畫、跳過的站標 pass；「只跳站的快車」已在 dedupe 一律丟棄、不產生 pass——見「快/慢車合併」）。站↔線**歸屬**在 build
 內部以 route_id（唯一鍵）建立——由各線 `__stations` 反推（∪ 既有 tag 指派以保浮空站），ref 撞名
 （機捷雙 A）才不會漏掛/錯掛——route_id 不寫進車站欄位。前端車站物件直接讀 `routes` 顯示，
 色以線名（其次 ref）對線列表查表，不再幾何猜測）,
