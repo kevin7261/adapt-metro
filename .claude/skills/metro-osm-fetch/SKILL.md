@@ -327,14 +327,22 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `wikidata`, `wikipedia`, `osm_route_ids`, `order_suspect`,
 `stations`（**該 route 的所有車站，依站序、各分段原序串接、不去重**——列表相鄰＝圖上
 直連；支線的接續站在支線段開頭重複出現、**環狀線最後回到第一個車站**；
-站數統計一律取唯一站數。每項 `{ station_id, station_name }`））；
+站數統計一律取唯一站數。每項 `{ station_id, station_name }`）,
+`pass_stations`（此服務**行經但不停靠**的站——快車跳站；空陣列＝各停。每項
+`{ station_id, station_name }`。與車站的 `pass_lines` 互為對照，見下））；
 頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
 
 **車站 feature（Point）**：
 `station_id`（`n{osmId}`）, `station_name`（優先 name:en）, `station_name_local`,
 `network`, `network_local`, `operator`, `city`, `country`,
-`lines`（所屬線路 ref/名 tag；線無 ref 時用線名。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
+`lines`（**停靠**此站的線路 ref/名 tag；線無 ref 時用線名。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
 `line_ids`（所屬線路的 `route_id`，依 ref/名排序）, `line_names`（同序的線路名），
+`pass_lines`／`pass_line_ids`（**行經但不停靠**此站的服務——快車跳站；無則不設此欄。全球通用：
+機捷直達車、NYC 快車/Z、Seoul 급행、Tokyo 快速、香港 AEL… 皆以此表達「X 服務行經卻不停 Y 站」。
+來源①既有 pass-through 偵測（快車存活為獨立 route 時，如 NYC），②**express-fold**：dedupe 會丟棄
+「站點是主線子集」的變體，若其**名字含快車字樣**（Express/Rapid/直達/快速/急行/特急…）且站數 <0.85×
+主線且有中間跳站，則不新增 route、改把它 fold 成主線的**子服務**，把主線停/它不停（限首末停靠站
+之間）的站標成此 pass。**line_count 不變**＝「一條線多編號＋每站 stop/pass」），
 `station_role`（`interchange`／`terminus`／`normal`，交會優先於端點。**interchange ⇔
 網絡圖 degree>2（分歧/交會，相鄰站不同）或 ≥2 條不同線在此終止（terminus-interchange，
 如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）或**端點站且停靠 ≥2 條線**

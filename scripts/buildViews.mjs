@@ -16,7 +16,7 @@
 import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { computeCityViews, computeCityHcViews, computeCityRwdViews, RWD_VIEW_ORDER } from '../src/stores/viewGeometry.js'
+import { computeCityViews, computeCityHcViews, computeCityRwdViews, HC_VIEW_ORDER, RWD_VIEW_ORDER } from '../src/stores/viewGeometry.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
@@ -31,7 +31,7 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 6 // 6: skeleton 黃色交叉點必落在畫出的 feature 幾何上（濾掉同軌快慢車的浮空弦交點，2026-07）
+const VIEWS_VERSION = 8 // 8: hc 鏈 = HC→端點拉直→縮減網格；後處理縮減吃原結果（含 6 的 skeleton 黃點修正，2026-07）
 const strHash = (s) => {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0
@@ -166,8 +166,7 @@ async function main() {
   }))
   await writeFile(join(HC_OUT, 'index.json'), JSON.stringify({
     generated_from: 'scripts/buildViews.mjs',
-    view_ids: ['grid-orig-post', 'hc-orig', 'compact-orig',
-      'grid-rot-post', 'hc-rot', 'compact-rot'],
+    view_ids: HC_VIEW_ORDER,
     system_count: hcCatalog.length,
     systems: hcCatalog,
   }))

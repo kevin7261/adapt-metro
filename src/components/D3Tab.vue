@@ -110,7 +110,8 @@ const tilt = ref(0)
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
-  ['hc', 'hc-end', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
+  ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
+    'hc-end', 'hc-rect-end', 'hc-align-end', 'hc-ilp-end', 'hc-llm-end',
     'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
     'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
@@ -140,6 +141,7 @@ async function startLlmRun(userPrompt = '') {
   // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
   // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
   cachedLlm = null
+  delete cachedEndp.llm // LLM 對齊端點拉直 跟著舊結果一起作廢
   if (llmMode.value) render()
   try {
     const res = await fetch('/llm-align/run', {
@@ -176,10 +178,12 @@ function pollLlmRun() {
         pollLlmRun()
       } else if (s.exit === 0) {
         cachedLlm = null // reload the finished result
+        delete cachedEndp.llm
         llmRun.value = null
         render()
       } else {
         cachedLlm = null
+        delete cachedEndp.llm
         llmRun.value = 'error'
         if (llmMode.value) render() // fall to the 開始 LLM 對齊 retry state
       }
@@ -280,8 +284,15 @@ const iterBadge = (kind) =>
 const POST_KIND = {
   'hc-rect': 'rect', 'hc-align': 'align', 'hc-ilp': 'ilp',
   'hc-rect-compact': 'rect', 'hc-align-compact': 'align', 'hc-ilp-compact': 'ilp',
+  'hc-rect-end': 'rect', 'hc-align-end': 'align', 'hc-ilp-end': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+// 端點拉直區塊（左選單第 4 部份）：每條鏈一個 tab——在該鏈的結果「之上」再做
+// 端點拉直（原 tab 不變）。'hc' 的結果同時是 hc 縮減網格／RWD 底圖的輸入。
+const END_KIND = {
+  'hc-end': 'hc', 'hc-rect-end': 'rect', 'hc-align-end': 'align',
+  'hc-ilp-end': 'ilp', 'hc-llm-end': 'llm',
+}
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
 // 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
 const postKind = computed(() =>
@@ -359,7 +370,7 @@ function saveHcCache(key, hc, posts) {
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
 let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
 let cachedCompact = {} // compactGrid results, keyed by 'hc'/'rect'/'align'/'ilp'/'llm'
-let cachedEndp = null  // Hill Climbing端點拉直 (iteratePost over buildEndpointStraighten) on the HC result
+let cachedEndp = {}    // 端點拉直 (iteratePost over buildEndpointStraighten)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
@@ -469,9 +480,14 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
+      // 端點拉直：每條鏈一個 tab（在該鏈結果之上做端點拉直，原 tab 不變）；
       // hc 鏈：Hill Climbing → 端點拉直 → 縮減網格（hc 縮減網格壓縮拉直後的結果）
       { header: '端點拉直' },
       { id: 'hc-end', label: 'Hill Climbing端點拉直' },
+      { id: 'hc-rect-end', label: '直角爬山端點拉直' },
+      { id: 'hc-align-end', label: '軸對齊端點拉直' },
+      { id: 'hc-ilp-end', label: '整數規劃端點拉直' },
+      { id: 'hc-llm-end', label: 'LLM 對齊端點拉直' },
       { header: '縮減網格' },
       { id: 'hc-compact', label: 'Hill Climbing縮減網格' },
       { id: 'hc-rect-compact', label: '直角爬山縮減網格' },
@@ -593,7 +609,7 @@ async function render() {
     cachedLlm = null
     cachedGrid = null
     cachedCompact = {}
-    cachedEndp = null
+    cachedEndp = {}
     cachedRWD = null
     hcStats.value = null
     postStats.value = null
@@ -652,17 +668,6 @@ async function render() {
     }
     hcStats.value = cachedHC.stats
     let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
-    // Hill Climbing端點拉直: the hc chain is HC → 端點拉直 → 縮減網格. Route
-    // endpoints (degree-1 coloured vertices, 非白點) move so their single
-    // segment turns H/V, through the SAME hard rules (no new crossing / no
-    // landing on another line), iterated to a fixed point. The 縮減網格 (and
-    // the RWD base on it) compacts THIS layout; the other post-passes
-    // (直角爬山/軸對齊/整數規劃/LLM) still branch off the raw HC result.
-    if (mode.value === 'hc-end' || (hcCompact.value && rwdCompactKey.value === 'hc')) {
-      if (!cachedEndp) cachedEndp = iteratePost(buildEndpointStraighten, cachedSkeleton, cachedHC.cellAfter, grid.cols, grid.rows)
-      endpStats.value = cachedEndp.stats
-      cells = cachedEndp.cellAfter
-    }
     // H/V-maximising post-pass tabs: same grid, short-distance vertex moves on
     // top of the hill-climbing result (each kind cached once per dataset).
     if (postKind.value) {
@@ -718,6 +723,20 @@ async function render() {
       cells = cachedLlm.cells
       llmStats.value = cachedLlm.stats
       llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
+    }
+    // 端點拉直區塊: endpoint straighten ON TOP of the current chain's result
+    // (原 tab 不動)。每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，
+    // 走同一套硬規則、迭代到不動點。'hc' 的拉直結果同時餵 hc 縮減網格／RWD 底圖
+    // （hc 鏈 = HC → 端點拉直 → 縮減網格）；rect/align/ilp/llm 的縮減網格仍壓縮
+    // 各自的原結果。
+    {
+      const endKind = END_KIND[mode.value]
+        ?? (hcCompact.value && rwdCompactKey.value === 'hc' ? 'hc' : null)
+      if (endKind) {
+        if (!cachedEndp[endKind]) cachedEndp[endKind] = iteratePost(buildEndpointStraighten, cachedSkeleton, cells, nC, nR)
+        cells = cachedEndp[endKind].cellAfter
+        endpStats.value = cachedEndp[endKind].stats
+      }
     }
     if (hcCompact.value) {
       // compacts the CURRENT layout: the HC result, or the post-pass/LLM one
@@ -1492,8 +1511,8 @@ onBeforeUnmount(() => {
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
       </span>
 
-      <!-- Hill Climbing端點拉直: vertex-alignment H/V pass on the HC result -->
-      <span v-if="isHC && mode === 'hc-end' && endpStats" class="hc-stats">
+      <!-- 端點拉直: vertex-alignment H/V pass on top of each chain's result -->
+      <span v-if="isHC && END_KIND[mode] && endpStats" class="hc-stats">
         端點拉直 移動 {{ endpStats.moved }}/{{ endpStats.endpoints }} 點
         · 水平垂直 {{ endpStats.hvBefore }} → {{ endpStats.hvAfter }}／{{ endpStats.segs }} 段
         · 迭代 {{ endpStats.iters }}/{{ endpStats.iterCap }}<template

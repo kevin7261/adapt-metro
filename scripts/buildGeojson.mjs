@@ -588,10 +588,32 @@ async function build() {
     for (const w of sorted) {
       const fresh = w.rows.filter((r) => !near(r)).length
       // Keep any variant bringing ≥1 unseen station (short branches like
-      // 小碧潭支線 add just 1-2 stations); pure reverse/express duplicates
-      // (fresh = 0) are dropped. Overlap segmentization dedupes the shared
-      // stretch afterwards, so keeping a mostly-overlapping branch is free.
-      if (kept.length && fresh === 0) continue
+      // 小碧潭支線 add just 1-2 stations); pure reverse duplicates (fresh = 0)
+      // are dropped. **例外：真正的「快車」（相對主線 kept[0] 中間跳站）不新增 route，
+      // 改 fold 成主線的一個子服務**（記 rid＋停靠站座標）——之後在 __stations 把「主線停、
+      // 快車不停」的站標成該快車 ref 的 pass。line_count 不變（＝「一線多編號＋每站 stop/pass」）。
+      if (kept.length && fresh === 0) {
+        const ck = (r) => cellOf(r).join(':')
+        const hostSeq = kept[0].rows.map(ck)
+        // fold 專處理「被 dedupe 丟棄的快車變體」。最可靠信號＝**變體名字含快車字樣**
+        // （Express/Rapid/直達/快速/急行/特急…）＋站數明顯少於主線＋至少一處中間跳站。
+        // 名字條件可過濾「短交路/去回程/資料缺站」等非快車變體（板南線、松山新店線…）。
+        const wt = routesTags.get(w.rid) || {}
+        const wnm = `${wt['name:en'] ?? ''} ${wt.name ?? ''}`
+        const EXPRESS_RE = /(express|rapid|limited|skip.?stop|直達|直达|直通|快速|急行|準急|准急|特急|特快|大站快)/i
+        let isExpress = false
+        if (EXPRESS_RE.test(wnm) && w.rows.length < 0.85 * kept[0].rows.length) {
+          for (let i = 0; i + 1 < w.rows.length && !isExpress; i++) {
+            const ia = hostSeq.indexOf(ck(w.rows[i])), ib = hostSeq.indexOf(ck(w.rows[i + 1]))
+            if (ia >= 0 && ib >= 0 && Math.abs(ib - ia) >= 2) isExpress = true
+          }
+        }
+        if (isExpress) {
+          (kept[0].__expressFolds = kept[0].__expressFolds || [])
+            .push({ rid: w.rid, stopCoords: w.rows.map((r) => r.coord) })
+        }
+        continue
+      }
       kept.push(w)
       for (const r of w.rows) { const [cx, cy] = cellOf(r); covered.add(`${cx}:${cy}`) }
     }
@@ -762,7 +784,7 @@ async function build() {
     }
     const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
     const mainRids = g.rids.filter((r) => !branchRids.has(r))
-    const units = [{ kept: [keptAll[0].rows],
+    const units = [{ kept: [keptAll[0].rows], expressFolds: keptAll[0].__expressFolds,
       gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
     for (const w of keptAll.slice(1)) units.push(branchUnit(w))
     for (const unit of units) {
@@ -871,7 +893,7 @@ async function build() {
       .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
       console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),
         '| net:', network, '| own:', t.__own, '→', info.key)
-    resolved.push({ g: gRef, kept, passCoords, t, network, ov, info, lrtOnly })
+    resolved.push({ g: gRef, kept, passCoords, t, network, ov, info, lrtOnly, expressFolds: unit.expressFolds })
     }
   }
 
@@ -915,6 +937,7 @@ async function build() {
         coordinates: kept.map((seq) => seq.map((r) => r.coord)) },
     }
     if (passCoords.size) feat.__passCoords = passCoords  // pass-through 頂點：不算此線停靠站
+    if (e.expressFolds && e.expressFolds.length) feat.__expressFolds = e.expressFolds // 折入的快車子服務
     lineFeatures.push(feat)
     lrtFlags.set(feat, e.lrtOnly)
     ovFlags.set(feat, !!ov)
@@ -1770,23 +1793,35 @@ async function build() {
       if (!termLines.has(k)) termLines.set(k, new Set())
       termLines.get(k).add(rid)
     }
+    const passByStation = new Map() // station_id -> Set<routeTag>（行經但不停靠此站的服務）
+    const expressPassByStation = new Map() // station_id -> Set<ref>（折入的快車子服務跳過此站）
     for (const f of grp.lines) {
       // ordered station list for this route：各分段頂點**原序串接、不去重**
       //（使用者規則：列表相鄰＝圖上直連。支線的接續站在支線段開頭重複出現、
       // 環狀線最後回到第一個車站——與 pass_count「通過兩次算兩次」語義一致；
       // 站數統計一律用唯一站數）
       const sts = []
+      const passSts = []            // 此線行經但不停靠的站（快車跳站）
+      const fTag = featTag.get(f)
       for (const seq of f.geometry.coordinates) {
         if (seq.length < 2) continue
         for (const c of seq) {
-          // 快車 pass-through 頂點：幾何經過但不算此線停靠站（機場快線跳過的東涌線中間
-          // 站）。snap 後座標精度變了，用鄰近比對（~110 m；快車真停靠站離 pass 站夠遠）。
-          if (f.__passCoords && [...f.__passCoords].some((k) => {
-            const [pl, pt] = k.split(',').map(Number)
-            return Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3
-          })) continue
           const s = byCoord.get(c.join(','))
           if (!s) continue
+          // 快車 pass-through 頂點：幾何經過但不停靠（機場快線跳過的東涌線中間站）。
+          // snap 後座標精度變了，用鄰近比對（~110 m；快車真停靠站離 pass 站夠遠）。
+          // 舊做法直接丟棄；新做法**保留並標 pass**（供 route.pass_stations／
+          // station.pass_lines 表達「X 服務行經卻不停 Y 站」），仍不計入停靠 __stations。
+          const isPassC = f.__passCoords && [...f.__passCoords].some((k) => {
+            const [pl, pt] = k.split(',').map(Number)
+            return Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3
+          })
+          if (isPassC) {
+            passSts.push({ station_id: s.properties.station_id, station_name: s.properties.station_name })
+            if (!passByStation.has(s.properties.station_id)) passByStation.set(s.properties.station_id, new Set())
+            passByStation.get(s.properties.station_id).add(fTag)
+            continue
+          }
           sts.push({ station_id: s.properties.station_id,
             station_name: s.properties.station_name })
         }
@@ -1802,6 +1837,35 @@ async function build() {
         }
       }
       f.__stations = sts
+      f.__passStations = passSts
+      // 折入的快車子服務：主線停、但快車跳過的站 → 對該快車標 pass（機捷直達車等）。
+      // 只標「快車首末停靠站**之間**」被跳過的站（範圍外的端點不算 pass）；標籤去掉
+      // 去/回程方向（「... to X」）並去重，使兩個方向 relation 併成同一個服務名。
+      for (const fold of f.__expressFolds || []) {
+        const et = routesTags.get(fold.rid) || {}
+        const eref = ((et['name:en'] || et.name || et.ref || `r${fold.rid}`) + '')
+          .replace(/\s*\((?:am rush|pm rush|late nights?|evenings?|weekends?|rush hours?|weekday|middays?)[^)]*\)/ig, '')
+          .replace(/\s*(?:to|→|->|-->|=>|:|：)\s*.*$/i, '').trim() || (et.ref || `r${fold.rid}`)
+        const isExpStop = (c) => fold.stopCoords.some((sc) =>
+          Math.abs(c[0] - sc[0]) < 1.5e-3 && Math.abs(c[1] - sc[1]) < 1.5e-3)
+        const isPT = (c) => f.__passCoords && [...f.__passCoords].some((k) => {
+          const [pl, pt] = k.split(',').map(Number)
+          return Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3
+        })
+        for (const seq of f.geometry.coordinates) {
+          const hostStops = seq.filter((c) => byCoord.get(c.join(',')) && !isPT(c))
+          const expPos = hostStops.map((c, i) => (isExpStop(c) ? i : -1)).filter((i) => i >= 0)
+          if (expPos.length < 2) continue // 快車在此段停 <2 站 → 無「之間」可跳
+          const lo = Math.min(...expPos), hi = Math.max(...expPos)
+          for (let i = lo + 1; i < hi; i++) {
+            const c = hostStops[i]
+            if (isExpStop(c)) continue
+            const sid = byCoord.get(c.join(',')).properties.station_id
+            if (!expressPassByStation.has(sid)) expressPassByStation.set(sid, new Set())
+            expressPassByStation.get(sid).add(eref)
+          }
+        }
+      }
     }
     for (const s of grp.stations) {
       // resolve each line tag to its route id + name (dedupe by route id)
@@ -1822,6 +1886,28 @@ async function build() {
         .localeCompare(String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true }))
       s.properties.line_ids = routes.map((r) => r.route_id)
       s.properties.line_names = routes.map((r) => r.route_name)
+      // 行經但不停靠此站的服務（快車跳站）→ pass_lines（refs）＋ pass_line_ids。
+      // 全球通用：紐約 express/local、機捷直達/普通、香港 AEL/TCL、雪梨快車… 一律以此表達。
+      const passTags = passByStation.get(s.properties.station_id)
+      const expRefs = expressPassByStation.get(s.properties.station_id)
+      if ((passTags && passTags.size) || (expRefs && expRefs.size)) {
+        const pseen = new Set(), pRefs = [], pIds = []
+        for (const tag of passTags || []) {
+          const p = tagMeta.get(tag)
+          const id = p?.route_id ?? tag
+          if (pseen.has(id)) continue
+          pseen.add(id)
+          pRefs.push(p?.route_ref ?? p?.route_name ?? tag)
+          pIds.push(id)
+        }
+        for (const eref of expRefs || []) {
+          if (pseen.has(eref)) continue
+          pseen.add(eref)
+          pRefs.push(eref)
+        }
+        s.properties.pass_lines = pRefs
+        if (pIds.length) s.properties.pass_line_ids = pIds
+      }
       // 通過次數（幾何為準）；至少為所屬 route 數（幾何缺漏時的下限）
       const pc = Math.max(
         passCount.get(s.geometry.coordinates.join(',')) ?? 0, routes.length)
@@ -1848,7 +1934,10 @@ async function build() {
     // 或從未真正在線上（僅靠 900 m 鄰近被指派 lines）——剔除（站名 100% 不變式）。
     {
       const used = new Set()
-      for (const f of grp.lines) for (const st of f.__stations ?? []) used.add(st.station_id)
+      for (const f of grp.lines) {
+        for (const st of f.__stations ?? []) used.add(st.station_id)
+        for (const st of f.__passStations ?? []) used.add(st.station_id)
+      }
       const before = grp.stations.length
       grp.stations = grp.stations.filter((s) =>
         used.has(s.properties.station_id) ||
@@ -1884,6 +1973,9 @@ async function build() {
           order_suspect: suspectOrder(f),
           // all stations of this route, in stop order (id + name)
           stations: f.__stations ?? [],
+          // 此服務行經但**不停靠**的站（快車跳站）——供「同一條線多編號＋每站 stop/pass」
+          // 語意；空陣列＝各停。全球通用。
+          pass_stations: f.__passStations ?? [],
         })
       }
       return metaCache.get(f)

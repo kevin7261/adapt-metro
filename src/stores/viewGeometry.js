@@ -366,9 +366,10 @@ export function computeCityHcViews(geojson, opts = {}) {
     placeBlacks(skeleton, hcPos, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
 
-    // 3) Hill Climbing端點拉直 — degree-1 route endpoints move so their single
-    // segment turns H/V, through the same hard rules, iterated to a fixed
-    // point (buildEndpointStraighten). Same full grid as the HC view.
+    // 3) Hill Climbing端點拉直 — every coloured vertex may snap onto a
+    // neighbour's row/column when that nets more H/V segments, through the
+    // same hard rules, iterated to a fixed point (buildEndpointStraighten).
+    // Same full grid as the HC view.
     const endp = iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows)
     const endpPos = new Map()
     for (const [id, cell] of endp.cellAfter) endpPos.set(id, m1.cellPx(cell))
@@ -497,7 +498,7 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // hc 鏈：HC → 端點拉直 → 縮減網格（同 D3Tab）；後處理鏈仍從 HC 分支。
+    // hc 鏈：HC → 端點拉直 → 縮減網格（同 D3Tab）；後處理鏈仍壓縮各自原結果。
     const cells = POST[kind]
       ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
       : iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
