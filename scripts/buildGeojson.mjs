@@ -2056,10 +2056,12 @@ async function build() {
         for (const [v, n] of cnt) if (n > bn) { best = v; bn = n }
         return best
       }
-      grp.operator = vote('operator') ?? grp.operator
-      grp.official_url = vote('website') ?? grp.official_url
-      grp.wikipedia = vote('wikipedia') ?? grp.wikipedia
-      grp.wikidata = vote('wikidata') ?? grp.wikidata
+      // 只信存活線：沒有任何存活線帶該 tag → null（fallback 會被已剔除線毒到，
+      // 東京 yurikamome 案）。
+      grp.operator = vote('operator')
+      grp.official_url = vote('website')
+      grp.wikipedia = vote('wikipedia')
+      grp.wikidata = vote('wikidata')
     }
     const metaCache = new Map()
     const metaOf = (f) => {

@@ -413,13 +413,13 @@
   "asia/turkey/as-tur-ankara": {
     "city": "Ankara",
     "country": "Turkey",
-    "wikidata": "Q204081",
-    "map_file": "maps/asia/turkey/as-tur-ankara.svg",
-    "commons_file": "File:Autoroute A1 (BE).svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Autoroute_A1_%28BE%29.svg",
-    "license": "CC BY 2.5",
-    "license_url": "https://creativecommons.org/licenses/by/2.5",
-    "artist": "Vascer"
+    "wikidata": "Q1425645",
+    "map_file": "maps/asia/turkey/as-tur-ankara.png",
+    "commons_file": "File:Tunis Rapid Transit Map.png",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Tunis_Rapid_Transit_Map.png",
+    "license": "CC BY-SA 2.5",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+    "artist": "Maximilian Dörrbecker (Chumwa)"
   },
   "americas/united-states/am-usa-new-york-city": {
     "city": "New York City",
@@ -824,12 +824,12 @@
     "city": "Bengaluru",
     "country": "India",
     "wikidata": "Q279343",
-    "map_file": "maps/asia/india/as-ind-bengaluru.png",
-    "commons_file": "File:Phase 2A with WFD line.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Phase_2A_with_WFD_line.png",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Doc.aneesh"
+    "map_file": "maps/asia/india/as-ind-bengaluru.jpg",
+    "commons_file": "File:Namma Metro Bengaluru Map Blueprint.JPG",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Namma_Metro_Bengaluru_Map_Blueprint.JPG",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "artist": "Veera.sj"
   },
   "asia/japan/as-jpn-yokohama": {
     "city": "Yokohama",
@@ -1202,8 +1202,8 @@
     "country": "China",
     "wikidata": "Q15906197",
     "map_file": "maps/asia/china/as-chn-wenzhou.svg",
-    "commons_file": "File:Wenzhou Metro Planning.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Wenzhou_Metro_Planning.svg",
+    "commons_file": "File:Wenzhou Metro Linemap.svg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Wenzhou_Metro_Linemap.svg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "Yveltal"

@@ -1,0 +1,9 @@
+{
+  "_comment": "官方路網圖釘選（downloadMaps.mjs）。key=rel（洲/國/檔名slug）。commons_file:null＝該城固定無圖；commons_file:'File:...'＝固定用該 Commons 檔。每筆必附 note。",
+  "overrides": {
+    "americas/united-states/am-usa-new-york-city": {
+      "commons_file": null,
+      "note": "NYC 官方地鐵圖有版權（Commons 沒有自由授權版）；QID 解析曾誤命中 PATH 抓「PATH daytime.svg」冒充全系統圖。固定無圖，前端退回 Google 圖片搜尋。使用者裁決 2026-07。"
+    }
+  }
+}
