@@ -66,6 +66,20 @@ function audit(fc) {
     longSegs ? `${longSegs} 段 >30km（疑似跨越假長線），最長 ${maxSeg.toFixed(1)}km`
       : `最長段 ${maxSeg.toFixed(1)}km（皆為真實交流道間距）`)
 
+  // 4b) no triangles — three interchanges mutually connected (parallel-road /
+  //     near-duplicate artefacts); build de-triangulates, so any left is a bug.
+  {
+    const nn = (c) => c.map((v) => v.toFixed(6)).join(',')
+    const g = new Map()
+    const gl = (a, b) => { if (!g.has(a)) g.set(a, new Set()); g.get(a).add(b) }
+    for (const l of lines) for (const part of l.geometry.coordinates) {
+      const a = nn(part[0]), b = nn(part[part.length - 1]); gl(a, b); gl(b, a)
+    }
+    let tris = 0
+    for (const a of g.keys()) for (const b of g.get(a)) { if (b <= a) continue; for (const c of g.get(b)) { if (c <= b) continue; if (g.get(a).has(c)) tris++ } }
+    add('no_triangles', tris === 0, 'error', tris ? `${tris} 個三角形（去三角化未清乾淨）` : '無三角形')
+  }
+
   // 5) closed-access only: every line is motorway or expressway class
   const badClass = lines.filter((l) => !['motorway', 'expressway'].includes(l.properties.routes?.[0]?.road_class))
   add('closed_access_only', badClass.length === 0, 'error',

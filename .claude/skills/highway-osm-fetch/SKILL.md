@@ -99,6 +99,11 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
    線性順序改由**走訪相鄰圖**（每連通分量從端點走）取得。**一個 ref 只輸出一個 line feature**
    （MultiLineString，parts＝各相鄰邊；`routes` 只含該 ref）。實測台灣國道1號＝89 交流道、
    1 個連通分量（完整一條線）、最長段 18km（真實鄉間間距，非假長線）。
+4b. **去三角化（使用者：好多抓錯變成三角形）**：相鄰邊有時形成三角形 A-B-C（三邊皆存在）——
+   來源①同 ref 平行道路（國道1號主線 vs 五股楊梅高架）：主線 A→B→C 與高架 A→C 直連；
+   來源②近距同站未併（五股轉接道 vs 五股交流道 88m 異名）兩者都連到三重。**每個三角形一律
+   刪最長邊**（跳過中間交流道的「捷徑」邊），先**逐 ref**、再**全域跨 ref**（並行的 local/express、
+   共線 concurrent 路段）各掃一遍。刪後仍連通（兩短邊仍串起三點）。verify 有 `no_triangles`(error) 把關。
 5. **degree／角色**：由各 ref 序列的相鄰交流道對建鄰接圖。`is_interchange` ⇔ **屬於 ≥2 條 ref
    （系統交流道）或 degree>2**；`is_terminus` ⇔ degree==1（框邊界被切斷的端點）。
 6. 只輸出**出現在某條國道線上**的交流道（對應 metro 的 orphan-drop）。

@@ -227,6 +227,13 @@
         "name:zh-Hant": "東鐵綫"
       },
       "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：東鐵綫（落馬洲/馬場變體）"
+    },
+    {
+      "relation": 7894362,
+      "set": {
+        "name": "NYCS - S Rockaway Park Shuttle"
+      },
+      "note": "NYC S 接駁：net+ref 群組合併把三條 S shuttle 併進同群，代表 tags 取 master 7894362（OSM 上是 Franklin 的 master）、但最長變體（kept[0]）是 Rockaway Park Shuttle 的 rows → 主 route 錯名 Franklin。把 master 顯示名改為 Rockaway（Franklin 分支變體用自己 relation 名、不受影響）。上游若把 Rockaway 拆成自己的 master 應刪除本筆。"
     }
   ]
 }

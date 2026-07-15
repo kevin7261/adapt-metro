@@ -638,14 +638,18 @@ async function build() {
   // 「沒見過」用 ~250 m 鄰域判定（對向月台的 stop_position 可相距 >100 m，
   // 單格 100 m 判定會把反向變體誤判成有新站 → 反向被拆成第二條線）。
   const cellOf = (r) => [Math.round(r.coord[0] / 0.001), Math.round(r.coord[1] / 0.001)]
-  const dedupeSeqs = (seqs) => {
+  // nearRadius：freshness 的鄰域格數（±n 格 ≈ ±111n m）。預設 ±2（~222m）；
+  // NYC 用 ±4（~444m）——曼哈頓長月台的上下行 stop 節點可距 >250m，±2 會把
+  // 純反向變體誤判成「有新站」→ 同名同站的第二條線（使用者 2026-07 回報的
+  // 重複路線）。NYC 的真分支（Lefferts/Rockaway…）都隔數公里，±4 安全。
+  const dedupeSeqs = (seqs, nearRadius = 2) => {
     const sorted = [...seqs].sort((a, b) => b.rows.length - a.rows.length)
     const covered = new Set(), kept = []
     const expressCovered = new Set() // 已保留快車的站格（±2 容差用來丟去回程的反向重複）
     const near = (r) => {
       const [cx, cy] = cellOf(r)
-      for (let dx = -2; dx <= 2; dx++)
-        for (let dy = -2; dy <= 2; dy++)
+      for (let dx = -nearRadius; dx <= nearRadius; dx++)
+        for (let dy = -nearRadius; dy <= nearRadius; dy++)
           if (covered.has(`${cx + dx}:${cy + dy}`)) return true
       return false
     }
@@ -844,7 +848,8 @@ async function build() {
   const pinnedKeys = new Set()
   const resolved = []
   for (const g of groups.values()) {
-    const keptAll = dedupeSeqs(g.seqs)
+    const gNet0 = pick(repTags(g), 'network:en', 'network') || ''
+    const keptAll = dedupeSeqs(g.seqs, /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
     if (!keptAll.length) continue
     // 支線/分支＝獨立路線（使用者 Option 1：凡有新站的分岔都算支線→獨立 route_id，
     // 只有「0 新站」的純重複/反向/子集短交路才併）。dedupeSeqs 已丟掉 0 新站的重複；

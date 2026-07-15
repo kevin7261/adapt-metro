@@ -185,13 +185,45 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
   // between). We draw ONLY these adjacencies, so a 國道 is one continuous line
   // where the road is continuous and simply BREAKS at a real gap — never a long
   // straight line bridging interchanges that aren't actually connected.
-  const refEdges = new Map()  // ref → [[rootA, rootB] …] (road-adjacent, deduped)
+  const ekey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+  const icDist = (a, b) => { const ea = ic.get(a), eb = ic.get(b); return haversine([ea.lon, ea.lat], [eb.lon, eb.lat]) }
+  // De-triangulate a ref's edge set: while any triangle A-B-C exists (all three
+  // edges present), drop its LONGEST edge — the "shortcut" that skips the middle
+  // interchange. Kills parallel same-ref-road shortcuts (國道1號 mainline vs its
+  // elevated) and thin near-duplicate-interchange triangles, keeping the network
+  // connected (the two shorter edges still join all three).
+  const deTriangulate = (edges) => {
+    const present = new Set(edges.map(([a, b]) => ekey(a, b)))
+    const adj = new Map()
+    const addA = (a, b) => { if (!adj.has(a)) adj.set(a, new Set()); adj.get(a).add(b) }
+    for (const [a, b] of edges) { addA(a, b); addA(b, a) }
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const a of adj.keys()) {
+        for (const b of adj.get(a)) {
+          if (b < a) continue
+          for (const c of adj.get(b)) {
+            if (c < b || !adj.get(a).has(c)) continue
+            const [x, y] = [[a, b], [b, c], [a, c]].sort((p, q) => icDist(...q) - icDist(...p))[0]
+            adj.get(x).delete(y); adj.get(y).delete(x); present.delete(ekey(x, y))
+            changed = true; break
+          }
+          if (changed) break
+        }
+        if (changed) break
+      }
+    }
+    return edges.filter(([a, b]) => present.has(ekey(a, b)))
+  }
+
+  const refEdges = new Map()  // ref → [[rootA, rootB] …] (road-adjacent, de-triangulated)
   const refAdj = new Map()    // ref → Map(root → Set(root))
   const neigh = new Map(), icRefs = new Map()
   const addRef = (root, ref) => { if (!icRefs.has(root)) icRefs.set(root, new Set()); icRefs.get(root).add(ref) }
   const link = (m, a, b) => { if (!m.has(a)) m.set(a, new Set()); if (!m.has(b)) m.set(b, new Set()); m.get(a).add(b); m.get(b).add(a) }
   for (const [ref, refWays] of byRef) {
-    const seen = new Set(), edges = [], adj = new Map()
+    const seen = new Set(); let edges = []
     for (const poly of buildPolylines(refWays)) {
       const hits = []
       for (const v of poly) {
@@ -202,13 +234,48 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
       for (let n = 0; n + 1 < seq.length; n++) {
         const a = seq[n], b = seq[n + 1]
         if (a === b) continue
-        const k = a < b ? `${a}|${b}` : `${b}|${a}`
+        const k = ekey(a, b)
         if (!seen.has(k)) { seen.add(k); edges.push([a, b]) }
-        link(adj, a, b); link(neigh, a, b)
-        addRef(a, ref); addRef(b, ref)
       }
     }
-    refEdges.set(ref, edges)
+    refEdges.set(ref, deTriangulate(edges)) // per-road de-triangulation
+  }
+
+  // GLOBAL de-triangulation across ALL roads — catches cross-road triangles
+  // (concurrent routes, express-vs-local variants) the per-road pass misses.
+  {
+    const owners = new Map(), adj = new Map()
+    const addA = (a, b) => { if (!adj.has(a)) adj.set(a, new Set()); adj.get(a).add(b) }
+    for (const [ref, edges] of refEdges) for (const [a, b] of edges) {
+      const k = ekey(a, b)
+      if (!owners.has(k)) { owners.set(k, new Set()); addA(a, b); addA(b, a) }
+      owners.get(k).add(ref)
+    }
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const a of adj.keys()) {
+        for (const b of adj.get(a)) {
+          if (b < a) continue
+          for (const c of adj.get(b)) {
+            if (c < b || !adj.get(a).has(c)) continue
+            const [x, y] = [[a, b], [b, c], [a, c]].sort((p, q) => icDist(...q) - icDist(...p))[0]
+            adj.get(x).delete(y); adj.get(y).delete(x)
+            const k = ekey(x, y)
+            for (const ref of owners.get(k) || []) refEdges.set(ref, refEdges.get(ref).filter(([p, q]) => ekey(p, q) !== k))
+            owners.delete(k); changed = true; break
+          }
+          if (changed) break
+        }
+        if (changed) break
+      }
+    }
+  }
+
+  // build adjacency / neighbour graph from the FINAL (de-triangulated) edges
+  for (const [ref, edges] of refEdges) {
+    const adj = new Map()
+    for (const [a, b] of edges) { link(adj, a, b); link(neigh, a, b); addRef(a, ref); addRef(b, ref) }
     refAdj.set(ref, adj)
   }
 
