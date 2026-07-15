@@ -313,7 +313,12 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 幾何為每個 relation 的**站序折線**（見上），同組去重規則：以 ~100 m 座標格為鍵
 （來回方向常用不同的 stop_position 節點，不能用節點 id 去重），保留最長的變體，
 其餘變體只要帶來 **≥1 個未見過的站**就保留（短支線如小碧潭/新北投只多 1–2 站；
-純反向/快車重複 fresh=0 捨棄——重疊路段化會吸收共用段，保留支線零成本），
+純反向/短交路 fresh=0 捨棄——重疊路段化會吸收共用段，保留支線零成本）。**例外：真正的
+「快車」保留成獨立 route**（fresh=0 但**名字含快車字樣**〔Express/Rapid/直達/快速/急行/特急…〕
+＋站數 <0.85×主線＋有中間跳站；去回程以 ±2 格容差同站集只留一條）——與 NYC 快車一致的
+全球統一格式，其跳站由 pass-through 偵測算成 `pass_stations`／站點 `pass_lines`（見車站 schema）。
+**快車與主線是同一條線 → route_color 繼承主線色**（`branchUnit`：OSM 常給快車變體不同色，
+如機捷直達車淺紫 #d4cde7，改用主線 #800080）；`route_name` 另加「（快車）/(Express)」標記，
 合併成 `MultiLineString`。**這些保留的分支/快車變體預設各自獨立成 route_id**（小碧潭
 支線 hover 不連主線）；**但紐約/雪梨/香港例外**——同 ref 變體共享車站者併成一條線
 （`mergeVariants`，見前文「同 ref 變體＝同一條線」與 [[metro-city-newyork]]）。
@@ -321,8 +326,26 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 
 ## 欄位 schema（必要欄位不可刪）
 
+> **顯示名語言（`nameFor`，站名＋線名，使用者指定各地用當地語言）**：預設英文優先
+> （name:en→name）；**例外**：日本→日文（name:ja）、台灣→繁中（name:zh-Hant→name:zh→name）、
+> **中國含香港→`name:zh`**（香港 name:zh＝繁中「炮台山」〔避開 name 的雙語「炮台山 Fortress Hill」〕，
+> 中國大陸 name:zh＝简体，同鍵各地自動給正確繁/簡）。改此規則同步更新 [[metro-city-tokyo]]
+> （日文）與此處。副作用：同名合併改以中文名判定，較英文羅馬字精確（撞名站正確分開）。
+>
+> **路線名去方向尾綴（`cleanRouteName`，全球通用）**：路線是**雙向**（去回程已併成一條），
+> OSM name 常帶方向/終點站尾綴，會誤導成「兩個方向兩條線」（機捷 name:zh「(西向)/(東向)」
+> 其實是普通車 vs 直達車）。故 `route_name`／`route_name_local` 一律去掉：「: A → B」「→ B」
+> 「to B」「(西向)/(東向)/(上行)/(下行)/(順向)/(逆向)/(上)/(下)/(内/外)/(往X)/(inbound)…」；
+> 括號內「分支名＋方向詞」（如「(蘆洲逆向)」）只去方向詞留分支名 →「(蘆洲)」。實測全 223 城
+> **0 方向殘留**。**環線的內/外環兩向亦併**。
+>
+> **快車標記（`expressMark`）**：dedupeSeqs 保留的快車（見「快/慢車合併」的快車例外）其
+> `route_name` 加「（快車）」（中日台港）／「 (Express)」（其餘），與普通車區分（**非方向**）——
+> 機捷＝「桃園國際機場捷運」＋「桃園國際機場捷運（快車）」。名字本身已含快車字樣（急行/快速/
+> 直達/Express…）則不重複加（東京「都営新宿線 急行」不變）。
+
 **路段 feature（MultiLineString；重疊只畫一條）**：
-`routes`（list，每項 `route_id`, `route_name`（優先 name:en）, `route_name_local`,
+`routes`（list，每項 `route_id`, `route_name`（依上「顯示名語言」＋去方向＋快車標記）, `route_name_local`,
 `route_ref`, `route_color`（正規化 `#rrggbb`）, `network`, `network_local`, `operator`,
 `wikidata`, `wikipedia`, `osm_route_ids`, `order_suspect`,
 `stations`（**該 route 的所有車站，依站序、各分段原序串接、不去重**——列表相鄰＝圖上
@@ -335,22 +358,30 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 **車站 feature（Point）**：
 `station_id`（`n{osmId}`）, `station_name`（優先 name:en）, `station_name_local`,
 `network`, `network_local`, `operator`, `city`, `country`,
-`lines`（**停靠**此站的線路 ref/名 tag；線無 ref 時用線名。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
-`line_ids`（所屬線路的 `route_id`，依 ref/名排序）, `line_names`（同序的線路名），
-`pass_lines`／`pass_line_ids`（**行經但不停靠**此站的服務——快車跳站；無則不設此欄。全球通用：
+`lines`（**停靠**此站的線路 ref（與 `line_ids` 同序、**可重複**——機捷普通/直達都 ref「A」；
+線無 ref 時用線名）。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
+`line_ids`（**停靠**此站的線路 `route_id`——**站↔線歸屬一律用 route_id（唯一）建立，不用 ref**：
+由各線的 `__stations` 反推（∪ 既有 tag 指派以保浮空站）。**ref 會撞**：機捷普通車 rm… 與直達車
+r… 都 ref「A」，用 ref 會讓台北車站漏掉直達車；用 route_id 才能同時掛兩者、且與 `pass_line_ids`
+正確區分是哪條線 pass）, `line_names`（同序的線路名），
+`pass_lines`／`pass_line_ids`（**行經但不停靠**此站的服務——快車跳站；無則不設此欄。**全球統一格式**：
 機捷直達車、NYC 快車/Z、Seoul 급행、Tokyo 快速、香港 AEL… 皆以此表達「X 服務行經卻不停 Y 站」。
-來源①既有 pass-through 偵測（快車存活為獨立 route 時，如 NYC），②**express-fold**：dedupe 會丟棄
-「站點是主線子集」的變體，若其**名字含快車字樣**（Express/Rapid/直達/快速/急行/特急…）且站數 <0.85×
-主線且有中間跳站，則不新增 route、改把它 fold 成主線的**子服務**，把主線停/它不停（限首末停靠站
-之間）的站標成此 pass。**line_count 不變**＝「一條線多編號＋每站 stop/pass」），
+機制：**快車＝獨立 route**（不做 services 子服務特例、全球一致）——`dedupeSeqs` 對 fresh=0（站點是
+主線子集）的變體預設丟棄，**例外：名字含快車字樣（Express/Rapid/直達/快速/急行/特急…）＋站數 <0.85×
+主線＋有中間跳站者保留成獨立 route**（去回程同站集只留一條）；其跳過的站再由既有 pass-through 偵測
+算成該 route 的 `pass_stations`、並在被跳過的站標 `pass_lines`。前端車站物件直接讀 `lines`（停靠）／
+`pass_lines`（行經）顯示，不再幾何猜測），
 `station_role`（`interchange`／`terminus`／`normal`，交會優先於端點。**interchange ⇔
 網絡圖 degree>2（分歧/交會，相鄰站不同）或 ≥2 條不同線在此終止（terminus-interchange，
 如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）或**端點站且停靠 ≥2 條線**
 （全域鐵律：藍色端點站不可能有超過 1 條路線；若有＝可轉乘＝紅點——涵蓋「A 線在此為終點、
 B 線經過並停靠、共用進站方向使 degree=2」的漏判；停靠線數以 pass 排除後的 `lines` 計）**
 ——三者都是「≥2 路段相交」的紅點；**共軌重疊段中間站**兩線給相同前後鄰、無線在此終止 → degree=2＋termCount=0，
-不算 interchange。**快車 pass 頂點不計入 degree**（此線只是經過不停靠，被經過的 local 站
-不因此變紅點——使用者：紐約共線 pass 不用因此畫紅點；HK AEL 經過 Tsing Yi 亦然）。
+不算 interchange。**快車 pass 頂點計入 degree**（使用者裁決 2026-07：顯徑要紅點）：
+pass 鏈沿共軌走廊時給的前後鄰與慢車相同 → degree 不變、共軌中間 pass 站仍是黑點
+（紐約 express 沿 local 走廊的站不變紅——早期「pass 不計 degree」裁決的本意保留）；
+但 pass 線在**分岔點**離開走廊時貢獻新鄰居（HK 東鐵綫在顯徑轉往九龍塘、AEL 在欣澳
+轉往機場）→ degree>2 ＝ 真實分歧紅點。pass 站照舊不進停靠（stations／lines／terminus）。
 `terminus`＝某線端點（環線無端點）；`station_degree` 存網絡圖度數）,
 `is_interchange`, `is_terminus`, `merged_from`（若由共站合併而來，
 ＝被併成員數）, `merged_names`（**異名轉乘站合併後保留所有成員站名的 list**——

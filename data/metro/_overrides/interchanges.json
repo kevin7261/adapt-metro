@@ -548,6 +548,14 @@
     [
       "n7636971151",
       "n7218038804"
+    ],
+    [
+      "n248794172",
+      "n2557051035"
+    ],
+    [
+      "n262119931",
+      "n2546436295"
     ]
   ],
   "_pairs": [
@@ -578,6 +586,8 @@
     "NYC Botanic Garden(S)↔Franklin Av(2/3/4/5) 轉乘；World Trade Center(E 終點)↔Chambers St(1/2/3/A/C) WTC 複合站",
     "NYC Times Square–42nd Street(1/2/3/7/N/Q/R/S/W) ↔ 42nd St–Port Authority Bus Terminal(A/C/E) 同一複合站（cross-line，無共線塌站）",
     "NYC 14th Street(1/2/3) ↔ 6th Avenue/14th Street(F/L/M) 同一複合站（使用者 MTA map 確認，cross-line 無塌站）",
-    "NYC WTC 大複合站（使用者堅持，MTA complex）：Park Place(2/3)+Cortlandt St(R/W) 併入 Chambers St/World Trade Center(1/2/3/A/C/E)。副作用：2/3 的 Chambers↔Park Place 併成一點（少一站，名字保留在 merged_names）、R/W 的 Cortlandt St 移約530m 到複合站（線會拐一下）。Rector St 不併、保持獨立。"
+    "NYC WTC 大複合站（使用者堅持，MTA complex）：Park Place(2/3)+Cortlandt St(R/W) 併入 Chambers St/World Trade Center(1/2/3/A/C/E)。副作用：2/3 的 Chambers↔Park Place 併成一點（少一站，名字保留在 merged_names）、R/W 的 Cortlandt St 移約530m 到複合站（線會拐一下）。Rector St 不併、保持獨立。",
+    "中環 Central（港島綫/荃灣綫）↔ 香港 Hong Kong（東涌綫/機場快綫）官方轉乘複合站，付費區行人通道相連 ~350m（MTR 官方圖標示同站轉乘，2026-07 使用者裁決）",
+    "尖沙咀 Tsim Sha Tsui（荃灣綫）↔ 尖東 East Tsim Sha Tsui（屯馬綫）官方轉乘複合站，站內行人隧道相連（MTR 官方圖標示同站轉乘，2026-07 使用者裁決）"
   ]
 }

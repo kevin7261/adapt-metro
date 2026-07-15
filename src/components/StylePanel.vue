@@ -7,7 +7,6 @@ import { prettyContinent, continentZh, loadMapsIndex } from '../stores/metroCata
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import { computePassThrough } from '../stores/skeleton'
-import { resolveWikiLink } from '../utils/wikiLang'
 import OrientationRose from './OrientationRose.vue'
 import MIcon from './MIcon.vue'
 
@@ -73,8 +72,10 @@ const asText = (v) => {
   if (typeof v === 'object') return JSON.stringify(v, null, 2)
   return String(v)
 }
-// A wikipedia value is a raw OSM tag ("en:Taipei Main Station") or a URL;
-// a wikidata value is a Q-id. Turn both into a clickable link in the Object tab.
+// A wikipedia value is a raw OSM tag ("en:Taipei Main Station") or a URL —
+// turn it into a clickable link in the Object tab. (wikidata 不顯示——使用者
+// 裁決 2026-07「wikidata 都不用了」：資料層保留欄位（audit 的 wikiLineCheck 與
+// 車站維基語言 fallback 靠它），僅 UI 不再顯示/成連結。)
 const linkFor = (key, v) => {
   if (typeof v !== 'string' || !v) return null
   if (key === 'wikipedia') {
@@ -83,7 +84,6 @@ const linkFor = (key, v) => {
     if (m) return `https://${m[1]}.wikipedia.org/wiki/${encodeURIComponent(m[2].replace(/ /g, '_'))}`
     return `https://en.wikipedia.org/wiki/${encodeURIComponent(v.replace(/ /g, '_'))}`
   }
-  if (key === 'wikidata' && /^Q\d+$/.test(v)) return `https://www.wikidata.org/wiki/${v}`
   return null
 }
 // MapLibre serialises nested arrays/objects to JSON strings for GeoJSON source
@@ -95,7 +95,7 @@ const selectedEntries = computed(() => {
   // Skip internal render-only props (e.g. `_c0.._c5` flattened dash colours).
   // merged_names is rendered as its own formatted block (per-name line chips),
   // so keep it out of the raw key/value table.
-  return Object.keys(p).filter((k) => !k.startsWith('_') && k !== 'merged_names').sort().map((k) => {
+  return Object.keys(p).filter((k) => !k.startsWith('_') && k !== 'merged_names' && k !== 'wikidata').sort().map((k) => {
     let v = p[k]
     if (typeof v === 'string' && /^[[{]/.test(v.trim())) {
       try { v = JSON.parse(v) } catch { /* leave as-is */ }
@@ -115,14 +115,29 @@ const passThrough = computed(() => {
   const d = layerData[layer.value?.id]
   return d ? computePassThrough(d) : null
 })
-// Station object: routes that STOP here vs PASS here without stopping.
+// 車站物件：停靠此站的服務（`line_ids`）vs 行經不停（`pass_line_ids`）——**用 route_id 解析
+// 出確切的線**（不用 ref：機捷普通車/直達車都 ref「A」會撞、分不出）。直接讀車站儲存欄位、
+// 不再幾何猜測。找不到 id 退玫瑰紅。
+const routeById = computed(() => {
+  const m = new Map()
+  for (const r of metroLines.value) if (r.route_id != null) m.set(String(r.route_id), r)
+  return m
+})
+const parseArr = (v) => {
+  if (typeof v === 'string') { try { v = JSON.parse(v) } catch { return [] } }
+  return Array.isArray(v) ? v : []
+}
+const resolveIds = (ids) => ids.map((id) => {
+  const r = routeById.value.get(String(id))
+  return { route_ref: r?.route_ref ?? null, route_name: r?.route_name ?? String(id), route_color: r?.route_color ?? '#e11d48' }
+})
 const stopRoutes = computed(() => {
-  const sid = selectedProps.value?.station_id
-  return (sid && passThrough.value?.stopByStation.get(sid)) || []
+  const p = selectedProps.value
+  return p?.station_id ? resolveIds(parseArr(p.line_ids)) : []
 })
 const passRoutes = computed(() => {
-  const sid = selectedProps.value?.station_id
-  return (sid && passThrough.value?.passByStation.get(sid)) || []
+  const p = selectedProps.value
+  return p?.station_id ? resolveIds(parseArr(p.pass_line_ids)) : []
 })
 // 共站合併：異名轉乘站（merged_names）——各成員站名＋該名所屬路線。
 // 路線色以 ref 對應 metroLines 的 route_color；ref 找不到色時退玫瑰紅。
@@ -236,9 +251,6 @@ const metroLines = computed(() => {
     ),
   )
 })
-const wikidataUrl = computed(() =>
-  meta.value?.wikidata ? `https://www.wikidata.org/wiki/${meta.value.wikidata}` : null,
-)
 
 /* ---- Info: network orientation rose (Boeing 2019) ---- */
 // Length-weighted distribution of line bearings + orientation-order φ.
@@ -287,22 +299,8 @@ const wikipediaUrl = computed(() =>
 // 常指向「單一路線」而非系統（實測 Tbilisi Q340562 → 阿赫梅特利-瓦爾克蒂利線），
 // 用 sitelinks 反而會連到某條線，比 zh 搜尋更糟，故不套語言 fallback。
 
-// 車站維基連結的語言 fallback：優先用車站自己的 wikidata 解 sitelinks；沒有 wikidata
-// 時退回 OSM `wikipedia` tag（其原生語言）。物件 tab 標題下顯示一個維基連結。
-const stationWiki = ref(null)
-watch(selectedProps, async (p) => {
-  stationWiki.value = null
-  if (!p || !p.station_id) return
-  if (p.wikidata) {
-    const r = await resolveWikiLink(p.wikidata, meta.value?.country)
-    if (r && selectedProps.value === p) { stationWiki.value = r; return }
-  }
-  const href = linkFor('wikipedia', p.wikipedia)
-  if (href && selectedProps.value === p) {
-    const lang = (String(p.wikipedia).match(/^([a-z-]+):/) || [])[1] || null
-    stationWiki.value = { url: href, lang, title: null }
-  }
-}, { immediate: true })
+// （物件 tab 標題下原有車站維基連結——使用者 2026-07 移除：下方屬性表的
+//  wikipedia 列已是可點連結，不重複顯示。）
 // Official schematic route map. Only 91/232 systems have a downloaded image;
 // the rest fall back to a Google image search for the city's route map, so
 // every city gets a working 官方路線圖 link.
@@ -657,12 +655,6 @@ function startResize(e) {
                   <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
-              <div v-if="wikidataUrl" class="info-row">
-                <span class="info-key">Wikidata</span>
-                <a :href="wikidataUrl" target="_blank" rel="noopener" class="info-link">
-                  {{ meta.wikidata }} <MIcon name="open_in_new" :size="11" />
-                </a>
-              </div>
               <div v-if="wikipediaUrl" class="info-row">
                 <span class="info-key">Wikipedia</span>
                 <a :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link">
@@ -887,11 +879,7 @@ function startResize(e) {
             {{ objectTitle.name }}
             <span v-if="objectTitle.nameLocal" class="obj-title-local">{{ objectTitle.nameLocal }}</span>
           </div>
-          <!-- 車站維基連結（沒中文→英文→當地語言） -->
-          <a v-if="stationWiki" :href="stationWiki.url" target="_blank" rel="noopener" class="info-link obj-wiki-link">
-            Wikipedia <span v-if="stationWiki.lang" class="wiki-lang">{{ stationWiki.lang }}</span>
-            <MIcon name="open_in_new" :size="11" />
-          </a>
+          <!-- 標題下不放維基連結（使用者 2026-07：下方屬性表的 wikipedia 列已有連結） -->
           <!-- 路段：站序中同時列停靠與通過(不停)站，pass 站標記、灰字並排在正確位置 -->
           <template v-for="rt in selectedRouteLists" :key="rt.route_id">
             <div class="obj-route-head">
@@ -1431,14 +1419,6 @@ function startResize(e) {
 .info-link:hover { text-decoration: underline; }
 .info-empty { font-size: 12.5px; color: hsl(var(--muted-foreground)); padding: 8px 0; }
 /* 維基連結解出的語言代碼小徽章（zh / en / ka…） */
-.wiki-lang {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px; text-transform: uppercase;
-  color: hsl(var(--muted-foreground));
-  background: hsl(var(--muted)); border-radius: 4px; padding: 0 4px;
-}
-/* 物件 tab 標題下的車站維基連結 */
-.obj-wiki-link { font-size: 12px; margin: 0 0 8px; }
 
 
 /* Audit */

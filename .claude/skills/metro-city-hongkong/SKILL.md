@@ -35,6 +35,29 @@ AEL 跳過中間站（Olympic/Nam Cheong/Lai King/Sunny Bay）。因線幾何是
   欣澳轉往東涌、沒有單一 route 走完 Tsing Yi→Sunny Bay→Airport，自動偵測抓不到。
 詳見 [[metro-osm-fetch]]「快車跨站共線」（自動偵測＋手動 override 兩層）。
 
+## 中環↔香港 官方共站（異名轉乘，使用者裁決 2026-07）
+
+**中環 Central**（港島綫/荃灣綫，n248794172）與**香港 Hong Kong**（東涌綫/機場快綫，
+n2557051035）是官方轉乘複合站——付費區行人通道相連（~350 m），MTR 官方圖標示同站轉乘。
+兩站異名且無共同 stop_area → 同名 ≤800 m 判準抓不到，由 `_overrides/interchanges.json`
+`merge` 裁決合併為單一車站點（`merged_names` 保留兩名與各自路線）。
+
+## 東鐵綫經過顯徑但不停靠（pass-through，使用者裁決 2026-07）
+
+**東鐵綫 EAL 九龍塘→大圍**段出筆架山隧道後沿**屯馬綫 TML 走廊**經過**顯徑 Hin Keng**，
+但不停靠（顯徑僅屯馬綫停靠）。沒有任何 route 走完「九龍塘→顯徑→大圍」→ 自動偵測抓不到，
+由 `_overrides/express_passthrough.json` 手動 override（route_osm 涵蓋 EAL 全部三個
+route 群組：4248589/4248590/4250432），幾何沿顯徑畫、顯徑對 EAL 標 `pass_lines`——
+顯徑不進 EAL 站數；但**顯徑是紅點**（使用者裁決 2026-07）：EAL 在此分岔離開 TML 走廊
+（往九龍塘），pass 頂點計入 degree → degree=3 分歧紅點（通則見 [[metro-osm-fetch]]
+station_role 節；欣澳同理變紅）。
+
+## 尖沙咀↔尖東 官方共站（異名轉乘，使用者裁決 2026-07）
+
+**尖沙咀 Tsim Sha Tsui**（荃灣綫，n262119931）與**尖東 East Tsim Sha Tsui**（屯馬綫，
+n2546436295）是官方轉乘複合站——站內行人隧道相連，MTR 官方圖標示同站轉乘。異名無共同
+stop_area → 由 `_overrides/interchanges.json` `merge` 裁決合併。
+
 ## 範圍
 
 香港 MTR 全部重鐵線，含**機場快線 AEL**（是真地鐵、機場快線不排除，與航廈接駁電車不同，

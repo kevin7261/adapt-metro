@@ -1,37 +1,351 @@
-# Adapt-Metro GIS — UI 原型
+# Adapt-Metro — 全球地鐵響應式示意圖系統
 
-模仿 [GeoLibre](./GeoLibre-main) 介面的 Vue 3 + Vite UI/UX 原型。只有介面，大部分功能為假（點擊會顯示「尚未實作」提示），供之後開發 GIS 系統時作為外殼。
+把**真實地鐵路網**一步步變成**響應式八向示意圖**的純前端系統：
+OpenStreetMap 抓取的 223 座城市地鐵／輕軌路網，經過「拓撲骨架化 → 整數格網化 →
+多準則爬山最佳化 → 嚴格 H/V/45° 畫線」四個階段，全部在瀏覽器內以**純函式、確定性、
+零求解器依賴**完成——版面一變，圖就在新的像素座標重新求解。
 
-## 啟動
+- **線上版**：<https://kevin7261.github.io/adapt-metro/>
+- **系統介紹投影片**：`/slides/`（34 張，含演算法與資料格式，純靜態 HTML、鍵盤／觸控翻頁）
+- **技術堆疊**：Vue 3 + Pinia + Vite、MapLibre GL（地理底圖）、D3 v7（示意圖渲染）、
+  純 Node.js 資料管線（`scripts/`，無外部相依）
+
+---
+
+## 目錄
+
+1. [快速開始](#快速開始)
+2. [介面導覽](#介面導覽)
+3. [四階段管線](#四階段管線)
+4. [資料管線（fetch ⇄ audit）](#資料管線fetch--audit)
+5. [資料格式](#資料格式)
+6. [LLM 離線整合](#llm-離線整合)
+7. [專案結構](#專案結構)
+8. [效能與快取](#效能與快取)
+9. [演算法文獻](#演算法文獻)
+10. [授權與資料來源](#授權與資料來源)
+
+---
+
+## 快速開始
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # 產出 dist/
+npm run dev        # http://localhost:5173（dev server 直接掛載 data/ 與 .claude/skills/）
+npm run build      # 產出 dist/（slides/ 會原樣複製進 dist/slides/）
+npm run deploy     # build:pages + gh-pages 部署到 GitHub Pages（base=/adapt-metro/）
 ```
 
-## 版面結構（對應 GeoLibre）
+需求：Node.js ≥ 18。資料檔已隨 repo 附上（`data/metro/`，約 54 MB GeoJSON＋預算縮圖），
+**不需要**先跑資料管線就能啟動介面。要重抓／更新資料見〈[資料管線](#資料管線fetch--audit)〉。
 
-- **頂部選單列** — Project / Edit / View / Add Data / Processing / Controls / Plugins / Settings / Help，右側有深淺色切換與專案名稱
-- **左側 Layers 面板** — 圖層樹（含群組）、顯示/隱藏、選取、每層動作選單，可拖曳調寬、可收合成 rail，底部有地點搜尋
-- **中間地圖** — 真實 MapLibre GL（OpenFreeMap Liberty 底圖，台北捷運假資料），右鍵有 context menu，站點 hover 有 popup
-- **右側 Style 面板** — Symbology 模式、顏色/線寬/透明度（真的會改地圖樣式）、縮放範圍、標註
-- **底部屬性表** — 可開關（圖層選單或 ⌘K）、排序、過濾、zoom to feature、可拖曳調高
-- **狀態列** — 即時座標 / Zoom / Bearing / Pitch / BBox
-- **指令面板** — `⌘K`；快捷鍵表 — `?`
-- **Settings 對話框** — 深淺色、accent 主題色（藍/紫/綠/玫瑰/橘）、面板開關
+---
 
-## 主要檔案
+## 介面導覽
 
-- `src/stores/mapStore.js` — Pinia store，所有資料（UI 狀態、圖層清單、假 GeoJSON demoData）都放這裡，之後接真資料從這裡改
-- `src/stores/mapHandle.js` — 存放真實 MapLibre 實例的非響應式 handle（刻意不放進 Pinia，避免 proxy 弄壞 MapLibre 內部狀態）
-- `src/components/MapView.vue` — MapLibre 初始化，讀寫 `useMapStore()` 同步圖層
-- `src/style.css` — 設計 token（複製自 GeoLibre 的 shadcn HSL 變數）
+介面外殼源自 [GeoLibre](./GeoLibre-main)（shadcn 風格 HSL design token，見 `src/style.css`），
+核心概念是「**圖層即產線**」——Layers 面板中每個圖層群組對應管線的一個階段，
+可逐步檢視、比較、回溯，不是黑盒子一次生成：
 
-## 狀態管理
+| 區域 | 內容 |
+|---|---|
+| 頂部選單列 | Project／Edit／View／Add Data／Processing／Controls／Plugins／Settings／Help，右側深淺色切換 |
+| 左側 Layers 面板 | 四個圖層群組（Metro Maps／Map Adjust／Straighten／RWD Maps）＋圖層樹、顯示切換、每層動作選單 |
+| 中間編輯區 | Dockview 多分頁：MapLibre 地理地圖、D3 示意圖分頁（每個圖層一個 tab）、三個城市畫廊 |
+| 右側 Style 面板 | 依分頁型態切換的樣式與演算法參數控制 |
+| 底部屬性表／狀態列 | 可排序過濾的 feature 屬性表；座標／Zoom／演算法統計讀數 |
+| 指令面板 | `⌘K`；快捷鍵表 `?` |
 
-全域狀態集中在 Pinia（`useMapStore()`），元件內用 `const store = useMapStore()` 取用：
+三個**城市畫廊**（Map Adjust＝8 視圖、Hill Climbing＝8 視圖、RWD Maps＝8 視圖）
+的縮圖全部**離線預算**（見 [資料格式](#資料格式) 的 `views/`），點卡片即建立對應圖層分頁。
 
-- `state` — `ui`、`layers`、`groups`、`map`（游標座標/zoom/bearing/pitch/bbox）、`demoData`（假 GeoJSON）等
-- `getters` — `selectedLayer`、`allLayersVisible`、`layersInGroup(id)`
-- `actions` — `toast(msg)`、`fake(name)`（顯示「尚未實作」提示）
+---
+
+## 四階段管線
+
+> 每一階段都是純函式：同一份輸入永遠得到同一份輸出（無亂數）。
+> 唯一例外是選用性的 LLM 對齊／LLM 調整——離線預算、存檔、網頁只載入。
+
+### Stage 1 · Metro Maps（真實路網輸入）
+
+匯入某城市的 GeoJSON（原始地理座標、官方線色），畫在 MapLibre 底圖上。
+資料的抓取、清理、驗證見〈[資料管線](#資料管線fetch--audit)〉。
+
+### Stage 2 · Map Adjust（骨架與整數格）
+
+- **骨架化**（`src/stores/skeleton.js`，skill `route-skeleton-connect`）：
+  拓撲收縮、不拉直、不新增——以 route 站序建無向圖，節點依 degree 分
+  紅（分歧/轉乘）／藍（端點）／黑（直通），幾何真交叉補黃點，
+  degree-2 黑點鏈收成一條保留原折線的「邊」，再標紫（切點）／粉紅（代表性轉折）／灰（分隔）。
+  跳站特快段的折點不是車站：拓撲一律由停靠站建圖、畫線一律用原始幾何。
+- **示意格網化**（`src/stores/schematicGrid.js`，skill `route-skeleton-grid`）：
+  彩色點以 x/y「排名」吸附到整數格（一格一點、撞格 Chebyshev 外擴），
+  每條路線在彩色點切開、端點吸附、黑點沿新段平均放回。
+  格網規模依城市而異（台北約 67×67、紐約約 270×270）。
+
+### Stage 3 · Straighten（多準則爬山拉直）
+
+依 Stott et al. (2011) 的多準則最佳化（`src/stores/hillClimb.js`，skill `route-hillclimb`）。
+左選單分 **5 個部份**、共 16 個視圖：
+
+| 部份 | 視圖 | 內容 |
+|---|---|---|
+| 原始 | 格網化後 | Stage 2 的輸出（輸入基準） |
+| Hill Climbing | Hill Climbing | 5 準則（角解析度/邊長/平衡/平直/八方向）＋4 硬規則（邊界/象限/遮蔽/邊環繞序）逐頂點爬山，半徑 [2,1,1] 冷卻，超長邊群集平移 |
+| 直線演算法 | 直角爬山／軸對齊／整數規劃／LLM 對齊 | 四種 H/V 最大化後處理，互相獨立可比較，共用同一套硬規則，各自迭代到不動點（上限 20 次） |
+| 端點拉直 | 每條鏈各一個 tab（共 5 個） | 在該鏈結果**之上**：每個非白點可把一個座標吸到鄰居的欄/列，**僅淨增 H/V 才動**，同一套硬規則（不新增交叉、不壓線壓點、象限不翻轉） |
+| 縮減網格 | 每條鏈各一個 tab（共 5 個） | `compactGrid`：移除整排/整欄沒有彩色點的 row/col（排名重編，拓撲不變） |
+
+**hc 鏈 = Hill Climbing → 端點拉直 → 縮減網格**；這條鏈的縮減結果就是 RWD Maps 的底圖。
+直線演算法四條鏈從原始 HC 結果分支，其縮減網格壓縮各自的原結果。
+224 城實測：ILP 全網 H/V +47.8%、直角爬山 +42.9%、軸對齊 +28.5%，全數收斂。
+
+### Stage 4 · RWD Maps（版面畫線）
+
+把縮減網格重繪成**嚴格 H/V/45°** 折線（`src/stores/rwdMap.js`，skill `route-rwd-draw`）——
+八方向約束以「畫面像素」為準，resize 即重新求解：
+
+- 同軌路線合併（涵蓋性防呆：被併邊的每一站都要在保留路徑上，全 224 城 0 孤立站）；
+- 候選折線依轉折數絕對優先（直線 > 單折 > 雙折），45°接45° 禁止；
+- 「絕不交叉」五層衝突消解：重掃 → A* 格點佈線 → rip-up & reroute → restart-with-priority → 窄縫救援；
+- 軟目標收尾：同路線續接角評分、L 形能改 45° 就改；
+- 流量權重：link weight → 非均勻欄寬列高（取 max）、白點自動隱藏（全域 cutoff 一致）、~700ms 內插動畫。
+
+---
+
+## 資料管線（fetch ⇄ audit）
+
+> 權威規則在兩份 skill：`metro-osm-fetch`（取得）與 `metro-audit`（驗證收斂），
+> 城市專屬例外在 `metro-cities` 與各大城市專屬 skill。資料細節另見 `data/metro/README.md`。
+
+```bash
+npm run metro:all        # 完整流程：wiki 清單 → OSM 抓取 → 反查 → 組檔＋縮圖 → 逐城 audit
+
+# 分步（皆有快取、可續跑、失敗自癒）：
+npm run metro:wiki       # Wikipedia「List of metro systems」→ _cache/
+npm run metro:fetch      # Overpass 抓全球 subway+light_rail（僅營運中）→ _cache/（幾何增量）
+npm run metro:geocode    # Nominatim 反向地理編碼（洲/國/城，1 req/s）
+npm run metro:build      # 組最終 GeoJSON ＋ 重算畫廊縮圖（= buildonly + views）
+npm run metro:views      # 只重算三個畫廊的預算縮圖（_fp 增量，資料沒變的城市直接沿用）
+npm run metro:audit      # 逐城市 audit⇄修補到收斂（策略階梯自動補抓/綁定）
+npm run metro:maps       # 下載各系統官方路網圖（Wikidata P15 → Commons）
+npm run metro:verify     # 對照 Wikipedia/urbanrail 全量報告 → verify_report.json/.md
+npm run metro:wikilines  # 逐線站數比對 → line_check_report.json
+```
+
+**判準**：只收 `route=subway` 與 `route=light_rail`（LRT），不含 train／railway／tram，
+僅營運中（lifecycle 過濾是不變式）。**城市判定**三層護欄（泛用詞黑名單、rebucket 250 km、
+線級 250 km）；都會圈合併一城一檔（桃園→台北）；東京不含私鐵；德國五城／雪梨有
+route=train 例外。**驗證不變式**（error 級違反必修到 0）：城市不可缺、站必有名、
+站必有線、線必有站、逐線站數以 wiki 為準、interchange ⇔ 相異路線通過 ≥2。
+人工裁決一律落地 `_overrides/`，重抓自動套用、不失傳。
+
+---
+
+## 資料格式
+
+### 目錄總覽（`data/metro/`）
+
+```
+data/metro/
+├── index.json                  # 總索引：223 系統清單＋統計＋覆蓋率報告
+├── metro_lines.geojson         # 全球所有路段（去重）
+├── metro_stations.geojson      # 全球所有車站（共站已合併）
+├── systems/{洲}/{國}/{id}.geojson   # 每城一檔（id = 洲2碼-IOC3碼-城，如 as-twn-taipei）
+├── views/    hcviews/    rwdviews/  # 三個畫廊的預算縮圖（每城一 JSON ＋ index.json）
+├── llmviews/  llmgrids/        # LLM 對齊／LLM 調整離線結果
+├── maps/** ＋ maps_index.json  # 官方路網圖圖片＋逐張出處/授權
+├── verify_report.json/.md      # 全量驗證報告
+├── line_check_report.json      # 逐線站數比對
+├── _overrides/                 # 人工裁決（重跑自動套用）
+└── _cache/                     # Overpass/Wikipedia/geocode 原始回應（可刪）
+```
+
+### 每城 GeoJSON（`systems/**/*.geojson`）
+
+一份 `FeatureCollection`，頂層掛 `metro_system` 中繼資料，features 只有兩種：
+
+```jsonc
+{
+  "type": "FeatureCollection",
+  "metro_system": {
+    "continent": "asia", "country": "Taiwan", "city": "Taipei",
+    "osm_networks": ["台北捷運", "…"],          // 合併進此城的 OSM network
+    "operator": "…", "official_website": "…", "official_map": "…", "wikidata": "Q…",
+    "line_count": 18, "segment_count": 20, "station_count": 197,
+    "audit": { /* metro-audit 逐城驗證結果；未跑時 null */ }
+  },
+  "features": [ /* Point 車站…, MultiLineString 路段… */ ]
+}
+```
+
+**幾何語意（三條鐵律）**：
+1. **線永遠壓在站點上**——路段幾何＝共站合併後的車站點依站序連線，每個折點/端點都是車站
+   （唯一例外：跳站特快沿本地走廊彎行的非停靠折點，下游以 `pass_stations` 標記）；
+2. **重疊路段只畫一條**——相鄰站對被多線共用時只輸出一個 feature，`routes[]` 記行經路線，
+   一條 route 的完整路徑＝所有含它的路段之聯集；
+3. **快慢車合併**——同 network＋ref 的快車/區間車合併為一條線，以站最多的慢車站表為準。
+
+**車站（Point）properties**：
+
+| 欄位 | 內容 |
+|---|---|
+| `station_id` / `station_name` / `station_name_local` | 穩定 id、英文站名、在地語站名 |
+| `lines` / `line_ids` / `line_names` | 所屬路線（**至少一條**，空值＝資料錯誤，verify 標 `no_line`） |
+| `station_role` / `is_interchange` / `is_terminus` | interchange／terminus／normal |
+| `merged_from` / `merged_names` | 共站合併來源數；異名轉乘站保留所有成員站名（含各名所屬 lines） |
+| `pass_count` / `station_degree` | 路線通過次數／相異鄰站數（interchange 不變式用） |
+| `network`(`_local`) / `operator` / `city` / `country` / `wikidata` / `wikipedia` | 歸屬與外部鏈結 |
+
+**路段（MultiLineString）properties**：
+
+| 欄位 | 內容 |
+|---|---|
+| `seg_id` | 路段 id（重疊已去重） |
+| `routes[]` | 行經此路段的每條路線：`route_id`・`route_name`(`_local`)・`route_ref`（BL/R…）・`route_color`（#rrggbb 官方色）・`network`・`operator`・`wikidata`・`osm_route_ids`・`order_suspect` |
+| `routes[].stations` | 該線**依站序**的全部車站 `{station_id, station_name}` —— 下游一切拓撲由此建圖 |
+| `routes[].pass_stations` | 跳站特快「過站不停」清單（純顯示層標記） |
+| `route_count` / `route_refs` / `route_colors` / `route_color` | 共線摘要（交錯色線繪製用） |
+
+**共站＝可轉乘**：OSM `stop_area` ∪ 同名 ≤800 m ∪ 人工裁決 `_overrides/interchanges.json`
+（**非**「同名就共站」；紐約同名不相通的站按 STRICT 規則不併）。合併站座標取平均、lines 取聯集。
+
+### 總索引（`index.json`）
+
+`generated_from`／`baseline`／`system_count`（223）／`wikipedia_system_count`（233）／
+`line_total`（1491）／`station_total`（16902）／`systems[]`（每系統：file、洲國城、
+osm_networks、operator、official_website、wikidata、線/段/站數）／
+`wikipedia_cities_without_match`（Wikipedia 有但未比對到的系統，覆蓋率報告）。
+
+### 畫廊預算縮圖（`views/`・`hcviews/`・`rwdviews/`）
+
+由 `npm run metro:views`（`scripts/buildViews.mjs` → `src/stores/viewGeometry.js`，
+**與互動分頁同一套純函式**，縮圖必然和實際視圖一致）產出，每城一個 JSON：
+
+```jsonc
+{
+  "id": "as-twn-taipei", "file": "systems/…", "city": "Taipei", "cityZh": "台北", …,
+  "tilt": 11.3, "canRotate": true,          // 主軸角（rotated 變體用）
+  "W": 200, "H": 150,                       // viewBox 尺寸
+  "views": {                                 // 視圖 id → 可直接渲染的 SVG 資料
+    "grid-orig-post": {
+      "lines": [{ "d": "M95.7,119.3L102.1,…", "color": "#e3002c", "dash": null }],
+      "hl":    [{ "d": "…", "color": "#f59e0b" }],   // 邊分類/衝突襯底
+      "dots":  [{ "x": 109.7, "y": 34.8, "fill": "#ffffff" }],
+      "grid":  { "xs": [24, 26.5, …], "ys": [24, …] } // 藍色分隔格線
+    }, …
+  },
+  "stats": { /* hcviews 才有：爬山適應度/輪數/網格尺寸 */ },
+  "_fp": "8:14lzlqj"                        // 增量指紋 = VIEWS_VERSION:geojson內容雜湊
+}
+```
+
+- 視圖組成：`views/` 8 個（原始/旋轉/骨架化/格網化前後 ×2）、`hcviews/` 8 個
+  （格網化後→Hill Climbing→端點拉直→縮減網格 ×2 變體）、`rwdviews/` 8 個
+  （4 種縮減網格來源 ×〔縮減網格｜RWD 路網〕）。
+- **`_fp` 增量重算**：`metro:views` 重跑時指紋沒變的城市直接沿用舊檔，只重算資料變了的城市；
+  改了畫線程式要把 `buildViews.mjs` 的 `VIEWS_VERSION` +1 強制全量重算。
+
+### LLM 結果檔（`llmviews/`・`llmgrids/`）
+
+| 檔 | 命名 | 內容 |
+|---|---|---|
+| `llmviews/<id>.<variant>.json` | variant = orig/rot | LLM 對齊結果：`fingerprint`（verts/segs/cols/rows/hvStart）、`model`、`rounds`、`prompt`、`transcript`、`hvBefore/hvAfter`、`cellAfter`（`[id, col, row]` 陣列） |
+| `llmgrids/<id>.<variant>.<compact>.json` | compact = hc/rect/align/ilp/llm | LLM 調整結果：`fingerprint`、`model`、`colW[]`/`rowW[]` 逐欄列顯示權重、`note`、`userPrompt` |
+
+兩者都以 `fingerprint` 對當前資料驗證——不符即拒載並提示重新產生；**絕不手改**結果檔，
+一律經 apply 腳本的硬規則驗證寫入。
+
+### 其他
+
+- `maps/**`＋`maps_index.json`：官方路網示意圖圖片（多為 CC BY-SA／PD，**再散布需依索引署名**）。
+- `verify_report.json/.md`：不變式違規（missing/no_line/order…）＋站數落差待查清單。
+- `_overrides/`：`interchanges`（共站併/拆）、`route_excludes`、`station_excludes`、
+  `station_names`、`member_appends`、`route_tag_patches`、`express_passthrough`、
+  `manual_lines` 等人工裁決檔——每筆都是可重放的資料修補。
+
+---
+
+## LLM 離線整合
+
+瀏覽器端沒有 API key、不做即時推論；兩個 LLM 功能都是「**離線預算、存檔、網頁載入**」：
+
+| 功能 | 觸發 | 流程 |
+|---|---|---|
+| LLM 對齊（Straighten） | 網頁按鈕 → dev server `/llm-align/run` | headless Claude Code 跑 skill `route-llm-align`：export 佈局 → 模型提案短距離移動 → apply 經與其他直線演算法**相同的硬規則**套用（淨 H/V 變差整批退回）→ 寫 `llmviews/` |
+| LLM 調整（RWD Maps） | 一句話輸入框 → `/llm-grid/run` | skill `route-llm-grid`：讀欄列脈絡 → 模型推理每欄/列顯示權重 → 驗證後寫 `llmgrids/`，網頁在新像素座標重畫 |
+
+兩個端點都是 `vite.config.js` 的 dev-only plugin（需本機 `npm run dev` ＋ Claude Code CLI）；
+GitHub Pages 上按鈕會顯示對應提示。**提案是模型的判斷，合法性不是**——所有結果都經
+確定性硬規則把關。
+
+---
+
+## 專案結構
+
+```
+├── index.html / src/            # Vue 3 應用
+│   ├── components/              # D3Tab（示意圖分頁核心）、LayerPanel、三個畫廊、
+│   │                            #   StylePanel、AttributeTable、CommandPalette…
+│   ├── stores/                  # 演算法全在這裡（純函式，UI 無關）：
+│   │   ├── skeleton.js          #   骨架化（route-skeleton-connect）
+│   │   ├── schematicGrid.js     #   示意格網化（route-skeleton-grid）
+│   │   ├── hillClimb.js         #   爬山＋直線演算法＋端點拉直＋縮減網格（route-hillclimb）
+│   │   ├── rwdMap.js            #   RWD 畫線（route-rwd-draw）
+│   │   ├── rwdWeight.js         #   流量權重→欄寬列高
+│   │   ├── viewGeometry.js      #   畫廊縮圖（與互動分頁同一套函式）
+│   │   ├── orientation.js       #   主軸角（rotated 變體）
+│   │   └── mapStore.js …        #   Pinia UI 狀態、圖層、持久化
+│   └── lib/assetUrl.js          # GH Pages base 處理
+├── scripts/                     # 資料管線（純 Node.js）：overpass client、fetch/geocode/
+│                                #   buildGeojson/buildViews/auditLoop/verifyMetro/llmAlign/llmGrid…
+├── data/metro/                  # 資料集（見上節）
+├── data/thesis/                 # 演算法文獻 PDF＋逐篇中文說明
+├── slides/                      # 系統介紹投影片（純靜態，build 時照抄進 dist/slides/）
+├── .claude/skills/              # 21 份 skill：資料管線規則（metro-*）＋演算法契約（route-*）
+│                                #   ——skill 即文件，dev server 掛在 /skills/* 供 UI 檢視
+└── vite.config.js               # data/ 與 skills/ 靜態掛載、LLM dev 端點、Pages base
+```
+
+**Skill 即規格**：每個演算法 store 都有對應的 `.claude/skills/route-*/SKILL.md`
+作為實作契約（改演算法必同步改 skill）；資料管線的判準、城市例外、audit 策略階梯
+全部在 `metro-*` skills——這讓「用 Claude Code 重抓/修資料」可重現且不失傳。
+
+---
+
+## 效能與快取
+
+- **畫廊秒開**：三個畫廊的縮圖全部離線預算（`views/` 等），前端只 fetch JSON 畫 SVG；
+  `_fp` 增量讓 `metro:build` 之後只重算資料變了的城市。
+- **爬山快取**：Hill Climbing＋直線演算法是最貴的計算，結果依「資料指紋＋變體」存
+  `localStorage`（LRU 12 份佈局）——關分頁、重新整理、重建同視圖都直接載回不重跑。
+- **RWD 動畫**：權重/網格變化以 ~700ms 內插格線位置，每幀跑快速版佈線、最後一幀 settle
+  到完整品質（無交叉）。
+- 全部演算法皆確定性（無 `Math.random`）——同輸入同輸出，快取永不失真。
+
+---
+
+## 演算法文獻
+
+`data/thesis/` 收錄核心文獻 PDF 與逐篇中文演算法說明：
+
+| # | 文獻 | 對應 |
+|---|---|---|
+| 1 | Stroke-based schematic maps | 骨架化思路對照 |
+| 2 | **Stott et al. 2011**, Automatic Metro Map Layout Using Multicriteria Optimization (TVCG) | **Stage 3 爬山法主依據** |
+| 3 | Nöllenburg & Wolff, Mixed-Integer Programming | 整數規劃後處理對照 |
+| 4 | 力導向自動視覺化 | 對照法 |
+| 5 | Focus+Context Metro Maps | 流量權重／概括化思路 |
+| 6 | Bast et al., Octilinear Grid Graphs | 八向格佈線對照 |
+| 7 | Merrick & Gudmundsson, Path Simplification | 路徑簡化對照 |
+| 8 | SAT-based Octolinear Layouts | 求解器路線對照 |
+
+---
+
+## 授權與資料來源
+
+- 路網幾何與屬性：© OpenStreetMap contributors，[ODbL](https://opendatacommons.org/licenses/odbl/)。
+- 系統清單／站數基準：Wikipedia（CC BY-SA）；交叉驗證：urbanrail.net。
+- 官方路網圖圖片：Wikimedia Commons，逐張授權見 `data/metro/maps/maps_index.json`
+  （多為 CC BY-SA／Public Domain，**再散布或放進論文需依索引署名**）。
+- 反向地理編碼：Nominatim（OSM）。
