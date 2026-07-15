@@ -163,7 +163,24 @@ function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
   //     stripped → "36") are the SAME interchange but are usually unnamed, or
   //   · simply within 250 m (unnamed carriageway pairs / dense ramp clusters).
   const norm = (s) => (s || '').normalize('NFKC').toLowerCase().replace(/\s+/g, '')
-  const exitBase = (t) => { const m = String(t?.ref ?? '').match(/\d+/); return m ? m[0] : null }
+  // 出口編號 base：只去尾碼字母（36A→36），**保留「高架」等前綴**——高架25（環北）
+  // 與地面 25（台北交流道）是不同交流道，砍成同 base 會被誤併吞站。
+  const exitBase = (t) => { const s = String(t?.ref ?? '').trim().replace(/[A-Za-z]+$/, ''); return s || null }
+  // 節點→所屬道路（掃 way 幾何頂點）：出口編號在「不同路」會撞號（台62 大華系統
+  // exit 5 vs 國1 五堵 exit 5）——base 合併必須同路才准。
+  const tmpCoord = new Map()
+  junctions.forEach((j, i) => tmpCoord.set(key(j.lon, j.lat), i))
+  const nodeRoads = new Map()
+  for (const w of ways) for (const r of splitRefs(w.tags.ref)) for (const g of (w.geometry || [])) {
+    const ji = tmpCoord.get(key(g.lon, g.lat))
+    if (ji !== undefined) { if (!nodeRoads.has(ji)) nodeRoads.set(ji, new Set()); nodeRoads.get(ji).add(r) }
+  }
+  const shareRoad = (i, k) => {
+    const a = nodeRoads.get(i), b = nodeRoads.get(k)
+    if (!a || !b) return false
+    for (const r of a) if (b.has(r)) return true
+    return false
+  }
   const parent = junctions.map((_, i) => i)
   const find = (a) => { while (parent[a] !== a) a = parent[a] = parent[parent[a]]; return a }
   const union = (a, b) => { parent[find(a)] = find(b) }
@@ -172,8 +189,9 @@ function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
     for (let k = i + 1; k < junctions.length; k++) {
       const dd = haversine([named[i].lon, named[i].lat], [named[k].lon, named[k].lat])
       const sameName = named[i].name && named[k].name && norm(named[i].name) === norm(named[k].name)
-      const sameBase = named[i].base && named[i].base === named[k].base
-      if ((sameName && dd < 2500) || (sameBase && dd < 2000) || dd < 250) union(i, k)
+      const sameBase = named[i].base && named[i].base === named[k].base && shareRoad(i, k)
+      // 同名＋同出口編號＋同路＝同一交流道的南北匝道群，可以離很遠（楠梓/太平 ~3km）
+      if ((sameName && sameBase && dd < 6000) || (sameName && dd < 2500) || (sameBase && dd < 2000) || dd < 250) union(i, k)
     }
   }
   const ic = new Map()
@@ -267,14 +285,21 @@ function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
         adjPairs.add(ekey(chain[n], chain[n + 1])); link(adj, chain[n], chain[n + 1])
       }
     }
-    // wiki 里程覆蓋（權威）：以正規化名稱比對（含去「高架道路」前綴變體），
+    // wiki 里程覆蓋（權威）：正規化名稱比對，含兩種別名變體——去「高架道路」前綴、
+    // 去型式尾綴的基底名（瑞隆路「出口匝道」＝wiki 瑞隆路「交流道」、下塔悠同）。
     // 命中者用 wiki 公里數——修正出口編號誤差、補無出口編號的服務區/休息站。
     const wl = wikiRefs?.[ref]?.list
     if (wl) {
-      const wm = new Map(wl.map((r) => [norm(r.name), r.km]))
+      const baseOf = (s) => s.replace(/(系統交流道|出口匝道|交流道|服務區|休息站|轉接道|端)$/, '')
+      const wm = new Map(), wb = new Map()
+      for (const r of wl) {
+        wm.set(norm(r.name), r.km)
+        const b = norm(baseOf(r.name))
+        if (b) wb.set(b, wb.has(b) ? null : r.km) // 基底撞名（模糊）→ 作廢
+      }
       for (const root of roots) {
-        const nm = norm(ic.get(root).name)
-        const hit = wm.get(nm) ?? wm.get(nm.replace(/^高架道路/, ''))
+        const nm = norm(ic.get(root).name).replace(/^高架道路/, '')
+        const hit = wm.get(nm) ?? wb.get(norm(baseOf(ic.get(root).name)).replace(/^高架道路/, ''))
         if (hit != null) mByRoot.set(root, hit)
       }
     }

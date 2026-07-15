@@ -23,8 +23,80 @@ function haversine(a, b) {
   return 2 * R * Math.asin(Math.sqrt(s))
 }
 
+// Wiki 交叉比對（台灣，對照 _overrides/wiki_mileage_tw.json 的各路交流道里程表；
+// 對應 metro-audit 的 wiki 站表比對）。回傳 checks 陣列。
+function wikiCrossCheck(fc, wikiRefs) {
+  const norm = (s) => (s || '').normalize('NFKC').toLowerCase().replace(/\s+/g, '').replace(/^高架道路/, '')
+  const lines = fc.features.filter((f) => f.geometry.type === 'MultiLineString')
+  const ptCoord = new Map(fc.features.filter((f) => f.geometry.type === 'Point')
+    .map((p) => [p.properties.station_id, p.geometry.coordinates]))
+  const perRef = new Map()
+  for (const l of lines) for (const r of l.properties.routes) if (!perRef.has(r.route_ref)) perRef.set(r.route_ref, r.stations)
+  const missing = [], extra = [], orderBad = [], geomBad = []
+  const baseOf = (s) => (s || '').replace(/(系統交流道|出口匝道|交流道|服務區|休息站|轉接道|端)$/, '')
+  for (const [ref, stations] of perRef) {
+    const wiki = wikiRefs?.[ref]?.list
+    if (!wiki) continue
+    const wm = new Map(), wb = new Map()
+    for (const r of wiki) {
+      wm.set(norm(r.name), r.km)
+      const b = norm(baseOf(r.name))
+      if (b) wb.set(b, wb.has(b) ? null : r.km)
+    }
+    // 名稱吻合者的 wiki km（依我們的站序；含基底名別名——瑞隆路出口匝道＝瑞隆路交流道）
+    const seq = stations.map((s) => ({
+      ...s,
+      wkm: wm.get(norm(s.station_name)) ?? wb.get(norm(baseOf(s.station_name))) ?? null,
+    }))
+    const matched = seq.filter((s) => s.wkm != null)
+    if (matched.length < 2) continue
+    // 1) 順序：吻合站的 wiki km 必須單調（容許環線回折一次以外全升/全降）
+    let inv = 0
+    for (let i = 2; i < matched.length; i++) {
+      if ((matched[i - 1].wkm - matched[i - 2].wkm) * (matched[i].wkm - matched[i - 1].wkm) < 0) inv++
+    }
+    if (inv) orderBad.push(`${ref}(${inv}處)`)
+    // 2) 缺站：bbox 內 km 範圍中、wiki 有但我們沒有的「交流道/系統交流道」（服務區/休息站常無 junction 節點→不計）
+    const lo = Math.min(...matched.map((s) => s.wkm)), hi = Math.max(...matched.map((s) => s.wkm))
+    const ourNames = new Set()
+    for (const s of seq) { ourNames.add(norm(s.station_name)); ourNames.add(norm(baseOf(s.station_name))) }
+    for (const w of wiki) {
+      if (w.km <= lo + 0.1 || w.km >= hi - 0.1) continue
+      if (!/交流道$/.test(w.name)) continue
+      if (!ourNames.has(norm(w.name)) && !ourNames.has(norm(baseOf(w.name)))) missing.push(`${ref}:${w.name}(${w.km}K)`)
+    }
+    // 3) 多站：我們有名字、卻不在 wiki 表上（可能掛錯路／上游髒資料；無名佔位不計）
+    for (const s of seq) {
+      if (s.wkm != null) continue
+      const n = norm(s.station_name)
+      if (!n || /^交流道/.test(s.station_name) || /^n\d+$/.test(s.station_name)) continue
+      extra.push(`${ref}:${s.station_name}`)
+    }
+    // 4) 幾何不可能：相鄰兩站的直線距離 > 里程差×1.3+1.2（路只會比直線長；
+    //    寬放係數容忍「交流道點在匝道端 vs wiki 樁位」±數百公尺的量測差）
+    for (let i = 1; i < seq.length; i++) {
+      const a = seq[i - 1], b = seq[i]
+      if (a.wkm == null || b.wkm == null) continue
+      const ca = ptCoord.get(a.station_id), cb = ptCoord.get(b.station_id)
+      if (!ca || !cb) continue
+      const straight = haversine(ca, cb), dkm = Math.abs(b.wkm - a.wkm)
+      if (straight > dkm * 1.3 + 1.2) geomBad.push(`${ref}:${a.station_name}→${b.station_name}(直線${straight.toFixed(1)}k>里程差${dkm.toFixed(1)}k)`)
+    }
+  }
+  const checks = []
+  checks.push({ id: 'wiki_order', ok: !orderBad.length, level: 'error',
+    detail: orderBad.length ? `站序與 wiki 里程不符：${orderBad.join('、')}` : '各路站序與 wiki 里程一致' })
+  checks.push({ id: 'wiki_geometry', ok: !geomBad.length, level: 'error',
+    detail: geomBad.length ? `${geomBad.length} 段直線距離大於里程差（接錯線）：${geomBad.slice(0, 4).join('；')}` : '各段幾何與里程差相容' })
+  checks.push({ id: 'wiki_missing', ok: !missing.length, level: 'warn',
+    detail: missing.length ? `wiki 有、我們缺 ${missing.length} 站：${missing.slice(0, 8).join('、')}` : 'bbox 內 wiki 交流道皆在' })
+  checks.push({ id: 'wiki_extra', ok: !extra.length, level: 'warn',
+    detail: extra.length ? `不在 wiki 表上 ${extra.length} 站：${extra.slice(0, 8).join('、')}` : '無 wiki 表外站' })
+  return checks
+}
+
 // One system's checks. Returns { passed, checks:[{id,ok,level,detail}] }.
-function audit(fc) {
+function audit(fc, wikiRefs) {
   const pts = fc.features.filter((f) => f.geometry.type === 'Point')
   const lines = fc.features.filter((f) => f.geometry.type === 'MultiLineString')
   const checks = []
@@ -116,6 +188,9 @@ function audit(fc) {
   add('mileage_order', suspectLines === 0, 'warn',
     suspectLines ? `${suspectLines} 條道路里程序不單調（排序待查）` : '各道路里程序單調（排序合理）')
 
+  // 8) wiki 交叉比對（有 wiki 里程表的國家：台灣）
+  if (wikiRefs && fc.highway_system?.country === 'Taiwan') checks.push(...wikiCrossCheck(fc, wikiRefs))
+
   const passed = checks.filter((c) => c.level === 'error').every((c) => c.ok)
   return { passed, checks }
 }
@@ -133,10 +208,13 @@ async function main() {
   if (filter) files = files.filter((f) => f.toLowerCase().includes(filter))
   if (!files.length) { console.error('no built systems in data/highway/systems — run npm run highway:build first'); process.exit(1) }
 
+  let wikiRefs = null
+  try { wikiRefs = JSON.parse(await readFile(join(HIGHWAY, '_overrides', 'wiki_mileage_tw.json'), 'utf8')).refs } catch { /* optional */ }
+
   let pass = 0, fail = 0
   for (const f of files.sort()) {
     const fc = JSON.parse(await readFile(f, 'utf8'))
-    const res = audit(fc)
+    const res = audit(fc, wikiRefs)
     fc.highway_system = { ...fc.highway_system, audit: { ...res, audited_at: null } }
     await writeFile(f, JSON.stringify(fc))
     const label = fc.highway_system.city_zh || fc.highway_system.city || f.split('/').pop()

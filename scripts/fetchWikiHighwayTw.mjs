@@ -77,9 +77,19 @@ async function main() {
         const row = parseRow(line.trim())
         if (row && Number.isFinite(row.km)) list.push(row)
       }
-      // 同名去重（保留第一筆）、依 km 排序
+      // 依「出現順序」分段（km 回落 >3 即斷 run）：第一段＝主線；後續段若
+      // 從 ~0 重新起算＝甲線/支線表（台68甲、台74 花壇端）→ 丟；km ≥5 起算的
+      // 段＝高架表（五楊/汐五高架用主線等效里程，校前路/堤頂在此）→ 保留。
+      const runs = []
+      for (const r of list) {
+        const cur = runs[runs.length - 1]
+        if (!cur || r.km < cur[cur.length - 1].km - 3) runs.push([r])
+        else cur.push(r)
+      }
+      const main = runs.filter((run, i) => i === 0 || run[0].km >= 5).flat()
+      // 同名去重（保留第一筆＝主線），輸出依 km 排序
       const seen = new Set()
-      const dedup = list.sort((a, b) => a.km - b.km).filter((r) => !seen.has(r.name) && seen.add(r.name))
+      const dedup = main.filter((r) => !seen.has(r.name) && seen.add(r.name)).sort((a, b) => a.km - b.km)
       if (dedup.length >= 2) { got = { page: title, list: dedup }; break }
     }
     if (got) { out[ref] = got; console.log(`  ref ${ref}: ${got.list.length} 站 ← ${got.page}`) }

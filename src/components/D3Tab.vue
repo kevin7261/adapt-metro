@@ -1286,6 +1286,7 @@ function buildTipIdx(data) {
     if (f.properties?.seg_id != null) segs.set(f.properties.seg_id, f)
     for (const r of f.properties.routes ?? [])
       if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
+      if (r.route_name && !refColor.has(r.route_name)) refColor.set(r.route_name, r.route_color) // 名鍵（同 ref 支線異色）
   }
   tipIdx = { refColor, segs, stByCoord }
 }

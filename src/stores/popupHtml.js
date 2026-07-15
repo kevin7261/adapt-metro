@@ -38,7 +38,7 @@ export function stationPopupHtml(p, refColor) {
   }
   const rts = J(p.routes, []) ?? []
   const routeRow = (r) => {
-    const c = refColor?.get(r.ref)
+    const c = refColor?.get(r.name) ?? refColor?.get(r.ref) // 名優先（同 ref 支線異色，如小碧潭）——與物件 tab 同
     return H.row(H.swatch(c) + H.ref(r.ref, c) +
       `<strong style="font-size:12px">${r.name ?? r.ref ?? '—'}</strong>` + (r.pass ? H.passTag() : ''))
   }
@@ -58,7 +58,9 @@ export function linePopupHtml(p, onSeg = []) {
   const seenRow = new Set() // 同官方名分支在共用段列一次就好
   for (const r of routes) {
     const passIds = new Set((r.stations ?? []).filter((s) => s.pass).map((s) => s.station_id))
-    const stops = onSeg.length ? onSeg.filter((s) => !passIds.has(s.station_id)).length : null
+    // 「停靠 N 站」＝**全線**唯一停靠站數（與物件 tab 的 uniqueCount 同語意——曾是本段
+    // 站數，與物件 tab 數字不一致，使用者 2026-07 回報「很多城市沒統一」）。
+    const stops = new Set((r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id)).size || null
     const k = `${r.route_ref ?? ''}|${r.route_name ?? ''}|${stops}`
     if (seenRow.has(k)) continue
     seenRow.add(k)

@@ -1245,7 +1245,7 @@ function startResize(e) {
 .rail-icon { color: hsl(var(--muted-foreground)); }
 .rail-label {
   writing-mode: vertical-rl;
-  font-size: 11px;
+  font-size: var(--sp-mono);
   color: hsl(var(--muted-foreground));
 }
 
@@ -1289,7 +1289,7 @@ function startResize(e) {
 .line-row-toggle:hover { background: hsl(var(--muted) / 0.45); }
 .line-row-toggle .obj-route-count { margin-left: auto; }
 .obj-route-toggle:hover { background: hsl(var(--muted) / 0.45); }
-.obj-route-caret { flex-shrink: 0; color: hsl(var(--muted-foreground)); font-size: 16px; }
+.obj-route-caret { flex-shrink: 0; color: hsl(var(--muted-foreground)); font-size: 16px; /* 圖示字元（非文字階層） */ }
 .obj-route-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .obj-route-count {
   margin-left: auto; flex-shrink: 0;

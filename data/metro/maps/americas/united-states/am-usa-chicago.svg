@@ -1,0 +1,1056 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg
+xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+width="1650" height="1850"
+viewBox="-500 -540 1650 1850"
+>
+	<title>Chicago Transit Authority "L" diagram licensed under the Creative Commons Attribution-Share Alike 4.0 International by Wikimedia(s).</title>
+	<style type="text/css">
+text {font-family:Arimo,Liberation Sans,Arial,sans-serif}
+.small {font-size:12px}
+.serif {font-family:Adobe Garamond Pro,Garamond,Tinos,Liberation Serif,Times New Roman,Nimbus Roman No9 L,serif}
+.mid {text-anchor:middle}
+.end {text-anchor:end}
+.b {font-weight:bold}
+.x {fill:#999}
+.abbr {text-decoration:underline;cursor:help}
+.mebg {fill:none;stroke-width:10.5;stroke:#fff}
+.me {fill:none;stroke-width:9}
+.me2bg {fill:none;stroke-width:5.5;stroke:#fff;stroke-linecap:round}
+.me2 {fill:none;stroke-width:4;stroke-linecap:round}
+.mes {fill:none;stroke-width:7.5}
+.mes2 {fill:none;stroke-width:2.5;stroke-linecap:round}
+.meb {fill:none;stroke-width:5.5}
+.outline {stroke:#fff;stroke-width:11}
+.st {fill:#fff;stroke:#000;stroke-width:0.75;stroke-linejoin:miter}
+.int {fill:#fff;stroke:#000;stroke-width:1.25}
+.s0 {stroke:none}
+.sred {stroke:#C00C30}
+.fred {fill:#C00C30}
+.spink {stroke:#E27EA6}
+.fpink {fill:#E27EA6}
+.sblue {stroke:#00A1DE}
+.fblue {fill:#00A1DE}
+.sorange {stroke:#F97733}
+.forange {fill:#F97733}
+.syellow {stroke:#F9E300}
+.fyellow {fill:#F9E300}
+.byellow {stroke:#950}
+.bfyellow {fill:#950}
+.sgreen {stroke:#009B3A}
+.fgreen {fill:#009B3A}
+.spurple {stroke:#522398}
+.fpurple {fill:#522398}
+.spurpler {stroke:#a5d}
+.fpurpler {fill:#a5d}
+.sbrown {stroke:#80501B}
+.fbrown {fill:#80501B}
+.osi {fill:none;stroke:#d7c;stroke-width:2.5;stroke-dasharray:2.5}
+.osib {fill:none;stroke:#fff;stroke-width:2.5;opacity:0.75}
+.fosi {fill:none;stroke:#5c5;stroke-width:4;stroke-dasharray:1.5}
+.fosib {fill:none;stroke:#fff;stroke-width:4}
+.parking_layer {visibility:hidden;cursor:help}
+	</style>
+	<defs>
+		<g id="st">
+			<path id="stbase" class="s0" d="M 0,-10 l 10,10 -10,10 a 2.25,5 0 0,1 0,-20"/>
+			<path d="M 0,-1.5 l 7.5,1.5 -7.5,1.5" style="fill:#fff;opacity:0.75"/>
+			<circle r="2.25" style="fill:#fff"/>
+		</g>
+		<g id="stx">
+			<path class="s0" d="M 0,-10 l 10,10 -10,10 a 2.25,5 0 0,1 0,-20" opacity="0.5"/>
+		</g>
+		<g id="str">
+			<path class="s0" d="M 0,-10 l 10,10 -10,10 a 1.5,5 0 0,1 0,-20"/>
+			<path d="M 0,-1.5 l 7.5,1.5 -7.5,1.5" style="fill:#fff;opacity:0.75"/>
+			<circle r="2.25" style="fill:#fff"/>
+		</g>
+		<g id="stred"><use xlink:href="#st" class="fred"/></g>
+		<g id="stred180"><use xlink:href="#stred" transform="rotate(180)"/></g>
+		<g id="stred270"><use xlink:href="#stred" transform="rotate(-90)"/></g>
+		<g id="stblue"><use xlink:href="#st" class="fblue"/></g>
+		<g id="stblue90"><use xlink:href="#stblue" transform="rotate(90)"/></g>
+		<g id="stblue270"><use xlink:href="#stblue" transform="rotate(-90)"/></g>
+		<g id="stblue307"><use xlink:href="#stblue" transform="rotate(306.87)"/></g>
+		<g id="stgreen"><use xlink:href="#st" class="fgreen"/></g>
+		<g id="stgreen90"><use xlink:href="#stgreen" transform="rotate(90)"/></g>
+		<g id="stgreen270"><use xlink:href="#stgreen" transform="rotate(-90)"/></g>
+		<g id="stgreen270x"><use xlink:href="#stx" class="fgreen" transform="rotate(-90)"/></g>
+		<g id="stpink"><use xlink:href="#st" class="fpink"/></g>
+		<g id="stpink90"><use xlink:href="#stpink" transform="rotate(90)"/></g>
+		<g id="stpink270"><use xlink:href="#stpink" transform="rotate(-90)"/></g>
+		<g id="storange"><use xlink:href="#st" class="forange"/></g>
+		<g id="storange233"><use xlink:href="#storange" transform="rotate(233.13)"/></g>
+		<g id="storange270"><use xlink:href="#storange" transform="rotate(-90)"/></g>
+		<g id="storange90"><use xlink:href="#storange" transform="rotate(90)"/></g>
+		<g id="stbrown"><use xlink:href="#st" class="fbrown"/></g>
+		<g id="stbrown127"><use xlink:href="#stbrown" transform="rotate(126.87)"/></g>
+		<g id="stbrown180"><use xlink:href="#stbrown" transform="rotate(180)"/></g>
+		<g id="stpurple"><use xlink:href="#st" class="fpurple"/></g>
+		<g id="stpurple180"><use xlink:href="#stpurple" transform="rotate(180)"/></g>
+		<g id="stpurpler"><use xlink:href="#str" class="fpurpler"/></g>
+		<g id="stpurple180r"><use xlink:href="#stpurpler" transform="rotate(180)"/></g>
+		<g id="styellow"><use xlink:href="#st" class="fyellow"/></g>
+		<g id="int"><circle class="int" cx="0" cy="0" r="5.625"/></g>
+		<g id="int4"><rect class="int" x="-5.625" y="-5.625" width="11.25" height="26.25" rx="5.625"/></g>
+		<g id="int5"><rect class="int" x="-5.625" y="-10.625" width="11.25" height="36.25" rx="5.625"/></g>
+		<g id="di"><path style="fill:none;stroke-width:1" d="M 4,-1.5 l -4,1.5 4,1.5"/></g>
+		<g id="di2"><path style="fill:#fff;stroke:#fff;stroke-width:1;stroke-linejoin:miter" d="M 5,-2 l -5,2 5,2 -2,-2 6,0 -6,0 z"/></g>
+		<g id="loopdi">
+			<use xlink:href="#di" class="spink" transform="scale(-1,1)"/>
+			<use xlink:href="#di" class="sbrown" transform="translate(0,5)"/>
+			<use xlink:href="#di" class="spurpler" transform="translate(0,10)scale(-1,1)"/>
+			<use xlink:href="#di" class="sorange" transform="translate(0,15)scale(-1,1)"/>
+		</g>
+		<g id="train" transform="translate(-70,-15)scale(0.08,0.1)">
+			<g style="fill-rule:evenodd;stroke:none">
+				<path style="fill:#000" d="M 1009,214 L 778,214 C 767,214 754,197 754,186 C 754,167 755,148 755,130 C 758,109 766,90 774,71 C 776,67 779,63 784,63 L 867,63 C 875,66 883,69 886,78 C 910,137 958,165 1012,175 L 1012,211 C 1012,212 1010,214 1009,214 z"/>
+				<path style="fill:#fff" d="M 770,114 L 875,114 C 878,114 879,108 877,105 C 874,95 869,75 864,75 L 783,75 C 778,75 773,95 768,105 C 767,109 768,114 770,114 z"/>
+			</g>
+			<g style="fill:#fff;fill-rule:nonzero;stroke:none">
+				<path id="lamp" d="M 787,164 C 787,170 783,174 778,174 C 773,174 768,170 768,164 C 768,159 773,155 778,155 C 783,155 787,159 787,164 z"/>
+				<path transform="translate(80,0)" d="M 787,164 C 787,170 783,174 778,174 C 773,174 768,170 768,164 C 768,159 773,155 778,155 C 783,155 787,159 787,164 z"/>
+			</g>
+			<g style="fill:#fff;fill-rule:evenodd;stroke:none">
+				<path d="M 913,136 L 913,171 L 897,163 C 896,149 895,134 895,119 C 901,124 908,132 913,136 z"/>
+				<path d="M 937,155 L 938,182 L 922,175 C 922,161 922,159 922,144 C 929,150 932,151 937,155 z"/>
+				<path d="M 945,160 L 945,184 C 950,186 955,187 960,188 L 960,166 L 945,160 z"/>
+				<path d="M 966,169 L 966,190 C 970,191 974,192 978,192 L 978,172 L 966,169 z"/>
+				<path d="M 984,174 L 984,193 C 987,194 991,194 994,194 L 994,176 L 984,174 z"/>
+				<path d="M 999,177 L 999,195 L 1007,196 L 1007,178 L 999,177 z"/>
+			</g>
+			<path style="fill:#000" d="M 754,229 L 774,229 L 774,219 L 804,219 L 804,229 L 848,229 L 848,219 L 1012,219 L 1012,229 C 966,230 919,232 894,243 L 754,243 L 754,229 z"/>
+		</g>
+		<g id="airport" transform="rotate(-90)scale(0.04)translate(-250,-250)" style="stroke:none;fill:#000">
+			<polygon points="490,250 450,225 320,225 170,10 140,10 200,225 80,225 30,150 10,150 30,240 30,260 10,350 30,350 80,275 200,275 140,490 170,490 320,275 450,275"/>
+			<ellipse cx="441" cy="250" rx="50" ry="24" stroke="#000"/>
+		</g>
+		<g id="wave">
+			<path style="stroke:none;fill:#e5faff" d="
+			M 0,0
+			c 20,0 20,10 40,10 s 20,-10 40,-10 s 20,10 40,10 s 20,-10 40,-10
+			c -15,0 -25,5 -40,5 s -15,-10 -40,-10 s -25,10 -40,10 s -15,-5 -40,-5
+			"/>
+		</g>
+		<filter id="blur">
+			<feComposite in="SourceAlpha" in2="SourceGraphic" operator="arithmetic" k2="1.2" k3="0.6" result="darken"/>
+			<feGaussianBlur in="darken" stdDeviation="4"/>
+		</filter>
+		<filter id="blur2">
+			<feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+		</filter>
+		<radialGradient id="grad1" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="20" fx="0" fy="0">
+			<stop offset="50%" stop-opacity="0.4" stop-color="#000"/>
+			<stop offset="100%" stop-opacity="0" stop-color="#000"/>
+		</radialGradient>
+		<radialGradient id="grad2" gradientUnits="objectBoundingBox">
+			<stop offset="0%" stop-opacity="0.2" stop-color="#fff"/>
+			<stop offset="100%" stop-opacity="0" stop-color="#fff"/>
+		</radialGradient>
+		<g id="shade1"><rect style="stroke:none;fill:url(#grad1)" x="-4.5" y="-20" width="9" height="40"/></g>
+		<g id="orange_over">
+			<path stroke="none" class="forange" filter="url(#blur)" d="
+			M 883,650
+			a 18,18 0 0,0 -18,-18
+			v -4 h 10 l 13,5 v -20 h 4 l 5,30
+			V 650
+			"/>
+		</g>
+	</defs>
+	<g id="bg">
+		<rect x="-520" y="-560" width="1690" height="1890" fill="#fff"/>
+		<g style="fill:none;stroke:#e2f5ff;stroke-width:10;stroke-linecap:round">
+			<title>Chicago River</title>
+			<path stroke-width="10" d="
+			M 640,470
+			V 420 a 80,80 0 0,0 -16,-48
+			l -285,-380 a 80,80 0 0,1 -16,-48
+			V -245 a 88,88 0 0,1 48,-80
+			l 600,-300
+			
+			M 980,450
+			H 660 a 20,20 0 0,0 -20,20
+			V 780 a 80,80 0 0,1 -32,64
+			l -148,111 a 80,80 0 0,1 -48,16
+			H -220
+			"/>
+			<path stroke-width="5" d="
+			M 577,870 q -16,12 -16,32
+			v 100
+			"/>
+		</g>
+		<g id="Lake_Michigan">
+			<title>Lake Michigan</title>
+			<path style="stroke:none;fill:#e2f5ff" d="
+			M 790,-560
+			V 200 q 0,30 18,54
+			l 150,200 q 18,24 18,54
+			V 700 q 0,30 18,54
+			l 165,220
+			V -560
+			"/>
+			<use xlink:href="#wave" x="850" y="-500"/>
+			<use xlink:href="#wave" x="970" y="-400"/>
+			<use xlink:href="#wave" x="800" y="-300"/>
+			<use xlink:href="#wave" x="900" y="-200"/>
+			<use xlink:href="#wave" x="870" y="-100"/>
+			<use xlink:href="#wave" x="850" y="100"/>
+			<use xlink:href="#wave" x="970" y="200"/>
+			<use xlink:href="#wave" x="910" y="300"/>
+			<use xlink:href="#wave" x="960" y="400"/>
+			<use xlink:href="#wave" x="980" y="565"/>
+			<use xlink:href="#wave" x="990" y="730"/>
+		</g>
+	</g>
+	<use xlink:href="#Line_route" transform="translate(3,3)" filter="url(#blur)" opacity="0.5"/>
+	<circle cx="670" cy="480" r="50" style="fill:url(#grad2)"/>
+	<g id="Line_route" class="me">
+		<g class="sred">
+			<title>Red Line</title>
+			<use xlink:href="#Red_Line_route" class="mebg"/>
+			<path id="Red_Line_route" d="
+			M 685,-260
+			V 244 a 45,45 0 0,1 -9,27
+			l -24,32 a 45,45 0 0,0 -9,27
+			a 30,30 0 0,0 30,30
+			H 780 a 30,30 0 0,1 30,30
+			L 810,450
+			V 1260
+			"/>
+			<clipPath id="clip_red">
+				<path d="
+				M 689.5,230
+				V 244 a 49.5,49.5 0 0,1 -9.9,29.7
+				l -24,32 a 40.5,40.5 0 0,0 -8.1,24.3
+				a 25.5,25.5 0 0,0 25.5,25.5
+				h 30 v 9 h -30
+				a 34.5,34.5 0 0,1 -34.5,-34.5
+				a 49.5,49.5 0 0,1 9.9,-29.7
+				l 24,-32 a 40.5,40.5 0 0,0 8.1,-24.3
+				V 230
+				"/>
+			</clipPath>
+			<path clip-path="url(#clip_red)" filter="url(#blur)" style="stroke:none;fill:#000;opacity:0.5" d="
+			M 640,220 h 1 v 1
+			
+			M 680,244
+			l 10,40
+			v 25 h -30 v -50
+			
+			M 660,350
+			h 26 v 20 h -28
+			"/>
+			<use xlink:href="#shade1" transform="translate(810,479)scale(1,1.25)"/>
+			<use xlink:href="#shade1" x="810" y="637.5"/>
+			<g opacity="0.8">
+				<use xlink:href="#shade1" transform="translate(810,818.5)scale(1,0.7)skewY(-20)"/>
+				<use xlink:href="#shade1" transform="translate(810,1121)scale(1,0.5)"/>
+			</g>
+		</g>
+		<g class="sblue">
+			<title>Blue Line</title>
+			<use xlink:href="#Blue_Line_route" class="mebg"/>
+			<path id="Blue_Line_route" d="
+			M -228,-189
+			L 680.67,492.5 a 45,45 0 0,0 27,9
+			H 745 a 30,30 0 0,1 30,30
+			V 655 a 30,30 0 0,1 -30,30
+			H -430
+			"/>
+			<clipPath id="clip_blue"><!--2.7,3.6-->
+				<path d="
+				M 626.7,446.4
+				L 683.37,488.9 a 40.5,40.5 0 0,0 24.3,8.1
+				v 9 a 49.5,49.5 0 0,1 -29.7,-9.9
+				L 611.7,446.4
+				"/>
+			</clipPath>
+			<path clip-path="url(#clip_blue)" style="stroke:none;fill:#000;opacity:0.4" filter="url(#blur)" d="
+			M 600,400 h 1 v 1
+			
+			M 627,464
+			h 34 l 20,15
+			l -6,20
+			
+			M 683.37,488.9
+			h 20 l -20,15 -10,-7.5
+			"/>
+			<use xlink:href="#shade1" x="775" y="637.5"/>
+			<use xlink:href="#shade1" transform="translate(451,685)scale(0.5,1)rotate(90)" opacity="0.7"/>
+		</g>
+		<g class="sgreen">
+			<title>Green Line</title>
+			<use xlink:href="#Green_Line_route" class="mebg"/>
+			<path id="Green_Line_route" d="
+			M -370,469
+			H 870 a 42.5,42.5 0 0,1 42.5,42.5
+			V 664 q 0,20 -16,32
+			l -47,35.25 a 30,30 0 0,0 -12,24
+			V 1090 a 30,30 0 0,1 -30,30
+			H 540
+			
+			M 837.5,1090
+			V 1110 a 30,30 0 0,0 30,30
+			H 970
+			"/>
+			<use xlink:href="#shade1" transform="translate(670,469)rotate(90)" opacity="0.5"/>
+		</g>
+		<g class="spink">
+			<title>Pink Line</title>
+			<use xlink:href="#Pink_Line_route" class="mebg"/>
+			<use xlink:href="#Pink_Line_route_thin" class="me2bg"/>
+			<g>
+				<path id="Pink_Line_route" d="M -70,880
+				H 420 a 30,30 0 0,0 30,-30
+				V 509 a 30,30 0 0,1 30,-30
+				H 637.5
+				"/>
+				<g class="me2">
+					<path id="Pink_Line_route_thin" d="
+					M 637.5,476.5
+					H 870   a 35,35 0 0,1 35,35
+					V 610   a 35,35 0 0,1 -35,35
+					H 692.5 a 35,35 0 0,1 -35,-35
+					V 501.5 a 20,20 0 0,0 -20,-20
+					"/>
+				</g>
+			</g>
+			<use xlink:href="#shade1" transform="translate(670,476.5)scale(1.2,0.45)rotate(90)" opacity="0.5"/>
+			<clipPath id="clip_pink">
+				<path d="
+				M 638,479.5
+				c -12,0 -12, 4 -24, 4
+				H 637.5 a 18,18 0 0,1 18,18
+				h 4 a 22,22 0 0,0 -22,-22
+				
+				M 907,610
+				a 37,37 0 0,1 -37,37
+				h -10 v -4 h 10
+				a 33,33 0 0,0 33,-33
+				"/>
+			</clipPath>
+			<g clip-path="url(#clip_pink)">
+				<path style="stroke:none;fill:#000;opacity:0.4" filter="url(#blur)" d="
+				M 620,475
+				h 40 l -40,8
+				"/>
+				<use xlink:href="#orange_over" opacity="0.7"/>
+			</g><!--
+			<use xlink:href="#di2" transform="translate(647,476.5)scale(-1,1)"/>-->
+			<path id="pink_loop_divider" style="stroke:none;fill:#fff" d="
+				M 638,479.5
+				     c -12,0 -12, 4.75 -24, 4.75
+				v -1 c  12,0  12,-4.75  24,-4.75
+			"/>
+		</g>
+		<g>
+			<use xlink:href="#Purple_Line_route" class="mebg"/>
+			<title>Purple Line</title>
+			<g class="spurple">
+				<path id="Purple_Line_route" d="
+				M 675,-500 V -260
+				"/>
+			</g>
+		</g>
+		<g id="Purple_Line_route_rush">
+			<title>Purple Line (weekday rush hour service)</title>
+			<use xlink:href="#Purple_line_route_rush_base" class="mebg"/>
+			<use xlink:href="#Purple_line_route_rush_base_thin" class="me2bg"/>
+			<g class="spurpler">
+				<path d="M 675,466 V 468"/>
+				<path id="Purple_line_route_rush_base" d="
+				M 675,-260
+				V 466.5
+				"/>
+			</g>
+			<g class="spurpler me2">
+				<path id="Purple_line_route_rush_base_thin" d="
+				M 677.5,466.5
+						a 20,20 0 0,0 20,20
+				H 870   a 25,25 0 0,1 25,25
+				V 610   a 25,25 0 0,1 -25,25
+				H 692.5 a 25,25 0 0,1 -25,-25
+				V 511.5 c 0,-22.5 5,-22.5 5,-45
+				"/>
+			</g><!--
+			<use xlink:href="#Purple_line_route_rush_base" class="spurpler mes"/>
+			<use xlink:href="#Purple_line_route_rush_base_thin" class="spurpler mes2"/>-->
+			<clipPath id="clip_purple">
+				<path d="
+				M 675.5,470
+				c 0,-20 -5,-20 -5,-40
+				V 466.5 c 0,22.5 -5,22.5 -5,45
+				h 4 c 0,-22.5 5,-22.5 5,-45
+				
+				M 897,610
+				a 27,27 0 0,1 -27,27
+				h -10 v -4 h 10
+				a 23,23 0 0,0 23,-23
+				"/>
+			</clipPath>
+			<g clip-path="url(#clip_purple)">
+				<path style="stroke:none;fill:#000;opacity:0.4" filter="url(#blur)" d="
+				M 665,430
+				h 10 v 50 h-10
+				"/>
+				<use xlink:href="#orange_over"/>
+			</g>
+			<!--
+			<use xlink:href="#di2" transform="translate(680,476.5)rotate(-105)"/>-->
+			<path id="purple_loop_divider" style="fill:#fff;stroke:none" d="
+				M 674.5,470
+				        c 0,-20 -5,-20 -5,-40
+				h 1.125 c 0, 20  5, 20  5, 40
+			"/>
+		</g>
+		<g>
+			<title>Brown Line</title>
+			<use xlink:href="#Brown_Line_route" class="mebg"/>
+			<use xlink:href="#Brown_Line_route_thin" class="me2bg"/>
+			<g class="sbrown">
+				<path id="Brown_Line_route" d="
+				M 229,-219
+				L 649,96 q 16,12 16,32
+				L 665,130
+				V 461.6
+				"/>
+				<g class="me2">
+					<path id="Brown_Line_route_thin" d="
+					M 667.5,461.6
+							a 20,20 0 0,0 20,20
+					H 870   a 30,30 0 0,1 30,30
+					V 610   a 30,30 0 0,1 -30,30
+					H 692.5 a 30,30 0 0,1 -30,-30
+					V 461.6
+					"/>
+				</g>
+			</g>
+			<clipPath id="clip_brown">
+				<path d="
+				M 902,610
+				a 32,32 0 0,1 -32,32
+				h -10 v -4 h 10
+				a 28,28 0 0,0 28,-28
+				"/>
+			</clipPath>
+			<g clip-path="url(#clip_brown)">
+				<path style="stroke:none;fill:#000;opacity:0.4" filter="url(#blur)" d="
+				M 600,440 h 1 v 1
+				
+				M 670,461.6
+				l -2,23 h 7 l 2,-2 h 13 l -5,-10
+				"/>
+				<use xlink:href="#orange_over"/>
+			</g><!--
+			<use xlink:href="#di2" transform="translate(662.5,470.6)rotate(-90)"/>-->
+			<path id="brown_loop_divider" style="stroke:none;fill:#fff" d="
+				M 665.5,463.5
+				     c 0,-15  5,-15  5,-30
+				h -1 c 0, 15 -5, 15 -5, 30
+			"/>
+		</g>
+		<use xlink:href="#Purple_line_route_rush_base_thin_over" class="me2bg" style="stroke-linecap:butt"/>
+		<g class="spurpler me2">
+			<path id="Purple_line_route_rush_base_thin_over" d="
+				M 677.5,466.5 a 20,20 0 0,0 20,20
+			"/>
+		</g>
+		<g>
+			<title>Orange Line</title>
+			<use xlink:href="#Orange_Line_route" class="mebg"/>
+			<use xlink:href="#Orange_Line_route_thin" class="me2bg"/>
+			<g class="sorange">
+				<path id="Orange_Line_route" d="
+				M 887.5,650
+				V 675 a 30,30 0 0,1 -12,24
+				l -32,24 a 40,40 0 0,0 -16,32
+				V 790 a 30,30 0 0,1 -30,30
+				H 700 q -15,0 -27,9
+				l -240,180 q -12,9 -27,9
+				H -10
+				"/>
+				<g class="me2">
+					<path id="Orange_Line_route_thin" d="
+					M 885,650
+							a 20,20 0 0,0 -20,-20
+					H 692.5 a 20,20 0 0,1 -20,-20
+					V 511.5 a 20,20 0 0,1 20,-20
+					H 870   a 20,20 0 0,1 20,20
+					V 650
+					"/>
+				</g>
+			</g><!--
+			<use xlink:href="#di2" transform="translate(883,641)rotate(75)"/>-->
+			<path id="orange_loop_divider" style="stroke:none;fill:#fff" d="
+				M 865,628
+				v -0.75
+				a 27.75,27.75 0 0,1 27.75,27.75
+				h -4
+				a 24,24 0 0,0 -24,-24
+			"/>
+			<path id="orange_loop_entrance" style="stroke:none" class="forange" d="
+				M 865,628
+				a 27,27 0 0,1 27,27
+				v 1
+				a 4.5,4.5 0 0,1 -9,0
+				v -6
+				a 18,18 0 0,0 -18,-18
+				a 2,2 0 0,1 0,-4
+			"/>
+		</g>
+		<g>
+			<title>Yellow Line</title>
+			<path id="Yellow_Line_route" class="syellow" d="
+			M 665,-260
+			a 30,30 0 0,0 -30,-30
+			H 42 a 30,30 0 0,1 -30,-30
+			V -350
+			"/>
+		</g>
+		<g style="fill:none;stroke:#fff;stroke-width:0.375">
+			<path id="white_divider_orange_silver" d="
+			"/>
+			<path id="white_divider_silver_blue" d="
+			"/>
+		</g>
+	</g>
+	<g id="text_bg" style="fill:#fff;stroke:none;opacity:0.7" filter="url(#blur2)"><!---->
+		<path d="
+		M 800,653 h 25 v 18 h-25 z
+		m 75,0 h 55 v 18 h -55
+		"/>
+	</g>
+	<g id="station_icons" cursor="help">
+		<g id="loop_station_icons">
+			<g>
+				<title>Free out-of-station transfer requiring valid farecard</title>
+				<use xlink:href="#Free_OSI" class="fosib"/>
+				<g class="fosi">
+					<g id="Free_OSI">
+						<path id="State_Lake_Washington_fosi" d="M 825,491.5 L 810,515 775,535"/>
+						<path id="Jackson_Library_fosi" d="M 792.5,625 v -10"/>
+					</g>
+				</g>
+			</g>
+			<g>
+				<title>Within walking distance</title>
+				<use xlink:href="#Paid_OSI" class="osib"/>
+				<g class="osi">
+					<g id="Paid_OSI">
+						<path id="Van_Buren_osi" d="M 910,600 l 28,21 v 4.5 H 792.5"/>
+						<path id="LaSalle_osi" d="M 710,645 V 705 L 735,685"/>
+						<path id="Union_osi" d="M 657.5,590 H 625 V 685"/>
+						<path id="Ogilvie_osi" d="M 610,486.5 V 526 H 625.5 l 32,24"/>
+					</g>
+				</g>
+			</g>
+			<use xlink:href="#train" x="938" y="621"><title>Van Buren Metra/NICTD Station</title></use>
+			<use xlink:href="#train" x="710" y="705"><title>LaSalle Street Metra Station</title></use>
+			<use xlink:href="#train" x="625" y="590"><title>Union Amtrak/Metra Station</title></use>
+			<use xlink:href="#train" x="610" y="526"><title>Ogilvie Metra Station</title></use>
+			<g transform="translate(745,456.5)">
+				<title>Clark/Lake. Blue Line platform is below ground, the rest is elevated.</title>
+				<g stroke="#000" stroke-width="2.5" fill="#fff">
+					<g id="Clark_Lake_base">
+						<rect x="-5" y="5" width="10" height="35" rx="5"/>
+						<path d="M 0,35 h 2 v 10 h -4 v -10"/>
+						<circle cx="0" cy="45" r="5"/>
+					</g>
+				</g>
+				<use xlink:href="#Clark_Lake_base" stroke="none" fill="#fff"/>
+				<use xlink:href="#loopdi" y="20"/>
+			</g>
+			<g transform="translate(825,471.5)">
+				<use xlink:href="#int5"><title>State/Lake</title></use>
+				<use xlink:href="#loopdi" y="5"/>
+			</g>
+			<g transform="translate(910,535)">
+				<g>
+					<title>Within walking distance</title>
+					<use xlink:href="#Millennium_osi" class="osib"/>
+					<g class="osi">
+						<path id="Millennium_osi" d="M 0,0 l 28,-20"/>
+					</g>
+				</g>
+				<use xlink:href="#train" x="28" y="-20"><title>Millennium Metra/NICTD Station</title></use>
+				<g transform="rotate(90)">
+					<use xlink:href="#int5"><title>Washington/Wabash</title></use>
+					<use xlink:href="#loopdi" y="5"/>
+				</g>
+			</g>
+			<g transform="translate(910,600)rotate(90)">
+				<use xlink:href="#int5"><title>Adams/Wabash</title></use>
+				<use xlink:href="#loopdi" y="5"/>
+			</g>
+			<g transform="translate(792.5,645)rotate(180)">
+				<use xlink:href="#int4"><title>Harold Washington Library – State/Van Buren</title></use>
+				<use xlink:href="#loopdi"/>
+			</g>
+			<g transform="translate(710,645)rotate(180)">
+				<use xlink:href="#int4"><title>LaSalle/Van Buren</title></use>
+				<use xlink:href="#loopdi"/>
+			</g>
+			<g transform="translate(657.5,590)rotate(-90)">
+				<use xlink:href="#int4"><title>Quincy</title></use>
+				<use xlink:href="#loopdi"/>
+			</g>
+			<g transform="translate(657.5,550)rotate(-90)">
+				<use xlink:href="#int4"><title>Washington/Wells</title></use>
+				<use xlink:href="#loopdi"/>
+			</g>
+			<g transform="translate(775,610)">
+				<title>Jackson</title>
+				<g stroke="#000" stroke-width="2.5" fill="#fff">
+					<g id="Jackson_base">
+						<circle cx="0" cy="0" r="5"/>
+						<circle cx="35" cy="0" r="5"/>
+						<path d="M 0,-2 h 35 v 4 h -35 v -2"/>
+					</g>
+				</g>
+				<use xlink:href="#Jackson_base" stroke="none" fill="#fff"/>
+			</g>
+		</g>
+		<g id="Red_Line_station_icons">
+			<use xlink:href="#int5" transform="translate(667.5,-260)rotate(-90)"><title>Howard</title></use>
+			<use xlink:href="#stred" x="685" y="-230"><title>Jarvis</title></use>
+			<use xlink:href="#stred" x="685" y="-200"><title>Morse</title></use>
+			<use xlink:href="#stred" x="685" y="-170"><title>Loyola</title></use>
+			<use xlink:href="#stred" x="685" y="-140"><title>Granville</title></use>
+			<use xlink:href="#stred" x="685" y="-110"><title>Thorndale</title></use>
+			<use xlink:href="#stred" x="685" y="-80"><title>Bryn Mawr</title></use>
+			<use xlink:href="#stred" x="685" y="-50"><title>Berwyn</title></use>
+			<use xlink:href="#stred" x="685" y="-20"><title>Argyle</title></use>
+			<use xlink:href="#stred" x="685" y="10"><title>Lawrence</title></use>
+			<use xlink:href="#stred" x="685" y="40"><title>Wilson</title></use>
+			<use xlink:href="#stred" x="685" y="70"><title>Sheridan</title></use>
+			<use xlink:href="#stred" x="685" y="100"><title>Addison</title></use>
+			<use xlink:href="#stred180" x="643" y="330"><title>North/Clybourn</title></use>
+			<use xlink:href="#stred270" x="740" y="360"><title>Clark/Division</title></use>
+			<use xlink:href="#stred" x="810" y="390"><title>Chicago</title></use>
+			<use xlink:href="#stred" x="810" y="420"><title>Grand</title></use>
+			<use xlink:href="#int" x="810" y="515"><title>Lake</title></use>
+			<use xlink:href="#stred" x="810" y="570"><title>Monoroe</title></use>
+			<use xlink:href="#stred180" x="810" y="730"><title>Harrison</title></use>
+			<g transform="translate(810,780)">
+				<title>Roosevelt. Red Line platform is below ground, Orange and Green Lines platform is elevated.</title>
+				<g stroke="#000" stroke-width="2.5" fill="#fff">
+					<g id="Roosevelt_base">
+						<circle cx="0" cy="0" r="5"/>
+						<rect x="10" y="-5" width="25" height="10" rx="5"/>
+						<path d="M 0,-2 h 15 v 4 h -15 v -2"/>
+					</g>
+				</g>
+				<use xlink:href="#Roosevelt_base" stroke="none" fill="#fff"/>
+			</g>
+			<use xlink:href="#stred180" x="810" y="900" ><title>Cermak-Chinatown</title></use>
+			<use xlink:href="#stred180" x="810" y="940" ><title>Sox-35th</title></use>
+			<use xlink:href="#train" transform="translate(823,940)scale(0.75,0.75)"><title>35th Street "Lou" Jones/Bronzeville</title></use>
+			<use xlink:href="#stred180" x="810" y="1030"><title>47th</title></use>
+			<use xlink:href="#stred180" x="810" y="1090"><title>Garfield</title></use>
+			<use xlink:href="#stred180" x="810" y="1140"><title>63rd</title></use>
+			<use xlink:href="#stred180" x="810" y="1170"><title>69th</title></use>
+			<use xlink:href="#stred180" x="810" y="1200"><title>79th</title></use>
+			<use xlink:href="#stred180" x="810" y="1230"><title>87th</title></use>
+			<use xlink:href="#stred180" x="810" y="1260"><title>95th</title></use>
+		</g>
+		<g id="Blue_Line_station_icons">
+			<use xlink:href="#stblue307" x="-228" y="-189"><title>O'Hare</title></use>
+			<use xlink:href="#airport" x="-238.5" y="-175"><title>Chicago O'Hare International Airport</title></use>
+			<use xlink:href="#stblue307" x="-148" y="-129"><title>Rosemont</title></use>
+			<use xlink:href="#stblue307" x="-108" y="-99" ><title>Cumberland</title></use>
+			<use xlink:href="#stblue307" x="-68"  y="-69" ><title>Harlem</title></use>
+			<g transform="translate(-28,-39)"><!--140,87--><!--208,156-->
+				<title>Jefferson Park (transfer between CTA and Metra)</title>
+				<use xlink:href="#stblue307"/>
+				<use xlink:href="#train" transform="translate(-10.5,14)"/>
+			</g>
+			<g transform="translate(12,-9)"><!--180,117--><!--208,156-->
+				<path class="osi" d="m 0,0 l -24,32"><title>Within walking distance</title></path>
+				<use xlink:href="#stblue307"><title>Montrose</title></use>
+				<use xlink:href="#train" transform="translate(-24,32)"><title>Mayfair Metra Station</title></use>
+			</g>
+			<use xlink:href="#stblue307" x="52"  y="21"><title>Irving Park</title></use>
+			<use xlink:href="#stblue307" x="104" y="60"><title>Addison</title></use>
+			<use xlink:href="#stblue307" x="196" y="129"><title>Belmont</title></use>
+			<use xlink:href="#stblue307" x="243" y="164.25"><title>Logan Square</title></use>
+			<use xlink:href="#stblue307" x="290" y="199.5"><title>California</title></use>
+			<use xlink:href="#stblue307" x="350" y="244.5"><title>Western</title></use>
+			<use xlink:href="#stblue307" x="410" y="289.5"><title>Damen</title></use>
+			<use xlink:href="#stblue307" x="500" y="357"><title>Division</title></use>
+			<use xlink:href="#stblue307" x="540" y="387"><title>Chicago</title></use>
+			<use xlink:href="#stblue307" x="580" y="417"><title>Grand</title></use>
+			<use xlink:href="#int" x="775" y="535"><title>Washington</title></use>
+			<use xlink:href="#stblue" transform="translate(775,570)rotate(180)"><title>Monoroe</title></use>
+			<use xlink:href="#stblue90"  x="735"  y="685"><title>LaSalle</title></use>
+			<use xlink:href="#stblue90"  x="625"  y="685"><title>Clinton</title></use>
+			<use xlink:href="#stblue270" x="565"  y="685"><title>UIC-Halsted</title></use>
+			<use xlink:href="#stblue90"  x="505"  y="685"><title>Racine</title></use>
+			<use xlink:href="#stblue270" x="410"  y="685"><title>Illinois Medical District</title></use>
+			<use xlink:href="#stblue90"  x="350"  y="685"><title>Western</title></use>
+			<use xlink:href="#stblue270" x="230"  y="685"><title>Kedzie-Homan</title></use>
+			<use xlink:href="#stblue90"  x="110"  y="685"><title>Pulaski</title></use>
+			<use xlink:href="#stblue270" x="-10"  y="685"><title>Cicero</title></use>
+			<use xlink:href="#stblue90"  x="-190" y="685"><title>Austin</title></use>
+			<use xlink:href="#stblue270" x="-310" y="685"><title>Oak Park</title></use>
+			<use xlink:href="#stblue90"  x="-370" y="685"><title>Harlem</title></use>
+			<use xlink:href="#stblue270" x="-430" y="685"><title>Forest Park</title></use>
+		</g>
+		<g id="Green_Line_station_icons">
+			<use xlink:href="#train"      x="-370" y="428"  ><title>Oak Park Metra Station</title></use>
+			<use xlink:href="#stgreen270" x="-370" y="469"  ><title>Harlem/Lake</title></use>
+			<use xlink:href="#stgreen90"  x="-310" y="469"  ><title>Oak Park</title></use>
+			<use xlink:href="#stgreen270" x="-250" y="469"  ><title>Ridgeland</title></use>
+			<use xlink:href="#stgreen90"  x="-190" y="469"  ><title>Austin</title></use>
+			<use xlink:href="#stgreen270" x="-130" y="469"  ><title>Central</title></use>
+			<use xlink:href="#stgreen90"  x="-70"  y="469"  ><title>Laramie</title></use>
+			<use xlink:href="#stgreen270" x="-10"  y="469"  ><title>Cicero</title></use>
+			<use xlink:href="#stgreen90"  x="110"  y="469"  ><title>Pulaski</title></use>
+			<use xlink:href="#stgreen270" x="170"  y="469"  ><title>Conservatory–Central Park Drive</title></use>
+			<use xlink:href="#stgreen90"  x="230"  y="469"  ><title>Kedzie</title></use>
+			<use xlink:href="#stgreen270" x="290"  y="469"  ><title>California</title></use>
+			<use xlink:href="#stgreen270" x="410"  y="469"  ><title>Damen</title></use>
+			<use xlink:href="#int4"       x="490"  y="466.5"><title>Ashland</title></use>
+			<use xlink:href="#stgreen270" x="550"  y="469"  ><title>Morgan</title></use>
+			<use xlink:href="#stpink270"  x="550"  y="479"  ><title>Morgan</title></use>
+			<use xlink:href="#int4"       x="610"  y="466.5"><title>Clinton</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="900" ><title>Cermak–McCormick Place</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="940" ><title>35th-Bronzeville-IIT</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="970" ><title>Indiana</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="1000"><title>43rd</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="1030"><title>47th</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="1060"><title>51st</title></use>
+			<use xlink:href="#stgreen" x="837.5" y="1090"><title>Garfield</title></use>
+			
+			<use xlink:href="#stgreen90"  x="605" y="1120"><title>Halsted</title></use>
+			<use xlink:href="#stgreen270" x="540" y="1120"><title>Ashland/63rd</title></use>
+			
+			<use xlink:href="#stgreen90"  x="870" y="1140"><title>King Drive</title></use>
+			<use xlink:href="#stgreen270" x="970" y="1140"><title>Cottage Grove</title></use>
+		</g>
+		<g id="Pink_Line_station_icons">
+			<use xlink:href="#stpink270" x="-70" y="880"><title>54th/Cermak</title></use>
+			<use xlink:href="#stpink90"  x="-10" y="880"><title>Cicero</title></use>
+			<use xlink:href="#stpink270" x="50"  y="880"><title>Kostner</title></use>
+			<use xlink:href="#stpink90"  x="110" y="880"><title>Pulaski</title></use>
+			<use xlink:href="#stpink270" x="170" y="880"><title>Central Park</title></use>
+			<use xlink:href="#stpink90"  x="230" y="880"><title>Kedzie</title></use>
+			<use xlink:href="#stpink270" x="290" y="880"><title>California</title></use>
+			<path class="osi" d="M 350,850 V 880"/>
+			<use xlink:href="#train"     x="350" y="850"><title>Western Avenue Metra Station</title></use>
+			<use xlink:href="#stpink90"  x="350" y="880"><title>Western</title></use>
+			<use xlink:href="#stpink270" x="410" y="880"><title>Damen</title></use>
+			<use xlink:href="#stpink"    x="450" y="840"><title>18th</title></use>
+			<use xlink:href="#stpink"    x="450" y="730"><title>Polk</title></use>
+		</g>
+		<g id="Orange_Line_station_icons">
+			<use xlink:href="#storange233" x="605" y="880" ><title>Halsted</title></use>
+			<use xlink:href="#storange233" x="553" y="919" ><title>Ashland</title></use>
+			<use xlink:href="#storange233" x="501" y="958" ><title>35th/Archer</title></use>
+			<use xlink:href="#storange270" x="350" y="1018"><title>Western</title></use>
+			<use xlink:href="#storange270" x="230" y="1018"><title>Kedzie</title></use>
+			<use xlink:href="#storange270" x="110" y="1018"><title>Pulaski</title></use>
+			<use xlink:href="#storange270"  x="-10"  y="1018"><title>Midway</title></use>
+			<use xlink:href="#airport" x="-10" y="1038"><title>Chicago Midway International Airport</title></use>
+		</g>
+		<g id="Brown_Line_station_icons">
+			<use xlink:href="#stbrown127" x="229" y="-219"><title>Kimball</title></use>
+			<use xlink:href="#stbrown127" x="269" y="-189"><title>Kedzie</title></use>
+			<use xlink:href="#stbrown127" x="309" y="-159"><title>Francisco</title></use>
+			<use xlink:href="#stbrown127" x="349" y="-129"><title>Rockwell</title></use>
+			<use xlink:href="#stbrown127" x="389" y="-99" ><title>Western</title></use>
+			<use xlink:href="#stbrown127" x="429" y="-69" ><title>Damen</title></use>
+			<use xlink:href="#stbrown127" x="469" y="-39" ><title>Montrose</title></use>
+			<use xlink:href="#stbrown127" x="509" y="-9"  ><title>Irving Park</title></use>
+			<use xlink:href="#stbrown127" x="549" y="21"  ><title>Addison</title></use>
+			<use xlink:href="#stbrown127" x="589" y="51"  ><title>Paulina</title></use>
+			<use xlink:href="#stbrown127" x="629" y="81"  ><title>Southport</title></use>
+			<use xlink:href="#int5" transform="translate(667.5,130)rotate(-90)"><title>Belmont</title></use>
+			<use xlink:href="#stbrown180" x="665" y="160"><title>Wellington</title></use>
+			<use xlink:href="#stpurple180r" x="675" y="160"><title>Wellington</title></use>
+			<use xlink:href="#stbrown180" x="665" y="190"><title>Diversey</title></use>
+			<use xlink:href="#stpurple180r" x="675" y="190"><title>Diversey</title></use>
+			<use xlink:href="#int5" transform="translate(667.5,220)rotate(-90)"><title>Fullerton</title></use>
+			<use xlink:href="#stbrown180" x="665" y="250"><title>Armitage</title></use>
+			<use xlink:href="#stpurple180r" x="675" y="250"><title>Armitage</title></use>
+			<use xlink:href="#stpurpler" x="675" y="310"><title>Sedgwick</title></use>
+			<use xlink:href="#stbrown" x="665" y="310"><title>Sedgwick</title></use>
+			<use xlink:href="#stpurpler" x="675" y="390"><title>Chicago</title></use>
+			<use xlink:href="#stbrown" x="665" y="390"><title>Chicago</title></use>
+			<use xlink:href="#int4" transform="translate(662.5,430)rotate(-90)"><title>Merchandise Mart</title></use>
+		</g>
+		<g id="Purple_Line_station_icons">
+			<use xlink:href="#stpurple" x="675" y="-500"><title>Linden</title></use>
+			<use xlink:href="#stpurple" x="675" y="-470"><title>Central</title></use>
+			<use xlink:href="#stpurple" x="675" y="-440"><title>Noyes</title></use>
+			<use xlink:href="#stpurple" x="675" y="-410"><title>Foster</title></use>
+			<path class="osi" d="M 675,-380 H 645"><title>Within walking distance</title></path>
+			<use xlink:href="#stpurple" x="675" y="-380"><title>Davis</title></use>
+			<use xlink:href="#train" x="645" y="-380"><title>Evanston Davis Street</title></use>
+			<use xlink:href="#stpurple" x="675" y="-350"><title>Dempster</title></use>
+			<use xlink:href="#stpurple" x="675" y="-320"><title>Main</title></use>
+			<use xlink:href="#train" x="655" y="-320"><title>Main Street</title></use>
+			<use xlink:href="#stpurple" x="675" y="-290"><title>South Blvd.</title></use>
+			<use xlink:href="#stpurpler" x="675" y="40"><title>Wilson</title></use>
+		</g>
+		<g id="Yellow_Line_station_icons">
+			<use xlink:href="#styellow" x="12" y="-350"><title>Dempster-Skokie</title></use>
+			<use xlink:href="#styellow" x="12" y="-320"><title>Oakton-Skokie</title></use>
+		</g>
+	</g>
+<!--
+y of text below horizontal line = y of icon +20.
+y of text above horizontal line = y of icon -20.
+x of text on the right-hand side of vertical line = x of icon +13.
+x of text on the left-hand side of vertical line = x of icon -13.
+<use xlink:href="#guide" x="325.6" y="-426.6"/>
+-->
+	<g id="text_labels" font-size="16px" transform="translate(0,4.2)">
+		<g id="stname_loop">
+			<g class="mid">
+				<text x="745" y="451.5">Clark/Lake</text>
+			</g>
+			<text x="820" y="451.5">State/Lake</text>
+			<text x="924" y="540">Washington/Wabash</text>
+			<text x="924" y="600">Adams/Wabash</text>
+			<g class="small">
+				<text x="952" y="495">Millennium <tspan x="952" dy="13">Metra: <tspan fill="#F48F1E">■</tspan> Metra Electric District </tspan><tspan x="952" dy="13">NICTD: <tspan fill="#A82618">■</tspan> South Shore Line</tspan></text>
+				<text x="952" y="616">Van Buren <tspan x="952" dy="13">Metra: <tspan fill="#F48F1E">■</tspan> Metra Electric District </tspan><tspan x="952" dy="13">NICTD: <tspan fill="#A82618">■</tspan> South Shore Line</tspan></text>
+				<text x="722" y="723" class="end">LaSalle Street<tspan x="722" dy="13"> Metra: <tspan fill="#EE3224">■</tspan> Rock Island District</tspan></text>
+				<text x="612" y="585" class="end">Union<tspan x="612" dy="13"> Amtrak, Metra</tspan></text>
+				<text x="597" y="518" class="end">Ogilvie<tspan x="597" dy="13"> Metra: <tspan style="stroke:#a79;stroke-width:1;fill:#FBC9BF" cursor="help"><title>Union Pacific West</title>■</tspan>, <tspan style="stroke:#aa7;stroke-width:1;fill:#FFF200" cursor="help"><title>Union Pacific Northwest</title>■</tspan>, <tspan  style="stroke:#074;stroke-width:1;fill:#008A54" cursor="help"><title>Union Pacific North</title>■</tspan></tspan></text>
+			</g>
+			<text x="786.5" y="662">Harold Washington Library – State/Van Buren</text>
+			<text x="705" y="659" class="end">LaSalle/<tspan x="705" dy="15">Van Buren</tspan></text>
+			<text x="682.5" y="590">Quincy</text>
+			<text x="646.5" y="550" class="end">Washington/Wells</text>
+			
+			<text x="765" y="610" class="end">Jackson</text>
+		</g>
+		<g id="stname_red_line">
+			<text x="698" y="-260">Howard</text>
+			<text x="698" y="-230">Jarvis</text>
+			<text x="698" y="-200">Morse</text>
+			<text x="698" y="-170">Loyola</text>
+			<text x="698" y="-140">Granville</text>
+			<text x="698" y="-110">Thorndale</text>
+			<text x="698" y="-80" >Bryn Mawr</text>
+			<text x="698" y="-50" >Berwyn</text>
+			<text x="698" y="-20" >Argyle</text>
+			<text x="698" y="10"  >Lawrence</text>
+			<text x="698" y="40"  >Wilson</text>
+			<text x="698" y="70"  >Sheridan</text>
+			<text x="698" y="100" >Addison</text>
+			<text x="630" y="315" class="end">North/<tspan x="630" dy="15">Clybourn</tspan></text>
+			<text x="740" y="340" class="mid">Clark/Division</text>
+			<text x="823" y="390">Chicago</text>
+			<text x="823" y="420">Grand</text>
+			<text x="820" y="515">Lake</text>
+			<text x="823" y="570">Monroe</text>
+			<g class="end">
+				<text x="797" y="730">Harrison</text>
+				<text x="800" y="780">Roosevelt</text>
+				<text x="797" y="900">Cermak-Chinatown</text>
+				<text x="797" y="940" >Sox-35th</text>
+				<text x="803" y="955" class="small">35th Street<tspan x="803" dy="13"> "Lou" Jones/Bronzeville<tspan x="803" dy="13"> Metra: <tspan fill="#EE3224">■</tspan> Rock Island District</tspan></tspan></text>
+				<text x="797" y="1030">47th</text>
+				<text x="797" y="1090">Garfield</text>
+				<text x="797" y="1140">63rd</text>
+				<text x="797" y="1170">69th</text>
+				<text x="797" y="1200">79th</text>
+				<text x="797" y="1230">87th</text>
+				<text x="797" y="1260">95th</text>
+			</g>
+		</g>
+		<g id="stname_blue_line">
+			<g transform="translate(9,-12)">
+				<text x="-228" y="-189">O'Hare<tspan x="-218" dy="13" class="small"> (Premium full fare applies on entry but not exit. <tspan x="-198" dy="15">Reduced and student fares unaffected.)</tspan></tspan></text>
+				<text x="-148" y="-129">Rosemont</text>
+				<text x="-108" y="-99" >Cumberland</text>
+				<text x="-68"  y="-69" >Harlem</text>
+				<text x="-28" y="-39">Jefferson Park</text>
+				<text x="12"  y="-9">Montrose</text>
+				<text x="52"  y="21">Irving Park</text>
+				<text x="104" y="60">Addison</text>
+				<text x="196" y="129">Belmont</text>
+				<text x="243" y="164.25">Logan Square</text>
+				<text x="290" y="199.5">California</text>
+				<text x="350" y="244.5">Western</text>
+				<text x="410" y="289.5">Damen</text>
+				<text x="500" y="357">Division</text>
+				<text x="540" y="387">Chicago</text>
+				<text x="580" y="417">Grand</text>
+			</g>
+			<text x="-238.5" y="-155" class="small b mid">ORD</text>
+			<g class="small end">
+				<text x="-26" y="-6">Metra: <tspan style="stroke:#aa7;stroke-width:1;fill:#FFF200">■</tspan> Union Pacific Northwest</text>
+				<text x="0" y="42">Mayfair<tspan x="0" dy="13"> Metra: <tspan fill="#ea7423">■</tspan> Milwaukee District North</tspan></text>
+			</g>
+			<text x="765" y="535" class="end">Washington</text>
+			<text x="762" y="570" class="end">Monroe</text>
+			<text x="730" y="705">LaSalle</text>
+			<g class="mid">
+				<text x="625"  y="705">Clinton</text>
+				<text x="565"  y="665">UIC-Halsted</text>
+				<text x="505"  y="705">Racine</text>
+				<text x="410"  y="635">Illinois<tspan x="410" dy="15">Medical<tspan x="410" dy="15">District</tspan></tspan></text>
+				<text x="350"  y="705">Western</text>
+				<text x="230"  y="665">Kedzie-Homan</text>
+				<text x="110"  y="705">Pulaski</text>
+				<text x="-10"  y="665">Cicero</text>
+				<text x="-190" y="705">Austin</text>
+				<text x="-310" y="665">Oak Park</text>
+				<text x="-370" y="705">Harlem</text>
+				<text x="-430" y="665">Forest Park</text>
+			</g>
+		</g>
+		<g id="stname_green_line">
+			<g class="mid">
+				<text x="-370" y="398" class="small">Oak Park Metra:<tspan x="-370" dy="13"><tspan style="stroke:#a79;stroke-width:1;fill:#FBC9BF">■</tspan> Union Pacific West</tspan></text>
+				<text x="-370" y="449">Harlem/Lake</text>
+				<text x="-310" y="489">Oak Park</text>
+				<text x="-250" y="449">Ridgeland</text>
+				<text x="-190" y="489">Austin</text>
+				<text x="-130" y="449">Central</text>
+				<text x="-70"  y="489">Laramie</text>
+				<text x="-10"  y="449">Cicero</text>
+				<text x="110"  y="489">Pulaski</text>
+				<text x="170"  y="431">Conservatory–<tspan x="170" dy="18">Central Park Drive</tspan></text>
+				<text x="230"  y="489">Kedzie</text>
+				<text x="290"  y="449">California</text>
+				<text x="410"  y="449">Damen</text>
+				<text x="495"  y="499.5">Ashland</text>
+				<text x="550"  y="449">Morgan</text>
+				
+				<text x="605"  y="1140">Halsted</text>
+				<text x="540"  y="1100">Ashland/63rd</text>
+				
+				<text x="870"  y="1160">King Drive</text>
+				<text x="970"  y="1120">Cottage Grove</text>
+			</g>
+			<text x="605" y="496.5" class="end">Clinton</text>
+			<text x="850.5" y="900" >Cermak–McCormick Place</text>
+			<text x="850.5" y="940" >35th-Bronzeville-IIT</text>
+			<text x="850.5" y="970" >Indiana</text>
+			<text x="850.5" y="1000">43rd</text>
+			<text x="850.5" y="1030">47th</text>
+			<text x="850.5" y="1060">51st</text>
+			<text x="850.5" y="1090">Garfield</text>
+		</g>
+		<g id="stname_pink_line">
+			<g class="mid">
+				<text x="-70" y="860">54th/Cermak</text>
+				<text x="-10" y="900">Cicero</text>
+				<text x="50"  y="860">Kostner</text>
+				<text x="110" y="900">Pulaski</text>
+				<text x="170" y="860">Central Park</text>
+				<text x="230" y="900">Kedzie</text>
+				<text x="290" y="860">California</text>
+				<text x="350" y="820" class="small">Western Avenue<tspan x="350" dy="13">Metra: <tspan fill="#55B948">■</tspan> BNSF Railway</tspan></text>
+				<text x="350" y="900">Western</text>
+				<text x="410" y="860">Damen</text>
+			</g>
+			<text x="463" y="840">18th</text>
+			<text x="463" y="730">Polk</text>
+		</g>
+		<g id="stname_brown_line">
+			<g class="end">
+				<g transform="translate(-9,12)">
+					<text x="229" y="-219">Kimball</text>
+					<text x="269" y="-189">Kedzie</text>
+					<text x="309" y="-159">Francisco</text>
+					<text x="349" y="-129">Rockwell</text>
+					<text x="389" y="-99" >Western</text>
+					<text x="429" y="-69" >Damen</text>
+					<text x="469" y="-39" >Montrose</text>
+					<text x="509" y="-9"  >Irving Park</text>
+					<text x="549" y="21"  >Addison</text>
+					<text x="589" y="51"  >Paulina</text>
+					<text x="629" y="81"  >Southport</text>
+				</g>
+				<text x="652" y="130">Belmont</text>
+				<text x="652" y="160">Wellington</text>
+				<text x="652" y="190">Diversey</text>
+				<text x="652" y="220">Fullerton</text>
+				<text x="652" y="250">Armitage</text>
+			</g>
+			<text x="687" y="310">Sedgwick</text>
+			<text x="687" y="390">Chicago</text>
+			<text x="687.5" y="417">Merchandise <tspan x="687.5" dy="15">Mart</tspan></text>
+		</g>
+		<g id="stname_purple_line">
+			<text x="688" y="-500">Linden</text>
+			<text x="688" y="-470">Central</text>
+			<text x="688" y="-440">Noyes</text>
+			<text x="688" y="-410">Foster</text>
+			<text x="688" y="-380">Davis</text>
+			<text x="631" y="-387" class="small end">Evanston Davis Street<tspan x="631" dy="13"> Metra: <tspan style="stroke:#074;stroke-width:1;fill:#008A54">■</tspan> Union Pacific North</tspan></text>
+			<text x="688" y="-350">Dempster</text>
+			<text x="688" y="-320">Main</text>
+			<text x="641" y="-327" class="small end">Main Street<tspan x="641" dy="13"> Metra: <tspan style="stroke:#074;stroke-width:1;fill:#008A54">■</tspan> Union Pacific North</tspan></text>
+			<text x="688" y="-290">South Blvd.</text>
+		</g>
+		<g id="stname_yellow_line">
+			<text x="25" y="-350">Dempster-Skokie</text>
+			<text x="25" y="-320">Oakton-Skokie</text>
+		</g>
+		<g id="stname_orange_line" transform="translate(-9,-12)" class="end">
+			<text x="605" y="880">Halsted</text>
+			<text x="553" y="919">Ashland</text>
+			<text x="501" y="958">35th/Archer</text>
+		</g>
+		<g class="mid">
+			<text x="350" y="998" >Western</text>
+			<text x="230" y="998">Kedzie</text>
+			<text x="110" y="998">Pulaski</text>
+			<text x="-10"  y="998">Midway</text>
+			<text x="-10"  y="1058" class="small b">MDW</text>
+		</g>
+		<text transform="translate(830,0)skewX(-15)" class="b" style="fill:#cdf;font-size:40px;font-family:Adobe Garamond Pro,Liberation Serif,serif">Lake Michigan</text>
+		<g id="line_labels" font-size="9px" fill="#fff">
+			<text x="688" y="358.75">Red Line</text>
+			<text transform="translate(807,675)rotate(90)">Red Line</text>
+			<text transform="translate(592,425.5)rotate(36.87)">Blue Line</text>
+			<text x="650" y="683.75">Blue Line</text>
+			<text x="556.5" y="467.75">Green Line</text>
+			<text transform="translate(850,730.5)rotate(-36.87)">Green Line</text>
+			<text transform="translate(839,725.25)rotate(-36.87)">Orange Line</text>
+			<text x="560" y="478">Pink Line</text>
+			<text transform="translate(662,317)rotate(90)">Brown Line</text>
+			<text transform="translate(672.5,317)rotate(90)">Purple (rush)</text>
+			<text transform="translate(672.5,-200)rotate(90)">Purple Line (rush)</text>
+			<text class="fpurple" transform="translate(662,-500)rotate(90)">Purple Line (regular)</text>
+			<text style="fill:#950" x="320" y="-291">Yellow Line</text>
+		</g>
+	</g>
+	<g id="header" transform="translate(-500,-540)">
+		<path style="stroke:#d31145;stroke-width:3;fill:#0079c2" d="
+		M -20,-4
+		H 730 q -28,0 -48,22 t -48,22
+		H -20
+		"/>
+		<text x="10" y="30" style="stroke:none;fill:#fff;font-size:30px;font-weight:bold">Chicago Transit Authority "L" route diagram</text>
+	</g>
+	<g id="legend" transform="translate(-480,-480)">
+		<path style="stroke:#d31145;stroke-width:3" d="M 0,22.5 H 440"/>
+		<rect y="62.5" width="440" height="42.5" style="fill:#eee;stroke:none"/>
+		<rect width="440" height="150" rx="20" style="fill:none;stroke:#0079c2;stroke-width:3"/>
+		<text class="mid b" font-size="16px" x="220" y="16">Legend</text>
+		<path class="fosi" d="M 20,44 H 50"/>
+		<use xlink:href="#int" x="20" y="44"/>
+		<use xlink:href="#int" x="50" y="44"/>
+		<path class="osi" d="M 20,84 H 50"/>
+		<use xlink:href="#int" x="20" y="84"/>
+		<use xlink:href="#train" x="50" y="84"/>
+		<path id="legend_purple" d="M 20,124 H 50" class="me spurpler" style="stroke-linecap:round"/>
+		<g font-size="15px">
+			<text x="70" y="40">Out-of-station transfer between L stations</text>
+			<text x="70" y="58">for free with a valid farecard</text>
+			<text x="70" y="80">Transfer to regional rail station from L station</text>
+			<text x="70" y="98">within 0.25 mile or 2 blocks walking distance</text>
+			<text x="70" y="120">Purple Line non-holiday weekday rush hour service</text>
+			<text x="70" y="138">from 6am to 9:30am and 3:15pm to 6:30pm</text>
+		</g>
+	</g>
+</svg>

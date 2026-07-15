@@ -259,6 +259,7 @@ function buildPopupIndex(data) {
     for (const r of f.properties.routes ?? []) {
       if (r.route_id && !byId.has(r.route_id)) byId.set(r.route_id, r)
       if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
+      if (r.route_name && !refColor.has(r.route_name)) refColor.set(r.route_name, r.route_color) // 名鍵（同 ref 支線異色）
     }
   }
   popupIdx = { byId, refColor, segs, stByCoord }
