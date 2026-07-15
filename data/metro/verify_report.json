@@ -286,7 +286,7 @@
       "wiki_length_km": 22.5,
       "ratio": 20.9,
       "note": "站數偏多（439 vs wiki 21），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Staten_Island_Railway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
     },
@@ -398,7 +398,7 @@
       "wiki_length_km": 22.2,
       "ratio": 33.77,
       "note": "站數偏多（439 vs wiki 13），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/PATH",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
     },

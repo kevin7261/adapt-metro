@@ -15,13 +15,20 @@ description: 香港地鐵（港鐵 MTR）資料的城市專屬規則——觀塘
 `refetchFailedCities`）。殭屍節點由墓碑 `_cache/deleted_nodes.json` 拒收
 （`pruneDeletedStations.mjs` 驗證：存在且**還有名字**才算活）。
 
-## 同 ref 變體合併（快車/分支＝同一條線，使用者：「香港的快車也是同一路線」）
+## 同 ref 分支變體＝獨立 route（現行；資料層強合併已於 2026-07-13 移除）
 
-港鐵 network=`MTR` 已納入 `mergeVariants` 名單（與紐約、雪梨 Sydney Trains 共用機制，見
-[[metro-city-newyork]]）：同 ref 的分支變體**共享車站者併成 1 條線**——東鐵綫 EAL 的
-馬場／落馬洲支線（曾 3 個 route_id）、將軍澳綫 TKL 的康城支線（曾 2 個）各收斂成 1 條，
-香港 route_id 13→10（＝實際港鐵重鐵線數）。代表 tags 取最長變體（站最多者），其餘變體
-車站聯集。共享判定用站座標 ±2 格容差（同站不同月台）。
+東鐵綫 EAL 的羅湖／落馬洲（馬場）變體（3 個 route_id）、將軍澳綫 TKL 的寶琳／康城
+變體（2 個）**各自獨立成 route**——曾有的 `mergeVariants`（共享車站併 1 條）已移除：
+強合併會串接站序、幾何來回鋸齒（東鐵綫曾被併成 42 站 Admiralty↔Lo Wu↔Racecourse
+來回跳）。視覺一條線由渲染層「同色收斂」處理（`_nc=1` 畫實線）；香港 route 數 13
+（>官方 10 線）是預期值。**同 ref 變體的官方名必須一致**（route_tag_patches 補齊：
+三條「東鐵綫」、兩條「將軍澳綫」同名），hover／資訊面板才不會像多條不同線。
+
+## 線名＝官方名（去「港鐵」前綴，2026-07 官方名規則）
+
+港鐵官方路網圖線名無「港鐵」前綴：屯馬綫／觀塘綫／港島綫／荃灣綫／將軍澳綫／迪士尼綫／
+東鐵綫（OSM name:zh 多冠「港鐵」）——由 `route_tag_patches` 對 master＋變體 relation
+統一補官方名（機場快綫／東涌綫／南港島綫 OSM 本來就正確）。
 
 ## 機場快線／東涌線共線（快車跨站 pass-through，使用者：「機場快線和東涌是共線到欣澳才分出去」）
 

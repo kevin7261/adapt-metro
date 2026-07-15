@@ -17,7 +17,7 @@ const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raste
 // Map Adjust the skeleton + gridding skills, Hill Climbing / RWD their own.
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
-  highway: ['highway-osm-fetch'],
+  highway: ['highway-osm-fetch', 'highway-audit', 'highway-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
   rwd: ['route-rwd-draw', 'route-hillclimb'],

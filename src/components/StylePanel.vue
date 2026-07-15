@@ -108,9 +108,9 @@ const selectedEntries = computed(() => {
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
 
-// 車站物件：停靠此站的服務（`lines`＋`line_names`）vs 行經不停（`pass_lines`＋
-// `pass_line_names`）——直接讀車站儲存欄位（官方 refs＋線名，**無 OSM id**）。同 ref 的
-// 普通/直達由同序 `*_names` 區分；顏色以線名（其次 ref）對 metroLines 查表，找不到退玫瑰紅。
+// 車站物件：路線一律存單一 `routes[]`（{ref,name,pass?}，與路段 feature 同形式、無 OSM id）
+// ——pass:true＝行經不停（快車跳站）、無 pass＝停靠。同 ref 的普通/直達由 name 區分；
+// 顏色以線名（其次 ref）對 metroLines 查表，找不到退玫瑰紅。
 const routeByName = computed(() => {
   const m = new Map()
   for (const r of metroLines.value) {
@@ -123,19 +123,17 @@ const parseArr = (v) => {
   if (typeof v === 'string') { try { v = JSON.parse(v) } catch { return [] } }
   return Array.isArray(v) ? v : []
 }
-const resolvePairs = (refs, names) => refs.map((ref, i) => {
-  const name = names[i] ?? String(ref)
-  const r = routeByName.value.get(String(name)) ?? routeByName.value.get(String(ref))
-  return { route_ref: String(ref), route_name: name, route_color: r?.route_color ?? '#e11d48' }
-})
-const stopRoutes = computed(() => {
+const stationRoutes = computed(() => {
   const p = selectedProps.value
-  return p?.station_id ? resolvePairs(parseArr(p.lines), parseArr(p.line_names)) : []
+  if (!p?.station_id) return []
+  return parseArr(p.routes).map((e) => {
+    const r = routeByName.value.get(String(e.name)) ?? routeByName.value.get(String(e.ref))
+    return { route_ref: String(e.ref), route_name: e.name ?? String(e.ref),
+      route_color: r?.route_color ?? '#e11d48', pass: !!e.pass }
+  })
 })
-const passRoutes = computed(() => {
-  const p = selectedProps.value
-  return p?.station_id ? resolvePairs(parseArr(p.pass_lines), parseArr(p.pass_line_names)) : []
-})
+const stopRoutes = computed(() => stationRoutes.value.filter((r) => !r.pass))
+const passRoutes = computed(() => stationRoutes.value.filter((r) => r.pass))
 // 共站合併：異名轉乘站（merged_names）——各成員站名＋該名所屬路線。
 // 路線色以 ref 對應 metroLines 的 route_color；ref 找不到色時退玫瑰紅。
 const mergedNames = computed(() => {
@@ -200,26 +198,49 @@ watch(activeTab, (t) => {
   if (t === 'grid' && !gridSkillHtml.value) fetchSkillHtml('route-llm-grid', gridSkillHtml)
 })
 
-// 點到路段時：顯示每條行經 route 的完整車站列表（依站序）。
-// 列表來自 route meta 的 stations（build 保證與圖面一致——audit 有不變式檢查）。
+// 點到路段時：只列「**這一段上**」的車站（使用者 2026-07：物件 tab 顯示該段車站、
+// 不是整條路線；整線完整站表移到 資訊 tab 的路線清單展開）。順序＝原始路段幾何的
+// 頂點序（線壓在站上；快車 pass 頂點也是站座標 → 停靠與通過(不停)站都會列出，
+// pass 站灰字＋pass 標記）。event feature 的幾何被 tile 裁切，不可用——以 seg_id
+// 回原始資料找完整幾何。
 const selectedRouteLists = computed(() => {
   const p = selectedProps.value
-  if (!p) return []
+  if (!p || p.station_id) return []
   let routes = p.routes
   if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { return [] } }
   if (!Array.isArray(routes)) return []
-  return routes.map((r) => ({
-    route_id: r.route_id,
-    name: r.route_name ?? r.route_id,
-    nameLocal: r.route_name_local && r.route_name_local !== r.route_name ? r.route_name_local : null,
-    ref: r.route_ref,
-    color: r.route_color ?? '#e11d48',
-    // 停靠站列表——直接用 route.stations（build 端已依**官方站碼**排序、每站帶 `code`，
-    // A1 在前）。不再用幾何猜測 seqByRoute（與資料一致）。
-    stations: (r.stations ?? []).map((s) => ({ ...s, pass: false })),
-    // 站數只算停靠站（保序不去重——支線接續/環線閉合站重複）
-    uniqueCount: new Set((r.stations ?? []).map((s) => s.station_id)).size,
-  }))
+  const d = layerData[layer.value?.id] ??
+    (layer.value?.sourceLayerId ? layerData[layer.value.sourceLayerId] : null)
+  const seg = d?.features.find((f) =>
+    f.geometry?.type !== 'Point' && f.properties?.seg_id === p.seg_id)
+  const ordered = []
+  if (seg) {
+    const byCoord = new Map()
+    for (const f of d.features)
+      if (f.geometry.type === 'Point') byCoord.set(f.geometry.coordinates.join(','), f.properties)
+    for (const line of seg.geometry.coordinates) {
+      for (const c of line) {
+        const s = byCoord.get(c.join(','))
+        if (s && (!ordered.length || ordered[ordered.length - 1].station_id !== s.station_id))
+          ordered.push({ station_id: s.station_id, station_name: s.station_name, code: s.code })
+      }
+    }
+  }
+  return routes.map((r) => {
+    const passIds = new Set((r.pass_stations ?? []).map((s) => s.station_id))
+    // 找不到原始段（理論上不會）退回整線站表，仍標 pass
+    const base = ordered.length ? ordered : (r.stations ?? [])
+    const stations = base.map((s) => ({ ...s, pass: passIds.has(s.station_id) }))
+    return {
+      route_id: r.route_id,
+      name: r.route_name ?? r.route_id,
+      nameLocal: r.route_name_local && r.route_name_local !== r.route_name ? r.route_name_local : null,
+      ref: r.route_ref,
+      color: r.route_color ?? '#e11d48',
+      stations,
+      uniqueCount: new Set(stations.filter((s) => !s.pass).map((s) => s.station_id)).size,
+    }
+  })
 })
 
 // 路線車站 list 預設收合（高速公路一條可有數十個交流道，展開會拉太長）——
@@ -257,6 +278,20 @@ const metroLines = computed(() => {
     ),
   )
 })
+// 資訊 tab 路線清單可展開**每條路線的完整站表**（使用者 2026-07：整線車站移到
+// 資訊 tab 顯示；快車 pass 的站也要顯示——停靠站依官方站序編號，通過(不停)站
+// 灰字附註在後）。點路線列切換展開。
+const expandedInfoRoutes = ref(new Set())
+function toggleInfoRoute(id) {
+  const next = new Set(expandedInfoRoutes.value)
+  next.has(id) ? next.delete(id) : next.add(id)
+  expandedInfoRoutes.value = next
+}
+function routeStationList(ln) {
+  const stops = (ln.stations ?? []).map((s) => ({ ...s, pass: false }))
+  const pass = (ln.pass_stations ?? []).map((s) => ({ ...s, pass: true }))
+  return { stops, pass, uniqueCount: new Set(stops.map((s) => s.station_id)).size }
+}
 
 /* ---- Info: network orientation rose (Boeing 2019) ---- */
 // Length-weighted distribution of line bearings + orientation-order φ.
@@ -801,14 +836,28 @@ function startResize(e) {
               <div class="section-title">路線</div>
               <div v-if="!metroLines.length" class="info-empty">載入中…</div>
               <div v-else class="line-list">
-                <div v-for="ln in metroLines" :key="ln.route_id" class="line-row">
-                  <span class="line-swatch" :style="{ background: ln.route_color ?? '#e11d48' }" />
-                  <span v-if="ln.route_ref" class="line-ref">{{ ln.route_ref }}</span>
-                  <span class="line-name">
-                    {{ ln.route_name ?? ln.route_name_local ?? '—' }}
-                  </span>
-                  <span v-if="ln.status === 'under_construction'" class="line-uc">建設中</span>
-                </div>
+                <template v-for="ln in metroLines" :key="ln.route_id">
+                  <button type="button" class="line-row line-row-toggle"
+                    :aria-expanded="expandedInfoRoutes.has(ln.route_id)"
+                    @click="toggleInfoRoute(ln.route_id)">
+                    <MIcon :name="expandedInfoRoutes.has(ln.route_id) ? 'expand_more' : 'chevron_right'" class="obj-route-caret" />
+                    <span class="line-swatch" :style="{ background: ln.route_color ?? '#e11d48' }" />
+                    <span v-if="ln.route_ref" class="line-ref">{{ ln.route_ref }}</span>
+                    <span class="line-name">
+                      {{ ln.route_name ?? ln.route_name_local ?? '—' }}
+                    </span>
+                    <span v-if="ln.status === 'under_construction'" class="line-uc">建設中</span>
+                    <span class="obj-route-count">{{ routeStationList(ln).uniqueCount }} 站</span>
+                  </button>
+                  <ol v-if="expandedInfoRoutes.has(ln.route_id)" class="obj-station-list">
+                    <li v-for="(st, i) in routeStationList(ln).stops" :key="`${st.station_id}-${i}`">
+                      <span v-if="st.code" class="obj-st-code">{{ st.code }}</span>{{ st.station_name }}
+                    </li>
+                    <li v-for="st in routeStationList(ln).pass" :key="`p-${st.station_id}`" class="st-pass">
+                      {{ st.station_name }}<span class="obj-pass-tag">pass</span>
+                    </li>
+                  </ol>
+                </template>
               </div>
             </template>
           </template>
@@ -1199,6 +1248,13 @@ function startResize(e) {
   padding: 2px 0; color: inherit; font: inherit; font-weight: 600;
   border-radius: 4px;
 }
+/* 資訊 tab 路線列（可展開整線站表）：沿用 line-row 版面、加按鈕重置 */
+.line-row-toggle {
+  width: 100%; border: 0; background: none; cursor: pointer; text-align: left;
+  color: inherit; font: inherit; border-radius: 4px;
+}
+.line-row-toggle:hover { background: hsl(var(--muted) / 0.45); }
+.line-row-toggle .obj-route-count { margin-left: auto; }
 .obj-route-toggle:hover { background: hsl(var(--muted) / 0.45); }
 .obj-route-caret { flex-shrink: 0; color: hsl(var(--muted-foreground)); font-size: 16px; }
 .obj-route-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -32,7 +32,8 @@
     "metro:all": "node scripts/fetchWikiList.mjs && node scripts/fetchMetro.mjs && node scripts/fetchUcExceptions.mjs && node scripts/fetchSbahnDe.mjs && node scripts/geocodeSystems.mjs && node scripts/buildGeojson.mjs && node scripts/buildViews.mjs && node scripts/wikiLineCheck.mjs && node scripts/auditLoop.mjs",
     "highway:fetch": "node scripts/fetchHighways.mjs",
     "highway:build": "node scripts/buildHighwayGeojson.mjs",
-    "highway:all": "node scripts/fetchHighways.mjs && node scripts/buildHighwayGeojson.mjs"
+    "highway:verify": "node scripts/verifyHighways.mjs",
+    "highway:all": "node scripts/fetchHighways.mjs && node scripts/buildHighwayGeojson.mjs && node scripts/verifyHighways.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

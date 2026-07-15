@@ -424,13 +424,8 @@
   "americas/united-states/am-usa-new-york-city": {
     "city": "New York City",
     "country": "United States",
-    "wikidata": "Q1055811",
-    "map_file": "maps/americas/united-states/am-usa-new-york-city.svg",
-    "commons_file": "File:PATH daytime.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/PATH_daytime.svg",
-    "license": "CC BY-SA 3.0",
-    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
-    "artist": null
+    "wikidata": null,
+    "map_file": null
   },
   "asia/china/as-chn-dalian": {
     "city": "Dalian",

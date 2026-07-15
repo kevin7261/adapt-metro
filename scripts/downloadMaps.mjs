@@ -111,10 +111,20 @@ async function main() {
   const mapsIndex = (await exists(join(MAPS, 'maps_index.json')))
     ? JSON.parse(await readFile(join(MAPS, 'maps_index.json'), 'utf8')) : {}
 
+  // 永不抓的系統（使用者裁決 2026-07）：紐約——官方地鐵圖有版權（Commons 沒有），
+  // QID 解析曾誤命中桶內 PATH network（Q1055811）抓到「PATH daytime.svg」冒充全系統
+  // 官方圖。map_file 固定 null，前端 官方路線圖 退回 Google 圖片搜尋。
+  const NO_MAP = new Set(['americas/united-states/am-usa-new-york-city'])
+
   let done = 0, got = 0, skipped = 0, none = 0
   for (const sys of index.systems) {
     done++
     const rel = sys.file.replace(/^systems\//, '').replace(/\.geojson$/, '')  // cont/country/slug
+    if (NO_MAP.has(rel)) {
+      none++
+      mapsIndex[rel] = { city: sys.city, country: sys.country, wikidata: null, map_file: null }
+      continue
+    }
     if (mapsIndex[rel]?.map_file) { skipped++; continue }  // already resolved
 
     // 1) system QID: prefer network:wikidata, else search by network/city name

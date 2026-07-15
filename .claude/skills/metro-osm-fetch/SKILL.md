@@ -75,20 +75,20 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 「真快車」保留成獨立 route**（詳見「線路分組規則」的快車例外與車站 schema 的 `pass_lines`：
 機捷直達車、Seoul 급행等，快車繼承主線色＋「（快車）」標記、跳站記 `pass_stations`）。
 
-**同 ref 變體＝同一條線（`mergeVariants`，使用者：紐約/雪梨/香港的快車與分支也是同一條線）**：
-「快/慢車合併」之後，同 ref 內**帶來新站的分支/快車變體**預設仍各自獨立成線（台北小碧潭
-支線 hover 不得連主線一起 highlight）。但對 `network` 命中名單者（`nyc subway`／`sydney trains`／
-`^mtr$`——紐約、雪梨 Sydney Trains、香港港鐵）改為：把變體**按「共享車站」聚成連通分量、
-每分量併成 1 條線**（紐約 A 線 5 變體→1、雪梨 T8 南線+機場支線→1、港鐵東鐵綫含馬場/落馬洲
-支線→1），代表 tags 取最長變體（慢車）、其餘變體車站聯集；**完全分離的同 ref 獨立線**
-（紐約 S 的 Franklin/Rockaway/42nd St 三段 shuttle）不共享車站→仍各自成線。共享判定用站座標
-**±2 格（~222m）容差**（同站的上下行/快慢車常掛不同月台節點）。細節與名單見 [[metro-city-newyork]]、
-[[metro-city-hongkong]]、[[metro-cities]]（雪梨）。
+**同 ref 分支變體＝獨立 route、渲染層同色收斂（現行；`mergeVariants` 已於 2026-07-13 移除）**：
+同 ref 內**帶來新站的分支/快車變體**一律各自獨立成 route（台北小碧潭支線 hover 不得連
+主線一起 highlight；港鐵東鐵綫的羅湖/落馬洲/馬場變體、將軍澳綫的康城/寶琳、紐約 A 線
+變體皆各自成 route）。**曾有的資料層強合併（mergeVariants：按共享車站聚連通分量併 1 條）
+已移除**——強合併會串接站序、幾何來回鋸齒（曾把東鐵綫併成 42 站 Admiralty↔Lo Wu↔
+Racecourse 來回跳）。視覺上「一條線」由**渲染層**處理：同色多 route 的共線段以「相異
+色數」`_nc=1` 畫成 1 條實線（LayerTab／skeleton coline），故資料層多 route 不影響畫面。
+副作用：`line_count`＝route 數會大於官方線數（東鐵綫佔 3）；同 ref 變體的**官方名必須
+一致**（route_tag_patches 補齊，如三條東鐵綫同名），hover/資訊面板才不會像多條線。
 
 **NYC 服務時段變體收斂（`network=NYC Subway`）**：OSM 把每條線拆成 daytime／`(late nights)`／
 `(am rush)`／`(pm rush)`／`(am/pm rush)`／`(evenings, weekends)`… 多個 route relation。
-`(late nights)` 常是**各停全停版**（4 號 daytime express 28 站 vs late-night 54 站）；
-「最長變體勝＋站聯集」（mergeVariants）會讓**快車吃下所有 local 站、畫成各停**。build 端
+`(late nights)` 常是**各停全停版**（4 號 daytime express 28 站 vs late-night 54 站）——
+若不剔除，最長變體勝的去重規則會讓**快車吃下所有 local 站、畫成各停**。build 端
 （`routesTags` 組好後）對**有 daytime 基本變體的 ref**丟掉服務時段限定變體，只留 daytime
 站型——跳過的 local 站由 **pass-through auto 偵測**畫成共線。
 **AM/PM rush 一律不抓（使用者裁決 2026-07）**：`(am/pm rush)` 寫法一併命中（舊 regex 曾漏），
@@ -373,27 +373,25 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 （機捷 A1、東京 T22、港鐵…），**站序依此碼正規化方向（官方碼升序、A1 在前）**，只反轉整條
 序列不破壞相鄰性；ref 缺或碼不齊維持成員順序）,
 `pass_stations`（此服務**行經但不停靠**的站——快車跳站；空陣列＝各停。每項
-`{ station_id, station_name }`。與車站的 `pass_lines` 互為對照，見下））；
+`{ station_id, station_name }`。與車站 `routes` 的 pass 項互為對照，見下））；
 頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
 
 **車站 feature（Point）**：
 `station_id`（`n{osmId}`）, `station_name`（優先 name:en）, `station_name_local`,
 `network`, `network_local`, `operator`, `city`, `country`,
-`lines`／`line_ids`（**停靠**此站的線路官方 ref（兩欄相同、同序、**可重複**——機捷普通/直達都
-ref「A」；線無 ref 時用線名）。**車站欄位一律官方識別、不輸出 OSM 內部 id（使用者規則）**；
-同 ref 的普通/直達由同序 `line_names` 區分。**不變式：至少一條**，空值 verify 標 `no_line`。
-站↔線**歸屬**在 build 內部仍以 route_id（唯一鍵）建立——由各線 `__stations` 反推（∪ 既有 tag
-指派以保浮空站），ref 撞名（機捷雙 A）才不會漏掛/錯掛——只是 route_id 不寫進車站欄位）,
-`line_names`（同序的線路名，區分同 ref 服務），
-`pass_lines`／`pass_line_ids`（**行經但不停靠**此站的服務——快車跳站；無則不設此欄。**全球統一格式**：
-機捷直達車、NYC 快車/Z、Seoul 급행、Tokyo 快速、香港 AEL… 皆以此表達「X 服務行經卻不停 Y 站」。
-機制：**快車＝獨立 route**（不做 services 子服務特例、全球一致）——`dedupeSeqs` 對 fresh=0（站點是
-主線子集）的變體預設丟棄，**例外：名字含快車字樣（Express/Rapid/直達/快速/急行/特急…）＋站數 <0.85×
-主線＋有中間跳站者保留成獨立 route**（去回程同站集只留一條）；其跳過的站再由既有 pass-through 偵測
-算成該 route 的 `pass_stations`、並在被跳過的站標 `pass_lines`。`pass_lines`＝`pass_line_ids`＝
-官方 refs、`pass_line_names`＝同序線名（同 ref 的普通/直達靠名區分）。前端車站物件直接讀
-`lines`＋`line_names`（停靠）／`pass_lines`＋`pass_line_names`（行經）顯示，色以線名（其次 ref）
-對線列表查表，不再幾何猜測），
+`routes`（**此站的路線清單，單一陣列**（使用者規則：與路段 feature 同形式、不拆平行 array、
+不輸出 OSM 內部 id）——每項 `{ ref, name, pass? }`：`ref`＝官方線路代碼（可重複，機捷普通/
+直達都「A」；無 ref 用線名）、`name`＝線名（區分同 ref 服務）、**`pass:true`＝行經但不停靠**
+（快車跳站——機捷直達車、NYC 快車/Z、Seoul 급행、Tokyo 快速、香港 AEL…；無 pass 鍵＝停靠）。
+順序＝停靠在前、pass 在後。快車機制：**快車＝獨立 route**——`dedupeSeqs` 對 fresh=0（站點是
+主線子集）的變體預設丟棄，**例外：名字含快車字樣（Express/Rapid/直達/快速/急行/特急…）＋站數
+<0.85×主線＋有中間跳站者保留成獨立 route**（去回程同站集只留一條）；其跳過的站由 pass-through
+偵測算成該 route 的 `pass_stations`、並在被跳過的站的 `routes` 標 pass。站↔線**歸屬**在 build
+內部以 route_id（唯一鍵）建立——由各線 `__stations` 反推（∪ 既有 tag 指派以保浮空站），ref 撞名
+（機捷雙 A）才不會漏掛/錯掛——route_id 不寫進車站欄位。前端車站物件直接讀 `routes` 顯示，
+色以線名（其次 ref）對線列表查表，不再幾何猜測）,
+`lines`（**停靠**此站的官方 ref 陣列（＝routes 無 pass 項的 ref）——留給 **no_line 不變式**
+（至少一條，空值 verify 標 `no_line`）與地圖 hover 顯示），
 `station_role`（`interchange`／`terminus`／`normal`，交會優先於端點。**interchange ⇔
 網絡圖 degree>2（分歧/交會，相鄰站不同）或 ≥2 條不同線在此終止（terminus-interchange，
 如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）或**端點站且停靠 ≥2 條線**

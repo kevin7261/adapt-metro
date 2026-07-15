@@ -1978,11 +1978,11 @@ async function build() {
       const routes = [...stopIds].map(routeMeta)
       routes.sort((a, b) => String(a.route_ref ?? a.route_name ?? '')
         .localeCompare(String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true }))
-      // 輸出一律用官方識別（使用者規則：不輸出 OSM 內部 id）：line_ids＝refs（＝lines 內容、
-      // 可重複——機捷普通/直達都 A），line_names 同序線名（區分普通/直達）。route_id 只在
-      // build 內部做站↔線歸屬（唯一鍵），不寫進車站欄位。
-      s.properties.line_ids = routes.map((r) => r.route_ref ?? r.route_name)
-      s.properties.line_names = routes.map((r) => r.route_name)
+      // 車站的路線一律存單一 `routes[]`（使用者規則：與路段 feature 同形式、不拆平行
+      // array、不輸出 OSM 內部 id）：每項 { ref, name, pass? }——pass:true＝行經不停
+      // （快車跳站），無 pass 鍵＝停靠。同 ref 的普通/直達由 name 區分。route_id 只在
+      // build 內部做站↔線歸屬（唯一鍵），不寫進車站欄位。`lines`（停靠 refs）保留給
+      // no_line 不變式與地圖 hover。
       s.properties.lines = routes.map((r) => r.route_ref ?? r.route_name)
       // 官方站碼清單（如台北車站 [A1, BL12, R10]）——各線各自的碼；route.stations 每站另帶
       // 依該線 ref 挑出的 `code`。內部 Set 清掉（避免序列化成 {}）。
@@ -1990,12 +1990,11 @@ async function build() {
       delete s.__codes
       // 行經但不停靠（快車跳站）：route_id 直接來自 __passStations；排除也停靠者。
       const passIds = [...(passRoutesBySt.get(sid) ?? [])].filter((id) => !stopIds.has(id))
-      if (passIds.length) {
-        const pr = passIds.map(routeMeta)
-        s.properties.pass_line_ids = pr.map((r) => r.route_ref ?? r.route_name) // refs（＝pass_lines）
-        s.properties.pass_lines = pr.map((r) => r.route_ref ?? r.route_name)
-        s.properties.pass_line_names = pr.map((r) => r.route_name) // 同序線名（區分同 ref 的普通/直達）
-      }
+      const pr = passIds.map(routeMeta)
+      s.properties.routes = [
+        ...routes.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name })),
+        ...pr.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name, pass: true })),
+      ]
       // 通過次數（幾何為準）；至少為所屬 route 數（幾何缺漏時的下限）
       const pc = Math.max(
         passCount.get(s.geometry.coordinates.join(',')) ?? 0, routes.length)
