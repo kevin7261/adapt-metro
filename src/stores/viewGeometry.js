@@ -376,6 +376,20 @@ export function computeCityHcViews(geojson, opts = {}) {
     for (const [id, cell] of endp.cellAfter) endpPos.set(id, m1.cellPx(cell))
     placeBlacks(skeleton, endpPos, snap)
     views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, m1.sep)
+    // 每個端點拉直網格都畫：所有有色點（頂點都非白——白/黑直通站不是頂點）
+    // 欄、列各自中位數位置的黃色圓標，墊在網格最底。偶數個點取平均 → 可能
+    // 落在半格；cellPx 是線性映射，小數格照樣可換算像素。
+    if (endp.cellAfter.size) {
+      const median = (vals) => {
+        const s = [...vals].sort((a, b) => a - b)
+        const m = s.length >> 1
+        return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+      }
+      const ps = [...endp.cellAfter.values()]
+      const [mx, my] = m1.cellPx([median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))])
+      views[`endp-${variant}`].median =
+        { x: +mx.toFixed(1), y: +my.toFixed(1), r: +(Math.min(W, H) * 0.032).toFixed(1) }
+    }
 
     // 4) Hill Climbing縮減網格 — 直線縮減 (rigid line shifts, grid dims
     // unchanged) on the straightened layout, then drop colour-free rows/cols
