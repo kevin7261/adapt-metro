@@ -145,17 +145,26 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
     byRef.get(r).push(w)
   }
 
-  // merge junction nodes into interchanges (NB/SB carriageway pairs share a name)
+  // Merge junction nodes into ONE interchange point (使用者: 同一個交流道只能有
+  // 一個點在中間；單一路線只能一條線). The many carriageway / on-off-ramp / A-B
+  // sub-nodes of one interchange must all collapse, else they draw as multiple
+  // points and parallel duplicate lines. Merge two junctions if:
+  //   · same interchange NAME within 2.5 km (named interchanges: NB/SB/系統), or
+  //   · same EXIT-NUMBER BASE within 2 km — US exits 36/36A/36B (letters/suffix
+  //     stripped → "36") are the SAME interchange but are usually unnamed, or
+  //   · simply within 250 m (unnamed carriageway pairs / dense ramp clusters).
   const norm = (s) => (s || '').normalize('NFKC').toLowerCase().replace(/\s+/g, '')
+  const exitBase = (t) => { const m = String(t?.ref ?? '').match(/\d+/); return m ? m[0] : null }
   const parent = junctions.map((_, i) => i)
   const find = (a) => { while (parent[a] !== a) a = parent[a] = parent[parent[a]]; return a }
   const union = (a, b) => { parent[find(a)] = find(b) }
-  const named = junctions.map((j) => ({ name: nameFor(j.tags, country), lon: j.lon, lat: j.lat }))
+  const named = junctions.map((j) => ({ name: nameFor(j.tags, country), base: exitBase(j.tags), lon: j.lon, lat: j.lat }))
   for (let i = 0; i < junctions.length; i++) {
     for (let k = i + 1; k < junctions.length; k++) {
       const dd = haversine([named[i].lon, named[i].lat], [named[k].lon, named[k].lat])
       const sameName = named[i].name && named[k].name && norm(named[i].name) === norm(named[k].name)
-      if ((sameName && dd < 2500) || dd < 150) union(i, k)
+      const sameBase = named[i].base && named[i].base === named[k].base
+      if ((sameName && dd < 2500) || (sameBase && dd < 2000) || dd < 250) union(i, k)
     }
   }
   const ic = new Map()
@@ -373,31 +382,34 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
       geometry: { type: 'Point', coordinates: [e.lon, e.lat] },
     })
   }
-  // one feature per 國道; geometry = the road-adjacent straight segments (each a
-  // 2-point line between merged interchange dots). Segments share the dots so a
-  // continuous road reads as one line; a real gap simply leaves a break — no
-  // long straight line ever bridges non-adjacent interchanges.
-  let segN = 0, segTotal = 0
-  for (const [ref, edges] of refEdges) {
-    if (!edges.length) continue
-    const parts = edges.map(([a, b]) => {
-      const ea = ic.get(a), eb = ic.get(b)
-      return [[ea.lon, ea.lat], [eb.lon, eb.lat]]
-    })
-    const routes = [{ ...routeMeta(ref), stations: refStationList(ref), pass_stations: [] }]
+  // ONE segment feature per UNIQUE interchange-pair edge (global dedup across
+  // roads, like metro path-segmentation): a corridor shared by concurrent roads
+  // is drawn ONCE, not once per road. Each segment = a straight 2-point line
+  // between the two merged interchange dots; a road's full path = every segment
+  // whose `routes` include it (same class colour → reads as one continuous line).
+  const globalEdges = new Map()
+  for (const [ref, edges] of refEdges) for (const [a, b] of edges) {
+    const k = ekey(a, b)
+    if (!globalEdges.has(k)) globalEdges.set(k, { a, b, refs: [] })
+    if (!globalEdges.get(k).refs.includes(ref)) globalEdges.get(k).refs.push(ref)
+  }
+  let segN = 0
+  for (const { a, b, refs } of globalEdges.values()) {
+    const routes = refs.map((ref) => ({ ...routeMeta(ref), stations: refStationList(ref), pass_stations: [] }))
+    const colors = routes.map((r) => r.route_color)
+    const ea = ic.get(a), eb = ic.get(b)
     features.push({
       type: 'Feature',
       properties: {
         seg_id: `${slug}-${segN++}`,
-        routes, route_count: 1, route_refs: [ref],
-        route_colors: [routes[0].route_color], route_color: routes[0].route_color,
+        routes, route_count: routes.length, route_refs: refs,
+        route_colors: colors, route_color: colors[0],
         city, country,
       },
-      geometry: { type: 'MultiLineString', coordinates: parts },
+      geometry: { type: 'MultiLineString', coordinates: [[[ea.lon, ea.lat], [eb.lon, eb.lat]]] },
     })
-    segTotal += parts.length
   }
-
+  const segTotal = globalEdges.size
   const refCount = [...refEdges.values()].filter((e) => e.length).length
   const meta = {
     continent, country, country_zh: countryZh, city, city_zh: cityZh, unit: raw.unit || 'country',

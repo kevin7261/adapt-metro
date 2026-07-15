@@ -141,14 +141,6 @@ const cleanRouteName = (nm) => {
     .trim()
   return s || String(nm)
 }
-// 快車標記（與普通車區分、非方向）——中日台港用「（快車）」，其餘「 (Express)」。
-// 名字本身已含快車字樣（急行/快速/直達/Express…）則不重複加。
-const EXPRESS_NAME_RE = /(express|rapid|limited|直達|直达|直通|快速|急行|準急|准急|特急|特快|大站快)/i
-const expressMark = (country, name) => {
-  if (EXPRESS_NAME_RE.test(name || '')) return ''
-  const c = (country || '').replace(/[^a-zA-Z]/g, '').toLowerCase()
-  return (c === 'japan' || c === 'taiwan' || c === 'china') ? '（快車）' : ' (Express)'
-}
 
 // Operational only: an element carrying a lifecycle tag (under construction,
 // proposed, disused…) is not part of the running network. The fetch queries
@@ -642,12 +634,12 @@ async function build() {
   // NYC 用 ±4（~444m）——曼哈頓長月台的上下行 stop 節點可距 >250m，±2 會把
   // 純反向變體誤判成「有新站」→ 同名同站的第二條線（使用者 2026-07 回報的
   // 重複路線）。NYC 的真分支（Lefferts/Rockaway…）都隔數公里，±4 安全。
-  // keepExpress=false：fresh=0 的快車變體不保留（使用者 2026-07：東京的急行/快速
-  // 不用抓、就一般車站就好——各停已涵蓋全部車站，快車變體與 pass 標記整組略過）。
-  const dedupeSeqs = (seqs, nearRadius = 2, keepExpress = true) => {
+  // 快車一律不抓（使用者裁決 2026-07，全球）：fresh=0 的快車變體（純子集、只跳站）
+  // 一律丟棄——各停已涵蓋全部車站。像紐約 J/Z「不同車交錯停站」（彼此有對方沒有的站
+  // → fresh>0）或獨立編號的快線（香港 AEL 自有 ref）自然保留，不需例外機制。
+  const dedupeSeqs = (seqs, nearRadius = 2) => {
     const sorted = [...seqs].sort((a, b) => b.rows.length - a.rows.length)
     const covered = new Set(), kept = []
-    const expressCovered = new Set() // 已保留快車的站格（±2 容差用來丟去回程的反向重複）
     const near = (r) => {
       const [cx, cy] = cellOf(r)
       for (let dx = -nearRadius; dx <= nearRadius; dx++)
@@ -658,43 +650,10 @@ async function build() {
     for (const w of sorted) {
       const fresh = w.rows.filter((r) => !near(r)).length
       // Keep any variant bringing ≥1 unseen station (short branches like
-      // 小碧潭支線 add just 1-2 stations); pure reverse duplicates (fresh = 0)
-      // are dropped. **例外：真正的「快車」（相對主線 kept[0] 中間跳站）不新增 route，
-      // 改 fold 成主線的一個子服務**（記 rid＋停靠站座標）——之後在 __stations 把「主線停、
-      // 快車不停」的站標成該快車 ref 的 pass。line_count 不變（＝「一線多編號＋每站 stop/pass」）。
-      if (kept.length && fresh === 0) {
-        if (!keepExpress) continue // 東京等：快車變體一律丟（各停已涵蓋全部車站）
-        // fresh=0（全站已被主線覆蓋）預設丟——**例外：真正的「快車」保留成獨立 route**
-        // （與 NYC 快車一致的**全球統一格式**：快車＝獨立 route、其跳過的站由既有 pass-through
-        // 偵測算成 pass_stations；不做 services 特例）。判準＝變體名字含快車字樣
-        // （Express/Rapid/直達/快速/急行/特急…）＋站數 <0.85×主線＋至少一處中間跳站；
-        // 名字條件過濾反向/短交路/資料缺站等非快車變體（板南線、松山新店線…）。
-        const ck = (r) => cellOf(r).join(':')
-        const hostSeq = kept[0].rows.map(ck)
-        const wt = routesTags.get(w.rid) || {}
-        const wnm = `${wt['name:en'] ?? ''} ${wt.name ?? ''}`
-        const EXPRESS_RE = /(express|rapid|limited|skip.?stop|直達|直达|直通|快速|急行|準急|准急|特急|特快|大站快)/i
-        let isExpress = false
-        if (EXPRESS_RE.test(wnm) && w.rows.length < 0.85 * kept[0].rows.length) {
-          for (let i = 0; i + 1 < w.rows.length && !isExpress; i++) {
-            const ia = hostSeq.indexOf(ck(w.rows[i])), ib = hostSeq.indexOf(ck(w.rows[i + 1]))
-            if (ia >= 0 && ib >= 0 && Math.abs(ib - ia) >= 2) isExpress = true
-          }
-        }
-        if (!isExpress) continue // 非快車的 fresh=0（反向/短交路）→ 丟；快車 → 落到 kept.push 保留
-        // 快車去回程去重（同普通車的 ±2 格容差）：本快車每一站都落在已保留快車 ±2 格內
-        // ＝同一條快車的反向（上下行用不同 stop 節點、格差一兩格）→ 丟，只留一條。
-        const nearExp = (r) => {
-          const [cx, cy] = cellOf(r)
-          for (let dx = -2; dx <= 2; dx++)
-            for (let dy = -2; dy <= 2; dy++)
-              if (expressCovered.has(`${cx + dx}:${cy + dy}`)) return true
-          return false
-        }
-        if (w.rows.length && w.rows.every(nearExp)) continue
-        for (const r of w.rows) { const [cx, cy] = cellOf(r); expressCovered.add(`${cx}:${cy}`) }
-        w.__isExpress = true // 標記為快車，供路線名加「快車/Express」標記（與普通車區分、非方向）
-      }
+      // 小碧潭支線 add just 1-2 stations); pure reverse/express duplicates
+      // (fresh = 0) are dropped. Overlap segmentization dedupes the shared
+      // stretch afterwards, so keeping a mostly-overlapping branch is free.
+      if (kept.length && fresh === 0) continue
       kept.push(w)
       for (const r of w.rows) { const [cx, cy] = cellOf(r); covered.add(`${cx}:${cy}`) }
     }
@@ -853,9 +812,7 @@ async function build() {
   for (const g of groups.values()) {
     const gNet0 = pick(repTags(g), 'network:en', 'network') || ''
     const keptAll = dedupeSeqs(g.seqs,
-      /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2,
-      // 東京（東京メトロ＋都営）：急行/快速不抓（使用者 2026-07）
-      !/東京メトロ|tokyo metro|都営|toei/i.test(gNet0))
+      /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
     if (!keptAll.length) continue
     // 支線/分支＝獨立路線（使用者 Option 1：凡有新站的分岔都算支線→獨立 route_id，
     // 只有「0 新站」的純重複/反向/子集短交路才併）。dedupeSeqs 已丟掉 0 新站的重複；
@@ -868,10 +825,8 @@ async function build() {
     const branchUnit = (w) => {
       const bt = { ...(routesTags.get(w.rid) || {}) }
       bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
-      // 快車與主線是**同一條線** → 用主線顏色（OSM 常給快車變體不同色，如機捷直達車淺紫）。
-      if (w.__isExpress) { const mc = pick(repTags(g), 'colour'); if (mc) bt.colour = mc }
       // key 不能沿用 m| 前綴（phase B 的 route_id 由 key 推導）——分支用 br|rid
-      return { kept: [w.rows], isExpress: !!w.__isExpress, gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt }
+      return { kept: [w.rows], gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt }
     }
     const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
     const mainRids = g.rids.filter((r) => !branchRids.has(r))
@@ -984,7 +939,7 @@ async function build() {
       .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
       console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),
         '| net:', network, '| own:', t.__own, '→', info.key)
-    resolved.push({ g: gRef, kept, passCoords, t, network, ov, info, lrtOnly, isExpress: unit.isExpress })
+    resolved.push({ g: gRef, kept, passCoords, t, network, ov, info, lrtOnly })
     }
   }
 
@@ -1008,8 +963,7 @@ async function build() {
     }
     const props = {
       route_id: routeId,
-      route_name: ((nm) => nm + (e.isExpress ? expressMark(info.country, nm) : ''))(
-        cleanRouteName(nameFor(t, info.country)) || routeRef || routeId),
+      route_name: cleanRouteName(nameFor(t, info.country)) || routeRef || routeId,
       route_name_local: cleanRouteName(t.name) || null,
       route_ref: routeRef,
       route_color: normColor(pick(t, 'colour')),

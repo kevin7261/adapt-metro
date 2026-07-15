@@ -301,9 +301,10 @@ function toggleInfoRoute(id) {
   expandedInfoRoutes.value = next
 }
 function routeStationList(ln) {
-  const stops = (ln.stations ?? []).map((s) => ({ ...s, pass: false }))
-  const pass = (ln.pass_stations ?? []).map((s) => ({ ...s, pass: true }))
-  return { stops, pass, uniqueCount: new Set(stops.map((s) => s.station_id)).size }
+  // pass 站已就地標在 stations[]（{...,pass:true}，schema 瘦身後版本）——
+  // 依站序單一清單、pass 灰標；站數只算停靠。
+  const stops = (ln.stations ?? []).map((s) => ({ ...s, pass: !!s.pass }))
+  return { stops, uniqueCount: new Set(stops.filter((s) => !s.pass).map((s) => s.station_id)).size }
 }
 
 /* ---- Info: network orientation rose (Boeing 2019) ---- */
@@ -863,11 +864,10 @@ function startResize(e) {
                     <span class="obj-route-count">{{ routeStationList(ln).uniqueCount }} 站</span>
                   </button>
                   <ol v-if="expandedInfoRoutes.has(ln.route_id)" class="obj-station-list">
-                    <li v-for="(st, i) in routeStationList(ln).stops" :key="`${st.station_id}-${i}`">
-                      <span v-if="st.code" class="obj-st-code">{{ st.code }}</span>{{ st.station_name }}
-                    </li>
-                    <li v-for="st in routeStationList(ln).pass" :key="`p-${st.station_id}`" class="st-pass">
-                      {{ st.station_name }}<span class="obj-pass-tag">pass</span>
+                    <li v-for="(st, i) in routeStationList(ln).stops" :key="`${st.station_id}-${i}`"
+                      :class="{ 'st-pass': st.pass }">
+                      <span v-if="st.code" class="obj-st-code">{{ st.code }}</span>{{ st.station_name
+                      }}<span v-if="st.pass" class="obj-pass-tag">pass</span>
                     </li>
                   </ol>
                 </template>
@@ -1573,7 +1573,9 @@ function startResize(e) {
   background: hsl(38 92% 50% / 0.15);
   border-radius: 4px;
   padding: 1px 5px;
-  margin-left: auto;
+  /* 緊跟線名（使用者 2026-07：「建設中要寫在路線名後面」）——原本 margin-left:auto
+     會和站數的 auto margin 平分空隙、章浮在列中間；改小固定間距貼著名字。 */
+  margin-left: 6px;
   flex: none;
 }
 .line-ref {

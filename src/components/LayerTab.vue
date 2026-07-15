@@ -169,7 +169,8 @@ onMounted(() => {
     const onSeg = segStations(p.seg_id)
     const seenRow = new Set() // 同官方名分支（中和新蘆線 迴龍/蘆洲）在共用段列一次就好
     for (const r of routes) {
-      const passIds = new Set((r.pass_stations ?? []).map((s) => s.station_id))
+      // pass 站已就地標在 r.stations[]（pass:true）
+      const passIds = new Set((r.stations ?? []).filter((s) => s.pass).map((s) => s.station_id))
       const stops = onSeg.length ? onSeg.filter((s) => !passIds.has(s.station_id)).length : null
       const k = `${r.route_ref ?? ''}|${r.route_name ?? ''}|${stops}`
       if (seenRow.has(k)) continue

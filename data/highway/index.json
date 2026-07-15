@@ -1,9 +1,143 @@
 {
  "generated_from": "OpenStreetMap highway=motorway + motorway_junction; one file per country, anchored on data/metro",
- "system_count": 41,
- "line_total": 1056,
- "station_total": 12466,
+ "system_count": 55,
+ "line_total": 1172,
+ "station_total": 11489,
  "systems": [
+  {
+   "file": "systems/africa/egypt/af-egy-cairo.geojson",
+   "continent": "africa",
+   "country": "Egypt",
+   "country_zh": "埃及",
+   "city": "Cairo",
+   "city_zh": "開羅",
+   "unit": "metro",
+   "osm_networks": [
+    "15",
+    "16",
+    "176",
+    "27",
+    "29",
+    "35",
+    "515",
+    "516"
+   ],
+   "operator": null,
+   "line_count": 6,
+   "segment_count": 186,
+   "station_count": 189
+  },
+  {
+   "file": "systems/americas/argentina/am-arg-buenos-aires.geojson",
+   "continent": "south-america",
+   "country": "Argentina",
+   "country_zh": "阿根廷",
+   "city": "Buenos Aires",
+   "city_zh": "布宜諾斯艾利斯",
+   "unit": "metro",
+   "osm_networks": [
+    "063-01",
+    "A017",
+    "AU1",
+    "AU6",
+    "AU7",
+    "AV1-N",
+    "AV1-Sur",
+    "RN1",
+    "RN205",
+    "RN3",
+    "RN7",
+    "RN8",
+    "RN9",
+    "RNA001",
+    "RNA002",
+    "RNA003",
+    "RNA004",
+    "RP2",
+    "RP36",
+    "RP58",
+    "RP58;030-04",
+    "RP58;RP205"
+   ],
+   "operator": null,
+   "line_count": 14,
+   "segment_count": 184,
+   "station_count": 181
+  },
+  {
+   "file": "systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
+   "continent": "south-america",
+   "country": "Brazil",
+   "country_zh": "巴西",
+   "city": "Rio de Janeiro",
+   "city_zh": "里約熱內盧",
+   "unit": "metro",
+   "osm_networks": [
+    "BR-040",
+    "BR-040;BR-101",
+    "BR-040;BR-116",
+    "BR-101",
+    "BR-101;BR-116",
+    "BR-101;BR-465",
+    "BR-116",
+    "BR-116;BR-040",
+    "BR-116;BR-493",
+    "BR-493",
+    "RJ-071"
+   ],
+   "operator": null,
+   "line_count": 5,
+   "segment_count": 40,
+   "station_count": 44
+  },
+  {
+   "file": "systems/americas/brazil/am-bra-sao-paulo.geojson",
+   "continent": "south-america",
+   "country": "Brazil",
+   "country_zh": "巴西",
+   "city": "São Paulo",
+   "city_zh": "聖保羅",
+   "unit": "metro",
+   "osm_networks": [
+    "BR-050",
+    "BR-116",
+    "BR-381",
+    "SP-008;SP-010;BR-381",
+    "SP-010;BR-381",
+    "SP-015",
+    "SP-015;BR-116",
+    "SP-015;BR-116;BR-050",
+    "SP-019;BR-610",
+    "SP-021",
+    "SP-055;BR-101",
+    "SP-060;BR-116",
+    "SP-065",
+    "SP-070",
+    "SP-088",
+    "SP-150",
+    "SP-150;BR-050",
+    "SP-160",
+    "SP-230;BR-116",
+    "SP-270;BR-272",
+    "SP-280",
+    "SP-280;BR-374",
+    "SP-300",
+    "SP-330",
+    "SP-330;BR-050",
+    "SP-348",
+    "SP-88",
+    "SPA-248/055",
+    "SPI 040/150",
+    "SPI-016/021",
+    "SPI-059/150",
+    "SPM-280 D",
+    "SPM-280 E"
+   ],
+   "operator": null,
+   "line_count": 22,
+   "segment_count": 368,
+   "station_count": 353
+  },
   {
    "file": "systems/americas/canada/am-can-toronto.geojson",
    "continent": "north-america",
@@ -29,8 +163,82 @@
    ],
    "operator": null,
    "line_count": 12,
-   "segment_count": 369,
-   "station_count": 376
+   "segment_count": 249,
+   "station_count": 232
+  },
+  {
+   "file": "systems/americas/chile/am-chi-santiago.geojson",
+   "continent": "south-america",
+   "country": "Chile",
+   "country_zh": "智利",
+   "city": "Santiago",
+   "city_zh": "聖地牙哥",
+   "unit": "metro",
+   "osm_networks": [
+    "5",
+    "57",
+    "68",
+    "70",
+    "72",
+    "77",
+    "78",
+    "79",
+    "G-16",
+    "G-180"
+   ],
+   "operator": null,
+   "line_count": 8,
+   "segment_count": 195,
+   "station_count": 185
+  },
+  {
+   "file": "systems/americas/mexico/am-mex-mexico-city.geojson",
+   "continent": "north-america",
+   "country": "Mexico",
+   "country_zh": "墨西哥",
+   "city": "Mexico City",
+   "city_zh": "墨西哥城",
+   "unit": "metro",
+   "osm_networks": [
+    "CTO INT",
+    "Carril Express",
+    "EJE 5 SUR",
+    "EJE 6 SUR",
+    "EM 10",
+    "EM 12",
+    "EM 5D",
+    "EM D",
+    "EM-D",
+    "MEX 115D",
+    "MEX 132",
+    "MEX 132D",
+    "MEX 134D",
+    "MEX 136D",
+    "MEX 15",
+    "MEX 150D",
+    "MEX 15D",
+    "MEX 160D",
+    "MEX 57D",
+    "MEX 5D",
+    "MEX 85;MEX 85D",
+    "MEX 85D",
+    "MEX 95D",
+    "MEX M40D",
+    "PERIF N1",
+    "PERIF N2",
+    "RADIAL 1;MEX 85",
+    "RADIAL 2",
+    "RADIAL 5",
+    "RADIAL 6",
+    "VDCTO A",
+    "VDCTO B",
+    "VDCTO C",
+    "VDCTO D"
+   ],
+   "operator": null,
+   "line_count": 5,
+   "segment_count": 28,
+   "station_count": 32
   },
   {
    "file": "systems/americas/united-states/am-usa-chicago.geojson",
@@ -83,9 +291,9 @@
     "US 66 Hist"
    ],
    "operator": null,
-   "line_count": 34,
-   "segment_count": 641,
-   "station_count": 648
+   "line_count": 33,
+   "segment_count": 374,
+   "station_count": 362
   },
   {
    "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -194,9 +402,48 @@
     "W"
    ],
    "operator": null,
-   "line_count": 82,
-   "segment_count": 1550,
-   "station_count": 1506
+   "line_count": 78,
+   "segment_count": 829,
+   "station_count": 771
+  },
+  {
+   "file": "systems/americas/venezuela/am-ven-caracas.geojson",
+   "continent": "south-america",
+   "country": "Venezuela",
+   "country_zh": "委內瑞拉",
+   "city": "Caracas",
+   "city_zh": "卡拉卡斯",
+   "unit": "metro",
+   "osm_networks": [
+    "L-10",
+    "L-11",
+    "L-2",
+    "L-7",
+    "L-8",
+    "T-1",
+    "T-9"
+   ],
+   "operator": null,
+   "line_count": 7,
+   "segment_count": 57,
+   "station_count": 58
+  },
+  {
+   "file": "systems/asia/azerbaijan/as-aze-baku.geojson",
+   "continent": "asia",
+   "country": "Azerbaijan",
+   "country_zh": "亞塞拜然",
+   "city": "Baku",
+   "city_zh": "巴庫",
+   "unit": "metro",
+   "osm_networks": [
+    "M1",
+    "M2"
+   ],
+   "operator": null,
+   "line_count": 1,
+   "segment_count": 1,
+   "station_count": 2
   },
   {
    "file": "systems/asia/china/as-chn-beijing.geojson",
@@ -257,8 +504,8 @@
    ],
    "operator": null,
    "line_count": 39,
-   "segment_count": 416,
-   "station_count": 429
+   "segment_count": 346,
+   "station_count": 363
   },
   {
    "file": "systems/asia/china/as-chn-chengdu.geojson",
@@ -311,8 +558,8 @@
    ],
    "operator": null,
    "line_count": 25,
-   "segment_count": 303,
-   "station_count": 309
+   "segment_count": 287,
+   "station_count": 290
   },
   {
    "file": "systems/asia/china/as-chn-chongqing.geojson",
@@ -376,8 +623,8 @@
    ],
    "operator": null,
    "line_count": 33,
-   "segment_count": 348,
-   "station_count": 317
+   "segment_count": 340,
+   "station_count": 309
   },
   {
    "file": "systems/asia/china/as-chn-guangzhou.geojson",
@@ -489,8 +736,8 @@
    ],
    "operator": null,
    "line_count": 76,
-   "segment_count": 803,
-   "station_count": 737
+   "segment_count": 712,
+   "station_count": 652
   },
   {
    "file": "systems/asia/china/as-chn-hangzhou.geojson",
@@ -546,8 +793,8 @@
    ],
    "operator": null,
    "line_count": 27,
-   "segment_count": 136,
-   "station_count": 162
+   "segment_count": 128,
+   "station_count": 148
   },
   {
    "file": "systems/asia/china/as-chn-hong-kong.geojson",
@@ -603,8 +850,8 @@
    ],
    "operator": null,
    "line_count": 37,
-   "segment_count": 344,
-   "station_count": 342
+   "segment_count": 242,
+   "station_count": 238
   },
   {
    "file": "systems/asia/china/as-chn-shanghai.geojson",
@@ -662,8 +909,8 @@
    ],
    "operator": null,
    "line_count": 38,
-   "segment_count": 408,
-   "station_count": 402
+   "segment_count": 362,
+   "station_count": 366
   },
   {
    "file": "systems/asia/china/as-chn-shenzhen.geojson",
@@ -743,8 +990,62 @@
    ],
    "operator": null,
    "line_count": 50,
-   "segment_count": 508,
-   "station_count": 484
+   "segment_count": 385,
+   "station_count": 367
+  },
+  {
+   "file": "systems/asia/india/as-ind-delhi.geojson",
+   "continent": "asia",
+   "country": "India",
+   "country_zh": "印度",
+   "city": "Delhi",
+   "city_zh": "德里",
+   "unit": "metro",
+   "osm_networks": [
+    "709B",
+    "DME",
+    "DND",
+    "NE-2",
+    "NE-4",
+    "NE3",
+    "NE4",
+    "NE5",
+    "NH148NA",
+    "NH24",
+    "NH248BB",
+    "NH344G",
+    "NH344M",
+    "NH44",
+    "NH48",
+    "NH709B",
+    "NH9",
+    "WPE"
+   ],
+   "operator": null,
+   "line_count": 6,
+   "segment_count": 47,
+   "station_count": 51
+  },
+  {
+   "file": "systems/asia/iran/as-iri-tehran.geojson",
+   "continent": "asia",
+   "country": "Iran",
+   "country_zh": "伊朗",
+   "city": "Tehran",
+   "city_zh": "德黑蘭",
+   "unit": "metro",
+   "osm_networks": [
+    "2",
+    "21",
+    "3",
+    "5",
+    "7",
+    "Shahid Soleimani Freeway"
+   ],
+   "operator": null,
+   "line_count": 4,
+   "segment_count": 151,
+   "station_count": 152
   },
   {
    "file": "systems/asia/japan/as-jpn-osaka.geojson",
@@ -802,9 +1103,9 @@
     "E9;478"
    ],
    "operator": null,
-   "line_count": 35,
-   "segment_count": 333,
-   "station_count": 326
+   "line_count": 33,
+   "segment_count": 220,
+   "station_count": 217
   },
   {
    "file": "systems/asia/japan/as-jpn-tokyo.geojson",
@@ -865,8 +1166,8 @@
    ],
    "operator": null,
    "line_count": 43,
-   "segment_count": 365,
-   "station_count": 343
+   "segment_count": 324,
+   "station_count": 307
   },
   {
    "file": "systems/asia/south-korea/as-kor-seoul.geojson",
@@ -1023,9 +1324,84 @@
     "AH1"
    ],
    "operator": null,
-   "line_count": 59,
-   "segment_count": 581,
-   "station_count": 561
+   "line_count": 58,
+   "segment_count": 544,
+   "station_count": 526
+  },
+  {
+   "file": "systems/asia/saudi-arabia/as-ksa-riyadh.geojson",
+   "continent": "asia",
+   "country": "Saudi Arabia",
+   "country_zh": "沙烏地阿拉伯",
+   "city": "Riyadh",
+   "city_zh": "利雅德",
+   "unit": "metro",
+   "osm_networks": [
+    "120",
+    "40",
+    "500",
+    "513",
+    "522",
+    "535",
+    "539",
+    "65"
+   ],
+   "operator": null,
+   "line_count": 6,
+   "segment_count": 59,
+   "station_count": 71
+  },
+  {
+   "file": "systems/asia/malaysia/as-mas-kuala-lumpur.geojson",
+   "continent": "asia",
+   "country": "Malaysia",
+   "country_zh": "馬來西亞",
+   "city": "Kuala Lumpur",
+   "city_zh": "吉隆坡",
+   "unit": "metro",
+   "osm_networks": [
+    "1807",
+    "20",
+    "B13",
+    "E1",
+    "E10",
+    "E10;B14",
+    "E11",
+    "E12",
+    "E13",
+    "E18",
+    "E18;B13",
+    "E18;E9",
+    "E19",
+    "E2",
+    "E20",
+    "E21",
+    "E23",
+    "E25",
+    "E26",
+    "E27",
+    "E29",
+    "E30",
+    "E31",
+    "E32",
+    "E33",
+    "E33;2",
+    "E35",
+    "E37",
+    "E38",
+    "E39",
+    "E5",
+    "E6",
+    "E7",
+    "E7;1",
+    "E8",
+    "E8;2",
+    "E9"
+   ],
+   "operator": null,
+   "line_count": 31,
+   "segment_count": 315,
+   "station_count": 308
   },
   {
    "file": "systems/asia/singapore/as-sgp-singapore.geojson",
@@ -1055,8 +1431,56 @@
    ],
    "operator": null,
    "line_count": 15,
-   "segment_count": 221,
-   "station_count": 216
+   "segment_count": 135,
+   "station_count": 134
+  },
+  {
+   "file": "systems/asia/thailand/as-tha-bangkok.geojson",
+   "continent": "asia",
+   "country": "Thailand",
+   "country_zh": "泰國",
+   "city": "Bangkok",
+   "city_zh": "曼谷",
+   "unit": "metro",
+   "osm_networks": [
+    "31",
+    "5",
+    "6",
+    "7",
+    "8",
+    "81",
+    "82",
+    "9"
+   ],
+   "operator": null,
+   "line_count": 6,
+   "segment_count": 41,
+   "station_count": 47
+  },
+  {
+   "file": "systems/asia/turkey/as-tur-istanbul.geojson",
+   "continent": "asia",
+   "country": "Turkey",
+   "country_zh": "土耳其",
+   "city": "Istanbul",
+   "city_zh": "伊斯坦堡",
+   "unit": "metro",
+   "osm_networks": [
+    "34-13",
+    "34-28",
+    "O-",
+    "O-1",
+    "O-2",
+    "O-3",
+    "O-4",
+    "O-5",
+    "O-7",
+    "O7"
+   ],
+   "operator": null,
+   "line_count": 9,
+   "segment_count": 80,
+   "station_count": 80
   },
   {
    "file": "systems/asia/taiwan/as-twn-kaohsiung.geojson",
@@ -1076,8 +1500,8 @@
    ],
    "operator": null,
    "line_count": 6,
-   "segment_count": 60,
-   "station_count": 56
+   "segment_count": 57,
+   "station_count": 53
   },
   {
    "file": "systems/asia/taiwan/as-twn-taipei.geojson",
@@ -1106,8 +1530,8 @@
    ],
    "operator": null,
    "line_count": 12,
-   "segment_count": 139,
-   "station_count": 132
+   "segment_count": 131,
+   "station_count": 123
   },
   {
    "file": "systems/europe/austria/eu-aut-vienna.geojson",
@@ -1138,8 +1562,8 @@
    ],
    "operator": null,
    "line_count": 13,
-   "segment_count": 123,
-   "station_count": 117
+   "segment_count": 112,
+   "station_count": 110
   },
   {
    "file": "systems/europe/belgium/eu-bel-brussels.geojson",
@@ -1178,8 +1602,8 @@
    ],
    "operator": null,
    "line_count": 14,
-   "segment_count": 139,
-   "station_count": 143
+   "segment_count": 116,
+   "station_count": 119
   },
   {
    "file": "systems/europe/bulgaria/eu-bul-sofia.geojson",
@@ -1197,8 +1621,8 @@
    ],
    "operator": null,
    "line_count": 4,
-   "segment_count": 66,
-   "station_count": 63
+   "segment_count": 63,
+   "station_count": 60
   },
   {
    "file": "systems/europe/denmark/eu-den-copenhagen.geojson",
@@ -1235,8 +1659,8 @@
    ],
    "operator": null,
    "line_count": 12,
-   "segment_count": 94,
-   "station_count": 92
+   "segment_count": 81,
+   "station_count": 82
   },
   {
    "file": "systems/europe/spain/eu-esp-barcelona.geojson",
@@ -1276,8 +1700,8 @@
    ],
    "operator": null,
    "line_count": 17,
-   "segment_count": 325,
-   "station_count": 349
+   "segment_count": 234,
+   "station_count": 229
   },
   {
    "file": "systems/europe/spain/eu-esp-madrid.geojson",
@@ -1337,8 +1761,8 @@
    ],
    "operator": null,
    "line_count": 34,
-   "segment_count": 705,
-   "station_count": 721
+   "segment_count": 469,
+   "station_count": 441
   },
   {
    "file": "systems/europe/france/eu-fra-paris.geojson",
@@ -1409,9 +1833,9 @@
     "N 7"
    ],
    "operator": null,
-   "line_count": 39,
-   "segment_count": 526,
-   "station_count": 555
+   "line_count": 37,
+   "segment_count": 381,
+   "station_count": 364
   },
   {
    "file": "systems/europe/united-kingdom/eu-gbr-london.geojson",
@@ -1478,8 +1902,8 @@
    ],
    "operator": null,
    "line_count": 38,
-   "segment_count": 328,
-   "station_count": 326
+   "segment_count": 304,
+   "station_count": 301
   },
   {
    "file": "systems/europe/germany/eu-ger-berlin.geojson",
@@ -1514,8 +1938,8 @@
    ],
    "operator": null,
    "line_count": 17,
-   "segment_count": 220,
-   "station_count": 202
+   "segment_count": 209,
+   "station_count": 190
   },
   {
    "file": "systems/europe/germany/eu-ger-dusseldorf.geojson",
@@ -1574,9 +1998,9 @@
     "L 84"
    ],
    "operator": null,
-   "line_count": 29,
-   "segment_count": 344,
-   "station_count": 327
+   "line_count": 27,
+   "segment_count": 313,
+   "station_count": 302
   },
   {
    "file": "systems/europe/germany/eu-ger-frankfurt.geojson",
@@ -1635,9 +2059,9 @@
     "St 2314"
    ],
    "operator": null,
-   "line_count": 33,
-   "segment_count": 390,
-   "station_count": 370
+   "line_count": 32,
+   "segment_count": 365,
+   "station_count": 347
   },
   {
    "file": "systems/europe/germany/eu-ger-hamburg.geojson",
@@ -1672,8 +2096,8 @@
    ],
    "operator": null,
    "line_count": 16,
-   "segment_count": 155,
-   "station_count": 151
+   "segment_count": 145,
+   "station_count": 143
   },
   {
    "file": "systems/europe/germany/eu-ger-munich.geojson",
@@ -1717,8 +2141,8 @@
    ],
    "operator": null,
    "line_count": 17,
-   "segment_count": 207,
-   "station_count": 208
+   "segment_count": 200,
+   "station_count": 202
   },
   {
    "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
@@ -1753,8 +2177,8 @@
    ],
    "operator": null,
    "line_count": 16,
-   "segment_count": 235,
-   "station_count": 228
+   "segment_count": 229,
+   "station_count": 222
   },
   {
    "file": "systems/europe/italy/eu-ita-milan.geojson",
@@ -1819,8 +2243,8 @@
    ],
    "operator": null,
    "line_count": 36,
-   "segment_count": 288,
-   "station_count": 306
+   "segment_count": 263,
+   "station_count": 279
   },
   {
    "file": "systems/europe/italy/eu-ita-rome.geojson",
@@ -1842,8 +2266,8 @@
    ],
    "operator": null,
    "line_count": 7,
-   "segment_count": 90,
-   "station_count": 91
+   "segment_count": 83,
+   "station_count": 85
   },
   {
    "file": "systems/europe/netherlands/eu-ned-amsterdam.geojson",
@@ -1897,8 +2321,8 @@
    ],
    "operator": null,
    "line_count": 23,
-   "segment_count": 165,
-   "station_count": 157
+   "segment_count": 155,
+   "station_count": 150
   },
   {
    "file": "systems/europe/netherlands/eu-ned-rotterdam.geojson",
@@ -1953,8 +2377,8 @@
    ],
    "operator": null,
    "line_count": 29,
-   "segment_count": 211,
-   "station_count": 203
+   "segment_count": 195,
+   "station_count": 192
   },
   {
    "file": "systems/europe/norway/eu-nor-oslo.geojson",
@@ -1977,8 +2401,8 @@
    ],
    "operator": null,
    "line_count": 6,
-   "segment_count": 74,
-   "station_count": 81
+   "segment_count": 64,
+   "station_count": 70
   },
   {
    "file": "systems/europe/romania/eu-rou-bucharest.geojson",
@@ -1996,8 +2420,8 @@
    ],
    "operator": null,
    "line_count": 4,
-   "segment_count": 28,
-   "station_count": 29
+   "segment_count": 26,
+   "station_count": 28
   },
   {
    "file": "systems/europe/russia/eu-rus-moscow.geojson",
@@ -2021,8 +2445,8 @@
    ],
    "operator": null,
    "line_count": 6,
-   "segment_count": 69,
-   "station_count": 78
+   "segment_count": 64,
+   "station_count": 69
   },
   {
    "file": "systems/europe/russia/eu-rus-saint-petersburg.geojson",
@@ -2039,7 +2463,7 @@
    "operator": null,
    "line_count": 1,
    "segment_count": 10,
-   "station_count": 13
+   "station_count": 12
   },
   {
    "file": "systems/europe/sweden/eu-swe-stockholm.geojson",
@@ -2068,9 +2492,9 @@
     "E 4;E 20"
    ],
    "operator": null,
-   "line_count": 12,
-   "segment_count": 115,
-   "station_count": 121
+   "line_count": 11,
+   "segment_count": 94,
+   "station_count": 104
   },
   {
    "file": "systems/oceania/australia/oc-aus-sydney.geojson",
@@ -2108,8 +2532,8 @@
    ],
    "operator": null,
    "line_count": 10,
-   "segment_count": 182,
-   "station_count": 189
+   "segment_count": 175,
+   "station_count": 177
   }
  ]
 }

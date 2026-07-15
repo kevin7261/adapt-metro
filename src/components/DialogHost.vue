@@ -157,11 +157,25 @@ const hwContinents = computed(() => {
     .sort((a, b) => continentRank(a) - continentRank(b))
     .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
 })
-const hwCountries = computed(() => {
+// 3-column miller (洲別 → 國家 → 都會區), like the metro import — the unit is
+// the metro area, so the country column drills into its cities.
+const hwCountry = ref('')
+watch(hwContinent, () => { hwCountry.value = '' })
+const hwCountryList = computed(() => {
   if (!highwayCatalog.value || !hwContinent.value) return []
+  const seen = new Map()
+  for (const s of highwayCatalog.value) {
+    if (s.continent === hwContinent.value && !seen.has(s.country)) {
+      seen.set(s.country, { value: s.country, zh: s.countryZh ?? s.country, en: s.country })
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.en.localeCompare(b.en))
+})
+const hwCityList = computed(() => {
+  if (!highwayCatalog.value || !hwCountry.value) return []
   return highwayCatalog.value
-    .filter((s) => s.continent === hwContinent.value)
-    .map((s) => ({ sys: s, zh: hwZh(s), en: hwEn(s) }))
+    .filter((s) => s.continent === hwContinent.value && s.country === hwCountry.value)
+    .map((s) => ({ sys: s, zh: s.cityZh ?? s.city, en: s.city }))
     .sort((a, b) => a.en.localeCompare(b.en))
 })
 function importHighway(sys) {
@@ -544,7 +558,7 @@ const shortcuts = [
             </div>
           </template>
 
-          <!-- 全球高速公路地圖：洲別 → 國家 -->
+          <!-- 全球高速公路地圖：洲別 → 國家 → 都會區 -->
           <template v-else-if="dialog === 'import-highway-map'">
             <div class="miller">
               <div class="miller-col">
@@ -564,7 +578,20 @@ const shortcuts = [
                 <div class="miller-list">
                   <div v-if="!hwContinent" class="miller-empty">← 先選洲別</div>
                   <button
-                    v-for="c in hwCountries"
+                    v-for="c in hwCountryList"
+                    :key="c.value"
+                    class="miller-item"
+                    :class="{ active: hwCountry === c.value }"
+                    @click="hwCountry = c.value"
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
+                </div>
+              </div>
+              <div class="miller-col">
+                <div class="miller-head">都會區</div>
+                <div class="miller-list">
+                  <div v-if="!hwCountry" class="miller-empty">← 先選國家</div>
+                  <button
+                    v-for="c in hwCityList"
                     :key="c.sys.file"
                     class="miller-item"
                     @click="importHighway(c.sys)"
