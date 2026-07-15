@@ -310,6 +310,51 @@ let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
 let cachedPost = {}    // rect / align / ilp post-pass results, keyed by kind
+let cachedFp = null    // 本資料的內容指紋（localStorage 快取鍵用）
+
+// ---- 跨 reload 持久快取（localStorage）----
+// 最貴的計算是爬山（buildHillClimb）＋後處理（iteratePost）。它們的輸出是純資料
+// （cellAfter = Map<id,[c,r]>、stats = 數字），與畫布大小無關（rank-based），且對
+// 一份資料＋變體是確定的 → 存下來、關 tab 再開或重新整理都直接載回、不重跑。
+// 失效靠「資料內容指紋」：站/線一變指紋就變 → 自動 cache miss 重算，永不載到舊的。
+// LLM 對齊視圖只為了做指紋比對而跑爬山，載回快取後連它也免重算。
+const HC_LS_KEY = 'd3tab-hc-cache-v1'
+const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
+function dataFingerprint(data) {
+  let h = 5381
+  const add = (s) => { for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0 }
+  for (const f of data.features) {
+    if (f.geometry?.type === 'Point') add(`${f.properties.station_id}@${f.geometry.coordinates.join(',')}`)
+    else for (const r of f.properties?.routes ?? []) add(`${r.route_id ?? ''}#${(r.stations ?? []).map((s) => s.station_id).join('.')}`)
+  }
+  return (h >>> 0).toString(36)
+}
+function hcLsRead() { try { return JSON.parse(localStorage.getItem(HC_LS_KEY) || '{}') } catch { return {} } }
+function hcLsWrite(o) { try { localStorage.setItem(HC_LS_KEY, JSON.stringify(o)) } catch { /* quota / private mode → 靜默跳過 */ } }
+const deCells = (arr) => new Map(arr.map(([id, c, r]) => [id, [c, r]]))
+const serCells = (m) => [...m.entries()].map(([id, [c, r]]) => [id, c, r])
+function loadHcCache(key) {
+  try {
+    const e = hcLsRead()[key]; if (!e) return null
+    const posts = {}
+    for (const k of Object.keys(e.posts ?? {})) posts[k] = { cellAfter: deCells(e.posts[k].cellAfter), stats: e.posts[k].stats }
+    return { hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats }, posts }
+  } catch { return null }
+}
+function saveHcCache(key, hc, posts) {
+  if (!key || !hc) return
+  const o = hcLsRead()
+  const pj = {}
+  for (const k of Object.keys(posts ?? {})) if (posts[k]) pj[k] = { cellAfter: serCells(posts[k].cellAfter), stats: posts[k].stats }
+  o[key] = { t: hcLruClock++, hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats }, posts: pj }
+  const keys = Object.keys(o)
+  if (keys.length > HC_LS_MAX) {
+    keys.sort((a, b) => (o[a].t ?? 0) - (o[b].t ?? 0))
+    for (const k of keys.slice(0, keys.length - HC_LS_MAX)) delete o[k]
+  }
+  hcLsWrite(o)
+}
+let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
 let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
 let cachedCompact = {} // compactGrid results, keyed by 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
@@ -543,6 +588,11 @@ async function render() {
     gridStats.value = null
     hcCompactStats.value = null
     rwdStats.value = null
+    // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
+    // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
+    cachedFp = dataFingerprint(data)
+    const hit = loadHcCache(`${cachedFp}:${hcVariant.value}`)
+    if (hit) { cachedHC = hit.hc; cachedPost = hit.posts }
   }
 
   const projection = geoMercator()
@@ -581,6 +631,7 @@ async function render() {
       if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
       cachedHC = buildHillClimb(cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
       hcBusy.value = false
+      saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost) // 存下爬山結果，下次載檔免重算
     }
     hcStats.value = cachedHC.stats
     let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
@@ -597,6 +648,7 @@ async function render() {
         if (seq !== renderSeq) { hcBusy.value = false; return } // superseded
         cachedPost[kind] = iteratePost(POST_BUILD[kind], cachedSkeleton, cachedHC.cellAfter, grid.cols, grid.rows)
         hcBusy.value = false
+        saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost) // 併入後處理結果一起存
       }
       postStats.value = cachedPost[kind].stats
       postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }
