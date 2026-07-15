@@ -105,10 +105,10 @@ const tilt = ref(0)
 // Map Adjust view modes (tabs). Grid modes ('grid-*') do the schematic gridding
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
 // A Hill Climbing view chains: the grid-post input, the optimized layout
-// ('hc', ②, see skill route-hillclimb), the 端點拉直 ('*-end', endpoint-only
-// H/V pass — every 縮減網格 compacts its chain's straightened output), three
-// H/V-maximising post-passes (直角爬山/軸對齊/整數規劃) and the 縮減網格s —
-// rotation comes from its variant.
+// ('hc', ②, see skill route-hillclimb), three H/V-maximising post-passes
+// (直角爬山/軸對齊/整數規劃), then per chain the 3-step tail 直線縮減
+// ('*-line') → 端點拉直 ('*-end') → 縮減網格 ('*-compact') plus the '*-loop'
+// cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
@@ -296,21 +296,24 @@ const POST_KIND = {
   'hc-rect-loop': 'rect', 'hc-align-loop': 'align', 'hc-ilp-loop': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
-// 端點拉直區塊（左選單第 4 部份）：每條鏈一個 tab——在該鏈的結果「之上」再做
-// 端點拉直（原 tab 不變）。各鏈的拉直結果同時是該鏈縮減網格／RWD 底圖的輸入。
+// 端點拉直區塊（左選單第 5 部份，鏈的第 2 步）：每條鏈一個 tab——在該鏈
+// 「直線縮減後」的結果之上做端點拉直（前面的 tab 不變）。各鏈的拉直結果
+// 同時是該鏈縮減網格／RWD 底圖的輸入。
 const END_KIND = {
   'hc-end': 'hc', 'hc-rect-end': 'rect', 'hc-align-end': 'align',
   'hc-ilp-end': 'ilp', 'hc-llm-end': 'llm',
 }
-// 直線縮減（左選單第 6 部份）：每條鏈一個 tab——在該鏈「拉直→縮減」的結果
-// 之上，把直線（跨相交點串接的共線段鏈）整條水平/垂直平移，讓網格的欄列
-// 越少越好、network 結構不變（buildLineCompact）。
+// 直線縮減（左選單第 4 部份，鏈的第 1 步）：每條鏈一個 tab——在該鏈結果之上，
+// 把直線（跨相交點串接的共線段鏈）整條水平/垂直平移，讓「佔用的欄列」越少
+// 越好、network 結構不變、網格尺寸不變（buildLineCompact）；後面的
+// 端點拉直／縮減網格 tab 都接在它之後（鏈 = 該鏈結果 → 直線縮減 → 端點拉直
+// → 縮減網格）。
 const LINE_KIND = {
   'hc-line': 'hc', 'hc-rect-line': 'rect', 'hc-align-line': 'align',
   'hc-ilp-line': 'ilp', 'hc-llm-line': 'llm',
 }
-// 端點拉直+縮減網格+直線縮減循環（左選單第 7 部份）：每條鏈一個 tab——在該鏈
-// 結果之上交替 端點拉直→縮減網格→直線縮減，跑到某輪「沒有點可以動」為止
+// 直線縮減+端點拉直+縮減網格循環（左選單第 7 部份）：每條鏈一個 tab——在該鏈
+// 結果之上交替 直線縮減→端點拉直→縮減網格，跑到某輪「沒有點可以動」為止
 // （straightenCompactLoop）。
 const LOOP_KIND = {
   'hc-loop': 'hc', 'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
@@ -322,13 +325,11 @@ const postKind = computed(() =>
   isHC.value ? POST_KIND[mode.value] ?? null
     : isRWD.value && ['rect', 'align', 'ilp'].includes(layer.value?.compact) ? layer.value.compact
       : null)
-// 縮減網格 tabs: drop empty (colour-free) grid rows/columns from the chain's
-// ENDPOINT-STRAIGHTENED layout (chain result → 端點拉直 → compactGrid) —
-// smaller grid, identical topology (rank order preserved by compactGrid).
+// 縮減網格 tabs（鏈的第 3 步）: drop empty (colour-free) grid rows/columns
+// from the chain's layout (chain result → 直線縮減 → 端點拉直 → compactGrid)
+// — smaller grid, identical topology (rank order preserved by compactGrid).
 // RWD views sit on the HC compact grid in BOTH of their tabs.
-// 直線縮減 tab 也要先走該鏈的 拉直→縮減（LINE_KIND modes 以 -line 結尾）。
-const hcCompact = computed(() =>
-  mode.value.endsWith('compact') || mode.value.endsWith('-line') || isRWD.value)
+const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
 // 「LLM調整」（rwd-llm）畫的是同一套 RWD 路網，只是欄寬列高由 LLM 推理的
 // 區間權重決定（skill route-llm-grid，結果檔 data/metro/llmgrids/）。
@@ -495,8 +496,8 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 7 個部份：原始／Hill Climbing／直線演算法／端點拉直／縮減網格
-    // ／直線縮減／端點拉直+縮減網格+直線縮減循環
+    // 左選單分 7 個部份：原始／Hill Climbing／直線演算法／直線縮減／端點拉直
+    // ／縮減網格／直線縮減+端點拉直+縮減網格循環
     // （header 項只是分組標題、不可點）。
     return [
       { header: '原始' },
@@ -510,8 +511,15 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
-      // 端點拉直：每條鏈一個 tab（在該鏈結果之上做端點拉直，原 tab 不變）；
-      // 每條鏈：該鏈結果 → 端點拉直 → 縮減網格（縮減網格壓縮拉直後的結果）
+      // 鏈的三步（每步一區、每條鏈一個 tab，前面的 tab 不受後面步驟影響）：
+      // 該鏈結果 → 直線縮減 → 端點拉直 → 縮減網格
+      // 直線縮減：直線（跨相交點串接）整條 H/V 平移讓佔用欄列更少（見 LINE_KIND）
+      { header: '直線縮減' },
+      { id: 'hc-line', label: 'Hill Climbing直線縮減' },
+      { id: 'hc-rect-line', label: '直角爬山直線縮減' },
+      { id: 'hc-align-line', label: '軸對齊直線縮減' },
+      { id: 'hc-ilp-line', label: '整數規劃直線縮減' },
+      { id: 'hc-llm-line', label: 'LLM 對齊直線縮減' },
       { header: '端點拉直' },
       { id: 'hc-end', label: 'Hill Climbing端點拉直' },
       { id: 'hc-rect-end', label: '直角爬山端點拉直' },
@@ -524,15 +532,8 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-align-compact', label: '軸對齊縮減網格' },
       { id: 'hc-ilp-compact', label: '整數規劃縮減網格' },
       { id: 'hc-llm-compact', label: 'LLM 對齊縮減網格' },
-      // 直線縮減：直線（跨相交點串接）整條 H/V 平移讓網格更小（見 LINE_KIND）
-      { header: '直線縮減' },
-      { id: 'hc-line', label: 'Hill Climbing直線縮減' },
-      { id: 'hc-rect-line', label: '直角爬山直線縮減' },
-      { id: 'hc-align-line', label: '軸對齊直線縮減' },
-      { id: 'hc-ilp-line', label: '整數規劃直線縮減' },
-      { id: 'hc-llm-line', label: 'LLM 對齊直線縮減' },
-      // 循環：端點拉直→縮減網格→直線縮減 直到沒有點可以動（見 LOOP_KIND）
-      { header: '端點拉直+縮減網格+直線縮減循環' },
+      // 循環：直線縮減→端點拉直→縮減網格 直到沒有點可以動（見 LOOP_KIND）
+      { header: '直線縮減+端點拉直+縮減網格循環' },
       { id: 'hc-loop', label: 'Hill Climbing循環' },
       { id: 'hc-rect-loop', label: '直角爬山循環' },
       { id: 'hc-align-loop', label: '軸對齊循環' },
@@ -773,10 +774,24 @@ async function render() {
       llmStats.value = cachedLlm.stats
       llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
     }
-    // 端點拉直區塊: endpoint straighten ON TOP of the current chain's result
-    // (原 tab 不動)。每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，
-    // 走同一套硬規則、迭代到不動點。每條鏈的縮減網格（含 RWD 底圖）都壓縮
-    // 「拉直後」的結果：鏈 = 該鏈結果 → 端點拉直 → 縮減網格。
+    // 鏈的後處理順序：直線縮減 → 端點拉直 → 縮減網格（循環 tab 另走
+    // straightenCompactLoop）。
+    // ① 直線縮減: rigid H/V shifts of whole straight lines (stitched across
+    // intersections) so fewer columns/rows are OCCUPIED — grid dims and the
+    // network structure unchanged (buildLineCompact). Applies to the -line
+    // tabs AND as step 1 under 端點拉直/縮減網格/RWD.
+    {
+      const lineKind = LINE_KIND[mode.value] ?? END_KIND[mode.value]
+        ?? (hcCompact.value ? rwdCompactKey.value : null)
+      if (lineKind) {
+        if (!cachedLine[lineKind]) cachedLine[lineKind] = buildLineCompact(cachedSkeleton, cells, nC, nR)
+        cells = cachedLine[lineKind].cellAfter
+        lineStats.value = cachedLine[lineKind].stats
+      }
+    }
+    // ② 端點拉直: endpoint straighten on the line-compacted layout (原 tab
+    // 不動)。每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，
+    // 走同一套硬規則、迭代到不動點。
     {
       const endKind = END_KIND[mode.value]
         ?? (hcCompact.value ? rwdCompactKey.value : null)
@@ -786,9 +801,9 @@ async function render() {
         endpStats.value = cachedEndp[endKind].stats
       }
     }
+    // ③ 縮減網格: compacts the CURRENT layout (直線縮減→端點拉直 applied
+    // above): the hc chain's, or the post-pass/LLM one on the 縮減 tabs.
     if (hcCompact.value) {
-      // compacts the CURRENT layout: the HC result, or the post-pass/LLM one
-      // when this is one of the 縮減 tabs (cells already swapped above).
       const ckey = rwdCompactKey.value
       if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
       cells = cachedCompact[ckey].cellAfter
@@ -796,23 +811,10 @@ async function render() {
       nR = cachedCompact[ckey].rows
       hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
     }
-    // 直線縮減 tabs: on the chain's 拉直→縮減 result (applied just above —
-    // -line modes count as hcCompact), rigid H/V shifts of whole straight
-    // lines to shrink the grid, network structure unchanged (buildLineCompact).
-    {
-      const lineKind = LINE_KIND[mode.value]
-      if (lineKind) {
-        if (!cachedLine[lineKind]) cachedLine[lineKind] = buildLineCompact(cachedSkeleton, cells, nC, nR)
-        cells = cachedLine[lineKind].cellAfter
-        nC = cachedLine[lineKind].cols
-        nR = cachedLine[lineKind].rows
-        lineStats.value = cachedLine[lineKind].stats
-      }
-    }
-    // 端點拉直+縮減網格+直線縮減循環 tabs: on the chain's result (cells still
-    // uncompacted here — these modes match neither END_KIND nor hcCompact),
-    // alternate 端點拉直 → compactGrid → 直線縮減 until a round moves nothing
-    // (straightenCompactLoop).
+    // 直線縮減+端點拉直+縮減網格循環 tabs: on the chain's result (cells still
+    // uncompacted here — these modes match neither LINE/END_KIND nor
+    // hcCompact), alternate 直線縮減 → 端點拉直 → compactGrid until a round
+    // moves nothing (straightenCompactLoop).
     {
       const loopKind = LOOP_KIND[mode.value]
       if (loopKind) {
@@ -1591,9 +1593,9 @@ onBeforeUnmount(() => {
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
       </span>
 
-      <!-- 直線縮減: rigid H/V line shifts that shrink the grid -->
+      <!-- 直線縮減: rigid H/V line shifts that reduce the OCCUPIED cols/rows -->
       <span v-if="isHC && LINE_KIND[mode] && lineStats" class="hc-stats">
-        直線縮減 移動 {{ lineStats.moved }} 線 · 網格
+        直線縮減 移動 {{ lineStats.moved }} 線 · 佔用欄列
         {{ lineStats.fromCols }}×{{ lineStats.fromRows }} →
         {{ lineStats.cols }}×{{ lineStats.rows }}
         · 水平垂直 {{ lineStats.hvBefore }} → {{ lineStats.hvAfter }}／{{ lineStats.segs }} 段
@@ -1601,10 +1603,10 @@ onBeforeUnmount(() => {
           v-if="!lineStats.converged">（達上限未收斂）</template>
       </span>
 
-      <!-- 循環: 端點拉直 → 縮減網格 → 直線縮減 until nothing can move -->
+      <!-- 循環: 直線縮減 → 端點拉直 → 縮減網格 until nothing can move -->
       <span v-if="isHC && LOOP_KIND[mode] && loopStats" class="hc-stats">
-        循環 {{ loopStats.rounds }} 輪 · 端點拉直 {{ loopStats.moved }} 點
-        · 直線縮減 {{ loopStats.lineMoved }} 線
+        循環 {{ loopStats.rounds }} 輪 · 直線縮減 {{ loopStats.lineMoved }} 線
+        · 端點拉直 {{ loopStats.moved }} 點
         · 水平垂直 {{ loopStats.hvBefore }} → {{ loopStats.hvAfter }}／{{ loopStats.segs }} 段
         · 網格 {{ loopStats.fromCols }}×{{ loopStats.fromRows }} →
         {{ loopStats.cols }}×{{ loopStats.rows }}<template
