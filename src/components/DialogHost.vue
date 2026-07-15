@@ -117,28 +117,25 @@ const highwaysByStations = computed(() => {
 const hwZh = (s) => (s.unit === 'metro' ? `${s.cityZh} · ${s.countryZh}` : s.countryZh)
 const hwEn = (s) => (s.unit === 'metro' ? `${s.city} · ${s.country}` : s.country)
 
-// Quick pick — a mix of small countries (matched by country) and major metro
-// areas of big countries (matched by city), grouped by continent.
+// Quick pick — MAJOR METRO AREAS (系統單位是都會區，不是國家), grouped by continent.
 const QUICK_COUNTRIES = [
-  { zh: '台灣', en: 'Taiwan' }, { zh: '東京', en: 'Tokyo' }, { zh: '大阪', en: 'Osaka' },
-  { zh: '首爾', en: 'Seoul' }, { zh: '上海', en: 'Shanghai' }, { zh: '北京', en: 'Beijing' },
-  { zh: '新加坡', en: 'Singapore' }, { zh: '香港', en: 'Hong Kong' },
-  { zh: '紐約', en: 'New York' }, { zh: '洛杉磯', en: 'Los Angeles' }, { zh: '芝加哥', en: 'Chicago' },
-  { zh: '多倫多', en: 'Toronto' }, { zh: '溫哥華', en: 'Vancouver' },
-  { zh: '德國', en: 'Germany' }, { zh: '法國', en: 'France' }, { zh: '英國', en: 'United Kingdom' },
-  { zh: '西班牙', en: 'Spain' }, { zh: '義大利', en: 'Italy' }, { zh: '荷蘭', en: 'Netherlands' },
-  { zh: '雪梨', en: 'Sydney' }, { zh: '墨爾本', en: 'Melbourne' },
+  { zh: '台北', en: 'Taipei' }, { zh: '高雄', en: 'Kaohsiung' },
+  { zh: '東京', en: 'Tokyo' }, { zh: '大阪', en: 'Osaka' }, { zh: '首爾', en: 'Seoul' },
+  { zh: '上海', en: 'Shanghai' }, { zh: '北京', en: 'Beijing' }, { zh: '香港', en: 'Hong Kong' },
+  { zh: '紐約', en: 'New York' }, { zh: '芝加哥', en: 'Chicago' }, { zh: '多倫多', en: 'Toronto' },
+  { zh: '柏林', en: 'Berlin' }, { zh: '慕尼黑', en: 'Munich' }, { zh: '巴黎', en: 'Paris' },
+  { zh: '倫敦', en: 'London' }, { zh: '馬德里', en: 'Madrid' }, { zh: '巴塞隆納', en: 'Barcelona' },
+  { zh: '羅馬', en: 'Rome' }, { zh: '阿姆斯特丹', en: 'Amsterdam' }, { zh: '莫斯科', en: 'Moscow' },
+  { zh: '雪梨', en: 'Sydney' },
 ]
 const hwQuick = computed(() => {
   if (!highwayCatalog.value) return []
   const cat = highwayCatalog.value
   return QUICK_COUNTRIES.map((q) => ({
     ...q,
-    // match a country-unit by country, or a metro-unit by city (zh or en)
-    sys: cat.find((s) => s.country === q.en && s.unit !== 'metro')
-      ?? cat.find((s) => s.city === q.en || s.cityZh === q.zh)
+    // match a metro area by city (zh or en); prefix fallback for New York City etc.
+    sys: cat.find((s) => s.city === q.en || s.cityZh === q.zh)
       ?? cat.find((s) => (s.city || '').toLowerCase().startsWith(q.en.toLowerCase()))
-      ?? cat.find((s) => (s.country || '').toLowerCase().startsWith(q.en.toLowerCase()))
       ?? null,
   }))
 })

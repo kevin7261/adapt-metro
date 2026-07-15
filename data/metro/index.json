@@ -3,7 +3,7 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1756,
+  "line_total": 1755,
   "station_total": 16899,
   "systems": [
     {
@@ -1839,7 +1839,7 @@
       "official_map": "https://zh.wikipedia.org/wiki/荃灣綫",
       "wikidata": "Q1194568",
       "line_count": 13,
-      "segment_count": 30,
+      "segment_count": 29,
       "station_count": 96,
       "audit": {
         "strategies_tried": [],

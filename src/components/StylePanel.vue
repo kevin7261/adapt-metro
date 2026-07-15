@@ -1583,6 +1583,11 @@ function startResize(e) {
   border-radius: 4px;
   padding: 1px 5px;
   flex-shrink: 0;
+  /* 固定最小寬＋置中：單字（G/R）與雙三字（LB/TML）ref 同寬，路線名才會對齊
+     （使用者 2026-07：建設中章與線名沒對齊——根因是 ref 徽章寬度不一）。 */
+  min-width: 34px;
+  text-align: center;
+  box-sizing: border-box;
 }
 .line-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 

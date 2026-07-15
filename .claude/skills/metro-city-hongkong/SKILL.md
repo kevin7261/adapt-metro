@@ -30,16 +30,17 @@ description: 香港地鐵（港鐵 MTR）資料的城市專屬規則——觀塘
 東鐵綫（OSM name:zh 多冠「港鐵」）——由 `route_tag_patches` 對 master＋變體 relation
 統一補官方名（機場快綫／東涌綫／南港島綫 OSM 本來就正確）。
 
-## 機場快線／東涌線共線（快車跨站 pass-through，使用者：「機場快線和東涌是共線到欣澳才分出去」）
+## 機場快線／東涌線共線（快車跨站 pass-through，使用者裁決 2026-07：「共線走廊要畫到東涌站」）
 
 機場快線 AEL（快車）與東涌線 TCL（慢車）共用 Hong Kong→Kowloon→Olympic→Nam Cheong→
-Lai King→Tsing Yi→**Sunny Bay 欣澳**的物理軌道，**到欣澳才分岔**（AEL→機場、TCL→東涌）。
-AEL 跳過中間站（Olympic/Nam Cheong/Lai King/Sunny Bay）。因線幾何是「站對站」，AEL 的直達邊
-與 TCL 逐站路徑不同站段 → 抓不到共線。用 `_overrides/express_passthrough.json` 讓 AEL 的
-**幾何沿 TCL 的中間站畫**（pass-through 頂點），使 Hong Kong↔Sunny Bay 整段判為共線、畫
-青+橘雙色；但這些站**不算 AEL 停靠**（AEL 維持 5 站、中間站 `lines` 不含 AEL）。
-- Kowloon→Tsing Yi 段自動偵測即可（TCL 走完該段）；**欣澳段需手動 override**——因 TCL 在
-  欣澳轉往東涌、沒有單一 route 走完 Tsing Yi→Sunny Bay→Airport，自動偵測抓不到。
+Lai King→Tsing Yi→Sunny Bay 欣澳的物理軌道；示意上**共線走廊一路畫到東涌站**（與官方圖
+一致），**東涌才分岔**（AEL→機場、TCL 止於東涌）。AEL 跳過中間站。因線幾何是「站對站」，
+AEL 的直達邊與 TCL 逐站路徑不同站段 → 抓不到共線。用 `_overrides/express_passthrough.json`
+讓 AEL 的**幾何沿 TCL 的中間站畫**（pass-through 頂點：Tsing Yi→欣澳→**東涌**→Airport），
+使 Hong Kong↔東涌整段判為共線、畫青+橘雙色；但這些站**不算 AEL 停靠**（AEL 維持 5 站；
+車站 `routes` 對 AEL 標 `pass:true`——AEL pass：奧運/南昌/荔景/欣澳/**東涌**）。
+- Kowloon→Tsing Yi 段自動偵測即可（TCL 走完該段）；**欣澳→東涌段需手動 override**——因
+  沒有單一 route 走完 Tsing Yi→欣澳→東涌→Airport，自動偵測抓不到。
 詳見 [[metro-osm-fetch]]「快車跨站共線」（自動偵測＋手動 override 兩層）。
 
 ## 中環↔香港 官方共站（異名轉乘，使用者裁決 2026-07）
