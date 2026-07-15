@@ -88,12 +88,20 @@ function importSystem(sys) {
 }
 
 /* Import Highway Network — highway systems mirror the metro schema (see skill
-   highway-osm-fetch); browse data/highway/index.json and load one as a layer. */
+   highway-osm-fetch). One tabbed modal, 3 tabs like the metro import (dialog id
+   = active tab): 快速選擇 / 依交流道數排序 / 全球高速公路地圖. One file per country. */
+const HIGHWAY_DIALOGS = ['import-highway-quick', 'import-highway-stations', 'import-highway-map']
+const highwayTabs = [
+  { id: 'import-highway-quick', label: '快速選擇' },
+  { id: 'import-highway-stations', label: '依交流道數排序' },
+  { id: 'import-highway-map', label: '全球高速公路地圖' },
+]
 const highwayCatalog = ref(null)
 const highwayError = ref(null)
 const highwaySort = ref('desc') // 'desc' 多到少 | 'asc' 少到多（依交流道數）
+const hwContinent = ref('')     // 全球高速公路地圖 miller browse
 watch(dialog, (d) => {
-  if (d !== 'import-highway' || highwayCatalog.value) return
+  if (!HIGHWAY_DIALOGS.includes(d) || highwayCatalog.value) return
   highwayError.value = null
   loadHighwayCatalog()
     .then((systems) => { highwayCatalog.value = systems })
@@ -104,12 +112,67 @@ const highwaysByStations = computed(() => {
   const dir = highwaySort.value === 'asc' ? 1 : -1
   return [...highwayCatalog.value].sort((a, b) => (a.station_count - b.station_count) * dir)
 })
+// 中文＋English label for a system: metro-unit (big country) shows 城市·國家,
+// country-unit (small country) shows just the country.
+const hwZh = (s) => (s.unit === 'metro' ? `${s.cityZh} · ${s.countryZh}` : s.countryZh)
+const hwEn = (s) => (s.unit === 'metro' ? `${s.city} · ${s.country}` : s.country)
+
+// Quick pick — a mix of small countries (matched by country) and major metro
+// areas of big countries (matched by city), grouped by continent.
+const QUICK_COUNTRIES = [
+  { zh: '台灣', en: 'Taiwan' }, { zh: '東京', en: 'Tokyo' }, { zh: '大阪', en: 'Osaka' },
+  { zh: '首爾', en: 'Seoul' }, { zh: '上海', en: 'Shanghai' }, { zh: '北京', en: 'Beijing' },
+  { zh: '新加坡', en: 'Singapore' }, { zh: '香港', en: 'Hong Kong' },
+  { zh: '紐約', en: 'New York' }, { zh: '洛杉磯', en: 'Los Angeles' }, { zh: '芝加哥', en: 'Chicago' },
+  { zh: '多倫多', en: 'Toronto' }, { zh: '溫哥華', en: 'Vancouver' },
+  { zh: '德國', en: 'Germany' }, { zh: '法國', en: 'France' }, { zh: '英國', en: 'United Kingdom' },
+  { zh: '西班牙', en: 'Spain' }, { zh: '義大利', en: 'Italy' }, { zh: '荷蘭', en: 'Netherlands' },
+  { zh: '雪梨', en: 'Sydney' }, { zh: '墨爾本', en: 'Melbourne' },
+]
+const hwQuick = computed(() => {
+  if (!highwayCatalog.value) return []
+  const cat = highwayCatalog.value
+  return QUICK_COUNTRIES.map((q) => ({
+    ...q,
+    // match a country-unit by country, or a metro-unit by city (zh or en)
+    sys: cat.find((s) => s.country === q.en && s.unit !== 'metro')
+      ?? cat.find((s) => s.city === q.en || s.cityZh === q.zh)
+      ?? cat.find((s) => (s.city || '').toLowerCase().startsWith(q.en.toLowerCase()))
+      ?? cat.find((s) => (s.country || '').toLowerCase().startsWith(q.en.toLowerCase()))
+      ?? null,
+  }))
+})
+const hwQuickByContinent = computed(() => {
+  const groups = new Map()
+  for (const q of hwQuick.value) {
+    const cont = q.sys?.continent ?? 'zzz'
+    if (!groups.has(cont)) groups.set(cont, [])
+    groups.get(cont).push(q)
+  }
+  return [...groups.entries()]
+    .map(([continent, list]) => ({ continent, label: continentZh(continent), cities: list }))
+    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
+})
+// 全球高速公路地圖 — miller browse: 洲別 → 國家 (one file per country, no city column).
+const hwContinents = computed(() => {
+  if (!highwayCatalog.value) return []
+  return [...new Set(highwayCatalog.value.map((s) => s.continent))]
+    .sort((a, b) => continentRank(a) - continentRank(b))
+    .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
+})
+const hwCountries = computed(() => {
+  if (!highwayCatalog.value || !hwContinent.value) return []
+  return highwayCatalog.value
+    .filter((s) => s.continent === hwContinent.value)
+    .map((s) => ({ sys: s, zh: hwZh(s), en: hwEn(s) }))
+    .sort((a, b) => a.en.localeCompare(b.en))
+})
 function importHighway(sys) {
   if (!sys) return
   const layer = store.importHighwaySystem(sys)
   openLayerTab(layer)
   close()
-  store.toast(`已匯入 ${sys.cityZh ?? sys.city} 高速公路網（${sys.line_count} 條 / ${sys.station_count} 交流道）`)
+  store.toast(`已匯入 ${hwZh(sys)} 高速公路網（${sys.line_count} 條 / ${sys.station_count} 交流道）`)
 }
 
 function importMetro() {
@@ -413,38 +476,107 @@ const shortcuts = [
       </div>
     </div>
 
-    <!-- Import Highway Network: browse data/highway systems (交流道網) -->
-    <div v-else-if="dialog === 'import-highway'" class="dialog import-modal">
+    <!-- Import Highway Network: one tabbed modal, 3 tabs like the metro import -->
+    <div v-else-if="HIGHWAY_DIALOGS.includes(dialog)" class="dialog import-modal">
       <div class="dialog-header">
         <h2 class="dialog-title">匯入高速公路網</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
-      <div class="dialog-body stations-body">
+      <div class="dialog-tabs" role="tablist">
+        <button
+          v-for="t in highwayTabs"
+          :key="t.id"
+          class="dialog-tab"
+          :class="{ active: dialog === t.id }"
+          role="tab"
+          :aria-selected="dialog === t.id"
+          @click="store.ui.dialog = t.id"
+        >{{ t.label }}</button>
+      </div>
+
+      <div class="dialog-body" :class="{ 'stations-body': dialog === 'import-highway-stations' || dialog === 'import-highway-quick' }">
         <div v-if="highwayError" class="import-status error">載入高速公路清單失敗：{{ highwayError }}</div>
         <div v-else-if="!highwayCatalog" class="import-status">載入高速公路系統清單…</div>
-        <div v-else-if="!highwaysByStations.length" class="import-status">
+        <div v-else-if="!highwayCatalog.length" class="import-status">
           尚無高速公路資料 — 先執行 <code>npm run highway:all</code>（或 <code>highway:fetch twn</code> 試抓一國）
         </div>
+
         <template v-else>
-          <div class="sort-bar">
-            <div class="sort-toggle">
-              <button class="sort-btn" :class="{ active: highwaySort === 'desc' }" @click="highwaySort = 'desc'">交流道多到少</button>
-              <button class="sort-btn" :class="{ active: highwaySort === 'asc' }" @click="highwaySort = 'asc'">少到多</button>
+          <!-- 快速選擇：依洲別分組，每組一排 -->
+          <div v-if="dialog === 'import-highway-quick'" class="quick-groups">
+            <div v-for="g in hwQuickByContinent" :key="g.continent" class="quick-group">
+              <div class="quick-group-title">{{ g.label }}</div>
+              <div class="quick-grid">
+                <button
+                  v-for="q in g.cities"
+                  :key="q.en"
+                  class="quick-cell"
+                  :disabled="!q.sys"
+                  :title="q.sys ? '' : '資料集中還沒有此國家（先抓取）'"
+                  @click="importHighway(q.sys)"
+                >
+                  <span class="quick-zh">{{ q.zh }}</span>
+                  <span class="quick-en">{{ q.en }}</span>
+                  <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 交流道 · ${q.sys.line_count} 條` : '—' }}</span>
+                </button>
+              </div>
             </div>
-            <span class="sort-meta">{{ highwaysByStations.length }} 個國家／地區</span>
           </div>
-          <div class="quick-grid">
-            <button
-              v-for="s in highwaysByStations"
-              :key="s.file"
-              class="quick-cell"
-              @click="importHighway(s)"
-            >
-              <span class="quick-zh">{{ s.countryZh ?? s.country }}</span>
-              <span class="quick-en">{{ s.country }}</span>
-              <span class="quick-meta">{{ s.station_count }} 交流道 · {{ s.line_count }} 條高速公路</span>
-            </button>
-          </div>
+
+          <!-- 依交流道數排序 -->
+          <template v-else-if="dialog === 'import-highway-stations'">
+            <div class="sort-bar">
+              <div class="sort-toggle">
+                <button class="sort-btn" :class="{ active: highwaySort === 'desc' }" @click="highwaySort = 'desc'">交流道多到少</button>
+                <button class="sort-btn" :class="{ active: highwaySort === 'asc' }" @click="highwaySort = 'asc'">少到多</button>
+              </div>
+              <span class="sort-meta">{{ highwaysByStations.length }} 個國家／地區</span>
+            </div>
+            <div class="quick-grid">
+              <button
+                v-for="(s, i) in highwaysByStations"
+                :key="s.file"
+                class="quick-cell"
+                @click="importHighway(s)"
+              >
+                <span class="quick-rank">#{{ i + 1 }}</span>
+                <span class="quick-zh">{{ hwZh(s) }}</span>
+                <span class="quick-en">{{ hwEn(s) }}</span>
+                <span class="quick-meta">{{ s.station_count }} 交流道 · {{ s.line_count }} 條</span>
+              </button>
+            </div>
+          </template>
+
+          <!-- 全球高速公路地圖：洲別 → 國家 -->
+          <template v-else-if="dialog === 'import-highway-map'">
+            <div class="miller">
+              <div class="miller-col">
+                <div class="miller-head">洲別</div>
+                <div class="miller-list">
+                  <button
+                    v-for="c in hwContinents"
+                    :key="c.value"
+                    class="miller-item"
+                    :class="{ active: hwContinent === c.value }"
+                    @click="hwContinent = c.value"
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
+                </div>
+              </div>
+              <div class="miller-col">
+                <div class="miller-head">國家</div>
+                <div class="miller-list">
+                  <div v-if="!hwContinent" class="miller-empty">← 先選洲別</div>
+                  <button
+                    v-for="c in hwCountries"
+                    :key="c.sys.file"
+                    class="miller-item"
+                    @click="importHighway(c.sys)"
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span>
+                    <span class="miller-meta">{{ c.sys.station_count }} 交流道</span></button>
+                </div>
+              </div>
+            </div>
+          </template>
         </template>
       </div>
     </div>
@@ -912,6 +1044,7 @@ const shortcuts = [
   white-space: nowrap;
 }
 .miller-item .miller-en { color: hsl(var(--muted-foreground)); font-size: 11px; }
+.miller-item .miller-meta { float: right; color: hsl(var(--muted-foreground)); font-size: 10.5px; font-variant-numeric: tabular-nums; }
 .miller-item.active .miller-en { color: hsl(var(--primary) / 0.7); }
 .miller-item:hover { background: hsl(var(--accent) / 0.6); }
 .miller-item.active {

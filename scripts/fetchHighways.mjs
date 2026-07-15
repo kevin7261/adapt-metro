@@ -11,9 +11,10 @@
 // back to one query per metro area — build.mjs still merges them into one
 // country file (with gaps between far-apart metro areas).
 //
-//   node scripts/fetchHighways.mjs            # all countries
-//   node scripts/fetchHighways.mjs twn        # only countries matching (cc/name)
-//   node scripts/fetchHighways.mjs twn --force # ignore cache, refetch
+//   node scripts/fetchHighways.mjs                       # all countries
+//   node scripts/fetchHighways.mjs twn                   # one country (cc/name substring)
+//   node scripts/fetchHighways.mjs as-chn,as-jpn,eu-     # many; "eu-" = all of Europe
+//   node scripts/fetchHighways.mjs twn --force           # ignore cache, refetch
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -31,7 +32,10 @@ const SPAN_CAP = 6.0      // union bbox wider than this (°) → fetch per metro
 
 const args = process.argv.slice(2)
 const force = args.includes('--force')
-const filter = (args.find((a) => !a.startsWith('--')) ?? '').toLowerCase()
+// comma-separated substrings matched against cc or country name; "eu-" = all
+// of Europe, "as-chn,as-jpn" = China + Japan, empty = every country.
+const filters = (args.find((a) => !a.startsWith('--')) ?? '')
+  .toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)
 
 async function exists(p) { try { return (await stat(p)).size > 0 } catch { return false } }
 
@@ -73,48 +77,59 @@ async function main() {
     if (!byCountry.has(cc)) byCountry.set(cc, { cc, continent: sys.continent, country: sys.country, members: [] })
     const geo = JSON.parse(await readFile(join(METRO, sys.file), 'utf8'))
     const bbox = stationBbox(geo)
-    if (bbox) byCountry.get(cc).members.push({ slug: sys.file.split('/').pop().replace(/\.geojson$/, ''), bbox })
+    if (bbox) byCountry.get(cc).members.push({
+      slug: sys.file.split('/').pop().replace(/\.geojson$/, ''), city: sys.city, bbox,
+    })
   }
 
   let countries = [...byCountry.values()].filter((c) => c.members.length)
-  if (filter) countries = countries.filter((c) => c.cc.includes(filter) || c.country.toLowerCase().includes(filter))
-  console.log(`highway fetch: ${countries.length} country(ies)` + (filter ? ` matching "${filter}"` : ''))
+  if (filters.length) countries = countries.filter((c) =>
+    filters.some((f) => c.cc.includes(f) || c.country.toLowerCase().includes(f)))
+  console.log(`highway fetch: ${countries.length} country(ies)` + (filters.length ? ` matching ${filters.join(',')}` : ''))
+
+  const writeCache = async (name, obj) => {
+    const ways = obj.elements.filter((e) => e.type === 'way').length
+    const jns = obj.elements.filter((e) => e.type === 'node').length
+    await writeFile(join(CACHE, name), JSON.stringify(obj))
+    console.log(`${ways} motorway ways, ${jns} junctions`)
+  }
 
   let ok = 0, skipped = 0
   for (const c of countries) {
-    const out = join(CACHE, `hw_${c.cc}.json`)
-    if (!force && (await exists(out))) { skipped++; continue }
-
     const uni = unionBbox(c.members.map((m) => m.bbox))
     const wholeCountry = (uni[2] - uni[0]) <= SPAN_CAP && (uni[3] - uni[1]) <= SPAN_CAP
-    process.stdout.write(`  ${c.cc} (${c.country}) `)
-    let elements
-    try {
-      if (wholeCountry) {
-        process.stdout.write(`whole-country bbox … `)
-        elements = await fetchBox(uni)
-      } else {
-        // huge country → per metro area, merge, dedupe by type+id
-        process.stdout.write(`${c.members.length} metro-area bboxes … `)
-        const seen = new Set(), merged = []
-        for (const m of c.members) {
-          for (const el of await fetchBox(m.bbox)) {
-            const k = `${el.type}${el.id}`
-            if (!seen.has(k)) { seen.add(k); merged.push(el) }
-          }
-        }
-        elements = merged
-      }
-    } catch (e) { console.log(`FAILED: ${e.message}`); continue }
 
-    const ways = elements.filter((e) => e.type === 'way').length
-    const jns = elements.filter((e) => e.type === 'node').length
-    await writeFile(out, JSON.stringify({
-      cc: c.cc, continent: c.continent, country: c.country,
-      whole_country: wholeCountry, bbox: uni, elements,
-    }))
-    console.log(`${ways} motorway ways, ${jns} junctions`)
-    ok++
+    if (wholeCountry) {
+      // small country → ONE file per country, whole-country query
+      const out = join(CACHE, `hw_${c.cc}.json`)
+      if (!force && (await exists(out))) { skipped++; continue }
+      process.stdout.write(`  ${c.cc} (${c.country}) whole-country … `)
+      try {
+        const elements = await fetchBox(uni)
+        await writeCache(`hw_${c.cc}.json`, {
+          cc: c.cc, slug: c.cc, unit: 'country', continent: c.continent,
+          country: c.country, city: c.country, bbox: uni, elements,
+        })
+        ok++
+      } catch (e) { console.log(`FAILED: ${e.message}`) }
+    } else {
+      // large country (span > SPAN_CAP) → one file PER METRO AREA (使用者: 太大
+      // 的話用都會區為單位). Each metro area is fetched and cached separately.
+      console.log(`  ${c.cc} (${c.country}) too wide → ${c.members.length} metro areas:`)
+      for (const m of c.members) {
+        const out = join(CACHE, `hw_${m.slug}.json`)
+        if (!force && (await exists(out))) { skipped++; continue }
+        process.stdout.write(`    ${m.slug} … `)
+        try {
+          const elements = await fetchBox(m.bbox)
+          await writeCache(`hw_${m.slug}.json`, {
+            cc: c.cc, slug: m.slug, unit: 'metro', continent: c.continent,
+            country: c.country, city: m.city, bbox: m.bbox, elements,
+          })
+          ok++
+        } catch (e) { console.log(`FAILED: ${e.message}`) }
+      }
+    }
   }
   console.log(`done: ${ok} fetched, ${skipped} cached`)
 }

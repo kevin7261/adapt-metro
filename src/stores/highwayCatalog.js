@@ -8,13 +8,10 @@ let catalogPromise = null
 function withZh(s) {
   const id = s.file.split('/').pop().replace(/\.geojson$/, '')
   const countryZh = s.country_zh ?? s.country
-  return {
-    ...s,
-    id,
-    // one file per country → the "city" label is the country name
-    cityZh: countryZh,
-    countryZh,
-  }
+  // small country → one file per country (city label = country); big country →
+  // one file per metro area (city label = the metro city).
+  const cityZh = s.city_zh ?? (s.unit === 'metro' ? s.city : countryZh)
+  return { ...s, id, cityZh, countryZh }
 }
 
 export function loadHighwayCatalog() {

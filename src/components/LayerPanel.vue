@@ -269,7 +269,7 @@ onBeforeUnmount(() => {
               v-if="item.group.id === 'highway-maps'"
               class="btn-icon group-add"
               title="Import highway network（高速公路交流道網）"
-              @click.stop="store.ui.dialog = 'import-highway'"
+              @click.stop="store.ui.dialog = 'import-highway-quick'"
             >
               <MIcon name="add" :size="14" />
             </button>

@@ -24,20 +24,21 @@ const HIGHWAY = join(ROOT, 'data', 'highway')
 const CACHE = join(HIGHWAY, '_cache')
 const METRO = join(ROOT, 'data', 'metro')
 
-// English country name → 中文, derived from the metro data (cityNamesZh.json is
-// keyed by city slug and carries a Chinese country name), so highway layers show
-// 中文＋English exactly like metro maps.
-async function countryZhMap() {
-  const map = {}
+// 中文 labels from the metro data (cityNamesZh.json keyed by city slug carries a
+// Chinese country + city name), so highway layers show 中文＋English like metro.
+// Returns { countryZh: {English country → 中文}, citySlug: {slug → {country,city}} }.
+async function zhMaps() {
+  const countryZh = {}
+  let citySlug = {}
   try {
     const idx = JSON.parse(await readFile(join(METRO, 'index.json'), 'utf8'))
-    const zh = JSON.parse(await readFile(join(ROOT, 'src', 'stores', 'cityNamesZh.json'), 'utf8'))
+    citySlug = JSON.parse(await readFile(join(ROOT, 'src', 'stores', 'cityNamesZh.json'), 'utf8'))
     for (const s of idx.systems) {
       const slug = s.file.split('/').pop().replace(/\.geojson$/, '')
-      if (s.country && zh[slug]?.country) map[s.country] = zh[slug].country
+      if (s.country && citySlug[slug]?.country) countryZh[s.country] = citySlug[slug].country
     }
   } catch { /* labels fall back to English */ }
-  return map
+  return { countryZh, citySlug }
 }
 
 const PALETTE = [
@@ -156,12 +157,13 @@ function orderAlongPath(items) {
   return ord.map((i) => items[i].root)
 }
 
-// ---- per-country assembly ---------------------------------------------------
-function buildSystem(raw, zhMap = {}) {
-  const { cc, continent, country } = raw
-  const countryZh = zhMap[country] ?? country
-  const city = country // one file per country; the "city" label is the country
-  const slug = cc
+// ---- per-system assembly (a system = a country, or a metro area for big ones)
+function buildSystem(raw, { countryZh, cityZh } = {}) {
+  const { continent, country } = raw
+  const slug = raw.slug || raw.cc
+  const city = raw.city || country      // country name (country-unit) or metro city
+  countryZh = countryZh ?? country
+  cityZh = cityZh ?? city
   const ways = raw.elements.filter((e) => e.type === 'way' && e.tags?.ref)
   const junctions = raw.elements.filter((e) => e.type === 'node' && e.tags?.highway === 'motorway_junction')
 
@@ -317,7 +319,7 @@ function buildSystem(raw, zhMap = {}) {
 
   const refCount = [...refStations.values()].filter((s) => s.length >= 2).length
   const meta = {
-    continent, country, country_zh: countryZh, city,
+    continent, country, country_zh: countryZh, city, city_zh: cityZh, unit: raw.unit || 'country',
     osm_networks: [...byRef.keys()].sort(),
     operator: null,
     line_count: refCount, segment_count: segTotal,
@@ -346,26 +348,31 @@ async function main() {
   catch { files = [] }
   if (!files.length) { console.error('no fetched countries in data/highway/_cache — run npm run highway:fetch first'); process.exit(1) }
 
-  const zhMap = await countryZhMap()
+  const { countryZh: cMap, citySlug } = await zhMaps()
   const allLines = [], allIc = [], systems = []
   let lineTotal = 0, stationTotal = 0
   for (const f of files.sort()) {
     const raw = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
-    const fc = buildSystem(raw, zhMap)
-    if (!fc.features.length) { console.log(`  ${raw.cc}: 0 features, skip`); continue }
+    const slug = raw.slug || raw.cc
+    const countryZh = cMap[raw.country] ?? raw.country
+    // metro-unit files (big countries) get a 中文 city name; country-unit → country
+    const cityZh = raw.unit === 'metro' ? (citySlug[slug]?.city ?? raw.city) : countryZh
+    const fc = buildSystem(raw, { countryZh, cityZh })
+    if (!fc.features.length) { console.log(`  ${slug}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
-    const rel = `systems/${cont}/${countrySlug(raw.country)}/${raw.cc}.geojson`
+    const rel = `systems/${cont}/${countrySlug(raw.country)}/${slug}.geojson`
     await mkdir(dirname(join(HIGHWAY, rel)), { recursive: true })
     await writeFile(join(HIGHWAY, rel), JSON.stringify(fc))
     const m = fc.highway_system
     systems.push({
-      file: rel, continent: raw.continent, country: raw.country, country_zh: m.country_zh, city: raw.country,
+      file: rel, continent: raw.continent, country: raw.country, country_zh: m.country_zh,
+      city: m.city, city_zh: m.city_zh, unit: m.unit,
       osm_networks: m.osm_networks, operator: m.operator,
       line_count: m.line_count, segment_count: m.segment_count, station_count: m.station_count,
     })
     lineTotal += m.line_count; stationTotal += m.station_count
     for (const feat of fc.features) (feat.geometry.type === 'Point' ? allIc : allLines).push(feat)
-    console.log(`  ${raw.cc} (${raw.country}): ${m.line_count} motorways, ${m.station_count} interchanges`)
+    console.log(`  ${slug} (${m.city_zh}): ${m.line_count} motorways, ${m.station_count} interchanges`)
   }
 
   await writeFile(join(HIGHWAY, 'highway_lines.geojson'), JSON.stringify({ type: 'FeatureCollection', features: allLines }))

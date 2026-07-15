@@ -894,7 +894,7 @@ function startResize(e) {
             </button>
             <ol v-if="expandedRoutes.has(rt.route_id)" class="obj-station-list">
               <li v-for="(st, i) in rt.stations" :key="`${st.station_id}-${i}`" :class="{ 'st-pass': st.pass }">
-                <span v-if="st.code" class="obj-st-code">{{ st.code }}</span>{{ st.station_name }}<span v-if="st.pass" class="obj-pass-tag">pass</span>
+                <span v-if="st.code" class="obj-st-code">{{ st.code }}</span><span v-else-if="st.mileage != null" class="obj-st-code" title="里程">{{ st.mileage }}K</span>{{ st.station_name }}<span v-if="st.pass" class="obj-pass-tag">pass</span>
               </li>
             </ol>
           </template>

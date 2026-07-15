@@ -139,7 +139,8 @@ onMounted(() => {
     }
     map.getCanvas().style.cursor = 'pointer'
     const p = e.features[0].properties
-    map.setFilter('metro-lines-hover', ['==', ['get', 'seg_id'], p.seg_id ?? ''])
+    for (const hid of HOVER_LAYER_IDS)
+      if (map.getLayer(hid)) map.setFilter(hid, hoverFilter(hid, p.seg_id ?? ''))
     // nested props arrive JSON-stringified from event features
     let routes = p.routes
     if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { routes = [] } }
@@ -157,7 +158,8 @@ onMounted(() => {
     map.on('mousemove', id, showLine)
     map.on('mouseleave', id, () => {
       map.getCanvas().style.cursor = ''
-      map.setFilter('metro-lines-hover', ['==', ['get', 'seg_id'], ''])
+      for (const hid of HOVER_LAYER_IDS)
+        if (map.getLayer(hid)) map.setFilter(hid, hoverFilter(hid, ''))
       linePopup.remove()
     })
   }
@@ -222,6 +224,28 @@ async function addMetroLayers(fit) {
 const MAX_OVERLAP = 6
 const DASH = 2.5
 const ALL_LINE_LAYER_IDS = ['metro-lines']
+// 共用 filter 建構器（底層與 hover 家族同一套條件）：
+// 實線＝單一相異色；交錯虛線＝route_count 槽位 ＋ ≥2 相異色。
+const SOLID_COND = ['any',
+  ['==', ['coalesce', ['get', 'route_count'], 1], 1],
+  ['==', ['coalesce', ['get', '_nc'], 1], 1]]
+const isNCond = (n) => (n < MAX_OVERLAP
+  ? ['==', ['get', 'route_count'], n]
+  : ['>=', ['get', 'route_count'], MAX_OVERLAP])
+const NC2_COND = ['>=', ['coalesce', ['get', '_nc'], 1], 2]
+// hover 家族：實線 hover ＋ 每個交錯槽位一層 hover（同 dasharray、加粗）——
+// 使用者規則：共線段 hover 也要維持「路線顏色交錯」，不能變成單色。
+const HOVER_LAYER_IDS = ['metro-lines-hover']
+for (let n = 2; n <= MAX_OVERLAP; n++)
+  for (let i = 0; i < n; i++) HOVER_LAYER_IDS.push(`metro-lines-hover-d${n}-${i}`)
+// 每個 hover 圖層的完整 filter（seg 為空字串＝全部不亮）
+function hoverFilter(id, seg) {
+  const segCond = ['==', ['get', 'seg_id'], seg]
+  if (id === 'metro-lines-hover')
+    return ['all', ['==', ['geometry-type'], 'LineString'], SOLID_COND, segCond]
+  const m = id.match(/-d(\d+)-(\d+)$/)
+  return ['all', ['==', ['geometry-type'], 'LineString'], isNCond(+m[1]), NC2_COND, segCond]
+}
 
 // Station fill by role: transfer → red, terminal → blue, otherwise white.
 // A station is a transfer when ≥2 DISTINCT lines serve it (build sets
@@ -265,10 +289,7 @@ function addMetroSourceLayers(data) {
   // 1+C+2+A 紅+藍；同色共線如 B+D 仍畫 1 條實線）。
   map.addLayer({
     id: 'metro-lines', source: 'metro', type: 'line',
-    filter: ['all', ['==', ['geometry-type'], 'LineString'],
-      ['any',
-        ['==', ['coalesce', ['get', 'route_count'], 1], 1],
-        ['==', ['coalesce', ['get', '_nc'], 1], 1]]],
+    filter: ['all', ['==', ['geometry-type'], 'LineString'], SOLID_COND],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
       'line-color': ['coalesce', ['get', 'route_color'], ['get', '_c0'], '#e11d48'],
@@ -278,15 +299,11 @@ function addMetroSourceLayers(data) {
   })
   // overlap segments with ≥2 distinct colours: n interleaved dashes, one slot per route
   for (let n = 2; n <= MAX_OVERLAP; n++) {
-    const isN = n < MAX_OVERLAP
-      ? ['==', ['get', 'route_count'], n]
-      : ['>=', ['get', 'route_count'], MAX_OVERLAP]
     for (let i = 0; i < n; i++) {
       map.addLayer({
         id: `metro-lines-d${n}-${i}`, source: 'metro', type: 'line',
         // only when ≥2 DISTINCT colours share the stretch (else it's drawn solid)
-        filter: ['all', ['==', ['geometry-type'], 'LineString'], isN,
-          ['>=', ['coalesce', ['get', '_nc'], 1], 2]],
+        filter: ['all', ['==', ['geometry-type'], 'LineString'], isNCond(n), NC2_COND],
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
         paint: {
           'line-color': ['coalesce', ['get', `_c${i}`], ['get', 'route_color'], '#888888'],
@@ -297,18 +314,35 @@ function addMetroSourceLayers(data) {
       })
     }
   }
-  // Hover highlight: thicker/opaque copy filtered to the hovered segment
-  // (empty match by default). Above the lines, below the stations.
+  // Hover highlight: thicker/opaque copies filtered to the hovered segment
+  // (empty match by default). Above the lines, below the stations. 共線段的
+  // hover 同樣以「相異色交錯虛線」畫（一槽一層、同 dasharray、加粗）——不變單色。
   map.addLayer({
     id: 'metro-lines-hover', source: 'metro', type: 'line',
-    filter: ['==', ['get', 'seg_id'], ''],
+    filter: hoverFilter('metro-lines-hover', ''),
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
-      'line-color': ['coalesce', ['get', 'route_color'], '#e11d48'],
+      'line-color': ['coalesce', ['get', 'route_color'], ['get', '_c0'], '#e11d48'],
       'line-width': (l.strokeWidth || 2) + 3,
       'line-opacity': 1,
     },
   })
+  for (let n = 2; n <= MAX_OVERLAP; n++) {
+    for (let i = 0; i < n; i++) {
+      const id = `metro-lines-hover-d${n}-${i}`
+      map.addLayer({
+        id, source: 'metro', type: 'line',
+        filter: hoverFilter(id, ''),
+        layout: { 'line-cap': 'butt', 'line-join': 'round' },
+        paint: {
+          'line-color': ['coalesce', ['get', `_c${i}`], ['get', 'route_color'], '#888888'],
+          'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
+          'line-width': (l.strokeWidth || 2) + 3,
+          'line-opacity': 1,
+        },
+      })
+    }
+  }
   map.addLayer({
     id: 'metro-stations', source: 'metro', type: 'circle',
     filter: ['==', ['geometry-type'], 'Point'],
@@ -426,9 +460,10 @@ function applyLayerState() {
     map.setPaintProperty(id, 'line-opacity', l.opacity)
     map.setPaintProperty(id, 'line-width', l.strokeWidth)
   }
-  if (map.getLayer('metro-lines-hover')) {
-    map.setLayoutProperty('metro-lines-hover', 'visibility', vis)
-    map.setPaintProperty('metro-lines-hover', 'line-width', (l.strokeWidth || 2) + 3)
+  for (const hid of HOVER_LAYER_IDS) {
+    if (!map.getLayer(hid)) continue
+    map.setLayoutProperty(hid, 'visibility', vis)
+    map.setPaintProperty(hid, 'line-width', (l.strokeWidth || 2) + 3)
   }
   map.setLayoutProperty('metro-stations', 'visibility', vis)
   map.setPaintProperty('metro-stations', 'circle-opacity', l.opacity)
