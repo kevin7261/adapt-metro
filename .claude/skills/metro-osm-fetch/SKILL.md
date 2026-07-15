@@ -73,7 +73,7 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 **以慢車車站為主**（使用者指定）：`dedupeSeqs` 依站數由多到少處理，最長變體（＝各停/慢車，
 站最多）當主線／代表 tags；fresh=0 的子集變體（純反向/短交路）捨棄——**但名字含快車字樣的
 「真快車」保留成獨立 route**（詳見「線路分組規則」的快車例外與車站 schema 的 `pass_lines`：
-機捷直達車、Seoul 급행等，快車繼承主線色＋「（快車）」標記、跳站記 `pass_stations`）。
+機捷直達車、Seoul 급행等，快車繼承主線色＋「（快車）」標記、跳站就地標進 stations（pass:true））。
 
 **同 ref 分支變體＝獨立 route、渲染層同色收斂（現行；`mergeVariants` 已於 2026-07-13 移除）**：
 同 ref 內**帶來新站的分支/快車變體**一律各自獨立成 route（台北小碧潭支線 hover 不得連
@@ -332,7 +332,7 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 純反向/短交路 fresh=0 捨棄——重疊路段化會吸收共用段，保留支線零成本）。**例外：真正的
 「快車」保留成獨立 route**（fresh=0 但**名字含快車字樣**〔Express/Rapid/直達/快速/急行/特急…〕
 ＋站數 <0.85×主線＋有中間跳站；去回程以 ±2 格容差同站集只留一條）——與 NYC 快車一致的
-全球統一格式，其跳站由 pass-through 偵測算成 `pass_stations`／站點 `pass_lines`（見車站 schema）。
+全球統一格式，其跳站由 pass-through 偵測就地標進 route `stations`（pass:true）／車站 `routes`（見 schema）。
 **快車與主線是同一條線 → route_color 繼承主線色**（`branchUnit`：OSM 常給快車變體不同色，
 如機捷直達車淺紫 #d4cde7，改用主線 #800080）；`route_name` 另加「（快車）/(Express)」標記，
 合併成 `MultiLineString`。**這些保留的分支/快車變體預設各自獨立成 route_id**（小碧潭
@@ -372,13 +372,15 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `routes`（list，每項 `route_id`, `route_name`（依上「顯示名語言」＋去方向＋快車標記）, `route_name_local`,
 `route_ref`, `route_color`（正規化 `#rrggbb`）, `network`, `network_local`, `operator`,
 `wikidata`, `wikipedia`, `osm_route_ids`, `order_suspect`,
-`stations`（**該 route 的所有車站，依站序、各分段原序串接、不去重**——列表相鄰＝圖上
-直連；支線的接續站在支線段開頭重複出現、**環狀線最後回到第一個車站**；
-站數統計一律取唯一站數。每項 `{ station_id, station_name, code? }`——`code`＝**該線官方站碼**
-（機捷 A1、東京 T22、港鐵…），**站序依此碼正規化方向（官方碼升序、A1 在前）**，只反轉整條
-序列不破壞相鄰性；ref 缺或碼不齊維持成員順序）,
-`pass_stations`（此服務**行經但不停靠**的站——快車跳站；空陣列＝各停。每項
-`{ station_id, station_name }`。與車站 `routes` 的 pass 項互為對照，見下））；
+`stations`（**該 route 的完整行經序**（使用者規則：pass 站就地照真實順序插入）——stop＋pass
+依**幾何真實順序**交錯、各分段原序串接、不去重；列表相鄰＝圖上直連；支線的接續站在支線段
+開頭重複出現、**環狀線最後回到第一個車站**。每項 `{ station_id, station_name, code?, pass? }`：
+**`pass:true`＝行經但不停靠**（快車跳站；與車站 `routes` 的 pass 項互為對照），stop 項無 pass 鍵；
+`code`＝**該線官方站碼**（機捷 A1、東京 T22…，pass 站也帶——三重 A2），**站序依碼正規化方向
+（官方碼升序、A1 在前）**，只反轉整條序列不破壞相鄰性；ref 缺或碼不齊維持成員順序。
+**站數統計/圖論一律取非 pass 的唯一站**——消費端（skeleton 建圖、wikiLineCheck 站數）自行
+`filter(!pass)`；唯 audit 的 `route_stations_match_geometry`（列表 vs 幾何頂點）用完整行經序
+（幾何本就含 pass 頂點）。舊獨立欄位 `pass_stations` 已移除（pass 內嵌 stations））；
 頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
 
 **車站 feature（Point）**：

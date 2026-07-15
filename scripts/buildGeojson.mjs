@@ -1954,7 +1954,7 @@ async function build() {
         // 純數字 GTFS/非官方碼（NYC 302N、HK 430）codeKey 無字母字首→不挑、不影響排序。
         const refU = String(ref).toUpperCase()
         const pickCode = (sid) => { const cs = codesById.get(sid); if (cs) for (const c of cs) { const k = codeKey(c); if (k && k[0] === refU) return c } return null }
-        for (const st of sts) { const c = pickCode(st.station_id); if (c) st.code = c }
+        for (const st of ordered) { const c = pickCode(st.station_id); if (c) st.code = c } // 含 pass 站（三重 A2）
         const coded = sts.filter((s) => s.code && codeKey(s.code))
         if (coded.length >= 2) {
           const a = codeKey(coded[0].code), b = codeKey(coded[coded.length - 1].code)
