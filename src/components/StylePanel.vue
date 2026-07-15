@@ -226,7 +226,7 @@ const selectedRouteLists = computed(() => {
       }
     }
   }
-  return routes.map((r) => {
+  const rows = routes.map((r) => {
     const passIds = new Set((r.pass_stations ?? []).map((s) => s.station_id))
     // 找不到原始段（理論上不會）退回整線站表，仍標 pass
     const base = ordered.length ? ordered : (r.stations ?? [])
@@ -240,6 +240,14 @@ const selectedRouteLists = computed(() => {
       stations,
       uniqueCount: new Set(stations.filter((s) => !s.pass).map((s) => s.station_id)).size,
     }
+  })
+  // 同官方名分支（中和新蘆線 迴龍/蘆洲）在共用段的列一模一樣——顯示層去重（留第一筆）
+  const seen = new Set()
+  return rows.filter((r) => {
+    const k = `${r.ref ?? ''}|${r.name}|${r.uniqueCount}`
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
   })
 })
 
@@ -256,6 +264,10 @@ watch(() => selectedProps.value, () => { expandedRoutes.value = new Set() })
 const layer = computed(() => props.layer)
 // metroLike: a D3 view created from an imported metro GeoJSON — same panels.
 const isMetro = computed(() => layer.value?.type === 'metro' || layer.value?.metroLike === true)
+// Highway layers reuse the metro layer type/renderer but are NOT subways —
+// don't show subway-only Info (Wikipedia 地鐵 / urbanrail / 官方路線圖) and
+// relabel the counts (交流道 not 車站).
+const isHighway = computed(() => layer.value?.highway === true)
 const editable = computed(() => layer.value && !layer.value.isBasemap && !isMetro.value)
 
 /* ---- Info: metro system metadata (from the loaded GeoJSON) ---- */
@@ -684,8 +696,8 @@ function startResize(e) {
               <div class="info-row">
                 <span class="info-key">洲別</span><span>{{ continentZh(layer.continent) }}</span>
               </div>
-              <div class="info-row"><span class="info-key">路線數</span><span>{{ layer.lineCount }}</span></div>
-              <div class="info-row"><span class="info-key">車站數</span><span>{{ layer.stationCount }}</span></div>
+              <div class="info-row"><span class="info-key">{{ isHighway ? '道路數' : '路線數' }}</span><span>{{ layer.lineCount }}</span></div>
+              <div class="info-row"><span class="info-key">{{ isHighway ? '交流道數' : '車站數' }}</span><span>{{ layer.stationCount }}</span></div>
               <div v-if="meta?.operator" class="info-row">
                 <span class="info-key">營運單位</span><span>{{ meta.operator }}</span>
               </div>
@@ -696,19 +708,19 @@ function startResize(e) {
                   <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
-              <div v-if="wikipediaUrl" class="info-row">
+              <div v-if="!isHighway && wikipediaUrl" class="info-row">
                 <span class="info-key">Wikipedia</span>
                 <a :href="wikipediaUrl" target="_blank" rel="noopener" class="info-link">
                   {{ wikiTerm }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
-              <div class="info-row">
+              <div v-if="!isHighway" class="info-row">
                 <span class="info-key">urbanrail</span>
                 <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link">
                   UrbanRail.Net：{{ urbanrailLabel }} <MIcon name="open_in_new" :size="11" />
                 </a>
               </div>
-              <div v-if="routeMapUrl" class="info-row">
+              <div v-if="!isHighway && routeMapUrl" class="info-row">
                 <span class="info-key">官方路線圖</span>
                 <a :href="routeMapUrl" target="_blank" rel="noopener" class="info-link">
                   {{ routeMapIsImage ? '開啟圖片' : 'Google 圖片搜尋' }} <MIcon name="open_in_new" :size="11" />

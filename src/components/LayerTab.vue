@@ -53,6 +53,7 @@ onMounted(() => {
     attributionControl: false,  // no on-map copyright overlay (per request)
   })
 
+  if (import.meta.env.DEV) window.__map = map // debug probe (dev only)
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
   map.addControl(new maplibregl.FullscreenControl(), 'top-right')
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')
@@ -98,23 +99,38 @@ onMounted(() => {
     map.getCanvas().style.cursor = 'pointer'
     const p = e.features[0].properties
     map.setFilter('metro-stations-hover', ['==', ['get', 'station_id'], p.station_id ?? ''])
-    const local = p.station_name_local && p.station_name_local !== p.station_name
-      ? `<br/>${p.station_name_local}` : ''
-    const lines = p.lines && p.lines !== '[]'
-      ? `<br/>路線：${JSON.parse(p.lines).join(', ')}` : ''
-    // 共站（異名轉乘）：列出每個成員站名＋該名所屬路線，讓 hover 顯示完整共站內容
-    let merged = ''
-    if (p.merged_names && p.merged_names !== 'null') {
-      try {
-        const mn = JSON.parse(p.merged_names)
-        if (Array.isArray(mn) && mn.length > 1)
-          merged = '<br/>共站：' + mn.map((m) =>
-            `<br/>　${m.station_name}（${(m.lines || []).join(', ')}）`).join('')
-      } catch { /* leave merged empty */ }
+    // ---- 與物件 tab city 欄位以上完全同構：標題(＋在地名)、共站站名、停靠路線、行經(不停靠) ----
+    const J = (v, fb) => { if (typeof v !== 'string') return v ?? fb; try { return JSON.parse(v) } catch { return fb } }
+    const local = p.station_name_local && p.station_name_local !== p.station_name ? p.station_name_local : null
+    let html = H.title(p.station_name ?? '—', local)
+    const mn = J(p.merged_names, null)
+    if (Array.isArray(mn) && mn.length > 1) {
+      html += `<div style="opacity:.65;font-size:10px;margin-top:4px">共站站名（各線不同名）</div>`
+      for (const m of mn) {
+        const chips = (m.lines || []).map((ref) => H.refC(ref, popupIdx?.refColor.get(ref))).join('')
+        html += H.row(`<span style="margin-right:6px">${m.station_name}</span>${chips}`)
+      }
+    }
+    // 車站的路線＝單一 routes[]（{ref, name, pass?}，schema 瘦身後版本）；
+    // 顏色由 ref→color 索引解（popupIdx.refColor，來自路段 routes meta）。
+    const rts = J(p.routes, []) ?? []
+    const routeRow = (r) => {
+      const c = popupIdx?.refColor.get(r.ref)
+      return H.row(H.swatch(c) + H.ref(r.ref, c) +
+        `<strong style="font-size:12px">${r.name ?? r.ref ?? '—'}</strong>` + (r.pass ? H.passTag() : ''))
+    }
+    const stops = rts.filter((r) => !r.pass), passes = rts.filter((r) => r.pass)
+    if (stops.length) {
+      html += `<div style="opacity:.65;font-size:10px;margin-top:4px">停靠路線</div>`
+      html += stops.map(routeRow).join('')
+    }
+    if (passes.length) {
+      html += `<div style="opacity:.65;font-size:10px;margin-top:4px">行經（不停靠）</div>`
+      html += passes.map(routeRow).join('')
     }
     popup
       .setLngLat(e.features[0].geometry.coordinates)
-      .setHTML(`<strong>${p.station_name ?? '—'}</strong>${local}${lines}${merged}`)
+      .setHTML(html)
       .addTo(map)
   })
   map.on('mouseleave', 'metro-stations', () => {
@@ -145,12 +161,23 @@ onMounted(() => {
     let routes = p.routes
     if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { routes = [] } }
     routes = routes ?? []
-    const html = routes.map((r) => {
-      const local = r.route_name_local && r.route_name_local !== r.route_name
-        ? `（${r.route_name_local}）` : ''
-      return `<span style="color:${r.route_color ?? '#e11d48'}">▬</span> ` +
-        `<strong>${r.route_ref ? `[${r.route_ref}] ` : ''}${r.route_name ?? '—'}</strong>${local}`
-    }).join('<br/>')
+    // ---- 與物件 tab city 欄位以上同構：標題（各線名 " / " 併、在地名副標）＋
+    // 每路線列（色塊＋ref 徽章＋名稱＋「停靠 n 站」——n＝該線在**這一段**的停靠站數）----
+    const names = [...new Set(routes.map((r) => r.route_name ?? '—'))].join(' / ')
+    const locals = [...new Set(routes.map((r) => r.route_name_local ?? r.route_name ?? '—'))].join(' / ')
+    let html = H.title(names || '—', locals !== names ? locals : null)
+    const onSeg = segStations(p.seg_id)
+    const seenRow = new Set() // 同官方名分支（中和新蘆線 迴龍/蘆洲）在共用段列一次就好
+    for (const r of routes) {
+      const passIds = new Set((r.pass_stations ?? []).map((s) => s.station_id))
+      const stops = onSeg.length ? onSeg.filter((s) => !passIds.has(s.station_id)).length : null
+      const k = `${r.route_ref ?? ''}|${r.route_name ?? ''}|${stops}`
+      if (seenRow.has(k)) continue
+      seenRow.add(k)
+      html += H.row(H.swatch(r.route_color) + H.ref(r.route_ref, r.route_color) +
+        `<strong style="font-size:12px">${r.route_name ?? '—'}</strong>` +
+        (stops != null ? H.dim(`停靠 ${stops} 站`) : ''))
+    }
     linePopup.setLngLat(e.lngLat).setHTML(html || '—').addTo(map)
   }
   for (const id of ALL_LINE_LAYER_IDS) {
@@ -261,9 +288,56 @@ const STATION_COLOR = [
 for (let n = 2; n <= MAX_OVERLAP; n++)
   for (let i = 0; i < n; i++) ALL_LINE_LAYER_IDS.push(`metro-lines-d${n}-${i}`)
 
+// Hover popup 的資料索引（與物件 tab 同源）：route meta、seg_id→原始 feature、
+// 座標→車站。事件 feature 的幾何被 tile 裁切，段上車站一律回原始資料查。
+let popupIdx = null
+function buildPopupIndex(data) {
+  const byId = new Map(), refColor = new Map(), segs = new Map(), stByCoord = new Map()
+  for (const f of data.features) {
+    if (f.geometry.type === 'Point') {
+      stByCoord.set(f.geometry.coordinates.join(','), f.properties)
+      continue
+    }
+    if (f.properties?.seg_id != null) segs.set(f.properties.seg_id, f)
+    for (const r of f.properties.routes ?? []) {
+      if (r.route_id && !byId.has(r.route_id)) byId.set(r.route_id, r)
+      if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
+    }
+  }
+  popupIdx = { byId, refColor, segs, stByCoord }
+}
+// 該路段上的車站（幾何頂點序，含快車 pass 頂點）——與物件 tab 的 selectedRouteLists 同邏輯。
+function segStations(segId) {
+  const seg = popupIdx?.segs.get(segId)
+  if (!seg) return []
+  const out = []
+  for (const line of seg.geometry.coordinates) {
+    for (const c of line) {
+      const s = popupIdx.stByCoord.get(c.join(','))
+      if (s && (!out.length || out[out.length - 1].station_id !== s.station_id)) out.push(s)
+    }
+  }
+  return out
+}
+/* ---- hover popup HTML（**與物件 tab city 欄位以上完全同款式**：色塊 14×6 圓角長條、
+   ref 徽章灰底 monospace、「停靠 n 站」靠右、pass 外框膠囊、標題 15px＋在地名副標。
+   popup 在 scoped style 之外，樣式一律 inline；灰色用半透明近似 --muted 兩主題皆可讀）---- */
+const H = { // 小元件（樣式對齊 StylePanel 的 .line-swatch/.line-ref/.obj-route-count/.obj-pass-tag/.obj-title）
+  swatch: (c) => `<span style="width:14px;height:6px;border-radius:3px;background:${c || '#e11d48'};margin-right:8px;flex:none"></span>`,
+  ref: (t) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:rgba(127,127,140,.22);color:rgba(155,163,175,1);margin-right:8px;flex:none">${t}</span>` : '',
+  // 共站站名列的線徽章＝線色底（同 .obj-merged-line 的 inline background）
+  refC: (t, c) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:${c || 'rgba(127,127,140,.35)'};color:#fff;margin-right:4px;flex:none">${t}</span>` : '',
+  dim: (t) => `<span style="margin-left:auto;padding-left:12px;font-weight:400;font-size:11px;color:rgba(155,163,175,1);flex:none">${t}</span>`,
+  row: (inner) => `<div style="display:flex;align-items:center;gap:0;margin-top:4px;white-space:nowrap">${inner}</div>`,
+  title: (name, local) => `<div style="font-weight:700;font-size:15px;line-height:1.3">${name}</div>` +
+    (local ? `<div style="margin-top:1px;font-size:12px;font-weight:400;color:rgba(155,163,175,1)">${local}</div>` : ''),
+  passTag: () => '<span style="margin-left:auto;padding:0 7px;font-size:10.5px;font-weight:600;color:rgba(155,163,175,1);border:1px solid rgba(127,127,140,.45);border-radius:999px;flex:none">pass</span>',
+}
+
 // Add the metro source + line/station layers (idempotent; re-run after setStyle).
 function addMetroSourceLayers(data) {
   const l = layer.value
+  buildPopupIndex(data)
   if (!map || map.getSource('metro')) return
   // MapLibre serialises array properties to JSON strings, so an expression can't
   // index into `route_colors` (the dashes then fall back to black). Flatten each

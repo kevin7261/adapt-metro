@@ -23,6 +23,7 @@ const ROOT = join(__dirname, '..')
 const HIGHWAY = join(ROOT, 'data', 'highway')
 const CACHE = join(HIGHWAY, '_cache')
 const METRO = join(ROOT, 'data', 'metro')
+const MAX_EDGE_M = 30000 // drop adjacency edges longer than this (fake/huge bridge)
 
 // 中文 labels from the metro data (cityNamesZh.json keyed by city slug carries a
 // Chinese country + city name), so highway layers show 中文＋English like metro.
@@ -234,6 +235,10 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
       for (let n = 0; n + 1 < seq.length; n++) {
         const a = seq[n], b = seq[n + 1]
         if (a === b) continue
+        // Cap edge length: two "adjacent" interchanges >30 km apart (sparse outer
+        // expressway stretch, or missing intermediate interchanges) would draw a
+        // city-spanning straight line — break the road there instead.
+        if (icDist(a, b) > MAX_EDGE_M) continue
         const k = ekey(a, b)
         if (!seen.has(k)) { seen.add(k); edges.push([a, b]) }
       }

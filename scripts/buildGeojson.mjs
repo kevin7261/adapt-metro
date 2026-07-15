@@ -1988,7 +1988,17 @@ async function build() {
       // （快車跳站），無 pass 鍵＝停靠。同 ref 的普通/直達由 name 區分。route_id 只在
       // build 內部做站↔線歸屬（唯一鍵），不寫進車站欄位。`lines`（停靠 refs）保留給
       // no_line 不變式與地圖 hover。
-      s.properties.lines = routes.map((r) => r.route_ref ?? r.route_name)
+      // 顯示身分（ref＋name）去重：同官方名的分支（中和新蘆線 迴龍/蘆洲、將軍澳綫
+      // 寶琳/康城）在共用站會出現兩筆一模一樣的列（使用者 2026-07 蘆洲截圖）——
+      // 站層只留一筆；異名分支（松山新店線 vs 小碧潭支線）不受影響。
+      const seenDisp = new Set()
+      const dispRoutes = routes.filter((r) => {
+        const k = `${r.route_ref ?? ''}|${r.route_name ?? ''}`
+        if (seenDisp.has(k)) return false
+        seenDisp.add(k)
+        return true
+      })
+      s.properties.lines = dispRoutes.map((r) => r.route_ref ?? r.route_name)
       // 官方站碼清單（如台北車站 [A1, BL12, R10]）——各線各自的碼；route.stations 每站另帶
       // 依該線 ref 挑出的 `code`。內部 Set 清掉（避免序列化成 {}）。
       if (s.__codes?.size) s.properties.codes = [...s.__codes].sort()
@@ -1996,9 +2006,16 @@ async function build() {
       // 行經但不停靠（快車跳站）：route_id 直接來自 __passStations；排除也停靠者。
       const passIds = [...(passRoutesBySt.get(sid) ?? [])].filter((id) => !stopIds.has(id))
       const pr = passIds.map(routeMeta)
+      const seenDisp2 = new Set(dispRoutes.map((r) => `${r.route_ref ?? ''}|${r.route_name ?? ''}`))
+      const dispPass = pr.filter((r) => {
+        const k = `${r.route_ref ?? ''}|${r.route_name ?? ''}`
+        if (seenDisp2.has(k)) return false
+        seenDisp2.add(k)
+        return true
+      })
       s.properties.routes = [
-        ...routes.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name })),
-        ...pr.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name, pass: true })),
+        ...dispRoutes.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name })),
+        ...dispPass.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name, pass: true })),
       ]
       // 通過次數（幾何為準）；至少為所屬 route 數（幾何缺漏時的下限）
       const pc = Math.max(
@@ -2017,7 +2034,10 @@ async function build() {
       // 端點站不可能有超過 1 條路線；若有＝可轉乘＝紅點——涵蓋「A 線在此為終點、B 線
       // 經過並停靠、共用進站方向使 degree=2」的漏判）。三者皆為「≥2 路段相交」；共軌
       // 中間站（非端點、degree=2、termCount=0）仍不算。
-      const isIx = deg > 2 || termCount >= 2 || (s.properties.is_terminus && routes.length >= 2)
+      // 端點站規則用**顯示線數**（dispRoutes＝官方線身分去重後）：同名分支（中和新蘆線
+      // 迴龍/蘆洲）在端點只算 1 條線——蘆洲是單線端點＝藍點，不因兩個 branch route_id
+      // 誤判成紅點；七張（松山新店線＋小碧潭支線異名）仍 2 線。
+      const isIx = deg > 2 || termCount >= 2 || (s.properties.is_terminus && dispRoutes.length >= 2)
       s.properties.is_interchange = isIx
       s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
