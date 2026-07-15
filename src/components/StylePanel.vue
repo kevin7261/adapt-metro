@@ -153,24 +153,23 @@ const mergedNames = computed(() => {
 // 物件 tab 最上方標題（車站與路段同一版面）：
 //  · 車站（有 station_id）：站名（英文 + 在地名）；共站異名轉乘以 " / " 併（"a / b"）。
 //  · 路段（有 routes）：行經的路線名以 " / " 併（共線段多條）。
-// 兩者都回 { name, nameLocal }，用同一個 .obj-title 樣式渲染。
+// 標題格式（使用者規則）：第一行＝中文/在地名、第二行＝英文（相同則不顯示）。
+// 兩者都回 { name, nameEn }，用同一個 .obj-title 樣式渲染。
 const joinTitle = (list) => {
   const name = list.map((e) => e.name).join(' / ')
-  const local = list.map((e) => e.nameLocal || e.name).join(' / ')
-  return { name, nameLocal: local !== name ? local : null }
+  const en = list.map((e) => e.nameEn || e.name).join(' / ')
+  return { name, nameEn: en !== name ? en : null }
 }
 const objectTitle = computed(() => {
   const p = selectedProps.value
   if (!p) return null
   if (p.station_id) {
     const mn = mergedNames.value
-    if (mn.length > 1) return joinTitle(mn)
+    const en = p.station_name_en && p.station_name_en !== p.station_name ? p.station_name_en : null
+    if (mn.length > 1) return { ...joinTitle(mn), nameEn: en } // 共站：中文各名並列、英文取代表
     const name = p.station_name || p.station_name_local
     if (!name) return null
-    return {
-      name,
-      nameLocal: p.station_name_local && p.station_name_local !== name ? p.station_name_local : null,
-    }
+    return { name, nameEn: en }
   }
   const rl = selectedRouteLists.value
   if (rl.length) return joinTitle(rl)
@@ -236,6 +235,7 @@ const selectedRouteLists = computed(() => {
       route_id: r.route_id,
       name: r.route_name ?? r.route_id,
       nameLocal: r.route_name_local && r.route_name_local !== r.route_name ? r.route_name_local : null,
+      nameEn: r.route_name_en && r.route_name_en !== r.route_name ? r.route_name_en : null,
       ref: r.route_ref,
       color: r.route_color ?? '#e11d48',
       stations,
@@ -945,7 +945,7 @@ function startResize(e) {
           <!-- 車站/路段：最上方顯示名稱（英文 + 在地名），共站/共線以 " / " 併 -->
           <div v-if="objectTitle" class="obj-title">
             {{ objectTitle.name }}
-            <span v-if="objectTitle.nameLocal" class="obj-title-local">{{ objectTitle.nameLocal }}</span>
+            <span v-if="objectTitle.nameEn" class="obj-title-local">{{ objectTitle.nameEn }}</span>
           </div>
           <!-- 標題下不放維基連結（使用者 2026-07：下方屬性表的 wikipedia 列已有連結） -->
           <!-- 路段：站序中同時列停靠與通過(不停)站，pass 站標記、灰字並排在正確位置 -->

@@ -103,7 +103,7 @@ function drawFromPos(skeleton, stations, lineFeats, posMap, sep) {
   const hl = []
   for (const f of lineFeats) {
     const d = movedFeatD(f, coordId, (id) => posMap.get(id) ?? null, crossPts)
-    if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) lines.push(s)
+    if (d) for (const s of strokesOf(f.properties?.route_colors, null, d)) lines.push(s)
   }
   const dots = []
   for (const f of stations) {
@@ -157,7 +157,7 @@ export function computeCityViews(geojson, opts = {}) {
     const out = []
     for (const f of lineFeats) {
       const d = path(f)
-      if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) out.push(s)
+      if (d) for (const s of strokesOf(f.properties?.route_colors, null, d)) out.push(s)
     }
     return out
   }
@@ -171,7 +171,7 @@ export function computeCityViews(geojson, opts = {}) {
     const out = []
     for (const f of lineFeats) {
       const d = movedFeatD(f, coordId, movedOf, crossPts)
-      if (d) for (const s of strokesOf(f.properties?.route_colors, f.properties?.route_color, d)) out.push(s)
+      if (d) for (const s of strokesOf(f.properties?.route_colors, null, d)) out.push(s)
     }
     return out
   }

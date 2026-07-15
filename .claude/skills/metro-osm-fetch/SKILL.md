@@ -363,7 +363,8 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 > **0 方向殘留**。**環線的內/外環兩向亦併**。
 
 **路段 feature（MultiLineString；重疊只畫一條）**：
-`routes`（list，每項 `route_id`, `route_name`（依上「顯示名語言」＋去方向＋快車標記）, `route_name_local`,
+`routes`（list，每項 `route_id`, `route_name`（依上「顯示名語言」＋去方向）, `route_name_local`,
+`route_name_en`（英文線名，標題/hover 第二行）,
 `route_ref`, `route_color`（正規化 `#rrggbb`）, `network`, `network_local`, `operator`,
 `wikidata`, `wikipedia`, `osm_route_ids`, `order_suspect`,
 `stations`（**該 route 的完整行經序**（使用者規則：pass 站就地照真實順序插入）——stop＋pass
@@ -375,10 +376,14 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 **站數統計/圖論一律取非 pass 的唯一站**——消費端（skeleton 建圖、wikiLineCheck 站數）自行
 `filter(!pass)`；唯 audit 的 `route_stations_match_geometry`（列表 vs 幾何頂點）用完整行經序
 （幾何本就含 pass 頂點）。舊獨立欄位 `pass_stations` 已移除（pass 內嵌 stations））；
-頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `route_color`, `city`, `country`。
+頂層 `seg_id`, `route_count`, `route_refs`, `route_colors`, `city`, `country`。（**無頂層單數
+`route_color`**——路段可多線、沒有「一個顏色」；單線渲染取 `route_colors[0]`，每線自己的色在
+`routes[].route_color`。使用者裁決 2026-07 移除冗餘欄位。）
 
 **車站 feature（Point）**：
-`station_id`（`n{osmId}`）, `station_name`（優先 name:en）, `station_name_local`,
+`station_id`（`n{osmId}`）, `station_name`（依「顯示名語言」＝中文/日文/英文）, `station_name_local`,
+`station_name_en`（英文名 name:en——**標題/hover 第二行**（使用者規則：第一行中文/在地、第二行英文，
+相同則不顯示）；無則 null）,
 `network`, `network_local`, `operator`, `city`, `country`,
 `routes`（**此站的路線清單，單一陣列**（使用者規則：與路段 feature 同形式、不拆平行 array、
 不輸出 OSM 內部 id）——每項 `{ ref, name, pass? }`：`ref`＝官方線路代碼（可重複，機捷普通/

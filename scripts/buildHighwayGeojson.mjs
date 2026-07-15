@@ -138,11 +138,18 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
   const ways = raw.elements.filter((e) => e.type === 'way' && e.tags?.ref)
   const junctions = raw.elements.filter((e) => e.type === 'node' && e.tags?.highway === 'motorway_junction')
 
+  // Group ways into roads by ref. A way SHARED by concurrent roads is tagged with
+  // BOTH refs joined by ";" or "," (OSM convention, e.g. 上海 "G1503;S20") — split
+  // it so the way joins EACH road's group. Otherwise "G1503;S20" becomes a bogus
+  // third road that overlaps G1503 and S20 → the whole corridor drawn 2-3× (使用者:
+  // 一堆路線重覆). Global edge-dedup then draws the shared segment once.
+  const splitRefs = (r) => String(r).split(/\s*[;,]\s*/).map((s) => s.trim()).filter(Boolean)
   const byRef = new Map()
   for (const w of ways) {
-    const r = w.tags.ref
-    if (!byRef.has(r)) byRef.set(r, [])
-    byRef.get(r).push(w)
+    for (const r of splitRefs(w.tags.ref)) {
+      if (!byRef.has(r)) byRef.set(r, [])
+      byRef.get(r).push(w)
+    }
   }
 
   // Merge junction nodes into ONE interchange point (使用者: 同一個交流道只能有
@@ -325,10 +332,14 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
   const routeMeta = (ref) => {
     const t = refTags.get(ref)
     const cls = refClass.get(ref)
+    // The way's ref tags may be the joined "G1503;S20" — this road is only `ref`,
+    // so a combined label falls back to the clean split ref.
+    const clean = (s) => (s && !/[;,]/.test(s) ? s : null)
+    const name = clean(refLabel(t, country)) || ref
     return {
       route_id: `hw-${slug}-${ref}`,
-      route_name: refLabel(t, country),
-      route_name_local: t['ref:zh'] || t['name:zh'] || t.name || refLabel(t, country),
+      route_name: name,
+      route_name_local: clean(t['ref:zh']) || clean(t['name:zh']) || clean(t.name) || name,
       route_ref: ref,
       route_color: classColor(country, cls), // colour by road level, not per route
       road_class: cls,                        // 'motorway' | 'expressway'

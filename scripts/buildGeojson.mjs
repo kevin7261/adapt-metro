@@ -965,6 +965,7 @@ async function build() {
       route_id: routeId,
       route_name: cleanRouteName(nameFor(t, info.country)) || routeRef || routeId,
       route_name_local: cleanRouteName(t.name) || null,
+      route_name_en: cleanRouteName(pick(t, 'name:en')) || null, // 英文線名（標題/hover 第二行）
       route_ref: routeRef,
       route_color: normColor(pick(t, 'colour')),
       network,
@@ -1064,6 +1065,7 @@ async function build() {
       station_id: `n${s.id}`,
       station_name: nameFor(t, info.country) || `n${s.id}`,
       station_name_local: t.name || null,
+      station_name_en: pick(t, 'name:en') || null, // 英文名（標題/hover 第二行；與在地名相同則前端不顯示）
       network,
       network_local: t.network || null,
       operator: pick(t, 'operator'),
@@ -2041,7 +2043,7 @@ async function build() {
         const p = f.properties
         metaCache.set(f, {
           route_id: p.route_id, route_name: p.route_name,
-          route_name_local: p.route_name_local, route_ref: p.route_ref,
+          route_name_local: p.route_name_local, route_name_en: p.route_name_en ?? null, route_ref: p.route_ref,
           route_color: p.route_color, network: p.network,
           network_local: p.network_local, operator: p.operator,
           wikidata: p.wikidata, wikipedia: p.wikipedia,
@@ -2126,7 +2128,6 @@ async function build() {
             route_count: routes.length,
             route_refs: routes.map((r) => r.route_ref || r.route_name),
             route_colors: colors,
-            route_color: colors[0],
             city: grp.info.city, country: grp.info.country,
           },
           geometry: { type: 'MultiLineString', coordinates: compSeqs },

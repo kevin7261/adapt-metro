@@ -964,7 +964,7 @@ async function render() {
             dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
           }))
         }
-        return [{ d, stroke: cols[0] ?? f.properties.route_color ?? '#e11d48', props: f.properties }]
+        return [{ d, stroke: cols[0] ?? '#e11d48', props: f.properties }]
       })
       // 邊分類襯底（線底下的 highlight）：沿骨架邊的**真實折線幾何 e.geom** 畫一條較寬
       // 半透明底色線（共線紅底 / 環線綠 / 頭尾共點藍），貼著線的彎曲、不會像用車站點
@@ -1032,7 +1032,7 @@ async function render() {
             dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
           }))
         }
-        return [{ d, stroke: cols[0] ?? f.properties.route_color ?? '#e11d48', props: f.properties }]
+        return [{ d, stroke: cols[0] ?? '#e11d48', props: f.properties }]
       })
       highlightData = []
     }
@@ -1062,7 +1062,7 @@ async function render() {
           dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
         }))
       }
-      return [{ d, stroke: cols[0] ?? f.properties.route_color ?? '#e11d48', props: f.properties }]
+      return [{ d, stroke: cols[0] ?? '#e11d48', props: f.properties }]
     })
     stationData = stations.map((f) => {
       const [x, y] = P(f.geometry.coordinates)

@@ -66,7 +66,7 @@ function build(geojson) {
             })
           }
         } else {
-          lines.push({ d, color: colors[0] || p.route_color || '#e11d48' })
+          lines.push({ d, color: colors[0] || '#e11d48' })
         }
       }
     }

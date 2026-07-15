@@ -101,8 +101,9 @@ onMounted(() => {
     map.setFilter('metro-stations-hover', ['==', ['get', 'station_id'], p.station_id ?? ''])
     // ---- 與物件 tab city 欄位以上完全同構：標題(＋在地名)、共站站名、停靠路線、行經(不停靠) ----
     const J = (v, fb) => { if (typeof v !== 'string') return v ?? fb; try { return JSON.parse(v) } catch { return fb } }
-    const local = p.station_name_local && p.station_name_local !== p.station_name ? p.station_name_local : null
-    let html = H.title(p.station_name ?? '—', local)
+    // 標題（使用者規則）：第一行＝中文/在地名、第二行＝英文（相同則不顯示）
+    const en = p.station_name_en && p.station_name_en !== p.station_name ? p.station_name_en : null
+    let html = H.title(p.station_name ?? '—', en)
     const mn = J(p.merged_names, null)
     if (Array.isArray(mn) && mn.length > 1) {
       html += `<div style="opacity:.65;font-size:10px;margin-top:4px">共站站名（各線不同名）</div>`
@@ -164,8 +165,8 @@ onMounted(() => {
     // ---- 與物件 tab city 欄位以上同構：標題（各線名 " / " 併、在地名副標）＋
     // 每路線列（色塊＋ref 徽章＋名稱＋「停靠 n 站」——n＝該線在**這一段**的停靠站數）----
     const names = [...new Set(routes.map((r) => r.route_name ?? '—'))].join(' / ')
-    const locals = [...new Set(routes.map((r) => r.route_name_local ?? r.route_name ?? '—'))].join(' / ')
-    let html = H.title(names || '—', locals !== names ? locals : null)
+    const ens = [...new Set(routes.map((r) => r.route_name_en ?? r.route_name ?? '—'))].join(' / ')
+    let html = H.title(names || '—', ens !== names ? ens : null)
     const onSeg = segStations(p.seg_id)
     const seenRow = new Set() // 同官方名分支（中和新蘆線 迴龍/蘆洲）在共用段列一次就好
     for (const r of routes) {
@@ -367,7 +368,7 @@ function addMetroSourceLayers(data) {
     filter: ['all', ['==', ['geometry-type'], 'LineString'], SOLID_COND],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
-      'line-color': ['coalesce', ['get', 'route_color'], ['get', '_c0'], '#e11d48'],
+      'line-color': ['coalesce', ['get', '_c0'], '#e11d48'],
       'line-width': l.strokeWidth,
       'line-opacity': l.opacity,
     },
@@ -381,7 +382,7 @@ function addMetroSourceLayers(data) {
         filter: ['all', ['==', ['geometry-type'], 'LineString'], isNCond(n), NC2_COND],
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
         paint: {
-          'line-color': ['coalesce', ['get', `_c${i}`], ['get', 'route_color'], '#888888'],
+          'line-color': ['coalesce', ['get', `_c${i}`], '#888888'],
           'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
           'line-width': l.strokeWidth,
           'line-opacity': l.opacity,
@@ -397,7 +398,7 @@ function addMetroSourceLayers(data) {
     filter: hoverFilter('metro-lines-hover', ''),
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
-      'line-color': ['coalesce', ['get', 'route_color'], ['get', '_c0'], '#e11d48'],
+      'line-color': ['coalesce', ['get', '_c0'], '#e11d48'],
       'line-width': (l.strokeWidth || 2) + 3,
       'line-opacity': 1,
     },
@@ -410,7 +411,7 @@ function addMetroSourceLayers(data) {
         filter: hoverFilter(id, ''),
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
         paint: {
-          'line-color': ['coalesce', ['get', `_c${i}`], ['get', 'route_color'], '#888888'],
+          'line-color': ['coalesce', ['get', `_c${i}`], '#888888'],
           'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
           'line-width': (l.strokeWidth || 2) + 3,
           'line-opacity': 1,
