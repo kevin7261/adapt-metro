@@ -999,6 +999,15 @@ async function build() {
     const grp = groupFor(info)
     grp.lines.push(feat)
     grp.networks.add(network)
+    // 系統 metadata 候選記在 feature（__meta，不序列化——路段化會重建 features），最終於
+    // 路段化前由**存活線多數決**重算——舊「先到先贏」會被之後才剔除的線搶走（東京被
+    // allow-list 剔除的 Yurikamome 曾把 official_website 搶成 yurikamome.tokyo）。
+    feat.__meta = {
+      operator: pick(t, 'operator'),
+      website: pick(t, 'website', 'operator:website'),
+      wikipedia: pick(t, 'network:wikipedia', 'wikipedia'),
+      wikidata: pick(t, 'network:wikidata', 'wikidata'),
+    }
     if (!grp.operator) grp.operator = pick(t, 'operator')
     if (!grp.official_url) grp.official_url = pick(t, 'website', 'operator:website')
     if (!grp.wikipedia) grp.wikipedia = pick(t, 'wikipedia', 'network:wikipedia')
@@ -2037,6 +2046,21 @@ async function build() {
     grp.routeCount = routeFeats.length
     totalRoutes += routeFeats.length
     if (!routeFeats.length) continue
+    // 系統 metadata＝**存活線多數決**（此時 allow-list/LRT 剔除已完成）：operator/官網/
+    // wikipedia/wikidata 各取存活線 __meta 的最高票非空值（初期先到先贏值當 fallback）。
+    {
+      const vote = (k) => {
+        const cnt = new Map()
+        for (const f of routeFeats) { const v = f.__meta?.[k]; if (v) cnt.set(v, (cnt.get(v) || 0) + 1) }
+        let best = null, bn = 0
+        for (const [v, n] of cnt) if (n > bn) { best = v; bn = n }
+        return best
+      }
+      grp.operator = vote('operator') ?? grp.operator
+      grp.official_url = vote('website') ?? grp.official_url
+      grp.wikipedia = vote('wikipedia') ?? grp.wikipedia
+      grp.wikidata = vote('wikidata') ?? grp.wikidata
+    }
     const metaCache = new Map()
     const metaOf = (f) => {
       if (!metaCache.has(f)) {
