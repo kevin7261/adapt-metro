@@ -8,6 +8,7 @@
    "file": "systems/asia/taiwan/as-twn.geojson",
    "continent": "asia",
    "country": "Taiwan",
+   "country_zh": "台灣",
    "city": "Taiwan",
    "osm_networks": [
     "1",

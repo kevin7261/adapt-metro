@@ -1,19 +1,19 @@
 import { assetUrl } from '../lib/assetUrl'
-import CITY_ZH from './cityNamesZh.json'
 
 // World highway-network catalog (data/highway/index.json), fetched once and
-// cached. Each system is anchored on a metro area, so its slug matches the
-// metro slug and CITY_ZH (keyed by that slug) gives the 國名/城市名 labels.
+// cached. One system per country; the build already writes country_zh (中文,
+// derived from the metro data) so every menu shows 中文＋English like metro maps.
 let catalogPromise = null
 
 function withZh(s) {
   const id = s.file.split('/').pop().replace(/\.geojson$/, '')
-  const zh = CITY_ZH[id]
+  const countryZh = s.country_zh ?? s.country
   return {
     ...s,
     id,
-    cityZh: zh?.city ?? s.city,
-    countryZh: zh?.country ?? s.country,
+    // one file per country → the "city" label is the country name
+    cityZh: countryZh,
+    countryZh,
   }
 }
 

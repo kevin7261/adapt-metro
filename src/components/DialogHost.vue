@@ -217,6 +217,7 @@ const QUICK_CITIES = [
   { zh: '新加坡', en: 'Singapore' }, { zh: '倫敦', en: 'London' }, { zh: '巴黎', en: 'Paris' },
   { zh: '柏林', en: 'Berlin' }, { zh: '維也納', en: 'Vienna' }, { zh: '紐約', en: 'New York' },
   { zh: '雪梨', en: 'Sydney' }, { zh: '墨西哥城', en: 'Mexico City' },
+  { zh: '舊金山', en: 'San Francisco' },
 ]
 const quickCities = computed(() => {
   if (!catalog.value) return []

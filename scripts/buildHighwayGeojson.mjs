@@ -22,6 +22,23 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const HIGHWAY = join(ROOT, 'data', 'highway')
 const CACHE = join(HIGHWAY, '_cache')
+const METRO = join(ROOT, 'data', 'metro')
+
+// English country name → 中文, derived from the metro data (cityNamesZh.json is
+// keyed by city slug and carries a Chinese country name), so highway layers show
+// 中文＋English exactly like metro maps.
+async function countryZhMap() {
+  const map = {}
+  try {
+    const idx = JSON.parse(await readFile(join(METRO, 'index.json'), 'utf8'))
+    const zh = JSON.parse(await readFile(join(ROOT, 'src', 'stores', 'cityNamesZh.json'), 'utf8'))
+    for (const s of idx.systems) {
+      const slug = s.file.split('/').pop().replace(/\.geojson$/, '')
+      if (s.country && zh[slug]?.country) map[s.country] = zh[slug].country
+    }
+  } catch { /* labels fall back to English */ }
+  return map
+}
 
 const PALETTE = [
   '#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#008080',
@@ -140,8 +157,9 @@ function orderAlongPath(items) {
 }
 
 // ---- per-country assembly ---------------------------------------------------
-function buildSystem(raw) {
+function buildSystem(raw, zhMap = {}) {
   const { cc, continent, country } = raw
+  const countryZh = zhMap[country] ?? country
   const city = country // one file per country; the "city" label is the country
   const slug = cc
   const ways = raw.elements.filter((e) => e.type === 'way' && e.tags?.ref)
@@ -237,9 +255,16 @@ function buildSystem(raw) {
       order_suspect: 0,
     }
   }
+  // 里程（mileage）: exit numbers on motorways are milepost-based (Taiwan 交流道
+  // 編號＝公里數, US exit numbers＝mile), so parse the numeric part of the exit
+  // ref. null when the interchange has no numeric ref.
+  const mileageOf = (e) => {
+    for (const r of e.exitRefs) { const m = String(r).match(/\d+(\.\d+)?/); if (m) return Number(m[0]) }
+    return null
+  }
   const refStationList = (ref) => (refStations.get(ref) || []).map((root) => {
     const e = ic.get(root)
-    return { station_id: e.id, station_name: e.name }
+    return { station_id: e.id, station_name: e.name, mileage: mileageOf(e) }
   })
 
   const features = []
@@ -261,6 +286,7 @@ function buildSystem(raw) {
         line_ids: refs.map((r) => `hw-${slug}-${r}`),
         line_names: refs.map((r) => routeMeta(r).route_name),
         exit_refs: [...e.exitRefs].sort(),
+        mileage: mileageOf(e),
         station_role: isInter ? 'interchange' : (isTerm ? 'terminus' : 'normal'),
         station_degree: degree, is_interchange: isInter, is_terminus: isTerm,
         merged_from: e.members.length,
@@ -291,7 +317,7 @@ function buildSystem(raw) {
 
   const refCount = [...refStations.values()].filter((s) => s.length >= 2).length
   const meta = {
-    continent, country, city,
+    continent, country, country_zh: countryZh, city,
     osm_networks: [...byRef.keys()].sort(),
     operator: null,
     line_count: refCount, segment_count: segTotal,
@@ -320,11 +346,12 @@ async function main() {
   catch { files = [] }
   if (!files.length) { console.error('no fetched countries in data/highway/_cache — run npm run highway:fetch first'); process.exit(1) }
 
+  const zhMap = await countryZhMap()
   const allLines = [], allIc = [], systems = []
   let lineTotal = 0, stationTotal = 0
   for (const f of files.sort()) {
     const raw = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
-    const fc = buildSystem(raw)
+    const fc = buildSystem(raw, zhMap)
     if (!fc.features.length) { console.log(`  ${raw.cc}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
     const rel = `systems/${cont}/${countrySlug(raw.country)}/${raw.cc}.geojson`
@@ -332,7 +359,7 @@ async function main() {
     await writeFile(join(HIGHWAY, rel), JSON.stringify(fc))
     const m = fc.highway_system
     systems.push({
-      file: rel, continent: raw.continent, country: raw.country, city: raw.country,
+      file: rel, continent: raw.continent, country: raw.country, country_zh: m.country_zh, city: raw.country,
       osm_networks: m.osm_networks, operator: m.operator,
       line_count: m.line_count, segment_count: m.segment_count, station_count: m.station_count,
     })

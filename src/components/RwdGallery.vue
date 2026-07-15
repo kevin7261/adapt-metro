@@ -35,7 +35,7 @@ const stationSort = ref('desc')
 
 const QUICK = ['Taipei', 'Taichung', 'Kaohsiung', 'Tokyo', 'Osaka', 'Seoul',
   'Beijing', 'Shanghai', 'Hong Kong', 'Singapore', 'London', 'Paris',
-  'Berlin', 'Vienna', 'New York']
+  'Berlin', 'Vienna', 'New York', 'San Francisco']
 
 const tiles = computed(() => {
   const all = catalog.value ?? []
