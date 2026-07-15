@@ -164,7 +164,79 @@ function makeMover(pos, segs, inc, cols, rows) {
     cellOwner.set(ckey(P[0], P[1]), v)
   }
 
-  return { other, nbrsOf, cellOwner, orderKey, validMove, applyMove }
+  // Rigid translation of a vertex group by (dc,dr): internal relations are
+  // fixed, so hard rules only apply across the moving/static boundary.
+  // (Shared by the optimizer's cluster moves and the 直線縮減 post-pass.)
+  function validShift(comp, inC, dc, dr) {
+    for (const w of comp) {
+      const [c, r] = pos.get(w)
+      const nc = c + dc, nr = r + dr
+      if (nc < 0 || nr < 0 || nc >= cols || nr >= rows) return false
+      const owner = cellOwner.get(ckey(nc, nr))
+      if (owner !== undefined && !inC.has(owner)) return false
+      for (const u of nbrsOf(w)) { // quadrant w.r.t. static neighbours
+        if (inC.has(u)) continue
+        const pu = pos.get(u)
+        const dxo = c - pu[0], dyo = r - pu[1]
+        const dxn = nc - pu[0], dyn = nr - pu[1]
+        if ((dxo > 0 && dxn < 0) || (dxo < 0 && dxn > 0)) return false
+        if ((dyo > 0 && dyn < 0) || (dyo < 0 && dyn > 0)) return false
+      }
+    }
+    const at = (id) => {
+      const p = pos.get(id)
+      return inC.has(id) ? [p[0] + dc, p[1] + dr] : p
+    }
+    // occlusion across the boundary: every moved segment vs every static one
+    for (let si = 0; si < segs.length; si++) {
+      const s = segs[si]
+      const movedS = inC.has(s.a) || inC.has(s.b)
+      if (!movedS) continue
+      const A = at(s.a), B = at(s.b)
+      for (let sj = 0; sj < segs.length; sj++) {
+        const t = segs[sj]
+        if (inC.has(t.a) || inC.has(t.b)) continue // both moving or handled above
+        if (t.a === s.a || t.a === s.b || t.b === s.a || t.b === s.b) continue
+        if (segsIntersect(A, B, pos.get(t.a), pos.get(t.b))) return false
+      }
+      for (const [w, pw] of pos) { // static vertex swallowed by a moved segment
+        if (inC.has(w) || w === s.a || w === s.b) continue
+        if (onSeg(pw, A, B)) return false
+      }
+    }
+    for (const w of comp) { // moved vertex landing on a static segment
+      const pw = at(w)
+      for (let si = 0; si < segs.length; si++) {
+        const s = segs[si]
+        if (inC.has(s.a) || inC.has(s.b)) continue
+        if (onSeg(pw, pos.get(s.a), pos.get(s.b))) return false
+      }
+    }
+    // edge ordering at every boundary vertex (both sides)
+    const checked = new Set()
+    for (const w of comp) {
+      for (const u of nbrsOf(w)) {
+        if (inC.has(u)) continue
+        for (const x of [w, u]) {
+          if (checked.has(x) || inc.get(x).length < 3) continue
+          checked.add(x)
+          if (!cyclicEqual(orderKey(x, (id) => pos.get(id)), orderKey(x, at))) return false
+        }
+      }
+    }
+    return true
+  }
+
+  function applyShift(comp, [dc, dr]) {
+    for (const w of comp) {
+      const [c, r] = pos.get(w)
+      if (cellOwner.get(ckey(c, r)) === w) cellOwner.delete(ckey(c, r))
+      pos.set(w, [c + dc, r + dr])
+    }
+    for (const w of comp) { const [c, r] = pos.get(w); cellOwner.set(ckey(c, r), w) }
+  }
+
+  return { other, nbrsOf, cellOwner, orderKey, validMove, applyMove, validShift, applyShift }
 }
 
 // Post-pass (縮減網格 tab): drop every column/row that holds no coloured
@@ -238,7 +310,7 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
     return { cellAfter: pos, stats: { before: 0, after: 0, rounds: 0, moved: 0, clusterMoves: 0, idealHop: 1, hvBefore: 0, hvAfter: 0 } }
   }
 
-  const { other, nbrsOf, cellOwner, orderKey, validMove, applyMove } =
+  const { other, nbrsOf, cellOwner, orderKey, validMove, applyMove, validShift, applyShift } =
     makeMover(pos, segs, inc, cols, rows)
   const segLen = (s) => {
     const A = pos.get(s.a), B = pos.get(s.b)
@@ -386,68 +458,6 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
       .map((c) => c.sort())
   }
 
-  // Rigid translation of a cluster by (dc,dr): internal relations are fixed, so
-  // hard rules only apply across the moving/static boundary.
-  function validShift(comp, inC, dc, dr) {
-    for (const w of comp) {
-      const [c, r] = pos.get(w)
-      const nc = c + dc, nr = r + dr
-      if (nc < 0 || nr < 0 || nc >= cols || nr >= rows) return false
-      const owner = cellOwner.get(ckey(nc, nr))
-      if (owner !== undefined && !inC.has(owner)) return false
-      for (const u of nbrsOf(w)) { // quadrant w.r.t. static neighbours
-        if (inC.has(u)) continue
-        const pu = pos.get(u)
-        const dxo = c - pu[0], dyo = r - pu[1]
-        const dxn = nc - pu[0], dyn = nr - pu[1]
-        if ((dxo > 0 && dxn < 0) || (dxo < 0 && dxn > 0)) return false
-        if ((dyo > 0 && dyn < 0) || (dyo < 0 && dyn > 0)) return false
-      }
-    }
-    const at = (id) => {
-      const p = pos.get(id)
-      return inC.has(id) ? [p[0] + dc, p[1] + dr] : p
-    }
-    // occlusion across the boundary: every moved segment vs every static one
-    for (let si = 0; si < segs.length; si++) {
-      const s = segs[si]
-      const movedS = inC.has(s.a) || inC.has(s.b)
-      if (!movedS) continue
-      const A = at(s.a), B = at(s.b)
-      for (let sj = 0; sj < segs.length; sj++) {
-        const t = segs[sj]
-        if (inC.has(t.a) || inC.has(t.b)) continue // both moving or handled above
-        if (t.a === s.a || t.a === s.b || t.b === s.a || t.b === s.b) continue
-        if (segsIntersect(A, B, pos.get(t.a), pos.get(t.b))) return false
-      }
-      for (const [w, pw] of pos) { // static vertex swallowed by a moved segment
-        if (inC.has(w) || w === s.a || w === s.b) continue
-        if (onSeg(pw, A, B)) return false
-      }
-    }
-    for (const w of comp) { // moved vertex landing on a static segment
-      const pw = at(w)
-      for (let si = 0; si < segs.length; si++) {
-        const s = segs[si]
-        if (inC.has(s.a) || inC.has(s.b)) continue
-        if (onSeg(pw, pos.get(s.a), pos.get(s.b))) return false
-      }
-    }
-    // edge ordering at every boundary vertex (both sides)
-    const checked = new Set()
-    for (const w of comp) {
-      for (const u of nbrsOf(w)) {
-        if (inC.has(u)) continue
-        for (const x of [w, u]) {
-          if (checked.has(x) || inc.get(x).length < 3) continue
-          checked.add(x)
-          if (!cyclicEqual(orderKey(x, (id) => pos.get(id)), orderKey(x, at))) return false
-        }
-      }
-    }
-    return true
-  }
-
   function bestClusterShift(comp, R) {
     const inC = new Set(comp)
     // fitness changes only at the boundary: cluster verts with static neighbours
@@ -478,15 +488,6 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
     }
     return best
   }
-  function applyShift(comp, [dc, dr]) {
-    for (const w of comp) {
-      const [c, r] = pos.get(w)
-      if (cellOwner.get(ckey(c, r)) === w) cellOwner.delete(ckey(c, r))
-      pos.set(w, [c + dc, r + dr])
-    }
-    for (const w of comp) { const [c, r] = pos.get(w); cellOwner.set(ckey(c, r), w) }
-  }
-
   /* ---- main loop (Algorithm 1): per-vertex moves + cluster moves, cooling ---- */
   // Search rectangle shrinks each round. Cap at ±2 cells so stations don't
   // wander far from the schematic-grid input (paper used up to 8).
@@ -779,31 +780,134 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
   }
 }
 
-// 拉直縮減循環: alternate 端點拉直 (itself iterated to a fixed point) and
-// compactGrid until a straighten round moves NOTHING. Compaction only drops
-// colour-free rows/columns — H/V relations survive it — but it changes every
-// cell's rank coordinates, so hard-rule blocks (occlusion, landing on another
-// vertex) shift and new straighten moves can open up; a straighten can in
-// turn empty more rows/columns for the next compact. Terminates: every
-// accepted straighten move strictly grows the H/V count (bounded by segs) and
-// the grid never grows; POST_ITER_CAP rounds as a backstop. Per-round moved
-// counts are summed (compaction renumbers cells, so a net input/output
-// position diff would be meaningless).
-export function straightenCompactLoop(skeleton, cells, cols, rows) {
+// 直線縮減 one sweep: move whole straight LINES so the grid needs fewer
+// distinct columns + rows. A "line" is a maximal collinear chain of
+// horizontal (or vertical) segments stitched ACROSS intersection vertices —
+// the connected component over same-axis straight segments, so transfers,
+// branches and yellow crossings a line runs straight through move with it.
+// Candidates: rigid unit shifts (±1/±2, both axes). A shift is accepted only
+// when it STRICTLY shrinks the occupied column+row count (= the post-compact
+// grid size) and passes the SAME rigid-shift hard rules as the optimizer's
+// cluster moves (validShift: no new crossing/occlusion, quadrant + edge order
+// preserved) — the network structure is untouched. Tie-breaks: bigger grid
+// gain → smaller H/V damage on the boundary segments → smaller displacement.
+function lineCompactPass(skeleton, cells, cols, rows) {
+  const { pos, segs, inc } = buildHcGraph(skeleton, cells)
+  const empty = { cellAfter: pos, moved: 0, hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size }
+  if (!pos.size || !segs.length) return empty
+  const M = makeMover(pos, segs, inc, cols, rows)
+  const hvBefore = countHV(pos, segs)
+  const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
+
+  // straight-line components per axis (union-find over same-axis segments)
+  const lineComps = (horiz) => {
+    const parent = new Map()
+    const find = (x) => {
+      let r = x
+      while (parent.get(r) !== r) r = parent.get(r)
+      let c = x
+      while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
+      return r
+    }
+    for (const s of segs) {
+      const A = pos.get(s.a), B = pos.get(s.b)
+      const straight = horiz ? (A[1] === B[1] && A[0] !== B[0]) : (A[0] === B[0] && A[1] !== B[1])
+      if (!straight) continue
+      for (const v of [s.a, s.b]) if (!parent.has(v)) parent.set(v, v)
+      const a = find(s.a), b = find(s.b)
+      if (a !== b) parent.set(a, b)
+    }
+    const comps = new Map()
+    for (const v of parent.keys()) {
+      const root = find(v)
+      if (!comps.has(root)) comps.set(root, [])
+      comps.get(root).push(v)
+    }
+    return [...comps.values()].filter((c) => c.length >= 2 && c.length < pos.size)
+      .map((c) => c.sort()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+  }
+
+  // occupied-coordinate counts per axis; distinct cols+rows = compacted size
+  const count = [new Map(), new Map()]
+  const recount = () => {
+    for (const ax of [0, 1]) {
+      count[ax].clear()
+      for (const p of pos.values()) count[ax].set(p[ax], (count[ax].get(p[ax]) ?? 0) + 1)
+    }
+  }
+  recount()
+  const axisDistinctAfter = (memAt, ax, d) => {
+    const occ = new Set()
+    for (const [x, n] of count[ax]) if (n - (memAt.get(x) ?? 0) > 0) occ.add(x)
+    for (const x of memAt.keys()) occ.add(x + d)
+    return occ.size
+  }
+  const gainOf = (mems, dc, dr) => {
+    let gain = 0
+    for (const [ax, d] of [[0, dc], [1, dr]]) {
+      if (!d) continue
+      const memAt = new Map()
+      for (const w of mems) { const x = pos.get(w)[ax]; memAt.set(x, (memAt.get(x) ?? 0) + 1) }
+      gain += count[ax].size - axisDistinctAfter(memAt, ax, d)
+    }
+    return gain
+  }
+  // H/V damage: boundary segments (one endpoint moving) before vs after
+  const hvDelta = (inC, dc, dr) => {
+    let d = 0
+    for (const s of segs) {
+      const ma = inC.has(s.a), mb = inC.has(s.b)
+      if (ma === mb) continue // internal (rigid) or static — unchanged
+      const A = pos.get(s.a), B = pos.get(s.b)
+      const A2 = ma ? [A[0] + dc, A[1] + dr] : A
+      const B2 = mb ? [B[0] + dc, B[1] + dr] : B
+      d += (isHV(A2, B2) ? 1 : 0) - (isHV(A, B) ? 1 : 0)
+    }
+    return d
+  }
+
+  const DELTAS = [[0, -1], [0, 1], [-1, 0], [1, 0], [0, -2], [0, 2], [-2, 0], [2, 0]]
+  let moved = 0
+  for (const comp of [...lineComps(true), ...lineComps(false)]) {
+    const inC = new Set(comp)
+    const scored = []
+    for (const [dc, dr] of DELTAS) {
+      const gain = gainOf(comp, dc, dr)
+      if (gain <= 0) continue // must strictly shrink the grid
+      scored.push({ dc, dr, gain, hv: hvDelta(inC, dc, dr), dist: Math.abs(dc) + Math.abs(dr) })
+    }
+    scored.sort((a, b) => b.gain - a.gain || b.hv - a.hv
+      || a.dist - b.dist || a.dc - b.dc || a.dr - b.dr)
+    for (const c of scored) {
+      if (!M.validShift(comp, inC, c.dc, c.dr)) continue
+      M.applyShift(comp, [c.dc, c.dr])
+      recount()
+      moved++
+      break
+    }
+  }
+  return { cellAfter: pos, moved, hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size }
+}
+
+// 直線縮減 post-pass: sweeps of lineCompactPass, the grid re-compacted after
+// each sweep (a shrink can bring the next merge within the ±2 window), until
+// a sweep moves no line; POST_ITER_CAP as backstop. Each accepted move
+// strictly reduces distinct columns+rows (bounded below) → terminates.
+export function buildLineCompact(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows
-  let rounds = 0, moved = 0
+  let iters = 0, moved = 0
   let first = null, last = null
-  while (rounds < POST_ITER_CAP) {
-    const endp = iteratePost(buildEndpointStraighten, skeleton, cur, nC, nR)
-    rounds++
-    first ??= endp.stats
-    last = endp.stats
-    moved += endp.stats.moved
-    const comp = compactGrid(endp.cellAfter, nC, nR)
+  while (iters < POST_ITER_CAP) {
+    const res = lineCompactPass(skeleton, cur, nC, nR)
+    iters++
+    first ??= res
+    last = res
+    moved += res.moved
+    const comp = compactGrid(res.cellAfter, nC, nR)
     cur = comp.cellAfter
     nC = comp.cols
     nR = comp.rows
-    if (!endp.stats.moved) break
+    if (!res.moved) break
   }
   return {
     cellAfter: cur,
@@ -812,7 +916,50 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     stats: {
       hvBefore: first.hvBefore, hvAfter: last.hvAfter,
       segs: last.segs, verts: last.verts, moved,
-      rounds, roundCap: POST_ITER_CAP, converged: last.moved === 0,
+      iters, iterCap: POST_ITER_CAP, converged: last.moved === 0,
+      fromCols: cols, fromRows: rows, cols: nC, rows: nR,
+    },
+  }
+}
+
+// 端點拉直+縮減網格+直線縮減循環: each round runs 端點拉直 (itself iterated
+// to a fixed point) → compactGrid → 直線縮減 (itself iterated), until a round
+// where NOTHING moves. Compaction changes every cell's rank coordinates, so
+// hard-rule blocks (occlusion, landing on another vertex) shift and new
+// straighten moves can open up; a straighten can empty more rows/columns; a
+// line shift can unblock further straightens. Terminates: straighten moves
+// strictly grow H/V (bounded) and never add a new occupied column/row, line
+// moves strictly shrink distinct columns+rows (bounded below), the grid never
+// grows; POST_ITER_CAP rounds as a backstop. Per-round moved counts are
+// summed (compaction renumbers cells, so a net position diff is meaningless).
+export function straightenCompactLoop(skeleton, cells, cols, rows) {
+  let cur = cells, nC = cols, nR = rows
+  let rounds = 0, moved = 0, lineMoved = 0
+  let first = null, lastEndp = null, lastLine = null
+  while (rounds < POST_ITER_CAP) {
+    const endp = iteratePost(buildEndpointStraighten, skeleton, cur, nC, nR)
+    const comp = compactGrid(endp.cellAfter, nC, nR)
+    const line = buildLineCompact(skeleton, comp.cellAfter, comp.cols, comp.rows)
+    rounds++
+    first ??= endp.stats
+    lastEndp = endp.stats
+    lastLine = line.stats
+    moved += endp.stats.moved
+    lineMoved += line.stats.moved
+    cur = line.cellAfter
+    nC = line.cols
+    nR = line.rows
+    if (!endp.stats.moved && !line.stats.moved) break
+  }
+  return {
+    cellAfter: cur,
+    cols: nC,
+    rows: nR,
+    stats: {
+      hvBefore: first.hvBefore, hvAfter: lastLine.hvAfter,
+      segs: lastEndp.segs, verts: lastEndp.verts, moved, lineMoved,
+      rounds, roundCap: POST_ITER_CAP,
+      converged: lastEndp.moved === 0 && lastLine.moved === 0,
       fromCols: cols, fromRows: rows, cols: nC, rows: nR,
     },
   }
