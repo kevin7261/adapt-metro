@@ -779,6 +779,45 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
   }
 }
 
+// 拉直縮減循環: alternate 端點拉直 (itself iterated to a fixed point) and
+// compactGrid until a straighten round moves NOTHING. Compaction only drops
+// colour-free rows/columns — H/V relations survive it — but it changes every
+// cell's rank coordinates, so hard-rule blocks (occlusion, landing on another
+// vertex) shift and new straighten moves can open up; a straighten can in
+// turn empty more rows/columns for the next compact. Terminates: every
+// accepted straighten move strictly grows the H/V count (bounded by segs) and
+// the grid never grows; POST_ITER_CAP rounds as a backstop. Per-round moved
+// counts are summed (compaction renumbers cells, so a net input/output
+// position diff would be meaningless).
+export function straightenCompactLoop(skeleton, cells, cols, rows) {
+  let cur = cells, nC = cols, nR = rows
+  let rounds = 0, moved = 0
+  let first = null, last = null
+  while (rounds < POST_ITER_CAP) {
+    const endp = iteratePost(buildEndpointStraighten, skeleton, cur, nC, nR)
+    rounds++
+    first ??= endp.stats
+    last = endp.stats
+    moved += endp.stats.moved
+    const comp = compactGrid(endp.cellAfter, nC, nR)
+    cur = comp.cellAfter
+    nC = comp.cols
+    nR = comp.rows
+    if (!endp.stats.moved) break
+  }
+  return {
+    cellAfter: cur,
+    cols: nC,
+    rows: nR,
+    stats: {
+      hvBefore: first.hvBefore, hvAfter: last.hvAfter,
+      segs: last.segs, verts: last.verts, moved,
+      rounds, roundCap: POST_ITER_CAP, converged: last.moved === 0,
+      fromCols: cols, fromRows: rows, cols: nC, rows: nR,
+    },
+  }
+}
+
 // ④ LLM 對齊 executor: the fourth post-pass. The TARGETS come from outside —
 // an LLM session (scripts/llmAlign.mjs + skill route-llm-align) proposes them
 // round by round; this function only does what the other three passes do after

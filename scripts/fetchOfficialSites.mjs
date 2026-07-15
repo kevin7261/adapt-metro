@@ -142,25 +142,36 @@ const p856 = (entity) => (entity.claims?.P856 || [])
   .filter((c) => c.rank !== 'deprecated')
   .map((c) => c.mainsnak?.datavalue?.value).filter(Boolean)
 
-// validated entity -> official website（P856；line 條目改爬 P361 上層）
-async function siteFromEntity(sys, entity, allCountries, depth = 0) {
-  if (!entity || depth > 2) return null
+// validated entity -> 候選官網清單（P856 全收；再追 P137 operator／P127 owner 的
+// P856——Wikidata 系統條目的 P856 常是死域名或缺項（Paris ratp.info、高雄 krtco、
+// 首爾沒有 P856），營運商條目的官網才是活的；line 條目改爬 P361 上層）
+const claimIds = (entity, prop) => (entity.claims?.[prop] || [])
+  .map((c) => c.mainsnak?.datavalue?.value?.id).filter(Boolean)
+
+async function sitesFromEntity(sys, entity, allCountries, depth = 0) {
+  if (!entity || depth > 2) return []
+  const out = []
   const lineish = isLineEntity(entity) && (sys.line_count || 2) > 1
   if (!lineish) {
-    const urls = p856(entity)
-    if (urls.length) return { url: urls[0], qid: entity.id, source: 'wikidata' }
+    for (const u of p856(entity)) out.push({ url: u, qid: entity.id, source: 'wikidata' })
+    // 營運商/持有者條目的 P856（provenance 來自已驗證的系統條目，僅擋錯國）
+    for (const pid of [...claimIds(entity, 'P137'), ...claimIds(entity, 'P127')].slice(0, 3)) {
+      const op = await getEntity(pid)
+      if (!op || wrongCountry(sys, op, allCountries)) continue
+      for (const u of p856(op)) out.push({ url: u, qid: op.id, source: 'wikidata-operator' })
+    }
     const fromArticle = await wikipediaInfoboxSite(entity.sitelinks?.enwiki?.title)
-    if (fromArticle) return { url: fromArticle, qid: entity.id, source: 'wikipedia' }
+    if (fromArticle) out.push({ url: fromArticle, qid: entity.id, source: 'wikipedia' })
   }
-  for (const claim of entity.claims?.P361 || []) {
-    const pid = claim.mainsnak?.datavalue?.value?.id
-    if (!pid) continue
-    const parent = await getEntity(pid)
-    if (!parent || !entityMentions(sys, parent) || wrongCountry(sys, parent, allCountries)) continue
-    const r = await siteFromEntity(sys, parent, allCountries, depth + 1)
-    if (r) return r
+  if (!out.length) {
+    for (const pid of claimIds(entity, 'P361')) {
+      const parent = await getEntity(pid)
+      if (!parent || !entityMentions(sys, parent) || wrongCountry(sys, parent, allCountries)) continue
+      out.push(...(await sitesFromEntity(sys, parent, allCountries, depth + 1)))
+      if (out.length) break
+    }
   }
-  return null
+  return out
 }
 
 // enwiki infobox：| website = {{URL|www.x.com}} / [https://x.com ...] / 裸 URL
@@ -192,7 +203,9 @@ async function searchQids(query, limit = 5) {
   } catch { return [] }
 }
 
-// 存活檢查：404/410/網路錯誤＝死；403/999 等擋爬蟲視為活（很多官網擋 bot）
+// 存活檢查：**確定死**（DNS 不存在、404/410）才拒收；403/999 擋爬蟲視為活；
+// **連線逾時/重設視為「無法驗證但接受」**——中國官網從境外常連不上（shmetro.com
+// connect timeout），URL 本身仍是正確官網，不得因本機網路可達性誤殺。
 async function checkAlive(url) {
   try {
     const ctrl = new AbortController()
@@ -201,8 +214,10 @@ async function checkAlive(url) {
     clearTimeout(t)
     if (r.status === 404 || r.status === 410) return { alive: false, status: r.status }
     return { alive: true, status: r.status, finalUrl: r.url }
-  } catch {
-    return { alive: false, status: null }
+  } catch (e) {
+    const code = e?.cause?.code || e?.name || ''
+    if (/ENOTFOUND|EAI_AGAIN/.test(code)) return { alive: false, status: null }   // 域名不存在＝死
+    return { alive: true, status: null }   // timeout/reset/TLS＝無法驗證，接受
   }
 }
 
@@ -219,20 +234,23 @@ async function resolveSite(sys, net2qid, net2site, allCountries) {
     candidates.push(...(await searchQids(q)))
     if (candidates.length >= 12) break
   }
-  // 收集多個驗證過的候選（≤3），偏好**路徑最淺**的 URL——第一個命中可能是
-  // 子系統/線的深層頁（香港曾拿到 MTR 輕鐵子頁而非 mtr.com.hk 首頁）
-  const found = []
+  // 收集多個驗證過的條目（≤3）的所有候選 URL，偏好**路徑最淺**者——第一個命中
+  // 可能是子系統/線的深層頁（香港曾拿到 MTR 輕鐵子頁而非 mtr.com.hk 首頁）
+  let found = []
+  let hits = 0
   for (const qid of candidates) {
-    if (found.length >= 3) break
+    if (hits >= 3) break
     if (!qid || tried.has(qid)) continue
     tried.add(qid)
     const entity = await getEntity(qid)
     if (!entity) continue
     if (!entityMentions(sys, entity)) continue
     if (wrongCountry(sys, entity, allCountries)) continue
-    const r = await siteFromEntity(sys, entity, allCountries)
-    if (r) found.push(r)
+    const rs = await sitesFromEntity(sys, entity, allCountries)
+    if (rs.length) { found.push(...rs); hits++ }
   }
+  const seenUrl = new Set()
+  found = found.filter((f) => { const k = f.url.replace(/\/$/, ''); if (seenUrl.has(k)) return false; seenUrl.add(k); return true })
   const depth = (u) => { try { return new URL(u).pathname.split('/').filter(Boolean).length } catch { return 9 } }
   found.sort((a, b) => depth(a.url) - depth(b.url))
   // 3) OSM website tag（netKey 對應本系統的 networks）
@@ -242,8 +260,10 @@ async function resolveSite(sys, net2qid, net2site, allCountries) {
   // 4) build 端舊值（OSM operator/route 的 website，常是深層頁——墊底）
   if (sys.official_website) found.push({ url: sys.official_website, qid: null, source: 'build' })
 
+  if (process.env.DEBUG_SITES) console.log(`    [debug] ${sys.city}: candidates=${JSON.stringify(found)}`)
   for (const cand of found) {
     const chk = await checkAlive(cand.url); await sleep(200)
+    if (process.env.DEBUG_SITES) console.log(`    [debug]   ${cand.url} alive=${chk.alive} status=${chk.status}`)
     if (chk.alive) return { ...cand, status: chk.status, final_url: chk.finalUrl || cand.url }
   }
   return null

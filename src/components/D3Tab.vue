@@ -12,6 +12,7 @@ import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
 import {
   buildHillClimb, compactGrid, buildHcGraph, buildEndpointStraighten,
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
+  straightenCompactLoop,
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
@@ -114,6 +115,7 @@ const hcMode = computed(() =>
   ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
     'hc-end', 'hc-rect-end', 'hc-align-end', 'hc-ilp-end', 'hc-llm-end',
     'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
+    'hc-loop', 'hc-rect-loop', 'hc-align-loop', 'hc-ilp-loop', 'hc-llm-loop',
     'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
@@ -142,8 +144,9 @@ async function startLlmRun(userPrompt = '') {
   // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
   // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
   cachedLlm = null
-  delete cachedEndp.llm // LLM 對齊端點拉直／縮減網格 跟著舊結果一起作廢
+  delete cachedEndp.llm // LLM 對齊端點拉直／縮減網格／拉直縮減循環 跟著舊結果一起作廢
   delete cachedCompact.llm
+  delete cachedLoop.llm
   if (llmMode.value) render()
   try {
     const res = await fetch('/llm-align/run', {
@@ -287,6 +290,7 @@ const POST_KIND = {
   'hc-rect': 'rect', 'hc-align': 'align', 'hc-ilp': 'ilp',
   'hc-rect-compact': 'rect', 'hc-align-compact': 'align', 'hc-ilp-compact': 'ilp',
   'hc-rect-end': 'rect', 'hc-align-end': 'align', 'hc-ilp-end': 'ilp',
+  'hc-rect-loop': 'rect', 'hc-align-loop': 'align', 'hc-ilp-loop': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
 // 端點拉直區塊（左選單第 4 部份）：每條鏈一個 tab——在該鏈的結果「之上」再做
@@ -294,6 +298,12 @@ const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxi
 const END_KIND = {
   'hc-end': 'hc', 'hc-rect-end': 'rect', 'hc-align-end': 'align',
   'hc-ilp-end': 'ilp', 'hc-llm-end': 'llm',
+}
+// 拉直縮減循環（左選單第 6 部份）：每條鏈一個 tab——在該鏈結果之上交替
+// 端點拉直＋縮減網格，跑到某輪拉直「沒有點可以動」為止（straightenCompactLoop）。
+const LOOP_KIND = {
+  'hc-loop': 'hc', 'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
+  'hc-ilp-loop': 'ilp', 'hc-llm-loop': 'llm',
 }
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
 // 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
@@ -373,6 +383,7 @@ let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在�
 let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
 let cachedCompact = {} // compactGrid results, keyed by 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedEndp = {}    // 端點拉直 (iteratePost over buildEndpointStraighten)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
+let cachedLoop = {}    // 拉直縮減循環 (straightenCompactLoop)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
@@ -380,6 +391,7 @@ const hcStats = ref(null)
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const endpStats = ref(null)      // 端點拉直: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
+const loopStats = ref(null)      // 拉直縮減循環: { hvBefore, hvAfter, segs, moved, rounds, fromCols, ..., converged }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
@@ -468,7 +480,7 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 5 個部份：原始／Hill Climbing／直線演算法／端點拉直／縮減網格
+    // 左選單分 6 個部份：原始／Hill Climbing／直線演算法／端點拉直／縮減網格／拉直縮減循環
     // （header 項只是分組標題、不可點）。
     return [
       { header: '原始' },
@@ -496,6 +508,13 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-align-compact', label: '軸對齊縮減網格' },
       { id: 'hc-ilp-compact', label: '整數規劃縮減網格' },
       { id: 'hc-llm-compact', label: 'LLM 對齊縮減網格' },
+      // 拉直縮減循環：交替 端點拉直＋縮減網格 直到沒有點可以動（見 LOOP_KIND）
+      { header: '拉直縮減循環' },
+      { id: 'hc-loop', label: 'Hill Climbing拉直縮減循環' },
+      { id: 'hc-rect-loop', label: '直角爬山拉直縮減循環' },
+      { id: 'hc-align-loop', label: '軸對齊拉直縮減循環' },
+      { id: 'hc-ilp-loop', label: '整數規劃拉直縮減循環' },
+      { id: 'hc-llm-loop', label: 'LLM 對齊拉直縮減循環' },
     ]
   }
   return [
@@ -612,6 +631,7 @@ async function render() {
     cachedGrid = null
     cachedCompact = {}
     cachedEndp = {}
+    cachedLoop = {}
     cachedRWD = null
     hcStats.value = null
     postStats.value = null
@@ -622,6 +642,7 @@ async function render() {
     gridStats.value = null
     hcCompactStats.value = null
     endpStats.value = null
+    loopStats.value = null
     rwdStats.value = null
     // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
     // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
@@ -749,6 +770,19 @@ async function render() {
       nC = cachedCompact[ckey].cols
       nR = cachedCompact[ckey].rows
       hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
+    }
+    // 拉直縮減循環 tabs: on the chain's result (cells still uncompacted here —
+    // these modes match neither END_KIND nor hcCompact), alternate 端點拉直 ＋
+    // compactGrid until a straighten round moves no vertex (straightenCompactLoop).
+    {
+      const loopKind = LOOP_KIND[mode.value]
+      if (loopKind) {
+        if (!cachedLoop[loopKind]) cachedLoop[loopKind] = straightenCompactLoop(cachedSkeleton, cells, nC, nR)
+        cells = cachedLoop[loopKind].cellAfter
+        nC = cachedLoop[loopKind].cols
+        nR = cachedLoop[loopKind].rows
+        loopStats.value = cachedLoop[loopKind].stats
+      }
     }
     const cw = (w - 48) / nC, ch = (h - 48) / nR
     const area = [24, 24, w - 24, h - 24]
@@ -1516,6 +1550,15 @@ onBeforeUnmount(() => {
           v-if="hcCompact && hcCompactStats"> · 網格
           {{ hcCompactStats.fromCols }}×{{ hcCompactStats.fromRows }} →
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
+      </span>
+
+      <!-- 拉直縮減循環: 端點拉直 ⇄ 縮減網格 until no vertex can move -->
+      <span v-if="isHC && LOOP_KIND[mode] && loopStats" class="hc-stats">
+        拉直縮減循環 {{ loopStats.rounds }} 輪 · 移動 {{ loopStats.moved }} 點
+        · 水平垂直 {{ loopStats.hvBefore }} → {{ loopStats.hvAfter }}／{{ loopStats.segs }} 段
+        · 網格 {{ loopStats.fromCols }}×{{ loopStats.fromRows }} →
+        {{ loopStats.cols }}×{{ loopStats.rows }}<template
+          v-if="!loopStats.converged">（達上限未收斂）</template>
       </span>
 
       <!-- 端點拉直: vertex-alignment H/V pass on top of each chain's result -->
