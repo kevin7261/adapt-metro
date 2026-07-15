@@ -120,9 +120,10 @@
         "name": "淡水信義線",
         "name:zh": "淡水信義線",
         "name:zh-Hant": "淡水信義線",
-        "ref": "R"
+        "ref": "R",
+        "colour": "#FF0000"
       },
-      "note": "Taipei 新北投支線 route_master：OSM 把「捷運紅線 (新北投支線)」整串塞進 name/ref。設 ref=R 使其群組與紅線主線「快/慢車合併」為同一條線；master name 必須設為主線官方名（淡水信義線）——合併後代表 tags 由 master 覆蓋，若留支線名會把整條紅線改名（實測踩過）。支線自身的名稱在 relation 級補丁。"
+      "note": "Taipei 新北投支線 route_master：OSM 把「捷運紅線 (新北投支線)」整串塞進 name/ref。設 ref=R 使其群組與紅線主線「快/慢車合併」為同一條線；master name 必須設為主線官方名（淡水信義線）——合併後代表 tags 由 master 覆蓋，若留支線名會把整條紅線改名（實測踩過）。支線自身的名稱在 relation 級補丁。另補 colour=#FF0000：合併後代表 tags 由此 master 覆蓋，其 OSM colour #F890A5（粉紅）曾毒到整條紅線主線（2026-07 修正，同 name 教訓）。"
     },
     {
       "relation": 9437206,
@@ -130,9 +131,10 @@
         "name": "新北投支線",
         "name:zh": "新北投支線",
         "name:zh-Hant": "新北投支線",
-        "ref": "R"
+        "ref": "R",
+        "colour": "#FF0000"
       },
-      "note": "Taipei 新北投支線 relation（master 成員）：官方名＝新北投支線、屬紅線 ref R；帶新站（新北投）的分支變體在合併群組內自成 route（同小碧潭支線模式），顯示此名。"
+      "note": "Taipei 新北投支線 relation（master 成員）：官方名＝新北投支線、屬紅線 ref R；帶新站（新北投）的分支變體在合併群組內自成 route（同小碧潭支線模式），顯示此名。另補 colour=#FF0000：新北投支線官方屬紅線（與主線同色），OSM 的 #F890A5 非官方色。"
     },
     {
       "relation": 2665129,
@@ -140,9 +142,10 @@
         "name": "新北投支線",
         "name:zh": "新北投支線",
         "name:zh-Hant": "新北投支線",
-        "ref": "R"
+        "ref": "R",
+        "colour": "#FF0000"
       },
-      "note": "Taipei 新北投支線另一方向 relation（不在 master 成員內，曾自成一線帶著整串怪 ref）：同上補 ref/官方名，使其併入紅線分組、與 9437206 去重。"
+      "note": "Taipei 新北投支線另一方向 relation（不在 master 成員內，曾自成一線帶著整串怪 ref）：同上補 ref/官方名，使其併入紅線分組、與 9437206 去重。另補 colour=#FF0000：新北投支線官方屬紅線（與主線同色），OSM 的 #F890A5 非官方色。"
     }
   ]
 }

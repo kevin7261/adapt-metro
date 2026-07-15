@@ -108,29 +108,33 @@ const selectedEntries = computed(() => {
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
 
-// 車站物件：停靠此站的服務（`line_ids`）vs 行經不停（`pass_line_ids`）——**用 route_id 解析
-// 出確切的線**（不用 ref：機捷普通車/直達車都 ref「A」會撞、分不出）。直接讀車站儲存欄位、
-// 不再幾何猜測。找不到 id 退玫瑰紅。
-const routeById = computed(() => {
+// 車站物件：停靠此站的服務（`lines`＋`line_names`）vs 行經不停（`pass_lines`＋
+// `pass_line_names`）——直接讀車站儲存欄位（官方 refs＋線名，**無 OSM id**）。同 ref 的
+// 普通/直達由同序 `*_names` 區分；顏色以線名（其次 ref）對 metroLines 查表，找不到退玫瑰紅。
+const routeByName = computed(() => {
   const m = new Map()
-  for (const r of metroLines.value) if (r.route_id != null) m.set(String(r.route_id), r)
+  for (const r of metroLines.value) {
+    if (r.route_name != null && !m.has(String(r.route_name))) m.set(String(r.route_name), r)
+    if (r.route_ref != null && !m.has(String(r.route_ref))) m.set(String(r.route_ref), r)
+  }
   return m
 })
 const parseArr = (v) => {
   if (typeof v === 'string') { try { v = JSON.parse(v) } catch { return [] } }
   return Array.isArray(v) ? v : []
 }
-const resolveIds = (ids) => ids.map((id) => {
-  const r = routeById.value.get(String(id))
-  return { route_ref: r?.route_ref ?? null, route_name: r?.route_name ?? String(id), route_color: r?.route_color ?? '#e11d48' }
+const resolvePairs = (refs, names) => refs.map((ref, i) => {
+  const name = names[i] ?? String(ref)
+  const r = routeByName.value.get(String(name)) ?? routeByName.value.get(String(ref))
+  return { route_ref: String(ref), route_name: name, route_color: r?.route_color ?? '#e11d48' }
 })
 const stopRoutes = computed(() => {
   const p = selectedProps.value
-  return p?.station_id ? resolveIds(parseArr(p.line_ids)) : []
+  return p?.station_id ? resolvePairs(parseArr(p.lines), parseArr(p.line_names)) : []
 })
 const passRoutes = computed(() => {
   const p = selectedProps.value
-  return p?.station_id ? resolveIds(parseArr(p.pass_line_ids)) : []
+  return p?.station_id ? resolvePairs(parseArr(p.pass_lines), parseArr(p.pass_line_names)) : []
 })
 // 共站合併：異名轉乘站（merged_names）——各成員站名＋該名所屬路線。
 // 路線色以 ref 對應 metroLines 的 route_color；ref 找不到色時退玫瑰紅。

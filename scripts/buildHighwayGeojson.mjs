@@ -41,15 +41,25 @@ async function zhMaps() {
   return { countryZh, citySlug }
 }
 
-const PALETTE = [
-  '#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#008080',
-  '#e6b800', '#f032e6', '#9a6324', '#800000', '#808000', '#000075',
-  '#46f0f0', '#bcf60c', '#fabebe', '#aa6e28',
-]
-function refColor(ref) {
-  let h = 0
-  for (const ch of String(ref)) h = (h * 31 + ch.charCodeAt(0)) >>> 0
-  return PALETTE[h % PALETTE.length]
+// Colour by ROAD LEVEL, not per route (使用者: 同一層同同色, 可參考該國路標選色).
+// motorway (國道/Interstate/Autobahn) vs expressway (封閉式快速公路) each get one
+// colour, keyed to the country's road-sign scheme where known.
+const SIGN_COLORS = {
+  Taiwan: { motorway: '#12489b', expressway: '#1f8a4c' },          // 國道藍盾、快速公路綠盾
+  Japan: { motorway: '#1f8a4c', expressway: '#1666b0' },           // 高速道路綠、都市高速藍
+  China: { motorway: '#12489b', expressway: '#1f8a4c' },           // 国道/高速綠…→用藍/綠對比
+  'South Korea': { motorway: '#1f8a4c', expressway: '#1666b0' },   // 고속도로 녹색
+  'United States': { motorway: '#0b3d91', expressway: '#1f8a4c' }, // Interstate 藍盾
+  Canada: { motorway: '#0b3d91', expressway: '#1f8a4c' },
+  Germany: { motorway: '#0061a8', expressway: '#e0a800' },         // Autobahn 藍、Bundesstraße 黃
+  'United Kingdom': { motorway: '#0b6cb0', expressway: '#1f8a4c' }, // 藍底 motorway sign
+  France: { motorway: '#c0392b', expressway: '#1666b0' },          // autoroute 紅
+  Australia: { motorway: '#0b7a3b', expressway: '#12489b' },
+  default: { motorway: '#12489b', expressway: '#1f8a4c' },
+}
+function classColor(country, cls) {
+  const t = SIGN_COLORS[country] || SIGN_COLORS.default
+  return t[cls] || SIGN_COLORS.default[cls]
 }
 
 const key = (x, y) => `${x.toFixed(7)},${y.toFixed(7)}`
@@ -116,46 +126,6 @@ function buildPolylines(ways) {
   return polylines
 }
 
-// Order interchanges into one path along the road: seed from an extreme end
-// (one end of the farthest pair), greedy nearest-neighbour, then 2-opt to undo
-// any long crossing edge. Robust even when OSM splits the road into many
-// carriageway fragments (no single polyline spans the whole 國道).
-function orderAlongPath(items) {
-  const n = items.length
-  if (n <= 2) return items.map((it) => it.root)
-  const P = items.map((it) => [it.lon, it.lat])
-  const d = (a, b) => haversine(P[a], P[b])
-  let A = 0, bestd = -1
-  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-    const dd = d(i, j); if (dd > bestd) { bestd = dd; A = i }
-  }
-  const used = new Array(n).fill(false)
-  const ord = [A]; used[A] = true
-  for (let k = 1; k < n; k++) {
-    const last = ord[ord.length - 1]
-    let nx = -1, nd = Infinity
-    for (let i = 0; i < n; i++) { if (used[i]) continue; const dd = d(last, i); if (dd < nd) { nd = dd; nx = i } }
-    ord.push(nx); used[nx] = true
-  }
-  let improved = true, guard = 0
-  while (improved && guard++ < 60) {
-    improved = false
-    for (let i = 0; i < ord.length - 1; i++) {
-      for (let k = i + 1; k < ord.length; k++) {
-        const a = i > 0 ? ord[i - 1] : null, b = ord[i], c = ord[k], e = k + 1 < ord.length ? ord[k + 1] : null
-        let before = 0, after = 0
-        if (a !== null) { before += d(a, b); after += d(a, c) }
-        if (e !== null) { before += d(c, e); after += d(b, e) }
-        if (after + 1e-6 < before) {
-          let lo = i, hi = k
-          while (lo < hi) { const t = ord[lo]; ord[lo] = ord[hi]; ord[hi] = t; lo++; hi-- }
-          improved = true
-        }
-      }
-    }
-  }
-  return ord.map((i) => items[i].root)
-}
 
 // ---- per-system assembly (a system = a country, or a metro area for big ones)
 function buildSystem(raw, { countryZh, cityZh } = {}) {
@@ -210,45 +180,78 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
   const coordToJ = new Map()
   junctions.forEach((j, i) => coordToJ.set(key(j.lon, j.lat), i))
 
-  // per ref: gather all its interchanges (any carriageway), order into one line
-  const refStations = new Map()
-  for (const [ref, refWays] of byRef) {
-    const roots = new Set()
-    for (const poly of buildPolylines(refWays)) for (const v of poly) {
-      const jIdx = coordToJ.get(key(v[0], v[1]))
-      if (jIdx !== undefined && jIdxToIc.has(jIdx)) roots.add(jIdxToIc.get(jIdx))
-    }
-    const items = [...roots].map((root) => { const e = ic.get(root); return { root, lon: e.lon, lat: e.lat } })
-    refStations.set(ref, orderAlongPath(items))
-  }
-
-  // adjacency from each ref's consecutive interchange pairs
+  // per ref: build ROAD ADJACENCY — two interchanges are connected only if they
+  // sit next to each other on some carriageway (consecutive vertices, nothing
+  // between). We draw ONLY these adjacencies, so a 國道 is one continuous line
+  // where the road is continuous and simply BREAKS at a real gap — never a long
+  // straight line bridging interchanges that aren't actually connected.
+  const refEdges = new Map()  // ref → [[rootA, rootB] …] (road-adjacent, deduped)
+  const refAdj = new Map()    // ref → Map(root → Set(root))
   const neigh = new Map(), icRefs = new Map()
   const addRef = (root, ref) => { if (!icRefs.has(root)) icRefs.set(root, new Set()); icRefs.get(root).add(ref) }
-  for (const [ref, seq] of refStations) {
-    for (let i = 0; i < seq.length; i++) {
-      addRef(seq[i], ref)
-      if (i + 1 < seq.length) {
-        if (!neigh.has(seq[i])) neigh.set(seq[i], new Set())
-        if (!neigh.has(seq[i + 1])) neigh.set(seq[i + 1], new Set())
-        neigh.get(seq[i]).add(seq[i + 1]); neigh.get(seq[i + 1]).add(seq[i])
+  const link = (m, a, b) => { if (!m.has(a)) m.set(a, new Set()); if (!m.has(b)) m.set(b, new Set()); m.get(a).add(b); m.get(b).add(a) }
+  for (const [ref, refWays] of byRef) {
+    const seen = new Set(), edges = [], adj = new Map()
+    for (const poly of buildPolylines(refWays)) {
+      const hits = []
+      for (const v of poly) {
+        const jIdx = coordToJ.get(key(v[0], v[1]))
+        if (jIdx !== undefined && jIdxToIc.has(jIdx)) hits.push(jIdxToIc.get(jIdx))
+      }
+      const seq = hits.filter((r, n) => n === 0 || r !== hits[n - 1]) // drop repeats
+      for (let n = 0; n + 1 < seq.length; n++) {
+        const a = seq[n], b = seq[n + 1]
+        if (a === b) continue
+        const k = a < b ? `${a}|${b}` : `${b}|${a}`
+        if (!seen.has(k)) { seen.add(k); edges.push([a, b]) }
+        link(adj, a, b); link(neigh, a, b)
+        addRef(a, ref); addRef(b, ref)
       }
     }
+    refEdges.set(ref, edges)
+    refAdj.set(ref, adj)
   }
 
+  // Ordered interchange sequence per ref (for route.stations / the Object tab):
+  // walk each connected component of the adjacency graph from an endpoint.
+  const orderByAdj = (adj) => {
+    const visited = new Set(), out = []
+    for (const start of adj.keys()) {
+      if (visited.has(start)) continue
+      const comp = []
+      const stack = [start], seen = new Set([start])
+      while (stack.length) { const n = stack.pop(); comp.push(n); for (const m of adj.get(n) || []) if (!seen.has(m)) { seen.add(m); stack.push(m) } }
+      const endpoint = comp.find((n) => (adj.get(n)?.size ?? 0) === 1) ?? comp[0]
+      let cur = endpoint
+      const used = new Set()
+      while (cur !== undefined && !used.has(cur)) {
+        used.add(cur); visited.add(cur); out.push(cur)
+        cur = [...(adj.get(cur) || [])].find((m) => !used.has(m))
+      }
+      for (const n of comp) if (!used.has(n)) { used.add(n); visited.add(n); out.push(n) }
+    }
+    return out
+  }
+  const refStations = new Map()
+  for (const [ref, adj] of refAdj) refStations.set(ref, orderByAdj(adj))
+
   const refTags = new Map()
+  const refClass = new Map() // ref → 'motorway' | 'expressway'
   for (const [ref, refWays] of byRef) {
     refTags.set(ref, refWays.slice().sort((x, y) => Object.keys(y.tags).length - Object.keys(x.tags).length)[0].tags)
+    refClass.set(ref, refWays.some((w) => w.tags.highway === 'motorway') ? 'motorway' : 'expressway')
   }
   const routeMeta = (ref) => {
     const t = refTags.get(ref)
+    const cls = refClass.get(ref)
     return {
       route_id: `hw-${slug}-${ref}`,
       route_name: refLabel(t, country),
       route_name_local: t['ref:zh'] || t['name:zh'] || t.name || refLabel(t, country),
       route_ref: ref,
-      route_color: refColor(ref),
-      network: t.network || `${country} Motorways`,
+      route_color: classColor(country, cls), // colour by road level, not per route
+      road_class: cls,                        // 'motorway' | 'expressway'
+      network: t.network || `${country} ${cls === 'motorway' ? 'Motorways' : 'Expressways'}`,
       network_local: t['network:zh'] || null,
       operator: t.operator || null,
       wikidata: t.wikidata || null,
@@ -298,11 +301,17 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
       geometry: { type: 'Point', coordinates: [e.lon, e.lat] },
     })
   }
-  // one continuous line per 國道
+  // one feature per 國道; geometry = the road-adjacent straight segments (each a
+  // 2-point line between merged interchange dots). Segments share the dots so a
+  // continuous road reads as one line; a real gap simply leaves a break — no
+  // long straight line ever bridges non-adjacent interchanges.
   let segN = 0, segTotal = 0
-  for (const [ref, seq] of refStations) {
-    if (seq.length < 2) continue
-    const coords = seq.map((root) => { const e = ic.get(root); return [e.lon, e.lat] })
+  for (const [ref, edges] of refEdges) {
+    if (!edges.length) continue
+    const parts = edges.map(([a, b]) => {
+      const ea = ic.get(a), eb = ic.get(b)
+      return [[ea.lon, ea.lat], [eb.lon, eb.lat]]
+    })
     const routes = [{ ...routeMeta(ref), stations: refStationList(ref), pass_stations: [] }]
     features.push({
       type: 'Feature',
@@ -312,12 +321,12 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
         route_colors: [routes[0].route_color], route_color: routes[0].route_color,
         city, country,
       },
-      geometry: { type: 'MultiLineString', coordinates: [coords] },
+      geometry: { type: 'MultiLineString', coordinates: parts },
     })
-    segTotal += coords.length - 1
+    segTotal += parts.length
   }
 
-  const refCount = [...refStations.values()].filter((s) => s.length >= 2).length
+  const refCount = [...refEdges.values()].filter((e) => e.length).length
   const meta = {
     continent, country, country_zh: countryZh, city, city_zh: cityZh, unit: raw.unit || 'country',
     osm_networks: [...byRef.keys()].sort(),

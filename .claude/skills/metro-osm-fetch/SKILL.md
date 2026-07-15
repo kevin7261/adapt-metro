@@ -86,13 +86,19 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 [[metro-city-hongkong]]、[[metro-cities]]（雪梨）。
 
 **NYC 服務時段變體收斂（`network=NYC Subway`）**：OSM 把每條線拆成 daytime／`(late nights)`／
-`(am rush)`／`(pm rush)`／`(evenings, weekends)`… 多個 route relation。`(late nights)` 常是
-**各停全停版**（4 號 daytime express 28 站 vs late-night 54 站）；「最長變體勝＋站聯集」
-（mergeVariants）會讓**快車吃下所有 local 站、畫成各停**（68th/77th 錯掛 4 號）。build 端
-（`routesTags` 組好後）對**有 daytime 基本變體（名稱無服務時段括號）的 ref**丟掉服務時段限定
-變體，只留 daytime express 站型——跳過的 local 站由既有 **pass-through auto 偵測**畫成共線
-（4/5 沿 6 的走廊畫但**不停靠**、`lines` 不加 4/5，AEL/TCL 式）。`<6>`/`<7>`/`<F>`/`Z` 等
-「只有尖峰變體、無 base」的 ref **保留不動**（否則整條線消失）。細節見 [[metro-city-newyork]]。
+`(am rush)`／`(pm rush)`／`(am/pm rush)`／`(evenings, weekends)`… 多個 route relation。
+`(late nights)` 常是**各停全停版**（4 號 daytime express 28 站 vs late-night 54 站）；
+「最長變體勝＋站聯集」（mergeVariants）會讓**快車吃下所有 local 站、畫成各停**。build 端
+（`routesTags` 組好後）對**有 daytime 基本變體的 ref**丟掉服務時段限定變體，只留 daytime
+站型——跳過的 local 站由 **pass-through auto 偵測**畫成共線。
+**AM/PM rush 一律不抓（使用者裁決 2026-07）**：`(am/pm rush)` 寫法一併命中（舊 regex 曾漏），
+**`<6>`/`<7>`/`<F>` 菱形尖峰車 ref 整個剔除**（6/7/F 本體仍在）；`Z` 是官方常設服務
+（J/Z skip-stop，官方幹線表列名）→ 保留。
+**NYC 官方幹線色（使用者裁決 2026-07）**：路線色一律覆寫為官方幹線表色（mta.info／
+zh.wikipedia「紐約地鐵路線列表」：ACE #0039a6、BDFM #ff6319、G #6cbe45、L #a7a9ac、
+JZ #996633、NQRW #fccc0a、123 #ee352e、456 #00933c、7 #b933ad、T #00add0、S #808183）——
+OSM 自帶色全是近似色；route 與 master 兩層都覆寫（`NYC_TRUNK_COLOR`）。
+細節見 [[metro-city-newyork]]。
 
 **城市網路白名單（`CITY_NETWORK_ALLOW`）**：對特定城市正面表列/黑名單其收錄的 network
 （判定 allow＋deny 雙向，聯合營運沾到黑名單即剔除）。具體城市規則見 [[metro-cities]]
@@ -373,19 +379,21 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 **車站 feature（Point）**：
 `station_id`（`n{osmId}`）, `station_name`（優先 name:en）, `station_name_local`,
 `network`, `network_local`, `operator`, `city`, `country`,
-`lines`（**停靠**此站的線路 ref（與 `line_ids` 同序、**可重複**——機捷普通/直達都 ref「A」；
-線無 ref 時用線名）。**不變式：至少一條**，空值會被 verify 標 `no_line`）,
-`line_ids`（**停靠**此站的線路 `route_id`——**站↔線歸屬一律用 route_id（唯一）建立，不用 ref**：
-由各線的 `__stations` 反推（∪ 既有 tag 指派以保浮空站）。**ref 會撞**：機捷普通車 rm… 與直達車
-r… 都 ref「A」，用 ref 會讓台北車站漏掉直達車；用 route_id 才能同時掛兩者、且與 `pass_line_ids`
-正確區分是哪條線 pass）, `line_names`（同序的線路名），
+`lines`／`line_ids`（**停靠**此站的線路官方 ref（兩欄相同、同序、**可重複**——機捷普通/直達都
+ref「A」；線無 ref 時用線名）。**車站欄位一律官方識別、不輸出 OSM 內部 id（使用者規則）**；
+同 ref 的普通/直達由同序 `line_names` 區分。**不變式：至少一條**，空值 verify 標 `no_line`。
+站↔線**歸屬**在 build 內部仍以 route_id（唯一鍵）建立——由各線 `__stations` 反推（∪ 既有 tag
+指派以保浮空站），ref 撞名（機捷雙 A）才不會漏掛/錯掛——只是 route_id 不寫進車站欄位）,
+`line_names`（同序的線路名，區分同 ref 服務），
 `pass_lines`／`pass_line_ids`（**行經但不停靠**此站的服務——快車跳站；無則不設此欄。**全球統一格式**：
 機捷直達車、NYC 快車/Z、Seoul 급행、Tokyo 快速、香港 AEL… 皆以此表達「X 服務行經卻不停 Y 站」。
 機制：**快車＝獨立 route**（不做 services 子服務特例、全球一致）——`dedupeSeqs` 對 fresh=0（站點是
 主線子集）的變體預設丟棄，**例外：名字含快車字樣（Express/Rapid/直達/快速/急行/特急…）＋站數 <0.85×
 主線＋有中間跳站者保留成獨立 route**（去回程同站集只留一條）；其跳過的站再由既有 pass-through 偵測
-算成該 route 的 `pass_stations`、並在被跳過的站標 `pass_lines`。前端車站物件直接讀 `lines`（停靠）／
-`pass_lines`（行經）顯示，不再幾何猜測），
+算成該 route 的 `pass_stations`、並在被跳過的站標 `pass_lines`。`pass_lines`＝`pass_line_ids`＝
+官方 refs、`pass_line_names`＝同序線名（同 ref 的普通/直達靠名區分）。前端車站物件直接讀
+`lines`＋`line_names`（停靠）／`pass_lines`＋`pass_line_names`（行經）顯示，色以線名（其次 ref）
+對線列表查表，不再幾何猜測），
 `station_role`（`interchange`／`terminus`／`normal`，交會優先於端點。**interchange ⇔
 網絡圖 degree>2（分歧/交會，相鄰站不同）或 ≥2 條不同線在此終止（terminus-interchange，
 如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）或**端點站且停靠 ≥2 條線**

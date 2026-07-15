@@ -296,20 +296,48 @@ async function build() {
   // 變體，(late nights) 常是「各停」全停版（4 號 daytime express 28 站 vs late-night 54 站）。
   // 「最長變體勝＋站聯集」規則會讓快車吃下所有 local 站、畫成各停。對**有 daytime 基本
   // 變體**的 ref，丟掉服務時段限定變體，只留 daytime express 站型——跳過的 local 站由既有
-  // pass-through auto 偵測畫成共線（AEL/TCL 式）。<6>/<7>/<F>/Z 等「只有尖峰變體、無 base」
-  // 的 ref 保留不動（否則整條線消失）。僅限 network=NYC Subway。
+  // pass-through auto 偵測畫成共線（AEL/TCL 式）。
+  // 使用者裁決 2026-07：**AM/PM rush 一律不抓**——含「(am/pm rush)」寫法（舊 regex 漏抓）
+  // 與 <6>/<7>/<F> 菱形尖峰車 ref（整個 ref 剔除；6/7/F 本體仍在）。Z 是官方常設服務
+  // （J/Z skip-stop，見官方幹線表）→ 保留。僅限 network=NYC Subway。
   {
-    const QUAL = /\((?:late nights?|am rush|pm rush|rush hours?|evenings?|weekends?|weekday|middays?)\b/i
+    const QUAL = /\((?:late nights?|am\/?pm rush|am rush|pm rush|rush hours?|evenings?|weekends?|weekday|middays?)\b/i
     const isNyc = (t) => t.network === 'NYC Subway' || t['network:en'] === 'NYC Subway'
     const baseRefs = new Set()
     for (const t of routesTags.values())
       if (isNyc(t) && t.ref && !QUAL.test(t.name || '')) baseRefs.add(t.ref)
     let dropped = 0
     for (const [rid, t] of [...routesTags])
-      if (isNyc(t) && t.ref && baseRefs.has(t.ref) && QUAL.test(t.name || '')) {
+      if (isNyc(t) && t.ref &&
+          (/^<.+>$/.test(t.ref) || (baseRefs.has(t.ref) && QUAL.test(t.name || '')))) {
         routesTags.delete(rid); dropped++
       }
-    if (dropped) console.log(`  NYC variant prune: dropped ${dropped} late-night/rush variants (kept daytime express pattern)`)
+    if (dropped) console.log(`  NYC variant prune: dropped ${dropped} late-night/rush/<diamond> variants (kept daytime pattern)`)
+  }
+
+  // NYC 官方幹線色（使用者裁決 2026-07：路線色以官方幹線表為準——mta.info／
+  // zh.wikipedia「紐約地鐵路線列表」，OSM 自帶的色全是近似色）。route 與 master
+  // 的 colour 一律覆寫（master colour 會蓋代表 tags，兩層都要改）。
+  const NYC_TRUNK_COLOR = {
+    A: '#0039a6', C: '#0039a6', E: '#0039a6',            // IND 第八大道線
+    B: '#ff6319', D: '#ff6319', F: '#ff6319', M: '#ff6319', // IND 第六大道線
+    G: '#6cbe45',                                          // IND 跨城線
+    L: '#a7a9ac',                                          // BMT 卡納西線
+    J: '#996633', Z: '#996633',                            // BMT 納蘇街線
+    N: '#fccc0a', Q: '#fccc0a', R: '#fccc0a', W: '#fccc0a', // BMT 百老匯線
+    1: '#ee352e', 2: '#ee352e', 3: '#ee352e',              // IRT 百老匯-第七大道線
+    4: '#00933c', 5: '#00933c', 6: '#00933c',              // IRT 萊辛頓大道線
+    7: '#b933ad',                                          // IRT 法拉盛線
+    T: '#00add0',                                          // IND 第二大道線
+    S: '#808183',                                          // 接駁線
+  }
+  {
+    const isNyc = (t) => t?.network === 'NYC Subway' || t?.['network:en'] === 'NYC Subway'
+    const trunkOf = (ref) => NYC_TRUNK_COLOR[String(ref ?? '').replace(/[<>]/g, '')]
+    for (const t of routesTags.values()) {
+      const c = isNyc(t) && trunkOf(t.ref)
+      if (c) t.colour = c
+    }
   }
 
   const ovByRid = await readOverrides()
@@ -330,6 +358,12 @@ async function build() {
     if (!mt) continue
     Object.assign(mt, p.set)
     console.log(`  route_tag_patches (master): r${p.relation} ← ${JSON.stringify(p.set)}`)
+  }
+  // NYC 官方幹線色也要覆寫 master（master colour 蓋代表 tags）。
+  for (const mt of masterTags.values()) {
+    const nyc = mt?.network === 'NYC Subway' || mt?.['network:en'] === 'NYC Subway' || /NYCS/.test(mt?.name || '')
+    const c = nyc && NYC_TRUNK_COLOR[String(mt.ref ?? '').replace(/[<>]/g, '')]
+    if (c) mt.colour = c
   }
 
   // geom_* cache: relations with ordered member lists + coordinates for member
@@ -1944,9 +1978,12 @@ async function build() {
       const routes = [...stopIds].map(routeMeta)
       routes.sort((a, b) => String(a.route_ref ?? a.route_name ?? '')
         .localeCompare(String(b.route_ref ?? b.route_name ?? ''), undefined, { numeric: true }))
-      s.properties.line_ids = routes.map((r) => r.route_id)
+      // 輸出一律用官方識別（使用者規則：不輸出 OSM 內部 id）：line_ids＝refs（＝lines 內容、
+      // 可重複——機捷普通/直達都 A），line_names 同序線名（區分普通/直達）。route_id 只在
+      // build 內部做站↔線歸屬（唯一鍵），不寫進車站欄位。
+      s.properties.line_ids = routes.map((r) => r.route_ref ?? r.route_name)
       s.properties.line_names = routes.map((r) => r.route_name)
-      s.properties.lines = routes.map((r) => r.route_ref ?? r.route_name) // refs（顯示/相容，與 line_ids 同序、可重複）
+      s.properties.lines = routes.map((r) => r.route_ref ?? r.route_name)
       // 官方站碼清單（如台北車站 [A1, BL12, R10]）——各線各自的碼；route.stations 每站另帶
       // 依該線 ref 挑出的 `code`。內部 Set 清掉（避免序列化成 {}）。
       if (s.__codes?.size) s.properties.codes = [...s.__codes].sort()
@@ -1955,8 +1992,9 @@ async function build() {
       const passIds = [...(passRoutesBySt.get(sid) ?? [])].filter((id) => !stopIds.has(id))
       if (passIds.length) {
         const pr = passIds.map(routeMeta)
-        s.properties.pass_line_ids = pr.map((r) => r.route_id)
+        s.properties.pass_line_ids = pr.map((r) => r.route_ref ?? r.route_name) // refs（＝pass_lines）
         s.properties.pass_lines = pr.map((r) => r.route_ref ?? r.route_name)
+        s.properties.pass_line_names = pr.map((r) => r.route_name) // 同序線名（區分同 ref 的普通/直達）
       }
       // 通過次數（幾何為準）；至少為所屬 route 數（幾何缺漏時的下限）
       const pc = Math.max(
@@ -2067,23 +2105,46 @@ async function build() {
         flush()
       }
     }
-    grp.lines = [...segs.entries()].map(([sig, seqs], si) => {
+    // 路段必須**連續**（使用者不變式：路段只含該段車站、不中間斷掉，hover 不得斷開）：
+    // 同簽名（相同 route 集合）的 runs 可能是**不相連的多段走廊**（NYC M 線在 Queens Blvd
+    // 與 Ridgewood 各有一段 M-only），塞進同一個 feature 會讓 hover 高亮出現缺口。
+    // 依共用頂點做 union-find，把每個簽名的 seqs 拆成連通組——一組＝一個 seg feature。
+    grp.lines = []
+    let si = 0
+    for (const [sig, seqs] of segs.entries()) {
+      const parent = new Map()
+      const find = (x) => { let r = x; while (parent.get(r) !== r) r = parent.get(r)
+        let c = x; while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n } return r }
+      const uni = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent.set(rb, ra) }
+      seqs.forEach((seq, qi) => {
+        const tag = `q${qi}`
+        parent.set(tag, tag)
+        for (const c of seq) { const k = cs(c); if (!parent.has(k)) parent.set(k, k); uni(tag, k) }
+      })
+      const comps = new Map() // root -> seqs
+      seqs.forEach((seq, qi) => {
+        const r = find(`q${qi}`)
+        if (!comps.has(r)) comps.set(r, [])
+        comps.get(r).push(seq)
+      })
       const routes = sig.split('/').map((i) => metaOf(routeFeats[+i]))
       const colors = routes.map((r) => r.route_color || '#e11d48')
-      return {
-        type: 'Feature',
-        properties: {
-          seg_id: `${slugify(grp.info.city) || 'x'}-${si}`,
-          routes,
-          route_count: routes.length,
-          route_refs: routes.map((r) => r.route_ref || r.route_name),
-          route_colors: colors,
-          route_color: colors[0],
-          city: grp.info.city, country: grp.info.country,
-        },
-        geometry: { type: 'MultiLineString', coordinates: seqs },
+      for (const compSeqs of comps.values()) {
+        grp.lines.push({
+          type: 'Feature',
+          properties: {
+            seg_id: `${slugify(grp.info.city) || 'x'}-${si++}`,
+            routes,
+            route_count: routes.length,
+            route_refs: routes.map((r) => r.route_ref || r.route_name),
+            route_colors: colors,
+            route_color: colors[0],
+            city: grp.info.city, country: grp.info.country,
+          },
+          geometry: { type: 'MultiLineString', coordinates: compSeqs },
+        })
       }
-    })
+    }
     totalSegments += grp.lines.length
   }
   console.log(`  segmented: ${totalRoutes} routes -> ${totalSegments} segment features ` +
