@@ -129,7 +129,9 @@ function buildPolylines(ways) {
 
 
 // ---- per-system assembly (a system = a country, or a metro area for big ones)
-function buildSystem(raw, { countryZh, cityZh } = {}) {
+// wikiRefs = _overrides/wiki_mileage_tw.json 的 refs（台灣各路的 wiki 交流道里程表，
+// 使用者：用 wiki 查哩程）——名稱吻合者以 wiki 公里數為權威（覆蓋出口編號、補服務區）。
+function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
   const { continent, country } = raw
   const slug = raw.slug || raw.cc
   const city = raw.city || country      // country name (country-unit) or metro city
@@ -236,14 +238,27 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
   const neigh = new Map(), icRefs = new Map()
   const addRef = (root, ref) => { if (!icRefs.has(root)) icRefs.set(root, new Set()); icRefs.get(root).add(ref) }
   const link = (m, a, b) => { if (!m.has(a)) m.set(a, new Set()); if (!m.has(b)) m.set(b, new Set()); m.get(a).add(b); m.get(b).add(a) }
+  const refMileage = new Map() // ref → Map(root → 該路自己的里程)
   for (const [ref, refWays] of byRef) {
-    // roots on this ref + raw road adjacency (used for spine fallback & loop closure)
+    // roots on this ref + raw road adjacency (used for spine fallback & loop
+    // closure) + PER-REF mileage. 里程必須取「這條路 way 上的節點」的出口編號：
+    // 系統交流道合併了多條路的節點，全域 mileageOf 會拿到別條路的編號（機場系統
+    // 在國道1號是 52K，卻拿到國道2號的 8）→ 排序整條路飛來飛去（使用者：還是全錯）。
     const roots = new Set(), adjPairs = new Set(), adj = new Map()
+    const mByRoot = new Map()
     for (const poly of buildPolylines(refWays)) {
       const hits = []
       for (const v of poly) {
         const jIdx = coordToJ.get(key(v[0], v[1]))
-        if (jIdx !== undefined && jIdxToIc.has(jIdx)) hits.push(jIdxToIc.get(jIdx))
+        if (jIdx !== undefined && jIdxToIc.has(jIdx)) {
+          const root = jIdxToIc.get(jIdx)
+          hits.push(root)
+          const mm = String(junctions[jIdx].tags.ref ?? '').match(/\d+(\.\d+)?/)
+          if (mm) {
+            const v2 = Number(mm[0])
+            if (!mByRoot.has(root) || v2 < mByRoot.get(root)) mByRoot.set(root, v2)
+          }
+        }
       }
       const chain = hits.filter((r, n) => n === 0 || r !== hits[n - 1])
       for (const r of chain) roots.add(r)
@@ -252,9 +267,21 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
         adjPairs.add(ekey(chain[n], chain[n + 1])); link(adj, chain[n], chain[n + 1])
       }
     }
+    // wiki 里程覆蓋（權威）：以正規化名稱比對（含去「高架道路」前綴變體），
+    // 命中者用 wiki 公里數——修正出口編號誤差、補無出口編號的服務區/休息站。
+    const wl = wikiRefs?.[ref]?.list
+    if (wl) {
+      const wm = new Map(wl.map((r) => [norm(r.name), r.km]))
+      for (const root of roots) {
+        const nm = norm(ic.get(root).name)
+        const hit = wm.get(nm) ?? wm.get(nm.replace(/^高架道路/, ''))
+        if (hit != null) mByRoot.set(root, hit)
+      }
+    }
+    refMileage.set(ref, mByRoot)
     if (!roots.size) { refEdges.set(ref, []); refStations.set(ref, []); continue }
 
-    const items = [...roots].map((root) => ({ root, m: mileageOf(ic.get(root)) }))
+    const items = [...roots].map((root) => ({ root, m: mByRoot.get(root) ?? null }))
     const withM = items.filter((i) => i.m != null)
     let seq
     if (withM.length >= 2 && withM.length >= items.length * 0.6) {
@@ -326,9 +353,10 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
     }
   }
   // (filtered to drawn interchanges — usedIc is populated before any call)
+  // mileage = 該路自己的里程（refMileage），不是合併節點隨便一個出口編號
   const refStationList = (ref) => (refStations.get(ref) || []).filter((r) => usedIc.has(r)).map((root) => {
     const e = ic.get(root)
-    return { station_id: e.id, station_name: e.name, mileage: mileageOf(e) }
+    return { station_id: e.id, station_name: e.name, mileage: refMileage.get(ref)?.get(root) ?? null }
   })
 
   const features = []
@@ -416,12 +444,19 @@ function countrySlug(country) {
 }
 
 async function main() {
+  // optional CLI filter（逗號分隔 slug 子字串）——目前範圍＝台灣（使用者：只要台灣，
+  // 國外不用），npm highway:build 傳 "as-twn"；外國快取保留在 _cache 但不組檔。
+  const filters = (process.argv[2] ?? '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)
   let files
   try { files = (await readdir(CACHE)).filter((f) => f.startsWith('hw_') && f.endsWith('.json')) }
   catch { files = [] }
-  if (!files.length) { console.error('no fetched countries in data/highway/_cache — run npm run highway:fetch first'); process.exit(1) }
+  if (filters.length) files = files.filter((f) => filters.some((x) => f.toLowerCase().includes(x)))
+  if (!files.length) { console.error('no fetched systems in data/highway/_cache — run npm run highway:fetch first'); process.exit(1) }
 
   const { countryZh: cMap, citySlug } = await zhMaps()
+  // 台灣 wiki 里程表（scripts/fetchWikiHighwayTw.mjs 產出；無檔則跳過）
+  let wikiTw = null
+  try { wikiTw = JSON.parse(await readFile(join(HIGHWAY, '_overrides', 'wiki_mileage_tw.json'), 'utf8')).refs } catch { /* optional */ }
   const allLines = [], allIc = [], systems = []
   let lineTotal = 0, stationTotal = 0
   for (const f of files.sort()) {
@@ -430,7 +465,7 @@ async function main() {
     const countryZh = cMap[raw.country] ?? raw.country
     // metro-unit files (big countries) get a 中文 city name; country-unit → country
     const cityZh = raw.unit === 'metro' ? (citySlug[slug]?.city ?? raw.city) : countryZh
-    const fc = buildSystem(raw, { countryZh, cityZh })
+    const fc = buildSystem(raw, { countryZh, cityZh, wikiRefs: raw.country === 'Taiwan' ? wikiTw : null })
     if (!fc.features.length) { console.log(`  ${slug}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
     const rel = `systems/${cont}/${countrySlug(raw.country)}/${slug}.geojson`

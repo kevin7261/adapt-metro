@@ -94,7 +94,10 @@ const selectedEntries = computed(() => {
   // Skip internal render-only props (e.g. `_c0.._c5` flattened dash colours).
   // merged_names is rendered as its own formatted block (per-name line chips),
   // so keep it out of the raw key/value table.
-  return Object.keys(p).filter((k) => !k.startsWith('_') && k !== 'merged_names' && k !== 'wikidata').sort().map((k) => {
+  // routes/lines/route_refs/route_colors 已在上方結構化顯示（路線列/站序），不進表格——
+  // 表格只留 scalar 欄位，且 build 端保證全城鍵集一致 → 各城市表格完全相同。
+  const OMIT = new Set(['merged_names', 'wikidata', 'routes', 'lines', 'route_refs', 'route_colors'])
+  return Object.keys(p).filter((k) => !k.startsWith('_') && !OMIT.has(k)).sort().map((k) => {
     let v = p[k]
     if (typeof v === 'string' && /^[[{]/.test(v.trim())) {
       try { v = JSON.parse(v) } catch { /* leave as-is */ }
@@ -228,9 +231,11 @@ const selectedRouteLists = computed(() => {
   const rows = routes.map((r) => {
     // pass 已內嵌 r.stations（完整行經序、pass 項標 pass:true——依幾何真實順序交錯）
     const passIds = new Set((r.stations ?? []).filter((s) => s.pass).map((s) => s.station_id))
+    const codeOf = new Map((r.stations ?? []).map((s) => [s.station_id, s.code])) // 該線官方碼（站點無 code 欄）
     // 找不到原始段（理論上不會）退回整線行經序（本身已含 pass 標記與正確順序）
     const base = ordered.length ? ordered : (r.stations ?? [])
-    const stations = base.map((s) => ({ ...s, pass: !!s.pass || passIds.has(s.station_id) }))
+    const stations = base.map((s) => ({ ...s, code: s.code ?? codeOf.get(s.station_id),
+      pass: !!s.pass || passIds.has(s.station_id) }))
     return {
       route_id: r.route_id,
       name: r.route_name ?? r.route_id,
@@ -1203,7 +1208,17 @@ function startResize(e) {
 </template>
 
 <style scoped>
+/* ---- 面板字級系統（使用者 2026-07：右側 tab 標題/內文字級與顏色要一致）----
+   標題 15/700 前景、副標 12 灰、小節標題 11.5/600 灰、內文 12.5 前景、
+   註記 11.5 灰、徽章 10.5、等寬 11。六個 tab 一律取用這組變數，不得自訂字級。 */
 .style-panel {
+  --sp-title: 15px;   /* 主標題（城市名/站名/路線名） */
+  --sp-sub: 12px;     /* 副標（標題下第二行英文） */
+  --sp-head: 11.5px;  /* 小節標題（section-title/llm-h/obj-pass-sub…） */
+  --sp-body: 12.5px;  /* 內文（rows/表格/站表/按鈕/輸入） */
+  --sp-note: 11.5px;  /* 註記/提示（hint/note） */
+  --sp-badge: 10.5px; /* 小徽章（建設中/pass/站碼/日期） */
+  --sp-mono: 11px;    /* 等寬（ref 碼/pre 區塊） */
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -1234,7 +1249,7 @@ function startResize(e) {
 .panel-tabs { display: flex; gap: 2px; }
 .panel-tab {
   padding: 7px 12px 8px;
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   color: hsl(var(--muted-foreground));
   border-bottom: 2px solid transparent;
   border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0;
@@ -1249,10 +1264,10 @@ function startResize(e) {
 .style-body { flex: 1; overflow-y: auto; padding: 12px; }
 
 /* Object tab: all properties of the clicked feature */
-.obj-empty { color: hsl(var(--muted-foreground)); font-size: 12px; padding: 8px 2px; }
+.obj-empty { color: hsl(var(--muted-foreground)); font-size: var(--sp-body); padding: 8px 2px; }
 .obj-route-head {
   display: flex; align-items: center; gap: 6px;
-  margin: 10px 0 4px; font-size: 12.5px; font-weight: 600; min-width: 0;
+  margin: 10px 0 4px; font-size: var(--sp-body); font-weight: 600; min-width: 0;
 }
 .obj-route-head:first-of-type { margin-top: 0; }
 /* 收合切換：整條路線標題可點，caret 指示展開狀態 */
@@ -1273,61 +1288,61 @@ function startResize(e) {
 .obj-route-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .obj-route-count {
   margin-left: auto; flex-shrink: 0;
-  font-weight: 400; font-size: 11px; color: hsl(var(--muted-foreground));
+  font-weight: 400; font-size: var(--sp-badge); color: hsl(var(--muted-foreground));
 }
 /* 站序中的通過(不停)站：灰字 + pass 標記 */
 .obj-station-list .st-pass { color: hsl(var(--muted-foreground)); }
 /* 官方站碼（A1、BL12…）小徽章 */
 .obj-st-code {
   display: inline-block; min-width: 22px; margin-right: 6px; padding: 0 4px;
-  font-size: 9.5px; font-weight: 600; text-align: center; border-radius: 3px;
+  font-size: var(--sp-badge); font-weight: 600; text-align: center; border-radius: 3px;
   background: hsl(var(--muted) / 0.6); color: hsl(var(--muted-foreground));
 }
-.obj-pass-sub { margin: 8px 0 2px; font-size: 11.5px; font-weight: 600; color: hsl(var(--muted-foreground)); }
+.obj-pass-sub { margin: 8px 0 2px; font-size: var(--sp-head); font-weight: 600; color: hsl(var(--muted-foreground)); }
 /* 行經（不停靠）路線 */
 .obj-pass { margin: 6px 0 10px; }
 .obj-pass-row {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12.5px; padding: 2px 0; min-width: 0;
+  font-size: var(--sp-body); padding: 2px 0; min-width: 0;
 }
 .obj-pass-tag {
   margin-left: auto; flex-shrink: 0;
-  font-size: 10.5px; font-weight: 600; color: hsl(var(--muted-foreground));
+  font-size: var(--sp-badge); font-weight: 600; color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border)); border-radius: 999px; padding: 0 7px;
 }
 /* 物件標題（車站名 / 路線名，物件 tab 最上方） */
 .obj-title {
-  margin: 0 0 8px; font-size: 15px; font-weight: 700; line-height: 1.3;
+  margin: 0 0 8px; font-size: var(--sp-title); font-weight: 700; line-height: 1.3;
   color: hsl(var(--foreground));
 }
 .obj-title-local {
   display: block; margin-top: 1px;
-  font-size: 12px; font-weight: 400; color: hsl(var(--muted-foreground));
+  font-size: var(--sp-sub); font-weight: 400; color: hsl(var(--muted-foreground));
 }
 /* 共站合併：異名轉乘站的各線站名 */
 .obj-merged { margin: 6px 0 10px; }
 .obj-merged-row {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12.5px; padding: 2px 0; min-width: 0;
+  font-size: var(--sp-body); padding: 2px 0; min-width: 0;
 }
 .obj-merged-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.obj-merged-local { margin-left: 5px; font-size: 11px; color: hsl(var(--muted-foreground)); }
+.obj-merged-local { margin-left: 5px; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
 .obj-merged-line { margin-left: auto; color: #fff; flex-shrink: 0; }
 .obj-merged-row .obj-merged-line + .obj-merged-line { margin-left: 4px; }
 .obj-station-list {
-  margin: 0 0 10px; padding-left: 26px; font-size: 12px; line-height: 1.7;
+  margin: 0 0 10px; padding-left: 26px; font-size: var(--sp-body); line-height: 1.7;
   color: hsl(var(--foreground));
 }
-.obj-station-list li::marker { color: hsl(var(--muted-foreground)); font-size: 10.5px; }
+.obj-station-list li::marker { color: hsl(var(--muted-foreground)); font-size: var(--sp-badge); }
 /* LLM對齊 tab: run provenance */
 .llm-h {
   margin: 14px 0 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: hsl(var(--foreground));
+  font-size: var(--sp-head);
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
 }
 .llm-pre {
-  font-size: 11px;
+  font-size: var(--sp-mono);
   line-height: 1.55;
   white-space: pre-wrap;
   word-break: break-word;
@@ -1345,16 +1360,16 @@ function startResize(e) {
   margin-bottom: 8px;
 }
 .llm-round-head {
-  font-size: 11px;
+  font-size: var(--sp-head);
   font-weight: 600;
-  color: hsl(var(--primary));
+  color: hsl(var(--muted-foreground));
   margin-bottom: 4px;
   font-variant-numeric: tabular-nums;
 }
-.llm-note { font-size: 11.5px; line-height: 1.6; color: hsl(var(--muted-foreground)); white-space: pre-wrap; }
+.llm-note { font-size: var(--sp-note); line-height: 1.6; color: hsl(var(--muted-foreground)); white-space: pre-wrap; }
 .llm-skill summary {
   cursor: pointer;
-  font-size: 11.5px;
+  font-size: var(--sp-note);
   color: hsl(var(--primary));
   user-select: none;
   margin-bottom: 6px;
@@ -1366,13 +1381,13 @@ function startResize(e) {
   padding: 8px 12px;
   max-height: 320px;
   overflow: auto;
-  font-size: 12px;
+  font-size: var(--sp-body);
 }
 .llm-run-btn {
   width: 100%;
   height: 30px;
   margin-top: 16px;
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   font-weight: 600;
   border: 1px solid hsl(var(--primary) / 0.55);
   border-radius: calc(var(--radius) - 2px);
@@ -1381,12 +1396,12 @@ function startResize(e) {
 }
 .llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
 .llm-run-btn:disabled { opacity: 0.55; cursor: default; }
-.llm-run-hint { margin: 6px 0 0; font-size: 10.5px; color: hsl(var(--muted-foreground)); }
+.llm-run-hint { margin: 6px 0 0; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
 .llm-prompt-box {
   width: 100%;
   margin-top: 4px;
   padding: 8px 10px;
-  font-size: 12px;
+  font-size: var(--sp-body);
   font-family: inherit;
   line-height: 1.5;
   color: hsl(var(--foreground));
@@ -1399,7 +1414,7 @@ function startResize(e) {
 .llm-prompt-box:focus { outline: none; border-color: hsl(var(--primary) / 0.6); }
 .llm-prompt-box:disabled { opacity: 0.6; }
 
-.obj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.obj-table { width: 100%; border-collapse: collapse; font-size: var(--sp-body); }
 .obj-table tr { border-bottom: 1px solid hsl(var(--border)); }
 .obj-key {
   text-align: left;
@@ -1425,7 +1440,7 @@ function startResize(e) {
   min-width: 0;
 }
 .layer-name {
-  font-size: 13px;
+  font-size: var(--sp-body);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1435,12 +1450,12 @@ function startResize(e) {
 /* Info */
 /* 權重 tab（RWD Maps 版面簡化控制）*/
 .weight-panel { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; }
-.weight-hint { font-size: 11.5px; color: hsl(var(--muted-foreground)); line-height: 1.6; }
+.weight-hint { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); line-height: 1.6; }
 .weight-modes { display: flex; flex-direction: column; gap: 4px; }
 .weight-mode {
   text-align: left;
   padding: 7px 12px;
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px);
   background: transparent;
@@ -1450,7 +1465,7 @@ function startResize(e) {
 .weight-mode.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); border-color: hsl(var(--primary)); font-weight: 600; }
 .weight-random {
   padding: 8px 12px;
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   border: 1px solid hsl(var(--primary) / 0.5);
   border-radius: calc(var(--radius) - 2px);
   background: hsl(var(--primary) / 0.1);
@@ -1464,33 +1479,33 @@ function startResize(e) {
 }
 .weight-auto.active:hover { background: hsl(var(--primary) / 0.9); }
 .weight-hide-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px; }
-.weight-hide-toggle { display: flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer; }
-.weight-hide-px { display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: hsl(var(--muted-foreground)); }
+.weight-hide-toggle { display: flex; align-items: center; gap: 6px; font-size: var(--sp-body); cursor: pointer; }
+.weight-hide-px { display: flex; align-items: center; gap: 4px; font-size: var(--sp-body); color: hsl(var(--muted-foreground)); }
 .weight-hide-px input {
-  width: 46px; padding: 3px 5px; font-size: 12.5px; text-align: right;
+  width: 46px; padding: 3px 5px; font-size: var(--sp-body); text-align: right;
   border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
   background: hsl(var(--background)); color: hsl(var(--foreground));
 }
-.weight-stat { font-size: 12px; color: hsl(var(--muted-foreground)); padding: 0 2px; }
+.weight-stat { font-size: var(--sp-body); color: hsl(var(--muted-foreground)); padding: 0 2px; }
 .weight-stat b { color: hsl(var(--foreground)); font-variant-numeric: tabular-nums; }
 .hidden-list { padding: 2px; }
-.hidden-list-title { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+.hidden-list-title { font-size: var(--sp-head); font-weight: 600; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
 .hidden-list-items {
   margin: 0; padding: 6px 8px 6px 26px; max-height: 160px; overflow-y: auto;
   border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
-  background: hsl(var(--muted) / 0.4); font-size: 12px; line-height: 1.6;
+  background: hsl(var(--muted) / 0.4); font-size: var(--sp-body); line-height: 1.6;
 }
 .hidden-list-items li { color: hsl(var(--foreground)); }
-/* Info tab 城市標題（中英雙行） */
+/* Info tab 城市標題（中英雙行）——與物件 tab 的 .obj-title 同級 */
 .info-title { margin: 0 0 10px; }
-.info-title-zh { font-size: 16px; font-weight: 700; line-height: 1.3; color: hsl(var(--foreground)); }
-.info-title-en { margin-top: 1px; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.info-title-zh { font-size: var(--sp-title); font-weight: 700; line-height: 1.3; color: hsl(var(--foreground)); }
+.info-title-en { margin-top: 1px; font-size: var(--sp-sub); font-weight: 400; color: hsl(var(--muted-foreground)); }
 .info-rows { display: flex; flex-direction: column; gap: 2px; }
 .info-row {
   display: flex;
   gap: 10px;
   padding: 4px 0;
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   border-bottom: 1px solid hsl(var(--border) / 0.5);
 }
 .info-row:last-child { border-bottom: none; }
@@ -1508,7 +1523,7 @@ function startResize(e) {
   text-decoration: none;
 }
 .info-link:hover { text-decoration: underline; }
-.info-empty { font-size: 12.5px; color: hsl(var(--muted-foreground)); padding: 8px 0; }
+.info-empty { font-size: var(--sp-body); color: hsl(var(--muted-foreground)); padding: 8px 0; }
 /* 維基連結解出的語言代碼小徽章（zh / en / ka…） */
 
 
@@ -1519,7 +1534,7 @@ function startResize(e) {
   gap: 6px;
   padding: 7px 10px;
   border-radius: calc(var(--radius) - 2px);
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   font-weight: 600;
   margin-bottom: 8px;
 }
@@ -1535,14 +1550,14 @@ function startResize(e) {
 .audit-date {
   margin-left: auto;
   font-weight: 400;
-  font-size: 10.5px;
+  font-size: var(--sp-badge);
   opacity: 0.75;
 }
 .audit-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
 .audit-item {
   display: flex;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: var(--sp-note);
   line-height: 1.45;
   color: hsl(var(--foreground));
 }
@@ -1558,7 +1573,7 @@ function startResize(e) {
   align-items: center;
   gap: 8px;
   padding: 3px 2px;
-  font-size: 12.5px;
+  font-size: var(--sp-body);
   min-width: 0;
 }
 .line-swatch {
@@ -1568,7 +1583,7 @@ function startResize(e) {
   flex-shrink: 0;
 }
 .line-uc {
-  font-size: 10px;
+  font-size: var(--sp-badge);
   color: hsl(38 92% 40%);
   background: hsl(38 92% 50% / 0.15);
   border-radius: 4px;
@@ -1580,7 +1595,7 @@ function startResize(e) {
 }
 .line-ref {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
+  font-size: var(--sp-mono);
   color: hsl(var(--muted-foreground));
   background: hsl(var(--muted));
   border-radius: 4px;
@@ -1596,7 +1611,7 @@ function startResize(e) {
 
 /* Style */
 .field { margin-bottom: 12px; flex: 1; min-width: 0; }
-.check-field { display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer; }
+.check-field { display: flex; align-items: center; gap: 8px; font-size: var(--sp-body); cursor: pointer; }
 .check-field input { accent-color: hsl(var(--primary)); }
 .field-row { display: flex; gap: 10px; }
 .color-input {
@@ -1608,7 +1623,7 @@ function startResize(e) {
   background: transparent;
   cursor: pointer;
 }
-.skeleton-rules { font-size: 12px; line-height: 1.55; color: hsl(var(--foreground)); }
+.skeleton-rules { font-size: var(--sp-body); line-height: 1.55; color: hsl(var(--foreground)); }
 .skeleton-rules p { margin: 4px 0; }
 .skeleton-rules .sk-sub { font-weight: 600; margin-top: 10px; color: hsl(var(--muted-foreground)); }
 .skeleton-rules ul { list-style: none; margin: 4px 0; padding: 0; }
@@ -1620,9 +1635,9 @@ function startResize(e) {
 .sk-dot.sk-ring { background: #fff; }
 .sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
 .sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
-.skeleton-rules .rose-note { margin-top: 10px; font-size: 11px; color: hsl(var(--muted-foreground)); }
+.skeleton-rules .rose-note { margin-top: 10px; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
 .section-title {
-  font-size: 11px;
+  font-size: var(--sp-head);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1634,7 +1649,7 @@ function startResize(e) {
 .rose-stats { margin-top: 10px; }
 .rose-note {
   margin-top: 8px;
-  font-size: 11px;
+  font-size: var(--sp-note);
   line-height: 1.5;
   color: hsl(var(--muted-foreground));
 }

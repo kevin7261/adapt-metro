@@ -117,16 +117,9 @@ const highwaysByStations = computed(() => {
 const hwZh = (s) => (s.unit === 'metro' ? `${s.cityZh} · ${s.countryZh}` : s.countryZh)
 const hwEn = (s) => (s.unit === 'metro' ? `${s.city} · ${s.country}` : s.country)
 
-// Quick pick — MAJOR METRO AREAS (系統單位是都會區，不是國家), grouped by continent.
+// Quick pick — 目前資料範圍＝台灣三都會區（使用者 2026-07：只要台灣，國外不用）。
 const QUICK_COUNTRIES = [
-  { zh: '台北', en: 'Taipei' }, { zh: '高雄', en: 'Kaohsiung' },
-  { zh: '東京', en: 'Tokyo' }, { zh: '大阪', en: 'Osaka' }, { zh: '首爾', en: 'Seoul' },
-  { zh: '上海', en: 'Shanghai' }, { zh: '北京', en: 'Beijing' }, { zh: '香港', en: 'Hong Kong' },
-  { zh: '紐約', en: 'New York' }, { zh: '芝加哥', en: 'Chicago' }, { zh: '多倫多', en: 'Toronto' },
-  { zh: '柏林', en: 'Berlin' }, { zh: '慕尼黑', en: 'Munich' }, { zh: '巴黎', en: 'Paris' },
-  { zh: '倫敦', en: 'London' }, { zh: '馬德里', en: 'Madrid' }, { zh: '巴塞隆納', en: 'Barcelona' },
-  { zh: '羅馬', en: 'Rome' }, { zh: '阿姆斯特丹', en: 'Amsterdam' }, { zh: '莫斯科', en: 'Moscow' },
-  { zh: '雪梨', en: 'Sydney' },
+  { zh: '台北', en: 'Taipei' }, { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
 ]
 const hwQuick = computed(() => {
   if (!highwayCatalog.value) return []

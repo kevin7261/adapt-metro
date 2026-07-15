@@ -94,7 +94,7 @@ onMounted(() => {
   })
 
   // Station hover popup
-  const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
+  const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, maxWidth: '380px' })
   map.on('mouseenter', 'metro-stations', (e) => {
     map.getCanvas().style.cursor = 'pointer'
     const p = e.features[0].properties
@@ -129,6 +129,7 @@ onMounted(() => {
       html += `<div style="opacity:.65;font-size:10px;margin-top:4px">行經（不停靠）</div>`
       html += passes.map(routeRow).join('')
     }
+    html += popupTable(p) // 與物件 tab 相同的屬性表
     popup
       .setLngLat(e.features[0].geometry.coordinates)
       .setHTML(html)
@@ -144,7 +145,7 @@ onMounted(() => {
   // (`routes` lists every route on the stretch) — the popup shows them all,
   // the highlight matches the hovered segment by seg_id. Anchor the popup to
   // the cursor and update it on move rather than to a fixed vertex.
-  const linePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
+  const linePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, maxWidth: '380px' })
   const showLine = (e) => {
     // 車站點蓋在線之上——游標同時壓在車站上時只顯示車站 popup，不重複顯示線 popup
     // （否則同一位置會冒出兩個 hover）。
@@ -179,7 +180,20 @@ onMounted(() => {
       html += H.row(H.swatch(r.route_color) + H.ref(r.route_ref, r.route_color) +
         `<strong style="font-size:12px">${r.route_name ?? '—'}</strong>` +
         (stops != null ? H.dim(`停靠 ${stops} 站`) : ''))
+      // 段站序（與物件 tab 同構）：本段依幾何序列站、各線官方碼＋pass 灰字標記
+      if (onSeg.length) {
+        const codeOf = new Map((r.stations ?? []).map((s) => [s.station_id, s.code]))
+        html += onSeg.map((st, i) => {
+          const isPass = passIds.has(st.station_id)
+          const code = codeOf.get(st.station_id)
+          return `<div style="display:flex;align-items:center;margin:2px 0 0 22px;font-size:11.5px${isPass ? ';color:rgba(155,163,175,1)' : ''}">` +
+            `<span style="opacity:.55;min-width:16px;text-align:right;margin-right:6px">${i + 1}.</span>` +
+            (code ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;padding:0 4px;border-radius:3px;background:rgba(127,127,140,.22);margin-right:6px">${code}</span>` : '') +
+            `<span>${st.station_name}</span>` + (isPass ? H.passTag() : '') + `</div>`
+        }).join('')
+      }
     }
+    html += popupTable(p) // 與物件 tab 相同的屬性表
     linePopup.setLngLat(e.lngLat).setHTML(html || '—').addTo(map)
   }
   for (const id of ALL_LINE_LAYER_IDS) {
@@ -334,6 +348,28 @@ const H = { // 小元件（樣式對齊 StylePanel 的 .line-swatch/.line-ref/.o
   title: (name, local) => `<div style="font-weight:700;font-size:15px;line-height:1.3">${name}</div>` +
     (local ? `<div style="margin-top:1px;font-size:12px;font-weight:400;color:rgba(155,163,175,1)">${local}</div>` : ''),
   passTag: () => '<span style="margin-left:auto;padding:0 7px;font-size:10.5px;font-weight:600;color:rgba(155,163,175,1);border:1px solid rgba(127,127,140,.45);border-radius:999px;flex:none">pass</span>',
+}
+// 與物件 tab 完全相同的屬性表（同鍵過濾/排序/連結規則——StylePanel selectedEntries）：
+// hover 內容＝物件顯示（使用者規則）。build 端保證全城鍵集一致 → 每站/每段表格全球相同。
+const POPUP_OMIT = new Set(['merged_names', 'wikidata', 'routes', 'lines', 'route_refs', 'route_colors'])
+function popupTable(p) {
+  const J = (v) => { if (typeof v === 'string' && /^[[{]/.test(v.trim())) { try { return JSON.parse(v) } catch { return v } } return v }
+  const asText = (v) => (v === null || v === undefined || v === '') ? '—' : (typeof v === 'object' ? JSON.stringify(v) : String(v))
+  const link = (k, v) => {
+    if (k !== 'wikipedia' || typeof v !== 'string' || !v) return null
+    if (/^https?:\/\//.test(v)) return v
+    const m = /^([a-z-]+):(.+)$/.exec(v)
+    return m ? `https://${m[1]}.wikipedia.org/wiki/${encodeURIComponent(m[2].replace(/ /g, '_'))}`
+      : `https://en.wikipedia.org/wiki/${encodeURIComponent(v.replace(/ /g, '_'))}`
+  }
+  const rows = Object.keys(p).filter((k) => !k.startsWith('_') && !POPUP_OMIT.has(k)).sort().map((k) => {
+    const v = J(p[k])
+    let cell
+    if (Array.isArray(v)) cell = v.length ? v.map((x) => `<div>${asText(x)}</div>`).join('') : '—'
+    else { const h = link(k, v); cell = h ? `<a href="${h}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">${asText(v)}</a>` : asText(v) }
+    return `<tr style="border-bottom:1px solid rgba(127,127,140,.25)"><th style="text-align:left;padding:2px 10px 2px 0;font-weight:600;opacity:.65;vertical-align:top;white-space:nowrap">${k}</th><td style="padding:2px 0;word-break:break-all">${cell}</td></tr>`
+  }).join('')
+  return `<table style="border-collapse:collapse;font-size:11px;margin-top:8px;line-height:1.45;width:100%">${rows}</table>`
 }
 
 // Add the metro source + line/station layers (idempotent; re-run after setStyle).

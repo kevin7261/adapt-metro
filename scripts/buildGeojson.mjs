@@ -407,6 +407,10 @@ async function build() {
 
   // 快車跨站共線（_overrides/express_passthrough.json）：快車 route 的某段幾何沿慢車的
   // 中間站畫（pass-through 頂點），使共線段被判為共線畫成雙色，但中間站不算快車停靠站。
+  let codeOverrides = {}
+  try {
+    codeOverrides = JSON.parse(await readFile(join(OVERRIDES_DIR, 'station_codes.json'), 'utf8')).codes ?? {}
+  } catch { /* none */ }
   let expressPass = []
   const noAutoPassRids = new Set()  // route osm ids excluded from AUTO express pass-through
   try {
@@ -828,6 +832,36 @@ async function build() {
       // key 不能沿用 m| 前綴（phase B 的 route_id 由 key 推導）——分支用 br|rid
       return { kept: [w.rows], gU: { key: `br|${w.rid}`, rids: [w.rid] }, tU: bt }
     }
+    // 端點延伸併入主線（使用者：千代田線不可拆兩段）——分支變體只與主線共用**一個站**、
+    // 且該站是主線的**端點**（＝純線性延伸，官方碼連續：綾瀬 C19→北綾瀬 C20 同一條線）
+    // → 新站直接接進主線序列、不另成 route。**中途分岔**（小碧潭在七張、東鐵羅湖/落馬洲
+    // 在上水、NYC A 線分支）共用點非端點或共用多站 → 維持獨立 route 不變。
+    {
+      const near2 = (a, b) => { const A = cellOf(a), B = cellOf(b)
+        return Math.abs(A[0] - B[0]) <= 2 && Math.abs(A[1] - B[1]) <= 2 }
+      const mainW = keptAll[0]
+      const rest = []
+      for (const w of keptAll.slice(1)) {
+        const mainCells = new Set(mainW.rows.map((r) => cellOf(r).join(':')))
+        const nearMain = (r) => { const [cx, cy] = cellOf(r)
+          for (let dx = -2; dx <= 2; dx++) for (let dy = -2; dy <= 2; dy++)
+            if (mainCells.has(`${cx + dx}:${cy + dy}`)) return true
+          return false }
+        const shared = w.rows.filter(nearMain)
+        const mFirst = mainW.rows[0], mLast = mainW.rows[mainW.rows.length - 1]
+        if (shared.length === 1 && (near2(shared[0], mFirst) || near2(shared[0], mLast))) {
+          let seq = [...w.rows]
+          if (!near2(seq[0], shared[0])) seq.reverse() // 共用端排最前
+          const newRows = seq.slice(1)
+          if (near2(shared[0], mLast)) mainW.rows.push(...newRows)
+          else mainW.rows.unshift(...newRows.reverse())
+          continue // rid 不進 branch → 自然歸入 mainRids
+        }
+        rest.push(w)
+      }
+      keptAll.length = 0
+      keptAll.push(mainW, ...rest)
+    }
     const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
     const mainRids = g.rids.filter((r) => !branchRids.has(r))
     const units = [{ kept: [keptAll[0].rows],
@@ -970,10 +1004,10 @@ async function build() {
       route_color: normColor(pick(t, 'colour')),
       network,
       network_local: t.network || null,
-      operator: pick(t, 'operator'),
+      operator: pick(t, 'operator') ?? null,
       city: info.city, country: info.country,
-      wikidata: pick(t, 'wikidata', 'network:wikidata'),
-      wikipedia: pick(t, 'wikipedia', 'network:wikipedia'),
+      wikidata: pick(t, 'wikidata', 'network:wikidata') ?? null,
+      wikipedia: pick(t, 'wikipedia', 'network:wikipedia') ?? null,
       osm_route_ids: g.rids,
       // 未通車例外線（台北限定）——UI 可依此標示「建設中」
       status: g.rids.some((r) => ucRids.has(r)) ? 'under_construction' : null,
@@ -1090,7 +1124,9 @@ async function build() {
     }
     // 官方站碼（`ref`，如機捷 A1、環狀 Y20、板南 BL12、港鐵 FOH）——各線的 station 節點自帶
     // 該線的碼；共站合併時聚成 codes，路線再依 ref 字首挑出自己的碼、供官方順序排序。內部欄位。
+    // `_overrides/station_codes.json`：上游節點缺 ref、官方確有碼者由此補（東京 N13/N19/S11/E27）。
     if (t.ref && /^[A-Za-z]{1,4}\d|^\d/.test(t.ref)) feat.__codes = new Set(String(t.ref).split(/[;、,\s]+/).filter(Boolean))
+    for (const c of codeOverrides[`n${s.id}`] ?? []) (feat.__codes = feat.__codes || new Set()).add(c)
     if (process.env.DEBUG_ST && /榴花公园|Embarcadero/.test((t.name || '') + (t['name:en'] || '')))
       console.log('  [st]', t.name, '| id:', s.id, '| bucket:', info.key,
         '| direct-refs:', !!nodeLineRefs.get(s.id), '| lines:', JSON.stringify(props.lines))
@@ -1105,6 +1141,7 @@ async function build() {
       const clone = { type: 'Feature',
         properties: { ...props, city: info2.city, country: info2.country },
         geometry: { type: 'Point', coordinates: [s.lon, s.lat] } }
+      if (feat.__codes) clone.__codes = new Set(feat.__codes) // 官方站碼隨複製帶走（赤羽岩淵：主 bucket 在埼玉側、東京拿 clone）
       groupFor(info2).stations.push(clone)
     }
   }
@@ -1918,7 +1955,10 @@ async function build() {
         // 只挑「字母字首＝本線 ref」的官方碼（機捷 A1↔ref A、東京 T22↔ref T、港鐵 TML…）；
         // 純數字 GTFS/非官方碼（NYC 302N、HK 430）codeKey 無字母字首→不挑、不影響排序。
         const refU = String(ref).toUpperCase()
-        const pickCode = (sid) => { const cs = codesById.get(sid); if (cs) for (const c of cs) { const k = codeKey(c); if (k && k[0] === refU) return c } return null }
+        const pickCode = (sid) => { const cs = codesById.get(sid); if (!cs) return null
+          for (const c of cs) { const k = codeKey(c); if (k && k[0] === refU) return c } // 字首完全相同優先
+          for (const c of cs) { const k = codeKey(c); if (k && k[0].startsWith(refU)) return c } // 後備：Mb03↔ref M（支線碼）
+          return null }
         for (const st of ordered) { const c = pickCode(st.station_id); if (c) st.code = c } // 含 pass 站（三重 A2）
         const coded = sts.filter((s) => s.code && codeKey(s.code))
         if (coded.length >= 2) {
@@ -2017,6 +2057,13 @@ async function build() {
       s.properties.is_interchange = isIx
       s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
+      // 全城一致鍵集（使用者：物件顯示不可因城市而異、不要客製）——缺值一律 null/false，
+      // 每站輸出的欄位集完全相同，前端表格列數/順序全球一致。
+      for (const [k, v] of Object.entries({ station_name_local: null, station_name_en: null,
+        network: null, network_local: null, operator: null, wikidata: null, wikipedia: null,
+        codes: null, merged_from: null, merged_names: null, is_terminus: false })) {
+        if (s.properties[k] === undefined) s.properties[k] = v
+      }
     }
     // 快取殭屍清理：無名（合成名 n123…）且不屬於任何線站序的站點＝上游已刪
     // 或從未真正在線上（僅靠 900 m 鄰近被指派 lines）——剔除（站名 100% 不變式）。

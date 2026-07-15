@@ -78,6 +78,12 @@ tram 是路面電車，皆不屬本資料範圍。**排除直通運轉覆蓋線*
 成都 18 號線快車）——本來就 fresh>0／獨立分組而自然保留，**不需例外機制**；其跳過的站仍由
 pass-through 偵測就地標進 stations（pass:true）畫共線。
 
+**端點延伸併入主線（使用者 2026-07：千代田線不可拆兩段）**：分支變體只與主線共用
+**一個站**、且該站是主線**端點**（＝純線性延伸，官方碼連續——綾瀬 C19→北綾瀬 C20 是同一條
+千代田線；OSM 常把尾段拆成 shuttle relation）→ 新站直接接進主線序列、**不另成 route**。
+**中途分岔**（小碧潭在七張、東鐵羅湖/落馬洲在上水〔共用多站〕、NYC A 線分支）共用點非端點
+或共用多站 → 維持獨立 route。
+
 **同 ref 分支變體＝獨立 route、渲染層同色收斂（現行；`mergeVariants` 已於 2026-07-13 移除）**：
 同 ref 內**帶來新站的分支/快車變體**一律各自獨立成 route（台北小碧潭支線 hover 不得連
 主線一起 highlight；港鐵東鐵綫的羅湖/落馬洲/馬場變體、將軍澳綫的康城/寶琳、紐約 A 線
@@ -380,6 +386,13 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 `route_color`**——路段可多線、沒有「一個顏色」；單線渲染取 `route_colors[0]`，每線自己的色在
 `routes[].route_color`。使用者裁決 2026-07 移除冗餘欄位。）
 
+> **全城一致鍵集（使用者：物件顯示不可因城市而異、不要客製）**：每站輸出**完全相同的欄位集**
+> （21 鍵；缺值一律 null/false，不因欄位有無讓表格列數不同），全 223 城實測鍵集變體＝1。
+> **hover＝物件顯示（使用者規則）**：地圖 hover popup（站/線）與物件 tab 完全同構——標題
+> （中文/在地＋英文）、共站站名、停靠/行經路線、線的**段站序**（官方碼＋pass 灰字）、
+> 以及**相同的屬性表**（同鍵過濾/排序/wikipedia 連結；routes/lines 等結構性鍵不進表）。
+> 改物件 tab 顯示必同步 LayerTab 的 popupTable/H helpers。
+
 **車站 feature（Point）**：
 `station_id`（`n{osmId}`）, `station_name`（依「顯示名語言」＝中文/日文/英文）, `station_name_local`,
 `station_name_en`（英文名 name:en——**標題/hover 第二行**（使用者規則：第一行中文/在地、第二行英文，
@@ -416,7 +429,11 @@ list**（同名多成員的 lines 取聯集），代表點排第一、依 `normN
 ——如 Novosibirsk Krasnyi Prospekt(1) 併掉的 Sibirskaya(2)、Pyongyang Chonu(1) 併掉的
 Chonsung(2)，讓地圖能標「哪個名字屬哪條線」）,
 `wikidata`, `wikipedia`（OSM 車站有 `wikipedia` 標籤時帶入，如 `en:...`；無則 `null`）,
-`codes`（**官方站碼清單**，如台北車站 `[A1, BL12, R10]`——各線各自的碼；來源＝各線 station
+`codes`（——補充機制：**`_overrides/station_codes.json`**（by 節點 id）補上游 OSM 節點缺 ref、
+官方確有碼者（東京 N13 本駒込/N19 赤羽岩淵/S11 森下/E27 新宿），攝入時併入 `__codes`；
+**跨城複製的 clone 必須帶 `__codes`**（赤羽岩淵主 bucket 在埼玉側、東京拿 clone——曾因此失碼）；
+路線挑碼「字首完全相同優先、startsWith 後備」（丸ノ内線方南町支線 Mb03-05 ↔ ref M）。）
+（**官方站碼清單**，如台北車站 `[A1, BL12, R10]`——各線各自的碼；來源＝各線 station
 節點的 `ref`〔路線引用的 stop_position 節點無碼，碼在 station 節點上〕，共站合併時聚成此清單。
 路線的 `route.stations` 每站再依該線 ref 字首挑出**該線的 code**〔A1↔ref A、T22↔ref T〕並據以
 排序方向。`ref` 為 GTFS/非官方純數字碼〔NYC 302N、HK 430〕者不挑、不影響站序。全球 99/223 城

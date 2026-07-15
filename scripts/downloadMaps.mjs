@@ -203,7 +203,22 @@ async function searchQids(query, limit = 5) {
 const MAPPY = /map|network|route|system|linemap|карта|схема|路線|路网|线路|地铁|地鐵|捷運|노선/i
 // 單線圖/區域圖降權（「Map of the Ankara Metro line M4」不是全網圖）
 const LINE_MAP = /\bline\s*[a-z]?\d|\blinea\b|\bligne\b|\blinha\b|\bhattı|metro\s*area|\barea\b/i
-async function commonsSearch(sys) {
+// 檔案頁的描述＋分類文字（同名城防呆：Valencia VE 曾配到西班牙 Metrovalencia 圖）
+async function commonsPageBlob(file) {
+  const u = 'https://commons.wikimedia.org/w/api.php?action=query&format=json' +
+    '&prop=categories|imageinfo&cllimit=50&iiprop=extmetadata&titles=' +
+    encodeURIComponent('File:' + file)
+  try {
+    const j = await getJSON(u)
+    const page = Object.values(j.query?.pages || {})[0]
+    const cats = (page?.categories || []).map((c) => c.title).join('|')
+    const md = page?.imageinfo?.[0]?.extmetadata || {}
+    const desc = (md.ImageDescription?.value || '') + '|' + (md.ObjectName?.value || '')
+    return norm(cats + '|' + desc.replace(/<[^>]+>/g, ' '))
+  } catch { return '' }
+}
+
+async function commonsSearch(sys, allCountries) {
   const queries = [
     `${sys.city} ${sys.country} metro map`,   // 同名城防呆（Valencia VE≠ES）先帶國名
     `${sys.city} metro map`,
@@ -233,7 +248,14 @@ async function commonsSearch(sys) {
       const ext = (f) => (/\.svg$/i.test(f) ? 0 : /\.png$/i.test(f) ? 1 : 2)
       return ext(a) - ext(b)
     })
-    return hits[0]
+    // 檔案頁面提到別的國家、卻沒提到本國 → 同名異城的圖，拒收
+    const mine = norm(sys.country)
+    for (const hit of hits.slice(0, 3)) {
+      const blob = await commonsPageBlob(hit); await sleep(200)
+      if (blob && !blob.includes(mine) &&
+          allCountries.some((c) => c !== mine && c.length >= 4 && blob.includes(c))) continue
+      return hit
+    }
   }
   return null
 }
@@ -294,7 +316,7 @@ async function resolveMap(sys, net2qid, allCountries) {
       return r
     }
   }
-  const fromSearch = await commonsSearch(sys)
+  const fromSearch = await commonsSearch(sys, allCountries)
   return fromSearch ? { file: fromSearch, qid: null } : null
 }
 

@@ -45,6 +45,20 @@ description: 抓取/重抓全世界封閉式道路（國道 motorway＋封閉式
 **不抓**一般 `trunk`（無 expressway/motorroad 的幹道）、`motorway_link`（匝道）、`primary` 等，
 也不用 `route=road` 關係。要改判準必須先更新本文件。
 
+## 目前資料範圍＝台灣（使用者 2026-07-16：只要台灣，國外不用）
+
+npm 腳本預設只抓/組/驗**台灣三都會區**（`as-twn-taipei`／`as-twn-taichung`／`as-twn-kaohsiung`）。
+管線本身仍具全球能力（外國原始快取保留於 `_cache/`、不組檔不進前端）；要恢復國外，
+直接跑 `node scripts/buildHighwayGeojson.mjs`（無過濾）即可。
+
+## 台灣里程權威＝Wikipedia 交流道里程表（使用者：可以用 wiki 查哩程）
+
+`scripts/fetchWikiHighwayTw.mjs` 抓 zh.wikipedia 各路條目的 wikitext、**確定性解析**結構化模板
+（`{{台灣公路交流道|KM|名}}`／`系統連結`／`兩端`／`設施|ser/res/er`；LLM 萃取表格會錯、已否決），
+輸出 `_overrides/wiki_mileage_tw.json`（20/21 條路；國5/台61 頁無結構表 → fallback 出口編號，
+其值本就＝公里數）。build 對台灣各路以**正規化名稱比對**（含去「高架道路」前綴），命中者
+**wiki 公里數覆蓋出口編號**（小數精度、補服務區/休息站的缺里程）。上游條目改版重跑腳本即可。
+
 ## 系統單位：一都會區一檔（使用者：台灣也要分城市）
 
 直接讀 `data/metro/index.json`，**每個 metro 系統就是一個高速公路系統**（一都會區一檔）：取該城
@@ -100,6 +114,9 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
    交流道屬於這條路」與 fallback 排序、**不畫出**）。排序兩層：
    - **里程優先**：該 ref ≥60% 交流道有里程（出口編號數字：台灣＝公里、美國＝mile）→ 依
      里程排序當骨幹，**無里程者以「最小繞路」插入**（detour = d(A,X)+d(X,B)−d(A,B) 最小處）。
+     **里程必須是「每路各自的」（`refMileage`）**：只取該 ref 自己 way 上節點的出口編號——
+     系統交流道合併了多條路的節點，拿全域第一個編號會抓到別條路的（機場系統在國道1號是
+     52K，卻拿到國道2號的 8）→ 整條路排序飛來飛去。`stations[].mileage` 也用每路里程。
    - **fallback（無出口編號的國家）**：取**最長車道相鄰鏈**當骨幹，其餘交流道同樣最小繞路插入。
    序列制使同 ref 平行道路（國道1號主線 vs 汐止五股高架，都 `ref=1`）**結構上不可能**畫成
    交錯辮子——高架的交流道被插進主線順序，輸出永遠一條線。相鄰對距離 > `MAX_EDGE_M`（30km）
