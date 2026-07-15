@@ -66,18 +66,32 @@ function audit(fc) {
     longSegs ? `${longSegs} 段 >30km（疑似跨越假長線），最長 ${maxSeg.toFixed(1)}km`
       : `最長段 ${maxSeg.toFixed(1)}km（皆為真實交流道間距）`)
 
-  // 4b) no triangles — three interchanges mutually connected (parallel-road /
-  //     near-duplicate artefacts); build de-triangulates, so any left is a bug.
+  // 4b) single line per ref — within one road, every interchange links to at most
+  //     2 neighbours (a path, or a closed ring). Degree >2 inside a ref means the
+  //     road braided into parallel chains (主線 vs 高架) — the build's
+  //     sequence-per-ref ordering makes this structurally impossible; any hit is a bug.
   {
     const nn = (c) => c.map((v) => v.toFixed(6)).join(',')
-    const g = new Map()
-    const gl = (a, b) => { if (!g.has(a)) g.set(a, new Set()); g.get(a).add(b) }
-    for (const l of lines) for (const part of l.geometry.coordinates) {
-      const a = nn(part[0]), b = nn(part[part.length - 1]); gl(a, b); gl(b, a)
+    const perRef = new Map() // ref → Map(node → Set(node))
+    for (const l of lines) {
+      for (const ref of l.properties.route_refs ?? []) {
+        if (!perRef.has(ref)) perRef.set(ref, new Map())
+        const g = perRef.get(ref)
+        for (const part of l.geometry.coordinates) {
+          const a = nn(part[0]), b = nn(part[part.length - 1])
+          if (!g.has(a)) g.set(a, new Set()); if (!g.has(b)) g.set(b, new Set())
+          g.get(a).add(b); g.get(b).add(a)
+        }
+      }
     }
-    let tris = 0
-    for (const a of g.keys()) for (const b of g.get(a)) { if (b <= a) continue; for (const c of g.get(b)) { if (c <= b) continue; if (g.get(a).has(c)) tris++ } }
-    add('no_triangles', tris === 0, 'error', tris ? `${tris} 個三角形（去三角化未清乾淨）` : '無三角形')
+    const badRefs = []
+    for (const [ref, g] of perRef) {
+      let bad = 0
+      for (const s of g.values()) if (s.size > 2) bad++
+      if (bad) badRefs.push(`${ref}(${bad})`)
+    }
+    add('single_line_per_ref', badRefs.length === 0, 'error',
+      badRefs.length ? `${badRefs.length} 條道路有分叉/辮子：${badRefs.slice(0, 5).join('、')}` : '每條道路皆為單一路徑/環')
   }
 
   // 5) closed-access only: every line is motorway or expressway class

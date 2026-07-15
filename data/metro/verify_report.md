@@ -28,7 +28,7 @@
 | low | Samara | Russia | 2 | 10 | 0.2 | 站數偏少（2 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
 | high | Berlin | Germany | 310 | 175 | 1.77 | 站數偏多（310 vs wiki 175），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Berlin_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin) |
 | high | Taipei | Taiwan | 197 | 119 | 1.66 | 站數偏多（197 vs wiki 119），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Taipei_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taipei) |
-| high | Tokyo | Japan | 212 | 99 | 2.14 | 站數偏多（212 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Tokyo | Japan | 201 | 99 | 2.03 | 站數偏多（201 vs wiki 99），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Toei_Subway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Munich | Germany | 235 | 96 | 2.45 | 站數偏多（235 vs wiki 96），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Munich_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Munich) |
 | high | Hamburg | Germany | 154 | 93 | 1.66 | 站數偏多（154 vs wiki 93），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Hamburg_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Hamburg) |
 | high | Bangkok | Thailand | 104 | 64 | 1.63 | 站數偏多（104 vs wiki 64），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/BTS_Skytrain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok) |
@@ -38,14 +38,14 @@
 | high | Montreal | Canada | 68 | 23 | 2.96 | 站數偏多（68 vs wiki 23），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Réseau_express_métropolitain) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal) |
 | high | Sydney | Australia | 176 | 21 | 8.38 | 站數偏多（176 vs wiki 21），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Sydney_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney) |
 | high | New York City | United States | 439 | 21 | 20.9 | 站數偏多（439 vs wiki 21），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Staten_Island_Railway) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
-| high | Tokyo | Japan | 212 | 16 | 13.25 | 站數偏多（212 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Yurikamome) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Tokyo | Japan | 201 | 16 | 12.56 | 站數偏多（201 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Yurikamome) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Seoul | South Korea | 426 | 16 | 26.63 | 站數偏多（426 vs wiki 16），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Shinbundang_Line[Nb_62]_(Neo_Trans)) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul) |
 | high | Yokohama | Japan | 45 | 14 | 3.21 | 站數偏多（45 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
 | high | Philadelphia | United States | 63 | 14 | 4.5 | 站數偏多（63 vs wiki 14），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/PATCO_Speedline) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Philadelphia) |
-| high | Tokyo | Japan | 212 | 13 | 16.31 | 站數偏多（212 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Nippori-Toneri_Liner) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Tokyo | Japan | 201 | 13 | 15.46 | 站數偏多（201 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Nippori-Toneri_Liner) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Manila | Philippines | 50 | 13 | 3.85 | 站數偏多（50 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Manila_Metro_Rail_Transit_System) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Manila) |
 | high | New York City | United States | 439 | 13 | 33.77 | 站數偏多（439 vs wiki 13），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/PATH) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City) |
-| high | Tokyo | Japan | 212 | 8 | 26.5 | 站數偏多（212 vs wiki 8），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Rinkai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
+| high | Tokyo | Japan | 201 | 8 | 25.13 | 站數偏多（201 vs wiki 8），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Rinkai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo) |
 | high | Jakarta | Indonesia | 13 | 6 | 2.17 | 站數偏多（13 vs wiki 6），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Jakarta_LRT) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Jakarta) |
 | high | Yokohama | Japan | 45 | 6 | 7.5 | 站數偏多（45 vs wiki 6），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Minatomirai_Line) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama) |
 

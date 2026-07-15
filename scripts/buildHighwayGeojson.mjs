@@ -197,131 +197,104 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
   const coordToJ = new Map()
   junctions.forEach((j, i) => coordToJ.set(key(j.lon, j.lat), i))
 
-  // per ref: build ROAD ADJACENCY — two interchanges are connected only if they
-  // sit next to each other on some carriageway (consecutive vertices, nothing
-  // between). We draw ONLY these adjacencies, so a 國道 is one continuous line
-  // where the road is continuous and simply BREAKS at a real gap — never a long
-  // straight line bridging interchanges that aren't actually connected.
+  // ONE ORDERED SEQUENCE PER REF (使用者: 路要整條同一條線，跟 metro map 一樣) —
+  // a road is a single linear sequence of its interchanges, drawn by connecting
+  // consecutive ones. This makes same-ref parallel chains (國道1號主線 vs 汐止五股
+  // 高架, both ref=1) IMPOSSIBLE to braid: elevated-only interchanges are inserted
+  // into the mainline order instead of forming a second chain.
+  //   · Ordering: by 里程 mileage when ≥60% of the interchanges carry one (Taiwan
+  //     exit numbers = km posts, US = mileposts; validated strictly monotonic);
+  //     interchanges without mileage are inserted at the minimal-detour position.
+  //   · Fallback (no exit numbering): walk the longest road-adjacent chain as the
+  //     spine, then insert every remaining interchange by minimal detour.
+  //   · Draw consecutive pairs, cap MAX_EDGE_M (real gap → break, never a
+  //     city-spanning straight line); close the loop for ring roads whose ends
+  //     are road-adjacent.
   const ekey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
   const icDist = (a, b) => { const ea = ic.get(a), eb = ic.get(b); return haversine([ea.lon, ea.lat], [eb.lon, eb.lat]) }
-  // De-triangulate a ref's edge set: while any triangle A-B-C exists (all three
-  // edges present), drop its LONGEST edge — the "shortcut" that skips the middle
-  // interchange. Kills parallel same-ref-road shortcuts (國道1號 mainline vs its
-  // elevated) and thin near-duplicate-interchange triangles, keeping the network
-  // connected (the two shorter edges still join all three).
-  const deTriangulate = (edges) => {
-    const present = new Set(edges.map(([a, b]) => ekey(a, b)))
-    const adj = new Map()
-    const addA = (a, b) => { if (!adj.has(a)) adj.set(a, new Set()); adj.get(a).add(b) }
-    for (const [a, b] of edges) { addA(a, b); addA(b, a) }
-    let changed = true
-    while (changed) {
-      changed = false
-      for (const a of adj.keys()) {
-        for (const b of adj.get(a)) {
-          if (b < a) continue
-          for (const c of adj.get(b)) {
-            if (c < b || !adj.get(a).has(c)) continue
-            const [x, y] = [[a, b], [b, c], [a, c]].sort((p, q) => icDist(...q) - icDist(...p))[0]
-            adj.get(x).delete(y); adj.get(y).delete(x); present.delete(ekey(x, y))
-            changed = true; break
-          }
-          if (changed) break
-        }
-        if (changed) break
-      }
+  // 里程（mileage）: numeric part of the exit ref (36A → 36); null when absent.
+  const mileageOf = (e) => {
+    for (const r of e.exitRefs) { const m = String(r).match(/\d+(\.\d+)?/); if (m) return Number(m[0]) }
+    return null
+  }
+  // Insert x into seq at the position adding the least length (prepend/append/interior).
+  const insertByDetour = (seq, x) => {
+    if (seq.length < 2) { seq.push(x); return }
+    let bestI = -1, bestCost = Infinity
+    for (let i = 0; i + 1 < seq.length; i++) {
+      const cost = icDist(seq[i], x) + icDist(x, seq[i + 1]) - icDist(seq[i], seq[i + 1])
+      if (cost < bestCost) { bestCost = cost; bestI = i }
     }
-    return edges.filter(([a, b]) => present.has(ekey(a, b)))
+    const d0 = icDist(x, seq[0]), d1 = icDist(x, seq[seq.length - 1])
+    if (d0 < bestCost && d0 <= d1) seq.unshift(x)
+    else if (d1 < bestCost) seq.push(x)
+    else seq.splice(bestI + 1, 0, x)
   }
 
-  const refEdges = new Map()  // ref → [[rootA, rootB] …] (road-adjacent, de-triangulated)
-  const refAdj = new Map()    // ref → Map(root → Set(root))
+  const refEdges = new Map()    // ref → [[rootA, rootB] …] consecutive pairs of the sequence
+  const refStations = new Map() // ref → the ordered sequence (route.stations / Object tab)
   const neigh = new Map(), icRefs = new Map()
   const addRef = (root, ref) => { if (!icRefs.has(root)) icRefs.set(root, new Set()); icRefs.get(root).add(ref) }
   const link = (m, a, b) => { if (!m.has(a)) m.set(a, new Set()); if (!m.has(b)) m.set(b, new Set()); m.get(a).add(b); m.get(b).add(a) }
   for (const [ref, refWays] of byRef) {
-    const seen = new Set(); let edges = []
+    // roots on this ref + raw road adjacency (used for spine fallback & loop closure)
+    const roots = new Set(), adjPairs = new Set(), adj = new Map()
     for (const poly of buildPolylines(refWays)) {
       const hits = []
       for (const v of poly) {
         const jIdx = coordToJ.get(key(v[0], v[1]))
         if (jIdx !== undefined && jIdxToIc.has(jIdx)) hits.push(jIdxToIc.get(jIdx))
       }
-      const seq = hits.filter((r, n) => n === 0 || r !== hits[n - 1]) // drop repeats
-      for (let n = 0; n + 1 < seq.length; n++) {
-        const a = seq[n], b = seq[n + 1]
-        if (a === b) continue
-        // Cap edge length: two "adjacent" interchanges >30 km apart (sparse outer
-        // expressway stretch, or missing intermediate interchanges) would draw a
-        // city-spanning straight line — break the road there instead.
-        if (icDist(a, b) > MAX_EDGE_M) continue
-        const k = ekey(a, b)
-        if (!seen.has(k)) { seen.add(k); edges.push([a, b]) }
+      const chain = hits.filter((r, n) => n === 0 || r !== hits[n - 1])
+      for (const r of chain) roots.add(r)
+      for (let n = 0; n + 1 < chain.length; n++) {
+        if (chain[n] === chain[n + 1]) continue
+        adjPairs.add(ekey(chain[n], chain[n + 1])); link(adj, chain[n], chain[n + 1])
       }
     }
-    refEdges.set(ref, deTriangulate(edges)) // per-road de-triangulation
-  }
+    if (!roots.size) { refEdges.set(ref, []); refStations.set(ref, []); continue }
 
-  // GLOBAL de-triangulation across ALL roads — catches cross-road triangles
-  // (concurrent routes, express-vs-local variants) the per-road pass misses.
-  {
-    const owners = new Map(), adj = new Map()
-    const addA = (a, b) => { if (!adj.has(a)) adj.set(a, new Set()); adj.get(a).add(b) }
-    for (const [ref, edges] of refEdges) for (const [a, b] of edges) {
-      const k = ekey(a, b)
-      if (!owners.has(k)) { owners.set(k, new Set()); addA(a, b); addA(b, a) }
-      owners.get(k).add(ref)
-    }
-    let changed = true
-    while (changed) {
-      changed = false
-      for (const a of adj.keys()) {
-        for (const b of adj.get(a)) {
-          if (b < a) continue
-          for (const c of adj.get(b)) {
-            if (c < b || !adj.get(a).has(c)) continue
-            const [x, y] = [[a, b], [b, c], [a, c]].sort((p, q) => icDist(...q) - icDist(...p))[0]
-            adj.get(x).delete(y); adj.get(y).delete(x)
-            const k = ekey(x, y)
-            for (const ref of owners.get(k) || []) refEdges.set(ref, refEdges.get(ref).filter(([p, q]) => ekey(p, q) !== k))
-            owners.delete(k); changed = true; break
-          }
-          if (changed) break
+    const items = [...roots].map((root) => ({ root, m: mileageOf(ic.get(root)) }))
+    const withM = items.filter((i) => i.m != null)
+    let seq
+    if (withM.length >= 2 && withM.length >= items.length * 0.6) {
+      // mileage-ordered spine, others inserted by minimal detour
+      seq = withM.sort((a, b) => a.m - b.m).map((i) => i.root)
+      for (const i of items) if (i.m == null) insertByDetour(seq, i.root)
+    } else {
+      // spine = endpoint walk of the LARGEST adjacency component
+      const visited = new Set(); let spine = []
+      for (const start of adj.keys()) {
+        if (visited.has(start)) continue
+        const comp = []; const stack = [start]; const seen = new Set([start])
+        while (stack.length) { const n = stack.pop(); comp.push(n); for (const m of adj.get(n) || []) if (!seen.has(m)) { seen.add(m); stack.push(m) } }
+        for (const n of comp) visited.add(n)
+        const endpoint = comp.find((n) => (adj.get(n)?.size ?? 0) === 1) ?? comp[0]
+        const walk = []; const used = new Set(); let cur = endpoint
+        while (cur !== undefined && !used.has(cur)) {
+          used.add(cur); walk.push(cur)
+          cur = [...(adj.get(cur) || [])].find((m) => !used.has(m))
         }
-        if (changed) break
+        if (walk.length > spine.length) spine = walk
       }
+      seq = spine.length ? spine : [[...roots][0]]
+      for (const r of roots) if (!seq.includes(r)) insertByDetour(seq, r)
     }
-  }
 
-  // build adjacency / neighbour graph from the FINAL (de-triangulated) edges
-  for (const [ref, edges] of refEdges) {
-    const adj = new Map()
-    for (const [a, b] of edges) { link(adj, a, b); link(neigh, a, b); addRef(a, ref); addRef(b, ref) }
-    refAdj.set(ref, adj)
-  }
-
-  // Ordered interchange sequence per ref (for route.stations / the Object tab):
-  // walk each connected component of the adjacency graph from an endpoint.
-  const orderByAdj = (adj) => {
-    const visited = new Set(), out = []
-    for (const start of adj.keys()) {
-      if (visited.has(start)) continue
-      const comp = []
-      const stack = [start], seen = new Set([start])
-      while (stack.length) { const n = stack.pop(); comp.push(n); for (const m of adj.get(n) || []) if (!seen.has(m)) { seen.add(m); stack.push(m) } }
-      const endpoint = comp.find((n) => (adj.get(n)?.size ?? 0) === 1) ?? comp[0]
-      let cur = endpoint
-      const used = new Set()
-      while (cur !== undefined && !used.has(cur)) {
-        used.add(cur); visited.add(cur); out.push(cur)
-        cur = [...(adj.get(cur) || [])].find((m) => !used.has(m))
-      }
-      for (const n of comp) if (!used.has(n)) { used.add(n); visited.add(n); out.push(n) }
+    // consecutive pairs → edges (cap = real-gap break); ring closure if the two
+    // ends are road-adjacent (環線 like G1503 上海繞城)
+    const edges = []
+    for (let n = 0; n + 1 < seq.length; n++) {
+      if (icDist(seq[n], seq[n + 1]) <= MAX_EDGE_M) edges.push([seq[n], seq[n + 1]])
     }
-    return out
+    if (seq.length > 2 && adjPairs.has(ekey(seq[0], seq[seq.length - 1])) &&
+        icDist(seq[0], seq[seq.length - 1]) <= MAX_EDGE_M) {
+      edges.push([seq[seq.length - 1], seq[0]])
+    }
+    for (const [a, b] of edges) { link(neigh, a, b); addRef(a, ref); addRef(b, ref) }
+    refEdges.set(ref, edges)
+    refStations.set(ref, seq)
   }
-  const refStations = new Map()
-  for (const [ref, adj] of refAdj) refStations.set(ref, orderByAdj(adj))
 
   const refTags = new Map()
   const refClass = new Map() // ref → 'motorway' | 'expressway'
@@ -352,21 +325,17 @@ function buildSystem(raw, { countryZh, cityZh } = {}) {
       order_suspect: 0,
     }
   }
-  // 里程（mileage）: exit numbers on motorways are milepost-based (Taiwan 交流道
-  // 編號＝公里數, US exit numbers＝mile), so parse the numeric part of the exit
-  // ref. null when the interchange has no numeric ref.
-  const mileageOf = (e) => {
-    for (const r of e.exitRefs) { const m = String(r).match(/\d+(\.\d+)?/); if (m) return Number(m[0]) }
-    return null
-  }
-  const refStationList = (ref) => (refStations.get(ref) || []).map((root) => {
+  // (filtered to drawn interchanges — usedIc is populated before any call)
+  const refStationList = (ref) => (refStations.get(ref) || []).filter((r) => usedIc.has(r)).map((root) => {
     const e = ic.get(root)
     return { station_id: e.id, station_name: e.name, mileage: mileageOf(e) }
   })
 
   const features = []
+  // orphan-drop: only interchanges that sit on a DRAWN edge (an interchange cut
+  // off by the gap cap has no edge → not emitted, matching metro's rule)
   const usedIc = new Set()
-  for (const seq of refStations.values()) for (const root of seq) usedIc.add(root)
+  for (const edges of refEdges.values()) for (const [a, b] of edges) { usedIc.add(a); usedIc.add(b) }
   for (const root of usedIc) {
     const e = ic.get(root)
     const refs = [...(icRefs.get(root) || [])].sort()

@@ -55,7 +55,7 @@ const norm = (s) => (s || '').toLowerCase().normalize('NFD')
   .replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9一-鿿Ѐ-ӿ]/g, '')
 
 // 規劃圖/未來圖/工程圖黑名單（檔名層）
-const BAD_FILE = /plan(?:ning|ned)?|tentative|proposed|future|expansion|phase|perspektiv|перспектив|規劃|规划|under.?construction|concept/i
+const BAD_FILE = /plan(?:ning|ned)?|tentative|proposed|future|expansion|phase|perspektiv|перспектив|規劃|规划|under.?construction|concept|blueprint/i
 
 // tokens too generic to identify a system
 const GENERIC = new Set([
@@ -63,6 +63,9 @@ const GENERIC = new Set([
   'light', 'urban', 'rapid', 'network', 'system', 'city', 'area', 'municipal', 'municipality',
   'corporation', 'company', 'limited', 'authority', 'transport', 'transportation', 'trains',
   'train', 'tram', 'unknown', 'metropolitan', 'metropolitana', 'metropolitano', 'estacion',
+  // 其他語言的泛用交通詞（曾害土語「Metrosu」把突尼斯輕軌配給 Ankara）
+  'sistema', 'linea', 'lineas', 'ligne', 'lignes', 'linie', 'linien', 'linha', 'linhas',
+  'metrosu', 'hatti', 'genel', 'colectivo', 'ferroviario', 'chemin', 'ferro',
 ])
 
 function cityAliases(sys) {
@@ -76,8 +79,8 @@ function cityAliases(sys) {
   return [...out]
 }
 
-// distinctive latin tokens from osm_networks/operator (e.g. "Astram", "SkyTrain", "Bursaray")
-function distinctTokens(sys) {
+// raw latin tokens from osm_networks/operator (e.g. "Astram", "SkyTrain", "Bursaray")
+function rawTokens(sys) {
   const out = new Set()
   for (const s of [...(sys.osm_networks || []), sys.operator || '']) {
     for (const w of String(s).split(/[^A-Za-zÀ-ÿ]+/)) {
@@ -86,6 +89,20 @@ function distinctTokens(sys) {
     }
   }
   return [...out]
+}
+
+// distinctive tokens ＝「全索引唯一」的 token（只出現在這一個系統）——
+// 任何跨系統共用的詞（metrosu/sistema/skytrain…各語泛用詞）自動失格，
+// 只留 Metrorrey/Astram/Bursaray 這種真正指認系統的專有詞。
+let TOKEN_OWNERS = null   // token -> count of systems using it（main 建一次）
+function buildTokenOwners(systems) {
+  TOKEN_OWNERS = new Map()
+  for (const sys of systems) {
+    for (const t of rawTokens(sys)) TOKEN_OWNERS.set(t, (TOKEN_OWNERS.get(t) || 0) + 1)
+  }
+}
+function distinctTokens(sys) {
+  return rawTokens(sys).filter((t) => (TOKEN_OWNERS?.get(t) || 0) <= 1)
 }
 
 // does this Wikidata entity mention the system's city/country/network anywhere?
@@ -153,7 +170,8 @@ const p15Files = (entity) => (entity.claims?.P15 || [])
 // one validated entity -> commons filename (P15, else infobox, else P361 parents)
 async function fileFromEntity(sys, entity, allCountries, depth = 0) {
   if (!entity || depth > 2) return null
-  const lineish = isLineEntity(entity)
+  // 單線系統（廣島 Astram）整個系統就是一條線——line 條目的 P15 就是路網圖，不跳過
+  const lineish = isLineEntity(entity) && (sys.line_count || 2) > 1
   if (!lineish) {
     for (const f of p15Files(entity)) if (!BAD_FILE.test(f)) return { file: f, qid: entity.id }
     const fromArticle = await wikipediaInfoboxMap(entity.sitelinks?.enwiki?.title)
@@ -183,8 +201,11 @@ async function searchQids(query, limit = 5) {
 
 // Commons file search fallback: filename must reference the city AND look like a network map.
 const MAPPY = /map|network|route|system|linemap|карта|схема|路線|路网|线路|地铁|地鐵|捷運|노선/i
+// 單線圖/區域圖降權（「Map of the Ankara Metro line M4」不是全網圖）
+const LINE_MAP = /\bline\s*[a-z]?\d|\blinea\b|\bligne\b|\blinha\b|\bhattı|metro\s*area|\barea\b/i
 async function commonsSearch(sys) {
   const queries = [
+    `${sys.city} ${sys.country} metro map`,   // 同名城防呆（Valencia VE≠ES）先帶國名
     `${sys.city} metro map`,
     `${sys.city} metro network`,
     `${sys.city} subway map`,
@@ -207,6 +228,8 @@ async function commonsSearch(sys) {
       })
     if (!hits.length) continue
     hits.sort((a, b) => {
+      const lm = (f) => (LINE_MAP.test(f) ? 1 : 0)
+      if (lm(a) !== lm(b)) return lm(a) - lm(b)
       const ext = (f) => (/\.svg$/i.test(f) ? 0 : /\.png$/i.test(f) ? 1 : 2)
       return ext(a) - ext(b)
     })
@@ -246,8 +269,14 @@ async function download(url, outPath) {
 async function resolveMap(sys, net2qid, allCountries) {
   const tried = new Set()
   const candidates = []
-  for (const n of sys.osm_networks || []) if (net2qid.has(n)) candidates.push(net2qid.get(n))
-  const latinNets = (sys.osm_networks || []).filter((n) => /[a-z]/i.test(n) && n !== 'Unknown')
+  // 'Unknown' netKey 不可查表——曾把「無 network 名的突尼斯 relation」的 QID
+  // 塞給所有 osm_networks 含 Unknown 的城市（Ankara/Monterrey 拿到突尼斯圖）
+  for (const n of sys.osm_networks || []) {
+    if (n !== 'Unknown' && net2qid.has(n)) candidates.push(net2qid.get(n))
+  }
+  // 純代號（A1/M4/L2）不當搜尋詞——會命中公路/消歧義條目
+  const latinNets = (sys.osm_networks || [])
+    .filter((n) => /[a-z]/i.test(n) && n !== 'Unknown' && norm(n).length >= 5 && !/^[A-Za-z]?\d+$/.test(n.trim()))
   for (const q of [...latinNets.slice(0, 3), `${sys.city} Metro`, `${sys.city} metro system`]) {
     candidates.push(...(await searchQids(q)))
     if (candidates.length >= 12) break
@@ -260,7 +289,10 @@ async function resolveMap(sys, net2qid, allCountries) {
     if (!entityMentions(sys, entity)) continue          // 防跨城/跨國誤配（Lima≠Milano）
     if (wrongCountry(sys, entity, allCountries)) continue // 防同名城誤配（Valencia VE≠ES）
     const r = await fileFromEntity(sys, entity, allCountries)
-    if (r) return r
+    if (r) {
+      if (process.env.DEBUG_MAPS) console.log(`    [debug] ${sys.city}: qid=${qid} (${entity.labels?.en?.value}) -> ${r.file} (via ${r.qid})`)
+      return r
+    }
   }
   const fromSearch = await commonsSearch(sys)
   return fromSearch ? { file: fromSearch, qid: null } : null
@@ -273,8 +305,9 @@ async function main() {
   for (const e of rt.elements) {
     if (e.type !== 'relation') continue
     const q = e.tags?.['network:wikidata']
-    if (q) { const nk = netKey(e.tags); if (!net2qid.has(nk)) net2qid.set(nk, q) }
+    if (q) { const nk = netKey(e.tags); if (nk !== 'Unknown' && !net2qid.has(nk)) net2qid.set(nk, q) }
   }
+  buildTokenOwners(index.systems)
   const overrides = (await exists(OVERRIDES))
     ? JSON.parse(await readFile(OVERRIDES, 'utf8')).overrides || {} : {}
   const allCountries = [...new Set(index.systems.map((s) => norm(s.country)))]

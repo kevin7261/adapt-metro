@@ -851,13 +851,13 @@
   "americas/mexico/am-mex-monterrey": {
     "city": "Monterrey",
     "country": "Mexico",
-    "wikidata": "Q2519355",
-    "map_file": "maps/americas/mexico/am-mex-monterrey.svg",
-    "commons_file": "File:Milano - mappa metropolitana M3.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Milano_-_mappa_metropolitana_M3.svg",
-    "license": "CC BY-SA 2.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-    "artist": "ArbaleteOpenStreetMap contributors"
+    "wikidata": "Q1425645",
+    "map_file": "maps/americas/mexico/am-mex-monterrey.png",
+    "commons_file": "File:Tunis Rapid Transit Map.png",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Tunis_Rapid_Transit_Map.png",
+    "license": "CC BY-SA 2.5",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+    "artist": "Maximilian Dörrbecker (Chumwa)"
   },
   "asia/india/as-ind-hyderabad": {
     "city": "Hyderabad",
@@ -989,13 +989,13 @@
   "americas/peru/am-per-lima": {
     "city": "Lima",
     "country": "Peru",
-    "wikidata": "Q2400801",
+    "wikidata": "Q139738",
     "map_file": "maps/americas/peru/am-per-lima.svg",
-    "commons_file": "File:Milano - mappa metropolitana M1.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Milano_-_mappa_metropolitana_M1.svg",
-    "license": "CC BY-SA 2.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-    "artist": "ArbaleteOpenStreetMap contributors"
+    "commons_file": "File:Lima Metro Map.svg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Lima_Metro_Map.svg",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "artist": "Antonio Escobar"
   },
   "americas/colombia/am-col-medellin": {
     "city": "Medellín",
@@ -1264,13 +1264,13 @@
   "europe/spain/eu-esp-seville": {
     "city": "Seville",
     "country": "Spain",
-    "wikidata": "Q2519355",
+    "wikidata": "Q309023",
     "map_file": "maps/europe/spain/eu-esp-seville.svg",
-    "commons_file": "File:Milano - mappa metropolitana M3.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Milano_-_mappa_metropolitana_M3.svg",
-    "license": "CC BY-SA 2.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-    "artist": "ArbaleteOpenStreetMap contributors"
+    "commons_file": "File:Metro Sevilla Mapa 2024.svg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Metro_Sevilla_Mapa_2024.svg",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "artist": "FJPPBB"
   },
   "africa/algeria/af-alg-algiers": {
     "city": "Algiers",
@@ -1421,12 +1421,7 @@
     "city": "Hiroshima",
     "country": "Japan",
     "wikidata": "Q389415",
-    "map_file": "maps/asia/japan/as-jpn-hiroshima.png",
-    "commons_file": "File:Astramline map.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Astramline_map.png",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Hisagi"
+    "map_file": null
   },
   "asia/india/as-ind-jaipur": {
     "city": "Jaipur",
@@ -1821,13 +1816,13 @@
   "americas/venezuela/am-ven-valencia": {
     "city": "Valencia",
     "country": "Venezuela",
-    "wikidata": "Q511171",
-    "map_file": "maps/americas/venezuela/am-ven-valencia.svg",
-    "commons_file": "File:Mapa metrovalencia.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Mapa_metrovalencia.svg",
-    "license": "FAL",
-    "license_url": "http://artlibre.org/licence/lal/en",
-    "artist": "FGV"
+    "wikidata": null,
+    "map_file": "maps/americas/venezuela/am-ven-valencia.png",
+    "commons_file": "File:Valencia metro map Dutch.png",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Valencia_metro_map_Dutch.png",
+    "license": "CC BY 2.5",
+    "license_url": "https://creativecommons.org/licenses/by/2.5",
+    "artist": "user:xyboi"
   },
   "asia/israel/as-isr-ramat-gan": {
     "city": "Ramat Gan",
