@@ -642,7 +642,9 @@ async function build() {
   // NYC 用 ±4（~444m）——曼哈頓長月台的上下行 stop 節點可距 >250m，±2 會把
   // 純反向變體誤判成「有新站」→ 同名同站的第二條線（使用者 2026-07 回報的
   // 重複路線）。NYC 的真分支（Lefferts/Rockaway…）都隔數公里，±4 安全。
-  const dedupeSeqs = (seqs, nearRadius = 2) => {
+  // keepExpress=false：fresh=0 的快車變體不保留（使用者 2026-07：東京的急行/快速
+  // 不用抓、就一般車站就好——各停已涵蓋全部車站，快車變體與 pass 標記整組略過）。
+  const dedupeSeqs = (seqs, nearRadius = 2, keepExpress = true) => {
     const sorted = [...seqs].sort((a, b) => b.rows.length - a.rows.length)
     const covered = new Set(), kept = []
     const expressCovered = new Set() // 已保留快車的站格（±2 容差用來丟去回程的反向重複）
@@ -661,6 +663,7 @@ async function build() {
       // 改 fold 成主線的一個子服務**（記 rid＋停靠站座標）——之後在 __stations 把「主線停、
       // 快車不停」的站標成該快車 ref 的 pass。line_count 不變（＝「一線多編號＋每站 stop/pass」）。
       if (kept.length && fresh === 0) {
+        if (!keepExpress) continue // 東京等：快車變體一律丟（各停已涵蓋全部車站）
         // fresh=0（全站已被主線覆蓋）預設丟——**例外：真正的「快車」保留成獨立 route**
         // （與 NYC 快車一致的**全球統一格式**：快車＝獨立 route、其跳過的站由既有 pass-through
         // 偵測算成 pass_stations；不做 services 特例）。判準＝變體名字含快車字樣
@@ -849,7 +852,10 @@ async function build() {
   const resolved = []
   for (const g of groups.values()) {
     const gNet0 = pick(repTags(g), 'network:en', 'network') || ''
-    const keptAll = dedupeSeqs(g.seqs, /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
+    const keptAll = dedupeSeqs(g.seqs,
+      /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2,
+      // 東京（東京メトロ＋都営）：急行/快速不抓（使用者 2026-07）
+      !/東京メトロ|tokyo metro|都営|toei/i.test(gNet0))
     if (!keptAll.length) continue
     // 支線/分支＝獨立路線（使用者 Option 1：凡有新站的分岔都算支線→獨立 route_id，
     // 只有「0 新站」的純重複/反向/子集短交路才併）。dedupeSeqs 已丟掉 0 新站的重複；
@@ -1330,8 +1336,9 @@ async function build() {
   // （SkyTrain、澳門輕軌、Stadtbahn…）。非基準、純 LRT 的額外系統一律剔除。
   // Override 綁定的線（audit 逐城判過的）不在剔除範圍。
   // 附加 LRT 的城市（使用者指定）：該城有 MRT/subway，但也要收其輕軌（台北淡海/安坑/
-  // 環狀、高雄輕軌；新加坡 Bukit Panjang/Sengkang/Punggol LRT）。
-  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore'])
+  // 環狀、高雄輕軌；新加坡 Bukit Panjang/Sengkang/Punggol LRT；大阪ニュートラム
+  // 南港ポートタウン線 P——Osaka Metro 自家路線、OSM 標 route=light_rail，2026-07 使用者指定）。
+  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka'])
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
@@ -1900,8 +1907,9 @@ async function build() {
       //（使用者規則：列表相鄰＝圖上直連。支線的接續站在支線段開頭重複出現、
       // 環狀線最後回到第一個車站——與 pass_count「通過兩次算兩次」語義一致；
       // 站數統計一律用唯一站數）
-      const sts = []
-      const passSts = []            // 此線行經但不停靠的站（快車跳站）
+      const sts = []                // 停靠站（機器/計數用）
+      const passSts = []            // 此線行經但不停靠的站（站↔線 pass 歸屬用）
+      const ordered = []            // **完整行經序**：stop＋pass 依幾何真實順序交錯（輸出用）
       const fTag = featTag.get(f)
       for (const seq of f.geometry.coordinates) {
         if (seq.length < 2) continue
@@ -1910,20 +1918,22 @@ async function build() {
           if (!s) continue
           // 快車 pass-through 頂點：幾何經過但不停靠（機場快線跳過的東涌線中間站）。
           // snap 後座標精度變了，用鄰近比對（~110 m；快車真停靠站離 pass 站夠遠）。
-          // 舊做法直接丟棄；新做法**保留並標 pass**（供 route.pass_stations／
-          // station.pass_lines 表達「X 服務行經卻不停 Y 站」），仍不計入停靠 __stations。
+          // pass 站**就地插入行經序**（entry 標 pass:true），不計入停靠 __stations。
           const isPassC = f.__passCoords && [...f.__passCoords].some((k) => {
             const [pl, pt] = k.split(',').map(Number)
             return Math.abs(c[0] - pl) < 1e-3 && Math.abs(c[1] - pt) < 1e-3
           })
           if (isPassC) {
-            passSts.push({ station_id: s.properties.station_id, station_name: s.properties.station_name })
+            const entry = { station_id: s.properties.station_id, station_name: s.properties.station_name, pass: true }
+            passSts.push(entry)
+            ordered.push(entry)
             if (!passByStation.has(s.properties.station_id)) passByStation.set(s.properties.station_id, new Set())
             passByStation.get(s.properties.station_id).add(fTag)
             continue
           }
-          sts.push({ station_id: s.properties.station_id,
-            station_name: s.properties.station_name })
+          const entry = { station_id: s.properties.station_id, station_name: s.properties.station_name }
+          sts.push(entry)
+          ordered.push(entry) // 同一物件——之後補 code 兩邊同步
         }
         const a = seq[0], b = seq[seq.length - 1]
         // closed loop: ends identical, or ~adjacent on a many-stop ring
@@ -1948,11 +1958,12 @@ async function build() {
         const coded = sts.filter((s) => s.code && codeKey(s.code))
         if (coded.length >= 2) {
           const a = codeKey(coded[0].code), b = codeKey(coded[coded.length - 1].code)
-          if (a[1] > b[1]) sts.reverse() // 首站碼 > 末站碼 → 降序 → 反轉成 A1 在前
+          if (a[1] > b[1]) { sts.reverse(); ordered.reverse() } // 首站碼 > 末站碼 → 反轉成 A1 在前（行經序同步）
         }
       }
       f.__stations = sts
       f.__passStations = passSts
+      f.__stationsOrdered = ordered
     }
     // 站↔線歸屬一律以 **route_id**（每條線唯一）建立，不用 ref——機捷普通車/直達車都
     // ref「A」會撞（台北車站漏掉直達車、興南 pass 指到普通車）。停靠＝該站在某線的
@@ -2083,11 +2094,10 @@ async function build() {
           osm_route_ids: p.osm_route_ids,
           status: p.status ?? null,
           order_suspect: suspectOrder(f),
-          // all stations of this route, in stop order (id + name)
-          stations: f.__stations ?? [],
-          // 此服務行經但**不停靠**的站（快車跳站）——快車＝獨立 route，其 pass_stations 由
-          // pass-through 偵測算出（與 NYC 一致的全球統一格式）。空陣列＝各停。
-          pass_stations: f.__passStations ?? [],
+          // 此 route 的**完整行經序**（stop＋pass 依幾何真實順序交錯；pass 項標 pass:true
+          // ＝行經但不停靠，快車跳站——使用者規則：資訊面板站序含 pass 照真實順序）。
+          // 站數/圖論一律取**非 pass** 項（消費端自行 filter）。
+          stations: f.__stationsOrdered ?? f.__stations ?? [],
         })
       }
       return metaCache.get(f)

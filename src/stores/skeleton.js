@@ -64,7 +64,7 @@ export function buildConnectSkeleton(geojson) {
         id: r.route_id,
         name: r.route_name ?? '',
         color: r.route_color ?? '#e11d48',
-        stations: (r.stations ?? []).map((s) => s.station_id).filter((id) => coord.has(id)),
+        stations: (r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id).filter((id) => coord.has(id)),
       })
     }
   }
@@ -528,7 +528,7 @@ export function computePassThrough(geojson, opts = {}) {
       if (!r.route_id || routes.has(r.route_id)) continue
       routes.set(r.route_id, {
         ref: r.route_ref, name: r.route_name, color: r.route_color,
-        stations: (r.stations ?? []).map((s) => s.station_id).filter((id) => coord.has(id)),
+        stations: (r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id).filter((id) => coord.has(id)),
       })
     }
   }

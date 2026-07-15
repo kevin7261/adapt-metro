@@ -76,7 +76,7 @@ async function main() {
         // 環線閉合站會重複出現），計數需去重
         const rec = { city: s.city, country: s.country, route_id: r.route_id,
           route_name: r.route_name,
-          ours: new Set((r.stations || []).map((x) => x.station_id)).size,
+          ours: new Set((r.stations || []).filter((x) => !x.pass).map((x) => x.station_id)).size,
           lang: langOf(s.country) }
         if (r.wikipedia && /^[a-z-]{2,8}:/.test(r.wikipedia)) rec.wiki = r.wikipedia
         else if (r.wikidata && /^Q\d+$/.test(r.wikidata)) rec.wikidata = r.wikidata

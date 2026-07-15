@@ -21,6 +21,20 @@ OSM 日本 `name` 本就是日文（name=新宿、name:en=Shinjuku），故 name
 套用於 `station_name`、`route_name`、內部 `lineTag`。`*_local` 欄位不變（仍存原始 name）。
 要擴充到其他語言/國家，改 `LOCAL_NAME_COUNTRIES` regex。
 
+## 急行／快速不抓（使用者裁決 2026-07：「就一般車站就好」）
+
+東京（東京メトロ＋都営，`dedupeSeqs` 的 `keepExpress=false`）**不保留快車變體**——
+都営新宿線急行、東西線通勤快速等 fresh=0 的急行/快速 route 一律丟棄（各停已涵蓋
+全部車站，站數不變；也不產生 pass 標記）。與全球通則「名含快車字樣的變體保留成
+獨立 route＋pass」相反，是東京層例外；network 判準 `/東京メトロ|tokyo metro|都営|toei/i`，
+大阪等其他日本城市不受影響。
+
+## 大阪ニュートラム要收（使用者 2026-07）
+
+南港ポートタウン線 P（ニュートラム/New Tram，Osaka Metro 自家 AGT，OSM `route=light_rail`）
+——`LRT_ADDON_CITIES` 含 `osaka`，不被「有 subway 城市剔附掛 LRT」規則丟掉。
+詳見 [[metro-cities]]。
+
 ## 大阪等其他日本城市
 
 同 country=Japan → 站名/線名日文。大阪御堂筋線與北大阪急行南北線直通（站數計法差異）

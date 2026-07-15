@@ -227,10 +227,11 @@ const selectedRouteLists = computed(() => {
     }
   }
   const rows = routes.map((r) => {
-    const passIds = new Set((r.pass_stations ?? []).map((s) => s.station_id))
-    // 找不到原始段（理論上不會）退回整線站表，仍標 pass
+    // pass 已內嵌 r.stations（完整行經序、pass 項標 pass:true——依幾何真實順序交錯）
+    const passIds = new Set((r.stations ?? []).filter((s) => s.pass).map((s) => s.station_id))
+    // 找不到原始段（理論上不會）退回整線行經序（本身已含 pass 標記與正確順序）
     const base = ordered.length ? ordered : (r.stations ?? [])
-    const stations = base.map((s) => ({ ...s, pass: passIds.has(s.station_id) }))
+    const stations = base.map((s) => ({ ...s, pass: !!s.pass || passIds.has(s.station_id) }))
     return {
       route_id: r.route_id,
       name: r.route_name ?? r.route_id,

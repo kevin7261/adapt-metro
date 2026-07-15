@@ -77,6 +77,10 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   （不在基準查詢，由 `scripts/fetchSingaporeLrt.mjs`／`npm run metro:fetchsglrt` 補抓，
   route=monorail＋名稱含 LRT，**排除 Changi 機場 Skytrain**——那是航廈接駁 monorail）。
   monorail 非 light_rail → 不被 LRT 範圍規則剔除、自動保留。詳見 [[metro-osm-fetch]]。
+- **大阪ニュートラム（使用者 2026-07：「大阪的 New Tram 也要抓」）**：南港ポートタウン線
+  （ref P，Osaka Metro 自家 AGT，OSM 標 `route=light_rail`、relations 444913/9603948）——
+  大阪有 subway 原被「附掛純 LRT 剔除」規則丟掉，`LRT_ADDON_CITIES` 加 `osaka` 保留
+  （10 站 コスモスクエア–住之江公園、官方水藍 #00a0de）。
 
 ## 新增城市專屬規則時
 

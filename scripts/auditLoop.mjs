@@ -264,6 +264,7 @@ async function audit(city, country, wikiRow) {
         for (const r of f.properties?.routes || []) {
           if (!geomIds.has(r.route_id)) {
             geomIds.set(r.route_id, new Set())
+            // stations＝完整行經序（含 pass）——幾何頂點本就含 pass 站，兩者天然一致
             listIds.set(r.route_id, new Set((r.stations || []).map((s) => s.station_id)))
           }
         }
