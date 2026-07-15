@@ -1232,7 +1232,12 @@ function stationHtml(p) {
     ? `<br/>${p.station_name_local}` : ''
   const lines = asArray(p.lines)
   const linesHtml = lines.length ? `<br/>路線：${lines.join(', ')}` : ''
-  return `<strong>${p.station_name ?? '—'}</strong>${local}${linesHtml}`
+  // 共站（異名轉乘）：列出每個成員站名＋該名所屬路線
+  const mn = asArray(p.merged_names)
+  const merged = mn.length > 1
+    ? '<br/>共站：' + mn.map((m) => `<br/>　${m.station_name}（${(m.lines || []).join(', ')}）`).join('')
+    : ''
+  return `<strong>${p.station_name ?? '—'}</strong>${local}${linesHtml}${merged}`
 }
 function lineHtml(p) {
   const routes = asArray(p.routes)

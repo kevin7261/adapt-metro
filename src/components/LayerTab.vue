@@ -102,9 +102,19 @@ onMounted(() => {
       ? `<br/>${p.station_name_local}` : ''
     const lines = p.lines && p.lines !== '[]'
       ? `<br/>路線：${JSON.parse(p.lines).join(', ')}` : ''
+    // 共站（異名轉乘）：列出每個成員站名＋該名所屬路線，讓 hover 顯示完整共站內容
+    let merged = ''
+    if (p.merged_names && p.merged_names !== 'null') {
+      try {
+        const mn = JSON.parse(p.merged_names)
+        if (Array.isArray(mn) && mn.length > 1)
+          merged = '<br/>共站：' + mn.map((m) =>
+            `<br/>　${m.station_name}（${(m.lines || []).join(', ')}）`).join('')
+      } catch { /* leave merged empty */ }
+    }
     popup
       .setLngLat(e.features[0].geometry.coordinates)
-      .setHTML(`<strong>${p.station_name ?? '—'}</strong>${local}${lines}`)
+      .setHTML(`<strong>${p.station_name ?? '—'}</strong>${local}${lines}${merged}`)
       .addTo(map)
   })
   map.on('mouseleave', 'metro-stations', () => {
@@ -119,6 +129,14 @@ onMounted(() => {
   // the cursor and update it on move rather than to a fixed vertex.
   const linePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
   const showLine = (e) => {
+    // 車站點蓋在線之上——游標同時壓在車站上時只顯示車站 popup，不重複顯示線 popup
+    // （否則同一位置會冒出兩個 hover）。
+    if (map.getLayer('metro-stations') &&
+        map.queryRenderedFeatures(e.point, { layers: ['metro-stations'] }).length) {
+      linePopup.remove()
+      map.getCanvas().style.cursor = 'pointer'
+      return
+    }
     map.getCanvas().style.cursor = 'pointer'
     const p = e.features[0].properties
     map.setFilter('metro-lines-hover', ['==', ['get', 'seg_id'], p.seg_id ?? ''])

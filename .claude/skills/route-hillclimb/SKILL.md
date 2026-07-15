@@ -124,6 +124,13 @@ badge、工具列顯示 迭代 n/20（達上限未收斂會標註）。共用機
   （schematicGrid.js）沿新段平均放回。
 - 格是排名制 → cellAfter 與視窗大小無關，D3Tab 只在 resize 重算像素映射並快取 cellAfter。
 - 頂點含黃色交叉點；退化段（a===b 的小環）跳過。
+- **跨 reload 持久快取（D3Tab.vue，localStorage `d3tab-hc-cache-v1`）**：爬山＋後處理
+  （iteratePost）是最貴的計算，其輸出（cellAfter/stats，純資料、無畫布相依）依「資料
+  內容指紋＋變體」存進 localStorage——關 tab 再開／新建同視圖／重新整理都直接載回、
+  不重跑爬山（LLM 對齊視圖本來只為做指紋比對而跑爬山，載回快取後也免重算）。資料一變
+  指紋就變 → 自動 miss 重算覆寫，永不載到舊佈局；quota／無痕模式 try/catch 靜默退回
+  現算；LRU 上限 12 個佈局。**未涵蓋**：buildConnectSkeleton（識別耦合，仍重算，較便宜）
+  與 RWD 佈線（buildRwdMap，像素相依）。
 
 ## 修改此轉換時
 
