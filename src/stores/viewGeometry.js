@@ -18,6 +18,7 @@ import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
   buildHillClimb, compactGrid, buildHcGraph, iteratePost, buildEndpointStraighten,
   buildLineCompact, buildMedianGather, buildRectPolish, buildAxisAlign, buildAxisIlp,
+  straightenCompactLoop,
 } from './hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 
@@ -517,14 +518,13 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // 每條鏈（同 D3Tab）：該鏈結果 → 端點拉直 → 直線縮減 → 中位集中 → 縮減網格。
+    // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點拉直＋直線縮減＋中位集中＋縮減網格
+    // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
+    // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
     const base = POST[kind]
       ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
       : hc.cellAfter
-    const straightened = iteratePost(buildEndpointStraighten, skeleton, base, grid.cols, grid.rows).cellAfter
-    const lined = buildLineCompact(skeleton, straightened, grid.cols, grid.rows).cellAfter
-    const cells = buildMedianGather(skeleton, lined, grid.cols, grid.rows).cellAfter
-    const comp = compactGrid(cells, grid.cols, grid.rows)
+    const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
     const m = cellMapper(comp.cols, comp.rows)
     // 縮減網格: original network snapped to the compact cells (per-feature).
     const compPos = new Map()
@@ -553,14 +553,14 @@ export const RWD_VIEW_ORDER = [
 
 // View id → 中文 caption for the RWD gallery.
 export const RWD_VIEW_LABELS = {
-  'compact-hc': 'Hill Climbing縮減網格',
-  'rwd-hc': 'Hill Climbing縮減網格 · RWD 路網',
-  'compact-rect': '直角爬山縮減網格',
-  'rwd-rect': '直角爬山縮減網格 · RWD 路網',
-  'compact-align': '軸對齊縮減網格',
-  'rwd-align': '軸對齊縮減網格 · RWD 路網',
-  'compact-ilp': '整數規劃縮減網格',
-  'rwd-ilp': '整數規劃縮減網格 · RWD 路網',
+  'compact-hc': 'Hill Climbing循環縮減網格',
+  'rwd-hc': 'Hill Climbing循環縮減網格 · RWD 路網',
+  'compact-rect': '直角爬山循環縮減網格',
+  'rwd-rect': '直角爬山循環縮減網格 · RWD 路網',
+  'compact-align': '軸對齊循環縮減網格',
+  'rwd-align': '軸對齊循環縮減網格 · RWD 路網',
+  'compact-ilp': '整數規劃循環縮減網格',
+  'rwd-ilp': '整數規劃循環縮減網格 · RWD 路網',
 }
 // The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp').
 export const rwdCellCompact = (viewId) => (viewId ?? '').replace(/^(compact|rwd)-/, '') || 'hc'

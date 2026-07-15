@@ -316,10 +316,12 @@ const LINE_KIND = {
   'hc-line': 'hc', 'hc-rect-line': 'rect', 'hc-align-line': 'align',
   'hc-ilp-line': 'ilp', 'hc-llm-line': 'llm',
 }
-// 中位集中（左選單第 6 部份，鏈的第 3 步）：每條鏈一個 tab——灰/粉紅/藍點
-// 沿所在直線往中位點（黃色圓標位置）滑動：在水平線上只左右移、在垂直線上
-// 只上下移，H/V 與網格尺寸都不變（buildMedianGather）；縮減網格 tab 接在它
-// 之後（鏈 = 該鏈結果 → 端點拉直 → 直線縮減 → 中位集中 → 縮減網格）。
+// 中位集中（左選單第 6 部份，鏈的第 3 步）：每條鏈一個 tab——①有色點只要
+// 入射段 ≤2 且同軸（左右兩段水平/上下兩段垂直；藍點單段必可）就沿線往
+// 中位點（黃色圓標位置）滑動：水平線上只左右移、垂直線上只上下移；
+// ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變
+// （buildMedianGather）；縮減網格 tab 接在它之後
+// （鏈 = 該鏈結果 → 端點拉直 → 直線縮減 → 中位集中 → 縮減網格）。
 const GATHER_KIND = {
   'hc-gather': 'hc', 'hc-rect-gather': 'rect', 'hc-align-gather': 'align',
   'hc-ilp-gather': 'ilp', 'hc-llm-gather': 'llm',
@@ -503,7 +505,7 @@ const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isRWD.value) {
     return [
-      { id: 'hc-compact', label: 'Hill Climbing縮減網格' },
+      { id: 'hc-compact', label: '循環縮減網格' },
       { id: 'rwd', label: 'RWD 路網' },
       // LLM 調整（AI 改網格長寬）: the badge carries the model that produced it
       { id: 'rwd-llm', label: `LLM調整${gridInfo.value ? ` · ${gridInfo.value.model}` : ''}` },
@@ -541,7 +543,7 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-align-line', label: '軸對齊直線縮減' },
       { id: 'hc-ilp-line', label: '整數規劃直線縮減' },
       { id: 'hc-llm-line', label: 'LLM 對齊直線縮減' },
-      // 中位集中：灰/粉紅/藍點沿所在直線往中位點滑動（見 GATHER_KIND）
+      // 中位集中：有色點（≤2 同軸段）沿線滑＋直線整條垂直移，往中位點（見 GATHER_KIND）
       { header: '中位集中' },
       { id: 'hc-gather', label: 'Hill Climbing中位集中' },
       { id: 'hc-rect-gather', label: '直角爬山中位集中' },
@@ -817,9 +819,12 @@ async function render() {
     // 每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，走同一套
     // 硬規則、迭代到不動點。Applies to the -end tabs AND as step 1 under
     // 直線縮減/中位集中/縮減網格/RWD.
+    // RWD 不走下面 ①〜④ 的單趟鏈——改建立在「端點拉直+直線縮減+中位集中+縮減
+    // 網格循環」（straightenCompactLoop）的結果上（使用者 2026-07 裁決：RWD 要選
+    // 端+直+中+縮 循環的那個結果），見下方 loop 區塊的 isRWD fallback。
     {
       const endKind = END_KIND[mode.value] ?? LINE_KIND[mode.value]
-        ?? GATHER_KIND[mode.value] ?? (hcCompact.value ? rwdCompactKey.value : null)
+        ?? GATHER_KIND[mode.value] ?? (hcCompact.value && !isRWD.value ? rwdCompactKey.value : null)
       if (endKind) {
         if (!cachedEndp[endKind]) cachedEndp[endKind] = iteratePost(buildEndpointStraighten, cachedSkeleton, cells, nC, nR)
         cells = cachedEndp[endKind].cellAfter
@@ -834,19 +839,19 @@ async function render() {
     // under 中位集中/縮減網格/RWD.
     {
       const lineKind = LINE_KIND[mode.value] ?? GATHER_KIND[mode.value]
-        ?? (hcCompact.value ? rwdCompactKey.value : null)
+        ?? (hcCompact.value && !isRWD.value ? rwdCompactKey.value : null)
       if (lineKind) {
         if (!cachedLine[lineKind]) cachedLine[lineKind] = buildLineCompact(cachedSkeleton, cells, nC, nR)
         cells = cachedLine[lineKind].cellAfter
         lineStats.value = cachedLine[lineKind].stats
       }
     }
-    // ③ 中位集中: 灰/粉紅/藍點沿所在直線往中位點滑動（水平線只左右移、
-    // 垂直線只上下移），H/V 與網格尺寸不變（buildMedianGather）。Applies to
-    // the -gather tabs AND under 縮減網格/RWD.
+    // ③ 中位集中: 有色點（入射段 ≤2 且同軸；藍點必可）沿線滑動＋串接直線
+    // 整條垂直平移，都往中位點；H/V 與網格尺寸不變（buildMedianGather）。
+    // Applies to the -gather tabs AND under 縮減網格/RWD.
     {
       const gatherKind = GATHER_KIND[mode.value]
-        ?? (hcCompact.value ? rwdCompactKey.value : null)
+        ?? (hcCompact.value && !isRWD.value ? rwdCompactKey.value : null)
       if (gatherKind) {
         if (!cachedGather[gatherKind]) cachedGather[gatherKind] = buildMedianGather(cachedSkeleton, cells, nC, nR)
         cells = cachedGather[gatherKind].cellAfter
@@ -855,7 +860,7 @@ async function render() {
     }
     // ④ 縮減網格: compacts the CURRENT layout (端點拉直→直線縮減→中位集中
     // applied above): the hc chain's, or the post-pass/LLM one on the 縮減 tabs.
-    if (hcCompact.value) {
+    if (hcCompact.value && !isRWD.value) {
       const ckey = rwdCompactKey.value
       if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
       cells = cachedCompact[ckey].cellAfter
@@ -868,13 +873,15 @@ async function render() {
     // hcCompact), alternate 直線縮減 → 端點拉直 → compactGrid until a round
     // moves nothing (straightenCompactLoop).
     {
-      const loopKind = LOOP_KIND[mode.value]
+      // RWD（含其「縮減網格」輸入視圖）也走這裡：建立在該鏈的循環結果之上。
+      const loopKind = LOOP_KIND[mode.value] ?? (isRWD.value ? rwdCompactKey.value : null)
       if (loopKind) {
         if (!cachedLoop[loopKind]) cachedLoop[loopKind] = straightenCompactLoop(cachedSkeleton, cells, nC, nR)
         cells = cachedLoop[loopKind].cellAfter
         nC = cachedLoop[loopKind].cols
         nR = cachedLoop[loopKind].rows
         loopStats.value = cachedLoop[loopKind].stats
+        if (isRWD.value) hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
       }
     }
     // 每一個網格 tab 都畫（使用者規則）：目前 tab 最終佈局的有色點（頂點都
@@ -1679,8 +1686,9 @@ onBeforeUnmount(() => {
           v-if="!lineStats.converged">（達上限未收斂）</template>
       </span>
 
-      <!-- 中位集中: gray/pink/blue vertices slide along their line, and whole
-           stitched lines shift perpendicularly, toward the median -->
+      <!-- 中位集中: on-a-line coloured vertices (≤2 same-axis segments) slide
+           along their line, and whole stitched lines shift perpendicularly,
+           toward the median -->
       <span v-if="isHC && GATHER_KIND[mode] && gatherStats" class="hc-stats">
         中位集中 移動 {{ gatherStats.movedPts }} 點 · {{ gatherStats.movedLines }} 線
         · 迭代 {{ gatherStats.iters }}/{{ gatherStats.iterCap }}<template
@@ -1766,7 +1774,7 @@ onBeforeUnmount(() => {
       <span class="ma-label">資料來源：</span>
       <span class="ma-source">
         {{ ownData ? `${layer?.name}（匯入 JSON）`
-          : isRWD ? (hcLayer ? `${hcLayer.name}（Hill Climbing縮減網格）` : (layer?.sourceLayerId ?? '—'))
+          : isRWD ? (hcLayer ? `${hcLayer.name}（端點拉直+直線縮減+中位集中+縮減網格循環）` : (layer?.sourceLayerId ?? '—'))
           : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
           : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
       </span>

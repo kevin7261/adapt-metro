@@ -31,7 +31,7 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 11 // 11: 中位集中（原交點集中）加整條直線垂直往中位點移；四步鏈 = 端點拉直→直線縮減→中位集中→縮減網格（2026-07）
+const VIEWS_VERSION = 12 // 12: 中位集中點滑動放寬——任何有色點入射段≤2且同軸即可沿線滑（藍點必可），不再限灰/粉紅/藍（2026-07）
 const strHash = (s) => {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0
@@ -138,7 +138,9 @@ async function main() {
 
     // 8 RWD Maps views (4 縮減網格變體 × 縮減網格|RWD 路網)
     try {
-      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, fp, false)) === 'reused' ? reused++ : rebuilt++
+      // fp 加演算法版本後綴：RWD 縮圖改建立在 straightenCompactLoop（端+直+中+縮
+      // 循環）上（2026-07），純資料指紋不會觸發重算，靠這個後綴強制全量重建。
+      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v2`, false)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {
       rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })

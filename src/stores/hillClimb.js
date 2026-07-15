@@ -979,13 +979,14 @@ export function buildLineCompact(skeleton, cells, cols, rows) {
 
 // 中位集中 one sweep — two move kinds, both TOWARD the median point (the
 // yellow marker: per-axis median of every coloured vertex):
-// ① 灰（分隔）/粉紅（轉折）/藍（端點）vertices slide ALONG their straight
-// line — all incident segments horizontal → left/right only (toward the
-// median column); all vertical → up/down only. Mixed (a real bend) or
-// structural vertices (red/purple/yellow) never move. Sliding keeps every
-// incident segment straight. Each move goes through makeMover.validMove
-// (no crossing/occlusion, quadrant + edge order preserved — a vertex can
-// never slide past its neighbour).
+// ① ANY coloured vertex with AT MOST TWO incident segments, all on one axis
+// (只有左右兩條水平段、或上下兩條垂直段——紅轉乘/紫切點若剛好躺在直線上也
+// 算；藍端點只有一段，一定可動), slides ALONG that line — horizontal →
+// left/right only (toward the median column); vertical → up/down only.
+// Mixed axes (a real bend) or ≥3 segments (branches, yellow crossings)
+// never move. Sliding keeps every incident segment straight. Each move goes
+// through makeMover.validMove (no crossing/occlusion, quadrant + edge order
+// preserved — a vertex can never slide past its neighbour).
 // ② whole stitched straight LINES (lineComponents — same stitching as
 // 直線縮減) shift PERPENDICULARLY toward the median: horizontal lines
 // up/down toward the median row, vertical lines left/right. Guards: the
@@ -997,7 +998,6 @@ function medianGatherPass(skeleton, cells, cols, rows) {
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size }
   const M = makeMover(pos, segs, inc, cols, rows)
-  const cls = skeleton.stationClass
   const median = (vals) => {
     const s = [...vals].sort((a, b) => a - b)
     const m = s.length >> 1
@@ -1006,14 +1006,12 @@ function medianGatherPass(skeleton, cells, cols, rows) {
   const ps = [...pos.values()]
   const med = [median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))]
   const isAlong = (ax) => (A, B) => A[1 - ax] === B[1 - ax] && A[ax] !== B[ax]
-  // ── ① 點：灰/粉紅/藍沿所在直線往中位點滑動 ──
+  // ── ① 點：入射段 ≤2 且同軸的有色點（藍點必然只有一段）沿線往中位點滑動 ──
   let movedPts = 0
   const ids = [...pos.keys()].sort()
   for (const v of ids) {
-    const c = cls.get(v)
-    if (c !== 'gray' && c !== 'pink' && c !== 'blue') continue
     const vsegs = inc.get(v).map((si) => segs[si])
-    if (!vsegs.length) continue
+    if (!vsegs.length || vsegs.length > 2) continue // 只有左右/上下兩段（或藍點一段）可沿線滑
     const pv = pos.get(v)
     const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
     for (const ax of [0, 1]) {
@@ -1070,8 +1068,9 @@ function medianGatherPass(skeleton, cells, cols, rows) {
 // each sweep from the current layout; a blocked vertex/line can move once
 // its neighbour has slid away) until a sweep moves nothing; POST_ITER_CAP
 // as backstop. Grid dims never change and the H/V count never drops — the
-// pass only pulls gray/pink/blue vertices ALONG their lines and whole
-// stitched lines PERPENDICULARLY toward the median point (the yellow marker).
+// pass only pulls on-a-line vertices (≤2 same-axis incident segments; blue
+// endpoints always qualify) ALONG their lines and whole stitched lines
+// PERPENDICULARLY toward the median point (the yellow marker).
 export function buildMedianGather(skeleton, cells, cols, rows) {
   let cur = cells
   let iters = 0, moved = 0, movedPts = 0, movedLines = 0

@@ -27,8 +27,8 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, compactGrid, iteratePost, buildEndpointStraighten,
-  buildLineCompact, buildMedianGather, buildRectPolish, buildAxisAlign, buildAxisIlp,
+  buildHillClimb, iteratePost,
+  buildRectPolish, buildAxisAlign, buildAxisIlp, straightenCompactLoop,
 } from '../src/stores/hillClimb.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -81,8 +81,9 @@ const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
 
 // The RWD view compacts the layout its layer.compact picks — the HC result,
 // a post-pass ('rect'/'align'/'ilp'), or the offline LLM 對齊 (llmviews
-// file) — then, same as D3Tab, EVERY chain runs the 4-step tail
-// 端點拉直 → 直線縮減 → 中位集中 → compactGrid.
+// file) — then, same as D3Tab, EVERY chain runs the 端點拉直+直線縮減+
+// 中位集中+縮減網格 **循環到不動點**（straightenCompactLoop——使用者 2026-07
+// 裁決 RWD 建立在循環結果上，fingerprint 的 cols/rows 必須跟 D3Tab 一致）。
 let baseCells
 if (POST_BUILD[compact]) {
   baseCells = iteratePost(POST_BUILD[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
@@ -97,10 +98,7 @@ if (POST_BUILD[compact]) {
 } else {
   baseCells = hc.cellAfter
 }
-baseCells = iteratePost(buildEndpointStraighten, skeleton, baseCells, grid.cols, grid.rows).cellAfter
-baseCells = buildLineCompact(skeleton, baseCells, grid.cols, grid.rows).cellAfter
-baseCells = buildMedianGather(skeleton, baseCells, grid.cols, grid.rows).cellAfter
-const comp = compactGrid(baseCells, grid.cols, grid.rows)
+const comp = straightenCompactLoop(skeleton, baseCells, grid.cols, grid.rows)
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows
 
