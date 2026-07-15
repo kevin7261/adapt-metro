@@ -21,7 +21,7 @@ async function load() {
   if (state.value !== 'idle') return
   state.value = 'loading'
   try {
-    const res = await fetch(assetUrl(`data/metro/views/${props.entry.id}.json`))
+    const res = await fetch(assetUrl(`data/metro/views/${props.entry.id}.json`), { cache: 'no-cache' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const json = await res.json()
     labels = viewLabels(json.tilt ?? 0)

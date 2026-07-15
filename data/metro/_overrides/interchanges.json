@@ -444,6 +444,86 @@
     [
       "n209191849",
       "n11105993015"
+    ],
+    [
+      "n591997437",
+      "n7618672836"
+    ],
+    [
+      "n3918987127",
+      "n591997974"
+    ],
+    [
+      "n7613305938",
+      "n6923621199"
+    ],
+    [
+      "n591992435",
+      "n7656750828"
+    ],
+    [
+      "n591996634",
+      "n7654134349"
+    ],
+    [
+      "n591997397",
+      "n3918908280"
+    ],
+    [
+      "n591998010",
+      "n7142969936"
+    ],
+    [
+      "n661821943",
+      "n7653313161"
+    ],
+    [
+      "n1049087987",
+      "n8392444384"
+    ],
+    [
+      "n2024979388",
+      "n4796291635"
+    ],
+    [
+      "n2292627889",
+      "n7647523436"
+    ],
+    [
+      "n4258554924",
+      "n7638781755"
+    ],
+    [
+      "n4262898327",
+      "n7535641666"
+    ],
+    [
+      "n4983147337",
+      "n7618745568"
+    ],
+    [
+      "n7639610806",
+      "n7502186984"
+    ],
+    [
+      "n5336193667",
+      "n6943277291"
+    ],
+    [
+      "n5336134812",
+      "n7637061487"
+    ],
+    [
+      "n5829927771",
+      "n7142969935"
+    ],
+    [
+      "n7630633550",
+      "n7639619374"
+    ],
+    [
+      "n7644395228",
+      "n7644739000"
     ]
   ],
   "_pairs": [
@@ -468,6 +548,8 @@
     "St Petersburg Zvenigorodskaya(5)↔Pushkinskaya(1) 轉乘",
     "São Paulo Paulista - Pernambucanas（4號黃線）↔ Consolação（2號綠線）轉乘站，異名同站",
     "[全域近距掃描 2026-07 批次] 新增 89 組 <200m 跨線共站：Moscow/Buenos Aires/Tokyo/Bangkok/Tashkent/Minsk/Rome/Manila/Kyiv/Barcelona/Bucharest/德國 Hbf/中日站名語言重複…；已排除 NYC(strict 另處理)、Paris/Chicago/Marseille/London 等疑似非轉乘偽陽性。",
-    "Minsk Plošča Lienina（1號線）↔ Vakzaĺnaja（3號線）火車站轉乘，~340m 異名同站"
+    "Minsk Plošča Lienina（1號線）↔ Vakzaĺnaja（3號線）火車站轉乘，~340m 異名同站",
+    "NYC 42nd St Shuttle (S) 兩站皆為大複合站的一部分：Times Square(S)↔Times Square–42nd Street(1/2/3/7/N/Q/R/W)、Grand Central(S)↔Grand Central–42nd Street(4/5/6/7)",
+    "NYC 官方轉乘複合站（MTA map 對照，異名 free-transfer）：14St-UnionSq↔UnionSq(L)、JacksonHts↔74St、EssexSt↔DelanceySt、Bway-Lafayette↔Bleecker、59St(456)↔LexAv-59(NRW)、BklynBridge↔ChambersSt(JZ)、CourtSq(EF↔7G)、14St(ACE↔L)、14St(FM↔L)、SouthFerry↔Whitehall、BoroughHall↔CourtSt、LorimerSt↔MetropolitanAv、51St↔53St-Lex、JuniusSt↔LivoniaAv、4thAv↔9thSt、62St↔NewUtrecht、Bryant Pk↔5thAv(7)、FultonSt(G)↔LafayetteAv(C)"
   ]
 }

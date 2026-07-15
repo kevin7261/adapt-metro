@@ -18,7 +18,7 @@ function withZh(s) {
 }
 
 export function loadMetroCatalog() {
-  catalogPromise ??= fetch(assetUrl('data/metro/index.json'))
+  catalogPromise ??= fetch(assetUrl('data/metro/index.json'), { cache: 'no-cache' })
     .then((r) => {
       if (!r.ok) throw new Error(`index.json ${r.status}`)
       return r.json()

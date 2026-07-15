@@ -319,6 +319,7 @@ function addMetroSourceLayers(data) {
   map.addLayer({
     id: 'metro-labels', source: 'metro', type: 'symbol',
     filter: ['==', ['geometry-type'], 'Point'],
+    minzoom: 13, // 站名只在 zoom ≥ 13 顯示，低 zoom 保持路網總覽不被文字塞滿
     layout: {
       'text-field': ['coalesce', ['get', 'station_name'], ''],
       'text-size': 11,

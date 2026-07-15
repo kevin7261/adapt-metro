@@ -15,7 +15,7 @@ const catalog = ref(null)   // data/metro/views/index.json → systems[]
 const error = ref(null)
 onMounted(async () => {
   try {
-    const res = await fetch(assetUrl('data/metro/views/index.json'))
+    const res = await fetch(assetUrl('data/metro/views/index.json'), { cache: 'no-cache' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     catalog.value = (await res.json()).systems ?? []
   } catch (err) {
