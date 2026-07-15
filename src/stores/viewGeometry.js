@@ -298,11 +298,12 @@ export const VIEW_ORDER = [
 
 /**
  * Compute the 8 Hill Climbing views for one city — the 4 HC-layer tabs
- * (格網化後 input → Hill Climbing → 縮減網格 → 端點拉直) for both variants
- * (orig / rot). Mirrors D3Tab's hill-climbing pipeline: schematic gridding →
- * buildHillClimb on the integer cells → compactGrid → buildEndpointStraighten,
- * mapping cells to pixel cell-centres and re-spreading black through-stations
- * (placeBlacks) each stage.
+ * (格網化後 input → Hill Climbing → Hill Climbing端點拉直 → Hill Climbing縮減網格)
+ * for both variants (orig / rot). Mirrors D3Tab's hill-climbing chain:
+ * schematic gridding → buildHillClimb on the integer cells →
+ * buildEndpointStraighten (endpoint-only H/V pass) → compactGrid over the
+ * straightened layout, mapping cells to pixel cell-centres and re-spreading
+ * black through-stations (placeBlacks) each stage.
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
@@ -365,22 +366,23 @@ export function computeCityHcViews(geojson, opts = {}) {
     placeBlacks(skeleton, hcPos, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
 
-    // 3) 縮減網格 — drop colour-free rows/cols, re-map over the smaller grid.
-    const comp = compactGrid(hc.cellAfter, grid.cols, grid.rows)
+    // 3) Hill Climbing端點拉直 — degree-1 route endpoints move so their single
+    // segment turns H/V, through the same hard rules, iterated to a fixed
+    // point (buildEndpointStraighten). Same full grid as the HC view.
+    const endp = iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows)
+    const endpPos = new Map()
+    for (const [id, cell] of endp.cellAfter) endpPos.set(id, m1.cellPx(cell))
+    placeBlacks(skeleton, endpPos, snap)
+    views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, m1.sep)
+
+    // 4) Hill Climbing縮減網格 — drop colour-free rows/cols from the
+    // straightened layout, re-map over the smaller grid.
+    const comp = compactGrid(endp.cellAfter, grid.cols, grid.rows)
     const m2 = cellMapper(comp.cols, comp.rows)
     const compPos = new Map()
     for (const [id, cell] of comp.cellAfter) compPos.set(id, m2.cellPx(cell))
     placeBlacks(skeleton, compPos, snap)
     views[`compact-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m2.sep)
-
-    // 4) 端點拉直 — NEW view on top of the 縮減 (which itself stays untouched):
-    // degree-1 route endpoints move so their single segment turns H/V, through
-    // the same hard rules, iterated to a fixed point (buildEndpointStraighten).
-    const endp = iteratePost(buildEndpointStraighten, skeleton, comp.cellAfter, comp.cols, comp.rows)
-    const endpPos = new Map()
-    for (const [id, cell] of endp.cellAfter) endpPos.set(id, m2.cellPx(cell))
-    placeBlacks(skeleton, endpPos, snap)
-    views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, m2.sep)
 
     stats[variant] = {
       before: +(hc.stats?.before ?? 0).toFixed(1),
@@ -399,8 +401,8 @@ export function computeCityHcViews(geojson, opts = {}) {
 
 // The 8 Hill Climbing views, in display order: variant (原始/旋轉) × stage.
 export const HC_VIEW_ORDER = [
-  'grid-orig-post', 'hc-orig', 'compact-orig', 'endp-orig',
-  'grid-rot-post', 'hc-rot', 'compact-rot', 'endp-rot',
+  'grid-orig-post', 'hc-orig', 'endp-orig', 'compact-orig',
+  'grid-rot-post', 'hc-rot', 'endp-rot', 'compact-rot',
 ]
 
 // View id → 中文 caption for the HC gallery. N° filled per city.
@@ -409,12 +411,12 @@ export function hcViewLabels(tilt) {
   return {
     'grid-orig-post': '原始 · 格網化後',
     'hc-orig': '原始 · Hill Climbing',
-    'compact-orig': '原始 · Hill Climbing縮減',
-    'endp-orig': '原始 · 端點拉直',
+    'endp-orig': '原始 · Hill Climbing端點拉直',
+    'compact-orig': '原始 · Hill Climbing縮減網格',
     'grid-rot-post': `${rot} · 格網化後`,
     'hc-rot': `${rot} · Hill Climbing`,
-    'compact-rot': `${rot} · Hill Climbing縮減`,
-    'endp-rot': `${rot} · 端點拉直`,
+    'endp-rot': `${rot} · Hill Climbing端點拉直`,
+    'compact-rot': `${rot} · Hill Climbing縮減網格`,
   }
 }
 
@@ -495,9 +497,10 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
+    // hc 鏈：HC → 端點拉直 → 縮減網格（同 D3Tab）；後處理鏈仍從 HC 分支。
     const cells = POST[kind]
       ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-      : hc.cellAfter
+      : iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
     const comp = compactGrid(cells, grid.cols, grid.rows)
     const m = cellMapper(comp.cols, comp.rows)
     // 縮減網格: original network snapped to the compact cells (per-feature).
