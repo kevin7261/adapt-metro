@@ -76,10 +76,15 @@ export const RAILWAY_OVERLAY = {
   attribution: '© OpenRailwayMap contributors',
 }
 
+// 自組 style（raster/純色）必須自帶 glyphs endpoint，否則站名等 symbol 文字圖層
+// 在這些底圖上無法渲染（向量底圖的 glyphs 由其 style URL 自帶）。
+const GLYPHS = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf'
+
 // A plain solid-color background (no tiles) — a clean canvas behind the metro data.
 export function solidStyle(color) {
   return {
     version: 8,
+    glyphs: GLYPHS,
     sources: {},
     layers: [{ id: 'background', type: 'background', paint: { 'background-color': color } }],
   }
@@ -91,6 +96,7 @@ export function styleFor(basemap) {
   if (basemap.style) return basemap.style
   return {
     version: 8,
+    glyphs: GLYPHS,
     sources: {
       basemap: { type: 'raster', tiles: basemap.raster.tiles, tileSize: 256,
         attribution: basemap.raster.attribution || '' },

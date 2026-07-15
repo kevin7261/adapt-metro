@@ -6,7 +6,6 @@ import { layerData } from '../stores/layerData'
 import { prettyContinent, continentZh, loadMapsIndex } from '../stores/metroCatalog'
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
-import { computePassThrough } from '../stores/skeleton'
 import OrientationRose from './OrientationRose.vue'
 import MIcon from './MIcon.vue'
 
@@ -109,12 +108,6 @@ const selectedEntries = computed(() => {
 // Clicking a feature auto-opens the Object tab (only when something is selected).
 watch(selectedProps, (v) => { if (v) activeTab.value = 'object' })
 
-// Pass-through relation (chord-proximity, skeleton.js): per-station stop/pass
-// routes + per-route merged station order. Computed once per dataset.
-const passThrough = computed(() => {
-  const d = layerData[layer.value?.id]
-  return d ? computePassThrough(d) : null
-})
 // 車站物件：停靠此站的服務（`line_ids`）vs 行經不停（`pass_line_ids`）——**用 route_id 解析
 // 出確切的線**（不用 ref：機捷普通車/直達車都 ref「A」會撞、分不出）。直接讀車站儲存欄位、
 // 不再幾何猜測。找不到 id 退玫瑰紅。

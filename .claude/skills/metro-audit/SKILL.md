@@ -150,7 +150,8 @@ LRT 範圍、城市合併（桃園→台北）、**同一城市＝同一系統**
 ## 全量報告（`metro:verify`）
 
 產出 `data/metro/verify_report.json`（結構化）＋ `.md`（人看的，依嚴重度排序，附
-wiki／urbanrail 連結）。severity：`missing`／`no_line`／`vertex`／`order`／`zero`／`low`
+wiki／urbanrail 連結）。severity：`missing`／`no_line`／`vertex`／`broken`（路線連續不變式：
+每條 route 的路段聯集必須單一連通、hover 不得斷開，union-find 檢查）／`order`／`zero`／`low`
 ／`high` ＋ `extras`（本資料有、wiki 無——多為 OSM 有標但非 wiki 定義的系統或城市名變體）。
 
 **判讀注意**：wiki 數字可能過期（flag 是「請看一下」不是「一定錯」）；一城一檔天生 `high`；

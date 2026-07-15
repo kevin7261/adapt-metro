@@ -155,6 +155,39 @@ async function main() {
         note: `${orphans.length}/${pts.length} 站不屬於任何路線（違反不變式：車站必有路線）`,
         urbanrail: urbanrailSearch(s.city) })
     }
+    // invariant: 路線連續（使用者規則）——每條 route 的「所有含它的路段」聯集必須是
+    // 單一連通分量（路段只含該段車站、中間不斷）；斷開＝hover 整條線會出現缺口。
+    {
+      const segsOf = new Map() // route_id -> [seq,...]
+      for (const f of sys.features || []) {
+        if (f.geometry?.type !== 'MultiLineString') continue
+        for (const r of f.properties?.routes || []) {
+          if (!segsOf.has(r.route_id)) segsOf.set(r.route_id, { name: r.route_name || r.route_id, seqs: [] })
+          segsOf.get(r.route_id).seqs.push(...f.geometry.coordinates)
+        }
+      }
+      const broken = []
+      for (const [rid, { name, seqs }] of segsOf) {
+        const parent = new Map()
+        const find = (x) => { let r = x; while (parent.get(r) !== r) r = parent.get(r); let c = x
+          while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n } return r }
+        const uni = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent.set(rb, ra) }
+        for (const seq of seqs) {
+          const ks = seq.map((c) => c.join(','))
+          for (const k of ks) if (!parent.has(k)) parent.set(k, k)
+          for (let i = 1; i < ks.length; i++) uni(ks[i - 1], ks[i])
+        }
+        const comps = new Set([...parent.keys()].map(find)).size
+        if (comps > 1) broken.push({ rid, name, comps })
+      }
+      if (broken.length) {
+        flags.push({ severity: 'broken', city: s.city, country: s.country,
+          our_file: s.file, our_stations: s.station_count, our_lines: s.line_count,
+          note: `${broken.length} 條線的路段聯集不連續（hover 會斷開）：` +
+            broken.slice(0, 3).map((b) => `${b.name} 斷成 ${b.comps} 段`).join('、'),
+          urbanrail: urbanrailSearch(s.city) })
+      }
+    }
     // per-route order verdicts are computed by the build (before overlap
     // segmentization) and carried on each segment's routes[] meta
     const seenRoutes = new Set()
@@ -189,7 +222,7 @@ async function main() {
   //   1. wiki 有列的城市不可能沒資料  -> severity `missing`
   //   2. 車站不可能沒有路線          -> severity `no_line`
   // 必驗項目：站序可疑 (`order`) -> 用 Wikipedia + urbanrail 人工確認
-  const order = { missing: 0, no_line: 1, vertex: 2, order: 3, zero: 4, low: 5, high: 6 }
+  const order = { missing: 0, no_line: 1, vertex: 2, broken: 3, order: 4, zero: 5, low: 6, high: 7 }
   flags.sort((a, b) => (order[a.severity] - order[b.severity]) ||
     ((b.wiki_stations || 0) - (a.wiki_stations || 0)))
 
@@ -206,12 +239,14 @@ async function main() {
         .reduce((n, f) => n + f.stations_without_line, 0),
       systems_with_stations_without_line: nSev('no_line'),
       systems_with_non_station_vertices: nSev('vertex'),
+      systems_with_broken_routes: nSev('broken'),
     },
     order_suspect_systems: nSev('order'),
     by_severity: {
       missing: nSev('missing'),
       no_line: nSev('no_line'),
       vertex: nSev('vertex'),
+      broken: nSev('broken'),
       order: nSev('order'),
       zero: nSev('zero'),
       low: nSev('low'),

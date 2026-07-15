@@ -2,13 +2,147 @@
   "patches": [
     {
       "relation": 15624911,
-      "set": { "ref": "L2", "colour": "#48a23e" },
+      "set": {
+        "ref": "L2",
+        "colour": "#48a23e"
+      },
       "note": "Panama City: 'Ramal línea 2 : Corredor Sur → Aeropuerto' (OSM relation 15624911) is the 3-station airport branch of Line 2 (shares Corredor Sur with the main L2 route; ITSE/Aeropuerto are its own stations). Upstream OSM tags have no colour and no ref, so it grouped as its own untagged line and fell back to the default red — visually indistinguishable from Line 1. Wikipedia/mapa-metro.com confirm the airport branch is operationally part of Line 2 and shares its green livery. Setting ref=L2 lets it merge into Line 2's group via the normal same-network+ref grouping (colour then inherited from the coloured variant); colour is set directly too as belt-and-braces. Remove once upstream OSM adds these tags."
     },
     {
       "relation": 7869622,
-      "set": { "colour": "red" },
+      "set": {
+        "colour": "red"
+      },
       "note": "Bursaray B2 route_master (r7869622, ref=B2 BursaRay 2): OSM tags colour=black, a placeholder (no line is black). The master colour overrides the variant colours, so the patch must target the master, not the route relations 7869620/7869621. Bursaray is one branching system sharing an eastern trunk; per user, both branches use B1's red. Setting colour=red (→ #e6194b). Remove if upstream OSM sets a real colour."
+    },
+    {
+      "relation": 9437778,
+      "set": {
+        "name": "板南線",
+        "name:zh": "板南線",
+        "name:zh-Hant": "板南線"
+      },
+      "note": "Taipei BL master：OSM name「臺北捷運 南港-板橋-土城線」為工程路線名；官方線名＝板南線（trtc.com.tw 路網圖，2026-07 使用者規則：路線名一律用官方名）。"
+    },
+    {
+      "relation": 4264893,
+      "set": {
+        "name": "文湖線",
+        "name:zh": "文湖線",
+        "name:zh-Hant": "文湖線"
+      },
+      "note": "Taipei BR master：OSM name「捷運文湖線」冠「捷運」前綴；官方線名＝文湖線。"
+    },
+    {
+      "relation": 4250358,
+      "set": {
+        "name": "松山新店線",
+        "name:zh": "松山新店線",
+        "name:zh-Hant": "松山新店線"
+      },
+      "note": "Taipei G master：OSM name 竟為端點站名「台電大樓」（上游命名錯誤）；官方線名＝松山新店線。"
+    },
+    {
+      "relation": 4250380,
+      "set": {
+        "name": "小碧潭支線",
+        "name:zh": "小碧潭支線",
+        "name:zh-Hant": "小碧潭支線"
+      },
+      "note": "Taipei G 支線 relation：OSM name「台北捷運小碧潭支線」冠系統前綴；官方＝小碧潭支線。"
+    },
+    {
+      "relation": 10658528,
+      "set": {
+        "name": "環狀線",
+        "name:zh": "環狀線",
+        "name:zh-Hant": "環狀線"
+      },
+      "note": "Taipei Y master：OSM name「臺北捷運環狀線（大坪林」截斷且含變體註記；官方線名＝環狀線。"
+    },
+    {
+      "relation": 4250359,
+      "set": {
+        "name": "中和新蘆線",
+        "name:zh": "中和新蘆線",
+        "name:zh-Hant": "中和新蘆線"
+      },
+      "note": "Taipei O master（南勢角–迴龍）：OSM name「台北捷運中和新蘆線(蘆洲)」冠前綴＋錯誤分支註記；官方線名＝中和新蘆線（迴龍/蘆洲雙分支同名）。"
+    },
+    {
+      "relation": 4250352,
+      "set": {
+        "name": "中和新蘆線",
+        "name:zh": "中和新蘆線",
+        "name:zh-Hant": "中和新蘆線"
+      },
+      "note": "Taipei O 蘆洲分支 relation（南勢角–蘆洲）：同上，官方線名＝中和新蘆線。"
+    },
+    {
+      "relation": 5576487,
+      "set": {
+        "name": "淡海輕軌藍海線",
+        "name:zh": "淡海輕軌藍海線",
+        "name:zh-Hant": "淡海輕軌藍海線"
+      },
+      "note": "New Taipei V master（紅樹林–淡水漁人碼頭 12 站，經濱海沙崙）：OSM name 只寫「淡海輕軌」；此營運模式為官方藍海線。"
+    },
+    {
+      "relation": 9154523,
+      "set": {
+        "name": "淡海輕軌綠山線",
+        "name:zh": "淡海輕軌綠山線",
+        "name:zh-Hant": "淡海輕軌綠山線"
+      },
+      "note": "New Taipei V relation（紅樹林–崁頂 11 站）：OSM name「淡海輕軌 紅樹林-崁頂」；官方＝綠山線（V01–V11）。"
+    },
+    {
+      "relation": 21066082,
+      "set": {
+        "name": "三鶯線",
+        "name:zh": "三鶯線",
+        "name:zh-Hant": "三鶯線"
+      },
+      "note": "New Taipei LB master：OSM name「捷運三鶯線」冠「捷運」前綴；官方線名＝三鶯線。"
+    },
+    {
+      "relation": 8487050,
+      "set": {
+        "name": "桃園國際機場捷運直達車",
+        "name:zh": "桃園國際機場捷運直達車",
+        "name:zh-Hant": "桃園國際機場捷運直達車"
+      },
+      "note": "Taoyuan A 快車 relation：組檔顯示「桃園國際機場捷運（快車）」；官方稱直達車。"
+    },
+    {
+      "relation": 9437207,
+      "set": {
+        "name": "淡水信義線",
+        "name:zh": "淡水信義線",
+        "name:zh-Hant": "淡水信義線",
+        "ref": "R"
+      },
+      "note": "Taipei 新北投支線 route_master：OSM 把「捷運紅線 (新北投支線)」整串塞進 name/ref。設 ref=R 使其群組與紅線主線「快/慢車合併」為同一條線；master name 必須設為主線官方名（淡水信義線）——合併後代表 tags 由 master 覆蓋，若留支線名會把整條紅線改名（實測踩過）。支線自身的名稱在 relation 級補丁。"
+    },
+    {
+      "relation": 9437206,
+      "set": {
+        "name": "新北投支線",
+        "name:zh": "新北投支線",
+        "name:zh-Hant": "新北投支線",
+        "ref": "R"
+      },
+      "note": "Taipei 新北投支線 relation（master 成員）：官方名＝新北投支線、屬紅線 ref R；帶新站（新北投）的分支變體在合併群組內自成 route（同小碧潭支線模式），顯示此名。"
+    },
+    {
+      "relation": 2665129,
+      "set": {
+        "name": "新北投支線",
+        "name:zh": "新北投支線",
+        "name:zh-Hant": "新北投支線",
+        "ref": "R"
+      },
+      "note": "Taipei 新北投支線另一方向 relation（不在 master 成員內，曾自成一線帶著整串怪 ref）：同上補 ref/官方名，使其併入紅線分組、與 9437206 去重。"
     }
   ]
 }

@@ -430,7 +430,7 @@ const shortcuts = [
               <button class="sort-btn" :class="{ active: highwaySort === 'desc' }" @click="highwaySort = 'desc'">交流道多到少</button>
               <button class="sort-btn" :class="{ active: highwaySort === 'asc' }" @click="highwaySort = 'asc'">少到多</button>
             </div>
-            <span class="sort-meta">{{ highwaysByStations.length }} 個都會區</span>
+            <span class="sort-meta">{{ highwaysByStations.length }} 個國家／地區</span>
           </div>
           <div class="quick-grid">
             <button
@@ -439,8 +439,8 @@ const shortcuts = [
               class="quick-cell"
               @click="importHighway(s)"
             >
-              <span class="quick-zh">{{ s.cityZh ?? s.city }} · {{ s.countryZh ?? s.country }}</span>
-              <span class="quick-en">{{ s.city }} · {{ s.country }}</span>
+              <span class="quick-zh">{{ s.countryZh ?? s.country }}</span>
+              <span class="quick-en">{{ s.country }}</span>
               <span class="quick-meta">{{ s.station_count }} 交流道 · {{ s.line_count }} 條高速公路</span>
             </button>
           </div>

@@ -167,28 +167,28 @@ export const useMapStore = defineStore('map', {
       return layer
     },
 
-    // sys = an entry of data/highway/index.json `systems`. Highway networks
-    // mirror the metro GeoJSON schema, so they load as type 'metro' and reuse
-    // the same map/D3 renderers; the `highway` flag only drives the row icon.
-    // The slug matches its metro anchor (as-twn-taipei), so metroDisplayName /
-    // CITY_ZH give the same 國名－城市名 labels.
+    // sys = an entry of data/highway/index.json `systems` (one per country).
+    // Highway networks mirror the metro GeoJSON schema, so they load as type
+    // 'metro' and reuse the same map/D3 renderers; the `highway` flag only
+    // drives the row icon. Labels come from the catalog entry (city = country).
     importHighwaySystem(sys) {
       const slug = sys.file.split('/').pop().replace(/\.geojson$/, '')
       const id = `hw-${slug}`
       let layer = this.layers.find((l) => l.id === id)
       if (!layer) {
+        const label = sys.cityZh ?? sys.city ?? sys.country ?? slug
         layer = {
           id,
-          name: metroDisplayName(slug),
+          name: label,
           type: 'metro',
           highway: true,
           groupId: 'highway-maps',
           file: assetUrl(`data/highway/${sys.file}`),
           continent: sys.continent,
           country: sys.country,
-          city: sys.city,
-          countryZh: CITY_ZH[slug]?.country ?? sys.country,
-          cityZh: CITY_ZH[slug]?.city ?? sys.city,
+          city: sys.city ?? sys.country,
+          countryZh: sys.countryZh ?? sys.country,
+          cityZh: sys.cityZh ?? sys.city ?? sys.country,
           visible: true,
           opacity: 1,
           strokeWidth: 2.5,

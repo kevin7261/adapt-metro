@@ -673,7 +673,11 @@ async function build() {
     if (g.key.startsWith('m|')) {
       const mt = masterTags.get(Number(g.key.slice(2))) || {}
       for (const [k, v] of Object.entries(mt)) if (v && !base[k]) base[k] = v
-      for (const k of ['name', 'name:en', 'ref', 'colour']) if (mt[k]) base[k] = mt[k]
+      // master 的名稱鍵（含在地語 name:zh/name:ja…）一律覆蓋變體：master 名是
+      // 「線名」等級、變體常是目的地/分支名——只覆蓋 name/name:en 會讓變體的
+      // name:zh 蓋過 master（台北新北投支線變體毒到紅線主線名，2026-07 修正）。
+      for (const k of Object.keys(mt))
+        if (mt[k] && (k === 'ref' || k === 'colour' || k === 'name' || k.startsWith('name:'))) base[k] = mt[k]
     }
     return base
   }

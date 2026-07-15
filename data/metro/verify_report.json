@@ -9,13 +9,15 @@
       "wiki_city_without_data": 2,
       "stations_without_line": 0,
       "systems_with_stations_without_line": 0,
-      "systems_with_non_station_vertices": 0
+      "systems_with_non_station_vertices": 0,
+      "systems_with_broken_routes": 0
     },
     "order_suspect_systems": 0,
     "by_severity": {
       "missing": 2,
       "no_line": 0,
       "vertex": 0,
+      "broken": 0,
       "order": 0,
       "zero": 0,
       "low": 3,

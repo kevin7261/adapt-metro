@@ -31,7 +31,7 @@ const disposables = []
 
 // Basemap picker state (bottom-right).
 const basemapId = ref(DEFAULT_BASEMAP)
-const railwayOn = ref(true)
+const railwayOn = ref(false) // OpenRailwayMap overlay 預設關閉（使用者 2026-07）
 const basemapMenuOpen = ref(false)
 const groups = basemapGroups()
 // Solid-color basemap (a plain black/white/custom canvas behind the metro data).
@@ -53,7 +53,6 @@ onMounted(() => {
     attributionControl: false,  // no on-map copyright overlay (per request)
   })
 
-  if (import.meta.env.DEV) window.__map = map // debug probe (dev only)
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
   map.addControl(new maplibregl.FullscreenControl(), 'top-right')
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')
@@ -341,6 +340,9 @@ function addMetroSourceLayers(data) {
     minzoom: 13, // 站名只在 zoom ≥ 13 顯示，低 zoom 保持路網總覽不被文字塞滿
     layout: {
       'text-field': ['coalesce', ['get', 'station_name'], ''],
+      // openfreemap 字型伺服器有的字族（raster/純色底圖的 glyphs 指向它；不設的話
+      // maplibre 預設 Open Sans/Arial Unicode 在該伺服器上不存在 → 標籤渲染不出來）
+      'text-font': ['Noto Sans Regular'],
       'text-size': 11,
       'text-anchor': 'bottom',
       'text-offset': [0, -0.6],
@@ -358,17 +360,19 @@ function addMetroSourceLayers(data) {
 }
 
 /* ---- basemap + OpenRailwayMap overlay ---- */
+// id 不可叫 'railway'：OpenFreeMap Positron 等向量底圖自帶同名圖層，撞名會讓
+// addLayer 拋錯、overlay 永遠加不上去（實測抓到的 bug）。用 'orm-overlay'。
 function addRailwayLayer() {
-  if (!map || map.getSource('railway')) return
-  map.addSource('railway', { type: 'raster', tiles: RAILWAY_OVERLAY.tiles, tileSize: 256 })
+  if (!map || map.getSource('orm-overlay') || map.getLayer('orm-overlay')) return
+  map.addSource('orm-overlay', { type: 'raster', tiles: RAILWAY_OVERLAY.tiles, tileSize: 256 })
   // Keep the railway overlay below the metro data so our lines stay on top.
   const before = map.getLayer('metro-lines') ? 'metro-lines' : undefined
-  map.addLayer({ id: 'railway', type: 'raster', source: 'railway',
+  map.addLayer({ id: 'orm-overlay', type: 'raster', source: 'orm-overlay',
     paint: { 'raster-opacity': 0.9 } }, before)
 }
 function removeRailwayLayer() {
-  if (map?.getLayer('railway')) map.removeLayer('railway')
-  if (map?.getSource('railway')) map.removeSource('railway')
+  if (map?.getLayer('orm-overlay')) map.removeLayer('orm-overlay')
+  if (map?.getSource('orm-overlay')) map.removeSource('orm-overlay')
 }
 function setRailway(on) {
   railwayOn.value = on
@@ -405,7 +409,9 @@ function applySolid(color) {
   if (wasSolid && map.getLayer('background')) {
     map.setPaintProperty('background', 'background-color', color)
   } else {
-    map.setStyle(solidStyle(color))
+    // diff:false 必須帶：diff 模式會把手動加的 metro 圖層清掉、又因 diff 成功
+    // 不觸發 style.load → reAddOverlays 不執行 → 路網消失（setBasemap 同款問題）。
+    map.setStyle(solidStyle(color), { diff: false })
     map.once('style.load', reAddOverlays)
   }
 }
