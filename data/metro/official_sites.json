@@ -1271,5 +1271,10 @@
     "source": "wikidata",
     "wikidata": "Q3595697",
     "http_status": null
+  },
+  "asia/china/as-chn-wuhu": {
+    "city": "Wuhu",
+    "country": "China",
+    "website": null
   }
 }
