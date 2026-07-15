@@ -15,6 +15,7 @@ import {
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
+import { stationPopupHtml, linePopupHtml } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 
@@ -623,6 +624,7 @@ async function render() {
     rwdStats.value = null
     // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
     // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
+    buildTipIdx(data) // hover 索引（refColor/segs/站點）——per dataset 一次
     cachedFp = dataFingerprint(data)
     const hit = loadHcCache(`${cachedFp}:${hcVariant.value}`)
     if (hit) { cachedHC = hit.hc; cachedPost = hit.posts }
@@ -1198,7 +1200,7 @@ async function render() {
     .on('click', (e, d) => { e.stopPropagation(); if (d.props) store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('stroke-width', (panelLayer.value?.strokeWidth ?? 2.5) + 3)
-      showTip(e, d.html ?? lineHtml(d.props))
+      showTip(e, d.html ?? linePopupHtml(d.props, tipSegStations(d.props?.seg_id))) // 共用 popupHtml（RWD 自帶 d.html 沿用）
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -1223,7 +1225,7 @@ async function render() {
       // point appends its sinuosity detail below rather than replacing it.
       const info = sk?.pinkInfo?.get(d.props.station_id)
       if (info && !gridMode.value) drawRef(info)
-      showTip(e, stationHtml(d.props) + (info ? pinkExtra(info) : ''))
+      showTip(e, stationPopupHtml(d.props, tipIdx?.refColor) + (info ? pinkExtra(info) : '')) // 共用 popupHtml
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -1274,27 +1276,31 @@ function asArray(v) {
   if (typeof v === 'string' && v.startsWith('[')) { try { return JSON.parse(v) } catch { /* */ } }
   return []
 }
-function stationHtml(p) {
-  const local = p.station_name_local && p.station_name_local !== p.station_name
-    ? `<br/>${p.station_name_local}` : ''
-  const lines = asArray(p.lines)
-  const linesHtml = lines.length ? `<br/>路線：${lines.join(', ')}` : ''
-  // 共站（異名轉乘）：列出每個成員站名＋該名所屬路線
-  const mn = asArray(p.merged_names)
-  const merged = mn.length > 1
-    ? '<br/>共站：' + mn.map((m) => `<br/>　${m.station_name}（${(m.lines || []).join(', ')}）`).join('')
-    : ''
-  return `<strong>${p.station_name ?? '—'}</strong>${local}${linesHtml}${merged}`
+// hover HTML 一律來自共用模組 popupHtml.js（與物件 tab、地圖 hover 同構）。
+// refColor / seg 索引 per dataset 建一次（tipIdx），黃色交叉點 props 極簡也能渲染。
+let tipIdx = null // { refColor: Map<ref,colour>, segs: Map<seg_id, feature>, stByCoord: Map<'lng,lat', props> }
+function buildTipIdx(data) {
+  const refColor = new Map(), segs = new Map(), stByCoord = new Map()
+  for (const f of data.features) {
+    if (f.geometry.type === 'Point') { stByCoord.set(f.geometry.coordinates.join(','), f.properties); continue }
+    if (f.properties?.seg_id != null) segs.set(f.properties.seg_id, f)
+    for (const r of f.properties.routes ?? [])
+      if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
+  }
+  tipIdx = { refColor, segs, stByCoord }
 }
-function lineHtml(p) {
-  const routes = asArray(p.routes)
-  const list = routes.length ? routes : [p]
-  return list.map((r) => {
-    const local = r.route_name_local && r.route_name_local !== r.route_name
-      ? `（${r.route_name_local}）` : ''
-    return `<span style="color:${r.route_color ?? '#e11d48'}">▬</span> `
-      + `<strong>${r.route_ref ? `[${r.route_ref}] ` : ''}${r.route_name ?? '—'}</strong>${local}`
-  }).join('<br/>')
+// 該路段上的車站（原始幾何頂點序）——與 LayerTab segStations 同邏輯
+function tipSegStations(segId) {
+  const seg = tipIdx?.segs.get(segId)
+  if (!seg) return []
+  const out = []
+  for (const line of seg.geometry.coordinates) {
+    for (const c of line) {
+      const st = tipIdx.stByCoord.get(c.join(','))
+      if (st && (!out.length || out[out.length - 1].station_id !== st.station_id)) out.push(st)
+    }
+  }
+  return out
 }
 // Pink (representative bend) hover: explain the two gates + this point's numbers.
 // Pink (representative bend) EXTRA — appended below the shared station hover,

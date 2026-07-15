@@ -391,7 +391,10 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 > **hover＝物件顯示（使用者規則）**：地圖 hover popup（站/線）與物件 tab 完全同構——標題
 > （中文/在地＋英文）、共站站名、停靠/行經路線、線的**段站序**（官方碼＋pass 灰字）、
 > 以及**相同的屬性表**（同鍵過濾/排序/wikipedia 連結；routes/lines 等結構性鍵不進表）。
-> 改物件 tab 顯示必同步 LayerTab 的 popupTable/H helpers。
+> hover HTML 一律來自**共用模組 `src/stores/popupHtml.js`**（stationPopupHtml/linePopupHtml/H）
+> ——LayerTab（地圖）與 D3Tab（骨架/格網視圖，含黃色路線交叉點）同一份。**hover 只含結構
+> 區塊**（標題中/英、共站站名、停靠/行經路線、線的段站序＋官方碼＋pass）；**屬性表只在
+> 物件 tab、不進 hover**（使用者 2026-07）。
 
 **車站 feature（Point）**：
 `station_id`（`n{osmId}`）, `station_name`（依「顯示名語言」＝中文/日文/英文）, `station_name_local`,

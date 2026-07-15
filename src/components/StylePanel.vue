@@ -97,7 +97,12 @@ const selectedEntries = computed(() => {
   // routes/lines/route_refs/route_colors 已在上方結構化顯示（路線列/站序），不進表格——
   // 表格只留 scalar 欄位，且 build 端保證全城鍵集一致 → 各城市表格完全相同。
   const OMIT = new Set(['merged_names', 'wikidata', 'routes', 'lines', 'route_refs', 'route_colors'])
-  return Object.keys(p).filter((k) => !k.startsWith('_') && !OMIT.has(k)).sort().map((k) => {
+  // X_local / X_en 與 X 同值＝重複列（network / network_local 常一樣），不顯示
+  const dupLocal = (k) => {
+    const m = /^(.+)_(local|en)$/.exec(k)
+    return m && p[m[1]] != null && p[k] === p[m[1]]
+  }
+  return Object.keys(p).filter((k) => !k.startsWith('_') && !OMIT.has(k) && !dupLocal(k)).sort().map((k) => {
     let v = p[k]
     if (typeof v === 'string' && /^[[{]/.test(v.trim())) {
       try { v = JSON.parse(v) } catch { /* leave as-is */ }

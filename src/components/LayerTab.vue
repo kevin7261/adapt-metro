@@ -8,6 +8,7 @@ import {
   DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
   basemapById, basemapGroups, styleFor, solidStyle,
 } from '../stores/basemaps'
+import { stationPopupHtml, linePopupHtml } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
 import AttributeTable from './AttributeTable.vue'
@@ -99,37 +100,7 @@ onMounted(() => {
     map.getCanvas().style.cursor = 'pointer'
     const p = e.features[0].properties
     map.setFilter('metro-stations-hover', ['==', ['get', 'station_id'], p.station_id ?? ''])
-    // ---- 與物件 tab city 欄位以上完全同構：標題(＋在地名)、共站站名、停靠路線、行經(不停靠) ----
-    const J = (v, fb) => { if (typeof v !== 'string') return v ?? fb; try { return JSON.parse(v) } catch { return fb } }
-    // 標題（使用者規則）：第一行＝中文/在地名、第二行＝英文（相同則不顯示）
-    const en = p.station_name_en && p.station_name_en !== p.station_name ? p.station_name_en : null
-    let html = H.title(p.station_name ?? '—', en)
-    const mn = J(p.merged_names, null)
-    if (Array.isArray(mn) && mn.length > 1) {
-      html += `<div style="opacity:.65;font-size:10px;margin-top:4px">共站站名（各線不同名）</div>`
-      for (const m of mn) {
-        const chips = (m.lines || []).map((ref) => H.refC(ref, popupIdx?.refColor.get(ref))).join('')
-        html += H.row(`<span style="margin-right:6px">${m.station_name}</span>${chips}`)
-      }
-    }
-    // 車站的路線＝單一 routes[]（{ref, name, pass?}，schema 瘦身後版本）；
-    // 顏色由 ref→color 索引解（popupIdx.refColor，來自路段 routes meta）。
-    const rts = J(p.routes, []) ?? []
-    const routeRow = (r) => {
-      const c = popupIdx?.refColor.get(r.ref)
-      return H.row(H.swatch(c) + H.ref(r.ref, c) +
-        `<strong style="font-size:12px">${r.name ?? r.ref ?? '—'}</strong>` + (r.pass ? H.passTag() : ''))
-    }
-    const stops = rts.filter((r) => !r.pass), passes = rts.filter((r) => r.pass)
-    if (stops.length) {
-      html += `<div style="opacity:.65;font-size:10px;margin-top:4px">停靠路線</div>`
-      html += stops.map(routeRow).join('')
-    }
-    if (passes.length) {
-      html += `<div style="opacity:.65;font-size:10px;margin-top:4px">行經（不停靠）</div>`
-      html += passes.map(routeRow).join('')
-    }
-    html += popupTable(p) // 與物件 tab 相同的屬性表
+    const html = stationPopupHtml(p, popupIdx?.refColor) // 共用 popupHtml——與物件 tab/D3 hover 同構
     popup
       .setLngLat(e.features[0].geometry.coordinates)
       .setHTML(html)
@@ -163,37 +134,7 @@ onMounted(() => {
     let routes = p.routes
     if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { routes = [] } }
     routes = routes ?? []
-    // ---- 與物件 tab city 欄位以上同構：標題（各線名 " / " 併、在地名副標）＋
-    // 每路線列（色塊＋ref 徽章＋名稱＋「停靠 n 站」——n＝該線在**這一段**的停靠站數）----
-    const names = [...new Set(routes.map((r) => r.route_name ?? '—'))].join(' / ')
-    const ens = [...new Set(routes.map((r) => r.route_name_en ?? r.route_name ?? '—'))].join(' / ')
-    let html = H.title(names || '—', ens !== names ? ens : null)
-    const onSeg = segStations(p.seg_id)
-    const seenRow = new Set() // 同官方名分支（中和新蘆線 迴龍/蘆洲）在共用段列一次就好
-    for (const r of routes) {
-      // pass 站已就地標在 r.stations[]（pass:true）
-      const passIds = new Set((r.stations ?? []).filter((s) => s.pass).map((s) => s.station_id))
-      const stops = onSeg.length ? onSeg.filter((s) => !passIds.has(s.station_id)).length : null
-      const k = `${r.route_ref ?? ''}|${r.route_name ?? ''}|${stops}`
-      if (seenRow.has(k)) continue
-      seenRow.add(k)
-      html += H.row(H.swatch(r.route_color) + H.ref(r.route_ref, r.route_color) +
-        `<strong style="font-size:12px">${r.route_name ?? '—'}</strong>` +
-        (stops != null ? H.dim(`停靠 ${stops} 站`) : ''))
-      // 段站序（與物件 tab 同構）：本段依幾何序列站、各線官方碼＋pass 灰字標記
-      if (onSeg.length) {
-        const codeOf = new Map((r.stations ?? []).map((s) => [s.station_id, s.code]))
-        html += onSeg.map((st, i) => {
-          const isPass = passIds.has(st.station_id)
-          const code = codeOf.get(st.station_id)
-          return `<div style="display:flex;align-items:center;margin:2px 0 0 22px;font-size:11.5px${isPass ? ';color:rgba(155,163,175,1)' : ''}">` +
-            `<span style="opacity:.55;min-width:16px;text-align:right;margin-right:6px">${i + 1}.</span>` +
-            (code ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;padding:0 4px;border-radius:3px;background:rgba(127,127,140,.22);margin-right:6px">${code}</span>` : '') +
-            `<span>${st.station_name}</span>` + (isPass ? H.passTag() : '') + `</div>`
-        }).join('')
-      }
-    }
-    html += popupTable(p) // 與物件 tab 相同的屬性表
+    const html = linePopupHtml(p, segStations(p.seg_id)) // 共用 popupHtml
     linePopup.setLngLat(e.lngLat).setHTML(html || '—').addTo(map)
   }
   for (const id of ALL_LINE_LAYER_IDS) {
@@ -335,42 +276,7 @@ function segStations(segId) {
   }
   return out
 }
-/* ---- hover popup HTML（**與物件 tab city 欄位以上完全同款式**：色塊 14×6 圓角長條、
-   ref 徽章灰底 monospace、「停靠 n 站」靠右、pass 外框膠囊、標題 15px＋在地名副標。
-   popup 在 scoped style 之外，樣式一律 inline；灰色用半透明近似 --muted 兩主題皆可讀）---- */
-const H = { // 小元件（樣式對齊 StylePanel 的 .line-swatch/.line-ref/.obj-route-count/.obj-pass-tag/.obj-title）
-  swatch: (c) => `<span style="width:14px;height:6px;border-radius:3px;background:${c || '#e11d48'};margin-right:8px;flex:none"></span>`,
-  ref: (t) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:rgba(127,127,140,.22);color:rgba(155,163,175,1);margin-right:8px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
-  // 共站站名列的線徽章＝線色底（同 .obj-merged-line 的 inline background）
-  refC: (t, c) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:${c || 'rgba(127,127,140,.35)'};color:#fff;margin-right:4px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
-  dim: (t) => `<span style="margin-left:auto;padding-left:12px;font-weight:400;font-size:11px;color:rgba(155,163,175,1);flex:none">${t}</span>`,
-  row: (inner) => `<div style="display:flex;align-items:center;gap:0;margin-top:4px;white-space:nowrap">${inner}</div>`,
-  title: (name, local) => `<div style="font-weight:700;font-size:15px;line-height:1.3">${name}</div>` +
-    (local ? `<div style="margin-top:1px;font-size:12px;font-weight:400;color:rgba(155,163,175,1)">${local}</div>` : ''),
-  passTag: () => '<span style="margin-left:auto;padding:0 7px;font-size:10.5px;font-weight:600;color:rgba(155,163,175,1);border:1px solid rgba(127,127,140,.45);border-radius:999px;flex:none">pass</span>',
-}
-// 與物件 tab 完全相同的屬性表（同鍵過濾/排序/連結規則——StylePanel selectedEntries）：
-// hover 內容＝物件顯示（使用者規則）。build 端保證全城鍵集一致 → 每站/每段表格全球相同。
-const POPUP_OMIT = new Set(['merged_names', 'wikidata', 'routes', 'lines', 'route_refs', 'route_colors'])
-function popupTable(p) {
-  const J = (v) => { if (typeof v === 'string' && /^[[{]/.test(v.trim())) { try { return JSON.parse(v) } catch { return v } } return v }
-  const asText = (v) => (v === null || v === undefined || v === '') ? '—' : (typeof v === 'object' ? JSON.stringify(v) : String(v))
-  const link = (k, v) => {
-    if (k !== 'wikipedia' || typeof v !== 'string' || !v) return null
-    if (/^https?:\/\//.test(v)) return v
-    const m = /^([a-z-]+):(.+)$/.exec(v)
-    return m ? `https://${m[1]}.wikipedia.org/wiki/${encodeURIComponent(m[2].replace(/ /g, '_'))}`
-      : `https://en.wikipedia.org/wiki/${encodeURIComponent(v.replace(/ /g, '_'))}`
-  }
-  const rows = Object.keys(p).filter((k) => !k.startsWith('_') && !POPUP_OMIT.has(k)).sort().map((k) => {
-    const v = J(p[k])
-    let cell
-    if (Array.isArray(v)) cell = v.length ? v.map((x) => `<div>${asText(x)}</div>`).join('') : '—'
-    else { const h = link(k, v); cell = h ? `<a href="${h}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">${asText(v)}</a>` : asText(v) }
-    return `<tr style="border-bottom:1px solid rgba(127,127,140,.25)"><th style="text-align:left;padding:2px 10px 2px 0;font-weight:600;opacity:.65;vertical-align:top;white-space:nowrap">${k}</th><td style="padding:2px 0;word-break:break-all">${cell}</td></tr>`
-  }).join('')
-  return `<table style="border-collapse:collapse;font-size:11px;margin-top:8px;line-height:1.45;width:100%">${rows}</table>`
-}
+// hover popup HTML 一律來自共用模組 src/stores/popupHtml.js（物件/地圖/D3 三處同構）。
 
 // Add the metro source + line/station layers (idempotent; re-run after setStyle).
 function addMetroSourceLayers(data) {
