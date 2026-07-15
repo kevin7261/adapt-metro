@@ -496,9 +496,11 @@ function applyZoomSizing(k) {
     .attr('y', (d) => d.y - (r0 + 3) / k)
 }
 
-// Same station-role colouring as the MapLibre tab: transfer red, terminus blue.
+// Same station-role colouring as the MapLibre tab's STATION_COLOR: interchange
+// red, terminus blue, else white. 用 is_interchange（正式拓撲轉乘：degree>2 或 ≥2
+// 線在此終止），不用 lines>1——後者把多線共軌的中途站（非轉乘）也誤判成紅（NYC 尤甚）。
 function stationColor(p) {
-  if (Array.isArray(p.lines) && p.lines.length > 1) return '#e11d48'
+  if (p.is_interchange) return '#e11d48'
   if (p.is_terminus) return '#2563eb'
   return '#ffffff'
 }

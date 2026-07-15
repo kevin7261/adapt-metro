@@ -532,6 +532,14 @@
     [
       "n7218038717",
       "n7218038804"
+    ],
+    [
+      "n7618672836",
+      "n6751622968"
+    ],
+    [
+      "n4464067393",
+      "n5336193667"
     ]
   ],
   "_pairs": [
@@ -559,6 +567,8 @@
     "Minsk Plošča Lienina（1號線）↔ Vakzaĺnaja（3號線）火車站轉乘，~340m 異名同站",
     "NYC 42nd St Shuttle (S) 兩站皆為大複合站的一部分：Times Square(S)↔Times Square–42nd Street(1/2/3/7/N/Q/R/W)、Grand Central(S)↔Grand Central–42nd Street(4/5/6/7)",
     "NYC 官方轉乘複合站（MTA map 對照，異名 free-transfer）：14St-UnionSq↔UnionSq(L)、JacksonHts↔74St、EssexSt↔DelanceySt、Bway-Lafayette↔Bleecker、59St(456)↔LexAv-59(NRW)、BklynBridge↔ChambersSt(JZ)、CourtSq(EF↔7G)、14St(ACE↔L)、14St(FM↔L)、SouthFerry↔Whitehall、BoroughHall↔CourtSt、LorimerSt↔MetropolitanAv、51St↔53St-Lex、JuniusSt↔LivoniaAv、4thAv↔9thSt、62St↔NewUtrecht、Bryant Pk↔5thAv(7)、FultonSt(G)↔LafayetteAv(C)",
-    "NYC Botanic Garden(S)↔Franklin Av(2/3/4/5) 轉乘；World Trade Center(E 終點)↔Chambers St(1/2/3/A/C) WTC 複合站"
+    "NYC Botanic Garden(S)↔Franklin Av(2/3/4/5) 轉乘；World Trade Center(E 終點)↔Chambers St(1/2/3/A/C) WTC 複合站",
+    "NYC Times Square–42nd Street(1/2/3/7/N/Q/R/S/W) ↔ 42nd St–Port Authority Bus Terminal(A/C/E) 同一複合站（cross-line，無共線塌站）",
+    "NYC 14th Street(1/2/3) ↔ 6th Avenue/14th Street(F/L/M) 同一複合站（使用者 MTA map 確認，cross-line 無塌站）"
   ]
 }

@@ -27,10 +27,12 @@ const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
 const MAX_OVERLAP = 6
 const DASH = 5
 
-// Geographic (original/rotated) station fill — matches D3Tab.stationColor:
-// transfer (lines>1) red, terminus blue, else white.
+// Geographic (original/rotated) station fill — matches the MapLibre tab's
+// STATION_COLOR and D3Tab.stationColor: interchange red, terminus blue, else
+// white. 用 is_interchange（正式拓撲轉乘），不用 lines>1——後者把多線共軌的中途站
+// （非轉乘）也誤判成紅（NYC 尤甚）。
 function stationColor(p) {
-  if (Array.isArray(p.lines) && p.lines.length > 1) return '#e11d48'
+  if (p.is_interchange) return '#e11d48'
   if (p.is_terminus) return '#2563eb'
   return '#ffffff'
 }
