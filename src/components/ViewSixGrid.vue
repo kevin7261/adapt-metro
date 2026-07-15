@@ -5,7 +5,7 @@ import { HC_VIEW_ORDER, hcViewLabels } from '../stores/viewGeometry'
 
 // One city's Hill Climbing card: a title header + a 2×4 grid of the 8
 // pre-computed HC views — rows are the variant (原始 / 旋轉 N°), columns the
-// stage (格網化後 → Hill Climbing → 縮減網格 → 端點拉直). Geometry is fetched
+// stage (格網化後 → Hill Climbing → 端點拉直 → 縮減網格). Geometry is fetched
 // lazily (data/metro/hcviews/<id>.json) when the card scrolls into view.
 const props = defineProps({ entry: { type: Object, required: true } })
 const emit = defineEmits(['pick'])

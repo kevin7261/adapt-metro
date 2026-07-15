@@ -455,17 +455,24 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
+    // 左選單分 5 個部份：原始／Hill Climbing／直線演算法／端點拉直／縮減網格
+    // （header 項只是分組標題、不可點）。
     return [
+      { header: '原始' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
+      { header: 'Hill Climbing' },
       { id: 'hc', label: 'Hill Climbing' },
-      // hc 鏈：Hill Climbing → 端點拉直 → 縮減網格（縮減網格壓縮拉直後的結果）
-      { id: 'hc-end', label: 'Hill Climbing端點拉直' },
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
+      { header: '直線演算法' },
       { id: 'hc-rect', label: `直角爬山${iterBadge('rect')}` },
       { id: 'hc-align', label: `軸對齊${iterBadge('align')}` },
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
+      // hc 鏈：Hill Climbing → 端點拉直 → 縮減網格（hc 縮減網格壓縮拉直後的結果）
+      { header: '端點拉直' },
+      { id: 'hc-end', label: 'Hill Climbing端點拉直' },
+      { header: '縮減網格' },
       { id: 'hc-compact', label: 'Hill Climbing縮減網格' },
       { id: 'hc-rect-compact', label: '直角爬山縮減網格' },
       { id: 'hc-align-compact', label: '軸對齊縮減網格' },
@@ -1358,17 +1365,19 @@ onBeforeUnmount(() => {
       <div class="map-col">
         <div class="map-main">
           <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
-            <button
-              v-for="t in VIEW_TABS"
-              :key="t.id"
-              class="view-nav-item"
-              :class="{ active: mode === t.id }"
-              role="tab"
-              :aria-selected="mode === t.id"
-              :disabled="!panelLayer || (t.rot && !canRotate)"
-              :title="t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : ''"
-              @click="mode = t.id"
-            >{{ t.label }}</button>
+            <template v-for="t in VIEW_TABS" :key="t.id ?? `h:${t.header}`">
+              <div v-if="t.header" class="view-nav-group">{{ t.header }}</div>
+              <button
+                v-else
+                class="view-nav-item"
+                :class="{ active: mode === t.id }"
+                role="tab"
+                :aria-selected="mode === t.id"
+                :disabled="!panelLayer || (t.rot && !canRotate)"
+                :title="t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : ''"
+                @click="mode = t.id"
+              >{{ t.label }}</button>
+            </template>
           </div>
           <div
             class="view-nav-resize"
@@ -1483,9 +1492,9 @@ onBeforeUnmount(() => {
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
       </span>
 
-      <!-- Hill Climbing端點拉直: endpoint-only H/V pass on the HC result -->
+      <!-- Hill Climbing端點拉直: vertex-alignment H/V pass on the HC result -->
       <span v-if="isHC && mode === 'hc-end' && endpStats" class="hc-stats">
-        端點拉直 {{ endpStats.moved }}/{{ endpStats.endpoints }} 端點
+        端點拉直 移動 {{ endpStats.moved }}/{{ endpStats.endpoints }} 點
         · 水平垂直 {{ endpStats.hvBefore }} → {{ endpStats.hvAfter }}／{{ endpStats.segs }} 段
         · 迭代 {{ endpStats.iters }}/{{ endpStats.iterCap }}<template
           v-if="!endpStats.converged">（達上限未收斂）</template>
@@ -1594,6 +1603,22 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   padding: 6px;
   overflow-y: auto;
+}
+/* Section headers inside the view list（原始／Hill Climbing／直線演算法／…）。 */
+.view-nav-group {
+  padding: 8px 10px 2px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: hsl(var(--muted-foreground) / 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+.view-nav-group:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid hsl(var(--border) / 0.6);
 }
 /* Draggable divider between the view list and the canvas. */
 .view-nav-resize {

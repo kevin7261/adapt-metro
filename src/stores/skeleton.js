@@ -131,6 +131,34 @@ export function buildConnectSkeleton(geojson) {
         }
       }
     }
+    // 每條 route 實際畫出的 feature 幾何（所有相鄰頂點段），用來驗證「交點是否真的落在
+    // 畫出的線上」。跳站特快的站點弦（A→D 直線）不是畫出的線（feature 走 A→B→C→D，
+    // 或沿共軌慢車走廊），其弦交點會浮在軌道外——NYC 快慢車共軌處尤甚。
+    const routeGeom = new Map() // route_id -> [[p1,p2],…]
+    for (const f of geojson?.features ?? []) {
+      if (!f.geometry || f.geometry.type === 'Point') continue
+      const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
+      for (const r of f.properties?.routes ?? []) {
+        if (!routes.has(r.route_id)) continue
+        let arr = routeGeom.get(r.route_id)
+        if (!arr) { arr = []; routeGeom.set(r.route_id, arr) }
+        for (const seg of segs) for (let i = 1; i < seg.length; i++) arr.push([seg[i - 1], seg[i]])
+      }
+    }
+    // 交點 p 是否落在 route rid 的某條畫出線段的 ~30 m 內（經度依緯度縮放）。
+    const onRouteGeom = (p, rid) => {
+      const arr = routeGeom.get(rid)
+      if (!arr) return false
+      const cosL = Math.cos(p[1] * Math.PI / 180)
+      for (const [a2, b2] of arr) {
+        const dx = (b2[0] - a2[0]) * cosL, dy = b2[1] - a2[1], L2 = dx * dx + dy * dy || 1e-18
+        let t = (((p[0] - a2[0]) * cosL) * dx + ((p[1] - a2[1])) * dy) / L2
+        t = t < 0 ? 0 : t > 1 ? 1 : t
+        const ex = (p[0] - a2[0]) * cosL - t * dx, ey = (p[1] - a2[1]) - t * dy
+        if (Math.hypot(ex, ey) * 111000 < 30) return true
+      }
+      return false
+    }
     // Nearest real track intersection of two stop-to-stop legs (null if the real
     // tracks don't meet between those stops → the chord crossing is spurious).
     const realHit = (legA, legB, near) => {
@@ -175,6 +203,9 @@ export function buildConnectSkeleton(geojson) {
               if (!rx) continue // proven spurious — real tracks don't cross here
               cx = rx // exact real intersection (dead on both lines)
             }
+            // 黃點必在兩條線「實際畫出的 feature 幾何」上，否則是浮空的站點弦交點——丟棄。
+            // 落實「同軌服務不互相穿越」（NYC 快慢車共軌：畫出來重疊、弦卻在軌外相交）。
+            if (!onRouteGeom(cx, routeArr[a].id) || !onRouteGeom(cx, routeArr[b].id)) continue
             const key = `${cx[0].toFixed(6)},${cx[1].toFixed(6)}`
             let id = keyToId.get(key)
             if (!id) {

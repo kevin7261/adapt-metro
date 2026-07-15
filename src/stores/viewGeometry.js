@@ -530,14 +530,14 @@ export const RWD_VIEW_ORDER = [
 
 // View id → 中文 caption for the RWD gallery.
 export const RWD_VIEW_LABELS = {
-  'compact-hc': 'Hill Climbing縮減',
-  'rwd-hc': 'Hill Climbing縮減 · RWD 路網',
-  'compact-rect': '直角爬山縮減',
-  'rwd-rect': '直角爬山縮減 · RWD 路網',
-  'compact-align': '軸對齊縮減',
-  'rwd-align': '軸對齊縮減 · RWD 路網',
-  'compact-ilp': '整數規劃縮減',
-  'rwd-ilp': '整數規劃縮減 · RWD 路網',
+  'compact-hc': 'Hill Climbing縮減網格',
+  'rwd-hc': 'Hill Climbing縮減網格 · RWD 路網',
+  'compact-rect': '直角爬山縮減網格',
+  'rwd-rect': '直角爬山縮減網格 · RWD 路網',
+  'compact-align': '軸對齊縮減網格',
+  'rwd-align': '軸對齊縮減網格 · RWD 路網',
+  'compact-ilp': '整數規劃縮減網格',
+  'rwd-ilp': '整數規劃縮減網格 · RWD 路網',
 }
 // The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp').
 export const rwdCellCompact = (viewId) => (viewId ?? '').replace(/^(compact|rwd)-/, '') || 'hc'

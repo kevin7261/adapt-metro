@@ -696,18 +696,21 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
   }
 }
 
-// 端點拉直 — its OWN tab layered on the hc 縮減 (the 縮減 itself and everything
-// downstream of it stay untouched): move each ROUTE ENDPOINT — a degree-1
-// coloured vertex; white/black through stations are not vertices at all — so
-// its single incident segment becomes horizontal or vertical. Only the endpoint
-// moves, so every success is exactly +1 H/V and can never un-align another
-// segment (no net-HV revert needed). Each move still goes through the SAME §5
-// hard rules as the optimizer (makeMover): no new crossing, no landing on
-// another segment or vertex, quadrant + edge-order preserved. Orientation
-// choice per endpoint: if the same route continues past the neighbour on a
-// segment that is already H or V, continue straight with it; otherwise try the
-// cheaper axis (smaller displacement) first. Runs under iteratePost — a move
-// can unblock another endpoint's move in the next iteration.
+// Hill Climbing端點拉直 — step 2 of the hc chain (HC → 端點拉直 → 縮減網格;
+// the hc 縮減網格 and the RWD base compact THIS output, while the other
+// post-passes still branch off the raw HC result): EVERY coloured vertex
+// (每個非白點 — endpoints, transfers, branches, crossings; white/black through
+// stations are not vertices at all) may move so more of its incident segments
+// become horizontal or vertical. Candidates = aligning one axis with each
+// neighbour; a candidate is taken only when its NET H/V delta over the
+// vertex's own segments is positive, so the global H/V count strictly grows
+// (segments not incident to v are untouched — no revert needed). Each move
+// still goes through the SAME §5 hard rules as the optimizer (makeMover): no
+// new crossing, no landing on another segment or vertex, quadrant +
+// edge-order preserved. Tie-breaks: bigger delta → continues a same-route
+// H/V segment past the neighbour → smaller displacement. Runs under
+// iteratePost — a move can unblock another vertex's move in the next
+// iteration.
 export function buildEndpointStraighten(skeleton, cells, cols, rows) {
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) {
@@ -715,36 +718,64 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
   }
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
-  const ids = [...pos.keys()].filter((id) => inc.get(id).length === 1).sort()
+  const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
+  const ids = [...pos.keys()].sort()
   let moved = 0
   for (const v of ids) {
-    const s = segs[inc.get(v)[0]]
-    const u = s.a === v ? s.b : s.a
-    const pv = pos.get(v), pu = pos.get(u)
-    const dx = Math.abs(pv[0] - pu[0]), dy = Math.abs(pv[1] - pu[1])
-    if (dx === 0 || dy === 0) continue // already H/V (or degenerate)
-    // Does the same route leave the neighbour on an H or V segment already?
-    let contH = false, contV = false
-    for (const si of inc.get(u)) {
-      const t = segs[si]
-      if (t === s || !sharesRoute(t.routes, s.routes)) continue
-      const A = pos.get(t.a), B = pos.get(t.b)
-      if (A[1] === B[1] && A[0] !== B[0]) contH = true
-      if (A[0] === B[0] && A[1] !== B[1]) contV = true
+    const vsegs = inc.get(v).map((si) => segs[si])
+    if (!vsegs.length) continue
+    const pv = pos.get(v)
+    const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
+    const hvAt = (P) => vsegs.reduce((n, s) => n + (isHV(P, otherPos(s)) ? 1 : 0), 0)
+    const cur = hvAt(pv)
+    // Candidates: snap one coordinate onto each neighbour's row/column.
+    const cand = new Map()
+    for (const s of vsegs) {
+      const pu = otherPos(s)
+      for (const P of [[pv[0], pu[1]], [pu[0], pv[1]]]) {
+        if (P[0] === pv[0] && P[1] === pv[1]) continue
+        cand.set(ckey(P[0], P[1]), P)
+      }
     }
-    const H = [pv[0], pu[1]] // same row as the neighbour → horizontal segment
-    const V = [pu[0], pv[1]] // same column → vertical segment
-    const order = contH !== contV ? (contH ? [H, V] : [V, H]) : (dy <= dx ? [H, V] : [V, H])
-    for (const P of order) {
-      if (!M.validMove(v, P)) continue
-      M.applyMove(v, P)
+    // Tie-break: does an aligned segment continue straight into a same-route
+    // H/V segment on the far side of its neighbour?
+    const contScore = (P) => {
+      let sc = 0
+      for (const s of vsegs) {
+        const u = s.a === v ? s.b : s.a
+        const pu = pos.get(u)
+        if (!isHV(P, pu)) continue
+        const horiz = P[1] === pu[1]
+        for (const si of inc.get(u)) {
+          const t = segs[si]
+          if (t === s || !sharesRoute(t.routes, s.routes)) continue
+          const A = pos.get(t.a), B = pos.get(t.b)
+          if (horiz ? (A[1] === B[1] && A[0] !== B[0]) : (A[0] === B[0] && A[1] !== B[1])) { sc++; break }
+        }
+      }
+      return sc
+    }
+    const scored = []
+    for (const P of cand.values()) {
+      const delta = hvAt(P) - cur
+      if (delta <= 0) continue // must strictly grow the H/V count
+      scored.push({
+        P, delta, cont: contScore(P),
+        dist: Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1]),
+      })
+    }
+    scored.sort((a, b) => b.delta - a.delta || b.cont - a.cont
+      || a.dist - b.dist || a.P[0] - b.P[0] || a.P[1] - b.P[1])
+    for (const c of scored) {
+      if (!M.validMove(v, c.P)) continue
+      M.applyMove(v, c.P)
       moved++
       break
     }
   }
   return {
     cellAfter: pos,
-    stats: { hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size, moved, endpoints: ids.length },
+    stats: { hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size, moved, endpoints: pos.size },
   }
 }
 
