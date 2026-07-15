@@ -12,7 +12,7 @@ import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
 import {
   buildHillClimb, compactGrid, buildHcGraph, buildEndpointStraighten,
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
-  straightenCompactLoop, buildLineCompact,
+  straightenCompactLoop, buildLineCompact, buildMedianGather,
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
@@ -106,9 +106,9 @@ const tilt = ref(0)
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
 // A Hill Climbing view chains: the grid-post input, the optimized layout
 // ('hc', ②, see skill route-hillclimb), three H/V-maximising post-passes
-// (直角爬山/軸對齊/整數規劃), then per chain the 3-step tail 端點拉直
-// ('*-end') → 直線縮減 ('*-line') → 縮減網格 ('*-compact') plus the '*-loop'
-// cycle tabs — rotation comes from its variant.
+// (直角爬山/軸對齊/整數規劃), then per chain the 4-step tail 端點拉直
+// ('*-end') → 直線縮減 ('*-line') → 中位集中 ('*-gather') → 縮減網格
+// ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
@@ -116,6 +116,7 @@ const hcMode = computed(() =>
     'hc-end', 'hc-rect-end', 'hc-align-end', 'hc-ilp-end', 'hc-llm-end',
     'hc-compact', 'hc-rect-compact', 'hc-align-compact', 'hc-ilp-compact', 'hc-llm-compact',
     'hc-line', 'hc-rect-line', 'hc-align-line', 'hc-ilp-line', 'hc-llm-line',
+    'hc-gather', 'hc-rect-gather', 'hc-align-gather', 'hc-ilp-gather', 'hc-llm-gather',
     'hc-loop', 'hc-rect-loop', 'hc-align-loop', 'hc-ilp-loop', 'hc-llm-loop',
     'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
@@ -145,9 +146,10 @@ async function startLlmRun(userPrompt = '') {
   // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
   // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
   cachedLlm = null
-  delete cachedEndp.llm // LLM 對齊的端點拉直／縮減網格／直線縮減／循環 跟著舊結果一起作廢
+  delete cachedEndp.llm // LLM 對齊的端點拉直／直線縮減／中位集中／縮減網格／循環 跟著舊結果一起作廢
   delete cachedCompact.llm
   delete cachedLine.llm
+  delete cachedGather.llm
   delete cachedLoop.llm
   if (llmMode.value) render()
   try {
@@ -293,6 +295,7 @@ const POST_KIND = {
   'hc-rect-compact': 'rect', 'hc-align-compact': 'align', 'hc-ilp-compact': 'ilp',
   'hc-rect-end': 'rect', 'hc-align-end': 'align', 'hc-ilp-end': 'ilp',
   'hc-rect-line': 'rect', 'hc-align-line': 'align', 'hc-ilp-line': 'ilp',
+  'hc-rect-gather': 'rect', 'hc-align-gather': 'align', 'hc-ilp-gather': 'ilp',
   'hc-rect-loop': 'rect', 'hc-align-loop': 'align', 'hc-ilp-loop': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
@@ -307,14 +310,23 @@ const END_KIND = {
 // 拉直後」的結果之上，把直線（跨相交點串接的共線段鏈）整條垂直於線平移
 // （水平線只能上下移、垂直線只能左右移），讓「佔用的欄列」越少越好、
 // network 結構不變、全網 H/V 段數不減、網格尺寸不變（buildLineCompact）；
-// 縮減網格 tab 接在它之後（鏈 = 該鏈結果 → 端點拉直 → 直線縮減 → 縮減網格）。
+// 中位集中／縮減網格 tab 接在它之後（鏈 = 該鏈結果 → 端點拉直 → 直線縮減
+// → 中位集中 → 縮減網格）。
 const LINE_KIND = {
   'hc-line': 'hc', 'hc-rect-line': 'rect', 'hc-align-line': 'align',
   'hc-ilp-line': 'ilp', 'hc-llm-line': 'llm',
 }
-// 端點拉直+直線縮減+縮減網格循環（左選單第 7 部份）：每條鏈一個 tab——在該鏈
-// 結果之上交替 端點拉直→直線縮減→縮減網格，跑到某輪「沒有點可以動」為止
-// （straightenCompactLoop）。
+// 中位集中（左選單第 6 部份，鏈的第 3 步）：每條鏈一個 tab——灰/粉紅/藍點
+// 沿所在直線往中位點（黃色圓標位置）滑動：在水平線上只左右移、在垂直線上
+// 只上下移，H/V 與網格尺寸都不變（buildMedianGather）；縮減網格 tab 接在它
+// 之後（鏈 = 該鏈結果 → 端點拉直 → 直線縮減 → 中位集中 → 縮減網格）。
+const GATHER_KIND = {
+  'hc-gather': 'hc', 'hc-rect-gather': 'rect', 'hc-align-gather': 'align',
+  'hc-ilp-gather': 'ilp', 'hc-llm-gather': 'llm',
+}
+// 端點拉直+直線縮減+中位集中+縮減網格循環（左選單第 8 部份）：每條鏈一個
+// tab——在該鏈結果之上交替 端點拉直→直線縮減→中位集中→縮減網格，跑到某輪
+// 「沒有點可以動」為止（straightenCompactLoop）。
 const LOOP_KIND = {
   'hc-loop': 'hc', 'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
   'hc-ilp-loop': 'ilp', 'hc-llm-loop': 'llm',
@@ -325,9 +337,9 @@ const postKind = computed(() =>
   isHC.value ? POST_KIND[mode.value] ?? null
     : isRWD.value && ['rect', 'align', 'ilp'].includes(layer.value?.compact) ? layer.value.compact
       : null)
-// 縮減網格 tabs（鏈的第 3 步）: drop empty (colour-free) grid rows/columns
-// from the chain's layout (chain result → 端點拉直 → 直線縮減 → compactGrid)
-// — smaller grid, identical topology (rank order preserved by compactGrid).
+// 縮減網格 tabs（鏈的第 4 步）: drop empty (colour-free) grid rows/columns
+// from the chain's layout (chain result → 端點拉直 → 直線縮減 → 中位集中 →
+// compactGrid) — smaller grid, identical topology (rank order preserved).
 // RWD views sit on the HC compact grid in BOTH of their tabs.
 const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
@@ -398,7 +410,8 @@ let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
 let cachedCompact = {} // compactGrid results, keyed by 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedEndp = {}    // 端點拉直 (iteratePost over buildEndpointStraighten)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedLine = {}    // 直線縮減 (buildLineCompact)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
-let cachedLoop = {}    // 端點拉直+縮減網格+直線縮減循環 (straightenCompactLoop)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
+let cachedGather = {}  // 中位集中 (buildMedianGather)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
+let cachedLoop = {}    // 端點拉直+直線縮減+中位集中+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
@@ -407,6 +420,7 @@ const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const endpStats = ref(null)      // 端點拉直: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
 const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, moved, iters, fromCols, ..., converged }
+const gatherStats = ref(null)    // 中位集中: { moved, segs, verts, iters, iterCap, converged }
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
@@ -496,8 +510,8 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 7 個部份：原始／Hill Climbing／直線演算法／端點拉直／直線縮減
-    // ／縮減網格／端點拉直+直線縮減+縮減網格循環
+    // 左選單分 8 個部份：原始／Hill Climbing／直線演算法／端點拉直／直線縮減
+    // ／中位集中／縮減網格／端點拉直+直線縮減+中位集中+縮減網格循環
     // （header 項只是分組標題、不可點）。
     return [
       { header: '原始' },
@@ -527,14 +541,21 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-align-line', label: '軸對齊直線縮減' },
       { id: 'hc-ilp-line', label: '整數規劃直線縮減' },
       { id: 'hc-llm-line', label: 'LLM 對齊直線縮減' },
+      // 中位集中：灰/粉紅/藍點沿所在直線往中位點滑動（見 GATHER_KIND）
+      { header: '中位集中' },
+      { id: 'hc-gather', label: 'Hill Climbing中位集中' },
+      { id: 'hc-rect-gather', label: '直角爬山中位集中' },
+      { id: 'hc-align-gather', label: '軸對齊中位集中' },
+      { id: 'hc-ilp-gather', label: '整數規劃中位集中' },
+      { id: 'hc-llm-gather', label: 'LLM 對齊中位集中' },
       { header: '縮減網格' },
       { id: 'hc-compact', label: 'Hill Climbing縮減網格' },
       { id: 'hc-rect-compact', label: '直角爬山縮減網格' },
       { id: 'hc-align-compact', label: '軸對齊縮減網格' },
       { id: 'hc-ilp-compact', label: '整數規劃縮減網格' },
       { id: 'hc-llm-compact', label: 'LLM 對齊縮減網格' },
-      // 循環：端點拉直→直線縮減→縮減網格 直到沒有點可以動（見 LOOP_KIND）
-      { header: '端點拉直+直線縮減+縮減網格循環' },
+      // 循環：端點拉直→直線縮減→中位集中→縮減網格 直到沒有點可以動（見 LOOP_KIND）
+      { header: '端點拉直+直線縮減+中位集中+縮減網格循環' },
       { id: 'hc-loop', label: 'Hill Climbing循環' },
       { id: 'hc-rect-loop', label: '直角爬山循環' },
       { id: 'hc-align-loop', label: '軸對齊循環' },
@@ -670,6 +691,7 @@ async function render() {
     cachedCompact = {}
     cachedEndp = {}
     cachedLine = {}
+    cachedGather = {}
     cachedLoop = {}
     cachedRWD = null
     hcStats.value = null
@@ -682,6 +704,7 @@ async function render() {
     hcCompactStats.value = null
     endpStats.value = null
     lineStats.value = null
+    gatherStats.value = null
     loopStats.value = null
     rwdStats.value = null
     // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
@@ -788,15 +811,15 @@ async function render() {
       llmStats.value = cachedLlm.stats
       llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
     }
-    // 鏈的後處理順序：端點拉直 → 直線縮減 → 縮減網格（循環 tab 另走
-    // straightenCompactLoop）。
+    // 鏈的後處理順序：端點拉直 → 直線縮減 → 中位集中 → 縮減網格（循環 tab
+    // 另走 straightenCompactLoop）。
     // ① 端點拉直: endpoint straighten on the chain's result (原 tab 不動)。
     // 每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，走同一套
     // 硬規則、迭代到不動點。Applies to the -end tabs AND as step 1 under
-    // 直線縮減/縮減網格/RWD.
+    // 直線縮減/中位集中/縮減網格/RWD.
     {
       const endKind = END_KIND[mode.value] ?? LINE_KIND[mode.value]
-        ?? (hcCompact.value ? rwdCompactKey.value : null)
+        ?? GATHER_KIND[mode.value] ?? (hcCompact.value ? rwdCompactKey.value : null)
       if (endKind) {
         if (!cachedEndp[endKind]) cachedEndp[endKind] = iteratePost(buildEndpointStraighten, cachedSkeleton, cells, nC, nR)
         cells = cachedEndp[endKind].cellAfter
@@ -808,9 +831,9 @@ async function render() {
     // horizontally) on the straightened layout, so fewer columns/rows are
     // OCCUPIED — grid dims, the network structure and the network-wide H/V
     // count never degrade (buildLineCompact). Applies to the -line tabs AND
-    // under 縮減網格/RWD.
+    // under 中位集中/縮減網格/RWD.
     {
-      const lineKind = LINE_KIND[mode.value]
+      const lineKind = LINE_KIND[mode.value] ?? GATHER_KIND[mode.value]
         ?? (hcCompact.value ? rwdCompactKey.value : null)
       if (lineKind) {
         if (!cachedLine[lineKind]) cachedLine[lineKind] = buildLineCompact(cachedSkeleton, cells, nC, nR)
@@ -818,8 +841,20 @@ async function render() {
         lineStats.value = cachedLine[lineKind].stats
       }
     }
-    // ③ 縮減網格: compacts the CURRENT layout (端點拉直→直線縮減 applied
-    // above): the hc chain's, or the post-pass/LLM one on the 縮減 tabs.
+    // ③ 中位集中: 灰/粉紅/藍點沿所在直線往中位點滑動（水平線只左右移、
+    // 垂直線只上下移），H/V 與網格尺寸不變（buildMedianGather）。Applies to
+    // the -gather tabs AND under 縮減網格/RWD.
+    {
+      const gatherKind = GATHER_KIND[mode.value]
+        ?? (hcCompact.value ? rwdCompactKey.value : null)
+      if (gatherKind) {
+        if (!cachedGather[gatherKind]) cachedGather[gatherKind] = buildMedianGather(cachedSkeleton, cells, nC, nR)
+        cells = cachedGather[gatherKind].cellAfter
+        gatherStats.value = cachedGather[gatherKind].stats
+      }
+    }
+    // ④ 縮減網格: compacts the CURRENT layout (端點拉直→直線縮減→中位集中
+    // applied above): the hc chain's, or the post-pass/LLM one on the 縮減 tabs.
     if (hcCompact.value) {
       const ckey = rwdCompactKey.value
       if (!cachedCompact[ckey]) cachedCompact[ckey] = compactGrid(cells, grid.cols, grid.rows)
@@ -1644,10 +1679,19 @@ onBeforeUnmount(() => {
           v-if="!lineStats.converged">（達上限未收斂）</template>
       </span>
 
-      <!-- 循環: 端點拉直 → 直線縮減 → 縮減網格 until nothing can move -->
+      <!-- 中位集中: gray/pink/blue vertices slide along their line, and whole
+           stitched lines shift perpendicularly, toward the median -->
+      <span v-if="isHC && GATHER_KIND[mode] && gatherStats" class="hc-stats">
+        中位集中 移動 {{ gatherStats.movedPts }} 點 · {{ gatherStats.movedLines }} 線
+        · 迭代 {{ gatherStats.iters }}/{{ gatherStats.iterCap }}<template
+          v-if="!gatherStats.converged">（達上限未收斂）</template>
+      </span>
+
+      <!-- 循環: 端點拉直 → 直線縮減 → 中位集中 → 縮減網格 until nothing can move -->
       <span v-if="isHC && LOOP_KIND[mode] && loopStats" class="hc-stats">
         循環 {{ loopStats.rounds }} 輪 · 端點拉直 {{ loopStats.moved }} 點
         · 直線縮減 {{ loopStats.lineMoved }} 線
+        · 中位集中 {{ loopStats.gatherMoved }} 點/線
         · 水平垂直 {{ loopStats.hvBefore }} → {{ loopStats.hvAfter }}／{{ loopStats.segs }} 段
         · 網格 {{ loopStats.fromCols }}×{{ loopStats.fromRows }} →
         {{ loopStats.cols }}×{{ loopStats.rows }}<template
@@ -1768,6 +1812,7 @@ onBeforeUnmount(() => {
 }
 /* Section headers inside the view list（原始／Hill Climbing／直線演算法／…）。 */
 .view-nav-group {
+  flex-shrink: 0; /* view 很多時不被壓扁——超出改由 .view-nav 的捲軸承接 */
   padding: 8px 10px 2px;
   font-size: 10.5px;
   font-weight: 600;
@@ -1792,6 +1837,7 @@ onBeforeUnmount(() => {
 }
 .view-nav-resize:hover, .view-nav-resize.dragging { background: hsl(var(--primary) / 0.3); }
 .view-nav-item {
+  flex-shrink: 0; /* view 很多時不被壓扁——超出改由 .view-nav 的捲軸承接 */
   text-align: left;
   padding: 6px 10px;
   font-size: 12.5px;

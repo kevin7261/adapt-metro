@@ -814,41 +814,60 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
 // occlusion, quadrant + edge order preserved) — the network structure is
 // untouched. Tie-breaks: bigger gain → bigger H/V gain on the boundary
 // segments → smaller displacement.
+// straight-line components per axis (union-find over same-axis straight
+// segments), stitched across intersection vertices — shared by 直線縮減 and
+// 中位集中.
+function lineComponents(pos, segs, horiz) {
+  const parent = new Map()
+  const find = (x) => {
+    let r = x
+    while (parent.get(r) !== r) r = parent.get(r)
+    let c = x
+    while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
+    return r
+  }
+  for (const s of segs) {
+    const A = pos.get(s.a), B = pos.get(s.b)
+    const straight = horiz ? (A[1] === B[1] && A[0] !== B[0]) : (A[0] === B[0] && A[1] !== B[1])
+    if (!straight) continue
+    for (const v of [s.a, s.b]) if (!parent.has(v)) parent.set(v, v)
+    const a = find(s.a), b = find(s.b)
+    if (a !== b) parent.set(a, b)
+  }
+  const comps = new Map()
+  for (const v of parent.keys()) {
+    const root = find(v)
+    if (!comps.has(root)) comps.set(root, [])
+    comps.get(root).push(v)
+  }
+  return [...comps.values()].filter((c) => c.length >= 2 && c.length < pos.size)
+    .map((c) => c.sort()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+}
+
+// net H/V change of the BOUNDARY segments (one endpoint moving, one static)
+// under a rigid shift of the inC vertex set — internal/static segments are
+// unchanged, so this is the network-wide H/V delta. Shared by 直線縮減 and
+// 中位集中.
+function boundaryHvDelta(pos, segs, inC, dc, dr) {
+  const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
+  let d = 0
+  for (const s of segs) {
+    const ma = inC.has(s.a), mb = inC.has(s.b)
+    if (ma === mb) continue
+    const A = pos.get(s.a), B = pos.get(s.b)
+    const A2 = ma ? [A[0] + dc, A[1] + dr] : A
+    const B2 = mb ? [B[0] + dc, B[1] + dr] : B
+    d += (isHV(A2, B2) ? 1 : 0) - (isHV(A, B) ? 1 : 0)
+  }
+  return d
+}
+
 function lineCompactPass(skeleton, cells, cols, rows) {
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   const empty = { cellAfter: pos, moved: 0, hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, occBefore: [0, 0], occAfter: [0, 0] }
   if (!pos.size || !segs.length) return empty
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
-  const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
-
-  // straight-line components per axis (union-find over same-axis segments)
-  const lineComps = (horiz) => {
-    const parent = new Map()
-    const find = (x) => {
-      let r = x
-      while (parent.get(r) !== r) r = parent.get(r)
-      let c = x
-      while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
-      return r
-    }
-    for (const s of segs) {
-      const A = pos.get(s.a), B = pos.get(s.b)
-      const straight = horiz ? (A[1] === B[1] && A[0] !== B[0]) : (A[0] === B[0] && A[1] !== B[1])
-      if (!straight) continue
-      for (const v of [s.a, s.b]) if (!parent.has(v)) parent.set(v, v)
-      const a = find(s.a), b = find(s.b)
-      if (a !== b) parent.set(a, b)
-    }
-    const comps = new Map()
-    for (const v of parent.keys()) {
-      const root = find(v)
-      if (!comps.has(root)) comps.set(root, [])
-      comps.get(root).push(v)
-    }
-    return [...comps.values()].filter((c) => c.length >= 2 && c.length < pos.size)
-      .map((c) => c.sort()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
-  }
 
   // occupied-coordinate counts per axis; distinct cols+rows = compacted size
   const count = [new Map(), new Map()]
@@ -875,20 +894,6 @@ function lineCompactPass(skeleton, cells, cols, rows) {
     }
     return gain
   }
-  // H/V damage: boundary segments (one endpoint moving) before vs after
-  const hvDelta = (inC, dc, dr) => {
-    let d = 0
-    for (const s of segs) {
-      const ma = inC.has(s.a), mb = inC.has(s.b)
-      if (ma === mb) continue // internal (rigid) or static — unchanged
-      const A = pos.get(s.a), B = pos.get(s.b)
-      const A2 = ma ? [A[0] + dc, A[1] + dr] : A
-      const B2 = mb ? [B[0] + dc, B[1] + dr] : B
-      d += (isHV(A2, B2) ? 1 : 0) - (isHV(A, B) ? 1 : 0)
-    }
-    return d
-  }
-
   // perpendicular jump targets: deltas onto the nearest K occupied
   // coordinates on each side of `x` on axis `ax` (the line occupies exactly
   // one coordinate there, so landing on an occupied one merges it away).
@@ -905,7 +910,7 @@ function lineCompactPass(skeleton, cells, cols, rows) {
   const occBefore = [count[0].size, count[1].size]
   let moved = 0
   for (const horiz of [true, false]) {
-    for (const comp of lineComps(horiz)) {
+    for (const comp of lineComponents(pos, segs, horiz)) {
       const inC = new Set(comp)
       const perpAx = horiz ? 1 : 0
       const lineAt = pos.get(comp[0])[perpAx] // shared coordinate of the line
@@ -917,7 +922,7 @@ function lineCompactPass(skeleton, cells, cols, rows) {
         const [dc, dr] = horiz ? [0, d] : [d, 0]
         const gain = gainOf(comp, dc, dr)
         if (gain <= 0) continue // must strictly shrink the occupied cols+rows
-        const hv = hvDelta(inC, dc, dr)
+        const hv = boundaryHvDelta(pos, segs, inC, dc, dr)
         if (hv < 0) continue // 整個 network 的直線（H/V 段）不可變少
         scored.push({ dc, dr, gain, hv, dist: Math.abs(dc) + Math.abs(dr) })
       }
@@ -972,34 +977,158 @@ export function buildLineCompact(skeleton, cells, cols, rows) {
   }
 }
 
-// 端點拉直+直線縮減+縮減網格循環: each round runs 端點拉直 (itself iterated
-// to a fixed point) → 直線縮減 (itself iterated) → compactGrid, until a round
-// where NOTHING moves. Compaction changes every cell's rank coordinates, so
-// hard-rule blocks (occlusion, landing on another vertex) shift and new
-// moves can open up; a straighten can empty more rows/columns; a line shift
-// can unblock further straightens. Terminates: straighten moves strictly
-// grow H/V (bounded) and never add a new occupied column/row, line moves
-// strictly shrink occupied columns+rows (bounded below), the grid never
-// grows; POST_ITER_CAP rounds as a backstop. Per-round moved counts are
+// 中位集中 one sweep — two move kinds, both TOWARD the median point (the
+// yellow marker: per-axis median of every coloured vertex):
+// ① 灰（分隔）/粉紅（轉折）/藍（端點）vertices slide ALONG their straight
+// line — all incident segments horizontal → left/right only (toward the
+// median column); all vertical → up/down only. Mixed (a real bend) or
+// structural vertices (red/purple/yellow) never move. Sliding keeps every
+// incident segment straight. Each move goes through makeMover.validMove
+// (no crossing/occlusion, quadrant + edge order preserved — a vertex can
+// never slide past its neighbour).
+// ② whole stitched straight LINES (lineComponents — same stitching as
+// 直線縮減) shift PERPENDICULARLY toward the median: horizontal lines
+// up/down toward the median row, vertical lines left/right. Guards: the
+// network-wide H/V count must not drop (boundaryHvDelta ≥ 0), the occupied
+// column/row count must not grow (else it would undo 直線縮減 and fight it
+// in the loop), and the SAME validShift hard rules apply.
+// Candidates are tried from the median-most valid cell back to the current.
+function medianGatherPass(skeleton, cells, cols, rows) {
+  const { pos, segs, inc } = buildHcGraph(skeleton, cells)
+  if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size }
+  const M = makeMover(pos, segs, inc, cols, rows)
+  const cls = skeleton.stationClass
+  const median = (vals) => {
+    const s = [...vals].sort((a, b) => a - b)
+    const m = s.length >> 1
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+  }
+  const ps = [...pos.values()]
+  const med = [median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))]
+  const isAlong = (ax) => (A, B) => A[1 - ax] === B[1 - ax] && A[ax] !== B[ax]
+  // ── ① 點：灰/粉紅/藍沿所在直線往中位點滑動 ──
+  let movedPts = 0
+  const ids = [...pos.keys()].sort()
+  for (const v of ids) {
+    const c = cls.get(v)
+    if (c !== 'gray' && c !== 'pink' && c !== 'blue') continue
+    const vsegs = inc.get(v).map((si) => segs[si])
+    if (!vsegs.length) continue
+    const pv = pos.get(v)
+    const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
+    for (const ax of [0, 1]) {
+      if (!vsegs.every((s) => isAlong(ax)(pv, otherPos(s)))) continue
+      const dir = Math.sign(med[ax] - pv[ax])
+      if (!dir) break
+      // try the median-most cell first, walking back toward the current cell
+      const limit = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
+      for (let x = limit; x !== pv[ax]; x -= dir) {
+        const P = ax ? [pv[0], x] : [x, pv[1]]
+        if (!M.validMove(v, P)) continue
+        M.applyMove(v, P)
+        movedPts++
+        break
+      }
+      break // all segments lie on this axis — the other axis cannot also apply
+    }
+  }
+  // ── ② 線：串起來的直線整條垂直於線往中位點移（水平線上下往中位列、垂直線
+  // 左右往中位欄）。走 validShift 硬規則，且不減全網 H/V、不增加佔用欄列數
+  // （否則會吐回直線縮減剛省下的欄列、和它在循環裡互相拉扯）。──
+  const occCount = (ax) => {
+    const m = new Map()
+    for (const p of pos.values()) m.set(p[ax], (m.get(p[ax]) ?? 0) + 1)
+    return m
+  }
+  let movedLines = 0
+  for (const horiz of [true, false]) {
+    const perpAx = horiz ? 1 : 0
+    for (const comp of lineComponents(pos, segs, horiz)) {
+      const inC = new Set(comp)
+      const at = pos.get(comp[0])[perpAx] // shared coordinate of the line
+      const dir = Math.sign(med[perpAx] - at)
+      if (!dir) continue
+      const count = occCount(perpAx)
+      const emptied = count.get(at) === comp.length // 原欄/列會被清空
+      const limit = dir > 0 ? Math.floor(med[perpAx]) : Math.ceil(med[perpAx])
+      for (let x = limit; x !== at; x -= dir) {
+        if (!count.has(x) && !emptied) continue // 會多佔一條欄/列 → 換近一點的
+        const d = x - at
+        const [dc, dr] = horiz ? [0, d] : [d, 0]
+        if (boundaryHvDelta(pos, segs, inC, dc, dr) < 0) continue // 全網直線不可變少
+        if (!M.validShift(comp, inC, dc, dr)) continue
+        M.applyShift(comp, [dc, dr])
+        movedLines++
+        break
+      }
+    }
+  }
+  return { cellAfter: pos, moved: movedPts + movedLines, movedPts, movedLines, segs: segs.length, verts: pos.size }
+}
+
+// 中位集中 post-pass: sweeps of medianGatherPass (the median is recomputed
+// each sweep from the current layout; a blocked vertex/line can move once
+// its neighbour has slid away) until a sweep moves nothing; POST_ITER_CAP
+// as backstop. Grid dims never change and the H/V count never drops — the
+// pass only pulls gray/pink/blue vertices ALONG their lines and whole
+// stitched lines PERPENDICULARLY toward the median point (the yellow marker).
+export function buildMedianGather(skeleton, cells, cols, rows) {
+  let cur = cells
+  let iters = 0, moved = 0, movedPts = 0, movedLines = 0
+  let last = null
+  while (iters < POST_ITER_CAP) {
+    const res = medianGatherPass(skeleton, cur, cols, rows)
+    iters++
+    last = res
+    moved += res.moved
+    movedPts += res.movedPts
+    movedLines += res.movedLines
+    cur = res.cellAfter
+    if (!res.moved) break
+  }
+  return {
+    cellAfter: cur,
+    cols,
+    rows,
+    stats: {
+      moved, movedPts, movedLines, segs: last.segs, verts: last.verts,
+      iters, iterCap: POST_ITER_CAP, converged: last.moved === 0,
+    },
+  }
+}
+
+// 端點拉直+直線縮減+中位集中+縮減網格循環: each round runs 端點拉直 (itself
+// iterated to a fixed point) → 直線縮減 (itself iterated) → 中位集中 (itself
+// iterated) → compactGrid, until a round where NOTHING moves. Compaction
+// changes every cell's rank coordinates, so hard-rule blocks (occlusion,
+// landing on another vertex) shift and new moves can open up; a straighten
+// can empty more rows/columns; a line shift or a gather slide can unblock
+// further straightens. Straighten moves strictly grow H/V (bounded), line
+// moves strictly shrink occupied columns+rows (bounded below), the grid
+// never grows; gather slides are H/V-neutral, so POST_ITER_CAP rounds is the
+// backstop against slide/median oscillation. Per-round moved counts are
 // summed (compaction renumbers cells, so a net position diff is meaningless).
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows
-  let rounds = 0, moved = 0, lineMoved = 0
-  let first = null, lastEndp = null, lastLine = null
+  let rounds = 0, moved = 0, lineMoved = 0, gatherMoved = 0
+  let first = null, lastEndp = null, lastLine = null, lastGather = null
   while (rounds < POST_ITER_CAP) {
     const endp = iteratePost(buildEndpointStraighten, skeleton, cur, nC, nR)
     const line = buildLineCompact(skeleton, endp.cellAfter, nC, nR)
-    const comp = compactGrid(line.cellAfter, nC, nR)
+    const gather = buildMedianGather(skeleton, line.cellAfter, nC, nR)
+    const comp = compactGrid(gather.cellAfter, nC, nR)
     rounds++
     first ??= endp.stats
     lastEndp = endp.stats
     lastLine = line.stats
+    lastGather = gather.stats
     moved += endp.stats.moved
     lineMoved += line.stats.moved
+    gatherMoved += gather.stats.moved
     cur = comp.cellAfter
     nC = comp.cols
     nR = comp.rows
-    if (!endp.stats.moved && !line.stats.moved) break
+    if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) break
   }
   return {
     cellAfter: cur,
@@ -1007,9 +1136,9 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     rows: nR,
     stats: {
       hvBefore: first.hvBefore, hvAfter: lastLine.hvAfter,
-      segs: lastEndp.segs, verts: lastEndp.verts, moved, lineMoved,
+      segs: lastEndp.segs, verts: lastEndp.verts, moved, lineMoved, gatherMoved,
       rounds, roundCap: POST_ITER_CAP,
-      converged: lastEndp.moved === 0 && lastLine.moved === 0,
+      converged: lastEndp.moved === 0 && lastLine.moved === 0 && lastGather.moved === 0,
       fromCols: cols, fromRows: rows, cols: nC, rows: nR,
     },
   }

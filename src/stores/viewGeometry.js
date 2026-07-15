@@ -17,7 +17,7 @@ import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
   buildHillClimb, compactGrid, buildHcGraph, iteratePost, buildEndpointStraighten,
-  buildLineCompact, buildRectPolish, buildAxisAlign, buildAxisIlp,
+  buildLineCompact, buildMedianGather, buildRectPolish, buildAxisAlign, buildAxisIlp,
 } from './hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 
@@ -391,11 +391,13 @@ export function computeCityHcViews(geojson, opts = {}) {
         { x: +mx.toFixed(1), y: +my.toFixed(1), r: +(Math.min(W, H) * 0.032).toFixed(1) }
     }
 
-    // 4) Hill Climbing縮減網格 — 直線縮減 (rigid line shifts, grid dims
-    // unchanged) on the straightened layout, then drop colour-free rows/cols
-    // and re-map over the smaller grid (chain: 端點拉直 → 直線縮減 → 縮減網格).
+    // 4) Hill Climbing縮減網格 — 直線縮減 (rigid line shifts) ＋ 中位集中
+    // (median gather) on the straightened layout, then drop colour-free
+    // rows/cols and re-map over the smaller grid
+    // (chain: 端點拉直 → 直線縮減 → 中位集中 → 縮減網格).
     const lined = buildLineCompact(skeleton, endp.cellAfter, grid.cols, grid.rows)
-    const comp = compactGrid(lined.cellAfter, grid.cols, grid.rows)
+    const gathered = buildMedianGather(skeleton, lined.cellAfter, grid.cols, grid.rows)
+    const comp = compactGrid(gathered.cellAfter, grid.cols, grid.rows)
     const m2 = cellMapper(comp.cols, comp.rows)
     const compPos = new Map()
     for (const [id, cell] of comp.cellAfter) compPos.set(id, m2.cellPx(cell))
@@ -515,12 +517,13 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // 每條鏈（同 D3Tab）：該鏈結果 → 端點拉直 → 直線縮減 → 縮減網格。
+    // 每條鏈（同 D3Tab）：該鏈結果 → 端點拉直 → 直線縮減 → 中位集中 → 縮減網格。
     const base = POST[kind]
       ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
       : hc.cellAfter
     const straightened = iteratePost(buildEndpointStraighten, skeleton, base, grid.cols, grid.rows).cellAfter
-    const cells = buildLineCompact(skeleton, straightened, grid.cols, grid.rows).cellAfter
+    const lined = buildLineCompact(skeleton, straightened, grid.cols, grid.rows).cellAfter
+    const cells = buildMedianGather(skeleton, lined, grid.cols, grid.rows).cellAfter
     const comp = compactGrid(cells, grid.cols, grid.rows)
     const m = cellMapper(comp.cols, comp.rows)
     // 縮減網格: original network snapped to the compact cells (per-feature).

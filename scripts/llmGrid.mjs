@@ -28,7 +28,7 @@ import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
   buildHillClimb, compactGrid, iteratePost, buildEndpointStraighten,
-  buildLineCompact, buildRectPolish, buildAxisAlign, buildAxisIlp,
+  buildLineCompact, buildMedianGather, buildRectPolish, buildAxisAlign, buildAxisIlp,
 } from '../src/stores/hillClimb.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -81,8 +81,8 @@ const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
 
 // The RWD view compacts the layout its layer.compact picks — the HC result,
 // a post-pass ('rect'/'align'/'ilp'), or the offline LLM 對齊 (llmviews
-// file) — then, same as D3Tab, EVERY chain runs the 3-step tail
-// 端點拉直 → 直線縮減 → compactGrid.
+// file) — then, same as D3Tab, EVERY chain runs the 4-step tail
+// 端點拉直 → 直線縮減 → 中位集中 → compactGrid.
 let baseCells
 if (POST_BUILD[compact]) {
   baseCells = iteratePost(POST_BUILD[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
@@ -99,6 +99,7 @@ if (POST_BUILD[compact]) {
 }
 baseCells = iteratePost(buildEndpointStraighten, skeleton, baseCells, grid.cols, grid.rows).cellAfter
 baseCells = buildLineCompact(skeleton, baseCells, grid.cols, grid.rows).cellAfter
+baseCells = buildMedianGather(skeleton, baseCells, grid.cols, grid.rows).cellAfter
 const comp = compactGrid(baseCells, grid.cols, grid.rows)
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows
