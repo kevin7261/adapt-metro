@@ -254,13 +254,12 @@ function buildSystem(raw, override) {
   for (const w of ways) if (w.line) lineHs.set(w.line, (lineHs.get(w.line) || false) || w.cls === 'high_speed')
   const clsOfLine = (ln) => (ln?.startsWith('__') ? ln.slice(2) : (lineHs.get(ln) ? 'high_speed' : 'conventional'))
   const hsLineNames = [...lineHs.entries()].filter(([, h]) => h).map(([n]) => n)
-  // When there is exactly ONE HSR line (台灣高鐵), its dedicated track is sparse/
-  // gapped (tunnels) so we build it by nearest-neighbour from the operator flag
-  // (below) and the walk SKIPS its corridors. With MANY HSR lines (中國 高鐵路網,
-  // 日本 新幹線: 東海道/山陽/東北/上越/北陸/九州…) the dedicated track is densely
-  // mapped, so the walk MUST traverse HSR corridors too — otherwise every corridor
-  // is HSR and no station-to-station edge is ever built (China → 0 features).
-  const walkHsr = hsLineNames.length !== 1
+  // 高鐵 (high_speed) is NOT built by track-walk: HSR viaducts pass OVER dense local
+  // stations (東海道新幹線 track ← 東急武蔵小杉 32m away), which a walk with the 250m
+  // tolerance wrongly grabs. Instead the walk SKIPS all HSR corridors and 高鐵 is
+  // built from OSM route=railway relations' ordered stop members (below) — the real
+  // stops, excluding viaduct passovers (see skill railway-osm-fetch). So the walk
+  // here produces the CONVENTIONAL (一般國鐵) network only, exactly like 台灣 台鐵.
 
   // ── 4. snap stations onto the track graph ──
   const gIdx = gridIndex(gvc.map(([x, y]) => ({ lon: x, lat: y })))
@@ -290,19 +289,18 @@ function buildSystem(raw, override) {
     if (s.gv === undefined) continue
     for (const first of [...new Set(gadj[s.gv].map((e) => e.to))]) {
       const e0 = gadj[s.gv].find((e) => e.to === first)
-      if (e0.hs && !walkHsr) continue // single-HSR-line country: its corridor is built by NN (sparse track)
+      if (e0.hs) continue // HSR corridors are built from relations, not the walk (viaduct pollution)
       const seen = new Set([s.gv, first]); let prev = s.gv, cur = first, guard = 0
-      const votes = new Map(); let hs = false
+      const votes = new Map()
       if (e0.line) votes.set(e0.line, 1)
       while (guard++ < 4000) {
         const sid = stAtV.get(cur)
         if (sid !== undefined && sid !== s.id) {
-          if (haversine([s.lon, s.lat], gvc[cur]) <= capFor(hs ? 'high_speed' : 'conventional')) {
+          if (haversine([s.lon, s.lat], gvc[cur]) <= capFor('conventional')) {
             const k = ekey(s.id, sid)
             if (!edges.has(k)) edges.set(k, { a: s.id, b: sid, lines: new Map(), hs: false })
             const rec = edges.get(k)
             for (const [ln, c] of votes) rec.lines.set(ln, (rec.lines.get(ln) || 0) + c)
-            if (hs) rec.hs = true
           }
           break
         }
@@ -314,36 +312,78 @@ function buildSystem(raw, override) {
           if (angleAt(prev, cur, nxt) > 1.05) break // > ~60° turn → ambiguous
         }
         const e = gadj[cur].find((x) => x.to === nxt)
-        if (e.line) votes.set(e.line, (votes.get(e.line) || 0) + 1); if (e.hs) hs = true
+        if (e.hs) break // ran onto HSR track — stop; HSR is relation-built
+        if (e.line) votes.set(e.line, (votes.get(e.line) || 0) + 1)
         seen.add(nxt); prev = cur; cur = nxt
       }
     }
   }
-  // HSR line from the OPERATOR FLAG, not track-walk: dedicated HSR track geometry is
-  // sparse/gapped in OSM (台灣高鐵 tunnel), so a track-walk fragments it. When the
-  // country has exactly ONE HSR line (台灣), order all its HSR-platform stations
-  // nearest-neighbour and connect consecutive ones — one continuous 高鐵 line.
-  // (Multiple Shinkansen → keep track-walk so they stay distinct.)
-  if (hsLineNames.length === 1) {
-    const ln = hsLineNames[0]
-    const hsrSt = stations.filter((s) => s.hsr)
-    if (hsrSt.length >= 2) {
-      const far = (from, pts) => pts.reduce((b, p) => haversine([from.lon, from.lat], [p.lon, p.lat]) > haversine([from.lon, from.lat], [b.lon, b.lat]) ? p : b, pts[0])
-      const start = far(far(hsrSt[0], hsrSt), hsrSt)
-      const used = new Set([start]); const order = [start]; let curS = start
-      while (order.length < hsrSt.length) {
-        let best = null, bd = Infinity
-        for (const p of hsrSt) { if (used.has(p)) continue; const d = haversine([curS.lon, curS.lat], [p.lon, p.lat]); if (d < bd) { bd = d; best = p } }
-        used.add(best); order.push(best); curS = best
-      }
-      for (let i = 0; i + 1 < order.length; i++) {
-        const a = order[i], b = order[i + 1]
-        if (haversine([a.lon, a.lat], [b.lon, b.lat]) > capFor('high_speed')) continue
-        const k = ekey(a.id, b.id)
-        if (!edges.has(k)) edges.set(k, { a: a.id, b: b.id, lines: new Map(), hs: true })
-        const rec = edges.get(k); rec.lines.set(ln, (rec.lines.get(ln) || 0) + 10); rec.hs = true
-      }
+  // Order a set of stations into ONE contiguous chain by nearest-neighbour from a
+  // geographic extreme, then connect consecutive ones (straight segment, like 縱貫線).
+  const nnChain = (pts, lineNm, cap) => {
+    if (pts.length < 2) return
+    const far = (from, arr) => arr.reduce((b, p) => haversine([from.lon, from.lat], [p.lon, p.lat]) > haversine([from.lon, from.lat], [b.lon, b.lat]) ? p : b, arr[0])
+    const start = far(far(pts[0], pts), pts)
+    const used = new Set([start.id]); const order = [start]; let curS = start
+    while (order.length < pts.length) {
+      let best = null, bd = Infinity
+      for (const p of pts) { if (used.has(p.id)) continue; const d = haversine([curS.lon, curS.lat], [p.lon, p.lat]); if (d < bd) { bd = d; best = p } }
+      if (!best) break
+      used.add(best.id); order.push(best); curS = best
     }
+    let added = 0
+    for (let i = 0; i + 1 < order.length; i++) {
+      const a = order[i], b = order[i + 1]
+      if (haversine([a.lon, a.lat], [b.lon, b.lat]) > cap) continue
+      const k = ekey(a.id, b.id)
+      if (!edges.has(k)) edges.set(k, { a: a.id, b: b.id, lines: new Map(), hs: true })
+      const rec = edges.get(k); rec.lines.set(lineNm, (rec.lines.get(lineNm) || 0) + 10); rec.hs = true
+      added++
+    }
+    return added
+  }
+
+  // ── 5b. 高鐵 lines from OSM route=railway relations' ORDERED STOP MEMBERS. These
+  // are the real stops — a track-walk over HSR viaducts wrongly grabs local stations
+  // underneath (東海道新幹線 ← 東急武蔵小杉) and the highspeed=yes station tag is too
+  // sparse (China ~none), but the relation members include the tag-less majors
+  // (小田原/名古屋) and exclude the passovers. Map each stop node → merged station,
+  // NN-order, connect consecutive → ONE CONTIGUOUS line (使用者：同一路線一定串接). ──
+  const relEls = raw.relElements || []
+  const relNodeById = new Map()
+  for (const e of relEls) if (e.type === 'node') relNodeById.set(e.id, e)
+  const rawIdx = new Map(rawSt.map((s, i) => [s.id, i]))
+  const nodeToStation = (n) => {
+    const idx = rawIdx.get(`n${n.id}`)
+    if (idx !== undefined) return `s${rawSt[find(idx)].id}`
+    const { i } = stIdx.nearest(n.lon, n.lat, 1500) // stop node filtered from station set → nearest
+    return i >= 0 ? stations[i].id : null
+  }
+  let relHsAdded = 0
+  for (const rel of relEls) {
+    if (rel.type !== 'relation' || !rel.members) continue
+    const rname = lineName(rel.tags, country)
+    if (!rname) continue // bridge/tunnel sub-relations (…高架橋) fall out here
+    const stopIds = []; const seenSid = new Set()
+    for (const m of rel.members) {
+      if (m.type !== 'node') continue
+      const n = relNodeById.get(m.ref); if (!n) continue
+      const t = n.tags || {}
+      if (!/^(station|halt|stop)$/.test(t.railway || '')) continue
+      if (/线路所|線路所|信号場|信號場|信号所|信號所|線区|渡り線/.test(t.name || t['name:zh'] || t['name:ja'] || '')) continue // 号志站/junction, not a stop
+      const sid = nodeToStation(n); if (!sid || seenSid.has(sid)) continue
+      seenSid.add(sid); stopIds.push(sid)
+    }
+    if (stopIds.length < 2) continue
+    lineHs.set(rname, true)
+    const pts = stopIds.map((id) => stById.get(id)).filter(Boolean)
+    relHsAdded += nnChain(pts, rname, capFor('high_speed')) || 0
+  }
+
+  // Fallback: a country with HSR track but NO usable relations (e.g. 台灣高鐵 if its
+  // relation is missing) → build the single HSR line by NN over HSR-operator stations.
+  if (!relHsAdded && hsLineNames.length === 1) {
+    nnChain(stations.filter((s) => s.hsr), hsLineNames[0], capFor('high_speed'))
   }
   // dominant NAMED line of an edge (majority track vote); its group key falls back
   // to the class when the track was unnamed (a connector), so it is still drawn.
