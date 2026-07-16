@@ -1508,34 +1508,15 @@ async function build() {
   for (const grp of cityGroups.values()) {
     const feats = grp.stations
     if (feats.length < 2) continue
-    // 拆站 override（interchanges.json 的 `split`）：某些同名站分屬不相通的不同線，
-    // 每個 line-group 各自成站。給每個 feat 標 splitKeyOf＝`name#groupIdx`（未列出成員
-    // ＝`name#rest`＝真 complex 那一站）；union guard 擋掉「同名不同 group」的任何合併
-    // （stop_area／距離／interchange 三個 phase 都擋），union-find 只能併不能拆，故必須
-    // 在合併發生前就阻止（曾錯在事後才拆、被 stop_area 先併走）。
+    // 拆站 override（interchanges.json 的 `split`，本城適用者）：name → [[refs]…]。
+    // 合併後再依 line-group 拆（見 materialize），故用「合併簇的代表名」判定——能處理
+    // 跨名合併（WTC 一帶 Cortlandt Street 併進 WTC Cortlandt/Park Place… 異名節點）。
     const splitByName = new Map()
-    for (const sp of splitSpecs) if (normCity(sp.city) === normCity(grp.info.city)) splitByName.set(normName(sp.name), sp.groups)
-    const splitKeyOf = new Array(feats.length).fill(null)
-    if (splitByName.size) {
-      const nref = (r) => String(r).toLowerCase().replace(/\s+/g, '')
-      feats.forEach((f, i) => {
-        const nk = normName(f.properties.station_name)
-        const groups = splitByName.get(nk)
-        if (!groups) return
-        const ml = (f.properties.lines || []).map(nref)
-        let gi = -1
-        for (let g = 0; g < groups.length; g++) if (groups[g].map(nref).some((x) => ml.includes(x))) { gi = g; break }
-        splitKeyOf[i] = `${nk}#${gi >= 0 ? gi : 'rest'}`
-      })
-    }
-    // union-find（含 split guard：同名不同 group 一律不併）
+    for (const sp of splitSpecs) if (normCity(sp.city) === normCity(grp.info.city)) splitByName.set(normName(sp.name), sp)
+    // union-find
     const parent = feats.map((_, i) => i)
     const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i] } return i }
-    const union = (a, b) => {
-      const ka = splitKeyOf[a], kb = splitKeyOf[b]
-      if (ka && kb && ka !== kb && ka.slice(0, ka.indexOf('#')) === kb.slice(0, kb.indexOf('#'))) return
-      const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra
-    }
+    const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra }
     const nodeId = (f) => parseInt((f.properties.station_id || '').slice(1), 10)
 
     // (1) shared stop_area
@@ -1586,8 +1567,6 @@ async function build() {
       for (const c of clusters)
         for (let k = 1; k < c.members.length; k++) union(c.members[0], c.members[k])
     }
-    // 拆站的分組已由 splitKeyOf + union guard 隔離（見上方 union）；此處照常聚合，
-    // 跨 split-group 的 union 會被 guard 擋掉 → 每組各自成站、真 complex（rest）照併。
     for (const idxs of byName.values()) clusterAndUnion(idxs)
     // (3) adjudicated interchange pairs
     if (ixPairs.length) {
@@ -1597,20 +1576,53 @@ async function build() {
       }
     }
 
-    // materialize merged stations
+    // materialize merged stations. 拆站 override：若一個合併簇內**任一成員名 == split 站名**，
+    // 就把整簇依 line-group 重新拆成多站（每組一站、未列出 refs＝rest 那一站）。用「簇代表名」
+    // 判定→能處理跨名合併（WTC 一帶 Cortlandt Street 併了 WTC Cortlandt/Park Place 等異名節點）。
     const groupsByRoot = new Map()
-    feats.forEach((_, i) => {
-      const r = find(i)
-      if (!groupsByRoot.has(r)) groupsByRoot.set(r, [])
-      groupsByRoot.get(r).push(i)
-    })
+    const forcedName = new Map() // groupsByRoot key → optional station name (split spec `names`)
+    {
+      const rootMembers = new Map()
+      feats.forEach((_, i) => { const r = find(i); if (!rootMembers.has(r)) rootMembers.set(r, []); rootMembers.get(r).push(i) })
+      const nref = (r) => String(r).toLowerCase().replace(/\s+/g, '')
+      for (const [root, idxs] of rootMembers) {
+        let spec = null
+        if (splitByName.size) for (const i of idxs) { const s = splitByName.get(normName(feats[i].properties.station_name)); if (s) { spec = s; break } }
+        // optional `near:[lon,lat]` (+ `radius` m, default 600) scopes a split to ONE
+        // cluster when the station name is non-unique (Brooklyn Fulton St vs Manhattan
+        // Fulton Center) — skip clusters whose centroid is far from the anchor.
+        if (spec && spec.near) {
+          const clon = idxs.reduce((s, i) => s + feats[i].geometry.coordinates[0], 0) / idxs.length
+          const clat = idxs.reduce((s, i) => s + feats[i].geometry.coordinates[1], 0) / idxs.length
+          const dM = Math.hypot((clon - spec.near[0]) * Math.cos(clat * Math.PI / 180), clat - spec.near[1]) * 111000
+          if (dM > (spec.radius ?? 600)) spec = null
+        }
+        if (spec && idxs.length > 1) {
+          const gsets = spec.groups.map((g) => new Set(g.map(nref)))
+          for (const i of idxs) {
+            const ml = (feats[i].properties.lines || []).map(nref)
+            let gi = 'rest'
+            for (let g = 0; g < gsets.length; g++) if (ml.some((x) => gsets[g].has(x))) { gi = String(g); break }
+            const k = `${root}#${gi}`
+            if (!groupsByRoot.has(k)) groupsByRoot.set(k, [])
+            groupsByRoot.get(k).push(i)
+            if (spec.names && gi !== 'rest' && spec.names[+gi]) forcedName.set(k, spec.names[+gi])
+          }
+        } else groupsByRoot.set(root, idxs)
+      }
+    }
     const keep = []
     // 吸附別名：合併後代表點是「質心」，可能離某些成員 >600 m（NYC 125th St
     // 質心位移把 Lexington 節點全甩掉）——記下成員原座標→代表點座標，
     // 吸附階段對成員點找最近、再映射回代表點。
     const aliases = []
-    for (const idxs of groupsByRoot.values()) {
-      if (idxs.length === 1) { keep.push(feats[idxs[0]]); continue }
+    for (const [gkey, idxs] of groupsByRoot) {
+      const forced = forcedName.get(gkey) // split-spec `names` override for this sub-station
+      if (idxs.length === 1) {
+        const f = feats[idxs[0]]
+        if (forced) f.properties.station_name = forced
+        keep.push(f); continue
+      }
       mergedAway += idxs.length - 1
       const members = idxs.map((i) => feats[i])
       // 代表點站名：在有真名的成員裡挑最好的——依序：①拉丁/英文名優先（管線本來就
@@ -1697,6 +1709,7 @@ async function build() {
         type: 'Feature',
         properties: {
           ...first.properties,
+          ...(forced ? { station_name: forced, station_name_local: forced } : {}),
           lines: lines.length ? lines : null,
           merged_from: members.length,
           merged_names: mergedNames.length > 1 ? mergedNames : null,
@@ -2326,21 +2339,9 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
       f.properties.route_refs = [...new Set(routes.map((r) => r.route_ref || r.route_name))]
       f.properties.route_colors = routes.map((r) => r.route_color)
     }
-    // 車站：把 routes[] 依 ref→色→trunk 收名去重；pass＝任一同色服務跳站（快車 express
-    // 跳的 local 站在合併線上標 pass；全部服務都停者無 pass）。
-    for (const f of feats) {
-      if (f.geometry.type !== 'Point') continue
-      const byRef = new Map()
-      for (const r of f.properties.routes || []) {
-        const col = colorOfRef.get(String(r.ref)), tk = col && trunkOfColor.get(col)
-        const ref = tk?.route_ref ?? r.ref, name = tk?.route_name ?? r.name
-        if (!byRef.has(ref)) byRef.set(ref, { ref, name, pass: false })
-        if (r.pass) byRef.get(ref).pass = true
-      }
-      const entries = [...byRef.values()].map((e) => (e.pass ? { ref: e.ref, name: e.name, pass: true } : { ref: e.ref, name: e.name }))
-      f.properties.routes = entries
-      f.properties.lines = [...new Set(entries.map((e) => e.ref))]
-    }
+    // 車站 routes[]/lines **不** relabel 成 trunk——車站顯示**實際停靠的服務**（Atlantic
+    // Av–Barclays 停 2/3/4/5/B/D/N/Q/R，不是 trunk 標籤 1/2/3/4/5/6/…；使用者 2026-07）。
+    // trunk 合併只作用於「線」（map 同色一條），車站保留原本每個服務的 ref＋pass。
     return trunkOfColor.size
   }
 

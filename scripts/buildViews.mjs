@@ -31,8 +31,8 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 27 // 27: 骨架建圖改用完整行經序（含 pass）——快車走廊與慢車合併成一條共線邊，
-                         // 格網化後/HC 共線不再被拆成兩條線（倫敦 Piccadilly×District／NYC，2026-07-17）
+const VIEWS_VERSION = 29 // 29: 移除深色線 halo（使用者 2026-07-17：知道黑線在深背景看不見即可，
+                         // 不要描邊改回去）——v28 檔內含 halo 線條需全量重算掉
 const strHash = (s) => {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0

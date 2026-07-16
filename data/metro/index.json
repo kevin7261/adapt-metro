@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 234,
   "wikipedia_system_count": 233,
-  "line_total": 1733,
-  "station_total": 16896,
+  "line_total": 1731,
+  "station_total": 16897,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -26,8 +26,8 @@
       "official_map": "https://en.wikipedia.org/wiki/New_York_City_Subway",
       "wikidata": "Q7733",
       "line_count": 11,
-      "segment_count": 83,
-      "station_count": 443,
+      "segment_count": 81,
+      "station_count": 444,
       "audit": {
         "strategies_tried": [],
         "passed": true,

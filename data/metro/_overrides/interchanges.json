@@ -4,9 +4,12 @@
  "split": [
   { "city": "New York City", "name": "Canal Street", "groups": [["1", "2", "3"], ["A", "C", "E"]] },
   { "city": "New York City", "name": "Rector Street", "groups": [["1", "2", "3"], ["N", "Q", "R", "W"]] },
-  { "city": "New York City", "name": "Chambers Street", "groups": [["1", "2", "3"], ["A", "C", "E"], ["J", "Z"]] }
+  { "city": "New York City", "name": "Cortlandt Street", "groups": [["1", "2", "3"]] },
+  { "city": "New York City", "name": "Junius Street", "groups": [["1", "2", "3"], ["L"]], "names": ["Junius Street", "Livonia Avenue"] },
+  { "city": "New York City", "name": "Fulton Street", "groups": [["G"], ["A", "C", "E"]], "names": ["Fulton Street", "Lafayette Avenue"], "near": [-73.9747, 40.6867] }
  ],
  "merge": [
+  [ "n7636971151", "n7218038834" ],
   [
    "n4576225719",
    "n4579352784"

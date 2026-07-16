@@ -193,3 +193,15 @@ hc-ilp-end／hc-llm-end）＝在該鏈結果之上做端點移動的顯示視圖
 
 準則/硬規則/群集規則變動，**同步更新本 SKILL.md 與 `src/stores/hillClimb.js`**；
 輸入契約變動（cellOf 等）同步 [[route-skeleton-grid]]。
+
+## 爬山結果的 localStorage 快取（HC_LS_KEY，2026-07-17 Kilburn 案）
+
+D3Tab 把爬山＋後處理結果存 localStorage（鍵＝`HC_LS_KEY` store × `資料指紋:variant`）。
+**資料指紋只看資料**——資料沒變但**演算法變了**（骨架建圖、格網、爬山任一）時，舊快取的
+佈局與新骨架結構對不上：節點缺格子 → RWD/HC **整段線消失、站點退回舊座標懸空**（倫敦
+Kilburn／Jubilee×Met 走廊案）。且 localStorage 不隨 dev server 重啟或硬重載清除、殘留跨天，
+極難用「重新整理」排除。兩道防線（`D3Tab.vue`）：
+1. **改了 `skeleton.js`／`schematicGrid.js`／`hillClimb.js` 的演算法就把 `HC_LS_KEY` 版本 +1**
+   （v3＝骨架建圖含 pass）。
+2. **use-time 結構驗證**：快取的 `cellAfter` 必須涵蓋目前 `grid.cellOf` 的所有節點，否則作廢
+   重算——就算忘了 +1 也不會再出現殘缺畫面。

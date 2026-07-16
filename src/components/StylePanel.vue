@@ -671,6 +671,22 @@ function startResize(e) {
               <input type="checkbox" :checked="layer.showLabels" @change="layer.showLabels = $event.target.checked" />
               <span>顯示站名（在站點上方）</span>
             </label>
+
+            <!-- 地圖底色（D3 視圖：Map Adjust／Straighten／RWD 的畫布背景）——深色官方線
+                 （倫敦 Northern #000000）在預設深色背景看不見，改淺色底就現形（使用者 2026-07-17，
+                 取代曾實作又否決的深色線描邊）。清除＝回主題預設。 -->
+            <div class="field">
+              <label class="field-label">地圖底色（D3 視圖）</label>
+              <div class="bg-row">
+                <input
+                  type="color"
+                  class="color-input"
+                  :value="layer.d3Bg || '#0d1117'"
+                  @input="layer.d3Bg = $event.target.value"
+                />
+                <button v-if="layer.d3Bg" class="llm-run-btn" @click="layer.d3Bg = null">預設</button>
+              </div>
+            </div>
           </template>
 
           <template v-if="editable">
@@ -1384,6 +1400,7 @@ function startResize(e) {
 .check-field { display: flex; align-items: center; gap: 8px; font-size: var(--sp-body); cursor: pointer; }
 .check-field input { accent-color: hsl(var(--primary)); }
 .field-row { display: flex; gap: 10px; }
+.bg-row { display: flex; align-items: center; gap: 8px; }
 .color-input {
   width: 100%;
   height: 30px;
