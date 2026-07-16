@@ -34,3 +34,11 @@ network 名（`NATIONAL_INFRA` regex：DB Station／DB InfraGO／InfraGO／DB Ne
 DB Fernverkehr／Deutsche Bahn／Indian Rail…）。修正後紐倫堡 11 線/107 km（U1–U3＋S1–S6，
 107 km 是 S-Bahn 區域覆蓋的正常範圍，非錯誤）。這是通用 rebucket 護欄的一環，因德國最常
 觸發而記於此。
+
+## 柏林：Rathaus Spandau ↔ Spandau 共站（使用者裁決 2026-07-16）
+
+U7 終點 **Rathaus Spandau**（n38902451）與 S-Bahn/區域車站 **Spandau**（n610780825，
+S3/S9）是同一轉乘複合站（VBB 官方路網圖以連通轉乘顯示），但 OSM 異名且相距 ~180 m，
+同名近距合併救不到 → 已加入 `_overrides/interchanges.json` 的 `merge`。合併後代表名
+「Spandau」（線多者勝），Rathaus Spandau 保留在 `merged_names`。
+旁邊的 **Altstadt Spandau**（U7 倒數第二站）是不同站，不得誤併。

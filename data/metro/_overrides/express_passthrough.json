@@ -90,6 +90,62 @@
           22.36386
         ]
       ]
+    },
+    {
+      "city": "London",
+      "route_osm": [
+        102788,
+        7703380,
+        7703381,
+        7703382,
+        7703383,
+        7703384,
+        18528635,
+        18528636,
+        18528637,
+        18528638
+      ],
+      "note": "Piccadilly line 快車走廊：Acton Town↔Turnham Green 段與 District line 共走廊，Piccadilly 通過但不停 Chiswick Park（Chiswick Park 僅 District 停靠；Piccadilly 全時段快跑此段）。幾何沿 Chiswick Park 畫使共軌段判為共線畫雙色，Chiswick Park 對 Piccadilly 標 pass（2026-07 使用者裁決）。",
+      "from": [
+        -0.2799,
+        51.5027
+      ],
+      "to": [
+        -0.2545,
+        51.4951
+      ],
+      "via": [
+        [
+          -0.268,
+          51.4946
+        ]
+      ]
+    },
+    {
+      "city": "London",
+      "route_osm": [
+        102788,
+        7703380,
+        7703381,
+        7703382,
+        7703383,
+        7703384
+      ],
+      "note": "Piccadilly line 快車走廊：Earl's Court↔Barons Court 段與 District line 共走廊，Piccadilly 通過但不停 West Kensington（West Kensington 僅 District 停靠）。幾何沿 West Kensington 畫使共軌段判為共線畫雙色，West Kensington 對 Piccadilly 標 pass（2026-07 使用者裁決）。",
+      "from": [
+        -0.194,
+        51.4916
+      ],
+      "to": [
+        -0.2145,
+        51.4903
+      ],
+      "via": [
+        [
+          -0.2059,
+          51.4907
+        ]
+      ]
     }
   ]
 }

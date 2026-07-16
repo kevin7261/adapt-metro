@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1743,
-  "station_total": 16898,
+  "line_total": 1741,
+  "station_total": 16891,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -141,8 +141,8 @@
       "official_map": "https://en.wikipedia.org/wiki/London_Underground",
       "wikidata": "Q20075",
       "line_count": 26,
-      "segment_count": 68,
-      "station_count": 267,
+      "segment_count": 66,
+      "station_count": 261,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -255,7 +255,7 @@
       "wikidata": "Q315451",
       "line_count": 27,
       "segment_count": 61,
-      "station_count": 310,
+      "station_count": 309,
       "audit": {
         "strategies_tried": [],
         "passed": true,

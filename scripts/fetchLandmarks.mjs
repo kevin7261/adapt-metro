@@ -15,20 +15,23 @@ const SYSTEMS = join(ROOT, 'data', 'metro', 'systems')
 const OUT = join(ROOT, 'data', 'metro', 'landmarks')
 
 // Per-city landmark spec.
-//  kinds: ['river'] → all natural=water + water=river/riverbank polygons in the
-//         metro network bbox (+margin) — the city's river areas, not one named river.
-//  rivers: [names] → keep only these rivers. Main-channel polygons are often
-//         unnamed in OSM, so filtering also fetches the named waterway=river
-//         centerlines and keeps any polygon containing a centerline vertex.
+//  rivers: [names] → these rivers' skeleton polylines (kind river-centerline),
+//         from OSM waterway=river centerline ways — rivers are LINES only,
+//         no water polygons (使用者 2026-07-16：骨架有 OSM data，不抓面域).
+//         一項可為 { name, match: [...] }：同一條河在 OSM 的區段別名
+//         （柏林 Spree 的市段叫 Treptower Spree/Müggelspree）聚成同一骨架圖。
 //  named: exact-name polygon queries (palace / park), optionally tag-filtered;
 //         pickLargest keeps only the largest polygon when the name is ambiguous.
 const CITIES = {
-  // rivers 名單（使用者 2026-07-16）：只留四條主河，其餘支流/小溪剔除
-  'as-twn-taipei': { kinds: ['river'], rivers: ['淡水河', '基隆河', '新店溪', '大漢溪'] },
-  'eu-gbr-london': { kinds: ['river'], rivers: ['River Thames'] },
-  'eu-fra-paris': { kinds: ['river'], rivers: ['La Seine'] },
-  'as-kor-seoul': { kinds: ['river'], rivers: ['한강'] },
-  'as-chn-shanghai': { kinds: ['river'], rivers: ['黄浦江'] },
+  'as-twn-taipei': { rivers: ['淡水河', '基隆河', '新店溪', '大漢溪'] },
+  'eu-gbr-london': { rivers: ['River Thames'] },
+  'eu-ger-berlin': {
+    rivers: [{ name: 'Spree', match: ['Spree', 'Treptower Spree', 'Müggelspree'] }],
+  },
+  'eu-aut-vienna': { rivers: ['Donau', 'Neue Donau', 'Donaukanal'] },
+  'eu-fra-paris': { rivers: ['La Seine'] },
+  'as-kor-seoul': { rivers: ['한강'] },
+  'as-chn-shanghai': { rivers: ['黄浦江'] },
   // 皇居本體（way 534754971）不含同在護城河內的東御苑，兩者合成完整皇居面域
   'as-jpn-tokyo': {
     named: [
@@ -42,8 +45,8 @@ const CITIES = {
 }
 
 const BBOX_MARGIN = 0.05 // fraction of span added on each side
-const MIN_RIVER_KM2 = 0.01 // drop slivers below this area
 const MIN_CENTERLINE_KM = 1 // drop skeleton fragments below this length
+const GAP_BRIDGE_KM = 4 // join same-river main lines whose endpoints are this close
 
 async function findCityFile(id) {
   const stack = [SYSTEMS]
@@ -204,44 +207,9 @@ function toFeatures(elements, kind, { minKm2 = 0 } = {}) {
 // ---- queries ---------------------------------------------------------------
 const bboxStr = ([S, W, N, E]) => `${S},${W},${N},${E}`
 
-const riverQuery = (bbox) => `[out:json][timeout:300];
-(
-  way["natural"="water"]["water"="river"](${bboxStr(bbox)});
-  relation["natural"="water"]["water"="river"](${bboxStr(bbox)});
-  way["waterway"="riverbank"](${bboxStr(bbox)});
-  relation["waterway"="riverbank"](${bboxStr(bbox)});
-);
-out geom;`
-
 const centerlineQuery = (bbox, names) => `[out:json][timeout:120];
 way["waterway"="river"]["name"~"^(${names.join('|')})$"](${bboxStr(bbox)});
 out geom;`
-
-// rivers 名單過濾：面域有名字就比名字；無名面域凡包含名單河流中心線的節點者視為主河道。
-function filterByRivers(feats, names, centerlineElements) {
-  const pts = []
-  for (const el of centerlineElements) {
-    for (const g of el.geometry || []) pts.push([g.lon, g.lat])
-  }
-  const contains = (f, pt) => {
-    const g = f.geometry
-    const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates
-    return polys.some((rings) => pointInRing(pt, rings[0]) &&
-      rings.slice(1).every((hole) => !pointInRing(pt, hole)))
-  }
-  return feats.filter((f) => {
-    if (names.includes(f.properties.name)) return true
-    let W = 180, E = -180, S = 90, N = -90
-    for (const [x, y] of walkCoords(f.geometry)) {
-      if (x < W) W = x
-      if (x > E) E = x
-      if (y < S) S = y
-      if (y > N) N = y
-    }
-    return pts.some((pt) =>
-      pt[0] >= W && pt[0] <= E && pt[1] >= S && pt[1] <= N && contains(f, pt))
-  })
-}
 
 function lineLengthKm(line) {
   let s = 0
@@ -254,15 +222,20 @@ function lineLengthKm(line) {
   return s
 }
 
-// rivers 名單城市的「河流骨架」：OSM 人工維護的 waterway=river 中心線（與面域
-// 同批查詢）。同名 way 直接縫端點會被辮狀水道（河中島側汊，同名）切成幾十段
+// rivers 名單項正規化：字串 → { name, match: [name] }。
+const normRivers = (rivers) => rivers.map((r) => (typeof r === 'string' ? { name: r, match: [r] } : r))
+
+// rivers 名單城市的「河流骨架」：OSM 人工維護的 waterway=river 中心線。
+// 同名 way 直接縫端點會被辮狀水道（河中島側汊，同名）切成幾十段
 // （泰晤士河實測 42 段），所以改建無向圖：每個連通分量取「最長路徑」
 // （雙次 Dijkstra 求 graph diameter）當主線，側汊不進骨架。
-function centerlineFeatures(elements, names) {
+function centerlineFeatures(elements, rivers) {
+  const canonical = new Map() // OSM 名（含區段別名）→ 名單主名
+  for (const r of normRivers(rivers)) for (const m of r.match) canonical.set(m, r.name)
   const byName = new Map()
   for (const el of elements) {
-    const n = el.tags?.name
-    if (!names.includes(n) || !el.geometry?.length) continue
+    const n = canonical.get(el.tags?.name)
+    if (!n || !el.geometry?.length) continue
     if (!byName.has(n)) byName.set(n, { parts: [], ids: [] })
     byName.get(n).parts.push(el.geometry.map((g) => [g.lon, g.lat]))
     byName.get(n).ids.push(el.id)
@@ -356,6 +329,29 @@ function centerlineFeatures(elements, names) {
       for (let u = b; u !== undefined; u = prev.get(u)) path.push(pos.get(u))
       if (path.length >= 2 && lineLengthKm(path) >= MIN_CENTERLINE_KM) lines.push(path)
     }
+    // 縫隙橋接：穿湖段（waterway=flowline/無名 way，柏林 Müggelsee 實測）等會把
+    // 主線切成數段——端點距離 ≤ GAP_BRIDGE_KM 的段落串成一條（直線跨接）。
+    // 順序在 <1 km 碎段剔除之後，小側汊才不會被接進主線。
+    for (;;) {
+      let best = null
+      for (let i = 0; i < lines.length; i++) {
+        for (let j = i + 1; j < lines.length; j++) {
+          for (const ei of [0, 1]) {
+            for (const ej of [0, 1]) {
+              const pa = ei ? lines[i][lines[i].length - 1] : lines[i][0]
+              const pb = ej ? lines[j][lines[j].length - 1] : lines[j][0]
+              const d = lineLengthKm([pa, pb])
+              if (d <= GAP_BRIDGE_KM && (!best || d < best.d)) best = { d, i, j, ei, ej }
+            }
+          }
+        }
+      }
+      if (!best) break
+      const a = best.ei ? lines[best.i] : lines[best.i].slice().reverse() // 接點在 a 尾
+      const b = best.ej ? lines[best.j].slice().reverse() : lines[best.j] // 接點在 b 頭
+      lines[best.i] = a.concat(b)
+      lines.splice(best.j, 1)
+    }
     lines.sort((x, y) => lineLengthKm(y) - lineLengthKm(x))
     lines.forEach((line, i) => {
       feats.push({
@@ -405,35 +401,20 @@ for (const id of ids) {
 
   const features = []
   const kinds = []
-  for (const kind of spec.kinds || []) {
-    const cacheName = `landmarks_${id}_${kind}.json`
-    if (refresh) await rm(join(overpass.CACHE, cacheName), { force: true })
-    const q = kind === 'river' ? riverQuery(bbox) : null
-    if (!q) throw new Error(`unknown kind ${kind}`)
-    const data = await overpass.query(q, { cacheName, timeout: 300000 })
-    let feats = toFeatures(data.elements || [], kind, { minKm2: MIN_RIVER_KM2 })
-    if (kind === 'river' && spec.rivers?.length) {
-      const clCache = `landmarks_${id}_river_centerlines_v2.json`
-      if (refresh) await rm(join(overpass.CACHE, clCache), { force: true })
-      // 中心線 bbox 每邊多放 0.03°（~3 km）：河道彎出網絡 bbox 再彎回來時
-      // （泰晤士河南界實測）主線才不會被切成多段。
-      const clBbox = [bbox[0] - 0.03, bbox[1] - 0.03, bbox[2] + 0.03, bbox[3] + 0.03]
-      const cl = await overpass.query(centerlineQuery(clBbox, spec.rivers), { cacheName: clCache })
-      const before = feats.length
-      feats = filterByRivers(feats, spec.rivers, cl.elements || [])
-      console.log(`  river filter [${spec.rivers.join('/')}]: ${before} → ${feats.length}`)
-      const clFeats = centerlineFeatures(cl.elements || [], spec.rivers)
-      if (clFeats.length) {
-        console.log(`  centerlines: ${clFeats.length} lines (` +
-          clFeats.map((f) => `${f.properties.name} ${f.properties.length_km}km`).join(', ') + ')')
-        feats = feats.concat(clFeats)
-        kinds.push('river-centerline')
-      }
-    }
-    console.log(`  ${kind}: ${feats.length} polygons ` +
-      `(largest ${feats[0]?.properties.area_km2 ?? 0} km²)`)
-    features.push(...feats)
-    kinds.push(kind)
+  if (spec.rivers?.length) {
+    const clCache = `landmarks_${id}_river_centerlines_v2.json`
+    if (refresh) await rm(join(overpass.CACHE, clCache), { force: true })
+    // 中心線 bbox 每邊多放 0.03°（~3 km）：河道彎出網絡 bbox 再彎回來時
+    // （泰晤士河南界實測）主線才不會被切成多段。
+    const clBbox = [bbox[0] - 0.03, bbox[1] - 0.03, bbox[2] + 0.03, bbox[3] + 0.03]
+    const allNames = normRivers(spec.rivers).flatMap((r) => r.match)
+    const cl = await overpass.query(centerlineQuery(clBbox, allNames), { cacheName: clCache })
+    const clFeats = centerlineFeatures(cl.elements || [], spec.rivers)
+    if (!clFeats.length) console.error(`  [warn] rivers [${allNames.join('/')}]: no centerline found`)
+    else console.log(`  skeleton: ${clFeats.length} lines (` +
+      clFeats.map((f) => `${f.properties.name} ${f.properties.length_km}km`).join(', ') + ')')
+    features.push(...clFeats)
+    if (clFeats.length) kinds.push('river-centerline')
   }
   for (const named of spec.named || []) {
     const cacheName = `landmarks_${id}_${named.kind}_${named.name.replace(/[^\p{L}\p{N}]+/gu, '_')}.json`
@@ -462,7 +443,7 @@ for (const id of ids) {
       kinds,
       bbox,
       source: 'OpenStreetMap via Overpass API ' +
-        '(rivers: natural=water+water=river / waterway=riverbank in network bbox; ' +
+        '(river skeletons: waterway=river centerlines, graph-diameter main line; ' +
         'named landmarks: exact-name polygon query)',
       generated_at: new Date().toISOString().slice(0, 10),
       landmark_count: features.length,
