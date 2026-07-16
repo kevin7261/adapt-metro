@@ -5,8 +5,10 @@ description: 逐步驗證（原 Step by Step）——按「下一步」＝目前
 
 # 逐步驗證 (route-step-verify)
 
-實作：`src/stores/hillClimb.js` 的 `stepChainInit`/`stepChainNext(skeleton,
-state, {limit})`（純資料 state、不變異輸入）＋ D3Tab 的浮動面板（step-panel）。
+實作：`src/stores/hillClimb.js` 的 `stepChainInit(skeleton, cells, cols, rows)`/
+`stepChainNext(skeleton, state, {limit})`（純資料 state、不變異輸入；每步後的
+壓縮走 compactGridSafe 硬規則把關，見 [[route-movewise-loop]]）＋ D3Tab 的浮動
+面板（step-panel）。
 
 ## 操作
 
