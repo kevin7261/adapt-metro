@@ -897,10 +897,10 @@
   },
   "as-jpn-tokyo-jr": {
     "country": "日本",
-    "city": "東京＋JR"
+    "city": "東京＋山手"
   },
   "as-jpn-osaka-jr": {
     "country": "日本",
-    "city": "大阪＋JR"
+    "city": "大阪＋環狀"
   }
 }

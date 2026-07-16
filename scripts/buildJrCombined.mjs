@@ -25,8 +25,8 @@ const TARGETS = [
   {
     slug: 'as-jpn-tokyo-jr',
     base: 'systems/asia/japan/as-jpn-tokyo.geojson',
-    cityEn: 'Tokyo + JR',
-    cityZh: '東京＋JR',
+    cityEn: 'Tokyo + Yamanote',
+    cityZh: '東京＋山手',
     rel: 1972960, // JR山手線 (inner) — codes ascend, clean order
     line: {
       ref: 'JY', name: '山手線', nameEn: 'Yamanote Line', color: '#B1CB39',
@@ -39,8 +39,8 @@ const TARGETS = [
   {
     slug: 'as-jpn-osaka-jr',
     base: 'systems/asia/japan/as-jpn-osaka.geojson',
-    cityEn: 'Osaka + JR',
-    cityZh: '大阪＋JR',
+    cityEn: 'Osaka + Loop',
+    cityZh: '大阪＋環狀',
     rel: 10073683, // JR大阪環状線 (内回り)
     line: {
       ref: 'O', name: '大阪環状線', nameEn: 'Osaka Loop Line', color: '#E80000',
@@ -163,13 +163,19 @@ out body;`
   const features = gj.features.map((f) => JSON.parse(JSON.stringify(f))) // deep clone
   const metroStations = features.filter((f) => f.geometry?.type === 'Point')
 
-  // metro 站名索引（normName -> features）
+  // metro 站名索引（normName -> features）：**含 merged_names 的別名**——metro build
+  // 常把鄰近異名站併成一站（秋葉原→岩本町、有楽町→日比谷、新橋→汐留），JR 同名站
+  // 要能對到那個代表站，故代表名與所有 merged_names 都建索引。
   const nameIdx = new Map()
-  for (const f of metroStations) {
-    const k = normName(f.properties.station_name)
-    if (!k) continue
+  const addIdx = (name, f) => {
+    const k = normName(name)
+    if (!k) return
     if (!nameIdx.has(k)) nameIdx.set(k, [])
-    nameIdx.get(k).push(f)
+    if (!nameIdx.get(k).includes(f)) nameIdx.get(k).push(f)
+  }
+  for (const f of metroStations) {
+    addIdx(f.properties.station_name, f)
+    for (const m of f.properties.merged_names || []) addIdx(m.station_name, f)
   }
 
   const country = gj.metro_system.country
@@ -196,11 +202,30 @@ out body;`
     if (hit) {
       feat = hit.f
       const p = feat.properties
+      const origLines = [...(p.lines || [])] // 合併前 metro 線（供 merged_names 代表列）
       // 附加 JR 線
       if (!(p.routes || []).some((r) => r.ref === jrRoute.ref && r.name === jrRoute.name))
         p.routes = [...(p.routes || []), { ...jrRoute }]
       if (!(p.lines || []).includes(t.line.ref)) p.lines = [...(p.lines || []), t.line.ref]
       if (s.code) p.codes = [...(p.codes || []), s.code].filter((v, i, a) => a.indexOf(v) === i)
+      // 共站標題：JR 站名與代表名不同時，補進 merged_names（hover/物件 tab 標題並列，
+      // 如 汐留／新橋、日比谷／有楽町）。同名（新宿→新宿）不動。
+      if (normName(s.name) !== normName(p.station_name)) {
+        if (!Array.isArray(p.merged_names) || p.merged_names.length === 0) {
+          p.merged_names = [{
+            station_id: p.station_id,
+            station_name: p.station_name,
+            station_name_local: p.station_name_local ?? p.station_name,
+            lines: origLines,
+          }]
+        }
+        const ex = p.merged_names.find((m) => normName(m.station_name) === normName(s.name))
+        if (ex) { if (!(ex.lines || []).includes(t.line.ref)) ex.lines = [...(ex.lines || []), t.line.ref] }
+        else p.merged_names.push({
+          station_id: `n${s.osmId}`, station_name: s.name,
+          station_name_local: s.name, lines: [t.line.ref],
+        })
+      }
       merged++
       mergeLog.push(`  merge  JR ${s.name} → ${p.station_name}`)
     } else {
@@ -271,7 +296,10 @@ out body;`
       }],
       route_count: 1,
       route_refs: [t.line.ref],
-      route_colors: [t.line.color],
+      // 黑白交錯（使用者：JR 是「鐵路」不是 metro）——渲染層 `_nc=相異色數`：兩色
+      // ⇒ 交錯虛線（LayerTab 與 D3Tab 共用機制）。故給 [黑,白] 即畫成黑白鐵路線；
+      // routes[].route_color 仍留 JR 品牌色，供 ref 徽章／swatch 保留身分。
+      route_colors: ['#000000', '#ffffff'],
       city, country,
     },
   }

@@ -255,10 +255,11 @@ function buildSystem(raw, exclude) {
   for (const s of stations) {
     if (s.gv === undefined) continue
     for (const first of [...new Set(gadj[s.gv].map((e) => e.to))]) {
+      const e0 = gadj[s.gv].find((e) => e.to === first)
+      if (e0.hs) continue // HSR corridors handled by the flag-built line (sparse track)
       const seen = new Set([s.gv, first]); let prev = s.gv, cur = first, guard = 0
       const votes = new Map(); let hs = false
-      const e0 = gadj[s.gv].find((e) => e.to === first)
-      if (e0.line) votes.set(e0.line, 1); if (e0.hs) hs = true
+      if (e0.line) votes.set(e0.line, 1)
       while (guard++ < 4000) {
         const sid = stAtV.get(cur)
         if (sid !== undefined && sid !== s.id) {
@@ -281,6 +282,33 @@ function buildSystem(raw, exclude) {
         const e = gadj[cur].find((x) => x.to === nxt)
         if (e.line) votes.set(e.line, (votes.get(e.line) || 0) + 1); if (e.hs) hs = true
         seen.add(nxt); prev = cur; cur = nxt
+      }
+    }
+  }
+  // HSR line from the OPERATOR FLAG, not track-walk: dedicated HSR track geometry is
+  // sparse/gapped in OSM (台灣高鐵 tunnel), so a track-walk fragments it. When the
+  // country has exactly ONE HSR line (台灣), order all its HSR-platform stations
+  // nearest-neighbour and connect consecutive ones — one continuous 高鐵 line.
+  // (Multiple Shinkansen → keep track-walk so they stay distinct.)
+  const hsLineNames = [...lineHs.entries()].filter(([, h]) => h).map(([n]) => n)
+  if (hsLineNames.length === 1) {
+    const ln = hsLineNames[0]
+    const hsrSt = stations.filter((s) => s.hsr)
+    if (hsrSt.length >= 2) {
+      const far = (from, pts) => pts.reduce((b, p) => haversine([from.lon, from.lat], [p.lon, p.lat]) > haversine([from.lon, from.lat], [b.lon, b.lat]) ? p : b, pts[0])
+      const start = far(far(hsrSt[0], hsrSt), hsrSt)
+      const used = new Set([start]); const order = [start]; let curS = start
+      while (order.length < hsrSt.length) {
+        let best = null, bd = Infinity
+        for (const p of hsrSt) { if (used.has(p)) continue; const d = haversine([curS.lon, curS.lat], [p.lon, p.lat]); if (d < bd) { bd = d; best = p } }
+        used.add(best); order.push(best); curS = best
+      }
+      for (let i = 0; i + 1 < order.length; i++) {
+        const a = order[i], b = order[i + 1]
+        if (haversine([a.lon, a.lat], [b.lon, b.lat]) > capFor('high_speed')) continue
+        const k = ekey(a.id, b.id)
+        if (!edges.has(k)) edges.set(k, { a: a.id, b: b.id, lines: new Map(), hs: true })
+        const rec = edges.get(k); rec.lines.set(ln, (rec.lines.get(ln) || 0) + 10); rec.hs = true
       }
     }
   }

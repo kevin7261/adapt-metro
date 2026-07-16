@@ -40,6 +40,11 @@ function migrateLayerNames(layers) {
   }
   const nameOf = (l) => {
     if (!l) return undefined
+    // Railway/highway networks load as type 'metro' but their id (rw-/hw-…) is not
+    // in cityNamesZh — keep the country/city name set at import (國名, e.g. 台灣),
+    // never the raw slug.
+    if (l.railway) return l.countryZh ?? l.name
+    if (l.highway) return l.cityZh ?? l.countryZh ?? l.name
     if (l.type === 'metro') return metroDisplayName(l.id)
     const src = l.sourceLayerId ? byId.get(l.sourceLayerId) : null
     // Prefer the source chain; fall back to parsing the old prefixed name.

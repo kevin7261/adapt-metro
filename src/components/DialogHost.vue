@@ -321,7 +321,8 @@ function addRwdView(src, compact = 'rect') {
 /* Quick Selection — 常用城市 */
 const QUICK_CITIES = [
   { zh: '台北', en: 'Taipei' }, { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
-  { zh: '東京', en: 'Tokyo' }, { zh: '大阪', en: 'Osaka' }, { zh: '首爾', en: 'Seoul' },
+  { zh: '東京', en: 'Tokyo' }, { zh: '東京＋山手', en: 'Tokyo + Yamanote' },
+  { zh: '大阪', en: 'Osaka' }, { zh: '大阪＋環狀', en: 'Osaka + Loop' }, { zh: '首爾', en: 'Seoul' },
   { zh: '北京', en: 'Beijing' }, { zh: '上海', en: 'Shanghai' }, { zh: '香港', en: 'Hong Kong' },
   { zh: '新加坡', en: 'Singapore' }, { zh: '倫敦', en: 'London' }, { zh: '巴黎', en: 'Paris' },
   { zh: '柏林', en: 'Berlin' }, { zh: '維也納', en: 'Vienna' }, { zh: '紐約', en: 'New York' },

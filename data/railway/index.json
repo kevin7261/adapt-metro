@@ -2,7 +2,7 @@
  "generated_from": "OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; one file per country",
  "system_count": 1,
  "line_total": 16,
- "station_total": 242,
+ "station_total": 245,
  "systems": [
   {
    "file": "systems/asia/taiwan/as-twn.geojson",
@@ -32,8 +32,8 @@
    ],
    "operator": null,
    "line_count": 16,
-   "segment_count": 247,
-   "station_count": 242
+   "segment_count": 253,
+   "station_count": 245
   }
  ]
 }
