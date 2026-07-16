@@ -40,8 +40,11 @@ const props = defineProps({
   hideStops: { type: Boolean, default: false },  // 自動隱藏白點
   minStopPx: { type: Number, default: 5 },       // 最小站距門檻（pt），站距 < 此值才刪
   stopStat: { type: Object, default: null },     // { high, wide, hidden, hiddenNames, hiddenMaxT }
+  // 顏色點間最大跨距：目前「已套用」的值（D3Tab 的快取是用它算的）——與滑桿
+  // 值不同時「重新計算」按鈕亮起。
+  spanApplied: { type: Number, default: null },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights'])
+const emit = defineEmits(['run-llm', 'run-grid', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span'])
 const llmUserPrompt = ref('')
 const gridUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
@@ -878,7 +881,8 @@ function startResize(e) {
         <!-- ============ Style ============ -->
         <template v-else-if="activeTab === 'style'">
           <!-- 跨距上限：端點移動/直線縮減/中位集中 的所有移動不得讓受影響段
-               的兩個顏色點橫跨超過 n 格（預設 2；改了會清快取重算） -->
+               的兩個顏色點橫跨超過 n 格（預設 2）。滑桿只改數值——按「重新計算」
+               才清快取、以新上限重算（spanApplied = 快取目前用的值）。 -->
           <div v-if="viewKind === 'hillclimb' || viewKind === 'rwd'" class="field">
             <label class="field-label">顏色點間最大跨距 — {{ layer.spanCap ?? 2 }} 格</label>
             <input
@@ -886,6 +890,14 @@ function startResize(e) {
               type="range" min="1" max="8" step="1" class="slider"
               @input="layer.spanCap = +$event.target.value"
             />
+            <button
+              class="span-recalc"
+              :disabled="(layer.spanCap ?? 2) === (spanApplied ?? 2)"
+              @click="emit('recalc-span')"
+            >重新計算</button>
+            <div v-if="(layer.spanCap ?? 2) !== (spanApplied ?? 2)" class="span-pending">
+              目前結果是以 {{ spanApplied ?? 2 }} 格計算——按「重新計算」套用 {{ layer.spanCap ?? 2 }} 格
+            </div>
           </div>
           <template v-if="isMetro">
             <div class="field">

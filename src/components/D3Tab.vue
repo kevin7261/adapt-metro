@@ -820,8 +820,10 @@ async function render() {
   // fewer cells over the same extent, so everything spreads out.
   let hcPos = null, hcBlue = null, rwdLines = null, weighted = false, endpMedian = null, stepMoves = []
   if (grid && needsHC.value && hcMode.value) {
-    // 跨距上限來自樣式 tab（per-layer，預設 2）——算任何 movewise 階段前先套用
-    setSpanCap(panelLayer.value?.spanCap ?? 2)
+    // 跨距上限用「已套用」的值（appliedSpanCap）——滑桿改了但還沒按「重新
+    // 計算」前，快取與新計算都維持舊上限，避免同畫面新舊混雜。
+    if (appliedSpanCap.value == null) appliedSpanCap.value = panelLayer.value?.spanCap ?? 2
+    setSpanCap(appliedSpanCap.value)
     if (!cachedHC) {
       hcBusy.value = true
       busyText.value = '爬山最佳化中…（多準則適應度 + 硬規則掃描）'
@@ -1615,9 +1617,12 @@ const fmtFit = (x) => (x >= 10000 ? `${(x / 1000).toFixed(1)}k` : Math.round(x).
 
 watch(() => layer.value?.sourceLayerId, () => { cacheData = null; render() })
 watch(mode, render)
-// 樣式 tab 的「顏色點間最大跨距」改變 → 三階段/循環/逐步結果全部作廢重算
-watch(() => panelLayer.value?.spanCap, (v, old) => {
-  if (v === old) return
+// 樣式 tab 的「顏色點間最大跨距」：滑桿只改 layer.spanCap，不自動重算——
+// 快取沿用 appliedSpanCap（上次套用的值），按「重新計算」才作廢重算。
+const appliedSpanCap = ref(null)
+watch(() => panelLayer.value?.id, () => { appliedSpanCap.value = panelLayer.value?.spanCap ?? 2 })
+function recalcSpan() {
+  appliedSpanCap.value = panelLayer.value?.spanCap ?? 2
   cachedEndp = {}
   cachedLine = {}
   cachedGather = {}
@@ -1626,7 +1631,7 @@ watch(() => panelLayer.value?.spanCap, (v, old) => {
   stepHistory = {}
   cachedRWD = null
   render()
-})
+}
 // Live style sync from the bound layer (Style tab sliders).
 watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
@@ -1819,6 +1824,8 @@ onBeforeUnmount(() => {
       :hide-stops="rwdHideStops"
       :min-stop-px="rwdMinStopPx"
       :stop-stat="rwdStopStat"
+      :span-applied="appliedSpanCap"
+      @recalc-span="recalcSpan"
       @run-llm="startLlmRun"
       @run-grid="startGridRun"
       @weight-mode="setRwdWeightMode"
