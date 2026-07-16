@@ -9,7 +9,7 @@ const J = (v, fb) => {
 }
 
 // 小元件（樣式對齊 StylePanel 的 .line-swatch/.line-ref/.obj-route-count/.obj-pass-tag/.obj-title）
-export const H = {
+const H = {
   swatch: (c) => `<span style="width:14px;height:6px;border-radius:3px;background:${c || '#e11d48'};margin-right:8px;flex:none"></span>`,
   ref: (t) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:rgba(127,127,140,.22);color:rgba(155,163,175,1);margin-right:8px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
   refC: (t, c) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:${c || 'rgba(127,127,140,.35)'};color:#fff;margin-right:4px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
@@ -22,6 +22,40 @@ export const H = {
 
 // 屬性表**只在物件 tab**（使用者 2026-07：屬性內容不要跑到 hover 上）——hover 僅結構區塊：
 // 標題（中/英）、共站站名、停靠/行經路線、線的段站序（官方碼＋pass）。
+
+/** Hover 資料索引（LayerTab / D3Tab 共用；per dataset 建一次）：
+ *  refColor: Map<ref|route_name, colour>（名鍵——同 ref 支線異色，如小碧潭）、
+ *  segs: Map<seg_id, 原始 feature>（事件 feature 幾何被 tile 裁切，一律回原始資料查）、
+ *  stByCoord: Map<'lng,lat', 車站 props>。 */
+export function buildPopupIndex(data) {
+  const refColor = new Map(), segs = new Map(), stByCoord = new Map()
+  for (const f of data.features) {
+    if (f.geometry.type === 'Point') {
+      stByCoord.set(f.geometry.coordinates.join(','), f.properties)
+      continue
+    }
+    if (f.properties?.seg_id != null) segs.set(f.properties.seg_id, f)
+    for (const r of f.properties.routes ?? []) {
+      if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
+      if (r.route_name && !refColor.has(r.route_name)) refColor.set(r.route_name, r.route_color)
+    }
+  }
+  return { refColor, segs, stByCoord }
+}
+
+/** 該路段上的車站（原始幾何頂點序、連續去重）——線壓在站上，快車 pass 頂點也是
+ *  站座標，停靠與通過站都會列出。seg 可為 null（回空列）。 */
+export function stationsAlongSeg(seg, stByCoord) {
+  const out = []
+  if (!seg) return out
+  for (const line of seg.geometry.coordinates) {
+    for (const c of line) {
+      const st = stByCoord.get(c.join(','))
+      if (st && (!out.length || out[out.length - 1].station_id !== st.station_id)) out.push(st)
+    }
+  }
+  return out
+}
 
 /** 車站 hover（含黃色路線交叉點——props 只有 station_id/station_name 也能渲染）。
  *  refColor: Map<ref, colour>（由路段 routes meta 建）。 */

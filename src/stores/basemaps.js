@@ -26,7 +26,7 @@ const OSM_ATTR = '© OpenStreetMap contributors'
 const CARTO_ATTR = '© OpenStreetMap contributors © CARTO'
 const NLSC_ATTR = '© 內政部國土測繪中心 (NLSC)'
 
-export const BASEMAPS = [
+const BASEMAPS = [
   { id: 'openfreemap-liberty', group: 'OpenStreetMap', label: 'OpenFreeMap Liberty',
     style: 'https://tiles.openfreemap.org/styles/liberty' },
   { id: 'openfreemap-positron', group: 'OpenStreetMap', label: 'OpenFreeMap Positron',

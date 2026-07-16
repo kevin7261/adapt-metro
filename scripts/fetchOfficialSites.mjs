@@ -114,13 +114,43 @@ function isLineEntity(entity) {
   return /(line|linea|línea|linha|ligne|linie|hattı)\s*[\dIVXA-Z]{0,4}$/i.test(label.trim())
 }
 
+// 民族形容詞 → 正規化國名。舊版 wrongCountry 只比對國名，讓 Abellio 的
+// "Dutch public transport company" 混過營運商鏈（Dutch≠Netherlands 字面）誤配紐約。
+// 刻意排除 american/english/korean（易與 South American／English 語言／兩韓相撞）。
+const DEMONYMS = {
+  algerian: 'algeria', argentine: 'argentina', argentinian: 'argentina', armenian: 'armenia',
+  australian: 'australia', austrian: 'austria', azerbaijani: 'azerbaijan', azeri: 'azerbaijan',
+  bangladeshi: 'bangladesh', belarusian: 'belarus', belgian: 'belgium', brazilian: 'brazil',
+  bulgarian: 'bulgaria', canadian: 'canada', chilean: 'chile', chinese: 'china',
+  colombian: 'colombia', czech: 'czechia', danish: 'denmark', ecuadorian: 'ecuador',
+  ecuadorean: 'ecuador', egyptian: 'egypt', finnish: 'finland', french: 'france',
+  georgian: 'georgia', german: 'germany', greek: 'greece', hungarian: 'hungary',
+  indian: 'india', indonesian: 'indonesia', iranian: 'iran', italian: 'italy',
+  japanese: 'japan', kazakh: 'kazakhstan', kazakhstani: 'kazakhstan', malaysian: 'malaysia',
+  mexican: 'mexico', dutch: 'netherlands', nigerian: 'nigeria', norwegian: 'norway',
+  pakistani: 'pakistan', panamanian: 'panama', peruvian: 'peru', filipino: 'philippines',
+  philippine: 'philippines', polish: 'poland', portuguese: 'portugal', qatari: 'qatar',
+  romanian: 'romania', russian: 'russia', saudi: 'saudiarabia', singaporean: 'singapore',
+  spanish: 'spain', swedish: 'sweden', swiss: 'switzerland', taiwanese: 'taiwan',
+  thai: 'thailand', turkish: 'turkey', ukrainian: 'ukraine', emirati: 'unitedarabemirates',
+  british: 'unitedkingdom', uzbek: 'uzbekistan', venezuelan: 'venezuela', vietnamese: 'vietnam',
+}
+
 function wrongCountry(sys, entity, allCountries) {
   const descs = ['en', 'es', 'de', 'fr', 'pt'].map((l) => entity.descriptions?.[l]?.value || '').join('|')
   const blob = norm(descs)
   if (!blob) return false
   const mine = norm(sys.country)
-  if (blob.includes(mine)) return false
-  return allCountries.some((c) => c !== mine && c.length >= 4 && blob.includes(c))
+  // 本國：國名或其民族形容詞出現 → 判定為對的國家，不拒收
+  const myDem = Object.keys(DEMONYMS).filter((d) => DEMONYMS[d] === mine)
+  if (blob.includes(mine) || myDem.some((d) => blob.includes(d))) return false
+  // 他國：國名出現
+  if (allCountries.some((c) => c !== mine && c.length >= 4 && blob.includes(c))) return true
+  // 他國：民族形容詞出現（該國不必在 index 內，才能擋 Abellio=Dutch 這類）
+  for (const [d, c] of Object.entries(DEMONYMS)) {
+    if (c !== mine && d.length >= 4 && blob.includes(d)) return true
+  }
+  return false
 }
 
 // ---------- Wikidata / Wikipedia ----------

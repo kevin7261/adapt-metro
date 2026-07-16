@@ -8,7 +8,7 @@ import {
   DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
   basemapById, basemapGroups, styleFor, solidStyle,
 } from '../stores/basemaps'
-import { stationPopupHtml, linePopupHtml } from '../stores/popupHtml'
+import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
 import AttributeTable from './AttributeTable.vue'
@@ -130,11 +130,7 @@ onMounted(() => {
     const p = e.features[0].properties
     for (const hid of HOVER_LAYER_IDS)
       if (map.getLayer(hid)) map.setFilter(hid, hoverFilter(hid, p.seg_id ?? ''))
-    // nested props arrive JSON-stringified from event features
-    let routes = p.routes
-    if (typeof routes === 'string') { try { routes = JSON.parse(routes) } catch { routes = [] } }
-    routes = routes ?? []
-    const html = linePopupHtml(p, segStations(p.seg_id)) // 共用 popupHtml
+    const html = linePopupHtml(p, segStations(p.seg_id)) // 共用 popupHtml（自行解析 JSON 字串化的 routes）
     linePopup.setLngLat(e.lngLat).setHTML(html || '—').addTo(map)
   }
   for (const id of ALL_LINE_LAYER_IDS) {
@@ -196,6 +192,76 @@ async function addMetroLayers(fit) {
     const bbox = boundsOfGeojson(data)
     if (bbox) map.fitBounds(bbox, { padding: 48, duration: 0, maxZoom: 13 })
   }
+
+  if (await loadLandmarks()) addLandmarkLayers()
+}
+
+/* ---- landmark overlay (data/metro/landmarks/*, skill landmark-osm-fetch) ----
+   城市地標面域（河流/皇居/公園）是與 metro geojson 分離的獨立圖層，路徑鏡射
+   systems/ → landmarks/；沒有該城市檔（404）就靜默不顯示開關。 */
+const LANDMARK_FILL =
+  ['match', ['get', 'kind'], ['river', 'river-centerline'], '#4f9fd4', '#58a866']
+const landmarkOn = ref(true)
+const landmarkAvailable = ref(false)
+let landmarkGeojson = null
+
+function landmarkUrl() {
+  const f = layer.value?.file
+  if (!f || !f.includes('data/metro/systems/')) return null
+  return f.replace('data/metro/systems/', 'data/metro/landmarks/')
+}
+
+async function loadLandmarks() {
+  const url = landmarkUrl()
+  if (!url) return null
+  if (landmarkGeojson) return landmarkGeojson
+  try {
+    const res = await fetch(url, { cache: 'no-cache' })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data?.features?.length) return null
+    landmarkGeojson = data
+    landmarkAvailable.value = true
+  } catch { /* 該城市沒有地標檔 */ }
+  return landmarkGeojson
+}
+
+// id 加 lm- 前綴，避免撞到向量底圖自帶的圖層名（同 orm-overlay 的教訓）。
+function addLandmarkLayers() {
+  if (!map || !landmarkGeojson || map.getSource('lm-landmarks')) return
+  map.addSource('lm-landmarks', { type: 'geojson', data: landmarkGeojson })
+  // Below the metro lines so the network stays on top.
+  const before = map.getLayer('metro-lines') ? 'metro-lines' : undefined
+  // 面域（Polygon）＝半透明 fill＋細外框；河流骨架（LineString）＝實線，不是 fill。
+  map.addLayer({
+    id: 'lm-fill', source: 'lm-landmarks', type: 'fill',
+    filter: ['==', ['geometry-type'], 'Polygon'],
+    paint: { 'fill-color': LANDMARK_FILL, 'fill-opacity': 0.35 },
+  }, before)
+  map.addLayer({
+    id: 'lm-outline', source: 'lm-landmarks', type: 'line',
+    filter: ['==', ['geometry-type'], 'Polygon'],
+    paint: { 'line-color': LANDMARK_FILL, 'line-opacity': 0.6, 'line-width': 1 },
+  }, before)
+  map.addLayer({
+    id: 'lm-centerline', source: 'lm-landmarks', type: 'line',
+    filter: ['==', ['geometry-type'], 'LineString'],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#2b7bb8', 'line-opacity': 0.9, 'line-width': 2 },
+  }, before)
+  syncLandmarkVisibility()
+}
+
+function syncLandmarkVisibility() {
+  if (!map) return
+  const vis = landmarkOn.value && (layer.value?.visible ?? true) ? 'visible' : 'none'
+  for (const id of ['lm-fill', 'lm-outline', 'lm-centerline'])
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis)
+}
+
+function setLandmarks(on) {
+  landmarkOn.value = on
+  syncLandmarkVisibility()
 }
 
 // Line features are overlap-deduped SEGMENTS: `route_count` routes share the
@@ -245,44 +311,15 @@ const STATION_COLOR = [
 for (let n = 2; n <= MAX_OVERLAP; n++)
   for (let i = 0; i < n; i++) ALL_LINE_LAYER_IDS.push(`metro-lines-d${n}-${i}`)
 
-// Hover popup 的資料索引（與物件 tab 同源）：route meta、seg_id→原始 feature、
-// 座標→車站。事件 feature 的幾何被 tile 裁切，段上車站一律回原始資料查。
-let popupIdx = null
-function buildPopupIndex(data) {
-  const byId = new Map(), refColor = new Map(), segs = new Map(), stByCoord = new Map()
-  for (const f of data.features) {
-    if (f.geometry.type === 'Point') {
-      stByCoord.set(f.geometry.coordinates.join(','), f.properties)
-      continue
-    }
-    if (f.properties?.seg_id != null) segs.set(f.properties.seg_id, f)
-    for (const r of f.properties.routes ?? []) {
-      if (r.route_id && !byId.has(r.route_id)) byId.set(r.route_id, r)
-      if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
-      if (r.route_name && !refColor.has(r.route_name)) refColor.set(r.route_name, r.route_color) // 名鍵（同 ref 支線異色）
-    }
-  }
-  popupIdx = { byId, refColor, segs, stByCoord }
-}
-// 該路段上的車站（幾何頂點序，含快車 pass 頂點）——與物件 tab 的 selectedRouteLists 同邏輯。
-function segStations(segId) {
-  const seg = popupIdx?.segs.get(segId)
-  if (!seg) return []
-  const out = []
-  for (const line of seg.geometry.coordinates) {
-    for (const c of line) {
-      const s = popupIdx.stByCoord.get(c.join(','))
-      if (s && (!out.length || out[out.length - 1].station_id !== s.station_id)) out.push(s)
-    }
-  }
-  return out
-}
-// hover popup HTML 一律來自共用模組 src/stores/popupHtml.js（物件/地圖/D3 三處同構）。
+// Hover popup 的資料索引與 HTML 一律來自共用模組 src/stores/popupHtml.js
+//（物件/地圖/D3 三處同構）。事件 feature 的幾何被 tile 裁切，段上車站一律回原始資料查。
+let popupIdx = null // buildPopupIndex 的結果
+const segStations = (segId) => stationsAlongSeg(popupIdx?.segs.get(segId), popupIdx?.stByCoord)
 
 // Add the metro source + line/station layers (idempotent; re-run after setStyle).
 function addMetroSourceLayers(data) {
   const l = layer.value
-  buildPopupIndex(data)
+  popupIdx = buildPopupIndex(data)
   if (!map || map.getSource('metro')) return
   // MapLibre serialises array properties to JSON strings, so an expression can't
   // index into `route_colors` (the dashes then fall back to black). Flatten each
@@ -316,23 +353,31 @@ function addMetroSourceLayers(data) {
       'line-opacity': l.opacity,
     },
   })
-  // overlap segments with ≥2 distinct colours: n interleaved dashes, one slot per route
-  for (let n = 2; n <= MAX_OVERLAP; n++) {
-    for (let i = 0; i < n; i++) {
-      map.addLayer({
-        id: `metro-lines-d${n}-${i}`, source: 'metro', type: 'line',
-        // only when ≥2 DISTINCT colours share the stretch (else it's drawn solid)
-        filter: ['all', ['==', ['geometry-type'], 'LineString'], isNCond(n), NC2_COND],
-        layout: { 'line-cap': 'butt', 'line-join': 'round' },
-        paint: {
-          'line-color': ['coalesce', ['get', `_c${i}`], '#888888'],
-          'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
-          'line-width': l.strokeWidth,
-          'line-opacity': l.opacity,
-        },
-      })
+  // n 槽交錯虛線圖層（一槽一層、同 dasharray）——base 與 hover 兩組共用，
+  // 只差 id 前綴、filter、線寬/不透明度。加層順序不變（先全部 base、再 hover）。
+  const addDashLayers = (idOf, filterOf, paintExtra) => {
+    for (let n = 2; n <= MAX_OVERLAP; n++) {
+      for (let i = 0; i < n; i++) {
+        map.addLayer({
+          id: idOf(n, i), source: 'metro', type: 'line',
+          filter: filterOf(n, i),
+          layout: { 'line-cap': 'butt', 'line-join': 'round' },
+          paint: {
+            'line-color': ['coalesce', ['get', `_c${i}`], '#888888'],
+            'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
+            ...paintExtra,
+          },
+        })
+      }
     }
   }
+  // overlap segments with ≥2 distinct colours: n interleaved dashes, one slot per
+  // route — only when ≥2 DISTINCT colours share the stretch (else it's drawn solid)
+  addDashLayers(
+    (n, i) => `metro-lines-d${n}-${i}`,
+    (n) => ['all', ['==', ['geometry-type'], 'LineString'], isNCond(n), NC2_COND],
+    { 'line-width': l.strokeWidth, 'line-opacity': l.opacity },
+  )
   // Hover highlight: thicker/opaque copies filtered to the hovered segment
   // (empty match by default). Above the lines, below the stations. 共線段的
   // hover 同樣以「相異色交錯虛線」畫（一槽一層、同 dasharray、加粗）——不變單色。
@@ -346,22 +391,11 @@ function addMetroSourceLayers(data) {
       'line-opacity': 1,
     },
   })
-  for (let n = 2; n <= MAX_OVERLAP; n++) {
-    for (let i = 0; i < n; i++) {
-      const id = `metro-lines-hover-d${n}-${i}`
-      map.addLayer({
-        id, source: 'metro', type: 'line',
-        filter: hoverFilter(id, ''),
-        layout: { 'line-cap': 'butt', 'line-join': 'round' },
-        paint: {
-          'line-color': ['coalesce', ['get', `_c${i}`], '#888888'],
-          'line-dasharray': [0, i * DASH, DASH, (n - 1 - i) * DASH],
-          'line-width': (l.strokeWidth || 2) + 3,
-          'line-opacity': 1,
-        },
-      })
-    }
-  }
+  addDashLayers(
+    (n, i) => `metro-lines-hover-d${n}-${i}`,
+    (n, i) => hoverFilter(`metro-lines-hover-d${n}-${i}`, ''),
+    { 'line-width': (l.strokeWidth || 2) + 3, 'line-opacity': 1 },
+  )
   map.addLayer({
     id: 'metro-stations', source: 'metro', type: 'circle',
     filter: ['==', ['geometry-type'], 'Point'],
@@ -438,6 +472,7 @@ function reAddOverlays() {
   const l = layer.value
   if (l?.type === 'metro' && layerData[l.id]) addMetroSourceLayers(layerData[l.id])
   if (railwayOn.value) addRailwayLayer()
+  if (landmarkGeojson) addLandmarkLayers()
 }
 
 function setBasemap(id) {
@@ -495,6 +530,7 @@ function applyLayerState() {
   if (map.getLayer('metro-labels')) {
     map.setLayoutProperty('metro-labels', 'visibility', l.visible && l.showLabels ? 'visible' : 'none')
   }
+  syncLandmarkVisibility()
 }
 
 watch(layer, applyLayerState, { deep: true })
@@ -619,6 +655,12 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="menu-sep" />
+            <label v-if="landmarkAvailable" class="bm-overlay">
+              <input type="checkbox" :checked="landmarkOn"
+                @change="setLandmarks($event.target.checked)" />
+              <MIcon name="water" :size="14" />
+              <span>地標圖層（河流/公園）</span>
+            </label>
             <label class="bm-overlay">
               <input type="checkbox" :checked="railwayOn"
                 @change="setRailway($event.target.checked)" />

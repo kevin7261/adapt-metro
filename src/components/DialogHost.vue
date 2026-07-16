@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { loadMetroCatalog, continentZh, prettyContinent } from '../stores/metroCatalog'
 import { loadHighwayCatalog } from '../stores/highwayCatalog'
+import { loadRailwayCatalog } from '../stores/railwayCatalog'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
 import MIcon from './MIcon.vue'
@@ -47,22 +48,34 @@ const continentRank = (slug) => {
   const i = CONTINENT_ORDER.indexOf(slug)
   return i === -1 ? CONTINENT_ORDER.length : i
 }
-const continents = computed(() => {
-  if (!catalog.value) return []
-  return [...new Set(catalog.value.map((s) => s.continent))]
-    .sort((a, b) => continentRank(a) - continentRank(b))
-    .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
-})
-const countries = computed(() => {
-  if (!catalog.value || !selContinent.value) return []
+// miller browse 的洲別欄／國家欄（metro 與 highway 兩個匯入 modal 共用）。
+const continentCols = (list) => [...new Set(list.map((s) => s.continent))]
+  .sort((a, b) => continentRank(a) - continentRank(b))
+  .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
+const countryCols = (list, continent) => {
   const seen = new Map()
-  for (const s of catalog.value) {
-    if (s.continent === selContinent.value && !seen.has(s.country)) {
+  for (const s of list) {
+    if (s.continent === continent && !seen.has(s.country)) {
       seen.set(s.country, { value: s.country, zh: s.countryZh ?? s.country, en: s.country })
     }
   }
   return [...seen.values()].sort((a, b) => a.en.localeCompare(b.en))
-})
+}
+// 快速選擇依洲別分組（metro 與 highway 共用；沒對到系統的排最後 zzz）。
+const groupQuickByContinent = (list) => {
+  const groups = new Map()
+  for (const q of list) {
+    const cont = q.sys?.continent ?? 'zzz'
+    if (!groups.has(cont)) groups.set(cont, [])
+    groups.get(cont).push(q)
+  }
+  return [...groups.entries()]
+    .map(([continent, cities]) => ({ continent, label: continentZh(continent), cities }))
+    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
+}
+const continents = computed(() => (catalog.value ? continentCols(catalog.value) : []))
+const countries = computed(() =>
+  (catalog.value && selContinent.value ? countryCols(catalog.value, selContinent.value) : []))
 const cities = computed(() => {
   if (!catalog.value || !selCountry.value) return []
   return catalog.value
@@ -132,38 +145,15 @@ const hwQuick = computed(() => {
       ?? null,
   }))
 })
-const hwQuickByContinent = computed(() => {
-  const groups = new Map()
-  for (const q of hwQuick.value) {
-    const cont = q.sys?.continent ?? 'zzz'
-    if (!groups.has(cont)) groups.set(cont, [])
-    groups.get(cont).push(q)
-  }
-  return [...groups.entries()]
-    .map(([continent, list]) => ({ continent, label: continentZh(continent), cities: list }))
-    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
-})
+const hwQuickByContinent = computed(() => groupQuickByContinent(hwQuick.value))
 // 全球高速公路地圖 — miller browse: 洲別 → 國家 (one file per country, no city column).
-const hwContinents = computed(() => {
-  if (!highwayCatalog.value) return []
-  return [...new Set(highwayCatalog.value.map((s) => s.continent))]
-    .sort((a, b) => continentRank(a) - continentRank(b))
-    .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
-})
+const hwContinents = computed(() => (highwayCatalog.value ? continentCols(highwayCatalog.value) : []))
 // 3-column miller (洲別 → 國家 → 都會區), like the metro import — the unit is
 // the metro area, so the country column drills into its cities.
 const hwCountry = ref('')
 watch(hwContinent, () => { hwCountry.value = '' })
-const hwCountryList = computed(() => {
-  if (!highwayCatalog.value || !hwContinent.value) return []
-  const seen = new Map()
-  for (const s of highwayCatalog.value) {
-    if (s.continent === hwContinent.value && !seen.has(s.country)) {
-      seen.set(s.country, { value: s.country, zh: s.countryZh ?? s.country, en: s.country })
-    }
-  }
-  return [...seen.values()].sort((a, b) => a.en.localeCompare(b.en))
-})
+const hwCountryList = computed(() =>
+  (highwayCatalog.value && hwContinent.value ? countryCols(highwayCatalog.value, hwContinent.value) : []))
 const hwCityList = computed(() => {
   if (!highwayCatalog.value || !hwCountry.value) return []
   return highwayCatalog.value
@@ -179,8 +169,59 @@ function importHighway(sys) {
   store.toast(`已匯入 ${hwZh(sys)} 高速公路網（${sys.line_count} 條 / ${sys.station_count} 交流道）`)
 }
 
-function importMetro() {
-  importSystem(selectedSystem.value)
+/* Import National Railway — railway systems mirror the metro schema (see skill
+   railway-osm-fetch). One tabbed modal, 3 tabs; ONE file per COUNTRY (含高鐵),
+   national/state railway network (私鐵不算). */
+const RAILWAY_DIALOGS = ['import-railway-quick', 'import-railway-stations', 'import-railway-map']
+const railwayTabs = [
+  { id: 'import-railway-quick', label: '快速選擇' },
+  { id: 'import-railway-stations', label: '依車站數排序' },
+  { id: 'import-railway-map', label: '全球鐵路地圖' },
+]
+const railwayCatalog = ref(null)
+const railwayError = ref(null)
+const railwaySort = ref('desc') // 'desc' 多到少 | 'asc' 少到多（依車站數）
+const rwContinent = ref('')
+watch(dialog, (d) => {
+  if (!RAILWAY_DIALOGS.includes(d) || railwayCatalog.value) return
+  railwayError.value = null
+  loadRailwayCatalog()
+    .then((systems) => { railwayCatalog.value = systems })
+    .catch((err) => { railwayError.value = String(err) })
+})
+const railwaysByStations = computed(() => {
+  if (!railwayCatalog.value) return []
+  const dir = railwaySort.value === 'asc' ? 1 : -1
+  return [...railwayCatalog.value].sort((a, b) => (a.station_count - b.station_count) * dir)
+})
+const rwZh = (s) => s.countryZh ?? s.country
+const rwEn = (s) => s.country
+// Quick pick — the target countries (東亞四國先行 + 歐美主要國).
+const QUICK_RAIL = ['Taiwan', 'Japan', 'China', 'South Korea', 'France', 'Germany',
+  'United Kingdom', 'Italy', 'Spain', 'Switzerland', 'United States', 'Canada']
+const rwQuick = computed(() => {
+  if (!railwayCatalog.value) return []
+  return QUICK_RAIL.map((name) => {
+    const sys = railwayCatalog.value.find((s) => s.country === name) ?? null
+    return { zh: sys?.countryZh ?? name, en: name, sys }
+  })
+})
+const rwQuickByContinent = computed(() => groupQuickByContinent(rwQuick.value))
+// 全球鐵路地圖 — miller browse: 洲別 → 國家 (one file per country, no city column).
+const rwContinents = computed(() => (railwayCatalog.value ? continentCols(railwayCatalog.value) : []))
+const rwCountryList = computed(() => {
+  if (!railwayCatalog.value || !rwContinent.value) return []
+  return railwayCatalog.value
+    .filter((s) => s.continent === rwContinent.value)
+    .map((s) => ({ sys: s, zh: s.countryZh ?? s.country, en: s.country }))
+    .sort((a, b) => a.en.localeCompare(b.en))
+})
+function importRailway(sys) {
+  if (!sys) return
+  const layer = store.importRailwaySystem(sys)
+  openLayerTab(layer)
+  close()
+  store.toast(`已匯入 ${rwZh(sys)} 國家鐵路網（${sys.line_count} 線 / ${sys.station_count} 站）`)
 }
 
 /* Add D3.js view — pick one of the loaded metro map layers as its source */
@@ -298,17 +339,7 @@ const quickCities = computed(() => {
   }))
 })
 // 快選依洲別分組（洲別依中文名排序，各洲內維持原順序）。
-const quickByContinent = computed(() => {
-  const groups = new Map()
-  for (const q of quickCities.value) {
-    const cont = q.sys?.continent ?? 'zzz'
-    if (!groups.has(cont)) groups.set(cont, [])
-    groups.get(cont).push(q)
-  }
-  return [...groups.entries()]
-    .map(([continent, cities]) => ({ continent, label: continentZh(continent), cities }))
-    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
-})
+const quickByContinent = computed(() => groupQuickByContinent(quickCities.value))
 
 /* 依車站數排序 */
 const stationSort = ref('desc') // 'desc' 多到少 | 'asc' 少到多
@@ -477,7 +508,7 @@ const shortcuts = [
 
       <div v-if="dialog === 'import-metro'" class="dialog-footer">
         <button class="btn-outline" @click="close">取消</button>
-        <button class="btn-primary" :disabled="!selectedSystem" @click="importMetro">確定</button>
+        <button class="btn-primary" :disabled="!selectedSystem" @click="importSystem(selectedSystem)">確定</button>
       </div>
     </div>
 
@@ -591,6 +622,111 @@ const shortcuts = [
                     @click="importHighway(c.sys)"
                   >{{ c.zh }} <span class="miller-en">{{ c.en }}</span>
                     <span class="miller-meta">{{ c.sys.station_count }} 交流道</span></button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+      </div>
+    </div>
+
+    <!-- Import National Railway: one tabbed modal, 3 tabs (one file per country) -->
+    <div v-else-if="RAILWAY_DIALOGS.includes(dialog)" class="dialog import-modal">
+      <div class="dialog-header">
+        <h2 class="dialog-title">匯入國家鐵路網</h2>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
+      </div>
+      <div class="dialog-tabs" role="tablist">
+        <button
+          v-for="t in railwayTabs"
+          :key="t.id"
+          class="dialog-tab"
+          :class="{ active: dialog === t.id }"
+          role="tab"
+          :aria-selected="dialog === t.id"
+          @click="store.ui.dialog = t.id"
+        >{{ t.label }}</button>
+      </div>
+
+      <div class="dialog-body" :class="{ 'stations-body': dialog === 'import-railway-stations' || dialog === 'import-railway-quick' }">
+        <div v-if="railwayError" class="import-status error">載入鐵路清單失敗：{{ railwayError }}</div>
+        <div v-else-if="!railwayCatalog" class="import-status">載入國家鐵路系統清單…</div>
+        <div v-else-if="!railwayCatalog.length" class="import-status">
+          尚無鐵路資料 — 先執行 <code>npm run railway:all</code>（或 <code>railway:fetch twn</code> 試抓一國）
+        </div>
+
+        <template v-else>
+          <!-- 快速選擇：依洲別分組，每組一排 -->
+          <div v-if="dialog === 'import-railway-quick'" class="quick-groups">
+            <div v-for="g in rwQuickByContinent" :key="g.continent" class="quick-group">
+              <div class="quick-group-title">{{ g.label }}</div>
+              <div class="quick-grid">
+                <button
+                  v-for="q in g.cities"
+                  :key="q.en"
+                  class="quick-cell"
+                  :disabled="!q.sys"
+                  :title="q.sys ? '' : '資料集中還沒有此國家（先抓取）'"
+                  @click="importRailway(q.sys)"
+                >
+                  <span class="quick-zh">{{ q.zh }}</span>
+                  <span class="quick-en">{{ q.en }}</span>
+                  <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 依車站數排序 -->
+          <template v-else-if="dialog === 'import-railway-stations'">
+            <div class="sort-bar">
+              <div class="sort-toggle">
+                <button class="sort-btn" :class="{ active: railwaySort === 'desc' }" @click="railwaySort = 'desc'">車站多到少</button>
+                <button class="sort-btn" :class="{ active: railwaySort === 'asc' }" @click="railwaySort = 'asc'">少到多</button>
+              </div>
+              <span class="sort-meta">{{ railwaysByStations.length }} 個國家</span>
+            </div>
+            <div class="quick-grid">
+              <button
+                v-for="(s, i) in railwaysByStations"
+                :key="s.file"
+                class="quick-cell"
+                @click="importRailway(s)"
+              >
+                <span class="quick-rank">#{{ i + 1 }}</span>
+                <span class="quick-zh">{{ rwZh(s) }}</span>
+                <span class="quick-en">{{ rwEn(s) }}</span>
+                <span class="quick-meta">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
+              </button>
+            </div>
+          </template>
+
+          <!-- 全球鐵路地圖：洲別 → 國家 -->
+          <template v-else-if="dialog === 'import-railway-map'">
+            <div class="miller">
+              <div class="miller-col">
+                <div class="miller-head">洲別</div>
+                <div class="miller-list">
+                  <button
+                    v-for="c in rwContinents"
+                    :key="c.value"
+                    class="miller-item"
+                    :class="{ active: rwContinent === c.value }"
+                    @click="rwContinent = c.value"
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
+                </div>
+              </div>
+              <div class="miller-col">
+                <div class="miller-head">國家</div>
+                <div class="miller-list">
+                  <div v-if="!rwContinent" class="miller-empty">← 先選洲別</div>
+                  <button
+                    v-for="c in rwCountryList"
+                    :key="c.sys.file"
+                    class="miller-item"
+                    @click="importRailway(c.sys)"
+                  >{{ c.zh }} <span class="miller-en">{{ c.en }}</span>
+                    <span class="miller-meta">{{ c.sys.station_count }} 站</span></button>
                 </div>
               </div>
             </div>
@@ -921,15 +1057,6 @@ const shortcuts = [
 .sort-btn:last-child { border-right: none; }
 .sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
 .sort-meta { margin-left: auto; font-size: 11.5px; color: hsl(var(--muted-foreground)); }
-.stations-list {
-  flex: 1;
-  min-height: 0;
-  max-height: 46vh;
-  overflow-y: auto;
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
-  padding: 4px;
-}
 /* Quick Selection：依洲別分組，各組九宮格一排 5 個 */
 .quick-groups {
   display: flex;
@@ -973,7 +1100,6 @@ const shortcuts = [
 .quick-cell:disabled { opacity: 0.4; cursor: default; }
 .quick-rank { font-size: 10.5px; font-weight: 700; color: hsl(var(--primary)); }
 .quick-zh { font-size: 14px; font-weight: 600; white-space: nowrap; }
-.quick-country { font-size: 11.5px; color: hsl(var(--foreground)); white-space: nowrap; }
 .quick-en { font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 .quick-meta { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); margin-top: 2px; }
 .station-row {
@@ -989,25 +1115,7 @@ const shortcuts = [
 }
 .station-row:hover:not(:disabled) { background: hsl(var(--accent) / 0.6); }
 .station-row:disabled { opacity: 0.4; cursor: default; }
-.station-rank {
-  width: 30px;
-  flex-shrink: 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
-  color: hsl(var(--muted-foreground));
-  text-align: right;
-}
 .station-city { font-weight: 500; white-space: nowrap; }
-/* Bilingual name: Chinese line then English line — same language grouped. */
-.station-name { display: flex; flex-direction: column; gap: 0; min-width: 0; }
-.nm-zh { font-weight: 500; white-space: nowrap; }
-.nm-en { font-weight: 400; font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
-.station-country {
-  color: hsl(var(--muted-foreground));
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .station-count {
   margin-left: auto;
   flex-shrink: 0;

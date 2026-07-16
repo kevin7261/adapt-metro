@@ -4,6 +4,7 @@ import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, openGalleryTab, openViewGalleryTab, openHcGalleryTab, openRwdGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
+import { dragResize } from '../lib/dragResize'
 import { openSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
 import MIcon from './MIcon.vue'
@@ -18,13 +19,14 @@ const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raste
 const LAYER_SKILLS = {
   metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
   highway: ['highway-osm-fetch', 'highway-audit', 'highway-cities'],
+  railway: ['railway-osm-fetch'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
   rwd: ['route-rwd-draw', 'route-hillclimb'],
 }
 // Each layer group maps to one layer type → the skills shown in its header.
 // (Metro appends every metro-city-* rule, so no per-city table is needed.)
-const GROUP_TYPE = { 'metro-maps': 'metro', 'highway-maps': 'highway', d3: 'd3', hillclimb: 'hillclimb', rwd: 'rwd' }
+const GROUP_TYPE = { 'metro-maps': 'metro', 'railway-maps': 'railway', 'highway-maps': 'highway', d3: 'd3', hillclimb: 'hillclimb', rwd: 'rwd' }
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
 onMounted(async () => {
@@ -75,22 +77,21 @@ function openLayer(layer) {
   openLayerTab(layer)
 }
 
-function overflow(layer, action) {
-  if (action === 'zoom') {
+// Overflow 選單動作（lookup table；template 傳常數字串）。
+const OVERFLOW_ACTIONS = {
+  zoom: (layer) => {
     openLayer(layer)
     const data = layerData[layer.id]
     const bbox = data && boundsOfGeojson(data)
     if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
-  } else if (action === 'table') {
-    // Toggle THIS layer's own attribute table (independent per layer); does
-    // not touch the active tab / layer highlight.
-    store.toggleAttributeTable(layer.id)
-  } else if (action === 'export') {
-    exportLayer(layer)
-  } else if (action === 'remove') {
-    removeLayer(layer)
-  }
+  },
+  // Toggle THIS layer's own attribute table (independent per layer); does
+  // not touch the active tab / layer highlight.
+  table: (layer) => store.toggleAttributeTable(layer.id),
+  export: (layer) => exportLayer(layer),
+  remove: (layer) => removeLayer(layer),
 }
+const overflow = (layer, action) => OVERFLOW_ACTIONS[action]?.(layer)
 
 // Strip internal render-only props (e.g. `_c0.._c5` dash colours the map tab
 // adds to features) so the exported GeoJSON matches the source file.
@@ -139,44 +140,38 @@ async function exportLayer(layer) {
   }
 }
 
-// Remove = drop the layer, close its editor tab, free its loaded GeoJSON.
+// 拆除一個圖層：close its editor tab、free its loaded GeoJSON、drop from store。
+function disposeLayer(l) {
+  dockHandle.api?.getPanel(l.id)?.api.close()
+  delete layerData[l.id]
+  store.removeLayer(l.id)
+}
+// Remove = 拆除單一圖層。
 function removeLayer(layer) {
-  dockHandle.api?.getPanel(layer.id)?.api.close()
-  delete layerData[layer.id]
-  store.removeLayer(layer.id)
+  disposeLayer(layer)
   store.toast(`已移除圖層「${layer.name}」`)
 }
 
-// Remove every layer in a group (close each tab, free its data), one summary toast.
+// Remove every layer in a group, one summary toast.
 function removeGroupLayers(groupId, label) {
   const inGroup = store.layers.filter((l) => l.groupId === groupId)
   if (!inGroup.length) return
-  for (const l of inGroup) {
-    dockHandle.api?.getPanel(l.id)?.api.close()
-    delete layerData[l.id]
-    store.removeLayer(l.id)
-  }
+  for (const l of inGroup) disposeLayer(l)
   store.toast(`已刪除「${label}」群組的 ${inGroup.length} 個圖層`)
 }
 
 /* ---- resize ---- */
 const dragging = ref(false)
 function startResize(e) {
-  dragging.value = true
-  const startX = e.clientX
   const startW = store.layerPanelWidth
-  const move = (ev) => {
-    // 拖到極限：可一路拖到編輯區只剩一小條（不越過），另一邊縮到很小——不設固定上下限。
-    const maxW = Math.max(120, window.innerWidth - 80)
-    store.layerPanelWidth = Math.min(maxW, Math.max(44, startW + ev.clientX - startX))
-  }
-  const up = () => {
-    dragging.value = false
-    window.removeEventListener('pointermove', move)
-    window.removeEventListener('pointerup', up)
-  }
-  window.addEventListener('pointermove', move)
-  window.addEventListener('pointerup', up)
+  dragResize(e, {
+    dragging,
+    onMove: (dx) => {
+      // 拖到極限：可一路拖到編輯區只剩一小條（不越過），另一邊縮到很小——不設固定上下限。
+      const maxW = Math.max(120, window.innerWidth - 80)
+      store.layerPanelWidth = Math.min(maxW, Math.max(44, startW + dx))
+    },
+  })
 }
 onBeforeUnmount(() => {
   dragging.value = false
@@ -266,6 +261,14 @@ onBeforeUnmount(() => {
               <MIcon name="add" :size="14" />
             </button>
             <button
+              v-if="item.group.id === 'railway-maps'"
+              class="btn-icon group-add"
+              title="Import national railway（國家鐵路網 · 含高鐵）"
+              @click.stop="store.ui.dialog = 'import-railway-quick'"
+            >
+              <MIcon name="add" :size="14" />
+            </button>
+            <button
               v-if="item.group.id === 'highway-maps'"
               class="btn-icon group-add"
               title="Import highway network（高速公路交流道網）"
@@ -330,6 +333,7 @@ onBeforeUnmount(() => {
                 : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
                 : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「循環結果」建立 RWD Maps 視圖'
                 : item.group.id === 'highway-maps' ? '按 + 匯入高速公路交流道網'
+                : item.group.id === 'railway-maps' ? '按 + 匯入國家鐵路網（含高鐵）'
                 : '用 Import 匯入 metro map' }}
             </div>
             <div
@@ -341,7 +345,7 @@ onBeforeUnmount(() => {
             >
               <div class="layer-title">
                 <MIcon
-                  :name="layer.highway ? 'add_road' : (typeIcons[layer.type] ?? 'circle')"
+                  :name="layer.railway ? 'directions_railway' : layer.highway ? 'add_road' : (typeIcons[layer.type] ?? 'circle')"
                   :size="13"
                   class="type-icon"
                   :style="layer.color ? { color: layer.color } : {}"

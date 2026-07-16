@@ -1,3 +1,5 @@
+import { pairKey, sharesRoute } from './netUtil.js'
+
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
 //
@@ -248,7 +250,7 @@ const legsOfPts = (pts) => {
 // and their own segments drop. Pure — builds fresh edge objects, never mutates
 // the skeleton; segment order preserved (the router is order-sensitive).
 export function mergeParallelSegs(segs) {
-  const pk = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+  const pk = pairKey
   const edges = []
   const edgeSeen = new Set()
   for (const s of segs) { const e = s.edge; if (e && !edgeSeen.has(e)) { edgeSeen.add(e); edges.push(e) } }
@@ -631,7 +633,6 @@ export function buildRwdMap(segs, pos, opts = {}) {
         heap.push([cost + h(ni, nj), nk, ni, nj, nd])
       }
     }
-    if (opts.debug) console.log(`[rwd A*] pops=${pops} goal=${goal != null}`)
     if (goal == null) return null
     // reconstruct lattice chain, prepend seed mid pts, append portal entry + T
     const idx = []
@@ -709,11 +710,10 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // probe hit. Tear the busiest wall(s) down, route L through the opening,
   // then re-route each wall line around L. Commit only if EVERYONE ends clean.
   function ripUpAndRoute(L, li, blockers) {
-    const snap = snapLine
     const tryRip = (wallIdxs) => {
       const walls = wallIdxs.map((wi) => lines[wi]).filter((w) => w && !w.fallback)
       if (walls.length !== wallIdxs.length) return false
-      const saves = [snap(L), ...walls.map(snap)]
+      const saves = [snapLine(L), ...walls.map(snapLine)]
       const undo = () => {
         Object.assign(L, saves[0])
         walls.forEach((w, i) => Object.assign(w, saves[i + 1]))
@@ -727,18 +727,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
       L.routed = true
       L.forced = false
       for (const w of walls) { // re-route each wall with L (and prior walls) placed
-        const wi = lines.indexOf(w)
-        const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
-        const placedW = placedOf(wi)
-        let done = null
-        for (const c of candidates(S2, T2, unit)) {
-          if (c.fallback) continue
-          if (conflictCount(c.pts, w.seg, placedW) === 0) { done = { pts: c.pts, bends: c.bends, routed: false }; break }
-        }
-        if (!done) {
-          const r = routeLattice(S2, T2, w.seg, placedW)
-          if (r) done = { pts: r, bends: r.length - 2, routed: true }
-        }
+        const done = rerouteAround(w, lines.indexOf(w)) // 同一套：先乾淨候選、再 A* 兜底
         if (!done) { undo(); return false }
         w.pts = done.pts
         w.legs = legsOfPts(done.pts)
@@ -886,10 +875,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
 
   /* ---- pass 2 (soft, 衝突消解後微調): same-bends / same-45°-count swaps that
      improve straight continuation with same-route lines at shared nodes ---- */
-  const sharesRoute = (r1, r2) => {
-    for (const id of r1) if (r2.has(id)) return true
-    return false
-  }
+  // sharesRoute 來自 netUtil（與 hillClimb 同一份）。
   // Unit direction AWAY from the node along a polyline's end.
   function awayDir(L, nodeId) {
     const pts = L.seg.a === nodeId ? L.pts : [...L.pts].reverse()
@@ -1099,14 +1085,22 @@ export function buildRwdMap(segs, pos, opts = {}) {
     if (L.forced) stats.forced++
   }
 
-  /* ---- interior 白點（直通站）: 第 j/(k+1) 弧長處放回（a→b order = seg.interior）。
+  // interior 白點放回＋自動隱藏（與 routing 完全獨立的收尾段，見 placeWhiteStops）。
+  const { posAfter, hidden, globalT } = placeWhiteStops(lines, pos, opts)
+
+  return { lines, posAfter, stats, hidden, hiddenMaxT: globalT >= 0 ? globalT : null }
+}
+
+/* ---- interior 白點（直通站）: 第 j/(k+1) 弧長處放回（a→b order = seg.interior）。
      自動隱藏白點（opts.hideStops）——**站距決定全域 cutoff、全圖一致**（使用者裁決）：
      ① 逐段找「讓該段均分後站距 ≥ opts.minStopPx 所需的最小 weight 差門檻」（站距夠寬鬆的
         段需求為 −1，不需刪）；全域 cutoff T = 各段需求的**最大值**。
      ② 全圖任何白點只要其左右 link 的 weight 差 |左−右| ≤ T 就一律隱藏——這樣「刪到 ≤ T」
         與畫面完全一致（寬鬆段的低差白點也一起消失、標籤合併取 max）。
      彩色錨點（a/b）是拓撲錨點不可刪；保留的白點沿弧長**重新均分**。
-     hidden：被藏白點 id；hiddenMaxT = T（供讀數）。---- */
+   hidden：被藏白點 id；globalT = cutoff T（供讀數）。
+   buildRwdMap 的收尾段——只讀 routing 結果（lines[].pts）與 opts，不碰 routing 狀態。---- */
+function placeWhiteStops(lines, pos, opts) {
   const posAfter = new Map(pos)
   const hidden = new Set()
   const minStopPx = opts.minStopPx ?? 5
@@ -1150,5 +1144,5 @@ export function buildRwdMap(segs, pos, opts = {}) {
     for (let j = 1; j <= m; j++) posAfter.set(keep[j - 1], at(j / (m + 1))) // 保留者重新均分
   }
 
-  return { lines, posAfter, stats, hidden, hiddenMaxT: globalT >= 0 ? globalT : null }
+  return { posAfter, hidden, globalT }
 }

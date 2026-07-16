@@ -80,6 +80,10 @@
     "europe/spain/eu-esp-seville": {
       "website": "https://metrodesevilla.net/",
       "note": "Wikidata P856 是舊域名 metro-sevilla.es（已死），官方現為 metrodesevilla.net（實測 200，2026-07）。"
+    },
+    "americas/united-states/am-usa-new-york-city": {
+      "website": "https://www.mta.info/",
+      "note": "MTA（NYC Subway 營運母機構，Q7733 P856=mta.info/nyct）官網。HTTP 403 為 Cloudflare 擋爬蟲，可連。自動解析誤把候選按路徑深度排序、取到 depth-0 的 abellio.com（Abellio 荷蘭運輸公司 Q318672，wrongCountry 因描述寫 Dutch 非 Netherlands 未擋下），故釘選。"
     }
   }
 }

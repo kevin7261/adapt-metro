@@ -5,6 +5,7 @@ import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
+import { dragResize } from '../lib/dragResize'
 import { layerData, localizeStationNames } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
@@ -17,7 +18,7 @@ import {
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
-import { stationPopupHtml, linePopupHtml } from '../stores/popupHtml'
+import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
 import MIcon from './MIcon.vue'
@@ -78,22 +79,16 @@ const viewNavWidth = ref(132)
 const navDragging = ref(false)
 function startNavResize(e) {
   e.preventDefault()
-  navDragging.value = true
-  const startX = e.clientX
   const startW = viewNavWidth.value
   // 拖到極限：上限＝容器寬 − 留給畫布的一小條；下限縮到很小；不設固定 90/300。
   const host = e.currentTarget?.parentElement
-  const move = (ev) => {
-    const maxW = host ? Math.max(90, host.clientWidth - 80) : 600
-    viewNavWidth.value = Math.min(maxW, Math.max(40, startW + (ev.clientX - startX)))
-  }
-  const up = () => {
-    navDragging.value = false
-    window.removeEventListener('pointermove', move)
-    window.removeEventListener('pointerup', up)
-  }
-  window.addEventListener('pointermove', move)
-  window.addEventListener('pointerup', up)
+  dragResize(e, {
+    dragging: navDragging,
+    onMove: (dx) => {
+      const maxW = host ? Math.max(90, host.clientWidth - 80) : 600
+      viewNavWidth.value = Math.min(maxW, Math.max(40, startW + dx))
+    },
+  })
 }
 
 // Suggested rotation (Boeing-style dominant-axis tilt, from the Info rose).
@@ -112,16 +107,34 @@ const tilt = ref(0)
 // ('*-end') → 直線縮減 ('*-line') → 網格合併 ('*-gather') → 縮減網格
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
+// ---- HC mode 解析 ----
+// HC 視圖 id 都是 `hc-<kind>[-<step>]`：kind ∈ rect|align|ilp|llm（四條鏈），
+// step ∈ end|line|gather|loop|step（鏈的三步＋循環＋逐步驗證）。舊的六張
+// kind 查表（POST/END/LINE/GATHER/LOOP/STEP_KIND）全部由這一條 regex 導出。
+// hc 鏈不進四個後處理區（使用者 2026-07 裁決）——只有 rect/align/ilp/llm 四條鏈；
+// RWD 底圖仍可用 hc 鏈的循環（loop 區塊的 isRWD fallback，key 'hc'）。
+const HC_MODE_RE = /^hc-(rect|align|ilp|llm)(?:-(end|line|gather|loop|step))?$/
+// 該 step 專屬的鏈 kind（step 不符 → null）——對應舊 END/LINE/GATHER/LOOP/STEP_KIND[mode]。
+const kindAtStep = (m, step) => {
+  const mm = HC_MODE_RE.exec(m)
+  return mm && mm[2] === step ? mm[1] : null
+}
+const endKindOf = (m) => kindAtStep(m, 'end')       // 端點移動（鏈第 1 步）
+const lineKindOf = (m) => kindAtStep(m, 'line')     // 直線縮減（鏈第 2 步）
+const gatherKindOf = (m) => kindAtStep(m, 'gather') // 網格合併（鏈第 3 步）
+const loopKindOf = (m) => kindAtStep(m, 'loop')     // 端點移動+直線縮減+網格合併+縮減網格循環
+const stepKindOf = (m) => kindAtStep(m, 'step')     // 逐步驗證（同一條四步鏈、按「下一步」推進）
+// 瀏覽器端後處理 kind（任何 step 都要先有該鏈的後處理結果）——llm 不在內
+//（LLM 對齊在檔案端算好，這裡只載入）。對應舊 POST_KIND[mode]。
+const postKindOf = (m) => {
+  const mm = HC_MODE_RE.exec(m)
+  return mm && mm[1] !== 'llm' ? mm[1] : null
+}
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
-  ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
-    'hc-rect-end', 'hc-align-end', 'hc-ilp-end', 'hc-llm-end',
-    'hc-compact', // RWD 圖層的「循環結果」輸入視圖沿用這個 id（HC 圖層已無縮減網格 tabs）
-    'hc-rect-line', 'hc-align-line', 'hc-ilp-line', 'hc-llm-line',
-    'hc-rect-gather', 'hc-align-gather', 'hc-ilp-gather', 'hc-llm-gather',
-    'hc-rect-loop', 'hc-align-loop', 'hc-ilp-loop', 'hc-llm-loop',
-    'hc-rect-step', 'hc-align-step', 'hc-ilp-step', 'hc-llm-step',
-    'rwd', 'rwd-llm'].includes(mode.value))
+  mode.value === 'hc' || HC_MODE_RE.test(mode.value) ||
+  mode.value === 'hc-compact' || // RWD 圖層的「循環結果」輸入視圖沿用這個 id（HC 圖層已無縮減網格 tabs）
+  mode.value === 'rwd' || mode.value === 'rwd-llm')
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
 // 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
@@ -138,74 +151,92 @@ const llmRun = ref(null)     // null | 'running' | 'error'
 const llmRunTail = ref('')   // short error tail
 const llmRunText = ref('')   // live streamed assistant transcript (LLM 回傳文字)
 const llmLogEl = ref(null)   // overlay <pre>, auto-scrolled to the newest text
-let llmPollTimer = null
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
-async function startLlmRun(userPrompt = '') {
-  const cid = llmCityId.value
-  if (!cid || llmRun.value === 'running') return
-  llmRun.value = 'running'
-  llmRunTail.value = ''
-  llmRunText.value = ''
-  // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
-  // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
-  cachedLlm = null
-  delete cachedEndp.llm // LLM 對齊的端點移動／直線縮減／網格合併／縮減網格／循環 跟著舊結果一起作廢
-  delete cachedLine.llm
-  delete cachedGather.llm
-  delete cachedLoop.llm
-  delete stepState.llm
-  delete stepHistory.llm
-  if (llmMode.value) render()
-  try {
-    const res = await fetch('/llm-align/run', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        city: cid, variant: hcVariant.value,
-        userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
-      }),
-    })
-    if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
-    pollLlmRun()
-  } catch {
-    llmRun.value = 'error'
-    llmRunTail.value = '無法觸發——需要本機 npm run dev（vite）＋已安裝 Claude Code CLI'
-  }
-}
-function pollLlmRun() {
-  clearTimeout(llmPollTimer)
-  llmPollTimer = setTimeout(async () => {
+// LLM 對齊（/llm-align）與 LLM 調整（/llm-grid）共用的 run/poll 機構：POST 觸發
+// vite plugin spawn 的 headless Claude Code、2.5s 輪詢 status、streamed transcript
+// 自動捲到底、409（已在跑）視為接上。兩者的差異——endpoint、額外參數（grid 多帶
+// compact）、啟動時的快取清理/動畫快照/自動切 tab、重畫守門（llmMode vs
+// rwdLlmMode）、完成後的快取清理——全部由 config 注入。
+function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, onStart, onDone }) {
+  let timer = null
+  async function start(userPrompt = '') {
+    const cid = llmCityId.value
+    if (!cid || run.value === 'running') return
+    run.value = 'running'
+    tail.value = ''
+    text.value = ''
+    // 清掉舊結果——執行中畫布留白、蓋上執行中 overlay，跑完再重新載入新結果
+    // （做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
+    onStart()
+    if (shouldRender()) render()
     try {
-      const res = await fetch(`/llm-align/status?city=${llmCityId.value}&variant=${hcVariant.value}`)
-      const s = await res.json()
-      llmRunTail.value = s.tail ?? ''
-      if (s.text != null) {
-        llmRunText.value = s.text
-        // stick to the bottom so the newest reply is always visible
-        requestAnimationFrame(() => {
-          if (llmLogEl.value) llmLogEl.value.scrollTop = llmLogEl.value.scrollHeight
-        })
-      }
-      if (s.running) {
-        // still running — keep the map blank + overlay up, just refresh the log
-        pollLlmRun()
-      } else if (s.exit === 0) {
-        cachedLlm = null // reload the finished result
-        delete cachedEndp.llm
-        llmRun.value = null
-        render()
-      } else {
-        cachedLlm = null
-        delete cachedEndp.llm
-        llmRun.value = 'error'
-        if (llmMode.value) render() // fall to the 開始 LLM 對齊 retry state
-      }
+      const res = await fetch(`${base}/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: cid, ...params(),
+          userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
+        }),
+      })
+      if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
+      poll()
     } catch {
-      llmRun.value = 'error'
-      llmRunTail.value = '狀態輪詢失敗'
+      run.value = 'error'
+      tail.value = '無法觸發——需要本機 npm run dev（vite）＋已安裝 Claude Code CLI'
     }
-  }, 2500)
+  }
+  function poll() {
+    clearTimeout(timer)
+    timer = setTimeout(async () => {
+      try {
+        const qs = new URLSearchParams({ city: llmCityId.value, ...params() })
+        const res = await fetch(`${base}/status?${qs}`)
+        const s = await res.json()
+        tail.value = s.tail ?? ''
+        if (s.text != null) {
+          text.value = s.text
+          // stick to the bottom so the newest reply is always visible
+          requestAnimationFrame(() => {
+            if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
+          })
+        }
+        if (s.running) {
+          // still running — keep the map blank + overlay up, just refresh the log
+          poll()
+        } else if (s.exit === 0) {
+          onDone(true) // reload the finished result
+          run.value = null
+          render()
+        } else {
+          onDone(false)
+          run.value = 'error'
+          if (shouldRender()) render() // fall to the 開始 retry state
+        }
+      } catch {
+        run.value = 'error'
+        tail.value = '狀態輪詢失敗'
+      }
+    }, 2500)
+  }
+  return { start, stop: () => clearTimeout(timer) }
 }
+const llmRunner = makeHeadlessRun({
+  base: '/llm-align',
+  params: () => ({ variant: hcVariant.value }),
+  run: llmRun, tail: llmRunTail, text: llmRunText, logEl: llmLogEl,
+  shouldRender: () => llmMode.value,
+  onStart: () => {
+    cachedLlm = null
+    delete cachedEndp.llm // LLM 對齊的端點移動／直線縮減／網格合併／縮減網格／循環 跟著舊結果一起作廢
+    delete cachedLine.llm
+    delete cachedGather.llm
+    delete cachedLoop.llm
+    delete stepState.llm
+    delete stepHistory.llm
+  },
+  onDone: () => { cachedLlm = null; delete cachedEndp.llm },
+})
+const startLlmRun = llmRunner.start
 // ---- LLM 調整（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
 // 與 LLM 對齊同一套離線模式：使用者的一句話 POST 給 /llm-grid/run（vite plugin
 // spawn headless Claude Code），模型推理每個 X 欄／Y 列區間的顯示權重、存到
@@ -219,71 +250,27 @@ const gridRunTail = ref('')
 const gridRunText = ref('')
 const gridLogEl = ref(null)
 const gridOverlayPrompt = ref('') // canvas overlay 的一句話輸入框
-let gridPollTimer = null
 let cachedGrid = null          // fetched llmgrid: { colW, rowW, stats } or { miss }
 let rwdGridSeq = 0             // 載入序號，併進 RWD 快取鍵
 // 新結果到達時的動畫：從舊區間權重（無則均勻）內插格線位置到新權重。
 let rwdAnimGridFrom = null, rwdAnimGridTo = null, pendingGridAnim = null
 // RWD 圖層蓋在哪個縮減網格上（llmgrid 檔名的第三段）。
 const rwdCompactKey = computed(() => (useLlm.value ? 'llm' : postKind.value ?? 'hc'))
-async function startGridRun(userPrompt = '') {
-  const cid = llmCityId.value
-  if (!cid || gridRun.value === 'running') return
-  gridRun.value = 'running'
-  gridRunTail.value = ''
-  gridRunText.value = ''
-  // 動畫起點快照：跑完從目前版面過渡到新版面（沒有舊結果就從均勻網格）。
-  pendingGridAnim = { from: cachedGrid?.colW ? { colW: cachedGrid.colW, rowW: cachedGrid.rowW } : null }
-  cachedGrid = null
-  if (isRWD.value) mode.value = 'rwd-llm' // 從面板觸發時自動切到 LLM調整 視圖
-  if (rwdLlmMode.value) render()
-  try {
-    const res = await fetch('/llm-grid/run', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        city: cid, variant: hcVariant.value, compact: rwdCompactKey.value,
-        userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
-      }),
-    })
-    if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
-    pollGridRun()
-  } catch {
-    gridRun.value = 'error'
-    gridRunTail.value = '無法觸發——需要本機 npm run dev（vite）＋已安裝 Claude Code CLI'
-  }
-}
-function pollGridRun() {
-  clearTimeout(gridPollTimer)
-  gridPollTimer = setTimeout(async () => {
-    try {
-      const res = await fetch(`/llm-grid/status?city=${llmCityId.value}&variant=${hcVariant.value}&compact=${rwdCompactKey.value}`)
-      const s = await res.json()
-      gridRunTail.value = s.tail ?? ''
-      if (s.text != null) {
-        gridRunText.value = s.text
-        requestAnimationFrame(() => {
-          if (gridLogEl.value) gridLogEl.value.scrollTop = gridLogEl.value.scrollHeight
-        })
-      }
-      if (s.running) {
-        pollGridRun()
-      } else if (s.exit === 0) {
-        cachedGrid = null // reload the finished result（render 內載檔並啟動動畫）
-        gridRun.value = null
-        render()
-      } else {
-        cachedGrid = null
-        pendingGridAnim = null
-        gridRun.value = 'error'
-        if (rwdLlmMode.value) render()
-      }
-    } catch {
-      gridRun.value = 'error'
-      gridRunTail.value = '狀態輪詢失敗'
-    }
-  }, 2500)
-}
+const gridRunner = makeHeadlessRun({
+  base: '/llm-grid',
+  params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value }),
+  run: gridRun, tail: gridRunTail, text: gridRunText, logEl: gridLogEl,
+  shouldRender: () => rwdLlmMode.value,
+  onStart: () => {
+    // 動畫起點快照：跑完從目前版面過渡到新版面（沒有舊結果就從均勻網格）。
+    pendingGridAnim = { from: cachedGrid?.colW ? { colW: cachedGrid.colW, rowW: cachedGrid.rowW } : null }
+    cachedGrid = null
+    if (isRWD.value) mode.value = 'rwd-llm' // 從面板觸發時自動切到 LLM調整 視圖
+  },
+  // 成功：cachedGrid 清空 → render 內載檔並啟動動畫；失敗：動畫快照一併作廢。
+  onDone: (ok) => { cachedGrid = null; if (!ok) pendingGridAnim = null },
+})
+const startGridRun = gridRunner.start
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
 // re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
@@ -293,57 +280,22 @@ function pollGridRun() {
 const postIters = ref({}) // kind -> iterations used (set once computed)
 const iterBadge = (kind) =>
   (postIters.value[kind] ? ` ${postIters.value[kind]}/${POST_ITER_CAP}` : '')
-const POST_KIND = {
-  'hc-rect': 'rect', 'hc-align': 'align', 'hc-ilp': 'ilp',
-  'hc-rect-end': 'rect', 'hc-align-end': 'align', 'hc-ilp-end': 'ilp',
-  'hc-rect-line': 'rect', 'hc-align-line': 'align', 'hc-ilp-line': 'ilp',
-  'hc-rect-gather': 'rect', 'hc-align-gather': 'align', 'hc-ilp-gather': 'ilp',
-  'hc-rect-loop': 'rect', 'hc-align-loop': 'align', 'hc-ilp-loop': 'ilp',
-  'hc-rect-step': 'rect', 'hc-align-step': 'align', 'hc-ilp-step': 'ilp',
-}
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
-// 端點移動區塊（左選單第 4 部份，鏈的第 1 步）：每條鏈一個 tab——在該鏈的
-// 結果之上做端點移動（原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／
-// 縮減網格／RWD 底圖的輸入。
-// hc 鏈不進四個後處理區（使用者 2026-07 裁決）——只有 rect/align/ilp/llm 四條鏈；
-// RWD 底圖仍可用 hc 鏈的循環（loop 區塊的 isRWD fallback，key 'hc'）。
-const END_KIND = {
-  'hc-rect-end': 'rect', 'hc-align-end': 'align',
-  'hc-ilp-end': 'ilp', 'hc-llm-end': 'llm',
-}
-// 直線縮減（左選單第 5 部份，鏈的第 2 步）：每條鏈一個 tab——在該鏈「端點
-// 拉直後」的結果之上，把直線（跨相交點串接的共線段鏈）整條垂直於線平移
-// （水平線只能上下移、垂直線只能左右移），讓「佔用的欄列」越少越好、
-// network 結構不變、全網 H/V 段數不減（movewise：每個移動後即壓縮）；
-// 網格合併 tab 接在它之後（鏈 = 該鏈結果 → 端點移動 → 直線縮減 → 網格合併）。
-const LINE_KIND = {
-  'hc-rect-line': 'rect', 'hc-align-line': 'align',
-  'hc-ilp-line': 'ilp', 'hc-llm-line': 'llm',
-}
-// 網格合併（左選單第 6 部份，鏈的第 3 步）：每條鏈一個 tab——①有色點只要
-// 入射段 ≤2 且同軸（左右兩段水平/上下兩段垂直；藍點單段必可）就沿線往
-// 中位點（黃色圓標位置）滑動：水平線上只左右移、垂直線上只上下移；
-// ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變
-// （movewise：每個移動後即壓縮）。
-const GATHER_KIND = {
-  'hc-rect-gather': 'rect', 'hc-align-gather': 'align',
-  'hc-ilp-gather': 'ilp', 'hc-llm-gather': 'llm',
-}
-// 端點移動+直線縮減+網格合併+縮減網格循環（左選單第 8 部份）：每條鏈一個
-// tab——在該鏈結果之上交替 端點移動→直線縮減→網格合併→縮減網格，跑到某輪
-// 「沒有點可以動」為止（straightenCompactLoop）。
-const LOOP_KIND = {
-  'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
-  'hc-ilp-loop': 'ilp', 'hc-llm-loop': 'llm',
-}
-// 逐步驗證（左選單第 9 部份）：每條鏈一個 tab——同一條四步鏈，但由使用者
-// 按「下一步」一步步執行：每步＝目前階段的一個單掃描（或一次縮減網格），
-// 掃不動自動換下一階段，一輪全沒動靜＝完成（stepChainInit/stepChainNext）。
-// 逐步驗證 也沒有 hc 鏈（使用者 2026-07 裁決）——同四個後處理區。
-const STEP_KIND = {
-  'hc-rect-step': 'rect', 'hc-align-step': 'align',
-  'hc-ilp-step': 'ilp', 'hc-llm-step': 'llm',
-}
+// 各 step 區塊的語意（kind 查詢一律走上方的 endKindOf/lineKindOf/…）：
+// - 端點移動（左選單第 4 部份，鏈的第 1 步）：在該鏈的結果之上做端點移動
+//   （原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／縮減網格／RWD 底圖的輸入。
+// - 直線縮減（第 5 部份，鏈的第 2 步）：在該鏈「端點拉直後」的結果之上，把直線
+//   （跨相交點串接的共線段鏈）整條垂直於線平移（水平線只能上下移、垂直線只能
+//   左右移），讓「佔用的欄列」越少越好、network 結構不變、全網 H/V 段數不減
+//   （movewise：每個移動後即壓縮）；網格合併 tab 接在它之後。
+// - 網格合併（第 6 部份，鏈的第 3 步）：①有色點只要入射段 ≤2 且同軸（左右兩段
+//   水平/上下兩段垂直；藍點單段必可）就沿線往中位點（黃色圓標位置）滑動；
+//   ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變。
+// - 循環（第 8 部份）：交替 端點移動→直線縮減→網格合併→縮減網格，跑到某輪
+//   「沒有點可以動」為止（straightenCompactLoop）。
+// - 逐步驗證（第 9 部份）：同一條四步鏈，由使用者按「下一步」一步步執行：每步＝
+//   目前階段的一個單掃描（或一次縮減網格），掃不動自動換下一階段，一輪全沒動靜
+//   ＝完成（stepChainInit/stepChainNext）。也沒有 hc 鏈（使用者 2026-07 裁決）。
 // 面板的階段 chips：這一步執行的工作（lastStage）會亮起。
 // 縮減網格不是獨立階段——每一步完成後自動壓（訊息尾巴會標「縮減網格 a×b → c×d」）。
 const STEP_STAGES = [
@@ -353,7 +305,7 @@ const STEP_STAGES = [
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
 // 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
 const postKind = computed(() =>
-  isHC.value ? POST_KIND[mode.value] ?? null
+  isHC.value ? postKindOf(mode.value)
     : isRWD.value && ['rect', 'align', 'ilp'].includes(layer.value?.compact) ? layer.value.compact
       : null)
 // 縮減網格已非獨立步驟（每一個移動後由 movewiseStage 自動壓縮）；hcCompact
@@ -431,6 +383,21 @@ let cachedLoop = {}    // 端點移動+直線縮減+網格合併+縮減網格循
 let stepState = {}     // 逐步驗證 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
 let stepHistory = {}   // 逐步驗證 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
+// llmview（LLM 對齊）與 llmgrid（LLM 調整）結果檔的共用載入器：fetch →
+// content-type 檢查 → fingerprint 比對（verts/segs 共通＋fpOk 額外欄位）→
+// 對應 miss 訊息；成功回 onOk(j)。呼叫端自己處理 renderSeq 過期。
+async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk }) {
+  try {
+    const res = await fetch(assetUrl(url))
+    const isJson = (res.headers.get('content-type') ?? '').includes('json')
+    const j = res.ok && isJson ? await res.json() : null
+    if (!j) return { miss: missNone }
+    if (j.fingerprint?.verts !== cachedHC.stats.verts
+      || j.fingerprint?.segs !== cachedHC.stats.segs
+      || !fpOk(j.fingerprint ?? {})) return { miss: missStale }
+    return onOk(j)
+  } catch { return { miss: missErr } }
+}
 const hcBusy = ref(false)
 const busyText = ref('')
 const hcStats = ref(null)
@@ -547,39 +514,21 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
-      // 鏈的三步（每步一區、每條鏈一個 tab，前面的 tab 不受後面步驟影響）：
-      // 該鏈結果 → 端點移動 → 直線縮減 → 縮減網格
-      { header: '端點移動' },
-      { id: 'hc-rect-end', label: '直角爬山端點移動' },
-      { id: 'hc-align-end', label: '軸對齊端點移動' },
-      { id: 'hc-ilp-end', label: '整數規劃端點移動' },
-      { id: 'hc-llm-end', label: 'LLM 對齊端點移動' },
-      // 直線縮減：直線（跨相交點串接）整條垂直於線平移讓佔用欄列更少、
-      // 全網 H/V 不減（見 LINE_KIND）
-      { header: '直線縮減' },
-      { id: 'hc-rect-line', label: '直角爬山直線縮減' },
-      { id: 'hc-align-line', label: '軸對齊直線縮減' },
-      { id: 'hc-ilp-line', label: '整數規劃直線縮減' },
-      { id: 'hc-llm-line', label: 'LLM 對齊直線縮減' },
-      // 網格合併：有色點（≤2 同軸段）沿線滑＋直線整條垂直移，往中位點（見 GATHER_KIND）
-      { header: '網格合併' },
-      { id: 'hc-rect-gather', label: '直角爬山網格合併' },
-      { id: 'hc-align-gather', label: '軸對齊網格合併' },
-      { id: 'hc-ilp-gather', label: '整數規劃網格合併' },
-      { id: 'hc-llm-gather', label: 'LLM 對齊網格合併' },
-      // 循環：端點移動→直線縮減→網格合併（每個移動後即壓縮）直到沒有點可以動
-      // （見 LOOP_KIND）
-      { header: '端點移動+直線縮減+網格合併循環' },
-      { id: 'hc-rect-loop', label: '直角爬山循環' },
-      { id: 'hc-align-loop', label: '軸對齊循環' },
-      { id: 'hc-ilp-loop', label: '整數規劃循環' },
-      { id: 'hc-llm-loop', label: 'LLM 對齊循環' },
-      // 逐步驗證：同一條四步鏈，按「下一步」一步步執行（見 STEP_KIND）
-      { header: '逐步驗證' },
-      { id: 'hc-rect-step', label: '直角爬山逐步' },
-      { id: 'hc-align-step', label: '軸對齊逐步' },
-      { id: 'hc-ilp-step', label: '整數規劃逐步' },
-      { id: 'hc-llm-step', label: 'LLM 對齊逐步' },
+      // 鏈的三步＋循環＋逐步（每步一區、每條鏈一個 tab，前面的 tab 不受後面
+      // 步驟影響）：該鏈結果 → 端點移動 → 直線縮減 → 網格合併；另有 循環
+      //（交替四步直到沒有點可以動，見 loopKindOf）與 逐步驗證（按「下一步」
+      // 推進，見 stepKindOf）。四條鏈 × 各區塊用迴圈生成。
+      ...[
+        ['end', '端點移動', (zh) => `${zh}端點移動`],
+        ['line', '直線縮減', (zh) => `${zh}直線縮減`],
+        ['gather', '網格合併', (zh) => `${zh}網格合併`],
+        ['loop', '端點移動+直線縮減+網格合併循環', (zh) => `${zh}循環`],
+        ['step', '逐步驗證', (zh) => `${zh}逐步`],
+      ].flatMap(([step, header, fmt]) => [
+        { header },
+        ...[['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊']]
+          .map(([k, zh]) => ({ id: `hc-${k}-${step}`, label: fmt(zh) })),
+      ]),
     ]
   }
   return [
@@ -691,7 +640,7 @@ async function sourceData() {
 // 起點。stepState/stepHistory 不是 reactive——推進後靠 render() 重畫、
 // stepInfo ref 更新面板（含 hist 長度驅動按鈕 disabled）。
 function stepNext(limit) {
-  const kind = STEP_KIND[mode.value]
+  const kind = stepKindOf(mode.value)
   if (!kind || !stepState[kind] || !cachedSkeleton) return
   const prev = stepState[kind]
   const next = stepChainNext(cachedSkeleton, prev, limit ? { limit } : {})
@@ -704,7 +653,7 @@ function stepNext(limit) {
 // 上一小步＝回退一個動作；上一步＝一路吞掉其後的小步、回退到上一個大步之前
 // （堆疊裡沒有大步時退回起點）。
 function stepPrev(sub) {
-  const kind = STEP_KIND[mode.value]
+  const kind = stepKindOf(mode.value)
   const hist = stepHistory[kind]
   if (!kind || !hist?.length) return
   let entry = hist.pop()
@@ -713,7 +662,7 @@ function stepPrev(sub) {
   render()
 }
 function stepReset() {
-  const kind = STEP_KIND[mode.value]
+  const kind = stepKindOf(mode.value)
   if (!kind) return
   delete stepState[kind]
   delete stepHistory[kind]
@@ -773,7 +722,7 @@ async function render() {
     rwdStats.value = null
     // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
     // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
-    buildTipIdx(data) // hover 索引（refColor/segs/站點）——per dataset 一次
+    tipIdx = buildPopupIndex(data) // hover 索引（refColor/segs/站點）——per dataset 一次
     cachedFp = dataFingerprint(data)
     const hit = loadHcCache(`${cachedFp}:${hcVariant.value}`)
     if (hit) { cachedHC = hit.hc; cachedPost = hit.posts }
@@ -846,24 +795,16 @@ async function render() {
       if (llmRun.value === 'running') return
       if (!cachedLlm) {
         const cid = sourceLayer.value?.id
-        cachedLlm = { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
-        if (cid) {
-          try {
-            const res = await fetch(assetUrl(`data/metro/llmviews/${cid}.${hcVariant.value}.json`))
-            const isJson = (res.headers.get('content-type') ?? '').includes('json')
-            const j = res.ok && isJson ? await res.json() : null
-            if (!j) {
-              cachedLlm = { miss: `尚未產生 LLM 對齊——請在 Claude Code 對 ${cid}（${hcVariant.value}）跑 route-llm-align skill` }
-            } else if (j.fingerprint?.verts !== cachedHC.stats.verts
-              || j.fingerprint?.segs !== cachedHC.stats.segs
-              || j.fingerprint?.cols !== grid.cols || j.fingerprint?.rows !== grid.rows
-              || j.fingerprint?.hvStart !== cachedHC.stats.hvAfter) {
-              cachedLlm = { miss: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生' }
-            } else {
-              cachedLlm = { cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }
-            }
-          } catch { cachedLlm = { miss: '無法載入 LLM 對齊結果' } }
-        }
+        cachedLlm = !cid
+          ? { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
+          : await fetchLlmResult(`data/metro/llmviews/${cid}.${hcVariant.value}.json`, {
+            missNone: `尚未產生 LLM 對齊——請在 Claude Code 對 ${cid}（${hcVariant.value}）跑 route-llm-align skill`,
+            missStale: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生',
+            missErr: '無法載入 LLM 對齊結果',
+            fpOk: (fp) => fp.cols === grid.cols && fp.rows === grid.rows
+              && fp.hvStart === cachedHC.stats.hvAfter,
+            onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
+          })
         if (seq !== renderSeq) return // superseded during fetch
       }
       if (!cachedLlm.cells) {
@@ -884,7 +825,7 @@ async function render() {
     // RWD 不走下面 ①〜③ 的單趟鏈——改建立在「循環」（straightenCompactLoop）
     // 的結果上（使用者 2026-07 裁決），見下方 loop 區塊的 isRWD fallback。
     {
-      const endKind = END_KIND[mode.value] ?? LINE_KIND[mode.value] ?? GATHER_KIND[mode.value]
+      const endKind = endKindOf(mode.value) ?? lineKindOf(mode.value) ?? gatherKindOf(mode.value)
       if (endKind) {
         if (!cachedEndp[endKind]) cachedEndp[endKind] = movewiseStage('endp', cachedSkeleton, cells, nC, nR)
         cells = cachedEndp[endKind].cellAfter
@@ -899,7 +840,7 @@ async function render() {
     // the network-wide H/V count never degrade. Applies to the -line tabs
     // AND under 網格合併.
     {
-      const lineKind = LINE_KIND[mode.value] ?? GATHER_KIND[mode.value]
+      const lineKind = lineKindOf(mode.value) ?? gatherKindOf(mode.value)
       if (lineKind) {
         if (!cachedLine[lineKind]) cachedLine[lineKind] = movewiseStage('line', cachedSkeleton, cells, nC, nR)
         cells = cachedLine[lineKind].cellAfter
@@ -911,7 +852,7 @@ async function render() {
     // ③ 網格合併: 有色點（入射段 ≤2 且同軸；藍點必可）沿線滑動＋串接直線
     // 整條垂直平移，都往中位點。Applies to the -gather tabs.
     {
-      const gatherKind = GATHER_KIND[mode.value]
+      const gatherKind = gatherKindOf(mode.value)
       if (gatherKind) {
         if (!cachedGather[gatherKind]) cachedGather[gatherKind] = movewiseStage('gather', cachedSkeleton, cells, nC, nR)
         cells = cachedGather[gatherKind].cellAfter
@@ -924,7 +865,7 @@ async function render() {
     // until a round moves nothing (straightenCompactLoop).
     {
       // RWD（含其「縮減網格」輸入視圖）也走這裡：建立在該鏈的循環結果之上。
-      const loopKind = LOOP_KIND[mode.value] ?? (isRWD.value ? rwdCompactKey.value : null)
+      const loopKind = loopKindOf(mode.value) ?? (isRWD.value ? rwdCompactKey.value : null)
       if (loopKind) {
         if (!cachedLoop[loopKind]) cachedLoop[loopKind] = straightenCompactLoop(cachedSkeleton, cells, nC, nR)
         cells = cachedLoop[loopKind].cellAfter
@@ -935,9 +876,9 @@ async function render() {
       }
     }
     // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
-    // 推進 stepState 後重畫；見 STEP_KIND）。
+    // 推進 stepState 後重畫；見 stepKindOf）。
     {
-      const stepKind = STEP_KIND[mode.value]
+      const stepKind = stepKindOf(mode.value)
       if (stepKind) {
         if (!stepState[stepKind]) stepState[stepKind] = stepChainInit(cells, nC, nR)
         const st = stepState[stepKind]
@@ -965,24 +906,15 @@ async function render() {
       if (gridRun.value === 'running') return // 執行中：畫布留白、overlay 蓋上
       if (!cachedGrid) {
         const cid = sourceLayer.value?.id
-        cachedGrid = { miss: '匯入資料不支援 LLM 調整（沒有城市 id 可對應結果檔）' }
-        if (cid) {
-          try {
-            const res = await fetch(assetUrl(`data/metro/llmgrids/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`))
-            const isJson = (res.headers.get('content-type') ?? '').includes('json')
-            const j = res.ok && isJson ? await res.json() : null
-            if (!j) {
-              cachedGrid = { miss: '尚未產生 LLM 調整——輸入一句話（例：把市中心那幾欄拉開），讓模型推理每欄／列該佔多大' }
-            } else if (j.fingerprint?.verts !== cachedHC.stats.verts
-              || j.fingerprint?.segs !== cachedHC.stats.segs
-              || j.fingerprint?.cols !== nC || j.fingerprint?.rows !== nR) {
-              cachedGrid = { miss: 'LLM 調整結果與目前資料不符（資料已更新）——請重新產生' }
-            } else {
-              cachedGrid = { colW: j.colW, rowW: j.rowW, stats: j }
-              rwdGridSeq++
-            }
-          } catch { cachedGrid = { miss: '無法載入 LLM 調整結果' } }
-        }
+        cachedGrid = !cid
+          ? { miss: '匯入資料不支援 LLM 調整（沒有城市 id 可對應結果檔）' }
+          : await fetchLlmResult(`data/metro/llmgrids/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`, {
+            missNone: '尚未產生 LLM 調整——輸入一句話（例：把市中心那幾欄拉開），讓模型推理每欄／列該佔多大',
+            missStale: 'LLM 調整結果與目前資料不符（資料已更新）——請重新產生',
+            missErr: '無法載入 LLM 調整結果',
+            fpOk: (fp) => fp.cols === nC && fp.rows === nR,
+            onOk: (j) => { rwdGridSeq++; return { colW: j.colW, rowW: j.rowW, stats: j } },
+          })
         if (seq !== renderSeq) return // superseded during fetch
       }
       if (!cachedGrid.colW) {
@@ -1065,25 +997,35 @@ async function render() {
       rwdStats.value = cachedRWD.stats
       hcPos = new Map(cachedRWD.posAfter)
       rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts }))
-      hcBlue = axes
-        ? { xs: axes.colX, ys: axes.rowY }
-        : {
-          xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
-          ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
-        }
+      hcBlue = axes ? { xs: axes.colX, ys: axes.rowY } : uniformBlue(nC, nR, cw, ch)
     } else {
       hcPos = new Map()
       for (const [id, p] of cells) hcPos.set(id, cellPx(p))
       placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
-      hcBlue = {
-        xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
-        ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
-      }
+      hcBlue = uniformBlue(nC, nR, cw, ch)
     }
   }
   const posOf = (id) =>
     (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || projById.get(id)
   const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
+  // 均勻藍色分隔網格（格線在刻度上、穿過格心）——HC/RWD 兩個分支共用。
+  function uniformBlue(nC, nR, cw, ch) {
+    return {
+      xs: Array.from({ length: nC + 1 }, (_, i) => 24 + i * cw),
+      ys: Array.from({ length: nR + 1 }, (_, i) => 24 + i * ch),
+    }
+  }
+  // 單色 route → 實線原色；共線（≥2 相異色）→ 交錯彩色虛線（dasharray 逐邊重
+  // 置相位，同 RWD／原始逐段畫法）。extra 帶 props（原始 feature，hover 走
+  // popupHtml）或 html（骨架邊/RWD 的現成 tooltip）。三個畫線分支共用。
+  const dashStrokes = (d, colsIn, fallback, extra) => {
+    const cols = (colsIn ?? []).slice(0, MAX_OVERLAP)
+    if (new Set(cols).size >= 2) {
+      const n = cols.length
+      return cols.map((c, i) => ({ d, stroke: c, ...extra, dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}` }))
+    }
+    return [{ d, stroke: cols[0] ?? fallback ?? '#e11d48', ...extra }]
+  }
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
   const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
@@ -1118,14 +1060,7 @@ async function render() {
     // 彩色虛線（dasharray）。格網化後/HC/RWD 的線都經此，確保共線顯示與原始同樣的多色，
     // 不是併成單色（使用者要「色彩跟原來一樣」）。「共線變一條線」＝一條折線帶多色，
     // 不是變單色。
-    const strokesOf = (e, d, html) => {
-      const cols = (e.routeColors ?? []).slice(0, MAX_OVERLAP)
-      if (new Set(cols).size >= 2) {
-        const n = cols.length
-        return cols.map((c, i) => ({ d, stroke: c, html, dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}` }))
-      }
-      return [{ d, stroke: cols[0] ?? e.color ?? '#e11d48', html }]
-    }
+    const strokesOf = (e, d, html) => dashStrokes(d, e.routeColors, e.color, { html })
     if (rwdLines) {
       // RWD 路網: one polyline per cut-to-cut segment (H/V/45° legs), coloured
       // like its parent skeleton edge; the tooltip reports the bend count.
@@ -1157,18 +1092,8 @@ async function render() {
       // 長直線。共線本來就是一筆 feature（route_count≥2）→ 一條線。hover 用 props（與
       // Metro Maps 相同）；節點分類色 + 邊分類襯底疊上。只有**格網化後/HC**（座標真的
       // 被搬到格子上）才改用 edgeD（見下方 else）。
-      lineData = lineFeats.flatMap((f) => {
-        const d = path(f)
-        const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
-        if (new Set(cols).size >= 2) {
-          const n = cols.length
-          return cols.map((color, i) => ({
-            d, stroke: color, props: f.properties,
-            dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
-          }))
-        }
-        return [{ d, stroke: cols[0] ?? '#e11d48', props: f.properties }]
-      })
+      lineData = lineFeats.flatMap((f) =>
+        dashStrokes(path(f), f.properties.route_colors, null, { props: f.properties }))
       // 邊分類襯底（線底下的 highlight）：沿骨架邊的**真實折線幾何 e.geom** 畫一條較寬
       // 半透明底色線（共線紅底 / 環線綠 / 頭尾共點藍），貼著線的彎曲、不會像用車站點
       // 那樣在跳站段戳出直線。plain 不畫襯底。
@@ -1213,18 +1138,8 @@ async function render() {
   } else {
     // 原始 = EXACTLY the Metro Maps drawing: single route → solid colour, overlap
     // (≥2 distinct route colours) → interleaved coloured dashes (same as LayerTab).
-    lineData = lineFeats.flatMap((f) => {
-      const d = path(f)
-      const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
-      if (new Set(cols).size >= 2) {
-        const n = cols.length
-        return cols.map((color, i) => ({
-          d, stroke: color, props: f.properties,
-          dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
-        }))
-      }
-      return [{ d, stroke: cols[0] ?? '#e11d48', props: f.properties }]
-    })
+    lineData = lineFeats.flatMap((f) =>
+      dashStrokes(path(f), f.properties.route_colors, null, { props: f.properties }))
     stationData = stations.map((f) => {
       const [x, y] = P(f.geometry.coordinates)
       return { x, y, props: f.properties, fill: stationColor(f.properties) }
@@ -1469,38 +1384,10 @@ function applyStyle() {
 }
 
 /* ---- hover popup (same content as the MapLibre tab) ---- */
-function asArray(v) {
-  if (Array.isArray(v)) return v
-  if (typeof v === 'string' && v.startsWith('[')) { try { return JSON.parse(v) } catch { /* */ } }
-  return []
-}
-// hover HTML 一律來自共用模組 popupHtml.js（與物件 tab、地圖 hover 同構）。
-// refColor / seg 索引 per dataset 建一次（tipIdx），黃色交叉點 props 極簡也能渲染。
-let tipIdx = null // { refColor: Map<ref,colour>, segs: Map<seg_id, feature>, stByCoord: Map<'lng,lat', props> }
-function buildTipIdx(data) {
-  const refColor = new Map(), segs = new Map(), stByCoord = new Map()
-  for (const f of data.features) {
-    if (f.geometry.type === 'Point') { stByCoord.set(f.geometry.coordinates.join(','), f.properties); continue }
-    if (f.properties?.seg_id != null) segs.set(f.properties.seg_id, f)
-    for (const r of f.properties.routes ?? [])
-      if (r.route_ref && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
-      if (r.route_name && !refColor.has(r.route_name)) refColor.set(r.route_name, r.route_color) // 名鍵（同 ref 支線異色）
-  }
-  tipIdx = { refColor, segs, stByCoord }
-}
-// 該路段上的車站（原始幾何頂點序）——與 LayerTab segStations 同邏輯
-function tipSegStations(segId) {
-  const seg = tipIdx?.segs.get(segId)
-  if (!seg) return []
-  const out = []
-  for (const line of seg.geometry.coordinates) {
-    for (const c of line) {
-      const st = tipIdx.stByCoord.get(c.join(','))
-      if (st && (!out.length || out[out.length - 1].station_id !== st.station_id)) out.push(st)
-    }
-  }
-  return out
-}
+// hover HTML 與資料索引一律來自共用模組 popupHtml.js（與物件 tab、地圖 hover 同構）。
+// 索引 per dataset 建一次（tipIdx），黃色交叉點 props 極簡也能渲染。
+let tipIdx = null // buildPopupIndex 的結果
+const tipSegStations = (segId) => stationsAlongSeg(tipIdx?.segs.get(segId), tipIdx?.stByCoord)
 // Pink (representative bend) hover: explain the two gates + this point's numbers.
 // Pink (representative bend) EXTRA — appended below the shared station hover,
 // not replacing it (the station name + lines come from stationHtml first).
@@ -1591,8 +1478,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   disposables.forEach((d) => d?.dispose?.())
   resizeObs?.disconnect()
-  clearTimeout(llmPollTimer)
-  clearTimeout(gridPollTimer)
+  llmRunner.stop()
+  gridRunner.stop()
   if (rwdAutoTimer) clearInterval(rwdAutoTimer)
   if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
 })
@@ -1702,7 +1589,7 @@ onBeforeUnmount(() => {
           </div>
           <!-- 逐步驗證 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
                怎麼一步步收斂；「重設」回到該鏈的起點。 -->
-          <div v-if="isHC && STEP_KIND[mode]" class="step-panel">
+          <div v-if="isHC && stepKindOf(mode)" class="step-panel">
             <button class="step-btn back" :disabled="!panelLayer || !stepInfo?.hist" @click="stepPrev(false)">◀ 上一步</button>
             <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="stepNext()">下一步 ▶</button>
             <button class="step-btn back sub" :disabled="!panelLayer || !stepInfo?.hist" @click="stepPrev(true)">‹ 上一小步</button>
@@ -1769,7 +1656,7 @@ onBeforeUnmount(() => {
       </span>
 
       <!-- 直線縮減: rigid perpendicular line shifts, grid compacted after every move -->
-      <span v-if="isHC && LINE_KIND[mode] && lineStats" class="hc-stats">
+      <span v-if="isHC && lineKindOf(mode) && lineStats" class="hc-stats">
         直線縮減 移動 {{ lineStats.moved }} 線 · 網格
         {{ lineStats.fromCols }}×{{ lineStats.fromRows }} →
         {{ lineStats.cols }}×{{ lineStats.rows }}
@@ -1778,7 +1665,7 @@ onBeforeUnmount(() => {
       </span>
 
       <!-- 網格合併: 相鄰 row/col 兩兩合併（validShift 判準、拓撲不變） -->
-      <span v-if="isHC && GATHER_KIND[mode] && gatherStats" class="hc-stats">
+      <span v-if="isHC && gatherKindOf(mode) && gatherStats" class="hc-stats">
         網格合併 {{ gatherStats.mergedRows }} 列 · {{ gatherStats.mergedCols }} 欄
         · 網格 {{ gatherStats.fromCols }}×{{ gatherStats.fromRows }} →
         {{ gatherStats.cols }}×{{ gatherStats.rows }}<template
@@ -1786,7 +1673,7 @@ onBeforeUnmount(() => {
       </span>
 
       <!-- 循環: 端點移動 → 直線縮減 → 網格合併（每個移動後即壓縮）until nothing can move -->
-      <span v-if="isHC && LOOP_KIND[mode] && loopStats" class="hc-stats">
+      <span v-if="isHC && loopKindOf(mode) && loopStats" class="hc-stats">
         循環 {{ loopStats.rounds }} 輪 · 端點移動 {{ loopStats.moved }} 點
         · 直線縮減 {{ loopStats.lineMoved }} 線
         · 網格合併 {{ loopStats.gatherMoved }} 次
@@ -1797,7 +1684,7 @@ onBeforeUnmount(() => {
       </span>
 
       <!-- 端點移動: vertex-alignment H/V pass on top of each chain's result -->
-      <span v-if="isHC && END_KIND[mode] && endpStats" class="hc-stats">
+      <span v-if="isHC && endKindOf(mode) && endpStats" class="hc-stats">
         端點移動 移動 {{ endpStats.moved }}/{{ endpStats.verts }} 點
         · 水平垂直 {{ endpStats.hvBefore }} → {{ endpStats.hvAfter }}／{{ endpStats.segs }} 段
         · 網格 {{ endpStats.fromCols }}×{{ endpStats.fromRows }} →
@@ -2180,15 +2067,6 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 .llm-tail { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
-.llm-tail pre {
-  margin-top: 6px;
-  max-height: 90px;
-  overflow: auto;
-  text-align: left;
-  font-size: 10.5px;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
 .llm-tail.err { color: hsl(var(--destructive)); }
 /* LLM 調整 overlay 的一句話輸入框（畫布中央、開始鈕上方） */
 .grid-prompt-box {

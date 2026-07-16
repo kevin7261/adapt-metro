@@ -1,0 +1,474 @@
+// Fetch city landmark polygons (rivers / palace / park) as standalone GeoJSON
+// under data/metro/landmarks/ — a separate layer from the metro map geojson.
+// Does NOT touch the metro pipeline; see .claude/skills/landmark-osm-fetch/SKILL.md.
+//
+// Usage: node scripts/fetchLandmarks.mjs [cityId ...] [--refresh]
+//        (no args = all configured cities)
+import { readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+import * as overpass from './overpass.mjs'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const ROOT = join(__dirname, '..')
+const SYSTEMS = join(ROOT, 'data', 'metro', 'systems')
+const OUT = join(ROOT, 'data', 'metro', 'landmarks')
+
+// Per-city landmark spec.
+//  kinds: ['river'] → all natural=water + water=river/riverbank polygons in the
+//         metro network bbox (+margin) — the city's river areas, not one named river.
+//  rivers: [names] → keep only these rivers. Main-channel polygons are often
+//         unnamed in OSM, so filtering also fetches the named waterway=river
+//         centerlines and keeps any polygon containing a centerline vertex.
+//  named: exact-name polygon queries (palace / park), optionally tag-filtered;
+//         pickLargest keeps only the largest polygon when the name is ambiguous.
+const CITIES = {
+  // rivers 名單（使用者 2026-07-16）：只留四條主河，其餘支流/小溪剔除
+  'as-twn-taipei': { kinds: ['river'], rivers: ['淡水河', '基隆河', '新店溪', '大漢溪'] },
+  'eu-gbr-london': { kinds: ['river'], rivers: ['River Thames'] },
+  'eu-fra-paris': { kinds: ['river'], rivers: ['La Seine'] },
+  'as-kor-seoul': { kinds: ['river'], rivers: ['한강'] },
+  'as-chn-shanghai': { kinds: ['river'], rivers: ['黄浦江'] },
+  // 皇居本體（way 534754971）不含同在護城河內的東御苑，兩者合成完整皇居面域
+  'as-jpn-tokyo': {
+    named: [
+      { kind: 'palace', name: '皇居' },
+      { kind: 'palace', name: '皇居東御苑' },
+    ],
+  },
+  'am-usa-new-york-city': {
+    named: [{ kind: 'park', name: 'Central Park', tag: ['leisure', 'park'], pickLargest: true }],
+  },
+}
+
+const BBOX_MARGIN = 0.05 // fraction of span added on each side
+const MIN_RIVER_KM2 = 0.01 // drop slivers below this area
+const MIN_CENTERLINE_KM = 1 // drop skeleton fragments below this length
+
+async function findCityFile(id) {
+  const stack = [SYSTEMS]
+  while (stack.length) {
+    const dir = stack.pop()
+    for (const e of await readdir(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name)
+      if (e.isDirectory()) stack.push(p)
+      else if (e.name === `${id}.geojson`) return p
+    }
+  }
+  throw new Error(`city file not found for ${id}`)
+}
+
+function* walkCoords(g) {
+  if (!g) return
+  const { type, coordinates } = g
+  if (type === 'Point') yield coordinates
+  else if (type === 'LineString' || type === 'MultiPoint') yield* coordinates
+  else if (type === 'MultiLineString' || type === 'Polygon') {
+    for (const r of coordinates) yield* r
+  } else if (type === 'MultiPolygon') {
+    for (const poly of coordinates) for (const r of poly) yield* r
+  }
+}
+
+function networkBbox(cityGeojson) {
+  let S = 90, N = -90, W = 180, E = -180
+  for (const f of cityGeojson.features) {
+    for (const [x, y] of walkCoords(f.geometry)) {
+      if (y < S) S = y
+      if (y > N) N = y
+      if (x < W) W = x
+      if (x > E) E = x
+    }
+  }
+  const my = (N - S) * BBOX_MARGIN
+  const mx = (E - W) * BBOX_MARGIN
+  return [S - my, W - mx, N + my, E + mx].map((v) => +v.toFixed(4))
+}
+
+// ---- polygon assembly ----------------------------------------------------
+const key = (p) => `${p[0].toFixed(7)},${p[1].toFixed(7)}`
+
+function stitchRings(parts) {
+  // parts: array of [[lon,lat],...] open/closed way geometries → closed rings
+  const pool = parts.map((p) => p.slice())
+  const rings = []
+  while (pool.length) {
+    let ring = pool.shift()
+    let guard = pool.length + 2
+    while (key(ring[0]) !== key(ring[ring.length - 1]) && guard-- > 0) {
+      const end = key(ring[ring.length - 1])
+      const i = pool.findIndex((c) => key(c[0]) === end || key(c[c.length - 1]) === end)
+      if (i < 0) break
+      const c = pool.splice(i, 1)[0]
+      ring = ring.concat(key(c[0]) === end ? c.slice(1) : c.reverse().slice(1))
+    }
+    if (ring.length >= 4 && key(ring[0]) === key(ring[ring.length - 1])) rings.push(ring)
+  }
+  return rings
+}
+
+function ringAreaKm2(ring) {
+  const lat0 = (ring[0][1] * Math.PI) / 180
+  const kx = 111.32 * Math.cos(lat0)
+  const ky = 110.574
+  let s = 0
+  for (let i = 0; i < ring.length - 1; i++) {
+    const [x1, y1] = ring[i]
+    const [x2, y2] = ring[i + 1]
+    s += x1 * kx * (y2 * ky) - x2 * kx * (y1 * ky)
+  }
+  return Math.abs(s) / 2
+}
+
+function pointInRing([px, py], ring) {
+  let inside = false
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i]
+    const [xj, yj] = ring[j]
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside
+  }
+  return inside
+}
+
+const rnd = (v) => +v.toFixed(5)
+const roundRing = (r) => r.map((p) => [rnd(p[0]), rnd(p[1])])
+
+// element (way with geometry, or relation with member geometries) → {geometry, area}
+function elementToPolygon(el) {
+  if (el.type === 'way') {
+    if (!el.geometry || el.geometry.length < 4) return null
+    const ring = el.geometry.map((g) => [g.lon, g.lat])
+    if (key(ring[0]) !== key(ring[ring.length - 1])) return null
+    return {
+      geometry: { type: 'Polygon', coordinates: [roundRing(ring)] },
+      area: ringAreaKm2(ring),
+    }
+  }
+  if (el.type === 'relation') {
+    const ways = (el.members || []).filter((m) => m.type === 'way' && m.geometry?.length > 1)
+    const outers = stitchRings(
+      ways.filter((m) => m.role !== 'inner').map((m) => m.geometry.map((g) => [g.lon, g.lat])))
+    const inners = stitchRings(
+      ways.filter((m) => m.role === 'inner').map((m) => m.geometry.map((g) => [g.lon, g.lat])))
+    if (!outers.length) return null
+    const polys = outers.map((o) => [o])
+    for (const inner of inners) {
+      const host = polys.find(([o]) => pointInRing(inner[0], o))
+      if (host) host.push(inner)
+    }
+    let area = 0
+    for (const [outer, ...holes] of polys) {
+      area += ringAreaKm2(outer)
+      for (const h of holes) area -= ringAreaKm2(h)
+    }
+    const coords = polys.map((rings) => rings.map(roundRing))
+    return {
+      geometry: coords.length === 1
+        ? { type: 'Polygon', coordinates: coords[0] }
+        : { type: 'MultiPolygon', coordinates: coords },
+      area,
+    }
+  }
+  return null
+}
+
+function toFeatures(elements, kind, { minKm2 = 0 } = {}) {
+  const relMemberWays = new Set()
+  for (const el of elements) {
+    if (el.type !== 'relation') continue
+    for (const m of el.members || []) if (m.type === 'way') relMemberWays.add(m.ref)
+  }
+  const feats = []
+  for (const el of elements) {
+    if (el.type === 'way' && relMemberWays.has(el.id)) continue
+    const poly = elementToPolygon(el)
+    if (!poly || poly.area < minKm2) continue
+    const t = el.tags || {}
+    feats.push({
+      type: 'Feature',
+      properties: {
+        landmark_id: `${el.type[0]}${el.id}`,
+        kind,
+        name: t.name ?? null,
+        name_en: t['name:en'] ?? null,
+        osm_type: el.type,
+        osm_id: el.id,
+        area_km2: +poly.area.toFixed(4),
+      },
+      geometry: poly.geometry,
+    })
+  }
+  return feats.sort((a, b) => b.properties.area_km2 - a.properties.area_km2)
+}
+
+// ---- queries ---------------------------------------------------------------
+const bboxStr = ([S, W, N, E]) => `${S},${W},${N},${E}`
+
+const riverQuery = (bbox) => `[out:json][timeout:300];
+(
+  way["natural"="water"]["water"="river"](${bboxStr(bbox)});
+  relation["natural"="water"]["water"="river"](${bboxStr(bbox)});
+  way["waterway"="riverbank"](${bboxStr(bbox)});
+  relation["waterway"="riverbank"](${bboxStr(bbox)});
+);
+out geom;`
+
+const centerlineQuery = (bbox, names) => `[out:json][timeout:120];
+way["waterway"="river"]["name"~"^(${names.join('|')})$"](${bboxStr(bbox)});
+out geom;`
+
+// rivers 名單過濾：面域有名字就比名字；無名面域凡包含名單河流中心線的節點者視為主河道。
+function filterByRivers(feats, names, centerlineElements) {
+  const pts = []
+  for (const el of centerlineElements) {
+    for (const g of el.geometry || []) pts.push([g.lon, g.lat])
+  }
+  const contains = (f, pt) => {
+    const g = f.geometry
+    const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates
+    return polys.some((rings) => pointInRing(pt, rings[0]) &&
+      rings.slice(1).every((hole) => !pointInRing(pt, hole)))
+  }
+  return feats.filter((f) => {
+    if (names.includes(f.properties.name)) return true
+    let W = 180, E = -180, S = 90, N = -90
+    for (const [x, y] of walkCoords(f.geometry)) {
+      if (x < W) W = x
+      if (x > E) E = x
+      if (y < S) S = y
+      if (y > N) N = y
+    }
+    return pts.some((pt) =>
+      pt[0] >= W && pt[0] <= E && pt[1] >= S && pt[1] <= N && contains(f, pt))
+  })
+}
+
+function lineLengthKm(line) {
+  let s = 0
+  for (let i = 1; i < line.length; i++) {
+    const [x1, y1] = line[i - 1]
+    const [x2, y2] = line[i]
+    const kx = 111.32 * Math.cos((((y1 + y2) / 2) * Math.PI) / 180)
+    s += Math.hypot((x2 - x1) * kx, (y2 - y1) * 110.574)
+  }
+  return s
+}
+
+// rivers 名單城市的「河流骨架」：OSM 人工維護的 waterway=river 中心線（與面域
+// 同批查詢）。同名 way 直接縫端點會被辮狀水道（河中島側汊，同名）切成幾十段
+// （泰晤士河實測 42 段），所以改建無向圖：每個連通分量取「最長路徑」
+// （雙次 Dijkstra 求 graph diameter）當主線，側汊不進骨架。
+function centerlineFeatures(elements, names) {
+  const byName = new Map()
+  for (const el of elements) {
+    const n = el.tags?.name
+    if (!names.includes(n) || !el.geometry?.length) continue
+    if (!byName.has(n)) byName.set(n, { parts: [], ids: [] })
+    byName.get(n).parts.push(el.geometry.map((g) => [g.lon, g.lat]))
+    byName.get(n).ids.push(el.id)
+  }
+  const feats = []
+  for (const [name, { parts, ids }] of byName) {
+    // 無向圖：節點＝座標 key，邊＝way 相鄰兩點（權重＝距離 km）
+    const adj = new Map() // key -> Map(neighborKey -> weight)
+    const pos = new Map() // key -> [lon,lat]
+    const link = (a, b, w) => {
+      if (!adj.has(a)) adj.set(a, new Map())
+      adj.get(a).set(b, w)
+    }
+    for (const part of parts) {
+      for (let i = 1; i < part.length; i++) {
+        const a = key(part[i - 1])
+        const b = key(part[i])
+        if (a === b) continue
+        pos.set(a, part[i - 1])
+        pos.set(b, part[i])
+        const w = lineLengthKm([part[i - 1], part[i]])
+        link(a, b, w)
+        link(b, a, w)
+      }
+    }
+    // Dijkstra（單源最遠點＋前驅），binary min-heap＋lazy deletion
+    const dijkstra = (src, nodes) => {
+      const dist = new Map([[src, 0]])
+      const prev = new Map()
+      const heap = [[0, src]] // [dist, key]
+      const up = (i) => {
+        while (i > 0) {
+          const p = (i - 1) >> 1
+          if (heap[p][0] <= heap[i][0]) break
+          ;[heap[p], heap[i]] = [heap[i], heap[p]]
+          i = p
+        }
+      }
+      const down = () => {
+        let i = 0
+        for (;;) {
+          let m = i
+          const l = 2 * i + 1
+          const r = l + 1
+          if (l < heap.length && heap[l][0] < heap[m][0]) m = l
+          if (r < heap.length && heap[r][0] < heap[m][0]) m = r
+          if (m === i) break
+          ;[heap[m], heap[i]] = [heap[i], heap[m]]
+          i = m
+        }
+      }
+      while (heap.length) {
+        const [d, u] = heap[0]
+        const last = heap.pop()
+        if (heap.length) { heap[0] = last; down() }
+        if (d > (dist.get(u) ?? Infinity)) continue
+        for (const [v, w] of adj.get(u) ?? []) {
+          const nd = d + w
+          if (nd < (dist.get(v) ?? Infinity)) {
+            dist.set(v, nd)
+            prev.set(v, u)
+            heap.push([nd, v])
+            up(heap.length - 1)
+          }
+        }
+      }
+      let far = src
+      let fd = 0
+      for (const [k, d] of dist) {
+        if (nodes.has(k) && d > fd) { fd = d; far = k }
+      }
+      return { far, prev }
+    }
+    // 連通分量 → 每分量的 diameter path
+    const seen = new Set()
+    const lines = []
+    for (const start of adj.keys()) {
+      if (seen.has(start)) continue
+      const comp = new Set()
+      const stack = [start]
+      while (stack.length) {
+        const u = stack.pop()
+        if (comp.has(u)) continue
+        comp.add(u)
+        seen.add(u)
+        for (const v of adj.get(u).keys()) if (!comp.has(v)) stack.push(v)
+      }
+      const { far: a } = dijkstra(start, comp)
+      const { far: b, prev } = dijkstra(a, comp)
+      const path = []
+      for (let u = b; u !== undefined; u = prev.get(u)) path.push(pos.get(u))
+      if (path.length >= 2 && lineLengthKm(path) >= MIN_CENTERLINE_KM) lines.push(path)
+    }
+    lines.sort((x, y) => lineLengthKm(y) - lineLengthKm(x))
+    lines.forEach((line, i) => {
+      feats.push({
+        type: 'Feature',
+        properties: {
+          landmark_id: `cl-${name}-${i}`,
+          kind: 'river-centerline',
+          name,
+          name_en: null,
+          osm_type: 'way',
+          osm_ids: ids,
+          length_km: +lineLengthKm(line).toFixed(2),
+        },
+        geometry: { type: 'LineString', coordinates: roundRing(line) },
+      })
+    })
+  }
+  return feats
+}
+
+const namedQuery = (bbox, spec) => {
+  const tag = spec.tag ? `["${spec.tag[0]}"="${spec.tag[1]}"]` : ''
+  return `[out:json][timeout:120];
+(
+  way["name"="${spec.name}"]${tag}(${bboxStr(bbox)});
+  relation["name"="${spec.name}"]${tag}(${bboxStr(bbox)});
+);
+out geom;`
+}
+
+// ---- main ------------------------------------------------------------------
+const argv = process.argv.slice(2)
+const refresh = argv.includes('--refresh')
+const wanted = argv.filter((a) => !a.startsWith('--'))
+const ids = wanted.length ? wanted : Object.keys(CITIES)
+
+for (const id of ids) {
+  const spec = CITIES[id]
+  if (!spec) {
+    console.error(`[skip] ${id}: not in CITIES config`)
+    continue
+  }
+  const cityPath = await findCityFile(id)
+  const city = JSON.parse(await readFile(cityPath, 'utf8'))
+  const bbox = networkBbox(city)
+  console.log(`\n=== ${id} bbox=${bboxStr(bbox)}`)
+
+  const features = []
+  const kinds = []
+  for (const kind of spec.kinds || []) {
+    const cacheName = `landmarks_${id}_${kind}.json`
+    if (refresh) await rm(join(overpass.CACHE, cacheName), { force: true })
+    const q = kind === 'river' ? riverQuery(bbox) : null
+    if (!q) throw new Error(`unknown kind ${kind}`)
+    const data = await overpass.query(q, { cacheName, timeout: 300000 })
+    let feats = toFeatures(data.elements || [], kind, { minKm2: MIN_RIVER_KM2 })
+    if (kind === 'river' && spec.rivers?.length) {
+      const clCache = `landmarks_${id}_river_centerlines_v2.json`
+      if (refresh) await rm(join(overpass.CACHE, clCache), { force: true })
+      // 中心線 bbox 每邊多放 0.03°（~3 km）：河道彎出網絡 bbox 再彎回來時
+      // （泰晤士河南界實測）主線才不會被切成多段。
+      const clBbox = [bbox[0] - 0.03, bbox[1] - 0.03, bbox[2] + 0.03, bbox[3] + 0.03]
+      const cl = await overpass.query(centerlineQuery(clBbox, spec.rivers), { cacheName: clCache })
+      const before = feats.length
+      feats = filterByRivers(feats, spec.rivers, cl.elements || [])
+      console.log(`  river filter [${spec.rivers.join('/')}]: ${before} → ${feats.length}`)
+      const clFeats = centerlineFeatures(cl.elements || [], spec.rivers)
+      if (clFeats.length) {
+        console.log(`  centerlines: ${clFeats.length} lines (` +
+          clFeats.map((f) => `${f.properties.name} ${f.properties.length_km}km`).join(', ') + ')')
+        feats = feats.concat(clFeats)
+        kinds.push('river-centerline')
+      }
+    }
+    console.log(`  ${kind}: ${feats.length} polygons ` +
+      `(largest ${feats[0]?.properties.area_km2 ?? 0} km²)`)
+    features.push(...feats)
+    kinds.push(kind)
+  }
+  for (const named of spec.named || []) {
+    const cacheName = `landmarks_${id}_${named.kind}_${named.name.replace(/[^\p{L}\p{N}]+/gu, '_')}.json`
+    if (refresh) await rm(join(overpass.CACHE, cacheName), { force: true })
+    const data = await overpass.query(namedQuery(bbox, named), { cacheName })
+    let feats = toFeatures(data.elements || [], named.kind)
+    if (named.pickLargest && feats.length > 1) feats = [feats[0]]
+    if (!feats.length) console.error(`  [warn] ${named.kind} "${named.name}": no polygon found`)
+    else console.log(`  ${named.kind} "${named.name}": ${feats.length} polygon(s), ` +
+      `${feats[0].properties.area_km2} km²`)
+    features.push(...feats)
+    if (!kinds.includes(named.kind)) kinds.push(named.kind)
+  }
+
+  const ms = city.metro_system || {}
+  const relPath = cityPath.slice(SYSTEMS.length + 1) // continent/country/id.geojson
+  const outPath = join(OUT, relPath)
+  await mkdir(dirname(outPath), { recursive: true })
+  const out = {
+    type: 'FeatureCollection',
+    landmark_system: {
+      continent: ms.continent ?? null,
+      country: ms.country ?? null,
+      city: ms.city ?? null,
+      city_id: id,
+      kinds,
+      bbox,
+      source: 'OpenStreetMap via Overpass API ' +
+        '(rivers: natural=water+water=river / waterway=riverbank in network bbox; ' +
+        'named landmarks: exact-name polygon query)',
+      generated_at: new Date().toISOString().slice(0, 10),
+      landmark_count: features.length,
+    },
+    features,
+  }
+  await writeFile(outPath, JSON.stringify(out))
+  console.log(`  wrote ${relPath} (${features.length} features)`)
+}

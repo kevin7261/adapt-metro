@@ -1,0 +1,42 @@
+{
+ "generated_from": "OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; one file per country",
+ "system_count": 1,
+ "line_total": 19,
+ "station_total": 238,
+ "systems": [
+  {
+   "file": "systems/asia/taiwan/as-twn.geojson",
+   "continent": "asia",
+   "country": "Taiwan",
+   "country_zh": "台灣",
+   "city": "Taiwan",
+   "city_zh": "台灣",
+   "unit": "country",
+   "osm_networks": [
+    "內灣線",
+    "六家線",
+    "北迴線",
+    "南迴線",
+    "台中線",
+    "台東線",
+    "台灣高速鐵路",
+    "宜蘭線",
+    "屏東線",
+    "平溪線",
+    "成追線",
+    "沙崙線",
+    "海岸線",
+    "深澳線",
+    "縱貫線",
+    "縱貫鐵路",
+    "花蓮臨港線",
+    "集集線",
+    "高速鐵路"
+   ],
+   "operator": null,
+   "line_count": 19,
+   "segment_count": 226,
+   "station_count": 238
+  }
+ ]
+}

@@ -26,6 +26,7 @@
     "metro:buildonly": "node scripts/buildGeojson.mjs",
     "metro:views": "node scripts/buildViews.mjs",
     "metro:sites": "node scripts/fetchOfficialSites.mjs",
+    "metro:landmarks": "node scripts/fetchLandmarks.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
     "metro:audit": "node scripts/auditLoop.mjs",
     "metro:wikilines": "node scripts/wikiLineCheck.mjs",
@@ -33,7 +34,10 @@
     "highway:fetch": "node scripts/fetchHighways.mjs as-twn",
     "highway:build": "node scripts/buildHighwayGeojson.mjs as-twn",
     "highway:verify": "node scripts/verifyHighways.mjs twn",
-    "highway:all": "node scripts/fetchHighways.mjs as-twn && node scripts/buildHighwayGeojson.mjs as-twn && node scripts/verifyHighways.mjs twn"
+    "highway:all": "node scripts/fetchHighways.mjs as-twn && node scripts/buildHighwayGeojson.mjs as-twn && node scripts/verifyHighways.mjs twn",
+    "railway:fetch": "node scripts/fetchRailways.mjs",
+    "railway:build": "node scripts/buildRailwayGeojson.mjs",
+    "railway:all": "node scripts/fetchRailways.mjs && node scripts/buildRailwayGeojson.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

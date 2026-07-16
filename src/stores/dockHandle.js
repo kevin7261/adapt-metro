@@ -23,65 +23,31 @@ export function openLayerTab(layer) {
   })
 }
 
-// Open (or focus) the Metro Maps gallery tab — a grid of every city's thumbnail.
-export function openGalleryTab() {
+// 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）——
+// 開啟（或聚焦）固定 id 的 panel，規格表驅動。
+function openFixedTab({ id, component, title, icon }) {
   const api = dockHandle.api
   if (!api) return
-  const existing = api.getPanel('metro-gallery')
+  const existing = api.getPanel(id)
   if (existing) { existing.api.setActive(); return }
   api.addPanel({
-    id: 'metro-gallery',
-    component: 'metro-gallery',
-    title: 'Metro Maps',
-    params: { title: 'Metro Maps', icon: 'train' },
+    id,
+    component,
+    title,
+    params: { title, icon },
     renderer: 'always',
   })
 }
-
-// Open (or focus) the Map Adjust gallery tab — every city's 8 pre-computed
-// views as a 3×3 九宮格 card grid (data/metro/views/).
-export function openViewGalleryTab() {
-  const api = dockHandle.api
-  if (!api) return
-  const existing = api.getPanel('map-adjust-gallery')
-  if (existing) { existing.api.setActive(); return }
-  api.addPanel({
-    id: 'map-adjust-gallery',
-    component: 'map-adjust-gallery',
-    title: 'Map Adjust · 8 視圖',
-    params: { title: 'Map Adjust · 8 視圖', icon: 'polyline' },
-    renderer: 'always',
-  })
-}
-
-// Open (or focus) the Hill Climbing gallery tab — every city's 6 pre-computed
-// HC views as a 2×3 card grid (data/metro/hcviews/).
-export function openHcGalleryTab() {
-  const api = dockHandle.api
-  if (!api) return
-  const existing = api.getPanel('hill-climb-gallery')
-  if (existing) { existing.api.setActive(); return }
-  api.addPanel({
-    id: 'hill-climb-gallery',
-    component: 'hill-climb-gallery',
-    title: 'Straighten · 6 視圖',
-    params: { title: 'Straighten · 6 視圖', icon: 'terrain' },
-    renderer: 'always',
-  })
-}
-
-// Open (or focus) the RWD Maps gallery tab — every city's 8 pre-computed RWD
-// views as a 4×2 card grid (data/metro/rwdviews/): 4 縮減網格變體 × 縮減網格|RWD 路網.
-export function openRwdGalleryTab() {
-  const api = dockHandle.api
-  if (!api) return
-  const existing = api.getPanel('rwd-gallery')
-  if (existing) { existing.api.setActive(); return }
-  api.addPanel({
-    id: 'rwd-gallery',
-    component: 'rwd-gallery',
-    title: 'RWD Maps · 8 視圖',
-    params: { title: 'RWD Maps · 8 視圖', icon: 'route' },
-    renderer: 'always',
-  })
-}
+// Metro Maps：every city's thumbnail grid.
+export const openGalleryTab = () =>
+  openFixedTab({ id: 'metro-gallery', component: 'metro-gallery', title: 'Metro Maps', icon: 'train' })
+// Map Adjust：every city's 8 pre-computed views as a 3×3 九宮格 card grid (data/metro/views/).
+export const openViewGalleryTab = () =>
+  openFixedTab({ id: 'map-adjust-gallery', component: 'map-adjust-gallery', title: 'Map Adjust · 8 視圖', icon: 'polyline' })
+// Hill Climbing：every city's 6 pre-computed HC views as a 2×3 card grid (data/metro/hcviews/).
+export const openHcGalleryTab = () =>
+  openFixedTab({ id: 'hill-climb-gallery', component: 'hill-climb-gallery', title: 'Straighten · 6 視圖', icon: 'terrain' })
+// RWD Maps：every city's 8 pre-computed RWD views as a 4×2 card grid
+// (data/metro/rwdviews/)：4 縮減網格變體 × 縮減網格|RWD 路網.
+export const openRwdGalleryTab = () =>
+  openFixedTab({ id: 'rwd-gallery', component: 'rwd-gallery', title: 'RWD Maps · 8 視圖', icon: 'route' })

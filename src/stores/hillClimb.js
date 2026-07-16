@@ -31,7 +31,26 @@ const DEFAULT_W = {
 }
 
 /* ---- exact integer geometry ---- */
+import { sharesRoute, isHV } from './netUtil.js'
+
 const ckey = (c, r) => `${c},${r}`
+
+// union-find（兩段式路徑壓縮）——clusterComponents / buildAxisAlign /
+// lineComponents 三個群組演算法共用。ids 可省略（之後用 add 懶初始化）。
+function makeUnionFind(ids = []) {
+  const parent = new Map()
+  for (const id of ids) parent.set(id, id)
+  const add = (v) => { if (!parent.has(v)) parent.set(v, v) }
+  const find = (x) => {
+    let r = x
+    while (parent.get(r) !== r) r = parent.get(r)
+    let c = x
+    while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
+    return r
+  }
+  const union = (x, y) => { const a = find(x), b = find(y); if (a !== b) parent.set(a, b) }
+  return { parent, add, find, union }
+}
 // orientation of p→q→r: >0 ccw, <0 cw, 0 collinear (exact on integer cells)
 const orient = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
 // p on closed segment a–b (requires collinearity)
@@ -54,20 +73,11 @@ function segsIntersect(a, b, c, d) {
   return false
 }
 
-const sharesRoute = (r1, r2) => {
-  const [small, big] = r1.size <= r2.size ? [r1, r2] : [r2, r1]
-  for (const id of small) if (big.has(id)) return true
-  return false
-}
-
 // A segment counts as horizontal/vertical when exactly ONE coordinate matches
-// (both matching = degenerate). Shared readout of the three post-pass tabs.
+// (both matching = degenerate; isHV 來自 netUtil). Shared readout of the three post-pass tabs.
 function countHV(pos, segs) {
   let n = 0
-  for (const s of segs) {
-    const A = pos.get(s.a), B = pos.get(s.b)
-    if ((A[0] === B[0]) !== (A[1] === B[1])) n++
-  }
+  for (const s of segs) if (isHV(pos.get(s.a), pos.get(s.b))) n++
   return n
 }
 
@@ -243,7 +253,7 @@ function makeMover(pos, segs, inc, cols, rows) {
 // vertex. Cells are remapped by rank, so the relative order — and with it the
 // network topology and every quadrant relation — is untouched; only the grid
 // gets smaller (empty bands the hill climbing left behind disappear).
-export function compactGrid(cellAfter, cols, rows) {
+function compactGrid(cellAfter, cols, rows) {
   const cells = [...cellAfter.values()]
   const usedC = [...new Set(cells.map((p) => p[0]))].sort((a, b) => a - b)
   const usedR = [...new Set(cells.map((p) => p[1]))].sort((a, b) => a - b)
@@ -436,15 +446,7 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
   const overlength = (s) => segLen(s) > s.hops * L + 1e-9
   function clusterComponents() {
     // connected components over IDEAL-length edges; overlength edges separate
-    const parent = new Map([...pos.keys()].map((id) => [id, id]))
-    const find = (x) => {
-      let r = x
-      while (parent.get(r) !== r) r = parent.get(r)
-      let c = x
-      while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
-      return r
-    }
-    const union = (x, y) => { const a = find(x), b = find(y); if (a !== b) parent.set(a, b) }
+    const { find, union } = makeUnionFind(pos.keys())
     for (const s of segs) if (!overlength(s)) union(s.a, s.b)
     const comps = new Map()
     for (const id of pos.keys()) {
@@ -647,22 +649,12 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
   const targets = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
   const groups = [0, 0] // aligned groups per axis (0 = x/vertical, 1 = y/horizontal)
   for (const axis of [0, 1]) {
-    const parent = new Map([...pos.keys()].map((id) => [id, id]))
-    const find = (x) => {
-      let r = x
-      while (parent.get(r) !== r) r = parent.get(r)
-      let c = x
-      while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
-      return r
-    }
+    const { find, union } = makeUnionFind(pos.keys())
     for (const s of segs) {
       const A = pos.get(s.a), B = pos.get(s.b)
       const d = Math.abs(B[axis] - A[axis])              // must shrink to 0
       const dOther = Math.abs(B[1 - axis] - A[1 - axis]) // stays as the run
-      if (d < dOther && d <= 2 * maxShift) {
-        const ra = find(s.a), rb = find(s.b)
-        if (ra !== rb) parent.set(ra, rb)
-      }
+      if (d < dOther && d <= 2 * maxShift) union(s.a, s.b)
     }
     const comp = new Map()
     for (const id of pos.keys()) {
@@ -719,7 +711,7 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
 // Tie-breaks: bigger delta → continues a same-route H/V segment past the
 // neighbour → smaller displacement. Runs under iteratePost — a move can
 // unblock another vertex's move in the next iteration.
-export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
+function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
   const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
   const skip = opts.skip // 一遍掃描（movewiseSweep）中本輪已動過的點——跳過
   const movedIds = []
@@ -729,7 +721,6 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
   }
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
-  const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
   const ids = [...pos.keys()].sort()
   let moved = 0
   for (const v of ids) {
@@ -741,14 +732,11 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
     const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
     const hvAt = (P) => vsegs.reduce((n, s) => n + (isHV(P, otherPos(s)) ? 1 : 0), 0)
     const cur = hvAt(pv)
-    // Candidates: the four 1-cell unit moves — under the 1-cell cap, every
+    // Candidates: the four 1-cell unit moves — under the 1-cell cap
+    // （使用者規則：端點移動每次移動不可超過 1 格，由此構造保證）, every
     // useful snap-onto-a-neighbour's-row/col candidate IS one of these, and
     // they additionally cover the length-improving moves (直線變長、斜線變短).
-    const cand = new Map()
-    for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const P = [pv[0] + dc, pv[1] + dr]
-      cand.set(ckey(P[0], P[1]), P)
-    }
+    const cand = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [pv[0] + dc, pv[1] + dr])
     // 使用者規則的長度準則：v 入射段的（直線總長, 斜線總長）
     const lenOf = (P) => {
       let straight = 0, diag = 0
@@ -792,9 +780,7 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
       return lost.every((s) => gained.some((t) => sharesRoute(t.routes, s.routes)))
     }
     const scored = []
-    for (const P of cand.values()) {
-      const dist = Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1])
-      if (dist > 1) continue // 使用者規則：端點移動每次移動不可超過 1 格
+    for (const P of cand) {
       // 使用者規則：不得讓任一入射段的兩個顏色點橫跨超過 SPAN_CAP 格
       if (!vsegs.every((sg) => spanOk(pv, otherPos(sg), P, otherPos(sg)))) continue
       const delta = hvAt(P) - cur
@@ -817,11 +803,11 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
       } else {
         continue // H/V 數不可變少
       }
-      scored.push({ P, delta, cont: contScore(P), lenScore, dist })
+      scored.push({ P, delta, cont: contScore(P), lenScore })
     }
     scored.sort((a, b) => b.delta - a.delta || b.cont - a.cont
       || b.lenScore - a.lenScore
-      || a.dist - b.dist || a.P[0] - b.P[0] || a.P[1] - b.P[1])
+      || a.P[0] - b.P[0] || a.P[1] - b.P[1])
     for (const c of scored) {
       if (!M.validMove(v, c.P)) continue
       M.applyMove(v, c.P)
@@ -858,21 +844,13 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
 // segments), stitched across intersection vertices — shared by 直線縮減 and
 // 網格合併.
 function lineComponents(pos, segs, horiz) {
-  const parent = new Map()
-  const find = (x) => {
-    let r = x
-    while (parent.get(r) !== r) r = parent.get(r)
-    let c = x
-    while (parent.get(c) !== c) { const n = parent.get(c); parent.set(c, r); c = n }
-    return r
-  }
+  const { parent, add, find, union } = makeUnionFind()
   for (const s of segs) {
     const A = pos.get(s.a), B = pos.get(s.b)
     const straight = horiz ? (A[1] === B[1] && A[0] !== B[0]) : (A[0] === B[0] && A[1] !== B[1])
     if (!straight) continue
-    for (const v of [s.a, s.b]) if (!parent.has(v)) parent.set(v, v)
-    const a = find(s.a), b = find(s.b)
-    if (a !== b) parent.set(a, b)
+    add(s.a); add(s.b)
+    union(s.a, s.b)
   }
   const comps = new Map()
   for (const v of parent.keys()) {
@@ -915,7 +893,6 @@ function boundarySpanOk(pos, segs, inC, dc, dr) {
 // unchanged, so this is the network-wide H/V delta. Shared by 直線縮減 and
 // 網格合併.
 function boundaryHvDelta(pos, segs, inC, dc, dr) {
-  const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
   let d = 0
   for (const s of segs) {
     const ma = inC.has(s.a), mb = inC.has(s.b)
@@ -982,10 +959,10 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
         if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue // 顏色點間不可拉超過 SPAN_CAP 格
         const hv = boundaryHvDelta(pos, segs, inC, dc, dr)
         if (hv < 0) continue // 整個 network 的直線（H/V 段）不可變少
-        scored.push({ dc, dr, gain, hv, dist: Math.abs(dc) + Math.abs(dr) })
+        scored.push({ dc, dr, gain, hv })
       }
       scored.sort((a, b) => b.gain - a.gain || b.hv - a.hv
-        || a.dist - b.dist || a.dc - b.dc || a.dr - b.dr)
+        || a.dc - b.dc || a.dr - b.dr)
       for (const c of scored) {
         if (!M.validShift(comp, inC, c.dc, c.dr)) continue
         M.applyShift(comp, [c.dc, c.dr])
@@ -1081,38 +1058,9 @@ const MOVEWISE_PASS = {
   },
   // gather（網格合併）不在此表——半平面合併自帶壓縮，走 gridMergeSweep 專用路徑。
 }
+// 跑到該階段自己的不動點（同一元素可動多次）——tabs／循環的整段執行用。
 export function movewiseStage(stage, skeleton, cells, cols, rows) {
-  if (stage === 'gather') return gridMergeStage(skeleton, cells, cols, rows)
-  // 起點也先壓（上一階段輸出已緻密時是 no-op）
-  let comp = compactGrid(cells, cols, rows)
-  let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
-  const fromCols = nC, fromRows = nR
-  const g0 = buildHcGraph(skeleton, cur)
-  const hvBefore = countHV(g0.pos, g0.segs)
-  const verts = g0.pos.size, segsN = g0.segs.length
-  let moved = 0, movedPts = 0, movedLines = 0
-  while (moved < MOVEWISE_CAP) {
-    const r = MOVEWISE_PASS[stage](skeleton, cur, nC, nR)
-    if (!r.moved) break
-    moved += r.moved
-    movedPts += r.pts
-    movedLines += r.lines
-    comp = compactGrid(r.cellAfter, nC, nR) // 每一個移動後立即縮減網格
-    cur = comp.cellAfter
-    nC = comp.cols
-    nR = comp.rows
-  }
-  const g1 = buildHcGraph(skeleton, cur)
-  return {
-    cellAfter: cur,
-    cols: nC,
-    rows: nR,
-    stats: {
-      hvBefore, hvAfter: countHV(g1.pos, g1.segs), segs: segsN, verts,
-      moved, movedPts, movedLines, converged: moved < MOVEWISE_CAP,
-      fromCols, fromRows, cols: nC, rows: nR,
-    },
-  }
+  return movewiseCore(stage, skeleton, cells, cols, rows, null)
 }
 
 // 網格合併的 stage 驅動：single=true 只掃一遍（循環用）、否則掃到沒有可合併
@@ -1152,10 +1100,18 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
 
 // 一遍掃描（使用者規則：循環與逐步驗證的每一步＝該演算法把**整個 network
 // 跑一次**，不是跑到該演算法自己的不動點）：每個元素本輪最多動一次（動過的
-// 進 visited、pass 以 skip 跳過），每一個移動後照樣立即 compactGrid。visited
-// 由呼叫端傳入（逐步驗證的小步跨呼叫延續同一遍）。
-export function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new Set()) {
-  if (stage === 'gather') return gridMergeStage(skeleton, cells, cols, rows, { single: true })
+// 進 visited、pass 以 skip 跳過）。visited 由呼叫端傳入（逐步驗證的小步跨
+// 呼叫延續同一遍）。
+function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new Set()) {
+  return movewiseCore(stage, skeleton, cells, cols, rows, visited)
+}
+
+// movewiseStage / movewiseSweep 的共用本體——唯二差異由 visited 決定：
+// null＝跑到不動點（元素可重複動；gather 掃到沒有可合併），Set＝一遍掃描
+// （動過進 visited、pass 以 skip 跳過；gather 只掃一遍 single:true）。
+// 每一個移動後都立即 compactGrid（起點也先壓；上一階段輸出已緻密時是 no-op）。
+function movewiseCore(stage, skeleton, cells, cols, rows, visited) {
+  if (stage === 'gather') return gridMergeStage(skeleton, cells, cols, rows, visited ? { single: true } : {})
   let comp = compactGrid(cells, cols, rows)
   let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
   const fromCols = nC, fromRows = nR
@@ -1164,13 +1120,13 @@ export function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new 
   const verts = g0.pos.size, segsN = g0.segs.length
   let moved = 0, movedPts = 0, movedLines = 0
   while (moved < MOVEWISE_CAP) {
-    const r = MOVEWISE_PASS[stage](skeleton, cur, nC, nR, visited)
+    const r = MOVEWISE_PASS[stage](skeleton, cur, nC, nR, visited ?? undefined)
     if (!r.moved) break
-    visited.add(r.key)
+    if (visited) visited.add(r.key)
     moved += r.moved
     movedPts += r.pts
     movedLines += r.lines
-    comp = compactGrid(r.cellAfter, nC, nR)
+    comp = compactGrid(r.cellAfter, nC, nR) // 每一個移動後立即縮減網格
     cur = comp.cellAfter
     nC = comp.cols
     nR = comp.rows
@@ -1306,8 +1262,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
         roundMoves += r.moved
         sweepVisited = [...sweepVisited, r.key]
         const mv = movesOf(cells, r.cellAfter, r.ids)
-        const what = stage === 'endp' ? '移動 1 點' : stage === 'line' ? '移動 1 線'
-          : (r.pts ? '往中位點滑 1 點' : '往中位點滑 1 線')
+        const what = stage === 'endp' ? '移動 1 點' : '移動 1 線' // gather 已在上方分支處理，走到這只剩 endp/line
         return finalize(r.cellAfter, r.ids,
           `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：${what}${coordTag(mv)}`)
       }

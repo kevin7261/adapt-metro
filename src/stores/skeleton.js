@@ -5,6 +5,8 @@
 // black (through). Edges: coline (≥2 distinct colours) / loop / parallel / plain. Then
 // purple cuts, pink bends and gray separators. Pure function: input unchanged.
 
+import { pairKey, coordKey } from './netUtil.js'
+
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1])
 const setEq = (a, b) => a.size === b.size && [...a].every((x) => b.has(x))
 
@@ -48,28 +50,11 @@ function dpKeep(pts, i0, i1, tol, kept) {
   }
 }
 
-export function buildConnectSkeleton(geojson) {
-  // stations
-  const coord = new Map() // id -> [lng,lat]
-  for (const f of geojson?.features ?? []) {
-    if (f.geometry?.type === 'Point') coord.set(f.properties.station_id, f.geometry.coordinates)
-  }
-  // unique routes with ordered station-id sequences
-  const routes = new Map() // route_id -> { id, color, stations:[id] }
-  for (const f of geojson?.features ?? []) {
-    if (f.geometry?.type === 'Point') continue
-    for (const r of f.properties?.routes ?? []) {
-      if (!r.route_id || routes.has(r.route_id)) continue
-      routes.set(r.route_id, {
-        id: r.route_id,
-        name: r.route_name ?? '',
-        color: r.route_color ?? '#e11d48',
-        stations: (r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id).filter((id) => coord.has(id)),
-      })
-    }
-  }
-
-  // ② geometric crossings → synthetic YELLOW nodes, inserted into BOTH routes'
+// ② geometric crossings（buildConnectSkeleton 步驟②，整段提出）：
+// 幾何交叉 → synthetic YELLOW nodes。就地改動 coord（加交叉點座標）與各
+// route 的 stations（splice 進交叉 id），回傳 { crossings, crossIds }。
+function detectCrossings(geojson, routes, coord) {
+  // geometric crossings → synthetic YELLOW nodes, inserted into BOTH routes'
   // station sequences so the crossing splits the edges there (a shared vertex on
   // both polylines). Detect on the ORIGINAL polylines (interior of both segments,
   // t,u strictly in (0,1) → shared-station endpoints excluded), then splice.
@@ -91,7 +76,7 @@ export function buildConnectSkeleton(geojson) {
     const keyToId = new Map()
     const perRoute = new Map(routeArr.map((rt) => [rt, []])) // rt -> [{seg, t, id}]
     let xn = 0
-    const pkc = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+    const pkc = pairKey
     const segX = (p1, p2, p3, p4) => {
       const d1x = p2[0] - p1[0], d1y = p2[1] - p1[1]
       const d2x = p4[0] - p3[0], d2y = p4[1] - p3[1]
@@ -106,7 +91,7 @@ export function buildConnectSkeleton(geojson) {
     // Real folded geometry between each route's consecutive STOPS, from the line
     // features (coord holds no crossings yet). Keyed by route + unordered stop
     // pair. Used to confirm a chord candidate is a real track intersection.
-    const keyOfC = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+    const keyOfC = coordKey
     const stByCoordC = new Map()
     for (const [id, c] of coord) stByCoordC.set(keyOfC(c), id)
     const realLeg = new Map()
@@ -233,6 +218,32 @@ export function buildConnectSkeleton(geojson) {
       }
     }
   }
+  return { crossings, crossIds }
+}
+
+export function buildConnectSkeleton(geojson) {
+  // stations
+  const coord = new Map() // id -> [lng,lat]
+  for (const f of geojson?.features ?? []) {
+    if (f.geometry?.type === 'Point') coord.set(f.properties.station_id, f.geometry.coordinates)
+  }
+  // unique routes with ordered station-id sequences
+  const routes = new Map() // route_id -> { id, color, stations:[id] }
+  for (const f of geojson?.features ?? []) {
+    if (f.geometry?.type === 'Point') continue
+    for (const r of f.properties?.routes ?? []) {
+      if (!r.route_id || routes.has(r.route_id)) continue
+      routes.set(r.route_id, {
+        id: r.route_id,
+        name: r.route_name ?? '',
+        color: r.route_color ?? '#e11d48',
+        stations: (r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id).filter((id) => coord.has(id)),
+      })
+    }
+  }
+
+  // ② 幾何交叉 → 黃色節點（detectCrossings，就地 splice 進 routes/coord）。
+  const { crossings, crossIds } = detectCrossings(geojson, routes, coord)
 
   // NOTE: the skeleton is a pure TOPOLOGICAL contraction of the Metro Maps
   // network — it never adds edges/lines the original drawing doesn't have. An
@@ -240,13 +251,14 @@ export function buildConnectSkeleton(geojson) {
   // routes to merge shared corridors (HK Airport Express + 東涌線), but that
   // fabricated junctions/edges (Sunny Bay became degree-3) and made the skeleton
   // show MORE lines than Metro Maps — wrong. Express/local that Metro Maps draws
-  // as separate lines stay separate here. The pass/stop relation is surfaced for
-  // display only (computePassThrough, 物件 tab); it does NOT touch the topology.
+  // as separate lines stay separate here. The pass/stop relation is baked into
+  // the geojson by scripts/buildGeojson.mjs (物件 tab reads the `pass` flag
+  // straight from properties); it does NOT touch the topology.
 
   // adjacency graph: neighbours + which routes traverse each undirected edge
   const nbr = new Map()        // id -> Set(neighbourId)
   const edgeRoutes = new Map() // "a|b" -> Set(routeId)
-  const pk = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+  const pk = pairKey
   const touch = (id) => { if (!nbr.has(id)) nbr.set(id, new Set()) }
   for (const rt of routes.values()) {
     for (let i = 1; i < rt.stations.length; i++) {
@@ -319,7 +331,7 @@ export function buildConnectSkeleton(geojson) {
   // orients the stored coords. The edge-class highlight underlay is drawn from
   // this so it hugs the same curve as the line (drawing it from station points
   // would straighten express-skip legs and stick out from under the line).
-  const keyOf = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
+  const keyOf = coordKey // 注意：stByCoord 與上面的 stByCoordC 內容不同（此時 coord 已含黃色交叉點）
   const stByCoord = new Map()
   for (const [id, c] of coord) stByCoord.set(keyOf(c), id)
   const geomByPair = new Map()
@@ -502,71 +514,4 @@ export function buildConnectSkeleton(geojson) {
   }
 
   return { stationClass, edges, pinkInfo, crossings }
-}
-
-// Pass-through relation (物件 tab 用): a route whose track PASSES a station it
-// doesn't stop at — an express skipping a local's stop (HK Airport Express
-// passes 欣澳/荔景…). Same chord-proximity test the skeleton uses to merge
-// express corridors, but exposed for display. Pure function. Returns:
-//   stopByStation: Map<station_id, [{route_ref, route_name, route_color}]>  routes STOPPING here
-//   passByStation: Map<station_id, [{route_ref, route_name, route_color}]>  routes PASSING here (no stop)
-//   seqByRoute:    Map<route_id, [{station_id, station_name, pass}]>        merged station order, pass=通過不停
-export function computePassThrough(geojson, opts = {}) {
-  const PERP = opts.perp ?? 0.08
-  const coord = new Map()
-  const nameById = new Map()
-  for (const f of geojson?.features ?? []) {
-    if (f.geometry?.type === 'Point') {
-      coord.set(f.properties.station_id, f.geometry.coordinates)
-      nameById.set(f.properties.station_id, f.properties.station_name)
-    }
-  }
-  const routes = new Map()
-  for (const f of geojson?.features ?? []) {
-    if (f.geometry?.type === 'Point') continue
-    for (const r of f.properties?.routes ?? []) {
-      if (!r.route_id || routes.has(r.route_id)) continue
-      routes.set(r.route_id, {
-        ref: r.route_ref, name: r.route_name, color: r.route_color,
-        stations: (r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id).filter((id) => coord.has(id)),
-      })
-    }
-  }
-  const stationIds = [...coord.keys()]
-  const stopByStation = new Map()
-  const passByStation = new Map()
-  const seqByRoute = new Map()
-  const add = (map, key, val) => { if (!map.has(key)) map.set(key, []); map.get(key).push(val) }
-  for (const [rid, rt] of routes) {
-    const meta = { route_ref: rt.ref, route_name: rt.name, route_color: rt.color }
-    for (const sid of new Set(rt.stations)) add(stopByStation, sid, meta)
-    const stops = new Set(rt.stations)
-    const seq = rt.stations.length
-      ? [{ station_id: rt.stations[0], station_name: nameById.get(rt.stations[0]), pass: false }]
-      : []
-    for (let i = 1; i < rt.stations.length; i++) {
-      const A = rt.stations[i - 1], B = rt.stations[i]
-      const pA = coord.get(A), pB = coord.get(B)
-      const dx = pB[0] - pA[0], dy = pB[1] - pA[1], len2 = dx * dx + dy * dy
-      const mids = []
-      if (len2 > 1e-18) {
-        const chord = Math.sqrt(len2)
-        for (const s of stationIds) {
-          if (stops.has(s)) continue
-          const P = coord.get(s)
-          const t = ((P[0] - pA[0]) * dx + (P[1] - pA[1]) * dy) / len2
-          if (t <= 0.02 || t >= 0.98) continue
-          if (Math.hypot(P[0] - (pA[0] + t * dx), P[1] - (pA[1] + t * dy)) <= PERP * chord) mids.push({ s, t })
-        }
-        mids.sort((p, q) => p.t - q.t)
-      }
-      for (const m of mids) {
-        seq.push({ station_id: m.s, station_name: nameById.get(m.s), pass: true })
-        add(passByStation, m.s, meta)
-      }
-      seq.push({ station_id: B, station_name: nameById.get(B), pass: false })
-    }
-    seqByRoute.set(rid, seq)
-  }
-  return { stopByStation, passByStation, seqByRoute }
 }

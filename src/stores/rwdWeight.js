@@ -1,3 +1,5 @@
+import { pairKey } from './netUtil.js'
+
 // RWD Maps 版面路網的 weight 驅動版面簡化（論文 §九「流量屬性概括化」）。
 // 版面簡化不改拓撲：weight（流量／重要性）→ 決定每欄多寬、每列多高 →（可選）藏次要黑點
 // → 在**新像素座標**重跑 buildRwdMap（八方向約束以版面 pixel 為準，見 skill route-rwd-draw）。
@@ -9,7 +11,7 @@
 
 // 反等比抽樣：k=1..9，相對機率 ∝ 1/2^k（數字越小越常見）→ 少數主走廊、多數次要邊，
 // 畫面容易出現「主走廊 vs 次要邊」對比，而非九個數字均勻亂灑。
-export function sampleWeight(rnd = Math.random) {
+function sampleWeight(rnd = Math.random) {
   const p = []
   let sum = 0
   for (let k = 1; k <= 9; k++) { const pk = 1 / 2 ** k; p.push(pk); sum += pk }
@@ -19,11 +21,11 @@ export function sampleWeight(rnd = Math.random) {
 }
 
 // 無向站對鍵（"u|v" 排序）——同一站對全圖只算一次、兩向共用。
-export const linkKey = (u, v) => (u < v ? `${u}|${v}` : `${v}|${u}`)
+const linkKey = pairKey
 
 // 把 cut-to-cut 段展開成「相鄰兩站」links。chain = [a, ...interior, b]，
 // 相鄰對 (chain[i], chain[i+1]) 各一 link；回傳 { u, v, seg, i, n }（n=段內 hop 數）。
-export function segLinks(seg) {
+function segLinks(seg) {
   const chain = [seg.a, ...seg.interior, seg.b]
   const out = []
   for (let i = 0; i + 1 < chain.length; i++) out.push({ u: chain[i], v: chain[i + 1], seg, i, n: chain.length - 1 })

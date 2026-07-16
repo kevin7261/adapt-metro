@@ -2,10 +2,9 @@
   "americas/united-states/am-usa-new-york-city": {
     "city": "New York City",
     "country": "United States",
-    "website": "http://www.abellio.com/",
-    "source": "wikidata-operator",
-    "wikidata": "Q318672",
-    "http_status": 200
+    "website": "https://www.mta.info/",
+    "source": "override",
+    "wikidata": null
   },
   "europe/united-kingdom/eu-gbr-london": {
     "city": "London",

@@ -91,6 +91,7 @@ export const useMapStore = defineStore('map', {
       // hill-climbing optimizations over a Map Adjust view's gridded layout.
       groups: [
         { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
+        { id: 'railway-maps', label: 'Railways', collapsed: p?.groupCollapsed?.['railway-maps'] ?? false },
         { id: 'highway-maps', label: 'Highways', collapsed: p?.groupCollapsed?.['highway-maps'] ?? false },
         { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
         { id: 'hillclimb', label: 'Straighten', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
@@ -133,25 +134,15 @@ export const useMapStore = defineStore('map', {
       this.selectedFeatures[layerId] = props ?? null
     },
 
-    // sys = an entry of data/metro/index.json `systems`
-    // (file, continent, country, city, line_count, station_count, …)
-    importMetroSystem(sys) {
-      // 'systems/asia/taiwan/asia-taiwan-taipei.geojson' → 'asia-taiwan-taipei'
-      const id = sys.file.split('/').pop().replace(/\.geojson$/, '')
-      let layer = this.layers.find((l) => l.id === id)
+    // metro / highway 匯入的共用本體：查同 id 舊層或建新層、選取、回傳。
+    // extra = 兩者相異的欄位（id/name/groupId/file/城市中文名…）。
+    _importSystem(sys, extra) {
+      let layer = this.layers.find((l) => l.id === extra.id)
       if (!layer) {
         layer = {
-          id,
-          // Display name = Chinese 國名－城市名 (falls back to the id).
-          name: metroDisplayName(id),
           type: 'metro',
-          groupId: 'metro-maps',
-          file: assetUrl(`data/metro/${sys.file}`),
           continent: sys.continent,
           country: sys.country,
-          city: sys.city,
-          countryZh: CITY_ZH[id]?.country ?? sys.country,
-          cityZh: CITY_ZH[id]?.city ?? sys.city,
           visible: true,
           opacity: 1,
           strokeWidth: 2.5,
@@ -160,11 +151,29 @@ export const useMapStore = defineStore('map', {
           lineCount: sys.line_count ?? 0,
           stationCount: sys.station_count ?? 0,
           featureCount: (sys.line_count ?? 0) + (sys.station_count ?? 0),
+          ...extra,
         }
         this.layers.push(layer)
       }
       this.selectedLayerId = layer.id
       return layer
+    },
+
+    // sys = an entry of data/metro/index.json `systems`
+    // (file, continent, country, city, line_count, station_count, …)
+    importMetroSystem(sys) {
+      // 'systems/asia/taiwan/asia-taiwan-taipei.geojson' → 'asia-taiwan-taipei'
+      const id = sys.file.split('/').pop().replace(/\.geojson$/, '')
+      return this._importSystem(sys, {
+        id,
+        // Display name = Chinese 國名－城市名 (falls back to the id).
+        name: metroDisplayName(id),
+        groupId: 'metro-maps',
+        file: assetUrl(`data/metro/${sys.file}`),
+        city: sys.city,
+        countryZh: CITY_ZH[id]?.country ?? sys.country,
+        cityZh: CITY_ZH[id]?.city ?? sys.city,
+      })
     },
 
     // sys = an entry of data/highway/index.json `systems` (one per country).
@@ -173,35 +182,34 @@ export const useMapStore = defineStore('map', {
     // drives the row icon. Labels come from the catalog entry (city = country).
     importHighwaySystem(sys) {
       const slug = sys.file.split('/').pop().replace(/\.geojson$/, '')
-      const id = `hw-${slug}`
-      let layer = this.layers.find((l) => l.id === id)
-      if (!layer) {
-        const label = sys.cityZh ?? sys.city ?? sys.country ?? slug
-        layer = {
-          id,
-          name: label,
-          type: 'metro',
-          highway: true,
-          groupId: 'highway-maps',
-          file: assetUrl(`data/highway/${sys.file}`),
-          continent: sys.continent,
-          country: sys.country,
-          city: sys.city ?? sys.country,
-          countryZh: sys.countryZh ?? sys.country,
-          cityZh: sys.cityZh ?? sys.city ?? sys.country,
-          visible: true,
-          opacity: 1,
-          strokeWidth: 2.5,
-          radius: 4,
-          symbology: 'categorized',
-          lineCount: sys.line_count ?? 0,
-          stationCount: sys.station_count ?? 0,
-          featureCount: (sys.line_count ?? 0) + (sys.station_count ?? 0),
-        }
-        this.layers.push(layer)
-      }
-      this.selectedLayerId = layer.id
-      return layer
+      return this._importSystem(sys, {
+        id: `hw-${slug}`,
+        name: sys.cityZh ?? sys.city ?? sys.country ?? slug,
+        highway: true,
+        groupId: 'highway-maps',
+        file: assetUrl(`data/highway/${sys.file}`),
+        city: sys.city ?? sys.country,
+        countryZh: sys.countryZh ?? sys.country,
+        cityZh: sys.cityZh ?? sys.city ?? sys.country,
+      })
+    },
+
+    // sys = an entry of data/railway/index.json `systems` (one per country).
+    // National railway networks mirror the metro GeoJSON schema, so they load as
+    // type 'metro' and reuse the same renderers; the `railway` flag only drives the
+    // row icon. Labels come from the catalog entry (city = country).
+    importRailwaySystem(sys) {
+      const slug = sys.file.split('/').pop().replace(/\.geojson$/, '')
+      return this._importSystem(sys, {
+        id: `rw-${slug}`,
+        name: sys.countryZh ?? sys.country ?? slug,
+        railway: true,
+        groupId: 'railway-maps',
+        file: assetUrl(`data/railway/${sys.file}`),
+        city: sys.city ?? sys.country,
+        countryZh: sys.countryZh ?? sys.country,
+        cityZh: sys.cityZh ?? sys.country,
+      })
     },
 
     // Add a D3.js view layer — its tab renders a metro layer with d3 instead of

@@ -43,7 +43,7 @@ function write(snap) {
   localStorage.setItem(KEY, JSON.stringify(snap))
 }
 
-export function savePersisted(store) {
+function savePersisted(store) {
   const snap = buildSnapshot(store)
   try {
     write(snap)

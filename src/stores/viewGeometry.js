@@ -28,6 +28,61 @@ const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
 const MAX_OVERLAP = 6
 const DASH = 5
 
+// 三個 computeCity* 的共用開場白：縮圖外框、站/線 feature、tilt、骨架、投影工廠。
+function prepCity(geojson, opts) {
+  const W = opts.W ?? 200
+  const H = opts.H ?? 150
+  const pad = opts.pad ?? 14
+  const extPair = [[pad, pad], [W - pad, H - pad]]
+  const extArr = [pad, pad, W - pad, H - pad]
+  const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
+  const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
+  const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
+  const tilt = computeOrientation(geojson).tilt
+  const skeleton = buildConnectSkeleton(geojson)
+  const projFor = (angle) => geoMercator().angle(angle).fitExtent(extPair, fitFC)
+  return {
+    W, H, pad, extPair, extArr, x0: pad, y0: pad, x1: W - pad, y1: H - pad,
+    stations, lineFeats, fitFC, tilt, canRotate: Math.abs(tilt) >= 0.5, skeleton, projFor,
+  }
+}
+
+// station（含黃色交叉點）的投影座標表：id → [x,y]。
+function projByIdFor(projection, stations, skeleton) {
+  const projById = new Map()
+  for (const f of stations) {
+    const p = projection(f.geometry.coordinates)
+    if (p) projById.set(f.properties.station_id, p)
+  }
+  for (const c of skeleton.crossings ?? []) {
+    const p = projection(c.coord)
+    if (p) projById.set(c.id, p)
+  }
+  return projById
+}
+
+// Integer cell → pixel cell-centre + uniform blue separators (same as D3Tab)。
+// HC / RWD 兩處共用（RWD 另需 cw/ch，一併回傳、HC 拿到多餘欄位無害）。
+const cellMapperFor = (x0, y0, x1, y1) => (nC, nR) => {
+  const cw = (x1 - x0) / nC, ch = (y1 - y0) / nR
+  return {
+    cw, ch,
+    cellPx: ([c, r]) => [x0 + (c + 0.5) * cw, y0 + (r + 0.5) * ch],
+    sep: {
+      xs: Array.from({ length: nC + 1 }, (_, i) => x0 + i * cw),
+      ys: Array.from({ length: nR + 1 }, (_, i) => y0 + i * ch),
+    },
+  }
+}
+
+// 整數 cell 佈局 → 像素座標表＋黑點沿新邊放回（HC/RWD 各階段共用）。
+function cellsToPos(cellAfter, cellPx, skeleton, snap) {
+  const pos = new Map()
+  for (const [id, cell] of cellAfter) pos.set(id, cellPx(cell))
+  placeBlacks(skeleton, pos, snap)
+  return pos
+}
+
 // Geographic (original/rotated) station fill — matches the MapLibre tab's
 // STATION_COLOR and D3Tab.stationColor: interchange red, terminus blue, else
 // white. 用 is_interchange（正式拓撲轉乘），不用 lines>1——後者把多線共軌的中途站
@@ -104,22 +159,7 @@ function drawFromPos(skeleton, stations, lineFeats, posMap, sep) {
  * @returns {{ W, H, tilt, canRotate, views: Record<string, object> }}
  */
 export function computeCityViews(geojson, opts = {}) {
-  const W = opts.W ?? 200
-  const H = opts.H ?? 150
-  const pad = opts.pad ?? 14
-  const extPair = [[pad, pad], [W - pad, H - pad]]
-  const extArr = [pad, pad, W - pad, H - pad]
-
-  const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
-  const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
-  const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
-
-  const tilt = computeOrientation(geojson).tilt
-  const canRotate = Math.abs(tilt) >= 0.5
-  const skeleton = buildConnectSkeleton(geojson)
-
-  const projFor = (angle) => geoMercator().angle(angle).fitExtent(extPair, fitFC)
-
+  const { W, H, extArr, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
   const round = (p) => [+p[0].toFixed(1), +p[1].toFixed(1)]
 
   // Feature-geometry lines = the ORIGINAL metro-map drawing (single route = solid
@@ -165,15 +205,7 @@ export function computeCityViews(geojson, opts = {}) {
   // --- Skeleton + gridding bundle for one angle (pre + post share one grid) ---
   function skeletonBundle(angle, withGrid) {
     const projection = projFor(angle)
-    const projById = new Map()
-    for (const f of stations) {
-      const p = projection(f.geometry.coordinates)
-      if (p) projById.set(f.properties.station_id, p)
-    }
-    for (const c of skeleton.crossings ?? []) {
-      const p = projection(c.coord)
-      if (p) projById.set(c.id, p)
-    }
+    const projById = projByIdFor(projection, stations, skeleton)
     const grid = withGrid ? buildSchematicGrid(skeleton, projById, extArr) : null
 
     const buildAt = (post, sep) => {
@@ -270,49 +302,15 @@ export const VIEW_ORDER = [
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
-  const W = opts.W ?? 200
-  const H = opts.H ?? 150
-  const pad = opts.pad ?? 14
-  const extPair = [[pad, pad], [W - pad, H - pad]]
-  const extArr = [pad, pad, W - pad, H - pad]
-  const x0 = pad, y0 = pad, x1 = W - pad, y1 = H - pad
-
-  const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
-  const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
-  const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
-
-  const tilt = computeOrientation(geojson).tilt
-  const canRotate = Math.abs(tilt) >= 0.5
-  const skeleton = buildConnectSkeleton(geojson)
-  const projFor = (angle) => geoMercator().angle(angle).fitExtent(extPair, fitFC)
-
-  // Integer cell → pixel cell-centre + uniform blue separators (same as D3Tab).
-  const cellMapper = (nC, nR) => {
-    const cw = (x1 - x0) / nC
-    const ch = (y1 - y0) / nR
-    return {
-      cellPx: ([c, r]) => [x0 + (c + 0.5) * cw, y0 + (r + 0.5) * ch],
-      sep: {
-        xs: Array.from({ length: nC + 1 }, (_, i) => x0 + i * cw),
-        ys: Array.from({ length: nR + 1 }, (_, i) => y0 + i * ch),
-      },
-    }
-  }
+  const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
+  const cellMapper = cellMapperFor(x0, y0, x1, y1)
 
   const views = {}
   const stats = {}
   for (const variant of ['orig', 'rot']) {
     const angle = variant === 'rot' && canRotate ? tilt : 0
     const projection = projFor(angle)
-    const projById = new Map()
-    for (const f of stations) {
-      const p = projection(f.geometry.coordinates)
-      if (p) projById.set(f.properties.station_id, p)
-    }
-    for (const c of skeleton.crossings ?? []) {
-      const p = projection(c.coord)
-      if (p) projById.set(c.id, p)
-    }
+    const projById = projByIdFor(projection, stations, skeleton)
     const grid = buildSchematicGrid(skeleton, projById, extArr)
     const snap = (id) => grid.posAfter.get(id) ?? null
 
@@ -324,9 +322,7 @@ export function computeCityHcViews(geojson, opts = {}) {
     // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
     const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
     const m1 = cellMapper(grid.cols, grid.rows)
-    const hcPos = new Map()
-    for (const [id, cell] of hc.cellAfter) hcPos.set(id, m1.cellPx(cell))
-    placeBlacks(skeleton, hcPos, snap)
+    const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
 
     // 3) Hill Climbing端點移動 — the chain's first step (同 D3Tab):
@@ -334,18 +330,14 @@ export function computeCityHcViews(geojson, opts = {}) {
     // cellMapper。
     const endp = movewiseStage('endp', skeleton, hc.cellAfter, grid.cols, grid.rows)
     const mEndp = cellMapper(endp.cols, endp.rows)
-    const endpPos = new Map()
-    for (const [id, cell] of endp.cellAfter) endpPos.set(id, mEndp.cellPx(cell))
-    placeBlacks(skeleton, endpPos, snap)
+    const endpPos = cellsToPos(endp.cellAfter, mEndp.cellPx, skeleton, snap)
     views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, mEndp.sep)
     // 4) 鏈尾 — 直線縮減＋網格合併（都是 movewise：每一個移動後立即縮減
     // 網格），即 端點移動 → 直線縮減 → 網格合併 的完整鏈結果。
     const lined = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
     const comp = movewiseStage('gather', skeleton, lined.cellAfter, lined.cols, lined.rows)
     const m2 = cellMapper(comp.cols, comp.rows)
-    const compPos = new Map()
-    for (const [id, cell] of comp.cellAfter) compPos.set(id, m2.cellPx(cell))
-    placeBlacks(skeleton, compPos, snap)
+    const compPos = cellsToPos(comp.cellAfter, m2.cellPx, skeleton, snap)
     views[`compact-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m2.sep)
 
     stats[variant] = {
@@ -424,40 +416,16 @@ function drawRwd(skeleton, stations, rwd, sep) {
 // four 縮減網格 sources (基本 / 直角爬山 / 軸對齊 / 整數規劃) as both the compact
 // grid AND its RWD 路網 redraw. Same pure stores the live RWD tab uses.
 export function computeCityRwdViews(geojson, opts = {}) {
-  const W = opts.W ?? 200
-  const H = opts.H ?? 150
-  const pad = opts.pad ?? 14
-  const extPair = [[pad, pad], [W - pad, H - pad]]
-  const extArr = [pad, pad, W - pad, H - pad]
-  const x0 = pad, y0 = pad, x1 = W - pad, y1 = H - pad
-
-  const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
-  const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
-  const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
-
-  const tilt = computeOrientation(geojson).tilt
-  const skeleton = buildConnectSkeleton(geojson)
-  const projection = geoMercator().angle(0).fitExtent(extPair, fitFC) // gallery = 原始 variant
-  const projById = new Map()
-  for (const f of stations) { const p = projection(f.geometry.coordinates); if (p) projById.set(f.properties.station_id, p) }
-  for (const c of skeleton.crossings ?? []) { const p = projection(c.coord); if (p) projById.set(c.id, p) }
+  const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
+  const projection = projFor(0) // gallery = 原始 variant
+  const projById = projByIdFor(projection, stations, skeleton)
   const grid = buildSchematicGrid(skeleton, projById, extArr)
   const snap = (id) => grid.posAfter.get(id) ?? null
   const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
   // Topology segments (from the original grid cellOf), parallel/same-track merged
   // — positions come from each compact layout below.
   const segs = mergeParallelSegs(buildHcGraph(skeleton, grid.cellOf).segs)
-  const cellMapper = (nC, nR) => {
-    const cw = (x1 - x0) / nC, ch = (y1 - y0) / nR
-    return {
-      cw, ch,
-      cellPx: ([c, r]) => [x0 + (c + 0.5) * cw, y0 + (r + 0.5) * ch],
-      sep: {
-        xs: Array.from({ length: nC + 1 }, (_, i) => x0 + i * cw),
-        ys: Array.from({ length: nR + 1 }, (_, i) => y0 + i * ch),
-      },
-    }
-  }
+  const cellMapper = cellMapperFor(x0, y0, x1, y1)
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
@@ -483,7 +451,7 @@ export function computeCityRwdViews(geojson, opts = {}) {
     })
     views[`rwd-${kind}`] = drawRwd(skeleton, stations, rwd, m.sep)
   }
-  return { W, H, tilt, canRotate: Math.abs(tilt) >= 0.5, views }
+  return { W, H, tilt, canRotate, views }
 }
 
 // The 8 RWD gallery views, in display order: 縮減網格 | RWD 路網 per compact source.
