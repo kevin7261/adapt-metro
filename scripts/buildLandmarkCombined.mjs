@@ -2,8 +2,9 @@
 //
 // 使用者裁決（2026-07，最終版）：**河流就是 network 的一條線**——不再是特殊的地標 overlay。
 // 本檔把每條河流「轉成真正的網路路線」：
-//   · 河流折線簡化成**站級顯著點**（端點、跨河匯流點、主要轉折；相對 DP 容差 0.10）——
-//     跟地鐵一樣「每個頂點都是站」（本資料的線幾何本來就＝站點依序連線，不留中間折點）。
+//   · 河流折線**全點保留**（使用者 2026-07-17：「點不可以減少、要跟原來一樣」；
+//     早期 DP 站級簡化已移除）——跟地鐵一樣「每個頂點都是站」（本資料的線幾何本來
+//     就＝站點依序連線，不留中間折點），中心線每個折點都是 river 站。
 //   · 產出**真的車站 Point features**（帶 `river: true` 旗標，地圖不畫站圈、D3 依骨架分類
 //     只顯示 藍端點/紅匯流/粉紅轉折/黃交叉，黑不畫）＋**真的路段 feature**（routes[] schema
 //     與地鐵完全相同，route_id=`river:{landmark_id}`、色 #00E5FF）。
@@ -24,9 +25,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const METRO = join(__dirname, '..', 'data', 'metro')
 
 const RIVER_COLOR = '#00E5FF' // 瑩光天藍（使用者指定）
-const DP_TOL_KM = 0.2         // 絕對 DP：偏離弦線 > 0.2 km 才留轉折（站級簡化、保河形——
-                              // 相對容差在長河會失效：大漢溪整體平緩弧、最大偏移 <10% 弦長，
-                              // 曾被縮成頭尾 2 點直線＝「不像原始資料」）
 const JUNCTION_KM = 0.15      // 河流端點離另一條河 ≤150m 視為匯流
 
 // 遞迴列出 landmarks 下所有 .geojson（相對 landmarks/ 的路徑）
@@ -48,29 +46,7 @@ function distKm(a, b, toXY) {
   const A = toXY(a), B = toXY(b)
   return Math.hypot(A[0] - B[0], A[1] - B[1])
 }
-// 絕對 DP：保留「垂距 > tolKm（公里）」的最遠內點，遞迴兩半。索引寫進 keep（Set）。
-function dpRec(pts, i0, i1, tolKm, keep, toXY) {
-  if (i1 <= i0 + 1) return
-  const A = toXY(pts[i0]), B = toXY(pts[i1])
-  const dx = B[0] - A[0], dy = B[1] - A[1]
-  const chord = Math.hypot(dx, dy)
-  let maxD = -1, maxI = -1
-  for (let i = i0 + 1; i < i1; i++) {
-    const P = toXY(pts[i])
-    const d = chord < 1e-9
-      ? Math.hypot(P[0] - A[0], P[1] - A[1])
-      : Math.abs((P[0] - A[0]) * dy - (P[1] - A[1]) * dx) / chord
-    if (d > maxD) { maxD = d; maxI = i }
-  }
-  if (maxI < 0) return
-  if (maxD > tolKm) {
-    keep.add(maxI)
-    dpRec(pts, i0, maxI, tolKm, keep, toXY)
-    dpRec(pts, maxI, i1, tolKm, keep, toXY)
-  }
-}
-
-// 河流 → 站級點序（端點＋匯流強制保留、主要轉折 DP 保留）＋跨河匯流共點
+// 河流 → 站點序（**全點保留**，使用者 2026-07-17）＋跨河匯流共點
 function riversToRoutes(riverFeats, slug, city, country) {
   if (!riverFeats.length) return { stations: [], segments: [] }
   const lat0 = riverFeats[0].geometry.coordinates[0][1]
@@ -80,9 +56,8 @@ function riversToRoutes(riverFeats, slug, city, country) {
     nameEn: f.properties.name_en ?? null,
     lmId: f.properties.landmark_id,
     coords: f.geometry.coordinates.map((c) => c.slice()),
-    forced: new Set(), // 匯流點索引（強制保留）
   }))
-  // 匯流：A 的端點 ≤150m 於 B 的某折點 → A 端點吸到 B 折點座標（共點）、B 強制保留該折點
+  // 匯流：A 的端點 ≤150m 於 B 的某折點 → A 端點吸到 B 折點座標（共點＝共站）
   for (const A of rivers) {
     for (const endIdx of [0, A.coords.length - 1]) {
       const e = A.coords[endIdx]
@@ -92,20 +67,20 @@ function riversToRoutes(riverFeats, slug, city, country) {
         B.coords.forEach((c, i) => { const d = distKm(e, c, toXY); if (d < bd) { bd = d; bi = i } })
         if (bi >= 0 && bd <= JUNCTION_KM) {
           A.coords[endIdx] = B.coords[bi].slice() // 共點（座標完全一致 → 共站）
-          B.forced.add(bi)
         }
       }
     }
   }
-  // 每條河：端點＋匯流＋DP 轉折 → 站序
+  // 每條河：**全點保留**（使用者 2026-07-17：「點不可以減少、要跟原來一樣」）——
+  // 不再做 DP 站級簡化，中心線的每個折點都成為 river 站（骨架把中間點分成黑/
+  // 粉紅，地理視圖照原始河形畫；黑點不佔格、不影響格網化）。唯二的點刪減仍是
+  // 使用者裁決的裁切（台北 clip／市區裁切，皆在 fetchLandmarks 端）。
   const stationByKey = new Map() // 座標鍵 → station feature（跨河共站）
   const stations = [], segments = []
   let seq = 0
   for (const r of rivers) {
-    const keep = new Set([0, r.coords.length - 1, ...r.forced])
-    const idxs = [...keep].sort((a, b) => a - b)
-    for (let k = 1; k < idxs.length; k++) dpRec(r.coords, idxs[k - 1], idxs[k], DP_TOL_KM, keep, toXY)
-    const kept = [...keep].sort((a, b) => a - b).map((i) => r.coords[i])
+    const kept = r.coords.filter((c, i) => // 僅去掉「相鄰重複座標」（匯流吸附可能產生）
+      i === 0 || c[0] !== r.coords[i - 1][0] || c[1] !== r.coords[i - 1][1])
     if (kept.length < 2) continue
     const stList = kept.map((c) => {
       const key = `${c[0].toFixed(6)},${c[1].toFixed(6)}`

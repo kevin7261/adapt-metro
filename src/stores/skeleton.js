@@ -50,6 +50,27 @@ function dpKeep(pts, i0, i1, tol, kept) {
   }
 }
 
+// 絕對容差 DP（巴黎長弦案 2026-07-17）：pts 已換算成 km 平面座標，偏離弦線
+// > tolKm 即留轉折。河流「全點保留」後中間點角度平緩，相對容差（偏移÷弦長）
+// 在長河抓不到轉折——整段彎弧收成一條跨數十格的長弦，弦會與地鐵段假交叉
+//（實際河道沒交叉）。0.2 km 是已移除的資料層 DP 驗證過「保河形」的值。
+function dpKeepAbsKm(pts, i0, i1, tolKm, kept) {
+  if (i1 <= i0 + 1) return
+  const A = pts[i0], B = pts[i1]
+  const base = dist(A, B)
+  let maxD = -1, maxI = -1
+  for (let i = i0 + 1; i < i1; i++) {
+    const d = perpToLine(pts[i], A, B)
+    if (d > maxD) { maxD = d; maxI = i }
+  }
+  if (maxI < 0) return
+  if (maxD > tolKm) {
+    kept.set(maxI, { i0, i1, ratio: base > 1e-9 ? maxD / base : Infinity })
+    dpKeepAbsKm(pts, i0, maxI, tolKm, kept)
+    dpKeepAbsKm(pts, maxI, i1, tolKm, kept)
+  }
+}
+
 // ② geometric crossings（buildConnectSkeleton 步驟②，整段提出）：
 // 幾何交叉 → synthetic YELLOW nodes。就地改動 coord（加交叉點座標）與各
 // route 的 stations（splice 進交叉 id），回傳 { crossings, crossIds }。
@@ -258,9 +279,9 @@ export function buildConnectSkeleton(geojson) {
   }
 
   // 河流＝**資料層的一般網路路線**（buildLandmarkCombined 把河流轉成站級 route feature：
-  // 端點/匯流/主要轉折＝真的車站 Point、route_id=`river:…`）——骨架這裡**零特例**，與地鐵
-  // 一視同仁：交叉黃點、匯流紅點（共站 degree≥3）、端點藍點全走通用規則。僅存的河流微調
-  // 在 ⑥（粉紅容差 0.40、不放灰點），以 route_id 前綴 `river` 辨識。
+  // 中心線**全點保留**＝每個折點都是 river 站、route_id=`river:…`）——骨架這裡**零特例**，
+  // 與地鐵一視同仁：交叉黃點、匯流紅點（共站 degree≥3）、端點藍點全走通用規則。僅存的
+  // 河流微調在 ⑥（粉紅＝絕對 0.2 km 容差、不放灰點），以 route_id 前綴 `river` 辨識。
 
   // ② 幾何交叉 → 黃色節點（detectCrossings，就地 splice 進 routes/coord）。
   const { crossings, crossIds } = detectCrossings(geojson, routes, coord)
@@ -484,10 +505,11 @@ export function buildConnectSkeleton(geojson) {
   const PINK_SINUOSITY = 1.25
   const PINK_DP_TOL = 0.25
   // 河流合成邊：只保留「粉紅（轉折最大處）＋黃點（交叉）」，其餘折點在格網化被拉直。
-  // 故河流邊 (a) 用**更細的 DP 容差**抓出主要轉折成粉紅（長河的彎相對總弦長小、預設 0.25
-  // 抓不到）、(b) **不放灰點**（灰是非黑→在 placeBlacks 會被當切點，害河流不被拉直＝使用者
+  // 故河流邊 (a) 用**絕對 km 容差**（dpKeepAbsKm，0.2 km）抓主要轉折成粉紅——河流資料
+  // 2026-07-17 起全點保留，相對容差在長河抓不到轉折（整段彎弧變一條長弦、與地鐵段假交叉，
+  // 巴黎案）、(b) **不放灰點**（灰是非黑→在 placeBlacks 會被當切點，害河流不被拉直＝使用者
   // 回報「還是沒變直線」的主因）。
-  const PINK_DP_TOL_RIVER = 0.25
+  const RIVER_BEND_KM = 0.2
   for (const e of edges) {
     const { path } = e
     if (path.length < 3) continue
@@ -511,7 +533,13 @@ export function buildConnectSkeleton(geojson) {
     const sinuosity = chord > 1e-9 ? cum[cum.length - 1] / chord : Infinity
     if (isRiverEdge || sinuosity > PINK_SINUOSITY) {
       const kept = new Map()
-      dpKeep(pts, 0, pts.length - 1, isRiverEdge ? PINK_DP_TOL_RIVER : PINK_DP_TOL, kept)
+      if (isRiverEdge) { // 絕對 km 容差（座標換 km 平面再 DP；索引對回原 path）
+        const kx = 111.32 * Math.cos((pts[0][1] * Math.PI) / 180)
+        const ptsKm = pts.map((p) => [p[0] * kx, p[1] * 110.574])
+        dpKeepAbsKm(ptsKm, 0, ptsKm.length - 1, RIVER_BEND_KM, kept)
+      } else {
+        dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, kept)
+      }
       for (const [i, info] of kept) {
         if (i > 0 && i < path.length - 1 && stationClass.get(path[i]) === 'black') {
           stationClass.set(path[i], 'pink')
