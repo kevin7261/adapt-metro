@@ -887,7 +887,11 @@ function lineComponents(pos, segs, horiz) {
 // 使用者規則：任何移動不得讓「受影響段的兩個顏色點」橫跨超過 SPAN_CAP 格
 // （Chebyshev：max(|dx|,|dy|)）——防止兩個顏色點之間的線被拉太長。本來就
 // 超過上限的舊長段只准縮短或不變、不准再拉長（否則會把它們永久凍結）。
-const SPAN_CAP = 3
+// 可由樣式 tab 設定（setSpanCap，預設 2 格）；離線腳本/畫廊用預設值。
+let SPAN_CAP = 2
+export function setSpanCap(n) {
+  SPAN_CAP = Math.max(1, Math.round(+n) || 2)
+}
 const spanOf = (A, B) => Math.max(Math.abs(A[0] - B[0]), Math.abs(A[1] - B[1]))
 const spanOk = (A0, B0, A1, B1) => {
   const ns = spanOf(A1, B1)

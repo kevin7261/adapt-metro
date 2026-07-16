@@ -13,7 +13,7 @@ import {
   buildHillClimb, buildHcGraph,
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
   straightenCompactLoop, movewiseStage,
-  stepChainInit, stepChainNext,
+  stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
@@ -795,6 +795,8 @@ async function render() {
   // fewer cells over the same extent, so everything spreads out.
   let hcPos = null, hcBlue = null, rwdLines = null, weighted = false, endpMedian = null, stepMoves = []
   if (grid && needsHC.value && hcMode.value) {
+    // 跨距上限來自樣式 tab（per-layer，預設 2）——算任何 movewise 階段前先套用
+    setSpanCap(panelLayer.value?.spanCap ?? 2)
     if (!cachedHC) {
       hcBusy.value = true
       busyText.value = '爬山最佳化中…（多準則適應度 + 硬規則掃描）'
@@ -1588,6 +1590,18 @@ const fmtFit = (x) => (x >= 10000 ? `${(x / 1000).toFixed(1)}k` : Math.round(x).
 
 watch(() => layer.value?.sourceLayerId, () => { cacheData = null; render() })
 watch(mode, render)
+// 樣式 tab 的「顏色點間最大跨距」改變 → 三階段/循環/逐步結果全部作廢重算
+watch(() => panelLayer.value?.spanCap, (v, old) => {
+  if (v === old) return
+  cachedEndp = {}
+  cachedLine = {}
+  cachedGather = {}
+  cachedLoop = {}
+  stepState = {}
+  stepHistory = {}
+  cachedRWD = null
+  render()
+})
 // Live style sync from the bound layer (Style tab sliders).
 watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],

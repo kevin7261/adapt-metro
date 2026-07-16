@@ -877,6 +877,16 @@ function startResize(e) {
 
         <!-- ============ Style ============ -->
         <template v-else-if="activeTab === 'style'">
+          <!-- 跨距上限：端點移動/直線縮減/中位集中 的所有移動不得讓受影響段
+               的兩個顏色點橫跨超過 n 格（預設 2；改了會清快取重算） -->
+          <div v-if="viewKind === 'hillclimb' || viewKind === 'rwd'" class="field">
+            <label class="field-label">顏色點間最大跨距 — {{ layer.spanCap ?? 2 }} 格</label>
+            <input
+              :value="layer.spanCap ?? 2"
+              type="range" min="1" max="8" step="1" class="slider"
+              @input="layer.spanCap = +$event.target.value"
+            />
+          </div>
           <template v-if="isMetro">
             <div class="field">
               <label class="field-label">Line width — {{ layer.strokeWidth }} px</label>
