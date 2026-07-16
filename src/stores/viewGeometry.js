@@ -302,7 +302,7 @@ export const VIEW_ORDER = [
  * (格網化後 input → Hill Climbing → Hill Climbing端點移動 → Hill Climbing縮減網格)
  * for both variants (orig / rot). Mirrors D3Tab's hill-climbing chain:
  * schematic gridding → buildHillClimb on the integer cells → movewise
- * 端點移動 → 直線縮減 → 中位集中（每一個移動後都立即縮減網格——縮減不再是
+ * 端點移動 → 直線縮減 → 網格合併（每一個移動後都立即縮減網格——縮減不再是
  * 獨立步驟），mapping cells to pixel cell-centres and re-spreading black
  * through-stations (placeBlacks) each stage.
  * @returns {{ W, H, tilt, canRotate, views, stats }}
@@ -376,23 +376,8 @@ export function computeCityHcViews(geojson, opts = {}) {
     for (const [id, cell] of endp.cellAfter) endpPos.set(id, mEndp.cellPx(cell))
     placeBlacks(skeleton, endpPos, snap)
     views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, mEndp.sep)
-    // 每個端點移動網格都畫：所有有色點（頂點都非白——白/黑直通站不是頂點）
-    // 欄、列各自中位數位置的黃色圓標，墊在網格最底。偶數個點取平均 → 可能
-    // 落在半格；cellPx 是線性映射，小數格照樣可換算像素。
-    if (endp.cellAfter.size) {
-      const median = (vals) => {
-        const s = [...vals].sort((a, b) => a - b)
-        const m = s.length >> 1
-        return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
-      }
-      const ps = [...endp.cellAfter.values()]
-      const [mx, my] = mEndp.cellPx([median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))])
-      views[`endp-${variant}`].median =
-        { x: +mx.toFixed(1), y: +my.toFixed(1), r: +(Math.min(W, H) * 0.032).toFixed(1) }
-    }
-
-    // 4) 鏈尾 — 直線縮減＋中位集中（都是 movewise：每一個移動後立即縮減
-    // 網格），即 端點移動 → 直線縮減 → 中位集中 的完整鏈結果。
+    // 4) 鏈尾 — 直線縮減＋網格合併（都是 movewise：每一個移動後立即縮減
+    // 網格），即 端點移動 → 直線縮減 → 網格合併 的完整鏈結果。
     const lined = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
     const comp = movewiseStage('gather', skeleton, lined.cellAfter, lined.cols, lined.rows)
     const m2 = cellMapper(comp.cols, comp.rows)
@@ -429,11 +414,11 @@ export function hcViewLabels(tilt) {
     'grid-orig-post': '原始 · 格網化後',
     'hc-orig': '原始 · Hill Climbing',
     'endp-orig': '原始 · Hill Climbing端點移動',
-    'compact-orig': '原始 · 直線縮減＋中位集中',
+    'compact-orig': '原始 · 直線縮減＋網格合併',
     'grid-rot-post': `${rot} · 格網化後`,
     'hc-rot': `${rot} · Hill Climbing`,
     'endp-rot': `${rot} · Hill Climbing端點移動`,
-    'compact-rot': `${rot} · 直線縮減＋中位集中`,
+    'compact-rot': `${rot} · 直線縮減＋網格合併`,
   }
 }
 
@@ -514,7 +499,7 @@ export function computeCityRwdViews(geojson, opts = {}) {
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
   for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋中位集中＋縮減網格
+    // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋網格合併＋縮減網格
     // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
     // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
     const base = POST[kind]

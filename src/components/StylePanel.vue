@@ -881,22 +881,22 @@ function startResize(e) {
         <!-- ============ Style ============ -->
         <template v-else-if="activeTab === 'style'">
           <!-- 跨距上限：端點移動/直線縮減/中位集中 的所有移動不得讓受影響段
-               的兩個顏色點橫跨超過 n 格（預設 2）。滑桿只改數值——按「重新計算」
+               的兩個顏色點橫跨超過 n 格（預設 3）。滑桿只改數值——按「重新計算」
                才清快取、以新上限重算（spanApplied = 快取目前用的值）。 -->
           <div v-if="viewKind === 'hillclimb' || viewKind === 'rwd'" class="field">
-            <label class="field-label">顏色點間最大跨距 — {{ layer.spanCap ?? 2 }} 格</label>
+            <label class="field-label">顏色點間最大跨距 — {{ layer.spanCap ?? 3 }} 格</label>
             <input
-              :value="layer.spanCap ?? 2"
+              :value="layer.spanCap ?? 3"
               type="range" min="1" max="8" step="1" class="slider"
               @input="layer.spanCap = +$event.target.value"
             />
             <button
               class="llm-run-btn span-recalc"
-              :disabled="(layer.spanCap ?? 2) === (spanApplied ?? 2)"
+              :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
               @click="emit('recalc-span')"
             >重新計算</button>
-            <p v-if="(layer.spanCap ?? 2) !== (spanApplied ?? 2)" class="llm-run-hint">
-              目前結果是以 {{ spanApplied ?? 2 }} 格計算——按「重新計算」套用 {{ layer.spanCap ?? 2 }} 格
+            <p v-if="(layer.spanCap ?? 3) !== (spanApplied ?? 3)" class="llm-run-hint">
+              目前結果是以 {{ spanApplied ?? 3 }} 格計算——按「重新計算」套用 {{ layer.spanCap ?? 3 }} 格
             </p>
           </div>
           <template v-if="isMetro">

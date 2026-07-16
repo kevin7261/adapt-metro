@@ -856,7 +856,7 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
 // segments → smaller displacement.
 // straight-line components per axis (union-find over same-axis straight
 // segments), stitched across intersection vertices — shared by 直線縮減 and
-// 中位集中.
+// 網格合併.
 function lineComponents(pos, segs, horiz) {
   const parent = new Map()
   const find = (x) => {
@@ -887,10 +887,10 @@ function lineComponents(pos, segs, horiz) {
 // 使用者規則：任何移動不得讓「受影響段的兩個顏色點」橫跨超過 SPAN_CAP 格
 // （Chebyshev：max(|dx|,|dy|)）——防止兩個顏色點之間的線被拉太長。本來就
 // 超過上限的舊長段只准縮短或不變、不准再拉長（否則會把它們永久凍結）。
-// 可由樣式 tab 設定（setSpanCap，預設 2 格）；離線腳本/畫廊用預設值。
-let SPAN_CAP = 2
+// 可由樣式 tab 設定（setSpanCap，預設 3 格）；離線腳本/畫廊用預設值。
+let SPAN_CAP = 3
 export function setSpanCap(n) {
-  SPAN_CAP = Math.max(1, Math.round(+n) || 2)
+  SPAN_CAP = Math.max(1, Math.round(+n) || 3)
 }
 const spanOf = (A, B) => Math.max(Math.abs(A[0] - B[0]), Math.abs(A[1] - B[1]))
 const spanOk = (A0, B0, A1, B1) => {
@@ -913,7 +913,7 @@ function boundarySpanOk(pos, segs, inC, dc, dr) {
 // net H/V change of the BOUNDARY segments (one endpoint moving, one static)
 // under a rigid shift of the inC vertex set — internal/static segments are
 // unchanged, so this is the network-wide H/V delta. Shared by 直線縮減 and
-// 中位集中.
+// 網格合併.
 function boundaryHvDelta(pos, segs, inC, dc, dr) {
   const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
   let d = 0
@@ -1006,113 +1006,66 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
 // （直線縮減整段掃描的 wrapper 已退役——所有下游改走 movewiseStage('line')：
 // 每一個移動後立即縮減網格。單掃描 pass 本身保留給 movewise/逐步驗證 用。）
 
-// 中位集中 one sweep — two move kinds, both TOWARD the median point (the
-// yellow marker: per-axis median of every coloured vertex):
-// ① ANY coloured vertex with AT MOST TWO incident segments, all on one axis
-// (只有左右兩條水平段、或上下兩條垂直段——紅轉乘/紫切點若剛好躺在直線上也
-// 算；藍端點只有一段，一定可動), slides ALONG that line — horizontal →
-// left/right only (toward the median column); vertical → up/down only.
-// Mixed axes (a real bend) or ≥3 segments (branches, yellow crossings)
-// never move. Sliding keeps every incident segment straight. Each move goes
-// through makeMover.validMove (no crossing/occlusion, quadrant + edge order
-// preserved — a vertex can never slide past its neighbour).
-// ② whole stitched straight LINES (lineComponents — same stitching as
-// 直線縮減) shift PERPENDICULARLY toward the median: horizontal lines
-// up/down toward the median row, vertical lines left/right. Guards: the
-// network-wide H/V count must not drop (boundaryHvDelta ≥ 0), the occupied
-// column/row count must not grow (else it would undo 直線縮減 and fight it
-// in the loop), and the SAME validShift hard rules apply.
-// Candidates are tried from the median-most valid cell back to the current.
-function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
-  const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
-  const skip = opts.skip // 一遍掃描中本輪已動過的元素（點 'p:<id>'、線 'l:<最小成員id>'）
-  const movedIds = []
+// 網格合併（原「網格合併」）one sweep：把相鄰的 row 兩兩合併、col 兩兩合併。
+// 合併 r|r+1 ＝「row > r 的所有點整體上移 1 格」（半平面剛體平移，row r+1 的
+// 點落進 row r、其下全部跟著上移）——不留空列、自帶壓縮；col 同理左移。
+// 合法性走 validShift **同一套硬規則**（不壓點、不新增交叉/路線重疊、象限與
+// 邊環繞序不變＝拓撲不變——與端點移動/直線縮減同判準）。附帶性質：邊界段
+// 跨距只縮不增、H/V 段只增不減（水平/垂直段不受影響、dy=1 的斜段會變水平、
+// dy=1 的垂直段會因兩端撞格被 validShift 擋下）。掃描順序：rows 由上而下、
+// cols 由左而右，每個邊界本遍試一次（合併成功即前進，兩兩配對不重複吃）；
+// cursor 讓逐步驗證的小步跨點擊延續同一遍。
+function gridMergeSweep(skeleton, cells, cols, rows, opts = {}) {
+  const limit = opts.limit ?? Infinity
+  let cursor = opts.cursor ? { ...opts.cursor } : { phase: 'row', idx: 0 }
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
-  if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size, movedIds }
+  if (!pos.size || !segs.length || cursor.phase === 'done') {
+    return { cellAfter: pos, cols, rows, merged: 0, mergedRows: 0, mergedCols: 0, cursor: { phase: 'done', idx: 0 }, movedIds: [], desc: [] }
+  }
   const M = makeMover(pos, segs, inc, cols, rows)
-  const median = (vals) => {
-    const s = [...vals].sort((a, b) => a - b)
-    const m = s.length >> 1
-    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+  let nC = cols, nR = rows
+  let mergedRows = 0, mergedCols = 0
+  const desc = []
+  const half = (ax, gt) => {
+    const comp = []
+    for (const [id, pnt] of pos) if (pnt[ax] > gt) comp.push(id)
+    return comp.sort()
   }
-  const ps = [...pos.values()]
-  const med = [median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))]
-  const isAlong = (ax) => (A, B) => A[1 - ax] === B[1 - ax] && A[ax] !== B[ax]
-  // ── ① 點：入射段 ≤2 且同軸的有色點（藍點必然只有一段）沿線往中位點滑動 ──
-  let movedPts = 0
-  const ids = [...pos.keys()].sort()
-  for (const v of ids) {
-    if (movedPts >= limit) break
-    if (skip && skip.has('p:' + v)) continue
-    const vsegs = inc.get(v).map((si) => segs[si])
-    if (!vsegs.length || vsegs.length > 2) continue // 只有左右/上下兩段（或藍點一段）可沿線滑
-    const pv = pos.get(v)
-    const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
-    for (const ax of [0, 1]) {
-      if (!vsegs.every((s) => isAlong(ax)(pv, otherPos(s)))) continue
-      const dir = Math.sign(med[ax] - pv[ax])
-      if (!dir) break
-      // 一次只能移動一格（使用者規則）：朝中位點跨一步、且不越過中位點
-      const x = pv[ax] + dir
-      const bound = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
-      if (dir > 0 ? x > bound : x < bound) break // 已貼著中位點——不再靠近
-      // 藍點（單段）不得把線拉長——否則會和端點移動的「線變短就收」在循環
-      // 裡拉鋸（往中位點但遠離鄰居的滑動放棄，收線方向優先）。
-      const blueLonger = vsegs.length === 1
-        && Math.abs(x - otherPos(vsegs[0])[ax]) >= Math.abs(pv[ax] - otherPos(vsegs[0])[ax])
-      // 使用者規則：不得讓任一入射段的兩個顏色點橫跨超過 SPAN_CAP 格
-      const P0 = ax ? [pv[0], x] : [x, pv[1]]
-      const spanBad = !vsegs.every((sg) => spanOk(pv, otherPos(sg), P0, otherPos(sg)))
-      if (!blueLonger && !spanBad) {
-        const P = P0
-        if (M.validMove(v, P)) {
-          M.applyMove(v, P)
-          movedPts++
-          movedIds.push(v)
-        }
-      }
-      break // all segments lie on this axis — the other axis cannot also apply
-    }
-  }
-  // ── ② 線：串起來的直線整條垂直於線往中位點移（水平線上下往中位列、垂直線
-  // 左右往中位欄）。走 validShift 硬規則，且不減全網 H/V、不增加佔用欄列數
-  // （否則會吐回直線縮減剛省下的欄列、和它在循環裡互相拉扯）。──
-  const occCount = (ax) => {
-    const m = new Map()
-    for (const p of pos.values()) m.set(p[ax], (m.get(p[ax]) ?? 0) + 1)
-    return m
-  }
-  let movedLines = 0
-  for (const horiz of [true, false]) {
-    const perpAx = horiz ? 1 : 0
-    for (const comp of lineComponents(pos, segs, horiz)) {
-      if (movedPts + movedLines >= limit) break
-      if (skip && skip.has('l:' + comp[0])) continue
+  if (cursor.phase === 'row') {
+    let r = cursor.idx
+    while (r + 1 < nR && mergedRows + mergedCols < limit) {
+      const comp = half(1, r)
       const inC = new Set(comp)
-      const at = pos.get(comp[0])[perpAx] // shared coordinate of the line
-      const dir = Math.sign(med[perpAx] - at)
-      if (!dir) continue
-      // 一次只能移動一格（使用者規則）：朝中位點跨一步、且不越過中位點
-      const x = at + dir
-      const bound = dir > 0 ? Math.floor(med[perpAx]) : Math.ceil(med[perpAx])
-      if (dir > 0 ? x > bound : x < bound) continue // 已貼著中位點
-      const count = occCount(perpAx)
-      const emptied = count.get(at) === comp.length // 原欄/列會被清空
-      if (!count.has(x) && !emptied) continue // 會多佔一條欄/列 → 不移
-      const [dc, dr] = horiz ? [0, x - at] : [x - at, 0]
-      if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue // 顏色點間不可拉超過 SPAN_CAP 格
-      if (boundaryHvDelta(pos, segs, inC, dc, dr) < 0) continue // 全網直線不可變少
-      if (!M.validShift(comp, inC, dc, dr)) continue
-      M.applyShift(comp, [dc, dr])
-      movedLines++
-      movedIds.push(...comp)
+      if (comp.length && M.validShift(comp, inC, 0, -1)) {
+        M.applyShift(comp, [0, -1])
+        nR -= 1
+        mergedRows++
+        desc.push(`row ${r}｜${r + 1}`)
+      }
+      r += 1
     }
+    cursor = r + 1 < nR ? { phase: 'row', idx: r } : { phase: 'col', idx: 0 }
   }
-  return { cellAfter: pos, moved: movedPts + movedLines, movedPts, movedLines, segs: segs.length, verts: pos.size, movedIds }
+  if (cursor.phase === 'col') {
+    let c = cursor.idx
+    while (c + 1 < nC && mergedRows + mergedCols < limit) {
+      const comp = half(0, c)
+      const inC = new Set(comp)
+      if (comp.length && M.validShift(comp, inC, -1, 0)) {
+        M.applyShift(comp, [-1, 0])
+        nC -= 1
+        mergedCols++
+        desc.push(`col ${c}｜${c + 1}`)
+      }
+      c += 1
+    }
+    cursor = c + 1 < nC ? { phase: 'col', idx: c } : { phase: 'done', idx: 0 }
+  }
+  return { cellAfter: pos, cols: nC, rows: nR, merged: mergedRows + mergedCols, mergedRows, mergedCols, cursor, movedIds: [], desc }
 }
 
 /* ==================== 逐移動壓縮（movewise） ====================
-   使用者規則：取消獨立的縮減網格步驟——端點移動/直線縮減/中位集中的
+   使用者規則：取消獨立的縮減網格步驟——端點移動/直線縮減/網格合併的
    **每一個小步驟（單一移動）完成後就做縮減網格**。實作＝以 limit=1 反覆呼叫
    該階段的 pass，每個移動後立即 compactGrid，直到動不了；網格因此隨時緻密。
    所有吃這三個階段的地方（tabs／循環／RWD 底圖／llmGrid／畫廊）都走這裡。 */
@@ -1126,12 +1079,10 @@ const MOVEWISE_PASS = {
     const r = lineCompactPass(sk, cells, cols, rows, { limit: 1, skip })
     return { cellAfter: r.cellAfter, moved: r.moved, pts: 0, lines: r.moved, ids: r.movedIds, key: r.movedIds[0] }
   },
-  gather: (sk, cells, cols, rows, skip) => {
-    const r = medianGatherPass(sk, cells, cols, rows, { limit: 1, skip })
-    return { cellAfter: r.cellAfter, moved: r.moved, pts: r.movedPts, lines: r.movedLines, ids: r.movedIds, key: r.movedPts ? 'p:' + r.movedIds[0] : 'l:' + r.movedIds[0] }
-  },
+  // gather（網格合併）不在此表——半平面合併自帶壓縮，走 gridMergeSweep 專用路徑。
 }
 export function movewiseStage(stage, skeleton, cells, cols, rows) {
+  if (stage === 'gather') return gridMergeStage(skeleton, cells, cols, rows)
   // 起點也先壓（上一階段輸出已緻密時是 no-op）
   let comp = compactGrid(cells, cols, rows)
   let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
@@ -1164,11 +1115,47 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
   }
 }
 
+// 網格合併的 stage 驅動：single=true 只掃一遍（循環用）、否則掃到沒有可合併
+// （網格合併 tab 用）。回傳形狀與其他階段一致（moved=合併次數；另附
+// mergedRows/mergedCols）。
+function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
+  let comp = compactGrid(cells, cols, rows)
+  let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
+  const fromCols = nC, fromRows = nR
+  const g0 = buildHcGraph(skeleton, cur)
+  const hvBefore = countHV(g0.pos, g0.segs)
+  const verts = g0.pos.size, segsN = g0.segs.length
+  let mergedRows = 0, mergedCols = 0, guard = 0
+  while (guard++ < POST_ITER_CAP) {
+    const r = gridMergeSweep(skeleton, cur, nC, nR)
+    mergedRows += r.mergedRows
+    mergedCols += r.mergedCols
+    cur = r.cellAfter
+    nC = r.cols
+    nR = r.rows
+    if (!r.merged || opts.single) break
+  }
+  const g1 = buildHcGraph(skeleton, cur)
+  return {
+    cellAfter: cur,
+    cols: nC,
+    rows: nR,
+    stats: {
+      hvBefore, hvAfter: countHV(g1.pos, g1.segs), segs: segsN, verts,
+      moved: mergedRows + mergedCols, mergedRows, mergedCols,
+      movedPts: mergedRows, movedLines: mergedCols, // 舊欄位相容（列/欄）
+      converged: guard <= POST_ITER_CAP,
+      fromCols, fromRows, cols: nC, rows: nR,
+    },
+  }
+}
+
 // 一遍掃描（使用者規則：循環與逐步驗證的每一步＝該演算法把**整個 network
 // 跑一次**，不是跑到該演算法自己的不動點）：每個元素本輪最多動一次（動過的
 // 進 visited、pass 以 skip 跳過），每一個移動後照樣立即 compactGrid。visited
 // 由呼叫端傳入（逐步驗證的小步跨呼叫延續同一遍）。
 export function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new Set()) {
+  if (stage === 'gather') return gridMergeStage(skeleton, cells, cols, rows, { single: true })
   let comp = compactGrid(cells, cols, rows)
   let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
   const fromCols = nC, fromRows = nR
@@ -1203,12 +1190,12 @@ export function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new 
 
 /* ==================== 逐步驗證（逐步執行） ====================
    讓使用者一鍵一步看鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**（或
-   limit=1 的單一移動），順序 端點移動 → 直線縮減 → 中位集中；**每一步完成後
+   limit=1 的單一移動），順序 端點移動 → 直線縮減 → 網格合併；**每一步完成後
    立即縮減網格**（使用者規則：取消獨立的縮減網格階段，改成每步後都壓），
    所以畫面上的網格永遠是緻密的。某階段掃不動就自動換下一階段（同一鍵內
    跳過空階段），一輪三階段都沒動靜＝完成。
    狀態是純資料（cells/cols/rows/stage/round/steps/info），呼叫端自己保存。 */
-const STEP_STAGE_LABEL = { endp: '端點移動', line: '直線縮減', gather: '中位集中' }
+const STEP_STAGE_LABEL = { endp: '端點移動', line: '直線縮減', gather: '網格合併' }
 export function stepChainInit(cells, cols, rows) {
   const comp = compactGrid(cells, cols, rows) // 每步後都壓 → 起點也先壓
   return {
@@ -1218,7 +1205,8 @@ export function stepChainInit(cells, cols, rows) {
     movedIds: [], // 這一步移動的點/線成員 id——畫布上以橘圈標示
     moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]（縮減後 rank 空間，可為半格）
     sweepVisited: [], // 目前這一遍掃描中已動過的元素 key（小步跨點擊延續同一遍）
-    info: '按「下一步」開始——每步＝目前演算法把整個 network 掃一遍（每個移動後立即縮減網格），掃完換下一個：端點移動 → 直線縮減 → 中位集中 → 回到端點移動；三個都沒改動就停止',
+    mergeCursor: null, // 網格合併這一遍掃到哪個邊界（{phase:'row'|'col', idx}；小步延續用）
+    info: '按「下一步」開始——每步＝目前演算法把整個 network 掃一遍（每個移動後立即縮減網格），掃完換下一個：端點移動 → 直線縮減 → 網格合併 → 回到端點移動；三個都沒改動就停止',
   }
 }
 export function stepChainNext(skeleton, st, opts = {}) {
@@ -1227,6 +1215,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
   const subTag = limit === 1 ? '（小步）' : ''
   let { cells, cols, rows, stage, round, steps, roundMoves } = st
   let sweepVisited = st.sweepVisited ?? []
+  let mergeCursor = st.mergeCursor ?? null
   // 前後比對：這一步每個移動元素的 from→to 格座標（移動當下、縮減前的座標）
   const movesOf = (prev, next, ids) => {
     const seen = new Set()
@@ -1267,20 +1256,49 @@ export function stepChainNext(skeleton, st, opts = {}) {
     return {
       cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,
       stage, round, steps: steps + 1, roundMoves, done: false, lastStage: stage,
-      movedIds: ids, moves, sweepVisited,
+      movedIds: ids, moves, sweepVisited, mergeCursor,
       info: infoBase + (shrunk ? `｜縮減網格 ${cols}×${rows} → ${comp.cols}×${comp.rows}` : ''),
     }
   }
   // 「下一步」＝目前演算法把整個 network 掃**一遍**（movewiseSweep，接續小步
   // 已走過的 sweepVisited），掃完就換下一個演算法（掃不動也換）——使用者規則：
-  // 端點移動一遍 → 直線縮減一遍 → 中位集中一遍 → 回到端點移動。
+  // 端點移動一遍 → 直線縮減一遍 → 網格合併一遍 → 回到端點移動。
   const NEXT_STAGE = { endp: 'line', line: 'gather', gather: 'endp' }
   const STAGE_INFO = {
     endp: (t) => `移動 ${t.moved} 點（水平垂直 ${t.hvBefore} → ${t.hvAfter}／${t.segs} 段）`,
     line: (t) => `移動 ${t.moved} 線`,
-    gather: (t) => `往中位點滑 ${t.movedPts} 點＋${t.movedLines} 線`,
+    gather: (t) => `合併 ${t.mergedRows ?? t.movedPts} 列＋${t.mergedCols ?? t.movedLines} 欄`,
   }
   for (let guard = 0; guard < 9; guard++) {
+    if (stage === 'gather') {
+      // 網格合併：小步＝合併下一個可合併的邊界（cursor 延續這一遍）；
+      // 大步＝把這一遍剩下的邊界全掃完。半平面合併自帶壓縮。
+      const r = gridMergeSweep(skeleton, cells, cols, rows,
+        { limit: limit === 1 ? 1 : Infinity, cursor: mergeCursor ?? undefined })
+      if (r.merged) {
+        roundMoves += r.merged
+        const isSub = limit === 1
+        const info = isSub
+          ? `第 ${round} 輪 · ${STEP_STAGE_LABEL.gather}${subTag}：合併 ${r.desc[0]}｜網格 ${cols}×${rows} → ${r.cols}×${r.rows}`
+          : `第 ${round} 輪 · ${STEP_STAGE_LABEL.gather}（掃一遍）：合併 ${r.mergedRows} 列＋${r.mergedCols} 欄｜網格 ${cols}×${rows} → ${r.cols}×${r.rows}`
+        if (isSub && r.cursor.phase !== 'done') {
+          // 小步：這一遍還沒掃完——留在 gather、cursor 前進
+          return { cells: r.cellAfter, cols: r.cols, rows: r.rows, stage, round, steps: steps + 1, roundMoves, done: false, lastStage: 'gather', movedIds: [], moves: [], sweepVisited, mergeCursor: r.cursor, info }
+        }
+        // 大步（或小步剛好掃完）：gather 是一輪的最後 → 進下一輪
+        return { cells: r.cellAfter, cols: r.cols, rows: r.rows, stage: 'endp', round: round + 1, steps: steps + 1, roundMoves: 0, done: false, lastStage: 'gather', movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info }
+      }
+      // 這一遍沒有可合併 → 一輪結束
+      if (!roundMoves) {
+        return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info: `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動` }
+      }
+      round += 1
+      roundMoves = 0
+      stage = 'endp'
+      sweepVisited = []
+      mergeCursor = null
+      continue
+    }
     if (limit === 1) {
       // 小步：這一遍掃描中的下一個單一移動（動過的元素本輪不再動）
       const r = MOVEWISE_PASS[stage](skeleton, cells, cols, rows, new Set(sweepVisited))
@@ -1309,27 +1327,21 @@ export function stepChainNext(skeleton, st, opts = {}) {
           cells: sw.cellAfter, cols: sw.cols, rows: sw.rows,
           stage: nextStage, round: endOfRound ? round + 1 : round,
           steps: steps + 1, roundMoves: endOfRound ? 0 : roundMoves, done: false,
-          lastStage: doneStage, movedIds: [], moves: [], sweepVisited: [],
+          lastStage: doneStage, movedIds: [], moves: [], sweepVisited: [], mergeCursor: null,
           info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[doneStage]}（掃一遍）：${STAGE_INFO[doneStage](sw.stats)}${gridTag}`,
         }
       }
       // 這一遍沒有任何移動 → 換下一個演算法（下面共用推進邏輯）
     }
-    // 推進：換下一個演算法；gather 是一輪的最後——整輪三個都沒動＝收斂
-    if (stage === 'gather') {
-      if (!roundMoves) {
-        return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], info: `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動` }
-      }
-      round += 1
-      roundMoves = 0
-    }
+    // 推進：換下一個演算法（gather 的一輪結束邏輯在上面的特例處理）
     stage = NEXT_STAGE[stage]
     sweepVisited = []
+    mergeCursor = null
   }
-  return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
+  return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
 }
 
-// 端點移動+直線縮減+中位集中循環: each round runs the three MOVEWISE stages
+// 端點移動+直線縮減+網格合併循環: each round runs the three MOVEWISE stages
 // （每個階段自己迭代到不動點，且**每一個移動後都立即縮減網格**——縮減不再是
 // 獨立步驟）until a round where NOTHING moves. Per-move compaction renumbers
 // cells continuously, so hard-rule blocks (occlusion, landing on another
@@ -1339,7 +1351,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
 // POST_ITER_CAP rounds is the backstop against slide/median oscillation.
 // 使用者規則（2026-07）：每輪＝三個演算法**各把整個 network 掃一遍**（一遍
 // 掃描 movewiseSweep，非各自跑到不動點）——端點移動一遍 → 直線縮減一遍 →
-// 中位集中一遍 → 回到端點移動；某一輪三個都沒有改動才停止。輪數因此比階段
+// 網格合併一遍 → 回到端點移動；某一輪三個都沒有改動才停止。輪數因此比階段
 // 固定點制多，上限放寬到 LOOP_ROUND_CAP。
 const LOOP_ROUND_CAP = 200
 export function straightenCompactLoop(skeleton, cells, cols, rows) {

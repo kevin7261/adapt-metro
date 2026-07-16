@@ -68,13 +68,6 @@ onBeforeUnmount(() => observer?.disconnect())
             :viewBox="`0 0 ${data.W} ${data.H}`"
             preserveAspectRatio="xMidYMid meet"
           >
-            <circle
-              v-if="data.views[id].median"
-              :cx="data.views[id].median.x"
-              :cy="data.views[id].median.y"
-              :r="data.views[id].median.r"
-              class="median-mark"
-            />
             <template v-if="data.views[id].grid">
               <line
                 v-for="(x, i) in data.views[id].grid.xs"
@@ -176,7 +169,6 @@ onBeforeUnmount(() => observer?.disconnect())
 }
 .vc-canvas svg { width: 100%; height: 100%; overflow: visible; }
 .grid-sep { stroke: #3b82f6; stroke-width: 0.2; stroke-opacity: 0.18; }
-.median-mark { fill: #facc15; fill-opacity: 0.5; }
 .hl { fill: none; stroke-width: 3.2; stroke-opacity: 0.28; stroke-linecap: round; stroke-linejoin: round; }
 .ln { fill: none; stroke-width: 1.4; stroke-linejoin: round; }
 .dot { stroke: #3f3f46; stroke-width: 0.3; }
