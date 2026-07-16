@@ -25,6 +25,9 @@ description: 高速公路資料的國家/都會區專屬規則總索引與跨國
 - **台灣**：國道 `highway=motorway`（國道1–10號、3甲…）；快速公路 `highway=trunk`+`expressway=yes`
   （台61 西濱／62／64／65／66／68／72／74／76／78／82／84／86／88…）。交流道編號＝里程公里數
   → `mileage`。配色：國道藍 #12489b、快速公路綠 #1f8a4c。
+  - **剔除「高速公路局」**（`_overrides/junction_excludes.json`）：OSM 把林口附近機關專用匝道
+    （高公局／國道公路警察局）標成 `motorway_junction`，但**不是公開交流道**——wiki 中山高
+    交流道列表無此站、無 exit ref。使用者 2026-07-16：台灣 highways 不會有「高速公路局」。
 - **美國**：Interstate＝motorway（ref 如「I 95」）；部分 parkway/expressway 為 trunk+expressway。
   exit 編號＝milepost → `mileage`。都會區分檔（`am-usa-new-york-city`…）。Interstate 藍盾配色。
 - **德國**：Autobahn＝motorway（藍）；Bundesstraße（B-roads）多為一般 trunk **不收**，除非標

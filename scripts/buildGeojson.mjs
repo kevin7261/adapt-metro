@@ -469,7 +469,10 @@ async function build() {
     // station_names.json 是站名的權威裁決出口——**覆寫**既有名（不只補無名）：
     // 上游把同一站拆成多個異名節點時（雪梨 Central 的 Platform 26/27、Chalmers
     // Street），統一改成同名 → 同名近距合併成一站。
-    if (ov) e.tags = { ...(e.tags || {}), name: ov }
+    // **覆寫也蓋在地語顯示鍵**（name:ja/zh/zh-Hant）——否則 nameFor 對日/台/中優先取
+    // 在地語鍵，覆寫的 name 壓不過（東京 新線新宿：node name:ja=新線新宿 舊稱，改名 新宿
+    // 才生效）。保留 name:en 不動（英文＝標題第二行）。
+    if (ov) e.tags = { ...(e.tags || {}), name: ov, 'name:ja': ov, 'name:zh': ov, 'name:zh-Hant': ov }
     let lon, lat
     if (e.type === 'node') { lon = e.lon; lat = e.lat }
     else { lon = e.center?.lon; lat = e.center?.lat }

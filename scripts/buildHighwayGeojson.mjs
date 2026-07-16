@@ -22,8 +22,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const HIGHWAY = join(ROOT, 'data', 'highway')
 const CACHE = join(HIGHWAY, '_cache')
+const OVERRIDES = join(HIGHWAY, '_overrides')
 const METRO = join(ROOT, 'data', 'metro')
 const MAX_EDGE_M = 30000 // drop adjacency edges longer than this (fake/huge bridge)
+
+// 機關專用匝道等誤標 motorway_junction（_overrides/junction_excludes.json）——
+// 以「名稱＋座標半徑」拒收，同 metro station_excludes。
+function isExcludedJunction(j, excludes) {
+  if (!excludes?.length) return false
+  const nms = [j.tags?.name, j.tags?.['name:en'], j.tags?.['name:zh'], j.tags?.alt_name, j.tags?.['alt_name:en'], j.tags?.['alt_name:zh']]
+    .filter(Boolean).map((s) => s.trim())
+  if (!nms.length) return false
+  for (const x of excludes) {
+    if (x.lon == null || x.lat == null || !Array.isArray(x.names)) continue
+    if (Math.abs(j.lon - x.lon) > 0.04 || Math.abs(j.lat - x.lat) > 0.03) continue
+    if (x.names.some((n) => nms.includes(n))) return true
+  }
+  return false
+}
 
 // 中文 labels from the metro data (cityNamesZh.json keyed by city slug carries a
 // Chinese country + city name), so highway layers show 中文＋English like metro.
@@ -131,14 +147,16 @@ function buildPolylines(ways) {
 // ---- per-system assembly (a system = a country, or a metro area for big ones)
 // wikiRefs = _overrides/wiki_mileage_tw.json 的 refs（台灣各路的 wiki 交流道里程表，
 // 使用者：用 wiki 查哩程）——名稱吻合者以 wiki 公里數為權威（覆蓋出口編號、補服務區）。
-function buildSystem(raw, { countryZh, cityZh, wikiRefs } = {}) {
+// junctionExcludes = _overrides/junction_excludes.json（機關專用匝道等假交流道）。
+function buildSystem(raw, { countryZh, cityZh, wikiRefs, junctionExcludes } = {}) {
   const { continent, country } = raw
   const slug = raw.slug || raw.cc
   const city = raw.city || country      // country name (country-unit) or metro city
   countryZh = countryZh ?? country
   cityZh = cityZh ?? city
   const ways = raw.elements.filter((e) => e.type === 'way' && e.tags?.ref)
-  const junctions = raw.elements.filter((e) => e.type === 'node' && e.tags?.highway === 'motorway_junction')
+  const junctions = raw.elements.filter((e) =>
+    e.type === 'node' && e.tags?.highway === 'motorway_junction' && !isExcludedJunction(e, junctionExcludes))
 
   // Group ways into roads by ref. A way SHARED by concurrent roads is tagged with
   // BOTH refs joined by ";" or "," (OSM convention, e.g. 上海 "G1503;S20") — split
@@ -512,7 +530,12 @@ async function main() {
   const { countryZh: cMap, citySlug } = await zhMaps()
   // 台灣 wiki 里程表（scripts/fetchWikiHighwayTw.mjs 產出；無檔則跳過）
   let wikiTw = null
-  try { wikiTw = JSON.parse(await readFile(join(HIGHWAY, '_overrides', 'wiki_mileage_tw.json'), 'utf8')).refs } catch { /* optional */ }
+  try { wikiTw = JSON.parse(await readFile(join(OVERRIDES, 'wiki_mileage_tw.json'), 'utf8')).refs } catch { /* optional */ }
+  // 假交流道剔除（機關專用匝道等；無檔則跳過）
+  let junctionExcludes = []
+  try {
+    junctionExcludes = JSON.parse(await readFile(join(OVERRIDES, 'junction_excludes.json'), 'utf8')).excludes ?? []
+  } catch { /* optional */ }
   const allLines = [], allIc = [], systems = []
   let lineTotal = 0, stationTotal = 0
   for (const f of files.sort()) {
@@ -521,7 +544,11 @@ async function main() {
     const countryZh = cMap[raw.country] ?? raw.country
     // metro-unit files (big countries) get a 中文 city name; country-unit → country
     const cityZh = raw.unit === 'metro' ? (citySlug[slug]?.city ?? raw.city) : countryZh
-    const fc = buildSystem(raw, { countryZh, cityZh, wikiRefs: raw.country === 'Taiwan' ? wikiTw : null })
+    const fc = buildSystem(raw, {
+      countryZh, cityZh,
+      wikiRefs: raw.country === 'Taiwan' ? wikiTw : null,
+      junctionExcludes,
+    })
     if (!fc.features.length) { console.log(`  ${slug}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
     const rel = `systems/${cont}/${countrySlug(raw.country)}/${slug}.geojson`

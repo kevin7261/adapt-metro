@@ -131,7 +131,11 @@ node(w.mw)["highway"="motorway_junction"]->.jn;
    ①各 ref 的相鄰邊**跨 ref 去重**——共線走廊（concurrent）只畫一次、`routes[]` 列所有行經 ref；
    ②「**連續且行經 ref 集合相同**」的邊串成**一個路段 feature**（端點走訪成極大路徑，座標連續
    長折線）——無共線的路＝整條一個 feature（國1 台北段＝38 頂點一條），共線邊界才切分，
-   hover/點選是整段而非零碎小段。只輸出出現在某段上的交流道（orphan-drop）。
+   hover/點選是整段而非零碎小段。   只輸出出現在某段上的交流道（orphan-drop）。
+
+7. **假交流道剔除**（`_overrides/junction_excludes.json`，對應 metro `station_excludes`）：
+   OSM 偶把機關專用匝道標成 `motorway_junction`（台灣林口「高速公路局」＝高公局／國道公路
+   警察局，非公開交流道、wiki 無此站）。build 以名稱＋座標拒收；國家裁決記 [[highway-cities]]。
 
 **已知限制**：無出口編號國家走 fallback（骨幹＋最小繞路插入），順序偶有小幅跳動（audit 的
 `mileage_order` warn 監看）；序列排錯時因畫直線會露出小段折返（不像真實路形被藏住），

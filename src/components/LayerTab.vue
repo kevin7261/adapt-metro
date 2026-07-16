@@ -8,7 +8,7 @@ import {
   DEFAULT_BASEMAP, MAPBOX_ENABLED, RAILWAY_OVERLAY,
   basemapById, basemapGroups, styleFor, solidStyle,
 } from '../stores/basemaps'
-import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
+import { stationPopupHtml, linePopupHtml, landmarkPopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
 import StatusBar from './StatusBar.vue'
 import AttributeTable from './AttributeTable.vue'
@@ -89,7 +89,8 @@ onMounted(() => {
   map.on('click', (e) => {
     ctxMenu.value = null
     basemapMenuOpen.value = false
-    const ids = ['metro-stations', ...ALL_LINE_LAYER_IDS].filter((id) => map.getLayer(id))
+    // metro（車站/線，在上）優先於地標（河流/面域，在下）——同點重疊時先選 metro。
+    const ids = ['metro-stations', ...ALL_LINE_LAYER_IDS, ...LANDMARK_LAYER_IDS].filter((id) => map.getLayer(id))
     const hits = ids.length ? map.queryRenderedFeatures(e.point, { layers: ids }) : []
     store.setSelectedFeature(layerId, hits.length ? hits[0].properties : null)
   })
@@ -142,6 +143,24 @@ onMounted(() => {
         if (map.getLayer(hid)) map.setFilter(hid, hoverFilter(hid, ''))
       linePopup.remove()
     })
+  }
+
+  // Landmark hover（河流/皇居/公園）——資訊 popup（與物件 tab 同構）。metro 車站/線
+  // 蓋在地標之上，游標同時壓在其上時不顯示地標 popup（避免同點雙 popup）。
+  const lmPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, maxWidth: '320px' })
+  const showLandmark = (e) => {
+    const overMetro = ['metro-stations', ...ALL_LINE_LAYER_IDS].filter((id) => map.getLayer(id))
+    if (overMetro.length && map.queryRenderedFeatures(e.point, { layers: overMetro }).length) {
+      lmPopup.remove()
+      return
+    }
+    map.getCanvas().style.cursor = 'pointer'
+    lmPopup.setLngLat(e.lngLat).setHTML(landmarkPopupHtml(e.features[0].properties) || '—').addTo(map)
+  }
+  for (const id of LANDMARK_LAYER_IDS) {
+    map.on('mouseenter', id, showLandmark)
+    map.on('mousemove', id, showLandmark)
+    map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; lmPopup.remove() })
   }
 
   // Active tab drives the global map handle (toolbar / palette / attr table actions)
@@ -274,6 +293,8 @@ function setLandmarks(on) {
 const MAX_OVERLAP = 6
 const DASH = 2.5
 const ALL_LINE_LAYER_IDS = ['metro-lines']
+// 地標可互動圖層（hover popup／點選進物件 tab）：面域 fill 與河流骨架線。
+const LANDMARK_LAYER_IDS = ['lm-fill', 'lm-centerline']
 // 共用 filter 建構器（底層與 hover 家族同一套條件）：
 // 實線＝單一相異色；交錯虛線＝route_count 槽位 ＋ ≥2 相異色。
 const SOLID_COND = ['any',

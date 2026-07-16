@@ -120,3 +120,18 @@ export function linePopupHtml(p, onSeg = []) {
   }
   return html
 }
+
+/** 地標 hover（河流骨架線／皇居・公園面域，data/metro/landmarks）。
+ *  與物件 tab 同構：標題（中/英）＋ 類別、長度(河)／面積(面)。 */
+const LANDMARK_KIND_ZH = {
+  'river-centerline': '河流', river: '河流', palace: '宮殿／皇居', park: '公園',
+}
+export function landmarkPopupHtml(p) {
+  const en = p.name_en && p.name_en !== p.name ? p.name_en : null
+  let html = H.title(p.name ?? '—', en)
+  const bits = [LANDMARK_KIND_ZH[p.kind] ?? p.kind]
+  if (p.length_km != null) bits.push(`${(+p.length_km).toFixed(1)} km`)
+  if (p.area_km2 != null) bits.push(`${(+p.area_km2).toFixed(2)} km²`)
+  html += H.row(`<span style="font-size:11px;color:rgba(155,163,175,1)">${bits.filter(Boolean).join(' · ')}</span>`)
+  return html
+}

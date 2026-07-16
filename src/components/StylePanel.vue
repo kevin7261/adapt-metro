@@ -175,6 +175,10 @@ const joinTitle = (list) => {
 const objectTitle = computed(() => {
   const p = selectedProps.value
   if (!p) return null
+  if (p.landmark_id) { // 地標（河流/皇居/公園）——名稱（中/在地＋英文）
+    const en = p.name_en && p.name_en !== p.name ? p.name_en : null
+    return p.name ? { name: p.name, nameEn: en } : null
+  }
   if (p.station_id) {
     const mn = mergedNames.value
     const en = p.station_name_en && p.station_name_en !== p.station_name ? p.station_name_en : null

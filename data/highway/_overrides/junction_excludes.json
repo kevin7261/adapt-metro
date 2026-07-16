@@ -1,0 +1,19 @@
+{
+  "_comment": "非公開交流道／機關專用匝道誤標為 motorway_junction 者，build 拒收（對應 metro station_excludes）。wiki 交流道表無此站、無出口編號。上游改標後可移除。",
+  "excludes": [
+    {
+      "id": "n878267977",
+      "country": "Taiwan",
+      "name": "高速公路局",
+      "note": "國道1號林口附近機關專用匝道（高公局／國道公路警察局），非公開交流道；wiki 中山高交流道列表無此站，且無 exit ref",
+      "names": [
+        "高速公路局",
+        "Freeway Bureau",
+        "國道公路警察局",
+        "National Highway Police Bureau"
+      ],
+      "lon": 121.4274667,
+      "lat": 25.0680818
+    }
+  ]
+}
