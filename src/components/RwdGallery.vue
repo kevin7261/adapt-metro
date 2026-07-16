@@ -2,7 +2,7 @@
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
-import { rwdCellCompact, RWD_VIEW_ORDER, RWD_VIEW_LABELS } from '../stores/viewGeometry'
+import { rwdCellCompact, rwdCellVariant, RWD_VIEW_ORDER, rwdViewLabels } from '../stores/viewGeometry'
 import GalleryShell from './GalleryShell.vue'
 import CityViewGrid from './CityViewGrid.vue'
 
@@ -25,7 +25,7 @@ function pick(entry, viewId) {
   const metro = store.importMetroSystem(entry)
   const d3 = store.addD3Layer(metro.id)
   if (!d3) { store.toast('無法建立 Map Adjust 視圖'); return }
-  const hc = store.addHillClimbLayer(d3.id, 'orig')
+  const hc = store.addHillClimbLayer(d3.id, rwdCellVariant(viewId))
   if (!hc) { store.toast('無法建立 Hill Climbing 視圖'); return }
   const rwd = store.addRwdLayer(hc.id, rwdCellCompact(viewId))
   if (!rwd) { store.toast('無法建立 RWD Maps 視圖'); return }
@@ -40,7 +40,7 @@ function pick(entry, viewId) {
       <div class="tile-grid">
         <CityViewGrid
           v-for="s in tiles" :key="s.id" :entry="s"
-          data-dir="rwdviews" :order="RWD_VIEW_ORDER" :labels="RWD_VIEW_LABELS"
+          data-dir="rwdviews" :order="RWD_VIEW_ORDER" :labels-for-tilt="rwdViewLabels"
           :columns="2" cta-label="RWD Maps" @pick="pick" />
       </div>
     </template>

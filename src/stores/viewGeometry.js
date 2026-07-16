@@ -304,73 +304,82 @@ export const VIEW_ORDER = [
 ]
 
 /**
- * Compute the 6 Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
- * 2026-07：原始 variant 的 格網化後 → Hill Climbing ＋ 4 個循環結果）：
- *   1) 格網化後 — hillclimbing 的輸入佈局（= Map Adjust 的 grid-orig-post）。
+ * Compute the 12 Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
+ * 2026-07：原始＋旋轉 兩個 variant × 每 variant 6 個階段）。每 variant：
+ *   1) 格網化後 — hillclimbing 的輸入佈局（= Map Adjust 的 grid-*-post）。
  *   2) Hill Climbing — 整數格多準則最佳化後。
  *   3–6) 4 個循環結果 — 每條鏈（基本 hc / 直角爬山 rect / 軸對齊 align /
  *        整數規劃 ilp）以 hc 結果為基底，先跑該鏈的後處理（rect/align/ilp
  *        迭代到不動點；hc 不做），再 straightenCompactLoop（端點移動＋直線縮減
  *        ＋網格合併循環到不動點，同 RWD 畫廊的 compact-{kind}）。
- * 只算 原始 variant（不含旋轉）；黑點沿新段用 placeBlacks 放回（cellsToPos 內含）。
+ * 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）；
+ * 黑點沿新段用 placeBlacks 放回（cellsToPos 內含）。
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
   const cellMapper = cellMapperFor(x0, y0, x1, y1)
-
-  const projection = projFor(0) // 畫廊＝原始 variant
-  const projById = projByIdFor(projection, stations, skeleton)
-  const grid = buildSchematicGrid(skeleton, projById, extArr)
-  const snap = (id) => grid.posAfter.get(id) ?? null
+  const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
 
   const views = {}
   const stats = {}
+  for (const variant of ['orig', 'rot']) {
+    const angle = variant === 'rot' && canRotate ? tilt : 0
+    const projection = projFor(angle)
+    const projById = projByIdFor(projection, stations, skeleton)
+    const grid = buildSchematicGrid(skeleton, projById, extArr)
+    const snap = (id) => grid.posAfter.get(id) ?? null
 
-  // 1) 格網化後 — the hillclimbing input（= Map Adjust's grid-orig-post）.
-  const postPos = new Map(projById)
-  for (const [id, p] of grid.posAfter) postPos.set(id, p)
-  views['grid-post'] = drawFromPos(skeleton, stations, lineFeats, postPos, grid.blueAfter)
+    // 1) 格網化後 — the hillclimbing input（= Map Adjust's grid-*-post）.
+    const postPos = new Map(projById)
+    for (const [id, p] of grid.posAfter) postPos.set(id, p)
+    views[`grid-post-${variant}`] = drawFromPos(skeleton, stations, lineFeats, postPos, grid.blueAfter)
 
-  // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
-  const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
-  const m1 = cellMapper(grid.cols, grid.rows)
-  const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
-  views['hc'] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
-  stats.hc = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
+    // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
+    const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+    const m1 = cellMapper(grid.cols, grid.rows)
+    const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
+    views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
+    stats[`hc-${variant}`] = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
 
-  // 3–6) 四個循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
-  const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
-  for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    const base = POST[kind]
-      ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-      : hc.cellAfter
-    const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
-    const m = cellMapper(comp.cols, comp.rows)
-    const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
-    views[`loop-${kind}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-    stats[`loop-${kind}`] = { cols: comp.cols, rows: comp.rows }
+    // 3–6) 四個循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
+    for (const kind of ['hc', 'rect', 'align', 'ilp']) {
+      const base = POST[kind]
+        ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+        : hc.cellAfter
+      const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
+      const m = cellMapper(comp.cols, comp.rows)
+      const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
+      views[`loop-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
+      stats[`loop-${kind}-${variant}`] = { cols: comp.cols, rows: comp.rows }
+    }
   }
 
   return { W, H, tilt, canRotate, views, stats }
 }
 
-// 視圖畫廊顯示順序（6 個，皆原始 variant）：格網化後 → Hill Climbing → 4 循環.
+// 視圖畫廊顯示順序（12 個）：原始 6（格網化後→Hill Climbing→4 循環）＋ 旋轉 6.
 export const HC_VIEW_ORDER = [
-  'grid-post', 'hc',
-  'loop-hc', 'loop-rect', 'loop-align', 'loop-ilp',
+  'grid-post-orig', 'hc-orig', 'loop-hc-orig', 'loop-rect-orig', 'loop-align-orig', 'loop-ilp-orig',
+  'grid-post-rot', 'hc-rot', 'loop-hc-rot', 'loop-rect-rot', 'loop-align-rot', 'loop-ilp-rot',
 ]
 
-// View id → 中文 caption for the HC 視圖畫廊（不依 tilt——皆原始 variant；保留
-// (tilt) 簽名以相容 CityViewGrid 的 labels-for-tilt）。
-export function hcViewLabels(_tilt) {
+// View id → 中文 caption for the HC 視圖畫廊（旋轉 variant 標「旋轉 N°」）.
+export function hcViewLabels(tilt) {
+  const rot = `旋轉 ${Math.abs(tilt).toFixed(0)}°`
   return {
-    'grid-post': '格網化後',
-    'hc': 'Hill Climbing',
-    'loop-hc': 'Hill Climbing循環',
-    'loop-rect': '直角爬山循環',
-    'loop-align': '軸對齊循環',
-    'loop-ilp': '整數規劃循環',
+    'grid-post-orig': '原始 · 格網化後',
+    'hc-orig': '原始 · Hill Climbing',
+    'loop-hc-orig': '原始 · Hill Climbing循環',
+    'loop-rect-orig': '原始 · 直角爬山循環',
+    'loop-align-orig': '原始 · 軸對齊循環',
+    'loop-ilp-orig': '原始 · 整數規劃循環',
+    'grid-post-rot': `${rot} · 格網化後`,
+    'hc-rot': `${rot} · Hill Climbing`,
+    'loop-hc-rot': `${rot} · Hill Climbing循環`,
+    'loop-rect-rot': `${rot} · 直角爬山循環`,
+    'loop-align-rot': `${rot} · 軸對齊循環`,
+    'loop-ilp-rot': `${rot} · 整數規劃循環`,
   }
 }
 
@@ -410,66 +419,89 @@ function drawRwd(skeleton, stations, rwd, sep) {
   return out
 }
 
-// Compute the 8 RWD Maps gallery views for one city (原始 variant): each of the
-// four 縮減網格 sources (基本 / 直角爬山 / 軸對齊 / 整數規劃) as both the compact
-// grid AND its RWD 路網 redraw. Same pure stores the live RWD tab uses.
+// Compute the 16 RWD Maps gallery views for one city（原始＋旋轉 兩 variant）：
+// each variant × four 縮減網格 sources (基本 / 直角爬山 / 軸對齊 / 整數規劃) as
+// both the compact grid AND its RWD 路網 redraw. Same pure stores the live RWD
+// tab uses. 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）。
 export function computeCityRwdViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
-  const projection = projFor(0) // gallery = 原始 variant
-  const projById = projByIdFor(projection, stations, skeleton)
-  const grid = buildSchematicGrid(skeleton, projById, extArr)
-  const snap = (id) => grid.posAfter.get(id) ?? null
-  const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
-  // Topology segments (from the original grid cellOf), parallel/same-track merged
-  // — positions come from each compact layout below.
-  const segs = mergeParallelSegs(buildHcGraph(skeleton, grid.cellOf).segs)
   const cellMapper = cellMapperFor(x0, y0, x1, y1)
   const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
   const views = {}
-  for (const kind of ['hc', 'rect', 'align', 'ilp']) {
-    // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋網格合併＋縮減網格
-    // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
-    // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
-    const base = POST[kind]
-      ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-      : hc.cellAfter
-    const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
-    const m = cellMapper(comp.cols, comp.rows)
-    // 縮減網格: original network snapped to the compact cells (per-feature).
-    const compPos = new Map()
-    for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
-    placeBlacks(skeleton, compPos, snap)
-    views[`compact-${kind}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-    // RWD 路網: strict H/V/45° redraw of that compact layout.
-    const pxPos = new Map()
-    for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
-    const rwd = buildRwdMap(segs, pxPos, {
-      unit: Math.min(m.cw, m.ch),
-      lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
-    })
-    views[`rwd-${kind}`] = drawRwd(skeleton, stations, rwd, m.sep)
+  for (const variant of ['orig', 'rot']) {
+    const angle = variant === 'rot' && canRotate ? tilt : 0
+    const projection = projFor(angle)
+    const projById = projByIdFor(projection, stations, skeleton)
+    const grid = buildSchematicGrid(skeleton, projById, extArr)
+    const snap = (id) => grid.posAfter.get(id) ?? null
+    const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+    // Topology segments (from the original grid cellOf), parallel/same-track merged
+    // — positions come from each compact layout below.
+    const segs = mergeParallelSegs(buildHcGraph(skeleton, grid.cellOf).segs)
+    for (const kind of ['hc', 'rect', 'align', 'ilp']) {
+      // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋網格合併＋縮減網格
+      // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
+      // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
+      const base = POST[kind]
+        ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+        : hc.cellAfter
+      const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
+      const m = cellMapper(comp.cols, comp.rows)
+      // 縮減網格: original network snapped to the compact cells (per-feature).
+      const compPos = new Map()
+      for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
+      placeBlacks(skeleton, compPos, snap)
+      views[`compact-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
+      // RWD 路網: strict H/V/45° redraw of that compact layout.
+      const pxPos = new Map()
+      for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
+      const rwd = buildRwdMap(segs, pxPos, {
+        unit: Math.min(m.cw, m.ch),
+        lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
+      })
+      views[`rwd-${kind}-${variant}`] = drawRwd(skeleton, stations, rwd, m.sep)
+    }
   }
   return { W, H, tilt, canRotate, views }
 }
 
-// The 8 RWD gallery views, in display order: 縮減網格 | RWD 路網 per compact source.
+// The 16 RWD gallery views: 原始 8（縮減網格 | RWD 路網 ×4 源）＋ 旋轉 8.
 export const RWD_VIEW_ORDER = [
-  'compact-hc', 'rwd-hc',
-  'compact-rect', 'rwd-rect',
-  'compact-align', 'rwd-align',
-  'compact-ilp', 'rwd-ilp',
+  'compact-hc-orig', 'rwd-hc-orig',
+  'compact-rect-orig', 'rwd-rect-orig',
+  'compact-align-orig', 'rwd-align-orig',
+  'compact-ilp-orig', 'rwd-ilp-orig',
+  'compact-hc-rot', 'rwd-hc-rot',
+  'compact-rect-rot', 'rwd-rect-rot',
+  'compact-align-rot', 'rwd-align-rot',
+  'compact-ilp-rot', 'rwd-ilp-rot',
 ]
 
-// View id → 中文 caption for the RWD gallery.
-export const RWD_VIEW_LABELS = {
-  'compact-hc': 'Hill Climbing循環縮減網格',
-  'rwd-hc': 'Hill Climbing循環縮減網格 · RWD 路網',
-  'compact-rect': '直角爬山循環縮減網格',
-  'rwd-rect': '直角爬山循環縮減網格 · RWD 路網',
-  'compact-align': '軸對齊循環縮減網格',
-  'rwd-align': '軸對齊循環縮減網格 · RWD 路網',
-  'compact-ilp': '整數規劃循環縮減網格',
-  'rwd-ilp': '整數規劃循環縮減網格 · RWD 路網',
+// View id → 中文 caption for the RWD gallery（旋轉 variant 標「旋轉 N°」）.
+export function rwdViewLabels(tilt) {
+  const rot = `旋轉 ${Math.abs(tilt).toFixed(0)}°`
+  return {
+    'compact-hc-orig': '原始 · Hill Climbing循環縮減網格',
+    'rwd-hc-orig': '原始 · Hill Climbing循環 · RWD 路網',
+    'compact-rect-orig': '原始 · 直角爬山循環縮減網格',
+    'rwd-rect-orig': '原始 · 直角爬山循環 · RWD 路網',
+    'compact-align-orig': '原始 · 軸對齊循環縮減網格',
+    'rwd-align-orig': '原始 · 軸對齊循環 · RWD 路網',
+    'compact-ilp-orig': '原始 · 整數規劃循環縮減網格',
+    'rwd-ilp-orig': '原始 · 整數規劃循環 · RWD 路網',
+    'compact-hc-rot': `${rot} · Hill Climbing循環縮減網格`,
+    'rwd-hc-rot': `${rot} · Hill Climbing循環 · RWD 路網`,
+    'compact-rect-rot': `${rot} · 直角爬山循環縮減網格`,
+    'rwd-rect-rot': `${rot} · 直角爬山循環 · RWD 路網`,
+    'compact-align-rot': `${rot} · 軸對齊循環縮減網格`,
+    'rwd-align-rot': `${rot} · 軸對齊循環 · RWD 路網`,
+    'compact-ilp-rot': `${rot} · 整數規劃循環縮減網格`,
+    'rwd-ilp-rot': `${rot} · 整數規劃循環 · RWD 路網`,
+  }
 }
-// The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp').
-export const rwdCellCompact = (viewId) => (viewId ?? '').replace(/^(compact|rwd)-/, '') || 'hc'
+// The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp')；剝掉
+// compact-/rwd- 前綴與 -orig/-rot variant 後綴。
+export const rwdCellCompact = (viewId) =>
+  (viewId ?? '').replace(/^(compact|rwd)-/, '').replace(/-(orig|rot)$/, '') || 'hc'
+// The variant a gallery cell maps to ('orig'|'rot').
+export const rwdCellVariant = (viewId) => (/-rot$/.test(viewId ?? '') ? 'rot' : 'orig')

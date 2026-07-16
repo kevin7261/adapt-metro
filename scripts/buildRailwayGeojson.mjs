@@ -115,11 +115,23 @@ function gridIndex(pts, cellDeg = 0.01) {
   return { nearest }
 }
 
-function buildSystem(raw, exclude) {
+function buildSystem(raw, override) {
   const { continent, country } = raw
   const country_zh = raw.country_zh ?? country
   const cc = raw.cc
-  const excludeRe = exclude ? new RegExp(exclude, 'i') : null
+  // Two per-country operator filters (data/railway/_overrides/{cc}_exclude.json):
+  //   exclude — drop track/stations whose operator/network/name matches (freight
+  //             臨港線, 台糖…). Default heuristic keeps everything else.
+  //   include — WHITELIST: keep ONLY track/stations matching (Japan 只收 JR＋新幹線,
+  //             私鐵/第三セクター 也是 usage=main 擋不掉 → 白名單 JR 六社＋新幹線).
+  const excludeRe = override?.exclude ? new RegExp(override.exclude, 'i') : null
+  const includeRe = override?.include ? new RegExp(override.include, 'i') : null
+  const dropped = (op, net, nm, nmZh = '') => {
+    const hay = `${op || ''} ${net || ''} ${nm || ''} ${nmZh || ''}`
+    if (excludeRe && excludeRe.test(hay)) return true
+    if (includeRe && !includeRe.test(hay)) return true
+    return false
+  }
 
   // ── 1. parse track ways, grouped by (normalized) LINE name ─────────────────
   const ways = [] // { coords:[[lon,lat]…], cls, line }
