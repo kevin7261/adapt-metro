@@ -891,13 +891,13 @@ function startResize(e) {
               @input="layer.spanCap = +$event.target.value"
             />
             <button
-              class="span-recalc"
+              class="llm-run-btn span-recalc"
               :disabled="(layer.spanCap ?? 2) === (spanApplied ?? 2)"
               @click="emit('recalc-span')"
             >重新計算</button>
-            <div v-if="(layer.spanCap ?? 2) !== (spanApplied ?? 2)" class="span-pending">
+            <p v-if="(layer.spanCap ?? 2) !== (spanApplied ?? 2)" class="llm-run-hint">
               目前結果是以 {{ spanApplied ?? 2 }} 格計算——按「重新計算」套用 {{ layer.spanCap ?? 2 }} 格
-            </div>
+            </p>
           </div>
           <template v-if="isMetro">
             <div class="field">
