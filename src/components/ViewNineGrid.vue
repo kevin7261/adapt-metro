@@ -3,8 +3,9 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { VIEW_ORDER, viewLabels } from '../stores/viewGeometry'
 
-// One city's 3×3 九宮格 card: a title cell + the 8 pre-computed Map Adjust view
-// thumbnails (原始 / 旋轉 / 骨架化 / 格網化前後 …). Geometry is fetched lazily
+// One city's card: a title cell + the pre-computed Map Adjust view thumbnails
+// (VIEW_ORDER = 原始 / 旋轉 / 格網化前後 ×2；使用者 2026-07：畫廊不含骨架化).
+// Geometry is fetched lazily
 // (per-city JSON under data/metro/views/) when the card scrolls into view, then
 // drawn as inline SVG — same approach as the Metro Maps GalleryTile.
 const props = defineProps({ entry: { type: Object, required: true } })
@@ -54,7 +55,7 @@ onBeforeUnmount(() => observer?.disconnect())
         <span class="tc-open">建立 Map Adjust ›</span>
       </button>
 
-      <!-- 8 view thumbnails -->
+      <!-- view thumbnails (VIEW_ORDER) -->
       <button
         v-for="id in order"
         :key="id"

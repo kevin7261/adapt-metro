@@ -40,7 +40,7 @@ function pick(entry, viewId) {
         <CityViewGrid
           v-for="s in tiles" :key="s.id" :entry="s"
           data-dir="hcviews" :order="HC_VIEW_ORDER" :labels-for-tilt="hcViewLabels"
-          :columns="4" cta-label="Hill Climbing" @pick="pick" />
+          :columns="3" cta-label="Hill Climbing" @pick="pick" />
       </div>
     </template>
   </GalleryShell>

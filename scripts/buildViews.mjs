@@ -5,7 +5,7 @@
 //
 //   in : data/metro/index.json + data/metro/systems/**/*.geojson
 //   out: data/metro/views/<id>.json     (原始/旋轉/骨架化/格網化前後 ×…)
-//        data/metro/hcviews/<id>.json    (格網化後/Hill Climbing/縮減網格 ×2)
+//        data/metro/hcviews/<id>.json    (格網化後/Hill Climbing/4 循環 hc/rect/align/ilp)
 //        data/metro/{views,hcviews}/index.json
 //
 // The geometry is produced by src/stores/viewGeometry.js — the SAME pure
@@ -129,9 +129,12 @@ async function main() {
       failures.push({ id, city: sys.city, error: String(err?.message ?? err) })
     }
 
-    // 6 Hill Climbing views
+    // 6 Hill Climbing views（視圖畫廊：格網化後/Hill Climbing＋4 循環）
     try {
-      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, fp, true)) === 'reused' ? reused++ : rebuilt++
+      // fp 加演算法版本後綴：HC 畫廊改成 原始 variant 的 格網化後/Hill Climbing
+      // ＋4 個循環結果（straightenCompactLoop，2026-07），純資料指紋不會觸發重算，
+      // 靠這個後綴強制重建（views/rwdviews 內容未變、沿用快取）。
+      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v1`, true)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {
       hcFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })

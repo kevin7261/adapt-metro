@@ -295,94 +295,82 @@ export function viewLabels(tilt) {
   }
 }
 
-// Canonical order of the 8 views (matches D3Tab's VIEW_TABS).
+// 視圖畫廊顯示順序（使用者 2026-07：畫廊只要 原始／旋轉／格網化前後×2＝6 個，
+// **不含骨架化**——骨架視圖仍由 computeCityViews 算進 JSON、live D3Tab 仍有，只是
+// 畫廊不顯示）。live 視圖清單另在 D3Tab 的 VIEW_TABS。
 export const VIEW_ORDER = [
-  'original', 'rotated', 'skeleton', 'rotated-skeleton',
+  'original', 'rotated',
   'grid-orig-pre', 'grid-orig-post', 'grid-rot-pre', 'grid-rot-post',
 ]
 
 /**
- * Compute the 8 Hill Climbing views for one city — the 4 HC-layer tabs
- * (格網化後 input → Hill Climbing → Hill Climbing端點移動 → Hill Climbing縮減網格)
- * for both variants (orig / rot). Mirrors D3Tab's hill-climbing chain:
- * schematic gridding → buildHillClimb on the integer cells → movewise
- * 端點移動 → 直線縮減 → 網格合併（每一個移動後都立即縮減網格——縮減不再是
- * 獨立步驟），mapping cells to pixel cell-centres and re-spreading black
- * through-stations (placeBlacks) each stage.
+ * Compute the 6 Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
+ * 2026-07：原始 variant 的 格網化後 → Hill Climbing ＋ 4 個循環結果）：
+ *   1) 格網化後 — hillclimbing 的輸入佈局（= Map Adjust 的 grid-orig-post）。
+ *   2) Hill Climbing — 整數格多準則最佳化後。
+ *   3–6) 4 個循環結果 — 每條鏈（基本 hc / 直角爬山 rect / 軸對齊 align /
+ *        整數規劃 ilp）以 hc 結果為基底，先跑該鏈的後處理（rect/align/ilp
+ *        迭代到不動點；hc 不做），再 straightenCompactLoop（端點移動＋直線縮減
+ *        ＋網格合併循環到不動點，同 RWD 畫廊的 compact-{kind}）。
+ * 只算 原始 variant（不含旋轉）；黑點沿新段用 placeBlacks 放回（cellsToPos 內含）。
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
   const cellMapper = cellMapperFor(x0, y0, x1, y1)
 
+  const projection = projFor(0) // 畫廊＝原始 variant
+  const projById = projByIdFor(projection, stations, skeleton)
+  const grid = buildSchematicGrid(skeleton, projById, extArr)
+  const snap = (id) => grid.posAfter.get(id) ?? null
+
   const views = {}
   const stats = {}
-  for (const variant of ['orig', 'rot']) {
-    const angle = variant === 'rot' && canRotate ? tilt : 0
-    const projection = projFor(angle)
-    const projById = projByIdFor(projection, stations, skeleton)
-    const grid = buildSchematicGrid(skeleton, projById, extArr)
-    const snap = (id) => grid.posAfter.get(id) ?? null
 
-    // 1) 格網化後 — the HC layer's input tab (= Map Adjust's grid-*-post).
-    const postPos = new Map(projById)
-    for (const [id, p] of grid.posAfter) postPos.set(id, p)
-    views[`grid-${variant}-post`] = drawFromPos(skeleton, stations, lineFeats, postPos, grid.blueAfter)
+  // 1) 格網化後 — the hillclimbing input（= Map Adjust's grid-orig-post）.
+  const postPos = new Map(projById)
+  for (const [id, p] of grid.posAfter) postPos.set(id, p)
+  views['grid-post'] = drawFromPos(skeleton, stations, lineFeats, postPos, grid.blueAfter)
 
-    // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
-    const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
-    const m1 = cellMapper(grid.cols, grid.rows)
-    const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
-    views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
+  // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
+  const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+  const m1 = cellMapper(grid.cols, grid.rows)
+  const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
+  views['hc'] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
+  stats.hc = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
 
-    // 3) Hill Climbing端點移動 — the chain's first step (同 D3Tab):
-    // movewise（每一個移動後立即縮減網格）——網格因此比 HC 視圖小，用自己的
-    // cellMapper。
-    const endp = movewiseStage('endp', skeleton, hc.cellAfter, grid.cols, grid.rows)
-    const mEndp = cellMapper(endp.cols, endp.rows)
-    const endpPos = cellsToPos(endp.cellAfter, mEndp.cellPx, skeleton, snap)
-    views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, mEndp.sep)
-    // 4) 鏈尾 — 直線縮減＋網格合併（都是 movewise：每一個移動後立即縮減
-    // 網格），即 端點移動 → 直線縮減 → 網格合併 的完整鏈結果。
-    const lined = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
-    const comp = movewiseStage('gather', skeleton, lined.cellAfter, lined.cols, lined.rows)
-    const m2 = cellMapper(comp.cols, comp.rows)
-    const compPos = cellsToPos(comp.cellAfter, m2.cellPx, skeleton, snap)
-    views[`compact-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m2.sep)
-
-    stats[variant] = {
-      before: +(hc.stats?.before ?? 0).toFixed(1),
-      after: +(hc.stats?.after ?? 0).toFixed(1),
-      rounds: hc.stats?.rounds ?? 0,
-      moved: hc.stats?.moved ?? 0,
-      fromCols: grid.cols,
-      fromRows: grid.rows,
-      cols: comp.cols,
-      rows: comp.rows,
-    }
+  // 3–6) 四個循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
+  const POST = { hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+  for (const kind of ['hc', 'rect', 'align', 'ilp']) {
+    const base = POST[kind]
+      ? iteratePost(POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+      : hc.cellAfter
+    const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
+    const m = cellMapper(comp.cols, comp.rows)
+    const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
+    views[`loop-${kind}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
+    stats[`loop-${kind}`] = { cols: comp.cols, rows: comp.rows }
   }
 
   return { W, H, tilt, canRotate, views, stats }
 }
 
-// The 8 Hill Climbing views, in display order: variant (原始/旋轉) × stage.
+// 視圖畫廊顯示順序（6 個，皆原始 variant）：格網化後 → Hill Climbing → 4 循環.
 export const HC_VIEW_ORDER = [
-  'grid-orig-post', 'hc-orig', 'endp-orig', 'compact-orig',
-  'grid-rot-post', 'hc-rot', 'endp-rot', 'compact-rot',
+  'grid-post', 'hc',
+  'loop-hc', 'loop-rect', 'loop-align', 'loop-ilp',
 ]
 
-// View id → 中文 caption for the HC gallery. N° filled per city.
-export function hcViewLabels(tilt) {
-  const rot = `旋轉 ${Math.abs(tilt).toFixed(0)}°`
+// View id → 中文 caption for the HC 視圖畫廊（不依 tilt——皆原始 variant；保留
+// (tilt) 簽名以相容 CityViewGrid 的 labels-for-tilt）。
+export function hcViewLabels(_tilt) {
   return {
-    'grid-orig-post': '原始 · 格網化後',
-    'hc-orig': '原始 · Hill Climbing',
-    'endp-orig': '原始 · Hill Climbing端點移動',
-    'compact-orig': '原始 · 直線縮減＋網格合併',
-    'grid-rot-post': `${rot} · 格網化後`,
-    'hc-rot': `${rot} · Hill Climbing`,
-    'endp-rot': `${rot} · Hill Climbing端點移動`,
-    'compact-rot': `${rot} · 直線縮減＋網格合併`,
+    'grid-post': '格網化後',
+    'hc': 'Hill Climbing',
+    'loop-hc': 'Hill Climbing循環',
+    'loop-rect': '直角爬山循環',
+    'loop-align': '軸對齊循環',
+    'loop-ilp': '整數規劃循環',
   }
 }
 

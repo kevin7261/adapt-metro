@@ -147,14 +147,26 @@ G `#6cbe45`、L `#a7a9ac`、JZ `#996633`、NQRW `#fccc0a`、123 `#ee352e`、456 
 - **舊行為（已廢）**：曾取「深夜全停＋尖峰＋分支」全服務並集當該線站表、站數高於 wiki，
   以 `wiki_adjudications.json` 裁決；現改為 daytime express 站型，故快車正確畫成 express。
 
-## 停靠 ≥3 條線一律紅點（使用者裁決 2026-07-17，全域）
+## 紅點/藍點判定（使用者裁決 2026-07-17）
 
-`buildGeojson.mjs` is_interchange：**`lines` 相異線數 ≥3 → 一律 interchange（紅點）**，
-不論色數（`stopLineCount >= 3 || (原相異色規則)`）。5th Av–59 St（N/R/W 同黃）、72 St
-（1/2/3 同紅）、Rockefeller（B/D/F/M）等 3+ 線站皆紅；Canal/Union Sq 各 complex 分站
-（拆站後每站自己的線數）依此判。**<3 線的站仍走「≥2 相異色＋degree/端點」原規則**
-（同幹線 2 服務不變紅、真 2 色轉乘才紅；Brooklyn 59 St[N/R]、Fort Hamilton Pkwy[F/G]
-維持黑點）。此規則凌駕早期「同色幹線多服務不算轉乘」的收斂——使用者要 3+ 線站全紅。
+`buildGeojson.mjs` is_interchange／station_role 三條規則：
+
+**① 停靠 ≥3 條線 → 紅點（全域，`stopLineCount>=3`）**：不論色數。5th Av–59 St
+（N/R/W 同黃）、72 St（1/2/3 同紅）、Rockefeller（B/D/F/M）等皆紅；Canal/Union Sq
+各 complex 分站依自己線數判。凌駕早期「同色幹線多服務不算轉乘」的收斂。
+
+**② degree ≥3（分歧/交會 junction）→ 紅點【僅 NYC，`isNYC && deg>=3`】**：**同色分支點也算**
+——Rockaway Blvd（A 分岔 Lefferts/Rockaway，1 線 deg=3）、135 St（2/3）、Brooklyn 59 St
+（N/R 分岔）。**他城同色分支官方不算轉乘（台北大橋頭 orange 分岔＝普通站）**，故此條
+只限 NYC；他城 junction 仍需「≥2 相異色」（原 `stColors>=2 && deg>2`）才紅。使用者
+「交會線」＝交會的軌道方向數（degree），非停靠服務數——故 deg 與 stopLineCount 兩條並行。
+
+**③ 藍點（terminus）＝恰好 1 條線且為端點（全域，`is_terminus && stopLineCount===1`）**：
+使用者「藍點一定只有一條線而且是端點」。**2+ 線的端點不藍**——Euclid Av（A/C，A 貫通、
+C 在此終點＝使用者「不是末端為何藍點」）、Astoria（N/W）、Broad St（J/Z）非紅則歸
+normal（白點）。`stopLineCount` 用**相異**線數（崁頂 lines=["V","V"] 去重＝1、仍藍）。
+
+其餘（<3 線、非 NYC-junction、非單線端點）：相異色 ≥2＋junction/端點才紅，否則白點。
 
 ## 快車 pass-through 走廊必須同色（seg-52 修正 2026-07-17）
 

@@ -5,8 +5,8 @@ import { assetUrl } from '../lib/assetUrl'
 import GalleryShell from './GalleryShell.vue'
 import ViewNineGrid from './ViewNineGrid.vue'
 
-// A dockview tab that shows EVERY city's 8 pre-computed Map Adjust views as a
-// 3×3 九宮格 card (data/metro/views/, built by scripts/buildViews.mjs).
+// A dockview tab that shows EVERY city's pre-computed Map Adjust views as a
+// card grid (data/metro/views/, built by scripts/buildViews.mjs; VIEW_ORDER = 6).
 // Sub-tabs / 排序 / 狀態由 GalleryShell 提供。Clicking a card imports that city
 // and builds a Map Adjust (D3) view — optionally deep-linked to one of the 8 views.
 const store = useMapStore()

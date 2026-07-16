@@ -41,13 +41,13 @@ function openFixedTab({ id, component, title, icon }) {
 // Metro Maps：every city's thumbnail grid.
 export const openGalleryTab = () =>
   openFixedTab({ id: 'metro-gallery', component: 'metro-gallery', title: 'Metro Maps', icon: 'train' })
-// Map Adjust：every city's 8 pre-computed views as a 3×3 九宮格 card grid (data/metro/views/).
+// Map Adjust：every city's pre-computed views as a card grid (data/metro/views/).
 export const openViewGalleryTab = () =>
-  openFixedTab({ id: 'map-adjust-gallery', component: 'map-adjust-gallery', title: 'Map Adjust · 8 視圖', icon: 'polyline' })
-// Hill Climbing：every city's 6 pre-computed HC views as a 2×3 card grid (data/metro/hcviews/).
+  openFixedTab({ id: 'map-adjust-gallery', component: 'map-adjust-gallery', title: 'Map Adjust · 視圖畫廊', icon: 'polyline' })
+// Hill Climbing：every city's pre-computed HC views as a card grid (data/metro/hcviews/).
 export const openHcGalleryTab = () =>
-  openFixedTab({ id: 'hill-climb-gallery', component: 'hill-climb-gallery', title: 'Straighten · 6 視圖', icon: 'terrain' })
-// RWD Maps：every city's 8 pre-computed RWD views as a 4×2 card grid
+  openFixedTab({ id: 'hill-climb-gallery', component: 'hill-climb-gallery', title: 'Straighten · 視圖畫廊', icon: 'terrain' })
+// RWD Maps：every city's pre-computed RWD views as a card grid
 // (data/metro/rwdviews/)：4 縮減網格變體 × 縮減網格|RWD 路網.
 export const openRwdGalleryTab = () =>
-  openFixedTab({ id: 'rwd-gallery', component: 'rwd-gallery', title: 'RWD Maps · 8 視圖', icon: 'route' })
+  openFixedTab({ id: 'rwd-gallery', component: 'rwd-gallery', title: 'RWD Maps · 視圖畫廊', icon: 'route' })

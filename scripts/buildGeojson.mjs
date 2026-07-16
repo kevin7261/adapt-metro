@@ -2137,16 +2137,26 @@ async function build() {
       // 一條線**、非轉乘（使用者：好多車站顏色和路線對不上）。故 degree/端點條件成立後，再
       // 要求「相異 route_color ≥2」才算紅點；同色幹線的分歧/端點回歸藍/白點。
       const stColors = new Set([...dispRoutes, ...dispPass].map((r) => r.route_color).filter(Boolean))
-      // 使用者裁決 2026-07-17（全域）：**停靠 ≥3 條線的站一律紅點**（交會站），
-      // 不論色數——5th Av–59 St（N/R/W 同黃）、72 St（1/2/3 同紅）等 3+ 線站皆紅。
-      // 少於 3 線的站仍走原相異色規則（同幹線 2 服務不變紅、真 2 色轉乘才紅）。
       const stopLineCount = new Set(s.properties.lines || []).size
-      const isIx = stopLineCount >= 3 || (stColors.size >= 2 && (deg > 2 || termCount >= 2
+      const isNYC = /new york city/i.test(grp.info?.city || '')
+      // 使用者裁決 2026-07-17：
+      //  ① **停靠 ≥3 條線一律紅點（全域）**——不論色數：5th Av–59（N/R/W 同黃）、
+      //     72 St（1/2/3 同紅）等 3+ 線站皆紅。
+      //  ② **degree ≥3（分歧/交會 junction）一律紅點【僅 NYC】**——同色分支點也算：
+      //     Rockaway Blvd（A 分岔 Lefferts/Rockaway）、135 St（2/3）、Brooklyn 59 St
+      //     （N/R 分岔）。他城同色分支官方不算轉乘（台北大橋頭 orange 分岔＝普通站），
+      //     故此條只限 NYC；他城仍需「≥2 相異色」才在 junction 變紅。
+      //  ③ 其餘：相異色 ≥2 ＋（junction/端點）才紅（真 2 色轉乘）。
+      const isIx = stopLineCount >= 3 || (isNYC && deg >= 3)
+        || (stColors.size >= 2 && (deg > 2 || termCount >= 2
         || (s.properties.is_terminus && dispRoutes.length >= 2)
         || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2)))
       s.properties.is_interchange = isIx
+      // 藍點（terminus）＝**恰好 1 條線且為端點**（使用者：藍點一定只有一條線且是端點）。
+      // 2+ 線的端點（Euclid Av A/C、Astoria N/W、Broad St J/Z）不藍——非紅則歸 normal
+      // （白點）：Euclid 是 A 貫通、C 在此為終點的貫通站，使用者「不是末端為何藍點」。
       s.properties.station_role = isIx ? 'interchange'
-        : s.properties.is_terminus ? 'terminus' : 'normal'
+        : (s.properties.is_terminus && stopLineCount === 1) ? 'terminus' : 'normal'
       // 全城一致鍵集（使用者：物件顯示不可因城市而異、不要客製）——缺值一律 null/false，
       // 每站輸出的欄位集完全相同，前端表格列數/順序全球一致。
       for (const [k, v] of Object.entries({ station_name_local: null, station_name_en: null,
