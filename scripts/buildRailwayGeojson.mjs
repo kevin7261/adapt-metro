@@ -135,22 +135,19 @@ function buildSystem(raw, exclude) {
     })
   }
   if (!ways.length) return { type: 'FeatureCollection', railway_system: null, features: [] }
-  const waysByLine = new Map()
-  for (const w of ways) {
-    if (!w.line) continue
-    if (!waysByLine.has(w.line)) waysByLine.set(w.line, [])
-    waysByLine.get(w.line).push(w)
-  }
-  // Merge line-NAME variants where one name contains another on high-speed track
-  // (台灣高速鐵路 ⊇ 高速鐵路 → one line). Distinct named lines (東海道新幹線 vs
-  // 山陽新幹線, neither a substring of the other) are unaffected → safe for Japan.
-  const hsNames = [...waysByLine.keys()].filter((ln) => waysByLine.get(ln).some((w) => w.cls === 'high_speed'))
+  // Merge high-speed line-NAME variants where one name contains another
+  // (台灣高速鐵路 ⊇ 高速鐵路 → one line) — relabel the ways so the track graph sees a
+  // single HSR line. Distinct Shinkansen (東海道 vs 山陽, neither a substring of the
+  // other) are unaffected → safe for Japan.
+  const hsCount = new Map()
+  for (const w of ways) if (w.line && w.cls === 'high_speed') hsCount.set(w.line, (hsCount.get(w.line) || 0) + 1)
+  const hsNames = [...hsCount.keys()]
+  const remap = new Map()
   for (const short of hsNames) {
-    if (!waysByLine.has(short)) continue
-    const longer = hsNames.find((l) => l !== short && waysByLine.has(l) && l.includes(short) &&
-      waysByLine.get(l).length >= waysByLine.get(short).length)
-    if (longer) { waysByLine.get(longer).push(...waysByLine.get(short)); waysByLine.delete(short) }
+    const longer = hsNames.find((l) => l !== short && l.includes(short) && hsCount.get(l) >= hsCount.get(short))
+    if (longer) remap.set(short, longer)
   }
+  if (remap.size) for (const w of ways) if (w.line && remap.has(w.line)) w.line = remap.get(w.line)
 
   // ── 2. stations → MERGE duplicates (台北 TRA + 台北 HSR + platform ways → one
   // physical station) ────────────────────────────────────────────────────────
@@ -213,109 +210,110 @@ function buildSystem(raw, exclude) {
     stations.push(s); stById.set(s.id, s)
   }
 
-  // ── 3. SEQUENCE stations along each LINE (like metro/highway order stations
-  // along a route): chain the line's ways into a spine, project each nearby
-  // station onto it, sort by arc-position, connect consecutive. Junctions arise
-  // only where lines share a station — no BFS flood over parallel-track meshes. ─
+  // ── 3. GLOBAL TRACK GRAPH — connectivity comes from REAL track, not line names.
+  // OSM names change at junctions (台中線→「山線、海線共用路段」→彰化; 臺東線→南迴線
+  // near 臺東), so grouping only by name leaves the network 中斷 at every boundary. ─
   const ekey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
-  // Order a line's member stations into a single path via nearest-neighbour from a
-  // diameter endpoint — robust for long/curved/branched lines (縱貫線) where 1-D
-  // spine projection scrambles (projects distant stations to the same arc-pos).
-  const farthest = (from, pts) => pts.reduce((b, p) =>
-    haversine([from.lon, from.lat], [p.lon, p.lat]) > haversine([from.lon, from.lat], [b.lon, b.lat]) ? p : b, pts[0])
-  const orderNN = (pts) => {
-    if (pts.length <= 2) return pts
-    const start = farthest(farthest(pts[0], pts), pts) // one end of the diameter
-    const used = new Set([start]); const order = [start]; let cur = start
-    while (order.length < pts.length) {
-      let best = null, bd = Infinity
-      for (const p of pts) {
-        if (used.has(p)) continue
-        const d = haversine([cur.lon, cur.lat], [p.lon, p.lat])
-        if (d < bd) { bd = d; best = p }
+  const gk = (x, y) => `${x.toFixed(6)},${y.toFixed(6)}`
+  const gvId = new Map(); const gvc = []; const gadj = []
+  const gV = (x, y) => { const k = gk(x, y); let i = gvId.get(k); if (i === undefined) { i = gvc.length; gvId.set(k, i); gvc.push([x, y]); gadj.push([]) } return i }
+  for (const w of ways) for (let i = 0; i + 1 < w.coords.length; i++) {
+    const a = gV(...w.coords[i]), b = gV(...w.coords[i + 1])
+    if (a === b) continue
+    gadj[a].push({ to: b, line: w.line, hs: w.cls === 'high_speed' })
+    gadj[b].push({ to: a, line: w.line, hs: w.cls === 'high_speed' })
+  }
+  // class per line name (high_speed if any of its ways is high-speed)
+  const lineHs = new Map()
+  for (const w of ways) if (w.line) lineHs.set(w.line, (lineHs.get(w.line) || false) || w.cls === 'high_speed')
+  const clsOfLine = (ln) => (ln?.startsWith('__') ? ln.slice(2) : (lineHs.get(ln) ? 'high_speed' : 'conventional'))
+
+  // ── 4. snap stations onto the track graph ──
+  const gIdx = gridIndex(gvc.map(([x, y]) => ({ lon: x, lat: y })))
+  for (const s of stations) { const { i } = gIdx.nearest(s.lon, s.lat, LINE_SNAP); if (i >= 0) s.gv = i } // start vertex
+  // Map EVERY track vertex to the nearest station within STATION_TOL, so a walk
+  // registers a station whenever it enters that station's vicinity — robust to
+  // which exact vertex the station node snapped to (platform vs through track);
+  // otherwise the walk sails past 八堵/branch junctions and the network fragments.
+  const STATION_TOL = 250
+  const stIdx = gridIndex(stations.map((s) => ({ lon: s.lon, lat: s.lat })))
+  const stAtV = new Map() // vertexIdx → stationId
+  for (let v = 0; v < gvc.length; v++) { const { i } = stIdx.nearest(gvc[v][0], gvc[v][1], STATION_TOL); if (i >= 0) stAtV.set(v, stations[i].id) }
+
+  // ── 5. station adjacency: from each station, walk each track corridor to the
+  // NEXT station, continuing STRAIGHT through un-stationed merge/split points (so
+  // 山/海線 rejoin 縱貫線 at 彰化 and 台東線 reaches 臺東). Parallel up/down tracks
+  // reach the same next station → deduped by the undirected pair. HSR-flag widening
+  // is dropped: connectivity is purely track-based. ───────────────────────────────
+  const angleAt = (p, c, n) => {
+    const v1x = gvc[c][0] - gvc[p][0], v1y = gvc[c][1] - gvc[p][1]
+    const v2x = gvc[n][0] - gvc[c][0], v2y = gvc[n][1] - gvc[c][1]
+    const m = Math.hypot(v1x, v1y) * Math.hypot(v2x, v2y) || 1e-12
+    return Math.acos(Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / m)))
+  }
+  const edges = new Map() // "sa|sb" → { a, b, lines:Map(name→votes), hs }
+  for (const s of stations) {
+    if (s.gv === undefined) continue
+    for (const first of [...new Set(gadj[s.gv].map((e) => e.to))]) {
+      const seen = new Set([s.gv, first]); let prev = s.gv, cur = first, guard = 0
+      const votes = new Map(); let hs = false
+      const e0 = gadj[s.gv].find((e) => e.to === first)
+      if (e0.line) votes.set(e0.line, 1); if (e0.hs) hs = true
+      while (guard++ < 4000) {
+        const sid = stAtV.get(cur)
+        if (sid !== undefined && sid !== s.id) {
+          if (haversine([s.lon, s.lat], gvc[cur]) <= capFor(hs ? 'high_speed' : 'conventional')) {
+            const k = ekey(s.id, sid)
+            if (!edges.has(k)) edges.set(k, { a: s.id, b: sid, lines: new Map(), hs: false })
+            const rec = edges.get(k)
+            for (const [ln, c] of votes) rec.lines.set(ln, (rec.lines.get(ln) || 0) + c)
+            if (hs) rec.hs = true
+          }
+          break
+        }
+        const nbrs = [...new Set(gadj[cur].map((e) => e.to))].filter((v) => v !== prev && !seen.has(v))
+        if (!nbrs.length) break
+        let nxt = nbrs[0]
+        if (nbrs.length > 1) { // junction: keep going straight, else stop
+          nxt = nbrs.reduce((b, v) => (angleAt(prev, cur, v) < angleAt(prev, cur, b) ? v : b), nbrs[0])
+          if (angleAt(prev, cur, nxt) > 1.05) break // > ~60° turn → ambiguous
+        }
+        const e = gadj[cur].find((x) => x.to === nxt)
+        if (e.line) votes.set(e.line, (votes.get(e.line) || 0) + 1); if (e.hs) hs = true
+        seen.add(nxt); prev = cur; cur = nxt
       }
-      used.add(best); order.push(best); cur = best
     }
-    return order
   }
+  // dominant NAMED line of an edge (majority track vote); its group key falls back
+  // to the class when the track was unnamed (a connector), so it is still drawn.
+  const domLine = (rec) => [...rec.lines.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
+  const groupKey = (rec) => domLine(rec) ?? `__${rec.hs ? 'high_speed' : 'conventional'}`
 
-  const edges = new Map() // "sidA|sidB" → { a, b, cls:Set, lines:Set }
-  const lineCls = new Map() // line → 'high_speed' | 'conventional'
-  // Pass A: for each line, find member stations (within LINE_SNAP of its track).
-  const lineData = new Map() // line → { cls, members:[{s,d}] }
-  const stMin = new Map()    // stationId → nearest-line distance
-  for (const [ln, wl] of waysByLine) {
-    const cls = wl.some((w) => w.cls === 'high_speed') ? 'high_speed' : 'conventional'
-    lineCls.set(ln, cls)
-    const verts = []
-    for (const w of wl) for (const c of w.coords) verts.push({ lon: c[0], lat: c[1] })
-    if (verts.length < 2) continue
-    const vidx = gridIndex(verts)
-    const members = []
-    for (const s of stations) {
-      // An HSR-platform station (operator flag) is a real HSR stop but may sit far
-      // from the sparse tunnel geometry (台北/桃園/台中) — widen its gate so it joins
-      // the NEAREST high-speed line's track (per-line, so multiple Shinkansen stay
-      // distinct). Non-HSR stations near HSR track are filtered out in Pass B.
-      const gate = (cls === 'high_speed' && s.hsr) ? 6000 : LINE_SNAP
-      const { d } = vidx.nearest(s.lon, s.lat, gate)
-      if (d === Infinity) continue
-      members.push({ s, d })
-      if (d < (stMin.get(s.id) ?? Infinity)) stMin.set(s.id, d)
-    }
-    lineData.set(ln, { cls, members })
-  }
-  // Pass B: filter membership, then order the line's stations into ONE path (NN).
-  // Conventional lines use plain proximity (keeps TRA↔TRA junctions like 八堵).
-  // HIGH-SPEED lines additionally require HSR to be the station's NEAREST line (or
-  // an HSR-platform station) — drops TRA stations wrongly pulled onto the 高鐵 line
-  // in the shared corridor (松山/萬華…).
-  const lineSeq = new Map() // line → ordered [station]
-  for (const [ln, { cls, members }] of lineData) {
-    const on = members.filter((m) => cls !== 'high_speed'
-      ? m.d <= LINE_SNAP
-      : (m.s.hsr || m.d <= (stMin.get(m.s.id) ?? m.d) * 1.15 + 5))
-    const seq = orderNN(on.map((m) => m.s))
-    if (seq.length < 2) continue
-    lineSeq.set(ln, seq)
-    // consecutive pairs → edges (for station degree / interchange detection)
-    for (let i = 0; i + 1 < seq.length; i++) {
-      const a = seq[i], b = seq[i + 1]
-      if (haversine([a.lon, a.lat], [b.lon, b.lat]) > capFor(cls)) continue
-      const k = ekey(a.id, b.id)
-      if (!edges.has(k)) edges.set(k, { a: a.id, b: b.id, cls: new Set(), lines: new Set() })
-      const rec = edges.get(k); rec.cls.add(cls); rec.lines.add(ln)
-    }
-  }
-
-  // ── 4. line (route) metadata by normalized line name; colour by class ──────
   const routeMeta = (ln) => {
-    const cls = lineCls.get(ln) || 'conventional'
+    const cls = clsOfLine(ln)
+    const name = ln.startsWith('__') ? classLabel(country, cls) : ln
     return {
-      route_id: `rw-${cc}-${encodeURIComponent(ln)}`,
-      route_name: ln, route_name_local: ln, route_ref: null,
+      route_id: `rw-${cc}-${encodeURIComponent(name)}`,
+      route_name: name, route_name_local: name, route_ref: null,
       route_color: classColor(country, cls), rail_class: cls,
       network: `${country} Railways`, network_local: null, operator: null,
       wikidata: null, wikipedia: null, status: null, order_suspect: 0,
     }
   }
 
-  // ── 5. station Point features + degree / interchange ───────────────────────
+  // ── 6a. station Point features + degree / interchange ──────────────────────
   const neigh = new Map(); const stLines = new Map()
   const link = (a, b) => { if (!neigh.has(a)) neigh.set(a, new Set()); if (!neigh.has(b)) neigh.set(b, new Set()); neigh.get(a).add(b); neigh.get(b).add(a) }
-  const addLn = (sid, ln) => { if (!stLines.has(sid)) stLines.set(sid, new Set()); if (ln) stLines.get(sid).add(ln) }
-  for (const rec of edges.values()) {
-    link(rec.a, rec.b)
-    for (const ln of rec.lines) { addLn(rec.a, ln); addLn(rec.b, ln) }
-  }
+  const addLn = (sid, ln) => { if (ln && !ln.startsWith('__')) { if (!stLines.has(sid)) stLines.set(sid, new Set()); stLines.get(sid).add(ln) } }
+  for (const rec of edges.values()) { link(rec.a, rec.b); const ln = domLine(rec); addLn(rec.a, ln); addLn(rec.b, ln) }
   const drawn = new Set([...neigh.keys()])
   const features = []
   for (const sid of drawn) {
     const s = stById.get(sid); if (!s) continue
-    const lns = [...(stLines.get(sid) || [])]
-    const lnLabels = lns.map((ln) => routeMeta(ln).route_name)
+    let lns = [...(stLines.get(sid) || [])]
+    if (!lns.length) lns = [classLabel(country, 'conventional')] // a connector-only station still needs ≥1 line
     const degree = neigh.get(sid)?.size ?? 0
-    const isInter = new Set(lnLabels).size >= 2 || degree > 2
+    const isInter = new Set(lns).size >= 2 || degree > 2
     const isTerm = degree === 1
     features.push({
       type: 'Feature',
@@ -323,7 +321,7 @@ function buildSystem(raw, exclude) {
         station_id: sid, station_name: s.name, station_name_local: s.name,
         network: `${country} Railways`, network_local: null, operator: s.tags.operator || null,
         city: country, country,
-        lines: lnLabels, line_ids: lns.map((ln) => `rw-${cc}-${encodeURIComponent(ln)}`), line_names: lnLabels,
+        lines: lns, line_ids: lns.map((ln) => `rw-${cc}-${encodeURIComponent(ln)}`), line_names: lns,
         station_role: isInter ? 'interchange' : (isTerm ? 'terminus' : 'normal'),
         station_degree: degree, is_interchange: isInter, is_terminus: isTerm,
         wikidata: s.tags.wikidata || null, wikipedia: s.tags.wikipedia || null,
@@ -332,27 +330,42 @@ function buildSystem(raw, exclude) {
     })
   }
 
-  // ── 6. line features: ONE feature per line (like metro — the whole line is a
-  // single continuous polyline of its stations in order, NOT chopped per shared
-  // corridor). Overlapping lines each draw their own full feature. A line only
-  // splits into multiple LineStrings (within one feature) at a real >MAX_EDGE_M gap.
-  let segN = 0, segTotal = 0
-  for (const [ln, seq] of lineSeq) {
-    const meta = { ...routeMeta(ln), stations: seq.map((s) => ({ station_id: s.id, station_name: s.name, mileage: null })), pass_stations: [] }
-    const parts = []; let cur = []
-    for (const s of seq) {
-      if (cur.length && haversine(cur[cur.length - 1], [s.lon, s.lat]) > capFor(meta.rail_class)) { parts.push(cur); cur = [] }
-      cur.push([s.lon, s.lat])
+  // ── 6b. line features: ONE feature per line (metro-style). Group edges by their
+  // dominant line; string them into maximal paths (a line that is physically two
+  // pieces — 縱貫線 兩端, split by 山/海線 — becomes 2 LineStrings in one feature). ─
+  const byLine = new Map()
+  for (const rec of edges.values()) {
+    const key = groupKey(rec)
+    if (!byLine.has(key)) byLine.set(key, [])
+    byLine.get(key).push([rec.a, rec.b])
+  }
+  const stringPaths = (es) => {
+    const g = new Map(); const add = (x, y) => { if (!g.has(x)) g.set(x, new Set()); g.get(x).add(y) }
+    for (const [a, b] of es) { add(a, b); add(b, a) }
+    const usedE = new Set(); const runs = []
+    const walk = (start) => {
+      const path = [start]; let cur = start
+      for (;;) { const nx = [...(g.get(cur) || [])].find((m) => !usedE.has(ekey(cur, m))); if (nx === undefined) break; usedE.add(ekey(cur, nx)); path.push(nx); cur = nx }
+      if (path.length > 1) runs.push(path)
     }
-    if (cur.length) parts.push(cur)
-    const coords = parts.filter((p) => p.length >= 2)
-    if (!coords.length) continue
+    for (const n of g.keys()) if ((g.get(n).size % 2) === 1) walk(n)
+    for (const [a, b] of es) if (!usedE.has(ekey(a, b))) walk(a)
+    return runs
+  }
+  const coordOf = (sid) => { const s = stById.get(sid); return [s.lon, s.lat] }
+  let segN = 0, segTotal = 0
+  for (const [ln, es] of byLine) {
+    const runs = stringPaths(es)
+    if (!runs.length) continue
+    const stationIds = [...new Set(runs.flat())]
+    const meta = { ...routeMeta(ln), stations: stationIds.map((sid) => ({ station_id: sid, station_name: stById.get(sid)?.name ?? sid, mileage: null })), pass_stations: [] }
+    const coords = runs.map((path) => path.map(coordOf))
     features.push({
       type: 'Feature',
       properties: {
         seg_id: `${cc}-${segN++}`,
         routes: [meta], route_count: 1,
-        route_refs: [ln], route_colors: [meta.route_color], route_color: meta.route_color,
+        route_refs: [meta.route_name], route_colors: [meta.route_color], route_color: meta.route_color,
         rail_class: meta.rail_class, city: country, country,
       },
       geometry: { type: 'MultiLineString', coordinates: coords },
@@ -360,14 +373,14 @@ function buildSystem(raw, exclude) {
     segTotal += coords.reduce((a, p) => a + p.length - 1, 0)
   }
 
-  const namedLines = [...lineSeq.keys()]
+  const namedLines = [...byLine.keys()].filter((k) => !k.startsWith('__'))
   const meta = {
     continent, country, country_zh, city: country, city_zh: country_zh, unit: 'country',
     osm_networks: namedLines.slice().sort().slice(0, 60),
     operator: null,
     line_count: namedLines.length, segment_count: segTotal,
     station_count: drawn.size,
-    interchange_count: [...drawn].filter((sid) => (new Set([...(stLines.get(sid) || [])]).size) >= 2).length,
+    interchange_count: [...drawn].filter((sid) => (neigh.get(sid)?.size ?? 0) > 2 || (stLines.get(sid)?.size ?? 0) >= 2).length,
   }
   return { type: 'FeatureCollection', railway_system: meta, metro_system: { ...meta, kind: 'railway' }, features }
 }

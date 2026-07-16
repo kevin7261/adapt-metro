@@ -28,7 +28,7 @@ const CITIES = {
   'eu-ger-berlin': {
     rivers: [{ name: 'Spree', match: ['Spree', 'Treptower Spree', 'Müggelspree'] }],
   },
-  'eu-aut-vienna': { rivers: ['Donau', 'Neue Donau', 'Donaukanal'] },
+  'eu-aut-vienna': { rivers: ['Donau'] }, // 只要多瑙河主流（使用者 2026-07-16）
   'eu-fra-paris': { rivers: ['La Seine'] },
   'as-kor-seoul': { rivers: ['한강'] },
   'as-chn-shanghai': { rivers: ['黄浦江'] },

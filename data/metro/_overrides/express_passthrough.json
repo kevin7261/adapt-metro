@@ -146,6 +146,32 @@
           51.4907
         ]
       ]
+    },
+    {
+      "city": "London",
+      "route_osm": [
+        7702937,
+        7702941,
+        7702970,
+        7702971,
+        20664389,
+        20664642
+      ],
+      "note": "Northern line 兩分支共走廊：Euston↔Camden Town 段，Bank 分支（經 Bank/City 支線）直達不停 Mornington Crescent，Charing Cross 分支才停靠。此 override 讓 Bank 分支幾何沿 Mornington Crescent 畫，使兩分支判為共線畫成單一走廊，Mornington Crescent 對 Bank 分支標 pass（仍是 Charing Cross 分支停靠站、保留 Northern）（2026-07 使用者裁決）。",
+      "from": [
+        -0.1331,
+        51.5285
+      ],
+      "to": [
+        -0.1427,
+        51.5395
+      ],
+      "via": [
+        [
+          -0.1383,
+          51.5343
+        ]
+      ]
     }
   ]
 }

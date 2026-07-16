@@ -3,7 +3,7 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 223,
   "wikipedia_system_count": 233,
-  "line_total": 1741,
+  "line_total": 1740,
   "station_total": 16891,
   "systems": [
     {
@@ -141,7 +141,7 @@
       "official_map": "https://en.wikipedia.org/wiki/London_Underground",
       "wikidata": "Q20075",
       "line_count": 26,
-      "segment_count": 66,
+      "segment_count": 65,
       "station_count": 261,
       "audit": {
         "strategies_tried": [],
