@@ -2137,26 +2137,31 @@ async function build() {
       // 一條線**、非轉乘（使用者：好多車站顏色和路線對不上）。故 degree/端點條件成立後，再
       // 要求「相異 route_color ≥2」才算紅點；同色幹線的分歧/端點回歸藍/白點。
       const stColors = new Set([...dispRoutes, ...dispPass].map((r) => r.route_color).filter(Boolean))
-      const stopLineCount = new Set(s.properties.lines || []).size
       const isNYC = /new york city/i.test(grp.info?.city || '')
-      // 使用者裁決 2026-07-17：
-      //  ① **停靠 ≥3 條線一律紅點（全域）**——不論色數：5th Av–59（N/R/W 同黃）、
-      //     72 St（1/2/3 同紅）等 3+ 線站皆紅。
-      //  ② **degree ≥3（分歧/交會 junction）一律紅點【僅 NYC】**——同色分支點也算：
-      //     Rockaway Blvd（A 分岔 Lefferts/Rockaway）、135 St（2/3）、Brooklyn 59 St
-      //     （N/R 分岔）。他城同色分支官方不算轉乘（台北大橋頭 orange 分岔＝普通站），
-      //     故此條只限 NYC；他城仍需「≥2 相異色」才在 junction 變紅。
-      //  ③ 其餘：相異色 ≥2 ＋（junction/端點）才紅（真 2 色轉乘）。
-      const isIx = stopLineCount >= 3 || (isNYC && deg >= 3)
-        || (stColors.size >= 2 && (deg > 2 || termCount >= 2
-        || (s.properties.is_terminus && dispRoutes.length >= 2)
-        || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2)))
+      let isIx, role
+      if (isNYC) {
+        // 使用者裁決 2026-07-17（NYC，視覺為主）：紅/藍/白**純看「畫出的線」拓撲度數**
+        // ——共線（多服務/多色共用同一段畫線）＝**一條線**，色數與服務數皆不計：
+        //   · deg≥3（畫線在此分岔/交會 junction）→ 紅點：Rockaway Blvd（A 分岔
+        //     Lefferts/Rockaway）、Rockefeller（4 向）、135 St、Brooklyn 59 St。
+        //   · deg≤1（單一畫線盡頭）→ 藍點（terminus）——**即使該段是多色共線**：
+        //     Jamaica Center（E+J/Z 共線盡頭、2 色仍 1 條畫線）、Astoria（N/W）、
+        //     Broad St（J/Z）皆藍。
+        //   · deg==2（畫線直線通過）→ 白點——即使多服務同走廊：5th Av-59（N/R/W）、
+        //     72 St（1/2/3）、Euclid Av（A 貫通、C 在此終點但畫線續行 deg=2）。
+        // degree ＝相異相鄰站數（共線給相同前後鄰→collapse 成一條），正是「畫出幾條線」。
+        isIx = deg >= 3
+        role = isIx ? 'interchange' : (deg <= 1 ? 'terminus' : 'normal')
+      } else {
+        // 其他城市：維持既有「相異色 ≥2 ＋（junction/端點）」規則——他城同色分支
+        // （台北大橋頭 orange 分岔）官方不算轉乘，未經 NYC 視覺裁決，不動 226 城既有行為。
+        isIx = stColors.size >= 2 && (deg > 2 || termCount >= 2
+          || (s.properties.is_terminus && dispRoutes.length >= 2)
+          || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2))
+        role = isIx ? 'interchange' : (s.properties.is_terminus ? 'terminus' : 'normal')
+      }
       s.properties.is_interchange = isIx
-      // 藍點（terminus）＝**恰好 1 條線且為端點**（使用者：藍點一定只有一條線且是端點）。
-      // 2+ 線的端點（Euclid Av A/C、Astoria N/W、Broad St J/Z）不藍——非紅則歸 normal
-      // （白點）：Euclid 是 A 貫通、C 在此為終點的貫通站，使用者「不是末端為何藍點」。
-      s.properties.station_role = isIx ? 'interchange'
-        : (s.properties.is_terminus && stopLineCount === 1) ? 'terminus' : 'normal'
+      s.properties.station_role = role
       // 全城一致鍵集（使用者：物件顯示不可因城市而異、不要客製）——缺值一律 null/false，
       // 每站輸出的欄位集完全相同，前端表格列數/順序全球一致。
       for (const [k, v] of Object.entries({ station_name_local: null, station_name_en: null,

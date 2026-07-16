@@ -2,13 +2,15 @@
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
+import { VIEW_ORDER, viewLabels } from '../stores/viewGeometry'
 import GalleryShell from './GalleryShell.vue'
-import ViewNineGrid from './ViewNineGrid.vue'
+import CityViewGrid from './CityViewGrid.vue'
 
 // A dockview tab that shows EVERY city's pre-computed Map Adjust views as a
-// card grid (data/metro/views/, built by scripts/buildViews.mjs; VIEW_ORDER = 6).
-// Sub-tabs / 排序 / 狀態由 GalleryShell 提供。Clicking a card imports that city
-// and builds a Map Adjust (D3) view — optionally deep-linked to one of the 8 views.
+// card (data/metro/views/, built by scripts/buildViews.mjs; VIEW_ORDER = 6).
+// 版面與 Hill Climbing / RWD Maps 畫廊一致（CityViewGrid：標題列＋視圖網格；
+// 使用者 2026-07）。Sub-tabs / 排序 / 狀態由 GalleryShell 提供。Clicking a card
+// imports that city and builds a Map Adjust (D3) view.
 const store = useMapStore()
 
 async function load() {
@@ -34,14 +36,16 @@ function pick(entry, viewId) {
   <GalleryShell :load="load" loading-text="載入全球地鐵視圖清單…" error-hint="npm run metro:views">
     <template #default="{ tiles }">
       <div class="tile-grid">
-        <ViewNineGrid v-for="s in tiles" :key="s.id" :entry="s" @pick="pick" />
+        <CityViewGrid
+          v-for="s in tiles" :key="s.id" :entry="s"
+          data-dir="views" :order="VIEW_ORDER" :labels-for-tilt="viewLabels"
+          :columns="3" cta-label="Map Adjust" @pick="pick" />
       </div>
     </template>
   </GalleryShell>
 </template>
 
 <style scoped>
-/* each card is a 九宮格; always 3 per row (drop to 1 only on a very narrow panel) */
 .tile-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
