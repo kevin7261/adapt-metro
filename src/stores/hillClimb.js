@@ -707,7 +707,9 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
 // vertex's own segments is positive, so the global H/V count strictly grows
 // (segments not incident to v are untouched — no revert needed). Each move is
 // capped at ONE cell (使用者規則：移動不可超過 1 格)——遠處的對齊靠 movewise
-// 的逐移動壓縮把距離拉近後、在後續移動慢慢完成. A currently
+// 的逐移動壓縮把距離拉近後、在後續移動慢慢完成. H/V 數不變的移動若能讓
+// 「直線變長且斜線變短」也採納（使用者規則——典型是直線接斜線的轉折點，
+// 沿直線方向推一格；兩者都要嚴格改善才動）. A currently
 // straight (H/V) segment may only be BENT when the same move straightens a
 // SAME-ROUTE segment in exchange (使用者規則：除非同名路線有拉直，否則不可
 // 讓直線路段變少) — a net-positive move that sacrifices route X's straight
@@ -737,15 +739,26 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
     const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
     const hvAt = (P) => vsegs.reduce((n, s) => n + (isHV(P, otherPos(s)) ? 1 : 0), 0)
     const cur = hvAt(pv)
-    // Candidates: snap one coordinate onto each neighbour's row/column.
+    // Candidates: the four 1-cell unit moves — under the 1-cell cap, every
+    // useful snap-onto-a-neighbour's-row/col candidate IS one of these, and
+    // they additionally cover the length-improving moves (直線變長、斜線變短).
     const cand = new Map()
-    for (const s of vsegs) {
-      const pu = otherPos(s)
-      for (const P of [[pv[0], pu[1]], [pu[0], pv[1]]]) {
-        if (P[0] === pv[0] && P[1] === pv[1]) continue
-        cand.set(ckey(P[0], P[1]), P)
-      }
+    for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const P = [pv[0] + dc, pv[1] + dr]
+      cand.set(ckey(P[0], P[1]), P)
     }
+    // 使用者規則的長度準則：v 入射段的（直線總長, 斜線總長）
+    const lenOf = (P) => {
+      let straight = 0, diag = 0
+      for (const s of vsegs) {
+        const pu = otherPos(s)
+        const L = Math.hypot(P[0] - pu[0], P[1] - pu[1])
+        if (isHV(P, pu)) straight += L
+        else diag += L
+      }
+      return [straight, diag]
+    }
+    const [len0S, len0D] = lenOf(pv)
     // Tie-break: does an aligned segment continue straight into a same-route
     // H/V segment on the far side of its neighbour?
     const contScore = (P) => {
@@ -781,11 +794,24 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
       const dist = Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1])
       if (dist > 1) continue // 使用者規則：端點拉直每次移動不可超過 1 格
       const delta = hvAt(P) - cur
-      if (delta <= 0) continue // must strictly grow the H/V count
-      if (!bendsPaid(P)) continue
-      scored.push({ P, delta, cont: contScore(P), dist })
+      let lenScore = 0
+      if (delta > 0) {
+        if (!bendsPaid(P)) continue
+      } else if (delta === 0) {
+        // 使用者規則：H/V 數不變，但這一步能讓「直線變長且斜線變短」也要移
+        // （典型：直線接斜線的轉折點，沿直線方向再推一格）。兩者都要嚴格
+        // 改善才動（單調遞增的 直線長−斜線長 保證不震盪）。
+        const [s1, d1] = lenOf(P)
+        if (!(s1 > len0S + 1e-9 && d1 < len0D - 1e-9)) continue
+        if (!bendsPaid(P)) continue
+        lenScore = (s1 - len0S) + (len0D - d1)
+      } else {
+        continue // H/V 數不可變少
+      }
+      scored.push({ P, delta, cont: contScore(P), lenScore, dist })
     }
     scored.sort((a, b) => b.delta - a.delta || b.cont - a.cont
+      || b.lenScore - a.lenScore
       || a.dist - b.dist || a.P[0] - b.P[0] || a.P[1] - b.P[1])
     for (const c of scored) {
       if (!M.validMove(v, c.P)) continue
