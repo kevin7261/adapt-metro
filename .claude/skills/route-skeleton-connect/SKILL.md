@@ -241,16 +241,20 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
   視圖畫線用**，讓移動後視圖與 Metro Maps 一模一樣）。route 端記 `railColors`＝單 route 段的
   2 色 route_colors。地理視圖本就直接用 feature 的 `route_colors` 畫、天然一致。
 - **河流＝資料層的一般網路路線（「城市＋地標」-lm 檔，使用者最終裁決：「river 就是 network
-  的一條線」）**：`buildLandmarkCombined.mjs` 把每條河**轉成真的 route**——折線以**絕對 DP（偏離弦線 > 0.2 km）**簡化成**站級顯著點**（相對容差在長河會失效——大漢溪整體平緩弧曾被縮成 2 點直線）（端點＋跨河匯流＋主要轉折，一條河 ~10–20 點，
-  與地鐵一條線同量級），產出**真的車站 Point features**（`properties.river: true`）＋**真的路段
-  feature**（routes[] schema 與地鐵相同、`route_id=river:{landmark_id}`、色 `#00E5FF`）。
+  的一條線」）**：`buildLandmarkCombined.mjs` 把每條河**轉成真的 route**——中心線**全點保留**
+  （使用者 2026-07-17：「點不可以減少、要跟原來一樣」；早期的絕對 DP 0.2 km 站級簡化已移除，
+  點的刪減只剩使用者裁決的裁切 clip／市區裁切，在 fetchLandmarks 端），每個折點都是
+  **真的車站 Point feature**（`properties.river: true`，一條河可達數百點——中間點在骨架分類
+  為黑、不佔格網欄列，量級無虞）＋**真的路段 feature**（routes[] schema 與地鐵相同、
+  `route_id=river:{landmark_id}`、色 `#00E5FF`）。
   **跨河匯流＝兩條河共用同一個車站節點**（builder 端點吸附 ≤150 m＋座標鍵共站）→ degree≥3
-  自然紅點。骨架/交叉/格網化/爬山/RWD **全部把河流當一般線處理、零特例**——曾用「合成節點
-  注入」（每個原始折點都成節點，一條河 ~600 節點）導致格網化/爬山不是拉爛就是把河撕裂成
-  跨座標系長斜線；根因是**量級**（線的頂點必須是站級），資料層轉 route 後全部自然成立。
+  自然紅點（巴黎西堤島：主流＋Bras de la Monnaie 南汊兩端共站、圍出小島）。
+  骨架/交叉/格網化/爬山/RWD **全部把河流當一般線處理、零特例**。
   **面域地標（皇居/公園）仍是 overlay**（不轉網路）；河流 LineString 地標不再輸出。
   僅存的河流微調（以 route_id 前綴 `river` 辨識）：
-  - **粉紅容差**：河流邊用 `PINK_DP_TOL_RIVER`（垂距/弦長 > 0.25，與一般線相同）。
+  - **粉紅容差＝絕對 0.2 km**（`dpKeepAbsKm`，座標換 km 平面再 DP）：全點保留後中間點
+    角度平緩，相對容差（垂距/弦長）在長河抓不到轉折——整段彎弧收成跨數十格的長弦、
+    與地鐵段假交叉（巴黎案 2026-07-17）；絕對容差讓示意視圖的河形跟 DP 時代一致。
   - **不放灰點**：灰會在 placeBlacks 被當切點、阻止河流拉直。
   - **沒有白點（渲染）**：river 站分類為黑/灰時不畫（D3Tab／viewGeometry 的 riverShow／
     riverDotVisible）；地圖 LayerTab 的站圈 filter `['!',['has','river']]` 整批不畫。

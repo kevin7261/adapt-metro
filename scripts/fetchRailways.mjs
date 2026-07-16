@@ -70,6 +70,22 @@ out;
 way["railway"="station"]["station"!~"^(subway|light_rail|monorail)$"](area.a);
 out center tags;`
 
+// HIGH-SPEED LINE relations (route=railway) that run on highspeed track, plus their
+// member STOP nodes. Used to build 高鐵 lines from the authoritative ordered stop
+// list — a track-walk over HSR viaducts wrongly grabs local stations passing
+// underneath (東海道新幹線 ← 東急武蔵小杉), and the highspeed=yes station tag is too
+// sparse (China ~none). The relation member stops ARE the real stops (excludes the
+// viaduct passovers, includes tag-less majors like 小田原/名古屋), so 高鐵 is built
+// from them (see skill railway-osm-fetch). We only need names+coords+order, not the
+// (huge) track geometry — the pipeline draws straight station-to-station segments.
+const relationsQuery = (iso2) => `[out:json][timeout:600];
+area["ISO3166-1"="${iso2}"][admin_level=2]->.a;
+way["railway"="rail"]["highspeed"="yes"](area.a)->.hsw;
+rel(bw.hsw)["route"="railway"]->.hsrel;
+.hsrel out body;
+node(r.hsrel)["railway"~"^(station|halt|stop)$"];
+out;`
+
 async function main() {
   await mkdir(CACHE, { recursive: true })
   let countries = countryList()
@@ -80,29 +96,50 @@ async function main() {
   console.log(`railway fetch: ${countries.length} country(ies)` +
     (filters.length ? ` matching ${filters.join(',')}` : ''))
 
-  let ok = 0, skipped = 0
+  let ok = 0, skipped = 0, patched = 0
   for (const c of countries) {
     const out = join(CACHE, `rw_${c.cc}.json`)
-    if (!force && (await exists(out))) { skipped++; continue }
+
+    // Incremental patch: if tracks/stations are already cached but the newer HSR
+    // relations are missing, fetch ONLY the relations and merge — no re-downloading
+    // the (huge) track data. --force still refetches everything.
+    if (!force && (await exists(out))) {
+      let cached
+      try { cached = JSON.parse(await readFile(out, 'utf8')) } catch { cached = null }
+      if (cached && !cached.relElements) {
+        process.stdout.write(`  ${c.cc} ${c.name} … +relations `)
+        try {
+          const relElements = (await query(relationsQuery(c.iso2), { timeout: 600000, maxAttempts: 8 })).elements
+          await writeFile(out, JSON.stringify({ ...cached, relElements }))
+          const rels = relElements.filter((e) => e.type === 'relation').length
+          console.log(`${rels} HSR line relations`)
+          patched++
+        } catch (e) { console.log(`FAILED: ${e.message}`) }
+        continue
+      }
+      skipped++; continue
+    }
 
     process.stdout.write(`  ${c.cc} ${c.name} … `)
-    let trackElements, stationElements
+    let trackElements, stationElements, relElements
     try {
       trackElements = (await query(tracksQuery(c.iso2), { timeout: 900000, maxAttempts: 8 })).elements
       stationElements = (await query(stationsQuery(c.iso2), { timeout: 600000, maxAttempts: 8 })).elements
+      relElements = (await query(relationsQuery(c.iso2), { timeout: 600000, maxAttempts: 8 })).elements
     } catch (e) { console.log(`FAILED: ${e.message}`); continue }
 
     await writeFile(out, JSON.stringify({
       cc: c.cc, iso2: c.iso2, continent: c.continent,
       country: c.name, country_zh: c.name_zh,
-      trackElements, stationElements,
+      trackElements, stationElements, relElements,
     }))
     const ways = trackElements.filter((e) => e.type === 'way').length
     const sts = stationElements.filter((e) => e.type !== 'relation').length
-    console.log(`${ways} track ways, ${sts} stations`)
+    const rels = relElements.filter((e) => e.type === 'relation').length
+    console.log(`${ways} track ways, ${sts} stations, ${rels} HSR line relations`)
     ok++
   }
-  console.log(`done: ${ok} fetched, ${skipped} cached`)
+  console.log(`done: ${ok} fetched, ${patched} +relations, ${skipped} cached`)
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })
