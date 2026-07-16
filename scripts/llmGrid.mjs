@@ -81,7 +81,7 @@ const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
 
 // The RWD view compacts the layout its layer.compact picks — the HC result,
 // a post-pass ('rect'/'align'/'ilp'), or the offline LLM 對齊 (llmviews
-// file) — then, same as D3Tab, EVERY chain runs the 端點拉直+直線縮減+
+// file) — then, same as D3Tab, EVERY chain runs the 端點移動+直線縮減+
 // 中位集中+縮減網格 **循環到不動點**（straightenCompactLoop——使用者 2026-07
 // 裁決 RWD 建立在循環結果上，fingerprint 的 cols/rows 必須跟 D3Tab 一致）。
 let baseCells

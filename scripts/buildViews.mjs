@@ -31,7 +31,7 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 15 // 15: 端點拉直加長度準則——H/V 數不變但直線變長且斜線變短的移動也採納（2026-07）
+const VIEWS_VERSION = 16 // 16: 端點拉直改名端點移動；藍點線變短可移動（中位集中藍點滑動不得拉長線）（2026-07）
 const strHash = (s) => {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0

@@ -107,7 +107,7 @@ const tilt = ref(0)
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
 // A Hill Climbing view chains: the grid-post input, the optimized layout
 // ('hc', ②, see skill route-hillclimb), three H/V-maximising post-passes
-// (直角爬山/軸對齊/整數規劃), then per chain the 4-step tail 端點拉直
+// (直角爬山/軸對齊/整數規劃), then per chain the 4-step tail 端點移動
 // ('*-end') → 直線縮減 ('*-line') → 中位集中 ('*-gather') → 縮減網格
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
@@ -148,7 +148,7 @@ async function startLlmRun(userPrompt = '') {
   // 清掉舊的 LLM 對齊「地圖」——執行中畫布留白、蓋上執行中 overlay，跑完再
   // 重新載入新結果（做好之後才再出現）。面板/按鈕的狀態保留（顯示執行中）。
   cachedLlm = null
-  delete cachedEndp.llm // LLM 對齊的端點拉直／直線縮減／中位集中／縮減網格／循環 跟著舊結果一起作廢
+  delete cachedEndp.llm // LLM 對齊的端點移動／直線縮減／中位集中／縮減網格／循環 跟著舊結果一起作廢
   delete cachedLine.llm
   delete cachedGather.llm
   delete cachedLoop.llm
@@ -301,8 +301,8 @@ const POST_KIND = {
   'hc-rect-step': 'rect', 'hc-align-step': 'align', 'hc-ilp-step': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
-// 端點拉直區塊（左選單第 4 部份，鏈的第 1 步）：每條鏈一個 tab——在該鏈的
-// 結果之上做端點拉直（原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／
+// 端點移動區塊（左選單第 4 部份，鏈的第 1 步）：每條鏈一個 tab——在該鏈的
+// 結果之上做端點移動（原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／
 // 縮減網格／RWD 底圖的輸入。
 const END_KIND = {
   'hc-end': 'hc', 'hc-rect-end': 'rect', 'hc-align-end': 'align',
@@ -312,7 +312,7 @@ const END_KIND = {
 // 拉直後」的結果之上，把直線（跨相交點串接的共線段鏈）整條垂直於線平移
 // （水平線只能上下移、垂直線只能左右移），讓「佔用的欄列」越少越好、
 // network 結構不變、全網 H/V 段數不減（movewise：每個移動後即壓縮）；
-// 中位集中 tab 接在它之後（鏈 = 該鏈結果 → 端點拉直 → 直線縮減 → 中位集中）。
+// 中位集中 tab 接在它之後（鏈 = 該鏈結果 → 端點移動 → 直線縮減 → 中位集中）。
 const LINE_KIND = {
   'hc-line': 'hc', 'hc-rect-line': 'rect', 'hc-align-line': 'align',
   'hc-ilp-line': 'ilp', 'hc-llm-line': 'llm',
@@ -326,8 +326,8 @@ const GATHER_KIND = {
   'hc-gather': 'hc', 'hc-rect-gather': 'rect', 'hc-align-gather': 'align',
   'hc-ilp-gather': 'ilp', 'hc-llm-gather': 'llm',
 }
-// 端點拉直+直線縮減+中位集中+縮減網格循環（左選單第 8 部份）：每條鏈一個
-// tab——在該鏈結果之上交替 端點拉直→直線縮減→中位集中→縮減網格，跑到某輪
+// 端點移動+直線縮減+中位集中+縮減網格循環（左選單第 8 部份）：每條鏈一個
+// tab——在該鏈結果之上交替 端點移動→直線縮減→中位集中→縮減網格，跑到某輪
 // 「沒有點可以動」為止（straightenCompactLoop）。
 const LOOP_KIND = {
   'hc-loop': 'hc', 'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
@@ -343,7 +343,7 @@ const STEP_KIND = {
 // 面板的階段 chips：這一步執行的工作（lastStage）會亮起。
 // 縮減網格不是獨立階段——每一步完成後自動壓（訊息尾巴會標「縮減網格 a×b → c×d」）。
 const STEP_STAGES = [
-  { k: 'endp', label: '端點拉直' }, { k: 'line', label: '直線縮減' },
+  { k: 'endp', label: '端點移動' }, { k: 'line', label: '直線縮減' },
   { k: 'gather', label: '中位集中' },
 ]
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
@@ -420,10 +420,10 @@ function saveHcCache(key, hc, posts) {
 }
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
 let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
-let cachedEndp = {}    // 端點拉直 (movewiseStage 'endp')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
+let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedGather = {}  // 中位集中 (movewiseStage 'gather')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
-let cachedLoop = {}    // 端點拉直+直線縮減+中位集中+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
+let cachedLoop = {}    // 端點移動+直線縮減+中位集中+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
 let stepState = {}     // Step by Step 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
 let stepHistory = {}   // Step by Step 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
@@ -432,7 +432,7 @@ const busyText = ref('')
 const hcStats = ref(null)
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
-const endpStats = ref(null)      // 端點拉直: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
+const endpStats = ref(null)      // 端點移動: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
 const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, moved, iters, fromCols, ..., converged }
 const gatherStats = ref(null)    // 中位集中: { moved, segs, verts, iters, iterCap, converged }
 const stepInfo = ref(null)       // Step by Step: { info, steps, round, done }（顯示在浮動面板）
@@ -525,8 +525,8 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 9 個部份：原始／Hill Climbing／直線演算法／端點拉直／直線縮減
-    // ／中位集中／縮減網格／端點拉直+直線縮減+中位集中+縮減網格循環／Step by Step
+    // 左選單分 9 個部份：原始／Hill Climbing／直線演算法／端點移動／直線縮減
+    // ／中位集中／縮減網格／端點移動+直線縮減+中位集中+縮減網格循環／Step by Step
     // （header 項只是分組標題、不可點）。
     return [
       { header: '原始' },
@@ -541,13 +541,13 @@ const VIEW_TABS = computed(() => {
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       // 鏈的三步（每步一區、每條鏈一個 tab，前面的 tab 不受後面步驟影響）：
-      // 該鏈結果 → 端點拉直 → 直線縮減 → 縮減網格
-      { header: '端點拉直' },
-      { id: 'hc-end', label: 'Hill Climbing端點拉直' },
-      { id: 'hc-rect-end', label: '直角爬山端點拉直' },
-      { id: 'hc-align-end', label: '軸對齊端點拉直' },
-      { id: 'hc-ilp-end', label: '整數規劃端點拉直' },
-      { id: 'hc-llm-end', label: 'LLM 對齊端點拉直' },
+      // 該鏈結果 → 端點移動 → 直線縮減 → 縮減網格
+      { header: '端點移動' },
+      { id: 'hc-end', label: 'Hill Climbing端點移動' },
+      { id: 'hc-rect-end', label: '直角爬山端點移動' },
+      { id: 'hc-align-end', label: '軸對齊端點移動' },
+      { id: 'hc-ilp-end', label: '整數規劃端點移動' },
+      { id: 'hc-llm-end', label: 'LLM 對齊端點移動' },
       // 直線縮減：直線（跨相交點串接）整條垂直於線平移讓佔用欄列更少、
       // 全網 H/V 不減（見 LINE_KIND）
       { header: '直線縮減' },
@@ -563,9 +563,9 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-align-gather', label: '軸對齊中位集中' },
       { id: 'hc-ilp-gather', label: '整數規劃中位集中' },
       { id: 'hc-llm-gather', label: 'LLM 對齊中位集中' },
-      // 循環：端點拉直→直線縮減→中位集中（每個移動後即壓縮）直到沒有點可以動
+      // 循環：端點移動→直線縮減→中位集中（每個移動後即壓縮）直到沒有點可以動
       // （見 LOOP_KIND）
-      { header: '端點拉直+直線縮減+中位集中循環' },
+      { header: '端點移動+直線縮減+中位集中循環' },
       { id: 'hc-loop', label: 'Hill Climbing循環' },
       { id: 'hc-rect-loop', label: '直角爬山循環' },
       { id: 'hc-align-loop', label: '軸對齊循環' },
@@ -864,11 +864,11 @@ async function render() {
       llmStats.value = cachedLlm.stats
       llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
     }
-    // 鏈的後處理順序：端點拉直 → 直線縮減 → 中位集中（循環 tab 另走
+    // 鏈的後處理順序：端點移動 → 直線縮減 → 中位集中（循環 tab 另走
     // straightenCompactLoop）。三個階段都是 movewise（movewiseStage）——
     // 使用者規則：**取消獨立的縮減網格步驟，每一個小步驟（單一移動）完成後
     // 就做縮減網格**，所以每個 tab 的網格隨時緻密、尺寸逐階段縮小。
-    // ① 端點拉直: 每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，
+    // ① 端點移動: 每個非白點可把一個座標吸到某鄰居的欄/列，僅淨增 H/V 才動，
     // 走同一套硬規則。Applies to the -end tabs AND as step 1 under
     // 直線縮減/中位集中。
     // RWD 不走下面 ①〜③ 的單趟鏈——改建立在「循環」（straightenCompactLoop）
@@ -1806,9 +1806,9 @@ onBeforeUnmount(() => {
           v-if="!gatherStats.converged">（達上限未收斂）</template>
       </span>
 
-      <!-- 循環: 端點拉直 → 直線縮減 → 中位集中（每個移動後即壓縮）until nothing can move -->
+      <!-- 循環: 端點移動 → 直線縮減 → 中位集中（每個移動後即壓縮）until nothing can move -->
       <span v-if="isHC && LOOP_KIND[mode] && loopStats" class="hc-stats">
-        循環 {{ loopStats.rounds }} 輪 · 端點拉直 {{ loopStats.moved }} 點
+        循環 {{ loopStats.rounds }} 輪 · 端點移動 {{ loopStats.moved }} 點
         · 直線縮減 {{ loopStats.lineMoved }} 線
         · 中位集中 {{ loopStats.gatherMoved }} 點/線
         · 水平垂直 {{ loopStats.hvBefore }} → {{ loopStats.hvAfter }}／{{ loopStats.segs }} 段
@@ -1817,9 +1817,9 @@ onBeforeUnmount(() => {
           v-if="!loopStats.converged">（達上限未收斂）</template>
       </span>
 
-      <!-- 端點拉直: vertex-alignment H/V pass on top of each chain's result -->
+      <!-- 端點移動: vertex-alignment H/V pass on top of each chain's result -->
       <span v-if="isHC && END_KIND[mode] && endpStats" class="hc-stats">
-        端點拉直 移動 {{ endpStats.moved }}/{{ endpStats.verts }} 點
+        端點移動 移動 {{ endpStats.moved }}/{{ endpStats.verts }} 點
         · 水平垂直 {{ endpStats.hvBefore }} → {{ endpStats.hvAfter }}／{{ endpStats.segs }} 段
         · 網格 {{ endpStats.fromCols }}×{{ endpStats.fromRows }} →
         {{ endpStats.cols }}×{{ endpStats.rows }}<template
@@ -1886,7 +1886,7 @@ onBeforeUnmount(() => {
       <span class="ma-label">資料來源：</span>
       <span class="ma-source">
         {{ ownData ? `${layer?.name}（匯入 JSON）`
-          : isRWD ? (hcLayer ? `${hcLayer.name}（端點拉直+直線縮減+中位集中循環）` : (layer?.sourceLayerId ?? '—'))
+          : isRWD ? (hcLayer ? `${hcLayer.name}（端點移動+直線縮減+中位集中循環）` : (layer?.sourceLayerId ?? '—'))
           : isHC ? (hcD3Layer ? `${hcD3Layer.name}（${hcVariant === 'rot' ? '旋轉' : '原始'}格網化後）` : (layer?.sourceLayerId ?? '—'))
           : (sourceLayer?.name ?? layer?.sourceLayerId ?? '—') }}
       </span>

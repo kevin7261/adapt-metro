@@ -697,7 +697,7 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
   }
 }
 
-// Hill Climbing端點拉直 — step 2 of the hc chain (HC → 端點拉直 → 縮減網格;
+// Hill Climbing端點移動 — step 2 of the hc chain (HC → 端點移動 → 縮減網格;
 // the hc 縮減網格 and the RWD base compact THIS output, while the other
 // post-passes still branch off the raw HC result): EVERY coloured vertex
 // (每個非白點 — endpoints, transfers, branches, crossings; white/black through
@@ -792,19 +792,24 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
     const scored = []
     for (const P of cand.values()) {
       const dist = Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1])
-      if (dist > 1) continue // 使用者規則：端點拉直每次移動不可超過 1 格
+      if (dist > 1) continue // 使用者規則：端點移動每次移動不可超過 1 格
       const delta = hvAt(P) - cur
       let lenScore = 0
       if (delta > 0) {
         if (!bendsPaid(P)) continue
       } else if (delta === 0) {
-        // 使用者規則：H/V 數不變，但這一步能讓「直線變長且斜線變短」也要移
-        // （典型：直線接斜線的轉折點，沿直線方向再推一格）。兩者都要嚴格
-        // 改善才動（單調遞增的 直線長−斜線長 保證不震盪）。
+        // 使用者規則（二擇一）：H/V 數不變，但這一步能——
+        // (a) 讓「直線變長且斜線變短」（典型：直線接斜線的轉折點沿直線方向
+        //     推一格；兩者都要嚴格改善），或
+        // (b) v 是藍點（單一入射段）且「線變短」（把端點往鄰居收）。
+        // 收斂：每步讓 (−H/V 數, 斜線長, 總長) 字典序嚴格下降——(a) 斜線長
+        // 嚴格降、(b) 斜線長不增且總長嚴格降。
         const [s1, d1] = lenOf(P)
-        if (!(s1 > len0S + 1e-9 && d1 < len0D - 1e-9)) continue
+        const bendGain = s1 > len0S + 1e-9 && d1 < len0D - 1e-9
+        const blueShorten = vsegs.length === 1 && s1 + d1 < len0S + len0D - 1e-9
+        if (!bendGain && !blueShorten) continue
         if (!bendsPaid(P)) continue
-        lenScore = (s1 - len0S) + (len0D - d1)
+        lenScore = bendGain ? (s1 - len0S) + (len0D - d1) : (len0S + len0D) - (s1 + d1)
       } else {
         continue // H/V 數不可變少
       }
@@ -829,7 +834,7 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
 
 // 直線縮減 one sweep: move whole straight LINES so FEWER distinct columns +
 // rows are occupied (= how small the later 縮減網格 can compact to) — the
-// grid DIMENSIONS are untouched; in the chain this pass runs AFTER 端點拉直
+// grid DIMENSIONS are untouched; in the chain this pass runs AFTER 端點移動
 // and BEFORE 縮減網格. A "line" is a maximal collinear chain of horizontal (or
 // vertical) segments stitched ACROSS intersection vertices — the connected
 // component over same-axis straight segments, so transfers, branches and
@@ -1029,6 +1034,12 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
       // try the median-most cell first, walking back toward the current cell
       const target = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
       for (let x = target; x !== pv[ax]; x -= dir) {
+        // 藍點（單段）不得把線拉長——否則會和端點移動的「線變短就收」在循環
+        // 裡拉鋸（往中位點但遠離鄰居的滑動放棄，收線方向優先）。
+        if (vsegs.length === 1) {
+          const pu = otherPos(vsegs[0])
+          if (Math.abs(x - pu[ax]) >= Math.abs(pv[ax] - pu[ax])) continue
+        }
         const P = ax ? [pv[0], x] : [x, pv[1]]
         if (!M.validMove(v, P)) continue
         M.applyMove(v, P)
@@ -1076,7 +1087,7 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
 }
 
 /* ==================== 逐移動壓縮（movewise） ====================
-   使用者規則：取消獨立的縮減網格步驟——端點拉直/直線縮減/中位集中的
+   使用者規則：取消獨立的縮減網格步驟——端點移動/直線縮減/中位集中的
    **每一個小步驟（單一移動）完成後就做縮減網格**。實作＝以 limit=1 反覆呼叫
    該階段的 pass，每個移動後立即 compactGrid，直到動不了；網格因此隨時緻密。
    所有吃這三個階段的地方（tabs／循環／RWD 底圖／llmGrid／畫廊）都走這裡。 */
@@ -1130,12 +1141,12 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
 
 /* ==================== Step by Step（逐步執行） ====================
    讓使用者一鍵一步看鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**（或
-   limit=1 的單一移動），順序 端點拉直 → 直線縮減 → 中位集中；**每一步完成後
+   limit=1 的單一移動），順序 端點移動 → 直線縮減 → 中位集中；**每一步完成後
    立即縮減網格**（使用者規則：取消獨立的縮減網格階段，改成每步後都壓），
    所以畫面上的網格永遠是緻密的。某階段掃不動就自動換下一階段（同一鍵內
    跳過空階段），一輪三階段都沒動靜＝完成。
    狀態是純資料（cells/cols/rows/stage/round/steps/info），呼叫端自己保存。 */
-const STEP_STAGE_LABEL = { endp: '端點拉直', line: '直線縮減', gather: '中位集中' }
+const STEP_STAGE_LABEL = { endp: '端點移動', line: '直線縮減', gather: '中位集中' }
 export function stepChainInit(cells, cols, rows) {
   const comp = compactGrid(cells, cols, rows) // 每步後都壓 → 起點也先壓
   return {
@@ -1144,7 +1155,7 @@ export function stepChainInit(cells, cols, rows) {
     lastStage: null, // 這一步執行的工作（endp/line/gather）——顯示在面板的階段 chips
     movedIds: [], // 這一步移動的點/線成員 id——畫布上以橘圈標示
     moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]（縮減後 rank 空間，可為半格）
-    info: '按「下一步」開始——每步執行一個單掃描並立即縮減網格（順序：端點拉直 → 直線縮減 → 中位集中）',
+    info: '按「下一步」開始——每步執行一個單掃描並立即縮減網格（順序：端點移動 → 直線縮減 → 中位集中）',
   }
 }
 export function stepChainNext(skeleton, st, opts = {}) {
@@ -1219,11 +1230,11 @@ export function stepChainNext(skeleton, st, opts = {}) {
           roundMoves += res.stats.moved
           const mv = movesOf(cells, res.cellAfter, res.stats.movedIds)
           return finalize(res.cellAfter, res.stats.movedIds,
-            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：拉直 1 點（水平垂直 ${res.stats.hvBefore} → ${res.stats.hvAfter}／${res.stats.segs} 段）${coordTag(mv)}`)
+            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：移動 1 點（水平垂直 ${res.stats.hvBefore} → ${res.stats.hvAfter}／${res.stats.segs} 段）${coordTag(mv)}`)
         }
       } else {
         const big = bigStep('endp', 'line',
-          (s) => `拉直 ${s.moved} 點（水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段）`)
+          (s) => `移動 ${s.moved} 點（水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段）`)
         if (big) return big
       }
       stage = 'line'
@@ -1266,7 +1277,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
   return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
 }
 
-// 端點拉直+直線縮減+中位集中循環: each round runs the three MOVEWISE stages
+// 端點移動+直線縮減+中位集中循環: each round runs the three MOVEWISE stages
 // （每個階段自己迭代到不動點，且**每一個移動後都立即縮減網格**——縮減不再是
 // 獨立步驟）until a round where NOTHING moves. Per-move compaction renumbers
 // cells continuously, so hard-rule blocks (occlusion, landing on another
