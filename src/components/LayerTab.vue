@@ -148,19 +148,28 @@ onMounted(() => {
   // Landmark hover（河流/皇居/公園）——資訊 popup（與物件 tab 同構）。metro 車站/線
   // 蓋在地標之上，游標同時壓在其上時不顯示地標 popup（避免同點雙 popup）。
   const lmPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, maxWidth: '320px' })
+  const setLmHover = (id) => {
+    const poly = ['all', ['==', ['geometry-type'], 'Polygon'], ['==', ['get', 'landmark_id'], id]]
+    const line = ['all', ['==', ['geometry-type'], 'LineString'], ['==', ['get', 'landmark_id'], id]]
+    if (map.getLayer('lm-fill-hover')) map.setFilter('lm-fill-hover', poly)
+    if (map.getLayer('lm-outline-hover')) map.setFilter('lm-outline-hover', poly)
+    if (map.getLayer('lm-centerline-hover')) map.setFilter('lm-centerline-hover', line)
+  }
   const showLandmark = (e) => {
     const overMetro = ['metro-stations', ...ALL_LINE_LAYER_IDS].filter((id) => map.getLayer(id))
     if (overMetro.length && map.queryRenderedFeatures(e.point, { layers: overMetro }).length) {
-      lmPopup.remove()
+      lmPopup.remove(); setLmHover('')
       return
     }
     map.getCanvas().style.cursor = 'pointer'
-    lmPopup.setLngLat(e.lngLat).setHTML(landmarkPopupHtml(e.features[0].properties) || '—').addTo(map)
+    const p = e.features[0].properties
+    setLmHover(p.landmark_id ?? '')
+    lmPopup.setLngLat(e.lngLat).setHTML(landmarkPopupHtml(p) || '—').addTo(map)
   }
   for (const id of LANDMARK_LAYER_IDS) {
     map.on('mouseenter', id, showLandmark)
     map.on('mousemove', id, showLandmark)
-    map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; lmPopup.remove() })
+    map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; lmPopup.remove(); setLmHover('') })
   }
 
   // Active tab drives the global map handle (toolbar / palette / attr table actions)
@@ -268,13 +277,32 @@ function addLandmarkLayers() {
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': '#2b7bb8', 'line-opacity': 0.9, 'line-width': 2 },
   }, before)
+  // Hover highlight（filtered to hovered landmark_id；預設空過濾＝不顯示）——面域加深
+  // 填色＋粗外框、河流骨架加粗，與 metro 車站/線 hover 的強調一致。加在基本地標層之上。
+  map.addLayer({
+    id: 'lm-fill-hover', source: 'lm-landmarks', type: 'fill',
+    filter: ['all', ['==', ['geometry-type'], 'Polygon'], ['==', ['get', 'landmark_id'], '']],
+    paint: { 'fill-color': LANDMARK_FILL, 'fill-opacity': 0.55 },
+  }, before)
+  map.addLayer({
+    id: 'lm-outline-hover', source: 'lm-landmarks', type: 'line',
+    filter: ['all', ['==', ['geometry-type'], 'Polygon'], ['==', ['get', 'landmark_id'], '']],
+    paint: { 'line-color': LANDMARK_FILL, 'line-opacity': 1, 'line-width': 3 },
+  }, before)
+  map.addLayer({
+    id: 'lm-centerline-hover', source: 'lm-landmarks', type: 'line',
+    filter: ['all', ['==', ['geometry-type'], 'LineString'], ['==', ['get', 'landmark_id'], '']],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#1a6cb0', 'line-opacity': 1, 'line-width': 5 },
+  }, before)
   syncLandmarkVisibility()
 }
 
 function syncLandmarkVisibility() {
   if (!map) return
   const vis = landmarkOn.value && (layer.value?.visible ?? true) ? 'visible' : 'none'
-  for (const id of ['lm-fill', 'lm-outline', 'lm-centerline'])
+  for (const id of ['lm-fill', 'lm-outline', 'lm-centerline',
+    'lm-fill-hover', 'lm-outline-hover', 'lm-centerline-hover'])
     if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis)
 }
 

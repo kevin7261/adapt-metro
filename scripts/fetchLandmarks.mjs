@@ -26,7 +26,10 @@ const CITIES = {
   'as-twn-taipei': { rivers: ['淡水河', '基隆河', '新店溪', '大漢溪'] },
   'eu-gbr-london': { rivers: ['River Thames'] },
   'eu-ger-berlin': {
-    rivers: [{ name: 'Spree', match: ['Spree', 'Treptower Spree', 'Müggelspree'] }],
+    rivers: [
+      { name: 'Spree', match: ['Spree', 'Treptower Spree', 'Müggelspree'] },
+      { name: 'Spreekanal', match: ['Spreekanal', 'Kupfergraben'] }, // waterway=canal（使用者 2026-07）
+    ],
   },
   'eu-aut-vienna': { rivers: ['Donau'] }, // 只要多瑙河主流（使用者 2026-07-16）
   'eu-fra-paris': { rivers: ['La Seine'] },
@@ -207,8 +210,10 @@ function toFeatures(elements, kind, { minKm2 = 0 } = {}) {
 // ---- queries ---------------------------------------------------------------
 const bboxStr = ([S, W, N, E]) => `${S},${W},${N},${E}`
 
+// waterway 收 river＋canal——canal 用於運河/引水渠（柏林 Spreekanal＝waterway=canal）。
+// 靠 name 精確比對限縮，故放寬 waterway 不會誤收其他城市的無關運河。
 const centerlineQuery = (bbox, names) => `[out:json][timeout:120];
-way["waterway"="river"]["name"~"^(${names.join('|')})$"](${bboxStr(bbox)});
+way["waterway"~"^(river|canal)$"]["name"~"^(${names.join('|')})$"](${bboxStr(bbox)});
 out geom;`
 
 function lineLengthKm(line) {
