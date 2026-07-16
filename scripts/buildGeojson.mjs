@@ -1620,7 +1620,10 @@ async function build() {
       const forced = forcedName.get(gkey) // split-spec `names` override for this sub-station
       if (idxs.length === 1) {
         const f = feats[idxs[0]]
-        if (forced) f.properties.station_name = forced
+        // 拆站 override 給了明確 `names`＝這是使用者裁定的獨立站，不可再掛
+        // 其他成員名（Fulton St ↔ Lafayette Av 非共站，卻因合併殘留 merged_names
+        // 兩名、前端顯示成 "Fulton Street / Lafayette Avenue" 誤讀為共站）。
+        if (forced) { f.properties.station_name = forced; f.properties.station_name_local = forced; f.properties.merged_names = null }
         keep.push(f); continue
       }
       mergedAway += idxs.length - 1
@@ -1712,7 +1715,8 @@ async function build() {
           ...(forced ? { station_name: forced, station_name_local: forced } : {}),
           lines: lines.length ? lines : null,
           merged_from: members.length,
-          merged_names: mergedNames.length > 1 ? mergedNames : null,
+          // 拆站 override 給了明確 `names`＝獨立站，抑制 merged_names（見上）
+          merged_names: forced ? null : (mergedNames.length > 1 ? mergedNames : null),
         },
         geometry: { type: 'Point', coordinates: [lon, lat] },
         ...(allCodes.size ? { __codes: allCodes } : {}),
@@ -2110,8 +2114,14 @@ async function build() {
       // 端點站規則用**顯示線數**（dispRoutes＝官方線身分去重後）：同名分支（中和新蘆線
       // 迴龍/蘆洲）在端點只算 1 條線——蘆洲是單線端點＝藍點，不因兩個 branch route_id
       // 誤判成紅點；七張（松山新店線＋小碧潭支線異名）仍 2 線。
-      const isIx = deg > 2 || termCount >= 2 || (s.properties.is_terminus && dispRoutes.length >= 2)
-        || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2)
+      // 轉乘（紅點）必須是「≥2 條**相異色**的線」在此相交，不是「≥2 個服務」——NYC 同幹線
+      // 的多個服務（N/W 同黃、B/D/F/M 同橘、1/2/3 同紅）雖 degree>2 或端點多服務，卻是**同
+      // 一條線**、非轉乘（使用者：好多車站顏色和路線對不上）。故 degree/端點條件成立後，再
+      // 要求「相異 route_color ≥2」才算紅點；同色幹線的分歧/端點回歸藍/白點。
+      const stColors = new Set([...dispRoutes, ...dispPass].map((r) => r.route_color).filter(Boolean))
+      const isIx = stColors.size >= 2 && (deg > 2 || termCount >= 2
+        || (s.properties.is_terminus && dispRoutes.length >= 2)
+        || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2))
       s.properties.is_interchange = isIx
       s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
@@ -2335,9 +2345,14 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
         const tk = trunkOfColor.get(r.route_color)
         if (tk) { r.route_ref = tk.route_ref; r.route_name = tk.route_name }
       }
-      f.properties.route_count = new Set(routes.map((r) => r.route_color)).size
+      // route_colors 必須**去重成相異色**並讓 route_count＝相異色數——LayerTab 交錯虛線
+      // 以 route_count 決定槽位數、以 route_colors[i] 取色；若 route_colors 留重複
+      // （[red,red,green,green]）而 route_count＝2，兩槽都取到 red → 共線只畫紅（使用者：
+      // 很多共線沒畫交錯色）。去重後 route_count=2、route_colors=[red,green] → 紅綠交錯。
+      const cols = [...new Set(routes.map((r) => r.route_color))]
+      f.properties.route_count = cols.length
       f.properties.route_refs = [...new Set(routes.map((r) => r.route_ref || r.route_name))]
-      f.properties.route_colors = routes.map((r) => r.route_color)
+      f.properties.route_colors = cols
     }
     // 車站 routes[]/lines **不** relabel 成 trunk——車站顯示**實際停靠的服務**（Atlantic
     // Av–Barclays 停 2/3/4/5/B/D/N/Q/R，不是 trunk 標籤 1/2/3/4/5/6/…；使用者 2026-07）。
