@@ -721,6 +721,7 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
 // unblock another vertex's move in the next iteration.
 export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
   const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
+  const skip = opts.skip // 一遍掃描（movewiseSweep）中本輪已動過的點——跳過
   const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) {
@@ -733,6 +734,7 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
   let moved = 0
   for (const v of ids) {
     if (moved >= limit) break
+    if (skip && skip.has(v)) continue
     const vsegs = inc.get(v).map((si) => segs[si])
     if (!vsegs.length) continue
     const pv = pos.get(v)
@@ -793,6 +795,8 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
     for (const P of cand.values()) {
       const dist = Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1])
       if (dist > 1) continue // 使用者規則：端點移動每次移動不可超過 1 格
+      // 使用者規則：不得讓任一入射段的兩個顏色點橫跨超過 SPAN_CAP 格
+      if (!vsegs.every((sg) => spanOk(pv, otherPos(sg), P, otherPos(sg)))) continue
       const delta = hvAt(P) - cur
       let lenScore = 0
       if (delta > 0) {
@@ -880,6 +884,28 @@ function lineComponents(pos, segs, horiz) {
     .map((c) => c.sort()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
 }
 
+// 使用者規則：任何移動不得讓「受影響段的兩個顏色點」橫跨超過 SPAN_CAP 格
+// （Chebyshev：max(|dx|,|dy|)）——防止兩個顏色點之間的線被拉太長。本來就
+// 超過上限的舊長段只准縮短或不變、不准再拉長（否則會把它們永久凍結）。
+const SPAN_CAP = 3
+const spanOf = (A, B) => Math.max(Math.abs(A[0] - B[0]), Math.abs(A[1] - B[1]))
+const spanOk = (A0, B0, A1, B1) => {
+  const ns = spanOf(A1, B1)
+  return ns <= SPAN_CAP || ns <= spanOf(A0, B0)
+}
+// 剛體平移下所有邊界段（一端動、一端不動）的跨距檢查
+function boundarySpanOk(pos, segs, inC, dc, dr) {
+  for (const s of segs) {
+    const ma = inC.has(s.a), mb = inC.has(s.b)
+    if (ma === mb) continue
+    const A = pos.get(s.a), B = pos.get(s.b)
+    const A1 = ma ? [A[0] + dc, A[1] + dr] : A
+    const B1 = mb ? [B[0] + dc, B[1] + dr] : B
+    if (!spanOk(A, B, A1, B1)) return false
+  }
+  return true
+}
+
 // net H/V change of the BOUNDARY segments (one endpoint moving, one static)
 // under a rigid shift of the inC vertex set — internal/static segments are
 // unchanged, so this is the network-wide H/V delta. Shared by 直線縮減 and
@@ -900,6 +926,7 @@ function boundaryHvDelta(pos, segs, inC, dc, dr) {
 
 function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
   const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
+  const skip = opts.skip // 一遍掃描中本輪已動過的線（以最小成員 id 識別）——跳過
   const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   const empty = { cellAfter: pos, moved: 0, hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, occBefore: [0, 0], occAfter: [0, 0], movedIds }
@@ -937,6 +964,7 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
   for (const horiz of [true, false]) {
     for (const comp of lineComponents(pos, segs, horiz)) {
       if (moved >= limit) break
+      if (skip && skip.has(comp[0])) continue
       const inC = new Set(comp)
       // perpendicular moves only（水平線只能上下移、垂直線只能左右移），且
       // 一次只能移一格（使用者規則）——movewise 下網格隨時緻密，相鄰欄列必有
@@ -947,6 +975,7 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
         const [dc, dr] = horiz ? [0, d] : [d, 0]
         const gain = gainOf(comp, dc, dr)
         if (gain <= 0) continue // must strictly shrink the occupied cols+rows
+        if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue // 顏色點間不可拉超過 SPAN_CAP 格
         const hv = boundaryHvDelta(pos, segs, inC, dc, dr)
         if (hv < 0) continue // 整個 network 的直線（H/V 段）不可變少
         scored.push({ dc, dr, gain, hv, dist: Math.abs(dc) + Math.abs(dr) })
@@ -992,6 +1021,7 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
 // Candidates are tried from the median-most valid cell back to the current.
 function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
   const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
+  const skip = opts.skip // 一遍掃描中本輪已動過的元素（點 'p:<id>'、線 'l:<最小成員id>'）
   const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size, movedIds }
@@ -1009,6 +1039,7 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
   const ids = [...pos.keys()].sort()
   for (const v of ids) {
     if (movedPts >= limit) break
+    if (skip && skip.has('p:' + v)) continue
     const vsegs = inc.get(v).map((si) => segs[si])
     if (!vsegs.length || vsegs.length > 2) continue // 只有左右/上下兩段（或藍點一段）可沿線滑
     const pv = pos.get(v)
@@ -1025,8 +1056,11 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
       // 裡拉鋸（往中位點但遠離鄰居的滑動放棄，收線方向優先）。
       const blueLonger = vsegs.length === 1
         && Math.abs(x - otherPos(vsegs[0])[ax]) >= Math.abs(pv[ax] - otherPos(vsegs[0])[ax])
-      if (!blueLonger) {
-        const P = ax ? [pv[0], x] : [x, pv[1]]
+      // 使用者規則：不得讓任一入射段的兩個顏色點橫跨超過 SPAN_CAP 格
+      const P0 = ax ? [pv[0], x] : [x, pv[1]]
+      const spanBad = !vsegs.every((sg) => spanOk(pv, otherPos(sg), P0, otherPos(sg)))
+      if (!blueLonger && !spanBad) {
+        const P = P0
         if (M.validMove(v, P)) {
           M.applyMove(v, P)
           movedPts++
@@ -1049,6 +1083,7 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
     const perpAx = horiz ? 1 : 0
     for (const comp of lineComponents(pos, segs, horiz)) {
       if (movedPts + movedLines >= limit) break
+      if (skip && skip.has('l:' + comp[0])) continue
       const inC = new Set(comp)
       const at = pos.get(comp[0])[perpAx] // shared coordinate of the line
       const dir = Math.sign(med[perpAx] - at)
@@ -1061,6 +1096,7 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
       const emptied = count.get(at) === comp.length // 原欄/列會被清空
       if (!count.has(x) && !emptied) continue // 會多佔一條欄/列 → 不移
       const [dc, dr] = horiz ? [0, x - at] : [x - at, 0]
+      if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue // 顏色點間不可拉超過 SPAN_CAP 格
       if (boundaryHvDelta(pos, segs, inC, dc, dr) < 0) continue // 全網直線不可變少
       if (!M.validShift(comp, inC, dc, dr)) continue
       M.applyShift(comp, [dc, dr])
@@ -1078,17 +1114,17 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
    所有吃這三個階段的地方（tabs／循環／RWD 底圖／llmGrid／畫廊）都走這裡。 */
 const MOVEWISE_CAP = 5000 // 單一階段的移動數保險上限（遠大於實測）
 const MOVEWISE_PASS = {
-  endp: (sk, cells, cols, rows) => {
-    const r = buildEndpointStraighten(sk, cells, cols, rows, { limit: 1 })
-    return { cellAfter: r.cellAfter, moved: r.stats.moved, pts: r.stats.moved, lines: 0 }
+  endp: (sk, cells, cols, rows, skip) => {
+    const r = buildEndpointStraighten(sk, cells, cols, rows, { limit: 1, skip })
+    return { cellAfter: r.cellAfter, moved: r.stats.moved, pts: r.stats.moved, lines: 0, ids: r.stats.movedIds, key: r.stats.movedIds[0] }
   },
-  line: (sk, cells, cols, rows) => {
-    const r = lineCompactPass(sk, cells, cols, rows, { limit: 1 })
-    return { cellAfter: r.cellAfter, moved: r.moved, pts: 0, lines: r.moved }
+  line: (sk, cells, cols, rows, skip) => {
+    const r = lineCompactPass(sk, cells, cols, rows, { limit: 1, skip })
+    return { cellAfter: r.cellAfter, moved: r.moved, pts: 0, lines: r.moved, ids: r.movedIds, key: r.movedIds[0] }
   },
-  gather: (sk, cells, cols, rows) => {
-    const r = medianGatherPass(sk, cells, cols, rows, { limit: 1 })
-    return { cellAfter: r.cellAfter, moved: r.moved, pts: r.movedPts, lines: r.movedLines }
+  gather: (sk, cells, cols, rows, skip) => {
+    const r = medianGatherPass(sk, cells, cols, rows, { limit: 1, skip })
+    return { cellAfter: r.cellAfter, moved: r.moved, pts: r.movedPts, lines: r.movedLines, ids: r.movedIds, key: r.movedPts ? 'p:' + r.movedIds[0] : 'l:' + r.movedIds[0] }
   },
 }
 export function movewiseStage(stage, skeleton, cells, cols, rows) {
@@ -1124,6 +1160,43 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
   }
 }
 
+// 一遍掃描（使用者規則：循環與逐步驗證的每一步＝該演算法把**整個 network
+// 跑一次**，不是跑到該演算法自己的不動點）：每個元素本輪最多動一次（動過的
+// 進 visited、pass 以 skip 跳過），每一個移動後照樣立即 compactGrid。visited
+// 由呼叫端傳入（逐步驗證的小步跨呼叫延續同一遍）。
+export function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new Set()) {
+  let comp = compactGrid(cells, cols, rows)
+  let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
+  const fromCols = nC, fromRows = nR
+  const g0 = buildHcGraph(skeleton, cur)
+  const hvBefore = countHV(g0.pos, g0.segs)
+  const verts = g0.pos.size, segsN = g0.segs.length
+  let moved = 0, movedPts = 0, movedLines = 0
+  while (moved < MOVEWISE_CAP) {
+    const r = MOVEWISE_PASS[stage](skeleton, cur, nC, nR, visited)
+    if (!r.moved) break
+    visited.add(r.key)
+    moved += r.moved
+    movedPts += r.pts
+    movedLines += r.lines
+    comp = compactGrid(r.cellAfter, nC, nR)
+    cur = comp.cellAfter
+    nC = comp.cols
+    nR = comp.rows
+  }
+  const g1 = buildHcGraph(skeleton, cur)
+  return {
+    cellAfter: cur,
+    cols: nC,
+    rows: nR,
+    stats: {
+      hvBefore, hvAfter: countHV(g1.pos, g1.segs), segs: segsN, verts,
+      moved, movedPts, movedLines, converged: moved < MOVEWISE_CAP,
+      fromCols, fromRows, cols: nC, rows: nR,
+    },
+  }
+}
+
 /* ==================== 逐步驗證（逐步執行） ====================
    讓使用者一鍵一步看鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**（或
    limit=1 的單一移動），順序 端點移動 → 直線縮減 → 中位集中；**每一步完成後
@@ -1140,7 +1213,8 @@ export function stepChainInit(cells, cols, rows) {
     lastStage: null, // 這一步執行的工作（endp/line/gather）——顯示在面板的階段 chips
     movedIds: [], // 這一步移動的點/線成員 id——畫布上以橘圈標示
     moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]（縮減後 rank 空間，可為半格）
-    info: '按「下一步」開始——每步執行一個單掃描並立即縮減網格（順序：端點移動 → 直線縮減 → 中位集中）',
+    sweepVisited: [], // 目前這一遍掃描中已動過的元素 key（小步跨點擊延續同一遍）
+    info: '按「下一步」開始——每步＝目前演算法把整個 network 掃一遍（每個移動後立即縮減網格），掃完換下一個：端點移動 → 直線縮減 → 中位集中 → 回到端點移動；三個都沒改動就停止',
   }
 }
 export function stepChainNext(skeleton, st, opts = {}) {
@@ -1148,6 +1222,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
   const limit = opts.limit ?? Infinity // limit=1 ＝「下一小步」：只做一個點/線的移動
   const subTag = limit === 1 ? '（小步）' : ''
   let { cells, cols, rows, stage, round, steps, roundMoves } = st
+  let sweepVisited = st.sweepVisited ?? []
   // 前後比對：這一步每個移動元素的 from→to 格座標（移動當下、縮減前的座標）
   const movesOf = (prev, next, ids) => {
     const seen = new Set()
@@ -1188,78 +1263,66 @@ export function stepChainNext(skeleton, st, opts = {}) {
     return {
       cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,
       stage, round, steps: steps + 1, roundMoves, done: false, lastStage: stage,
-      movedIds: ids, moves,
+      movedIds: ids, moves, sweepVisited,
       info: infoBase + (shrunk ? `｜縮減網格 ${cols}×${rows} → ${comp.cols}×${comp.rows}` : ''),
     }
   }
-  // 「下一步」＝把目前階段用 movewise 跑到不動（每個移動後都壓縮，語意與
-  // 正式 tabs／循環完全一致），跑完直接進下一階段；回傳整階段的統計。
-  const bigStep = (stage2, nextStage, mkInfo) => {
-    const r = movewiseStage(stage2, skeleton, cells, cols, rows)
-    if (!r.stats.moved) return null
-    roundMoves += r.stats.moved
-    const gridTag = r.stats.fromCols !== r.cols || r.stats.fromRows !== r.rows
-      ? `｜縮減網格 ${r.stats.fromCols}×${r.stats.fromRows} → ${r.cols}×${r.rows}` : ''
-    return {
-      cells: r.cellAfter, cols: r.cols, rows: r.rows,
-      stage: nextStage, round, steps: steps + 1, roundMoves, done: false,
-      lastStage: stage2, movedIds: [], moves: [],
-      info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage2]}：${mkInfo(r.stats)}${gridTag}`,
-    }
+  // 「下一步」＝目前演算法把整個 network 掃**一遍**（movewiseSweep，接續小步
+  // 已走過的 sweepVisited），掃完就換下一個演算法（掃不動也換）——使用者規則：
+  // 端點移動一遍 → 直線縮減一遍 → 中位集中一遍 → 回到端點移動。
+  const NEXT_STAGE = { endp: 'line', line: 'gather', gather: 'endp' }
+  const STAGE_INFO = {
+    endp: (t) => `移動 ${t.moved} 點（水平垂直 ${t.hvBefore} → ${t.hvAfter}／${t.segs} 段）`,
+    line: (t) => `移動 ${t.moved} 線`,
+    gather: (t) => `往中位點滑 ${t.movedPts} 點＋${t.movedLines} 線`,
   }
-  for (let guard = 0; guard < 9; guard++) { // 同一鍵內最多跳過兩輪的空階段
-    if (stage === 'endp') {
-      if (limit === 1) {
-        const res = buildEndpointStraighten(skeleton, cells, cols, rows, { limit: 1 })
-        if (res.stats.moved) {
-          roundMoves += res.stats.moved
-          const mv = movesOf(cells, res.cellAfter, res.stats.movedIds)
-          return finalize(res.cellAfter, res.stats.movedIds,
-            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：移動 1 點（水平垂直 ${res.stats.hvBefore} → ${res.stats.hvAfter}／${res.stats.segs} 段）${coordTag(mv)}`)
-        }
-      } else {
-        const big = bigStep('endp', 'line',
-          (s) => `移動 ${s.moved} 點（水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段）`)
-        if (big) return big
+  for (let guard = 0; guard < 9; guard++) {
+    if (limit === 1) {
+      // 小步：這一遍掃描中的下一個單一移動（動過的元素本輪不再動）
+      const r = MOVEWISE_PASS[stage](skeleton, cells, cols, rows, new Set(sweepVisited))
+      if (r.moved) {
+        roundMoves += r.moved
+        sweepVisited = [...sweepVisited, r.key]
+        const mv = movesOf(cells, r.cellAfter, r.ids)
+        const what = stage === 'endp' ? '移動 1 點' : stage === 'line' ? '移動 1 線'
+          : (r.pts ? '往中位點滑 1 點' : '往中位點滑 1 線')
+        return finalize(r.cellAfter, r.ids,
+          `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：${what}${coordTag(mv)}`)
       }
-      stage = 'line'
-    } else if (stage === 'line') {
-      if (limit === 1) {
-        const res = lineCompactPass(skeleton, cells, cols, rows, { limit: 1 })
-        if (res.moved) {
-          roundMoves += res.moved
-          const mv = movesOf(cells, res.cellAfter, res.movedIds)
-          return finalize(res.cellAfter, res.movedIds,
-            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：移動 1 線${coordTag(mv)}`)
+      // 這一遍掃完（剩下的元素都動不了）→ 換下一個演算法（下面共用推進邏輯）
+    } else {
+      // 大步：把這一遍掃完（接續小步的 sweepVisited），掃完換下一個演算法
+      const visited = new Set(sweepVisited)
+      const sw = movewiseSweep(stage, skeleton, cells, cols, rows, visited)
+      if (sw.stats.moved) {
+        roundMoves += sw.stats.moved
+        const gridTag = sw.stats.fromCols !== sw.cols || sw.stats.fromRows !== sw.rows
+          ? `｜縮減網格 ${sw.stats.fromCols}×${sw.stats.fromRows} → ${sw.cols}×${sw.rows}` : ''
+        const doneStage = stage
+        const nextStage = NEXT_STAGE[stage]
+        const endOfRound = stage === 'gather'
+        return {
+          cells: sw.cellAfter, cols: sw.cols, rows: sw.rows,
+          stage: nextStage, round: endOfRound ? round + 1 : round,
+          steps: steps + 1, roundMoves: endOfRound ? 0 : roundMoves, done: false,
+          lastStage: doneStage, movedIds: [], moves: [], sweepVisited: [],
+          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[doneStage]}（掃一遍）：${STAGE_INFO[doneStage](sw.stats)}${gridTag}`,
         }
-      } else {
-        const big = bigStep('line', 'gather', (s) => `移動 ${s.moved} 線`)
-        if (big) return big
       }
-      stage = 'gather'
-    } else { // 'gather' — 一輪的最後一個階段
-      if (limit === 1) {
-        const res = medianGatherPass(skeleton, cells, cols, rows, { limit: 1 })
-        if (res.moved) {
-          roundMoves += res.moved
-          const mv = movesOf(cells, res.cellAfter, res.movedIds)
-          return finalize(res.cellAfter, res.movedIds,
-            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：往中位點滑 ${res.movedPts} 點＋${res.movedLines} 線${coordTag(mv)}`)
-        }
-      } else {
-        const big = bigStep('gather', 'endp', (s) => `往中位點滑 ${s.movedPts} 點＋${s.movedLines} 線`)
-        if (big) { big.round = round + 1; big.roundMoves = 0; return big } // gather 是一輪的最後 → 下一階段順帶進下一輪
-      }
-      // 三階段都掃不動（網格每步都已壓縮）＝收斂
+      // 這一遍沒有任何移動 → 換下一個演算法（下面共用推進邏輯）
+    }
+    // 推進：換下一個演算法；gather 是一輪的最後——整輪三個都沒動＝收斂
+    if (stage === 'gather') {
       if (!roundMoves) {
-        return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪都動不了` }
+        return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], info: `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動` }
       }
-      stage = 'endp'
       round += 1
       roundMoves = 0
     }
+    stage = NEXT_STAGE[stage]
+    sweepVisited = []
   }
-  return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
+  return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
 }
 
 // 端點移動+直線縮減+中位集中循環: each round runs the three MOVEWISE stages
@@ -1270,15 +1333,20 @@ export function stepChainNext(skeleton, st, opts = {}) {
 // Straighten moves strictly grow H/V (bounded), line moves strictly shrink
 // the (always-dense) grid (bounded below); gather slides are H/V-neutral, so
 // POST_ITER_CAP rounds is the backstop against slide/median oscillation.
+// 使用者規則（2026-07）：每輪＝三個演算法**各把整個 network 掃一遍**（一遍
+// 掃描 movewiseSweep，非各自跑到不動點）——端點移動一遍 → 直線縮減一遍 →
+// 中位集中一遍 → 回到端點移動；某一輪三個都沒有改動才停止。輪數因此比階段
+// 固定點制多，上限放寬到 LOOP_ROUND_CAP。
+const LOOP_ROUND_CAP = 200
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows
   let rounds = 0, moved = 0, lineMoved = 0, gatherMoved = 0
   let hvBefore = null, last = null
   let converged = false
-  while (rounds < POST_ITER_CAP) {
-    const endp = movewiseStage('endp', skeleton, cur, nC, nR)
-    const line = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
-    const gather = movewiseStage('gather', skeleton, line.cellAfter, line.cols, line.rows)
+  while (rounds < LOOP_ROUND_CAP) {
+    const endp = movewiseSweep('endp', skeleton, cur, nC, nR)
+    const line = movewiseSweep('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
+    const gather = movewiseSweep('gather', skeleton, line.cellAfter, line.cols, line.rows)
     rounds++
     hvBefore ??= endp.stats.hvBefore
     last = gather.stats
@@ -1297,7 +1365,7 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     stats: {
       hvBefore, hvAfter: last.hvAfter,
       segs: last.segs, verts: last.verts, moved, lineMoved, gatherMoved,
-      rounds, roundCap: POST_ITER_CAP, converged,
+      rounds, roundCap: LOOP_ROUND_CAP, converged,
       fromCols: cols, fromRows: rows, cols: nC, rows: nR,
     },
   }
