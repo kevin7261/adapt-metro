@@ -715,10 +715,12 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
 // Tie-breaks: bigger delta → continues a same-route H/V segment past the
 // neighbour → smaller displacement. Runs under iteratePost — a move can
 // unblock another vertex's move in the next iteration.
-export function buildEndpointStraighten(skeleton, cells, cols, rows) {
+export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
+  const limit = opts.limit ?? Infinity // Step by Step 子步驟：最多接受 limit 個移動
+  const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) {
-    return { cellAfter: pos, stats: { hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, moved: 0, endpoints: 0 } }
+    return { cellAfter: pos, stats: { hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, moved: 0, endpoints: 0, movedIds } }
   }
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
@@ -726,6 +728,7 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
   const ids = [...pos.keys()].sort()
   let moved = 0
   for (const v of ids) {
+    if (moved >= limit) break
     const vsegs = inc.get(v).map((si) => segs[si])
     if (!vsegs.length) continue
     const pv = pos.get(v)
@@ -787,12 +790,13 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows) {
       if (!M.validMove(v, c.P)) continue
       M.applyMove(v, c.P)
       moved++
+      movedIds.push(v)
       break
     }
   }
   return {
     cellAfter: pos,
-    stats: { hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size, moved, endpoints: pos.size },
+    stats: { hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size, moved, endpoints: pos.size, movedIds },
   }
 }
 
@@ -862,9 +866,11 @@ function boundaryHvDelta(pos, segs, inC, dc, dr) {
   return d
 }
 
-function lineCompactPass(skeleton, cells, cols, rows) {
+function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
+  const limit = opts.limit ?? Infinity // Step by Step 子步驟：最多接受 limit 個移動
+  const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
-  const empty = { cellAfter: pos, moved: 0, hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, occBefore: [0, 0], occAfter: [0, 0] }
+  const empty = { cellAfter: pos, moved: 0, hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, occBefore: [0, 0], occAfter: [0, 0], movedIds }
   if (!pos.size || !segs.length) return empty
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
@@ -911,6 +917,7 @@ function lineCompactPass(skeleton, cells, cols, rows) {
   let moved = 0
   for (const horiz of [true, false]) {
     for (const comp of lineComponents(pos, segs, horiz)) {
+      if (moved >= limit) break
       const inC = new Set(comp)
       const perpAx = horiz ? 1 : 0
       const lineAt = pos.get(comp[0])[perpAx] // shared coordinate of the line
@@ -933,6 +940,7 @@ function lineCompactPass(skeleton, cells, cols, rows) {
         M.applyShift(comp, [c.dc, c.dr])
         recount()
         moved++
+        movedIds.push(...comp)
         break
       }
     }
@@ -940,7 +948,7 @@ function lineCompactPass(skeleton, cells, cols, rows) {
   return {
     cellAfter: pos, moved, hvBefore, hvAfter: countHV(pos, segs),
     segs: segs.length, verts: pos.size,
-    occBefore, occAfter: [count[0].size, count[1].size],
+    occBefore, occAfter: [count[0].size, count[1].size], movedIds,
   }
 }
 
@@ -994,9 +1002,11 @@ export function buildLineCompact(skeleton, cells, cols, rows) {
 // column/row count must not grow (else it would undo 直線縮減 and fight it
 // in the loop), and the SAME validShift hard rules apply.
 // Candidates are tried from the median-most valid cell back to the current.
-function medianGatherPass(skeleton, cells, cols, rows) {
+function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
+  const limit = opts.limit ?? Infinity // Step by Step 子步驟：最多接受 limit 個移動
+  const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
-  if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size }
+  if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size, movedIds }
   const M = makeMover(pos, segs, inc, cols, rows)
   const median = (vals) => {
     const s = [...vals].sort((a, b) => a - b)
@@ -1010,6 +1020,7 @@ function medianGatherPass(skeleton, cells, cols, rows) {
   let movedPts = 0
   const ids = [...pos.keys()].sort()
   for (const v of ids) {
+    if (movedPts >= limit) break
     const vsegs = inc.get(v).map((si) => segs[si])
     if (!vsegs.length || vsegs.length > 2) continue // 只有左右/上下兩段（或藍點一段）可沿線滑
     const pv = pos.get(v)
@@ -1019,12 +1030,13 @@ function medianGatherPass(skeleton, cells, cols, rows) {
       const dir = Math.sign(med[ax] - pv[ax])
       if (!dir) break
       // try the median-most cell first, walking back toward the current cell
-      const limit = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
-      for (let x = limit; x !== pv[ax]; x -= dir) {
+      const target = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
+      for (let x = target; x !== pv[ax]; x -= dir) {
         const P = ax ? [pv[0], x] : [x, pv[1]]
         if (!M.validMove(v, P)) continue
         M.applyMove(v, P)
         movedPts++
+        movedIds.push(v)
         break
       }
       break // all segments lie on this axis — the other axis cannot also apply
@@ -1042,14 +1054,15 @@ function medianGatherPass(skeleton, cells, cols, rows) {
   for (const horiz of [true, false]) {
     const perpAx = horiz ? 1 : 0
     for (const comp of lineComponents(pos, segs, horiz)) {
+      if (movedPts + movedLines >= limit) break
       const inC = new Set(comp)
       const at = pos.get(comp[0])[perpAx] // shared coordinate of the line
       const dir = Math.sign(med[perpAx] - at)
       if (!dir) continue
       const count = occCount(perpAx)
       const emptied = count.get(at) === comp.length // 原欄/列會被清空
-      const limit = dir > 0 ? Math.floor(med[perpAx]) : Math.ceil(med[perpAx])
-      for (let x = limit; x !== at; x -= dir) {
+      const target = dir > 0 ? Math.floor(med[perpAx]) : Math.ceil(med[perpAx])
+      for (let x = target; x !== at; x -= dir) {
         if (!count.has(x) && !emptied) continue // 會多佔一條欄/列 → 換近一點的
         const d = x - at
         const [dc, dr] = horiz ? [0, d] : [d, 0]
@@ -1057,11 +1070,12 @@ function medianGatherPass(skeleton, cells, cols, rows) {
         if (!M.validShift(comp, inC, dc, dr)) continue
         M.applyShift(comp, [dc, dr])
         movedLines++
+        movedIds.push(...comp)
         break
       }
     }
   }
-  return { cellAfter: pos, moved: movedPts + movedLines, movedPts, movedLines, segs: segs.length, verts: pos.size }
+  return { cellAfter: pos, moved: movedPts + movedLines, movedPts, movedLines, segs: segs.length, verts: pos.size, movedIds }
 }
 
 // 中位集中 post-pass: sweeps of medianGatherPass (the median is recomputed
@@ -1094,6 +1108,105 @@ export function buildMedianGather(skeleton, cells, cols, rows) {
       iters, iterCap: POST_ITER_CAP, converged: last.moved === 0,
     },
   }
+}
+
+/* ==================== Step by Step（逐步執行） ====================
+   讓使用者一鍵一步看四步鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**
+   （端點拉直/直線縮減/中位集中各自的 single sweep）或一次縮減網格；某階段
+   掃不動就自動換下一階段（同一鍵內跳過空階段），一輪四階段都沒動靜＝完成。
+   狀態是純資料（cells/cols/rows/stage/round/steps/info），呼叫端自己保存。 */
+const STEP_STAGE_LABEL = { endp: '端點拉直', line: '直線縮減', gather: '中位集中', compact: '縮減網格' }
+export function stepChainInit(cells, cols, rows) {
+  return {
+    cells, cols, rows, stage: 'endp', round: 1, steps: 0, roundMoves: 0, done: false,
+    lastStage: null, // 這一步執行的工作（endp/line/gather/compact）——顯示在面板的階段 chips
+    movedIds: [], // 這一步移動的點/線成員 id——畫布上以橘圈標示
+    moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]——畫舊位置虛圈＋連線
+    info: '按「下一步」開始——每步執行一個單掃描（順序：端點拉直 → 直線縮減 → 中位集中 → 縮減網格）',
+  }
+}
+export function stepChainNext(skeleton, st, opts = {}) {
+  if (st.done) return st
+  const limit = opts.limit ?? Infinity // limit=1 ＝「下一小步」：只做一個點/線的移動
+  const subTag = limit === 1 ? '（小步）' : ''
+  let { cells, cols, rows, stage, round, steps, roundMoves } = st
+  // 前後比對：這一步每個移動元素的 from→to 格座標（畫布上畫舊位置虛圈＋連線）
+  const movesOf = (prev, next, ids) => {
+    const seen = new Set()
+    const out = []
+    for (const id of ids) {
+      if (seen.has(id)) continue
+      seen.add(id)
+      const a = prev.get(id), b = next.get(id)
+      if (a && b && (a[0] !== b[0] || a[1] !== b[1])) out.push({ id, from: [a[0], a[1]], to: [b[0], b[1]] })
+    }
+    return out
+  }
+  // 小步的訊息尾巴：單點顯示 (c,r)→(c,r)、整條線顯示位移向量＋成員數
+  const coordTag = (mv) => {
+    if (limit !== 1 || !mv.length) return ''
+    if (mv.length === 1) return `｜(${mv[0].from[0]},${mv[0].from[1]}) → (${mv[0].to[0]},${mv[0].to[1]})`
+    const dx = mv[0].to[0] - mv[0].from[0], dy = mv[0].to[1] - mv[0].from[1]
+    return `｜整條線位移 (${dx},${dy})、${mv.length} 點`
+  }
+  // out() 的 `stage` 此刻＝剛執行的階段 → 同時當 lastStage 回報
+  const out = (patch) => ({ cells, cols, rows, stage, round, steps: steps + 1, roundMoves, done: false, lastStage: stage, movedIds: [], moves: [], ...patch })
+  for (let guard = 0; guard < 9; guard++) { // 同一鍵內最多跳過兩輪的空階段
+    if (stage === 'endp') {
+      const res = buildEndpointStraighten(skeleton, cells, cols, rows, { limit })
+      if (res.stats.moved) {
+        roundMoves += res.stats.moved
+        const mv = movesOf(cells, res.cellAfter, res.stats.movedIds)
+        return out({
+          cells: res.cellAfter, roundMoves, movedIds: res.stats.movedIds, moves: mv,
+          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：拉直 ${res.stats.moved} 點（水平垂直 ${res.stats.hvBefore} → ${res.stats.hvAfter}／${res.stats.segs} 段）${coordTag(mv)}`,
+        })
+      }
+      stage = 'line'
+    } else if (stage === 'line') {
+      const res = lineCompactPass(skeleton, cells, cols, rows, { limit })
+      if (res.moved) {
+        roundMoves += res.moved
+        const mv = movesOf(cells, res.cellAfter, res.movedIds)
+        return out({
+          cells: res.cellAfter, roundMoves, movedIds: res.movedIds, moves: mv,
+          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：移動 ${res.moved} 線（佔用欄列 ${res.occBefore[0]}×${res.occBefore[1]} → ${res.occAfter[0]}×${res.occAfter[1]}）${coordTag(mv)}`,
+        })
+      }
+      stage = 'gather'
+    } else if (stage === 'gather') {
+      const res = medianGatherPass(skeleton, cells, cols, rows, { limit })
+      if (res.moved) {
+        roundMoves += res.moved
+        const mv = movesOf(cells, res.cellAfter, res.movedIds)
+        return out({
+          cells: res.cellAfter, roundMoves, movedIds: res.movedIds, moves: mv,
+          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：往中位點滑 ${res.movedPts} 點＋${res.movedLines} 線${coordTag(mv)}`,
+        })
+      }
+      stage = 'compact'
+    } else { // 'compact' — 一輪的收尾
+      const comp = compactGrid(cells, cols, rows)
+      const shrunk = comp.cols !== cols || comp.rows !== rows
+      if (!roundMoves && !shrunk) {
+        return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪都動不了` }
+      }
+      if (shrunk) {
+        const info = `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}：${cols}×${rows} → ${comp.cols}×${comp.rows}`
+        cells = comp.cellAfter
+        const nC = comp.cols, nR = comp.rows
+        return { cells, cols: nC, rows: nR, stage: 'endp', round: round + 1, steps: steps + 1, roundMoves: 0, done: false, lastStage: 'compact', movedIds: [], moves: [], info }
+      }
+      // 沒縮但這輪有移動 → 直接進下一輪（不算一步，同一鍵內繼續）
+      cells = comp.cellAfter
+      cols = comp.cols
+      rows = comp.rows
+      stage = 'endp'
+      round += 1
+      roundMoves = 0
+    }
+  }
+  return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
 }
 
 // 端點拉直+直線縮減+中位集中+縮減網格循環: each round runs 端點拉直 (itself

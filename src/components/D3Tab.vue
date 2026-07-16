@@ -13,6 +13,7 @@ import {
   buildHillClimb, compactGrid, buildHcGraph, buildEndpointStraighten,
   buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
   straightenCompactLoop, buildLineCompact, buildMedianGather,
+  stepChainInit, stepChainNext,
 } from '../stores/hillClimb'
 import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
@@ -118,6 +119,7 @@ const hcMode = computed(() =>
     'hc-line', 'hc-rect-line', 'hc-align-line', 'hc-ilp-line', 'hc-llm-line',
     'hc-gather', 'hc-rect-gather', 'hc-align-gather', 'hc-ilp-gather', 'hc-llm-gather',
     'hc-loop', 'hc-rect-loop', 'hc-align-loop', 'hc-ilp-loop', 'hc-llm-loop',
+    'hc-step', 'hc-rect-step', 'hc-align-step', 'hc-ilp-step', 'hc-llm-step',
     'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
@@ -151,6 +153,7 @@ async function startLlmRun(userPrompt = '') {
   delete cachedLine.llm
   delete cachedGather.llm
   delete cachedLoop.llm
+  delete stepState.llm
   if (llmMode.value) render()
   try {
     const res = await fetch('/llm-align/run', {
@@ -297,6 +300,7 @@ const POST_KIND = {
   'hc-rect-line': 'rect', 'hc-align-line': 'align', 'hc-ilp-line': 'ilp',
   'hc-rect-gather': 'rect', 'hc-align-gather': 'align', 'hc-ilp-gather': 'ilp',
   'hc-rect-loop': 'rect', 'hc-align-loop': 'align', 'hc-ilp-loop': 'ilp',
+  'hc-rect-step': 'rect', 'hc-align-step': 'align', 'hc-ilp-step': 'ilp',
 }
 const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
 // 端點拉直區塊（左選單第 4 部份，鏈的第 1 步）：每條鏈一個 tab——在該鏈的
@@ -333,6 +337,18 @@ const LOOP_KIND = {
   'hc-loop': 'hc', 'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
   'hc-ilp-loop': 'ilp', 'hc-llm-loop': 'llm',
 }
+// Step by Step（左選單第 9 部份）：每條鏈一個 tab——同一條四步鏈，但由使用者
+// 按「下一步」一步步執行：每步＝目前階段的一個單掃描（或一次縮減網格），
+// 掃不動自動換下一階段，一輪全沒動靜＝完成（stepChainInit/stepChainNext）。
+const STEP_KIND = {
+  'hc-step': 'hc', 'hc-rect-step': 'rect', 'hc-align-step': 'align',
+  'hc-ilp-step': 'ilp', 'hc-llm-step': 'llm',
+}
+// 面板的階段 chips：這一步執行的工作（lastStage）會亮起。
+const STEP_STAGES = [
+  { k: 'endp', label: '端點拉直' }, { k: 'line', label: '直線縮減' },
+  { k: 'gather', label: '中位集中' }, { k: 'compact', label: '縮減網格' },
+]
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
 // 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
 const postKind = computed(() =>
@@ -414,6 +430,7 @@ let cachedEndp = {}    // 端點拉直 (iteratePost over buildEndpointStraighten
 let cachedLine = {}    // 直線縮減 (buildLineCompact)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedGather = {}  // 中位集中 (buildMedianGather)，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedLoop = {}    // 端點拉直+直線縮減+中位集中+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
+let stepState = {}     // Step by Step 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
@@ -423,6 +440,7 @@ const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const endpStats = ref(null)      // 端點拉直: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
 const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, moved, iters, fromCols, ..., converged }
 const gatherStats = ref(null)    // 中位集中: { moved, segs, verts, iters, iterCap, converged }
+const stepInfo = ref(null)       // Step by Step: { info, steps, round, done }（顯示在浮動面板）
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
@@ -512,8 +530,8 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 8 個部份：原始／Hill Climbing／直線演算法／端點拉直／直線縮減
-    // ／中位集中／縮減網格／端點拉直+直線縮減+中位集中+縮減網格循環
+    // 左選單分 9 個部份：原始／Hill Climbing／直線演算法／端點拉直／直線縮減
+    // ／中位集中／縮減網格／端點拉直+直線縮減+中位集中+縮減網格循環／Step by Step
     // （header 項只是分組標題、不可點）。
     return [
       { header: '原始' },
@@ -563,6 +581,13 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-align-loop', label: '軸對齊循環' },
       { id: 'hc-ilp-loop', label: '整數規劃循環' },
       { id: 'hc-llm-loop', label: 'LLM 對齊循環' },
+      // Step by Step：同一條四步鏈，按「下一步」一步步執行（見 STEP_KIND）
+      { header: 'Step by Step' },
+      { id: 'hc-step', label: 'Hill Climbing逐步' },
+      { id: 'hc-rect-step', label: '直角爬山逐步' },
+      { id: 'hc-align-step', label: '軸對齊逐步' },
+      { id: 'hc-ilp-step', label: '整數規劃逐步' },
+      { id: 'hc-llm-step', label: 'LLM 對齊逐步' },
     ]
   }
   return [
@@ -647,6 +672,22 @@ async function sourceData() {
 // while in flight (mount + ResizeObserver, mode switches) — without a guard
 // both passes would append and everything is drawn twice. Each render takes a
 // sequence number and bails after every await if a newer render has started.
+// Step by Step：「下一步」執行一步（單掃描）、「下一小步」只做一個點/線的
+// 移動（limit=1），「重設」回到鏈的起點。stepState 不是 reactive——推進後靠
+// render() 重畫、stepInfo ref 更新面板。
+function stepNext(limit) {
+  const kind = STEP_KIND[mode.value]
+  if (!kind || !stepState[kind] || !cachedSkeleton) return
+  stepState[kind] = stepChainNext(cachedSkeleton, stepState[kind], limit ? { limit } : {})
+  render()
+}
+function stepReset() {
+  const kind = STEP_KIND[mode.value]
+  if (!kind) return
+  delete stepState[kind]
+  render()
+}
+
 // 有色點中位數格位（黃色圓標用）：欄、列各自取中位數；偶數個點取平均 →
 // 可能落在半格。cells 的頂點都是非白點（白/黑直通站不是頂點）。
 function cellMedian(cellsMap) {
@@ -695,6 +736,7 @@ async function render() {
     cachedLine = {}
     cachedGather = {}
     cachedLoop = {}
+    stepState = {}
     cachedRWD = null
     hcStats.value = null
     postStats.value = null
@@ -707,6 +749,7 @@ async function render() {
     endpStats.value = null
     lineStats.value = null
     gatherStats.value = null
+    stepInfo.value = null
     loopStats.value = null
     rwdStats.value = null
     // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
@@ -744,7 +787,7 @@ async function render() {
   // mapping below, never the layout. Blacks are re-spread along the new runs.
   // 縮減網格 tab additionally drops colour-free rows/columns (compactGrid) —
   // fewer cells over the same extent, so everything spreads out.
-  let hcPos = null, hcBlue = null, rwdLines = null, weighted = false, endpMedian = null
+  let hcPos = null, hcBlue = null, rwdLines = null, weighted = false, endpMedian = null, stepMoves = []
   if (grid && needsHC.value && hcMode.value) {
     if (!cachedHC) {
       hcBusy.value = true
@@ -882,6 +925,20 @@ async function render() {
         nR = cachedLoop[loopKind].rows
         loopStats.value = cachedLoop[loopKind].stats
         if (isRWD.value) hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
+      }
+    }
+    // Step by Step tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
+    // 推進 stepState 後重畫；見 STEP_KIND）。
+    {
+      const stepKind = STEP_KIND[mode.value]
+      if (stepKind) {
+        if (!stepState[stepKind]) stepState[stepKind] = stepChainInit(cells, nC, nR)
+        const st = stepState[stepKind]
+        cells = st.cells
+        nC = st.cols
+        nR = st.rows
+        stepInfo.value = { info: st.info, steps: st.steps, round: st.round, done: st.done, lastStage: st.lastStage }
+        stepMoves = st.moves ?? []
       }
     }
     // 每一個網格 tab 都畫（使用者規則）：目前 tab 最終佈局的有色點（頂點都
@@ -1266,6 +1323,32 @@ async function render() {
     }
   }
 
+  // Step by Step：這一步的前後比對——舊位置畫虛線空心圈、虛線連到新位置、
+  // 新位置橘色實圈（線移動＝全部成員點都各畫一組）。畫在 ref 層、站點之下。
+  // 移動步驟不會壓縮網格 → from/to 用同一套目前的格心座標（cx/cy）換算。
+  if (stepMoves.length && grid) {
+    const b2 = hcBlue ?? (gridPost.value ? grid.blueAfter : grid.blueBefore)
+    const px = (c) => (b2.xs[c] + b2.xs[c + 1]) / 2
+    const py = (r) => (b2.ys[r] + b2.ys[r + 1]) / 2
+    for (const m of stepMoves) {
+      const x0p = px(m.from[0]), y0p = py(m.from[1])
+      const x1p = px(m.to[0]), y1p = py(m.to[1])
+      if ([x0p, y0p, x1p, y1p].some((v) => !Number.isFinite(v))) continue
+      refG.append('line') // 移動軌跡
+        .attr('x1', x0p).attr('y1', y0p).attr('x2', x1p).attr('y2', y1p)
+        .attr('stroke', '#f97316').attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '4 3').attr('stroke-opacity', 0.8)
+      refG.append('circle') // 舊位置（空心虛圈）
+        .attr('cx', x0p).attr('cy', y0p).attr('r', 7)
+        .attr('fill', 'none').attr('stroke', '#f97316')
+        .attr('stroke-width', 1.5).attr('stroke-dasharray', '3 2').attr('stroke-opacity', 0.7)
+      refG.append('circle') // 新位置（實線橘圈）
+        .attr('cx', x1p).attr('cy', y1p).attr('r', 9)
+        .attr('fill', 'none').attr('stroke', '#f97316')
+        .attr('stroke-width', 2.5).attr('stroke-opacity', 0.9)
+    }
+  }
+
   // 權重數字：只要有 weight 就一定顯示（不限 weight 模式）。粒度是「相鄰兩站」——
   // 每個 cut-to-cut 段展開成站鏈 [a, ...interior 白點, b]，鏈上每一對「可見」相鄰站各標
   // 一個 weight 在兩站連線中點（白色描邊底、讀得清楚）。白點位置：RWD 用 posAfter、縮減
@@ -1625,6 +1708,22 @@ onBeforeUnmount(() => {
               </template>
             </div>
           </div>
+          <!-- Step by Step 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
+               怎麼一步步收斂；「重設」回到該鏈的起點。 -->
+          <div v-if="isHC && STEP_KIND[mode]" class="step-panel">
+            <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="stepNext()">下一步 ▶</button>
+            <button class="step-btn sub" :disabled="!panelLayer || stepInfo?.done" @click="stepNext(1)">下一小步 ›</button>
+            <button class="step-btn ghost" :disabled="!panelLayer" @click="stepReset">重設</button>
+            <span class="step-count" v-if="stepInfo">第 {{ stepInfo.steps }} 步</span>
+            <!-- 這一步是哪一個工作：執行到的階段亮起 -->
+            <span class="step-stages" v-if="stepInfo">
+              <template v-for="(s, i) in STEP_STAGES" :key="s.k">
+                <span v-if="i" class="step-arrow">→</span>
+                <span class="step-chip" :class="{ active: stepInfo.lastStage === s.k }">{{ s.label }}</span>
+              </template>
+            </span>
+            <span class="step-msg" v-if="stepInfo" :class="{ done: stepInfo.done }">{{ stepInfo.info }}</span>
+          </div>
           </div>
         </div>
 
@@ -1897,6 +1996,82 @@ onBeforeUnmount(() => {
 }
 .ma-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
 .ma-svg:active { cursor: grabbing; }
+/* Step by Step 浮動控制列（左上）：下一步／重設＋這一步做了什麼。 */
+.step-panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--card) / 0.92);
+  backdrop-filter: blur(4px);
+  font-size: 12px;
+  z-index: 5;
+  pointer-events: auto;
+}
+.step-btn {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  cursor: pointer;
+}
+.step-btn:hover:not(:disabled) { opacity: 0.9; }
+.step-btn:disabled { opacity: 0.4; cursor: default; }
+.step-btn.sub {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+.step-btn.ghost {
+  background: transparent;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+}
+.step-count {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: hsl(var(--primary));
+}
+.step-msg {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+}
+.step-msg.done { color: hsl(142 70% 40%); font-weight: 600; }
+/* 階段 chips：這一步執行的工作亮起。 */
+.step-stages {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.step-chip {
+  padding: 2px 7px;
+  font-size: 11px;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+}
+.step-chip.active {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+}
+.step-arrow { color: hsl(var(--muted-foreground) / 0.5); font-size: 10px; }
 .ma-hint {
   position: absolute;
   inset: 0;
