@@ -82,9 +82,9 @@ export function buildSchematicGrid(skeleton, posById, extent) {
   const [x0, y0, x1, y1] = extent
   const cls = skeleton.stationClass
 
-  // 河流節點（含端點）不定義格線、不被吸格——格網化只看黃點（交叉，非 river 節點）與地鐵站。
-  const riverSet = new Set((skeleton.riverNodes || []).map((r) => r.id))
-  const colored = [...cls].filter(([id, c]) => c !== 'black' && !riverSet.has(id) && posById.has(id)).map(([id]) => id)
+  // 河流已是**資料層的一般網路路線**（站級 Point＋route feature，見 buildLandmarkCombined）
+  // ——這裡零特例：河流的端點/匯流/轉折站與地鐵站一樣定義格線、進 cellOf、被爬山最佳化。
+  const colored = [...cls].filter(([id, c]) => c !== 'black' && posById.has(id)).map(([id]) => id)
   const pts = colored.map((id) => ({ id, x: posById.get(id)[0], y: posById.get(id)[1] }))
   const cutsX = denseCuts(pts.map((p) => p.x))
   const cutsY = denseCuts(pts.map((p) => p.y))

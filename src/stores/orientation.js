@@ -70,6 +70,9 @@ export function computeOrientation(geojson) {
 
   for (const f of geojson?.features ?? []) {
     if (f.geometry?.type === 'Point' || f.geometry?.type === 'MultiPoint') continue
+    // 方位（依建議旋轉的 tilt）只看**地鐵路網**：河流（river route）與面域地標（皇居/公園，
+    // landmark_id）不參與——河流走向是地理事實、不是路網格向，算進去會把建議角度拉歪（使用者）。
+    if (f.properties?.river || f.properties?.landmark_id) continue
     eachSegment(f.geometry, (a, b) => {
       // Weight by the segment's geometric length — this measures the network's
       // physical orientation. Overlap-deduped shared trunks are one corridor

@@ -744,8 +744,6 @@ async function render() {
   // Synthetic crossing (yellow) nodes are not real stations — feed their coords
   // to the grid + edge drawing so split edges and gridding resolve them.
   for (const c of sk?.crossings ?? []) projById.set(c.id, P(c.coord))
-  // 河流合成站（rvN_i）——併進 posById，格網化才會把河流一起示意化、河流邊畫得出。
-  for (const r of sk?.riverNodes ?? []) projById.set(r.id, P(r.coord))
   const grid = gridMode.value ? buildSchematicGrid(cachedSkeleton, projById, [24, 24, w - 24, h - 24]) : null
   // Hill Climbing (②, see skill route-hillclimb): optimize the grid CELLS once
   // per dataset — cells are rank-based, so a resize only changes the pixel
@@ -1064,7 +1062,8 @@ async function render() {
   let lineData, stationData, highlightData = []
   if (sk) {
     const edgeD = (pathIds) => pathIds
-      .map((id, i) => { const [x, y] = posOf(id); return `${i ? 'L' : 'M'} ${x.toFixed(2)} ${y.toFixed(2)}` })
+      .map((id) => posOf(id)).filter(Boolean) // 缺座標的節點跳過，不讓整條線 render 拋錯/消失
+      .map((p, i) => `${i ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
       .join(' ')
     // 線的顏色一律照原始 Metro Maps：單色 route → 實線原色；共線（≥2 相異色）→ 交錯
     // 彩色虛線（dasharray）。格網化後/HC/RWD 的線都經此，確保共線顯示與原始同樣的多色，
@@ -1134,8 +1133,15 @@ async function render() {
     }
     // RWD 路網：自動隱藏的白點（直通站）不畫（cachedRWD.hidden）。
     const hiddenWhite = (rwdLines && cachedRWD?.hidden) || null
+    // 河流站點（properties.river）＝一般網路節點，但**沒有白點**（使用者）：只在骨架分類為
+    // 顯著點（紅匯流/藍端點/粉紅轉折/紫切點/黃）時才畫；黑/灰的河流折點不畫。
+    const riverShow = (p) => {
+      const c = sk.stationClass.get(p.station_id)
+      return c && c !== 'black' && c !== 'gray'
+    }
     stationData = stations
       .filter((f) => !(hiddenWhite && hiddenWhite.has(f.properties.station_id)))
+      .filter((f) => !f.properties.river || riverShow(f.properties))
       .map((f) => {
         const [x, y] = posOf(f.properties.station_id)
         return { x, y, props: f.properties, fill: NODE_COLOR[sk.stationClass.get(f.properties.station_id)] ?? '#ffffff' }
@@ -1145,22 +1151,17 @@ async function render() {
       const p = posOf(c.id)
       if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: c.id, station_name: '路線交叉點' }, fill: NODE_COLOR.yellow })
     }
-    // 河流上**只顯示粉紅（轉折最大處）＋紅（河流匯流/相接）＋黃（交叉）**——河流合成站非 Point
-    // feature、預設不畫；只畫 pink（轉折）與 red（跨河共點合流，degree≥3）的河流節點。
-    for (const r of sk.riverNodes ?? []) {
-      if (r.cls !== 'pink' && r.cls !== 'red') continue
-      const p = posOf(r.id)
-      if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: r.id, station_name: r.cls === 'red' ? '河流匯流' : '河流轉折點' }, fill: NODE_COLOR[r.cls] })
-    }
   } else {
     // 原始 = EXACTLY the Metro Maps drawing: single route → solid colour, overlap
     // (≥2 distinct route colours) → interleaved coloured dashes (same as LayerTab).
     lineData = lineFeats.flatMap((f) =>
       featStrokes(f, path(f), { props: f.properties }))
-    stationData = stations.map((f) => {
-      const [x, y] = P(f.geometry.coordinates)
-      return { x, y, props: f.properties, fill: stationColor(f.properties) }
-    })
+    stationData = stations
+      .filter((f) => !f.properties.river) // 河流站點原始視圖不畫（河流沒有站圈，與地圖一致）
+      .map((f) => {
+        const [x, y] = P(f.geometry.coordinates)
+        return { x, y, props: f.properties, fill: stationColor(f.properties) }
+      })
   }
 
   // Bottom-to-top: the blue schematic grid at the very bottom, then edge-class

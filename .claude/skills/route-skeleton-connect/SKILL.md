@@ -226,23 +226,21 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
   單線 2 色會誤判成 coline 紅底），`renderColors` 放 `railColors`（官方色＋白，**格網化/HC/RWD
   視圖畫線用**，讓移動後視圖與 Metro Maps 一模一樣）。route 端記 `railColors`＝單 route 段的
   2 色 route_colors。地理視圖本就直接用 feature 的 `route_colors` 畫、天然一致。
-- **河流當合成路線（「城市＋地標」-lm 檔）**：`landmark_id`＋`kind` 含 river 的 LineString 折點
-  注入為合成站（`rvN_i`）、整條河＝合成路線 `river:{landmark_id}`（瑩光天藍 `#00E5FF`）。目的：讓 ②
-  detectCrossings 算出**河流×地鐵交叉黃點**、③ 收縮把河折點串成連續河流邊、schematicGrid 一起
-  示意格網化。河流 feature 無 `routes` 屬性，故 `detectCrossings` 的 realLeg／routeGeom 用
-  `featRoutesOf(f)` 補回河流的 route 關聯（否則交叉會在 `onRouteGeom` 被當「不在河流線上」丟掉）。
-  合成站不是 Point feature → 不畫成車站點；座標＋class 由 `riverNodes:[{id,coord,cls}]` 回傳，
-  前端連同 `crossings` 併進 `posById`。**面域地標（皇居/公園）不注入**（只當地理背景，非骨架）。
-  base 城市檔無地標 feature → 不受影響。
-  - **河流上只顯示三種點（使用者裁決）**：**黃（河流×地鐵交叉）＋紅（跨河匯流/相接）＋粉紅
-    （轉折最大處）**，其餘（黑/藍/灰）不畫。
-    - **紅＝跨河共點合流**：不同河流在同一座標的折點**共用同一合成節點**（`coordKey` 去重），
-      degree≥3 → 依 degree 規則自然變紅。
-    - **粉紅＝主要轉折**：河流邊用**專屬 DP 容差 `PINK_DP_TOL_RIVER`（垂距/弦長 > 0.3 才設）**，
-      比一般線的 0.25 更嚴（長河的彎相對總弦長小；0.5＝近髮夾彎才算，多數河流幾乎不設粉紅）。
-    - **河流邊不放灰點**：灰是非黑、在 `placeBlacks` 會被當切點而**阻止河流被拉直**；移除後河流
-      黑折點一律拉直 → **格網化後河流在 {黃,紅,粉紅} 之間畫直線**（跟 metro network 一樣）。
-      `schematicGrid` 也把河流節點排除在「定義格線的 colored 點」外（只有黃點交叉吸格）。
+- **河流＝資料層的一般網路路線（「城市＋地標」-lm 檔，使用者最終裁決：「river 就是 network
+  的一條線」）**：`buildLandmarkCombined.mjs` 把每條河**轉成真的 route**——折線以**絕對 DP（偏離弦線 > 0.2 km）**簡化成**站級顯著點**（相對容差在長河會失效——大漢溪整體平緩弧曾被縮成 2 點直線）（端點＋跨河匯流＋主要轉折，一條河 ~10–20 點，
+  與地鐵一條線同量級），產出**真的車站 Point features**（`properties.river: true`）＋**真的路段
+  feature**（routes[] schema 與地鐵相同、`route_id=river:{landmark_id}`、色 `#00E5FF`）。
+  **跨河匯流＝兩條河共用同一個車站節點**（builder 端點吸附 ≤150 m＋座標鍵共站）→ degree≥3
+  自然紅點。骨架/交叉/格網化/爬山/RWD **全部把河流當一般線處理、零特例**——曾用「合成節點
+  注入」（每個原始折點都成節點，一條河 ~600 節點）導致格網化/爬山不是拉爛就是把河撕裂成
+  跨座標系長斜線；根因是**量級**（線的頂點必須是站級），資料層轉 route 後全部自然成立。
+  **面域地標（皇居/公園）仍是 overlay**（不轉網路）；河流 LineString 地標不再輸出。
+  僅存的河流微調（以 route_id 前綴 `river` 辨識）：
+  - **粉紅容差**：河流邊用 `PINK_DP_TOL_RIVER`（垂距/弦長 > 0.25，與一般線相同）。
+  - **不放灰點**：灰會在 placeBlacks 被當切點、阻止河流拉直。
+  - **沒有白點（渲染）**：river 站分類為黑/灰時不畫（D3Tab／viewGeometry 的 riverShow／
+    riverDotVisible）；地圖 LayerTab 的站圈 filter `['!',['has','river']]` 整批不畫。
+    顯示的河流節點＝藍端點/紅匯流/粉紅轉折/紫切點/黃交叉。
 - degree／route 集合一律由 `routes[].stations` 建圖得出（不讀 `station_role`）。
 - 已實作：①②③④⑤⑥（節點/邊分類、黃色幾何交叉、紫點、粉紅、灰）。②黃點是幾何標記，
   只在純骨架視圖畫、格網化視圖不畫（見 ②）。

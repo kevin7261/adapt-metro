@@ -94,12 +94,7 @@ function detectCrossings(geojson, routes, coord) {
     const keyOfC = coordKey
     const stByCoordC = new Map()
     for (const [id, c] of coord) stByCoordC.set(keyOfC(c), id)
-    // 河流 feature 無 `routes` 屬性，但 buildConnectSkeleton 已把它注入為合成路線
-    // `river:{landmark_id}`——這裡補回它的 route 關聯，讓 realLeg／routeGeom 認得河流的
-    // feature 幾何，否則河流×地鐵交叉會在 onRouteGeom（下方）被判「不在河流線上」而丟掉。
-    const featRoutesOf = (f) => f.properties?.routes ?? (
-      f.properties?.landmark_id && /river/.test(f.properties.kind || '')
-        ? [{ route_id: `river:${f.properties.landmark_id}` }] : [])
+    const featRoutesOf = (f) => f.properties?.routes ?? [] // 河流已是一般 route feature，無需特例
     const realLeg = new Map()
     for (const f of geojson?.features ?? []) {
       if (!f.geometry || f.geometry.type === 'Point') continue
@@ -255,35 +250,12 @@ export function buildConnectSkeleton(geojson) {
     }
   }
 
-  // 河流骨架線（landmark river-centerline）當「合成路線」注入：折點＝合成站（rvN_i，非 Point
-  // feature → 不畫成車站點）、整條河＝一條藍色合成路線。目的：讓 ② detectCrossings 算出
-  // **河流×地鐵的交叉黃點**、③ 收縮把河流折點串成連續河流邊、schematicGrid 也把河流一起
-  // 示意格網化。中段折點 degree=2→黑（收縮）、端點→藍、與地鐵的交叉→黃點（皆不畫成車站點）。
-  // **跨河共點合流＝紅點**（使用者：河流相接的地方是紅色）：不同河流在同一座標的折點共用
-  // 同一個合成節點（座標鍵去重），該節點 degree≥3（幹流兩側＋支流）→ 依 degree 規則自然變紅。
-  const riverIds = new Set()
-  const rvByCoord = new Map() // coordKey -> sid（跨河共用）
-  let rvSeq = 0
-  for (const f of geojson?.features ?? []) {
-    if (f.geometry?.type !== 'LineString') continue
-    if (!f.properties?.landmark_id || !/river/.test(f.properties.kind || '')) continue
-    const ids = []
-    for (const c of f.geometry.coordinates) {
-      const key = coordKey(c)
-      let sid = rvByCoord.get(key)
-      if (!sid) { sid = `rv${rvSeq++}`; rvByCoord.set(key, sid); coord.set(sid, c); riverIds.add(sid) }
-      // 同一河流連續折點若落同格則不重複入序（避免自成 0 長度段）
-      if (ids[ids.length - 1] !== sid) ids.push(sid)
-    }
-    if (ids.length >= 2) routes.set(`river:${f.properties.landmark_id}`, {
-      id: `river:${f.properties.landmark_id}`, name: f.properties.name ?? '',
-      color: '#00E5FF', railColors: null, stations: ids, isRiver: true, // 瑩光天藍
-    })
-  }
+  // 河流＝**資料層的一般網路路線**（buildLandmarkCombined 把河流轉成站級 route feature：
+  // 端點/匯流/主要轉折＝真的車站 Point、route_id=`river:…`）——骨架這裡**零特例**，與地鐵
+  // 一視同仁：交叉黃點、匯流紅點（共站 degree≥3）、端點藍點全走通用規則。僅存的河流微調
+  // 在 ⑥（粉紅容差 0.40、不放灰點），以 route_id 前綴 `river` 辨識。
 
-  // ② 幾何交叉 → 黃色節點（detectCrossings，就地 splice 進 routes/coord）。河流合成路線一併參與
-  //    → 河流×地鐵交叉補黃點。河流 feature 無 `routes` 屬性、其「相鄰合成站直線」即真實河段幾何，
-  //    detectCrossings 找不到 realLeg 時保留 chord 候選（見該函式），故河流交叉以河段實幾何判定。
+  // ② 幾何交叉 → 黃色節點（detectCrossings，就地 splice 進 routes/coord）。
   const { crossings, crossIds } = detectCrossings(geojson, routes, coord)
 
   // NOTE: the skeleton is a pure TOPOLOGICAL contraction of the Metro Maps
@@ -569,7 +541,5 @@ export function buildConnectSkeleton(geojson) {
 
   // 河流合成站的座標（非 Point feature，前端拿不到）——連同 crossings 一起併進 posById，
   // 讓格網化（schematicGrid）把河流一起示意化、移動後視圖也畫得出河流邊。
-  const riverNodes = [...riverIds].filter((id) => coord.has(id))
-    .map((id) => ({ id, coord: coord.get(id), cls: stationClass.get(id) }))
-  return { stationClass, edges, pinkInfo, crossings, riverNodes }
+  return { stationClass, edges, pinkInfo, crossings }
 }

@@ -23,7 +23,14 @@ const OUT = join(ROOT, 'data', 'metro', 'landmarks')
 //  named: exact-name polygon queries (palace / park), optionally tag-filtered;
 //         pickLargest keeps only the largest polygon when the name is ambiguous.
 const CITIES = {
-  'as-twn-taipei': { rivers: ['淡水河', '基隆河', '新店溪', '大漢溪'] },
+  'as-twn-taipei': {
+    // 裁切（使用者 2026-07）：基隆河只到汐止、新店溪只到新店、大漢溪只到鶯歌；
+    // keep=台北車站（保留靠市中心那段——大漢溪河口在高經度側，不能用預設 min-lon 判side）。
+    rivers: ['淡水河',
+      { name: '基隆河', match: ['基隆河'], clip: [121.6428, 25.0656], keep: [121.5170, 25.0478] },
+      { name: '新店溪', match: ['新店溪'], clip: [121.5423, 24.9577], keep: [121.5170, 25.0478] },
+      { name: '大漢溪', match: ['大漢溪'], clip: [121.3454, 24.9541], keep: [121.5170, 25.0478] }],
+  },
   'eu-gbr-london': { rivers: ['River Thames'] },
   'eu-ger-berlin': {
     rivers: [
@@ -50,6 +57,26 @@ const CITIES = {
 const BBOX_MARGIN = 0.05 // fraction of span added on each side
 const MIN_CENTERLINE_KM = 1 // drop skeleton fragments below this length
 const GAP_BRIDGE_KM = 4 // join same-river main lines whose endpoints are this close
+const URBAN_TRIM_KM = 3 // 市區裁切：河流只保留「離任一地鐵站 ≤3km」的最長連續段（使用者 2026-07）
+
+// 市區裁切（使用者：河流只要市區範圍、不是整條）——通用規則：只保留「離任一地鐵站
+// ≤ URBAN_TRIM_KM」的**最長連續段**。有顯式 `clip` 的河（台北三條）不套用（範圍已由使用者裁定）。
+function trimToUrban(line, stations, lat0) {
+  if (!stations.length) return null
+  const kx = 111.32 * Math.cos((lat0 * Math.PI) / 180), ky = 110.574
+  const r2 = URBAN_TRIM_KM * URBAN_TRIM_KM
+  const ok = line.map((p) => stations.some((s) => {
+    const dx = (p[0] - s[0]) * kx, dy = (p[1] - s[1]) * ky
+    return dx * dx + dy * dy <= r2
+  }))
+  let bs = 0, be = -1, s = -1
+  for (let i = 0; i <= ok.length; i++) {
+    if (i < ok.length && ok[i]) { if (s < 0) s = i }
+    else if (s >= 0) { if (i - 1 - s > be - bs) { bs = s; be = i - 1 } s = -1 }
+  }
+  if (be - bs < 1) return null
+  return line.slice(bs, be + 1)
+}
 
 async function findCityFile(id) {
   const stack = [SYSTEMS]
@@ -236,7 +263,25 @@ const normRivers = (rivers) => rivers.map((r) => (typeof r === 'string' ? { name
 // （雙次 Dijkstra 求 graph diameter）當主線，側汊不進骨架。
 function centerlineFeatures(elements, rivers) {
   const canonical = new Map() // OSM 名（含區段別名）→ 名單主名
-  for (const r of normRivers(rivers)) for (const m of r.match) canonical.set(m, r.name)
+  const clipByName = new Map() // 主名 → [lon,lat] 裁切點（河流只保留到此點的主段）
+  for (const r of normRivers(rivers)) {
+    for (const m of r.match) canonical.set(m, r.name)
+    if (r.clip) clipByName.set(r.name, { clip: r.clip, keep: r.keep ?? null })
+  }
+  // 在最近的折點把河流截斷，**保留靠 keep 點（市中心/河口）那一段**，丟掉往上游的尾。
+  // keep 由 rivers 設定項的 `keep:[lon,lat]` 指定（台北＝台北車站）；未指定退回「含最低經度端」
+  // （基隆河河口在低經度側適用；大漢溪河口在高經度側、上游往鶯歌是低經度——必須用 keep 判side）。
+  const clipLine = (line, [clon, clat], keepPt) => {
+    let ci = 0, cd = Infinity
+    line.forEach((p, i) => { const d = (p[0] - clon) ** 2 + (p[1] - clat) ** 2; if (d < cd) { cd = d; ci = i } })
+    const a = line.slice(0, ci + 1), b = line.slice(ci)
+    if (keepPt) {
+      const near = (seg) => Math.min(...seg.map((p) => (p[0] - keepPt[0]) ** 2 + (p[1] - keepPt[1]) ** 2))
+      return near(a) <= near(b) ? a : b
+    }
+    const minLon = (seg) => Math.min(...seg.map((p) => p[0]))
+    return minLon(a) <= minLon(b) ? a : b
+  }
   const byName = new Map()
   for (const el of elements) {
     const n = canonical.get(el.tags?.name)
@@ -357,8 +402,10 @@ function centerlineFeatures(elements, rivers) {
       lines[best.i] = a.concat(b)
       lines.splice(best.j, 1)
     }
+    const clipCfg = clipByName.get(name)
     lines.sort((x, y) => lineLengthKm(y) - lineLengthKm(x))
-    lines.forEach((line, i) => {
+    lines.forEach((line0, i) => {
+      const line = clipCfg ? clipLine(line0, clipCfg.clip, clipCfg.keep) : line0
       feats.push({
         type: 'Feature',
         properties: {
@@ -415,6 +462,17 @@ for (const id of ids) {
     const allNames = normRivers(spec.rivers).flatMap((r) => r.match)
     const cl = await overpass.query(centerlineQuery(clBbox, allNames), { cacheName: clCache })
     const clFeats = centerlineFeatures(cl.elements || [], spec.rivers)
+    // 市區裁切（顯式 clip 的河不套用）
+    const clippedNames = new Set(normRivers(spec.rivers).filter((r) => r.clip).map((r) => r.name))
+    const stationPts = city.features.filter((f) => f.geometry?.type === 'Point').map((f) => f.geometry.coordinates)
+    for (const f of clFeats) {
+      if (clippedNames.has(f.properties.name)) continue
+      const t = trimToUrban(f.geometry.coordinates, stationPts, bbox[0])
+      if (t && t.length >= 2) {
+        f.geometry.coordinates = t
+        f.properties.length_km = +lineLengthKm(t).toFixed(2)
+      }
+    }
     if (!clFeats.length) console.error(`  [warn] rivers [${allNames.join('/')}]: no centerline found`)
     else console.log(`  skeleton: ${clFeats.length} lines (` +
       clFeats.map((f) => `${f.properties.name} ${f.properties.length_km}km`).join(', ') + ')')

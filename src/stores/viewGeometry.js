@@ -58,12 +58,14 @@ function projByIdFor(projection, stations, skeleton) {
     const p = projection(c.coord)
     if (p) projById.set(c.id, p)
   }
-  // 河流合成站——與 D3Tab 一致，讓畫廊縮圖也把河流示意格網化。
-  for (const r of skeleton.riverNodes ?? []) {
-    const p = projection(r.coord)
-    if (p) projById.set(r.id, p)
-  }
   return projById
+}
+
+// 河流站點沒有白點（使用者）：骨架視圖只在分類為顯著點時畫（黑/灰不畫）；原始視圖一律不畫。
+const riverDotVisible = (f, skeleton) => {
+  if (!f.properties?.river) return true
+  const c = skeleton?.stationClass?.get(f.properties.station_id)
+  return !!c && c !== 'black' && c !== 'gray'
 }
 
 // Integer cell → pixel cell-centre + uniform blue separators (same as D3Tab)。
@@ -143,6 +145,7 @@ function drawFromPos(skeleton, stations, lineFeats, posMap, sep) {
   const hl = [] // 移動後視圖不畫邊分類襯底（維持原本行為，共線僅靠交錯虛線表示）
   const dots = []
   for (const f of stations) {
+    if (!riverDotVisible(f, skeleton)) continue // 河流無白點
     const p = posMap.get(f.properties.station_id)
     if (!p) continue
     dots.push({ x: +p[0].toFixed(1), y: +p[1].toFixed(1), fill: NODE_COLOR[skeleton.stationClass.get(f.properties.station_id)] ?? '#ffffff' })
@@ -201,6 +204,7 @@ export function computeCityViews(geojson, opts = {}) {
     const lines = featureLines(projection)
     const dots = []
     for (const f of stations) {
+      if (f.properties?.river) continue // 河流站點原始視圖不畫（河流沒有站圈）
       const p = projection(f.geometry.coordinates)
       if (p) { const [x, y] = round(p); dots.push({ x, y, fill: stationColor(f.properties ?? {}) }) }
     }
@@ -232,6 +236,7 @@ export function computeCityViews(geojson, opts = {}) {
       }
       const dots = []
       for (const f of stations) {
+        if (!riverDotVisible(f, skeleton)) continue // 河流無白點
         const p = posOf(f.properties.station_id)
         if (!p) continue
         const [x, y] = round(p)

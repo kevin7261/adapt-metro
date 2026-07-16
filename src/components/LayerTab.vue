@@ -441,7 +441,8 @@ function addMetroSourceLayers(data) {
   )
   map.addLayer({
     id: 'metro-stations', source: 'metro', type: 'circle',
-    filter: ['==', ['geometry-type'], 'Point'],
+    // 河流站點（river:true，城市＋地標檔的河流網路節點）不畫站圈——河流在地圖上只是一條線。
+    filter: ['all', ['==', ['geometry-type'], 'Point'], ['!', ['has', 'river']]],
     paint: {
       'circle-radius': l.radius,
       'circle-color': STATION_COLOR,
