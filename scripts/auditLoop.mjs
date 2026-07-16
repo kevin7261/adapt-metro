@@ -288,20 +288,25 @@ async function audit(city, country, wikiRow) {
           : '各線車站列表與圖面一致')
     }
 
-    // 不變式：interchange ⇔ 網絡圖度數 >2（不同相鄰站——分歧點／交會點）。同路線
-    // 共軌重疊段中間站 degree=2 不算；分歧 濱海沙崙／七張 degree=3 算。station_degree
-    // 由 build 記錄；缺欄位時退回線數。
+    // 不變式：interchange ⇔ 網絡圖度數 >2（分歧/交會）或 端點站停靠 ≥2 線
+    // （terminus-interchange，如 Zaragoza；termCount≥2 亦落入此式）或 端點站被
+    // pass 路線穿過（東涌案 2026-07-16：終點站幾何上有線續走＝分歧，絕非藍點）。
+    // 與 buildGeojson.mjs 的 isIx 同式（該處為權威，改一處必同步）。同路線共軌
+    // 重疊段中間站 degree=2、非端點 不算；濱海沙崙／七張分歧 degree=3 算。
     {
       const bad = pts.filter((f) => {
         const p = f.properties
-        const deg = p.station_degree ?? (p.line_ids?.length ?? 0)
-        return (deg > 2) !== !!p.is_interchange
+        const deg = p.station_degree ?? (p.lines?.length ?? 0)
+        const hasPass = (p.routes ?? []).some((r) => r?.pass)
+        const expect = deg > 2 || (p.is_terminus && (p.lines?.length ?? 0) >= 2)
+          || (p.is_terminus && hasPass && deg >= 2)
+        return expect !== !!p.is_interchange
       })
       push('interchange_rule', bad.length === 0,
         bad.length
           ? `${bad.length} 站的 interchange 標記與網絡圖度數不符：` +
             bad.slice(0, 4).map((f) => f.properties.station_name).join('、')
-          : '所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則')
+          : '所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則')
     }
 
     // 全部車站必須有名稱（使用者規則：100%，無名＝資料錯誤）

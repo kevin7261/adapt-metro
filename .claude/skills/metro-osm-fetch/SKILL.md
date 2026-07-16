@@ -417,12 +417,16 @@ npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + m
 如 Monterrey Zaragoza：L2/L3 都在此止、degree=2 卻是真轉乘）或**端點站且停靠 ≥2 條線**
 （全域鐵律：藍色端點站不可能有超過 1 條路線；若有＝可轉乘＝紅點——涵蓋「A 線在此為終點、
 B 線經過並停靠、共用進站方向使 degree=2」的漏判；停靠線數以 pass 排除後的 `lines` 計）**
-——三者都是「≥2 路段相交」的紅點；**共軌重疊段中間站**兩線給相同前後鄰、無線在此終止 → degree=2＋termCount=0，
+**或 端點站被 pass 路線穿過（degree≥2）**（使用者裁決 2026-07-16 **東涌案**：TCL 終點、
+AEL pass 續往機場——幾何上線穿過此站再分岔，degree=2 但「不是端點」，絕不可能藍點＝
+分歧紅點；全球 223 城此 pattern 僅東涌一例）——四者都是「≥2 路段相交」的紅點；
+**共軌重疊段中間站**兩線給相同前後鄰、無線在此終止 → degree=2＋termCount=0，
 不算 interchange。**快車 pass 頂點計入 degree**（使用者裁決 2026-07：顯徑要紅點）：
 pass 鏈沿共軌走廊時給的前後鄰與慢車相同 → degree 不變、共軌中間 pass 站仍是黑點
 （紐約 express 沿 local 走廊的站不變紅——早期「pass 不計 degree」裁決的本意保留）；
 但 pass 線在**分岔點**離開走廊時貢獻新鄰居（HK 東鐵綫在顯徑轉往九龍塘、AEL 在欣澳
-轉往機場）→ degree>2 ＝ 真實分歧紅點。pass 站照舊不進停靠（stations／lines／terminus）。
+轉往機場）→ degree>2 ＝ 真實分歧紅點；**分岔恰在終點站**（degree 只有 2）由上述
+東涌條款補洞。pass 站照舊不進停靠（stations／lines／terminus）。
 `terminus`＝某線端點（環線無端點）；`station_degree` 存網絡圖度數）,
 `is_interchange`, `is_terminus`, `merged_from`（若由共站合併而來，
 ＝被併成員數）, `merged_names`（**異名轉乘站合併後保留所有成員站名的 list**——

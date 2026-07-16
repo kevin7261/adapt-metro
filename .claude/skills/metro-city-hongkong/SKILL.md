@@ -41,6 +41,12 @@ AEL 的直達邊與 TCL 逐站路徑不同站段 → 抓不到共線。用 `_ove
 車站 `routes` 對 AEL 標 `pass:true`——AEL pass：奧運/南昌/荔景/欣澳/**東涌**）。
 - Kowloon→Tsing Yi 段自動偵測即可（TCL 走完該段）；**欣澳→東涌段需手動 override**——因
   沒有單一 route 走完 Tsing Yi→欣澳→東涌→Airport，自動偵測抓不到。
+- **東涌是紅點（使用者裁決 2026-07-16）**：AEL 幾何穿過東涌再分岔往機場 → 東涌
+  「不是端點」，雖是 TCL 終點也不可為藍點——「端點站被 pass 路線穿過（degree≥2）」
+  判分歧紅點（buildGeojson `isIx` 第四條件，全球 223 城此 pattern 僅東涌一例；
+  通則見 [[metro-osm-fetch]] station_role 節）。D3 骨架視圖不受影響（骨架是純拓撲、
+  pass 不進骨架，AEL 在骨架中不經東涌，東涌仍為 TCL 端點藍點——兩視圖各自與
+  自己畫的幾何一致）。
 詳見 [[metro-osm-fetch]]「快車跨站共線」（自動偵測＋手動 override 兩層）。
 
 ## 中環↔香港 官方共站（異名轉乘，使用者裁決 2026-07）

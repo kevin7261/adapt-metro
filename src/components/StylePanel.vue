@@ -880,15 +880,15 @@ function startResize(e) {
 
         <!-- ============ Style ============ -->
         <template v-else-if="activeTab === 'style'">
-          <!-- 跨距上限：端點移動/直線縮減/中位集中 的所有移動不得讓受影響段
-               的兩個顏色點橫跨超過 n 格（預設 3）。滑桿只改數值——按「重新計算」
-               才清快取、以新上限重算（spanApplied = 快取目前用的值）。 -->
+          <!-- 跨距上限（見 skill route-span-cap）：所有移動不得讓受影響段的
+               兩個顏色點橫跨超過 n 格（預設 3）。手動輸入、只改數值——按
+               「重新計算」才清快取、以新上限重算（spanApplied = 快取目前用的值）。 -->
           <div v-if="viewKind === 'hillclimb' || viewKind === 'rwd'" class="field">
-            <label class="field-label">顏色點間最大跨距 — {{ layer.spanCap ?? 3 }} 格</label>
+            <label class="field-label">顏色點間最大跨距（格）</label>
             <input
               :value="layer.spanCap ?? 3"
-              type="range" min="1" max="8" step="1" class="slider"
-              @input="layer.spanCap = +$event.target.value"
+              type="number" min="1" step="1" class="span-input"
+              @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
             />
             <button
               class="llm-run-btn span-recalc"

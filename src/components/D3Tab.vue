@@ -20,6 +20,7 @@ import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, ler
 import { stationPopupHtml, linePopupHtml } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
 import AttributeTable from './AttributeTable.vue'
+import MIcon from './MIcon.vue'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -1662,7 +1663,11 @@ onBeforeUnmount(() => {
                 :aria-expanded="navSectionOpen(s)"
                 @click="toggleNavSection(s)"
               >
-                <span class="view-nav-caret">{{ navSectionOpen(s) ? '▾' : '▸' }}</span>
+                <MIcon
+                  :name="navSectionOpen(s) ? 'expand_more' : 'chevron_right'"
+                  :size="14"
+                  class="view-nav-caret"
+                />
                 <span class="view-nav-group-label">{{ s.header }}</span>
               </button>
               <div v-if="navSectionOpen(s)" class="view-nav-sec-items">
@@ -1982,11 +1987,10 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 .view-nav-group:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+/* 同 Layers 面板的 group-chevron（MIcon chevron_right / expand_more, 14px）。 */
 .view-nav-caret {
   flex-shrink: 0;
-  width: 14px;
-  font-size: 12px;
-  text-align: center;
+  color: hsl(var(--muted-foreground));
 }
 .view-nav-group-label {
   flex: 1;

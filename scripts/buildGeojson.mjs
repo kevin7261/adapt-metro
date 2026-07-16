@@ -2048,12 +2048,17 @@ async function build() {
       // interchange ⇔ degree>2（分歧/交會）**或** ≥2 條不同線在此終止（terminus-
       // interchange，如 Zaragoza）**或** 端點站且停靠 ≥2 條線（使用者全域規則：藍色
       // 端點站不可能有超過 1 條路線；若有＝可轉乘＝紅點——涵蓋「A 線在此為終點、B 線
-      // 經過並停靠、共用進站方向使 degree=2」的漏判）。三者皆為「≥2 路段相交」；共軌
-      // 中間站（非端點、degree=2、termCount=0）仍不算。
+      // 經過並停靠、共用進站方向使 degree=2」的漏判）**或** 端點站被 pass 路線穿過
+      // （使用者裁決 2026-07-16 東涌案：TCL 終點、AEL pass 續往機場——幾何上線
+      // 穿過此站再分岔，degree=2 但絕不可能是藍色端點＝分歧紅點；顯徑/欣澳的
+      // 分岔在走廊中段 degree=3 已被第一條件涵蓋，這條補「分岔恰在終點站」的洞）。
+      // 四者皆為「≥2 路段相交」；共軌中間站（非端點、degree=2、termCount=0）仍不算，
+      // NYC express 沿 local 走廊的中間 pass 站照舊黑點。
       // 端點站規則用**顯示線數**（dispRoutes＝官方線身分去重後）：同名分支（中和新蘆線
       // 迴龍/蘆洲）在端點只算 1 條線——蘆洲是單線端點＝藍點，不因兩個 branch route_id
       // 誤判成紅點；七張（松山新店線＋小碧潭支線異名）仍 2 線。
       const isIx = deg > 2 || termCount >= 2 || (s.properties.is_terminus && dispRoutes.length >= 2)
+        || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2)
       s.properties.is_interchange = isIx
       s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'
