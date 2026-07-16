@@ -198,9 +198,11 @@ async function addMetroLayers(fit) {
   let data = layerData[l.id]
   if (!data) {
     try {
-      // no-cache: always revalidate the geojson with the server (ETag) so a
-      // rebuilt data file shows up on reload instead of a stale HTTP-cached copy.
-      const res = await fetch(l.file, { cache: 'no-cache' })
+      // no-store ＋ 每次匯入帶唯一 query（`?_=時戳`）——徹底避開任何 HTTP 快取，重抓一定拿到
+      // 最新檔（使用者多次遇到「重建了畫面還是舊資料」；no-cache 的 ETag 重驗在某些 dev/CDN
+      // 設定下仍會回舊檔，改用強制破快取）。
+      const bust = `${l.file}${l.file.includes('?') ? '&' : '?'}_=${Date.now()}`
+      const res = await fetch(bust, { cache: 'no-store' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       data = localizeStationNames(await res.json())
       layerData[l.id] = data
@@ -241,7 +243,7 @@ async function addMetroLayers(fit) {
    產生，概念同 東京＋山手）。addMetroLayers 以 `landmark_id` 把地標 features 抽到獨立來源，
    一般城市檔無地標 features → 不顯示地標開關。skill landmark-osm-fetch 仍是地標資料的產地。 */
 const LANDMARK_FILL =
-  ['match', ['get', 'kind'], ['river', 'river-centerline'], '#4f9fd4', '#58a866']
+  ['match', ['get', 'kind'], ['river', 'river-centerline'], '#00E5FF', '#58a866'] // 河流瑩光天藍
 const landmarkOn = ref(true)
 const landmarkAvailable = ref(false)
 let landmarkGeojson = null
@@ -267,7 +269,7 @@ function addLandmarkLayers() {
     id: 'lm-centerline', source: 'lm-landmarks', type: 'line',
     filter: ['==', ['geometry-type'], 'LineString'],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': '#2b7bb8', 'line-opacity': 0.9, 'line-width': 2 },
+    paint: { 'line-color': '#00E5FF', 'line-opacity': 0.9, 'line-width': 2 }, // 河流瑩光天藍
   }, before)
   // Hover highlight（filtered to hovered landmark_id；預設空過濾＝不顯示）——面域加深
   // 填色＋粗外框、河流骨架加粗，與 metro 車站/線 hover 的強調一致。加在基本地標層之上。
@@ -285,7 +287,7 @@ function addLandmarkLayers() {
     id: 'lm-centerline-hover', source: 'lm-landmarks', type: 'line',
     filter: ['all', ['==', ['geometry-type'], 'LineString'], ['==', ['get', 'landmark_id'], '']],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': '#1a6cb0', 'line-opacity': 1, 'line-width': 5 },
+    paint: { 'line-color': '#00E5FF', 'line-opacity': 1, 'line-width': 5 }, // 河流瑩光天藍（hover 加粗）
   }, before)
   syncLandmarkVisibility()
 }

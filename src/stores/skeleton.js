@@ -259,21 +259,26 @@ export function buildConnectSkeleton(geojson) {
   // feature → 不畫成車站點）、整條河＝一條藍色合成路線。目的：讓 ② detectCrossings 算出
   // **河流×地鐵的交叉黃點**、③ 收縮把河流折點串成連續河流邊、schematicGrid 也把河流一起
   // 示意格網化。中段折點 degree=2→黑（收縮）、端點→藍、與地鐵的交叉→黃點（皆不畫成車站點）。
+  // **跨河共點合流＝紅點**（使用者：河流相接的地方是紅色）：不同河流在同一座標的折點共用
+  // 同一個合成節點（座標鍵去重），該節點 degree≥3（幹流兩側＋支流）→ 依 degree 規則自然變紅。
   const riverIds = new Set()
-  let rvIdx = 0
+  const rvByCoord = new Map() // coordKey -> sid（跨河共用）
+  let rvSeq = 0
   for (const f of geojson?.features ?? []) {
     if (f.geometry?.type !== 'LineString') continue
     if (!f.properties?.landmark_id || !/river/.test(f.properties.kind || '')) continue
     const ids = []
-    f.geometry.coordinates.forEach((c, i) => {
-      const sid = `rv${rvIdx}_${i}`
-      coord.set(sid, c); riverIds.add(sid); ids.push(sid)
-    })
+    for (const c of f.geometry.coordinates) {
+      const key = coordKey(c)
+      let sid = rvByCoord.get(key)
+      if (!sid) { sid = `rv${rvSeq++}`; rvByCoord.set(key, sid); coord.set(sid, c); riverIds.add(sid) }
+      // 同一河流連續折點若落同格則不重複入序（避免自成 0 長度段）
+      if (ids[ids.length - 1] !== sid) ids.push(sid)
+    }
     if (ids.length >= 2) routes.set(`river:${f.properties.landmark_id}`, {
       id: `river:${f.properties.landmark_id}`, name: f.properties.name ?? '',
-      color: '#2b7bb8', railColors: null, stations: ids, isRiver: true,
+      color: '#00E5FF', railColors: null, stations: ids, isRiver: true, // 瑩光天藍
     })
-    rvIdx++
   }
 
   // ② 幾何交叉 → 黃色節點（detectCrossings，就地 splice 進 routes/coord）。河流合成路線一併參與
@@ -499,9 +504,15 @@ export function buildConnectSkeleton(geojson) {
   // A kept vertex is marked pink only if it is still a black (through) station.
   const PINK_SINUOSITY = 1.25
   const PINK_DP_TOL = 0.25
+  // 河流合成邊：只保留「粉紅（轉折最大處）＋黃點（交叉）」，其餘折點在格網化被拉直。
+  // 故河流邊 (a) 用**更細的 DP 容差**抓出主要轉折成粉紅（長河的彎相對總弦長小、預設 0.25
+  // 抓不到）、(b) **不放灰點**（灰是非黑→在 placeBlacks 會被當切點，害河流不被拉直＝使用者
+  // 回報「還是沒變直線」的主因）。
+  const PINK_DP_TOL_RIVER = 0.25
   for (const e of edges) {
     const { path } = e
     if (path.length < 3) continue
+    const isRiverEdge = [...e.routes].some((id) => String(id).startsWith('river:'))
     const cum = arcAt(path)
 
     // ⑤ purple cuts
@@ -519,9 +530,9 @@ export function buildConnectSkeleton(geojson) {
     const pts = path.map((id) => coord.get(id))
     const chord = dist(pts[0], pts[pts.length - 1])
     const sinuosity = chord > 1e-9 ? cum[cum.length - 1] / chord : Infinity
-    if (sinuosity > PINK_SINUOSITY) {
+    if (isRiverEdge || sinuosity > PINK_SINUOSITY) {
       const kept = new Map()
-      dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, kept)
+      dpKeep(pts, 0, pts.length - 1, isRiverEdge ? PINK_DP_TOL_RIVER : PINK_DP_TOL, kept)
       for (const [i, info] of kept) {
         if (i > 0 && i < path.length - 1 && stationClass.get(path[i]) === 'black') {
           stationClass.set(path[i], 'pink')
@@ -538,6 +549,9 @@ export function buildConnectSkeleton(geojson) {
 
     // ⑥ gray separators: within each run of black between boundaries (nodes +
     // pink/purple), G = floor(N/5) grays, spread toward the middle.
+    // **河流邊不放灰**——灰是非黑，會在 placeBlacks 被當切點而阻止河流被拉直（河流只留
+    // 粉紅＋黃點當切點，其餘黑折點一律拉直）。
+    if (isRiverEdge) continue
     let runStart = 0
     for (let i = 1; i < path.length; i++) {
       const boundary = i === path.length - 1 || stationClass.get(path[i]) !== 'black'
@@ -555,6 +569,7 @@ export function buildConnectSkeleton(geojson) {
 
   // 河流合成站的座標（非 Point feature，前端拿不到）——連同 crossings 一起併進 posById，
   // 讓格網化（schematicGrid）把河流一起示意化、移動後視圖也畫得出河流邊。
-  const riverNodes = [...riverIds].filter((id) => coord.has(id)).map((id) => ({ id, coord: coord.get(id) }))
+  const riverNodes = [...riverIds].filter((id) => coord.has(id))
+    .map((id) => ({ id, coord: coord.get(id), cls: stationClass.get(id) }))
   return { stationClass, edges, pinkInfo, crossings, riverNodes }
 }

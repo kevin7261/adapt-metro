@@ -51,6 +51,8 @@ function nearestFree(c, r, taken) {
 // (⑨) and the hill-climbing layout (②, src/stores/hillClimb.js).
 export function placeBlacks(skeleton, posMap, snap) {
   const cls = skeleton.stationClass
+  // 河流折點（黑點）照常在切點之間**拉直**——切點＝端點＋黃點（河流×metro 交叉）。故河流在
+  // 相鄰黃點之間畫成直線（與 metro network 一樣），轉折點被拉直、不保留地理彎（使用者裁決）。
   for (const e of skeleton.edges) {
     const path = e.path
     const cuts = []
@@ -80,7 +82,9 @@ export function buildSchematicGrid(skeleton, posById, extent) {
   const [x0, y0, x1, y1] = extent
   const cls = skeleton.stationClass
 
-  const colored = [...cls].filter(([id, c]) => c !== 'black' && posById.has(id)).map(([id]) => id)
+  // 河流節點（含端點）不定義格線、不被吸格——格網化只看黃點（交叉，非 river 節點）與地鐵站。
+  const riverSet = new Set((skeleton.riverNodes || []).map((r) => r.id))
+  const colored = [...cls].filter(([id, c]) => c !== 'black' && !riverSet.has(id) && posById.has(id)).map(([id]) => id)
   const pts = colored.map((id) => ({ id, x: posById.get(id)[0], y: posById.get(id)[1] }))
   const cutsX = denseCuts(pts.map((p) => p.x))
   const cutsY = denseCuts(pts.map((p) => p.y))

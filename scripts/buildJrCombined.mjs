@@ -48,6 +48,10 @@ const TARGETS = [
       wikidata: 'Q1065007', wikipedia: 'ja:大阪環状線',
     },
     aliases: { 大阪: '梅田' }, // JR 大阪 ↔ Osaka Metro 梅田
+    // 禁止合併（使用者裁決）：同名但非共站的 JR 站，即使 <800m 也各自獨立成站。
+    // 玉造：JR 大阪環状線 玉造（JR-O05）與 Osaka Metro 長堀鶴見緑地線 玉造 相距 ~267m，
+    // 站外分立、非同一轉乘複合站。
+    noMerge: ['玉造'],
   },
 ]
 
@@ -186,6 +190,7 @@ out body;`
   const routeId = `jr${t.rel}`
 
   // 逐 JR 站：合併 or 新增
+  const noMerge = new Set((t.noMerge || []).map(normName)) // 禁併 JR 站（各自獨立成站）
   const vertexById = new Map() // osmId -> 用來畫線的 station feature
   const routeStations = [] // route.stations（完整站序）
   let merged = 0, added = 0
@@ -194,9 +199,11 @@ out body;`
     const target = t.aliases[s.name] || s.name
     const k = normName(target)
     let hit = null
-    for (const cand of nameIdx.get(k) || []) {
-      const d = haversine(s.coord, cand.geometry.coordinates)
-      if (d <= 800 && (!hit || d < hit.d)) hit = { f: cand, d }
+    if (!noMerge.has(normName(s.name))) {
+      for (const cand of nameIdx.get(k) || []) {
+        const d = haversine(s.coord, cand.geometry.coordinates)
+        if (d <= 800 && (!hit || d < hit.d)) hit = { f: cand, d }
+      }
     }
     let feat
     if (hit) {

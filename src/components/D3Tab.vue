@@ -1029,10 +1029,10 @@ async function render() {
     return [{ d, stroke: cols[0] ?? fallback ?? '#e11d48', ...extra }]
   }
   // 地標 feature（河流骨架／皇居・公園）在 D3 視圖用地標色畫（與 LayerTab 一致）——
-  // 河流骨架藍 #2b7bb8、面域綠 #58a866；否則會退回 route 預設色（玫瑰紅）＝使用者回報
+  // 河流骨架瑩光天藍 #00E5FF、面域綠 #58a866；否則會退回 route 預設色（玫瑰紅）＝使用者回報
   // 「地標顏色跟本來不一樣」。
   const isLandmark = (p) => p && p.landmark_id != null
-  const landmarkStroke = (p) => (/river/.test(p.kind || '') ? '#2b7bb8' : '#58a866')
+  const landmarkStroke = (p) => (/river/.test(p.kind || '') ? '#00E5FF' : '#58a866') // 河流瑩光天藍
   const featStrokes = (f, d, extra) => isLandmark(f.properties)
     ? [{ d, stroke: landmarkStroke(f.properties), ...extra }]
     : dashStrokes(d, f.properties.route_colors, null, extra)
@@ -1144,6 +1144,13 @@ async function render() {
     for (const c of sk.crossings ?? []) {
       const p = posOf(c.id)
       if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: c.id, station_name: '路線交叉點' }, fill: NODE_COLOR.yellow })
+    }
+    // 河流上**只顯示粉紅（轉折最大處）＋紅（河流匯流/相接）＋黃（交叉）**——河流合成站非 Point
+    // feature、預設不畫；只畫 pink（轉折）與 red（跨河共點合流，degree≥3）的河流節點。
+    for (const r of sk.riverNodes ?? []) {
+      if (r.cls !== 'pink' && r.cls !== 'red') continue
+      const p = posOf(r.id)
+      if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: r.id, station_name: r.cls === 'red' ? '河流匯流' : '河流轉折點' }, fill: NODE_COLOR[r.cls] })
     }
   } else {
     // 原始 = EXACTLY the Metro Maps drawing: single route → solid colour, overlap
