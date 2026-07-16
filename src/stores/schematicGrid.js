@@ -44,6 +44,157 @@ function nearestFree(c, r, taken) {
   return [c, r]
 }
 
+// ---- 吸附後修復（大邱重疊案 2026-07）：排名吸附是逐軸獨立的排名變換，會扭曲
+// 相對幾何——地理上不共線的三點可能吸附後恰好共線（點壓到別的段上／兩段共線
+// 重疊），不相交的兩段可能吸附後相交。這裡在整數格空間偵測 壓點/交叉/共線重疊，
+// 把肇事點外移到「最近的、能讓全域違規數嚴格下降」的空格（與撞格 bump 同性質：
+// 犧牲一點排名位置換取正確性），迭代到全零或無法改善。下游爬山鏈的硬規則保證
+// 「只減不增」，輸入全零 ⇒ 全程零重疊。 ----
+const orient2 = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+const onSeg2 = (p, a, b) => orient2(a, b, p) === 0 &&
+  Math.min(a[0], b[0]) <= p[0] && p[0] <= Math.max(a[0], b[0]) &&
+  Math.min(a[1], b[1]) <= p[1] && p[1] <= Math.max(a[1], b[1])
+function segsIntersect2(a, b, c, d) {
+  if (Math.max(a[0], b[0]) < Math.min(c[0], d[0]) || Math.max(c[0], d[0]) < Math.min(a[0], b[0]) ||
+      Math.max(a[1], b[1]) < Math.min(c[1], d[1]) || Math.max(c[1], d[1]) < Math.min(a[1], b[1])) return false
+  const o1 = orient2(a, b, c), o2 = orient2(a, b, d)
+  const o3 = orient2(c, d, a), o4 = orient2(c, d, b)
+  if (((o1 > 0 && o2 < 0) || (o1 < 0 && o2 > 0)) &&
+      ((o3 > 0 && o4 < 0) || (o3 < 0 && o4 > 0))) return true
+  if (o1 === 0 && onSeg2(c, a, b)) return true
+  if (o2 === 0 && onSeg2(d, a, b)) return true
+  if (o3 === 0 && onSeg2(a, c, d)) return true
+  if (o4 === 0 && onSeg2(b, c, d)) return true
+  return false
+}
+
+// 骨架每條邊在彩色切點切開的小段（與 placeBlacks／buildHcGraph 同一套切法），
+// 只收兩端都有格子的段。
+function cutSegs(skeleton, cellOf) {
+  const cls = skeleton.stationClass
+  const segs = []
+  for (const e of skeleton.edges) {
+    const path = e.path
+    const cuts = []
+    for (let i = 0; i < path.length; i++) {
+      if (i === 0 || i === path.length - 1 || cls.get(path[i]) !== 'black') cuts.push(i)
+    }
+    for (let s = 0; s + 1 < cuts.length; s++) {
+      const a = path[cuts[s]], b = path[cuts[s + 1]]
+      if (a === b || !cellOf.has(a) || !cellOf.has(b)) continue
+      segs.push({ a, b })
+    }
+  }
+  return segs
+}
+
+// 全域違規清單：{ ids:[肇事候選點] }——VTX-ON（點壓段）、CROSS（交叉）、
+// OVERLAP（共線重疊；含共端點延伸重疊——由「較短段遠端壓在較長段上」以 VTX-ON 呈現）。
+function collectViolations(cellOf, segs) {
+  const out = []
+  const eq = (p, q) => p[0] === q[0] && p[1] === q[1]
+  for (let i = 0; i < segs.length; i++) {
+    const A = cellOf.get(segs[i].a), B = cellOf.get(segs[i].b)
+    for (let j = i + 1; j < segs.length; j++) {
+      const t = segs[j]
+      if (t.a === segs[i].a || t.a === segs[i].b || t.b === segs[i].a || t.b === segs[i].b) continue
+      const C = cellOf.get(t.a), D = cellOf.get(t.b)
+      if (eq(A, C) || eq(A, D) || eq(B, C) || eq(B, D)) continue // 同格＝撞格層處理
+      if (segsIntersect2(A, B, C, D)) out.push({ ids: [segs[i].a, segs[i].b, t.a, t.b] })
+    }
+  }
+  for (const [id, P] of cellOf) {
+    for (const s of segs) {
+      if (s.a === id || s.b === id) continue
+      if (onSeg2(P, cellOf.get(s.a), cellOf.get(s.b))) out.push({ ids: [id, s.a, s.b] })
+    }
+  }
+  return out
+}
+
+// 只數「涉及 v」的違規（v 自己壓段、v 的鄰接段被壓/相交）。移動 v 不影響
+// 其他違規 ⇒ 局部數嚴格下降 ⇔ 全域數嚴格下降——candidate 評分用這個，
+// 避免每個候選格都 O(E²) 全域重算。
+function countLocal(v, cellOf, segs, inc) {
+  const eq = (p, q) => p[0] === q[0] && p[1] === q[1]
+  let n = 0
+  const P = cellOf.get(v)
+  const mine = inc.get(v) ?? []
+  const mineSet = new Set(mine)
+  for (const s of segs) { // v 壓到非鄰接段
+    if (s.a === v || s.b === v) continue
+    if (onSeg2(P, cellOf.get(s.a), cellOf.get(s.b))) n++
+  }
+  for (const si of mine) { // v 的鄰接段 vs 其他段、其他點
+    const s = segs[si]
+    const A = cellOf.get(s.a), B = cellOf.get(s.b)
+    for (let sj = 0; sj < segs.length; sj++) {
+      if (mineSet.has(sj) || sj === si) continue
+      const t = segs[sj]
+      if (t.a === s.a || t.a === s.b || t.b === s.a || t.b === s.b) continue
+      const C = cellOf.get(t.a), D = cellOf.get(t.b)
+      if (eq(A, C) || eq(A, D) || eq(B, C) || eq(B, D)) continue
+      if (segsIntersect2(A, B, C, D)) n++
+    }
+    for (const [w, pw] of cellOf) {
+      if (w === s.a || w === s.b) continue
+      if (onSeg2(pw, A, B)) n++
+    }
+  }
+  return n
+}
+
+// 修復迴圈：每輪取第一個違規，依序試每個肇事點的環狀外移（Chebyshev 半徑 1–6、
+// 同半徑取位移最小），接受第一個讓違規數**嚴格下降**且不撞格的移動；
+// 一輪全部試不動就停（殘留數回報給呼叫端）。確定性（無亂數）。
+function repairOcclusions(skeleton, cellOf, taken) {
+  const segs = cutSegs(skeleton, cellOf)
+  if (!segs.length) return 0
+  const inc = new Map()
+  segs.forEach((s, i) => {
+    if (!inc.has(s.a)) inc.set(s.a, [])
+    if (!inc.has(s.b)) inc.set(s.b, [])
+    inc.get(s.a).push(i)
+    inc.get(s.b).push(i)
+  })
+  const key = (c, r) => `${c},${r}`
+  for (let guard = 0; guard < 200; guard++) {
+    const vio = collectViolations(cellOf, segs)
+    if (!vio.length) return 0
+    let moved = false
+    const { ids } = vio[0]
+    outer: for (const v of ids) {
+      const [c0, r0] = cellOf.get(v)
+      const before = countLocal(v, cellOf, segs, inc)
+      if (!before) continue // 此肇事者其實無局部違規（另一端才是）
+      for (let rad = 1; rad <= 6; rad++) {
+        let best = null, bd = Infinity
+        for (let dc = -rad; dc <= rad; dc++) {
+          for (let dr = -rad; dr <= rad; dr++) {
+            if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
+            const nc = c0 + dc, nr = r0 + dr
+            if (nc < 0 || nr < 0 || taken.has(key(nc, nr))) continue
+            cellOf.set(v, [nc, nr]) // 試移
+            const n = countLocal(v, cellOf, segs, inc)
+            cellOf.set(v, [c0, r0])
+            const d = dc * dc + dr * dr
+            if (n < before && d < bd) { bd = d; best = [nc, nr] }
+          }
+        }
+        if (best) {
+          taken.delete(key(c0, r0))
+          taken.add(key(best[0], best[1]))
+          cellOf.set(v, best)
+          moved = true
+          break outer
+        }
+      }
+    }
+    if (!moved) return vio.length // 卡住：回報殘留數（不劣化、保持現狀）
+  }
+  return collectViolations(cellOf, segs).length
+}
+
 // Spread each edge's interior black stations evenly along the straight run
 // between consecutive cut points (endpoints + non-black interiors). Cut points
 // must already be in posMap; a missing one is resolved via `snap(id)` when
@@ -100,6 +251,25 @@ export function buildSchematicGrid(skeleton, posById, extent) {
     taken.add(`${cc},${rr}`)
     cellOf.set(id, [cc, rr])
   }
+
+  // 稀有黑切點（環線釘住的首站等）先給格子——修復步驟才看得到與下游爬山法
+  // （buildHcGraph）完全相同的段圖；placeBlacks 的 fallback 因此變 no-op。
+  {
+    const clsAll = skeleton.stationClass
+    for (const e of skeleton.edges) {
+      const path = e.path
+      for (let i = 0; i < path.length; i++) {
+        if (!(i === 0 || i === path.length - 1 || clsAll.get(path[i]) !== 'black')) continue
+        const id = path[i]
+        if (cellOf.has(id) || !posById.has(id)) continue
+        const [x, y] = posById.get(id)
+        cellOf.set(id, [rankOf(x, cutsX), rankOf(y, cutsY)])
+      }
+    }
+  }
+
+  // 吸附後修復：消除排名吸附造成的 壓點/交叉/共線重疊（見上；全零或卡住為止）。
+  repairOcclusions(skeleton, cellOf, taken)
 
   let maxC = cutsX.length, maxR = cutsY.length
   for (const [c, r] of cellOf.values()) { if (c > maxC) maxC = c; if (r > maxR) maxR = r }

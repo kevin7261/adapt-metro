@@ -350,55 +350,16 @@ function buildSystem(raw, override) {
   const domLine = (rec) => [...rec.lines.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
   const groupKey = (rec) => domLine(rec) ?? `__${rec.hs ? 'high_speed' : 'conventional'}`
 
-  const routeMeta = (ln) => {
+  const routeMeta = (ln, idCc) => {
     const cls = clsOfLine(ln)
     const name = ln.startsWith('__') ? classLabel(country, cls) : ln
     return {
-      route_id: `rw-${cc}-${encodeURIComponent(name)}`,
+      route_id: `rw-${idCc}-${encodeURIComponent(name)}`,
       route_name: name, route_name_local: name, route_ref: null,
       route_color: classColor(country, cls), rail_class: cls,
       network: `${country} Railways`, network_local: null, operator: null,
       wikidata: null, wikipedia: null, status: null, order_suspect: 0,
     }
-  }
-
-  // ── 6a. station Point features + degree / interchange ──────────────────────
-  const neigh = new Map(); const stLines = new Map()
-  const link = (a, b) => { if (!neigh.has(a)) neigh.set(a, new Set()); if (!neigh.has(b)) neigh.set(b, new Set()); neigh.get(a).add(b); neigh.get(b).add(a) }
-  const addLn = (sid, ln) => { if (ln && !ln.startsWith('__')) { if (!stLines.has(sid)) stLines.set(sid, new Set()); stLines.get(sid).add(ln) } }
-  for (const rec of edges.values()) { link(rec.a, rec.b); const ln = domLine(rec); addLn(rec.a, ln); addLn(rec.b, ln) }
-  const drawn = new Set([...neigh.keys()])
-  const features = []
-  for (const sid of drawn) {
-    const s = stById.get(sid); if (!s) continue
-    let lns = [...(stLines.get(sid) || [])]
-    if (!lns.length) lns = [classLabel(country, 'conventional')] // a connector-only station still needs ≥1 line
-    const degree = neigh.get(sid)?.size ?? 0
-    const isInter = new Set(lns).size >= 2 || degree > 2
-    const isTerm = degree === 1
-    features.push({
-      type: 'Feature',
-      properties: {
-        station_id: sid, station_name: s.name, station_name_local: s.name,
-        network: `${country} Railways`, network_local: null, operator: s.tags.operator || null,
-        city: country, country,
-        lines: lns, line_ids: lns.map((ln) => `rw-${cc}-${encodeURIComponent(ln)}`), line_names: lns,
-        station_role: isInter ? 'interchange' : (isTerm ? 'terminus' : 'normal'),
-        station_degree: degree, is_interchange: isInter, is_terminus: isTerm,
-        wikidata: s.tags.wikidata || null, wikipedia: s.tags.wikipedia || null,
-      },
-      geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
-    })
-  }
-
-  // ── 6b. line features: ONE feature per line (metro-style). Group edges by their
-  // dominant line; string them into maximal paths (a line that is physically two
-  // pieces — 縱貫線 兩端, split by 山/海線 — becomes 2 LineStrings in one feature). ─
-  const byLine = new Map()
-  for (const rec of edges.values()) {
-    const key = groupKey(rec)
-    if (!byLine.has(key)) byLine.set(key, [])
-    byLine.get(key).push([rec.a, rec.b])
   }
   const stringPaths = (es) => {
     const g = new Map(); const add = (x, y) => { if (!g.has(x)) g.set(x, new Set()); g.get(x).add(y) }
@@ -414,36 +375,103 @@ function buildSystem(raw, override) {
     return runs
   }
   const coordOf = (sid) => { const s = stById.get(sid); return [s.lon, s.lat] }
-  let segN = 0, segTotal = 0
-  for (const [ln, es] of byLine) {
-    const runs = stringPaths(es)
-    if (!runs.length) continue
-    const stationIds = [...new Set(runs.flat())]
-    const meta = { ...routeMeta(ln), stations: stationIds.map((sid) => ({ station_id: sid, station_name: stById.get(sid)?.name ?? sid, mileage: null })), pass_stations: [] }
-    const coords = runs.map((path) => path.map(coordOf))
-    features.push({
-      type: 'Feature',
-      properties: {
-        seg_id: `${cc}-${segN++}`,
-        routes: [meta], route_count: 1,
-        route_refs: [meta.route_name], route_colors: [meta.route_color], route_color: meta.route_color,
-        rail_class: meta.rail_class, city: country, country,
-      },
-      geometry: { type: 'MultiLineString', coordinates: coords },
-    })
-    segTotal += coords.reduce((a, p) => a + p.length - 1, 0)
+
+  // ── 6. assemble ONE FeatureCollection from a subset of the station edges. Called
+  // once per rail class so 高鐵 (high_speed) and 一般國鐵 (conventional) become
+  // SEPARATE systems/files (使用者：把高鐵和一般國鐵分開，一國拆兩檔兩圖層). A station
+  // that serves both classes appears in BOTH files, each with the subset of lines /
+  // degree / interchange computed WITHIN that class' sub-network. ids are prefixed
+  // by sysCc (`{cc}-hsr` / `{cc}-rail`) so seg_id/route_id stay unique when the two
+  // files are merged into the global railway_lines/stations aggregate. ────────────
+  const assemble = (edgeList, sysCc) => {
+    // 6a. station Point features + degree / interchange (within this class subset)
+    const neigh = new Map(); const stLines = new Map()
+    const link = (a, b) => { if (!neigh.has(a)) neigh.set(a, new Set()); if (!neigh.has(b)) neigh.set(b, new Set()); neigh.get(a).add(b); neigh.get(b).add(a) }
+    const addLn = (sid, ln) => { if (ln && !ln.startsWith('__')) { if (!stLines.has(sid)) stLines.set(sid, new Set()); stLines.get(sid).add(ln) } }
+    for (const rec of edgeList) { link(rec.a, rec.b); const ln = domLine(rec); addLn(rec.a, ln); addLn(rec.b, ln) }
+    const drawn = new Set([...neigh.keys()])
+    const features = []
+    for (const sid of drawn) {
+      const s = stById.get(sid); if (!s) continue
+      let lns = [...(stLines.get(sid) || [])]
+      if (!lns.length) lns = [classLabel(country, 'conventional')] // a connector-only station still needs ≥1 line
+      const degree = neigh.get(sid)?.size ?? 0
+      const isInter = new Set(lns).size >= 2 || degree > 2
+      const isTerm = degree === 1
+      features.push({
+        type: 'Feature',
+        properties: {
+          station_id: sid, station_name: s.name, station_name_local: s.name,
+          network: `${country} Railways`, network_local: null, operator: s.tags.operator || null,
+          city: country, country,
+          lines: lns, line_ids: lns.map((ln) => `rw-${sysCc}-${encodeURIComponent(ln)}`), line_names: lns,
+          station_role: isInter ? 'interchange' : (isTerm ? 'terminus' : 'normal'),
+          station_degree: degree, is_interchange: isInter, is_terminus: isTerm,
+          wikidata: s.tags.wikidata || null, wikipedia: s.tags.wikipedia || null,
+        },
+        geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
+      })
+    }
+    // 6b. line features: ONE feature per line (metro-style). Group edges by their
+    // dominant line; string them into maximal paths (a line that is physically two
+    // pieces — 縱貫線 兩端 — becomes 2 LineStrings in one feature).
+    const byLine = new Map()
+    for (const rec of edgeList) {
+      const key = groupKey(rec)
+      if (!byLine.has(key)) byLine.set(key, [])
+      byLine.get(key).push([rec.a, rec.b])
+    }
+    let segN = 0, segTotal = 0
+    for (const [ln, es] of byLine) {
+      const runs = stringPaths(es)
+      if (!runs.length) continue
+      const stationIds = [...new Set(runs.flat())]
+      const rm = { ...routeMeta(ln, sysCc), stations: stationIds.map((sid) => ({ station_id: sid, station_name: stById.get(sid)?.name ?? sid, mileage: null })), pass_stations: [] }
+      const coords = runs.map((path) => path.map(coordOf))
+      features.push({
+        type: 'Feature',
+        properties: {
+          seg_id: `${sysCc}-${segN++}`,
+          routes: [rm], route_count: 1,
+          route_refs: [rm.route_name], route_colors: [rm.route_color], route_color: rm.route_color,
+          rail_class: rm.rail_class, city: country, country,
+        },
+        geometry: { type: 'MultiLineString', coordinates: coords },
+      })
+      segTotal += coords.reduce((a, p) => a + p.length - 1, 0)
+    }
+    const namedLines = [...byLine.keys()].filter((k) => !k.startsWith('__'))
+    const meta = {
+      continent, country, country_zh, city: country, city_zh: country_zh, unit: 'country',
+      osm_networks: namedLines.slice().sort().slice(0, 60),
+      operator: null,
+      line_count: namedLines.length, segment_count: segTotal,
+      station_count: drawn.size,
+      interchange_count: [...drawn].filter((sid) => (neigh.get(sid)?.size ?? 0) > 2 || (stLines.get(sid)?.size ?? 0) >= 2).length,
+    }
+    return { features, meta }
   }
 
-  const namedLines = [...byLine.keys()].filter((k) => !k.startsWith('__'))
-  const meta = {
-    continent, country, country_zh, city: country, city_zh: country_zh, unit: 'country',
-    osm_networks: namedLines.slice().sort().slice(0, 60),
-    operator: null,
-    line_count: namedLines.length, segment_count: segTotal,
-    station_count: drawn.size,
-    interchange_count: [...drawn].filter((sid) => (neigh.get(sid)?.size ?? 0) > 2 || (stLines.get(sid)?.size ?? 0) >= 2).length,
+  // Partition edges by rail class and emit one subsystem per non-empty class.
+  const edgeClass = (rec) => clsOfLine(groupKey(rec))
+  const CLASSES = [
+    { suffix: 'hsr', cls: 'high_speed', zh: '高鐵', en: 'High-speed' },
+    { suffix: 'rail', cls: 'conventional', zh: '一般國鐵', en: 'Conventional' },
+  ]
+  const out = []
+  for (const C of CLASSES) {
+    const sub = [...edges.values()].filter((r) => edgeClass(r) === C.cls)
+    if (!sub.length) continue
+    const sysCc = `${cc}-${C.suffix}`
+    const { features, meta } = assemble(sub, sysCc)
+    if (!features.length) continue
+    const m = { ...meta, rail_class: C.cls, class_zh: C.zh, class_en: C.en }
+    out.push({
+      suffix: C.suffix, rail_class: C.cls, class_zh: C.zh, class_en: C.en,
+      fc: { type: 'FeatureCollection', railway_system: m, metro_system: { ...m, kind: 'railway' }, features },
+    })
   }
-  return { type: 'FeatureCollection', railway_system: meta, metro_system: { ...meta, kind: 'railway' }, features }
+  return out
 }
 
 const CONTINENT_DIR = {
@@ -477,28 +505,36 @@ async function main() {
       }
     } catch { /* no override */ }
 
-    const fc = buildSystem(raw, override)
-    if (!fc.features.length) { console.log(`  ${raw.cc}: 0 features, skip`); continue }
+    // buildSystem now returns an ARRAY of subsystems (高鐵 / 一般國鐵 split, 使用者:
+    // 一國拆兩檔兩圖層). Write ONE file per subsystem: {cc}-hsr / {cc}-rail.
+    const subs = buildSystem(raw, override)
+    if (!subs.length) { console.log(`  ${raw.cc}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
-    const rel = `systems/${cont}/${countrySlug(raw.country)}/${raw.cc}.geojson`
-    await mkdir(dirname(join(RAILWAY, rel)), { recursive: true })
-    await writeFile(join(RAILWAY, rel), JSON.stringify(fc))
-    const m = fc.railway_system
-    systems.push({
-      file: rel, continent: raw.continent, country: raw.country, country_zh: m.country_zh,
-      city: m.city, city_zh: m.city_zh, unit: m.unit,
-      osm_networks: m.osm_networks, operator: m.operator,
-      line_count: m.line_count, segment_count: m.segment_count, station_count: m.station_count,
-    })
-    lineTotal += m.line_count; stationTotal += m.station_count
-    for (const feat of fc.features) (feat.geometry.type === 'Point' ? allStations : allLines).push(feat)
-    console.log(`  ${raw.cc} (${m.country_zh}): ${m.line_count} lines, ${m.station_count} stations`)
+    const parts = []
+    for (const sub of subs) {
+      const sysCc = `${raw.cc}-${sub.suffix}`
+      const rel = `systems/${cont}/${countrySlug(raw.country)}/${sysCc}.geojson`
+      await mkdir(dirname(join(RAILWAY, rel)), { recursive: true })
+      await writeFile(join(RAILWAY, rel), JSON.stringify(sub.fc))
+      const m = sub.fc.railway_system
+      systems.push({
+        file: rel, continent: raw.continent, country: raw.country, country_zh: m.country_zh,
+        city: m.city, city_zh: m.city_zh, unit: m.unit,
+        rail_class: sub.rail_class, class_zh: sub.class_zh, class_en: sub.class_en,
+        osm_networks: m.osm_networks, operator: m.operator,
+        line_count: m.line_count, segment_count: m.segment_count, station_count: m.station_count,
+      })
+      lineTotal += m.line_count; stationTotal += m.station_count
+      for (const feat of sub.fc.features) (feat.geometry.type === 'Point' ? allStations : allLines).push(feat)
+      parts.push(`${sub.class_zh} ${m.line_count}線/${m.station_count}站`)
+    }
+    console.log(`  ${raw.cc} (${raw.country_zh}): ${parts.join('，')}`)
   }
 
   await writeFile(join(RAILWAY, 'railway_lines.geojson'), JSON.stringify({ type: 'FeatureCollection', features: allLines }))
   await writeFile(join(RAILWAY, 'railway_stations.geojson'), JSON.stringify({ type: 'FeatureCollection', features: allStations }))
   await writeFile(join(RAILWAY, 'index.json'), JSON.stringify({
-    generated_from: 'OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; one file per country',
+    generated_from: 'OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; TWO files per country split by rail class — {cc}-hsr (高鐵) and {cc}-rail (一般國鐵)',
     system_count: systems.length, line_total: lineTotal, station_total: stationTotal, systems,
   }, null, 1))
   console.log(`\ndone: ${systems.length} countries, ${lineTotal} lines, ${stationTotal} stations`)

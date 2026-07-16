@@ -195,16 +195,22 @@ const railwaysByStations = computed(() => {
   return [...railwayCatalog.value].sort((a, b) => (a.station_count - b.station_count) * dir)
 })
 const rwZh = (s) => s.countryZh ?? s.country
-const rwEn = (s) => s.country
-// Quick pick — the target countries (東亞四國先行 + 歐美主要國).
+const rwEn = (s) => s.labelEn ?? s.country
+// Quick pick — the target countries (東亞四國先行 + 歐美主要國). Each country now has
+// up to TWO systems (高鐵 / 一般國鐵); list every one as its own cell (一國拆兩圖層).
 const QUICK_RAIL = ['Taiwan', 'Japan', 'China', 'South Korea', 'France', 'Germany',
   'United Kingdom', 'Italy', 'Spain', 'Switzerland', 'United States', 'Canada']
 const rwQuick = computed(() => {
   if (!railwayCatalog.value) return []
-  return QUICK_RAIL.map((name) => {
-    const sys = railwayCatalog.value.find((s) => s.country === name) ?? null
-    return { zh: sys?.countryZh ?? name, en: name, sys }
-  })
+  const out = []
+  for (const name of QUICK_RAIL) {
+    const syss = railwayCatalog.value
+      .filter((s) => s.country === name)
+      .sort((a, b) => (a.railClass === 'high_speed' ? 0 : 1) - (b.railClass === 'high_speed' ? 0 : 1))
+    if (!syss.length) { out.push({ zh: name, en: name, sys: null }); continue }
+    for (const sys of syss) out.push({ zh: sys.countryZh, en: sys.labelEn ?? sys.country, sys })
+  }
+  return out
 })
 const rwQuickByContinent = computed(() => groupQuickByContinent(rwQuick.value))
 // 全球鐵路地圖 — miller browse: 洲別 → 國家 (one file per country, no city column).
@@ -695,7 +701,7 @@ const shortcuts = [
                 <button class="sort-btn" :class="{ active: railwaySort === 'desc' }" @click="railwaySort = 'desc'">車站多到少</button>
                 <button class="sort-btn" :class="{ active: railwaySort === 'asc' }" @click="railwaySort = 'asc'">少到多</button>
               </div>
-              <span class="sort-meta">{{ railwaysByStations.length }} 個國家</span>
+              <span class="sort-meta">{{ railwaysByStations.length }} 個系統（高鐵／一般國鐵分開）</span>
             </div>
             <div class="quick-grid">
               <button

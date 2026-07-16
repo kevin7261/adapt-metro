@@ -31,7 +31,9 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 29 // 29: 移除深色線 halo（使用者 2026-07-17：知道黑線在深背景看不見即可，
+const VIEWS_VERSION = 30 // 30: 格網化吸附後修復（repairOcclusions，大邱重疊案——排名吸附不再產出
+                         //     壓點/交叉/共線重疊）＋ validShift ③′ 變形段檢查＋compactGridSafe。
+                         // 29: 移除深色線 halo（使用者 2026-07-17：知道黑線在深背景看不見即可，
                          // 不要描邊改回去）——v28 檔內含 halo 線條需全量重算掉
 const strHash = (s) => {
   let h = 5381
