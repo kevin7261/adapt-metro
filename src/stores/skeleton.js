@@ -240,12 +240,19 @@ export function buildConnectSkeleton(geojson) {
       ? segCols.slice() : null
     for (const r of f.properties?.routes ?? []) {
       if (!r.route_id || routes.has(r.route_id)) continue
+      // **完整行經序（含 pass 站）建圖**（使用者鐵律「共線＝一條線、所有視圖一致」）：快車跳站
+      // 若濾掉 pass，快車的圖路徑變成「長弦直達」、慢車走「逐站鏈」——同一走廊變成兩條不同的邊，
+      // 格網化後/HC 就把共線畫成分開的兩條線（倫敦 Piccadilly×District、紐約快慢車，使用者截圖）。
+      // 含 pass 後快車沿走廊逐站走 → 走廊相鄰站對兩線共用 → 自然合併成**一條共線邊**，與地理視圖
+      // 畫 feature 的結果一致。這與資料層 station_degree 的算法一致（pass 頂點計入 degree，
+      // 見 metro-osm-fetch）；pass 的「不停靠」語意仍由 properties 顯示層處理，不受影響。
+      const seq = (r.stations ?? []).map((s) => s.station_id).filter((id) => coord.has(id))
       routes.set(r.route_id, {
         id: r.route_id,
         name: r.route_name ?? '',
         color: r.route_color ?? '#e11d48',
         railColors,
-        stations: (r.stations ?? []).filter((s) => !s.pass).map((s) => s.station_id).filter((id) => coord.has(id)),
+        stations: seq.filter((id, i) => i === 0 || id !== seq[i - 1]), // 相鄰重複去重
       })
     }
   }
