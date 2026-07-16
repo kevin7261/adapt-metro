@@ -16,8 +16,8 @@ import { computeOrientation } from './orientation.js'
 import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
-  buildHillClimb, compactGrid, buildHcGraph, iteratePost, buildEndpointStraighten,
-  buildLineCompact, buildMedianGather, buildRectPolish, buildAxisAlign, buildAxisIlp,
+  buildHillClimb, buildHcGraph, iteratePost,
+  movewiseStage, buildRectPolish, buildAxisAlign, buildAxisIlp,
   straightenCompactLoop,
 } from './hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
@@ -301,11 +301,10 @@ export const VIEW_ORDER = [
  * Compute the 8 Hill Climbing views for one city — the 4 HC-layer tabs
  * (格網化後 input → Hill Climbing → Hill Climbing端點拉直 → Hill Climbing縮減網格)
  * for both variants (orig / rot). Mirrors D3Tab's hill-climbing chain:
- * schematic gridding → buildHillClimb on the integer cells →
- * buildEndpointStraighten (endpoint-only H/V pass) → buildLineCompact
- * (直線縮減, rigid line shifts) → compactGrid over that layout, mapping cells
- * to pixel cell-centres and re-spreading black through-stations (placeBlacks)
- * each stage.
+ * schematic gridding → buildHillClimb on the integer cells → movewise
+ * 端點拉直 → 直線縮減 → 中位集中（每一個移動後都立即縮減網格——縮減不再是
+ * 獨立步驟），mapping cells to pixel cell-centres and re-spreading black
+ * through-stations (placeBlacks) each stage.
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
@@ -368,15 +367,15 @@ export function computeCityHcViews(geojson, opts = {}) {
     placeBlacks(skeleton, hcPos, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
 
-    // 3) Hill Climbing端點拉直 — the chain's first step (同 D3Tab): every
-    // coloured vertex may snap onto a neighbour's row/column when that nets
-    // more H/V segments, through the same hard rules, iterated to a fixed
-    // point (buildEndpointStraighten). Same full grid as the HC view.
-    const endp = iteratePost(buildEndpointStraighten, skeleton, hc.cellAfter, grid.cols, grid.rows)
+    // 3) Hill Climbing端點拉直 — the chain's first step (同 D3Tab):
+    // movewise（每一個移動後立即縮減網格）——網格因此比 HC 視圖小，用自己的
+    // cellMapper。
+    const endp = movewiseStage('endp', skeleton, hc.cellAfter, grid.cols, grid.rows)
+    const mEndp = cellMapper(endp.cols, endp.rows)
     const endpPos = new Map()
-    for (const [id, cell] of endp.cellAfter) endpPos.set(id, m1.cellPx(cell))
+    for (const [id, cell] of endp.cellAfter) endpPos.set(id, mEndp.cellPx(cell))
     placeBlacks(skeleton, endpPos, snap)
-    views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, m1.sep)
+    views[`endp-${variant}`] = drawFromPos(skeleton, stations, lineFeats, endpPos, mEndp.sep)
     // 每個端點拉直網格都畫：所有有色點（頂點都非白——白/黑直通站不是頂點）
     // 欄、列各自中位數位置的黃色圓標，墊在網格最底。偶數個點取平均 → 可能
     // 落在半格；cellPx 是線性映射，小數格照樣可換算像素。
@@ -387,18 +386,15 @@ export function computeCityHcViews(geojson, opts = {}) {
         return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
       }
       const ps = [...endp.cellAfter.values()]
-      const [mx, my] = m1.cellPx([median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))])
+      const [mx, my] = mEndp.cellPx([median(ps.map((p) => p[0])), median(ps.map((p) => p[1]))])
       views[`endp-${variant}`].median =
         { x: +mx.toFixed(1), y: +my.toFixed(1), r: +(Math.min(W, H) * 0.032).toFixed(1) }
     }
 
-    // 4) Hill Climbing縮減網格 — 直線縮減 (rigid line shifts) ＋ 中位集中
-    // (median gather) on the straightened layout, then drop colour-free
-    // rows/cols and re-map over the smaller grid
-    // (chain: 端點拉直 → 直線縮減 → 中位集中 → 縮減網格).
-    const lined = buildLineCompact(skeleton, endp.cellAfter, grid.cols, grid.rows)
-    const gathered = buildMedianGather(skeleton, lined.cellAfter, grid.cols, grid.rows)
-    const comp = compactGrid(gathered.cellAfter, grid.cols, grid.rows)
+    // 4) 鏈尾 — 直線縮減＋中位集中（都是 movewise：每一個移動後立即縮減
+    // 網格），即 端點拉直 → 直線縮減 → 中位集中 的完整鏈結果。
+    const lined = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
+    const comp = movewiseStage('gather', skeleton, lined.cellAfter, lined.cols, lined.rows)
     const m2 = cellMapper(comp.cols, comp.rows)
     const compPos = new Map()
     for (const [id, cell] of comp.cellAfter) compPos.set(id, m2.cellPx(cell))
@@ -433,11 +429,11 @@ export function hcViewLabels(tilt) {
     'grid-orig-post': '原始 · 格網化後',
     'hc-orig': '原始 · Hill Climbing',
     'endp-orig': '原始 · Hill Climbing端點拉直',
-    'compact-orig': '原始 · Hill Climbing縮減網格',
+    'compact-orig': '原始 · 直線縮減＋中位集中',
     'grid-rot-post': `${rot} · 格網化後`,
     'hc-rot': `${rot} · Hill Climbing`,
     'endp-rot': `${rot} · Hill Climbing端點拉直`,
-    'compact-rot': `${rot} · Hill Climbing縮減網格`,
+    'compact-rot': `${rot} · 直線縮減＋中位集中`,
   }
 }
 

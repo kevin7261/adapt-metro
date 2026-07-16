@@ -705,7 +705,9 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
 // become horizontal or vertical. Candidates = aligning one axis with each
 // neighbour; a candidate is taken only when its NET H/V delta over the
 // vertex's own segments is positive, so the global H/V count strictly grows
-// (segments not incident to v are untouched — no revert needed). A currently
+// (segments not incident to v are untouched — no revert needed). Each move is
+// capped at ONE cell (使用者規則：移動不可超過 1 格)——遠處的對齊靠 movewise
+// 的逐移動壓縮把距離拉近後、在後續移動慢慢完成. A currently
 // straight (H/V) segment may only be BENT when the same move straightens a
 // SAME-ROUTE segment in exchange (使用者規則：除非同名路線有拉直，否則不可
 // 讓直線路段變少) — a net-positive move that sacrifices route X's straight
@@ -776,13 +778,12 @@ export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) 
     }
     const scored = []
     for (const P of cand.values()) {
+      const dist = Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1])
+      if (dist > 1) continue // 使用者規則：端點拉直每次移動不可超過 1 格
       const delta = hvAt(P) - cur
       if (delta <= 0) continue // must strictly grow the H/V count
       if (!bendsPaid(P)) continue
-      scored.push({
-        P, delta, cont: contScore(P),
-        dist: Math.abs(P[0] - pv[0]) + Math.abs(P[1] - pv[1]),
-      })
+      scored.push({ P, delta, cont: contScore(P), dist })
     }
     scored.sort((a, b) => b.delta - a.delta || b.cont - a.cont
       || a.dist - b.dist || a.P[0] - b.P[0] || a.P[1] - b.P[1])
@@ -952,38 +953,8 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
   }
 }
 
-// 直線縮減 post-pass: sweeps of lineCompactPass until a sweep moves no line;
-// POST_ITER_CAP as backstop. Grid DIMENSIONS never change — the pass only
-// reduces how many columns/rows are OCCUPIED (fromCols×fromRows →
-// cols×rows in the stats are occupied counts); the later 縮減網格 realizes
-// the shrink. Each accepted move strictly reduces occupied columns+rows
-// (bounded below) → terminates.
-export function buildLineCompact(skeleton, cells, cols, rows) {
-  let cur = cells
-  let iters = 0, moved = 0
-  let first = null, last = null
-  while (iters < POST_ITER_CAP) {
-    const res = lineCompactPass(skeleton, cur, cols, rows)
-    iters++
-    first ??= res
-    last = res
-    moved += res.moved
-    cur = res.cellAfter
-    if (!res.moved) break
-  }
-  return {
-    cellAfter: cur,
-    cols,
-    rows,
-    stats: {
-      hvBefore: first.hvBefore, hvAfter: last.hvAfter,
-      segs: last.segs, verts: last.verts, moved,
-      iters, iterCap: POST_ITER_CAP, converged: last.moved === 0,
-      fromCols: first.occBefore[0], fromRows: first.occBefore[1],
-      cols: last.occAfter[0], rows: last.occAfter[1],
-    },
-  }
-}
+// （直線縮減整段掃描的 wrapper 已退役——所有下游改走 movewiseStage('line')：
+// 每一個移動後立即縮減網格。單掃描 pass 本身保留給 movewise/Step by Step 用。）
 
 // 中位集中 one sweep — two move kinds, both TOWARD the median point (the
 // yellow marker: per-axis median of every coloured vertex):
@@ -1078,51 +1049,76 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
   return { cellAfter: pos, moved: movedPts + movedLines, movedPts, movedLines, segs: segs.length, verts: pos.size, movedIds }
 }
 
-// 中位集中 post-pass: sweeps of medianGatherPass (the median is recomputed
-// each sweep from the current layout; a blocked vertex/line can move once
-// its neighbour has slid away) until a sweep moves nothing; POST_ITER_CAP
-// as backstop. Grid dims never change and the H/V count never drops — the
-// pass only pulls on-a-line vertices (≤2 same-axis incident segments; blue
-// endpoints always qualify) ALONG their lines and whole stitched lines
-// PERPENDICULARLY toward the median point (the yellow marker).
-export function buildMedianGather(skeleton, cells, cols, rows) {
-  let cur = cells
-  let iters = 0, moved = 0, movedPts = 0, movedLines = 0
-  let last = null
-  while (iters < POST_ITER_CAP) {
-    const res = medianGatherPass(skeleton, cur, cols, rows)
-    iters++
-    last = res
-    moved += res.moved
-    movedPts += res.movedPts
-    movedLines += res.movedLines
-    cur = res.cellAfter
-    if (!res.moved) break
+/* ==================== 逐移動壓縮（movewise） ====================
+   使用者規則：取消獨立的縮減網格步驟——端點拉直/直線縮減/中位集中的
+   **每一個小步驟（單一移動）完成後就做縮減網格**。實作＝以 limit=1 反覆呼叫
+   該階段的 pass，每個移動後立即 compactGrid，直到動不了；網格因此隨時緻密。
+   所有吃這三個階段的地方（tabs／循環／RWD 底圖／llmGrid／畫廊）都走這裡。 */
+const MOVEWISE_CAP = 5000 // 單一階段的移動數保險上限（遠大於實測）
+const MOVEWISE_PASS = {
+  endp: (sk, cells, cols, rows) => {
+    const r = buildEndpointStraighten(sk, cells, cols, rows, { limit: 1 })
+    return { cellAfter: r.cellAfter, moved: r.stats.moved, pts: r.stats.moved, lines: 0 }
+  },
+  line: (sk, cells, cols, rows) => {
+    const r = lineCompactPass(sk, cells, cols, rows, { limit: 1 })
+    return { cellAfter: r.cellAfter, moved: r.moved, pts: 0, lines: r.moved }
+  },
+  gather: (sk, cells, cols, rows) => {
+    const r = medianGatherPass(sk, cells, cols, rows, { limit: 1 })
+    return { cellAfter: r.cellAfter, moved: r.moved, pts: r.movedPts, lines: r.movedLines }
+  },
+}
+export function movewiseStage(stage, skeleton, cells, cols, rows) {
+  // 起點也先壓（上一階段輸出已緻密時是 no-op）
+  let comp = compactGrid(cells, cols, rows)
+  let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
+  const fromCols = nC, fromRows = nR
+  const g0 = buildHcGraph(skeleton, cur)
+  const hvBefore = countHV(g0.pos, g0.segs)
+  const verts = g0.pos.size, segsN = g0.segs.length
+  let moved = 0, movedPts = 0, movedLines = 0
+  while (moved < MOVEWISE_CAP) {
+    const r = MOVEWISE_PASS[stage](skeleton, cur, nC, nR)
+    if (!r.moved) break
+    moved += r.moved
+    movedPts += r.pts
+    movedLines += r.lines
+    comp = compactGrid(r.cellAfter, nC, nR) // 每一個移動後立即縮減網格
+    cur = comp.cellAfter
+    nC = comp.cols
+    nR = comp.rows
   }
+  const g1 = buildHcGraph(skeleton, cur)
   return {
     cellAfter: cur,
-    cols,
-    rows,
+    cols: nC,
+    rows: nR,
     stats: {
-      moved, movedPts, movedLines, segs: last.segs, verts: last.verts,
-      iters, iterCap: POST_ITER_CAP, converged: last.moved === 0,
+      hvBefore, hvAfter: countHV(g1.pos, g1.segs), segs: segsN, verts,
+      moved, movedPts, movedLines, converged: moved < MOVEWISE_CAP,
+      fromCols, fromRows, cols: nC, rows: nR,
     },
   }
 }
 
 /* ==================== Step by Step（逐步執行） ====================
-   讓使用者一鍵一步看四步鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**
-   （端點拉直/直線縮減/中位集中各自的 single sweep）或一次縮減網格；某階段
-   掃不動就自動換下一階段（同一鍵內跳過空階段），一輪四階段都沒動靜＝完成。
+   讓使用者一鍵一步看鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**（或
+   limit=1 的單一移動），順序 端點拉直 → 直線縮減 → 中位集中；**每一步完成後
+   立即縮減網格**（使用者規則：取消獨立的縮減網格階段，改成每步後都壓），
+   所以畫面上的網格永遠是緻密的。某階段掃不動就自動換下一階段（同一鍵內
+   跳過空階段），一輪三階段都沒動靜＝完成。
    狀態是純資料（cells/cols/rows/stage/round/steps/info），呼叫端自己保存。 */
-const STEP_STAGE_LABEL = { endp: '端點拉直', line: '直線縮減', gather: '中位集中', compact: '縮減網格' }
+const STEP_STAGE_LABEL = { endp: '端點拉直', line: '直線縮減', gather: '中位集中' }
 export function stepChainInit(cells, cols, rows) {
+  const comp = compactGrid(cells, cols, rows) // 每步後都壓 → 起點也先壓
   return {
-    cells, cols, rows, stage: 'endp', round: 1, steps: 0, roundMoves: 0, done: false,
-    lastStage: null, // 這一步執行的工作（endp/line/gather/compact）——顯示在面板的階段 chips
+    cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,
+    stage: 'endp', round: 1, steps: 0, roundMoves: 0, done: false,
+    lastStage: null, // 這一步執行的工作（endp/line/gather）——顯示在面板的階段 chips
     movedIds: [], // 這一步移動的點/線成員 id——畫布上以橘圈標示
-    moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]——畫舊位置虛圈＋連線
-    info: '按「下一步」開始——每步執行一個單掃描（順序：端點拉直 → 直線縮減 → 中位集中 → 縮減網格）',
+    moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]（縮減後 rank 空間，可為半格）
+    info: '按「下一步」開始——每步執行一個單掃描並立即縮減網格（順序：端點拉直 → 直線縮減 → 中位集中）',
   }
 }
 export function stepChainNext(skeleton, st, opts = {}) {
@@ -1130,7 +1126,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
   const limit = opts.limit ?? Infinity // limit=1 ＝「下一小步」：只做一個點/線的移動
   const subTag = limit === 1 ? '（小步）' : ''
   let { cells, cols, rows, stage, round, steps, roundMoves } = st
-  // 前後比對：這一步每個移動元素的 from→to 格座標（畫布上畫舊位置虛圈＋連線）
+  // 前後比對：這一步每個移動元素的 from→to 格座標（移動當下、縮減前的座標）
   const movesOf = (prev, next, ids) => {
     const seen = new Set()
     const out = []
@@ -1149,58 +1145,93 @@ export function stepChainNext(skeleton, st, opts = {}) {
     const dx = mv[0].to[0] - mv[0].from[0], dy = mv[0].to[1] - mv[0].from[1]
     return `｜整條線位移 (${dx},${dy})、${mv.length} 點`
   }
-  // out() 的 `stage` 此刻＝剛執行的階段 → 同時當 lastStage 回報
-  const out = (patch) => ({ cells, cols, rows, stage, round, steps: steps + 1, roundMoves, done: false, lastStage: stage, movedIds: [], moves: [], ...patch })
+  // 每一步完成後立即縮減網格：新佈局壓縮、前後比對座標換算到縮減後的 rank
+  // 空間（to 一定是佔用座標 → 整數 rank；from 的欄/列可能被清空 → 落在前後
+  // 兩個保留 rank 之間的 -0.5 半格，畫圖用內插）。
+  const finalize = (next, ids, infoBase) => {
+    const usedC = [...new Set([...next.values()].map((p) => p[0]))].sort((a, b) => a - b)
+    const usedR = [...new Set([...next.values()].map((p) => p[1]))].sort((a, b) => a - b)
+    const rankOf = (v, used) => {
+      let lo = 0, hi = used.length
+      while (lo < hi) { const m = (lo + hi) >> 1; if (used[m] < v) lo = m + 1; else hi = m }
+      return used[lo] === v ? lo : lo - 0.5
+    }
+    const moves = movesOf(cells, next, ids).map((m) => ({
+      id: m.id,
+      from: [rankOf(m.from[0], usedC), rankOf(m.from[1], usedR)],
+      to: [rankOf(m.to[0], usedC), rankOf(m.to[1], usedR)],
+    }))
+    const comp = compactGrid(next, cols, rows)
+    const shrunk = comp.cols !== cols || comp.rows !== rows
+    return {
+      cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,
+      stage, round, steps: steps + 1, roundMoves, done: false, lastStage: stage,
+      movedIds: ids, moves,
+      info: infoBase + (shrunk ? `｜縮減網格 ${cols}×${rows} → ${comp.cols}×${comp.rows}` : ''),
+    }
+  }
+  // 「下一步」＝把目前階段用 movewise 跑到不動（每個移動後都壓縮，語意與
+  // 正式 tabs／循環完全一致），跑完直接進下一階段；回傳整階段的統計。
+  const bigStep = (stage2, nextStage, mkInfo) => {
+    const r = movewiseStage(stage2, skeleton, cells, cols, rows)
+    if (!r.stats.moved) return null
+    roundMoves += r.stats.moved
+    const gridTag = r.stats.fromCols !== r.cols || r.stats.fromRows !== r.rows
+      ? `｜縮減網格 ${r.stats.fromCols}×${r.stats.fromRows} → ${r.cols}×${r.rows}` : ''
+    return {
+      cells: r.cellAfter, cols: r.cols, rows: r.rows,
+      stage: nextStage, round, steps: steps + 1, roundMoves, done: false,
+      lastStage: stage2, movedIds: [], moves: [],
+      info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage2]}：${mkInfo(r.stats)}${gridTag}`,
+    }
+  }
   for (let guard = 0; guard < 9; guard++) { // 同一鍵內最多跳過兩輪的空階段
     if (stage === 'endp') {
-      const res = buildEndpointStraighten(skeleton, cells, cols, rows, { limit })
-      if (res.stats.moved) {
-        roundMoves += res.stats.moved
-        const mv = movesOf(cells, res.cellAfter, res.stats.movedIds)
-        return out({
-          cells: res.cellAfter, roundMoves, movedIds: res.stats.movedIds, moves: mv,
-          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：拉直 ${res.stats.moved} 點（水平垂直 ${res.stats.hvBefore} → ${res.stats.hvAfter}／${res.stats.segs} 段）${coordTag(mv)}`,
-        })
+      if (limit === 1) {
+        const res = buildEndpointStraighten(skeleton, cells, cols, rows, { limit: 1 })
+        if (res.stats.moved) {
+          roundMoves += res.stats.moved
+          const mv = movesOf(cells, res.cellAfter, res.stats.movedIds)
+          return finalize(res.cellAfter, res.stats.movedIds,
+            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：拉直 1 點（水平垂直 ${res.stats.hvBefore} → ${res.stats.hvAfter}／${res.stats.segs} 段）${coordTag(mv)}`)
+        }
+      } else {
+        const big = bigStep('endp', 'line',
+          (s) => `拉直 ${s.moved} 點（水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段）`)
+        if (big) return big
       }
       stage = 'line'
     } else if (stage === 'line') {
-      const res = lineCompactPass(skeleton, cells, cols, rows, { limit })
-      if (res.moved) {
-        roundMoves += res.moved
-        const mv = movesOf(cells, res.cellAfter, res.movedIds)
-        return out({
-          cells: res.cellAfter, roundMoves, movedIds: res.movedIds, moves: mv,
-          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：移動 ${res.moved} 線（佔用欄列 ${res.occBefore[0]}×${res.occBefore[1]} → ${res.occAfter[0]}×${res.occAfter[1]}）${coordTag(mv)}`,
-        })
+      if (limit === 1) {
+        const res = lineCompactPass(skeleton, cells, cols, rows, { limit: 1 })
+        if (res.moved) {
+          roundMoves += res.moved
+          const mv = movesOf(cells, res.cellAfter, res.movedIds)
+          return finalize(res.cellAfter, res.movedIds,
+            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：移動 1 線${coordTag(mv)}`)
+        }
+      } else {
+        const big = bigStep('line', 'gather', (s) => `移動 ${s.moved} 線`)
+        if (big) return big
       }
       stage = 'gather'
-    } else if (stage === 'gather') {
-      const res = medianGatherPass(skeleton, cells, cols, rows, { limit })
-      if (res.moved) {
-        roundMoves += res.moved
-        const mv = movesOf(cells, res.cellAfter, res.movedIds)
-        return out({
-          cells: res.cellAfter, roundMoves, movedIds: res.movedIds, moves: mv,
-          info: `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：往中位點滑 ${res.movedPts} 點＋${res.movedLines} 線${coordTag(mv)}`,
-        })
+    } else { // 'gather' — 一輪的最後一個階段
+      if (limit === 1) {
+        const res = medianGatherPass(skeleton, cells, cols, rows, { limit: 1 })
+        if (res.moved) {
+          roundMoves += res.moved
+          const mv = movesOf(cells, res.cellAfter, res.movedIds)
+          return finalize(res.cellAfter, res.movedIds,
+            `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：往中位點滑 ${res.movedPts} 點＋${res.movedLines} 線${coordTag(mv)}`)
+        }
+      } else {
+        const big = bigStep('gather', 'endp', (s) => `往中位點滑 ${s.movedPts} 點＋${s.movedLines} 線`)
+        if (big) { big.round = round + 1; big.roundMoves = 0; return big } // gather 是一輪的最後 → 下一階段順帶進下一輪
       }
-      stage = 'compact'
-    } else { // 'compact' — 一輪的收尾
-      const comp = compactGrid(cells, cols, rows)
-      const shrunk = comp.cols !== cols || comp.rows !== rows
-      if (!roundMoves && !shrunk) {
+      // 三階段都掃不動（網格每步都已壓縮）＝收斂
+      if (!roundMoves) {
         return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪都動不了` }
       }
-      if (shrunk) {
-        const info = `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}：${cols}×${rows} → ${comp.cols}×${comp.rows}`
-        cells = comp.cellAfter
-        const nC = comp.cols, nR = comp.rows
-        return { cells, cols: nC, rows: nR, stage: 'endp', round: round + 1, steps: steps + 1, roundMoves: 0, done: false, lastStage: 'compact', movedIds: [], moves: [], info }
-      }
-      // 沒縮但這輪有移動 → 直接進下一輪（不算一步，同一鍵內繼續）
-      cells = comp.cellAfter
-      cols = comp.cols
-      rows = comp.rows
       stage = 'endp'
       round += 1
       roundMoves = 0
@@ -1209,48 +1240,42 @@ export function stepChainNext(skeleton, st, opts = {}) {
   return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
 }
 
-// 端點拉直+直線縮減+中位集中+縮減網格循環: each round runs 端點拉直 (itself
-// iterated to a fixed point) → 直線縮減 (itself iterated) → 中位集中 (itself
-// iterated) → compactGrid, until a round where NOTHING moves. Compaction
-// changes every cell's rank coordinates, so hard-rule blocks (occlusion,
-// landing on another vertex) shift and new moves can open up; a straighten
-// can empty more rows/columns; a line shift or a gather slide can unblock
-// further straightens. Straighten moves strictly grow H/V (bounded), line
-// moves strictly shrink occupied columns+rows (bounded below), the grid
-// never grows; gather slides are H/V-neutral, so POST_ITER_CAP rounds is the
-// backstop against slide/median oscillation. Per-round moved counts are
-// summed (compaction renumbers cells, so a net position diff is meaningless).
+// 端點拉直+直線縮減+中位集中循環: each round runs the three MOVEWISE stages
+// （每個階段自己迭代到不動點，且**每一個移動後都立即縮減網格**——縮減不再是
+// 獨立步驟）until a round where NOTHING moves. Per-move compaction renumbers
+// cells continuously, so hard-rule blocks (occlusion, landing on another
+// vertex) shift and new moves keep opening up between stages/rounds.
+// Straighten moves strictly grow H/V (bounded), line moves strictly shrink
+// the (always-dense) grid (bounded below); gather slides are H/V-neutral, so
+// POST_ITER_CAP rounds is the backstop against slide/median oscillation.
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows
   let rounds = 0, moved = 0, lineMoved = 0, gatherMoved = 0
-  let first = null, lastEndp = null, lastLine = null, lastGather = null
+  let hvBefore = null, last = null
+  let converged = false
   while (rounds < POST_ITER_CAP) {
-    const endp = iteratePost(buildEndpointStraighten, skeleton, cur, nC, nR)
-    const line = buildLineCompact(skeleton, endp.cellAfter, nC, nR)
-    const gather = buildMedianGather(skeleton, line.cellAfter, nC, nR)
-    const comp = compactGrid(gather.cellAfter, nC, nR)
+    const endp = movewiseStage('endp', skeleton, cur, nC, nR)
+    const line = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
+    const gather = movewiseStage('gather', skeleton, line.cellAfter, line.cols, line.rows)
     rounds++
-    first ??= endp.stats
-    lastEndp = endp.stats
-    lastLine = line.stats
-    lastGather = gather.stats
+    hvBefore ??= endp.stats.hvBefore
+    last = gather.stats
     moved += endp.stats.moved
     lineMoved += line.stats.moved
     gatherMoved += gather.stats.moved
-    cur = comp.cellAfter
-    nC = comp.cols
-    nR = comp.rows
-    if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) break
+    cur = gather.cellAfter
+    nC = gather.cols
+    nR = gather.rows
+    if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
   }
   return {
     cellAfter: cur,
     cols: nC,
     rows: nR,
     stats: {
-      hvBefore: first.hvBefore, hvAfter: lastLine.hvAfter,
-      segs: lastEndp.segs, verts: lastEndp.verts, moved, lineMoved, gatherMoved,
-      rounds, roundCap: POST_ITER_CAP,
-      converged: lastEndp.moved === 0 && lastLine.moved === 0 && lastGather.moved === 0,
+      hvBefore, hvAfter: last.hvAfter,
+      segs: last.segs, verts: last.verts, moved, lineMoved, gatherMoved,
+      rounds, roundCap: POST_ITER_CAP, converged,
       fromCols: cols, fromRows: rows, cols: nC, rows: nR,
     },
   }

@@ -31,7 +31,7 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 12 // 12: 中位集中點滑動放寬——任何有色點入射段≤2且同軸即可沿線滑（藍點必可），不再限灰/粉紅/藍（2026-07）
+const VIEWS_VERSION = 14 // 14: 端點拉直每次移動上限 1 格（2026-07）
 const strHash = (s) => {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0
