@@ -1508,10 +1508,34 @@ async function build() {
   for (const grp of cityGroups.values()) {
     const feats = grp.stations
     if (feats.length < 2) continue
-    // union-find
+    // 拆站 override（interchanges.json 的 `split`）：某些同名站分屬不相通的不同線，
+    // 每個 line-group 各自成站。給每個 feat 標 splitKeyOf＝`name#groupIdx`（未列出成員
+    // ＝`name#rest`＝真 complex 那一站）；union guard 擋掉「同名不同 group」的任何合併
+    // （stop_area／距離／interchange 三個 phase 都擋），union-find 只能併不能拆，故必須
+    // 在合併發生前就阻止（曾錯在事後才拆、被 stop_area 先併走）。
+    const splitByName = new Map()
+    for (const sp of splitSpecs) if (normCity(sp.city) === normCity(grp.info.city)) splitByName.set(normName(sp.name), sp.groups)
+    const splitKeyOf = new Array(feats.length).fill(null)
+    if (splitByName.size) {
+      const nref = (r) => String(r).toLowerCase().replace(/\s+/g, '')
+      feats.forEach((f, i) => {
+        const nk = normName(f.properties.station_name)
+        const groups = splitByName.get(nk)
+        if (!groups) return
+        const ml = (f.properties.lines || []).map(nref)
+        let gi = -1
+        for (let g = 0; g < groups.length; g++) if (groups[g].map(nref).some((x) => ml.includes(x))) { gi = g; break }
+        splitKeyOf[i] = `${nk}#${gi >= 0 ? gi : 'rest'}`
+      })
+    }
+    // union-find（含 split guard：同名不同 group 一律不併）
     const parent = feats.map((_, i) => i)
     const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i] } return i }
-    const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra }
+    const union = (a, b) => {
+      const ka = splitKeyOf[a], kb = splitKeyOf[b]
+      if (ka && kb && ka !== kb && ka.slice(0, ka.indexOf('#')) === kb.slice(0, kb.indexOf('#'))) return
+      const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra
+    }
     const nodeId = (f) => parseInt((f.properties.station_id || '').slice(1), 10)
 
     // (1) shared stop_area
@@ -1562,26 +1586,9 @@ async function build() {
       for (const c of clusters)
         for (let k = 1; k < c.members.length; k++) union(c.members[0], c.members[k])
     }
-    // 拆站 override（interchanges.json 的 `split`，本城適用者）：name → [[refs]…]
-    const splitByName = new Map()
-    for (const sp of splitSpecs) if (normCity(sp.city) === normCity(grp.info.city)) splitByName.set(normName(sp.name), sp.groups)
-    for (const [nameKey, idxs] of byName) { if(nameKey==="canal street"&&/newyork/i.test(normCity(grp.info.city)))console.error("__DBGCANAL splitSize="+splitByName.size+" hasGroups="+!!splitByName.get(nameKey));
-      const groups = splitByName.get(nameKey)
-      if (!groups) { clusterAndUnion(idxs); continue }
-      // 指定 line-group 各自成站；其餘成員照常聚合（真 complex 不受影響）
-      const nref = (r) => String(r).toLowerCase().replace(/\s+/g, '')
-      const gsets = groups.map((g) => new Set(g.map(nref)))
-      const gm = groups.map(() => [])
-      const rest = []
-      for (const i of idxs) {
-        const ml = (feats[i].properties.lines || []).map(nref)
-        let gi = -1
-        for (let g = 0; g < gsets.length; g++) if (ml.some((x) => gsets[g].has(x))) { gi = g; break }
-        if (gi >= 0) gm[gi].push(i); else rest.push(i)
-      }
-      for (const g of gm) for (let k = 1; k < g.length; k++) union(g[0], g[k])
-      clusterAndUnion(rest)
-    }
+    // 拆站的分組已由 splitKeyOf + union guard 隔離（見上方 union）；此處照常聚合，
+    // 跨 split-group 的 union 會被 guard 擋掉 → 每組各自成站、真 complex（rest）照併。
+    for (const idxs of byName.values()) clusterAndUnion(idxs)
     // (3) adjudicated interchange pairs
     if (ixPairs.length) {
       const byId = new Map(feats.map((f, i) => [f.properties.station_id, i]))
