@@ -320,12 +320,20 @@ function addRwdView(src, compact = 'rect') {
 
 /* Quick Selection — 常用城市 */
 const QUICK_CITIES = [
-  { zh: '台北', en: 'Taipei' }, { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
-  { zh: '東京', en: 'Tokyo' }, { zh: '東京＋山手', en: 'Tokyo + Yamanote' },
-  { zh: '大阪', en: 'Osaka' }, { zh: '大阪＋環狀', en: 'Osaka + Loop' }, { zh: '首爾', en: 'Seoul' },
-  { zh: '北京', en: 'Beijing' }, { zh: '上海', en: 'Shanghai' }, { zh: '香港', en: 'Hong Kong' },
-  { zh: '新加坡', en: 'Singapore' }, { zh: '倫敦', en: 'London' }, { zh: '巴黎', en: 'Paris' },
-  { zh: '柏林', en: 'Berlin' }, { zh: '維也納', en: 'Vienna' }, { zh: '紐約', en: 'New York' },
+  // 原城市順序不變；同城市的變體（＋山手／＋環狀／＋地標）緊接 base 放一起。
+  { zh: '台北', en: 'Taipei' }, { zh: '台北＋地標', en: 'Taipei + Landmark' },
+  { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
+  { zh: '東京', en: 'Tokyo' }, { zh: '東京＋山手', en: 'Tokyo + Yamanote' }, { zh: '東京＋地標', en: 'Tokyo + Landmark' },
+  { zh: '大阪', en: 'Osaka' }, { zh: '大阪＋環狀', en: 'Osaka + Loop' },
+  { zh: '首爾', en: 'Seoul' }, { zh: '首爾＋地標', en: 'Seoul + Landmark' },
+  { zh: '北京', en: 'Beijing' },
+  { zh: '上海', en: 'Shanghai' }, { zh: '上海＋地標', en: 'Shanghai + Landmark' },
+  { zh: '香港', en: 'Hong Kong' }, { zh: '新加坡', en: 'Singapore' },
+  { zh: '倫敦', en: 'London' }, { zh: '倫敦＋地標', en: 'London + Landmark' },
+  { zh: '巴黎', en: 'Paris' }, { zh: '巴黎＋地標', en: 'Paris + Landmark' },
+  { zh: '柏林', en: 'Berlin' }, { zh: '柏林＋地標', en: 'Berlin + Landmark' },
+  { zh: '維也納', en: 'Vienna' }, { zh: '維也納＋地標', en: 'Vienna + Landmark' },
+  { zh: '紐約', en: 'New York' }, { zh: '紐約＋地標', en: 'New York City + Landmark' },
   { zh: '雪梨', en: 'Sydney' }, { zh: '墨西哥城', en: 'Mexico City' },
   { zh: '舊金山', en: 'San Francisco' },
 ]

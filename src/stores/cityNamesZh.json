@@ -902,5 +902,41 @@
   "as-jpn-osaka-jr": {
     "country": "日本",
     "city": "大阪＋環狀"
+  },
+  "am-usa-new-york-city-lm": {
+    "country": "美國",
+    "city": "紐約＋地標"
+  },
+  "as-chn-shanghai-lm": {
+    "country": "中國",
+    "city": "上海＋地標"
+  },
+  "as-jpn-tokyo-lm": {
+    "country": "日本",
+    "city": "東京＋地標"
+  },
+  "as-kor-seoul-lm": {
+    "country": "南韓",
+    "city": "首爾＋地標"
+  },
+  "as-twn-taipei-lm": {
+    "country": "台灣",
+    "city": "台北＋地標"
+  },
+  "eu-aut-vienna-lm": {
+    "country": "奧地利",
+    "city": "維也納＋地標"
+  },
+  "eu-fra-paris-lm": {
+    "country": "法國",
+    "city": "巴黎＋地標"
+  },
+  "eu-ger-berlin-lm": {
+    "country": "德國",
+    "city": "柏林＋地標"
+  },
+  "eu-gbr-london-lm": {
+    "country": "英國",
+    "city": "倫敦＋地標"
   }
 }

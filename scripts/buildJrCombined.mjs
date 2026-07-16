@@ -296,10 +296,10 @@ out body;`
       }],
       route_count: 1,
       route_refs: [t.line.ref],
-      // 黑白交錯（使用者：JR 是「鐵路」不是 metro）——渲染層 `_nc=相異色數`：兩色
-      // ⇒ 交錯虛線（LayerTab 與 D3Tab 共用機制）。故給 [黑,白] 即畫成黑白鐵路線；
-      // routes[].route_color 仍留 JR 品牌色，供 ref 徽章／swatch 保留身分。
-      route_colors: ['#000000', '#ffffff'],
+      // 鐵路交錯線＋官方色（使用者：JR 是鐵路要交錯，但用官方色不是黑）——渲染層
+      // `_nc=相異色數`：兩色 ⇒ 交錯虛線（LayerTab 與 D3Tab 共用機制）。故給
+      // [官方色,白] ＝官方色與白交錯的鐵路線（山手線 うぐいす #B1CB39、大阪環状線 #E80000）。
+      route_colors: [t.line.color, '#ffffff'],
       city, country,
     },
   }

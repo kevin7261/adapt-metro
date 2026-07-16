@@ -213,46 +213,38 @@ async function addMetroLayers(fit) {
   if (!map) return
   loading.value = false
 
-  addMetroSourceLayers(data)
+  // 地標 features（河流骨架／皇居・公園面域）內嵌在「城市＋地標」合併檔裡，以 landmark_id
+  // 辨識、抽出到獨立來源；metro 來源只留非地標 features（否則河流 LineString 會被 metro-lines
+  // 誤畫成路線）。一般城市檔沒有地標 features → lmFeats 空、不顯示地標開關。
+  const metroData = { type: 'FeatureCollection', features: data.features.filter((f) => !f.properties?.landmark_id) }
+  const lmFeats = data.features.filter((f) => f.properties?.landmark_id)
+
+  addMetroSourceLayers(metroData)
   if (railwayOn.value) addRailwayLayer()
 
   if (fit) {
-    const bbox = boundsOfGeojson(data)
+    const bbox = boundsOfGeojson(metroData)
     if (bbox) map.fitBounds(bbox, { padding: 48, duration: 0, maxZoom: 13 })
   }
 
-  if (await loadLandmarks()) addLandmarkLayers()
+  if (lmFeats.length) {
+    landmarkGeojson = { type: 'FeatureCollection', features: lmFeats }
+    landmarkAvailable.value = true
+    addLandmarkLayers()
+  } else {
+    landmarkAvailable.value = false
+  }
 }
 
-/* ---- landmark overlay (data/metro/landmarks/*, skill landmark-osm-fetch) ----
-   城市地標面域（河流/皇居/公園）是與 metro geojson 分離的獨立圖層，路徑鏡射
-   systems/ → landmarks/；沒有該城市檔（404）就靜默不顯示開關。 */
+/* ---- landmark features（河流骨架／皇居・公園面域）----
+   地標不再是單獨載入的 overlay 檔——改內嵌在「城市＋地標」合併系統檔（buildLandmarkCombined
+   產生，概念同 東京＋山手）。addMetroLayers 以 `landmark_id` 把地標 features 抽到獨立來源，
+   一般城市檔無地標 features → 不顯示地標開關。skill landmark-osm-fetch 仍是地標資料的產地。 */
 const LANDMARK_FILL =
   ['match', ['get', 'kind'], ['river', 'river-centerline'], '#4f9fd4', '#58a866']
 const landmarkOn = ref(true)
 const landmarkAvailable = ref(false)
 let landmarkGeojson = null
-
-function landmarkUrl() {
-  const f = layer.value?.file
-  if (!f || !f.includes('data/metro/systems/')) return null
-  return f.replace('data/metro/systems/', 'data/metro/landmarks/')
-}
-
-async function loadLandmarks() {
-  const url = landmarkUrl()
-  if (!url) return null
-  if (landmarkGeojson) return landmarkGeojson
-  try {
-    const res = await fetch(url, { cache: 'no-cache' })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (!data?.features?.length) return null
-    landmarkGeojson = data
-    landmarkAvailable.value = true
-  } catch { /* 該城市沒有地標檔 */ }
-  return landmarkGeojson
-}
 
 // id 加 lm- 前綴，避免撞到向量底圖自帶的圖層名（同 orm-overlay 的教訓）。
 function addLandmarkLayers() {

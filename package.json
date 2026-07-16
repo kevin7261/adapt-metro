@@ -27,6 +27,8 @@
     "metro:views": "node scripts/buildViews.mjs",
     "metro:sites": "node scripts/fetchOfficialSites.mjs",
     "metro:landmarks": "node scripts/fetchLandmarks.mjs",
+    "metro:landmarkscombined": "node scripts/buildLandmarkCombined.mjs",
+    "metro:jrcombined": "node scripts/buildJrCombined.mjs",
     "metro:verify": "node scripts/verifyMetro.mjs",
     "metro:audit": "node scripts/auditLoop.mjs",
     "metro:wikilines": "node scripts/wikiLineCheck.mjs",

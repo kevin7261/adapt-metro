@@ -10,7 +10,13 @@ let toastTimer = null
 // Falls back to the id if a city is missing.
 function metroDisplayName(id) {
   const zh = CITY_ZH[id]
-  return zh ? `${zh.city}・${zh.country}` : id
+  if (zh) return `${zh.city}・${zh.country}`
+  // 圖層顯示名一定要中文（使用者規則）：合併系統（-jr／-lm）若漏建中文名，退回 base
+  // 城市中文名＋後綴，**絕不**顯示英文 slug。（現行 234 系統皆有中文名，此為未來防呆。）
+  const m = /^(.+)-(jr|lm)$/.exec(id)
+  const b = m && CITY_ZH[m[1]]
+  if (b) return `${b.city}${m[2] === 'lm' ? '＋地標' : '＋線'}・${b.country}`
+  return id
 }
 // Straighten (hillclimb) layers carry which grid-post variant they optimized.
 const variantLabel = (v) => (v === 'rot' ? '旋轉' : '原始')
