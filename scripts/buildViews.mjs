@@ -134,7 +134,7 @@ async function main() {
       // fp 加演算法版本後綴：HC 畫廊＝原始＋旋轉 兩 variant × 6 階段（格網化後/
       // Hill Climbing＋4 個循環結果 straightenCompactLoop，2026-07），純資料指紋
       // 不會觸發重算，靠這個後綴強制重建（views/rwdviews 內容未變、沿用快取）。
-      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v2`, true)) === 'reused' ? reused++ : rebuilt++
+      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v3`, true)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {
       hcFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
@@ -145,7 +145,7 @@ async function main() {
       // fp 加演算法版本後綴：RWD 縮圖建立在 straightenCompactLoop（端+直+中+縮
       // 循環）上，且加上旋轉 variant（2026-07），純資料指紋不會觸發重算，靠這個
       // 後綴強制全量重建。
-      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v3`, false)) === 'reused' ? reused++ : rebuilt++
+      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v4`, false)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {
       rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })

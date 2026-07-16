@@ -119,17 +119,24 @@ function buildSystem(raw, override) {
   const { continent, country } = raw
   const country_zh = raw.country_zh ?? country
   const cc = raw.cc
-  // Two per-country operator filters (data/railway/_overrides/{cc}_exclude.json):
-  //   exclude — drop track/stations whose operator/network/name matches (freight
-  //             臨港線, 台糖…). Default heuristic keeps everything else.
-  //   include — WHITELIST: keep ONLY track/stations matching (Japan 只收 JR＋新幹線,
-  //             私鐵/第三セクター 也是 usage=main 擋不掉 → 白名單 JR 六社＋新幹線).
+  // Two per-country operator filters (data/railway/_overrides/{cc}_exclude.json),
+  // both matched against operator/network/name. Priority: PROTECT > DROP > keep.
+  //   include — PROTECT list (highest priority): keep whatever matches even if the
+  //             DROP list would catch it. Japan 只收 JR＋新幹線: include the JR
+  //             markers (旅客鉄道/JR/新幹線) so JR track survives when its way is
+  //             mislabelled with a parallel 私鐵 line name (op=東海旅客鉄道
+  //             nm=名古屋鉄道名古屋本線) or on JR/私鐵 shared track
+  //             (op=西日本旅客鉄道;井原鉄道, 関西空港線, 肥薩/くま川).
+  //   exclude — DROP list: 私鐵/第三セクター/貨物/觀光/保存 (freight 臨港線, 台糖…),
+  //             also catches no-operator ways whose name embeds the company
+  //             (南海電気鉄道南海本線).
+  //   default — KEEP (bare-named JR lines with no operator, e.g. 東海道本線, survive).
+  const protectRe = override?.include ? new RegExp(override.include, 'i') : null
   const excludeRe = override?.exclude ? new RegExp(override.exclude, 'i') : null
-  const includeRe = override?.include ? new RegExp(override.include, 'i') : null
   const dropped = (op, net, nm, nmZh = '') => {
     const hay = `${op || ''} ${net || ''} ${nm || ''} ${nmZh || ''}`
+    if (protectRe && protectRe.test(hay)) return false
     if (excludeRe && excludeRe.test(hay)) return true
-    if (includeRe && !includeRe.test(hay)) return true
     return false
   }
 
@@ -138,8 +145,11 @@ function buildSystem(raw, override) {
   for (const w of raw.trackElements) {
     if (w.type !== 'way' || !w.geometry || w.geometry.length < 2) continue
     const t = w.tags || {}
-    // exclude non-passenger track by operator/network/name (freight 臨港線, 台糖…)
-    if (excludeRe && excludeRe.test(`${t.operator || ''} ${t.network || ''} ${t.name || ''} ${t['name:zh'] || ''}`)) continue
+    // filter track by operator/network/name (exclude freight 臨港線/台糖; or, with an
+    // include whitelist, keep only JR＋新幹線). HSR track (highspeed=yes) is always
+    // kept: 日本所有高鐵＝新幹線＝JR, so it survives the JR whitelist even if the way
+    // is tagged with the infrastructure holder (JRTT) rather than the JR operator.
+    if (t.highspeed !== 'yes' && dropped(t.operator, t.network, t.name, t['name:zh'])) continue
     ways.push({
       coords: w.geometry.map((p) => [p.lon, p.lat]),
       cls: t.highspeed === 'yes' ? 'high_speed' : 'conventional',
@@ -171,7 +181,11 @@ function buildSystem(raw, override) {
     else continue
     const nm = nameFor(e.tags, country)
     if (!nm) continue
-    if (excludeRe && excludeRe.test(`${e.tags.operator || ''} ${e.tags.network || ''} ${e.tags.name || ''}`)) continue
+    // Same operator/network/name filter as track (exclude, or JR＋新幹線 whitelist).
+    // Stations that survive but don't snap onto kept track are dropped later anyway
+    // (invariant: no station without a line) — so 私鐵 platforms at a JR interchange
+    // that share a name still fall away if no JR track passes.
+    if (dropped(e.tags.operator, e.tags.network, e.tags.name)) continue
     rawSt.push({ id: `${e.type[0]}${e.id}`, name: nm, lon, lat, tags: e.tags || {} })
   }
   const parent = rawSt.map((_, i) => i)
@@ -239,6 +253,14 @@ function buildSystem(raw, override) {
   const lineHs = new Map()
   for (const w of ways) if (w.line) lineHs.set(w.line, (lineHs.get(w.line) || false) || w.cls === 'high_speed')
   const clsOfLine = (ln) => (ln?.startsWith('__') ? ln.slice(2) : (lineHs.get(ln) ? 'high_speed' : 'conventional'))
+  const hsLineNames = [...lineHs.entries()].filter(([, h]) => h).map(([n]) => n)
+  // When there is exactly ONE HSR line (台灣高鐵), its dedicated track is sparse/
+  // gapped (tunnels) so we build it by nearest-neighbour from the operator flag
+  // (below) and the walk SKIPS its corridors. With MANY HSR lines (中國 高鐵路網,
+  // 日本 新幹線: 東海道/山陽/東北/上越/北陸/九州…) the dedicated track is densely
+  // mapped, so the walk MUST traverse HSR corridors too — otherwise every corridor
+  // is HSR and no station-to-station edge is ever built (China → 0 features).
+  const walkHsr = hsLineNames.length !== 1
 
   // ── 4. snap stations onto the track graph ──
   const gIdx = gridIndex(gvc.map(([x, y]) => ({ lon: x, lat: y })))
@@ -268,7 +290,7 @@ function buildSystem(raw, override) {
     if (s.gv === undefined) continue
     for (const first of [...new Set(gadj[s.gv].map((e) => e.to))]) {
       const e0 = gadj[s.gv].find((e) => e.to === first)
-      if (e0.hs) continue // HSR corridors handled by the flag-built line (sparse track)
+      if (e0.hs && !walkHsr) continue // single-HSR-line country: its corridor is built by NN (sparse track)
       const seen = new Set([s.gv, first]); let prev = s.gv, cur = first, guard = 0
       const votes = new Map(); let hs = false
       if (e0.line) votes.set(e0.line, 1)
@@ -302,7 +324,6 @@ function buildSystem(raw, override) {
   // country has exactly ONE HSR line (台灣), order all its HSR-platform stations
   // nearest-neighbour and connect consecutive ones — one continuous 高鐵 line.
   // (Multiple Shinkansen → keep track-walk so they stay distinct.)
-  const hsLineNames = [...lineHs.entries()].filter(([, h]) => h).map(([n]) => n)
   if (hsLineNames.length === 1) {
     const ln = hsLineNames[0]
     const hsrSt = stations.filter((s) => s.hsr)
@@ -446,13 +467,17 @@ async function main() {
   let lineTotal = 0, stationTotal = 0
   for (const f of files.sort()) {
     const raw = JSON.parse(await readFile(join(CACHE, f), 'utf8'))
-    let exclude = null
+    const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    let override = null
     try {
       const ov = JSON.parse(await readFile(join(OVERRIDES, `${raw.cc}_exclude.json`), 'utf8'))
-      if (ov.operators?.length) exclude = ov.operators.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+      override = {
+        exclude: ov.operators?.length ? ov.operators.map(reEsc).join('|') : null,
+        include: ov.include?.length ? ov.include.map(reEsc).join('|') : null,
+      }
     } catch { /* no override */ }
 
-    const fc = buildSystem(raw, exclude)
+    const fc = buildSystem(raw, override)
     if (!fc.features.length) { console.log(`  ${raw.cc}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
     const rel = `systems/${cont}/${countrySlug(raw.country)}/${raw.cc}.geojson`

@@ -163,6 +163,14 @@ G `#6cbe45`、L `#a7a9ac`、JZ `#996633`、NQRW `#fccc0a`、123 `#ee352e`、456 
 
 實測一致性：NYC 每站 role⟺deg 完全對齊（terminus⟺deg≤1、interchange⟺deg≥3、normal⟺deg==2）。
 
+**⚠️ 旗標必須跟 role 一起覆寫（2026-07-17 修正）**：前端四處（`LayerTab`/`D3Tab`/
+`GalleryTile`/`viewGeometry`）著色**只看 `is_interchange`/`is_terminus` 旗標、不看
+`station_role`**。NYC 分支算完 role 後必須 `is_terminus = role==='terminus'` 覆寫——
+舊旗標語義是「**任一服務**在此終點」（G 在 Church Av、C 在 Euclid、4 在 Utica、6 在
+Brooklyn Bridge 終點→true），role=normal 的站照樣被畫成藍點（使用者回報 Church Av/
+Crown Heights–Utica/Euclid/Chambers–Brooklyn Bridge 四站全中）。`is_interchange` 本就
+以 isIx 同步寫入，不會漂。
+
 **只限 NYC**（`isNYC` 分支）。**他城維持既有「相異色 ≥2 ＋（junction/端點）」規則**——
 台北大橋頭（orange 分岔 deg=3、同色）在他城仍 normal（官方不算轉乘）；崁頂 2 筆同 V
 仍藍。曾試「停靠服務數 ≥3 紅」「藍點限 1 服務」皆已廢（誤把 N/R/W 共線判紅、把
@@ -188,6 +196,12 @@ N/Q 快車 Canal→Union Sq 跳站，被接到**綠線 Lexington 6**（Spring/Bl
 `routeMeta` 本就有）；`popupHtml.js` routeRow 與 `StylePanel.vue` stationRoutes 一律
 `r.route_color ?? (查表) ?? '#e11d48'`。實測 Union Sq 4/5/6 綠、L 灰、N/Q/R/W 黃等正確。
 （`H.swatch`／StylePanel 缺色一律退 `#e11d48`＝紅，故「缺色」的症狀就是「整片紅」。）
+
+**共站（各線）chips 同病（2026-07-17 修正）**：`StylePanel` mergedNames 的 colorByRef
+與 `popupHtml` 共站 chips 原本只以 **metroLines／路段 refColor**（trunk 合併後鍵是
+"4/5/6"/"J/Z"）查 merged_names 的**個別 ref**（"4"/"J"）→ 全 miss 退玫瑰紅（使用者：
+「共站（各線）的顏色也好多錯」）。**修正**：兩處都改成先用**本站 routes 自帶的個別線色**
+（ref→route_color；共站 lines ⊆ 本站 routes 聯集，必然覆蓋），查不到才退 refColor 查表。
 
 ## 拆站 `names` 抑制 merged_names（Fulton/Lafayette 修正 2026-07-17）
 

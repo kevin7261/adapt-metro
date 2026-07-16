@@ -158,6 +158,11 @@ const mergedNames = computed(() => {
   const colorByRef = new Map()
   for (const r of metroLines.value)
     if (r.route_ref != null) colorByRef.set(String(r.route_ref), r.route_color ?? '#e11d48')
+  // 站自帶 routes 的個別線色後蓋——trunk 合併後 metroLines 的 ref 是幹線值（"4/5/6"），
+  // 查 merged_names 的個別 ref（"4"）全 miss → 全退玫瑰紅（使用者 2026-07-17
+  //「共站（各線）的顏色好多錯」）。共站 lines ⊆ 本站 routes（合併簇聯集），足以覆蓋。
+  for (const e of stationRoutes.value)
+    if (e.route_ref != null && e.route_color) colorByRef.set(String(e.route_ref), e.route_color)
   return v.map((e) => ({
     station_id: e.station_id,
     name: e.station_name,

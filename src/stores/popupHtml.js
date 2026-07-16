@@ -67,14 +67,19 @@ export function stationPopupHtml(p, refColor) {
   const titleName = hasMerged ? [...new Set(mn.map((m) => m.station_name))].join(' / ') : (p.station_name ?? '—')
   const en = p.station_name_en && p.station_name_en !== p.station_name ? p.station_name_en : null
   let html = H.title(titleName, en)
+  const rts = J(p.routes, []) ?? []
   if (hasMerged) {
+    // 共站 chips 的線色：優先用站自帶 routes 的個別線色（ref＝"4"/"J"）——trunk 合併後
+    // refColor 只有幹線鍵（"4/5/6"/"J/Z"），查個別 ref 全 miss → chips 全退預設
+    //（使用者 2026-07-17「共站（各線）的顏色好多錯」）。退回 refColor 供舊資料相容。
+    const ownColor = new Map()
+    for (const r of rts) if (r.ref != null && r.route_color) ownColor.set(String(r.ref), r.route_color)
     html += `<div style="opacity:.65;font-size:10px;margin-top:4px">共站（各線）</div>`
     for (const m of mn) {
-      const chips = (m.lines || []).map((ref) => H.refC(ref, refColor?.get(ref))).join('')
+      const chips = (m.lines || []).map((ref) => H.refC(ref, ownColor.get(String(ref)) ?? refColor?.get(ref))).join('')
       html += H.row(`<span style="margin-right:6px">${m.station_name}</span>${chips}`)
     }
   }
-  const rts = J(p.routes, []) ?? []
   const routeRow = (r) => {
     // 車站 routes 自帶 route_color（個別線色）——優先用；退回 refColor 查表（舊資料相容）。
     // trunk 合併後路段 ref 是幹線值（"1/2/3"），refColor 查不到車站個別 ref，故必須直接帶色。

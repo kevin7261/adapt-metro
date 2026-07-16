@@ -222,6 +222,28 @@ function makeMover(pos, segs, inc, cols, rows) {
         if (onSeg(pw, pos.get(s.a), pos.get(s.b))) return false
       }
     }
+    // ③′ 變形段完整檢查：剛性平移下，兩端同動（相對不變）與兩端全靜態的段
+    // 都保持原相對幾何，唯一會「變形」的是恰一端在群集內的段。上面的檢查漏了
+    // 三個組合（大邱重疊案 2026-07）：變形段吞掉**群集內**頂點（212 只看靜態
+    // 頂點）、變形段×整體移動段、變形段×變形段（206 只比對純靜態段）。這裡
+    // 對每條變形段補齊：不得吞任何頂點、不得與任何不共端點的段相交/共線重疊
+    // （共端點的共線重疊由吞頂點檢查涵蓋——較短段的遠端必在較長段上）。
+    for (let si = 0; si < segs.length; si++) {
+      const s = segs[si]
+      if (inC.has(s.a) === inC.has(s.b)) continue // 非變形段
+      const A = at(s.a), B = at(s.b)
+      for (const [w] of pos) {
+        if (w === s.a || w === s.b) continue
+        if (onSeg(at(w), A, B)) return false
+      }
+      for (let sj = 0; sj < segs.length; sj++) {
+        if (sj === si) continue
+        const t = segs[sj]
+        if (!inC.has(t.a) && !inC.has(t.b)) continue // 純靜態已在 206 檢過
+        if (t.a === s.a || t.a === s.b || t.b === s.a || t.b === s.b) continue
+        if (segsIntersect(A, B, at(t.a), at(t.b))) return false
+      }
+    }
     // edge ordering at every boundary vertex (both sides)
     const checked = new Set()
     for (const w of comp) {
@@ -268,6 +290,44 @@ function compactGrid(cellAfter, cols, rows) {
     removedCols: cols - usedC.length,
     removedRows: rows - usedR.length,
   }
+}
+
+// 縮減網格（硬規則把關版，大邱重疊案 2026-07）：移除一個空欄＝「右半平面整體
+// 左移 1 格」——與群集平移是同一件事，跨縫的段會**變形**，純排名重編（上面的
+// compactGrid）可能把點壓到別的段上、製造新交叉或共線重疊。這裡逐空欄/空列走
+// validShift **同一套硬規則**（含 ③′ 變形段檢查）；會出事的空帶就**保留**
+// （畫面多一條空帶、網格略大，但佈局永不劣化）。迭代到不動點（先拿掉別的
+// 空帶後，原本被擋的可能變合法）。movewise／逐步驗證的每步後壓縮都走這裡。
+function compactGridSafe(skeleton, cellAfter, cols, rows) {
+  const { pos, segs, inc } = buildHcGraph(skeleton, cellAfter)
+  for (const [id, cell] of cellAfter) { // 圖外殘餘點也要跟著壓（維持全量 remap 語意）
+    if (!pos.has(id)) { pos.set(id, [cell[0], cell[1]]); inc.set(id, []) }
+  }
+  const M = makeMover(pos, segs, inc, cols, rows)
+  let nC = cols, nR = rows
+  let changed = true
+  for (let guard = 0; changed && guard < 8; guard++) {
+    changed = false
+    for (const axis of [0, 1]) {
+      const used = new Set()
+      for (const p of pos.values()) used.add(p[axis])
+      const size = axis ? nR : nC
+      for (let x = size - 1; x >= 0; x--) { // 由右/下往左/上，索引不互相干擾
+        if (used.has(x)) continue
+        const comp = []
+        const inC = new Set()
+        for (const [id, p] of pos) if (p[axis] > x) { comp.push(id); inC.add(id) }
+        const d = axis ? [0, -1] : [-1, 0]
+        if (comp.length && !M.validShift(comp, inC, d[0], d[1])) continue // 保留此空帶
+        M.applyShift(comp, d)
+        if (axis) nR--; else nC--
+        changed = true
+      }
+    }
+  }
+  const out = new Map()
+  for (const id of cellAfter.keys()) { const p = pos.get(id); out.set(id, [p[0], p[1]]) }
+  return { cellAfter: out, cols: nC, rows: nR, removedCols: cols - nC, removedRows: rows - nR }
 }
 
 // The HC graph shared by the optimizer and the RWD drawing (rwdMap.js):
@@ -1067,7 +1127,7 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
 // （網格合併 tab 用）。回傳形狀與其他階段一致（moved=合併次數；另附
 // mergedRows/mergedCols）。
 function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
-  let comp = compactGrid(cells, cols, rows)
+  let comp = compactGridSafe(skeleton, cells, cols, rows)
   let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
   const fromCols = nC, fromRows = nR
   const g0 = buildHcGraph(skeleton, cur)
@@ -1112,7 +1172,7 @@ function movewiseSweep(stage, skeleton, cells, cols, rows, visited = new Set()) 
 // 每一個移動後都立即 compactGrid（起點也先壓；上一階段輸出已緻密時是 no-op）。
 function movewiseCore(stage, skeleton, cells, cols, rows, visited) {
   if (stage === 'gather') return gridMergeStage(skeleton, cells, cols, rows, visited ? { single: true } : {})
-  let comp = compactGrid(cells, cols, rows)
+  let comp = compactGridSafe(skeleton, cells, cols, rows)
   let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
   const fromCols = nC, fromRows = nR
   const g0 = buildHcGraph(skeleton, cur)
@@ -1126,7 +1186,7 @@ function movewiseCore(stage, skeleton, cells, cols, rows, visited) {
     moved += r.moved
     movedPts += r.pts
     movedLines += r.lines
-    comp = compactGrid(r.cellAfter, nC, nR) // 每一個移動後立即縮減網格
+    comp = compactGridSafe(skeleton, r.cellAfter, nC, nR) // 每一個移動後立即縮減網格
     cur = comp.cellAfter
     nC = comp.cols
     nR = comp.rows
@@ -1152,8 +1212,8 @@ function movewiseCore(stage, skeleton, cells, cols, rows, visited) {
    跳過空階段），一輪三階段都沒動靜＝完成。
    狀態是純資料（cells/cols/rows/stage/round/steps/info），呼叫端自己保存。 */
 const STEP_STAGE_LABEL = { endp: '端點移動', line: '直線縮減', gather: '網格合併' }
-export function stepChainInit(cells, cols, rows) {
-  const comp = compactGrid(cells, cols, rows) // 每步後都壓 → 起點也先壓
+export function stepChainInit(skeleton, cells, cols, rows) {
+  const comp = compactGridSafe(skeleton, cells, cols, rows) // 每步後都壓 → 起點也先壓
   return {
     cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,
     stage: 'endp', round: 1, steps: 0, roundMoves: 0, done: false,
@@ -1207,7 +1267,7 @@ export function stepChainNext(skeleton, st, opts = {}) {
       from: [rankOf(m.from[0], usedC), rankOf(m.from[1], usedR)],
       to: [rankOf(m.to[0], usedC), rankOf(m.to[1], usedR)],
     }))
-    const comp = compactGrid(next, cols, rows)
+    const comp = compactGridSafe(skeleton, next, cols, rows)
     const shrunk = comp.cols !== cols || comp.rows !== rows
     return {
       cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,

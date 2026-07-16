@@ -2152,6 +2152,11 @@ async function build() {
         // degree ＝相異相鄰站數（共線給相同前後鄰→collapse 成一條），正是「畫出幾條線」。
         isIx = deg >= 3
         role = isIx ? 'interchange' : (deg <= 1 ? 'terminus' : 'normal')
+        // 前端（LayerTab/D3Tab/GalleryTile/viewGeometry）著色只看 is_interchange/
+        // is_terminus 旗標，不看 station_role——NYC 必須把舊語義（任一服務在此終點
+        // ＝true，如 Euclid 的 C、Church Av 的 G、Utica 的 4）覆寫成 role 同步值，
+        // 否則 role=normal 的站仍被畫成藍點（使用者 2026-07-17 回報四站全中）。
+        s.properties.is_terminus = role === 'terminus'
       } else {
         // 其他城市：維持既有「相異色 ≥2 ＋（junction/端點）」規則——他城同色分支
         // （台北大橋頭 orange 分岔）官方不算轉乘，未經 NYC 視覺裁決，不動 226 城既有行為。

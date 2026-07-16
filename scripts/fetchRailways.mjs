@@ -44,9 +44,19 @@ async function exists(p) { try { return (await stat(p)).size > 0 } catch { retur
 // light_rail/monorail — those are other railway=* values — and yards/sidings which
 // carry service=*). out geom tags → full vertex geometry + line name / usage /
 // highspeed / maxspeed / operator for classification and line grouping.
+//
+// Per-country scope override (使用者選). China: only the HIGH-SPEED network
+// (中國高鐵路網) — the full conventional net is enormous and would time out on
+// Overpass, and 使用者 only wants 高鐵. Restrict tracks to highspeed=yes and drop
+// the usage gate (some PDL/客运专线 track omits usage=main); stations stay full and
+// are dropped in build if they don't snap onto kept HSR track (no station w/o line).
+const trackWaySelector = (iso2) =>
+  iso2 === 'CN'
+    ? `way["railway"="rail"]["highspeed"="yes"][!"service"](area.a);`
+    : `way["railway"="rail"]["usage"~"^(main|branch)$"][!"service"](area.a);`
 const tracksQuery = (iso2) => `[out:json][timeout:900];
 area["ISO3166-1"="${iso2}"][admin_level=2]->.a;
-way["railway"="rail"]["usage"~"^(main|branch)$"][!"service"](area.a);
+${trackWaySelector(iso2)}
 out geom tags;`
 
 // Named stations (railway=station / halt) + station areas (ways). Excludes
