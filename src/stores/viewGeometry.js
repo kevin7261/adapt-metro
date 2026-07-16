@@ -49,63 +49,38 @@ function strokesOf(routeColors, color, d) {
   return [{ d, color: cols[0] ?? color ?? '#e11d48' }]
 }
 
-const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
-
-// A line feature's polyline `d` at MOVED positions: map each station vertex via
-// movedOf, and splice in any yellow crossing lying on a station→station segment.
-// Features don't carry the synthetic crossing vertices, so without this the
-// crossing's grid/HC cell is skipped and its yellow node floats off the line /
-// the two routes stop meeting there. Non-station vertices (real track bends) have
-// no cell → dropped (grid is schematic anyway).
-function movedFeatD(f, coordId, movedOf, crossPts) {
-  const crossOnSeg = (A, B) => {
-    if (!crossPts.length) return []
-    const dx = B[0] - A[0], dy = B[1] - A[1], L2 = dx * dx + dy * dy
-    if (L2 < 1e-18) return []
-    const out = []
-    for (const c of crossPts) {
-      const ex = c.coord[0] - A[0], ey = c.coord[1] - A[1]
-      if (Math.abs(dx * ey - dy * ex) > 1e-8) continue
-      const t = (ex * dx + ey * dy) / L2
-      if (t > 1e-3 && t < 1 - 1e-3) out.push({ t, id: c.id })
-    }
-    return out.sort((p, q) => p.t - q.t)
-  }
-  const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
-  const parts = []
-  for (const seg of segs) {
-    let started = false, prevC = null
-    for (const c of seg) {
-      const id = coordId.get(coordKey(c))
-      const p = id != null ? movedOf(id) : null
+// 格網化後 / Hill Climbing / 縮減網格 / RWD 底圖的線 = skeleton **拓撲邊** 在搬移後
+// 座標上畫（edgeD），不是逐頂點吸原始 feature 幾何。原因：feature 幾何含該路線
+// 「只通過、不停靠」的 pass 站（如機場快綫實體軌道經 東涌／欣澳），這些站被吸到自己
+// 路線（東涌綫）的格子、遠離本線停靠鏈 → 逐頂點畫會把線拉去繞經它們，讓白色直通站
+// （機場）落在折角（香港機場站轉折 bug）。skeleton 邊的 path 已排除 pass 站、黃色
+// 交叉點是邊端點 → 邊路徑穿過交叉、直通站沿邊內插保持共線、不繞行。共線多色交錯依
+// e.routeColors（strokesOf），與 RWD／原始一致。posOf = id → [x,y]|null。
+function edgeLinesFromPos(skeleton, posOf) {
+  const lines = []
+  for (const e of skeleton.edges) {
+    const parts = []
+    for (const id of e.path) {
+      const p = posOf(id)
       if (!p) continue
-      if (prevC) for (const x of crossOnSeg(prevC, c)) {
-        const xp = movedOf(x.id)
-        if (xp) parts.push(`L ${xp[0].toFixed(2)} ${xp[1].toFixed(2)}`)
-      }
-      parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
-      prevC = c
+      parts.push(`${parts.length ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
     }
+    if (parts.length < 2) continue
+    const d = parts.join(' ')
+    for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
   }
-  return parts.join(' ')
+  return lines
 }
 
-// Draw a view from an explicit id→[x,y] position map: the SAME line features as
-// the original/geographic drawing (single colour / interleaved co-line dashes),
-// only with each vertex's station re-placed via posMap — so a moved view (格網化
-// 後 / Hill Climbing) is the original network snapped to those positions, colours
-// and co-line merging identical. Plus role-coloured station dots (+ yellow
-// crossings). `sep` = optional blue grid separators.
+// Draw a moved view (格網化後 / Hill Climbing / 縮減網格) from an explicit
+// id→[x,y] position map: skeleton TOPOLOGY edges at those positions
+// (edgeLinesFromPos — single colour / interleaved co-line dashes), NOT raw feature
+// geometry (which detours through pass-through stations; see edgeLinesFromPos).
+// Plus role-coloured station dots (+ yellow crossings). `sep` = optional blue grid
+// separators. (`lineFeats` kept in the signature for call-site symmetry.)
 function drawFromPos(skeleton, stations, lineFeats, posMap, sep) {
-  const coordId = new Map()
-  for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
-  const crossPts = skeleton.crossings ?? []
-  const lines = []
-  const hl = []
-  for (const f of lineFeats) {
-    const d = movedFeatD(f, coordId, (id) => posMap.get(id) ?? null, crossPts)
-    if (d) for (const s of strokesOf(f.properties?.route_colors, null, d)) lines.push(s)
-  }
+  const lines = edgeLinesFromPos(skeleton, (id) => posMap.get(id) ?? null)
+  const hl = [] // 移動後視圖不畫邊分類襯底（維持原本行為，共線僅靠交錯虛線表示）
   const dots = []
   for (const f of stations) {
     const p = posMap.get(f.properties.station_id)
@@ -162,20 +137,6 @@ export function computeCityViews(geojson, opts = {}) {
     }
     return out
   }
-  // 格網化後 draws the SAME features, only with each vertex's STATION re-placed
-  // onto its grid cell (movedOf) — so 後 = 前 pixel-for-pixel, just snapped. Yellow
-  // crossings on a station segment are spliced in (movedFeatD) so they don't float.
-  const coordId = new Map()
-  for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
-  const crossPts = skeleton.crossings ?? []
-  const movedFeatureLines = (movedOf) => {
-    const out = []
-    for (const f of lineFeats) {
-      const d = movedFeatD(f, coordId, movedOf, crossPts)
-      if (d) for (const s of strokesOf(f.properties?.route_colors, null, d)) out.push(s)
-    }
-    return out
-  }
   // Edge-class underlay along each edge's REAL folded geometry (e.geom) — hugs the
   // line's curve instead of straightening skips. Geographic views only.
   const geomHl = (projection) => {
@@ -224,11 +185,12 @@ export function computeCityViews(geojson, opts = {}) {
         lines = featureLines(projection)
         hl = geomHl(projection)
       } else {
-        // 格網化後 ＝ 跟格網化前畫**完全一樣的 feature**（同色、共線交錯），只是每個
-        // 頂點的車站改對應到格子座標 → 後＝前的同一張圖、只搬到格子上。不再用骨架拓撲
-        // 邊 edgeD（那會讓共線交錯樣式/合併方式跟前不同）。
+        // 格網化後：節點已搬到格子 → 用 skeleton 拓撲邊畫（edgeLinesFromPos），不是
+        // 逐頂點吸 feature 幾何。feature 幾何含該路線 pass 站（如機場快綫過東涌），會被
+        // 吸到別線格子、把線拉去繞經、讓白色直通站落在折角（香港機場站 bug）。拓撲邊
+        // 已排除 pass 站，直通站沿邊內插保持共線。共線多色交錯依 e.routeColors 不變。
         const movedOf = (id) => (grid && post && grid.posAfter.get(id)) || null
-        lines = movedFeatureLines(movedOf)
+        lines = edgeLinesFromPos(skeleton, movedOf)
         hl = []
       }
       const dots = []

@@ -166,6 +166,19 @@ hc-ilp-end／hc-llm-end）＝在該鏈結果之上做端點移動的顯示視圖
   `{ cellAfter, cols, rows, removedCols, removedRows }`——只重編排名，不動拓撲。
 - **黑點不是頂點**：呼叫端把 cellAfter 換回像素後用 `placeBlacks(skeleton, posMap, snap)`
   （schematicGrid.js）沿新段平均放回。
+- **移動後視圖的畫線走 skeleton 拓撲邊、不走原始 feature 幾何**（格網化後／Hill
+  Climbing／端點移動／直線縮減／網格合併／縮減網格，皆同）：D3Tab `edgeD(e.path)`＋
+  viewGeometry `edgeLinesFromPos(skeleton, posOf)`，逐 `skeleton.edges` 的 path 用搬移後
+  座標連線、共線多色交錯依 `e.routeColors`（`strokesOf`），與 RWD／原始一致。**為何不用
+  feature 幾何**：一條路線的 feature 幾何含它「只通過、不停靠」的 pass 站（如香港機場
+  快綫 AEL 實體軌道經 東涌／欣澳），這些站被吸到自己路線（東涌綫）的格子、遠離本線停靠
+  鏈——逐 feature 頂點畫會把線拉去繞經它們，讓白色**直通站**（機場站）落在折角（使用者
+  回報的「香港機場站轉折」bug，2026-07 修正）。skeleton 邊的 path 已排除 pass 站、黃色
+  交叉點是邊端點 → edgeD 自然穿過交叉、直通站沿邊內插保持共線、不繞行。移動後視圖**不
+  畫**邊分類襯底（hl=[]，共線僅靠交錯虛線表示）；地理視圖（原始／骨架／格網化前）仍用
+  feature 幾何 `path(f)`＋沿 `e.geom` 的邊分類襯底（那裡 pass 站在真實軌道上、不會繞行）。
+  改這段畫線程式必須把 `scripts/buildViews.mjs` 的 `VIEWS_VERSION` 遞增、重跑 metro:views
+  （否則畫廊縮圖沿用舊圖）。
 - 格是排名制 → cellAfter 與視窗大小無關，D3Tab 只在 resize 重算像素映射並快取 cellAfter。
 - 頂點含黃色交叉點；退化段（a===b 的小環）跳過。
 - **跨 reload 持久快取（D3Tab.vue，localStorage `d3tab-hc-cache-v1`）**：爬山＋後處理

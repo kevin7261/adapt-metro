@@ -787,11 +787,6 @@ async function render() {
     )
   const path = geoPath(projection)
   const P = (c) => projection(c)
-  // coord → station id, so a line feature's vertices can be re-placed onto the
-  // grid (格網化後 draws the SAME features as 格網化前, only snapped to cells).
-  const coordKey = (c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`
-  const coordId = new Map()
-  for (const f of stations) coordId.set(coordKey(f.geometry.coordinates), f.properties.station_id)
 
   // Skeleton is the basis for both skeleton and grid views. Grid views override
   // each station's position: grid-pre = original projected, grid-post = snapped.
@@ -1184,65 +1179,23 @@ async function render() {
         .filter((e) => EDGE_HL[e.cls] && e.geom?.length >= 2)
         .map((e) => ({ d: geomD(e.geom), color: EDGE_HL[e.cls] }))
     } else {
-      // 格網化後 / HC / 縮減 ＝ **跟格網化前/原始畫的完全一樣**（同樣的 line feature、
-      // 同樣單色實線／共線交錯彩色虛線），唯一差別是把每個 feature 頂點的**車站**改
-      // 對應到它的格子座標（movedOf）。這樣「格網化後」就是「格網化前」的同一張圖、
-      // 只是座標搬到格子上——顏色、共線交錯、哪些線併在一起，全部一致。（先前改用骨架
-      // 拓撲邊 edgeD 畫，導致共線交錯樣式、合併方式跟格網化前不同，使用者回報「跟格網化
-      // 前不一樣」。）非車站頂點（真實軌道折點）在格子上無對應 → 略過，格線間直連。
-      const movedOf = (id) => (hcPos && hcPos.get(id)) || (grid && gridPost.value && grid.posAfter.get(id)) || null
-      // A yellow crossing is a synthetic node sitting on a station→station segment
-      // (not a feature vertex). At grid/HC positions the feature would skip its
-      // cell → the yellow node floats off-line and the two routes stop meeting.
-      // So on each station segment, splice in any crossing that lies on it (route
-      // through its moved cell), keeping lines crossing exactly at the yellow node.
-      const crossPts = sk.crossings ?? []
-      const crossOnSeg = (A, B) => {
-        if (!crossPts.length) return []
-        const dx = B[0] - A[0], dy = B[1] - A[1], L2 = dx * dx + dy * dy
-        if (L2 < 1e-18) return []
-        const out = []
-        for (const c of crossPts) {
-          const ex = c.coord[0] - A[0], ey = c.coord[1] - A[1]
-          if (Math.abs(dx * ey - dy * ex) > 1e-8) continue // not collinear
-          const t = (ex * dx + ey * dy) / L2
-          if (t > 1e-3 && t < 1 - 1e-3) out.push({ t, id: c.id })
-        }
-        return out.sort((p, q) => p.t - q.t)
-      }
-      const featMovedD = (f) => {
-        const segs = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates]
-        const parts = []
-        for (const seg of segs) {
-          let started = false, prevC = null
-          for (const c of seg) {
-            const id = coordId.get(coordKey(c))
-            const p = id != null ? movedOf(id) : null
-            if (!p) continue
-            if (prevC) for (const x of crossOnSeg(prevC, c)) {
-              const xp = movedOf(x.id)
-              if (xp) parts.push(`L ${xp[0].toFixed(2)} ${xp[1].toFixed(2)}`)
-            }
-            parts.push(`${started ? 'L' : 'M'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`); started = true
-            prevC = c
-          }
-        }
-        return parts.join(' ')
-      }
-      lineData = lineFeats.flatMap((f) => {
-        const d = featMovedD(f)
+      // 格網化後 / HC / 縮減：座標已搬到格子上 → 線改走 **skeleton 拓撲邊**（edgeD，
+      // 連續停靠站直連，與 RWD 同源），不再逐頂點吸原始 feature 幾何。原因：feature
+      // 幾何含該路線「只通過、不停靠」的 pass 站（如機場快綫實體軌道經 東涌／欣澳），
+      // 這些站被吸到自己路線（東涌綫）的格子、遠離本線停靠鏈 → 逐頂點畫會把線拉去繞
+      // 經它們，讓白色直通站（機場）落在折角（使用者回報的香港機場站轉折 bug）。
+      // skeleton 邊的 path 已排除 pass 站、黃色交叉點是邊端點 → edgeD 自然穿過交叉、
+      // 直通站沿邊內插保持共線、不繞行。共線多色交錯依 e.routeColors（strokesOf），與
+      // RWD／原始一致（dasharray 逐邊重置相位，同 RWD 逐段畫法）。tooltip 用 html
+      // （點路線列表＋邊分類），與 RWD 分支同型；不帶 props（骨架邊非單一 feature）。
+      lineData = sk.edges.flatMap((e) => {
+        const d = edgeD(e.path)
         if (!d) return []
-        const cols = (f.properties.route_colors ?? []).slice(0, MAX_OVERLAP)
-        if (new Set(cols).size >= 2) {
-          const n = cols.length
-          return cols.map((color, i) => ({
-            d, stroke: color, props: f.properties,
-            dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}`,
-          }))
-        }
-        return [{ d, stroke: cols[0] ?? '#e11d48', props: f.properties }]
+        const routes = routesHtml([...e.routes])
+        const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + EDGE_LABEL[e.cls]
+        return strokesOf(e, d, html)
       })
-      highlightData = []
+      highlightData = [] // 移動後視圖不畫邊分類襯底（維持原本行為，共線僅靠交錯虛線表示）
     }
     // RWD 路網：自動隱藏的白點（直通站）不畫（cachedRWD.hidden）。
     const hiddenWhite = (rwdLines && cachedRWD?.hidden) || null
