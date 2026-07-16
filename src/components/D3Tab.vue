@@ -114,12 +114,12 @@ const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 const hcMode = computed(() =>
   ['hc', 'hc-rect', 'hc-align', 'hc-ilp', 'hc-llm',
-    'hc-end', 'hc-rect-end', 'hc-align-end', 'hc-ilp-end', 'hc-llm-end',
+    'hc-rect-end', 'hc-align-end', 'hc-ilp-end', 'hc-llm-end',
     'hc-compact', // RWD 圖層的「循環結果」輸入視圖沿用這個 id（HC 圖層已無縮減網格 tabs）
-    'hc-line', 'hc-rect-line', 'hc-align-line', 'hc-ilp-line', 'hc-llm-line',
-    'hc-gather', 'hc-rect-gather', 'hc-align-gather', 'hc-ilp-gather', 'hc-llm-gather',
-    'hc-loop', 'hc-rect-loop', 'hc-align-loop', 'hc-ilp-loop', 'hc-llm-loop',
-    'hc-step', 'hc-rect-step', 'hc-align-step', 'hc-ilp-step', 'hc-llm-step',
+    'hc-rect-line', 'hc-align-line', 'hc-ilp-line', 'hc-llm-line',
+    'hc-rect-gather', 'hc-align-gather', 'hc-ilp-gather', 'hc-llm-gather',
+    'hc-rect-loop', 'hc-align-loop', 'hc-ilp-loop', 'hc-llm-loop',
+    'hc-rect-step', 'hc-align-step', 'hc-ilp-step', 'hc-llm-step',
     'rwd', 'rwd-llm'].includes(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
@@ -304,8 +304,10 @@ const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxi
 // 端點移動區塊（左選單第 4 部份，鏈的第 1 步）：每條鏈一個 tab——在該鏈的
 // 結果之上做端點移動（原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／
 // 縮減網格／RWD 底圖的輸入。
+// hc 鏈不進四個後處理區（使用者 2026-07 裁決）——只有 rect/align/ilp/llm 四條鏈；
+// RWD 底圖仍可用 hc 鏈的循環（loop 區塊的 isRWD fallback，key 'hc'）。
 const END_KIND = {
-  'hc-end': 'hc', 'hc-rect-end': 'rect', 'hc-align-end': 'align',
+  'hc-rect-end': 'rect', 'hc-align-end': 'align',
   'hc-ilp-end': 'ilp', 'hc-llm-end': 'llm',
 }
 // 直線縮減（左選單第 5 部份，鏈的第 2 步）：每條鏈一個 tab——在該鏈「端點
@@ -314,7 +316,7 @@ const END_KIND = {
 // network 結構不變、全網 H/V 段數不減（movewise：每個移動後即壓縮）；
 // 中位集中 tab 接在它之後（鏈 = 該鏈結果 → 端點移動 → 直線縮減 → 中位集中）。
 const LINE_KIND = {
-  'hc-line': 'hc', 'hc-rect-line': 'rect', 'hc-align-line': 'align',
+  'hc-rect-line': 'rect', 'hc-align-line': 'align',
   'hc-ilp-line': 'ilp', 'hc-llm-line': 'llm',
 }
 // 中位集中（左選單第 6 部份，鏈的第 3 步）：每條鏈一個 tab——①有色點只要
@@ -323,21 +325,22 @@ const LINE_KIND = {
 // ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變
 // （movewise：每個移動後即壓縮）。
 const GATHER_KIND = {
-  'hc-gather': 'hc', 'hc-rect-gather': 'rect', 'hc-align-gather': 'align',
+  'hc-rect-gather': 'rect', 'hc-align-gather': 'align',
   'hc-ilp-gather': 'ilp', 'hc-llm-gather': 'llm',
 }
 // 端點移動+直線縮減+中位集中+縮減網格循環（左選單第 8 部份）：每條鏈一個
 // tab——在該鏈結果之上交替 端點移動→直線縮減→中位集中→縮減網格，跑到某輪
 // 「沒有點可以動」為止（straightenCompactLoop）。
 const LOOP_KIND = {
-  'hc-loop': 'hc', 'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
+  'hc-rect-loop': 'rect', 'hc-align-loop': 'align',
   'hc-ilp-loop': 'ilp', 'hc-llm-loop': 'llm',
 }
-// Step by Step（左選單第 9 部份）：每條鏈一個 tab——同一條四步鏈，但由使用者
+// 逐步驗證（左選單第 9 部份）：每條鏈一個 tab——同一條四步鏈，但由使用者
 // 按「下一步」一步步執行：每步＝目前階段的一個單掃描（或一次縮減網格），
 // 掃不動自動換下一階段，一輪全沒動靜＝完成（stepChainInit/stepChainNext）。
+// 逐步驗證 也沒有 hc 鏈（使用者 2026-07 裁決）——同四個後處理區。
 const STEP_KIND = {
-  'hc-step': 'hc', 'hc-rect-step': 'rect', 'hc-align-step': 'align',
+  'hc-rect-step': 'rect', 'hc-align-step': 'align',
   'hc-ilp-step': 'ilp', 'hc-llm-step': 'llm',
 }
 // 面板的階段 chips：這一步執行的工作（lastStage）會亮起。
@@ -424,8 +427,8 @@ let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 'hc
 let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedGather = {}  // 中位集中 (movewiseStage 'gather')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedLoop = {}    // 端點移動+直線縮減+中位集中+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
-let stepState = {}     // Step by Step 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
-let stepHistory = {}   // Step by Step 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
+let stepState = {}     // 逐步驗證 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
+let stepHistory = {}   // 逐步驗證 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 const hcBusy = ref(false)
 const busyText = ref('')
@@ -435,7 +438,7 @@ const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const endpStats = ref(null)      // 端點移動: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
 const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, moved, iters, fromCols, ..., converged }
 const gatherStats = ref(null)    // 中位集中: { moved, segs, verts, iters, iterCap, converged }
-const stepInfo = ref(null)       // Step by Step: { info, steps, round, done }（顯示在浮動面板）
+const stepInfo = ref(null)       // 逐步驗證: { info, steps, round, done }（顯示在浮動面板）
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
@@ -526,7 +529,7 @@ const VIEW_TABS = computed(() => {
   }
   if (isHC.value) {
     // 左選單分 9 個部份：原始／Hill Climbing／直線演算法／端點移動／直線縮減
-    // ／中位集中／縮減網格／端點移動+直線縮減+中位集中+縮減網格循環／Step by Step
+    // ／中位集中／縮減網格／端點移動+直線縮減+中位集中+縮減網格循環／逐步驗證
     // （header 項只是分組標題、不可點）。
     return [
       { header: '原始' },
@@ -543,7 +546,6 @@ const VIEW_TABS = computed(() => {
       // 鏈的三步（每步一區、每條鏈一個 tab，前面的 tab 不受後面步驟影響）：
       // 該鏈結果 → 端點移動 → 直線縮減 → 縮減網格
       { header: '端點移動' },
-      { id: 'hc-end', label: 'Hill Climbing端點移動' },
       { id: 'hc-rect-end', label: '直角爬山端點移動' },
       { id: 'hc-align-end', label: '軸對齊端點移動' },
       { id: 'hc-ilp-end', label: '整數規劃端點移動' },
@@ -551,14 +553,12 @@ const VIEW_TABS = computed(() => {
       // 直線縮減：直線（跨相交點串接）整條垂直於線平移讓佔用欄列更少、
       // 全網 H/V 不減（見 LINE_KIND）
       { header: '直線縮減' },
-      { id: 'hc-line', label: 'Hill Climbing直線縮減' },
       { id: 'hc-rect-line', label: '直角爬山直線縮減' },
       { id: 'hc-align-line', label: '軸對齊直線縮減' },
       { id: 'hc-ilp-line', label: '整數規劃直線縮減' },
       { id: 'hc-llm-line', label: 'LLM 對齊直線縮減' },
       // 中位集中：有色點（≤2 同軸段）沿線滑＋直線整條垂直移，往中位點（見 GATHER_KIND）
       { header: '中位集中' },
-      { id: 'hc-gather', label: 'Hill Climbing中位集中' },
       { id: 'hc-rect-gather', label: '直角爬山中位集中' },
       { id: 'hc-align-gather', label: '軸對齊中位集中' },
       { id: 'hc-ilp-gather', label: '整數規劃中位集中' },
@@ -566,14 +566,12 @@ const VIEW_TABS = computed(() => {
       // 循環：端點移動→直線縮減→中位集中（每個移動後即壓縮）直到沒有點可以動
       // （見 LOOP_KIND）
       { header: '端點移動+直線縮減+中位集中循環' },
-      { id: 'hc-loop', label: 'Hill Climbing循環' },
       { id: 'hc-rect-loop', label: '直角爬山循環' },
       { id: 'hc-align-loop', label: '軸對齊循環' },
       { id: 'hc-ilp-loop', label: '整數規劃循環' },
       { id: 'hc-llm-loop', label: 'LLM 對齊循環' },
-      // Step by Step：同一條四步鏈，按「下一步」一步步執行（見 STEP_KIND）
-      { header: 'Step by Step' },
-      { id: 'hc-step', label: 'Hill Climbing逐步' },
+      // 逐步驗證：同一條四步鏈，按「下一步」一步步執行（見 STEP_KIND）
+      { header: '逐步驗證' },
       { id: 'hc-rect-step', label: '直角爬山逐步' },
       { id: 'hc-align-step', label: '軸對齊逐步' },
       { id: 'hc-ilp-step', label: '整數規劃逐步' },
@@ -662,7 +660,7 @@ async function sourceData() {
 // while in flight (mount + ResizeObserver, mode switches) — without a guard
 // both passes would append and everything is drawn twice. Each render takes a
 // sequence number and bails after every await if a newer render has started.
-// Step by Step：「下一步」執行整個 movewise 階段、「下一小步」只做一個點/線
+// 逐步驗證：「下一步」執行整個 movewise 階段、「下一小步」只做一個點/線
 // 的移動（limit=1），「上一步/上一小步」從復原堆疊回退，「重設」回到鏈的
 // 起點。stepState/stepHistory 不是 reactive——推進後靠 render() 重畫、
 // stepInfo ref 更新面板（含 hist 長度驅動按鈕 disabled）。
@@ -924,7 +922,7 @@ async function render() {
         if (isRWD.value) hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
       }
     }
-    // Step by Step tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
+    // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
     // 推進 stepState 後重畫；見 STEP_KIND）。
     {
       const stepKind = STEP_KIND[mode.value]
@@ -1323,7 +1321,7 @@ async function render() {
     }
   }
 
-  // Step by Step：這一步的前後比對——舊位置畫虛線空心圈、虛線連到新位置、
+  // 逐步驗證：這一步的前後比對——舊位置畫虛線空心圈、虛線連到新位置、
   // 新位置橘色實圈（線移動＝全部成員點都各畫一組）。畫在 ref 層、站點之下。
   // 每步後都會縮減網格 → moves 已是縮減後的 rank 空間；from 的欄/列若被
   // 清空會落在半格（x.5 / -0.5）→ 格心線性內插（頭尾外插）。
@@ -1721,7 +1719,7 @@ onBeforeUnmount(() => {
               </template>
             </div>
           </div>
-          <!-- Step by Step 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
+          <!-- 逐步驗證 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
                怎麼一步步收斂；「重設」回到該鏈的起點。 -->
           <div v-if="isHC && STEP_KIND[mode]" class="step-panel">
             <button class="step-btn back" :disabled="!panelLayer || !stepInfo?.hist" @click="stepPrev(false)">◀ 上一步</button>
@@ -2009,7 +2007,7 @@ onBeforeUnmount(() => {
 }
 .ma-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
 .ma-svg:active { cursor: grabbing; }
-/* Step by Step 浮動控制列（左上）：下一步／重設＋這一步做了什麼。 */
+/* 逐步驗證 浮動控制列（左上）：下一步／重設＋這一步做了什麼。 */
 .step-panel {
   position: absolute;
   top: 10px;

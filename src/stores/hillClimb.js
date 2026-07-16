@@ -720,7 +720,7 @@ export function buildAxisAlign(skeleton, cells, cols, rows, opts = {}) {
 // neighbour → smaller displacement. Runs under iteratePost — a move can
 // unblock another vertex's move in the next iteration.
 export function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
-  const limit = opts.limit ?? Infinity // Step by Step 子步驟：最多接受 limit 個移動
+  const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
   const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) {
@@ -899,7 +899,7 @@ function boundaryHvDelta(pos, segs, inC, dc, dr) {
 }
 
 function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
-  const limit = opts.limit ?? Infinity // Step by Step 子步驟：最多接受 limit 個移動
+  const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
   const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   const empty = { cellAfter: pos, moved: 0, hvBefore: 0, hvAfter: 0, segs: segs.length, verts: pos.size, occBefore: [0, 0], occAfter: [0, 0], movedIds }
@@ -932,30 +932,16 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
     }
     return gain
   }
-  // perpendicular jump targets: deltas onto the nearest K occupied
-  // coordinates on each side of `x` on axis `ax` (the line occupies exactly
-  // one coordinate there, so landing on an occupied one merges it away).
-  const perpTargets = (x, ax, K = 4) => {
-    const lo = [], hi = []
-    for (const t of count[ax].keys()) {
-      if (t < x) lo.push(t)
-      else if (t > x) hi.push(t)
-    }
-    lo.sort((a, b) => b - a)
-    hi.sort((a, b) => a - b)
-    return [...lo.slice(0, K), ...hi.slice(0, K)].map((t) => t - x)
-  }
   const occBefore = [count[0].size, count[1].size]
   let moved = 0
   for (const horiz of [true, false]) {
     for (const comp of lineComponents(pos, segs, horiz)) {
       if (moved >= limit) break
       const inC = new Set(comp)
-      const perpAx = horiz ? 1 : 0
-      const lineAt = pos.get(comp[0])[perpAx] // shared coordinate of the line
-      // perpendicular moves only: 水平線只能上下移、垂直線只能左右移
-      const deltas = new Set([-1, 1, -2, 2])
-      for (const d of perpTargets(lineAt, perpAx)) deltas.add(d)
+      // perpendicular moves only（水平線只能上下移、垂直線只能左右移），且
+      // 一次只能移一格（使用者規則）——movewise 下網格隨時緻密，相鄰欄列必有
+      // 佔用，逐格合併即可，不需要遠跳。
+      const deltas = [-1, 1]
       const scored = []
       for (const d of deltas) {
         const [dc, dr] = horiz ? [0, d] : [d, 0]
@@ -985,7 +971,7 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
 }
 
 // （直線縮減整段掃描的 wrapper 已退役——所有下游改走 movewiseStage('line')：
-// 每一個移動後立即縮減網格。單掃描 pass 本身保留給 movewise/Step by Step 用。）
+// 每一個移動後立即縮減網格。單掃描 pass 本身保留給 movewise/逐步驗證 用。）
 
 // 中位集中 one sweep — two move kinds, both TOWARD the median point (the
 // yellow marker: per-axis median of every coloured vertex):
@@ -1005,7 +991,7 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
 // in the loop), and the SAME validShift hard rules apply.
 // Candidates are tried from the median-most valid cell back to the current.
 function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
-  const limit = opts.limit ?? Infinity // Step by Step 子步驟：最多接受 limit 個移動
+  const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
   const movedIds = []
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) return { cellAfter: pos, moved: 0, movedPts: 0, movedLines: 0, segs: segs.length, verts: pos.size, movedIds }
@@ -1031,21 +1017,21 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
       if (!vsegs.every((s) => isAlong(ax)(pv, otherPos(s)))) continue
       const dir = Math.sign(med[ax] - pv[ax])
       if (!dir) break
-      // try the median-most cell first, walking back toward the current cell
-      const target = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
-      for (let x = target; x !== pv[ax]; x -= dir) {
-        // 藍點（單段）不得把線拉長——否則會和端點移動的「線變短就收」在循環
-        // 裡拉鋸（往中位點但遠離鄰居的滑動放棄，收線方向優先）。
-        if (vsegs.length === 1) {
-          const pu = otherPos(vsegs[0])
-          if (Math.abs(x - pu[ax]) >= Math.abs(pv[ax] - pu[ax])) continue
-        }
+      // 一次只能移動一格（使用者規則）：朝中位點跨一步、且不越過中位點
+      const x = pv[ax] + dir
+      const bound = dir > 0 ? Math.floor(med[ax]) : Math.ceil(med[ax])
+      if (dir > 0 ? x > bound : x < bound) break // 已貼著中位點——不再靠近
+      // 藍點（單段）不得把線拉長——否則會和端點移動的「線變短就收」在循環
+      // 裡拉鋸（往中位點但遠離鄰居的滑動放棄，收線方向優先）。
+      const blueLonger = vsegs.length === 1
+        && Math.abs(x - otherPos(vsegs[0])[ax]) >= Math.abs(pv[ax] - otherPos(vsegs[0])[ax])
+      if (!blueLonger) {
         const P = ax ? [pv[0], x] : [x, pv[1]]
-        if (!M.validMove(v, P)) continue
-        M.applyMove(v, P)
-        movedPts++
-        movedIds.push(v)
-        break
+        if (M.validMove(v, P)) {
+          M.applyMove(v, P)
+          movedPts++
+          movedIds.push(v)
+        }
       }
       break // all segments lie on this axis — the other axis cannot also apply
     }
@@ -1067,20 +1053,19 @@ function medianGatherPass(skeleton, cells, cols, rows, opts = {}) {
       const at = pos.get(comp[0])[perpAx] // shared coordinate of the line
       const dir = Math.sign(med[perpAx] - at)
       if (!dir) continue
+      // 一次只能移動一格（使用者規則）：朝中位點跨一步、且不越過中位點
+      const x = at + dir
+      const bound = dir > 0 ? Math.floor(med[perpAx]) : Math.ceil(med[perpAx])
+      if (dir > 0 ? x > bound : x < bound) continue // 已貼著中位點
       const count = occCount(perpAx)
       const emptied = count.get(at) === comp.length // 原欄/列會被清空
-      const target = dir > 0 ? Math.floor(med[perpAx]) : Math.ceil(med[perpAx])
-      for (let x = target; x !== at; x -= dir) {
-        if (!count.has(x) && !emptied) continue // 會多佔一條欄/列 → 換近一點的
-        const d = x - at
-        const [dc, dr] = horiz ? [0, d] : [d, 0]
-        if (boundaryHvDelta(pos, segs, inC, dc, dr) < 0) continue // 全網直線不可變少
-        if (!M.validShift(comp, inC, dc, dr)) continue
-        M.applyShift(comp, [dc, dr])
-        movedLines++
-        movedIds.push(...comp)
-        break
-      }
+      if (!count.has(x) && !emptied) continue // 會多佔一條欄/列 → 不移
+      const [dc, dr] = horiz ? [0, x - at] : [x - at, 0]
+      if (boundaryHvDelta(pos, segs, inC, dc, dr) < 0) continue // 全網直線不可變少
+      if (!M.validShift(comp, inC, dc, dr)) continue
+      M.applyShift(comp, [dc, dr])
+      movedLines++
+      movedIds.push(...comp)
     }
   }
   return { cellAfter: pos, moved: movedPts + movedLines, movedPts, movedLines, segs: segs.length, verts: pos.size, movedIds }
@@ -1139,7 +1124,7 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
   }
 }
 
-/* ==================== Step by Step（逐步執行） ====================
+/* ==================== 逐步驗證（逐步執行） ====================
    讓使用者一鍵一步看鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**（或
    limit=1 的單一移動），順序 端點移動 → 直線縮減 → 中位集中；**每一步完成後
    立即縮減網格**（使用者規則：取消獨立的縮減網格階段，改成每步後都壓），
