@@ -39,7 +39,10 @@ const CITIES = {
     ],
   },
   'eu-aut-vienna': { rivers: ['Donau'] }, // 只要多瑙河主流（使用者 2026-07-16）
-  'eu-fra-paris': { rivers: ['La Seine'] },
+  // 塞納河主流＋西堤島南汊（Bras de la Monnaie）：兩汊包圍 Île de la Cité（使用者
+  // 2026-07-17）。側汊必須是**獨立名單項**——若併進主流的 match，同圖 diameter 會把
+  // 短汊丟掉；獨立項各成一條骨架，合併檔的匯流共站把兩端接回主流、圍出西堤島。
+  'eu-fra-paris': { rivers: ['La Seine', 'La Seine - Bras de la Monnaie'] },
   'as-kor-seoul': { rivers: ['한강'] },
   'as-chn-shanghai': { rivers: ['黄浦江'] },
   // 皇居本體（way 534754971）不含同在護城河內的東御苑，兩者合成完整皇居面域
