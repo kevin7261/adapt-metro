@@ -139,9 +139,12 @@ const stationRoutes = computed(() => {
   const p = selectedProps.value
   if (!p?.station_id) return []
   return parseArr(p.routes).map((e) => {
+    // 車站 routes 自帶個別線 route_color（build 端寫入）——優先用；退回以名/ref 對
+    // metroLines 查表。**trunk 合併後 metroLines 的 ref 是幹線值（"1/2/3"），查不到
+    // 車站的個別 ref（"2"）→ 全退玫瑰紅**＝使用者「物件tab 都變成紅色」，故直接帶色。
     const r = routeByName.value.get(String(e.name)) ?? routeByName.value.get(String(e.ref))
     return { route_ref: String(e.ref), route_name: e.name ?? String(e.ref),
-      route_color: r?.route_color ?? '#e11d48', pass: !!e.pass }
+      route_color: e.route_color ?? r?.route_color ?? '#e11d48', pass: !!e.pass }
   })
 })
 const stopRoutes = computed(() => stationRoutes.value.filter((r) => !r.pass))

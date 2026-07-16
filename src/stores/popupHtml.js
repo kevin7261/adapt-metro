@@ -76,7 +76,9 @@ export function stationPopupHtml(p, refColor) {
   }
   const rts = J(p.routes, []) ?? []
   const routeRow = (r) => {
-    const c = refColor?.get(r.name) ?? refColor?.get(r.ref) // 名優先（同 ref 支線異色，如小碧潭）——與物件 tab 同
+    // 車站 routes 自帶 route_color（個別線色）——優先用；退回 refColor 查表（舊資料相容）。
+    // trunk 合併後路段 ref 是幹線值（"1/2/3"），refColor 查不到車站個別 ref，故必須直接帶色。
+    const c = r.route_color ?? refColor?.get(r.name) ?? refColor?.get(r.ref) // 名優先（同 ref 支線異色，如小碧潭）——與物件 tab 同
     return H.row(H.swatch(c) + H.ref(r.ref, c) +
       `<strong style="font-size:12px">${r.name ?? r.ref ?? '—'}</strong>` + (r.pass ? H.passTag() : ''))
   }

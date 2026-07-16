@@ -146,3 +146,41 @@ G `#6cbe45`、L `#a7a9ac`、JZ `#996633`、NQRW `#fccc0a`、123 `#ee352e`、456 
 - 個別漏站仍以 `member_appends.json` 補（如 2 車 59 St–Columbus Circle）。
 - **舊行為（已廢）**：曾取「深夜全停＋尖峰＋分支」全服務並集當該線站表、站數高於 wiki，
   以 `wiki_adjudications.json` 裁決；現改為 daytime express 站型，故快車正確畫成 express。
+
+## 停靠 ≥3 條線一律紅點（使用者裁決 2026-07-17，全域）
+
+`buildGeojson.mjs` is_interchange：**`lines` 相異線數 ≥3 → 一律 interchange（紅點）**，
+不論色數（`stopLineCount >= 3 || (原相異色規則)`）。5th Av–59 St（N/R/W 同黃）、72 St
+（1/2/3 同紅）、Rockefeller（B/D/F/M）等 3+ 線站皆紅；Canal/Union Sq 各 complex 分站
+（拆站後每站自己的線數）依此判。**<3 線的站仍走「≥2 相異色＋degree/端點」原規則**
+（同幹線 2 服務不變紅、真 2 色轉乘才紅；Brooklyn 59 St[N/R]、Fort Hamilton Pkwy[F/G]
+維持黑點）。此規則凌駕早期「同色幹線多服務不算轉乘」的收斂——使用者要 3+ 線站全紅。
+
+## 快車 pass-through 走廊必須同色（seg-52 修正 2026-07-17）
+
+自動快車跨站共線（`buildGeojson.mjs`，「自動快車跨站共線」段）原本在所有 ≤1.35× 直達的
+平行鄰線裡挑**最長 inner** 當走廊——會抓到恰好也連 A→C 的**異色鄰線**。實例 seg-52：
+N/Q 快車 Canal→Union Sq 跳站，被接到**綠線 Lexington 6**（Spring/Bleecker/Astor），畫成
+假的黃綠共線、且 N/Q/R/W 在該段重覆。**修正**：快車與它的慢車是同一幹線＝**同色**
+（黃線 N/Q 的走廊是黃線 R/W：Canal→Prince→8th St→Union，絕非綠線 6）。故**同色候選優先**
+（`bestSameColor || bestVia`）；無同色候選才 fallback 異色（保留雪梨式「不同色線官方
+共線」T1 快車＝T2 慢車）。
+
+## 車站 routes 內嵌個別線色（停靠路線顏色修正 2026-07-17）
+
+前端 hover（`popupHtml.js`）與物件 tab（`StylePanel.vue`）畫停靠路線色 swatch，原本靠
+「以站 route 的 ref/name 對**路段** routes 建的 refColor 查表」。**trunk 合併後路段 ref
+＝幹線值（"1/2/3"、"N/Q/R/W"），車站 route 卻是個別 ref（"2"、name "NYCS - 2 Train"）
+→ 查表全 miss → swatch 全退預設玫瑰紅 `#e11d48`**（使用者：「物件tab hover 都變成紅色」）。
+**修正**：`buildGeojson.mjs` 車站 `routes[]` 每筆直接內嵌 `route_color`（個別線色，
+`routeMeta` 本就有）；`popupHtml.js` routeRow 與 `StylePanel.vue` stationRoutes 一律
+`r.route_color ?? (查表) ?? '#e11d48'`。實測 Union Sq 4/5/6 綠、L 灰、N/Q/R/W 黃等正確。
+（`H.swatch`／StylePanel 缺色一律退 `#e11d48`＝紅，故「缺色」的症狀就是「整片紅」。）
+
+## 拆站 `names` 抑制 merged_names（Fulton/Lafayette 修正 2026-07-17）
+
+`interchanges.json` 的 `split` spec 帶 `names`＝使用者裁定的**獨立站**。合併簇被 line-group
+重拆後，各子站原本仍繼承整簇的 `merged_names`（兩名都列），前端把 merged_names 以「/」
+串接顯示 → Fulton St[G] 與 Lafayette Av[C] 都顯示成「Fulton Street / Lafayette Avenue」、
+誤讀為共站。**修正**：materialize 時只要該子站有 `forced`（來自 split `names`），
+`merged_names` 一律設 null、`station_name`/`_local` 用 forced 名（單成員與多成員分支都做）。

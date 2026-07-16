@@ -1347,7 +1347,10 @@ async function build() {
   // 附加 LRT 的城市（使用者指定）：該城有 MRT/subway，但也要收其輕軌（台北淡海/安坑/
   // 環狀、高雄輕軌；新加坡 Bukit Panjang/Sengkang/Punggol LRT；大阪ニュートラム
   // 南港ポートタウン線 P——Osaka Metro 自家路線、OSM 標 route=light_rail，2026-07 使用者指定）。
-  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka'])
+  // boston：MBTA Green Line（B/C/D/E 支線，OSM 標 route=light_rail）＋ Mattapan Trolley
+  // 是波士頓地鐵系統核心（官方 rapid transit 圖含綠線）——有 Red/Orange/Blue subway 原被
+  // 「附掛純 LRT 剔除」丟掉，加入白名單保留（使用者 2026-07 指定「要抓綠線」）。
+  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka', 'boston'])
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
@@ -1820,9 +1823,17 @@ async function build() {
             const A = seq[i], C = seq[i + 1], ak = A.join(','), ck = C.join(',')
             if (ak === ck || kmd(A, C) < passMinKm) continue
             const d = kmd(A, C)
-            let bestVia = null
+            let bestVia = null, bestSameColor = null
+            const fColor = (F.properties.route_color || '').toLowerCase()
             for (let gi = 0; gi < others.length; gi++) {
               if (gi === fi) continue
+              // 快車與它的慢車是**同一條幹線＝同色**（NYC 黃線 N/Q 快車跳站，走廊是黃線
+              // R/W 慢車、絕非旁邊平行的綠線 Lexington 6）。同色候選優先——否則會抓到
+              // 恰好也連 A→C、≤1.35× 的**異色鄰線**，把兩條不同色線誤畫成共線（seg-52：
+              // N/Q 被接到綠線 Spring/Bleecker/Astor）。異色 fallback 保留給雪梨式
+              // 「不同色線官方共線」（T1 快車＝T2 慢車、色不同、無同色候選）。
+              const giColor = (grp.lines[gi].properties.route_color || '').toLowerCase()
+              const sameColor = fColor && giColor && fColor === giColor
               for (const gs of others[gi]) {
                 const ai = gs.indexOf(ak), ci = gs.indexOf(ck)
                 if (ai < 0 || ci < 0 || Math.abs(ci - ai) < 2) continue
@@ -1835,8 +1846,11 @@ async function build() {
                 let inner = subKeys.slice(1, -1)
                 if (ai > ci) inner = inner.slice().reverse()
                 if (!bestVia || inner.length > bestVia.length) bestVia = inner
+                if (sameColor && (!bestSameColor || inner.length > bestSameColor.length)) bestSameColor = inner
               }
             }
+            const chosen = bestSameColor || bestVia
+            if (chosen && chosen.length) { bestVia = chosen }
             if (bestVia && bestVia.length) {
               const viaCoords = bestVia.map((k) => coordOf.get(k))
               F.__passCoords = F.__passCoords || new Set()
@@ -2086,9 +2100,13 @@ async function build() {
         seenDisp2.add(k)
         return true
       })
+      // 每筆停靠/行經路線自帶 route_color——**車站 routes 用的是個別線 ref（"2"/"N"），
+      // 路段 routes 經 trunk 合併後是幹線 ref（"1/2/3"/"N/Q/R/W"）**，故前端由路段建的
+      // refColor map 查不到車站的個別 ref/name（色swatch 全空＝使用者「停靠路線顏色都錯」）。
+      // 直接把個別線色寫進車站 routes，前端不必再查表。
       s.properties.routes = [
-        ...dispRoutes.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name })),
-        ...dispPass.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name, pass: true })),
+        ...dispRoutes.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name, route_color: r.route_color ?? null })),
+        ...dispPass.map((r) => ({ ref: r.route_ref ?? r.route_name, name: r.route_name, route_color: r.route_color ?? null, pass: true })),
       ]
       // 通過次數（幾何為準）；至少為所屬 route 數（幾何缺漏時的下限）
       const pc = Math.max(
@@ -2119,9 +2137,13 @@ async function build() {
       // 一條線**、非轉乘（使用者：好多車站顏色和路線對不上）。故 degree/端點條件成立後，再
       // 要求「相異 route_color ≥2」才算紅點；同色幹線的分歧/端點回歸藍/白點。
       const stColors = new Set([...dispRoutes, ...dispPass].map((r) => r.route_color).filter(Boolean))
-      const isIx = stColors.size >= 2 && (deg > 2 || termCount >= 2
+      // 使用者裁決 2026-07-17（全域）：**停靠 ≥3 條線的站一律紅點**（交會站），
+      // 不論色數——5th Av–59 St（N/R/W 同黃）、72 St（1/2/3 同紅）等 3+ 線站皆紅。
+      // 少於 3 線的站仍走原相異色規則（同幹線 2 服務不變紅、真 2 色轉乘才紅）。
+      const stopLineCount = new Set(s.properties.lines || []).size
+      const isIx = stopLineCount >= 3 || (stColors.size >= 2 && (deg > 2 || termCount >= 2
         || (s.properties.is_terminus && dispRoutes.length >= 2)
-        || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2))
+        || (s.properties.is_terminus && dispPass.length >= 1 && deg >= 2)))
       s.properties.is_interchange = isIx
       s.properties.station_role = isIx ? 'interchange'
         : s.properties.is_terminus ? 'terminus' : 'normal'

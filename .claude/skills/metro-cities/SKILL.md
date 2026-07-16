@@ -89,6 +89,15 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   大阪有 subway 原被「附掛純 LRT 剔除」規則丟掉，`LRT_ADDON_CITIES` 加 `osaka` 保留
   （10 站 コスモスクエア–住之江公園、官方水藍 #00a0de）。
 
+- **波士頓 Green Line＋Mattapan（使用者 2026-07：「那就要抓綠線」）**：MBTA Green Line
+  B/C/D/E 四支線（各獨立 route relation、官方綠 #00843d）＋ Mattapan Trolley（官方紅
+  #da291c，作紅線 Ashmont 支線延伸）在 OSM 標 `route=light_rail`——波士頓有 Red/Orange/Blue
+  subway，原被「附掛純 LRT 剔除」丟掉（只剩 4 線 47 站），`LRT_ADDON_CITIES` 加 `boston`
+  保留（→ 9 線 120 站）。Green 各支線同色由渲染層畫成一條。**注意 Blue Line OSM route
+  relation（1600269/4086916）只列 10 個 stop 成員、漏 Beachmont＋Revere Beach**（Suffolk
+  Downs 直跳 Wonderland），節點有進 stations.json 但未進線——如需補齊走 `member_appends.json`
+  （wiki 全線 12 站，audit 標 `Blue Line 10/12` warn）。
+
 ## 新增城市專屬規則時
 
 1. 若該城規則多，**新建 `metro-city-<城市>` skill**（description 寫明城市名＋觸發場景，
