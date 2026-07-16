@@ -290,11 +290,13 @@ export const useMapStore = defineStore('map', {
       return layer
     },
 
-    // Add an RWD Maps view (版面路網) — draws a Hill Climbing view's 縮減網格
-    // layout with strict H/V/45° polylines (see skill route-rwd-draw).
-    // compact = 要重繪的縮減網格變體（'hc' 基本 / 'rect' 直角爬山 / 'align' 軸對齊 /
-    // 'ilp' 整數規劃），對應 D3Tab 的 postKind。
-    addRwdLayer(hcLayerId, compact = 'hc') {
+    // Add an RWD Maps view (版面路網) — draws a Hill Climbing chain's 循環結果
+    // layout (straightenCompactLoop) with strict H/V/45° polylines
+    // (see skill route-rwd-draw).
+    // compact = 要重繪的循環結果，抓循環的 4 個結果之一（'rect' 直角爬山循環 /
+    // 'align' 軸對齊循環 / 'ilp' 整數規劃循環 / 'llm' LLM 對齊循環），對應
+    // D3Tab 的 LOOP_KIND；舊圖層的 'hc'（基本循環）僅作 fallback。
+    addRwdLayer(hcLayerId, compact = 'rect') {
       const src = this.layers.find((l) => l.id === hcLayerId)
       if (!src) return null
       let n = 1

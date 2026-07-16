@@ -252,27 +252,28 @@ function addHillClimbView(src, variant) {
   store.toast(`已建立 Hill Climbing 視圖（來源：${src.name} ${vLabel}）`)
 }
 
-/* Add RWD Maps view — source = a Hill Climbing view's 縮減網格 layout,
+/* Add RWD Maps view — source = a Hill Climbing chain's 循環結果 layout
+   (端點移動+直線縮減+中位集中+縮減網格循環, straightenCompactLoop),
    redrawn with strict H/V/45° polylines (版面路網畫線規則). */
 const hcLayerChoices = computed(() => store.layers.filter((l) => l.type === 'hillclimb'))
-// RWD 可建立在任一「縮減網格」變體之上（對應 D3Tab 的後處理 + compactGrid）。
+// RWD 抓的是循環的 4 個結果（rect/align/ilp/llm 四條鏈的循環，對應 D3Tab 的
+// LOOP_KIND）；舊圖層的 'hc'（基本循環）僅作 fallback、不再提供建立。
 const RWD_VARIANTS = [
-  { id: 'hc', label: 'Hill Climbing縮減網格' },
-  { id: 'rect', label: '直角爬山縮減網格' },
-  { id: 'align', label: '軸對齊縮減網格' },
-  { id: 'ilp', label: '整數規劃縮減網格' },
-  { id: 'llm', label: 'LLM 對齊縮減網格' },
+  { id: 'rect', label: '直角爬山循環' },
+  { id: 'align', label: '軸對齊循環' },
+  { id: 'ilp', label: '整數規劃循環' },
+  { id: 'llm', label: 'LLM 對齊循環' },
 ]
 function hcMeta(l) {
   const d3l = store.layers.find((s) => s.id === l.sourceLayerId)
   return d3l ? d3Meta(d3l) : ''
 }
-function addRwdView(src, compact = 'hc') {
+function addRwdView(src, compact = 'rect') {
   const rwdLayer = store.addRwdLayer(src.id, compact)
   if (!rwdLayer) return
   openLayerTab(rwdLayer)
   close()
-  const vLabel = RWD_VARIANTS.find((v) => v.id === compact)?.label ?? 'Hill Climbing縮減網格'
+  const vLabel = RWD_VARIANTS.find((v) => v.id === compact)?.label ?? compact
   store.toast(`已建立 RWD Maps 視圖（來源：${src.name} ${vLabel}）`)
 }
 
@@ -673,7 +674,7 @@ const shortcuts = [
       </div>
     </div>
 
-    <!-- Add RWD Maps view: pick a Hill Climbing layer (its 縮減網格 is the input) -->
+    <!-- Add RWD Maps view: pick a Hill Climbing layer + one of the 4 循環結果 as input -->
     <div v-else-if="dialog === 'add-rwd'" class="dialog add-d3">
       <div class="dialog-header">
         <h2 class="dialog-title">新增 RWD Maps 視圖</h2>
@@ -685,8 +686,8 @@ const shortcuts = [
         </div>
         <template v-else>
           <p class="add-d3-hint">
-            選擇 Hill Climbing 視圖與縮減網格變體——該佈局將以 H/V/45° 折線重繪
-            （版面路網畫線規則，建立後不可更改）：
+            選擇 Hill Climbing 視圖與循環結果（端點移動+直線縮減+中位集中+縮減網格循環
+            的 4 條鏈）——該佈局將以 H/V/45° 折線重繪（版面路網畫線規則，建立後不可更改）：
           </p>
           <div class="hc-city-list">
             <div v-for="l in hcLayerChoices" :key="l.id" class="hc-city-row">

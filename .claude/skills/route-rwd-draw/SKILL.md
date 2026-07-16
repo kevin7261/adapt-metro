@@ -61,8 +61,11 @@ Hill Climbing 圖層的 縮減網格（compactGrid cells）
 拿坡里（自交叉假環）6→3（乾淨直角三角形）。真環線（單向遍歷、各邊端點對唯一）不受影響。
 
 - 新圖層由 Layers 面板 RWD Maps group 的 **+** 建立：選一個 Hill Climbing 圖層
-  （來源即其縮減網格，存在 `layer.sourceLayerId`）。
-- Tab 有 3 個視圖：**縮減網格**（輸入）、**RWD 路網**（結果）與 **LLM調整**
+  （存在 `layer.sourceLayerId`）＋**循環的 4 個結果之一**（直角爬山循環/軸對齊循環/
+  整數規劃循環/LLM 對齊循環，即 rect/align/ilp/llm 四條鏈的
+  端點移動+直線縮減+中位集中+縮減網格循環，存在 `layer.compact`）——來源即該鏈的
+  循環結果；舊圖層的 `'hc'`（基本循環）僅作 fallback、對話框不再提供。
+- Tab 有 3 個視圖：**循環結果**（輸入，id 沿用 'hc-compact'）、**RWD 路網**（結果）與 **LLM調整**
   （同一套 RWD 畫線，欄寬列高改由 LLM 推理的區間權重決定，見 [[route-llm-grid]]
   與下方「LLM 調整」節）；工具列顯示段數與轉折直方圖（直線/單折/雙折/兜底/強制重疊）。
 - **8 視圖畫廊**（RWD Maps group 的方格鈕 → `openRwdGalleryTab`）：全城市預算縮圖，

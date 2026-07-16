@@ -316,7 +316,7 @@ onBeforeUnmount(() => {
             <button
               v-if="item.group.id === 'rwd'"
               class="btn-icon group-add"
-              title="Add RWD Maps view（來源：Hill Climbing 縮減網格）"
+              title="Add RWD Maps view（來源：循環的 4 個結果之一）"
               @click.stop="store.ui.dialog = 'add-rwd'"
             >
               <MIcon name="add" :size="14" />
@@ -328,7 +328,7 @@ onBeforeUnmount(() => {
             <div v-if="!item.children.length" class="group-empty">
               {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖'
                 : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
-                : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「縮減網格」建立 RWD Maps 視圖'
+                : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「循環結果」建立 RWD Maps 視圖'
                 : item.group.id === 'highway-maps' ? '按 + 匯入高速公路交流道網'
                 : '用 Import 匯入 metro map' }}
             </div>

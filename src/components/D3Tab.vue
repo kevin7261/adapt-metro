@@ -521,7 +521,9 @@ const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isRWD.value) {
     return [
+      { header: '輸入' },
       { id: 'hc-compact', label: '循環結果' },
+      { header: '結果' },
       { id: 'rwd', label: 'RWD 路網' },
       // LLM 調整（AI 改網格長寬）: the badge carries the model that produced it
       { id: 'rwd-llm', label: `LLM調整${gridInfo.value ? ` · ${gridInfo.value.model}` : ''}` },
@@ -530,7 +532,8 @@ const VIEW_TABS = computed(() => {
   if (isHC.value) {
     // 左選單分 9 個部份：原始／Hill Climbing／直線演算法／端點移動／直線縮減
     // ／中位集中／縮減網格／端點移動+直線縮減+中位集中+縮減網格循環／逐步驗證
-    // （header 項只是分組標題、不可點）。
+    // （header 項是分組標題，可點開合——見下方 navSections；全部左側功能列
+    // 共用同一套分組版面，Map Adjust／RWD 的清單也有 header）。
     return [
       { header: '原始' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
@@ -579,16 +582,38 @@ const VIEW_TABS = computed(() => {
     ]
   }
   return [
+    { header: '原始' },
     { id: 'original', label: '原始' },
     { id: 'rotated', label: rotLabel.value, rot: true },
+    { header: '骨架化' },
     { id: 'skeleton', label: '原始骨架化' },
     { id: 'rotated-skeleton', label: `${rotLabel.value}骨架化`, rot: true },
+    { header: '格網化' },
     { id: 'grid-orig-pre', label: '原始格網化前' },
     { id: 'grid-orig-post', label: '原始格網化後' },
     { id: 'grid-rot-pre', label: `${rotLabel.value}格網化前`, rot: true },
     { id: 'grid-rot-post', label: `${rotLabel.value}格網化後`, rot: true },
   ]
 })
+// 左側功能列分組可開合（使用者規則：不用全部展開）。VIEW_TABS 依 header 收成
+// sections；預設收合、只展開「含目前視圖」的那一組，點 header 切換。
+// navOpen 只記使用者手動切換過的組（true/false），沒記錄的走預設。
+const navSections = computed(() => {
+  let cur = { header: null, items: [] }
+  const secs = [cur]
+  for (const t of VIEW_TABS.value) {
+    if (t.header) { cur = { header: t.header, items: [] }; secs.push(cur) }
+    else cur.items.push(t)
+  }
+  return secs.filter((s) => s.header || s.items.length)
+})
+const navOpen = ref({})
+const navSectionOpen = (s) =>
+  !s.header || (navOpen.value[s.header] ?? s.items.some((t) => t.id === mode.value))
+function toggleNavSection(s) {
+  if (s.header) navOpen.value[s.header] = !navSectionOpen(s)
+}
+
 const disposables = []
 let zoomBehavior = null
 let resizeObs = null
@@ -1657,19 +1682,35 @@ onBeforeUnmount(() => {
       <div class="map-col">
         <div class="map-main">
           <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
-            <template v-for="t in VIEW_TABS" :key="t.id ?? `h:${t.header}`">
-              <div v-if="t.header" class="view-nav-group">{{ t.header }}</div>
+            <div
+              v-for="s in navSections"
+              :key="s.header ?? 'flat'"
+              class="view-nav-sec"
+              :class="{ open: navSectionOpen(s), flat: !s.header }"
+            >
               <button
-                v-else
-                class="view-nav-item"
-                :class="{ active: mode === t.id }"
-                role="tab"
-                :aria-selected="mode === t.id"
-                :disabled="!panelLayer || (t.rot && !canRotate)"
-                :title="t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : ''"
-                @click="mode = t.id"
-              >{{ t.label }}</button>
-            </template>
+                v-if="s.header"
+                class="view-nav-group"
+                :aria-expanded="navSectionOpen(s)"
+                @click="toggleNavSection(s)"
+              >
+                <span class="view-nav-caret">{{ navSectionOpen(s) ? '▾' : '▸' }}</span>
+                <span class="view-nav-group-label">{{ s.header }}</span>
+              </button>
+              <div v-if="navSectionOpen(s)" class="view-nav-sec-items">
+                <button
+                  v-for="t in s.items"
+                  :key="t.id"
+                  class="view-nav-item"
+                  :class="{ active: mode === t.id }"
+                  role="tab"
+                  :aria-selected="mode === t.id"
+                  :disabled="!panelLayer || (t.rot && !canRotate)"
+                  :title="t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : ''"
+                  @click="mode = t.id"
+                >{{ t.label }}</button>
+              </div>
+            </div>
           </div>
           <div
             class="view-nav-resize"
@@ -1942,22 +1983,63 @@ onBeforeUnmount(() => {
   padding: 6px;
   overflow-y: auto;
 }
-/* Section headers inside the view list（原始／Hill Climbing／直線演算法／…）。 */
-.view-nav-group {
+/* 分組（原始／Hill Climbing／直線演算法／…）——全部左側功能列共用同一套版面：
+   header 一列（caret＋標題＋項目數 badge）可開合，展開的項目縮排並帶樹狀導引線。 */
+.view-nav-sec {
   flex-shrink: 0; /* view 很多時不被壓扁——超出改由 .view-nav 的捲軸承接 */
-  padding: 8px 10px 2px;
-  font-size: 10.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.view-nav-sec:not(:first-child):not(.flat) {
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+.view-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  color: hsl(var(--muted-foreground) / 0.75);
+  letter-spacing: 0.02em;
+  color: hsl(var(--muted-foreground));
+  user-select: none;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.view-nav-group:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.view-nav-caret {
+  flex-shrink: 0;
+  width: 14px;
+  font-size: 12px;
+  text-align: center;
+}
+.view-nav-group-label {
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  user-select: none;
 }
-.view-nav-group:not(:first-child) {
-  margin-top: 4px;
-  border-top: 1px solid hsl(var(--border) / 0.6);
+/* 展開的項目：縮排到 caret 之下、左側一條導引線。flat（無 header 的清單，
+   理論上已不存在）不縮排。 */
+.view-nav-sec-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-left: 14px;
+  padding-left: 5px;
+  border-left: 1px solid hsl(var(--border) / 0.7);
+}
+.view-nav-sec.flat .view-nav-sec-items {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
 }
 /* Draggable divider between the view list and the canvas. */
 .view-nav-resize {
