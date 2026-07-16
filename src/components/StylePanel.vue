@@ -168,8 +168,9 @@ const mergedNames = computed(() => {
 // 標題格式（使用者規則）：第一行＝中文/在地名、第二行＝英文（相同則不顯示）。
 // 兩者都回 { name, nameEn }，用同一個 .obj-title 樣式渲染。
 const joinTitle = (list) => {
-  const name = list.map((e) => e.name).join(' / ')
-  const en = list.map((e) => e.nameEn || e.name).join(' / ')
+  // 去重相同名（共站同名 玉造[N]/玉造[O] 標題只顯示一個「玉造」；異名 汐留/新橋 才並列）
+  const name = [...new Set(list.map((e) => e.name))].join(' / ')
+  const en = [...new Set(list.map((e) => e.nameEn || e.name))].join(' / ')
   return { name, nameEn: en !== name ? en : null }
 }
 const objectTitle = computed(() => {
@@ -742,7 +743,7 @@ function startResize(e) {
           </template>
           <!-- 共站合併：異名轉乘站——每條線在此站的不同站名 -->
           <div v-if="mergedNames.length" class="obj-merged">
-            <div class="obj-pass-sub">共站站名（各線不同名）</div>
+            <div class="obj-pass-sub">共站（各線）</div>
             <div v-for="mn in mergedNames" :key="mn.station_id" class="obj-merged-row">
               <span class="obj-merged-name">{{ mn.name
                 }}<span v-if="mn.nameLocal" class="obj-merged-local">{{ mn.nameLocal }}</span></span>

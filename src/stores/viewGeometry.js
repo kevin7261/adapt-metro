@@ -58,6 +58,11 @@ function projByIdFor(projection, stations, skeleton) {
     const p = projection(c.coord)
     if (p) projById.set(c.id, p)
   }
+  // 河流合成站——與 D3Tab 一致，讓畫廊縮圖也把河流示意格網化。
+  for (const r of skeleton.riverNodes ?? []) {
+    const p = projection(r.coord)
+    if (p) projById.set(r.id, p)
+  }
   return projById
 }
 
@@ -122,7 +127,7 @@ function edgeLinesFromPos(skeleton, posOf) {
     }
     if (parts.length < 2) continue
     const d = parts.join(' ')
-    for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
+    for (const s of strokesOf(e.renderColors ?? e.routeColors, e.color, d)) lines.push(s)
   }
   return lines
 }
@@ -392,7 +397,7 @@ function drawRwd(skeleton, stations, rwd, sep) {
   for (const L of rwd.lines) {
     const e = L.seg.edge
     const d = rwdPtsD(L.pts)
-    for (const s of strokesOf(e.routeColors, e.color, d)) lines.push(s)
+    for (const s of strokesOf(e.renderColors ?? e.routeColors, e.color, d)) lines.push(s)
     if (L.forced) hl.push({ d, color: '#f59e0b' })
     else if (EDGE_HL[e.cls]) hl.push({ d, color: EDGE_HL[e.cls] })
   }

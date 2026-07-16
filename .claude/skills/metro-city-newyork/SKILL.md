@@ -13,6 +13,30 @@ MTA 子公司運營）。**PATH**（Port Authority of NY&NJ，跨哈德遜河到
 ＋ deny（`\bpath\b`／port authority）。⚠️ ckey `new york city` 含空格，city 比對兩邊都要
 `normCity`（否則 "newyorkcity" ≠ "new york city"、規則整個失效、PATH 漏剔——這是實際踩過的坑）。
 
+## 同色幹線合併成 1 條（使用者 2026-07：1/2/3 同紅＝共線的同一條線，pass 是特例）
+
+**紐約專屬、資料輸出層**：同一 route_color 的多個服務（1/2/3 全紅、A/C/E 全藍、B/D/F/M
+全橘、N/Q/R/W 全黃…）＝官方幹線（by trunk/color）的**同一條線**，輸出時合成 1 條——
+route_ref/route_name＝該色 refs 排序併寫（`1/2/3`／`A/C/E`／`B/D/F/M`），route_id＝
+`nyc-trunk-{color}`。**快車跳站以 pass 表示**：合併線上，某站被同色快車跳過（express
+沿 local 走廊 pass-through）就標 `pass:true`（如紅線 23rd/28th＝2/3 快車跳、1 慢車停；
+34th–Penn／Times Sq 全停無 pass）。紐約 line_count 27→**11**（1/2/3・4/5/6・7・A/C/E・
+B/D/F/M・G・J/Z・L・N/Q/R/W・S・SIR）。**不同色共軌仍各自一條**（Queens Blvd 的
+B/D/F/M 橘＋E 藍＋R 黃 → route_count=3 → 渲染層交錯虛線不變）。
+
+- 實作：`buildGeojson.mjs` 末端 per-system 寫檔前的 `mergeSameColourTrunks(feats)`，**只作用於
+  `/new york/i` 的 city**（後處理最終 feature list）：路段 routes[] **只 relabel 顯示身分
+  （route_ref/route_name→trunk），route_count＝相異色數**；車站 routes[] 依 ref→色→trunk 收名去重，
+  pass＝任一同色服務 pass 的 OR。其他 222 城不受影響（逐服務一線不變）。
+- **⚠️ 路段每個服務的 `route_id` 與 `stations` 絕不可合併/去重**（踩過的坑：曾把 1/2/3 併成同一
+  route_id、只留第一條的 stations → 示意圖骨架 `skeleton.js` 以 route_id 為鍵逐路線建拓撲，
+  其餘服務的站變成孤兒白點散布成團＝使用者截圖的 Straighten 白點畫錯）。同色畫一條實線只靠
+  **渲染層 `_nc`（相異色數＝1）**，資料層維持逐服務 route_id/stations 完整（NYC 仍 27 條 route_id）。
+- 與下方「渲染層 _nc」相容：合併後同幹線 route_colors 只剩 1 色→`_nc=1`→實線；跨色共軌 `_nc≥2`→
+  交錯虛線。與「服務時段變體收斂／daytime express pass-through」相容（pass 由後者先算好、合併只做 OR）。
+- **副作用**：audit 的逐線 wiki 站數對照（`line_wiki_stations`）以逐服務為單位，合併後 line_count
+  變幹線數 → 該 audit 對照失準屬預期（幹線非逐服務）；不影響地圖／物件面板。
+
 ## 共線只畫 1 條（使用者指定，兩個層次）
 
 紐約共線極多（1/2/3 共 7th Av、A/C/E、B/D/F/M、N/Q/R/W…最多 9 線共軌）。「畫 1 條」

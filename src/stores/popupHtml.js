@@ -64,11 +64,11 @@ export function stationPopupHtml(p, refColor) {
   const hasMerged = Array.isArray(mn) && mn.length > 1
   // 標題與物件 tab 同構（StylePanel joinTitle）：共站異名以 " / " 併（汐留 / 新橋、
   // 日比谷 / 有楽町…），英文取代表站。之前 hover 只顯示代表名一個，與物件 tab 不一致。
-  const titleName = hasMerged ? mn.map((m) => m.station_name).join(' / ') : (p.station_name ?? '—')
+  const titleName = hasMerged ? [...new Set(mn.map((m) => m.station_name))].join(' / ') : (p.station_name ?? '—')
   const en = p.station_name_en && p.station_name_en !== p.station_name ? p.station_name_en : null
   let html = H.title(titleName, en)
   if (hasMerged) {
-    html += `<div style="opacity:.65;font-size:10px;margin-top:4px">共站站名（各線不同名）</div>`
+    html += `<div style="opacity:.65;font-size:10px;margin-top:4px">共站（各線）</div>`
     for (const m of mn) {
       const chips = (m.lines || []).map((ref) => H.refC(ref, refColor?.get(ref))).join('')
       html += H.row(`<span style="margin-right:6px">${m.station_name}</span>${chips}`)

@@ -1494,9 +1494,14 @@ async function build() {
     }
   } catch { /* optional — same-name fallback still applies */ }
   let ixPairs = []
+  let splitSpecs = []
   try {
-    ixPairs = JSON.parse(await readFile(
-      join(BASE, '_overrides', 'interchanges.json'), 'utf8')).merge ?? []
+    const ix = JSON.parse(await readFile(join(BASE, '_overrides', 'interchanges.json'), 'utf8'))
+    ixPairs = ix.merge ?? []
+    // `split`: 同名站「拆站」裁決——某些同名站分屬不相通的不同線（NYC 下曼哈頓 7 Av
+    // 線的 1 與平行的 A/C/E、N/Q/R/W 同名卻不轉乘）。每筆 {city,name,groups:[[refs]…]}：
+    // 每個 line-group 各自成一站、彼此不併；未列出的成員（真 complex）照常距離聚合。
+    splitSpecs = ix.split ?? []
   } catch { /* optional */ }
 
   let mergedAway = 0
@@ -1532,7 +1537,8 @@ async function build() {
       if (!byName.has(key)) byName.set(key, [])
       byName.get(key).push(i)
     })
-    for (const idxs of byName.values()) {
+    // greedy same-name distance/line clustering → union each cluster
+    const clusterAndUnion = (idxs) => {
       const clusters = []
       for (const i of idxs) {
         const [lon, lat] = feats[i].geometry.coordinates
@@ -1555,6 +1561,26 @@ async function build() {
       }
       for (const c of clusters)
         for (let k = 1; k < c.members.length; k++) union(c.members[0], c.members[k])
+    }
+    // 拆站 override（interchanges.json 的 `split`，本城適用者）：name → [[refs]…]
+    const splitByName = new Map()
+    for (const sp of splitSpecs) if (normCity(sp.city) === normCity(grp.info.city)) splitByName.set(normName(sp.name), sp.groups)
+    for (const [nameKey, idxs] of byName) { if(nameKey==="canal street"&&/newyork/i.test(normCity(grp.info.city)))console.error("__DBGCANAL splitSize="+splitByName.size+" hasGroups="+!!splitByName.get(nameKey));
+      const groups = splitByName.get(nameKey)
+      if (!groups) { clusterAndUnion(idxs); continue }
+      // 指定 line-group 各自成站；其餘成員照常聚合（真 complex 不受影響）
+      const nref = (r) => String(r).toLowerCase().replace(/\s+/g, '')
+      const gsets = groups.map((g) => new Set(g.map(nref)))
+      const gm = groups.map(() => [])
+      const rest = []
+      for (const i of idxs) {
+        const ml = (feats[i].properties.lines || []).map(nref)
+        let gi = -1
+        for (let g = 0; g < gsets.length; g++) if (ml.some((x) => gsets[g].has(x))) { gi = g; break }
+        if (gi >= 0) gm[gi].push(i); else rest.push(i)
+      }
+      for (const g of gm) for (let k = 1; k < g.length; k++) union(g[0], g[k])
+      clusterAndUnion(rest)
     }
     // (3) adjudicated interchange pairs
     if (ixPairs.length) {
@@ -2258,11 +2284,65 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
   await writeFile(join(BASE, 'metro_stations.geojson'), JSON.stringify(fc(stations)))
 
   const index = []
+  // NYC only (使用者 2026-07): 同色不同 ref 的營運服務＝共線的同一條幹線，合成 1 條
+  // 線——1/2/3（同紅）→ 一條「1/2/3」紅線，快車跳站以 pass 標示；不同色共軌仍各自
+  // 一條（渲染層 _nc≥2 交錯虛線不變）。只作用於紐約，其他城市維持逐服務一線。
+  // 後處理最終 feature list：把 routes[] 依 route_color 收成 trunk 身分並去重。
+  const mergeSameColourTrunks = (feats) => {
+    const refsByColor = new Map(), colorOfRef = new Map()
+    for (const f of feats) {
+      if (f.geometry.type === 'Point') continue
+      for (const r of f.properties.routes || []) {
+        const col = r.route_color, ref = r.route_ref ?? r.route_name
+        if (!col || ref == null) continue
+        if (!refsByColor.has(col)) refsByColor.set(col, new Set())
+        refsByColor.get(col).add(String(ref)); colorOfRef.set(String(ref), col)
+      }
+    }
+    const trunkOfColor = new Map()
+    for (const [col, set] of refsByColor) {
+      const label = [...set].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).join('/')
+      trunkOfColor.set(col, { route_id: `nyc-trunk-${col}`, route_ref: label, route_name: label, route_color: col })
+    }
+    // 路段：只 relabel 顯示身分（route_ref/name→trunk），**保留每個服務自己的 route_id
+    // 與 stations**——示意圖骨架（skeleton.js）以 route_id 為鍵、逐路線 stations 建拓撲，
+    // 若把 1/2/3 併成同一 route_id 只會留一條的站、其餘站變孤兒白點（使用者截圖的散點）。
+    // 同色共軌畫實線靠渲染層 `_nc`（相異色數＝1），不需在資料層合併 route_id。
+    for (const f of feats) {
+      if (f.geometry.type === 'Point') continue
+      const routes = f.properties.routes || []
+      for (const r of routes) {
+        const tk = trunkOfColor.get(r.route_color)
+        if (tk) { r.route_ref = tk.route_ref; r.route_name = tk.route_name }
+      }
+      f.properties.route_count = new Set(routes.map((r) => r.route_color)).size
+      f.properties.route_refs = [...new Set(routes.map((r) => r.route_ref || r.route_name))]
+      f.properties.route_colors = routes.map((r) => r.route_color)
+    }
+    // 車站：把 routes[] 依 ref→色→trunk 收名去重；pass＝任一同色服務跳站（快車 express
+    // 跳的 local 站在合併線上標 pass；全部服務都停者無 pass）。
+    for (const f of feats) {
+      if (f.geometry.type !== 'Point') continue
+      const byRef = new Map()
+      for (const r of f.properties.routes || []) {
+        const col = colorOfRef.get(String(r.ref)), tk = col && trunkOfColor.get(col)
+        const ref = tk?.route_ref ?? r.ref, name = tk?.route_name ?? r.name
+        if (!byRef.has(ref)) byRef.set(ref, { ref, name, pass: false })
+        if (r.pass) byRef.get(ref).pass = true
+      }
+      const entries = [...byRef.values()].map((e) => (e.pass ? { ref: e.ref, name: e.name, pass: true } : { ref: e.ref, name: e.name }))
+      f.properties.routes = entries
+      f.properties.lines = [...new Set(entries.map((e) => e.ref))]
+    }
+    return trunkOfColor.size
+  }
+
   const groups = [...cityGroups.values()].sort((a, b) => b.lines.length - a.lines.length)
   for (const grp of groups) {
     const { info } = grp
     const relPath = `${info.key}.geojson`
     const feats = [...grp.lines, ...grp.stations]
+    const nycTrunkCount = /new york/i.test(info.city || '') ? mergeSameColourTrunks(feats) : null
     const wp = grp.wikipedia
     let wikiUrl = null
     if (wp) {
@@ -2281,8 +2361,9 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
       official_map: wikiUrl,
       wikidata: grp.wikidata,
       // line_count = number of ROUTES; the geometry is stored as overlap-deduped
-      // segment features (segment_count) whose `routes` lists the routes on them
-      line_count: grp.routeCount ?? grp.lines.length,
+      // segment features (segment_count) whose `routes` lists the routes on them.
+      // NYC: same-colour services merged into trunk lines (1/2/3 → one) → trunk count.
+      line_count: nycTrunkCount ?? grp.routeCount ?? grp.lines.length,
       segment_count: grp.lines.length,
       station_count: grp.stations.length,
       // per-city audit verdict (scripts/auditLoop.mjs): passed / reasons / checks
@@ -2295,14 +2376,17 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
   }
 
   // stale-file cleanup：桶的命名/歸屬改變時，上一輪寫出的舊檔要刪掉
-  // （index 不引用的 systems/*.geojson 一律不留，避免殘留誤導）
+  // （index 不引用的 systems/*.geojson 一律不留，避免殘留誤導）。
+  // **例外：additive 合併系統 `*-jr.geojson`／`*-lm.geojson`**（東京＋山手／城市＋地標，由
+  // buildJrCombined／buildLandmarkCombined 維護）不是 buildGeojson 的產出，**絕不刪**——
+  // 否則每次 base 重建都會把它們掃掉、下游圖層變英文/找不到（使用者多次回報）。
   {
     const wanted = new Set(index.map((i) => join(BASE, i.file)))
     const walk = async (d) => {
       for (const e of await readdir(d, { withFileTypes: true })) {
         const p = join(d, e.name)
         if (e.isDirectory()) await walk(p)
-        else if (p.endsWith('.geojson') && !wanted.has(p)) {
+        else if (p.endsWith('.geojson') && !wanted.has(p) && !/-(?:jr|lm)\.geojson$/.test(e.name)) {
           await rm(p, { force: true })
           console.log(`  stale removed: ${p.slice(BASE.length + 1)}`)
         }
@@ -2316,19 +2400,31 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
     .filter((s) => !matchedCities.has(s.city))
     .map((s) => ({ city: s.city, country: s.country, name: s.name }))
 
+  // 保留 additive 合併系統的 index 條目（`*-jr`／`*-lm`）——buildGeojson 不產生它們，但也
+  // **不得**把它們從 index 移除（否則每次 base 重建，前端就找不到 東京＋山手／城市＋地標，
+  // 圖層名變英文）。它們的檔案也在上面的 stale-cleanup 被豁免，故 index＋檔案一起存活。
+  // 資料可能因 base 更新而過時 → metro:build/metro:all 會接著重跑兩個 combined builder 刷新。
+  let combined = []
+  try {
+    const prev = JSON.parse(await readFile(join(BASE, 'index.json'), 'utf8'))
+    const have = new Set(index.map((i) => i.file))
+    combined = (prev.systems || []).filter((s) => /-(?:jr|lm)\.geojson$/.test(s.file || '') && !have.has(s.file))
+  } catch { /* first run */ }
+  const indexAll = [...index, ...combined]
+
   await writeFile(join(BASE, 'index.json'), JSON.stringify({
     generated_from: 'OpenStreetMap via Overpass API (route=subway|light_rail, operational only; ' +
       'line geometry = stops connected in member order; same-named stations merged)',
     baseline: 'Wikipedia: List of metro systems',
-    system_count: index.length,
+    system_count: indexAll.length,
     wikipedia_system_count: wikiSystems.length,
     line_total: lines.length,
     station_total: stations.length,
-    systems: index,
+    systems: indexAll,
     wikipedia_cities_without_match: missing,
   }, null, 2))
 
-  console.log(`  ${index.length} systems written to ${SYS_DIR}`)
+  console.log(`  ${index.length} base + ${combined.length} combined systems written to ${SYS_DIR}`)
   console.log(`  matched ${matchedCities.size} cities; ${missing.length} wikipedia systems unmatched by city name`)
   console.log(`  index -> ${join(BASE, 'index.json')}`)
 }

@@ -208,24 +208,26 @@ out body;`
         p.routes = [...(p.routes || []), { ...jrRoute }]
       if (!(p.lines || []).includes(t.line.ref)) p.lines = [...(p.lines || []), t.line.ref]
       if (s.code) p.codes = [...(p.codes || []), s.code].filter((v, i, a) => a.indexOf(v) === i)
-      // 共站標題：JR 站名與代表名不同時，補進 merged_names（hover/物件 tab 標題並列，
-      // 如 汐留／新橋、日比谷／有楽町）。同名（新宿→新宿）不動。
-      if (normName(s.name) !== normName(p.station_name)) {
-        if (!Array.isArray(p.merged_names) || p.merged_names.length === 0) {
-          p.merged_names = [{
-            station_id: p.station_id,
-            station_name: p.station_name,
-            station_name_local: p.station_name_local ?? p.station_name,
-            lines: origLines,
-          }]
-        }
-        const ex = p.merged_names.find((m) => normName(m.station_name) === normName(s.name))
-        if (ex) { if (!(ex.lines || []).includes(t.line.ref)) ex.lines = [...(ex.lines || []), t.line.ref] }
-        else p.merged_names.push({
-          station_id: `n${s.osmId}`, station_name: s.name,
-          station_name_local: s.name, lines: [t.line.ref],
-        })
+      // 共站：JR 併入 metro 站一律在 merged_names 標成「共站」（Metro↔JR 轉乘），**即使同名**
+      // 也顯示（玉造 [N] / 玉造 [O]、新宿 [E,M,S] / 新宿 [JY]）——使用者要看到 JR 與地鐵共站。
+      // 先補代表列（metro 原線），再把 JR 併進：命中**非代表列**的既有別名（秋葉原→岩本町的
+      // 「秋葉原」列、有楽町→日比谷的「有楽町」列）就補 ref；否則另立一列（同名亦另立，才會
+      // length≥2 顯示共站區塊）。
+      if (!Array.isArray(p.merged_names) || p.merged_names.length === 0) {
+        p.merged_names = [{
+          station_id: p.station_id,
+          station_name: p.station_name,
+          station_name_local: p.station_name_local ?? p.station_name,
+          lines: origLines,
+        }]
       }
+      const rep = p.merged_names[0]
+      const ex = p.merged_names.find((m) => m !== rep && normName(m.station_name) === normName(s.name))
+      if (ex) { if (!(ex.lines || []).includes(t.line.ref)) ex.lines = [...(ex.lines || []), t.line.ref] }
+      else p.merged_names.push({
+        station_id: `n${s.osmId}`, station_name: s.name,
+        station_name_local: s.name, lines: [t.line.ref],
+      })
       merged++
       mergeLog.push(`  merge  JR ${s.name} → ${p.station_name}`)
     } else {
@@ -296,10 +298,10 @@ out body;`
       }],
       route_count: 1,
       route_refs: [t.line.ref],
-      // 鐵路交錯線＋官方色（使用者：JR 是鐵路要交錯，但用官方色不是黑）——渲染層
-      // `_nc=相異色數`：兩色 ⇒ 交錯虛線（LayerTab 與 D3Tab 共用機制）。故給
-      // [官方色,白] ＝官方色與白交錯的鐵路線（山手線 うぐいす #B1CB39、大阪環状線 #E80000）。
-      route_colors: [t.line.color, '#ffffff'],
+      // 官方色**實線**（使用者裁決：不要虛線交錯，要跟 Metro Maps 一模一樣的實心官方色——
+      // 山手線 うぐいす #B1CB39、大阪環状線 #E80000）。單一色 → LayerTab `_nc=1` 實線、
+      // D3 各視圖同樣實線。
+      route_colors: [t.line.color],
       city, country,
     },
   }

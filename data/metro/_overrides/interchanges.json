@@ -1,5 +1,11 @@
 {
  "_comment": "可轉乘共站的人工/agent 裁決（metro-audit skill）。來源：zh.wikipedia 高雄捷運環狀輕軌轉乘站清單（2026-07 查證）。異名轉乘站對 merge 為同一車站點。",
+ "_split_comment": "拆站裁決：同名站分屬不相通的不同線（NYC 下曼哈頓 7 Av 線 1/2/3 與平行的 A/C/E、N/Q/R/W 同名卻不轉乘，使用者 2026-07 逐站回報）。每個 line-group 各自成站、彼此不併；未列出成員（真 complex）照常聚合。",
+ "split": [
+  { "city": "New York City", "name": "Canal Street", "groups": [["1", "2", "3"], ["A", "C", "E"]] },
+  { "city": "New York City", "name": "Rector Street", "groups": [["1", "2", "3"], ["N", "Q", "R", "W"]] },
+  { "city": "New York City", "name": "Chambers Street", "groups": [["1", "2", "3"], ["A", "C", "E"], ["J", "Z"]] }
+ ],
  "merge": [
   [
    "n4576225719",

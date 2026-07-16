@@ -744,6 +744,8 @@ async function render() {
   // Synthetic crossing (yellow) nodes are not real stations — feed their coords
   // to the grid + edge drawing so split edges and gridding resolve them.
   for (const c of sk?.crossings ?? []) projById.set(c.id, P(c.coord))
+  // 河流合成站（rvN_i）——併進 posById，格網化才會把河流一起示意化、河流邊畫得出。
+  for (const r of sk?.riverNodes ?? []) projById.set(r.id, P(r.coord))
   const grid = gridMode.value ? buildSchematicGrid(cachedSkeleton, projById, [24, 24, w - 24, h - 24]) : null
   // Hill Climbing (②, see skill route-hillclimb): optimize the grid CELLS once
   // per dataset — cells are rank-based, so a resize only changes the pixel
@@ -1026,6 +1028,14 @@ async function render() {
     }
     return [{ d, stroke: cols[0] ?? fallback ?? '#e11d48', ...extra }]
   }
+  // 地標 feature（河流骨架／皇居・公園）在 D3 視圖用地標色畫（與 LayerTab 一致）——
+  // 河流骨架藍 #2b7bb8、面域綠 #58a866；否則會退回 route 預設色（玫瑰紅）＝使用者回報
+  // 「地標顏色跟本來不一樣」。
+  const isLandmark = (p) => p && p.landmark_id != null
+  const landmarkStroke = (p) => (/river/.test(p.kind || '') ? '#2b7bb8' : '#58a866')
+  const featStrokes = (f, d, extra) => isLandmark(f.properties)
+    ? [{ d, stroke: landmarkStroke(f.properties), ...extra }]
+    : dashStrokes(d, f.properties.route_colors, null, extra)
   // 'black' = untouched through station → keep the normal white fill; only the
   // specially-marked nodes get a colour. All keep the dark border (set below).
   const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
@@ -1060,7 +1070,7 @@ async function render() {
     // 彩色虛線（dasharray）。格網化後/HC/RWD 的線都經此，確保共線顯示與原始同樣的多色，
     // 不是併成單色（使用者要「色彩跟原來一樣」）。「共線變一條線」＝一條折線帶多色，
     // 不是變單色。
-    const strokesOf = (e, d, html) => dashStrokes(d, e.routeColors, e.color, { html })
+    const strokesOf = (e, d, html) => dashStrokes(d, e.renderColors ?? e.routeColors, e.color, { html })
     if (rwdLines) {
       // RWD 路網: one polyline per cut-to-cut segment (H/V/45° legs), coloured
       // like its parent skeleton edge; the tooltip reports the bend count.
@@ -1093,7 +1103,7 @@ async function render() {
       // Metro Maps 相同）；節點分類色 + 邊分類襯底疊上。只有**格網化後/HC**（座標真的
       // 被搬到格子上）才改用 edgeD（見下方 else）。
       lineData = lineFeats.flatMap((f) =>
-        dashStrokes(path(f), f.properties.route_colors, null, { props: f.properties }))
+        featStrokes(f, path(f), { props: f.properties }))
       // 邊分類襯底（線底下的 highlight）：沿骨架邊的**真實折線幾何 e.geom** 畫一條較寬
       // 半透明底色線（共線紅底 / 環線綠 / 頭尾共點藍），貼著線的彎曲、不會像用車站點
       // 那樣在跳站段戳出直線。plain 不畫襯底。
@@ -1139,7 +1149,7 @@ async function render() {
     // 原始 = EXACTLY the Metro Maps drawing: single route → solid colour, overlap
     // (≥2 distinct route colours) → interleaved coloured dashes (same as LayerTab).
     lineData = lineFeats.flatMap((f) =>
-      dashStrokes(path(f), f.properties.route_colors, null, { props: f.properties }))
+      featStrokes(f, path(f), { props: f.properties }))
     stationData = stations.map((f) => {
       const [x, y] = P(f.geometry.coordinates)
       return { x, y, props: f.properties, fill: stationColor(f.properties) }

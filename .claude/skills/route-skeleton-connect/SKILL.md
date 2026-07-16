@@ -214,12 +214,26 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
 
 - `buildConnectSkeleton(geojson)` 為**純函式**：不改輸入；回傳
   `{ stationClass: Map<id, 'red'|'blue'|'black'|'purple'|'pink'|'gray'|'yellow'>,
-     edges: [{ path:[id…], geom:[[lng,lat]…], cls:'coline'|'loop'|'parallel'|'plain', color, routeColors }],
-     crossings: [{ id, coord:[lng,lat] }] }`。`stationClass`／`edges` 的 path 可含合成交叉 id
+     edges: [{ path:[id…], geom:[[lng,lat]…], cls:'coline'|'loop'|'parallel'|'plain', color, routeColors, renderColors }],
+     crossings: [{ id, coord:[lng,lat] }], riverNodes:[{ id, coord:[lng,lat] }] }`。`stationClass`／`edges` 的 path 可含合成交叉 id
   （`xN`，見 ②）；`crossings` 給前端解析其座標。`edge.geom` ＝該邊的**真實折線座標串**（依
   route 停靠站切段、含跳站段穿過的中段站折點），供**地理視圖的邊分類襯底**沿線畫。座標一律
   取原座標（**不移動、不拉直**）。（線本身不用 edges 畫——見上「核心原則」，一律畫 line
   feature；edges 只供節點/邊分類與襯底。）
+- **`edge.routeColors` 供分類、`edge.renderColors` 供移動後視圖畫線**：兩者通常相同；唯
+  **鐵路交錯線**（JR 山手線／大阪環状線：單一 route 的段帶 2 色 `route_colors`＝官方色＋白，
+  Metro Maps 靠此畫官方色＋白交錯）例外——`routeColors` 只放單一 route_color（**分類用**，否則
+  單線 2 色會誤判成 coline 紅底），`renderColors` 放 `railColors`（官方色＋白，**格網化/HC/RWD
+  視圖畫線用**，讓移動後視圖與 Metro Maps 一模一樣）。route 端記 `railColors`＝單 route 段的
+  2 色 route_colors。地理視圖本就直接用 feature 的 `route_colors` 畫、天然一致。
+- **河流當合成路線（「城市＋地標」-lm 檔）**：`landmark_id`＋`kind` 含 river 的 LineString 折點
+  注入為合成站（`rvN_i`）、整條河＝合成路線 `river:{landmark_id}`（藍 `#2b7bb8`）。目的：讓 ②
+  detectCrossings 算出**河流×地鐵交叉黃點**、③ 收縮把河折點串成連續河流邊、schematicGrid 一起
+  示意格網化。河流 feature 無 `routes` 屬性，故 `detectCrossings` 的 realLeg／routeGeom 用
+  `featRoutesOf(f)` 補回河流的 route 關聯（否則交叉會在 `onRouteGeom` 被當「不在河流線上」丟掉）。
+  合成站不是 Point feature → 不畫成車站點；座標由 `riverNodes` 回傳，前端連同 `crossings` 併進
+  `posById`。**面域地標（皇居/公園）不注入**（只當地理背景，非骨架）。base 城市檔無地標 feature
+  → 不受影響。
 - degree／route 集合一律由 `routes[].stations` 建圖得出（不讀 `station_role`）。
 - 已實作：①②③④⑤⑥（節點/邊分類、黃色幾何交叉、紫點、粉紅、灰）。②黃點是幾何標記，
   只在純骨架視圖畫、格網化視圖不畫（見 ②）。
