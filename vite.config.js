@@ -255,8 +255,9 @@ function llmAlignTrigger() {
   })
 }
 
-// LLM 調整（RWD Maps「AI 改網格長寬」）：使用者的一句話 → route-llm-grid 推理
-// 每個 X 欄／Y 列區間的顯示權重 → data/metro/llmgrids，「LLM調整」tab 載入。
+// LLM 互動（RWD Maps「AI 改網格長寬」）：使用者的一句話 → route-llm-grid 推理
+// 每個 X 欄／Y 列區間的顯示權重 → data/metro/llmgrids，「LLM互動」tab 載入
+// （跑完不自動套用，按「執行調整」才重畫 RWD 路網）。
 function llmGridTrigger() {
   return claudeSkillTrigger({
     name: 'llm-grid-trigger',

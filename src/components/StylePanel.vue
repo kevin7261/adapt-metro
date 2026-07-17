@@ -23,15 +23,22 @@ const props = defineProps({
   // flight, and whether this view has a city id to run against.
   llmRunning: { type: Boolean, default: false },
   llmCanRun: { type: Boolean, default: false },
-  // LLM 調整（RWD Maps「AI 改網格長寬」，skill route-llm-grid）：結果檔
-  // （model / userPrompt / note / colW / rowW）＋run 控制——D3Tab 對 RWD 視圖
-  // 傳入；「LLM調整」tab 對 rwd 常駐（輸入一句話就從這裡觸發）。
+  // LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）：結果檔
+  // （model / userPrompt / note / colW / rowW）＋run 控制＋即時串流——D3Tab 對
+  // RWD 視圖傳入；「LLM互動」tab 對 rwd 常駐（輸入一句話觸發，跑完按「執行調整」
+  // 才套用），跟「LLM評價」同一套唯讀＋切換的 UX。
   gridRecord: { type: Object, default: null },
   gridRunning: { type: Boolean, default: false },
   gridCanRun: { type: Boolean, default: false },
+  gridText: { type: String, default: '' },   // 執行中即時串流的 LLM 回傳
+  gridMsg: { type: String, default: null },  // 無結果/不符時的提示
+  gridError: { type: String, default: '' },  // 執行失敗的尾巴訊息
+  // 「執行調整」：跑完的區間權重（colW/rowW）存在結果檔，按鈕只切換顯示
+  // （套用 intervalAxes ⇄ 恢復均勻/流量網格），不再跑 LLM。
+  gridApplied: { type: Boolean, default: false },
   // LLM 評價（RWD Maps「AI 評路網佈局」，skill route-llm-eval）：結果檔
   // （model / summary / scores / lines / suggestions）＋run 控制與即時串流——
-  // 只評價、不修改；「LLM評價」tab 對 rwd 常駐，接在「LLM調整」之後。
+  // 只評價、不修改；「LLM評價」tab 對 rwd 常駐，接在「LLM互動」之後。
   evalRecord: { type: Object, default: null },
   evalRunning: { type: Boolean, default: false },
   evalCanRun: { type: Boolean, default: false },
@@ -62,7 +69,7 @@ const props = defineProps({
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
   llmModel: { type: String, default: 'fable' },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
+const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
 const LLM_MODEL_OPTIONS = [
   { key: 'default', label: '沿用 CLI 預設' },
@@ -90,7 +97,7 @@ const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind 
 const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   { id: 'object', label: '物件' },
-  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM調整' }, { id: 'eval', label: 'LLM評價' }] : []),
+  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM互動' }, { id: 'eval', label: 'LLM評價' }] : []),
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
   ...(hasSpan.value ? [{ id: 'settings', label: '設定' }] : []),
 ])
@@ -232,7 +239,7 @@ watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activ
 // 「設定」tab 只在 Straighten/RWD 出現——切到沒有它的視圖時退回資訊。
 watch(hasSpan, (v) => { if (!v && activeTab.value === 'settings') activeTab.value = 'info' })
 
-// The skill that drove the run — fetched once when the LLM對齊 / LLM調整 tab
+// The skill that drove the run — fetched once when the LLM對齊 / LLM互動 tab
 // first opens (same source + rendering as SkillViewer: /skills/<id>.md).
 const llmSkillHtml = ref('')
 const gridSkillHtml = ref('')
@@ -258,6 +265,12 @@ const evalStreamEl = ref(null)
 watch(() => props.evalText, () => {
   requestAnimationFrame(() => {
     if (evalStreamEl.value) evalStreamEl.value.scrollTop = evalStreamEl.value.scrollHeight
+  })
+})
+const gridStreamEl = ref(null)
+watch(() => props.gridText, () => {
+  requestAnimationFrame(() => {
+    if (gridStreamEl.value) gridStreamEl.value.scrollTop = gridStreamEl.value.scrollHeight
   })
 })
 
@@ -791,38 +804,19 @@ function startResize(e) {
               版面簡化不改拓撲：用各欄／列**最忙路段的流量（weight）**決定該欄多寬、該列多高
               ——主走廊變寬、次要區壓窄，外框固定，路線在新像素座標重畫成 H/V/45°。
             </p>
-            <label class="weight-hide-toggle" style="padding: 0 2px;">
-              <input type="checkbox" :checked="showWeights" @change="emit('show-weights', $event.target.checked)" />
-              顯示 weight 數字
-            </label>
-            <div class="weight-modes">
-              <button class="weight-mode" :class="{ active: weightMode === 'uniform' }"
-                @click="emit('weight-mode', 'uniform')">均勻網格</button>
-              <button class="weight-mode" :class="{ active: weightMode === 'weight' }"
-                @click="emit('weight-mode', 'weight')">顯示 weight 比例</button>
-            </div>
-            <button class="weight-random" @click="emit('weight-random')">全部隨機（1–9）</button>
-            <button class="weight-random weight-auto" :class="{ active: weightAuto }"
-              @click="emit('weight-auto')">
-              {{ weightAuto ? '⏸ 停止自動重抽' : '▶ 每 5 秒自動重抽' }}
-            </button>
+            <!-- 版面控制（均勻／權重比例、顯示權重數字、自動隱藏白點、最小站距、隨機權重、
+                 自動重抽）已全部移到地圖上方的樣式工具列（StyleBar，只有 RWD 才出現）。
+                 本 tab 只保留說明與即時資訊。 -->
             <p class="weight-hint">
-              「全部隨機」每按一次整表重抽：每個沿路相鄰站對抽 1–9，反等比（機率 ∝ 1/2ᵏ）
-              ——數字越小越常見，少數主走廊、多數次要邊。「每 5 秒自動重抽」開啟後每 5 秒
-              整表重抽一次，network 點跟著新版面變形（自動切到 weight 模式）。
+              目前版面模式：<b>{{ weightMode === 'weight' ? '權重比例' : '均勻網格' }}</b>。
+              上方工具列可切換模式、開關「顯示權重數字／自動隱藏白點」、設定最小站距，
+              以及「隨機權重／自動重抽」。
             </p>
-            <div class="weight-hide-row">
-              <label class="weight-hide-toggle">
-                <input type="checkbox" :checked="hideStops" @change="emit('hide-stops', $event.target.checked)" />
-                自動隱藏白點
-              </label>
-              <label class="weight-hide-px">
-                最小站距
-                <input type="number" min="1" step="1" :value="minStopPx"
-                  @change="emit('min-stop-px', $event.target.value)" />
-                pt
-              </label>
-            </div>
+            <p class="weight-hint">
+              「隨機權重」每按一次整表重抽：每個沿路相鄰站對抽 1–9，反等比（機率 ∝ 1/2ᵏ）
+              ——數字越小越常見，少數主走廊、多數次要邊。「自動重抽」開啟後每 5 秒
+              整表重抽一次，network 點跟著新版面變形（自動切到權重模式）。
+            </p>
             <div v-if="stopStat" class="weight-stat">
               目前最小站距　高
               <b>{{ stopStat.high != null ? stopStat.high.toFixed(1) : '—' }}</b> pt　寬
@@ -850,14 +844,14 @@ function startResize(e) {
           </div>
         </template>
 
-        <!-- ============ LLM調整（RWD Maps）: AI 改網格長寬（skill route-llm-grid）============ -->
+        <!-- ============ LLM互動（RWD Maps）: AI 改網格長寬（skill route-llm-grid）============ -->
         <template v-else-if="activeTab === 'grid'">
           <div class="weight-panel">
             <p class="weight-hint">
               用一句話改網格大小：模型推理**每個 X 欄／Y 列區間**在畫面上該佔多大（顯示權重，
-              1=原尺寸、&gt;1 放大、&lt;1 壓縮），不搬任何站的格座標；系統把權重正規化進固定
-              外框、在新像素座標重畫 H/V/45°。與「權重」tab 的流量比例是同一種變形、
-              不同的權重來源。
+              1=原尺寸、&gt;1 放大、&lt;1 壓縮），不搬任何站的格座標。跑完先回傳要怎麼改、
+              **不自動套用**——按「執行調整」才把權重正規化進固定外框、在新像素座標重畫
+              H/V/45°，「恢復原佈局」切回。與「權重」tab 的流量比例是同一種變形、不同的權重來源。
             </p>
             <template v-if="gridCanRun">
               <textarea
@@ -878,10 +872,15 @@ function startResize(e) {
                 class="llm-run-btn"
                 :disabled="gridRunning || !gridUserPrompt.trim()"
                 @click="emit('run-grid', gridUserPrompt.trim())"
-              >{{ gridRunning ? '執行中…' : '開始 LLM 調整' }}</button>
-              <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-grid skill 推理權重並存檔——放大會明顯（核心 3–5 倍）且由核心向外漸近。</p>
+              >{{ gridRunning ? '互動中…' : (gridRecord ? '重新 LLM 互動' : '開始 LLM 互動') }}</button>
+              <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-grid skill 推理權重並存檔——跑完不自動套用，用下面的「執行調整」才會改 RWD 路網。放大會明顯（核心 3–5 倍）且由核心向外漸近。</p>
             </template>
             <p v-else class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
+            <template v-if="gridRunning">
+              <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+              <pre ref="gridStreamEl" class="llm-pre eval-stream">{{ gridText || '等待模型回應…' }}</pre>
+            </template>
+            <p v-if="gridError" class="llm-run-hint eval-err">執行失敗：{{ gridError }}</p>
 
             <template v-if="gridRecord">
               <div class="info-rows">
@@ -903,8 +902,17 @@ function startResize(e) {
                 <h4 class="llm-h">最終輸出</h4>
                 <pre class="llm-pre">{{ gridRecord.finalOutput }}</pre>
               </template>
+
+              <!-- 執行調整：跑完的區間權重存在結果檔，這顆按鈕只切換顯示
+                   （套用 intervalAxes ⇄ 恢復），不再跑 LLM，可來回比較前後 -->
+              <h4 class="llm-h">套用到 RWD 路網</h4>
+              <button
+                class="llm-run-btn"
+                @click="emit('toggle-grid-exec')"
+              >{{ gridApplied ? '恢復原佈局' : '執行調整' }}</button>
+              <p class="llm-run-hint">這顆按鈕只是切換顯示（不跑 LLM、即時）——「執行調整」用模型推理的欄寬列高重畫 RWD 路網，「恢復原佈局」切回原本的均勻/流量網格，可來回比較。</p>
             </template>
-            <p v-else class="llm-note">尚未產生結果——切到「LLM調整」視圖或直接在上面輸入一句話執行。</p>
+            <p v-else-if="!gridRunning" class="llm-note">{{ gridMsg ?? '尚未產生結果——在上面輸入一句話執行。' }}</p>
 
             <h4 class="llm-h">使用的 skill：route-llm-grid</h4>
             <details class="llm-skill">

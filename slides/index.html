@@ -23,6 +23,17 @@
       --code-bg:#060a13; --code-ink:#cbd5e1;
     }
   }
+  /* 投影片內容固定白底（使用者：投影片要用白底；但 header 不改——只限縮在 .deck，
+     header 仍用 :root、跟隨系統深淺色）。.deck 內覆寫整組亮色 token，故無論系統深色
+     與否，slide 內容都是白底＋深色字。 */
+  .deck{
+    color-scheme: light;
+    --page-bg:#ffffff; --dot:rgba(15,23,42,.06);
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#64748b; --muted2:#94a3b8;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+    background:#ffffff;
+  }
   *,*::before,*::after{box-sizing:border-box;}
   html,body{height:100%;margin:0;}
   body{
@@ -268,7 +279,7 @@
     <div class="kicker"><span class="bullet"></span> Adapt-Metro · SYSTEM INTRODUCTION</div>
     <h1 class="title">從地鐵路網到<br/>響應式八向示意圖</h1>
     <p class="subtitle">一個純前端、零求解器依賴的四階段管線 —— <strong>Metro Maps → Map Adjust → Straighten → RWD Maps</strong>。
-      223 座城市的真實路網、多準則爬山最佳化＋<strong>三步鏈循環壓縮</strong>（端點移動→直線縮減→網格合併）、嚴格 H/V/45° 折線，全部在瀏覽器裡完成，隨版面即時重排，而且<strong>每一個單一移動都能逐步重播</strong>。這份投影片逐一拆解每個階段實際在做的事。</p>
+      234 座城市的真實路網、多準則爬山最佳化＋<strong>三步鏈循環壓縮</strong>（端點移動→直線縮減→網格合併）、嚴格 H/V/45° 折線，全部在瀏覽器裡完成，隨版面即時重排，而且<strong>每一個單一移動都能逐步重播</strong>。這份投影片逐一拆解每個階段實際在做的事。</p>
     <div class="grid cols-2" style="max-width:820px;">
       <div class="card blue">
         <div class="label">INPUT</div>
@@ -370,11 +381,11 @@
   <!-- 7: dataset scale -->
   <section class="slide" data-title="資料集規模">
     <div class="eyebrow"><span class="tag"><b>05</b>資料集規模</span><span class="rule"></span><span class="eng">GLOBAL DATASET</span></div>
-    <h1 class="title">223 座城市，六大洲，一份 GeoJSON 規格</h1>
+    <h1 class="title">234 座城市，六大洲，一份 GeoJSON 規格</h1>
     <p class="subtitle">每條路線是一個路段 feature（<code class="mono">MultiLineString</code>，重疊路段只畫一條）、每個車站是一個 <code class="mono">Point</code>（帶 <code class="mono">station_name</code>／<code class="mono">station_id</code>）。</p>
     <div class="grid cols-3">
-      <div class="card blue"><div class="big">223</div><p>城市路網資料集，涵蓋六大洲的地鐵與輕軌系統。</p></div>
-      <div class="card blue"><div class="big">~54 MB</div><p>223 個 GeoJSON 檔，依洲／國／市分層存放（<code class="mono">systems/亞洲/台灣/as-twn-taipei.geojson</code>）。</p></div>
+      <div class="card blue"><div class="big">234</div><p>城市路網資料集，涵蓋六大洲的地鐵與輕軌系統。</p></div>
+      <div class="card blue"><div class="big">~54 MB</div><p>234 個 GeoJSON 檔，依洲／國／市分層存放（<code class="mono">systems/亞洲/台灣/as-twn-taipei.geojson</code>）。</p></div>
       <div class="card blue"><div class="big"><code class="mono" style="font-size:.6em;">index.json</code></div><p>總索引：id／城市／國家／洲／bbox／每城 <code class="mono">audit</code> 驗證結果，供前端 Info 面板直接顯示。</p></div>
     </div>
   </section>
@@ -434,7 +445,7 @@
     <p class="subtitle">GeoJSON 之外，<code class="mono">data/metro/</code> 還有一整層「衍生與治理」檔案——縮圖預先算好讓三個畫廊秒開，人工裁決落地成檔讓重抓可重現。</p>
     <table class="tbl">
       <tr><th>檔案</th><th>內容與格式</th></tr>
-      <tr><td><code class="mono">index.json</code></td><td>系統總索引：223 城清單（檔名／洲國城／線站數／營運商）＋全球統計＋ <code class="mono">wikipedia_cities_without_match</code> 覆蓋率報告</td></tr>
+      <tr><td><code class="mono">index.json</code></td><td>系統總索引：234 城清單（檔名／洲國城／線站數／營運商）＋全球統計＋ <code class="mono">wikipedia_cities_without_match</code> 覆蓋率報告</td></tr>
       <tr><td><code class="mono">views/ · hcviews/ · rwdviews/</code></td><td>三個畫廊的<strong>預算縮圖</strong>（每城一 JSON）：SVG path 字串 <code class="mono">lines[].d</code>＋節點 <code class="mono">dots[]</code>＋襯底 <code class="mono">hl[]</code>＋格線 <code class="mono">grid</code>，各 8 視圖；<code class="mono">_fp</code>＝<code class="mono">版本:內容雜湊</code> 增量指紋——資料沒變就沿用、變了只重算該城</td></tr>
       <tr><td><code class="mono">llmviews/ · llmgrids/</code></td><td>LLM 對齊／LLM 調整的離線結果（模型名、輪數、prompt、cellAfter 或 colW/rowW）＋ <code class="mono">fingerprint</code>——與當前資料不符即拒載，提示重新產生</td></tr>
       <tr><td><code class="mono">maps/** ＋ maps_index.json</code></td><td>各系統<strong>官方路網圖</strong>圖片（Wikidata P15 → Commons），出處與 CC 授權逐張記錄，再散布需依此署名</td></tr>
@@ -695,12 +706,12 @@
   <!-- 25: convergence stats -->
   <section class="slide" data-title="收斂統計">
     <div class="eyebrow"><span class="tag"><b>24</b>收斂結果與實測統計</span><span class="rule"></span><span class="eng">CONVERGENCE STATS</span></div>
-    <h1 class="title">223 城實測，全數收斂</h1>
+    <h1 class="title">234 城實測，全數收斂</h1>
     <p class="subtitle">H/V 後處理四條鏈各自迭代到不動點（上限 20 次）；三步鏈循環＝一遍掃描輪替到全靜止（上限 200 輪，實測普遍 2–5 輪）。全部確定性、無亂數。</p>
     <table class="tbl">
       <tr><th>項目</th><th>結果</th><th class="num">備註</th></tr>
       <tr><td>H/V 後處理（迭代到不動點）</td><td>ILP +47.8%／直角爬山 +42.9%／軸對齊 +28.5%</td><td class="num">最大迭代 12 次</td></tr>
-      <tr><td>三步鏈循環（223 城全量）</td><td><strong>223/223 全數收斂</strong>，總計約 5 秒</td><td class="num">普遍 2–5 輪</td></tr>
+      <tr><td>三步鏈循環（234 城全量）</td><td><strong>234/234 全數收斂</strong>，總計約 5 秒</td><td class="num">普遍 2–5 輪</td></tr>
       <tr><td>壓縮幅度（例）</td><td>台北 67×67 → 約 14×14；NYC 215×215 → 約 76×74</td><td class="num">拓撲逐段驗證不變</td></tr>
     </table>
     <p class="subtitle" style="margin-top:14px;">每一步的合法性都由同一套整數格精確幾何硬規則把關；「顏色點間最大跨距」可在樣式面板調整（預設 3 格），按「重新計算」即以新上限全部重算。</p>
@@ -724,7 +735,7 @@
       <div class="card amber"><div class="label">(A) 同端點</div><h3>共用兩個 cut 端點</h3><p>快車直達＋普通車等共端點路線，站數最多的當代表、其餘 routes 併入，其 seg 丟棄。</p></div>
       <div class="card amber"><div class="label">(B) 幾何重疊</div><h3>快車跨過中間轉乘節點</h3><p>快車邊整條 edge.geom 都貼在另一組邊的軌道上（偏差 &lt;10m），即使跳過中間 junction，仍併入這條鏈。</p></div>
     </div>
-    <p class="subtitle" style="margin-top:14px;"><strong>涵蓋性防呆（絕不可省）：</strong>只有當被併掉的邊每一站都已在保留路徑上才併——否則被丟掉的獨有站會孤立。一條獨立線（如 Sydney Metro）可以和市郊鐵路共軌但有自己的車站，這種一律不併。實測全 223 城 <strong>0 孤立站</strong>。</p>
+    <p class="subtitle" style="margin-top:14px;"><strong>涵蓋性防呆（絕不可省）：</strong>只有當被併掉的邊每一站都已在保留路徑上才併——否則被丟掉的獨有站會孤立。一條獨立線（如 Sydney Metro）可以和市郊鐵路共軌但有自己的車站，這種一律不併。實測全 234 城 <strong>0 孤立站</strong>。</p>
   </section>
 
   <!-- 25: candidate polylines -->
@@ -753,7 +764,7 @@
       <div class="row"><span class="num-badge">4</span><div class="rowtext"><h4>Restart-with-priority</h4><p>仍失敗的段下一輪全圖重排時最先繞線（牆還沒築起來），原牆線改繞它們；至多 6 輪。</p></div></div>
       <div class="row"><span class="num-badge">5</span><div class="rowtext"><h4>窄縫救援</h4><p>最後仍無路的段以 60% 貼線距離再 A* 一次，交叉依然絕禁。</p></div></div>
     </div>
-    <p class="subtitle" style="margin-top:12px;"><strong>實測：</strong>台北／倫敦／北京 0 殘留衝突；全 223 城 0 孤立站、0 非法角度兜底；紐約曼哈頓密網 5/451 段列為已知極限。</p>
+    <p class="subtitle" style="margin-top:12px;"><strong>實測：</strong>台北／倫敦／北京 0 殘留衝突；全 234 城 0 孤立站、0 非法角度兜底；紐約曼哈頓密網 5/451 段列為已知極限。</p>
   </section>
 
   <!-- 27: soft goals -->
@@ -792,11 +803,61 @@
   </section>
 
   <!-- 30: system at a glance -->
+  <!-- DIVIDER V: PARALLEL PIPELINES -->
+  <section class="slide divider" data-title="並列資料管線">
+    <div class="roman">V</div>
+    <div class="stagechip"><span class="sw" style="background:var(--green);"></span>PARALLEL PIPELINES · 並列資料管線</div>
+    <h1 class="title">同一套演算法，<br/>三種路網</h1>
+    <p class="subtitle">前面四階段管線吃的是「路網」——不限地鐵。Adapt-Metro 有三條 <strong>schema 完全相同、下游共用</strong>的資料管線：Metro（地鐵/輕軌）、Railway（國家鐵路，含高鐵/新幹線）、Highway（高速公路）。railway 與 highway 是 metro 的「軌道／道路對應版」，概念一一對應，所以骨架化→爬山→畫線那一整套完全不用改就能吃三種資料。另有一個獨立的地標圖層。</p>
+    <div class="pillrow">
+      <span class="pill">一一對應的設計</span><span class="pill">Railway · JR 六社</span><span class="pill">Highway · 交流道</span><span class="pill">Landmark · 河流/面域</span>
+    </div>
+  </section>
+
+  <!-- parallel: correspondence -->
+  <section class="slide" data-title="三管線一一對應">
+    <div class="eyebrow"><span class="tag"><b>31</b>三管線一一對應</span><span class="rule"></span><span class="eng">ONE-TO-ONE CORRESPONDENCE</span></div>
+    <h1 class="title">系統單位不同，schema 相同</h1>
+    <p class="subtitle">三條管線輸出同一份 GeoJSON 規格（<code class="mono">seg_id</code>／<code class="mono">routes[]</code>／<code class="mono">stations[]</code>／<code class="mono">lines</code>…），系統中繼放各自的 <code class="mono">*_system</code> 並鏡射一份 <code class="mono">metro_system{kind}</code>，讓前端一律當 metro 圖層渲染。每條管線都有成對的取得／驗證 skill，互為 fetch⇄audit 迴圈。</p>
+    <table class="tbl">
+      <tr><th></th><th>Metro（地鐵/輕軌）</th><th>Railway（國家鐵路）</th><th>Highway（高速公路）</th></tr>
+      <tr><td>系統單位</td><td>一城市（一城一檔）</td><td>一國家（拆高鐵/一般兩檔）</td><td>一都會區（一都會區一檔）</td></tr>
+      <tr><td>OSM 判準</td><td><code class="mono">route=subway/light_rail</code></td><td><code class="mono">railway=rail</code> <code class="mono">usage=main|branch</code></td><td><code class="mono">highway=motorway</code>＋封閉式</td></tr>
+      <tr><td>「站」＝</td><td>地鐵站節點</td><td>車站吸附到軌道圖</td><td>交流道 <code class="mono">motorway_junction</code></td></tr>
+      <tr><td>取得 / 驗證 skill</td><td>metro-osm-fetch / metro-audit</td><td>railway-osm-fetch / railway-audit</td><td>highway-osm-fetch / highway-audit</td></tr>
+      <tr><td>資料規模</td><td class="num">234 城 / 1,744 線 / 16,970 站</td><td class="num">12 國 / 368 線 / 6,779 站</td><td class="num">3 都會區 / 261 交流道</td></tr>
+    </table>
+  </section>
+
+  <!-- parallel: railway -->
+  <section class="slide" data-title="Railway 國家鐵路">
+    <div class="eyebrow"><span class="tag"><b>32</b>Railway · 國家鐵路</span><span class="rule"></span><span class="eng">NATIONAL RAILWAYS</span></div>
+    <h1 class="title">一國拆高鐵/一般，日本再拆 JR 六社</h1>
+    <p class="subtitle">收 <code class="mono">railway=rail</code> 幹線＋高鐵（新幹線／TGV／高鐵／KTX），不含地鐵/輕軌/路面電車；私鐵預設收、用 <code class="mono">_overrides</code> 兩層過濾逐國排除。</p>
+    <div class="grid cols-3">
+      <div class="card green"><div class="label">一國拆兩檔</div><p>高鐵 <code class="mono">-hsr</code>／一般國鐵 <code class="mono">-rail</code> 各成圖層，上色依鐵路類別（高鐵 vs 一般）非每線一色。高鐵由 OSM <code class="mono">route=railway</code> 關聯的有序停站建以保證串接。</p></div>
+      <div class="card green"><div class="label">日本拆 JR 六社</div><p>一般國鐵拆成 JR 東日本/西日本/東海/北海道/四國/九州各自成系統；<strong>新幹線維持單一檔</strong>（顯示「日本 新幹線」不是「高鐵」）。跨社幹線依成員 way 佔比讓每社各拿自己的區間。</p></div>
+      <div class="card green"><div class="label">逐線串接（核心）</div><p>一條線的 way 在 18m grid 常裂成很多元件（山陰本線 1784 way→22 元件）；<strong>逐元件取 diameter 再依最近端點串接成一條完整主線</strong>（<code class="mono">CHAIN_GAP</code> 擋遠碎片假長線），山陰本線 61→158 站、對 wiki。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;"><strong>railway-audit：</strong>結構不變式＋逐線對照當地語 Wikipedia infobox 站數（railway 因線名即條目標題、一線拆多社時跨社聚合比全線，嚴格相等）。我們＞wiki＝誤併多抓、我們＜wiki＝OSM 關聯不全。</p>
+  </section>
+
+  <!-- parallel: highway + landmark -->
+  <section class="slide" data-title="Highway 與 Landmark">
+    <div class="eyebrow"><span class="tag"><b>33</b>Highway ＋ Landmark</span><span class="rule"></span><span class="eng">HIGHWAYS &amp; LANDMARKS</span></div>
+    <h1 class="title">交流道＝站；河流＝骨架線</h1>
+    <div class="grid cols-2">
+      <div class="card amber"><div class="label">HIGHWAY · 高速公路</div><h3>封閉式道路網，交流道當車站</h3><p>收國道 motorway ＋封閉式快速公路，交流道 <code class="mono">motorway_junction</code> 串成網絡、依 ref 分組。驗證看交流道命名率／里程單調／無假長線／只收封閉式。目前台灣三都會區：台北 126／台中 83／高雄 52 交流道。國家專屬判準與路標配色見 <code class="mono">highway-cities</code>。</p></div>
+      <div class="card green"><div class="label">LANDMARK · 地標圖層</div><h3>與路線/車站完全分離的獨立圖層</h3><p><code class="mono">data/metro/landmarks</code>：<strong>河流＝骨架線</strong>（取 graph diameter 主線，不抓面域）、<strong>皇居／中央公園＝面域</strong>。給示意圖當地理錨點與留白參照，不參與路網拓撲。skill <code class="mono">landmark-osm-fetch</code>。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:16px;">三條管線＋地標，全部落在同一份 <code class="mono">index.json</code>／渲染器／示意圖管線之下——這就是「一一對應」設計最大的回報：<strong>寫一次演算法，三種路網共用。</strong></p>
+  </section>
+
   <section class="slide" data-title="系統總覽">
-    <div class="eyebrow"><span class="tag"><b>31</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
+    <div class="eyebrow"><span class="tag"><b>34</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
     <h1 class="title">一個瀏覽器，跑完整條產線</h1>
     <div class="grid cols-4">
-      <div class="card blue"><div class="big">223</div><p>城市路網資料集</p></div>
+      <div class="card blue"><div class="big">234</div><p>城市路網資料集</p></div>
       <div class="card purple"><div class="big">4</div><p>圖層群組階段</p></div>
       <div class="card rose"><div class="big">100%</div><p>前端純函式求解</p></div>
       <div class="card amber"><div class="big">RWD</div><p>響應式交付（桌機/平板/手機）</p></div>
