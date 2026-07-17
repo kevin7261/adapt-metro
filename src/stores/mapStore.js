@@ -37,6 +37,12 @@ function legacyMetroId(name) {
 
 function migrateLayerNames(layers) {
   const byId = new Map(layers.map((l) => [l.id, l]))
+  // 2026-07: the Railways / Highways groups were folded into Raw Maps (one
+  // group, one import modal with 3 big tabs) — remap layers persisted under
+  // the retired group ids.
+  for (const l of layers) {
+    if (l.groupId === 'railway-maps' || l.groupId === 'highway-maps') l.groupId = 'metro-maps'
+  }
   // Backfill Chinese city/country on metro layers imported before this field.
   for (const l of layers) {
     if (l.type === 'metro' && CITY_ZH[l.id]) {
@@ -94,16 +100,16 @@ export const useMapStore = defineStore('map', {
       selectedFeatures: {},
 
       // Flat list — every layer opens as its own editor tab.
-      // Populated by importing metro systems (Import Metro Map).
+      // Populated by the Raw Maps import modal (metro / railway / highway).
       layers: migrateLayerNames(p?.layers ?? []),
 
       // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
-      // kind of layer: imported metro maps, D3.js views over a metro layer, and
-      // hill-climbing optimizations over a Map Adjust view's gridded layout.
+      // kind of layer: imported raw maps (metro / railway / highway all live in
+      // Raw Maps — the id stays 'metro-maps' so persisted sessions keep working),
+      // D3.js views over a metro layer, and hill-climbing optimizations over a
+      // Map Adjust view's gridded layout.
       groups: [
-        { id: 'metro-maps', label: 'Metro Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
-        { id: 'railway-maps', label: 'Railways', collapsed: p?.groupCollapsed?.['railway-maps'] ?? false },
-        { id: 'highway-maps', label: 'Highways', collapsed: p?.groupCollapsed?.['highway-maps'] ?? false },
+        { id: 'metro-maps', label: 'Raw Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
         { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
         { id: 'hillclimb', label: 'Straighten', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
         { id: 'rwd', label: 'RWD Maps', collapsed: p?.groupCollapsed?.['rwd'] ?? false },
@@ -197,7 +203,7 @@ export const useMapStore = defineStore('map', {
         id: `hw-${slug}`,
         name: sys.cityZh ?? sys.city ?? sys.country ?? slug,
         highway: true,
-        groupId: 'highway-maps',
+        groupId: 'metro-maps',
         file: assetUrl(`data/highway/${sys.file}`),
         city: sys.city ?? sys.country,
         countryZh: sys.countryZh ?? sys.country,
@@ -215,7 +221,7 @@ export const useMapStore = defineStore('map', {
         id: `rw-${slug}`,
         name: sys.countryZh ?? sys.country ?? slug,
         railway: true,
-        groupId: 'railway-maps',
+        groupId: 'metro-maps',
         file: assetUrl(`data/railway/${sys.file}`),
         city: sys.city ?? sys.country,
         countryZh: sys.countryZh ?? sys.country,

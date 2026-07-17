@@ -13,20 +13,17 @@ const store = useMapStore()
 
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
-// Skills exposed per layer type, surfaced in each GROUP header (left of the
-// delete icon): Metro Maps gets the data-pipeline skills + the cities index,
-// Map Adjust the skeleton + gridding skills, Hill Climbing / RWD their own.
-const LAYER_SKILLS = {
-  metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
-  highway: ['highway-osm-fetch', 'highway-audit', 'highway-cities'],
-  railway: ['railway-osm-fetch'],
+// Skills surfaced in each GROUP header (left of the delete icon): Raw Maps
+// holds metro / railway / highway layers so it gets all three pipelines'
+// skills + the cities index; Map Adjust the skeleton + gridding skills,
+// Hill Climbing / RWD their own.
+const GROUP_SKILLS = {
+  'metro-maps': ['metro-osm-fetch', 'metro-audit', 'metro-cities',
+    'railway-osm-fetch', 'highway-osm-fetch', 'highway-audit', 'highway-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
   rwd: ['route-rwd-draw', 'route-hillclimb'],
 }
-// Each layer group maps to one layer type → the skills shown in its header.
-// (Metro appends every metro-city-* rule, so no per-city table is needed.)
-const GROUP_TYPE = { 'metro-maps': 'metro', 'railway-maps': 'railway', 'highway-maps': 'highway', d3: 'd3', hillclimb: 'hillclimb', rwd: 'rwd' }
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
 onMounted(async () => {
@@ -36,12 +33,11 @@ onMounted(async () => {
   } catch { /* labels fall back to the id */ }
   document.addEventListener('mousedown', onSkillDocClick)
 })
-// Skills for a group's header menu: the type's general skills, plus (metro)
-// every city rule sorted after them.
+// Skills for a group's header menu: the group's general skills, plus (Raw
+// Maps) every city rule sorted after them.
 function groupSkills(groupId) {
-  const type = GROUP_TYPE[groupId]
-  const ids = [...(LAYER_SKILLS[type] ?? [])]
-  if (type === 'metro') {
+  const ids = [...(GROUP_SKILLS[groupId] ?? [])]
+  if (groupId === 'metro-maps') {
     for (const id of Object.keys(skillIndex.value).sort())
       if (id.startsWith('metro-city-') && !ids.includes(id)) ids.push(id)
   }
@@ -206,7 +202,7 @@ onBeforeUnmount(() => {
             <MIcon :name="item.group.collapsed ? 'chevron_right' : 'expand_more'" :size="14" class="group-chevron" />
             <MIcon :name="item.group.collapsed ? 'folder' : 'folder_open'" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
-            <div v-if="GROUP_TYPE[item.group.id]" class="skill-wrap">
+            <div v-if="GROUP_SKILLS[item.group.id]" class="skill-wrap">
               <button
                 class="btn-icon group-add"
                 :class="{ active: skillMenuFor === item.group.id }"
@@ -255,24 +251,8 @@ onBeforeUnmount(() => {
             <button
               v-if="item.group.id === 'metro-maps'"
               class="btn-icon group-add"
-              title="Import metro map"
+              title="Import map（Metro Maps / Railways / Highways）"
               @click.stop="store.ui.dialog = 'import-quick'"
-            >
-              <MIcon name="add" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'railway-maps'"
-              class="btn-icon group-add"
-              title="Import national railway（國家鐵路網 · 含高鐵）"
-              @click.stop="store.ui.dialog = 'import-railway-quick'"
-            >
-              <MIcon name="add" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'highway-maps'"
-              class="btn-icon group-add"
-              title="Import highway network（高速公路交流道網）"
-              @click.stop="store.ui.dialog = 'import-highway-quick'"
             >
               <MIcon name="add" :size="14" />
             </button>
@@ -332,9 +312,7 @@ onBeforeUnmount(() => {
               {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖'
                 : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
                 : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「循環結果」建立 RWD Maps 視圖'
-                : item.group.id === 'highway-maps' ? '按 + 匯入高速公路交流道網'
-                : item.group.id === 'railway-maps' ? '按 + 匯入國家鐵路網（含高鐵）'
-                : '用 Import 匯入 metro map' }}
+                : '按 + 匯入 metro / railway / highway 地圖' }}
             </div>
             <div
               v-for="layer in item.children"

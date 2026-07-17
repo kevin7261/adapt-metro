@@ -230,6 +230,16 @@ function importRailway(sys) {
   store.toast(`已匯入 ${rwZh(sys)} 國家鐵路網（${sys.line_count} 線 / ${sys.station_count} 站）`)
 }
 
+/* 三個匯入來源併成一個 Raw Maps modal：上層三個大 tab（Metro Maps / Railways /
+   Highways），每個大 tab 下保留原本的子 tab（dialog id 仍＝作用中的子 tab）。 */
+const IMPORT_GROUPS = [
+  { id: 'metro', label: 'Metro Maps', dialogs: IMPORT_DIALOGS, tabs: importTabs },
+  { id: 'railway', label: 'Railways', dialogs: RAILWAY_DIALOGS, tabs: railwayTabs },
+  { id: 'highway', label: 'Highways', dialogs: HIGHWAY_DIALOGS, tabs: highwayTabs },
+]
+const ALL_IMPORT_DIALOGS = IMPORT_GROUPS.flatMap((g) => g.dialogs)
+const activeImportGroup = computed(() => IMPORT_GROUPS.find((g) => g.dialogs.includes(dialog.value)))
+
 /* Add D3.js view — pick one of the loaded metro map layers as its source */
 const metroLayerChoices = computed(() => store.layers.filter((l) => l.type === 'metro'))
 function addD3View(src) {
@@ -399,15 +409,27 @@ const shortcuts = [
 
 <template>
   <div v-if="dialog" class="dialog-overlay" @mousedown.self="close">
-    <!-- Import Metro Map: one modal, three tabs (Quick / Sort / Global) -->
-    <div v-if="IMPORT_DIALOGS.includes(dialog)" class="dialog import-modal">
+    <!-- Raw Maps import: ONE modal — 3 big tabs (Metro Maps / Railways / Highways),
+         each keeping its own sub-tabs (dialog id = the active sub-tab) -->
+    <div v-if="ALL_IMPORT_DIALOGS.includes(dialog)" class="dialog import-modal">
       <div class="dialog-header">
-        <h2 class="dialog-title">匯入地鐵地圖</h2>
+        <h2 class="dialog-title">匯入地圖</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
+      </div>
+      <div class="dialog-tabs main-tabs" role="tablist">
+        <button
+          v-for="g in IMPORT_GROUPS"
+          :key="g.id"
+          class="dialog-tab main-tab"
+          :class="{ active: g.dialogs.includes(dialog) }"
+          role="tab"
+          :aria-selected="g.dialogs.includes(dialog)"
+          @click="store.ui.dialog = g.dialogs[0]"
+        >{{ g.label }}</button>
       </div>
       <div class="dialog-tabs" role="tablist">
         <button
-          v-for="t in importTabs"
+          v-for="t in activeImportGroup.tabs"
           :key="t.id"
           class="dialog-tab"
           :class="{ active: dialog === t.id }"
@@ -417,7 +439,7 @@ const shortcuts = [
         >{{ t.label }}</button>
       </div>
 
-      <div class="dialog-body" :class="{ 'stations-body': dialog === 'import-stations' || dialog === 'import-quick' }">
+      <div v-if="IMPORT_DIALOGS.includes(dialog)" class="dialog-body" :class="{ 'stations-body': dialog === 'import-stations' || dialog === 'import-quick' }">
         <div v-if="catalogError" class="import-status error">載入城市清單失敗：{{ catalogError }}</div>
         <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
 
@@ -527,27 +549,9 @@ const shortcuts = [
         <button class="btn-outline" @click="close">取消</button>
         <button class="btn-primary" :disabled="!selectedSystem" @click="importSystem(selectedSystem)">確定</button>
       </div>
-    </div>
 
-    <!-- Import Highway Network: one tabbed modal, 3 tabs like the metro import -->
-    <div v-else-if="HIGHWAY_DIALOGS.includes(dialog)" class="dialog import-modal">
-      <div class="dialog-header">
-        <h2 class="dialog-title">匯入高速公路網</h2>
-        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
-      </div>
-      <div class="dialog-tabs" role="tablist">
-        <button
-          v-for="t in highwayTabs"
-          :key="t.id"
-          class="dialog-tab"
-          :class="{ active: dialog === t.id }"
-          role="tab"
-          :aria-selected="dialog === t.id"
-          @click="store.ui.dialog = t.id"
-        >{{ t.label }}</button>
-      </div>
-
-      <div class="dialog-body" :class="{ 'stations-body': dialog === 'import-highway-stations' || dialog === 'import-highway-quick' }">
+      <!-- Highways big tab -->
+      <div v-if="HIGHWAY_DIALOGS.includes(dialog)" class="dialog-body" :class="{ 'stations-body': dialog === 'import-highway-stations' || dialog === 'import-highway-quick' }">
         <div v-if="highwayError" class="import-status error">載入高速公路清單失敗：{{ highwayError }}</div>
         <div v-else-if="!highwayCatalog" class="import-status">載入高速公路系統清單…</div>
         <div v-else-if="!highwayCatalog.length" class="import-status">
@@ -645,27 +649,9 @@ const shortcuts = [
           </template>
         </template>
       </div>
-    </div>
 
-    <!-- Import National Railway: one tabbed modal, 3 tabs (one file per country) -->
-    <div v-else-if="RAILWAY_DIALOGS.includes(dialog)" class="dialog import-modal">
-      <div class="dialog-header">
-        <h2 class="dialog-title">匯入國家鐵路網</h2>
-        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
-      </div>
-      <div class="dialog-tabs" role="tablist">
-        <button
-          v-for="t in railwayTabs"
-          :key="t.id"
-          class="dialog-tab"
-          :class="{ active: dialog === t.id }"
-          role="tab"
-          :aria-selected="dialog === t.id"
-          @click="store.ui.dialog = t.id"
-        >{{ t.label }}</button>
-      </div>
-
-      <div class="dialog-body" :class="{ 'stations-body': dialog === 'import-railway-stations' || dialog === 'import-railway-quick' }">
+      <!-- Railways big tab -->
+      <div v-if="RAILWAY_DIALOGS.includes(dialog)" class="dialog-body" :class="{ 'stations-body': dialog === 'import-railway-stations' || dialog === 'import-railway-quick' }">
         <div v-if="railwayError" class="import-status error">載入鐵路清單失敗：{{ railwayError }}</div>
         <div v-else-if="!railwayCatalog" class="import-status">載入國家鐵路系統清單…</div>
         <div v-else-if="!railwayCatalog.length" class="import-status">
@@ -760,7 +746,7 @@ const shortcuts = [
       </div>
       <div class="dialog-body">
         <div v-if="!metroLayerChoices.length" class="import-status">
-          Metro Maps group 還沒有圖層 — 先用 + 匯入一個 metro map，或直接匯入 GeoJSON 檔案
+          Raw Maps group 還沒有 metro 圖層 — 先用 + 匯入一個 metro map，或直接匯入 GeoJSON 檔案
         </div>
         <template v-else>
           <p class="add-d3-hint">選擇一個 metro map 圖層作為 D3.js 視圖的資料來源（建立後不可更改）：</p>
@@ -1019,6 +1005,9 @@ const shortcuts = [
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
+/* 上層三個大 tab（Metro Maps / Railways / Highways）：字級加大並襯底，與子 tab 區隔 */
+.main-tabs { background: hsl(var(--muted) / 0.35); }
+.main-tab { font-size: 14px; font-weight: 600; padding: 10px 16px; }
 .add-d3 { width: min(820px, calc(100vw - 32px)); }
 /* Add Straighten：同一城市一排，原始/旋轉兩個變體並排 */
 .hc-city-list {
