@@ -20,6 +20,7 @@ import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
+import StyleBar from './StyleBar.vue'
 import AttributeTable from './AttributeTable.vue'
 import MIcon from './MIcon.vue'
 
@@ -1579,6 +1580,14 @@ onBeforeUnmount(() => {
   <div class="ma-tab">
     <div class="tab-body">
       <div class="map-col">
+        <!-- 樣式工具列（地圖上方）：取代原右側面板的「樣式」tab -->
+        <StyleBar
+          v-if="panelLayer"
+          :layer="panelLayer"
+          :view-kind="isRWD ? 'rwd' : isHC ? 'hillclimb' : 'map-adjust'"
+          :span-applied="appliedSpanCap"
+          @recalc-span="recalcSpan"
+        />
         <div class="map-main">
           <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
             <div

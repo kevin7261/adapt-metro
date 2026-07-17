@@ -39,7 +39,9 @@
     "highway:all": "node scripts/fetchHighways.mjs as-twn && node scripts/buildHighwayGeojson.mjs as-twn && node scripts/verifyHighways.mjs twn",
     "railway:fetch": "node scripts/fetchRailways.mjs",
     "railway:build": "node scripts/buildRailwayGeojson.mjs",
-    "railway:all": "node scripts/fetchRailways.mjs && node scripts/buildRailwayGeojson.mjs"
+    "railway:all": "node scripts/fetchRailways.mjs && node scripts/buildRailwayGeojson.mjs && node scripts/wikiRailwayLines.mjs && node scripts/verifyRailways.mjs",
+    "railway:verify": "node scripts/verifyRailways.mjs",
+    "railway:wikilines": "node scripts/wikiRailwayLines.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

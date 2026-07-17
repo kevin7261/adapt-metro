@@ -1,6 +1,6 @@
 ---
 name: railway-osm-fetch
-description: 抓取/重抓全世界國家鐵路（railway=rail 幹線＋高鐵，不含地鐵/輕軌/路面電車；私鐵預設收、可用 _overrides 排除）的路線與車站，產出 data/railway 下的 GeoJSON。當使用者要求抓取、更新、重抓國家鐵路/national railway/幹線鐵路/高鐵/HSR/新幹線/TGV/台鐵/JR 資料，或修改 data/railway 的資料管線時使用。這是 metro（[[metro-osm-fetch]]）與 highway（[[highway-osm-fetch]]）的「國家鐵路對應版」，schema 相同、下游共用；一國拆兩檔（高鐵 -hsr／一般國鐵 -rail，高鐵由 OSM route=railway 關聯的有序停站建以保證串接）；日本的一般國鐵再拆 JR 六社（東日本/西日本/東海/北海道/四國/九州 各自成系統，不全部一起），新幹線仍維持單一檔。
+description: 抓取/重抓全世界國家鐵路（railway=rail 幹線＋高鐵，不含地鐵/輕軌/路面電車；私鐵預設收、可用 _overrides 排除）的路線與車站，產出 data/railway 下的 GeoJSON。當使用者要求抓取、更新、重抓國家鐵路/national railway/幹線鐵路/高鐵/HSR/新幹線/TGV/台鐵/JR 資料，或修改 data/railway 的資料管線時使用。這是 metro（[[metro-osm-fetch]]）與 highway（[[highway-osm-fetch]]）的「國家鐵路對應版」，schema 相同、下游共用；一國拆兩檔（高鐵 -hsr／一般國鐵 -rail，高鐵由 OSM route=railway 關聯的有序停站建以保證串接）；日本的一般國鐵再拆 JR 六社（東日本/西日本/東海/北海道/四國/九州 各自成系統，不全部一起），新幹線仍維持單一檔。正確性驗證（結構不變式＋逐線對照 wiki 站數）由 [[railway-audit]] 負責，兩者互為 fetch⇄audit 迴圈。
 ---
 
 # 全球國家鐵路資料取得規則 (railway-osm-fetch)

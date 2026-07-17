@@ -726,8 +726,11 @@ function buildSystem(raw, override) {
   // walk-built 一般國鐵), NOT by clsOfLine(line name) — so a conventional line that
   // carries some highspeed track (Korea Honam Line) stays wholly 一般國鐵.
   const edgeClass = (rec) => (rec.hs ? 'high_speed' : 'conventional')
+  // 日本高鐵＝新幹線（使用者：日本是新幹線不是高鐵），其餘國家用「高鐵」。class_en 同理。
+  const hsrZh = isJP(country) ? '新幹線' : '高鐵'
+  const hsrEn = isJP(country) ? 'Shinkansen' : 'High-speed'
   const CLASSES = [
-    { suffix: 'hsr', cls: 'high_speed', zh: '高鐵', en: 'High-speed' },
+    { suffix: 'hsr', cls: 'high_speed', zh: hsrZh, en: hsrEn },
     { suffix: 'rail', cls: 'conventional', zh: '一般國鐵', en: 'Conventional' },
   ]
   const out = []

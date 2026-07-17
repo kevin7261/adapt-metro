@@ -26,7 +26,7 @@ const commands = [
   { group: 'Processing', title: 'SQL Workspace', icon: 'terminal', run: () => store.fake('SQL Workspace') },
   { group: 'Processing', title: 'Assistant (AI)', icon: 'auto_awesome', run: () => store.fake('Assistant') },
   { group: 'Processing', title: 'Dashboard', icon: 'dashboard', run: () => store.fake('Dashboard') },
-  { group: 'Panels', title: 'Toggle Attribute Table', icon: 'table', run: () => store.toggleAttributeTable(store.selectedLayerId) },
+  { group: 'Panels', title: 'Toggle 物件列表', icon: 'table', run: () => store.toggleAttributeTable(store.selectedLayerId) },
   { group: 'Settings', title: 'Open Settings', icon: 'settings', run: () => (store.ui.dialog = 'settings') },
   { group: 'Help', title: 'Keyboard Shortcuts', icon: 'keyboard', shortcut: '?', run: () => (store.ui.dialog = 'shortcuts') },
   { group: 'Help', title: 'About', icon: 'info', run: () => (store.ui.dialog = 'about') },

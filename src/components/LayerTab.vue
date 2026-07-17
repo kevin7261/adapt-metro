@@ -10,6 +10,7 @@ import {
 } from '../stores/basemaps'
 import { stationPopupHtml, linePopupHtml, landmarkPopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
+import StyleBar from './StyleBar.vue'
 import StatusBar from './StatusBar.vue'
 import AttributeTable from './AttributeTable.vue'
 import MIcon from './MIcon.vue'
@@ -610,6 +611,8 @@ onBeforeUnmount(() => {
   <div class="layer-tab">
     <div class="tab-body">
       <div class="map-col">
+      <!-- 樣式工具列（地圖上方）：取代原右側面板的「樣式」tab -->
+      <StyleBar v-if="layer" :layer="layer" view-kind="metro" />
       <div class="tab-map">
         <div ref="container" class="map-container" />
 

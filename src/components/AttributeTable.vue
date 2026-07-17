@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData } from '../stores/layerData'
@@ -17,46 +17,181 @@ const props = defineProps({
 const activeLayer = computed(() => props.layer ?? store.selectedLayer)
 const toggleId = computed(() => props.ownerId ?? activeLayer.value?.id)
 
-const columns = ['station_name', 'station_name_local', 'network', 'lines', 'city']
-const filter = ref('')
-const sortBy = ref('station_name')
-const sortDir = ref(1)
-const selectedRow = ref(null)
+// 中文欄位標題（整個面板走中文；缺的欄用原鍵）。
+const COL_LABEL = {
+  station_name: '站名', station_name_local: '當地名', network: '系統',
+  lines: '路線', city: '城市',
+  route_ref: '代號', route_name: '路線名', route_name_en: '英文名', stations: '站數',
+  name: '名稱', name_en: '英文名', kind: '類別', size: '規模',
+}
+const label = (col) => COL_LABEL[col] ?? col
 
-// Stations of this tab's metro layer (loaded lazily by its LayerTab).
-const stations = computed(() => {
+const LANDMARK_KIND_ZH = {
+  'river-centerline': '河流', river: '河流', palace: '宮殿／皇居', park: '公園',
+}
+
+const data = computed(() => {
   const layer = activeLayer.value
-  const data = layer && layerData[layer.id]
-  if (!data) return []
-  return data.features.filter((f) => f.geometry.type === 'Point')
+  return (layer && layerData[layer.id]) || null
 })
 
+/* ---- 三類物件 rows（各自從同一份 layer geojson 抽出）---- */
+
+// 車站：Point features（排除地標）。
+const stationRows = computed(() => {
+  const d = data.value
+  if (!d) return []
+  return d.features
+    .filter((f) => f.geometry.type === 'Point' && !f.properties?.landmark_id)
+    .map((f) => ({
+      ...f.properties,
+      lines: Array.isArray(f.properties.lines)
+        ? f.properties.lines.join(', ')
+        : f.properties.lines,
+      _key: f.properties.station_id,
+      _coords: f.geometry.coordinates,
+    }))
+})
+
+// 路線：MultiLineString features 內的 routes，依 route_id（或代號+名稱）去重；
+// 每條路線累計唯一停靠站數與涵蓋範圍供縮放。
+const lineRows = computed(() => {
+  const d = data.value
+  if (!d) return []
+  const byRoute = new Map()
+  for (const f of d.features) {
+    if (f.geometry.type !== 'MultiLineString' || f.properties?.landmark_id) continue
+    for (const r of f.properties.routes ?? []) {
+      const key = r.route_id ?? `${r.route_ref ?? ''}|${r.route_name ?? ''}`
+      let e = byRoute.get(key)
+      if (!e) {
+        e = {
+          route_ref: r.route_ref,
+          route_name: r.route_name,
+          route_name_en: r.route_name_en,
+          network: r.network,
+          route_color: r.route_color,
+          _key: key,
+          _stationIds: new Set(),
+          _bounds: null,
+        }
+        byRoute.set(key, e)
+      }
+      for (const s of r.stations ?? []) e._stationIds.add(s.station_id)
+      e._bounds = extendBounds(e._bounds, f.geometry)
+    }
+  }
+  return [...byRoute.values()].map((e) => ({ ...e, stations: e._stationIds.size }))
+})
+
+// 地標：帶 landmark_id 的 features（河流線／皇居・公園面域）。
+const landmarkRows = computed(() => {
+  const d = data.value
+  if (!d) return []
+  return d.features
+    .filter((f) => f.properties?.landmark_id)
+    .map((f) => {
+      const p = f.properties
+      const size =
+        p.length_km != null ? `${(+p.length_km).toFixed(1)} km`
+        : p.area_km2 != null ? `${(+p.area_km2).toFixed(2)} km²`
+        : ''
+      return {
+        name: p.name,
+        name_en: p.name_en,
+        kind: LANDMARK_KIND_ZH[p.kind] ?? p.kind,
+        size,
+        _key: p.landmark_id,
+        _bounds: extendBounds(null, f.geometry),
+      }
+    })
+})
+
+/* ---- tab 定義 ---- */
+const TABS = [
+  {
+    id: 'stations', label: '車站', noun: '車站',
+    columns: ['station_name', 'station_name_local', 'network', 'lines', 'city'],
+    src: stationRows,
+    zoom: (row) => mapHandle.map?.flyTo({ center: row._coords, zoom: 14 }),
+  },
+  {
+    id: 'lines', label: '路線', noun: '路線',
+    columns: ['route_ref', 'route_name', 'route_name_en', 'network', 'stations'],
+    src: lineRows,
+    zoom: (row) => zoomToBounds(row._bounds),
+  },
+  {
+    id: 'landmarks', label: '地標', noun: '地標',
+    columns: ['name', 'name_en', 'kind', 'size'],
+    src: landmarkRows,
+    zoom: (row) => zoomToBounds(row._bounds),
+  },
+]
+const activeTab = ref('stations')
+const tab = computed(() => TABS.find((t) => t.id === activeTab.value))
+
+const filter = ref('')
+// 每個 tab 各記自己的排序（切 tab 不會用到別 tab 的欄）。
+const sortState = reactive({
+  stations: { by: 'station_name', dir: 1 },
+  lines: { by: 'route_ref', dir: 1 },
+  landmarks: { by: 'name', dir: 1 },
+})
+const selectedRow = ref(null)
+
+const allRows = computed(() => tab.value.src.value)
+
 const rows = computed(() => {
-  let r = stations.value.map((f) => ({
-    ...f.properties,
-    lines: Array.isArray(f.properties.lines) ? f.properties.lines.join(', ') : f.properties.lines,
-    _coords: f.geometry.coordinates,
-  }))
+  const cols = tab.value.columns
+  let r = allRows.value
   const q = filter.value.trim().toLowerCase()
   if (q) {
     r = r.filter((row) =>
-      columns.some((c) => String(row[c] ?? '').toLowerCase().includes(q)),
+      cols.some((c) => String(row[c] ?? '').toLowerCase().includes(q)),
     )
   }
+  const { by, dir } = sortState[activeTab.value]
   return [...r].sort((a, b) => {
-    const va = a[sortBy.value] ?? '', vb = b[sortBy.value] ?? ''
-    return (va > vb ? 1 : va < vb ? -1 : 0) * sortDir.value
+    const va = a[by] ?? '', vb = b[by] ?? ''
+    return (va > vb ? 1 : va < vb ? -1 : 0) * dir
   })
 })
 
-function sort(col) {
-  if (sortBy.value === col) sortDir.value *= -1
-  else { sortBy.value = col; sortDir.value = 1 }
+function switchTab(id) {
+  activeTab.value = id
+  selectedRow.value = null
 }
 
-function zoomToRow(row) {
-  selectedRow.value = row.station_id
-  mapHandle.map?.flyTo({ center: row._coords, zoom: 14 })
+function sort(col) {
+  const s = sortState[activeTab.value]
+  if (s.by === col) s.dir *= -1
+  else { s.by = col; s.dir = 1 }
+}
+
+function onRow(row) {
+  selectedRow.value = row._key
+  tab.value.zoom(row)
+}
+
+/* ---- bounds helpers（路線/地標 縮放到範圍）---- */
+// [w, s, e, n]，就地擴張 acc。
+function extendBounds(acc, geometry) {
+  const b = acc ?? [Infinity, Infinity, -Infinity, -Infinity]
+  const visit = (c) => {
+    if (typeof c[0] === 'number') {
+      if (c[0] < b[0]) b[0] = c[0]
+      if (c[1] < b[1]) b[1] = c[1]
+      if (c[0] > b[2]) b[2] = c[0]
+      if (c[1] > b[3]) b[3] = c[1]
+    } else c.forEach(visit)
+  }
+  visit(geometry.coordinates)
+  return b
+}
+function zoomToBounds(b) {
+  if (!b || b[0] > b[2]) return
+  mapHandle.map?.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding: 60, maxZoom: 15 })
 }
 
 /* ---- resize ---- */
@@ -89,9 +224,10 @@ function startResize(e) {
     />
     <div class="attr-header">
       <MIcon name="table" :size="14" class="hdr-icon" />
-      <span class="attr-title">Attribute table</span>
+      <span class="attr-title">物件列表</span>
+
       <span class="attr-meta">
-        {{ activeLayer?.name ?? '—' }} — {{ rows.length }} / {{ stations.length }} stations
+        {{ activeLayer?.name ?? '—' }} — {{ rows.length }} / {{ allRows.length }} {{ tab.noun }}
       </span>
 
       <div class="attr-actions">
@@ -105,33 +241,51 @@ function startResize(e) {
       </div>
     </div>
 
+    <div class="attr-tabs" role="tablist">
+      <button
+        v-for="t in TABS"
+        :key="t.id"
+        class="attr-tab"
+        :class="{ active: activeTab === t.id }"
+        role="tab"
+        :aria-selected="activeTab === t.id"
+        @click="switchTab(t.id)"
+      >
+        {{ t.label }}
+        <span class="tab-count">{{ t.src.value.length }}</span>
+      </button>
+    </div>
+
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
             <th class="row-action-col"></th>
-            <th v-for="col in columns" :key="col" @click="sort(col)">
+            <th v-for="col in tab.columns" :key="col" @click="sort(col)">
               <span class="th-inner">
-                {{ col }}
-                <MIcon name="arrow_upward" v-if="sortBy === col && sortDir === 1" :size="11" />
-                <MIcon name="arrow_downward" v-else-if="sortBy === col" :size="11" />
+                {{ label(col) }}
+                <MIcon name="arrow_upward" v-if="sortState[activeTab].by === col && sortState[activeTab].dir === 1" :size="11" />
+                <MIcon name="arrow_downward" v-else-if="sortState[activeTab].by === col" :size="11" />
               </span>
             </th>
           </tr>
         </thead>
         <tbody>
+          <tr v-if="!rows.length">
+            <td class="empty-cell" :colspan="tab.columns.length + 1">沒有{{ tab.noun }}</td>
+          </tr>
           <tr
             v-for="row in rows"
-            :key="row.station_id"
-            :class="{ selected: selectedRow === row.station_id }"
-            @click="selectedRow = row.station_id"
+            :key="row._key"
+            :class="{ selected: selectedRow === row._key }"
+            @click="selectedRow = row._key"
           >
             <td class="row-action-col">
-              <button class="btn-icon zoom-btn" title="Zoom to feature" @click.stop="zoomToRow(row)">
+              <button class="btn-icon zoom-btn" title="Zoom to feature" @click.stop="onRow(row)">
                 <MIcon name="zoom_in" :size="12" />
               </button>
             </td>
-            <td v-for="col in columns" :key="col">{{ row[col] ?? '—' }}</td>
+            <td v-for="col in tab.columns" :key="col">{{ row[col] ?? '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -161,6 +315,45 @@ function startResize(e) {
 .hdr-icon { color: hsl(var(--muted-foreground)); }
 .attr-title { font-size: 13px; font-weight: 600; }
 .attr-meta { font-size: 12px; color: hsl(var(--muted-foreground)); }
+
+/* 頁籤列：底線式 tab（非按鈕）。 */
+.attr-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 0 8px;
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+}
+.attr-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px; /* 蓋住容器底線，讓 active 底線接合 */
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer;
+}
+.attr-tab:hover { color: hsl(var(--foreground)); }
+.attr-tab.active {
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--primary));
+  font-weight: 600;
+}
+.tab-count {
+  font-size: 10.5px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+.attr-tab.active .tab-count {
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+}
+
 .attr-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
 .filter-wrap { position: relative; margin-right: 6px; }
 .filter-icon {
@@ -199,6 +392,12 @@ td {
   border-bottom: 1px solid hsl(var(--border) / 0.6);
   border-right: 1px solid hsl(var(--border) / 0.4);
   white-space: nowrap;
+}
+.empty-cell {
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  padding: 18px;
+  border-right: none;
 }
 tbody tr:hover { background: hsl(var(--accent) / 0.5); }
 tbody tr.selected { background: hsl(var(--primary) / 0.12); }

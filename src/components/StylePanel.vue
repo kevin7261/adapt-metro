@@ -72,9 +72,9 @@ const width = ref(300)
 
 // Panel sections — the LLM對齊 tab appears only once a run has produced a
 // record (llmRecord prop from D3Tab).
+// 「樣式」tab 已移到地圖上方的樣式工具列（StyleBar），這裡不再列出。
 const TABS = computed(() => [
   { id: 'info', label: '資訊' },
-  { id: 'style', label: '樣式' },
   { id: 'object', label: '物件' },
   ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM調整' }, { id: 'eval', label: 'LLM評價' }] : []),
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
@@ -443,7 +443,7 @@ function startResize(e) {
       <MIcon name="right_panel_open" :size="15" />
     </button>
     <MIcon name="tune" :size="14" class="rail-icon" />
-    <span class="rail-label">資訊 / 樣式</span>
+    <span class="rail-label">資訊 / 物件</span>
   </aside>
 
   <template v-else>
@@ -665,101 +665,6 @@ function startResize(e) {
           <div v-else class="info-empty">此圖層沒有 metro 資訊。</div>
         </template>
 
-        <!-- ============ Style ============ -->
-        <template v-else-if="activeTab === 'style'">
-          <!-- 跨距上限（見 skill route-span-cap）：所有移動不得讓受影響段的
-               兩個顏色點橫跨超過 n 格（預設 3）。手動輸入、只改數值——按
-               「重新計算」才清快取、以新上限重算（spanApplied = 快取目前用的值）。 -->
-          <div v-if="viewKind === 'hillclimb' || viewKind === 'rwd'" class="field">
-            <label class="field-label">顏色點間最大跨距（格）</label>
-            <input
-              :value="layer.spanCap ?? 3"
-              type="number" min="1" step="1" class="span-input"
-              @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
-            />
-            <button
-              class="llm-run-btn span-recalc"
-              :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
-              @click="emit('recalc-span')"
-            >重新計算</button>
-            <p v-if="(layer.spanCap ?? 3) !== (spanApplied ?? 3)" class="llm-run-hint">
-              目前結果是以 {{ spanApplied ?? 3 }} 格計算——按「重新計算」套用 {{ layer.spanCap ?? 3 }} 格
-            </p>
-          </div>
-          <template v-if="isMetro">
-            <div class="field">
-              <label class="field-label">Line width — {{ layer.strokeWidth }} px</label>
-              <input v-model.number="layer.strokeWidth" type="range" min="0.5" max="8" step="0.5" class="slider" />
-            </div>
-
-            <div class="field">
-              <label class="field-label">Station radius — {{ layer.radius }} px</label>
-              <input v-model.number="layer.radius" type="range" min="1" max="10" step="0.5" class="slider" />
-            </div>
-
-            <label class="field check-field">
-              <input type="checkbox" :checked="layer.showLabels" @change="layer.showLabels = $event.target.checked" />
-              <span>顯示站名（在站點上方）</span>
-            </label>
-
-            <!-- 地圖底色（D3 視圖：Map Adjust／Straighten／RWD 的畫布背景）——深色官方線
-                 （倫敦 Northern #000000）在預設深色背景看不見，改淺色底就現形（使用者 2026-07-17，
-                 取代曾實作又否決的深色線描邊）。清除＝回主題預設。 -->
-            <div class="field">
-              <label class="field-label">地圖底色（D3 視圖）</label>
-              <div class="bg-row">
-                <input
-                  type="color"
-                  class="color-input"
-                  :value="layer.d3Bg || '#0d1117'"
-                  @input="layer.d3Bg = $event.target.value"
-                />
-                <button v-if="layer.d3Bg" class="llm-run-btn" @click="layer.d3Bg = null">預設</button>
-              </div>
-            </div>
-          </template>
-
-          <template v-if="editable">
-            <div class="field">
-              <label class="field-label">Symbology</label>
-              <select v-model="layer.symbology" class="select">
-                <option value="single">Single symbol</option>
-                <option value="categorized">Categorized</option>
-                <option value="graduated">Graduated</option>
-                <option value="rule-based">Rule-based</option>
-                <option value="expression">Expression</option>
-              </select>
-            </div>
-
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">{{ layer.type === 'line' ? 'Line color' : 'Fill color' }}</label>
-                <input v-model="layer.color" type="color" class="color-input" />
-              </div>
-              <div v-if="layer.type !== 'line'" class="field">
-                <label class="field-label">Stroke color</label>
-                <input v-model="layer.strokeColor" type="color" class="color-input" />
-              </div>
-            </div>
-
-            <div class="field">
-              <label class="field-label">
-                {{ layer.type === 'line' ? 'Line width' : 'Stroke width' }} — {{ layer.strokeWidth }} px
-              </label>
-              <input v-model.number="layer.strokeWidth" type="range" min="0" max="10" step="0.5" class="slider" />
-            </div>
-
-            <div v-if="layer.type === 'point'" class="field">
-              <label class="field-label">Circle radius — {{ layer.radius }} px</label>
-              <input v-model.number="layer.radius" type="range" min="1" max="20" step="1" class="slider" />
-            </div>
-          </template>
-
-          <div class="field">
-            <label class="field-label">Opacity — {{ Math.round(layer.opacity * 100) }}%</label>
-            <input v-model.number="layer.opacity" type="range" min="0" max="1" step="0.05" class="slider" />
-          </div>
-        </template>
 
         <template v-else-if="activeTab === 'object'">
           <div v-if="!selectedEntries.length" class="obj-empty">
