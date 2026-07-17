@@ -1,18 +1,19 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
 import { rwdCellCompact, rwdCellVariant } from '../stores/viewGeometry'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
+import MIcon from './MIcon.vue'
 
-// 視圖畫廊：every city 的「所有地圖」縮圖。工具列的開關與圈層左側 list 一致——
-// 就是一城的 9 個管線圖層（Raw Maps／Map Adjust／Straighten 原始‧旋轉／RWD
-// Maps 基本‧直角爬山‧軸對齊‧整數規劃‧LLM 對齊）；每個圖層對應一張代表縮圖
-//（Raw＝路網縮圖，其餘取 data/metro/{views,hcviews,rwdviews}/ 的一個代表視圖）。
-// 預設顯示 Raw Maps＋全部 RWD Maps。點任何一格都匯入該城市整組管線圖層
-//（importCityChain：一城一群組 9 層）並開啟點到的那個圖層的 tab。
+// 視圖畫廊：every city 的「所有地圖」縮圖。左側清單＝圈層面板的同款結構（Raw
+// Maps / Map Adjust 直接列、Straighten 與 RWD Maps 為可收合子群組），逐一勾選
+// 要顯示的圖層；每個圖層對應一張代表縮圖（Raw＝路網縮圖，其餘取 data/metro/
+// {views,hcviews,rwdviews}/ 的代表視圖；RWD LLM 無預算圖 → 顯示「尚未預算」，
+// 點擊仍即時計算）。預設顯示 Raw Maps＋全部 RWD Maps。點任何一格都匯入該城市
+// 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
 const store = useMapStore()
 
 async function load() {
@@ -21,23 +22,29 @@ async function load() {
   return (await res.json()).systems ?? []
 }
 
-// 9 個管線圖層＝圈層左側 list。kind＝卡片區段（raw／adjust／straighten／rwd），
-// view＝該圖層在畫廊的代表縮圖 id（llm 無預算圖，cell 顯示「尚未預算」，點擊
-// 仍即時計算）。label 與 stageLabel（LayerPanel）一致。
-const LAYERS = [
-  { key: 'raw', label: 'Raw Maps', kind: 'raw', view: 'thumb' },
-  { key: 'adjust', label: 'Map Adjust', kind: 'adjust', view: 'grid-orig-post' },
-  { key: 'st-orig', label: 'Straighten（原始）', kind: 'straighten', view: 'loop-rect-orig' },
-  { key: 'st-rot', label: 'Straighten（旋轉）', kind: 'straighten', view: 'loop-rect-rot' },
-  { key: 'rwd-hc', label: 'RWD Maps（基本）', kind: 'rwd', view: 'rwd-hc-orig' },
-  { key: 'rwd-rect', label: 'RWD Maps（直角爬山）', kind: 'rwd', view: 'rwd-rect-orig' },
-  { key: 'rwd-align', label: 'RWD Maps（軸對齊）', kind: 'rwd', view: 'rwd-align-orig' },
-  { key: 'rwd-ilp', label: 'RWD Maps（整數規劃）', kind: 'rwd', view: 'rwd-ilp-orig' },
-  { key: 'rwd-llm', label: 'RWD Maps（LLM 對齊）', kind: 'rwd', view: 'rwd-llm-orig' },
+// 圖層節點：key（勾選鍵）、label（清單顯示名）、kind（卡片區段 raw/adjust/
+// straighten/rwd）、view（代表縮圖 id）、icon（與圈層面板同款圖示）。
+const RWD_CHAINS = [
+  ['hc', '基本'], ['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
 ]
+const rwdRows = (variant, vLabel) => RWD_CHAINS.map(([c, zh]) => ({
+  key: `rwd-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'rwd', view: `rwd-${c}-${variant}`, icon: 'route',
+}))
+// 左側清單樹（＝圈層面板結構）：直接列的圖層 + 可收合子群組。
+const SIDE = [
+  { t: 'layer', key: 'raw', label: 'Raw Maps', kind: 'raw', view: 'thumb', icon: 'train' },
+  { t: 'layer', key: 'adjust', label: 'Map Adjust', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
+  { t: 'group', id: 'straighten', label: 'Straighten', layers: [
+    { key: 'st-orig', label: '原始', kind: 'straighten', view: 'loop-rect-orig', icon: 'terrain' },
+    { key: 'st-rot', label: '旋轉', kind: 'straighten', view: 'loop-rect-rot', icon: 'terrain' },
+  ] },
+  { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉')] },
+]
+// 攤平成全部圖層（sections 計算與全選用）。
+const ALL = SIDE.flatMap((n) => (n.t === 'layer' ? [n] : n.layers))
 
 // 已勾選的圖層。預設：Raw Maps ＋全部 RWD Maps。
-const shown = ref(new Set(['raw', 'rwd-hc', 'rwd-rect', 'rwd-align', 'rwd-ilp', 'rwd-llm']))
+const shown = ref(new Set(['raw', ...ALL.filter((l) => l.kind === 'rwd').map((l) => l.key)]))
 const isOn = (key) => shown.value.has(key)
 function toggle(key) {
   const s = new Set(shown.value)
@@ -45,15 +52,26 @@ function toggle(key) {
   else s.add(key)
   shown.value = s
 }
-const allOn = computed(() => LAYERS.every((l) => shown.value.has(l.key)))
+const allOn = computed(() => ALL.every((l) => shown.value.has(l.key)))
 function toggleAll() {
-  shown.value = allOn.value ? new Set() : new Set(LAYERS.map((l) => l.key))
+  shown.value = allOn.value ? new Set() : new Set(ALL.map((l) => l.key))
 }
+// 子群組整組開關（tri-state：全開才勾）。
+const groupAllOn = (node) => node.layers.every((l) => shown.value.has(l.key))
+const groupSomeOn = (node) => node.layers.some((l) => shown.value.has(l.key))
+function toggleGroup(node) {
+  const on = groupSomeOn(node)
+  const s = new Set(shown.value)
+  for (const l of node.layers) { if (on) s.delete(l.key); else s.add(l.key) }
+  shown.value = s
+}
+// 子群組收合（清單內，本地狀態；預設展開）。
+const collapsed = reactive({ straighten: false, rwd: false })
 
 // 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
 const sections = computed(() => {
   const byKind = new Map()
-  for (const l of LAYERS) {
+  for (const l of ALL) {
     if (!shown.value.has(l.key)) continue
     if (!byKind.has(l.kind)) byKind.set(l.kind, [])
     byKind.get(l.kind).push(l.view)
@@ -78,19 +96,51 @@ function pick(kind, entry, viewId) {
 
 <template>
   <GalleryShell :load="load" loading-text="載入全球視圖清單…" error-hint="npm run metro:views">
-    <template #toolbar>
-      <span class="kind-title">顯示圖層：</span>
-      <button class="kind-all" @click="toggleAll">{{ allOn ? '全部清除' : '全部顯示' }}</button>
-      <label
-        v-for="l in LAYERS"
-        :key="l.key"
-        class="kind-check"
-        :class="{ on: isOn(l.key) }"
-      >
-        <input type="checkbox" :checked="isOn(l.key)" @change="toggle(l.key)" />
-        {{ l.label }}
-      </label>
+    <!-- 左側清單（＝圈層面板結構）：顯示哪些圖層 -->
+    <template #side>
+      <div class="side-head">
+        <span class="side-title">顯示圖層</span>
+        <button class="side-all" @click="toggleAll">{{ allOn ? '全部清除' : '全部顯示' }}</button>
+      </div>
+      <template v-for="node in SIDE" :key="node.key ?? node.id">
+        <!-- 直接列的圖層（Raw Maps / Map Adjust） -->
+        <label v-if="node.t === 'layer'" class="side-row" :class="{ on: isOn(node.key) }">
+          <input type="checkbox" :checked="isOn(node.key)" @change="toggle(node.key)" />
+          <MIcon :name="node.icon" :size="13" class="side-icon" />
+          <span class="side-name">{{ node.label }}</span>
+        </label>
+        <!-- 可收合子群組（Straighten / RWD Maps） -->
+        <template v-else>
+          <div class="side-sub">
+            <button class="side-chev" @click="collapsed[node.id] = !collapsed[node.id]">
+              <MIcon :name="collapsed[node.id] ? 'chevron_right' : 'expand_more'" :size="14" />
+            </button>
+            <input
+              type="checkbox"
+              class="side-sub-check"
+              :checked="groupAllOn(node)"
+              :indeterminate.prop="groupSomeOn(node) && !groupAllOn(node)"
+              @change="toggleGroup(node)"
+            />
+            <span class="side-sub-name" @click="collapsed[node.id] = !collapsed[node.id]">{{ node.label }}</span>
+            <span class="side-sub-count">{{ node.layers.length }}</span>
+          </div>
+          <template v-if="!collapsed[node.id]">
+            <label
+              v-for="l in node.layers"
+              :key="l.key"
+              class="side-row nested"
+              :class="{ on: isOn(l.key) }"
+            >
+              <input type="checkbox" :checked="isOn(l.key)" @change="toggle(l.key)" />
+              <MIcon :name="l.icon" :size="13" class="side-icon" />
+              <span class="side-name">{{ l.label }}</span>
+            </label>
+          </template>
+        </template>
+      </template>
     </template>
+
     <template #default="{ tiles }">
       <div class="tile-grid">
         <CityAllCard v-for="s in tiles" :key="s.id" :entry="s" :sections="sections" @pick="pick" />
@@ -100,36 +150,62 @@ function pick(kind, entry, viewId) {
 </template>
 
 <style scoped>
-.kind-title { font-size: 12px; color: hsl(var(--muted-foreground)); }
-.kind-all {
-  padding: 2px 10px;
-  font-size: 11.5px;
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
-  color: hsl(var(--muted-foreground));
-  white-space: nowrap;
-}
-.kind-all:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
-/* 圖層勾選（＝圈層左側 list 的 9 個管線圖層） */
-.kind-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.side-head { display: flex; align-items: center; gap: 6px; padding: 2px 4px 8px; }
+.side-title { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); }
+.side-all {
+  margin-left: auto;
   padding: 2px 8px;
   font-size: 11px;
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
+  border-radius: calc(var(--radius) - 4px);
   color: hsl(var(--muted-foreground));
-  cursor: pointer;
-  user-select: none;
   white-space: nowrap;
 }
-.kind-check.on {
-  background: hsl(var(--primary) / 0.12);
-  border-color: hsl(var(--primary) / 0.5);
-  color: hsl(var(--primary));
+.side-all:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
+
+/* 圖層列（＝圈層面板 layer-row 的清單版） */
+.side-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  color: hsl(var(--foreground));
 }
-.kind-check input { accent-color: hsl(var(--primary)); margin: 0; }
+.side-row:hover { background: hsl(var(--accent) / 0.6); }
+.side-row.on { color: hsl(var(--primary)); }
+.side-row.nested { margin-left: 14px; border-left: 2px solid hsl(var(--border)); padding-left: 8px; }
+.side-icon { flex-shrink: 0; color: hsl(var(--muted-foreground)); }
+.side-row.on .side-icon { color: hsl(var(--primary)); }
+.side-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-row input, .side-sub-check { accent-color: hsl(var(--primary)); margin: 0; flex-shrink: 0; }
+
+/* 子群組標題（可收合 + 整組開關） */
+.side-sub { display: flex; align-items: center; gap: 4px; padding: 4px 6px; }
+.side-chev {
+  display: inline-flex;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+.side-sub-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side-sub-count {
+  font-size: 10.5px;
+  color: hsl(var(--muted-foreground) / 0.8);
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
 
 .tile-grid {
   display: grid;

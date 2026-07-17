@@ -73,18 +73,19 @@ const tiles = computed(() => {
       <span class="gallery-count">{{ tiles.length }} 城市</span>
     </div>
 
-    <!-- 額外工具列（如視圖畫廊的「顯示哪些地圖」勾選）——有提供 slot 才渲染 -->
-    <div v-if="$slots.toolbar" class="gallery-toolbar">
-      <slot name="toolbar" />
-    </div>
-
-    <div class="gallery-body">
-      <div v-if="error" class="gallery-status">
-        {{ errorText }}：{{ error }}
-        <template v-if="errorHint"><br />（請先執行 <code>{{ errorHint }}</code>）</template>
+    <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區 -->
+    <div class="gallery-main">
+      <aside v-if="$slots.side" class="gallery-side">
+        <slot name="side" />
+      </aside>
+      <div class="gallery-body">
+        <div v-if="error" class="gallery-status">
+          {{ errorText }}：{{ error }}
+          <template v-if="errorHint"><br />（請先執行 <code>{{ errorHint }}</code>）</template>
+        </div>
+        <div v-else-if="!catalog" class="gallery-status">{{ loadingText }}</div>
+        <slot v-else :tiles="tiles" />
       </div>
-      <div v-else-if="!catalog" class="gallery-status">{{ loadingText }}</div>
-      <slot v-else :tiles="tiles" />
     </div>
   </div>
 </template>
@@ -130,14 +131,15 @@ const tiles = computed(() => {
 .sort-btn:last-child { border-right: none; }
 .sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
 .gallery-count { margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
-.gallery-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 7px 12px;
-  border-bottom: 1px solid hsl(var(--border));
+/* 主體：左側清單＋卡片區並排 */
+.gallery-main { flex: 1; display: flex; min-height: 0; }
+.gallery-side {
+  width: 220px;
   flex-shrink: 0;
+  overflow-y: auto;
+  padding: 8px;
+  border-right: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
 }
 /* container-type so the tile grid responds to the PANEL width, not the viewport
    (the gallery lives in a resizable dockview panel). */

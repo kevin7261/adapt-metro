@@ -25,12 +25,16 @@ const GALLERY_ICON = { 'all-gallery': 'grid_view' }
 const panelId = computed(() => p.value.api?.id ?? inner.value.id)
 const icon = computed(() =>
   typeIcons[layer.value?.type] ?? GALLERY_ICON[panelId.value] ?? inner.value.icon ?? p.value.icon ?? 'circle')
-// 圈層一城一群組後，同一城市的四個管線圖層同名（都是城市名）——tab 標題附上
-// 階段（Map Adjust / Straighten / RWD）以便區分；Raw Maps 維持城市名。
+// 圈層一城一群組後，同一城市的管線圖層同名（城市名，Straighten/RWD 另帶變體）
+// ——tab 標題附上階段以便區分。RWD 一城 10 個（變體 × 5 鏈），再附上鏈名。
 const STAGE_SUFFIX = { d3: 'Map Adjust', hillclimb: 'Straighten', rwd: 'RWD' }
+const RWD_COMPACT_ZH = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本' }
 const title = computed(() => {
   const l = layer.value
-  if (l) return STAGE_SUFFIX[l.type] ? `${l.name} · ${STAGE_SUFFIX[l.type]}` : l.name
+  if (l) {
+    if (l.type === 'rwd') return `${l.name} · RWD（${RWD_COMPACT_ZH[l.compact ?? 'hc']}）`
+    return STAGE_SUFFIX[l.type] ? `${l.name} · ${STAGE_SUFFIX[l.type]}` : l.name
+  }
   return inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—'
 })
 

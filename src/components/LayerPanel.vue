@@ -13,14 +13,45 @@ const store = useMapStore()
 
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
-// 2026-07 圈層改版：群組＝城市，列＝該城市的管線階段。列名顯示階段（不重複
-// 城市名——群組標題已是城市）；Straighten / RWD 附變體。
+// 2026-07 圈層改版：群組＝城市。Raw Maps / Map Adjust 直接列出；Straighten
+// （原始/旋轉）與 RWD Maps（原始/旋轉 × 5 鏈＝10 層）收成可收合的子群組。
 const RWD_COMPACT_ZH = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本' }
+const rwdVariantZh = (l) =>
+  (store.layers.find((s) => s.id === l.sourceLayerId)?.variant === 'rot' ? '旋轉' : '原始')
+// 完整階段名（toast 用）：含子群組前綴＋變體。
 function stageLabel(l) {
   if (l.type === 'd3') return 'Map Adjust'
   if (l.type === 'hillclimb') return `Straighten（${l.variant === 'rot' ? '旋轉' : '原始'}）`
-  if (l.type === 'rwd') return `RWD Maps（${RWD_COMPACT_ZH[l.compact ?? 'hc']}）`
+  if (l.type === 'rwd') return `RWD Maps（${rwdVariantZh(l)}・${RWD_COMPACT_ZH[l.compact ?? 'hc']}）`
   return 'Raw Maps'
+}
+// 圈層列顯示名：子群組內的列不重複群組名（Straighten 列＝原始/旋轉；RWD 列＝
+// 變體・鏈）；Raw Maps / Map Adjust 用階段全名。
+function rowLabel(l) {
+  if (l.type === 'hillclimb') return l.variant === 'rot' ? '旋轉' : '原始'
+  if (l.type === 'rwd') return `${rwdVariantZh(l)}・${RWD_COMPACT_ZH[l.compact ?? 'hc']}`
+  if (l.type === 'd3') return 'Map Adjust'
+  return 'Raw Maps'
+}
+// 城市群組的 rows（layer / group）攤平成一維：sub-group header 在前、其下的
+// 圖層列（depth 1）緊接（該子群組展開時才列出）。單一 v-for 即可渲染。
+function flatRows(item) {
+  const out = []
+  for (const row of item.rows) {
+    if (row.kind === 'layer') { out.push({ t: 'layer', key: row.layer.id, layer: row.layer, depth: 0 }); continue }
+    out.push({ t: 'sub', key: row.id, sub: row, depth: 0 })
+    if (!row.collapsed) for (const l of row.layers) out.push({ t: 'layer', key: l.id, layer: l, depth: 1 })
+  }
+  return out
+}
+// 一個城市群組（含子群組）的全部圖層——刪除／重算整城用。
+function layersOf(item) {
+  const out = []
+  for (const row of item.rows) {
+    if (row.kind === 'layer') out.push(row.layer)
+    else out.push(...row.layers)
+  }
+  return out
 }
 
 // Skills surfaced PER LAYER ROW（attribute table 按鈕左邊）：只列「這個圖層的
@@ -190,25 +221,27 @@ function removeLayer(layer) {
   store.toast(`已移除圖層「${layer.name} ${stageLabel(layer)}」`)
 }
 
-// Remove every layer of one city group, one summary toast.
+// Remove every layer of one city group (含子群組), one summary toast.
 function removeCityLayers(item) {
-  if (!item.children.length) return
-  for (const l of [...item.children]) disposeLayer(l)
-  store.toast(`已刪除「${item.group.label}」的 ${item.children.length} 個圖層`)
+  const all = layersOf(item)
+  if (!all.length) return
+  for (const l of all) disposeLayer(l)
+  store.toast(`已刪除「${item.group.label}」的 ${all.length} 個圖層`)
 }
 
 // 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON，再重開——tab
 // 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust / Straighten / RWD 會整條鏈
 // 重新計算。
 async function recomputeCity(item) {
-  if (!item.children.length) return
-  for (const l of item.children) {
+  const all = layersOf(item)
+  if (!all.length) return
+  for (const l of all) {
     dockHandle.api?.getPanel(l.id)?.api.close()
     delete layerData[l.id]
   }
   await nextTick()
-  for (const l of item.children) openLayerTab(l)
-  store.toast(`重新計算「${item.group.label}」的 ${item.children.length} 個圖層…`)
+  for (const l of all) openLayerTab(l)
+  store.toast(`重新計算「${item.group.label}」的 ${all.length} 個圖層…`)
 }
 
 /* ---- resize ---- */
@@ -307,83 +340,97 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
-          <!-- 城市的管線圖層：Raw Maps → Map Adjust → Straighten → RWD Maps -->
+          <!-- 城市的管線列：Raw Maps / Map Adjust 直接列出；Straighten / RWD
+               Maps 為可收合子群組（flatRows 已攤平：sub header + 展開的圖層列） -->
           <template v-if="!item.group.collapsed">
-            <div
-              v-for="layer in item.children"
-              :key="layer.id"
-              class="layer-row"
-              :class="{ selected: store.selectedLayerId === layer.id }"
-              @click="openLayer(layer)"
-            >
-              <div class="layer-title">
-                <MIcon
-                  :name="layer.railway ? 'directions_railway' : layer.highway ? 'add_road' : (typeIcons[layer.type] ?? 'circle')"
-                  :size="13"
-                  class="type-icon"
-                  :style="layer.color ? { color: layer.color } : {}"
-                />
-                <span class="layer-name">{{ stageLabel(layer) }}</span>
+            <template v-for="row in flatRows(item)" :key="row.key">
+              <!-- 子群組標題（Straighten / RWD Maps）：可收合 -->
+              <div
+                v-if="row.t === 'sub'"
+                class="subgroup-header"
+                @click="store.toggleCityCollapsed(row.sub.id)"
+              >
+                <MIcon :name="row.sub.collapsed ? 'chevron_right' : 'expand_more'" :size="13" class="sub-chevron" />
+                <span class="subgroup-name">{{ row.sub.label }}</span>
+                <span class="subgroup-count">{{ row.sub.layers.length }}</span>
               </div>
 
-              <!-- stop only on the buttons — a click on the strip's empty area
-                   must still bubble to the row and open the layer's tab -->
-              <div class="layer-actions">
-                <button
-                  v-if="layer.type === 'metro'"
-                  class="btn-icon"
-                  title="Zoom to layer"
-                  @click.stop="overflow(layer, 'zoom')"
-                >
-                  <MIcon name="zoom_in" :size="14" />
-                </button>
-                <!-- Skills（此圖層階段用到的）— attribute table 左邊，同改版前位置 -->
-                <div class="skill-wrap">
+              <!-- 圖層列（子群組內的 depth 1 縮排） -->
+              <div
+                v-else
+                class="layer-row"
+                :class="{ selected: store.selectedLayerId === row.layer.id, nested: row.depth > 0 }"
+                @click="openLayer(row.layer)"
+              >
+                <div class="layer-title">
+                  <MIcon
+                    :name="row.layer.railway ? 'directions_railway' : row.layer.highway ? 'add_road' : (typeIcons[row.layer.type] ?? 'circle')"
+                    :size="13"
+                    class="type-icon"
+                    :style="row.layer.color ? { color: row.layer.color } : {}"
+                  />
+                  <span class="layer-name">{{ rowLabel(row.layer) }}</span>
+                </div>
+
+                <!-- stop only on the buttons — a click on the strip's empty area
+                     must still bubble to the row and open the layer's tab -->
+                <div class="layer-actions">
+                  <button
+                    v-if="row.layer.type === 'metro'"
+                    class="btn-icon"
+                    title="Zoom to layer"
+                    @click.stop="overflow(row.layer, 'zoom')"
+                  >
+                    <MIcon name="zoom_in" :size="14" />
+                  </button>
+                  <!-- Skills（此圖層階段用到的）— attribute table 左邊，同改版前位置 -->
+                  <div class="skill-wrap">
+                    <button
+                      class="btn-icon"
+                      :class="{ active: skillMenuFor === row.layer.id }"
+                      title="Skills"
+                      @click.stop="toggleSkillMenu(row.layer, $event)"
+                    >
+                      <MIcon name="auto_awesome" :size="14" />
+                    </button>
+                    <Teleport to="body">
+                      <div
+                        v-if="skillMenuFor === row.layer.id"
+                        class="menu-pop skill-menu"
+                        :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
+                      >
+                        <button
+                          v-for="s in layerSkills(row.layer)"
+                          :key="s.id"
+                          class="menu-item skill-item"
+                          @click="pickSkill(s.id)"
+                        >
+                          <MIcon name="auto_awesome" :size="13" class="skill-icon" />
+                          <span class="skill-text">
+                            <span class="skill-name">{{ s.id }}</span>
+                            <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
+                          </span>
+                        </button>
+                      </div>
+                    </Teleport>
+                  </div>
                   <button
                     class="btn-icon"
-                    :class="{ active: skillMenuFor === layer.id }"
-                    title="Skills"
-                    @click.stop="toggleSkillMenu(layer, $event)"
+                    :class="{ active: store.ui.attributeTableOpen[row.layer.id] }"
+                    title="Attribute table"
+                    @click.stop="overflow(row.layer, 'table')"
                   >
-                    <MIcon name="auto_awesome" :size="14" />
+                    <MIcon name="table" :size="14" />
                   </button>
-                  <Teleport to="body">
-                    <div
-                      v-if="skillMenuFor === layer.id"
-                      class="menu-pop skill-menu"
-                      :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
-                    >
-                      <button
-                        v-for="s in layerSkills(layer)"
-                        :key="s.id"
-                        class="menu-item skill-item"
-                        @click="pickSkill(s.id)"
-                      >
-                        <MIcon name="auto_awesome" :size="13" class="skill-icon" />
-                        <span class="skill-text">
-                          <span class="skill-name">{{ s.id }}</span>
-                          <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
-                        </span>
-                      </button>
-                    </div>
-                  </Teleport>
+                  <button class="btn-icon" title="Export GeoJSON" @click.stop="overflow(row.layer, 'export')">
+                    <MIcon name="download" :size="14" />
+                  </button>
+                  <button class="btn-icon danger" title="Remove layer" @click.stop="overflow(row.layer, 'remove')">
+                    <MIcon name="delete" :size="14" />
+                  </button>
                 </div>
-                <button
-                  class="btn-icon"
-                  :class="{ active: store.ui.attributeTableOpen[layer.id] }"
-                  title="Attribute table"
-                  @click.stop="overflow(layer, 'table')"
-                >
-                  <MIcon name="table" :size="14" />
-                </button>
-                <button class="btn-icon" title="Export GeoJSON" @click.stop="overflow(layer, 'export')">
-                  <MIcon name="download" :size="14" />
-                </button>
-                <button class="btn-icon danger" title="Remove layer" @click.stop="overflow(layer, 'remove')">
-                  <MIcon name="delete" :size="14" />
-                </button>
               </div>
-            </div>
+            </template>
           </template>
         </div>
       </div>
@@ -503,6 +550,34 @@ onBeforeUnmount(() => {
 .group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
 .group-del:hover { color: hsl(var(--destructive)); background: hsl(var(--destructive) / 0.12); }
 
+/* 子群組標題（Straighten / RWD Maps）：可收合，縮排一層對齊子群組列 */
+.subgroup-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px 4px 10px;
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+  user-select: none;
+}
+.subgroup-header:hover { background: hsl(var(--accent) / 0.6); }
+.sub-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
+.subgroup-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.subgroup-count {
+  font-size: 10.5px;
+  color: hsl(var(--muted-foreground) / 0.8);
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
+
 .layer-row {
   position: relative;
   display: flex;
@@ -514,6 +589,8 @@ onBeforeUnmount(() => {
   border: 1px solid hsl(var(--border) / 0.6);
   background: hsl(var(--card));
 }
+/* 子群組內的圖層列：縮排，左緣加一條線標示層級 */
+.layer-row.nested { margin-left: 12px; border-left: 2px solid hsl(var(--border)); }
 .layer-row:hover { background: hsl(var(--accent) / 0.6); }
 /* Active layer = the layer shown in the active editor tab. */
 .layer-row.selected {

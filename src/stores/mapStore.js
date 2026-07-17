@@ -72,9 +72,9 @@ function migrateLayerNames(layers) {
 // 一城的標準 RWD 組：5 條循環鏈（基本 hc／直角爬山／軸對齊／整數規劃／LLM 對齊）。
 const RWD_COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm']
 
-// 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×5
-// （RWD_COMPACTS，掛原始 Straighten）。舊 session 只存了 原始＋rect——
-// 載入時回填缺的層（與 importCityChain 的 ensure 邏輯一致；沒建過 Map Adjust
+// 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×10
+// （原始／旋轉 × RWD_COMPACTS，各掛同變體 Straighten）。舊 session 只存了部分
+// ——載入時回填缺的層（與 importCityChain 的 ensure 邏輯一致；沒建過 Map Adjust
 // 的城市不強加）。Idempotent：齊了就什麼都不做。
 function backfillCityChains(layers) {
   const nextId = (prefix) => {
@@ -98,11 +98,11 @@ function backfillCityChains(layers) {
       }
       hcOf[v] = hc
     }
-    for (const c of RWD_COMPACTS) {
-      if (!layers.some((l) => l.type === 'rwd' && l.sourceLayerId === hcOf.orig.id && l.compact === c)) {
+    for (const v of ['orig', 'rot']) for (const c of RWD_COMPACTS) {
+      if (!layers.some((l) => l.type === 'rwd' && l.sourceLayerId === hcOf[v].id && l.compact === c)) {
         layers.push({
-          id: nextId('rwd-view'), name: hcOf.orig.name, type: 'rwd',
-          groupId: 'rwd', sourceLayerId: hcOf.orig.id, compact: c, visible: true, opacity: 1,
+          id: nextId('rwd-view'), name: hcOf[v].name, type: 'rwd',
+          groupId: 'rwd', sourceLayerId: hcOf[v].id, compact: c, visible: true, opacity: 1,
         })
       }
     }
@@ -154,10 +154,12 @@ export const useMapStore = defineStore('map', {
     selectedLayer(state) {
       return state.layers.find((l) => l.id === state.selectedLayerId) ?? null
     },
-    // Panel rows: one group per CITY (root raw-map layer), children = that
-    // city's pipeline layers ordered Raw Maps → Map Adjust → Straighten → RWD
-    // Maps. A derived layer joins its source chain's root; a layer whose chain
-    // is broken (source removed / file-imported view) roots itself.
+    // Panel rows: one group per CITY (root raw-map layer). Each city's rows are
+    // ordered Raw Maps → Map Adjust → [Straighten 子群組] → [RWD Maps 子群組]；
+    // Straighten（原始/旋轉 2 層）與 RWD Maps（原始/旋轉 × 5 鏈＝10 層）收成可
+    // 收合的子群組（子群組多、直接攤開太長）。每筆 row 是 { kind:'layer', layer }
+    // 或 { kind:'group', id, label, collapsed, layers:[] }。A derived layer joins
+    // its source chain's root; a broken chain (source removed) roots itself.
     layerTree(state) {
       const byId = new Map(state.layers.map((l) => [l.id, l]))
       const rootOf = (l) => {
@@ -169,30 +171,41 @@ export const useMapStore = defineStore('map', {
         }
         return cur
       }
-      const rank = { metro: 0, d3: 1, hillclimb: 2, rwd: 3 }
-      // 同型內的固定順序：Straighten 原始→旋轉、RWD 依 5 條鏈的標準序
-      //（回填的層 push 在陣列尾端，靠這裡排回正位）。
-      const subRank = (l) => {
-        if (l.type === 'hillclimb') return l.variant === 'rot' ? 1 : 0
-        if (l.type === 'rwd') return Math.max(0, RWD_COMPACTS.indexOf(l.compact ?? 'hc'))
-        return 0
-      }
-      const groups = new Map()
+      // 一個 rwd 層的變體＝其來源 Straighten 層的變體（orig/rot）。
+      const rwdVariant = (rwd) => byId.get(rwd.sourceLayerId)?.variant ?? 'orig'
+      const vRank = (v) => (v === 'rot' ? 1 : 0)
+
+      const cities = new Map()
       for (const l of state.layers) {
         const root = rootOf(l)
-        if (!groups.has(root.id)) {
-          groups.set(root.id, {
-            group: { id: root.id, label: root.name, collapsed: !!state.cityCollapsed[root.id] },
-            children: [],
-          })
+        let c = cities.get(root.id)
+        if (!c) { c = { root, metro: null, d3: null, hc: [], rwd: [] }; cities.set(root.id, c) }
+        if (l.type === 'd3') c.d3 = l
+        else if (l.type === 'hillclimb') c.hc.push(l)
+        else if (l.type === 'rwd') c.rwd.push(l)
+        else c.metro = l
+      }
+
+      const out = []
+      for (const c of cities.values()) {
+        c.hc.sort((a, b) => vRank(a.variant) - vRank(b.variant))
+        c.rwd.sort((a, b) =>
+          (vRank(rwdVariant(a)) - vRank(rwdVariant(b)))
+          || (RWD_COMPACTS.indexOf(a.compact ?? 'hc') - RWD_COMPACTS.indexOf(b.compact ?? 'hc')))
+        const rows = []
+        if (c.metro) rows.push({ kind: 'layer', layer: c.metro })
+        if (c.d3) rows.push({ kind: 'layer', layer: c.d3 })
+        if (c.hc.length) {
+          const id = `${c.root.id}:straighten`
+          rows.push({ kind: 'group', id, label: 'Straighten', collapsed: !!state.cityCollapsed[id], layers: c.hc })
         }
-        groups.get(root.id).children.push(l)
+        if (c.rwd.length) {
+          const id = `${c.root.id}:rwd`
+          rows.push({ kind: 'group', id, label: 'RWD Maps', collapsed: !!state.cityCollapsed[id], layers: c.rwd })
+        }
+        out.push({ group: { id: c.root.id, label: c.root.name, collapsed: !!state.cityCollapsed[c.root.id] }, rows })
       }
-      for (const g of groups.values()) {
-        g.children.sort((a, b) =>
-          ((rank[a.type] ?? 9) - (rank[b.type] ?? 9)) || (subRank(a) - subRank(b)))
-      }
-      return [...groups.values()]
+      return out
     },
   },
 
@@ -223,11 +236,11 @@ export const useMapStore = defineStore('map', {
     },
 
     // 匯入一個城市＝整組管線圖層（圈層一城一群組）：Raw Maps ×1、Map Adjust
-    // ×1、Straighten ×2（原始＋旋轉）、RWD Maps ×5（基本 Hill Climbing 循環／
-    // 直角爬山／軸對齊／整數規劃／LLM 對齊，掛在原始 Straighten 上）。
-    // variant/compact 指定「要開啟」的 Straighten 與 RWD（旋轉 RWD 只在被點到
-    // 時補建）；已存在的層直接重用，只補缺的。回傳 { metro, d3, hc, rwd }
-    // （hc/rwd = variant/compact 指定的那個）。
+    // ×1、Straighten ×2（原始＋旋轉）、RWD Maps ×10（原始／旋轉 × 5 條鏈：基本
+    // Hill Climbing 循環／直角爬山／軸對齊／整數規劃／LLM 對齊；各掛在同變體的
+    // Straighten 上）。variant/compact 指定「要開啟」的 Straighten 與 RWD；已存
+    // 在的層直接重用，只補缺的。回傳 { metro, d3, hc, rwd }（hc/rwd = variant/
+    // compact 指定的那個）。
     importCityChain(sys, { variant = 'orig', compact = 'rect' } = {}) {
       const metro = this.importMetroSystem(sys)
       let d3 = this.layers.find((l) => l.type === 'd3' && l.sourceLayerId === metro.id)
@@ -239,7 +252,7 @@ export const useMapStore = defineStore('map', {
         this.layers.find((l) => l.type === 'rwd' && l.sourceLayerId === hcLayer.id && l.compact === c)
         ?? this.addRwdLayer(hcLayer.id, c)
       const hcByVariant = { orig: ensureHc('orig'), rot: ensureHc('rot') }
-      for (const c of RWD_COMPACTS) ensureRwd(hcByVariant.orig, c)
+      for (const v of ['orig', 'rot']) for (const c of RWD_COMPACTS) ensureRwd(hcByVariant[v], c)
       const hc = hcByVariant[variant] ?? hcByVariant.orig
       const rwd = ensureRwd(hc, compact)
       this.selectedLayerId = metro.id
