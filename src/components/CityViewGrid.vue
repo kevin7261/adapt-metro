@@ -15,6 +15,8 @@ const props = defineProps({
   labelsForTilt: { type: Function, default: null }, // (tilt) => labels（HC）
   columns: { type: Number, required: true },   // grid 欄數（HC 4、RWD 2）
   ctaLabel: { type: String, required: true },  // 「建立 X ›」的 X
+  head: { type: Boolean, default: true },      // false = 不畫城市標題列（視圖畫廊自己有）
+  bare: { type: Boolean, default: false },     // true = 無外框（嵌在視圖畫廊卡片內）
 })
 const emit = defineEmits(['pick'])
 
@@ -51,8 +53,8 @@ onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
-  <div ref="root" class="sgrid-card">
-    <button class="sgrid-head" :title="`建立 ${entry.cityZh ?? entry.city} ${ctaLabel} 視圖`" @click="emit('pick', entry)">
+  <div ref="root" class="sgrid-card" :class="{ bare }">
+    <button v-if="head" class="sgrid-head" :title="`建立 ${entry.cityZh ?? entry.city} ${ctaLabel} 視圖`" @click="emit('pick', entry)">
       <span class="sh-name">
         <span class="sh-zh">{{ entry.cityZh ?? entry.city }} · {{ entry.countryZh ?? entry.country }}</span>
         <span class="sh-en">{{ entry.city }} · {{ entry.country }}</span>
@@ -130,6 +132,8 @@ onBeforeUnmount(() => observer?.disconnect())
   overflow: hidden;
   background: hsl(var(--card));
 }
+/* 嵌在視圖畫廊卡片內：外框由外層卡片提供 */
+.sgrid-card.bare { border: none; border-radius: 0; }
 .sgrid-head {
   display: flex;
   align-items: center;

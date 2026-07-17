@@ -103,17 +103,9 @@ export const useMapStore = defineStore('map', {
       // Populated by the Raw Maps import modal (metro / railway / highway).
       layers: migrateLayerNames(p?.layers ?? []),
 
-      // Layer groups (GeoLibre model: flat layers carry a groupId). One group per
-      // kind of layer: imported raw maps (metro / railway / highway all live in
-      // Raw Maps — the id stays 'metro-maps' so persisted sessions keep working),
-      // D3.js views over a metro layer, and hill-climbing optimizations over a
-      // Map Adjust view's gridded layout.
-      groups: [
-        { id: 'metro-maps', label: 'Raw Maps', collapsed: p?.groupCollapsed?.['metro-maps'] ?? false },
-        { id: 'd3', label: 'Map Adjust', collapsed: p?.groupCollapsed?.['d3'] ?? false },
-        { id: 'hillclimb', label: 'Straighten', collapsed: p?.groupCollapsed?.['hillclimb'] ?? false },
-        { id: 'rwd', label: 'RWD Maps', collapsed: p?.groupCollapsed?.['rwd'] ?? false },
-      ],
+      // 2026-07 圈層改版：群組＝城市（由 layerTree 依來源鏈動態算出），這裡只存
+      // 各城市群組的收合狀態（rootLayerId -> bool；沿用 groupCollapsed 持久化欄位）。
+      cityCollapsed: p?.groupCollapsed ?? {},
     }
   },
 
@@ -121,12 +113,37 @@ export const useMapStore = defineStore('map', {
     selectedLayer(state) {
       return state.layers.find((l) => l.id === state.selectedLayerId) ?? null
     },
-    // Panel rows: each group with its member layers (groups always shown).
+    // Panel rows: one group per CITY (root raw-map layer), children = that
+    // city's pipeline layers ordered Raw Maps → Map Adjust → Straighten → RWD
+    // Maps. A derived layer joins its source chain's root; a layer whose chain
+    // is broken (source removed / file-imported view) roots itself.
     layerTree(state) {
-      return state.groups.map((group) => ({
-        group,
-        children: state.layers.filter((l) => l.groupId === group.id),
-      }))
+      const byId = new Map(state.layers.map((l) => [l.id, l]))
+      const rootOf = (l) => {
+        let cur = l
+        const seen = new Set()
+        while (cur.sourceLayerId && byId.has(cur.sourceLayerId) && !seen.has(cur.id)) {
+          seen.add(cur.id)
+          cur = byId.get(cur.sourceLayerId)
+        }
+        return cur
+      }
+      const rank = { metro: 0, d3: 1, hillclimb: 2, rwd: 3 }
+      const groups = new Map()
+      for (const l of state.layers) {
+        const root = rootOf(l)
+        if (!groups.has(root.id)) {
+          groups.set(root.id, {
+            group: { id: root.id, label: root.name, collapsed: !!state.cityCollapsed[root.id] },
+            children: [],
+          })
+        }
+        groups.get(root.id).children.push(l)
+      }
+      for (const g of groups.values()) {
+        g.children.sort((a, b) => (rank[a.type] ?? 9) - (rank[b.type] ?? 9))
+      }
+      return [...groups.values()]
     },
   },
 
@@ -149,6 +166,28 @@ export const useMapStore = defineStore('map', {
     // props = the clicked feature's properties object, or null to clear.
     setSelectedFeature(layerId, props) {
       this.selectedFeatures[layerId] = props ?? null
+    },
+
+    // 圈層城市群組收合（key = root layer id；持久化於 groupCollapsed）。
+    toggleCityCollapsed(rootId) {
+      this.cityCollapsed = { ...this.cityCollapsed, [rootId]: !this.cityCollapsed[rootId] }
+    },
+
+    // 匯入一個城市＝整組管線圖層（圈層一城一群組：Raw Maps / Map Adjust /
+    // Straighten / RWD Maps）。variant/compact 指定 Straighten 與 RWD 的變體；
+    // 該城市已存在的層直接重用，只補缺的。回傳 { metro, d3, hc, rwd }。
+    importCityChain(sys, { variant = 'orig', compact = 'rect' } = {}) {
+      const metro = this.importMetroSystem(sys)
+      let d3 = this.layers.find((l) => l.type === 'd3' && l.sourceLayerId === metro.id)
+      if (!d3) d3 = this.addD3Layer(metro.id)
+      let hc = this.layers.find(
+        (l) => l.type === 'hillclimb' && l.sourceLayerId === d3.id && l.variant === variant)
+      if (!hc) hc = this.addHillClimbLayer(d3.id, variant)
+      let rwd = this.layers.find(
+        (l) => l.type === 'rwd' && l.sourceLayerId === hc.id && l.compact === compact)
+      if (!rwd) rwd = this.addRwdLayer(hc.id, compact)
+      this.selectedLayerId = metro.id
+      return { metro, d3, hc, rwd }
     },
 
     // metro / highway 匯入的共用本體：查同 id 舊層或建新層、選取、回傳。

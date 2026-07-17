@@ -73,6 +73,11 @@ const tiles = computed(() => {
       <span class="gallery-count">{{ tiles.length }} 城市</span>
     </div>
 
+    <!-- 額外工具列（如視圖畫廊的「顯示哪些地圖」勾選）——有提供 slot 才渲染 -->
+    <div v-if="$slots.toolbar" class="gallery-toolbar">
+      <slot name="toolbar" />
+    </div>
+
     <div class="gallery-body">
       <div v-if="error" class="gallery-status">
         {{ errorText }}：{{ error }}
@@ -125,6 +130,15 @@ const tiles = computed(() => {
 .sort-btn:last-child { border-right: none; }
 .sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
 .gallery-count { margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.gallery-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+}
 /* container-type so the tile grid responds to the PANEL width, not the viewport
    (the gallery lives in a resizable dockview panel). */
 .gallery-body { flex: 1; overflow-y: auto; padding: 16px; container-type: inline-size; }

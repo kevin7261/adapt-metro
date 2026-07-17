@@ -94,10 +94,11 @@ watch(selCountry, () => { selCity.value = '' })
 
 function importSystem(sys) {
   if (!sys) return
-  const layer = store.importMetroSystem(sys)
-  openLayerTab(layer)
+  // 匯入一城＝整組管線圖層（圈層一城一群組：Raw / Map Adjust / Straighten / RWD）
+  const { metro } = store.importCityChain(sys)
+  openLayerTab(metro)
   close()
-  store.toast(`已匯入 ${sys.cityZh ?? sys.city} metro map（${sys.line_count} 條線 / ${sys.station_count} 站）`)
+  store.toast(`已匯入 ${sys.cityZh ?? sys.city} 整組圖層（${sys.line_count} 條線 / ${sys.station_count} 站）`)
 }
 
 /* Import Highway Network — highway systems mirror the metro schema (see skill

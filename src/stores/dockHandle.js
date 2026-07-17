@@ -23,8 +23,7 @@ export function openLayerTab(layer) {
   })
 }
 
-// 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）——
-// 開啟（或聚焦）固定 id 的 panel，規格表驅動。
+// 視圖畫廊 tab——開啟（或聚焦）固定 id 的 panel。
 function openFixedTab({ id, component, title, icon }) {
   const api = dockHandle.api
   if (!api) return
@@ -38,16 +37,7 @@ function openFixedTab({ id, component, title, icon }) {
     renderer: 'always',
   })
 }
-// Metro Maps：every city's thumbnail grid.
-export const openGalleryTab = () =>
-  openFixedTab({ id: 'metro-gallery', component: 'metro-gallery', title: 'Metro Maps', icon: 'train' })
-// Map Adjust：every city's pre-computed views as a card grid (data/metro/views/).
-export const openViewGalleryTab = () =>
-  openFixedTab({ id: 'map-adjust-gallery', component: 'map-adjust-gallery', title: 'Map Adjust · 視圖畫廊', icon: 'polyline' })
-// Hill Climbing：every city's pre-computed HC views as a card grid (data/metro/hcviews/).
-export const openHcGalleryTab = () =>
-  openFixedTab({ id: 'hill-climb-gallery', component: 'hill-climb-gallery', title: 'Straighten · 視圖畫廊', icon: 'terrain' })
-// RWD Maps：every city's pre-computed RWD views as a card grid
-// (data/metro/rwdviews/)：4 縮減網格變體 × 縮減網格|RWD 路網.
-export const openRwdGalleryTab = () =>
-  openFixedTab({ id: 'rwd-gallery', component: 'rwd-gallery', title: 'RWD Maps · 視圖畫廊', icon: 'route' })
+// 視圖畫廊（2026-07 併四為一）：every city × 所有地圖（Raw Maps 縮圖 / Map
+// Adjust / Straighten / RWD Maps 預算視圖），上方勾選要顯示的種類。
+export const openAllGalleryTab = () =>
+  openFixedTab({ id: 'all-gallery', component: 'all-gallery', title: '視圖畫廊', icon: 'grid_view' })

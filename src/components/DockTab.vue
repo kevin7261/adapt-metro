@@ -20,16 +20,19 @@ const layer = computed(() => store.layers.find((l) => l.id === layerId.value) ??
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 // Gallery panels have no layer — derive their icon from the panel id (always
 // known by dockview, so it works even for panels opened before params gained an
-// icon) so each gallery tab matches its group's glyph in the layer list.
-const GALLERY_ICON = {
-  'metro-gallery': 'train', 'map-adjust-gallery': 'polyline', 'hill-climb-gallery': 'terrain',
-  'rwd-gallery': 'route',
-}
+// icon).
+const GALLERY_ICON = { 'all-gallery': 'grid_view' }
 const panelId = computed(() => p.value.api?.id ?? inner.value.id)
 const icon = computed(() =>
   typeIcons[layer.value?.type] ?? GALLERY_ICON[panelId.value] ?? inner.value.icon ?? p.value.icon ?? 'circle')
-const title = computed(() =>
-  layer.value?.name || inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—')
+// 圈層一城一群組後，同一城市的四個管線圖層同名（都是城市名）——tab 標題附上
+// 階段（Map Adjust / Straighten / RWD）以便區分；Raw Maps 維持城市名。
+const STAGE_SUFFIX = { d3: 'Map Adjust', hillclimb: 'Straighten', rwd: 'RWD' }
+const title = computed(() => {
+  const l = layer.value
+  if (l) return STAGE_SUFFIX[l.type] ? `${l.name} · ${STAGE_SUFFIX[l.type]}` : l.name
+  return inner.value.title || p.value.title || p.value.api?.title || layerId.value || '—'
+})
 
 function close(e) {
   e.stopPropagation()

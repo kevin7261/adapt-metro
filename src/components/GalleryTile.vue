@@ -6,7 +6,11 @@ import { assetUrl } from '../lib/assetUrl'
 // One city tile: lazily fetch its GeoJSON when scrolled into view, then draw a
 // lightweight SVG thumbnail of the network (lines in their colour + station
 // dots). Real MapLibre maps can't scale to hundreds of tiles (WebGL contexts).
-const props = defineProps({ system: { type: Object, required: true } })
+// bare = 只畫縮圖（無外框、無城市文字列）——嵌在視圖畫廊卡片內用。
+const props = defineProps({
+  system: { type: Object, required: true },
+  bare: { type: Boolean, default: false },
+})
 const emit = defineEmits(['pick'])
 
 const root = ref(null)
@@ -107,7 +111,7 @@ onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
-  <button ref="root" class="tile" :title="`匯入 ${system.cityZh ?? system.city}`" @click="emit('pick', system)">
+  <button ref="root" class="tile" :class="{ bare }" :title="`匯入 ${system.cityZh ?? system.city}`" @click="emit('pick', system)">
     <div class="tile-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
       <svg v-if="thumb" :viewBox="`0 0 ${thumb.W} ${thumb.H}`" preserveAspectRatio="xMidYMid meet">
         <path
@@ -133,7 +137,7 @@ onBeforeUnmount(() => observer?.disconnect())
       </svg>
       <span v-if="state === 'error'" class="tile-msg">載入失敗</span>
     </div>
-    <div class="tile-meta">
+    <div v-if="!bare" class="tile-meta">
       <span class="tile-city">{{ system.cityZh ?? system.city }} · {{ system.countryZh ?? system.country }}</span>
       <span class="tile-en">{{ system.city }} · {{ system.country }}</span>
       <span class="tile-stats">{{ system.line_count }} 線 · {{ system.station_count }} 站</span>
@@ -158,6 +162,10 @@ onBeforeUnmount(() => observer?.disconnect())
   border-color: hsl(var(--primary) / 0.55);
   box-shadow: 0 6px 18px -6px hsl(var(--primary) / 0.35), 0 0 0 1px hsl(var(--primary) / 0.25);
 }
+/* 嵌在視圖畫廊卡片內：外框與 hover 浮起由外層卡片決定 */
+.tile.bare { border: none; border-radius: 0; }
+.tile.bare:hover { transform: none; box-shadow: none; }
+.tile.bare .tile-canvas { border-bottom: none; }
 .tile-canvas {
   position: relative;
   aspect-ratio: 16 / 11;

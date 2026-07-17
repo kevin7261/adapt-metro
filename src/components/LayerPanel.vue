@@ -2,7 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
-import { openLayerTab, openGalleryTab, openViewGalleryTab, openHcGalleryTab, openRwdGalleryTab, dockHandle } from '../stores/dockHandle'
+import { openLayerTab, openAllGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { dragResize } from '../lib/dragResize'
 import { openSkillDoc } from '../stores/skillHandle'
@@ -13,12 +13,21 @@ const store = useMapStore()
 
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
-// Skills surfaced in each GROUP header (left of the delete icon): Raw Maps
-// holds metro / railway / highway layers so it gets all three pipelines'
-// skills + the cities index; Map Adjust the skeleton + gridding skills,
-// Hill Climbing / RWD their own.
-const GROUP_SKILLS = {
-  'metro-maps': ['metro-osm-fetch', 'metro-audit', 'metro-cities',
+// 2026-07 圈層改版：群組＝城市，列＝該城市的管線階段。列名顯示階段（不重複
+// 城市名——群組標題已是城市）；Straighten / RWD 附變體。
+const RWD_COMPACT_ZH = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本' }
+function stageLabel(l) {
+  if (l.type === 'd3') return 'Map Adjust'
+  if (l.type === 'hillclimb') return `Straighten（${l.variant === 'rot' ? '旋轉' : '原始'}）`
+  if (l.type === 'rwd') return `RWD Maps（${RWD_COMPACT_ZH[l.compact ?? 'hc']}）`
+  return 'Raw Maps'
+}
+
+// Skills surfaced PER LAYER ROW（attribute table 按鈕左邊）：每列顯示該圖層
+// 所屬階段用到的 skills——Raw Maps 列收 metro / railway / highway 三管線＋
+// 城市規則；Map Adjust 列收骨架＋格網化；Straighten / RWD 各自的演算法 skill。
+const STAGE_SKILLS = {
+  metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities',
     'railway-osm-fetch', 'highway-osm-fetch', 'highway-audit', 'highway-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
@@ -33,22 +42,22 @@ onMounted(async () => {
   } catch { /* labels fall back to the id */ }
   document.addEventListener('mousedown', onSkillDocClick)
 })
-// Skills for a group's header menu: the group's general skills, plus (Raw
-// Maps) every city rule sorted after them.
-function groupSkills(groupId) {
-  const ids = [...(GROUP_SKILLS[groupId] ?? [])]
-  if (groupId === 'metro-maps') {
+// Skills for one layer row: its stage's general skills, plus (Raw Maps) every
+// city rule sorted after them.
+function layerSkills(layer) {
+  const ids = [...(STAGE_SKILLS[layer.type] ?? [])]
+  if (layer.type === 'metro') {
     for (const id of Object.keys(skillIndex.value).sort())
       if (id.startsWith('metro-city-') && !ids.includes(id)) ids.push(id)
   }
   return ids.map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
 }
 // The menu is teleported to <body> with fixed positioning so it isn't clipped
-// by the layer tree's `overflow-y: auto`. skillMenuFor holds the group id.
+// by the layer tree's `overflow-y: auto`. skillMenuFor holds the layer id.
 const skillMenuPos = ref({ top: 0, left: 0 })
-function toggleSkillMenu(groupId, e) {
-  if (skillMenuFor.value === groupId) { skillMenuFor.value = null; return }
-  skillMenuFor.value = groupId
+function toggleSkillMenu(layer, e) {
+  if (skillMenuFor.value === layer.id) { skillMenuFor.value = null; return }
+  skillMenuFor.value = layer.id
   const r = e.currentTarget.getBoundingClientRect()
   skillMenuPos.value = { top: r.bottom + 4, left: Math.max(8, Math.min(r.right - 320, window.innerWidth - 328)) }
 }
@@ -60,11 +69,6 @@ function onSkillDocClick(e) {
   if (skillMenuFor.value && !e.target.closest('.skill-wrap') && !e.target.closest('.skill-menu')) {
     skillMenuFor.value = null
   }
-}
-
-// Add a D3.js view: a dialog picks the source metro layer (fixed afterwards).
-function addD3() {
-  store.ui.dialog = 'add-d3'
 }
 
 // Click a layer → open (or focus) its editor tab, like opening a file in an IDE.
@@ -145,15 +149,14 @@ function disposeLayer(l) {
 // Remove = 拆除單一圖層。
 function removeLayer(layer) {
   disposeLayer(layer)
-  store.toast(`已移除圖層「${layer.name}」`)
+  store.toast(`已移除圖層「${layer.name} ${stageLabel(layer)}」`)
 }
 
-// Remove every layer in a group, one summary toast.
-function removeGroupLayers(groupId, label) {
-  const inGroup = store.layers.filter((l) => l.groupId === groupId)
-  if (!inGroup.length) return
-  for (const l of inGroup) disposeLayer(l)
-  store.toast(`已刪除「${label}」群組的 ${inGroup.length} 個圖層`)
+// Remove every layer of one city group, one summary toast.
+function removeCityLayers(item) {
+  if (!item.children.length) return
+  for (const l of [...item.children]) disposeLayer(l)
+  store.toast(`已刪除「${item.group.label}」的 ${item.children.length} 個圖層`)
 }
 
 /* ---- resize ---- */
@@ -195,125 +198,39 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <!-- 最上面：選各城市地圖（開啟現有的匯入 modal）＋視圖畫廊 -->
+      <div class="panel-actions">
+        <button class="city-pick-btn" title="選擇城市地圖（Metro Maps / Railways / Highways）" @click="store.ui.dialog = 'import-quick'">
+          <MIcon name="add_location_alt" :size="14" />
+          <span>選擇城市地圖</span>
+        </button>
+        <button class="btn-icon gallery-btn" title="視圖畫廊（所有城市 · 所有地圖）" @click="openAllGalleryTab()">
+          <MIcon name="grid_view" :size="14" />
+        </button>
+      </div>
+
       <div class="tree">
+        <div v-if="!store.layerTree.length" class="tree-empty">
+          按「選擇城市地圖」匯入一個城市——會建立該城市的
+          Raw Maps / Map Adjust / Straighten / RWD Maps 圖層
+        </div>
         <div v-for="item in store.layerTree" :key="item.group.id" class="group-card">
-          <!-- Group header: chevron + folder + name (+ add for the D3 group) -->
-          <div class="group-header" @click="item.group.collapsed = !item.group.collapsed">
+          <!-- 城市群組標題：chevron + folder + 城市名 + 刪除整組 -->
+          <div class="group-header" @click="store.toggleCityCollapsed(item.group.id)">
             <MIcon :name="item.group.collapsed ? 'chevron_right' : 'expand_more'" :size="14" class="group-chevron" />
             <MIcon :name="item.group.collapsed ? 'folder' : 'folder_open'" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
-            <div v-if="GROUP_SKILLS[item.group.id]" class="skill-wrap">
-              <button
-                class="btn-icon group-add"
-                :class="{ active: skillMenuFor === item.group.id }"
-                title="Skills"
-                @click.stop="toggleSkillMenu(item.group.id, $event)"
-              >
-                <MIcon name="auto_awesome" :size="14" />
-              </button>
-              <Teleport to="body">
-                <div
-                  v-if="skillMenuFor === item.group.id"
-                  class="menu-pop skill-menu"
-                  :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
-                >
-                  <button
-                    v-for="s in groupSkills(item.group.id)"
-                    :key="s.id"
-                    class="menu-item skill-item"
-                    @click="pickSkill(s.id)"
-                  >
-                    <MIcon name="auto_awesome" :size="13" class="skill-icon" />
-                    <span class="skill-text">
-                      <span class="skill-name">{{ s.id }}</span>
-                      <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
-                    </span>
-                  </button>
-                </div>
-              </Teleport>
-            </div>
             <button
-              v-if="item.children.length"
               class="btn-icon group-add group-del"
-              title="刪除此群組全部圖層"
-              @click.stop="removeGroupLayers(item.group.id, item.group.label)"
+              title="刪除此城市全部圖層"
+              @click.stop="removeCityLayers(item)"
             >
               <MIcon name="delete" :size="14" />
             </button>
-            <button
-              v-if="item.group.id === 'metro-maps'"
-              class="btn-icon group-add"
-              title="Metro Maps gallery（全部城市縮圖）"
-              @click.stop="openGalleryTab()"
-            >
-              <MIcon name="grid_view" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'metro-maps'"
-              class="btn-icon group-add"
-              title="Import map（Metro Maps / Railways / Highways）"
-              @click.stop="store.ui.dialog = 'import-quick'"
-            >
-              <MIcon name="add" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'd3'"
-              class="btn-icon group-add"
-              title="8 視圖畫廊（全部城市 · 九宮格）"
-              @click.stop="openViewGalleryTab()"
-            >
-              <MIcon name="grid_view" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'd3'"
-              class="btn-icon group-add"
-              title="Add D3.js view"
-              @click.stop="addD3()"
-            >
-              <MIcon name="add" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'hillclimb'"
-              class="btn-icon group-add"
-              title="8 視圖畫廊（全部城市 · 格網化後／Hill Climbing／端點移動／縮減網格 ×2）"
-              @click.stop="openHcGalleryTab()"
-            >
-              <MIcon name="grid_view" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'hillclimb'"
-              class="btn-icon group-add"
-              title="Add Hill Climbing view（來源：Map Adjust 格網化後）"
-              @click.stop="store.ui.dialog = 'add-hillclimb'"
-            >
-              <MIcon name="add" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'rwd'"
-              class="btn-icon group-add"
-              title="8 視圖畫廊（全部城市 · 4 縮減網格 × 縮減網格／RWD 路網）"
-              @click.stop="openRwdGalleryTab()"
-            >
-              <MIcon name="grid_view" :size="14" />
-            </button>
-            <button
-              v-if="item.group.id === 'rwd'"
-              class="btn-icon group-add"
-              title="Add RWD Maps view（來源：循環的 4 個結果之一）"
-              @click.stop="store.ui.dialog = 'add-rwd'"
-            >
-              <MIcon name="add" :size="14" />
-            </button>
           </div>
 
-          <!-- Group children -->
+          <!-- 城市的管線圖層：Raw Maps → Map Adjust → Straighten → RWD Maps -->
           <template v-if="!item.group.collapsed">
-            <div v-if="!item.children.length" class="group-empty">
-              {{ item.group.id === 'd3' ? '按 + 新增 D3.js 視圖'
-                : item.group.id === 'hillclimb' ? '按 + 從 Map Adjust 的「格網化後」建立 Hill Climbing 視圖'
-                : item.group.id === 'rwd' ? '按 + 從 Hill Climbing 的「循環結果」建立 RWD Maps 視圖'
-                : '按 + 匯入 metro / railway / highway 地圖' }}
-            </div>
             <div
               v-for="layer in item.children"
               :key="layer.id"
@@ -328,7 +245,7 @@ onBeforeUnmount(() => {
                   class="type-icon"
                   :style="layer.color ? { color: layer.color } : {}"
                 />
-                <span class="layer-name">{{ layer.name }}</span>
+                <span class="layer-name">{{ stageLabel(layer) }}</span>
               </div>
 
               <!-- stop only on the buttons — a click on the strip's empty area
@@ -342,6 +259,37 @@ onBeforeUnmount(() => {
                 >
                   <MIcon name="zoom_in" :size="14" />
                 </button>
+                <!-- Skills（此圖層階段用到的）— attribute table 左邊，同改版前位置 -->
+                <div class="skill-wrap">
+                  <button
+                    class="btn-icon"
+                    :class="{ active: skillMenuFor === layer.id }"
+                    title="Skills"
+                    @click.stop="toggleSkillMenu(layer, $event)"
+                  >
+                    <MIcon name="auto_awesome" :size="14" />
+                  </button>
+                  <Teleport to="body">
+                    <div
+                      v-if="skillMenuFor === layer.id"
+                      class="menu-pop skill-menu"
+                      :style="{ position: 'fixed', top: skillMenuPos.top + 'px', left: skillMenuPos.left + 'px', right: 'auto' }"
+                    >
+                      <button
+                        v-for="s in layerSkills(layer)"
+                        :key="s.id"
+                        class="menu-item skill-item"
+                        @click="pickSkill(s.id)"
+                      >
+                        <MIcon name="auto_awesome" :size="13" class="skill-icon" />
+                        <span class="skill-text">
+                          <span class="skill-name">{{ s.id }}</span>
+                          <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
+                        </span>
+                      </button>
+                    </div>
+                  </Teleport>
+                </div>
                 <button
                   class="btn-icon"
                   :class="{ active: store.ui.attributeTableOpen[layer.id] }"
@@ -400,7 +348,45 @@ onBeforeUnmount(() => {
 }
 .header-actions { display: flex; gap: 2px; }
 
+/* 最上面的動作列：選城市地圖（開匯入 modal）＋視圖畫廊 */
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px 0;
+}
+.city-pick-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  white-space: nowrap;
+}
+.city-pick-btn:hover { background: hsl(var(--primary) / 0.2); }
+.gallery-btn {
+  width: 30px;
+  height: 30px;
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
+.gallery-btn:hover { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
+
 .tree { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+.tree-empty {
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 8px 6px;
+  line-height: 1.7;
+}
 
 /* ---- group card (GeoLibre-style: chevron + folder + name) ---- */
 .group-card {
@@ -435,11 +421,6 @@ onBeforeUnmount(() => {
 .group-add { width: 22px; height: 22px; color: hsl(var(--muted-foreground)); }
 .group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
 .group-del:hover { color: hsl(var(--destructive)); background: hsl(var(--destructive) / 0.12); }
-.group-empty {
-  font-size: 11.5px;
-  color: hsl(var(--muted-foreground));
-  padding: 4px 8px 6px 26px;
-}
 
 .layer-row {
   position: relative;
@@ -474,6 +455,8 @@ onBeforeUnmount(() => {
 .skill-menu {
   min-width: 260px;
   max-width: 340px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 .skill-item { align-items: flex-start; }
 .skill-icon { flex-shrink: 0; margin-top: 2px; color: hsl(var(--primary)); }

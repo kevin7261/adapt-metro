@@ -28,7 +28,7 @@ function buildSnapshot(store) {
     version: 1,
     layers: store.layers,
     selectedLayerId: store.selectedLayerId,
-    groupCollapsed: Object.fromEntries(store.groups.map((g) => [g.id, g.collapsed])),
+    groupCollapsed: store.cityCollapsed,
     attributeTableOpen: store.ui.attributeTableOpen,
     layerPanelOpen: store.ui.layerPanelOpen,
     layerPanelWidth: store.layerPanelWidth,

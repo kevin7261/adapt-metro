@@ -5,10 +5,7 @@ import { useMapStore } from '../stores/mapStore'
 import { dockHandle, openLayerTab } from '../stores/dockHandle'
 import LayerTab from './LayerTab.vue'
 import D3Tab from './D3Tab.vue'
-import MetroGallery from './MetroGallery.vue'
-import MapAdjustGallery from './MapAdjustGallery.vue'
-import HillClimbGallery from './HillClimbGallery.vue'
-import RwdGallery from './RwdGallery.vue'
+import AllGallery from './AllGallery.vue'
 import DockTab from './DockTab.vue'
 import DockWatermark from './DockWatermark.vue'
 
@@ -55,7 +52,7 @@ onBeforeUnmount(() => { dockHandle.api = null })
 <template>
   <DockviewVue
     class="editor-dock"
-    :components="{ 'layer-tab': LayerTab, 'd3-tab': D3Tab, 'metro-gallery': MetroGallery, 'map-adjust-gallery': MapAdjustGallery, 'hill-climb-gallery': HillClimbGallery, 'rwd-gallery': RwdGallery }"
+    :components="{ 'layer-tab': LayerTab, 'd3-tab': D3Tab, 'all-gallery': AllGallery }"
     :default-tab-component="DockTab"
     :watermark-component="DockWatermark"
     :theme="theme"
