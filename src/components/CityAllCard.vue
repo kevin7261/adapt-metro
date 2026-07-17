@@ -15,7 +15,7 @@ const props = defineProps({
 const emit = defineEmits(['pick'])
 
 const SECTIONS = {
-  raw: { label: 'Raw Maps' },
+  raw: { label: 'Metro Maps' },
   adjust: { label: 'Map Adjust', dataDir: 'views', labelsForTilt: viewLabels },
   straighten: { label: 'Straighten', dataDir: 'hcviews', labelsForTilt: hcViewLabels },
   rwd: { label: 'RWD Maps', dataDir: 'rwdviews', labelsForTilt: rwdViewLabels },

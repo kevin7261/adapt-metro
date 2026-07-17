@@ -469,7 +469,9 @@ function addMetroSourceLayers(data) {
   map.addLayer({
     id: 'metro-labels', source: 'metro', type: 'symbol',
     filter: ['==', ['geometry-type'], 'Point'],
-    minzoom: 13, // 站名只在 zoom ≥ 13 顯示，低 zoom 保持路網總覽不被文字塞滿
+    // 站名從 zoom ≥ 10 就顯示（原本 13 太高，在預設總覽 zoom 開站名看起來沒反應）；
+    // text-allow-overlap:false + text-optional 會自動碰撞剔除，低 zoom 不會塞滿。
+    minzoom: 10,
     layout: {
       'text-field': ['coalesce', ['get', 'station_name'], ''],
       // openfreemap 字型伺服器有的字族（raster/純色底圖的 glyphs 指向它；不設的話

@@ -407,19 +407,25 @@ watch(dialog, (d) => {
     .then((list) => { allSkills.value = list })
     .catch((err) => { skillsError.value = String(err) })
 })
-// 分類＝圖層名（與圈層列一致）：Raw Maps 收三管線＋地標＋城市規則、Map Adjust
+// 分類＝圖層名（與圈層列一致）：Metro Maps 收三管線＋地標＋城市規則、Map Adjust
 // 收骨架/格網化、RWD Maps 收畫線＋LLM 調整/評價、其餘 route-* 都屬 Straighten。
 const skillGroupOf = (id) => {
   if (id.startsWith('route-skeleton-')) return 'Map Adjust'
   if (['route-rwd-draw', 'route-llm-grid', 'route-llm-eval'].includes(id)) return 'RWD Maps'
   if (id.startsWith('route-')) return 'Straighten'
-  return 'Raw Maps'
+  return 'Metro Maps'
 }
 const skillGroups = computed(() => {
-  const order = ['Raw Maps', 'Map Adjust', 'Straighten', 'RWD Maps']
+  const order = ['Metro Maps', 'Map Adjust', 'Straighten', 'RWD Maps']
   const by = new Map(order.map((label) => [label, []]))
   for (const s of allSkills.value ?? []) by.get(skillGroupOf(s.id)).push(s)
   return order.map((label) => ({ label, skills: by.get(label) })).filter((g) => g.skills.length)
+})
+// 四個 skill 群改成分頁（tab）呈現，一次只看一群。
+const activeSkillGroup = ref('Raw Maps')
+const currentSkillGroup = computed(() => {
+  const groups = skillGroups.value
+  return groups.find((g) => g.label === activeSkillGroup.value) ?? groups[0] ?? null
 })
 function openSkill(id) {
   close()
@@ -773,7 +779,7 @@ const shortcuts = [
       </div>
       <div class="dialog-body">
         <div v-if="!metroLayerChoices.length" class="import-status">
-          Raw Maps group 還沒有 metro 圖層 — 先用 + 匯入一個 metro map，或直接匯入 GeoJSON 檔案
+          Metro Maps group 還沒有 metro 圖層 — 先用 + 匯入一個 metro map，或直接匯入 GeoJSON 檔案
         </div>
         <template v-else>
           <p class="add-d3-hint">選擇一個 metro map 圖層作為 D3.js 視圖的資料來源（建立後不可更改）：</p>
@@ -916,23 +922,29 @@ const shortcuts = [
         <h2 class="dialog-title">Skills</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
       </div>
+      <div v-if="allSkills && !skillsError" class="dialog-tabs" role="tablist">
+        <button
+          v-for="g in skillGroups"
+          :key="g.label"
+          class="dialog-tab"
+          :class="{ active: currentSkillGroup?.label === g.label }"
+          role="tab"
+          :aria-selected="currentSkillGroup?.label === g.label"
+          @click="activeSkillGroup = g.label"
+        >{{ g.label }} <span class="skills-tab-count">{{ g.skills.length }}</span></button>
+      </div>
       <div class="dialog-body skills-body">
         <div v-if="skillsError" class="import-status error">載入 skill 清單失敗：{{ skillsError }}</div>
         <div v-else-if="!allSkills" class="import-status">載入 skill 清單…</div>
-        <template v-else>
-          <div v-for="g in skillGroups" :key="g.label" class="skills-group">
-            <div class="skills-group-title">{{ g.label }}</div>
-            <div class="skills-grid">
-              <button v-for="s in g.skills" :key="s.id" class="skill-card" @click="openSkill(s.id)">
-                <MIcon name="auto_awesome" :size="13" class="skill-card-icon" />
-                <span class="skill-card-text">
-                  <span class="skill-card-name">{{ s.id }}</span>
-                  <span v-if="s.description" class="skill-card-desc">{{ s.description }}</span>
-                </span>
-              </button>
-            </div>
-          </div>
-        </template>
+        <div v-else-if="currentSkillGroup" class="skills-grid">
+          <button v-for="s in currentSkillGroup.skills" :key="s.id" class="skill-card" @click="openSkill(s.id)">
+            <MIcon name="auto_awesome" :size="13" class="skill-card-icon" />
+            <span class="skill-card-text">
+              <span class="skill-card-name">{{ s.id }}</span>
+              <span v-if="s.description" class="skill-card-desc">{{ s.description }}</span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1256,18 +1268,14 @@ const shortcuts = [
 .import-preview.placeholder { color: hsl(var(--muted-foreground)); }
 .btn-primary:disabled { opacity: 0.5; cursor: default; }
 
-/* Skills 總覽 modal */
+/* Skills 總覽 modal — 四個 skill 群改用 header 下方的分頁（.dialog-tab） */
 .skills-modal { width: min(880px, calc(100vw - 32px)); }
 .skills-body { max-height: 68vh; overflow-y: auto; }
-.skills-group + .skills-group { margin-top: 16px; }
-.skills-group-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: hsl(var(--primary));
-  padding: 2px 2px 6px;
-  border-bottom: 1px solid hsl(var(--border));
-  margin-bottom: 8px;
+.skills-tab-count {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground) / 0.8);
 }
+.dialog-tab.active .skills-tab-count { color: hsl(var(--primary) / 0.8); }
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

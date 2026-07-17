@@ -41,3 +41,11 @@ function openFixedTab({ id, component, title, icon }) {
 // Adjust / Straighten / RWD Maps 預算視圖），上方勾選要顯示的種類。
 export const openAllGalleryTab = () =>
   openFixedTab({ id: 'all-gallery', component: 'all-gallery', title: '視圖畫廊', icon: 'grid_view' })
+
+// 依持久化的 tab id 還原一個 tab：固定面板（視圖畫廊）或某圖層。找不到對應圖層
+// 就略過（例如該圖層已被刪除）。
+export function reopenTabById(id, layers) {
+  if (id === 'all-gallery') { openAllGalleryTab(); return }
+  const layer = layers.find((l) => l.id === id)
+  if (layer) openLayerTab(layer)
+}

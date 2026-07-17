@@ -1,56 +1,11 @@
 {
   "generated": "per-line station counts vs local-language Wikipedia line articles (strict equality); stations aggregated across a country's system files by line name (一線拆多社時比全線)",
-  "lines_total": 356,
-  "checked_against_infobox": 220,
-  "flagged": 143,
+  "lines_total": 360,
+  "checked_against_infobox": 224,
+  "flagged": 127,
   "uncovered": 136,
   "adjudicated": 0,
   "flags": [
-    {
-      "country": "Japan",
-      "route_name": "山陰本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 58,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:山陰本線",
-      "wiki_stations": 161,
-      "wiki_basis": "total",
-      "diff": -103,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "日豊本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 41,
-      "files": [
-        "as-jpn-kyushu-rail.geojson"
-      ],
-      "wiki": "ja:日豊本線",
-      "wiki_stations": 113,
-      "wiki_basis": "total",
-      "diff": -72,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "奥羽本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 41,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:奥羽本線",
-      "wiki_stations": 103,
-      "wiki_basis": "total",
-      "diff": -62,
-      "severity": "warn"
-    },
     {
       "country": "China",
       "route_name": "温福线",
@@ -64,36 +19,6 @@
       "wiki_stations": 63,
       "wiki_basis": "total",
       "diff": -60,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "予讃線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 52,
-      "files": [
-        "as-jpn-shikoku-rail.geojson"
-      ],
-      "wiki": "ja:予讃線",
-      "wiki_stations": 97,
-      "wiki_basis": "total",
-      "diff": -45,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "土讃線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 29,
-      "files": [
-        "as-jpn-shikoku-rail.geojson"
-      ],
-      "wiki": "ja:土讃線",
-      "wiki_stations": 61,
-      "wiki_basis": "total",
-      "diff": -32,
       "severity": "warn"
     },
     {
@@ -143,21 +68,6 @@
     },
     {
       "country": "Japan",
-      "route_name": "鹿児島本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 78,
-      "files": [
-        "as-jpn-kyushu-rail.geojson"
-      ],
-      "wiki": "ja:鹿児島本線",
-      "wiki_stations": 102,
-      "wiki_basis": "total",
-      "diff": -24,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
       "route_name": "横須賀・総武快速線",
       "rail_class": "conventional",
       "lang": "ja",
@@ -202,38 +112,6 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "東海道本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 166,
-      "files": [
-        "as-jpn-east-rail.geojson",
-        "as-jpn-central-rail.geojson",
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:東海道本線",
-      "wiki_stations": 186,
-      "wiki_basis": "total",
-      "diff": -20,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "小海線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 11,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:小海線",
-      "wiki_stations": 31,
-      "wiki_basis": "total",
-      "diff": -20,
-      "severity": "warn"
-    },
-    {
       "country": "China",
       "route_name": "川青铁路",
       "rail_class": "high_speed",
@@ -249,21 +127,6 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "信越本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 42,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:信越本線",
-      "wiki_stations": 59,
-      "wiki_basis": "total",
-      "diff": -17,
-      "severity": "warn"
-    },
-    {
       "country": "China",
       "route_name": "合杭高速线",
       "rail_class": "high_speed",
@@ -276,81 +139,6 @@
       "wiki_stations": 33,
       "wiki_basis": "total",
       "diff": -16,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "越後線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 17,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:越後線",
-      "wiki_stations": 33,
-      "wiki_basis": "total",
-      "diff": -16,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "総武快速線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 12,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:総武快速線",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": -16,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "琵琶湖線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 7,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:琵琶湖線",
-      "wiki_stations": 23,
-      "wiki_basis": "total",
-      "diff": -16,
-      "severity": "warn"
-    },
-    {
-      "country": "China",
-      "route_name": "京广高速线",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 26,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:京广高速线",
-      "wiki_stations": 41,
-      "wiki_basis": "total",
-      "diff": -15,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "飯田線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 79,
-      "files": [
-        "as-jpn-central-rail.geojson"
-      ],
-      "wiki": "ja:飯田線",
-      "wiki_stations": 94,
-      "wiki_basis": "total",
-      "diff": -15,
       "severity": "warn"
     },
     {
@@ -384,21 +172,6 @@
       "severity": "warn"
     },
     {
-      "country": "China",
-      "route_name": "京哈高速线",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 19,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:京哈高速线",
-      "wiki_stations": 32,
-      "wiki_basis": "total",
-      "diff": -13,
-      "severity": "warn"
-    },
-    {
       "country": "Japan",
       "route_name": "東海道貨物線",
       "rail_class": "conventional",
@@ -411,51 +184,6 @@
       "wiki_stations": 17,
       "wiki_basis": "total",
       "diff": -13,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "長崎本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 29,
-      "files": [
-        "as-jpn-kyushu-rail.geojson"
-      ],
-      "wiki": "ja:長崎本線",
-      "wiki_stations": 42,
-      "wiki_basis": "total",
-      "diff": -13,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "肥薩線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 15,
-      "files": [
-        "as-jpn-kyushu-rail.geojson"
-      ],
-      "wiki": "ja:肥薩線",
-      "wiki_stations": 28,
-      "wiki_basis": "total",
-      "diff": -13,
-      "severity": "warn"
-    },
-    {
-      "country": "China",
-      "route_name": "渝昆高速铁路",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 9,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:渝昆高速铁路",
-      "wiki_stations": 21,
-      "wiki_basis": "total",
-      "diff": -12,
       "severity": "warn"
     },
     {
@@ -489,31 +217,16 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "瀬戸大橋線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 8,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:瀬戸大橋線",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": -12,
-      "severity": "warn"
-    },
-    {
       "country": "China",
-      "route_name": "福厦铁路",
+      "route_name": "渝昆高速铁路",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 2,
+      "ours": 10,
       "files": [
         "as-chn-hsr.geojson"
       ],
-      "wiki": "zh:福厦铁路",
-      "wiki_stations": 13,
+      "wiki": "zh:渝昆高速铁路",
+      "wiki_stations": 21,
       "wiki_basis": "total",
       "diff": -11,
       "severity": "warn"
@@ -534,52 +247,6 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "関西本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 41,
-      "files": [
-        "as-jpn-central-rail.geojson",
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:関西本線",
-      "wiki_stations": 52,
-      "wiki_basis": "total",
-      "diff": -11,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "筑肥線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 20,
-      "files": [
-        "as-jpn-kyushu-rail.geojson"
-      ],
-      "wiki": "ja:筑肥線",
-      "wiki_stations": 31,
-      "wiki_basis": "total",
-      "diff": -11,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "大村線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 4,
-      "files": [
-        "as-jpn-kyushu-rail.geojson"
-      ],
-      "wiki": "ja:大村線",
-      "wiki_stations": 15,
-      "wiki_basis": "total",
-      "diff": -11,
-      "severity": "warn"
-    },
-    {
       "country": "China",
       "route_name": "兰渝线",
       "rail_class": "high_speed",
@@ -595,48 +262,18 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "田沢湖線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 8,
+      "country": "China",
+      "route_name": "福厦铁路",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 4,
       "files": [
-        "as-jpn-east-rail.geojson"
+        "as-chn-hsr.geojson"
       ],
-      "wiki": "ja:田沢湖線",
-      "wiki_stations": 18,
+      "wiki": "zh:福厦铁路",
+      "wiki_stations": 13,
       "wiki_basis": "total",
-      "diff": -10,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "播但線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 8,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:播但線",
-      "wiki_stations": 18,
-      "wiki_basis": "total",
-      "diff": -10,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "津山線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 7,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:津山線",
-      "wiki_stations": 17,
-      "wiki_basis": "total",
-      "diff": -10,
+      "diff": -9,
       "severity": "warn"
     },
     {
@@ -656,15 +293,15 @@
     },
     {
       "country": "Japan",
-      "route_name": "東北新幹線",
-      "rail_class": "high_speed",
+      "route_name": "瀬戸大橋線",
+      "rail_class": "conventional",
       "lang": "ja",
-      "ours": 14,
+      "ours": 11,
       "files": [
-        "as-jpn-hsr.geojson"
+        "as-jpn-west-rail.geojson"
       ],
-      "wiki": "ja:東北新幹線",
-      "wiki_stations": 23,
+      "wiki": "ja:瀬戸大橋線",
+      "wiki_stations": 20,
       "wiki_basis": "total",
       "diff": -9,
       "severity": "warn"
@@ -686,63 +323,32 @@
     },
     {
       "country": "Japan",
-      "route_name": "内房線",
+      "route_name": "肥薩線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 22,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:内房線",
-      "wiki_stations": 30,
-      "wiki_basis": "total",
-      "diff": -8,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "中央本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 104,
-      "files": [
-        "as-jpn-east-rail.geojson",
-        "as-jpn-central-rail.geojson"
-      ],
-      "wiki": "ja:中央本線",
-      "wiki_stations": 112,
-      "wiki_basis": "total",
-      "diff": -8,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "豊肥本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 29,
+      "ours": 19,
       "files": [
         "as-jpn-kyushu-rail.geojson"
       ],
-      "wiki": "ja:豊肥本線",
-      "wiki_stations": 37,
+      "wiki": "ja:肥薩線",
+      "wiki_stations": 28,
       "wiki_basis": "total",
-      "diff": -8,
+      "diff": -9,
       "severity": "warn"
     },
     {
-      "country": "China",
-      "route_name": "龙龙高速铁路",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 4,
+      "country": "Japan",
+      "route_name": "総武快速線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 20,
       "files": [
-        "as-chn-hsr.geojson"
+        "as-jpn-east-rail.geojson"
       ],
-      "wiki": "zh:龙龙高速铁路",
-      "wiki_stations": 11,
+      "wiki": "ja:総武快速線",
+      "wiki_stations": 28,
       "wiki_basis": "total",
-      "diff": -7,
+      "diff": -8,
       "severity": "warn"
     },
     {
@@ -761,16 +367,31 @@
       "severity": "warn"
     },
     {
-      "country": "Taiwan",
-      "route_name": "宜蘭線",
+      "country": "Japan",
+      "route_name": "神辺線",
       "rail_class": "conventional",
-      "lang": "zh",
-      "ours": 20,
+      "lang": "ja",
+      "ours": 2,
       "files": [
-        "as-twn-rail.geojson"
+        "as-jpn-west-rail.geojson"
       ],
-      "wiki": "zh:宜蘭線",
-      "wiki_stations": 27,
+      "wiki": "ja:神辺線",
+      "wiki_stations": 9,
+      "wiki_basis": "total",
+      "diff": -7,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "予讃線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 90,
+      "files": [
+        "as-jpn-shikoku-rail.geojson"
+      ],
+      "wiki": "ja:予讃線",
+      "wiki_stations": 97,
       "wiki_basis": "total",
       "diff": -7,
       "severity": "warn"
@@ -807,81 +428,6 @@
     },
     {
       "country": "China",
-      "route_name": "集大原高速铁路",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 2,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:集大原高速铁路",
-      "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": -6,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "北陸新幹線",
-      "rail_class": "high_speed",
-      "lang": "ja",
-      "ours": 13,
-      "files": [
-        "as-jpn-hsr.geojson"
-      ],
-      "wiki": "ja:北陸新幹線",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": -6,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "御殿場線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 13,
-      "files": [
-        "as-jpn-central-rail.geojson"
-      ],
-      "wiki": "ja:御殿場線",
-      "wiki_stations": 19,
-      "wiki_basis": "total",
-      "diff": -6,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "姫新線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 30,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:姫新線",
-      "wiki_stations": 36,
-      "wiki_basis": "total",
-      "diff": -6,
-      "severity": "warn"
-    },
-    {
-      "country": "China",
-      "route_name": "青荣城际铁路",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 9,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:青荣城际铁路",
-      "wiki_stations": 14,
-      "wiki_basis": "total",
-      "diff": -5,
-      "severity": "warn"
-    },
-    {
-      "country": "China",
       "route_name": "宁安客运专线",
       "rail_class": "high_speed",
       "lang": "zh",
@@ -896,16 +442,31 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "川越線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 6,
+      "country": "China",
+      "route_name": "川南城际铁路",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 2,
       "files": [
-        "as-jpn-east-rail.geojson"
+        "as-chn-hsr.geojson"
       ],
-      "wiki": "ja:川越線",
-      "wiki_stations": 11,
+      "wiki": "zh:川南城际铁路",
+      "wiki_stations": 7,
+      "wiki_basis": "total",
+      "diff": -5,
+      "severity": "warn"
+    },
+    {
+      "country": "China",
+      "route_name": "乌大高速线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 3,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:乌大高速线",
+      "wiki_stations": 8,
       "wiki_basis": "total",
       "diff": -5,
       "severity": "warn"
@@ -971,37 +532,6 @@
       "severity": "warn"
     },
     {
-      "country": "Japan",
-      "route_name": "相鉄本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 13,
-      "files": [
-        "as-jpn-east-rail.geojson",
-        "as-jpn-central-rail.geojson"
-      ],
-      "wiki": "ja:相鉄本線",
-      "wiki_stations": 18,
-      "wiki_basis": "total",
-      "diff": -5,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "吉備線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 5,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:吉備線",
-      "wiki_stations": 10,
-      "wiki_basis": "total",
-      "diff": -5,
-      "severity": "warn"
-    },
-    {
       "country": "China",
       "route_name": "郑万高速铁路",
       "rail_class": "high_speed",
@@ -1032,6 +562,21 @@
       "severity": "warn"
     },
     {
+      "country": "China",
+      "route_name": "龙龙高速铁路",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 7,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:龙龙高速铁路",
+      "wiki_stations": 11,
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
+    },
+    {
       "country": "Japan",
       "route_name": "横須賀線",
       "rail_class": "conventional",
@@ -1048,15 +593,15 @@
     },
     {
       "country": "Japan",
-      "route_name": "両毛線",
+      "route_name": "信越本線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 15,
+      "ours": 55,
       "files": [
         "as-jpn-east-rail.geojson"
       ],
-      "wiki": "ja:両毛線",
-      "wiki_stations": 19,
+      "wiki": "ja:信越本線",
+      "wiki_stations": 59,
       "wiki_basis": "total",
       "diff": -4,
       "severity": "warn"
@@ -1072,6 +617,21 @@
       ],
       "wiki": "ja:西武多摩湖線",
       "wiki_stations": 7,
+      "wiki_basis": "total",
+      "diff": -4,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "大村線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 11,
+      "files": [
+        "as-jpn-kyushu-rail.geojson"
+      ],
+      "wiki": "ja:大村線",
+      "wiki_stations": 15,
       "wiki_basis": "total",
       "diff": -4,
       "severity": "warn"
@@ -1153,21 +713,6 @@
     },
     {
       "country": "China",
-      "route_name": "武西高速线",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 11,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:武西高速线",
-      "wiki_stations": 14,
-      "wiki_basis": "total",
-      "diff": -3,
-      "severity": "warn"
-    },
-    {
-      "country": "China",
       "route_name": "津霸客专线",
       "rail_class": "high_speed",
       "lang": "zh",
@@ -1183,32 +728,62 @@
     },
     {
       "country": "Japan",
-      "route_name": "因美線",
-      "rail_class": "conventional",
+      "route_name": "東北新幹線",
+      "rail_class": "high_speed",
       "lang": "ja",
-      "ours": 16,
+      "ours": 20,
       "files": [
-        "as-jpn-west-rail.geojson"
+        "as-jpn-hsr.geojson"
       ],
-      "wiki": "ja:因美線",
-      "wiki_stations": 19,
+      "wiki": "ja:東北新幹線",
+      "wiki_stations": 23,
       "wiki_basis": "total",
       "diff": -3,
       "severity": "warn"
     },
     {
       "country": "Japan",
-      "route_name": "岩徳線",
+      "route_name": "山陰本線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 12,
+      "ours": 158,
       "files": [
         "as-jpn-west-rail.geojson"
       ],
-      "wiki": "ja:岩徳線",
-      "wiki_stations": 15,
+      "wiki": "ja:山陰本線",
+      "wiki_stations": 161,
       "wiki_basis": "total",
       "diff": -3,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "鹿児島本線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 99,
+      "files": [
+        "as-jpn-kyushu-rail.geojson"
+      ],
+      "wiki": "ja:鹿児島本線",
+      "wiki_stations": 102,
+      "wiki_basis": "total",
+      "diff": -3,
+      "severity": "warn"
+    },
+    {
+      "country": "China",
+      "route_name": "京哈高速线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 30,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:京哈高速线",
+      "wiki_stations": 32,
+      "wiki_basis": "total",
+      "diff": -2,
       "severity": "warn"
     },
     {
@@ -1243,76 +818,31 @@
     },
     {
       "country": "Japan",
-      "route_name": "秋田新幹線",
-      "rail_class": "high_speed",
+      "route_name": "中央本線",
+      "rail_class": "conventional",
       "lang": "ja",
-      "ours": 3,
+      "ours": 110,
       "files": [
-        "as-jpn-hsr.geojson"
+        "as-jpn-east-rail.geojson",
+        "as-jpn-central-rail.geojson"
       ],
-      "wiki": "ja:秋田新幹線",
-      "wiki_stations": 5,
+      "wiki": "ja:中央本線",
+      "wiki_stations": 112,
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
     },
     {
       "country": "Japan",
-      "route_name": "左沢線",
+      "route_name": "長崎本線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 9,
-      "files": [
-        "as-jpn-east-rail.geojson"
-      ],
-      "wiki": "ja:左沢線",
-      "wiki_stations": 11,
-      "wiki_basis": "total",
-      "diff": -2,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "紀勢本線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 94,
-      "files": [
-        "as-jpn-central-rail.geojson",
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:紀勢本線",
-      "wiki_stations": 96,
-      "wiki_basis": "total",
-      "diff": -2,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "芸備線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 42,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:芸備線",
-      "wiki_stations": 44,
-      "wiki_basis": "total",
-      "diff": -2,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "福北ゆたか線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 27,
+      "ours": 40,
       "files": [
         "as-jpn-kyushu-rail.geojson"
       ],
-      "wiki": "ja:福北ゆたか線",
-      "wiki_stations": 29,
+      "wiki": "ja:長崎本線",
+      "wiki_stations": 42,
       "wiki_basis": "total",
       "diff": -2,
       "severity": "warn"
@@ -1454,6 +984,21 @@
     },
     {
       "country": "China",
+      "route_name": "集大原高速铁路",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 7,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:集大原高速铁路",
+      "wiki_stations": 8,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "China",
       "route_name": "哈齐客专线",
       "rail_class": "high_speed",
       "lang": "zh",
@@ -1514,15 +1059,15 @@
     },
     {
       "country": "China",
-      "route_name": "成自宜高速铁路",
+      "route_name": "京广高速线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 11,
+      "ours": 40,
       "files": [
         "as-chn-hsr.geojson"
       ],
-      "wiki": "zh:成自宜高速铁路",
-      "wiki_stations": 12,
+      "wiki": "zh:京广高速线",
+      "wiki_stations": 41,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -1649,6 +1194,21 @@
     },
     {
       "country": "Japan",
+      "route_name": "小海線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 30,
+      "files": [
+        "as-jpn-east-rail.geojson"
+      ],
+      "wiki": "ja:小海線",
+      "wiki_stations": 31,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
       "route_name": "伊東線",
       "rail_class": "conventional",
       "lang": "ja",
@@ -1658,6 +1218,52 @@
       ],
       "wiki": "ja:伊東線",
       "wiki_stations": 6,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "両毛線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 18,
+      "files": [
+        "as-jpn-east-rail.geojson"
+      ],
+      "wiki": "ja:両毛線",
+      "wiki_stations": 19,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "越後線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 32,
+      "files": [
+        "as-jpn-east-rail.geojson"
+      ],
+      "wiki": "ja:越後線",
+      "wiki_stations": 33,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "相鉄本線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 17,
+      "files": [
+        "as-jpn-east-rail.geojson",
+        "as-jpn-central-rail.geojson"
+      ],
+      "wiki": "ja:相鉄本線",
+      "wiki_stations": 18,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -1709,6 +1315,36 @@
     },
     {
       "country": "Japan",
+      "route_name": "姫新線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 35,
+      "files": [
+        "as-jpn-west-rail.geojson"
+      ],
+      "wiki": "ja:姫新線",
+      "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
+      "route_name": "因美線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 18,
+      "files": [
+        "as-jpn-west-rail.geojson"
+      ],
+      "wiki": "ja:因美線",
+      "wiki_stations": 19,
+      "wiki_basis": "total",
+      "diff": -1,
+      "severity": "warn"
+    },
+    {
+      "country": "Japan",
       "route_name": "本四備讃線",
       "rail_class": "conventional",
       "lang": "ja",
@@ -1733,36 +1369,6 @@
       ],
       "wiki": "ja:南海加太線",
       "wiki_stations": 8,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "予土線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 19,
-      "files": [
-        "as-jpn-shikoku-rail.geojson"
-      ],
-      "wiki": "ja:予土線",
-      "wiki_stations": 20,
-      "wiki_basis": "total",
-      "diff": -1,
-      "severity": "warn"
-    },
-    {
-      "country": "Japan",
-      "route_name": "牟岐線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 28,
-      "files": [
-        "as-jpn-shikoku-rail.geojson"
-      ],
-      "wiki": "ja:牟岐線",
-      "wiki_stations": 29,
       "wiki_basis": "total",
       "diff": -1,
       "severity": "warn"
@@ -1829,6 +1435,37 @@
     },
     {
       "country": "Japan",
+      "route_name": "奥羽本線",
+      "rail_class": "high_speed",
+      "lang": "ja",
+      "ours": 104,
+      "files": [
+        "as-jpn-hsr.geojson",
+        "as-jpn-east-rail.geojson"
+      ],
+      "wiki": "ja:奥羽本線",
+      "wiki_stations": 103,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
+      "route_name": "秋田新幹線",
+      "rail_class": "high_speed",
+      "lang": "ja",
+      "ours": 6,
+      "files": [
+        "as-jpn-hsr.geojson"
+      ],
+      "wiki": "ja:秋田新幹線",
+      "wiki_stations": 5,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
       "route_name": "山田線",
       "rail_class": "conventional",
       "lang": "ja",
@@ -1844,15 +1481,45 @@
     },
     {
       "country": "Japan",
-      "route_name": "常磐線",
+      "route_name": "左沢線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 81,
+      "ours": 12,
       "files": [
         "as-jpn-east-rail.geojson"
       ],
-      "wiki": "ja:常磐線",
-      "wiki_stations": 80,
+      "wiki": "ja:左沢線",
+      "wiki_stations": 11,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
+      "route_name": "内房線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 31,
+      "files": [
+        "as-jpn-east-rail.geojson"
+      ],
+      "wiki": "ja:内房線",
+      "wiki_stations": 30,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
+      "route_name": "御殿場線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 20,
+      "files": [
+        "as-jpn-central-rail.geojson"
+      ],
+      "wiki": "ja:御殿場線",
+      "wiki_stations": 19,
       "wiki_basis": "total",
       "diff": 1,
       "severity": "error"
@@ -1889,6 +1556,21 @@
     },
     {
       "country": "Japan",
+      "route_name": "桜井線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 15,
+      "files": [
+        "as-jpn-west-rail.geojson"
+      ],
+      "wiki": "ja:桜井線",
+      "wiki_stations": 14,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
       "route_name": "和歌山線",
       "rail_class": "conventional",
       "lang": "ja",
@@ -1898,6 +1580,36 @@
       ],
       "wiki": "ja:和歌山線",
       "wiki_stations": 36,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
+      "route_name": "予土線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 21,
+      "files": [
+        "as-jpn-shikoku-rail.geojson"
+      ],
+      "wiki": "ja:予土線",
+      "wiki_stations": 20,
+      "wiki_basis": "total",
+      "diff": 1,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
+      "route_name": "筑肥線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 32,
+      "files": [
+        "as-jpn-kyushu-rail.geojson"
+      ],
+      "wiki": "ja:筑肥線",
+      "wiki_stations": 31,
       "wiki_basis": "total",
       "diff": 1,
       "severity": "error"
@@ -1979,6 +1691,21 @@
     },
     {
       "country": "Japan",
+      "route_name": "常磐線",
+      "rail_class": "conventional",
+      "lang": "ja",
+      "ours": 82,
+      "files": [
+        "as-jpn-east-rail.geojson"
+      ],
+      "wiki": "ja:常磐線",
+      "wiki_stations": 80,
+      "wiki_basis": "total",
+      "diff": 2,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
       "route_name": "仙石東北ライン",
       "rail_class": "conventional",
       "lang": "ja",
@@ -1988,21 +1715,6 @@
       ],
       "wiki": "ja:仙石東北ライン",
       "wiki_stations": 21,
-      "wiki_basis": "total",
-      "diff": 2,
-      "severity": "error"
-    },
-    {
-      "country": "Japan",
-      "route_name": "宝塚線",
-      "rail_class": "conventional",
-      "lang": "ja",
-      "ours": 21,
-      "files": [
-        "as-jpn-west-rail.geojson"
-      ],
-      "wiki": "ja:宝塚線",
-      "wiki_stations": 19,
       "wiki_basis": "total",
       "diff": 2,
       "severity": "error"
@@ -2035,6 +1747,36 @@
       "wiki_stations": 13,
       "wiki_basis": "total",
       "diff": 2,
+      "severity": "error"
+    },
+    {
+      "country": "China",
+      "route_name": "武西高速线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 17,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:武西高速线",
+      "wiki_stations": 14,
+      "wiki_basis": "total",
+      "diff": 3,
+      "severity": "error"
+    },
+    {
+      "country": "Japan",
+      "route_name": "北陸新幹線",
+      "rail_class": "high_speed",
+      "lang": "ja",
+      "ours": 22,
+      "files": [
+        "as-jpn-hsr.geojson"
+      ],
+      "wiki": "ja:北陸新幹線",
+      "wiki_stations": 19,
+      "wiki_basis": "total",
+      "diff": 3,
       "severity": "error"
     },
     {
@@ -2099,15 +1841,15 @@
     },
     {
       "country": "Japan",
-      "route_name": "山形新幹線",
-      "rail_class": "high_speed",
+      "route_name": "宝塚線",
+      "rail_class": "conventional",
       "lang": "ja",
-      "ours": 11,
+      "ours": 24,
       "files": [
-        "as-jpn-hsr.geojson"
+        "as-jpn-west-rail.geojson"
       ],
-      "wiki": "ja:山形新幹線",
-      "wiki_stations": 6,
+      "wiki": "ja:宝塚線",
+      "wiki_stations": 19,
       "wiki_basis": "total",
       "diff": 5,
       "severity": "error"
@@ -2143,6 +1885,21 @@
       "severity": "error"
     },
     {
+      "country": "Japan",
+      "route_name": "山形新幹線",
+      "rail_class": "high_speed",
+      "lang": "ja",
+      "ours": 16,
+      "files": [
+        "as-jpn-hsr.geojson"
+      ],
+      "wiki": "ja:山形新幹線",
+      "wiki_stations": 6,
+      "wiki_basis": "total",
+      "diff": 10,
+      "severity": "error"
+    },
+    {
       "country": "China",
       "route_name": "成贵客运专线",
       "rail_class": "high_speed",
@@ -2164,24 +1921,12 @@
       "route_name": "京哈线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 10,
+      "ours": 12,
       "files": [
         "as-chn-hsr.geojson"
       ],
       "wiki": "zh:京哈线",
       "reason": "article has no station count infobox"
-    },
-    {
-      "country": "China",
-      "route_name": "杭深铁路",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 63,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:杭深铁路",
-      "reason": "no wiki article / no station infobox"
     },
     {
       "country": "China",
@@ -2206,6 +1951,18 @@
       ],
       "wiki": "zh:海南东环高速线",
       "reason": "no wiki article / no station infobox"
+    },
+    {
+      "country": "China",
+      "route_name": "京港高速线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 66,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:京港高速线",
+      "reason": "article has no station count infobox"
     },
     {
       "country": "China",
@@ -2278,6 +2035,18 @@
       ],
       "wiki": "zh:赣瑞龙线",
       "reason": "no wiki article / no station infobox"
+    },
+    {
+      "country": "China",
+      "route_name": "沪蓉线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 59,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:沪蓉线",
+      "reason": "article has no station count infobox"
     },
     {
       "country": "China",
@@ -2524,7 +2293,7 @@
       "route_name": "吉玉线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 3,
+      "ours": 4,
       "files": [
         "as-chn-hsr.geojson"
       ],
@@ -2536,7 +2305,7 @@
       "route_name": "中老昆万线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 4,
+      "ours": 5,
       "files": [
         "as-chn-hsr.geojson"
       ],
@@ -2554,6 +2323,18 @@
       ],
       "wiki": "zh:昆明南联络线",
       "reason": "no wiki article / no station infobox"
+    },
+    {
+      "country": "China",
+      "route_name": "蓉昆高速铁路",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 13,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:蓉昆高速铁路",
+      "reason": "article has no station count infobox"
     },
     {
       "country": "China",
@@ -2608,7 +2389,7 @@
       "route_name": "黔常线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 9,
+      "ours": 16,
       "files": [
         "as-chn-hsr.geojson"
       ],
@@ -2620,7 +2401,7 @@
       "route_name": "渝厦高速线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 15,
+      "ours": 26,
       "files": [
         "as-chn-hsr.geojson"
       ],
@@ -2638,18 +2419,6 @@
       ],
       "wiki": "zh:滬蘇湖高速鐵路",
       "reason": "no wiki article / no station infobox"
-    },
-    {
-      "country": "China",
-      "route_name": "沪蓉线",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 33,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:沪蓉线",
-      "reason": "article has no station count infobox"
     },
     {
       "country": "China",
@@ -2689,18 +2458,6 @@
     },
     {
       "country": "China",
-      "route_name": "蓉昆高速铁路",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 12,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:蓉昆高速铁路",
-      "reason": "article has no station count infobox"
-    },
-    {
-      "country": "China",
       "route_name": "福平线",
       "rail_class": "high_speed",
       "lang": "zh",
@@ -2722,18 +2479,6 @@
       ],
       "wiki": "zh:张大客专线",
       "reason": "no wiki article / no station infobox"
-    },
-    {
-      "country": "China",
-      "route_name": "京港高速线",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 24,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:京港高速线",
-      "reason": "article has no station count infobox"
     },
     {
       "country": "China",
@@ -2761,10 +2506,22 @@
     },
     {
       "country": "China",
+      "route_name": "沈佳高速线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 20,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:沈佳高速线",
+      "reason": "article has no station count infobox"
+    },
+    {
+      "country": "China",
       "route_name": "阜黄高速线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 4,
+      "ours": 5,
       "files": [
         "as-chn-hsr.geojson"
       ],
@@ -3121,18 +2878,6 @@
     },
     {
       "country": "China",
-      "route_name": "乌大高速线",
-      "rail_class": "high_speed",
-      "lang": "zh",
-      "ours": 3,
-      "files": [
-        "as-chn-hsr.geojson"
-      ],
-      "wiki": "zh:乌大高速线",
-      "reason": "no wiki article / no station infobox"
-    },
-    {
-      "country": "China",
       "route_name": "宣績高速線",
       "rail_class": "high_speed",
       "lang": "zh",
@@ -3220,7 +2965,7 @@
       "route_name": "沪渝蓉高速铁路",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 7,
+      "ours": 8,
       "files": [
         "as-chn-hsr.geojson"
       ],
@@ -3253,15 +2998,27 @@
     },
     {
       "country": "China",
-      "route_name": "沈佳高速线",
+      "route_name": "黄东联络线",
       "rail_class": "high_speed",
       "lang": "zh",
-      "ours": 12,
+      "ours": 2,
       "files": [
         "as-chn-hsr.geojson"
       ],
-      "wiki": "zh:沈佳高速线",
-      "reason": "article has no station count infobox"
+      "wiki": "zh:黄东联络线",
+      "reason": "no wiki article / no station infobox"
+    },
+    {
+      "country": "China",
+      "route_name": "济枣高速线",
+      "rail_class": "high_speed",
+      "lang": "zh",
+      "ours": 2,
+      "files": [
+        "as-chn-hsr.geojson"
+      ],
+      "wiki": "zh:济枣高速线",
+      "reason": "no wiki article / no station infobox"
     },
     {
       "country": "China",
@@ -3400,7 +3157,7 @@
       "route_name": "根室本線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 26,
+      "ours": 49,
       "files": [
         "as-jpn-hokkaido-rail.geojson"
       ],
@@ -3412,7 +3169,7 @@
       "route_name": "石勝線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 4,
+      "ours": 7,
       "files": [
         "as-jpn-hokkaido-rail.geojson"
       ],
@@ -3424,7 +3181,7 @@
       "route_name": "富良野線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 10,
+      "ours": 17,
       "files": [
         "as-jpn-hokkaido-rail.geojson"
       ],
@@ -3472,7 +3229,7 @@
       "route_name": "日高本線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 3,
+      "ours": 4,
       "files": [
         "as-jpn-hokkaido-rail.geojson"
       ],
@@ -3532,7 +3289,7 @@
       "route_name": "中央本線辰野支線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 3,
+      "ours": 4,
       "files": [
         "as-jpn-east-rail.geojson"
       ],
@@ -3580,7 +3337,7 @@
       "route_name": "京葉線高架段",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 9,
+      "ours": 15,
       "files": [
         "as-jpn-east-rail.geojson"
       ],
@@ -3616,7 +3373,7 @@
       "route_name": "羽沢線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 2,
+      "ours": 3,
       "files": [
         "as-jpn-east-rail.geojson"
       ],
@@ -3652,7 +3409,7 @@
       "route_name": "東西線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 9,
+      "ours": 17,
       "files": [
         "as-jpn-west-rail.geojson"
       ],
@@ -3688,7 +3445,7 @@
       "route_name": "山陽本線",
       "rail_class": "conventional",
       "lang": "ja",
-      "ours": 7,
+      "ours": 21,
       "files": [
         "as-jpn-west-rail.geojson"
       ],
@@ -3736,11 +3493,23 @@
       "route_name": "海岸線",
       "rail_class": "conventional",
       "lang": "zh",
-      "ours": 17,
+      "ours": 18,
       "files": [
         "as-twn-rail.geojson"
       ],
       "wiki": "zh:海岸線",
+      "reason": "no wiki article / no station infobox"
+    },
+    {
+      "country": "Taiwan",
+      "route_name": "縱貫線",
+      "rail_class": "conventional",
+      "lang": "zh",
+      "ours": 96,
+      "files": [
+        "as-twn-rail.geojson"
+      ],
+      "wiki": "zh:縱貫線",
       "reason": "no wiki article / no station infobox"
     },
     {
@@ -3753,18 +3522,6 @@
         "as-twn-rail.geojson"
       ],
       "wiki": "zh:內灣線",
-      "reason": "no wiki article / no station infobox"
-    },
-    {
-      "country": "Taiwan",
-      "route_name": "縱貫線",
-      "rail_class": "conventional",
-      "lang": "zh",
-      "ours": 36,
-      "files": [
-        "as-twn-rail.geojson"
-      ],
-      "wiki": "zh:縱貫線",
       "reason": "no wiki article / no station infobox"
     },
     {
@@ -3784,7 +3541,7 @@
       "route_name": "南迴線",
       "rail_class": "conventional",
       "lang": "zh",
-      "ours": 9,
+      "ours": 14,
       "files": [
         "as-twn-rail.geojson"
       ],

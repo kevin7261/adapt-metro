@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
@@ -15,6 +15,18 @@ import MIcon from './MIcon.vue'
 // 點擊仍即時計算）。預設顯示 Raw Maps＋全部 RWD Maps。點任何一格都匯入該城市
 // 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
 const store = useMapStore()
+
+// 這是無圖層的固定 tab——圖層 tab 靠 selectedLayerId 記錄 active tab，畫廊得自己
+// 回報，重新開啟時才能還原到畫廊。props.params.api = 本面板的 dockview api。
+const props = defineProps({ params: { type: Object, required: true } })
+onMounted(() => {
+  const panelApi = props.params?.api
+  if (!panelApi) return
+  const mark = (active) => { if (active) store.setActiveTab('all-gallery') }
+  const dispose = panelApi.onDidActiveChange(({ isActive }) => mark(isActive))
+  mark(panelApi.isActive)
+  onBeforeUnmount(() => dispose?.dispose?.())
+})
 
 async function load() {
   const res = await fetch(assetUrl('data/metro/views/index.json'), { cache: 'no-cache' })
@@ -32,7 +44,7 @@ const rwdRows = (variant, vLabel) => RWD_CHAINS.map(([c, zh]) => ({
 }))
 // 左側清單樹（＝圈層面板結構）：直接列的圖層 + 可收合子群組。
 const SIDE = [
-  { t: 'layer', key: 'raw', label: 'Raw Maps', kind: 'raw', view: 'thumb', icon: 'train' },
+  { t: 'layer', key: 'raw', label: 'Metro Maps', kind: 'raw', view: 'thumb', icon: 'train' },
   { t: 'layer', key: 'adjust', label: 'Map Adjust', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
   { t: 'group', id: 'straighten', label: 'Straighten', layers: [
     { key: 'st-orig', label: '原始', kind: 'straighten', view: 'loop-rect-orig', icon: 'terrain' },

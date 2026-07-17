@@ -2,10 +2,10 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import MIcon from './MIcon.vue'
 
-// 樣式工具列（地圖上方）：仍是一條工具列，但「每個工具各自縮成一顆 icon」——
-// 按某顆 icon 才彈出「那一個」控制項的小視窗（不是全部擠在一個彈窗）。控制項
-// 與原「樣式」tab 相同（依 isMetro / editable / viewKind 分支）；地圖底色的
-// 「預設」在它自己的彈窗裡。layer 為 store 的響應式物件，直接改其屬性。
+// 樣式工具列（地圖上方）：一條工具列，每個工具各自縮成一顆 icon——按某顆 icon
+// 才彈出「那一個」控制項的小視窗，且每個小視窗都有「預設」按鈕（把該屬性還原）。
+// 控制項與原「樣式」tab 相同（依 isMetro / editable / viewKind 分支）。layer 為
+// store 的響應式物件，直接改其屬性。
 const props = defineProps({
   layer: { type: Object, required: true },
   viewKind: { type: String, default: 'metro' }, // 'metro' | 'map-adjust' | 'hillclimb' | 'rwd'
@@ -17,32 +17,55 @@ const isMetro = computed(() => props.layer?.type === 'metro' || props.layer?.met
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
 
-// 工具清單（依情境）：id、icon、tooltip。'labels' 是布林、直接切換不開彈窗。
-const tools = computed(() => {
-  const out = []
-  if (hasSpan.value) out.push({ id: 'span', icon: 'straighten', title: '顏色點間最大跨距' })
+// 工具依「相關功能」分組（每組一格，組間加分隔線）：
+//  · 路線：線寬（＋一般向量的 Symbology/顏色/邊寬）
+//  · 車站：站點半徑、顯示站名
+//  · 地圖：地圖底色
+//  · 版面：顏色點間最大跨距（Straighten/RWD）
+const groups = computed(() => {
+  const g = []
   if (isMetro.value) {
-    out.push({ id: 'lineWidth', icon: 'line_weight', title: '線寬' })
-    out.push({ id: 'radius', icon: 'scatter_plot', title: '站點半徑' })
-    out.push({ id: 'labels', icon: 'label', title: '顯示站名', toggle: true })
-    out.push({ id: 'bg', icon: 'format_color_fill', title: '地圖底色' })
+    g.push([{ id: 'lineWidth', icon: 'line_weight', title: '線寬' }])
+    g.push([
+      { id: 'radius', icon: 'scatter_plot', title: '站點半徑' },
+      // 顯示站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
+      { id: 'labels', icon: 'label', title: '顯示站名', toggle: true },
+    ])
+    g.push([{ id: 'bg', icon: 'format_color_fill', title: '地圖底色' }])
   }
   if (editable.value) {
-    out.push({ id: 'symbology', icon: 'category', title: 'Symbology' })
-    out.push({ id: 'color', icon: 'palette', title: props.layer.type === 'line' ? '線色' : '填色／邊色' })
-    out.push({ id: 'strokeWidth', icon: 'line_weight', title: props.layer.type === 'line' ? '線寬' : '邊寬' })
-    if (props.layer.type === 'point') out.push({ id: 'pointRadius', icon: 'scatter_plot', title: '半徑' })
+    const e = [
+      { id: 'symbology', icon: 'category', title: 'Symbology' },
+      { id: 'color', icon: 'palette', title: props.layer.type === 'line' ? '線色' : '填色／邊色' },
+      { id: 'strokeWidth', icon: 'line_weight', title: props.layer.type === 'line' ? '線寬' : '邊寬' },
+    ]
+    if (props.layer.type === 'point') e.push({ id: 'pointRadius', icon: 'scatter_plot', title: '半徑' })
+    g.push(e)
   }
-  out.push({ id: 'opacity', icon: 'opacity', title: '不透明度' })
-  return out
+  if (hasSpan.value) g.push([{ id: 'span', icon: 'straighten', title: '顏色點間最大跨距' }])
+  return g
 })
+
+// 每個工具的預設值（「預設」按鈕還原用）。
+function reset() {
+  const l = props.layer
+  switch (openTool.value) {
+    case 'span': l.spanCap = 3; break
+    case 'lineWidth': case 'strokeWidth': l.strokeWidth = 2.5; break
+    case 'radius': case 'pointRadius': l.radius = 4; break
+    case 'bg': l.d3Bg = null; break
+    case 'symbology': l.symbology = 'categorized'; break
+    case 'color': l.color = '#e11d48'; l.strokeColor = '#ffffff'; break
+  }
+}
 
 // 目前展開的工具（單一）；每顆 icon 各自彈出自己的小視窗。
 const openTool = ref(null)
 const popPos = ref({ top: 0, left: 0 })
 const isActive = (t) => (t.toggle ? props.layer.showLabels : openTool.value === t.id)
 function clickTool(t, e) {
-  if (t.toggle) { props.layer.showLabels = !props.layer.showLabels; return }
+  // 直接切換的工具（顯示站名）：不開彈窗，直接改值。
+  if (t.toggle) { props.layer.showLabels = !props.layer.showLabels; openTool.value = null; return }
   if (openTool.value === t.id) { openTool.value = null; return }
   openTool.value = t.id
   const r = e.currentTarget.getBoundingClientRect()
@@ -57,16 +80,19 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 
 <template>
   <div class="stylebar">
-    <button
-      v-for="t in tools"
-      :key="t.id"
-      class="sb-btn"
-      :class="{ active: isActive(t) }"
-      :title="t.title"
-      @click.stop="clickTool(t, $event)"
-    >
-      <MIcon :name="t.icon" :size="16" />
-    </button>
+    <template v-for="(grp, gi) in groups" :key="gi">
+      <div v-if="gi" class="sb-sep" />
+      <button
+        v-for="t in grp"
+        :key="t.id"
+        class="sb-btn"
+        :class="{ active: isActive(t) }"
+        :title="t.title"
+        @click.stop="clickTool(t, $event)"
+      >
+        <MIcon :name="t.icon" :size="16" />
+      </button>
+    </template>
 
     <Teleport to="body">
       <div
@@ -103,13 +129,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           <input v-model.number="layer.radius" type="range" min="1" max="10" step="0.5" class="sb-slider" />
         </template>
 
-        <!-- 地圖底色（metro）＋預設 -->
+        <!-- 地圖底色（metro） -->
         <template v-else-if="openTool === 'bg'">
           <label class="sb-label">地圖底色</label>
-          <div class="sb-row">
-            <input type="color" class="sb-color" :value="layer.d3Bg || '#0d1117'" @input="layer.d3Bg = $event.target.value" />
-            <button v-if="layer.d3Bg" class="sb-btn2" @click="layer.d3Bg = null">預設</button>
-          </div>
+          <input type="color" class="sb-color" :value="layer.d3Bg || '#0d1117'" @input="layer.d3Bg = $event.target.value" />
         </template>
 
         <!-- Symbology（一般向量） -->
@@ -150,11 +173,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           <input v-model.number="layer.radius" type="range" min="1" max="20" step="1" class="sb-slider" />
         </template>
 
-        <!-- 不透明度 -->
-        <template v-else-if="openTool === 'opacity'">
-          <label class="sb-label">不透明度 — {{ Math.round(layer.opacity * 100) }}%</label>
-          <input v-model.number="layer.opacity" type="range" min="0" max="1" step="0.05" class="sb-slider" />
-        </template>
+        <!-- 每個工具都有的「預設」按鈕 -->
+        <div class="sb-foot">
+          <button class="sb-reset" @click="reset">預設</button>
+        </div>
       </div>
     </Teleport>
   </div>
@@ -169,6 +191,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));
+}
+/* 相關功能分組的分隔線 */
+.sb-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: hsl(var(--border));
 }
 .sb-btn {
   display: inline-flex;
@@ -225,6 +254,15 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   background: none;
   cursor: pointer;
 }
+.sb-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+}
+.sb-check input { accent-color: hsl(var(--primary)); margin: 0; }
 .sb-btn2 {
   padding: 4px 10px;
   font-size: 11.5px;
@@ -236,4 +274,20 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 }
 .sb-btn2:hover:not(:disabled) { background: hsl(var(--primary) / 0.2); }
 .sb-btn2:disabled { opacity: 0.45; cursor: default; }
+/* 預設按鈕：與控制項間隔一條分隔線 */
+.sb-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid hsl(var(--border));
+}
+.sb-reset {
+  padding: 3px 12px;
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+}
+.sb-reset:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
 </style>

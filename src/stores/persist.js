@@ -28,6 +28,8 @@ function buildSnapshot(store) {
     version: 1,
     layers: store.layers,
     selectedLayerId: store.selectedLayerId,
+    openTabIds: store.openTabIds,
+    activeTabId: store.activeTabId,
     groupCollapsed: store.cityCollapsed,
     attributeTableOpen: store.ui.attributeTableOpen,
     layerPanelOpen: store.ui.layerPanelOpen,

@@ -391,6 +391,17 @@ function buildSystem(raw, override) {
   // Build ONE relation's track into an ordered polyline (the line's main path). Grid
   // key ~18 m collapses parallel up/down tracks into one centreline. Open line →
   // graph diameter (2× Dijkstra between the farthest leaves); loop → walk the cycle.
+  //
+  // A line's own member ways almost never form ONE connected graph at 18 m: bridges,
+  // level crossings and station areas leave small gaps, so 山陰本線's 1784 ways split
+  // into 22 components (largest only 38%). Taking just the largest component's diameter
+  // dropped 60% of the line → its stations projected onto nothing → dumped into the
+  // 一般鐵路 connector bag (the 斷開/抓錯 the user saw). Fix: order EVERY component's
+  // own path, then CHAIN the components end-to-end by nearest endpoint (the gaps are
+  // the same physical line), so the main path spans the whole line. Only the line's own
+  // ways are used — no parallel-line pollution, no name-variant duplication, one path
+  // (no branching → no fragmentation). Genuinely-too-large hops are still split later by
+  // capFor at the feature level.
   const GRID = 0.0002
   const gkey = (lon, lat) => `${Math.round(lon / GRID)}:${Math.round(lat / GRID)}`
   const trackOrder = (wayIds) => {
@@ -407,14 +418,6 @@ function buildSystem(raw, override) {
       }
     }
     if (adj.size < 2) return null
-    // largest connected component
-    const seen = new Set(); let comp = []
-    for (const start of adj.keys()) {
-      if (seen.has(start)) continue
-      const c = []; const stack = [start]; seen.add(start)
-      while (stack.length) { const u = stack.pop(); c.push(u); for (const v of adj.get(u).keys()) if (!seen.has(v)) { seen.add(v); stack.push(v) } }
-      if (c.length > comp.length) comp = c
-    }
     const dij = (src) => {
       const dist = new Map([[src, 0]]); const prev = new Map(); const H = [[0, src]]
       const up = (i) => { while (i > 0) { const p = (i - 1) >> 1; if (H[p][0] <= H[i][0]) break;[H[p], H[i]] = [H[i], H[p]]; i = p } }
@@ -422,17 +425,55 @@ function buildSystem(raw, override) {
       while (H.length) { const [d, u] = pop(); if (d > (dist.get(u) ?? Infinity)) continue; for (const [v, w] of adj.get(u)) { const nd = d + w; if (nd < (dist.get(v) ?? Infinity)) { dist.set(v, nd); prev.set(v, u); H.push([nd, v]); up(H.length - 1) } } }
       return { dist, prev }
     }
-    const deg1 = comp.filter((k) => adj.get(k).size === 1)
-    let path
-    if (deg1.length >= 2) {
-      const A = dij(deg1[0]); let a1 = deg1[0], ad = -1; for (const [n, d] of A.dist) if (d > ad) { ad = d; a1 = n }
-      const B = dij(a1); let b1 = a1, bd = -1; for (const [n, d] of B.dist) if (d > bd) { bd = d; b1 = n }
-      path = []; let cur = b1; while (cur !== undefined) { path.push(cur); cur = B.prev.get(cur) }
-    } else { // loop / no clean endpoints → walk the cycle greedily
-      const used = new Set([comp[0]]); path = [comp[0]]; let cur = comp[0]
-      for (;;) { let nx; for (const v of adj.get(cur).keys()) if (!used.has(v)) { nx = v; break } if (nx === undefined) break; used.add(nx); path.push(nx); cur = nx }
+    // enumerate ALL components
+    const seen = new Set(); const comps = []
+    for (const start of adj.keys()) {
+      if (seen.has(start)) continue
+      const c = []; const stack = [start]; seen.add(start)
+      while (stack.length) { const u = stack.pop(); c.push(u); for (const v of adj.get(u).keys()) if (!seen.has(v)) { seen.add(v); stack.push(v) } }
+      comps.push(c)
     }
-    const pts = path.map((k) => pos.get(k))
+    // ordered node path within one component (diameter for an open chain, cycle walk otherwise)
+    const orderComp = (comp) => {
+      const deg1 = comp.filter((k) => adj.get(k).size === 1)
+      if (deg1.length >= 2) {
+        const A = dij(deg1[0]); let a1 = deg1[0], ad = -1; for (const n of comp) { const d = A.dist.get(n); if (d != null && d > ad) { ad = d; a1 = n } }
+        const B = dij(a1); let b1 = a1, bd = -1; for (const n of comp) { const d = B.dist.get(n); if (d != null && d > bd) { bd = d; b1 = n } }
+        const path = []; let cur = b1; while (cur !== undefined) { path.push(cur); cur = B.prev.get(cur) }
+        return path
+      }
+      const used = new Set([comp[0]]); const path = [comp[0]]; let cur = comp[0]
+      for (;;) { let nx; for (const v of adj.get(cur).keys()) if (!used.has(v)) { nx = v; break } if (nx === undefined) break; used.add(nx); path.push(nx); cur = nx }
+      return path
+    }
+    // each component → ordered pts; keep only pieces of ≥2 pts
+    const segs = comps.filter((c) => c.length >= 2).map((c) => orderComp(c).map((k) => pos.get(k))).filter((p) => p.length >= 2)
+    if (!segs.length) return null
+    const segLen = (p) => { let L = 0; for (let i = 1; i < p.length; i++) L += haversine(p[i - 1], p[i]); return L }
+    segs.sort((a, b) => segLen(b) - segLen(a))
+    // chain pieces greedily by nearest endpoint, flipping orientation as needed
+    const used = new Array(segs.length).fill(false); used[0] = true
+    let chain = segs[0].slice()
+    for (let iter = 1; iter < segs.length; iter++) {
+      const head = chain[0], tail = chain[chain.length - 1]
+      let best = -1, bestD = Infinity, flip = false, atHead = false
+      for (let i = 0; i < segs.length; i++) {
+        if (used[i]) continue
+        const s = segs[i], s0 = s[0], s1 = s[s.length - 1]
+        const opts = [
+          [haversine(tail, s0), false, false], // append as-is
+          [haversine(tail, s1), true, false],  // append reversed
+          [haversine(head, s1), false, true],  // prepend as-is
+          [haversine(head, s0), true, true],   // prepend reversed
+        ]
+        for (const [d, fl, ah] of opts) if (d < bestD) { bestD = d; best = i; flip = fl; atHead = ah }
+      }
+      if (best < 0) break
+      const s = flip ? segs[best].slice().reverse() : segs[best].slice()
+      used[best] = true
+      chain = atHead ? s.concat(chain) : chain.concat(s)
+    }
+    const pts = chain
     const arc = [0]; for (let i = 1; i < pts.length; i++) arc.push(arc[i - 1] + haversine(pts[i - 1], pts[i]))
     return { pts, arc }
   }

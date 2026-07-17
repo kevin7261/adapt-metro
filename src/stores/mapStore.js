@@ -136,6 +136,14 @@ export const useMapStore = defineStore('map', {
       // Layer of the active editor tab (mirrors the dockview active panel).
       selectedLayerId: p?.selectedLayerId ?? null,
 
+      // Which editor tabs are open at the top, in tab order (layer ids plus
+      // fixed-panel ids like 'all-gallery'). Kept in sync with the live dockview
+      // by EditorArea. `null` = never persisted (legacy session) → open every
+      // layer on first load; an array (even empty) restores exactly that set.
+      openTabIds: p?.openTabIds ?? null,
+      // Id of the active tab to focus on reload (layer id or 'all-gallery').
+      activeTabId: p?.activeTabId ?? null,
+
       // Properties of the last-clicked map feature, per layer id (null = nothing
       // selected). The map tab writes it on click; the Object tab reads it.
       selectedFeatures: {},
@@ -228,6 +236,14 @@ export const useMapStore = defineStore('map', {
     // props = the clicked feature's properties object, or null to clear.
     setSelectedFeature(layerId, props) {
       this.selectedFeatures[layerId] = props ?? null
+    },
+
+    // 記錄「上面打開的 tab」——由 EditorArea 依 dockview 現況同步（持久化用）。
+    setOpenTabs(ids) {
+      this.openTabIds = ids
+    },
+    setActiveTab(id) {
+      if (id) this.activeTabId = id
     },
 
     // 圈層城市群組收合（key = root layer id；持久化於 groupCollapsed）。

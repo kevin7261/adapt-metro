@@ -18,20 +18,22 @@ const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raste
 const RWD_COMPACT_ZH = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本' }
 const rwdVariantZh = (l) =>
   (store.layers.find((s) => s.id === l.sourceLayerId)?.variant === 'rot' ? '旋轉' : '原始')
+// 基底原始圖層名（metro→Metro Maps、railway→Railways、highway→Highways）。
+const baseLabel = (l) => (l.railway ? 'Railways' : l.highway ? 'Highways' : 'Metro Maps')
 // 完整階段名（toast 用）：含子群組前綴＋變體。
 function stageLabel(l) {
   if (l.type === 'd3') return 'Map Adjust'
   if (l.type === 'hillclimb') return `Straighten（${l.variant === 'rot' ? '旋轉' : '原始'}）`
   if (l.type === 'rwd') return `RWD Maps（${rwdVariantZh(l)}・${RWD_COMPACT_ZH[l.compact ?? 'hc']}）`
-  return 'Raw Maps'
+  return baseLabel(l)
 }
 // 圈層列顯示名：子群組內的列不重複群組名（Straighten 列＝原始/旋轉；RWD 列＝
-// 變體・鏈）；Raw Maps / Map Adjust 用階段全名。
+// 變體・鏈）；基底／Map Adjust 用階段全名。
 function rowLabel(l) {
   if (l.type === 'hillclimb') return l.variant === 'rot' ? '旋轉' : '原始'
   if (l.type === 'rwd') return `${rwdVariantZh(l)}・${RWD_COMPACT_ZH[l.compact ?? 'hc']}`
   if (l.type === 'd3') return 'Map Adjust'
-  return 'Raw Maps'
+  return baseLabel(l)
 }
 // 城市群組的 rows（layer / group）攤平成一維：sub-group header 在前、其下的
 // 圖層列（depth 1）緊接（該子群組展開時才列出）。單一 v-for 即可渲染。
@@ -315,8 +317,8 @@ onBeforeUnmount(() => {
 
       <div class="tree">
         <div v-if="!store.layerTree.length" class="tree-empty">
-          按「城市」匯入一個城市（會建立該城市的 Raw Maps / Map Adjust /
-          Straighten / RWD Maps 圖層）；「鐵路」「高速公路」匯入國家路網
+          按「+ 加入 → 地鐵」匯入一個城市（會建立該城市的 Metro Maps / Map
+          Adjust / Straighten / RWD Maps 圖層）；「鐵路」「高速公路」匯入國家路網
         </div>
         <div v-for="item in store.layerTree" :key="item.group.id" class="group-card">
           <!-- 城市群組標題：chevron + folder + 城市名 + 刪除整組 -->
