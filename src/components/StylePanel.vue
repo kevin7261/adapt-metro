@@ -38,9 +38,9 @@ const props = defineProps({
   evalText: { type: String, default: '' },   // 執行中即時串流的 LLM 回傳
   evalMsg: { type: String, default: null },  // 無結果/不符時的提示
   evalError: { type: String, default: '' },  // 執行失敗的尾巴訊息
-  // 「執行評價結果」：把評價的建議餵給 route-llm-align 實際移動座標——
-  // 走的是 LLM 對齊的 runner（llmRunning＝執行中），execText＝其即時串流。
-  execText: { type: String, default: '' },
+  // 「執行調整」：評價時已把附帶的 moves 過硬規則、把調整後佈局存進結果檔的
+  // exec——按鈕只切換顯示（套用 exec.cells ⇄ 恢復原佈局），不再跑 LLM。
+  evalApplied: { type: Boolean, default: false },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -59,7 +59,7 @@ const props = defineProps({
   // 值不同時「重新計算」按鈕亮起。
   spanApplied: { type: Number, default: null },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'run-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span'])
+const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span'])
 const llmUserPrompt = ref('')
 const gridUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
@@ -236,14 +236,13 @@ watch(activeTab, (t) => {
   if (t === 'eval' && !evalSkillHtml.value) fetchSkillHtml('route-llm-eval', evalSkillHtml)
 })
 
-// LLM 評價／執行評價結果的即時串流（面板內，無畫布 overlay）——新字進來自動捲到底。
+// LLM 評價執行中的即時串流（面板內，無畫布 overlay）——新字進來自動捲到底。
 const evalStreamEl = ref(null)
-const execStreamEl = ref(null)
-const stickToBottom = (el) => requestAnimationFrame(() => {
-  if (el.value) el.value.scrollTop = el.value.scrollHeight
+watch(() => props.evalText, () => {
+  requestAnimationFrame(() => {
+    if (evalStreamEl.value) evalStreamEl.value.scrollTop = evalStreamEl.value.scrollHeight
+  })
 })
-watch(() => props.evalText, () => stickToBottom(evalStreamEl))
-watch(() => props.execText, () => stickToBottom(execStreamEl))
 
 // 點到路段時：只列「**這一段上**」的車站（使用者 2026-07：物件 tab 顯示該段車站、
 // 不是整條路線；整線完整站表移到 資訊 tab 的路線清單展開）。順序＝原始路段幾何的
@@ -966,7 +965,7 @@ function startResize(e) {
             <template v-if="evalCanRun">
               <button
                 class="llm-run-btn"
-                :disabled="evalRunning || llmRunning"
+                :disabled="evalRunning"
                 @click="emit('run-eval', '')"
               >{{ evalRunning ? '評價中…' : (evalRecord ? '重新 LLM 評價' : 'LLM 評價') }}</button>
               <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-eval skill 讀佈局幾何（逐線段方向、彎折數）寫評價並存檔，完成後顯示在下面。</p>
@@ -1015,19 +1014,28 @@ function startResize(e) {
                 <pre class="llm-pre">{{ evalRecord.finalOutput }}</pre>
               </template>
 
-              <!-- 執行評價結果：把上面的建議餵給 route-llm-align 實際移動座標 -->
-              <template v-if="evalCanRun">
+              <!-- 執行調整：評價時已把 moves 過硬規則、算好調整後佈局存進 exec——
+                   這裡只切換顯示（套用 ⇄ 恢復），不再跑 LLM，可來回比較前後差別 -->
+              <template v-if="evalRecord.exec">
+                <h4 class="llm-h">記錄的調整（評價時已算好）</h4>
+                <div class="info-rows">
+                  <div class="info-row">
+                    <span class="info-key">水平垂直</span>
+                    <span>{{ evalRecord.exec.hvBefore }} → {{ evalRecord.exec.hvAfter }}／{{ evalRecord.stats.segs }} 段</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-key">移動</span>
+                    <span>{{ evalRecord.exec.moved }} 點／提案 {{ evalRecord.exec.proposed }}<template v-if="(evalRecord.exec.rejected ?? []).length">（{{ evalRecord.exec.rejected.length }} 被硬規則拒絕）</template></span>
+                  </div>
+                </div>
                 <button
                   class="llm-run-btn"
-                  :disabled="llmRunning || evalRunning"
-                  @click="emit('run-eval-exec')"
-                >{{ llmRunning ? '執行中…' : '執行評價結果' }}</button>
-                <p class="llm-run-hint">把上面的建議與逐線評語餵給 route-llm-align 實際移動座標（一樣經硬規則把關，不會弄壞佈局）。完成後本視圖的縮減來源會切成「LLM對齊」、直接重建在執行後的佈局上；屆時可再按「重新 LLM 評價」對新佈局重評。</p>
-                <template v-if="llmRunning">
-                  <h4 class="llm-h">LLM 回傳（即時串流）</h4>
-                  <pre ref="execStreamEl" class="llm-pre eval-stream">{{ execText || '等待模型回應…' }}</pre>
-                </template>
+                  @click="emit('toggle-eval-exec')"
+                >{{ evalApplied ? '恢復原佈局' : '執行調整' }}</button>
+                <p class="llm-run-hint">評價時已把建議轉成具體移動、經硬規則驗證並存檔——這顆按鈕只是切換顯示（不跑 LLM、即時），可來回切換比較調整前後的差別。</p>
+                <div v-if="(evalRecord.exec.rejected ?? []).length" class="llm-note">被拒絕的提案：{{ evalRecord.exec.rejected.map((x) => `${x.name}→(${x.want[0]},${x.want[1]})`).join('、') }}</div>
               </template>
+              <p v-else class="llm-run-hint">此評價沒有記錄具體移動——按「重新 LLM 評價」重新產生即可（新版評價會一併記錄怎麼移動、供一鍵執行）。</p>
             </template>
             <p v-else-if="!evalRunning" class="llm-note">{{ evalMsg ?? '尚未產生評價——按上面的按鈕執行。' }}</p>
 

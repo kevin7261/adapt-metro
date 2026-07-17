@@ -1,6 +1,6 @@
 ---
 name: route-llm-eval
-description: LLM 評價（RWD Maps「AI 評路網佈局」）——不用 API key，由 Claude Code 的模型直接當評審：export 讀縮減網格佈局的幾何脈絡（逐線段方向統計、彎折數、頂點鏈）→ 模型寫評價（哪些線可以更直/更水平、佈局可以更方正、哪條線彎太多…）→ apply 驗證並存到 data/metro/llmevals，網頁的「LLM評價」tab 只載入結果。**只評價、不修改任何座標**。當使用者要求跑/重跑某城市的 LLM 評價、產生 llmeval、或問 LLM評價 tab 為何顯示「尚未產生」時使用。畫線規則見 [[route-rwd-draw]]、同架構的調整功能見 [[route-llm-grid]]。
+description: LLM 評價（RWD Maps「AI 評路網佈局」）——不用 API key，由 Claude Code 的模型直接當評審：export 讀縮減網格佈局的幾何脈絡（逐線段方向統計、彎折數、頂點鏈）→ 模型寫評價（哪些線可以更直/更水平、更方正、彎太多…）＋把建議轉成具體 moves → apply 過硬規則把調整後佈局存進結果檔（data/metro/llmevals），網頁「LLM評價」tab 載入顯示、「執行調整」按鈕不跑 LLM 直接切換 套用⇄恢復 比較前後。評價不修改佈局本身。當使用者要求跑/重跑某城市的 LLM 評價、產生 llmeval、或問 LLM評價 tab 為何顯示「尚未產生」時使用。畫線規則見 [[route-rwd-draw]]、同架構的調整功能見 [[route-llm-grid]]。
 ---
 
 # LLM 評價：AI 評路網佈局 (route-llm-eval)
@@ -31,12 +31,12 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
   `/llm-eval/run`（vite dev plugin spawn headless `claude -p` 跑本 skill）、輪詢
   `/llm-eval/status` 即時串流回傳文字，跑完自動載入顯示。GH Pages 沒有 dev
   server → 按鈕會回報需要本機 `npm run dev`。測試替身：`LLM_EVAL_CMD` 環境變數。
-- **執行評價結果**（結果下方的第二顆按鈕）：把評價的 suggestions＋逐線評語組成
-  steering 文字、餵給 [[route-llm-align]] 的 `/llm-align/run` 實際移動座標
-  （本 skill 仍然唯讀——執行的是 align 管線、經同一套硬規則）。跑完 D3Tab 把
-  RWD 圖層的 `compact` 切成 `'llm'`，目前視圖直接重建在執行後的佈局（llmviews）
-  上；compact 一變、舊 compact 的 llmeval 結果檔對不上 → tab 顯示「尚未產生」，
-  對新佈局重按「LLM 評價」即可（評價 ⇄ 執行 可反覆迭代）。
+- **執行調整（不用 LLM）＋恢復**：評價時你就要把建議轉成具體 `moves`（見下），
+  apply 會經 `applyLlmTargets`（與 [[route-llm-align]] 完全相同的硬規則）套用在
+  縮減網格佈局上、把調整後佈局（`exec.cells`）、H/V 前後數字與被拒提案
+  （`exec.rejected`）一併存進結果檔。網頁的「執行調整」按鈕**只是切換顯示**
+  （套用 exec.cells ⇄ 恢復原佈局，網格尺寸不變、可對齊比較）——即時、離線、
+  不再 spawn 任何 LLM。舊結果檔沒有 exec 時面板會提示重新評價補上。
 
 ## export 給你的脈絡
 
@@ -45,6 +45,8 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
 - `lines[]`：逐線 `{ name, color, segs, H, V, D45, other, bends, chains }`——
   `bends`＝這條線行經路徑上方向改變的內部頂點數（彎折）；`chains`＝有序頂點鏈
   「站名(c,r)」（×＝幾何交叉點），c 向東遞增、r 向南遞增。
+- `verts[]`：`{ i, name, c, r }`——**moves 的索引來源**（依 id 排序、每次執行
+  順序一致），`moves["<i>"] = [目標c, 目標r]`。
 - `current`：既有評價的 summary（重跑時可對照）。
 
 ## 執行流程（你要做的事）
@@ -62,7 +64,8 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
        { "aspect": "平衡與留白", "score": 7, "comment": "…" }
      ],
      "lines": [{ "name": "<線名>", "comment": "<這條線哪一段可以更直/更水平、彎在哪>" }],
-     "suggestions": ["<具體可行的調整方向（只是建議、不執行）>", "…"],
+     "suggestions": ["<具體可行的調整方向>", "…"],
+     "moves": { "<verts 的 i>": [目標c, 目標r], "…": [c, r] },
      "userPrompt": "<使用者的關注點（有才填）>"
    }
    ```
@@ -72,11 +75,15 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
      0 彎的支線不用逐條寫。
    - scores 面向固定用上面四個（分數 0–10）；suggestions 3–6 條、每條一句話、
      說清楚「哪裡、往哪個方向調、預期換到什麼」。
-   - **只評價**：不要輸出任何座標移動、不要試著 apply 別的 skill 去改佈局。
+   - **moves＝建議的具體化**：每條 suggestion 都要對應到 moves 裡的實際移動
+     （用 verts 的 i 指涉、目標格在網格內、短距離為主）。移動只改顯示切換用的
+     exec，不動評價對象的佈局本身。
 3. `node scripts/llmEval.mjs apply <cityId> <variant> [compact] <eval.json>`，
-   讀輸出確認存檔。一次到位（不用迭代）。
-4. 收尾回報：只輸出一句總結（總評第一句＋最需要改的一條線）；提醒使用者
-   重新整理網頁就能在「LLM評價」tab 看到全文。
+   讀輸出的 `exec`：H/V 前後、`rejected`（被硬規則拒絕的提案）。**被拒的提案
+   要迭代**：改目標格（或放棄該條）再 apply 一次，直到 rejected 清空或確認
+   剩餘的確實不可行（apply 可重複執行、直接覆寫）。
+4. 收尾回報：只輸出一句總結（總評第一句＋執行調整的 H/V 前後數字）；提醒
+   使用者重新整理網頁就能在「LLM評價」tab 看到全文並一鍵「執行調整」。
 
 ## 規則
 

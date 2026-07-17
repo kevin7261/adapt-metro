@@ -234,26 +234,7 @@ const llmRunner = makeHeadlessRun({
     delete stepState.llm
     delete stepHistory.llm
   },
-  onDone: (ok) => {
-    cachedLlm = null
-    delete cachedEndp.llm
-    // 「執行評價結果」觸發的 run：跑完把目前 RWD 圖層的縮減來源切成「LLM對齊」，
-    // 視圖直接重建在執行後的佈局上（llmviews）。compact 一變，舊 compact 的
-    // llmgrid／llmeval／RWD 畫線快取全部作廢（否則 sizeKey 不含 compact 會沿用舊圖）。
-    if (evalExecPending.value) {
-      evalExecPending.value = false
-      if (ok && isRWD.value && layer.value) {
-        cachedGrid = null
-        cachedEval = null
-        cachedRWD = null
-        gridInfo.value = null
-        gridStats.value = null
-        evalStats.value = null
-        evalMsg.value = null
-        layer.value.compact = 'llm'
-      }
-    }
-  },
+  onDone: () => { cachedLlm = null; delete cachedEndp.llm },
 })
 const startLlmRun = llmRunner.start
 // ---- LLM 調整（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
@@ -311,20 +292,17 @@ const evalRunner = makeHeadlessRun({
   onDone: () => { cachedEval = null },
 })
 const startEvalRun = evalRunner.start
-// ---- 執行 LLM 評價結果 ----
-// 評價本身唯讀；「執行評價結果」＝把評價的建議組成 steering 文字、餵給既有的
-// LLM 對齊管線（route-llm-align，經硬規則實際移動座標）。跑完由 llmRunner 的
-// onDone 把 RWD 圖層 compact 切成 'llm'，目前視圖即重建在執行後的佈局上。
-const evalExecPending = ref(false) // 本次 /llm-align run 是由「執行評價」觸發
-function startEvalExec() {
-  const ev = evalStats.value
-  if (!ev || llmRun.value === 'running' || evalRun.value === 'running') return
-  const parts = (ev.suggestions ?? []).map((s, i) => `${i + 1}. ${s}`)
-  for (const l of ev.lines ?? []) parts.push(`【${l.name}】${l.comment}`)
-  if (!parts.length && ev.summary) parts.push(ev.summary)
-  if (!parts.length) return
-  evalExecPending.value = true
-  startLlmRun(`依下列 LLM 評價的建議調整佈局（目標：直線與水平垂直段更多、彎折更少、更方正）：\n${parts.join('\n')}`)
+// ---- 執行 LLM 評價結果（不用 LLM）----
+// 評價時 llmEval.mjs apply 已把評價附帶的 moves 經 applyLlmTargets（與 LLM 對齊
+// 完全相同的硬規則）套用、把調整後佈局存進結果檔的 exec.cells——這裡的「執行
+// 調整」只是切換顯示：套用＝用 exec.cells 取代縮減網格佈局重畫，恢復＝切回原
+// 佈局。可來回切換比較前後差別，不重跑任何 LLM。
+const evalApplied = ref(false)
+function toggleEvalExec() {
+  if (!evalStats.value?.exec?.cells) return
+  evalApplied.value = !evalApplied.value
+  cachedRWD = null // sizeKey 不含套用狀態——直接作廢重畫
+  render()
 }
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
@@ -984,6 +962,13 @@ async function render() {
       if (seq !== renderSeq) return // superseded during fetch
       evalStats.value = cachedEval.stats ?? null
       evalMsg.value = cachedEval.miss ?? null
+    }
+    // 「執行調整」套用中：以評價存好的 exec.cells（apply 時已過硬規則）取代
+    // 縮減網格佈局重畫；恢復＝這裡不取代。網格尺寸不變 → 前後可對齊比較。
+    if (isRWD.value) {
+      const evalExec = evalStats.value?.exec
+      if (!evalExec?.cells) evalApplied.value = false
+      else if (evalApplied.value) cells = new Map(evalExec.cells.map(([id, c, r]) => [id, [c, r]]))
     }
     // 「LLM調整」（rwd-llm）：欄寬列高不看流量 weight，改用 LLM 推理的區間權重
     // （llmgrids 結果檔）——先載入＋fingerprint 驗證，沒有結果就留白給 overlay。
@@ -1738,7 +1723,7 @@ onBeforeUnmount(() => {
       :eval-text="evalRunText"
       :eval-msg="evalMsg"
       :eval-error="evalRun === 'error' ? evalRunTail : ''"
-      :exec-text="llmRunText"
+      :eval-applied="evalApplied"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
       :show-weights="rwdShowWeights"
@@ -1750,7 +1735,7 @@ onBeforeUnmount(() => {
       @run-llm="startLlmRun"
       @run-grid="startGridRun"
       @run-eval="startEvalRun"
-      @run-eval-exec="startEvalExec"
+      @toggle-eval-exec="toggleEvalExec"
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"

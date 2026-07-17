@@ -279,9 +279,11 @@ function llmEvalTrigger() {
         outFile: `data/metro/llmevals/${b.city}.${b.variant}.${compact}.json`,
         userPrompt,
         prompt: `使用 route-llm-eval skill：幫城市 ${b.city}（變體 ${b.variant}，縮減 ${compact}）產生或更新 LLM 評價`
-          + '（export 讀佈局幾何 → 寫評價 → apply 存檔）。只評價、不修改任何座標；'
-          + '評語要用站名與數字落地（哪條線哪一段可以更直/更水平、彎在哪、怎麼更方正）。'
-          + '完成後只輸出一句總結（總評第一句＋最需要改的一條線）。'
+          + '（export 讀佈局幾何 → 寫評價＋moves → apply 存檔）。評價不修改佈局；'
+          + '評語要用站名與數字落地（哪條線哪一段可以更直/更水平、彎在哪、怎麼更方正），'
+          + '並把每條建議轉成具體 moves（export 的 verts 索引 → 目標格），apply 會過硬規則、'
+          + '把調整後佈局存進結果檔供網頁「執行調整」一鍵切換。'
+          + '完成後只輸出一句總結（總評第一句＋執行調整的 H/V 前後數字）。'
           + (userPrompt ? `\n\n使用者的關注點：${userPrompt}` : ''),
       }
     },

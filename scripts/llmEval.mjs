@@ -13,9 +13,13 @@
 //   "summary": "<總評（幾句話）>",              // 必填
 //   "scores": [{ "aspect": "...", "score": 0-10, "comment": "..." }],
 //   "lines": [{ "name": "<線名>", "comment": "<這條線的具體評價>" }],
-//   "suggestions": ["<可以怎麼調整（只是建議、不執行）>", …],
+//   "suggestions": ["<可以怎麼調整>", …],
+//   "moves": { "<vertIndex>": [c, r], … },      // 建議對應的具體移動（export 的 verts[i].i）
 //   "userPrompt": "<使用者的關注點（可空）>"
 // }
+// moves 由 apply 經 applyLlmTargets（與 LLM 對齊完全相同的硬規則）套用在縮減網格
+// 佈局上，把結果（exec.cells＋前後 H/V＋被拒提案）一併存進結果檔——網頁的
+// 「執行調整」按鈕只是載入 exec.cells 切換顯示，不再跑 LLM；原佈局隨時可恢復。
 
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
@@ -26,7 +30,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, buildHcGraph, iteratePost,
+  buildHillClimb, buildHcGraph, iteratePost, applyLlmTargets,
   buildRectPolish, buildAxisAlign, buildAxisIlp, straightenCompactLoop,
 } from '../src/stores/hillClimb.js'
 
@@ -200,12 +204,20 @@ const stats = {
   d45: globalStat.D45, other: globalStat.other,
 }
 
+// 穩定頂點索引（同 llmAlign：依 id 排序、每次執行順序一致）——moves 用 i 指涉頂點。
+const idsSorted = [...cells.keys()].sort()
+
 if (cmd === 'export') {
+  const verts = idsSorted.map((id, i) => {
+    const [c, r] = cells.get(id)
+    return { i, name: nameById.get(id) ?? '×', c, r }
+  })
   console.log(JSON.stringify({
     city: cityId, cityName: meta.city, variant, compact,
     axes: '格座標 (c,r)：c 向東遞增、r 向南遞增；H=水平段、V=垂直段、D45=45°段、other=畫出來一定有折彎的段',
     stats,
     lines: lines.map(({ rid, ...l }) => l),
+    verts, // moves 的索引來源：moves["i"] = [c, r]
     current: saved ? { summary: saved.summary, userPrompt: saved.userPrompt ?? null } : null,
   }))
 } else if (cmd === 'apply') {
@@ -223,6 +235,31 @@ if (cmd === 'export') {
     .map((l) => ({ name: l.name, comment: l.comment }))
   const suggestions = (Array.isArray(spec.suggestions) ? spec.suggestions : [])
     .filter((s) => typeof s === 'string' && s.trim())
+  // moves（建議對應的具體移動）：這裡就經 applyLlmTargets（與 LLM 對齊完全相同的
+  // 硬規則）套用在縮減網格佈局上，把結果存進 exec——網頁「執行調整」只載入
+  // exec.cells 切換顯示，不再跑 LLM；被硬規則拒絕的提案記在 exec.rejected。
+  let exec = null
+  if (spec.moves && typeof spec.moves === 'object' && Object.keys(spec.moves).length) {
+    const targetEntries = Object.entries(spec.moves)
+      .map(([i, t]) => [idsSorted[+i], t])
+      .filter(([id, t]) => id && Array.isArray(t)
+        && Number.isInteger(t[0]) && Number.isInteger(t[1])
+        && t[0] >= 0 && t[0] < nC && t[1] >= 0 && t[1] < nR)
+    if (targetEntries.length) {
+      const res = applyLlmTargets(skeleton, cells, nC, nR, targetEntries)
+      const rejected = targetEntries
+        .filter(([id, t]) => {
+          const p = res.cellAfter.get(id)
+          return p && (p[0] !== t[0] || p[1] !== t[1])
+        })
+        .map(([id, t]) => ({ name: nameById.get(id) ?? '×', want: t, got: res.cellAfter.get(id) }))
+      exec = {
+        cells: [...res.cellAfter].map(([id, [c, r]]) => [id, c, r]),
+        hvBefore: res.stats.hvBefore, hvAfter: res.stats.hvAfter,
+        proposed: targetEntries.length, moved: res.stats.moved, rejected,
+      }
+    }
+  }
   await mkdir(OUT, { recursive: true })
   await writeFile(outFile, JSON.stringify({
     fingerprint, city: cityId, variant, compact,
@@ -230,6 +267,8 @@ if (cmd === 'export') {
     stats, // 客觀數字（本 script 算的），評語（模型寫的）在下面
     summary: spec.summary.trim(),
     scores, lines: lineComments, suggestions,
+    moves: spec.moves ?? null,
+    exec,
     userPrompt: spec.userPrompt ?? saved?.userPrompt ?? null,
     prompt: saved?.prompt ?? spec.prompt ?? null,
     finalOutput: saved?.finalOutput, // trigger plugin's merge survives re-applies
@@ -237,6 +276,10 @@ if (cmd === 'export') {
   console.log(JSON.stringify({
     saved: outFile,
     stats, scores: scores.length, lines: lineComments.length, suggestions: suggestions.length,
+    exec: exec ? {
+      hv: `${exec.hvBefore} -> ${exec.hvAfter} / ${stats.segs}`,
+      proposed: exec.proposed, moved: exec.moved, rejected: exec.rejected,
+    } : '（無 moves——評價建議未附具體移動，網頁將沒有「執行調整」可按）',
   }, null, 1))
 } else {
   console.error(`未知指令 ${cmd}`)
