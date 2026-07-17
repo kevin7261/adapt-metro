@@ -326,43 +326,47 @@
   .btn.primary{ background:var(--ink); color:var(--page-bg); border-color:var(--ink); }
   .btn.ghost{ background:var(--card-bg); color:var(--ink); }
 
-  /* 底部工具列（固定白底，使用者：bar 白色）：上層＝很長的可點 seek bar（點哪跳哪張 slide），
-     下層＝上一頁 ・ 置中頁碼 ・ 下一頁＋全螢幕。 */
+  /* 底部工具列（固定白底）：右邊全螢幕鈕會讓中央偏右 → 左邊補等寬佔位，
+     讓 ‹ [長條] › 這一組真正水平置中（左右對稱：佔位↔全螢幕、prev↔next）。 */
   .slidebar{
-    flex-shrink:0; display:flex; flex-direction:column; gap:7px;
-    padding:9px 14px 11px;
-    background:#ffffff; border-top:1px solid #dadce0; color:#3c4043;
+    flex-shrink:0; display:flex; align-items:center; gap:12px;
+    padding:8px 20px 11px; background:#ffffff; border-top:1px solid #ebedf0; color:#5f6368;
   }
-  /* 很長的 seek bar：滿版、可點跳頁，fill 顯示目前進度，hover 顯示該位置頁碼 */
-  .seekbar{ position:relative; height:8px; border-radius:4px; background:#e8eaed; cursor:pointer; }
-  .seekbar:hover{ background:#dde1e6; }
-  .seekbar .seek-fill{ position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:#2563eb; transition:width .25s ease; }
+  .sb-ph{ flex-shrink:0; width:32px; height:32px; }  /* 左側佔位＝全螢幕鈕寬，平衡右側 */
+  /* 中央：頁碼小字置中在上、細軌道在下 */
+  .seekwrap{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0; }
+  .seekwrap .counter{
+    font-family:var(--mono); font-size:11px; letter-spacing:.02em; color:#80868b; user-select:none;
+  }
+  /* 細軌道（6px）＋藍 fill＋hover 才出現的小圓 knob；點哪跳哪張，hover 浮出該位置頁碼 */
+  .seekbar{ position:relative; width:100%; height:6px; border-radius:3px; background:#e6e9ec; cursor:pointer; }
+  .seekbar .seek-fill{
+    position:absolute; left:0; top:0; bottom:0; border-radius:3px; background:#2563eb;
+    transition:width .25s ease; pointer-events:none;
+  }
+  .seekbar .seek-knob{
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:13px; height:13px; border-radius:50%; background:#fff; border:2px solid #2563eb;
+    box-shadow:0 1px 3px rgba(0,0,0,.22); opacity:0; transition:opacity .12s; pointer-events:none;
+  }
+  .seekbar:hover .seek-knob{ opacity:1; }
   .seekbar .seek-tip{
-    position:absolute; bottom:15px; transform:translateX(-50%);
+    position:absolute; bottom:16px; transform:translateX(-50%);
     background:#3c4043; color:#fff; font-size:11px; padding:2px 7px; border-radius:4px;
     white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .1s; font-family:var(--mono);
   }
   .seekbar:hover .seek-tip{ opacity:1; }
-  /* 控制列：頁碼絕對置中；prev 靠左、next＋全螢幕靠右 */
-  .sb-row{ position:relative; display:flex; align-items:center; gap:6px; min-height:30px; }
-  .sb-row .counter{
-    position:absolute; left:50%; transform:translateX(-50%);
-    font-family:var(--mono); font-size:13px; color:#5f6368; user-select:none;
+  /* 輕巧 ghost 圖示鈕（箭頭與全螢幕同一風格，無邊框） */
+  .navbtn, .sb-fs{
+    flex-shrink:0; width:32px; height:32px; border-radius:50%; border:none; background:transparent; color:#5f6368;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-family:inherit;
   }
-  .sb-right{ margin-left:auto; display:flex; align-items:center; gap:6px; }
-  .navbtn{
-    width:30px; height:30px; border-radius:6px; border:none; background:transparent; color:#5f6368;
-    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; font-family:inherit;
-  }
-  .navbtn:hover{ background:#f1f3f4; }
-  .navbtn:disabled{ opacity:.35; cursor:default; }
-  .sb-fs{  /* 只有圖示（使用者：全螢幕的字不用寫）→ 方形圖示鈕 */
-    display:inline-flex; align-items:center; justify-content:center; width:32px; height:30px; border-radius:6px;
-    border:1px solid #dadce0; background:transparent; color:#3c4043; cursor:pointer;
-  }
-  .sb-fs:hover{ background:#f1f3f4; }
+  .navbtn{ font-size:19px; }
+  .navbtn:hover, .sb-fs:hover{ background:#f1f3f4; color:#3c4043; }
+  .navbtn:disabled{ opacity:.3; cursor:default; }
+  .navbtn:disabled:hover{ background:transparent; }
   .sb-fs .m-icon{
-    font-family:'Material Symbols Outlined'; font-size:18px; line-height:1;
+    font-family:'Material Symbols Outlined'; font-size:20px; line-height:1;
     font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;
   }
 
@@ -1020,20 +1024,20 @@
 </div><!-- /deck -->
 </div><!-- /workspace -->
 
-<!-- 底部工具列：上層＝很長的可點 seek bar（點哪跳哪張），下層＝prev・置中頁碼・next＋全螢幕 -->
+<!-- 底部工具列：‹  ［頁碼置中／細軌 scrubber，點哪跳哪張］  ›  ⤢ -->
 <footer class="slidebar">
-  <div class="seekbar" id="seekbar" title="點擊跳到該頁">
-    <div class="seek-fill" id="seekFill"></div>
-    <div class="seek-tip" id="seekTip"></div>
-  </div>
-  <div class="sb-row">
-    <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
+  <span class="sb-ph" aria-hidden="true"></span>
+  <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
+  <div class="seekwrap">
     <span class="counter" id="counter">1 / 41</span>
-    <div class="sb-right">
-      <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
-      <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
+    <div class="seekbar" id="seekbar" title="點擊跳到該頁">
+      <div class="seek-fill" id="seekFill"></div>
+      <div class="seek-knob" id="seekKnob"></div>
+      <div class="seek-tip" id="seekTip"></div>
     </div>
   </div>
+  <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
+  <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
 </footer>
 
 <script>
@@ -1086,7 +1090,10 @@
   window.addEventListener('resize', scaleThumbs);
   scaleThumbs();
 
-  var progressEl = document.getElementById('progress');
+  var seekFill = document.getElementById('seekFill');
+  var seekKnob = document.getElementById('seekKnob');
+  var seekbar = document.getElementById('seekbar');
+  var seekTip = document.getElementById('seekTip');
   var counterEl = document.getElementById('counter');
   var prevBtn = document.getElementById('prevBtn');
   var nextBtn = document.getElementById('nextBtn');
@@ -1098,7 +1105,9 @@
     slides.forEach(function(s, i){ s.classList.toggle('active', i === idx); });
     if (slides[idx]) slides[idx].scrollTop = 0;
     counterEl.textContent = (idx + 1) + ' / ' + total;
-    progressEl.style.width = ((idx + 1) / total * 100) + '%';
+    var pct = (total <= 1) ? 100 : (idx / (total - 1) * 100);
+    seekFill.style.width = pct + '%';
+    seekKnob.style.left = pct + '%';
     prevBtn.disabled = idx === 0;
     nextBtn.disabled = idx === total - 1;
     thumbItems.forEach(function(item, i){ item.classList.toggle('current', i === idx); });
@@ -1111,6 +1120,20 @@
   function go(n){ idx = clamp(n); render(); }
   function next(){ go(idx + 1); }
   function prev(){ go(idx - 1); }
+
+  // 很長的 seek bar：點哪一段就跳到那一張 slide；hover 顯示該位置的頁碼
+  function seekIndex(e){
+    var r = seekbar.getBoundingClientRect();
+    var f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    return clamp(Math.round(f * (total - 1)));
+  }
+  seekbar.addEventListener('click', function(e){ go(seekIndex(e)); });
+  seekbar.addEventListener('mousemove', function(e){
+    var r = seekbar.getBoundingClientRect();
+    var n = seekIndex(e);
+    seekTip.textContent = (n + 1) + ' / ' + total;
+    seekTip.style.left = ((e.clientX - r.left)) + 'px';
+  });
 
   var hash = parseInt((location.hash || '').replace('#', ''), 10);
   if (!isNaN(hash)) idx = clamp(hash - 1);
