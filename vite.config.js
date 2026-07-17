@@ -128,12 +128,31 @@ function claudeSkillTrigger(spec) {
         return
       }
       const cmd = process.env[spec.cmdEnv] ?? 'claude'
+      // Optional model pick from the panel dropdown: an allow-listed short key →
+      // the real model id passed to `claude --model`. 'default' / missing / any
+      // unknown value omits the flag, so the user's own Claude Code default runs
+      // (the prior behaviour). Keys mirror the panel's <select>.
+      const MODELS = {
+        opus: { id: 'claude-opus-4-8', name: 'Opus 4.8' },
+        fable: { id: 'claude-fable-5', name: 'Fable 5' },
+        sonnet: { id: 'claude-sonnet-5', name: 'Sonnet 5' },
+        haiku: { id: 'claude-haiku-4-5-20251001', name: 'Haiku 4.5' },
+      }
+      const pick = MODELS[body?.model]
+      const modelId = pick?.id
+      // When a model is forced, tell the skill what name to record in its result
+      // file's `model` field, so the tab badge matches the dropdown rather than
+      // whatever the model guesses about itself.
+      const runPrompt = pick
+        ? `${prompt}\n\n本次由指定模型執行，請在結果檔的 model 欄一律填「${pick.name}」。`
+        : prompt
       // stream-json (needs --verbose in print mode) emits one JSON event per
       // line as the run unfolds — so we can surface the model's replies live
       // instead of only its final text. A stub command (spec.cmdEnv) that
       // prints plain lines still works: unparseable lines fall back to raw text.
       const child = spawn(cmd, [
-        '-p', prompt,
+        '-p', runPrompt,
+        ...(modelId ? ['--model', modelId] : []),
         '--output-format', 'stream-json', '--verbose',
         '--permission-mode', 'acceptEdits',
         '--allowedTools', 'Bash(node:*),Read,Write,Glob,Grep,Skill',

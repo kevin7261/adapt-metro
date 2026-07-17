@@ -58,8 +58,19 @@ const props = defineProps({
   // 顏色點間最大跨距：目前「已套用」的值（D3Tab 的快取是用它算的）——與滑桿
   // 值不同時「重新計算」按鈕亮起。
   spanApplied: { type: Number, default: null },
+  // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇短鍵（'default' | 'opus' |
+  // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
+  llmModel: { type: String, default: 'default' },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span'])
+const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
+// 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
+const LLM_MODEL_OPTIONS = [
+  { key: 'default', label: '預設模型' },
+  { key: 'opus', label: 'Opus 4.8' },
+  { key: 'fable', label: 'Fable 5' },
+  { key: 'sonnet', label: 'Sonnet 5' },
+  { key: 'haiku', label: 'Haiku 4.5' },
+]
 const llmUserPrompt = ref('')
 const gridUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
@@ -73,11 +84,15 @@ const width = ref(300)
 // Panel sections — the LLM對齊 tab appears only once a run has produced a
 // record (llmRecord prop from D3Tab).
 // 「樣式」tab 已移到地圖上方的樣式工具列（StyleBar），這裡不再列出。
+// 顏色點間最大跨距（SPAN_CAP）只有 Straighten（hillclimb）與 RWD 視圖用得到——
+// 只有這些視圖才顯示「設定」tab（原本在地圖上方樣式工具列的彈窗，改放這裡）。
+const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
 const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   { id: 'object', label: '物件' },
   ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM調整' }, { id: 'eval', label: 'LLM評價' }] : []),
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
+  ...(hasSpan.value ? [{ id: 'settings', label: '設定' }] : []),
 ])
 const activeTab = ref('info')
 
@@ -214,6 +229,8 @@ const objectTitle = computed(() => {
 })
 // The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
 watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
+// 「設定」tab 只在 Straighten/RWD 出現——切到沒有它的視圖時退回資訊。
+watch(hasSpan, (v) => { if (!v && activeTab.value === 'settings') activeTab.value = 'info' })
 
 // The skill that drove the run — fetched once when the LLM對齊 / LLM調整 tab
 // first opens (same source + rendering as SkillViewer: /skills/<id>.md).
@@ -737,6 +754,36 @@ function startResize(e) {
           </table>
         </template>
 
+        <!-- ============ 設定: 顏色點間最大跨距（SPAN_CAP，Straighten/RWD）============ -->
+        <template v-else-if="activeTab === 'settings'">
+          <div class="settings-panel">
+            <div class="section-title">顏色點間最大跨距</div>
+            <p class="weight-hint">
+              水平／垂直最大化的每一次移動，都不得讓一條線段的兩個顏色點在網格上橫跨
+              超過這個格數（Chebyshev＝max(|Δx|,|Δy|)）——避免某條線被拉成過長的斜段。
+              本來就超標的舊長段只准縮短、不准再拉長。
+            </p>
+            <div class="settings-row">
+              <label class="settings-label">最大跨距</label>
+              <input
+                :value="layer.spanCap ?? 3"
+                type="number" min="1" step="1" class="settings-num"
+                @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
+              />
+              <span class="settings-unit">格</span>
+              <button
+                class="settings-recalc"
+                :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
+                @click="emit('recalc-span')"
+              >重新計算</button>
+            </div>
+            <p class="weight-hint settings-note">
+              目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。改數字後不會自動重算——
+              按「重新計算」才會用新值重跑水平垂直最大化。
+            </p>
+          </div>
+        </template>
+
         <!-- ============ 權重（RWD Maps）: weight 驅動版面簡化（論文 §九）============ -->
         <template v-else-if="activeTab === 'weight'">
           <div class="weight-panel">
@@ -820,6 +867,13 @@ function startResize(e) {
                 :disabled="gridRunning"
                 placeholder="例：把市中心那幾欄拉開；中間幾列拉高；東側壓縮一點、把空間讓給核心…"
               />
+              <label class="llm-model-pick">
+                模型
+                <select :value="llmModel" :disabled="gridRunning"
+                  @change="emit('update:llm-model', $event.target.value)">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
               <button
                 class="llm-run-btn"
                 :disabled="gridRunning || !gridUserPrompt.trim()"
@@ -868,6 +922,13 @@ function startResize(e) {
               哪條線彎折太多可以更直……只評價、不修改——不會動任何座標，回傳的只是結果文字。
             </p>
             <template v-if="evalCanRun">
+              <label class="llm-model-pick">
+                模型
+                <select :value="llmModel" :disabled="evalRunning"
+                  @change="emit('update:llm-model', $event.target.value)">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
               <button
                 class="llm-run-btn"
                 :disabled="evalRunning"
@@ -990,6 +1051,13 @@ function startResize(e) {
             <pre class="llm-pre">{{ llmRecord.finalOutput }}</pre>
           </template>
 
+          <label v-if="llmCanRun" class="llm-model-pick">
+            模型
+            <select :value="llmModel" :disabled="llmRunning"
+              @change="emit('update:llm-model', $event.target.value)">
+              <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+            </select>
+          </label>
           <button
             v-if="llmCanRun"
             class="llm-run-btn"
@@ -1231,6 +1299,25 @@ function startResize(e) {
 }
 .llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
 .llm-run-btn:disabled { opacity: 0.55; cursor: default; }
+.llm-model-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: var(--sp-note);
+  color: hsl(var(--muted-foreground));
+}
+.llm-model-pick select {
+  flex: 1;
+  height: 28px;
+  padding: 0 6px;
+  font-size: var(--sp-body);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
+.llm-model-pick select:disabled { opacity: 0.55; }
 .llm-run-hint { margin: 6px 0 0; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
 .llm-prompt-box {
   width: 100%;
@@ -1488,4 +1575,36 @@ function startResize(e) {
   color: hsl(var(--muted-foreground));
 }
 .rose-note .rose-red { color: #e11d48; font-weight: 600; }
+
+/* 設定 tab：顏色點間最大跨距 */
+.settings-panel { display: flex; flex-direction: column; gap: 10px; }
+.settings-panel .section-title { border-top: none; padding-top: 0; margin-top: 4px; }
+.settings-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.settings-label { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+.settings-num {
+  width: 64px;
+  padding: 5px 8px;
+  font-size: 13px;
+  /* 靠左：數字在左、原生上下箭頭在右，兩者不互相擋住 */
+  text-align: left;
+  color: hsl(var(--foreground));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+}
+.settings-num:focus { outline: 2px solid hsl(var(--ring)); outline-offset: -1px; }
+.settings-unit { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+.settings-recalc {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 4px);
+  white-space: nowrap;
+}
+.settings-recalc:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
+.settings-recalc:disabled { opacity: 0.45; cursor: default; }
+.settings-note { margin-top: 2px; }
 </style>

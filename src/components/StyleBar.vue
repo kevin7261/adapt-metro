@@ -9,13 +9,10 @@ import MIcon from './MIcon.vue'
 const props = defineProps({
   layer: { type: Object, required: true },
   viewKind: { type: String, default: 'metro' }, // 'metro' | 'map-adjust' | 'hillclimb' | 'rwd'
-  spanApplied: { type: Number, default: null },
 })
-const emit = defineEmits(['recalc-span'])
 
 const isMetro = computed(() => props.layer?.type === 'metro' || props.layer?.metroLike === true)
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
-const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
 
 // 工具依「相關功能」分組（每組一格，組間加分隔線）：
 //  · 路線：線寬（＋一般向量的 Symbology/顏色/邊寬）
@@ -45,7 +42,7 @@ const groups = computed(() => {
     if (props.layer.type === 'point') e.push({ id: 'pointRadius', icon: 'scatter_plot', title: '半徑', num: { prop: 'radius', min: 1, max: 20, step: 1, def: 4, unit: 'px' } })
     g.push(e)
   }
-  if (hasSpan.value) g.push([{ id: 'span', icon: 'straighten', title: '顏色點間最大跨距' }])
+  // 顏色點間最大跨距已移到右側面板的「設定」tab（只有 Straighten/RWD 視圖才出現）。
   return g
 })
 
@@ -60,7 +57,6 @@ function setNum(num, raw) {
 function reset() {
   const l = props.layer
   switch (openTool.value) {
-    case 'span': l.spanCap = 3; break
     case 'bg': l.d3Bg = null; break
     case 'symbology': l.symbology = 'categorized'; break
     case 'color': l.color = '#e11d48'; l.strokeColor = '#ffffff'; break
@@ -122,25 +118,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         class="sb-pop menu-pop"
         :style="{ position: 'fixed', top: popPos.top + 'px', left: popPos.left + 'px' }"
       >
-        <!-- 顏色點間最大跨距 -->
-        <template v-if="openTool === 'span'">
-          <label class="sb-label">顏色點間最大跨距（格）</label>
-          <div class="sb-row">
-            <input
-              :value="layer.spanCap ?? 3"
-              type="number" min="1" step="1" class="sb-num"
-              @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
-            />
-            <button
-              class="sb-btn2"
-              :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
-              @click="emit('recalc-span')"
-            >重新計算</button>
-          </div>
-        </template>
-
         <!-- 地圖底色（metro） -->
-        <template v-else-if="openTool === 'bg'">
+        <template v-if="openTool === 'bg'">
           <label class="sb-label">地圖底色</label>
           <input type="color" class="sb-color" :value="layer.d3Bg || '#0d1117'" @input="layer.d3Bg = $event.target.value" />
         </template>
@@ -230,7 +209,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 }
 .sb-inline-num {
   /* 夠寬讓數字不被右側原生上下箭頭擋住；靠左對齊，數字在左、spinner 在右 */
-  width: 56px;
+  width: 48px;
   padding: 2px 2px 2px 4px;
   font-size: 12px;
   text-align: left;

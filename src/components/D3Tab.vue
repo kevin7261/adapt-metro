@@ -153,6 +153,17 @@ const llmRunTail = ref('')   // short error tail
 const llmRunText = ref('')   // live streamed assistant transcript (LLM 回傳文字)
 const llmLogEl = ref(null)   // overlay <pre>, auto-scrolled to the newest text
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
+// 三個 LLM 功能（評價/對齊/調整）共用的模型選擇：面板下拉的短鍵，隨 /run 的
+// body 送出，vite plugin 映射成 claude --model；'default' → 不帶旗標（沿用預設）。
+const llmModel = ref('default')
+// 畫布 overlay 備援按鈕的下拉選項（與 StylePanel 的 LLM_MODEL_OPTIONS 一致）。
+const LLM_MODEL_OPTIONS = [
+  { key: 'default', label: '預設模型' },
+  { key: 'opus', label: 'Opus 4.8' },
+  { key: 'fable', label: 'Fable 5' },
+  { key: 'sonnet', label: 'Sonnet 5' },
+  { key: 'haiku', label: 'Haiku 4.5' },
+]
 // LLM 對齊（/llm-align）與 LLM 調整（/llm-grid）共用的 run/poll 機構：POST 觸發
 // vite plugin spawn 的 headless Claude Code、2.5s 輪詢 status、streamed transcript
 // 自動捲到底、409（已在跑）視為接上。兩者的差異——endpoint、額外參數（grid 多帶
@@ -177,6 +188,7 @@ function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, o
         body: JSON.stringify({
           city: cid, ...params(),
           userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
+          model: llmModel.value, // 面板下拉選的模型（'default' → 不帶 --model）
         }),
       })
       if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`)
@@ -1585,8 +1597,6 @@ onBeforeUnmount(() => {
           v-if="panelLayer"
           :layer="panelLayer"
           :view-kind="isRWD ? 'rwd' : isHC ? 'hillclimb' : 'map-adjust'"
-          :span-applied="appliedSpanCap"
-          @recalc-span="recalcSpan"
         />
         <div class="map-main">
           <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
@@ -1655,6 +1665,12 @@ onBeforeUnmount(() => {
             <div class="llm-box">
               <div>{{ llmMsg }}</div>
               <div v-if="llmRun === 'error'" class="llm-tail err">執行失敗：{{ llmRunTail }}</div>
+              <label v-if="llmCityId" class="llm-model-pick">
+                模型
+                <select v-model="llmModel">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
               <button
                 v-if="llmCityId"
                 class="llm-btn"
@@ -1683,6 +1699,12 @@ onBeforeUnmount(() => {
                   rows="2"
                   placeholder="例：把市中心那幾欄拉開；中間幾列拉高；東側壓縮一點…"
                 />
+                <label class="llm-model-pick">
+                  模型
+                  <select v-model="llmModel">
+                    <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                  </select>
+                </label>
                 <button class="llm-btn" @click="startGridRun(gridOverlayPrompt.trim())">開始 LLM 調整</button>
               </template>
             </div>
@@ -1733,6 +1755,8 @@ onBeforeUnmount(() => {
       :eval-msg="evalMsg"
       :eval-error="evalRun === 'error' ? evalRunTail : ''"
       :eval-applied="evalApplied"
+      :llm-model="llmModel"
+      @update:llm-model="llmModel = $event"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
       :show-weights="rwdShowWeights"
@@ -2201,6 +2225,23 @@ onBeforeUnmount(() => {
   background: hsl(var(--primary) / 0.12);
 }
 .llm-btn:hover { background: hsl(var(--primary) / 0.22); }
+.llm-model-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 6px 0 0;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+.llm-model-pick select {
+  height: 26px;
+  padding: 0 6px;
+  font-size: 12px;
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
 .llm-rerun {
   margin-left: 6px;
   height: 18px;
