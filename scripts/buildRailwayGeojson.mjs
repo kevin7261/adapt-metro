@@ -194,7 +194,7 @@ function buildSystem(raw, override) {
   const union = (a, b) => { parent[find(a)] = find(b) }
   // an HSR-platform station carries a high-speed operator/network (新幹線/高鐵/
   // 高速鉄道/TGV…); flags transfer complexes and drives HSR-line membership.
-  const HSR_OP_RE = /高速鐵|高铁|高鐵|高速鉄|new ?transit|shinkansen|新幹線|high[\s_-]?speed|\btgv\b|\bice\b|\bave\b|\bktx\b|renfe ave/i
+  const HSR_OP_RE = /高速鐵|高铁|高鐵|高速鉄|고속|new ?transit|shinkansen|新幹線|high[\s_-]?speed|\btgv\b|\bice\b|\bave\b|\bktx\b|\bsrt\b|renfe ave/i
   const isHsr = rawSt.map((s) => HSR_OP_RE.test(`${s.tags.operator || ''} ${s.tags.network || ''}`))
   const cellDeg = 0.03, buckets = new Map()
   rawSt.forEach((s, i) => { const k = `${Math.floor(s.lon / cellDeg)},${Math.floor(s.lat / cellDeg)}`; if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(i) })
@@ -352,17 +352,30 @@ function buildSystem(raw, override) {
     }
     lineRel.set(rname, g)
   }
+  // stations indexed by an HSR-line network tag (品川 network=東海道新幹線) — the ONLY
+  // extra membership 高鐵 gets, since snapping to HSR track grabs the local stations a
+  // Shinkansen VIADUCT passes over (武蔵小杉/西谷).
+  const netToStations = new Map()
+  for (let i = 0; i < rawSt.length; i++) {
+    const nw = rawSt[i].tags.network
+    if (!nw || (!HSR_OP_RE.test(nw) && rawSt[i].tags.highspeed !== 'yes')) continue
+    const k = norm(nw); if (!netToStations.has(k)) netToStations.set(k, new Set())
+    netToStations.get(k).add(`s${rawSt[find(i)].id}`)
+  }
+  // 高鐵 by line NAME (新幹線/高铁/高速线/客运专线/城际/HSL…), else conventional. NOT by
+  // highspeed-way fraction — that mislabels a 一般線 sharing one HSR viaduct way
+  // (高崎線/京浜東北線) as 高鐵. Fraction ≥0.8 is a safety net for oddly-named HSR.
+  const HSR_NAME_RE = /新幹線|新干线|高速鉄|高速鐵|高铁|高鐵|高速線|高速线|客运专线|客運專線|城际|城際|고속|shinkansen|high[\s_-]?speed|\bhsl\b|\bktx\b/i
   for (const [rname, g] of lineRel) {
     if (g.ways.size === 0) continue
     let tot = 0, hs = 0
     for (const wid of g.ways) { tot++; if (hsWayIds.has(wid)) hs++ }
-    const cls = hs / tot >= 0.5 ? 'high_speed' : 'conventional'
+    const cls = (HSR_NAME_RE.test(rname) || hs / tot >= 0.8) ? 'high_speed' : 'conventional'
     const ord = trackOrder([...g.ways]); if (!ord) continue
-    // membership: (a) member stop nodes — most JR line relations actually list NONE
-    // (東北本線/山手線/中央本線 have 0), so (b) also snap our merged stations that lie
-    // within SNAP m of THIS line's own path. The path is only this line's track, so
-    // parallel lines (京浜東北 beside 東北本線) don't contaminate — except where their
-    // tracks physically overlap, which is a shared station anyway.
+    // membership: member stop nodes always; PLUS (一般國鐵 only) snap our merged
+    // stations that lie within SNAP m of THIS line's own path — most JR conventional
+    // relations list 0 member nodes (東北本線/山手線), so snapping gives coverage. 高鐵
+    // does NOT snap (viaduct pollution); it uses member nodes ∪ network-tagged stops.
     const member = new Set(); const cand = new Set()
     for (const n of g.nodes) {
       const t = n.tags || {}
@@ -370,10 +383,14 @@ function buildSystem(raw, override) {
       if (/线路所|線路所|信号場|信號場|信号所|信號所/.test(t.name || t['name:ja'] || t['name:zh'] || '')) continue
       const sid = nodeToStation(n, false); if (sid) { member.add(sid); cand.add(sid) }
     }
-    const pathCells = new Set(); for (const p of ord.pts) pathCells.add(scell(p[0], p[1]))
-    for (const cellKey of pathCells) {
-      const [cx, cy] = cellKey.split(':').map(Number)
-      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (const s of stByCell.get(`${cx + dx}:${cy + dy}`) || []) cand.add(s.id)
+    if (cls === 'high_speed') {
+      for (const sid of netToStations.get(norm(rname)) || []) { member.add(sid); cand.add(sid) }
+    } else {
+      const pathCells = new Set(); for (const p of ord.pts) pathCells.add(scell(p[0], p[1]))
+      for (const cellKey of pathCells) {
+        const [cx, cy] = cellKey.split(':').map(Number)
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (const s of stByCell.get(`${cx + dx}:${cy + dy}`) || []) cand.add(s.id)
+      }
     }
     // order candidates by arc along the path; keep member nodes always, snapped ones
     // only if truly on the track (≤ SNAP), drop mis-snaps
@@ -406,6 +423,72 @@ function buildSystem(raw, override) {
       const e = edges.get(k); e.lines.set(rname, (e.lines.get(rname) || 0) + 10); if (cls === 'high_speed') e.hs = true
     }
   }
+  // Fallback: a country whose 高鐵 has NO usable named route=railway relation (韓國 KTX
+  // — OSM relates it oddly) → NN-chain the HSR-operator-flagged stations into one
+  // 高速鐵路 line so the network at least appears (merged, not per-line — imperfect).
+  if (![...edges.values()].some((e) => e.hs)) {
+    const hsrSt = stations.filter((s) => s.hsr)
+    if (hsrSt.length >= 2) {
+      const far = (from, arr) => arr.reduce((b, p) => haversine([from.lon, from.lat], [p.lon, p.lat]) > haversine([from.lon, from.lat], [b.lon, b.lat]) ? p : b, arr[0])
+      const start = far(far(hsrSt[0], hsrSt), hsrSt)
+      const used = new Set([start.id]); const order = [start]; let cur = start
+      while (order.length < hsrSt.length) { let best = null, bd = Infinity; for (const p of hsrSt) { if (used.has(p.id)) continue; const d = haversine([cur.lon, cur.lat], [p.lon, p.lat]); if (d < bd) { bd = d; best = p } } if (!best) break; used.add(best.id); order.push(best); cur = best }
+      const nm = classLabel(country, 'high_speed')
+      for (let i = 0; i + 1 < order.length; i++) {
+        if (haversine([order[i].lon, order[i].lat], [order[i + 1].lon, order[i + 1].lat]) > 70000) continue
+        const k = ekey(order[i].id, order[i + 1].id)
+        if (!edges.has(k)) edges.set(k, { a: order[i].id, b: order[i + 1].id, lines: new Map(), hs: true })
+        const e = edges.get(k); e.lines.set(nm, (e.lines.get(nm) || 0) + 10); e.hs = true
+      }
+    }
+  }
+
+  // ── connectivity pass (使用者：軌道連通＋關聯排序) ─────────────────────────────────
+  // The per-relation lines above are correctly ORDERED but only touch stations a
+  // relation lists/snaps → the network is left in disconnected pieces and stations on
+  // no relation are dropped (台灣 245→184 站/1→7 元件). So ALSO walk the GLOBAL track
+  // graph 台鐵-style, station→station, and add any pair NOT already named by a relation
+  // as an UNNAMED connector (`__conventional`). This stitches the network connected and
+  // pulls in orphan stations WITHOUT disturbing the relations' correct ordering. HSR
+  // corridors are skipped (relation-built; viaduct pollution); capped at MAX_EDGE_M so
+  // there is no wrong long hop.
+  const gkey6 = (x, y) => `${x.toFixed(6)},${y.toFixed(6)}`
+  const gvId = new Map(); const gvc = []; const gadj = []
+  const gV = (x, y) => { const k = gkey6(x, y); let i = gvId.get(k); if (i === undefined) { i = gvc.length; gvId.set(k, i); gvc.push([x, y]); gadj.push([]) } return i }
+  for (const w of ways) for (let i = 0; i + 1 < w.coords.length; i++) {
+    const a = gV(...w.coords[i]), b = gV(...w.coords[i + 1]); if (a === b) continue
+    gadj[a].push({ to: b, hs: w.cls === 'high_speed' }); gadj[b].push({ to: a, hs: w.cls === 'high_speed' })
+  }
+  const gIdx = gridIndex(gvc.map(([x, y]) => ({ lon: x, lat: y })))
+  for (const s of stations) { const { i } = gIdx.nearest(s.lon, s.lat, LINE_SNAP); s.gv = i >= 0 ? i : undefined }
+  const sIdxG = gridIndex(stations.map((s) => ({ lon: s.lon, lat: s.lat })))
+  const stAtV = new Map()
+  for (let v = 0; v < gvc.length; v++) { const { i } = sIdxG.nearest(gvc[v][0], gvc[v][1], 250); if (i >= 0) stAtV.set(v, stations[i].id) }
+  const angleAt = (p, c, n) => { const v1x = gvc[c][0] - gvc[p][0], v1y = gvc[c][1] - gvc[p][1], v2x = gvc[n][0] - gvc[c][0], v2y = gvc[n][1] - gvc[c][1]; const m = Math.hypot(v1x, v1y) * Math.hypot(v2x, v2y) || 1e-12; return Math.acos(Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / m))) }
+  for (const s of stations) {
+    if (s.gv === undefined) continue
+    for (const first of [...new Set(gadj[s.gv].map((e) => e.to))]) {
+      const e0 = gadj[s.gv].find((e) => e.to === first); if (e0.hs) continue
+      const seen = new Set([s.gv, first]); let prev = s.gv, cur = first, guard = 0
+      while (guard++ < 4000) {
+        const sid = stAtV.get(cur)
+        if (sid !== undefined && sid !== s.id) {
+          if (haversine([s.lon, s.lat], gvc[cur]) <= MAX_EDGE_M) {
+            const k = ekey(s.id, sid)
+            if (!edges.has(k)) edges.set(k, { a: s.id, b: sid, lines: new Map(), hs: false }) // connector only where no named relation edge
+          }
+          break
+        }
+        const nbrs = [...new Set(gadj[cur].map((e) => e.to))].filter((v) => v !== prev && !seen.has(v))
+        if (!nbrs.length) break
+        let nxt = nbrs[0]
+        if (nbrs.length > 1) { nxt = nbrs.reduce((b, v) => (angleAt(prev, cur, v) < angleAt(prev, cur, b) ? v : b), nbrs[0]); if (angleAt(prev, cur, nxt) > 1.05) break }
+        const e = gadj[cur].find((x) => x.to === nxt); if (e.hs) break
+        seen.add(nxt); prev = cur; cur = nxt
+      }
+    }
+  }
+
   // dominant NAMED line of an edge (majority track vote); its group key falls back
   // to the class when the track was unnamed (a connector), so it is still drawn.
   const domLine = (rec) => [...rec.lines.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
