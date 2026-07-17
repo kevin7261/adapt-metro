@@ -240,7 +240,7 @@ function importRailway(sys) {
    公路）——modal 不再分上層大 tab，標題跟著來源變；每個來源保留原本的子 tab
    （dialog id 仍＝作用中的子 tab）。 */
 const IMPORT_GROUPS = [
-  { id: 'metro', label: '選擇城市', dialogs: IMPORT_DIALOGS, tabs: importTabs },
+  { id: 'metro', label: '選擇地鐵', dialogs: IMPORT_DIALOGS, tabs: importTabs },
   { id: 'railway', label: '選擇鐵路', dialogs: RAILWAY_DIALOGS, tabs: railwayTabs },
   { id: 'highway', label: '選擇高速公路', dialogs: HIGHWAY_DIALOGS, tabs: highwayTabs },
 ]

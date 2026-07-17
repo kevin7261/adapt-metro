@@ -3,17 +3,16 @@ import { ref, computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
-import { VIEW_ORDER, viewLabels, HC_VIEW_ORDER, hcViewLabels, RWD_VIEW_ORDER, rwdViewLabels, rwdCellCompact, rwdCellVariant } from '../stores/viewGeometry'
+import { rwdCellCompact, rwdCellVariant } from '../stores/viewGeometry'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
 
-// 視圖畫廊（2026-07 併四為一）：every city 的「所有地圖」——Raw Maps 縮圖＋
-// Map Adjust / Straighten / RWD Maps 預算視圖（data/metro/{views,hcviews,
-// rwdviews}/）。因為全部展開太多，工具列可「逐一」勾選要顯示的視圖（每個圖層
-// 的所有功能各自開關，不是四大類一次全開）；每類另有總開關。預設顯示 Raw
-// Maps 縮圖＋RWD Maps 全部視圖。點任何一格都匯入該城市的整組管線圖層
-//（importCityChain：一城一群組，Raw / Adjust / Straighten / RWD 四層），並開啟
-// 點到的那種視圖的 tab。
+// 視圖畫廊：every city 的「所有地圖」縮圖。工具列的開關與圈層左側 list 一致——
+// 就是一城的 9 個管線圖層（Raw Maps／Map Adjust／Straighten 原始‧旋轉／RWD
+// Maps 基本‧直角爬山‧軸對齊‧整數規劃‧LLM 對齊）；每個圖層對應一張代表縮圖
+//（Raw＝路網縮圖，其餘取 data/metro/{views,hcviews,rwdviews}/ 的一個代表視圖）。
+// 預設顯示 Raw Maps＋全部 RWD Maps。點任何一格都匯入該城市整組管線圖層
+//（importCityChain：一城一群組 9 層）並開啟點到的那個圖層的 tab。
 const store = useMapStore()
 
 async function load() {
@@ -22,50 +21,45 @@ async function load() {
   return (await res.json()).systems ?? []
 }
 
-// 勾選清單的標籤與各城市無關（各城市的實際旋轉角在卡片 cell 標籤上）——用
-// tilt=0 產生再把「旋轉 0°」縮成「旋轉」。
-const stripRot = (s) => (s ?? '').replace(/旋轉 0°/g, '旋轉')
-const viewsOf = (order, labelFn) => {
-  const lab = labelFn(0)
-  return order.map((id) => ({ id, label: stripRot(lab[id]) }))
-}
-const KINDS = [
-  { id: 'raw', label: 'Raw Maps', views: [{ id: 'thumb', label: '路網縮圖' }] },
-  { id: 'adjust', label: 'Map Adjust', views: viewsOf(VIEW_ORDER, viewLabels) },
-  { id: 'straighten', label: 'Straighten', views: viewsOf(HC_VIEW_ORDER, hcViewLabels) },
-  { id: 'rwd', label: 'RWD Maps', views: viewsOf(RWD_VIEW_ORDER, rwdViewLabels) },
+// 9 個管線圖層＝圈層左側 list。kind＝卡片區段（raw／adjust／straighten／rwd），
+// view＝該圖層在畫廊的代表縮圖 id（llm 無預算圖，cell 顯示「尚未預算」，點擊
+// 仍即時計算）。label 與 stageLabel（LayerPanel）一致。
+const LAYERS = [
+  { key: 'raw', label: 'Raw Maps', kind: 'raw', view: 'thumb' },
+  { key: 'adjust', label: 'Map Adjust', kind: 'adjust', view: 'grid-orig-post' },
+  { key: 'st-orig', label: 'Straighten（原始）', kind: 'straighten', view: 'loop-rect-orig' },
+  { key: 'st-rot', label: 'Straighten（旋轉）', kind: 'straighten', view: 'loop-rect-rot' },
+  { key: 'rwd-hc', label: 'RWD Maps（基本）', kind: 'rwd', view: 'rwd-hc-orig' },
+  { key: 'rwd-rect', label: 'RWD Maps（直角爬山）', kind: 'rwd', view: 'rwd-rect-orig' },
+  { key: 'rwd-align', label: 'RWD Maps（軸對齊）', kind: 'rwd', view: 'rwd-align-orig' },
+  { key: 'rwd-ilp', label: 'RWD Maps（整數規劃）', kind: 'rwd', view: 'rwd-ilp-orig' },
+  { key: 'rwd-llm', label: 'RWD Maps（LLM 對齊）', kind: 'rwd', view: 'rwd-llm-orig' },
 ]
 
-// 已勾選的視圖（`kind:viewId`）。預設：Raw Maps 縮圖＋RWD Maps 全部。
-const shown = ref(new Set(['raw:thumb', ...RWD_VIEW_ORDER.map((id) => `rwd:${id}`)]))
-const isOn = (kind, viewId) => shown.value.has(`${kind}:${viewId}`)
-function toggleView(kind, viewId) {
-  const key = `${kind}:${viewId}`
+// 已勾選的圖層。預設：Raw Maps ＋全部 RWD Maps。
+const shown = ref(new Set(['raw', 'rwd-hc', 'rwd-rect', 'rwd-align', 'rwd-ilp', 'rwd-llm']))
+const isOn = (key) => shown.value.has(key)
+function toggle(key) {
   const s = new Set(shown.value)
   if (s.has(key)) s.delete(key)
   else s.add(key)
   shown.value = s
 }
-// 類別總開關：有任一勾選 → 全關；全沒勾 → 全開。
-const kindState = (k) => {
-  const on = k.views.filter((v) => isOn(k.id, v.id)).length
-  return on === 0 ? 'none' : on === k.views.length ? 'all' : 'some'
-}
-function toggleKind(k) {
-  const any = k.views.some((v) => isOn(k.id, v.id))
-  const s = new Set(shown.value)
-  for (const v of k.views) {
-    const key = `${k.id}:${v.id}`
-    if (any) s.delete(key)
-    else s.add(key)
-  }
-  shown.value = s
+const allOn = computed(() => LAYERS.every((l) => shown.value.has(l.key)))
+function toggleAll() {
+  shown.value = allOn.value ? new Set() : new Set(LAYERS.map((l) => l.key))
 }
 
-// 卡片要畫的區段：每類只留勾選的視圖（CityViewGrid 的 order 就是 cell 清單）。
-const sections = computed(() => KINDS
-  .map((k) => ({ id: k.id, order: k.views.filter((v) => isOn(k.id, v.id)).map((v) => v.id) }))
-  .filter((s) => s.order.length))
+// 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
+const sections = computed(() => {
+  const byKind = new Map()
+  for (const l of LAYERS) {
+    if (!shown.value.has(l.key)) continue
+    if (!byKind.has(l.kind)) byKind.set(l.kind, [])
+    byKind.get(l.kind).push(l.view)
+  }
+  return [...byKind.entries()].map(([id, order]) => ({ id, order }))
+})
 
 // 點卡片標題或任何一格：匯入整組管線圖層，變體由點到的 cell 決定
 // （Straighten 的 *-rot → 旋轉；RWD 的 cell id → 縮減網格來源＋變體），
@@ -78,33 +72,24 @@ function pick(kind, entry, viewId) {
   const target = { raw: metro, adjust: d3, straighten: hc, rwd }[kind] ?? metro
   if (!target) { store.toast('無法建立視圖'); return }
   openLayerTab(target)
-  const kindLabel = KINDS.find((k) => k.id === kind)?.label ?? kind
-  store.toast(`已匯入 ${entry.cityZh ?? entry.city}（開啟 ${kindLabel}）`)
+  store.toast(`已匯入 ${entry.cityZh ?? entry.city}`)
 }
 </script>
 
 <template>
   <GalleryShell :load="load" loading-text="載入全球視圖清單…" error-hint="npm run metro:views">
     <template #toolbar>
-      <div class="kind-rows">
-        <div v-for="k in KINDS" :key="k.id" class="kind-row">
-          <button
-            class="kind-master"
-            :class="kindState(k)"
-            :title="`${k.label}：全部開／關`"
-            @click="toggleKind(k)"
-          >{{ k.label }}</button>
-          <label
-            v-for="v in k.views"
-            :key="v.id"
-            class="kind-check"
-            :class="{ on: isOn(k.id, v.id) }"
-          >
-            <input type="checkbox" :checked="isOn(k.id, v.id)" @change="toggleView(k.id, v.id)" />
-            {{ v.label }}
-          </label>
-        </div>
-      </div>
+      <span class="kind-title">顯示圖層：</span>
+      <button class="kind-all" @click="toggleAll">{{ allOn ? '全部清除' : '全部顯示' }}</button>
+      <label
+        v-for="l in LAYERS"
+        :key="l.key"
+        class="kind-check"
+        :class="{ on: isOn(l.key) }"
+      >
+        <input type="checkbox" :checked="isOn(l.key)" @change="toggle(l.key)" />
+        {{ l.label }}
+      </label>
     </template>
     <template #default="{ tiles }">
       <div class="tile-grid">
@@ -115,32 +100,17 @@ function pick(kind, entry, viewId) {
 </template>
 
 <style scoped>
-.kind-rows { display: flex; flex-direction: column; gap: 4px; width: 100%; }
-.kind-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-/* 類別總開關（Raw Maps / Map Adjust / Straighten / RWD Maps） */
-.kind-master {
-  flex-shrink: 0;
-  min-width: 92px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: left;
+.kind-title { font-size: 12px; color: hsl(var(--muted-foreground)); }
+.kind-all {
+  padding: 2px 10px;
+  font-size: 11.5px;
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 3px);
   color: hsl(var(--muted-foreground));
   white-space: nowrap;
 }
-.kind-master.all {
-  background: hsl(var(--primary) / 0.18);
-  border-color: hsl(var(--primary) / 0.6);
-  color: hsl(var(--primary));
-}
-.kind-master.some {
-  background: hsl(var(--primary) / 0.07);
-  border-color: hsl(var(--primary) / 0.35);
-  color: hsl(var(--primary));
-}
-/* 個別視圖勾選 */
+.kind-all:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
+/* 圖層勾選（＝圈層左側 list 的 9 個管線圖層） */
 .kind-check {
   display: inline-flex;
   align-items: center;

@@ -497,6 +497,9 @@ export function rwdViewLabels(tilt) {
     'rwd-align-rot': `${rot} · 軸對齊循環 · RWD 路網`,
     'compact-ilp-rot': `${rot} · 整數規劃循環縮減網格`,
     'rwd-ilp-rot': `${rot} · 整數規劃循環 · RWD 路網`,
+    // LLM 對齊無預算縮圖（需即時計算）——僅提供標籤給視圖畫廊的代表格。
+    'rwd-llm-orig': '原始 · LLM 對齊 · RWD 路網',
+    'rwd-llm-rot': `${rot} · LLM 對齊 · RWD 路網`,
   }
 }
 // The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp')；剝掉

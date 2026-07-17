@@ -162,10 +162,11 @@ onBeforeUnmount(() => observer?.disconnect())
   border-color: hsl(var(--primary) / 0.55);
   box-shadow: 0 6px 18px -6px hsl(var(--primary) / 0.35), 0 0 0 1px hsl(var(--primary) / 0.25);
 }
-/* 嵌在視圖畫廊卡片內：外框與 hover 浮起由外層卡片決定 */
+/* 嵌在視圖畫廊卡片內：外框與 hover 浮起由外層卡片決定；縮圖比例對齊
+   CityViewGrid 的 cell（4/3）→ 卡片內每張圖同大小 */
 .tile.bare { border: none; border-radius: 0; }
 .tile.bare:hover { transform: none; box-shadow: none; }
-.tile.bare .tile-canvas { border-bottom: none; }
+.tile.bare .tile-canvas { border-bottom: none; aspect-ratio: 4 / 3; }
 .tile-canvas {
   position: relative;
   aspect-ratio: 16 / 11;

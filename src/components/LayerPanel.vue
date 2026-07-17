@@ -96,7 +96,7 @@ function onSkillDocClick(e) {
 
 // 匯入下拉：一顆 + 按鈕，選 城市／鐵路／高速公路（各自開對應的匯入 modal）。
 const IMPORT_OPTIONS = [
-  { label: '城市', icon: 'train', dialog: 'import-quick' },
+  { label: '地鐵', icon: 'train', dialog: 'import-quick' },
   { label: '鐵路', icon: 'directions_railway', dialog: 'import-railway-quick' },
   { label: '高速公路', icon: 'add_road', dialog: 'import-highway-quick' },
 ]
@@ -251,23 +251,33 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- 最上面：三個匯入來源各一顆（modal 不再分大 tab）＋視圖畫廊 -->
+      <!-- 最上面（靠右）：田 視圖 ＋ + 加入 下拉（地鐵／鐵路／高速公路） -->
       <div class="panel-actions">
-        <button class="city-pick-btn" title="選擇城市（metro map）" @click="store.ui.dialog = 'import-quick'">
-          <MIcon name="train" :size="14" />
-          <span>城市</span>
-        </button>
-        <button class="city-pick-btn" title="選擇鐵路（國家鐵路網）" @click="store.ui.dialog = 'import-railway-quick'">
-          <MIcon name="directions_railway" :size="14" />
-          <span>鐵路</span>
-        </button>
-        <button class="city-pick-btn" title="選擇高速公路" @click="store.ui.dialog = 'import-highway-quick'">
-          <MIcon name="add_road" :size="14" />
-          <span>高速公路</span>
-        </button>
-        <button class="btn-icon gallery-btn" title="視圖畫廊（所有城市 · 所有地圖）" @click="openAllGalleryTab()">
+        <button class="bar-btn" title="視圖畫廊（所有城市 · 所有地圖）" @click="openAllGalleryTab()">
           <MIcon name="grid_view" :size="14" />
+          <span>視圖</span>
         </button>
+        <div class="import-wrap">
+          <button
+            class="bar-btn"
+            :class="{ active: importMenuOpen }"
+            title="加入地鐵／鐵路／高速公路"
+            @click.stop="importMenuOpen = !importMenuOpen"
+          >
+            <MIcon name="add" :size="15" />
+            <span>加入</span>
+          </button>
+          <div v-if="importMenuOpen" class="menu-pop import-menu">
+            <button
+              v-for="o in IMPORT_OPTIONS"
+              :key="o.dialog"
+              class="menu-item"
+              @click="pickImport(o.dialog)"
+            >
+              <MIcon :name="o.icon" :size="15" /> {{ o.label }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="tree">
@@ -416,39 +426,40 @@ onBeforeUnmount(() => {
 }
 .header-actions { display: flex; gap: 2px; }
 
-/* 最上面的動作列：選城市地圖（開匯入 modal）＋視圖畫廊 */
+/* 最上面的動作列：視圖畫廊按鈕＋ + 匯入下拉，靠右 */
 .panel-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
   padding: 8px 8px 0;
 }
-.city-pick-btn {
-  flex: 1;
-  min-width: 0;
+/* 田 視圖 ／ + 加入：中性配色（不用藍色），文字＋圖示 */
+.bar-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 7px 4px;
-  font-size: 12px;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.1);
-  border: 1px solid hsl(var(--primary) / 0.5);
-  border-radius: calc(var(--radius) - 2px);
-  white-space: nowrap;
-  overflow: hidden;
-}
-.city-pick-btn:hover { background: hsl(var(--primary) / 0.2); }
-.gallery-btn {
-  width: 30px;
-  height: 30px;
-  color: hsl(var(--muted-foreground));
+  color: hsl(var(--foreground));
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--card));
+  white-space: nowrap;
 }
-.gallery-btn:hover { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
+.bar-btn:hover, .bar-btn.active { background: hsl(var(--accent)); }
+.import-wrap { position: relative; flex-shrink: 0; }
+/* 下拉選單：貼齊 + 按鈕右緣下方，不被面板裁切（動作列在最上方、無 overflow） */
+.import-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: auto;
+  z-index: 60;
+  min-width: 140px;
+}
+.import-menu .menu-item { width: 100%; }
 
 .tree { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
 .tree-empty {

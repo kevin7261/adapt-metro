@@ -118,6 +118,7 @@ onBeforeUnmount(() => observer?.disconnect())
             />
           </svg>
           <span v-if="state === 'error'" class="vc-msg">載入失敗</span>
+          <span v-else-if="data && !data.views[id]" class="vc-msg">尚未預算</span>
         </div>
         <span class="vc-label">{{ lab[id] }}</span>
       </button>

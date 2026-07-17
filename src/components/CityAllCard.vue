@@ -16,12 +16,12 @@ const emit = defineEmits(['pick'])
 
 const SECTIONS = {
   raw: { label: 'Raw Maps' },
-  adjust: { label: 'Map Adjust', dataDir: 'views', labelsForTilt: viewLabels, columns: 3 },
-  straighten: { label: 'Straighten', dataDir: 'hcviews', labelsForTilt: hcViewLabels, columns: 3 },
-  rwd: { label: 'RWD Maps', dataDir: 'rwdviews', labelsForTilt: rwdViewLabels, columns: 2 },
+  adjust: { label: 'Map Adjust', dataDir: 'views', labelsForTilt: viewLabels },
+  straighten: { label: 'Straighten', dataDir: 'hcviews', labelsForTilt: hcViewLabels },
+  rwd: { label: 'RWD Maps', dataDir: 'rwdviews', labelsForTilt: rwdViewLabels },
 }
-// 只勾 1–2 個視圖時 cell 不要撐滿整張卡：欄數不超過勾選數。
-const colsFor = (sec) => Math.min(SECTIONS[sec.id].columns, sec.order.length)
+// 所有區段用固定欄數 → 卡片內每一張縮圖同寬同高（使用者：城市裡每個圖一樣大）。
+const COLS = 2
 </script>
 
 <template>
@@ -41,19 +41,17 @@ const colsFor = (sec) => Math.min(SECTIONS[sec.id].columns, sec.order.length)
 
     <template v-for="sec in sections" :key="sec.id">
       <div class="sec-label">{{ SECTIONS[sec.id].label }}</div>
-      <GalleryTile
-        v-if="sec.id === 'raw'"
-        :system="entry"
-        bare
-        @pick="(sys) => emit('pick', 'raw', sys)"
-      />
+      <!-- Raw 縮圖也放進固定欄數的網格，佔一個 cell → 與其他圖同大小 -->
+      <div v-if="sec.id === 'raw'" class="raw-grid" :style="{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }">
+        <GalleryTile :system="entry" bare @pick="(sys) => emit('pick', 'raw', sys)" />
+      </div>
       <CityViewGrid
         v-else
         :entry="entry"
         :data-dir="SECTIONS[sec.id].dataDir"
         :order="sec.order"
         :labels-for-tilt="SECTIONS[sec.id].labelsForTilt"
-        :columns="colsFor(sec)"
+        :columns="COLS"
         :cta-label="SECTIONS[sec.id].label"
         :head="false"
         bare
@@ -104,6 +102,8 @@ const colsFor = (sec) => Math.min(SECTIONS[sec.id].columns, sec.order.length)
   border-bottom: 1px solid hsl(var(--border));
 }
 .sec-label:not(:first-of-type) { border-top: 1px solid hsl(var(--border)); }
+/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致（1px 分隔線當格線） */
+.raw-grid { display: grid; gap: 1px; background: hsl(var(--border)); }
 .all-empty {
   padding: 18px 12px;
   font-size: 12px;
