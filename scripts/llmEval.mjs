@@ -180,19 +180,24 @@ function lineReport(rid) {
     const g = gcd(Math.abs(dx), Math.abs(dy)) || 1
     return `${dx / g},${dy / g}`
   }
-  let bends = 0
-  for (const chain of chains) {
-    for (let i = 1; i + 1 < chain.length; i++) {
-      const A = cells.get(chain[i - 1]), B = cells.get(chain[i]), C = cells.get(chain[i + 1])
-      if (norm(A, B) !== norm(B, C)) bends++
-    }
-  }
   const label = (id) => {
     const [c, r] = cells.get(id)
     const n = nameById.get(id)
     return n ? `${n}(${c},${r})` : `×(${c},${r})`
   }
-  return { segs: own.length, ...stat, bends, chains: chains.map((ch) => ch.map(label)) }
+  // bends＝相鄰兩段方向不同的內部頂點；acute＝其中「進出兩段夾角 < 90°」的尖角
+  // （最該優先消除）。B 點的內角由 (A−B)·(C−B) 判：>0 → 銳角（含 45° 尖折與 180° 回折
+  // hairpin）；=0 → 90° 直角（L 形，OK）；<0 → 鈍角（含 45° 過渡的 135° 與直通 180°，OK）。
+  let bends = 0
+  const acuteAt = []
+  for (const chain of chains) {
+    for (let i = 1; i + 1 < chain.length; i++) {
+      const A = cells.get(chain[i - 1]), B = cells.get(chain[i]), C = cells.get(chain[i + 1])
+      if (norm(A, B) !== norm(B, C)) bends++
+      if ((A[0] - B[0]) * (C[0] - B[0]) + (A[1] - B[1]) * (C[1] - B[1]) > 0) acuteAt.push(label(chain[i]))
+    }
+  }
+  return { segs: own.length, ...stat, bends, acute: acuteAt.length, acuteAt, chains: chains.map((ch) => ch.map(label)) }
 }
 const lines = [...routeMeta.entries()]
   .filter(([rid]) => !String(rid).startsWith('river:'))
@@ -202,6 +207,7 @@ const stats = {
   cols: nC, rows: nR, segs: segs.length,
   hv: globalStat.H + globalStat.V, h: globalStat.H, v: globalStat.V,
   d45: globalStat.D45, other: globalStat.other,
+  acute: lines.reduce((s, l) => s + (l.acute || 0), 0), // 全網銳角總數（最優先消除）
 }
 
 // 穩定頂點索引（同 llmAlign：依 id 排序、每次執行順序一致）——moves 用 i 指涉頂點。
@@ -214,7 +220,8 @@ if (cmd === 'export') {
   })
   console.log(JSON.stringify({
     city: cityId, cityName: meta.city, variant, compact,
-    axes: '格座標 (c,r)：c 向東遞增、r 向南遞增；H=水平段、V=垂直段、D45=45°段、other=畫出來一定有折彎的段',
+    axes: '格座標 (c,r)：c 向東遞增、r 向南遞增；H=水平段、V=垂直段、D45=45°段、other=畫出來一定有折彎的段；'
+      + 'acute=進出兩段夾角<90°的銳角尖折（最優先消除，改成 90° L 形直角或 180° 直通；acuteAt=在哪些站）',
     stats,
     lines: lines.map(({ rid, ...l }) => l),
     verts, // moves 的索引來源：moves["i"] = [c, r]
