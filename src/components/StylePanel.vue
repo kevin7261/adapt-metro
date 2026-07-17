@@ -23,6 +23,14 @@ const props = defineProps({
   // flight, and whether this view has a city id to run against.
   llmRunning: { type: Boolean, default: false },
   llmCanRun: { type: Boolean, default: false },
+  // 目前是否在「LLM 對齊」視圖（hc-llm 及其鏈）——只有這時才顯示自動/指定對齊 tab。
+  llmView: { type: Boolean, default: false },
+  llmText: { type: String, default: '' },   // 執行中即時串流的 LLM 回傳
+  llmMsg: { type: String, default: null },  // 無結果/不符時的提示
+  llmError: { type: String, default: '' },  // 執行失敗的尾巴訊息
+  // 「執行調整」：對齊結果檔存了移動後座標，按鈕只切換「LLM 對齊」主視圖顯示
+  // （套用對齊後座標 ⇄ 恢復對齊前的 Hill Climbing 佈局），不再跑 LLM。
+  llmApplied: { type: Boolean, default: false },
   // LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）：結果檔
   // （model / userPrompt / note / colW / rowW）＋run 控制＋即時串流——D3Tab 對
   // RWD 視圖傳入；「LLM互動」tab 對 rwd 常駐（輸入一句話觸發，跑完按「執行調整」
@@ -69,7 +77,7 @@ const props = defineProps({
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
   llmModel: { type: String, default: 'fable' },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
+const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
 const LLM_MODEL_OPTIONS = [
   { key: 'default', label: '沿用 CLI 預設' },
@@ -88,8 +96,8 @@ const showOrientation = computed(() => !isD3.value || isMapAdjust.value)
 const open = ref(true)
 const width = ref(300)
 
-// Panel sections — the LLM對齊 tab appears only once a run has produced a
-// record (llmRecord prop from D3Tab).
+// Panel sections — the LLM對齊 tab is always present for Hill Climbing views
+// (hosts run controls + streaming + the 執行調整/恢復 toggle, like LLM評價/互動).
 // 「樣式」tab 已移到地圖上方的樣式工具列（StyleBar），這裡不再列出。
 // 顏色點間最大跨距（SPAN_CAP）只有 Straighten（hillclimb）與 RWD 視圖用得到——
 // 只有這些視圖才顯示「設定」tab（原本在地圖上方樣式工具列的彈窗，改放這裡）。
@@ -97,9 +105,11 @@ const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind 
 const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   { id: 'object', label: '物件' },
-  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM互動' }, { id: 'eval', label: 'LLM評價' }] : []),
-  ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
-  ...(hasSpan.value ? [{ id: 'settings', label: '設定' }] : []),
+  // LLM 系列 tab：用 auto_awesome（AI 火花）icon 取代「LLM」字首，標籤留短詞、
+  // title 存完整名（tooltip/無障礙）。互動/評價常駐 RWD；自動/指定對齊只在左邊
+  // 「直線演算法」的 LLM 對齊視圖（hc-llm 及其鏈，llmView）才出現。
+  ...(props.viewKind === 'rwd' ? [{ id: 'grid', label: '互動', icon: 'auto_awesome', title: 'LLM互動' }, { id: 'eval', label: '評價', icon: 'auto_awesome', title: 'LLM評價' }] : []),
+  ...(props.llmView ? [{ id: 'llm', label: '自動對齊', icon: 'auto_awesome', title: 'LLM自動對齊' }, { id: 'llm-prompt', label: '指定對齊', icon: 'auto_awesome', title: 'LLM指定對齊' }] : []),
 ])
 const activeTab = ref('info')
 
@@ -234,10 +244,8 @@ const objectTitle = computed(() => {
   if (rl.length) return joinTitle(rl)
   return null
 })
-// The LLM對齊 tab can disappear (layer/data change) — fall back to Info.
-watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activeTab.value = 'info' })
-// 「設定」tab 只在 Straighten/RWD 出現——切到沒有它的視圖時退回資訊。
-watch(hasSpan, (v) => { if (!v && activeTab.value === 'settings') activeTab.value = 'info' })
+// 任何目前 tab 消失（例如「權重」「設定」tab 已移除、換視圖後某 tab 不存在）→ 退回資訊。
+watch(TABS, (tabs) => { if (!tabs.some((t) => t.id === activeTab.value)) activeTab.value = 'info' })
 
 // The skill that drove the run — fetched once when the LLM對齊 / LLM互動 tab
 // first opens (same source + rendering as SkillViewer: /skills/<id>.md).
@@ -271,6 +279,12 @@ const gridStreamEl = ref(null)
 watch(() => props.gridText, () => {
   requestAnimationFrame(() => {
     if (gridStreamEl.value) gridStreamEl.value.scrollTop = gridStreamEl.value.scrollHeight
+  })
+})
+const llmStreamEl = ref(null)
+watch(() => props.llmText, () => {
+  requestAnimationFrame(() => {
+    if (llmStreamEl.value) llmStreamEl.value.scrollTop = llmStreamEl.value.scrollHeight
   })
 })
 
@@ -495,8 +509,10 @@ function startResize(e) {
             :class="{ active: activeTab === t.id }"
             role="tab"
             :aria-selected="activeTab === t.id"
+            :title="t.title ?? t.label"
             @click="activeTab = t.id"
           >
+            <MIcon v-if="t.icon" :name="t.icon" :size="14" />
             {{ t.label }}
           </button>
         </div>
@@ -691,6 +707,49 @@ function startResize(e) {
                 </template>
               </div>
             </template>
+
+            <!-- 顏色點間最大跨距（SPAN_CAP）：Straighten（hillclimb）與 RWD 都有——
+                 控制（最大跨距＋重新計算）已移到地圖上方工具列第 2 排，這裡只留說明。 -->
+            <template v-if="hasSpan">
+              <div class="section-title">顏色點間最大跨距</div>
+              <p class="weight-hint">
+                水平／垂直最大化的每一次移動，都不得讓一條線段的兩個顏色點在網格上橫跨
+                超過這個格數（Chebyshev＝max(|Δx|,|Δy|)）——避免某條線被拉成過長的斜段。
+                本來就超標的舊長段只准縮短、不准再拉長。
+              </p>
+              <p class="weight-hint">
+                目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。上方工具列可改「最大跨距」，
+                改完不會自動重算——按「重新計算」才會用新值重跑水平垂直最大化。
+              </p>
+            </template>
+
+            <!-- 版面（權重驅動）：RWD 視圖——控制與即時診斷（最小站距／畫布／已隱藏）
+                 已移到地圖上方工具列第 2 排，這裡只留說明與被隱藏的站清單。 -->
+            <template v-if="viewKind === 'rwd'">
+              <div class="section-title">版面（權重驅動）</div>
+              <p class="weight-hint">
+                版面簡化不改拓撲：用各欄／列最忙路段的流量（weight）決定該欄多寬、該列多高
+                ——主走廊變寬、次要區壓窄，外框固定，路線在新像素座標重畫成 H/V/45°。
+                模式切換、顯示權重數字、隨機權重、自動隱藏白點與最小站距等控制，都在地圖
+                上方工具列的第 2 排。
+              </p>
+              <p class="weight-hint">
+                「隨機權重」每按一次整表重抽：每個沿路相鄰站對抽 1–9，反等比（機率 ∝ 1/2ᵏ）
+                ——數字越小越常見，少數主走廊、多數次要邊。「每5秒隨機權重」開啟後每 5 秒
+                整表重抽一次，network 點跟著新版面變形（自動切到權重模式）。
+              </p>
+              <p class="weight-hint">
+                自動隱藏白點：由最擠的路段決定一個全域 weight 差 cutoff T（升高 T 直到最擠段
+                均分後站距 ≥「最小站距」），然後全圖任何白點（直通站）只要左右兩段 weight 差
+                ≤ T 就一律隱藏（相鄰標籤合併取 max）。彩色錨點（紅／藍／黃）不會被藏。
+              </p>
+              <div v-if="hideStops && stopStat && stopStat.hidden > 0" class="hidden-list">
+                <div class="hidden-list-title">被隱藏的站（{{ stopStat.hidden }}）</div>
+                <ol class="hidden-list-items">
+                  <li v-for="(n, i) in stopStat.hiddenNames" :key="i">{{ n }}</li>
+                </ol>
+              </div>
+            </template>
           </template>
           <div v-else class="info-empty">此圖層沒有 metro 資訊。</div>
         </template>
@@ -765,83 +824,6 @@ function startResize(e) {
               </tr>
             </tbody>
           </table>
-        </template>
-
-        <!-- ============ 設定: 顏色點間最大跨距（SPAN_CAP，Straighten/RWD）============ -->
-        <template v-else-if="activeTab === 'settings'">
-          <div class="settings-panel">
-            <div class="section-title">顏色點間最大跨距</div>
-            <p class="weight-hint">
-              水平／垂直最大化的每一次移動，都不得讓一條線段的兩個顏色點在網格上橫跨
-              超過這個格數（Chebyshev＝max(|Δx|,|Δy|)）——避免某條線被拉成過長的斜段。
-              本來就超標的舊長段只准縮短、不准再拉長。
-            </p>
-            <div class="settings-row">
-              <label class="settings-label">最大跨距</label>
-              <input
-                :value="layer.spanCap ?? 3"
-                type="number" min="1" step="1" class="settings-num"
-                @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
-              />
-              <span class="settings-unit">格</span>
-              <button
-                class="settings-recalc"
-                :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
-                @click="emit('recalc-span')"
-              >重新計算</button>
-            </div>
-            <p class="weight-hint settings-note">
-              目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。改數字後不會自動重算——
-              按「重新計算」才會用新值重跑水平垂直最大化。
-            </p>
-          </div>
-        </template>
-
-        <!-- ============ 權重（RWD Maps）: weight 驅動版面簡化（論文 §九）============ -->
-        <template v-else-if="activeTab === 'weight'">
-          <div class="weight-panel">
-            <p class="weight-hint">
-              版面簡化不改拓撲：用各欄／列**最忙路段的流量（weight）**決定該欄多寬、該列多高
-              ——主走廊變寬、次要區壓窄，外框固定，路線在新像素座標重畫成 H/V/45°。
-            </p>
-            <!-- 版面控制（均勻／權重比例、顯示權重數字、自動隱藏白點、最小站距、隨機權重、
-                 自動重抽）已全部移到地圖上方的樣式工具列（StyleBar，只有 RWD 才出現）。
-                 本 tab 只保留說明與即時資訊。 -->
-            <p class="weight-hint">
-              目前版面模式：<b>{{ weightMode === 'weight' ? '權重比例' : '均勻網格' }}</b>。
-              上方工具列可切換模式、開關「顯示權重數字／自動隱藏白點」、設定最小站距，
-              以及「隨機權重／自動重抽」。
-            </p>
-            <p class="weight-hint">
-              「隨機權重」每按一次整表重抽：每個沿路相鄰站對抽 1–9，反等比（機率 ∝ 1/2ᵏ）
-              ——數字越小越常見，少數主走廊、多數次要邊。「自動重抽」開啟後每 5 秒
-              整表重抽一次，network 點跟著新版面變形（自動切到權重模式）。
-            </p>
-            <div v-if="stopStat" class="weight-stat">
-              目前最小站距　高
-              <b>{{ stopStat.high != null ? stopStat.high.toFixed(1) : '—' }}</b> pt　寬
-              <b>{{ stopStat.wide != null ? stopStat.wide.toFixed(1) : '—' }}</b> pt
-            </div>
-            <div v-if="stopStat && stopStat.canvas" class="weight-stat">
-              畫布 <b>{{ stopStat.canvas[0] }}</b> × <b>{{ stopStat.canvas[1] }}</b> px（resize 診斷）
-            </div>
-            <div v-if="hideStops && stopStat" class="weight-stat">
-              已隱藏 <b>{{ stopStat.hidden }}</b> 站<template v-if="stopStat.hidden > 0 && stopStat.hiddenMaxT != null">
-              　·　目前刪到 weight 差 ≤ <b>{{ stopStat.hiddenMaxT }}</b></template>
-            </div>
-            <div v-if="hideStops && stopStat && stopStat.hidden > 0" class="hidden-list">
-              <div class="hidden-list-title">被隱藏的站</div>
-              <ol class="hidden-list-items">
-                <li v-for="(n, i) in stopStat.hiddenNames" :key="i">{{ n }}</li>
-              </ol>
-            </div>
-            <p class="weight-hint">
-              開啟後：由最擠的路段決定一個**全域 weight 差 cutoff T**（升高 T 直到最擠段
-              均分後站距 ≥「最小站距」），然後**全圖**任何白點（直通站）只要左右兩段 weight
-              差 ≤ T 就一律隱藏——所以「刪到 ≤ T」與畫面完全一致（寬鬆段的低差白點也一起
-              消失、相鄰標籤合併取 max）。彩色錨點（紅／藍／黃）不會被藏。
-            </p>
-          </div>
         </template>
 
         <!-- ============ LLM互動（RWD Maps）: AI 改網格長寬（skill route-llm-grid）============ -->
@@ -1021,77 +1003,117 @@ function startResize(e) {
           </div>
         </template>
 
-        <!-- ============ LLM對齊: run provenance (prompt / responses / model) ============ -->
-        <template v-else-if="activeTab === 'llm' && llmRecord">
-          <div class="info-rows">
-            <div class="info-row"><span class="info-key">模型</span><span>{{ llmRecord.model ?? '—' }}</span></div>
-            <div class="info-row"><span class="info-key">輪數</span><span>{{ llmRecord.rounds }}</span></div>
-            <div class="info-row">
-              <span class="info-key">水平垂直</span>
-              <span>{{ llmRecord.hvBefore }} → {{ llmRecord.hvAfter }}／{{ llmRecord.segs }} 段</span>
-            </div>
-            <div class="info-row"><span class="info-key">移動</span><span>{{ llmRecord.moved }} 站</span></div>
+        <!-- ============ LLM自動對齊 / LLM指定對齊（skill route-llm-align）============
+             兩個 tab 共用同一個對齊結果檔與「執行調整」toggle，差別只在觸發：
+             自動＝不下指示（純最大化 H/V）、指定＝依一句話對齊。跟 LLM評價/互動
+             同一套唯讀＋切換的 UX（跑完不自動套用，按「執行調整」才套用到主視圖）。 -->
+        <template v-else-if="activeTab === 'llm' || activeTab === 'llm-prompt'">
+          <div class="weight-panel">
+            <!-- 依 tab 不同的執行控制 -->
+            <template v-if="activeTab === 'llm'">
+              <p class="weight-hint">
+                讓模型**自動對齊**這個路網：短距離移動彩色點、把線盡量拉成水平／垂直
+                （最大化 H/V），不需要你下指示。跑完先回傳結果、**不自動套用**——按
+                「執行調整」才套用到 LLM 對齊主視圖，「恢復原佈局」切回對齊前的佈局。
+              </p>
+              <template v-if="llmCanRun">
+                <label class="llm-model-pick">
+                  模型
+                  <select :value="llmModel" :disabled="llmRunning"
+                    @change="emit('update:llm-model', $event.target.value)">
+                    <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                  </select>
+                </label>
+                <button
+                  class="llm-run-btn"
+                  :disabled="llmRunning"
+                  @click="emit('run-llm', '')"
+                >{{ llmRunning ? '對齊中…' : (llmRecord ? '重新 LLM 對齊' : '開始 LLM 對齊') }}</button>
+                <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-align skill 逐輪最佳化並存檔（跑完不自動套用）。</p>
+              </template>
+            </template>
+            <template v-else>
+              <p class="weight-hint">
+                用**一句話指定**要怎麼對齊：例「優先把紅線拉成水平」「讓東側幾條線對齊
+                同一欄」「把環狀線盡量收成矩形」。指示會併入 skill 引導模型移動哪些點、
+                往哪對齊——一樣經硬規則把關、不會弄壞拓撲。跑完不自動套用，按「執行調整」才套用。
+              </p>
+              <template v-if="llmCanRun">
+                <label class="llm-model-pick">
+                  模型
+                  <select :value="llmModel" :disabled="llmRunning"
+                    @change="emit('update:llm-model', $event.target.value)">
+                    <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                  </select>
+                </label>
+                <p v-if="llmRecord?.userPrompt" class="llm-run-hint">上次指示：{{ llmRecord.userPrompt }}</p>
+                <textarea
+                  v-model="llmUserPrompt"
+                  class="llm-prompt-box"
+                  rows="3"
+                  :disabled="llmRunning"
+                  placeholder="例：優先把紅線拉成水平；讓東側幾條線對齊同一欄；把環狀線盡量收成矩形…"
+                />
+                <button
+                  class="llm-run-btn"
+                  :disabled="llmRunning || !llmUserPrompt.trim()"
+                  @click="emit('run-llm', llmUserPrompt.trim())"
+                >{{ llmRunning ? '對齊中…' : '依此指示 LLM 對齊' }}</button>
+                <p class="llm-run-hint">你的指示會併入 route-llm-align、引導模型「移動哪些點、往哪對齊」（跑完不自動套用）。</p>
+              </template>
+            </template>
+            <p v-if="!llmCanRun" class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
+
+            <!-- 以下共用：串流 + 結果 provenance + 執行調整 toggle + skill 全文 -->
+            <template v-if="llmRunning">
+              <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+              <pre ref="llmStreamEl" class="llm-pre eval-stream">{{ llmText || '等待模型回應…' }}</pre>
+            </template>
+            <p v-if="llmError" class="llm-run-hint eval-err">執行失敗：{{ llmError }}</p>
+
+            <template v-if="llmRecord">
+              <div class="info-rows">
+                <div class="info-row"><span class="info-key">模型</span><span>{{ llmRecord.model ?? '—' }}</span></div>
+                <div class="info-row"><span class="info-key">輪數</span><span>{{ llmRecord.rounds }}</span></div>
+                <div class="info-row">
+                  <span class="info-key">水平垂直</span>
+                  <span>{{ llmRecord.hvBefore }} → {{ llmRecord.hvAfter }}／{{ llmRecord.segs }} 段</span>
+                </div>
+                <div class="info-row"><span class="info-key">移動</span><span>{{ llmRecord.moved }} 站</span></div>
+              </div>
+              <p v-if="llmRecord.userPrompt" class="llm-run-hint">上次指示：{{ llmRecord.userPrompt }}</p>
+              <template v-if="(llmRecord.transcript ?? []).length">
+                <h4 class="llm-h">LLM 回傳（逐輪）</h4>
+                <div v-for="(t, i) in llmRecord.transcript" :key="i" class="llm-round">
+                  <div class="llm-round-head">
+                    {{ t.round ? `第 ${t.round} 輪` : '附註' }} · 提案 {{ t.proposed }} 點
+                    · HV {{ t.hv }}<template v-if="t.rejected"> · 硬規則拒絕 {{ t.rejected }}</template>
+                  </div>
+                  <div class="llm-note">{{ t.note ?? '（無說明）' }}</div>
+                </div>
+              </template>
+              <template v-if="llmRecord.finalOutput">
+                <h4 class="llm-h">最終輸出</h4>
+                <pre class="llm-pre">{{ llmRecord.finalOutput }}</pre>
+              </template>
+
+              <!-- 執行調整：對齊結果檔存了移動後座標，這顆按鈕只切換主視圖顯示
+                   （套用對齊後座標 ⇄ 恢復對齊前的 Hill Climbing 佈局），不再跑 LLM -->
+              <h4 class="llm-h">套用到 LLM 對齊主視圖</h4>
+              <button
+                class="llm-run-btn"
+                @click="emit('toggle-llm-exec')"
+              >{{ llmApplied ? '恢復原佈局' : '執行調整' }}</button>
+              <p class="llm-run-hint">這顆按鈕只是切換顯示（不跑 LLM、即時）——「執行調整」用對齊後的座標重畫「LLM 對齊」主視圖，「恢復原佈局」切回對齊前的佈局，可來回比較（各鏈與 RWD 'llm' 版面一律用對齊後結果，不受此切換影響）。</p>
+            </template>
+            <p v-else-if="!llmRunning" class="llm-note">{{ llmMsg ?? '尚未產生對齊——按上面的按鈕執行。' }}</p>
+
+            <h4 class="llm-h">使用的 skill：route-llm-align</h4>
+            <details class="llm-skill">
+              <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
+              <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
+            </details>
           </div>
-
-          <h4 class="llm-h">輸入的 skill / prompt</h4>
-          <pre class="llm-pre">{{ llmRecord.prompt ?? '（此結果產生於紀錄功能之前，無 prompt 紀錄——重跑一次即可補上）' }}</pre>
-
-          <h4 class="llm-h">使用的 skill：route-llm-align</h4>
-          <details class="llm-skill">
-            <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
-            <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
-          </details>
-
-          <h4 class="llm-h">LLM 回傳（逐輪）</h4>
-          <div v-for="(t, i) in llmRecord.transcript ?? []" :key="i" class="llm-round">
-            <div class="llm-round-head">
-              {{ t.round ? `第 ${t.round} 輪` : '附註' }} · 提案 {{ t.proposed }} 點
-              · HV {{ t.hv }}<template v-if="t.rejected"> · 硬規則拒絕 {{ t.rejected }}</template>
-            </div>
-            <div class="llm-note">{{ t.note ?? '（無說明）' }}</div>
-          </div>
-          <div v-if="!(llmRecord.transcript ?? []).length" class="llm-note">
-            （無逐輪紀錄——重跑一次即可補上）
-          </div>
-
-          <template v-if="llmRecord.finalOutput">
-            <h4 class="llm-h">最終輸出</h4>
-            <pre class="llm-pre">{{ llmRecord.finalOutput }}</pre>
-          </template>
-
-          <label v-if="llmCanRun" class="llm-model-pick">
-            模型
-            <select :value="llmModel" :disabled="llmRunning"
-              @change="emit('update:llm-model', $event.target.value)">
-              <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
-            </select>
-          </label>
-          <button
-            v-if="llmCanRun"
-            class="llm-run-btn"
-            :disabled="llmRunning"
-            @click="emit('run-llm', '')"
-          >{{ llmRunning ? '執行中…' : '重新開始 LLM 對齊' }}</button>
-          <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-align skill 重跑並更新此結果。</p>
-
-          <!-- 自訂 prompt：使用者的指示會併入 route-llm-align，引導模型移動哪些座標 -->
-          <template v-if="llmCanRun">
-            <h4 class="llm-h">用 prompt 調整座標</h4>
-            <p v-if="llmRecord.userPrompt" class="llm-run-hint">上次指示：{{ llmRecord.userPrompt }}</p>
-            <textarea
-              v-model="llmUserPrompt"
-              class="llm-prompt-box"
-              rows="3"
-              :disabled="llmRunning"
-              placeholder="例：優先把紅線拉成水平；讓東側幾條線對齊同一欄；把環狀線盡量收成矩形…"
-            />
-            <button
-              class="llm-run-btn"
-              :disabled="llmRunning || !llmUserPrompt.trim()"
-              @click="emit('run-llm', llmUserPrompt.trim())"
-            >{{ llmRunning ? '執行中…' : '確定，依此 prompt 重跑' }}</button>
-            <p class="llm-run-hint">你的指示會併入 skill、引導模型「移動哪些點、往哪對齊」——一樣經硬規則把關，不會弄壞佈局。</p>
-          </template>
         </template>
       </div>
     </aside>
@@ -1139,11 +1161,15 @@ function startResize(e) {
 .tabs-header { padding: 4px 8px 0 8px; align-items: flex-end; }
 .panel-tabs { display: flex; gap: 2px; }
 .panel-tab {
-  padding: 7px 12px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 10px 8px;
   font-size: var(--sp-body);
   color: hsl(var(--muted-foreground));
   border-bottom: 2px solid transparent;
   border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0;
+  white-space: nowrap;
 }
 .panel-tab:hover { background: hsl(var(--accent) / 0.6); color: hsl(var(--foreground)); }
 .panel-tab.active {

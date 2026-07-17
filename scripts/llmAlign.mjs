@@ -30,12 +30,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const OUT = join(DATA, 'llmviews')
 
-const [cmd, cityId, variant = 'orig', movesPath] = process.argv.slice(2)
+// `--prompt` 旗標＝「指定對齊」（依使用者一句話），寫到獨立的 .prompt.json，與
+// 「自動對齊」（純最大化 H/V，寫 .json）完全分開、互不覆蓋。旗標可放任意位置。
+const rawArgs = process.argv.slice(2)
+const isPrompt = rawArgs.includes('--prompt')
+const [cmd, cityId, variant = 'orig', movesPath] = rawArgs.filter((a) => a !== '--prompt')
 if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
-  console.error('usage: llmAlign.mjs export|apply|reset <cityId> <orig|rot> [moves.json]')
+  console.error('usage: llmAlign.mjs export|apply|reset <cityId> <orig|rot> [moves.json] [--prompt]')
   process.exit(1)
 }
-const outFile = join(OUT, `${cityId}.${variant}.json`)
+const outFile = join(OUT, `${cityId}.${variant}${isPrompt ? '.prompt' : ''}.json`)
 
 // ---- rebuild the deterministic chain (mirror of D3Tab / viewGeometry) ----
 const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))

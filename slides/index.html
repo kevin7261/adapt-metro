@@ -23,6 +23,22 @@
       --code-bg:#060a13; --code-ink:#cbd5e1;
     }
   }
+  /* 首頁 app 的 shadcn design token（值抄自 src/style.css），獨立命名 --app-* 只給 header 用、
+     不干擾投影片自己的 token。<head> inline script 依 localStorage 套 html.dark / html[data-theme]。 */
+  :root{
+    --app-card:0 0% 100%; --app-border:214.3 31.8% 91.4%;
+    --app-fg:222.2 84% 4.9%; --app-muted-fg:215.4 16.3% 40%;
+    --app-primary:221.2 83.2% 53.3%;
+  }
+  html.dark{
+    --app-card:222.2 84% 4.9%; --app-border:217.2 32.6% 17.5%;
+    --app-fg:210 40% 98%; --app-muted-fg:215 20.2% 65.1%;
+    --app-primary:217.2 91.2% 59.8%;
+  }
+  html[data-theme='violet']{ --app-primary:262.1 83.3% 57.8%; }
+  html[data-theme='emerald']{ --app-primary:142.1 76.2% 36.3%; }
+  html[data-theme='rose']{ --app-primary:346.8 77.2% 49.8%; }
+  html[data-theme='amber']{ --app-primary:24.6 95% 53.1%; }
   /* 投影片內容固定白底（使用者：投影片要用白底；但 header 不改——只限縮在 .deck，
      header 仍用 :root、跟隨系統深淺色）。.deck 內覆寫整組亮色 token，故無論系統深色
      與否，slide 內容都是白底＋深色字。 */
@@ -30,7 +46,9 @@
     color-scheme: light;
     --page-bg:#ffffff; --dot:rgba(15,23,42,.06);
     --card-bg:#ffffff; --border:#e2e8f0;
-    --ink:#0f172a; --muted:#64748b; --muted2:#94a3b8;
+    /* 白底下文字加深提高對比（使用者：內容文字顏色要調整）：
+       ink 近黑、內文 muted 用 slate-600、次要 muted2 用 slate-500，都通過白底 AA。 */
+    --ink:#0b1220; --muted:#475569; --muted2:#64748b;
     --code-bg:#0f172a; --code-ink:#e2e8f0;
     background:#ffffff;
   }
@@ -43,24 +61,27 @@
   a{color:inherit;}
   strong,b{font-weight:700;}
 
-  /* ---- 與首頁共用的 header（樣式對齊 TopToolbar：44px、卡片底、下框線、brand＋系統介紹＋相關連結） ---- */
+  /* ---- header：與首頁 TopToolbar 完全一致 ----
+     不自訂顏色，直接用首頁 app 的 shadcn design token（下方 --app-* 定義，值抄自 src/style.css），
+     由 <head> 的 inline script 依 localStorage 的 adapt-metro:session:v1 套 .dark / data-theme，
+     所以 header 永遠跟首頁「當下」的深/淺色與強調色相同（不是猜的死值、也不跟 OS）。 */
   .app-toolbar{
     display:flex; align-items:center; gap:4px; min-height:44px; padding:4px 8px;
-    border-bottom:1px solid var(--border); background:var(--card-bg);
+    border-bottom:1px solid hsl(var(--app-border)); background:hsl(var(--app-card));
     position:sticky; top:0; z-index:50;
   }
   .app-toolbar .brand{
     display:flex; align-items:center; gap:6px; padding:0 10px 0 4px;
-    font-weight:700; font-size:14px; color:var(--ink); text-decoration:none;
+    font-weight:600; font-size:13px; color:hsl(var(--app-primary)); text-decoration:none; white-space:nowrap;
   }
   .app-toolbar .btn-ghost{
     display:inline-flex; align-items:center; gap:4px; height:32px; padding:0 10px;
-    border-radius:6px; font-size:13px; white-space:nowrap; color:var(--ink); text-decoration:none;
+    border-radius:6px; font-size:13px; white-space:nowrap; color:hsl(var(--app-fg)); text-decoration:none;
   }
   .app-toolbar .btn-ghost:hover{ background:rgba(127,127,140,.14); }
-  .app-toolbar .btn-ghost.active{ color:var(--blue); font-weight:600; }
+  .app-toolbar .btn-ghost.active{ color:hsl(var(--app-primary)); font-weight:600; }
   .app-toolbar .tb-right{ margin-left:auto; display:flex; gap:4px; }
-  .app-toolbar .tb-right .btn-ghost{ color:var(--muted); font-size:12.5px; }
+  .app-toolbar .tb-right .btn-ghost{ color:hsl(var(--app-muted-fg)); font-size:12.5px; }
 
   /* Google Slides 式：固定 16:9 的白色投影片畫布置中，依視窗等比縮放。
      內容以 1280×720 設計解析度撰寫（字級固定 px），縮放不改排版。 */
@@ -261,6 +282,22 @@
     .backlink span.txt{ display:none; }
   }
 </style>
+<script>
+  /* header 跟首頁一致：讀首頁 app 存在 localStorage 的主題（同源 /adapt-metro），
+     在渲染前就把 .dark / data-theme 套到 <html>，讓 header 的 --app-* token 立刻對上首頁。
+     預設 dark:true（同 app 的 store.dark 預設）；讀不到就用預設，不影響白底內容。 */
+  (function () {
+    var dark = true, accent = 'blue';
+    try {
+      var s = JSON.parse(localStorage.getItem('adapt-metro:session:v1') || '{}');
+      if (typeof s.dark === 'boolean') dark = s.dark;
+      if (typeof s.accent === 'string') accent = s.accent;
+    } catch (e) { /* 用預設 */ }
+    var root = document.documentElement;
+    if (dark) root.classList.add('dark');
+    if (accent && accent !== 'blue') root.dataset.theme = accent;
+  })();
+</script>
 </head>
 <body>
 <header class="app-toolbar">

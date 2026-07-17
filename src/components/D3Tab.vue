@@ -152,6 +152,14 @@ const llmRun = ref(null)     // null | 'running' | 'error'
 const llmRunTail = ref('')   // short error tail
 const llmRunText = ref('')   // live streamed assistant transcript (LLM 回傳文字)
 const llmLogEl = ref(null)   // overlay <pre>, auto-scrolled to the newest text
+// 「指定對齊」（依使用者一句話）＝與「自動對齊」完全獨立的一組平行狀態：另存
+// .prompt.json、自己的 run/串流/結果/toggle，互不影響。只在主視圖比較用、不餵下游。
+const promptStats = ref(null) // the whole .prompt.json llmview file
+const promptMsg = ref(null)   // hint when the result is missing / stale
+const promptRun = ref(null)   // null | 'running' | 'error'
+const promptRunTail = ref('')
+const promptRunText = ref('')
+const promptLogEl = ref(null)
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
 // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇：面板下拉的短鍵，隨 /run 的
 // body 送出，vite plugin 映射成 claude --model；'default' → 不帶旗標（沿用預設）。
@@ -233,23 +241,41 @@ function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, o
   }
   return { start, stop: () => clearTimeout(timer) }
 }
+// 清掉 LLM 對齊的所有下游快取（端點移動／直線縮減／網格合併／循環／逐步）——
+// 對齊佈局一變，這些以它為輸入的結果都作廢。run 前後與 toggle 時共用。
+function invalidateLlmDownstream() {
+  delete cachedEndp.llm
+  delete cachedLine.llm
+  delete cachedGather.llm
+  delete cachedLoop.llm
+  delete stepState.llm
+  delete stepHistory.llm
+}
 const llmRunner = makeHeadlessRun({
   base: '/llm-align',
   params: () => ({ variant: hcVariant.value }),
   run: llmRun, tail: llmRunTail, text: llmRunText, logEl: llmLogEl,
-  shouldRender: () => llmMode.value,
+  shouldRender: () => false, // 唯讀：跑的時候畫布照畫（base HC/舊結果）、不留白，串流顯示在面板
   onStart: () => {
-    cachedLlm = null
-    delete cachedEndp.llm // LLM 對齊的端點移動／直線縮減／網格合併／縮減網格／循環 跟著舊結果一起作廢
-    delete cachedLine.llm
-    delete cachedGather.llm
-    delete cachedLoop.llm
-    delete stepState.llm
-    delete stepHistory.llm
+    // 清舊結果：面板的逐輪 transcript／provenance（llmStats）與提示一起清掉，
+    // 跑完 render 再載入新結果（跟 eval/grid 的 onStart 一致）。
+    cachedLlm = null; llmStats.value = null; llmMsg.value = null; llmInfo.value = null
+    llmApplied.value = false; invalidateLlmDownstream()
   },
-  onDone: () => { cachedLlm = null; delete cachedEndp.llm },
+  onDone: () => { cachedLlm = null; invalidateLlmDownstream() },
 })
 const startLlmRun = llmRunner.start
+// ---- 執行 LLM 對齊結果（不用 LLM）----
+// 跟「執行 LLM 評價/互動」同一套：對齊結果檔存了移動後的座標，這顆「執行調整」
+// 只切換「LLM 對齊」主視圖（mode 'hc-llm'）顯示——套用＝用對齊後座標、恢復＝顯示
+// 對齊前的 Hill Climbing 佈局。各鏈與 RWD 'llm' compact 是「地基」，一律套用（見
+// render 的 applyAlign）、不受此 toggle 影響。
+const llmApplied = ref(false)
+function toggleLlmExec() {
+  if (!cachedLlm?.cells) return
+  llmApplied.value = !llmApplied.value
+  render()
+}
 // ---- LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
 // 與 LLM 評價同一套離線模式：使用者的一句話 POST 給 /llm-grid/run（vite plugin
 // spawn headless Claude Code），模型推理每個 X 欄／Y 列區間的顯示權重、存到
@@ -854,15 +880,14 @@ async function render() {
     // the llmview for this city+variant and verify it matches THIS dataset's
     // HC result (fingerprint), otherwise explain how to (re)generate it.
     if (useLlm.value) {
-      // 執行中：不畫任何佈局，canvas 留白給執行中 overlay 蓋上（已在 render
-      // 開頭 remove 全部節點），跑完 poll 會清 cachedLlm 再 render 出新結果。
-      if (llmRun.value === 'running') return
-      if (!cachedLlm) {
+      // 唯讀載入對齊結果供面板顯示＋切換用（跟評價/互動一樣，跑的時候不阻擋畫圖：
+      // 沒有結果或未套用時就照畫對齊前的 base 佈局，不留白）。
+      if (!cachedLlm && llmRun.value !== 'running') {
         const cid = sourceLayer.value?.id
         cachedLlm = !cid
           ? { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
           : await fetchLlmResult(`data/metro/llmviews/${cid}.${hcVariant.value}.json`, {
-            missNone: `尚未產生 LLM 對齊——請在 Claude Code 對 ${cid}（${hcVariant.value}）跑 route-llm-align skill`,
+            missNone: `尚未產生 LLM 對齊——按「開始 LLM 對齊」讓模型移動座標`,
             missStale: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生',
             missErr: '無法載入 LLM 對齊結果',
             fpOk: (fp) => fp.cols === grid.cols && fp.rows === grid.rows
@@ -871,13 +896,18 @@ async function render() {
           })
         if (seq !== renderSeq) return // superseded during fetch
       }
-      if (!cachedLlm.cells) {
-        llmMsg.value = cachedLlm.miss
-        return // nothing to draw — the hint overlay explains why
+      if (cachedLlm?.cells) {
+        llmStats.value = cachedLlm.stats
+        llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
+        // 「執行調整」toggle 只作用在 LLM 對齊主視圖（mode 'hc-llm'）：套用才用對齊
+        // 後座標。各鏈（hc-llm-*）與 RWD 'llm' compact 是地基，一律套用（不看 toggle）。
+        const applyAlign = !(isHC.value && mode.value === 'hc-llm' && !llmApplied.value)
+        if (applyAlign) cells = cachedLlm.cells
+      } else {
+        llmMsg.value = cachedLlm?.miss ?? null
+        llmApplied.value = false
+        // 沒有結果就照畫 base HC 佈局（cells 已是 cachedHC.cellAfter），不 return。
       }
-      cells = cachedLlm.cells
-      llmStats.value = cachedLlm.stats
-      llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
     }
     // 鏈的後處理順序：端點移動 → 直線縮減 → 網格合併（循環 tab 另走
     // straightenCompactLoop）。三個階段都是 movewise（movewiseStage）——
@@ -1585,12 +1615,15 @@ onBeforeUnmount(() => {
           :weight-auto="rwdAutoShuffle"
           :hide-stops="rwdHideStops"
           :min-stop-px="rwdMinStopPx"
+          :stop-stat="rwdStopStat"
+          :span-applied="appliedSpanCap"
           @show-weights="setRwdShowWeights"
           @weight-mode="setRwdWeightMode"
           @weight-random="regenRwdWeights"
           @weight-auto="toggleRwdAutoShuffle"
           @hide-stops="setRwdHideStops"
           @min-stop-px="setRwdMinStopPx"
+          @recalc-span="recalcSpan"
         />
         <div class="map-main">
           <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
@@ -1645,33 +1678,8 @@ onBeforeUnmount(() => {
           <div v-if="loading" class="ma-hint">載入中…</div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
-          <!-- 執行中 overlay：蓋住整個畫布，舊地圖已清空，跑完才出現新結果 -->
-          <div v-else-if="llmMode && llmRun === 'running'" class="ma-hint llm-hint">
-            <div class="llm-run-card">
-              <div class="llm-spinner" />
-              <div class="llm-run-title">LLM 對齊執行中…</div>
-              <div class="llm-run-desc">headless Claude Code 依 route-llm-align skill 逐輪最佳化，完成後結果會自動出現</div>
-              <div class="llm-run-label">LLM 回傳（即時串流）</div>
-              <pre ref="llmLogEl" class="llm-run-log">{{ llmRunText || '等待模型回應…' }}</pre>
-            </div>
-          </div>
-          <div v-else-if="llmMsg" class="ma-hint llm-hint">
-            <div class="llm-box">
-              <div>{{ llmMsg }}</div>
-              <div v-if="llmRun === 'error'" class="llm-tail err">執行失敗：{{ llmRunTail }}</div>
-              <label v-if="llmCityId" class="llm-model-pick">
-                模型
-                <select v-model="llmModel">
-                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
-                </select>
-              </label>
-              <button
-                v-if="llmCityId"
-                class="llm-btn"
-                @click="startLlmRun"
-              >開始 LLM 對齊</button>
-            </div>
-          </div>
+          <!-- LLM 對齊改成唯讀＋toggle（跟 LLM評價/互動一樣）：跑的時候不蓋畫布、
+               不留白，串流與「執行調整/恢復原佈局」都在右側「LLM對齊」面板 tab。 -->
           <!-- 逐步驗證 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
                怎麼一步步收斂；「重設」回到該鏈的起點。 -->
           <div v-if="isHC && stepKindOf(mode)" class="step-panel">
@@ -1708,6 +1716,11 @@ onBeforeUnmount(() => {
       :llm-record="isHC ? llmStats : null"
       :llm-running="llmRun === 'running'"
       :llm-can-run="!!llmCityId"
+      :llm-view="isHC && mode === 'hc-llm'"
+      :llm-text="llmRunText"
+      :llm-msg="llmMsg"
+      :llm-error="llmRun === 'error' ? llmRunTail : ''"
+      :llm-applied="llmApplied"
       :grid-record="isRWD ? gridStats : null"
       :grid-running="gridRun === 'running'"
       :grid-can-run="!!llmCityId"
@@ -1737,6 +1750,7 @@ onBeforeUnmount(() => {
       @run-eval="startEvalRun"
       @toggle-eval-exec="toggleEvalExec"
       @toggle-grid-exec="toggleGridExec"
+      @toggle-llm-exec="toggleLlmExec"
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"
@@ -1811,8 +1825,9 @@ onBeforeUnmount(() => {
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>
       </span>
 
-      <!-- LLM 對齊: button-triggered offline run — rounds + the model -->
-      <span v-if="llmMode && llmStats" class="hc-stats">
+      <!-- LLM 對齊: button-triggered offline run — rounds + the model
+           （對齊已套用到目前視圖時才顯示：主視圖看 toggle、各鏈一律套用）-->
+      <span v-if="llmMode && llmStats && (mode !== 'hc-llm' || llmApplied)" class="hc-stats">
         水平垂直 {{ llmStats.hvBefore }} → {{ llmStats.hvAfter }}／{{ llmStats.segs }} 段
         · 迭代 {{ llmStats.rounds }} 輪 · 移動 {{ llmStats.moved }} 站
         · 模型 {{ llmStats.model }}<template

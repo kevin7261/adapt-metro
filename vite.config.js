@@ -238,18 +238,28 @@ function llmAlignTrigger() {
     cmdEnv: 'LLM_ALIGN_CMD',
     validate(b) {
       if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
+      // kind: 'auto'＝自動對齊（純最大化 H/V，寫 .json，餵下游）；'prompt'＝指定
+      // 對齊（依使用者一句話，寫 .prompt.json，只在主視圖比較用）。兩者結果檔、
+      // job key 完全分開，互不覆蓋、互不影響。
+      const kind = b.kind === 'prompt' ? 'prompt' : 'auto'
+      const suffix = kind === 'prompt' ? '.prompt' : ''
       // Optional user steering: a free-text instruction typed in the panel that
       // biases which coordinates the model moves (e.g.「優先把紅線拉成水平」).
       // 2000: LLM評價的「執行評價結果」會把建議＋逐線評語整段餵進來（>1000 字）。
       const userPrompt = typeof b.userPrompt === 'string' ? b.userPrompt.trim().slice(0, 2000) : ''
+      // 指定對齊沒有指示就沒意義——拒絕，前端按鈕本來就會 disable。
+      if (kind === 'prompt' && !userPrompt) return null
       return {
-        key: `${b.city}.${b.variant}`,
-        outFile: `data/metro/llmviews/${b.city}.${b.variant}.json`,
+        key: `${b.city}.${b.variant}.${kind}`,
+        outFile: `data/metro/llmviews/${b.city}.${b.variant}${suffix}.json`,
         userPrompt,
-        prompt: `使用 route-llm-align skill：幫城市 ${b.city}（變體 ${b.variant}）產生或更新 LLM 對齊結果。`
+        prompt: `使用 route-llm-align skill：幫城市 ${b.city}（變體 ${b.variant}）產生或更新`
+          + (kind === 'prompt'
+            ? `「指定對齊」結果——export／apply 一律加 --prompt 旗標，寫到 ${b.city}.${b.variant}.prompt.json（不要動 .json 的自動對齊結果）。`
+            : '「自動對齊」結果（寫 .json）。')
           + '反覆 export → 分析 → apply 迭代到收斂（上限 10 輪）；每輪 moves.json 都要含 model 與 note（本輪思路），'
           + '第一輪另附 prompt 欄位記錄本段指示。完成後只輸出最終的 水平垂直 before → after 數字與一句總結。'
-          + (userPrompt ? `\n\n使用者的額外指示（請據此決定要移動哪些座標、往哪對齊）：${userPrompt}` : ''),
+          + (userPrompt ? `\n\n使用者的指示（請據此決定要移動哪些座標、往哪對齊）：${userPrompt}` : ''),
       }
     },
   })

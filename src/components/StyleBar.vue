@@ -14,12 +14,17 @@ const props = defineProps({
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
   hideStops: { type: Boolean, default: false }, // 自動隱藏白點
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
+  stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
+  spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（Straighten/RWD）
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span'])
 
 const isMetro = computed(() => props.layer?.type === 'metro' || props.layer?.metroLike === true)
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const isRwd = computed(() => props.viewKind === 'rwd')
+// 顏色點間最大跨距（SPAN_CAP）：Straighten（hillclimb）與 RWD 視圖都用得到——第 2 排
+// 只要 hasSpan 就出現（RWD 另有一整組權重控制）。
+const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
 
 // 工具依「相關功能」分組（每組一格，組間加分隔線）：
 //  · 路線：線寬（＋一般向量的 Symbology/顏色/邊寬）
@@ -92,79 +97,102 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 
 <template>
   <div class="stylebar">
-    <template v-for="(grp, gi) in groups" :key="gi">
-      <div v-if="gi" class="sb-sep" />
-      <template v-for="t in grp" :key="t.id">
-        <!-- 數字型尺寸（線寬／半徑）：文字標籤＋數字框，不用 icon -->
-        <label v-if="t.num" class="sb-inline" :title="t.title">
-          <span class="sb-inline-label">{{ t.title }}</span>
-          <input
-            type="number"
-            class="sb-inline-num"
-            :min="t.num.min" :max="t.num.max" :step="t.num.step"
-            :value="layer[t.num.prop] ?? t.num.def"
-            @change="setNum(t.num, $event.target.value)"
-          />
-          <span v-if="t.num.unit" class="sb-unit">{{ t.num.unit }}</span>
-        </label>
-        <!-- 其餘工具（切換的顯示站名、或彈窗的地圖底色/顏色…）：純文字按鈕 -->
-        <button
-          v-else
-          class="sb-btn"
-          :class="{ active: isActive(t) }"
-          :title="t.title"
-          @click.stop="clickTool(t, $event)"
-        >{{ t.title }}</button>
+    <!-- 第 1 排：一般工具（地圖底色／線寬／站點半徑／顯示站名…） -->
+    <div class="sb-row">
+      <template v-for="(grp, gi) in groups" :key="gi">
+        <div v-if="gi" class="sb-sep" />
+        <template v-for="t in grp" :key="t.id">
+          <!-- 數字型尺寸（線寬／半徑）：文字標籤＋數字框，不用 icon -->
+          <label v-if="t.num" class="sb-inline" :title="t.title">
+            <span class="sb-inline-label">{{ t.title }}</span>
+            <input
+              type="number"
+              class="sb-inline-num"
+              :min="t.num.min" :max="t.num.max" :step="t.num.step"
+              :value="layer[t.num.prop] ?? t.num.def"
+              @change="setNum(t.num, $event.target.value)"
+            />
+            <span v-if="t.num.unit" class="sb-unit">{{ t.num.unit }}</span>
+          </label>
+          <!-- 其餘工具（切換的顯示站名、或彈窗的地圖底色/顏色…）：純文字按鈕 -->
+          <button
+            v-else
+            class="sb-btn"
+            :class="{ active: isActive(t) }"
+            :title="t.title"
+            @click.stop="clickTool(t, $event)"
+          >{{ t.title }}</button>
+        </template>
       </template>
-    </template>
+    </div>
 
-    <!-- RWD Maps 版面控制（只有 RWD 視圖出現；狀態在 D3Tab，emit 回去）。
-         權重 tab 只剩顯示資訊，這些互動控制全部搬到這裡。純文字、不用 icon。 -->
-    <template v-if="isRwd">
-      <div class="sb-sep" />
-      <!-- 版面模式：均勻網格／權重比例＝二選一的 group button -->
-      <div class="sb-group" role="group" aria-label="版面模式">
+    <!-- 第 2 排：RWD 版面控制（只有 RWD）＋顏色點間最大跨距（Straighten/RWD）＋即時
+         診斷。權重 tab、設定 tab 都已拆空——工具在這排、說明移到右側「資訊」tab。 -->
+    <div v-if="hasSpan" class="sb-row sb-row-2">
+      <!-- RWD 專屬：版面模式／顯示權重數字／隱藏白點／最小站距／隨機權重 -->
+      <template v-if="isRwd">
+        <!-- 版面模式：均勻網格／權重比例＝二選一的 group button -->
+        <div class="sb-group" role="group" aria-label="版面模式">
+          <button
+            class="sb-group-btn"
+            :class="{ active: weightMode !== 'weight' }"
+            @click="emit('weight-mode', 'uniform')"
+          >均勻網格</button>
+          <button
+            class="sb-group-btn"
+            :class="{ active: weightMode === 'weight' }"
+            @click="emit('weight-mode', 'weight')"
+          >權重比例</button>
+        </div>
         <button
-          class="sb-group-btn"
-          :class="{ active: weightMode !== 'weight' }"
-          @click="emit('weight-mode', 'uniform')"
-        >均勻網格</button>
-        <button
-          class="sb-group-btn"
-          :class="{ active: weightMode === 'weight' }"
-          @click="emit('weight-mode', 'weight')"
-        >權重比例</button>
-      </div>
-      <button
-        class="sb-btn"
-        :class="{ active: showWeights }"
-        @click="emit('show-weights', !showWeights)"
-      >顯示權重數字</button>
+          class="sb-btn"
+          :class="{ active: showWeights }"
+          @click="emit('show-weights', !showWeights)"
+        >顯示權重數字</button>
 
-      <div class="sb-sep" />
-      <button
-        class="sb-btn"
-        :class="{ active: hideStops }"
-        @click="emit('hide-stops', !hideStops)"
-      >自動隱藏白點</button>
-      <label class="sb-inline" title="最小站距（pt）">
-        <span class="sb-inline-label">最小站距</span>
+        <div class="sb-sep" />
+        <button
+          class="sb-btn"
+          :class="{ active: hideStops }"
+          @click="emit('hide-stops', !hideStops)"
+        >自動隱藏白點</button>
+        <label class="sb-inline" title="最小站距（pt）">
+          <span class="sb-inline-label">最小站距</span>
+          <input
+            type="number" class="sb-inline-num" min="1" step="1"
+            :value="minStopPx"
+            @change="emit('min-stop-px', $event.target.value)"
+          />
+          <span class="sb-unit">pt</span>
+        </label>
+        <div class="sb-sep" />
+      </template>
+
+      <!-- 顏色點間最大跨距（hillclimb + rwd 都有）：改數字後按「重新計算」才生效 -->
+      <label class="sb-inline" title="顏色點間最大跨距（格）">
+        <span class="sb-inline-label">最大跨距</span>
         <input
           type="number" class="sb-inline-num" min="1" step="1"
-          :value="minStopPx"
-          @change="emit('min-stop-px', $event.target.value)"
+          :value="layer.spanCap ?? 3"
+          @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
         />
-        <span class="sb-unit">pt</span>
+        <span class="sb-unit">格</span>
       </label>
-
-      <div class="sb-sep" />
-      <button class="sb-btn" title="全部隨機（1–9）" @click="emit('weight-random')">隨機權重</button>
       <button
         class="sb-btn"
-        :class="{ active: weightAuto }"
-        @click="emit('weight-auto')"
-      >{{ weightAuto ? '停止隨機權重' : '每5秒隨機權重' }}</button>
-    </template>
+        :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
+        title="用新的最大跨距重跑水平垂直最大化"
+        @click="emit('recalc-span')"
+      >重新計算</button>
+
+      <!-- 即時診斷（原權重 tab 的 weight-stat）：靠右，只有 RWD 有 -->
+      <div v-if="isRwd && stopStat" class="sb-stat">
+        <span>最小站距 高 <b>{{ stopStat.high != null ? stopStat.high.toFixed(1) : '—' }}</b>
+          寬 <b>{{ stopStat.wide != null ? stopStat.wide.toFixed(1) : '—' }}</b> pt</span>
+        <span v-if="stopStat.canvas">畫布 <b>{{ stopStat.canvas[0] }}</b> × <b>{{ stopStat.canvas[1] }}</b> px</span>
+        <span v-if="hideStops">已隱藏 <b>{{ stopStat.hidden }}</b> 站</span>
+      </div>
+    </div>
 
     <Teleport to="body">
       <div
@@ -216,14 +244,35 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 <style scoped>
 .stylebar {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap; /* RWD 視圖控制多，放不下就換行不裁切 */
+  flex-direction: column; /* 一般工具在第 1 排、RWD 版面控制在第 2 排 */
   gap: 4px;
   padding: 5px 8px;
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));
 }
+.sb-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* 放不下就換行不裁切 */
+  gap: 4px;
+}
+/* 第 2 排（RWD）與第 1 排間的分隔線 */
+.sb-row-2 {
+  padding-top: 4px;
+  border-top: 1px solid hsl(var(--border) / 0.6);
+}
+/* 即時診斷（最小站距／畫布／已隱藏）：靠右、灰字 */
+.sb-stat {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: auto;
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+}
+.sb-stat b { color: hsl(var(--foreground)); font-weight: 600; }
 /* 相關功能分組的分隔線 */
 .sb-sep {
   width: 1px;
@@ -244,11 +293,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 3px);
 }
-.sb-btn:hover, .sb-btn.active {
+.sb-btn:hover:not(:disabled), .sb-btn.active {
   color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.12);
   border-color: hsl(var(--primary) / 0.4);
 }
+.sb-btn:disabled { opacity: 0.45; cursor: default; }
 
 /* 二選一的 group button（均勻網格／權重比例）：兩顆併成一體、選中的高亮 */
 .sb-group {
