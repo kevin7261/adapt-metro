@@ -82,9 +82,10 @@ function serveSkills() {
 // given skill — no API key, the user's own Claude Code does the work. The page
 // polls <prefix>/status and reloads the result file when the run finishes. On
 // GitHub Pages there is no dev server, so the button simply reports that a
-// local `npm run dev` is required. Instantiated twice: LLM 對齊 (/llm-align,
-// skill route-llm-align → llmviews) and LLM 調整 (/llm-grid, skill
-// route-llm-grid → llmgrids); `spec` supplies what differs between them.
+// local `npm run dev` is required. Instantiated three times: LLM 對齊
+// (/llm-align, skill route-llm-align → llmviews)、LLM 調整 (/llm-grid, skill
+// route-llm-grid → llmgrids)、LLM 評價 (/llm-eval, skill route-llm-eval →
+// llmevals); `spec` supplies what differs between them.
 //   spec = { name, prefix, cmdEnv,
 //            validate(body|query) -> { key, outFile, prompt?, userPrompt? } | null }
 function claudeSkillTrigger(spec) {
@@ -220,7 +221,8 @@ function llmAlignTrigger() {
       if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
       // Optional user steering: a free-text instruction typed in the panel that
       // biases which coordinates the model moves (e.g.「優先把紅線拉成水平」).
-      const userPrompt = typeof b.userPrompt === 'string' ? b.userPrompt.trim().slice(0, 1000) : ''
+      // 2000: LLM評價的「執行評價結果」會把建議＋逐線評語整段餵進來（>1000 字）。
+      const userPrompt = typeof b.userPrompt === 'string' ? b.userPrompt.trim().slice(0, 2000) : ''
       return {
         key: `${b.city}.${b.variant}`,
         outFile: `data/metro/llmviews/${b.city}.${b.variant}.json`,
@@ -256,6 +258,31 @@ function llmGridTrigger() {
           + '權重要明顯（核心 3–5 倍、至少一組 ≥3）、由核心向外漸近、給出全部區間。'
           + '完成後只輸出一句總結（放大了哪一帶、最大倍率）。'
           + `\n\n使用者的指示：${userPrompt}`,
+      }
+    },
+  })
+}
+
+// LLM 評價（RWD Maps「AI 評路網佈局」）：route-llm-eval 讀佈局幾何、寫評價
+// （不動任何座標）→ data/metro/llmevals，「LLM評價」tab 載入顯示。
+function llmEvalTrigger() {
+  return claudeSkillTrigger({
+    name: 'llm-eval-trigger',
+    prefix: '/llm-eval',
+    cmdEnv: 'LLM_EVAL_CMD',
+    validate(b) {
+      if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
+      const compact = ['hc', 'rect', 'align', 'ilp', 'llm'].includes(b.compact) ? b.compact : 'hc'
+      const userPrompt = typeof b.userPrompt === 'string' ? b.userPrompt.trim().slice(0, 1000) : ''
+      return {
+        key: `${b.city}.${b.variant}.${compact}`,
+        outFile: `data/metro/llmevals/${b.city}.${b.variant}.${compact}.json`,
+        userPrompt,
+        prompt: `使用 route-llm-eval skill：幫城市 ${b.city}（變體 ${b.variant}，縮減 ${compact}）產生或更新 LLM 評價`
+          + '（export 讀佈局幾何 → 寫評價 → apply 存檔）。只評價、不修改任何座標；'
+          + '評語要用站名與數字落地（哪條線哪一段可以更直/更水平、彎在哪、怎麼更方正）。'
+          + '完成後只輸出一句總結（總評第一句＋最需要改的一條線）。'
+          + (userPrompt ? `\n\n使用者的關注點：${userPrompt}` : ''),
       }
     },
   })
@@ -304,7 +331,7 @@ function copyStaticAssets() {
 
 export default defineConfig({
   base: pages ? '/adapt-metro/' : '/',
-  plugins: [vue(), serveDataDir(), serveSkills(), llmAlignTrigger(), llmGridTrigger(), copyStaticAssets()],
+  plugins: [vue(), serveDataDir(), serveSkills(), llmAlignTrigger(), llmGridTrigger(), llmEvalTrigger(), copyStaticAssets()],
   server: {
     port: 5173,
   },

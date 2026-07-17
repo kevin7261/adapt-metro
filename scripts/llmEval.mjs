@@ -1,0 +1,244 @@
+// LLM 評價（RWD Maps「AI 評路網佈局」）的 CLI — 由 Claude Code 依 skill
+// route-llm-eval 驅動：export 印出縮減網格佈局的幾何脈絡（逐線的段方向統計、
+// 彎折數、頂點鏈）給 LLM 讀、LLM 寫下對這個路網的評價（哪裡可以更直、更水平、
+// 更方正、哪條線彎太多…），apply 驗證並存檔。**只評價、不修改**——不搬任何
+// 座標，網頁端（StylePanel 的「LLM評價」tab）只載入 data/metro/llmevals/ 的結果。
+//
+//   node scripts/llmEval.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
+//   node scripts/llmEval.mjs apply  <cityId> <orig|rot> [compact] <eval.json>
+//   node scripts/llmEval.mjs reset  <cityId> <orig|rot> [compact]
+//
+// eval.json: {
+//   "model": "<模型名>",                        // 必填，顯示在面板
+//   "summary": "<總評（幾句話）>",              // 必填
+//   "scores": [{ "aspect": "...", "score": 0-10, "comment": "..." }],
+//   "lines": [{ "name": "<線名>", "comment": "<這條線的具體評價>" }],
+//   "suggestions": ["<可以怎麼調整（只是建議、不執行）>", …],
+//   "userPrompt": "<使用者的關注點（可空）>"
+// }
+
+import { readFile, writeFile, mkdir, rm } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+import { geoMercator } from 'd3-geo'
+import { computeOrientation } from '../src/stores/orientation.js'
+import { buildConnectSkeleton } from '../src/stores/skeleton.js'
+import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
+import {
+  buildHillClimb, buildHcGraph, iteratePost,
+  buildRectPolish, buildAxisAlign, buildAxisIlp, straightenCompactLoop,
+} from '../src/stores/hillClimb.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const DATA = join(__dirname, '..', 'data', 'metro')
+const OUT = join(DATA, 'llmevals')
+const COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm']
+const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+
+const argv = process.argv.slice(2)
+const [cmd, cityId, variant = 'orig'] = argv
+let compact = 'hc', evalPath = null
+for (const a of argv.slice(3)) {
+  if (COMPACTS.includes(a)) compact = a
+  else evalPath = a
+}
+if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
+  console.error('usage: llmEval.mjs export|apply|reset <cityId> <orig|rot> [hc|rect|align|ilp|llm] [eval.json]')
+  process.exit(1)
+}
+const outFile = join(OUT, `${cityId}.${variant}.${compact}.json`)
+
+if (cmd === 'reset') {
+  if (existsSync(outFile)) await rm(outFile)
+  console.log('已刪除', outFile)
+  process.exit(0)
+}
+
+// ---- rebuild the deterministic chain (mirror of D3Tab / llmGrid.mjs) ----
+const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
+const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
+const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
+const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
+const tilt = computeOrientation(geojson).tilt
+const skeleton = buildConnectSkeleton(geojson)
+const angle = variant === 'rot' && Math.abs(tilt) >= 0.5 ? tilt : 0
+const projection = geoMercator().angle(angle).fitExtent([[24, 24], [1176, 776]], fitFC)
+const projById = new Map()
+for (const f of stations) {
+  const p = projection(f.geometry.coordinates)
+  if (p) projById.set(f.properties.station_id, p)
+}
+for (const c of skeleton.crossings ?? []) {
+  const p = projection(c.coord)
+  if (p) projById.set(c.id, p)
+}
+const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
+const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+
+// Same base-layout selection as the RWD view (llmGrid.mjs): the layer's
+// compact chain, then the 端點移動+直線縮減+網格合併 loop to its fixed point.
+let baseCells
+if (POST_BUILD[compact]) {
+  baseCells = iteratePost(POST_BUILD[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+} else if (compact === 'llm') {
+  const f = join(DATA, 'llmviews', `${cityId}.${variant}.json`)
+  if (!existsSync(f)) {
+    console.error(`縮減來源是 LLM 對齊，但 ${f} 不存在——先跑 route-llm-align`)
+    process.exit(1)
+  }
+  const j = JSON.parse(await readFile(f, 'utf8'))
+  baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+} else {
+  baseCells = hc.cellAfter
+}
+const comp = straightenCompactLoop(skeleton, baseCells, grid.cols, grid.rows)
+const cells = comp.cellAfter
+const nC = comp.cols, nR = comp.rows
+
+const fingerprint = { verts: hc.stats.verts, segs: hc.stats.segs, cols: nC, rows: nR, compact }
+
+let saved = null
+if (existsSync(outFile)) {
+  saved = JSON.parse(await readFile(outFile, 'utf8'))
+  if (JSON.stringify(saved.fingerprint) !== JSON.stringify(fingerprint)) {
+    console.error('⚠ 既有 llmeval 與目前資料不符（fingerprint 變了）——視為不存在')
+    saved = null
+  }
+}
+
+// ---- 幾何評價脈絡：段方向分類 ＋ 逐線頂點鏈與彎折 ----
+// 段方向以縮減網格的整數格座標算：H（Δr=0）／V（Δc=0）／D45（|Δc|=|Δr|）畫得出
+// 嚴格 H/V/45° 直線；other 一定得折彎（RWD 畫線的單折/雙折候選）。
+const dirOf = (A, B) => {
+  const dx = B[0] - A[0], dy = B[1] - A[1]
+  if (dy === 0) return 'H'
+  if (dx === 0) return 'V'
+  if (Math.abs(dx) === Math.abs(dy)) return 'D45'
+  return 'other'
+}
+const { segs } = buildHcGraph(skeleton, cells)
+const nameById = new Map(stations.map((f) => {
+  const p = f.properties
+  return [p.station_id, p.station_name_local || p.station_name || p.station_id]
+}))
+// route_id -> { name, color }（skeleton 不回傳 routes map，從 geojson 重建）
+const routeMeta = new Map()
+for (const f of lineFeats) {
+  for (const r of f.properties?.routes ?? []) {
+    if (r.route_id && !routeMeta.has(r.route_id)) {
+      routeMeta.set(r.route_id, { name: r.route_name ?? String(r.route_id), color: r.route_color ?? null })
+    }
+  }
+}
+// 每條線：該線行經的段 → 依共用端點串成鏈（端點=奇數度；環線任取起點），
+// 統計 H/V/D45/other 與彎折（相鄰兩段方向向量改變的內部頂點數）。
+const globalStat = { H: 0, V: 0, D45: 0, other: 0 }
+for (const s of segs) {
+  globalStat[dirOf(cells.get(s.a), cells.get(s.b))]++
+}
+function lineReport(rid) {
+  const own = segs.filter((s) => s.routes?.has(rid))
+  if (!own.length) return null
+  const stat = { H: 0, V: 0, D45: 0, other: 0 }
+  const adj = new Map() // vert id -> [segIdx…]（該線內）
+  own.forEach((s, i) => {
+    stat[dirOf(cells.get(s.a), cells.get(s.b))]++
+    for (const v of [s.a, s.b]) {
+      if (!adj.has(v)) adj.set(v, [])
+      adj.get(v).push(i)
+    }
+  })
+  // walk chains: start at odd-degree verts, then leftover cycles
+  const used = new Array(own.length).fill(false)
+  const chains = []
+  const walk = (start) => {
+    const chain = [start]
+    let at = start
+    for (;;) {
+      const nextI = (adj.get(at) ?? []).find((i) => !used[i])
+      if (nextI == null) break
+      used[nextI] = true
+      at = own[nextI].a === at ? own[nextI].b : own[nextI].a
+      chain.push(at)
+    }
+    return chain
+  }
+  for (const [v, list] of adj) {
+    if (list.length % 2 === 1 && list.some((i) => !used[i])) chains.push(walk(v))
+  }
+  own.forEach((s, i) => { if (!used[i]) chains.push(walk(s.a)) }) // 環線/剩餘
+  // 彎折：鏈上內部頂點，前後兩段的方向（gcd 正規化整數向量）不同就算一個彎
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a)
+  const norm = (A, B) => {
+    const dx = B[0] - A[0], dy = B[1] - A[1]
+    const g = gcd(Math.abs(dx), Math.abs(dy)) || 1
+    return `${dx / g},${dy / g}`
+  }
+  let bends = 0
+  for (const chain of chains) {
+    for (let i = 1; i + 1 < chain.length; i++) {
+      const A = cells.get(chain[i - 1]), B = cells.get(chain[i]), C = cells.get(chain[i + 1])
+      if (norm(A, B) !== norm(B, C)) bends++
+    }
+  }
+  const label = (id) => {
+    const [c, r] = cells.get(id)
+    const n = nameById.get(id)
+    return n ? `${n}(${c},${r})` : `×(${c},${r})`
+  }
+  return { segs: own.length, ...stat, bends, chains: chains.map((ch) => ch.map(label)) }
+}
+const lines = [...routeMeta.entries()]
+  .filter(([rid]) => !String(rid).startsWith('river:'))
+  .map(([rid, m]) => ({ rid, name: m.name, color: m.color, ...lineReport(rid) }))
+  .filter((l) => l.segs)
+const stats = {
+  cols: nC, rows: nR, segs: segs.length,
+  hv: globalStat.H + globalStat.V, h: globalStat.H, v: globalStat.V,
+  d45: globalStat.D45, other: globalStat.other,
+}
+
+if (cmd === 'export') {
+  console.log(JSON.stringify({
+    city: cityId, cityName: meta.city, variant, compact,
+    axes: '格座標 (c,r)：c 向東遞增、r 向南遞增；H=水平段、V=垂直段、D45=45°段、other=畫出來一定有折彎的段',
+    stats,
+    lines: lines.map(({ rid, ...l }) => l),
+    current: saved ? { summary: saved.summary, userPrompt: saved.userPrompt ?? null } : null,
+  }))
+} else if (cmd === 'apply') {
+  if (!evalPath) { console.error('apply 需要 eval.json 路徑'); process.exit(1) }
+  const spec = JSON.parse(await readFile(evalPath, 'utf8'))
+  if (!spec.model) { console.error('eval.json 必須含 "model"（顯示在面板上）'); process.exit(1) }
+  if (typeof spec.summary !== 'string' || !spec.summary.trim()) {
+    console.error('eval.json 必須含非空的 "summary"（總評）'); process.exit(1)
+  }
+  const scores = (Array.isArray(spec.scores) ? spec.scores : [])
+    .filter((s) => s && typeof s.aspect === 'string' && Number.isFinite(+s.score))
+    .map((s) => ({ aspect: s.aspect, score: Math.min(10, Math.max(0, +s.score)), comment: s.comment ?? '' }))
+  const lineComments = (Array.isArray(spec.lines) ? spec.lines : [])
+    .filter((l) => l && typeof l.name === 'string' && typeof l.comment === 'string')
+    .map((l) => ({ name: l.name, comment: l.comment }))
+  const suggestions = (Array.isArray(spec.suggestions) ? spec.suggestions : [])
+    .filter((s) => typeof s === 'string' && s.trim())
+  await mkdir(OUT, { recursive: true })
+  await writeFile(outFile, JSON.stringify({
+    fingerprint, city: cityId, variant, compact,
+    model: spec.model,
+    stats, // 客觀數字（本 script 算的），評語（模型寫的）在下面
+    summary: spec.summary.trim(),
+    scores, lines: lineComments, suggestions,
+    userPrompt: spec.userPrompt ?? saved?.userPrompt ?? null,
+    prompt: saved?.prompt ?? spec.prompt ?? null,
+    finalOutput: saved?.finalOutput, // trigger plugin's merge survives re-applies
+  }))
+  console.log(JSON.stringify({
+    saved: outFile,
+    stats, scores: scores.length, lines: lineComments.length, suggestions: suggestions.length,
+  }, null, 1))
+} else {
+  console.error(`未知指令 ${cmd}`)
+  process.exit(1)
+}

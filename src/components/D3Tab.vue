@@ -234,7 +234,26 @@ const llmRunner = makeHeadlessRun({
     delete stepState.llm
     delete stepHistory.llm
   },
-  onDone: () => { cachedLlm = null; delete cachedEndp.llm },
+  onDone: (ok) => {
+    cachedLlm = null
+    delete cachedEndp.llm
+    // 「執行評價結果」觸發的 run：跑完把目前 RWD 圖層的縮減來源切成「LLM對齊」，
+    // 視圖直接重建在執行後的佈局上（llmviews）。compact 一變，舊 compact 的
+    // llmgrid／llmeval／RWD 畫線快取全部作廢（否則 sizeKey 不含 compact 會沿用舊圖）。
+    if (evalExecPending.value) {
+      evalExecPending.value = false
+      if (ok && isRWD.value && layer.value) {
+        cachedGrid = null
+        cachedEval = null
+        cachedRWD = null
+        gridInfo.value = null
+        gridStats.value = null
+        evalStats.value = null
+        evalMsg.value = null
+        layer.value.compact = 'llm'
+      }
+    }
+  },
 })
 const startLlmRun = llmRunner.start
 // ---- LLM 調整（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
@@ -271,6 +290,42 @@ const gridRunner = makeHeadlessRun({
   onDone: (ok) => { cachedGrid = null; if (!ok) pendingGridAnim = null },
 })
 const startGridRun = gridRunner.start
+// ---- LLM 評價（RWD Maps「AI 評路網佈局」，skill route-llm-eval）----
+// 同一套離線模式，但**只評價、不修改**：按鈕 POST /llm-eval/run（vite plugin
+// spawn headless Claude Code），模型讀縮減網格佈局的幾何（逐線段方向、彎折數）
+// 寫評語存 data/metro/llmevals/<city>.<variant>.<compact>.json，這裡只載入＋
+// fingerprint 驗證，顯示在右側「LLM評價」tab——畫布完全不受影響。
+const evalStats = ref(null)   // the whole llmeval file（右側 LLM評價 面板）
+const evalMsg = ref(null)     // hint when the result is missing / stale
+const evalRun = ref(null)     // null | 'running' | 'error'
+const evalRunTail = ref('')
+const evalRunText = ref('')
+const evalLogEl = ref(null)   // 評價不蓋畫布 overlay——串流顯示在面板內（StylePanel 自捲）
+let cachedEval = null         // fetched llmeval: { stats } or { miss }
+const evalRunner = makeHeadlessRun({
+  base: '/llm-eval',
+  params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value }),
+  run: evalRun, tail: evalRunTail, text: evalRunText, logEl: evalLogEl,
+  shouldRender: () => false, // 唯讀評價：畫布照畫、不留白、不蓋 overlay
+  onStart: () => { cachedEval = null; evalStats.value = null; evalMsg.value = null },
+  onDone: () => { cachedEval = null },
+})
+const startEvalRun = evalRunner.start
+// ---- 執行 LLM 評價結果 ----
+// 評價本身唯讀；「執行評價結果」＝把評價的建議組成 steering 文字、餵給既有的
+// LLM 對齊管線（route-llm-align，經硬規則實際移動座標）。跑完由 llmRunner 的
+// onDone 把 RWD 圖層 compact 切成 'llm'，目前視圖即重建在執行後的佈局上。
+const evalExecPending = ref(false) // 本次 /llm-align run 是由「執行評價」觸發
+function startEvalExec() {
+  const ev = evalStats.value
+  if (!ev || llmRun.value === 'running' || evalRun.value === 'running') return
+  const parts = (ev.suggestions ?? []).map((s, i) => `${i + 1}. ${s}`)
+  for (const l of ev.lines ?? []) parts.push(`【${l.name}】${l.comment}`)
+  if (!parts.length && ev.summary) parts.push(ev.summary)
+  if (!parts.length) return
+  evalExecPending.value = true
+  startLlmRun(`依下列 LLM 評價的建議調整佈局（目標：直線與水平垂直段更多、彎折更少、更方正）：\n${parts.join('\n')}`)
+}
 // The three H/V-maximising post-passes (short-distance moves of coloured
 // vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
 // re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
@@ -704,6 +759,7 @@ async function render() {
     cachedPost = {}
     cachedLlm = null
     cachedGrid = null
+    cachedEval = null
     cachedEndp = {}
     cachedLine = {}
     cachedGather = {}
@@ -718,6 +774,8 @@ async function render() {
     llmStats.value = null
     gridInfo.value = null
     gridStats.value = null
+    evalStats.value = null
+    evalMsg.value = null
     hcCompactStats.value = null
     endpStats.value = null
     lineStats.value = null
@@ -910,6 +968,23 @@ async function render() {
     // 動畫幀不重算 buildHcGraph（骨架／格不變）——省每幀成本，cachedSegs 沿用。
     // 平行邊（共用同兩端點的快車直達＋普通車 coline）收成一條交錯線，見 mergeParallelSegs。
     if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = mergeParallelSegs(buildHcGraph(cachedSkeleton, grid.cellOf).segs)
+    // 「LLM評價」結果（llmevals，skill route-llm-eval）：唯讀評語——載入＋
+    // fingerprint 驗證後只給右側面板顯示，不影響畫圖（沒有結果也照畫）。
+    if (isRWD.value && !cachedEval && evalRun.value !== 'running') {
+      const cid = sourceLayer.value?.id
+      cachedEval = !cid
+        ? { miss: '匯入資料不支援 LLM 評價（沒有城市 id 可對應結果檔）' }
+        : await fetchLlmResult(`data/metro/llmevals/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`, {
+          missNone: '尚未產生評價——按「開始 LLM 評價」讓模型評這個路網',
+          missStale: 'LLM 評價與目前資料不符（資料已更新）——請重新產生',
+          missErr: '無法載入 LLM 評價結果',
+          fpOk: (fp) => fp.cols === nC && fp.rows === nR,
+          onOk: (j) => ({ stats: j }),
+        })
+      if (seq !== renderSeq) return // superseded during fetch
+      evalStats.value = cachedEval.stats ?? null
+      evalMsg.value = cachedEval.miss ?? null
+    }
     // 「LLM調整」（rwd-llm）：欄寬列高不看流量 weight，改用 LLM 推理的區間權重
     // （llmgrids 結果檔）——先載入＋fingerprint 驗證，沒有結果就留白給 overlay。
     let gridAniming = false
@@ -1509,6 +1584,7 @@ onBeforeUnmount(() => {
   resizeObs?.disconnect()
   llmRunner.stop()
   gridRunner.stop()
+  evalRunner.stop()
   if (rwdAutoTimer) clearInterval(rwdAutoTimer)
   if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
 })
@@ -1656,6 +1732,13 @@ onBeforeUnmount(() => {
       :grid-record="isRWD ? gridStats : null"
       :grid-running="gridRun === 'running'"
       :grid-can-run="!!llmCityId"
+      :eval-record="isRWD ? evalStats : null"
+      :eval-running="evalRun === 'running'"
+      :eval-can-run="!!llmCityId"
+      :eval-text="evalRunText"
+      :eval-msg="evalMsg"
+      :eval-error="evalRun === 'error' ? evalRunTail : ''"
+      :exec-text="llmRunText"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
       :show-weights="rwdShowWeights"
@@ -1666,6 +1749,8 @@ onBeforeUnmount(() => {
       @recalc-span="recalcSpan"
       @run-llm="startLlmRun"
       @run-grid="startGridRun"
+      @run-eval="startEvalRun"
+      @run-eval-exec="startEvalExec"
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"

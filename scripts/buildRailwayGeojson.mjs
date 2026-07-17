@@ -291,6 +291,13 @@ function buildSystem(raw, override) {
     for (const first of [...new Set(gadj[s.gv].map((e) => e.to))]) {
       const e0 = gadj[s.gv].find((e) => e.to === first)
       if (e0.hs) continue // HSR corridors are built from relations, not the walk (viaduct pollution)
+      // STAY ON THIS LINE'S OWN TRACK: only follow edges with the corridor's line name
+      // (or un-named connectors). In dense multi-line corridors (東京–横浜 stacks
+      // 東海道/横須賀/京浜東北) an unconstrained walk hops onto a PARALLEL line and
+      // scrambles the sequence + grabs the wrong stations — the reason 東海道本線 came
+      // out as 20 fragments. Line-scoped, each line walks like 台灣 台鐵 (使用者：參考台灣畫法).
+      const corridorLine = e0.line
+      const onLine = (e) => corridorLine == null || e.line === corridorLine || e.line == null
       const seen = new Set([s.gv, first]); let prev = s.gv, cur = first, guard = 0
       const votes = new Map()
       if (e0.line) votes.set(e0.line, 1)
@@ -305,7 +312,7 @@ function buildSystem(raw, override) {
           }
           break
         }
-        const nbrs = [...new Set(gadj[cur].map((e) => e.to))].filter((v) => v !== prev && !seen.has(v))
+        const nbrs = [...new Set(gadj[cur].filter(onLine).map((e) => e.to))].filter((v) => v !== prev && !seen.has(v))
         if (!nbrs.length) break
         let nxt = nbrs[0]
         if (nbrs.length > 1) { // junction: keep going straight, else stop

@@ -29,6 +29,18 @@ const props = defineProps({
   gridRecord: { type: Object, default: null },
   gridRunning: { type: Boolean, default: false },
   gridCanRun: { type: Boolean, default: false },
+  // LLM 評價（RWD Maps「AI 評路網佈局」，skill route-llm-eval）：結果檔
+  // （model / summary / scores / lines / suggestions）＋run 控制與即時串流——
+  // 只評價、不修改；「LLM評價」tab 對 rwd 常駐，接在「LLM調整」之後。
+  evalRecord: { type: Object, default: null },
+  evalRunning: { type: Boolean, default: false },
+  evalCanRun: { type: Boolean, default: false },
+  evalText: { type: String, default: '' },   // 執行中即時串流的 LLM 回傳
+  evalMsg: { type: String, default: null },  // 無結果/不符時的提示
+  evalError: { type: String, default: '' },  // 執行失敗的尾巴訊息
+  // 「執行評價結果」：把評價的建議餵給 route-llm-align 實際移動座標——
+  // 走的是 LLM 對齊的 runner（llmRunning＝執行中），execText＝其即時串流。
+  execText: { type: String, default: '' },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -47,7 +59,7 @@ const props = defineProps({
   // 值不同時「重新計算」按鈕亮起。
   spanApplied: { type: Number, default: null },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span'])
+const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'run-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span'])
 const llmUserPrompt = ref('')
 const gridUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
@@ -64,7 +76,7 @@ const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   { id: 'style', label: '樣式' },
   { id: 'object', label: '物件' },
-  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM調整' }] : []),
+  ...(props.viewKind === 'rwd' ? [{ id: 'weight', label: '權重' }, { id: 'grid', label: 'LLM調整' }, { id: 'eval', label: 'LLM評價' }] : []),
   ...(props.llmRecord ? [{ id: 'llm', label: 'LLM對齊' }] : []),
 ])
 const activeTab = ref('info')
@@ -207,6 +219,7 @@ watch(() => props.llmRecord, (v) => { if (!v && activeTab.value === 'llm') activ
 // first opens (same source + rendering as SkillViewer: /skills/<id>.md).
 const llmSkillHtml = ref('')
 const gridSkillHtml = ref('')
+const evalSkillHtml = ref('')
 const fetchSkillHtml = async (id, target) => {
   try {
     const res = await fetch(assetUrl(`skills/${id}.md`))
@@ -220,7 +233,17 @@ const fetchSkillHtml = async (id, target) => {
 watch(activeTab, (t) => {
   if (t === 'llm' && !llmSkillHtml.value) fetchSkillHtml('route-llm-align', llmSkillHtml)
   if (t === 'grid' && !gridSkillHtml.value) fetchSkillHtml('route-llm-grid', gridSkillHtml)
+  if (t === 'eval' && !evalSkillHtml.value) fetchSkillHtml('route-llm-eval', evalSkillHtml)
 })
+
+// LLM 評價／執行評價結果的即時串流（面板內，無畫布 overlay）——新字進來自動捲到底。
+const evalStreamEl = ref(null)
+const execStreamEl = ref(null)
+const stickToBottom = (el) => requestAnimationFrame(() => {
+  if (el.value) el.value.scrollTop = el.value.scrollHeight
+})
+watch(() => props.evalText, () => stickToBottom(evalStreamEl))
+watch(() => props.execText, () => stickToBottom(execStreamEl))
 
 // 點到路段時：只列「**這一段上**」的車站（使用者 2026-07：物件 tab 顯示該段車站、
 // 不是整條路線；整線完整站表移到 資訊 tab 的路線清單展開）。順序＝原始路段幾何的
@@ -933,6 +956,89 @@ function startResize(e) {
           </div>
         </template>
 
+        <!-- ============ LLM評價（RWD Maps）: AI 評路網佈局（skill route-llm-eval）============ -->
+        <template v-else-if="activeTab === 'eval'">
+          <div class="weight-panel">
+            <p class="weight-hint">
+              讓模型評這個路網的佈局：哪些線可以調整讓直線與水平線更多、整體更方正、
+              哪條線彎折太多可以更直……只評價、不修改——不會動任何座標，回傳的只是結果文字。
+            </p>
+            <template v-if="evalCanRun">
+              <button
+                class="llm-run-btn"
+                :disabled="evalRunning || llmRunning"
+                @click="emit('run-eval', '')"
+              >{{ evalRunning ? '評價中…' : (evalRecord ? '重新 LLM 評價' : 'LLM 評價') }}</button>
+              <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-eval skill 讀佈局幾何（逐線段方向、彎折數）寫評價並存檔，完成後顯示在下面。</p>
+            </template>
+            <p v-else class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
+            <template v-if="evalRunning">
+              <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+              <pre ref="evalStreamEl" class="llm-pre eval-stream">{{ evalText || '等待模型回應…' }}</pre>
+            </template>
+            <p v-if="evalError" class="llm-run-hint eval-err">執行失敗：{{ evalError }}</p>
+
+            <template v-if="evalRecord">
+              <div class="info-rows">
+                <div class="info-row"><span class="info-key">模型</span><span>{{ evalRecord.model ?? '—' }}</span></div>
+                <div class="info-row"><span class="info-key">網格</span><span>{{ evalRecord.stats.cols }} 欄 × {{ evalRecord.stats.rows }} 列</span></div>
+                <div class="info-row">
+                  <span class="info-key">直段</span>
+                  <span>H/V {{ evalRecord.stats.hv }}＋45° {{ evalRecord.stats.d45 }}／{{ evalRecord.stats.segs }} 段</span>
+                </div>
+              </div>
+              <p v-if="evalRecord.userPrompt" class="llm-run-hint">關注點：{{ evalRecord.userPrompt }}</p>
+              <h4 class="llm-h">總評</h4>
+              <div class="llm-note">{{ evalRecord.summary }}</div>
+              <template v-if="(evalRecord.scores ?? []).length">
+                <h4 class="llm-h">面向評分</h4>
+                <div v-for="(s, i) in evalRecord.scores" :key="i" class="eval-score">
+                  <div class="eval-score-head"><span>{{ s.aspect }}</span><b>{{ s.score }}/10</b></div>
+                  <div v-if="s.comment" class="llm-note">{{ s.comment }}</div>
+                </div>
+              </template>
+              <template v-if="(evalRecord.lines ?? []).length">
+                <h4 class="llm-h">逐線評語</h4>
+                <div v-for="(l, i) in evalRecord.lines" :key="i" class="eval-line">
+                  <div class="eval-line-name">{{ l.name }}</div>
+                  <div class="llm-note">{{ l.comment }}</div>
+                </div>
+              </template>
+              <template v-if="(evalRecord.suggestions ?? []).length">
+                <h4 class="llm-h">調整建議（僅建議、不執行）</h4>
+                <ol class="eval-suggestions">
+                  <li v-for="(s, i) in evalRecord.suggestions" :key="i">{{ s }}</li>
+                </ol>
+              </template>
+              <template v-if="evalRecord.finalOutput">
+                <h4 class="llm-h">最終輸出</h4>
+                <pre class="llm-pre">{{ evalRecord.finalOutput }}</pre>
+              </template>
+
+              <!-- 執行評價結果：把上面的建議餵給 route-llm-align 實際移動座標 -->
+              <template v-if="evalCanRun">
+                <button
+                  class="llm-run-btn"
+                  :disabled="llmRunning || evalRunning"
+                  @click="emit('run-eval-exec')"
+                >{{ llmRunning ? '執行中…' : '執行評價結果' }}</button>
+                <p class="llm-run-hint">把上面的建議與逐線評語餵給 route-llm-align 實際移動座標（一樣經硬規則把關，不會弄壞佈局）。完成後本視圖的縮減來源會切成「LLM對齊」、直接重建在執行後的佈局上；屆時可再按「重新 LLM 評價」對新佈局重評。</p>
+                <template v-if="llmRunning">
+                  <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+                  <pre ref="execStreamEl" class="llm-pre eval-stream">{{ execText || '等待模型回應…' }}</pre>
+                </template>
+              </template>
+            </template>
+            <p v-else-if="!evalRunning" class="llm-note">{{ evalMsg ?? '尚未產生評價——按上面的按鈕執行。' }}</p>
+
+            <h4 class="llm-h">使用的 skill：route-llm-eval</h4>
+            <details class="llm-skill">
+              <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
+              <div class="skill-md llm-skill-md" v-html="evalSkillHtml || '<p>載入中…</p>'" />
+            </details>
+          </div>
+        </template>
+
         <!-- ============ LLM對齊: run provenance (prompt / responses / model) ============ -->
         <template v-else-if="activeTab === 'llm' && llmRecord">
           <div class="info-rows">
@@ -1163,6 +1269,26 @@ function startResize(e) {
   font-variant-numeric: tabular-nums;
 }
 .llm-note { font-size: var(--sp-note); line-height: 1.6; color: hsl(var(--muted-foreground)); white-space: pre-wrap; }
+/* LLM評價 tab：執行中串流／失敗訊息／評分列／逐線評語／建議清單 */
+.eval-stream { max-height: 200px; }
+.eval-err { color: hsl(var(--destructive)); }
+.eval-score { margin-bottom: 6px; }
+.eval-score-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--sp-body);
+  font-variant-numeric: tabular-nums;
+}
+.eval-line { margin-bottom: 6px; }
+.eval-line-name { font-size: var(--sp-body); font-weight: 600; }
+.eval-suggestions {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: var(--sp-note);
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+.eval-suggestions li { margin-bottom: 4px; }
 .llm-skill summary {
   cursor: pointer;
   font-size: var(--sp-note);

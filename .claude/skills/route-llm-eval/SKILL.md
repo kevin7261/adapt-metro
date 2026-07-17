@@ -1,0 +1,87 @@
+---
+name: route-llm-eval
+description: LLM 評價（RWD Maps「AI 評路網佈局」）——不用 API key，由 Claude Code 的模型直接當評審：export 讀縮減網格佈局的幾何脈絡（逐線段方向統計、彎折數、頂點鏈）→ 模型寫評價（哪些線可以更直/更水平、佈局可以更方正、哪條線彎太多…）→ apply 驗證並存到 data/metro/llmevals，網頁的「LLM評價」tab 只載入結果。**只評價、不修改任何座標**。當使用者要求跑/重跑某城市的 LLM 評價、產生 llmeval、或問 LLM評價 tab 為何顯示「尚未產生」時使用。畫線規則見 [[route-rwd-draw]]、同架構的調整功能見 [[route-llm-grid]]。
+---
+
+# LLM 評價：AI 評路網佈局 (route-llm-eval)
+
+RWD Maps 的評審功能：使用者按「開始 LLM 評價」，由 LLM（執行本 skill 的模型，
+也就是你）閱讀目前縮減網格佈局的幾何，回傳**對這個路網的評價**——例如哪一帶的
+線可以調整讓水平/垂直線更多、整體可以更方正、哪條線彎折太多可以更直。
+瀏覽器端沒有 API key，所以結果**離線產生、存檔、網頁只載入**。
+
+> 硬性分工：**你**只寫評語與建議（總評、面向評分、逐線評語、調整建議）；
+> **系統**一個座標都不會動——這是唯讀的評審，與 [[route-llm-align]]（會動座標）
+> 和 [[route-llm-grid]]（會改欄寬列高）不同。建議只是文字，不執行。
+
+## 架構
+
+```
+scripts/llmEval.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
+  ← 印出佈局幾何（JSON）：全網統計＋逐線報告＋頂點鏈
+  → 你閱讀後寫評價（scratchpad 寫 eval.json）
+scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
+  → 驗證（model/summary 必填、score 夾 0–10）、存 data/metro/llmevals/<cityId>.<variant>.<compact>.json
+```
+
+- `cityId`／`variant`／`compact` 與 [[route-llm-grid]] 同義（結果檔名同三段）。
+- 結果檔含 `fingerprint`（verts/segs/cols/rows/compact）；資料重抓後不符時網頁
+  顯示「與目前資料不符」，`reset` 後重跑即可。
+- 網頁端：RWD 視圖右側面板的「**LLM評價**」tab（「LLM調整」旁）——按鈕 POST
+  `/llm-eval/run`（vite dev plugin spawn headless `claude -p` 跑本 skill）、輪詢
+  `/llm-eval/status` 即時串流回傳文字，跑完自動載入顯示。GH Pages 沒有 dev
+  server → 按鈕會回報需要本機 `npm run dev`。測試替身：`LLM_EVAL_CMD` 環境變數。
+- **執行評價結果**（結果下方的第二顆按鈕）：把評價的 suggestions＋逐線評語組成
+  steering 文字、餵給 [[route-llm-align]] 的 `/llm-align/run` 實際移動座標
+  （本 skill 仍然唯讀——執行的是 align 管線、經同一套硬規則）。跑完 D3Tab 把
+  RWD 圖層的 `compact` 切成 `'llm'`，目前視圖直接重建在執行後的佈局（llmviews）
+  上；compact 一變、舊 compact 的 llmeval 結果檔對不上 → tab 顯示「尚未產生」，
+  對新佈局重按「LLM 評價」即可（評價 ⇄ 執行 可反覆迭代）。
+
+## export 給你的脈絡
+
+- `stats`：cols/rows（縮減網格大小）、segs（段總數）、h/v/hv（水平/垂直段數）、
+  d45（45° 段）、`other`（**畫出來一定有折彎**的段——RWD 畫線的單折/雙折候選）。
+- `lines[]`：逐線 `{ name, color, segs, H, V, D45, other, bends, chains }`——
+  `bends`＝這條線行經路徑上方向改變的內部頂點數（彎折）；`chains`＝有序頂點鏈
+  「站名(c,r)」（×＝幾何交叉點），c 向東遞增、r 向南遞增。
+- `current`：既有評價的 summary（重跑時可對照）。
+
+## 執行流程（你要做的事）
+
+1. `node scripts/llmEval.mjs export <cityId> <variant> [compact]`。
+2. 讀幾何脈絡，寫 eval.json 到 scratchpad：
+   ```json
+   {
+     "model": "<你的模型名，如 Fable 5>",
+     "summary": "<總評 3–6 句：整體水平垂直程度、方正度、最需要改的地方>",
+     "scores": [
+       { "aspect": "水平垂直", "score": 7, "comment": "…" },
+       { "aspect": "方正度", "score": 6, "comment": "…" },
+       { "aspect": "彎折少", "score": 5, "comment": "…" },
+       { "aspect": "平衡與留白", "score": 7, "comment": "…" }
+     ],
+     "lines": [{ "name": "<線名>", "comment": "<這條線哪一段可以更直/更水平、彎在哪>" }],
+     "suggestions": ["<具體可行的調整方向（只是建議、不執行）>", "…"],
+     "userPrompt": "<使用者的關注點（有才填）>"
+   }
+   ```
+   - **評語要落地**：用 export 的站名與數字說話（「松山新店線 10 段有 7 個彎，
+     西門—中正紀念堂一帶連續轉向」），不要空泛（「可以更整齊」）。
+   - **逐線評語挑重點**：彎折多（bends 高）、other 段多、或明顯可拉直的線才列，
+     0 彎的支線不用逐條寫。
+   - scores 面向固定用上面四個（分數 0–10）；suggestions 3–6 條、每條一句話、
+     說清楚「哪裡、往哪個方向調、預期換到什麼」。
+   - **只評價**：不要輸出任何座標移動、不要試著 apply 別的 skill 去改佈局。
+3. `node scripts/llmEval.mjs apply <cityId> <variant> [compact] <eval.json>`，
+   讀輸出確認存檔。一次到位（不用迭代）。
+4. 收尾回報：只輸出一句總結（總評第一句＋最需要改的一條線）；提醒使用者
+   重新整理網頁就能在「LLM評價」tab 看到全文。
+
+## 規則
+
+- **絕不手改** `data/metro/llmevals/` 的檔案——一律經 `apply`（驗證）。
+- 想從頭來：`node scripts/llmEval.mjs reset <cityId> <variant> [compact]`。
+- 評的是**縮減網格的整數格佈局**（RWD 畫線的輸入）：H/V/D45 段畫成直線、
+  other 段一定折彎——所以「把某段變成 H/V/45」就是「少一個彎」的同義詞。
+- 演算法背景見 [[route-hillclimb]]（佈局怎麼來）、[[route-rwd-draw]]（怎麼畫）。

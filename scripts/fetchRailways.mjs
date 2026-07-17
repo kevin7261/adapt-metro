@@ -70,20 +70,20 @@ out;
 way["railway"="station"]["station"!~"^(subway|light_rail|monorail)$"](area.a);
 out center tags;`
 
-// HIGH-SPEED LINE relations (route=railway) that run on highspeed track, plus their
-// member STOP nodes. Used to build 高鐵 lines from the authoritative ordered stop
-// list — a track-walk over HSR viaducts wrongly grabs local stations passing
-// underneath (東海道新幹線 ← 東急武蔵小杉), and the highspeed=yes station tag is too
-// sparse (China ~none). The relation member stops ARE the real stops (excludes the
-// viaduct passovers, includes tag-less majors like 小田原/名古屋), so 高鐵 is built
-// from them (see skill railway-osm-fetch). We only need names+coords+order, not the
-// (huge) track geometry — the pipeline draws straight station-to-station segments.
+// ALL railway LINE relations (route=railway) + their member station nodes. EVERY
+// line (高鐵 and 一般國鐵) is built per-line from its OWN relation track: the global
+// track-walk can't separate stacked parallel lines (東京–横浜 = 東海道/横須賀/京浜東北)
+// and scrambles/pollutes them; and OSM lists relation members in NON-geographic order.
+// So we take each relation's member WAY refs (geometry via the cached trackElements)
+// → build that line's own graph → main path (graph diameter) → order stations along
+// it (see skill railway-osm-fetch §5). `out body` gives ordered member refs; the
+// member station nodes give names/coords/mapping. class = isHsrRelation (≥50% member
+// ways highspeed). Marked relScope:'all' so an old highspeed-only cache is re-fetched.
 const relationsQuery = (iso2) => `[out:json][timeout:600];
 area["ISO3166-1"="${iso2}"][admin_level=2]->.a;
-way["railway"="rail"]["highspeed"="yes"](area.a)->.hsw;
-rel(bw.hsw)["route"="railway"]->.hsrel;
-.hsrel out body;
-node(r.hsrel)["railway"~"^(station|halt|stop)$"];
+relation["route"="railway"](area.a)->.rel;
+.rel out body;
+node(r.rel)["railway"~"^(station|halt|stop)$"];
 out;`
 
 async function main() {
@@ -106,13 +106,13 @@ async function main() {
     if (!force && (await exists(out))) {
       let cached
       try { cached = JSON.parse(await readFile(out, 'utf8')) } catch { cached = null }
-      if (cached && !cached.relElements) {
-        process.stdout.write(`  ${c.cc} ${c.name} … +relations `)
+      if (cached && cached.relScope !== 'all') {
+        process.stdout.write(`  ${c.cc} ${c.name} … +relations(all) `)
         try {
           const relElements = (await query(relationsQuery(c.iso2), { timeout: 600000, maxAttempts: 8 })).elements
-          await writeFile(out, JSON.stringify({ ...cached, relElements }))
+          await writeFile(out, JSON.stringify({ ...cached, relElements, relScope: 'all' }))
           const rels = relElements.filter((e) => e.type === 'relation').length
-          console.log(`${rels} HSR line relations`)
+          console.log(`${rels} line relations`)
           patched++
         } catch (e) { console.log(`FAILED: ${e.message}`) }
         continue
@@ -131,7 +131,7 @@ async function main() {
     await writeFile(out, JSON.stringify({
       cc: c.cc, iso2: c.iso2, continent: c.continent,
       country: c.name, country_zh: c.name_zh,
-      trackElements, stationElements, relElements,
+      trackElements, stationElements, relElements, relScope: 'all',
     }))
     const ways = trackElements.filter((e) => e.type === 'way').length
     const sts = stationElements.filter((e) => e.type !== 'relation').length
