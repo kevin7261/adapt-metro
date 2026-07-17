@@ -21,7 +21,7 @@ scripts/llmEval.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
   ← 印出佈局幾何（JSON）：全網統計＋逐線報告＋頂點鏈
   → 你閱讀後寫評價（scratchpad 寫 eval.json）
 scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
-  → 驗證（model/summary 必填、score 夾 0–10）、存 data/metro/llmevals/<cityId>.<variant>.<compact>.json
+  → 驗證（summary 必填、model 選填**預設 Fable 5**、score 夾 0–10）、存 data/metro/llmevals/<cityId>.<variant>.<compact>.json
 ```
 
 - `cityId`／`variant`／`compact` 與 [[route-llm-grid]] 同義（結果檔名同三段）。

@@ -9,7 +9,7 @@
 //   node scripts/llmGrid.mjs reset  <cityId> <orig|rot> [compact]
 //
 // weights.json: {
-//   "model": "<模型名>",                 // 必填，顯示在網頁 tab 與面板
+//   "model": "<模型名>",                 // 選填，預設 Fable 5；顯示在網頁 tab 與面板
 //   "colW": [w0, w1, …],                 // 全部 X 欄區間的顯示權重（正數）
 //   "rowW": [w0, w1, …],                 // 全部 Y 列區間的顯示權重（正數）
 //   "note": "<本次思路，顯示在右側 LLM調整 面板>",
@@ -142,7 +142,7 @@ if (cmd === 'export') {
 } else if (cmd === 'apply') {
   if (!weightsPath) { console.error('apply 需要 weights.json 路徑'); process.exit(1) }
   const spec = JSON.parse(await readFile(weightsPath, 'utf8'))
-  if (!spec.model) { console.error('weights.json 必須含 "model"（顯示在網頁 tab 上）'); process.exit(1) }
+  spec.model ??= 'Fable 5' // 預設模型 Fable 5（Claude Code 執行時的模型）；weights.json 可覆寫
   const check = (arr, n, what) => {
     if (!Array.isArray(arr) || arr.length !== n) {
       console.error(`${what} 必須是長度 ${n} 的陣列（全部區間都要給），拿到 ${arr?.length ?? typeof arr}`)

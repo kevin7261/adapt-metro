@@ -8,7 +8,7 @@
 //   node scripts/llmAlign.mjs reset  <cityId> <orig|rot>
 //
 // moves.json: {
-//   "model": "<模型名>",                        // 必填，顯示在網頁按鈕與面板
+//   "model": "<模型名>",                        // 選填，預設 Fable 5；顯示在網頁按鈕與面板
 //   "moves": { "<vertIndex>": [col, row], … },  // 可空（純記錄 note，不計輪）
 //   "note": "<本輪思路，顯示在右側 LLM對齊 面板>",
 //   "prompt": "<觸發這次執行的 skill/prompt，第一次提供時寫入>"
@@ -116,7 +116,7 @@ if (cmd === 'export') {
 } else if (cmd === 'apply') {
   if (!movesPath) { console.error('apply 需要 moves.json 路徑'); process.exit(1) }
   const spec = JSON.parse(await readFile(movesPath, 'utf8'))
-  if (!spec.model) { console.error('moves.json 必須含 "model"（顯示在網頁按鈕上）'); process.exit(1) }
+  spec.model ??= 'Fable 5' // 預設模型 Fable 5（Claude Code 執行時的模型）；moves.json 可覆寫
   const noteOnly = !spec.moves || !Object.keys(spec.moves).length
   const targetEntries = Object.entries(spec.moves ?? {}).map(([i, t]) => [ids[+i], t])
   const res = applyLlmTargets(skeleton, baseCells, grid.cols, grid.rows, targetEntries)

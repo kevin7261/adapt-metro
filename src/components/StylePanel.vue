@@ -60,12 +60,12 @@ const props = defineProps({
   spanApplied: { type: Number, default: null },
   // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇短鍵（'default' | 'opus' |
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
-  llmModel: { type: String, default: 'default' },
+  llmModel: { type: String, default: 'fable' },
 })
 const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
 const LLM_MODEL_OPTIONS = [
-  { key: 'default', label: '預設模型' },
+  { key: 'default', label: '沿用 CLI 預設' },
   { key: 'opus', label: 'Opus 4.8' },
   { key: 'fable', label: 'Fable 5' },
   { key: 'sonnet', label: 'Sonnet 5' },

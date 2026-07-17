@@ -58,7 +58,7 @@ scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json>
 2. 分析 offSegs、提出移動，寫 moves.json 到 scratchpad（或系統暫存）：
    `{ "model": "<你的模型名，如 Fable 5>", "moves": { "<i>": [col, row], … },
      "note": "<本輪思路摘要>", "prompt": "<第一輪附：觸發本次執行的指示>" }`
-   - `model` 必填——顯示在網頁按鈕與右側面板；寫你實際的模型名。
+   - `model` 選填，**預設 Fable 5**（省略時 apply 自動填 `Fable 5`）——顯示在網頁按鈕與右側面板；寫你實際的模型名。
    - `note` 每輪都要寫——顯示在右側「LLM對齊」面板的逐輪紀錄。
    - `prompt` 第一輪寫一次即可（互動 session 摘述使用者要求；headless run
      照 -p 收到的指示寫）。

@@ -155,10 +155,10 @@ const llmLogEl = ref(null)   // overlay <pre>, auto-scrolled to the newest text
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
 // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇：面板下拉的短鍵，隨 /run 的
 // body 送出，vite plugin 映射成 claude --model；'default' → 不帶旗標（沿用預設）。
-const llmModel = ref('default')
+const llmModel = ref('fable') // 預設 Fable 5（使用者：LLM 預設模型都是 Fable 5）
 // 畫布 overlay 備援按鈕的下拉選項（與 StylePanel 的 LLM_MODEL_OPTIONS 一致）。
 const LLM_MODEL_OPTIONS = [
-  { key: 'default', label: '預設模型' },
+  { key: 'default', label: '沿用 CLI 預設' },
   { key: 'opus', label: 'Opus 4.8' },
   { key: 'fable', label: 'Fable 5' },
   { key: 'sonnet', label: 'Sonnet 5' },

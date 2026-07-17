@@ -167,6 +167,8 @@ const overflow = (layer, action) => OVERFLOW_ACTIONS[action]?.(layer)
 // Strip internal render-only props (e.g. `_c0.._c5` dash colours the map tab
 // adds to features) so the exported GeoJSON matches the source file.
 function cleanForExport(data) {
+  // 非 GeoJSON FeatureCollection（衍生視圖的版面 JSON）沒有 features 陣列——原樣匯出。
+  if (!Array.isArray(data?.features)) return data
   return {
     ...data,
     features: data.features.map((f) => {
@@ -196,16 +198,22 @@ async function exportLayer(layer) {
     }
     if (!data && layer.file) data = await fetchJson(layer.file)
     if (!data) throw new Error('沒有可匯出的資料')
-    const blob = new Blob([JSON.stringify(cleanForExport(data))], { type: 'application/geo+json' })
+    // 只有地圖資料層（metro / highway / railway / landmark 都走 type 'metro'，
+    // 是真正的 GeoJSON FeatureCollection）存成 .geojson；衍生的示意佈局視圖
+    // （d3 / hillclimb / rwd）是版面 JSON，存成 .json。
+    const isGeojson = layer.type === 'metro'
+    const ext = isGeojson ? 'geojson' : 'json'
+    const mime = isGeojson ? 'application/geo+json' : 'application/json'
+    const blob = new Blob([JSON.stringify(cleanForExport(data))], { type: mime })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${layer.name}.geojson`
+    a.download = `${layer.name}.${ext}`
     document.body.appendChild(a)
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
-    store.toast(`已下載 ${layer.name}.geojson`)
+    store.toast(`已下載 ${layer.name}.${ext}`)
   } catch (err) {
     store.toast(`匯出失敗：${err.message}`)
   }
