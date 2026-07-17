@@ -160,10 +160,13 @@
   }
   .thumb-inner .slide.divider .roman{ opacity:.12; }
 
+  /* 畫布欄＝畫布＋底部工具列（在縮圖膠捲右邊），所以底部 bar 只在畫布下方、跟畫布一起置中 */
+  .deckcol{ flex:1; min-width:0; display:flex; flex-direction:column; }
+
   /* 中央畫布：固定 16:9 白色投影片置中、依可用空間等比縮放。
      內容以 1280×720 設計解析度撰寫（字級固定 px），縮放不改排版。 */
   .deck{
-    position:relative; flex:1; min-width:0; height:100%; overflow:hidden;
+    position:relative; flex:1; min-height:0; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
     background-color:#f1f3f4;
   }
@@ -412,6 +415,7 @@
 </header>
 <div class="workspace">
 <aside class="filmstrip" id="filmstrip" aria-label="投影片縮圖"></aside>
+<div class="deckcol">
 <div class="deck" id="deck">
 <div class="stage" id="stage">
 
@@ -1022,9 +1026,8 @@
 
 </div><!-- /stage -->
 </div><!-- /deck -->
-</div><!-- /workspace -->
 
-<!-- 底部工具列：‹  ［頁碼置中／細軌 scrubber，點哪跳哪張］  ›  ⤢ -->
+<!-- 底部工具列（在畫布這一欄，跟畫布一起、與縮圖膠捲無關）：‹ ［頁碼置中／細軌］ › ⤢ -->
 <footer class="slidebar">
   <span class="sb-ph" aria-hidden="true"></span>
   <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
@@ -1039,6 +1042,8 @@
   <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
   <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
 </footer>
+</div><!-- /deckcol -->
+</div><!-- /workspace -->
 
 <script>
 (function(){
