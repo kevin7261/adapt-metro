@@ -377,7 +377,7 @@ function buildSystem(raw, override) {
     }
     // order candidates by arc along the path; keep member nodes always, snapped ones
     // only if truly on the track (≤ SNAP), drop mis-snaps
-    const SNAP = 260
+    const SNAP = 140
     const proj = []
     for (const sid of cand) {
       const s = stById.get(sid); let ba = 0, md = Infinity
