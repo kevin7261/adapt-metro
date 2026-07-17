@@ -353,11 +353,28 @@ function buildSystem(raw, override) {
   const relNodeById = new Map()
   for (const e of relEls) if (e.type === 'node') relNodeById.set(e.id, e)
   const rawIdx = new Map(rawSt.map((s, i) => [s.id, i]))
+  // stations indexed by their OSM `network` tag — recovers stops the relation omits
+  // as members but which self-declare the line (品川 network=東海道新幹線, so it joins
+  // 東海道新幹線 even though the route=railway relation didn't list it).
+  const netToStations = new Map()
+  for (let i = 0; i < rawSt.length; i++) {
+    const nw = rawSt[i].tags.network
+    if (!nw) continue
+    const sid = `s${rawSt[find(i)].id}`
+    const k = norm(nw); if (!netToStations.has(k)) netToStations.set(k, new Set())
+    netToStations.get(k).add(sid)
+  }
+  const created = [] // stations minted for relation stops absent from our station set
   const nodeToStation = (n) => {
     const idx = rawIdx.get(`n${n.id}`)
     if (idx !== undefined) return `s${rawSt[find(idx)].id}`
-    const { i } = stIdx.nearest(n.lon, n.lat, 1500) // stop node filtered from station set → nearest
-    return i >= 0 ? stations[i].id : null
+    const { i } = stIdx.nearest(n.lon, n.lat, 2500) // relation stop node vs our station node
+    if (i >= 0) return stations[i].id
+    for (const c of created) if (haversine([n.lon, n.lat], [c.lon, c.lat]) < 800) return c.id
+    const nm = nameFor(n.tags, country); if (!nm) return null // no name → cannot place a stop
+    const st = { id: `s${n.type?.[0] ?? 'n'}${n.id}`, name: nm, tags: n.tags || {}, hsr: true, lon: n.lon, lat: n.lat }
+    stations.push(st); stById.set(st.id, st); created.push(st) // mint it so no stop is dropped (would break the chain)
+    return st.id
   }
   let relHsAdded = 0
   for (const rel of relEls) {
@@ -374,10 +391,17 @@ function buildSystem(raw, override) {
       const sid = nodeToStation(n); if (!sid || seenSid.has(sid)) continue
       seenSid.add(sid); stopIds.push(sid)
     }
+    // supplement with stations that self-declare this line via their network tag
+    for (const sid of netToStations.get(norm(rname)) || []) {
+      if (!seenSid.has(sid) && stById.has(sid)) { seenSid.add(sid); stopIds.push(sid) }
+    }
     if (stopIds.length < 2) continue
     lineHs.set(rname, true)
     const pts = stopIds.map((id) => stById.get(id)).filter(Boolean)
-    relHsAdded += nnChain(pts, rname, capFor('high_speed')) || 0
+    // No distance cap: the relation is authoritative, so connect every consecutive
+    // stop in the NN order → ONE contiguous line even across long rural HSR gaps
+    // (使用者：同一路線一定串接). NN order also inserts the network-supplement stops.
+    relHsAdded += nnChain(pts, rname, Infinity) || 0
   }
 
   // Fallback: a country with HSR track but NO usable relations (e.g. 台灣高鐵 if its
