@@ -253,7 +253,7 @@ function invalidateLlmDownstream() {
 }
 const llmRunner = makeHeadlessRun({
   base: '/llm-align',
-  params: () => ({ variant: hcVariant.value }),
+  params: () => ({ variant: hcVariant.value, kind: 'auto' }),
   run: llmRun, tail: llmRunTail, text: llmRunText, logEl: llmLogEl,
   shouldRender: () => false, // 唯讀：跑的時候畫布照畫（base HC/舊結果）、不留白，串流顯示在面板
   onStart: () => {
@@ -265,15 +265,34 @@ const llmRunner = makeHeadlessRun({
   onDone: () => { cachedLlm = null; invalidateLlmDownstream() },
 })
 const startLlmRun = llmRunner.start
+// 「指定對齊」的獨立 runner：kind:'prompt' → 後端寫 .prompt.json、job key 分開。
+// 不動下游快取（指定對齊不餵下游，見 render）。清舊結果同 eval/grid。
+const promptRunner = makeHeadlessRun({
+  base: '/llm-align',
+  params: () => ({ variant: hcVariant.value, kind: 'prompt' }),
+  run: promptRun, tail: promptRunTail, text: promptRunText, logEl: promptLogEl,
+  shouldRender: () => false,
+  onStart: () => { cachedPrompt = null; promptStats.value = null; promptMsg.value = null; promptApplied.value = false },
+  onDone: () => { cachedPrompt = null },
+})
+const startPromptRun = promptRunner.start
 // ---- 執行 LLM 對齊結果（不用 LLM）----
-// 跟「執行 LLM 評價/互動」同一套：對齊結果檔存了移動後的座標，這顆「執行調整」
-// 只切換「LLM 對齊」主視圖（mode 'hc-llm'）顯示——套用＝用對齊後座標、恢復＝顯示
-// 對齊前的 Hill Climbing 佈局。各鏈與 RWD 'llm' compact 是「地基」，一律套用（見
-// render 的 applyAlign）、不受此 toggle 影響。
+// 跟「執行 LLM 評價/互動」同一套：對齊結果檔存了移動後的座標，「執行調整」只切換
+// 「LLM 對齊」主視圖（mode 'hc-llm'）顯示。自動與指定兩個 toggle 互斥（同一個視圖
+// 只能顯示一種）。各鏈與 RWD 'llm' compact 是「地基」，一律套用「自動對齊」結果
+// （見 render 的 applyAlign）、不受任何 toggle 影響。
 const llmApplied = ref(false)
+const promptApplied = ref(false)
 function toggleLlmExec() {
   if (!cachedLlm?.cells) return
   llmApplied.value = !llmApplied.value
+  if (llmApplied.value) promptApplied.value = false // 互斥
+  render()
+}
+function togglePromptExec() {
+  if (!cachedPrompt?.cells) return
+  promptApplied.value = !promptApplied.value
+  if (promptApplied.value) llmApplied.value = false // 互斥
   render()
 }
 // ---- LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
@@ -456,7 +475,8 @@ function saveHcCache(key, hc, posts) {
   hcLsWrite(o)
 }
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
-let cachedLlm = null   // fetched llmview: { cells, stats } or { miss: hint }
+let cachedLlm = null   // fetched llmview (自動對齊): { cells, stats } or { miss: hint }
+let cachedPrompt = null // fetched .prompt.json (指定對齊): { cells, stats } or { miss }
 let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
 let cachedGather = {}  // 網格合併 (movewiseStage 'gather')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
@@ -779,6 +799,7 @@ async function render() {
     cachedHC = null
     cachedPost = {}
     cachedLlm = null
+    cachedPrompt = null
     cachedGrid = null
     cachedEval = null
     cachedEndp = {}
@@ -899,14 +920,40 @@ async function render() {
       if (cachedLlm?.cells) {
         llmStats.value = cachedLlm.stats
         llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
-        // 「執行調整」toggle 只作用在 LLM 對齊主視圖（mode 'hc-llm'）：套用才用對齊
-        // 後座標。各鏈（hc-llm-*）與 RWD 'llm' compact 是地基，一律套用（不看 toggle）。
-        const applyAlign = !(isHC.value && mode.value === 'hc-llm' && !llmApplied.value)
-        if (applyAlign) cells = cachedLlm.cells
       } else {
+        llmStats.value = null
         llmMsg.value = cachedLlm?.miss ?? null
         llmApplied.value = false
-        // 沒有結果就照畫 base HC 佈局（cells 已是 cachedHC.cellAfter），不 return。
+      }
+      // 「指定對齊」（.prompt.json）只在 LLM 對齊主視圖載入＋比較用，不餵下游。
+      const onMainAlign = isHC.value && mode.value === 'hc-llm'
+      if (onMainAlign && !cachedPrompt && promptRun.value !== 'running') {
+        const cid = sourceLayer.value?.id
+        cachedPrompt = !cid
+          ? { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
+          : await fetchLlmResult(`data/metro/llmviews/${cid}.${hcVariant.value}.prompt.json`, {
+            missNone: '尚未產生指定對齊——在下面輸入一句話讓模型依指示對齊',
+            missStale: '指定對齊結果與目前資料不符（資料已更新）——請重新產生',
+            missErr: '無法載入指定對齊結果',
+            fpOk: (fp) => fp.cols === grid.cols && fp.rows === grid.rows
+              && fp.hvStart === cachedHC.stats.hvAfter,
+            onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
+          })
+        if (seq !== renderSeq) return // superseded during fetch
+      }
+      if (onMainAlign) {
+        if (cachedPrompt?.cells) promptStats.value = cachedPrompt.stats
+        else { promptStats.value = null; promptMsg.value = cachedPrompt?.miss ?? null; promptApplied.value = false }
+      }
+      // 套用規則：
+      // - 各鏈（hc-llm-*）與 RWD 'llm' compact＝地基，一律用「自動對齊」結果。
+      // - LLM 對齊主視圖（mode 'hc-llm'）＝看 toggle：指定 > 自動 > base HC（互斥）。
+      if (onMainAlign) {
+        if (promptApplied.value && cachedPrompt?.cells) cells = cachedPrompt.cells
+        else if (llmApplied.value && cachedLlm?.cells) cells = cachedLlm.cells
+        // 否則維持 base HC（cells 未動）
+      } else if (cachedLlm?.cells) {
+        cells = cachedLlm.cells
       }
     }
     // 鏈的後處理順序：端點移動 → 直線縮減 → 網格合併（循環 tab 另走
@@ -1721,6 +1768,12 @@ onBeforeUnmount(() => {
       :llm-msg="llmMsg"
       :llm-error="llmRun === 'error' ? llmRunTail : ''"
       :llm-applied="llmApplied"
+      :prompt-record="isHC ? promptStats : null"
+      :prompt-running="promptRun === 'running'"
+      :prompt-text="promptRunText"
+      :prompt-msg="promptMsg"
+      :prompt-error="promptRun === 'error' ? promptRunTail : ''"
+      :prompt-applied="promptApplied"
       :grid-record="isRWD ? gridStats : null"
       :grid-running="gridRun === 'running'"
       :grid-can-run="!!llmCityId"
@@ -1746,11 +1799,13 @@ onBeforeUnmount(() => {
       :span-applied="appliedSpanCap"
       @recalc-span="recalcSpan"
       @run-llm="startLlmRun"
+      @run-prompt="startPromptRun"
       @run-grid="startGridRun"
       @run-eval="startEvalRun"
       @toggle-eval-exec="toggleEvalExec"
       @toggle-grid-exec="toggleGridExec"
       @toggle-llm-exec="toggleLlmExec"
+      @toggle-prompt-exec="togglePromptExec"
       @weight-mode="setRwdWeightMode"
       @weight-random="regenRwdWeights"
       @weight-auto="toggleRwdAutoShuffle"
@@ -1841,6 +1896,12 @@ onBeforeUnmount(() => {
           title="重新啟動 headless Claude Code 繼續改善"
           @click="startLlmRun"
         >重跑</button>
+      </span>
+
+      <!-- LLM 指定對齊: 主視圖套用指定對齊時才顯示（與自動對齊互斥）-->
+      <span v-if="isHC && mode === 'hc-llm' && promptApplied && promptStats" class="hc-stats">
+        指定對齊 · 水平垂直 {{ promptStats.hvBefore }} → {{ promptStats.hvAfter }}／{{ promptStats.segs }} 段
+        · 迭代 {{ promptStats.rounds }} 輪 · 移動 {{ promptStats.moved }} 站 · 模型 {{ promptStats.model }}
       </span>
 
       <!-- LLM 互動: interval-weight run — the model + how big the core got（套用中才顯示）-->

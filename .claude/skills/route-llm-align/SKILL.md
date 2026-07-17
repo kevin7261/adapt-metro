@@ -1,6 +1,6 @@
 ---
 name: route-llm-align
-description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API key，由 Claude Code 的模型直接當最佳化器：export 目前佈局 → LLM 讀圖提出短距離移動 → apply 經與其他三種相同的硬規則套用並存到 data/metro/llmviews，網頁的「LLM 對齊」tab 只載入結果（按鈕顯示 輪數＋模型名）。當使用者要求跑/重跑/更新某城市的 LLM 對齊、產生 llmview、或問 LLM 對齊 tab 為何顯示「尚未產生」時使用。演算法背景見 [[route-hillclimb]]。
+description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API key，由 Claude Code 的模型直接當最佳化器：export 目前佈局 → LLM 讀圖提出短距離移動 → apply 經與其他三種相同的硬規則套用並存到 data/metro/llmviews。分兩種獨立結果檔：自動對齊（<city>.<variant>.json，純最大化 H/V，是各鏈與 RWD 'llm' 的地基）與指定對齊（加 --prompt 旗標寫 .prompt.json，依使用者一句話、只在主視圖比較用）。網頁分「LLM自動對齊」「LLM指定對齊」兩 tab，跟 route-llm-eval/route-llm-grid 同一套：跑完不自動套用、按「執行調整」才套用、重跑清舊資料。當使用者要求跑/重跑/更新某城市的 LLM 對齊（自動或指定）、產生 llmview、或問 LLM 對齊 tab 為何顯示「尚未產生」時使用。演算法背景見 [[route-hillclimb]]。
 ---
 
 # LLM 對齊 (route-llm-align)
@@ -17,35 +17,40 @@ description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API ke
 ## 架構
 
 ```
-scripts/llmAlign.mjs export <cityId> <orig|rot>   ← 印出目前佈局（JSON）
+scripts/llmAlign.mjs export <cityId> <orig|rot> [--prompt]   ← 印出目前佈局（JSON）
   → 你讀 offSegs、決定 moves（scratchpad 寫 moves.json）
-scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json>
-  → 經硬規則套用、存 data/metro/llmviews/<cityId>.<variant>.json
+scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json> [--prompt]
+  → 經硬規則套用、存 data/metro/llmviews/<cityId>.<variant>[.prompt].json
   → 印出新 HV、rejected 清單 → 你據此再提下一輪 → 收斂即停
 ```
+
+**兩種對齊（結果檔完全獨立、互不覆蓋）**——網頁分成兩個 tab：
+- **自動對齊**（`LLM自動對齊` tab）：不加旗標，寫 `<cityId>.<variant>.json`。純粹
+  最大化 H/V，不看任何使用者指示。這是**地基**——各鏈與 RWD 'llm' 版面都採用它。
+- **指定對齊**（`LLM指定對齊` tab）：export／apply **一律加 `--prompt`**，寫
+  `<cityId>.<variant>.prompt.json`。依使用者的一句話（例「把紅線拉成水平」）決定
+  移動哪些點。只在「LLM 對齊」主視圖比較用、**不餵下游**。
+- 觸發時 vite plugin 會在 prompt 裡指明是哪一種、要不要加 `--prompt`——照它做，
+  **絕不把指定對齊寫進 `.json`、也不要動另一個檔**。
 
 - `cityId` = geojson 檔名去副檔名（例 `as-twn-taipei`）；variant = HC 圖層的
   原始/旋轉。佈局格子是排名制 → node 端重建的鏈與 D3Tab **完全一致**。
 - 結果檔含 `fingerprint`（verts/segs/cols/rows/hvStart）；資料重抓後不符時
   網頁會顯示「與目前資料不符」，用 `reset` 後重跑即可。
-- 網頁端：D3Tab 的「LLM 對齊」＋「LLM 對齊縮減」tab；**按鈕 badge 顯示
-  「n輪 · 模型名」**，工具列顯示 水平垂直 before → after／段數、輪數、模型。
-- **按鈕觸發（不自動開始）**：切到 tab 只載入既有結果；沒有結果時畫面上有
-  「開始 LLM 對齊」鈕（有結果時是「重跑」）——按下去 POST `/llm-align/run`，
-  vite dev plugin（vite.config.js `llmAlignTrigger`）spawn **headless
-  `claude -p`** 跑本 skill，頁面輪詢 `/llm-align/status`、每輪 apply 落檔後
-  畫面即時更新。GH Pages 沒有 dev server → 按鈕會回報需要本機 `npm run dev`。
-  測試替身：`LLM_ALIGN_CMD` 環境變數可換掉 `claude` 指令。
-- **右側面板「LLM對齊」tab**（Object 後面，StylePanel）：顯示 模型／輪數／
-  prompt／逐輪 note／headless run 的最終輸出。資料來源＝結果檔的
-  `prompt`、`transcript`、`finalOutput`（trigger plugin 在 run 結束時併入）。
-  執行中畫布留白、蓋上執行中 overlay，並**即時串流** LLM 回傳文字
-  （`claude -p --output-format stream-json --verbose` → plugin 解析
-  assistant text／tool_use／tool_result → `/llm-align/status` 的 `text`）。
-- **自訂 prompt 調整座標**：面板「用 prompt 調整座標」輸入框＋「確定」——
-  使用者的自由指示（例「優先把紅線拉成水平」「東側幾條線對齊同一欄」）POST 到
-  `/llm-align/run` 的 `userPrompt`，plugin 併入本 skill 的指示，引導模型決定
-  **移動哪些座標、往哪對齊**（一樣經硬規則把關）；最後存進結果檔的 `userPrompt`。
+- 網頁端：跟 [[route-llm-eval]]／[[route-llm-grid]] 同一套唯讀＋切換 UX——右側
+  面板「LLM 對齊」視圖（左邊「直線演算法」的 hc-llm）有兩個 tab：**自動對齊**
+  與**指定對齊**（介面比照 LLM互動/評價：模型下拉＋執行鈕＋即時串流＋結果＋
+  「執行調整」toggle）。
+- **跑完不自動套用**：執行時畫布照畫（不留白），回傳文字即時串流在面板內
+  （`claude -p --output-format stream-json --verbose` → plugin 解析 → status 的
+  `text`）。跑完載入結果但**不套用**——按「執行調整」才用對齊後座標重畫「LLM 對齊」
+  主視圖、「恢復原佈局」切回對齊前的 Hill Climbing 佈局。自動與指定兩個 toggle
+  **互斥**（同一個主視圖只能顯示一種）。**重新跑會先清掉舊的串流與結果**。
+- **地基不受 toggle 影響**：各鏈（hc-llm-*）與 RWD 'llm' 版面一律採用**自動對齊**
+  結果（`.json`），與主視圖的切換無關；指定對齊（`.prompt.json`）只在主視圖比較用。
+- POST `/llm-align/run`（vite dev plugin `llmAlignTrigger`）帶 `kind`（auto/prompt）
+  決定寫哪個檔；指定對齊另帶 `userPrompt`。輪詢 `/llm-align/status`。GH Pages 沒有
+  dev server → 按鈕回報需要本機 `npm run dev`。測試替身：`LLM_ALIGN_CMD`。
 
 ## 執行迴圈（你要做的事）
 

@@ -31,6 +31,14 @@ const props = defineProps({
   // 「執行調整」：對齊結果檔存了移動後座標，按鈕只切換「LLM 對齊」主視圖顯示
   // （套用對齊後座標 ⇄ 恢復對齊前的 Hill Climbing 佈局），不再跑 LLM。
   llmApplied: { type: Boolean, default: false },
+  // 「指定對齊」（依一句話）＝與自動對齊完全獨立的一組：另存 .prompt.json、自己的
+  // run/串流/結果/toggle。與自動對齊在主視圖互斥（同一個視圖只能顯示一種）。
+  promptRecord: { type: Object, default: null },
+  promptRunning: { type: Boolean, default: false },
+  promptText: { type: String, default: '' },
+  promptMsg: { type: String, default: null },
+  promptError: { type: String, default: '' },
+  promptApplied: { type: Boolean, default: false },
   // LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）：結果檔
   // （model / userPrompt / note / colW / rowW）＋run 控制＋即時串流——D3Tab 對
   // RWD 視圖傳入；「LLM互動」tab 對 rwd 常駐（輸入一句話觸發，跑完按「執行調整」
@@ -77,7 +85,7 @@ const props = defineProps({
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
   llmModel: { type: String, default: 'fable' },
 })
-const emit = defineEmits(['run-llm', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
+const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
 const LLM_MODEL_OPTIONS = [
   { key: 'default', label: '沿用 CLI 預設' },
@@ -285,6 +293,12 @@ const llmStreamEl = ref(null)
 watch(() => props.llmText, () => {
   requestAnimationFrame(() => {
     if (llmStreamEl.value) llmStreamEl.value.scrollTop = llmStreamEl.value.scrollHeight
+  })
+})
+const promptStreamEl = ref(null)
+watch(() => props.promptText, () => {
+  requestAnimationFrame(() => {
+    if (promptStreamEl.value) promptStreamEl.value.scrollTop = promptStreamEl.value.scrollHeight
   })
 })
 
@@ -1003,68 +1017,34 @@ function startResize(e) {
           </div>
         </template>
 
-        <!-- ============ LLM自動對齊 / LLM指定對齊（skill route-llm-align）============
-             兩個 tab 共用同一個對齊結果檔與「執行調整」toggle，差別只在觸發：
-             自動＝不下指示（純最大化 H/V）、指定＝依一句話對齊。跟 LLM評價/互動
-             同一套唯讀＋切換的 UX（跑完不自動套用，按「執行調整」才套用到主視圖）。 -->
-        <template v-else-if="activeTab === 'llm' || activeTab === 'llm-prompt'">
+        <!-- ============ LLM自動對齊（skill route-llm-align，寫 .json，餵下游）======
+             跟 LLM評價/互動 同一套唯讀＋切換 UX：跑完不自動套用，按「執行調整」才
+             套用到 LLM 對齊主視圖。與「指定對齊」完全獨立、互不影響。 -->
+        <template v-else-if="activeTab === 'llm'">
           <div class="weight-panel">
-            <!-- 依 tab 不同的執行控制 -->
-            <template v-if="activeTab === 'llm'">
-              <p class="weight-hint">
-                讓模型**自動對齊**這個路網：短距離移動彩色點、把線盡量拉成水平／垂直
-                （最大化 H/V），不需要你下指示。跑完先回傳結果、**不自動套用**——按
-                「執行調整」才套用到 LLM 對齊主視圖，「恢復原佈局」切回對齊前的佈局。
-              </p>
-              <template v-if="llmCanRun">
-                <label class="llm-model-pick">
-                  模型
-                  <select :value="llmModel" :disabled="llmRunning"
-                    @change="emit('update:llm-model', $event.target.value)">
-                    <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
-                  </select>
-                </label>
-                <button
-                  class="llm-run-btn"
-                  :disabled="llmRunning"
-                  @click="emit('run-llm', '')"
-                >{{ llmRunning ? '對齊中…' : (llmRecord ? '重新 LLM 對齊' : '開始 LLM 對齊') }}</button>
-                <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-align skill 逐輪最佳化並存檔（跑完不自動套用）。</p>
-              </template>
+            <p class="weight-hint">
+              讓模型**自動對齊**這個路網：短距離移動彩色點、把線盡量拉成水平／垂直
+              （最大化 H/V），不需要你下指示。跑完先回傳結果、**不自動套用**——按
+              「執行調整」才套用到 LLM 對齊主視圖，「恢復原佈局」切回對齊前的佈局。
+              這是各鏈與 RWD 'llm' 版面採用的「地基」結果。
+            </p>
+            <template v-if="llmCanRun">
+              <label class="llm-model-pick">
+                模型
+                <select :value="llmModel" :disabled="llmRunning"
+                  @change="emit('update:llm-model', $event.target.value)">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
+              <button
+                class="llm-run-btn"
+                :disabled="llmRunning"
+                @click="emit('run-llm', '')"
+              >{{ llmRunning ? '對齊中…' : (llmRecord ? '重新 LLM 自動對齊' : '開始 LLM 自動對齊') }}</button>
+              <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-align skill 逐輪最佳化並存檔（跑完不自動套用）。</p>
             </template>
-            <template v-else>
-              <p class="weight-hint">
-                用**一句話指定**要怎麼對齊：例「優先把紅線拉成水平」「讓東側幾條線對齊
-                同一欄」「把環狀線盡量收成矩形」。指示會併入 skill 引導模型移動哪些點、
-                往哪對齊——一樣經硬規則把關、不會弄壞拓撲。跑完不自動套用，按「執行調整」才套用。
-              </p>
-              <template v-if="llmCanRun">
-                <label class="llm-model-pick">
-                  模型
-                  <select :value="llmModel" :disabled="llmRunning"
-                    @change="emit('update:llm-model', $event.target.value)">
-                    <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
-                  </select>
-                </label>
-                <p v-if="llmRecord?.userPrompt" class="llm-run-hint">上次指示：{{ llmRecord.userPrompt }}</p>
-                <textarea
-                  v-model="llmUserPrompt"
-                  class="llm-prompt-box"
-                  rows="3"
-                  :disabled="llmRunning"
-                  placeholder="例：優先把紅線拉成水平；讓東側幾條線對齊同一欄；把環狀線盡量收成矩形…"
-                />
-                <button
-                  class="llm-run-btn"
-                  :disabled="llmRunning || !llmUserPrompt.trim()"
-                  @click="emit('run-llm', llmUserPrompt.trim())"
-                >{{ llmRunning ? '對齊中…' : '依此指示 LLM 對齊' }}</button>
-                <p class="llm-run-hint">你的指示會併入 route-llm-align、引導模型「移動哪些點、往哪對齊」（跑完不自動套用）。</p>
-              </template>
-            </template>
-            <p v-if="!llmCanRun" class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
+            <p v-else class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
 
-            <!-- 以下共用：串流 + 結果 provenance + 執行調整 toggle + skill 全文 -->
             <template v-if="llmRunning">
               <h4 class="llm-h">LLM 回傳（即時串流）</h4>
               <pre ref="llmStreamEl" class="llm-pre eval-stream">{{ llmText || '等待模型回應…' }}</pre>
@@ -1081,7 +1061,6 @@ function startResize(e) {
                 </div>
                 <div class="info-row"><span class="info-key">移動</span><span>{{ llmRecord.moved }} 站</span></div>
               </div>
-              <p v-if="llmRecord.userPrompt" class="llm-run-hint">上次指示：{{ llmRecord.userPrompt }}</p>
               <template v-if="(llmRecord.transcript ?? []).length">
                 <h4 class="llm-h">LLM 回傳（逐輪）</h4>
                 <div v-for="(t, i) in llmRecord.transcript" :key="i" class="llm-round">
@@ -1097,16 +1076,91 @@ function startResize(e) {
                 <pre class="llm-pre">{{ llmRecord.finalOutput }}</pre>
               </template>
 
-              <!-- 執行調整：對齊結果檔存了移動後座標，這顆按鈕只切換主視圖顯示
-                   （套用對齊後座標 ⇄ 恢復對齊前的 Hill Climbing 佈局），不再跑 LLM -->
               <h4 class="llm-h">套用到 LLM 對齊主視圖</h4>
+              <button class="llm-run-btn" @click="emit('toggle-llm-exec')">{{ llmApplied ? '恢復原佈局' : '執行調整' }}</button>
+              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用自動對齊的座標重畫主視圖，「恢復原佈局」切回對齊前的佈局。各鏈與 RWD 'llm' 版面一律用此結果、不受切換影響。</p>
+            </template>
+            <p v-else-if="!llmRunning" class="llm-note">{{ llmMsg ?? '尚未產生自動對齊——按上面的按鈕執行。' }}</p>
+
+            <h4 class="llm-h">使用的 skill：route-llm-align</h4>
+            <details class="llm-skill">
+              <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
+              <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
+            </details>
+          </div>
+        </template>
+
+        <!-- ============ LLM指定對齊（skill route-llm-align，寫 .prompt.json）=========
+             與自動對齊完全獨立：自己的結果檔、run/串流/結果/toggle。只在主視圖比較
+             用、不餵下游。與自動對齊在主視圖互斥（套一個會取消另一個）。 -->
+        <template v-else-if="activeTab === 'llm-prompt'">
+          <div class="weight-panel">
+            <p class="weight-hint">
+              用**一句話指定**要怎麼對齊：例「優先把紅線拉成水平」「讓東側幾條線對齊
+              同一欄」「把環狀線盡量收成矩形」。跑完先回傳、**不自動套用**——按「執行
+              調整」才套用到主視圖比較（與自動對齊互斥）。這份結果與自動對齊獨立、不餵下游。
+            </p>
+            <template v-if="llmCanRun">
+              <label class="llm-model-pick">
+                模型
+                <select :value="llmModel" :disabled="promptRunning"
+                  @change="emit('update:llm-model', $event.target.value)">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
+              <p v-if="promptRecord?.userPrompt" class="llm-run-hint">上次指示：{{ promptRecord.userPrompt }}</p>
+              <textarea
+                v-model="llmUserPrompt"
+                class="llm-prompt-box"
+                rows="3"
+                :disabled="promptRunning"
+                placeholder="例：優先把紅線拉成水平；讓東側幾條線對齊同一欄；把環狀線盡量收成矩形…"
+              />
               <button
                 class="llm-run-btn"
-                @click="emit('toggle-llm-exec')"
-              >{{ llmApplied ? '恢復原佈局' : '執行調整' }}</button>
-              <p class="llm-run-hint">這顆按鈕只是切換顯示（不跑 LLM、即時）——「執行調整」用對齊後的座標重畫「LLM 對齊」主視圖，「恢復原佈局」切回對齊前的佈局，可來回比較（各鏈與 RWD 'llm' 版面一律用對齊後結果，不受此切換影響）。</p>
+                :disabled="promptRunning || !llmUserPrompt.trim()"
+                @click="emit('run-prompt', llmUserPrompt.trim())"
+              >{{ promptRunning ? '對齊中…' : (promptRecord ? '重新指定對齊' : '開始指定對齊') }}</button>
+              <p class="llm-run-hint">你的指示會併入 route-llm-align、引導模型「移動哪些點、往哪對齊」，存到獨立的結果檔（跑完不自動套用）。</p>
             </template>
-            <p v-else-if="!llmRunning" class="llm-note">{{ llmMsg ?? '尚未產生對齊——按上面的按鈕執行。' }}</p>
+            <p v-else class="llm-run-hint">匯入資料沒有城市 id，無法對應結果檔——請用目錄裡的城市。</p>
+
+            <template v-if="promptRunning">
+              <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+              <pre ref="promptStreamEl" class="llm-pre eval-stream">{{ promptText || '等待模型回應…' }}</pre>
+            </template>
+            <p v-if="promptError" class="llm-run-hint eval-err">執行失敗：{{ promptError }}</p>
+
+            <template v-if="promptRecord">
+              <div class="info-rows">
+                <div class="info-row"><span class="info-key">模型</span><span>{{ promptRecord.model ?? '—' }}</span></div>
+                <div class="info-row"><span class="info-key">輪數</span><span>{{ promptRecord.rounds }}</span></div>
+                <div class="info-row">
+                  <span class="info-key">水平垂直</span>
+                  <span>{{ promptRecord.hvBefore }} → {{ promptRecord.hvAfter }}／{{ promptRecord.segs }} 段</span>
+                </div>
+                <div class="info-row"><span class="info-key">移動</span><span>{{ promptRecord.moved }} 站</span></div>
+              </div>
+              <template v-if="(promptRecord.transcript ?? []).length">
+                <h4 class="llm-h">LLM 回傳（逐輪）</h4>
+                <div v-for="(t, i) in promptRecord.transcript" :key="i" class="llm-round">
+                  <div class="llm-round-head">
+                    {{ t.round ? `第 ${t.round} 輪` : '附註' }} · 提案 {{ t.proposed }} 點
+                    · HV {{ t.hv }}<template v-if="t.rejected"> · 硬規則拒絕 {{ t.rejected }}</template>
+                  </div>
+                  <div class="llm-note">{{ t.note ?? '（無說明）' }}</div>
+                </div>
+              </template>
+              <template v-if="promptRecord.finalOutput">
+                <h4 class="llm-h">最終輸出</h4>
+                <pre class="llm-pre">{{ promptRecord.finalOutput }}</pre>
+              </template>
+
+              <h4 class="llm-h">套用到 LLM 對齊主視圖</h4>
+              <button class="llm-run-btn" @click="emit('toggle-prompt-exec')">{{ promptApplied ? '恢復原佈局' : '執行調整' }}</button>
+              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用指定對齊的座標重畫主視圖（會取消自動對齊的套用），「恢復原佈局」切回。不影響各鏈與 RWD 'llm' 版面。</p>
+            </template>
+            <p v-else-if="!promptRunning" class="llm-note">{{ promptMsg ?? '尚未產生指定對齊——在上面輸入一句話執行。' }}</p>
 
             <h4 class="llm-h">使用的 skill：route-llm-align</h4>
             <details class="llm-skill">

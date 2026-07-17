@@ -34,6 +34,38 @@ function serveDataDir() {
   }
 }
 
+// Serve the static 系統介紹 slides (slides/index.html) at /slides/* in dev & preview.
+// Without this the dev server has no route for it, so /slides/ falls through to the
+// SPA fallback and loads the app instead of the slides — the slides only appeared in
+// production because the build copies slides/ → dist/slides/ as real files. Tolerates
+// the optional /adapt-metro base prefix (GITHUB_PAGES=1) since vite does not strip it
+// before these middlewares.
+function serveSlides() {
+  const root = resolve(process.cwd(), 'slides')
+  const handler = (req, res, next) => {
+    if (!req.url) return next()
+    const p = decodeURIComponent(req.url.split('?')[0]).replace(/^\/adapt-metro/, '')
+    const m = p.match(/^\/slides(\/.*)?$/)
+    if (!m) return next()
+    let rel = (m[1] || '/').replace(/^\/+/, '')
+    if (rel === '' || rel.endsWith('/')) rel += 'index.html'
+    const file = normalize(join(root, rel))
+    if (!file.startsWith(root) || !existsSync(file) || !statSync(file).isFile()) return next()
+    const types = {
+      html: 'text/html; charset=utf-8', css: 'text/css', js: 'text/javascript',
+      json: 'application/json', png: 'image/png', svg: 'image/svg+xml', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+    }
+    const ext = file.split('.').pop().toLowerCase()
+    res.setHeader('Content-Type', types[ext] ?? 'application/octet-stream')
+    createReadStream(file).pipe(res)
+  }
+  return {
+    name: 'serve-slides',
+    configureServer(server) { server.middlewares.use(handler) },
+    configurePreviewServer(server) { server.middlewares.use(handler) },
+  }
+}
+
 function listSkills(root) {
   if (!existsSync(root)) return []
   return readdirSync(root, { withFileTypes: true })
@@ -247,8 +279,9 @@ function llmAlignTrigger() {
       // biases which coordinates the model moves (e.g.「優先把紅線拉成水平」).
       // 2000: LLM評價的「執行評價結果」會把建議＋逐線評語整段餵進來（>1000 字）。
       const userPrompt = typeof b.userPrompt === 'string' ? b.userPrompt.trim().slice(0, 2000) : ''
-      // 指定對齊沒有指示就沒意義——拒絕，前端按鈕本來就會 disable。
-      if (kind === 'prompt' && !userPrompt) return null
+      // 注意：key 不可依賴 userPrompt——status 輪詢的 GET 不帶 userPrompt，若這裡
+      // 因空 prompt 回 null 會導致指定對齊的狀態查不到 job。空指示的防護交給前端
+      // （按鈕在 !prompt 時 disable），這裡只負責產出穩定的 key/outFile。
       return {
         key: `${b.city}.${b.variant}.${kind}`,
         outFile: `data/metro/llmviews/${b.city}.${b.variant}${suffix}.json`,
@@ -363,7 +396,7 @@ function copyStaticAssets() {
 
 export default defineConfig({
   base: pages ? '/adapt-metro/' : '/',
-  plugins: [vue(), serveDataDir(), serveSkills(), llmAlignTrigger(), llmGridTrigger(), llmEvalTrigger(), copyStaticAssets()],
+  plugins: [vue(), serveDataDir(), serveSkills(), serveSlides(), llmAlignTrigger(), llmGridTrigger(), llmEvalTrigger(), copyStaticAssets()],
   server: {
     port: 5173,
   },
