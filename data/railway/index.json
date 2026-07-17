@@ -1,8 +1,8 @@
 {
  "generated_from": "OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; TWO files per country split by rail class — {cc}-hsr (高鐵) and {cc}-rail (一般國鐵); Japan is further split into the six JR passenger companies ({cc}-{east|west|central|hokkaido|shikoku|kyushu}-…)",
  "system_count": 12,
- "line_total": 369,
- "station_total": 6839,
+ "line_total": 368,
+ "station_total": 6779,
  "systems": [
   {
    "file": "systems/asia/china/as-chn-hsr.geojson",
@@ -81,9 +81,9 @@
     "徐盐客专线"
    ],
    "operator": null,
-   "line_count": 180,
-   "segment_count": 1724,
-   "station_count": 1541
+   "line_count": 179,
+   "segment_count": 1667,
+   "station_count": 1508
   },
   {
    "file": "systems/asia/japan/as-jpn-hsr.geojson",
@@ -104,7 +104,6 @@
     "九州新幹線",
     "北海道新幹線",
     "北陸新幹線",
-    "奥羽本線",
     "山形新幹線",
     "山陽新幹線",
     "東北新幹線",
@@ -113,9 +112,9 @@
     "西九州新幹線"
    ],
    "operator": null,
-   "line_count": 11,
-   "segment_count": 123,
-   "station_count": 111
+   "line_count": 10,
+   "segment_count": 115,
+   "station_count": 107
   },
   {
    "file": "systems/asia/japan/as-jpn-hokkaido-rail.geojson",
@@ -148,7 +147,7 @@
    ],
    "operator": "JR Hokkaido",
    "line_count": 13,
-   "segment_count": 330,
+   "segment_count": 327,
    "station_count": 318
   },
   {
@@ -189,6 +188,7 @@
     "埼京線",
     "奥羽本線",
     "小海線",
+    "山形新幹線",
     "山手線",
     "山手貨物線",
     "山田線",
@@ -227,9 +227,9 @@
     "鹿島線"
    ],
    "operator": "JR East",
-   "line_count": 59,
-   "segment_count": 1864,
-   "station_count": 1674
+   "line_count": 60,
+   "segment_count": 1855,
+   "station_count": 1668
   },
   {
    "file": "systems/asia/japan/as-jpn-central-rail.geojson",
@@ -262,8 +262,8 @@
    ],
    "operator": "JR Central",
    "line_count": 13,
-   "segment_count": 520,
-   "station_count": 494
+   "segment_count": 507,
+   "station_count": 487
   },
   {
    "file": "systems/asia/japan/as-jpn-west-rail.geojson",
@@ -328,8 +328,8 @@
    ],
    "operator": "JR West",
    "line_count": 45,
-   "segment_count": 1352,
-   "station_count": 1213
+   "segment_count": 1337,
+   "station_count": 1205
   },
   {
    "file": "systems/asia/japan/as-jpn-shikoku-rail.geojson",
@@ -357,7 +357,7 @@
    ],
    "operator": "JR Shikoku",
    "line_count": 8,
-   "segment_count": 272,
+   "segment_count": 271,
    "station_count": 262
   },
   {
@@ -398,8 +398,8 @@
    ],
    "operator": "JR Kyushu",
    "line_count": 20,
-   "segment_count": 599,
-   "station_count": 559
+   "segment_count": 595,
+   "station_count": 557
   },
   {
    "file": "systems/asia/south-korea/as-kor-hsr.geojson",

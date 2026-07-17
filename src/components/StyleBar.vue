@@ -22,12 +22,15 @@ const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind 
 //  · 車站：站點半徑、顯示站名
 //  · 地圖：地圖底色
 //  · 版面：顏色點間最大跨距（Straighten/RWD）
+// 數字型的尺寸工具（線寬／半徑）直接在工具列用數字輸入，不彈小視窗——
+// `num` = { prop, min, max, step, def }。其餘工具（顏色/Symbology/底色/跨距）
+// 仍是點 icon 彈出自己的控制項。
 const groups = computed(() => {
   const g = []
   if (isMetro.value) {
-    g.push([{ id: 'lineWidth', icon: 'line_weight', title: '線寬' }])
+    g.push([{ id: 'lineWidth', icon: 'line_weight', title: '線寬', num: { prop: 'strokeWidth', min: 0.5, max: 8, step: 0.5, def: 2.5, unit: 'px' } }])
     g.push([
-      { id: 'radius', icon: 'scatter_plot', title: '站點半徑' },
+      { id: 'radius', icon: 'scatter_plot', title: '站點半徑', num: { prop: 'radius', min: 1, max: 10, step: 0.5, def: 4, unit: 'px' } },
       // 顯示站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
       { id: 'labels', icon: 'label', title: '顯示站名', toggle: true },
     ])
@@ -37,22 +40,27 @@ const groups = computed(() => {
     const e = [
       { id: 'symbology', icon: 'category', title: 'Symbology' },
       { id: 'color', icon: 'palette', title: props.layer.type === 'line' ? '線色' : '填色／邊色' },
-      { id: 'strokeWidth', icon: 'line_weight', title: props.layer.type === 'line' ? '線寬' : '邊寬' },
+      { id: 'strokeWidth', icon: 'line_weight', title: props.layer.type === 'line' ? '線寬' : '邊寬', num: { prop: 'strokeWidth', min: 0, max: 10, step: 0.5, def: 2.5, unit: 'px' } },
     ]
-    if (props.layer.type === 'point') e.push({ id: 'pointRadius', icon: 'scatter_plot', title: '半徑' })
+    if (props.layer.type === 'point') e.push({ id: 'pointRadius', icon: 'scatter_plot', title: '半徑', num: { prop: 'radius', min: 1, max: 20, step: 1, def: 4, unit: 'px' } })
     g.push(e)
   }
   if (hasSpan.value) g.push([{ id: 'span', icon: 'straighten', title: '顏色點間最大跨距' }])
   return g
 })
 
+// 工具列上的數字輸入：夾在 [min, max] 內寫回 layer。
+function setNum(num, raw) {
+  const v = +raw
+  if (Number.isNaN(v)) return
+  props.layer[num.prop] = Math.min(num.max, Math.max(num.min, v))
+}
+
 // 每個工具的預設值（「預設」按鈕還原用）。
 function reset() {
   const l = props.layer
   switch (openTool.value) {
     case 'span': l.spanCap = 3; break
-    case 'lineWidth': case 'strokeWidth': l.strokeWidth = 2.5; break
-    case 'radius': case 'pointRadius': l.radius = 4; break
     case 'bg': l.d3Bg = null; break
     case 'symbology': l.symbology = 'categorized'; break
     case 'color': l.color = '#e11d48'; l.strokeColor = '#ffffff'; break
@@ -82,16 +90,30 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   <div class="stylebar">
     <template v-for="(grp, gi) in groups" :key="gi">
       <div v-if="gi" class="sb-sep" />
-      <button
-        v-for="t in grp"
-        :key="t.id"
-        class="sb-btn"
-        :class="{ active: isActive(t) }"
-        :title="t.title"
-        @click.stop="clickTool(t, $event)"
-      >
-        <MIcon :name="t.icon" :size="16" />
-      </button>
+      <template v-for="t in grp" :key="t.id">
+        <!-- 數字型尺寸（線寬／半徑）：工具列上直接輸入，不彈小視窗 -->
+        <label v-if="t.num" class="sb-inline" :title="t.title">
+          <MIcon :name="t.icon" :size="15" />
+          <input
+            type="number"
+            class="sb-inline-num"
+            :min="t.num.min" :max="t.num.max" :step="t.num.step"
+            :value="layer[t.num.prop] ?? t.num.def"
+            @change="setNum(t.num, $event.target.value)"
+          />
+          <span v-if="t.num.unit" class="sb-unit">{{ t.num.unit }}</span>
+        </label>
+        <!-- 其餘工具：點 icon 彈出自己的控制項 -->
+        <button
+          v-else
+          class="sb-btn"
+          :class="{ active: isActive(t) }"
+          :title="t.title"
+          @click.stop="clickTool(t, $event)"
+        >
+          <MIcon :name="t.icon" :size="16" />
+        </button>
+      </template>
     </template>
 
     <Teleport to="body">
@@ -115,18 +137,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
               @click="emit('recalc-span')"
             >重新計算</button>
           </div>
-        </template>
-
-        <!-- 線寬（metro） -->
-        <template v-else-if="openTool === 'lineWidth'">
-          <label class="sb-label">線寬 — {{ layer.strokeWidth }} px</label>
-          <input v-model.number="layer.strokeWidth" type="range" min="0.5" max="8" step="0.5" class="sb-slider" />
-        </template>
-
-        <!-- 站點半徑（metro） -->
-        <template v-else-if="openTool === 'radius'">
-          <label class="sb-label">站點半徑 — {{ layer.radius }} px</label>
-          <input v-model.number="layer.radius" type="range" min="1" max="10" step="0.5" class="sb-slider" />
         </template>
 
         <!-- 地圖底色（metro） -->
@@ -159,18 +169,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
               <input v-model="layer.strokeColor" type="color" class="sb-color" />
             </div>
           </div>
-        </template>
-
-        <!-- 邊/線寬（一般向量） -->
-        <template v-else-if="openTool === 'strokeWidth'">
-          <label class="sb-label">{{ layer.type === 'line' ? '線寬' : '邊寬' }} — {{ layer.strokeWidth }} px</label>
-          <input v-model.number="layer.strokeWidth" type="range" min="0" max="10" step="0.5" class="sb-slider" />
-        </template>
-
-        <!-- 半徑（一般向量 point） -->
-        <template v-else-if="openTool === 'pointRadius'">
-          <label class="sb-label">半徑 — {{ layer.radius }} px</label>
-          <input v-model.number="layer.radius" type="range" min="1" max="20" step="1" class="sb-slider" />
         </template>
 
         <!-- 每個工具都有的「預設」按鈕 -->
@@ -214,6 +212,34 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   background: hsl(var(--primary) / 0.12);
   border-color: hsl(var(--primary) / 0.4);
 }
+
+/* 工具列上直接輸入的數字尺寸（線寬／半徑）：icon＋數字框 */
+.sb-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 28px;
+  padding: 0 4px 0 6px;
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 3px);
+}
+.sb-inline:focus-within {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.4);
+}
+.sb-inline-num {
+  /* 夠寬讓數字不被右側原生上下箭頭擋住；靠左對齊，數字在左、spinner 在右 */
+  width: 56px;
+  padding: 2px 2px 2px 4px;
+  font-size: 12px;
+  text-align: left;
+  color: hsl(var(--foreground));
+  background: transparent;
+  border: none;
+}
+.sb-inline-num:focus { outline: none; }
+.sb-unit { font-size: 11px; color: hsl(var(--muted-foreground)); padding-right: 2px; }
 
 /* 單一控制項的小視窗 */
 .sb-pop {

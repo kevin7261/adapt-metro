@@ -451,7 +451,13 @@ function buildSystem(raw, override) {
     if (!segs.length) return null
     const segLen = (p) => { let L = 0; for (let i = 1; i < p.length; i++) L += haversine(p[i - 1], p[i]); return L }
     segs.sort((a, b) => segLen(b) - segLen(a))
-    // chain pieces greedily by nearest endpoint, flipping orientation as needed
+    // chain pieces greedily by nearest endpoint, flipping orientation as needed. Only
+    // bridge a gap that is a real track-continuity break (a bridge / station area /
+    // level crossing splits a line's ways into pieces metres–~1 km apart); a piece
+    // whose nearest end is farther than CHAIN_GAP is a DISCONNECTED fragment (a stray
+    // way, a distant branch) — chaining it would draw a false 50–200 km straight hop,
+    // so leave it out (its stations fall back to the 一般鐵路 connector, as before).
+    const CHAIN_GAP = 9000
     const used = new Array(segs.length).fill(false); used[0] = true
     let chain = segs[0].slice()
     for (let iter = 1; iter < segs.length; iter++) {
@@ -468,7 +474,7 @@ function buildSystem(raw, override) {
         ]
         for (const [d, fl, ah] of opts) if (d < bestD) { bestD = d; best = i; flip = fl; atHead = ah }
       }
-      if (best < 0) break
+      if (best < 0 || bestD > CHAIN_GAP) break // nearest remaining piece is a disconnected fragment → stop
       const s = flip ? segs[best].slice().reverse() : segs[best].slice()
       used[best] = true
       chain = atHead ? s.concat(chain) : chain.concat(s)
@@ -649,6 +655,27 @@ function buildSystem(raw, override) {
   // to the class when the track was unnamed (a connector), so it is still drawn.
   const domLine = (rec) => [...rec.lines.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
   const groupKey = (rec) => domLine(rec) ?? `__${rec.hs ? 'high_speed' : 'conventional'}`
+
+  // A NAMED line belongs to ONE class — unify each line's edges to the class the
+  // MAJORITY of its edges have. Without this, a conventional main line that shares a
+  // little highspeed track (奥羽本線 carrying the 山形新幹線 mini-shinkansen; the shared
+  // 福島–新庄 way is tagged highspeed) leaks a 2-station duplicate into the 新幹線 file
+  // while its full self stays conventional — a cross-file 重覆. Majority vote keeps
+  // 山形新幹線 (all-hs) in HSR and 温福线/衡柳铁路 (China, all-hs, no conventional file)
+  // in HSR, but pulls 奥羽本線 (2 hs vs 102 conventional edges) wholly into 一般國鐵.
+  {
+    const vote = new Map() // line → {hs, cv}
+    for (const rec of edges.values()) {
+      const ln = domLine(rec); if (!ln) continue
+      const v = vote.get(ln) || { hs: 0, cv: 0 }
+      rec.hs ? v.hs++ : v.cv++
+      vote.set(ln, v)
+    }
+    for (const rec of edges.values()) {
+      const ln = domLine(rec); if (!ln) continue
+      const v = vote.get(ln); if (v) rec.hs = v.hs > v.cv
+    }
+  }
 
   // A route's class is the class of the FILE it lands in (cls), decided per edge by
   // rec.hs (relation-built 高鐵 vs walk-built 一般國鐵) — NOT by the line name. A
