@@ -2,7 +2,7 @@
   "americas/united-states/am-usa-new-york-city": {
     "city": "New York City",
     "country": "United States",
-    "website": "https://www.mta.info/",
+    "website": "https://www.mta.info/map/5256",
     "source": "override",
     "wikidata": null
   },

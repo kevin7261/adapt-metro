@@ -89,6 +89,7 @@ function lineName(tags, country) {
   if (!n) return null
   n = n.replace(/臺/g, '台')
     .replace(/（[^）]*）\s*$/g, '').replace(/\([^)]*\)\s*$/g, '')
+    .replace(/^JR\s*/i, '') // JR東北本線 ≡ 東北本線 — same line, two OSM labels → merge (串接)
     .replace(/(西|東|中|南|北|上|下|快速|貨物)?正線$/g, '')
     .replace(/(上り|下り)線?$/g, '')
     .trim()
@@ -355,14 +356,29 @@ function buildSystem(raw, override) {
   const rawIdx = new Map(rawSt.map((s, i) => [s.id, i]))
   // stations indexed by their OSM `network` tag — recovers stops the relation omits
   // as members but which self-declare the line (品川 network=東海道新幹線, so it joins
-  // 東海道新幹線 even though the route=railway relation didn't list it).
+  // 東海道新幹線 even though the route=railway relation didn't list it). ONLY index
+  // stations whose network is an HSR line (has 新幹線/高速/… marker, or the station is
+  // highspeed-tagged): otherwise a conventional line whose name a highspeed branch
+  // borrows (上越線 ← ガーラ湯沢) would pull all 36 一般線 stops into 高鐵.
   const netToStations = new Map()
   for (let i = 0; i < rawSt.length; i++) {
     const nw = rawSt[i].tags.network
-    if (!nw) continue
+    if (!nw || (!HSR_OP_RE.test(nw) && rawSt[i].tags.highspeed !== 'yes')) continue
     const sid = `s${rawSt[find(i)].id}`
     const k = norm(nw); if (!netToStations.has(k)) netToStations.set(k, new Set())
     netToStations.get(k).add(sid)
+  }
+  // A route=railway relation counts as 高鐵 only if MOST of its member track is
+  // highspeed. `rel(bw.hsw)` also catches CONVENTIONAL lines that merely share one
+  // highspeed way (上越線 ← the Gala-Yuzawa 上越新幹線 branch), which would otherwise
+  // drag a whole 一般線 into the 高鐵 file. China fetched only highspeed track, so its
+  // relations pass trivially; Japan (all main|branch fetched) is filtered properly.
+  const hsWayIds = new Set(); const trackWayIds = new Set()
+  for (const w of raw.trackElements) if (w.type === 'way') { trackWayIds.add(w.id); if ((w.tags || {}).highspeed === 'yes') hsWayIds.add(w.id) }
+  const isHsrRelation = (rel) => {
+    let tot = 0, hs = 0
+    for (const m of rel.members) if (m.type === 'way' && trackWayIds.has(m.ref)) { tot++; if (hsWayIds.has(m.ref)) hs++ }
+    return tot > 0 && hs / tot >= 0.5
   }
   const created = [] // stations minted for relation stops absent from our station set
   const nodeToStation = (n) => {
@@ -376,46 +392,62 @@ function buildSystem(raw, override) {
     stations.push(st); stById.set(st.id, st); created.push(st) // mint it so no stop is dropped (would break the chain)
     return st.id
   }
-  let relHsAdded = 0
+  // Accumulate stops PER LINE NAME across all its relations (a line is often split
+  // into several route=railway relations — up/down, per-province — so merging them
+  // first yields ONE chain, not one fragment per relation). Dedupe co-located/同名
+  // stops (the network supplement can re-add a member, e.g. 米原).
+  const lineStops = new Map() // rname → [{ id, lon, lat, name }]
+  const addStop = (rname, st) => {
+    if (!st) return
+    if (!lineStops.has(rname)) lineStops.set(rname, [])
+    const arr = lineStops.get(rname)
+    for (const e of arr) if (norm(e.name) === norm(st.name) || haversine([e.lon, e.lat], [st.lon, st.lat]) < 1200) return
+    arr.push(st)
+  }
   for (const rel of relEls) {
     if (rel.type !== 'relation' || !rel.members) continue
+    if (!isHsrRelation(rel)) continue // conventional line sharing a highspeed way (上越線)
     const rname = lineName(rel.tags, country)
     if (!rname) continue // bridge/tunnel sub-relations (…高架橋) fall out here
-    const stopIds = []; const seenSid = new Set()
     for (const m of rel.members) {
       if (m.type !== 'node') continue
       const n = relNodeById.get(m.ref); if (!n) continue
       const t = n.tags || {}
       if (!/^(station|halt|stop)$/.test(t.railway || '')) continue
       if (/线路所|線路所|信号場|信號場|信号所|信號所|線区|渡り線/.test(t.name || t['name:zh'] || t['name:ja'] || '')) continue // 号志站/junction, not a stop
-      const sid = nodeToStation(n); if (!sid || seenSid.has(sid)) continue
-      seenSid.add(sid); stopIds.push(sid)
+      const sid = nodeToStation(n); if (sid) addStop(rname, stById.get(sid))
     }
     // supplement with stations that self-declare this line via their network tag
-    for (const sid of netToStations.get(norm(rname)) || []) {
-      if (!seenSid.has(sid) && stById.has(sid)) { seenSid.add(sid); stopIds.push(sid) }
-    }
-    if (stopIds.length < 2) continue
+    for (const sid of netToStations.get(norm(rname)) || []) addStop(rname, stById.get(sid))
+  }
+  let relHsAdded = 0
+  for (const [rname, pts] of lineStops) {
+    if (pts.length < 2) continue
     lineHs.set(rname, true)
-    const pts = stopIds.map((id) => stById.get(id)).filter(Boolean)
-    // No distance cap: the relation is authoritative, so connect every consecutive
-    // stop in the NN order → ONE contiguous line even across long rural HSR gaps
-    // (使用者：同一路線一定串接). NN order also inserts the network-supplement stops.
+    // No distance cap: the merged relation stops are authoritative, so connect every
+    // consecutive stop in NN order → ONE contiguous line even across long rural HSR
+    // gaps (使用者：同一路線一定串接).
     relHsAdded += nnChain(pts, rname, Infinity) || 0
   }
 
-  // Fallback: a country with HSR track but NO usable relations (e.g. 台灣高鐵 if its
-  // relation is missing) → build the single HSR line by NN over HSR-operator stations.
-  if (!relHsAdded && hsLineNames.length === 1) {
-    nnChain(stations.filter((s) => s.hsr), hsLineNames[0], capFor('high_speed'))
+  // Fallback: a country whose 高鐵 has NO usable route=railway relation (韓國 KTX —
+  // OSM only relates a tunnel + a metro line; 台灣高鐵 if its relation were missing)
+  // → build ONE HSR line by NN over the HSR-operator-flagged stations. Imperfect for
+  // multi-line HSR (merges 京釜/湖南高速線) but at least surfaces the 高鐵 network.
+  if (!relHsAdded) {
+    const hsrSt = stations.filter((s) => s.hsr)
+    if (hsrSt.length >= 2) nnChain(hsrSt, hsLineNames.length === 1 ? hsLineNames[0] : classLabel(country, 'high_speed'), capFor('high_speed'))
   }
   // dominant NAMED line of an edge (majority track vote); its group key falls back
   // to the class when the track was unnamed (a connector), so it is still drawn.
   const domLine = (rec) => [...rec.lines.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
   const groupKey = (rec) => domLine(rec) ?? `__${rec.hs ? 'high_speed' : 'conventional'}`
 
-  const routeMeta = (ln, idCc) => {
-    const cls = clsOfLine(ln)
+  // A route's class is the class of the FILE it lands in (cls), decided per edge by
+  // rec.hs (relation-built 高鐵 vs walk-built 一般國鐵) — NOT by the line name. A
+  // conventional line that carries some KTX/highspeed track (Korea Honam Line) must
+  // stay 一般國鐵, not jump to 高鐵 just because clsOfLine() sees a highspeed way.
+  const routeMeta = (ln, idCc, cls) => {
     const name = ln.startsWith('__') ? classLabel(country, cls) : ln
     return {
       route_id: `rw-${idCc}-${encodeURIComponent(name)}`,
@@ -447,7 +479,7 @@ function buildSystem(raw, override) {
   // degree / interchange computed WITHIN that class' sub-network. ids are prefixed
   // by sysCc (`{cc}-hsr` / `{cc}-rail`) so seg_id/route_id stay unique when the two
   // files are merged into the global railway_lines/stations aggregate. ────────────
-  const assemble = (edgeList, sysCc) => {
+  const assemble = (edgeList, sysCc, cls) => {
     // 6a. station Point features + degree / interchange (within this class subset)
     const neigh = new Map(); const stLines = new Map()
     const link = (a, b) => { if (!neigh.has(a)) neigh.set(a, new Set()); if (!neigh.has(b)) neigh.set(b, new Set()); neigh.get(a).add(b); neigh.get(b).add(a) }
@@ -458,7 +490,7 @@ function buildSystem(raw, override) {
     for (const sid of drawn) {
       const s = stById.get(sid); if (!s) continue
       let lns = [...(stLines.get(sid) || [])]
-      if (!lns.length) lns = [classLabel(country, 'conventional')] // a connector-only station still needs ≥1 line
+      if (!lns.length) lns = [classLabel(country, cls)] // a connector-only station still needs ≥1 line
       const degree = neigh.get(sid)?.size ?? 0
       const isInter = new Set(lns).size >= 2 || degree > 2
       const isTerm = degree === 1
@@ -490,7 +522,7 @@ function buildSystem(raw, override) {
       const runs = stringPaths(es)
       if (!runs.length) continue
       const stationIds = [...new Set(runs.flat())]
-      const rm = { ...routeMeta(ln, sysCc), stations: stationIds.map((sid) => ({ station_id: sid, station_name: stById.get(sid)?.name ?? sid, mileage: null })), pass_stations: [] }
+      const rm = { ...routeMeta(ln, sysCc, cls), stations: stationIds.map((sid) => ({ station_id: sid, station_name: stById.get(sid)?.name ?? sid, mileage: null })), pass_stations: [] }
       const coords = runs.map((path) => path.map(coordOf))
       features.push({
         type: 'Feature',
@@ -516,8 +548,11 @@ function buildSystem(raw, override) {
     return { features, meta }
   }
 
-  // Partition edges by rail class and emit one subsystem per non-empty class.
-  const edgeClass = (rec) => clsOfLine(groupKey(rec))
+  // Partition edges by rail class and emit one subsystem per non-empty class. An
+  // edge's class is decided by HOW it was built (rec.hs: relation-built 高鐵 vs
+  // walk-built 一般國鐵), NOT by clsOfLine(line name) — so a conventional line that
+  // carries some highspeed track (Korea Honam Line) stays wholly 一般國鐵.
+  const edgeClass = (rec) => (rec.hs ? 'high_speed' : 'conventional')
   const CLASSES = [
     { suffix: 'hsr', cls: 'high_speed', zh: '高鐵', en: 'High-speed' },
     { suffix: 'rail', cls: 'conventional', zh: '一般國鐵', en: 'Conventional' },
@@ -527,7 +562,7 @@ function buildSystem(raw, override) {
     const sub = [...edges.values()].filter((r) => edgeClass(r) === C.cls)
     if (!sub.length) continue
     const sysCc = `${cc}-${C.suffix}`
-    const { features, meta } = assemble(sub, sysCc)
+    const { features, meta } = assemble(sub, sysCc, C.cls)
     if (!features.length) continue
     const m = { ...meta, rail_class: C.cls, class_zh: C.zh, class_en: C.en }
     out.push({

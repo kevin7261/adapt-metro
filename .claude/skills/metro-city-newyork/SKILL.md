@@ -210,3 +210,11 @@ N/Q 快車 Canal→Union Sq 跳站，被接到**綠線 Lexington 6**（Spring/Bl
 串接顯示 → Fulton St[G] 與 Lafayette Av[C] 都顯示成「Fulton Street / Lafayette Avenue」、
 誤讀為共站。**修正**：materialize 時只要該子站有 `forced`（來自 split `names`），
 `merged_names` 一律設 null、`station_name`/`_local` 用 forced 名（單成員與多成員分支都做）。
+
+## 官網釘選＝官方地鐵圖頁（使用者裁決 2026-07-17）
+
+紐約的官網連結（`official_sites.json`／`site_overrides.json` 釘選）指向 **官方地鐵圖頁
+`https://www.mta.info/map/5256`**（2025-04 全面改版路網圖），不是 mta.info 首頁——
+官網管線本就是路網圖圖檔退役後「看官方圖」的替代出口。HTTP 403 為 Cloudflare
+擋爬蟲、瀏覽器可連，存活檢查勿判死。Commons 仍無自由授權版，`map_overrides.json`
+維持 `commons_file: null`。

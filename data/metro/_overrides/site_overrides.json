@@ -82,8 +82,8 @@
       "note": "Wikidata P856 是舊域名 metro-sevilla.es（已死），官方現為 metrodesevilla.net（實測 200，2026-07）。"
     },
     "americas/united-states/am-usa-new-york-city": {
-      "website": "https://www.mta.info/",
-      "note": "MTA（NYC Subway 營運母機構，Q7733 P856=mta.info/nyct）官網。HTTP 403 為 Cloudflare 擋爬蟲，可連。自動解析誤把候選按路徑深度排序、取到 depth-0 的 abellio.com（Abellio 荷蘭運輸公司 Q318672，wrongCountry 因描述寫 Dutch 非 Netherlands 未擋下），故釘選。"
+      "website": "https://www.mta.info/map/5256",
+      "note": "MTA 官方地鐵圖頁（2025-04 全面改版路網圖），使用者裁決 2026-07-17 指定此頁取代首頁。HTTP 403 為 Cloudflare 擋爬蟲，可連。歷史：自動解析誤把候選按路徑深度排序、取到 depth-0 的 abellio.com（Abellio 荷蘭運輸公司 Q318672，wrongCountry 因描述寫 Dutch 非 Netherlands 未擋下），故原釘 mta.info 首頁。"
     }
   }
 }
