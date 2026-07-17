@@ -198,10 +198,10 @@ async function exportLayer(layer) {
     }
     if (!data && layer.file) data = await fetchJson(layer.file)
     if (!data) throw new Error('沒有可匯出的資料')
-    // 只有地圖資料層（metro / highway / railway / landmark 都走 type 'metro'，
-    // 是真正的 GeoJSON FeatureCollection）存成 .geojson；衍生的示意佈局視圖
-    // （d3 / hillclimb / rwd）是版面 JSON，存成 .json。
-    const isGeojson = layer.type === 'metro'
+    // 只有捷運路網（檔案在 data/metro/systems/，含「城市＋地標」的 -lm 變體）
+    // 存成 .geojson；其他一律 .json——highway（data/highway/）、railway
+    // （data/railway/）雖然也走 type 'metro'，連同衍生的示意佈局視圖都算「其他」。
+    const isGeojson = /\/data\/metro\/systems\//.test(layer.file ?? '')
     const ext = isGeojson ? 'geojson' : 'json'
     const mime = isGeojson ? 'application/geo+json' : 'application/json'
     const blob = new Blob([JSON.stringify(cleanForExport(data))], { type: mime })
