@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useMapStore } from '../stores/mapStore'
 import MIcon from './MIcon.vue'
+
+const store = useMapStore()
 
 // Brand links to the app root — clicking reloads the whole app (fresh session,
 // re-applies store migrations + data localisation). BASE_URL matches the Vite
@@ -16,7 +19,8 @@ const relatedLinks = [
   { label: 'UrbanRail.net', href: 'https://www.urbanrail.net/' },
 ]
 
-// Skills moved off the toolbar onto each layer row (see LayerPanel).
+// 每列圖層有自己「計算用到」的 skill 選單（LayerPanel）；toolbar 的 Skills
+// 按鈕開全部 skill 的 modal（DialogHost 'skills'）。
 
 function onDocClick(e) {
   if (infoOpen.value && infoWrap.value && !infoWrap.value.contains(e.target)) {
@@ -43,7 +47,10 @@ onBeforeUnmount(() => {
       <span class="brand-name">Adapt-Metro</span>
     </a>
 
-    <a class="btn-ghost intro-link" :href="slidesUrl">系統介紹</a>
+    <!-- Skills：所有 skill 的總覽 modal -->
+    <button class="btn-ghost skills-link" @click="store.ui.dialog = 'skills'">Skills</button>
+
+    <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
 
     <div ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
@@ -91,7 +98,8 @@ onBeforeUnmount(() => {
   text-decoration: none;
 }
 
-.intro-link { margin-left: auto; text-decoration: none; }
+.skills-link { margin-left: auto; }
+.toolbar a.btn-ghost { text-decoration: none; }
 .skills-wrap { position: relative; }
 .info-menu { top: 34px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }

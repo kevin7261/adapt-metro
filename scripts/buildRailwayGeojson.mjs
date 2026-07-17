@@ -116,6 +116,118 @@ function gridIndex(pts, cellDeg = 0.01) {
   return { nearest }
 }
 
+// ── 日本一國拆六社（使用者：日本國鐵不要全部一起，改成 JR東日本/西日本/北海道…）────────
+// Japan is NOT one system: partition the country into the six JR passenger
+// companies BEFORE buildSystem, each company then becoming its own system pair
+// (as-jpn-{east|west|central|hokkaido|shikoku|kyushu}-{hsr|rail}). Assignment:
+//   way      → operator regex (earliest match wins for joint "東;西" ways)
+//              → shinkansen line-name map (no-op 東海道新幹線 ways, op=九州新幹線 quirk)
+//              → nearest already-assigned way (geo fallback for 湖西線/unnamed no-op)
+//   relation → operator / shinkansen name; else MEMBER-WAY SHARE: a trunk line that
+//              is ONE relation spanning companies (東海道本線 = 4140 members 東/海/西)
+//              is given to EVERY company holding ≥15% (or ≥10) of its member ways —
+//              each company's build only sees its own ways, so trackOrder yields
+//              that company's stretch (largest component) with correct ordering.
+// 北陸新幹線 (joint 東;西) goes wholly to JR東日本 (earliest-listed operator) — known v1
+// simplification. 私鐵 ways may get geo-assigned here but the jpn exclude override
+// still drops them inside buildSystem (partition ≠ inclusion).
+const JP_COMPANIES = [
+  { slug: 'hokkaido', zh: 'JR北海道', en: 'JR Hokkaido', re: /北海道旅客鉄道|JR\s*Hokkaido/i },
+  { slug: 'east', zh: 'JR東日本', en: 'JR East', re: /東日本旅客鉄道|JR\s*East/i },
+  { slug: 'central', zh: 'JR東海', en: 'JR Central', re: /東海旅客鉄道|JR\s*Central|JR東海/i },
+  { slug: 'west', zh: 'JR西日本', en: 'JR West', re: /西日本旅客鉄道|JR\s*West/i },
+  { slug: 'shikoku', zh: 'JR四國', en: 'JR Shikoku', re: /四国旅客鉄道|JR\s*Shikoku/i },
+  { slug: 'kyushu', zh: 'JR九州', en: 'JR Kyushu', re: /九州旅客鉄道|JR\s*Kyushu/i },
+]
+const JP_SHINKANSEN = [ // longest keys first (西九州新幹線 ⊃ 九州新幹線)
+  ['西九州新幹線', 'kyushu'], ['九州新幹線', 'kyushu'], ['北海道新幹線', 'hokkaido'],
+  ['東海道新幹線', 'central'], ['山陽新幹線', 'west'], ['東北新幹線', 'east'],
+  ['上越新幹線', 'east'], ['山形新幹線', 'east'], ['秋田新幹線', 'east'], ['北陸新幹線', 'east'],
+]
+function jpCompanyOfOp(op) {
+  if (!op) return null
+  let best = null, bi = Infinity
+  for (const c of JP_COMPANIES) { const m = op.search(c.re); if (m >= 0 && m < bi) { bi = m; best = c.slug } }
+  return best
+}
+function jpShinkansenOf(name) {
+  if (!name) return null
+  for (const [k, slug] of JP_SHINKANSEN) if (name.includes(k)) return slug
+  return null
+}
+function splitJapanByCompany(raw) {
+  const wayCo = new Map()
+  const assigned = [] // way midpoints of company-known ways, for the geo fallback
+  const pend = []
+  for (const w of raw.trackElements) {
+    if (w.type !== 'way' || !w.geometry?.length) continue
+    const t = w.tags || {}
+    const co = jpCompanyOfOp(t.operator) ?? jpShinkansenOf(t.name || t['name:ja'])
+    if (co) {
+      wayCo.set(w.id, co)
+      const p = w.geometry[w.geometry.length >> 1]
+      assigned.push({ lon: p.lon, lat: p.lat, slug: co })
+    } else pend.push(w)
+  }
+  // Geo fallback, PROPAGATED: assign each pending way to the company of the nearest
+  // already-assigned way, then feed the new assignments back into the index and
+  // repeat — a fully untagged branch line (鹿島線/久留里線: no operator on ANY way)
+  // is reached chain-wise from its junction with tagged track, not just within one
+  // grid cell of it.
+  let queue = pend
+  for (let pass = 0; pass < 12 && queue.length; pass++) {
+    const idx = gridIndex(assigned, 0.05)
+    const next = []
+    for (const w of queue) {
+      const p = w.geometry[w.geometry.length >> 1]
+      const { i } = idx.nearest(p.lon, p.lat, 15000)
+      if (i >= 0) {
+        wayCo.set(w.id, assigned[i].slug)
+        assigned.push({ lon: p.lon, lat: p.lat, slug: assigned[i].slug })
+      } else next.push(w)
+    }
+    if (next.length === queue.length) break // nothing new reached — stop
+    queue = next
+  }
+  if (queue.length) console.log(`  ${raw.cc}: ${queue.length} unassigned ways (no JR operator, no assigned track nearby) — dropped from all companies`)
+  // relation → set of companies (usually 1; trunk relations spanning companies →
+  // several). Operator match collects EVERY matching company, not just the first:
+  // a jointly-operated relation (北陸新幹線 op=東日本;西日本) must land in BOTH
+  // builds — each company's trackGeom only holds its own ways, so each gets its own
+  // stretch (東京–上越妙高 / 上越妙高–敦賀), same mechanism as the 東海道本線 trunk.
+  const relCo = new Map()
+  for (const e of raw.relElements || []) {
+    if (e.type !== 'relation') continue
+    const t = e.tags || {}
+    const opCos = new Set()
+    for (const c of JP_COMPANIES) if (t.operator && c.re.test(t.operator)) opCos.add(c.slug)
+    if (opCos.size) { relCo.set(e.id, opCos); continue }
+    const co = jpShinkansenOf(t.name || t['name:ja'])
+    if (co) { relCo.set(e.id, new Set([co])); continue }
+    const cnt = new Map(); let tot = 0
+    for (const m of e.members || []) if (m.type === 'way' && wayCo.has(m.ref)) { tot++; cnt.set(wayCo.get(m.ref), (cnt.get(wayCo.get(m.ref)) || 0) + 1) }
+    if (!tot) continue
+    const keep = new Set()
+    for (const [slug, n] of cnt) if (n / tot >= 0.15 || n >= 10) keep.add(slug)
+    if (!keep.size) keep.add([...cnt.entries()].sort((a, b) => b[1] - a[1])[0][0])
+    relCo.set(e.id, keep)
+  }
+  // 新幹線只要一個檔（使用者：沒這麼多，不拆社）: first variant = the FULL country
+  // restricted to the hsr output (one as-jpn-hsr with all 10 Shinkansen, exactly the
+  // pre-split build) — then the six company variants, each restricted to -rail.
+  return [
+    { ...raw, classOnly: 'hsr' },
+    ...JP_COMPANIES.map((c) => ({
+      ...raw,
+      cc: `${raw.cc}-${c.slug}`,
+      classOnly: 'rail',
+      company: { slug: c.slug, zh: c.zh, en: c.en },
+      trackElements: raw.trackElements.filter((w) => w.type !== 'way' || wayCo.get(w.id) === c.slug),
+      relElements: (raw.relElements || []).filter((e) => e.type !== 'relation' || relCo.get(e.id)?.has(c.slug)),
+    })),
+  ]
+}
+
 function buildSystem(raw, override) {
   const { continent, country } = raw
   const country_zh = raw.country_zh ?? country
@@ -426,7 +538,10 @@ function buildSystem(raw, override) {
   // Fallback: a country whose 高鐵 has NO usable named route=railway relation (韓國 KTX
   // — OSM relates it oddly) → NN-chain the HSR-operator-flagged stations into one
   // 高速鐵路 line so the network at least appears (merged, not per-line — imperfect).
-  if (![...edges.values()].some((e) => e.hs)) {
+  // NOT for a per-company build (raw.company, 日本拆六社): stations are unfiltered
+  // there, so JR四國 (genuinely no shinkansen) would fabricate a nationwide chain
+  // from other companies' HSR-flagged stations — no HSR relations means no HSR file.
+  if (!raw.company && ![...edges.values()].some((e) => e.hs)) {
     const hsrSt = stations.filter((s) => s.hsr)
     if (hsrSt.length >= 2) {
       const far = (from, arr) => arr.reduce((b, p) => haversine([from.lon, from.lat], [p.lon, p.lat]) > haversine([from.lon, from.lat], [b.lon, b.lat]) ? p : b, arr[0])
@@ -593,8 +708,12 @@ function buildSystem(raw, override) {
     const namedLines = [...byLine.keys()].filter((k) => !k.startsWith('__'))
     const meta = {
       continent, country, country_zh, city: country, city_zh: country_zh, unit: 'country',
+      // per-company build (日本拆六社): carry the JR company so 前端 can label the
+      // layer "JR東日本 一般國鐵" instead of the bare country name.
+      company: raw.company?.slug ?? null,
+      company_zh: raw.company?.zh ?? null, company_en: raw.company?.en ?? null,
       osm_networks: namedLines.slice().sort().slice(0, 60),
-      operator: null,
+      operator: raw.company?.en ?? null,
       line_count: namedLines.length, segment_count: segTotal,
       station_count: drawn.size,
       interchange_count: [...drawn].filter((sid) => (neigh.get(sid)?.size ?? 0) > 2 || (stLines.get(sid)?.size ?? 0) >= 2).length,
@@ -658,36 +777,44 @@ async function main() {
       }
     } catch { /* no override */ }
 
-    // buildSystem now returns an ARRAY of subsystems (高鐵 / 一般國鐵 split, 使用者:
-    // 一國拆兩檔兩圖層). Write ONE file per subsystem: {cc}-hsr / {cc}-rail.
-    const subs = buildSystem(raw, override)
-    if (!subs.length) { console.log(`  ${raw.cc}: 0 features, skip`); continue }
-    const cont = CONTINENT_DIR[raw.continent] || 'other'
-    const parts = []
-    for (const sub of subs) {
-      const sysCc = `${raw.cc}-${sub.suffix}`
-      const rel = `systems/${cont}/${countrySlug(raw.country)}/${sysCc}.geojson`
-      await mkdir(dirname(join(RAILWAY, rel)), { recursive: true })
-      await writeFile(join(RAILWAY, rel), JSON.stringify(sub.fc))
-      const m = sub.fc.railway_system
-      systems.push({
-        file: rel, continent: raw.continent, country: raw.country, country_zh: m.country_zh,
-        city: m.city, city_zh: m.city_zh, unit: m.unit,
-        rail_class: sub.rail_class, class_zh: sub.class_zh, class_en: sub.class_en,
-        osm_networks: m.osm_networks, operator: m.operator,
-        line_count: m.line_count, segment_count: m.segment_count, station_count: m.station_count,
-      })
-      lineTotal += m.line_count; stationTotal += m.station_count
-      for (const feat of sub.fc.features) (feat.geometry.type === 'Point' ? allStations : allLines).push(feat)
-      parts.push(`${sub.class_zh} ${m.line_count}線/${m.station_count}站`)
+    // 日本拆六社 (JR東日本/西日本/…): expand the country into per-company variants
+    // BEFORE building; every other country stays one variant. buildSystem then
+    // returns an ARRAY of subsystems (高鐵 / 一般國鐵 split, 使用者: 一國拆兩檔兩圖層).
+    // Write ONE file per subsystem: {cc}[-{company}]-{hsr|rail}.
+    const variants = raw.cc === 'as-jpn' ? splitJapanByCompany(raw) : [raw]
+    for (const v of variants) {
+      // classOnly (日本): the full-country variant only emits -hsr (新幹線一個檔,
+      // 不拆社), the per-company variants only emit -rail.
+      const subs = buildSystem(v, override).filter((s) => !v.classOnly || s.suffix === v.classOnly)
+      if (!subs.length) { console.log(`  ${v.cc}: 0 features, skip`); continue }
+      const cont = CONTINENT_DIR[v.continent] || 'other'
+      const parts = []
+      for (const sub of subs) {
+        const sysCc = `${v.cc}-${sub.suffix}`
+        const rel = `systems/${cont}/${countrySlug(v.country)}/${sysCc}.geojson`
+        await mkdir(dirname(join(RAILWAY, rel)), { recursive: true })
+        await writeFile(join(RAILWAY, rel), JSON.stringify(sub.fc))
+        const m = sub.fc.railway_system
+        systems.push({
+          file: rel, continent: v.continent, country: v.country, country_zh: m.country_zh,
+          city: m.city, city_zh: m.city_zh, unit: m.unit,
+          company: m.company, company_zh: m.company_zh, company_en: m.company_en,
+          rail_class: sub.rail_class, class_zh: sub.class_zh, class_en: sub.class_en,
+          osm_networks: m.osm_networks, operator: m.operator,
+          line_count: m.line_count, segment_count: m.segment_count, station_count: m.station_count,
+        })
+        lineTotal += m.line_count; stationTotal += m.station_count
+        for (const feat of sub.fc.features) (feat.geometry.type === 'Point' ? allStations : allLines).push(feat)
+        parts.push(`${sub.class_zh} ${m.line_count}線/${m.station_count}站`)
+      }
+      console.log(`  ${v.cc} (${v.company?.zh ?? v.country_zh}): ${parts.join('，')}`)
     }
-    console.log(`  ${raw.cc} (${raw.country_zh}): ${parts.join('，')}`)
   }
 
   await writeFile(join(RAILWAY, 'railway_lines.geojson'), JSON.stringify({ type: 'FeatureCollection', features: allLines }))
   await writeFile(join(RAILWAY, 'railway_stations.geojson'), JSON.stringify({ type: 'FeatureCollection', features: allStations }))
   await writeFile(join(RAILWAY, 'index.json'), JSON.stringify({
-    generated_from: 'OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; TWO files per country split by rail class — {cc}-hsr (高鐵) and {cc}-rail (一般國鐵)',
+    generated_from: 'OpenStreetMap railway=rail usage=main|branch (national/state railways + high-speed); stations snapped onto the track graph; TWO files per country split by rail class — {cc}-hsr (高鐵) and {cc}-rail (一般國鐵); Japan is further split into the six JR passenger companies ({cc}-{east|west|central|hokkaido|shikoku|kyushu}-…)',
     system_count: systems.length, line_total: lineTotal, station_total: stationTotal, systems,
   }, null, 1))
   console.log(`\ndone: ${systems.length} countries, ${lineTotal} lines, ${stationTotal} stations`)

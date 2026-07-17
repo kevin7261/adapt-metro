@@ -10,15 +10,20 @@ function withZh(s) {
   const id = s.file.split('/').pop().replace(/\.geojson$/, '')
   // Each system is one rail CLASS of a country (高鐵 / 一般國鐵, 一國拆兩檔). The
   // displayed name carries the class so the two rows/layers are distinct:
-  // countryZh = "日本 高鐵" / "日本 一般國鐵". `country` stays pure ("Japan") for
-  // continent grouping and quick-pick matching; labelEn is the English display.
+  // countryZh = "日本 高鐵" / "日本 一般國鐵". Japan is further split by JR company
+  // (company_zh = "JR東日本"…, 拆六社) — the company then REPLACES the country in the
+  // display: "JR東日本 一般國鐵" / "Japan · JR East Conventional". `country` stays
+  // pure ("Japan") for continent grouping and quick-pick matching.
   const classZh = s.class_zh ?? null
   const classEn = s.class_en ?? null
   const pureZh = s.country_zh ?? s.country
-  const countryZh = classZh ? `${pureZh} ${classZh}` : pureZh
-  const cityZh = s.city_zh ? (classZh ? `${s.city_zh} ${classZh}` : s.city_zh) : countryZh
-  const labelEn = classEn ? `${s.country} · ${classEn}` : s.country
-  return { ...s, id, cityZh, countryZh, labelEn, railClass: s.rail_class ?? null, classZh, classEn }
+  const ownerZh = s.company_zh ?? pureZh
+  const countryZh = classZh ? `${ownerZh} ${classZh}` : ownerZh
+  const ownerCityZh = s.company_zh ?? s.city_zh
+  const cityZh = ownerCityZh ? (classZh ? `${ownerCityZh} ${classZh}` : ownerCityZh) : countryZh
+  const enBits = [s.company_en, classEn].filter(Boolean).join(' ')
+  const labelEn = enBits ? `${s.country} · ${enBits}` : s.country
+  return { ...s, id, cityZh, countryZh, labelEn, railClass: s.rail_class ?? null, classZh, classEn, companyZh: s.company_zh ?? null }
 }
 
 export function loadRailwayCatalog() {

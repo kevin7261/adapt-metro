@@ -69,6 +69,47 @@ function migrateLayerNames(layers) {
   return layers
 }
 
+// 一城的標準 RWD 組：5 條循環鏈（基本 hc／直角爬山／軸對齊／整數規劃／LLM 對齊）。
+const RWD_COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm']
+
+// 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×5
+// （RWD_COMPACTS，掛原始 Straighten）。舊 session 只存了 原始＋rect——
+// 載入時回填缺的層（與 importCityChain 的 ensure 邏輯一致；沒建過 Map Adjust
+// 的城市不強加）。Idempotent：齊了就什麼都不做。
+function backfillCityChains(layers) {
+  const nextId = (prefix) => {
+    let n = 1
+    while (layers.some((l) => l.id === `${prefix}-${n}`)) n++
+    return `${prefix}-${n}`
+  }
+  for (const metro of [...layers]) {
+    if (metro.type !== 'metro' || metro.railway || metro.highway) continue
+    const d3 = layers.find((l) => l.type === 'd3' && l.sourceLayerId === metro.id)
+    if (!d3) continue
+    const hcOf = {}
+    for (const v of ['orig', 'rot']) {
+      let hc = layers.find((l) => l.type === 'hillclimb' && l.sourceLayerId === d3.id && l.variant === v)
+      if (!hc) {
+        hc = {
+          id: nextId('hc-view'), name: `${d3.name}（${variantLabel(v)}）`, type: 'hillclimb',
+          groupId: 'hillclimb', sourceLayerId: d3.id, variant: v, visible: true, opacity: 1,
+        }
+        layers.push(hc)
+      }
+      hcOf[v] = hc
+    }
+    for (const c of RWD_COMPACTS) {
+      if (!layers.some((l) => l.type === 'rwd' && l.sourceLayerId === hcOf.orig.id && l.compact === c)) {
+        layers.push({
+          id: nextId('rwd-view'), name: hcOf.orig.name, type: 'rwd',
+          groupId: 'rwd', sourceLayerId: hcOf.orig.id, compact: c, visible: true, opacity: 1,
+        })
+      }
+    }
+  }
+  return layers
+}
+
 export const useMapStore = defineStore('map', {
   // Hydrate from the persisted session (localStorage) so layers survive reloads.
   // Group labels stay code-defined; only their collapsed state is restored.
@@ -101,7 +142,7 @@ export const useMapStore = defineStore('map', {
 
       // Flat list — every layer opens as its own editor tab.
       // Populated by the Raw Maps import modal (metro / railway / highway).
-      layers: migrateLayerNames(p?.layers ?? []),
+      layers: backfillCityChains(migrateLayerNames(p?.layers ?? [])),
 
       // 2026-07 圈層改版：群組＝城市（由 layerTree 依來源鏈動態算出），這裡只存
       // 各城市群組的收合狀態（rootLayerId -> bool；沿用 groupCollapsed 持久化欄位）。
@@ -129,6 +170,13 @@ export const useMapStore = defineStore('map', {
         return cur
       }
       const rank = { metro: 0, d3: 1, hillclimb: 2, rwd: 3 }
+      // 同型內的固定順序：Straighten 原始→旋轉、RWD 依 5 條鏈的標準序
+      //（回填的層 push 在陣列尾端，靠這裡排回正位）。
+      const subRank = (l) => {
+        if (l.type === 'hillclimb') return l.variant === 'rot' ? 1 : 0
+        if (l.type === 'rwd') return Math.max(0, RWD_COMPACTS.indexOf(l.compact ?? 'hc'))
+        return 0
+      }
       const groups = new Map()
       for (const l of state.layers) {
         const root = rootOf(l)
@@ -141,7 +189,8 @@ export const useMapStore = defineStore('map', {
         groups.get(root.id).children.push(l)
       }
       for (const g of groups.values()) {
-        g.children.sort((a, b) => (rank[a.type] ?? 9) - (rank[b.type] ?? 9))
+        g.children.sort((a, b) =>
+          ((rank[a.type] ?? 9) - (rank[b.type] ?? 9)) || (subRank(a) - subRank(b)))
       }
       return [...groups.values()]
     },
@@ -173,19 +222,26 @@ export const useMapStore = defineStore('map', {
       this.cityCollapsed = { ...this.cityCollapsed, [rootId]: !this.cityCollapsed[rootId] }
     },
 
-    // 匯入一個城市＝整組管線圖層（圈層一城一群組：Raw Maps / Map Adjust /
-    // Straighten / RWD Maps）。variant/compact 指定 Straighten 與 RWD 的變體；
-    // 該城市已存在的層直接重用，只補缺的。回傳 { metro, d3, hc, rwd }。
+    // 匯入一個城市＝整組管線圖層（圈層一城一群組）：Raw Maps ×1、Map Adjust
+    // ×1、Straighten ×2（原始＋旋轉）、RWD Maps ×5（基本 Hill Climbing 循環／
+    // 直角爬山／軸對齊／整數規劃／LLM 對齊，掛在原始 Straighten 上）。
+    // variant/compact 指定「要開啟」的 Straighten 與 RWD（旋轉 RWD 只在被點到
+    // 時補建）；已存在的層直接重用，只補缺的。回傳 { metro, d3, hc, rwd }
+    // （hc/rwd = variant/compact 指定的那個）。
     importCityChain(sys, { variant = 'orig', compact = 'rect' } = {}) {
       const metro = this.importMetroSystem(sys)
       let d3 = this.layers.find((l) => l.type === 'd3' && l.sourceLayerId === metro.id)
       if (!d3) d3 = this.addD3Layer(metro.id)
-      let hc = this.layers.find(
-        (l) => l.type === 'hillclimb' && l.sourceLayerId === d3.id && l.variant === variant)
-      if (!hc) hc = this.addHillClimbLayer(d3.id, variant)
-      let rwd = this.layers.find(
-        (l) => l.type === 'rwd' && l.sourceLayerId === hc.id && l.compact === compact)
-      if (!rwd) rwd = this.addRwdLayer(hc.id, compact)
+      const ensureHc = (v) =>
+        this.layers.find((l) => l.type === 'hillclimb' && l.sourceLayerId === d3.id && l.variant === v)
+        ?? this.addHillClimbLayer(d3.id, v)
+      const ensureRwd = (hcLayer, c) =>
+        this.layers.find((l) => l.type === 'rwd' && l.sourceLayerId === hcLayer.id && l.compact === c)
+        ?? this.addRwdLayer(hcLayer.id, c)
+      const hcByVariant = { orig: ensureHc('orig'), rot: ensureHc('rot') }
+      for (const c of RWD_COMPACTS) ensureRwd(hcByVariant.orig, c)
+      const hc = hcByVariant[variant] ?? hcByVariant.orig
+      const rwd = ensureRwd(hc, compact)
       this.selectedLayerId = metro.id
       return { metro, d3, hc, rwd }
     },

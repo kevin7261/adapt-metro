@@ -5,7 +5,7 @@ import MIcon from './MIcon.vue'
 <template>
   <div class="watermark">
     <MIcon name="layers" :size="28" class="wm-icon" />
-    <p>按左側 Layers「Raw Maps」的 + 匯入城市地鐵圖層</p>
+    <p>按左側「城市」匯入城市地鐵圖層（「鐵路」「高速公路」匯入國家路網）</p>
     <p class="hint">匯入後點選圖層開啟分頁 — 分頁可拖曳併排、堆疊</p>
   </div>
 </template>

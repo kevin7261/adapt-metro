@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, openAllGalleryTab, dockHandle } from '../stores/dockHandle'
@@ -23,16 +23,31 @@ function stageLabel(l) {
   return 'Raw Maps'
 }
 
-// Skills surfaced PER LAYER ROW（attribute table 按鈕左邊）：每列顯示該圖層
-// 所屬階段用到的 skills——Raw Maps 列收 metro / railway / highway 三管線＋
-// 城市規則；Map Adjust 列收骨架＋格網化；Straighten / RWD 各自的演算法 skill。
+// Skills surfaced PER LAYER ROW（attribute table 按鈕左邊）：只列「這個圖層的
+// 計算實際用到」的 skill——metro 圖層＝metro 管線＋只有自己城市的規則（＋地標
+// 層加 landmark）；railway / highway 圖層＝各自管線；Map Adjust＝骨架＋格網化；
+// Straighten＝爬山＋全部後處理/movewise；RWD＝循環結果輸入＋畫線＋LLM 調整/評價。
 const STAGE_SKILLS = {
-  metro: ['metro-osm-fetch', 'metro-audit', 'metro-cities',
-    'railway-osm-fetch', 'highway-osm-fetch', 'highway-audit', 'highway-cities'],
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
-  hillclimb: ['route-hillclimb', 'route-skeleton-grid'],
-  rwd: ['route-rwd-draw', 'route-hillclimb'],
+  hillclimb: ['route-skeleton-grid', 'route-hillclimb', 'route-rect-polish',
+    'route-axis-align', 'route-axis-ilp', 'route-llm-align', 'route-endpoint-move',
+    'route-line-compact', 'route-grid-merge', 'route-span-cap', 'route-movewise-loop',
+    'route-step-verify'],
+  rwd: ['route-movewise-loop', 'route-rwd-draw', 'route-llm-grid', 'route-llm-eval'],
 }
+// 城市專屬規則：只有圖層 id 對得上的那個城市 skill 才顯示（tokyo 涵蓋全日本、
+// germany 涵蓋德國五城）。
+const CITY_SKILL = [
+  ['metro-city-hongkong', /hong-kong/],  // 先於中國他城比對（id 同為 -chn-）
+  ['metro-city-taipei', /taipei/],
+  ['metro-city-tokyo', /-jpn-/],         // 東京 skill 涵蓋全日本城市
+  ['metro-city-germany', /-deu-/],       // 德國五城
+  ['metro-city-newyork', /new-york/],
+  ['metro-city-beijing', /beijing/],
+  ['metro-city-shanghai', /shanghai/],
+  ['metro-city-chengdu', /chengdu/],
+  ['metro-city-suzhou', /suzhou/],
+]
 const skillIndex = ref({})       // id -> description (for the dropdown subtitle)
 const skillMenuFor = ref(null)   // layer id whose skill menu is open
 onMounted(async () => {
@@ -41,14 +56,22 @@ onMounted(async () => {
     if (res.ok) for (const s of await res.json()) skillIndex.value[s.id] = s.description
   } catch { /* labels fall back to the id */ }
   document.addEventListener('mousedown', onSkillDocClick)
+  document.addEventListener('mousedown', onImportMenuClick)
 })
-// Skills for one layer row: its stage's general skills, plus (Raw Maps) every
-// city rule sorted after them.
+// Skills actually used by one layer's computation.
 function layerSkills(layer) {
-  const ids = [...(STAGE_SKILLS[layer.type] ?? [])]
+  let ids
   if (layer.type === 'metro') {
-    for (const id of Object.keys(skillIndex.value).sort())
-      if (id.startsWith('metro-city-') && !ids.includes(id)) ids.push(id)
+    if (layer.railway) ids = ['railway-osm-fetch']
+    else if (layer.highway) ids = ['highway-osm-fetch', 'highway-audit', 'highway-cities']
+    else {
+      ids = ['metro-osm-fetch', 'metro-audit', 'metro-cities']
+      const id = layer.id ?? ''
+      for (const [skill, re] of CITY_SKILL) if (re.test(id)) { ids.push(skill); break }
+      if (/-lm$/.test(id)) ids.push('landmark-osm-fetch')
+    }
+  } else {
+    ids = STAGE_SKILLS[layer.type] ?? []
   }
   return ids.map((id) => ({ id, description: skillIndex.value[id] ?? '' }))
 }
@@ -69,6 +92,21 @@ function onSkillDocClick(e) {
   if (skillMenuFor.value && !e.target.closest('.skill-wrap') && !e.target.closest('.skill-menu')) {
     skillMenuFor.value = null
   }
+}
+
+// 匯入下拉：一顆 + 按鈕，選 城市／鐵路／高速公路（各自開對應的匯入 modal）。
+const IMPORT_OPTIONS = [
+  { label: '城市', icon: 'train', dialog: 'import-quick' },
+  { label: '鐵路', icon: 'directions_railway', dialog: 'import-railway-quick' },
+  { label: '高速公路', icon: 'add_road', dialog: 'import-highway-quick' },
+]
+const importMenuOpen = ref(false)
+function pickImport(dialog) {
+  importMenuOpen.value = false
+  store.ui.dialog = dialog
+}
+function onImportMenuClick(e) {
+  if (importMenuOpen.value && !e.target.closest('.import-wrap')) importMenuOpen.value = false
 }
 
 // Click a layer → open (or focus) its editor tab, like opening a file in an IDE.
@@ -159,6 +197,20 @@ function removeCityLayers(item) {
   store.toast(`已刪除「${item.group.label}」的 ${item.children.length} 個圖層`)
 }
 
+// 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON，再重開——tab
+// 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust / Straighten / RWD 會整條鏈
+// 重新計算。
+async function recomputeCity(item) {
+  if (!item.children.length) return
+  for (const l of item.children) {
+    dockHandle.api?.getPanel(l.id)?.api.close()
+    delete layerData[l.id]
+  }
+  await nextTick()
+  for (const l of item.children) openLayerTab(l)
+  store.toast(`重新計算「${item.group.label}」的 ${item.children.length} 個圖層…`)
+}
+
 /* ---- resize ---- */
 const dragging = ref(false)
 function startResize(e) {
@@ -175,6 +227,7 @@ function startResize(e) {
 onBeforeUnmount(() => {
   dragging.value = false
   document.removeEventListener('mousedown', onSkillDocClick)
+  document.removeEventListener('mousedown', onImportMenuClick)
 })
 </script>
 
@@ -198,11 +251,19 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- 最上面：選各城市地圖（開啟現有的匯入 modal）＋視圖畫廊 -->
+      <!-- 最上面：三個匯入來源各一顆（modal 不再分大 tab）＋視圖畫廊 -->
       <div class="panel-actions">
-        <button class="city-pick-btn" title="選擇城市地圖（Metro Maps / Railways / Highways）" @click="store.ui.dialog = 'import-quick'">
-          <MIcon name="add_location_alt" :size="14" />
-          <span>選擇城市地圖</span>
+        <button class="city-pick-btn" title="選擇城市（metro map）" @click="store.ui.dialog = 'import-quick'">
+          <MIcon name="train" :size="14" />
+          <span>城市</span>
+        </button>
+        <button class="city-pick-btn" title="選擇鐵路（國家鐵路網）" @click="store.ui.dialog = 'import-railway-quick'">
+          <MIcon name="directions_railway" :size="14" />
+          <span>鐵路</span>
+        </button>
+        <button class="city-pick-btn" title="選擇高速公路" @click="store.ui.dialog = 'import-highway-quick'">
+          <MIcon name="add_road" :size="14" />
+          <span>高速公路</span>
         </button>
         <button class="btn-icon gallery-btn" title="視圖畫廊（所有城市 · 所有地圖）" @click="openAllGalleryTab()">
           <MIcon name="grid_view" :size="14" />
@@ -211,8 +272,8 @@ onBeforeUnmount(() => {
 
       <div class="tree">
         <div v-if="!store.layerTree.length" class="tree-empty">
-          按「選擇城市地圖」匯入一個城市——會建立該城市的
-          Raw Maps / Map Adjust / Straighten / RWD Maps 圖層
+          按「城市」匯入一個城市（會建立該城市的 Raw Maps / Map Adjust /
+          Straighten / RWD Maps 圖層）；「鐵路」「高速公路」匯入國家路網
         </div>
         <div v-for="item in store.layerTree" :key="item.group.id" class="group-card">
           <!-- 城市群組標題：chevron + folder + 城市名 + 刪除整組 -->
@@ -220,6 +281,13 @@ onBeforeUnmount(() => {
             <MIcon :name="item.group.collapsed ? 'chevron_right' : 'expand_more'" :size="14" class="group-chevron" />
             <MIcon :name="item.group.collapsed ? 'folder' : 'folder_open'" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
+            <button
+              class="btn-icon group-add"
+              title="重新計算此城市全部圖層"
+              @click.stop="recomputeCity(item)"
+            >
+              <MIcon name="autorenew" :size="14" />
+            </button>
             <button
               class="btn-icon group-add group-del"
               title="刪除此城市全部圖層"
@@ -357,18 +425,20 @@ onBeforeUnmount(() => {
 }
 .city-pick-btn {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 7px 10px;
-  font-size: 12.5px;
+  gap: 4px;
+  padding: 7px 4px;
+  font-size: 12px;
   font-weight: 600;
   color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.1);
   border: 1px solid hsl(var(--primary) / 0.5);
   border-radius: calc(var(--radius) - 2px);
   white-space: nowrap;
+  overflow: hidden;
 }
 .city-pick-btn:hover { background: hsl(var(--primary) / 0.2); }
 .gallery-btn {

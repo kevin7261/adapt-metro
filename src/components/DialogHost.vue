@@ -6,6 +6,8 @@ import { loadHighwayCatalog } from '../stores/highwayCatalog'
 import { loadRailwayCatalog } from '../stores/railwayCatalog'
 import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
+import { openSkillDoc } from '../stores/skillHandle'
+import { assetUrl } from '../lib/assetUrl'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -205,9 +207,12 @@ const rwQuick = computed(() => {
   if (!railwayCatalog.value) return []
   const out = []
   for (const name of QUICK_RAIL) {
+    // hsr row first — but only within the same company (日本拆六社: keep each JR
+    // company's 高鐵/一般國鐵 rows adjacent instead of all-hsr-then-all-rail).
+    const hsrRank = (s) => (s.railClass === 'high_speed' ? 0 : 1)
     const syss = railwayCatalog.value
       .filter((s) => s.country === name)
-      .sort((a, b) => (a.railClass === 'high_speed' ? 0 : 1) - (b.railClass === 'high_speed' ? 0 : 1))
+      .sort((a, b) => ((a.company ?? '') === (b.company ?? '') ? hsrRank(a) - hsrRank(b) : 0))
     if (!syss.length) { out.push({ zh: name, en: name, sys: null }); continue }
     for (const sys of syss) out.push({ zh: sys.countryZh, en: sys.labelEn ?? sys.country, sys })
   }
@@ -231,12 +236,13 @@ function importRailway(sys) {
   store.toast(`已匯入 ${rwZh(sys)} 國家鐵路網（${sys.line_count} 線 / ${sys.station_count} 站）`)
 }
 
-/* 三個匯入來源併成一個 Raw Maps modal：上層三個大 tab（Metro Maps / Railways /
-   Highways），每個大 tab 下保留原本的子 tab（dialog id 仍＝作用中的子 tab）。 */
+/* 三個匯入來源同一個 modal，但入口是圈層上方的三顆按鈕（城市／鐵路／高速
+   公路）——modal 不再分上層大 tab，標題跟著來源變；每個來源保留原本的子 tab
+   （dialog id 仍＝作用中的子 tab）。 */
 const IMPORT_GROUPS = [
-  { id: 'metro', label: 'Metro Maps', dialogs: IMPORT_DIALOGS, tabs: importTabs },
-  { id: 'railway', label: 'Railways', dialogs: RAILWAY_DIALOGS, tabs: railwayTabs },
-  { id: 'highway', label: 'Highways', dialogs: HIGHWAY_DIALOGS, tabs: highwayTabs },
+  { id: 'metro', label: '選擇城市', dialogs: IMPORT_DIALOGS, tabs: importTabs },
+  { id: 'railway', label: '選擇鐵路', dialogs: RAILWAY_DIALOGS, tabs: railwayTabs },
+  { id: 'highway', label: '選擇高速公路', dialogs: HIGHWAY_DIALOGS, tabs: highwayTabs },
 ]
 const ALL_IMPORT_DIALOGS = IMPORT_GROUPS.flatMap((g) => g.dialogs)
 const activeImportGroup = computed(() => IMPORT_GROUPS.find((g) => g.dialogs.includes(dialog.value)))
@@ -389,6 +395,37 @@ const sources = [
 ]
 const activeSource = ref('vector')
 
+/* Skills modal — toolbar「Skills」開啟，列出全部 skill（skills/index.json），
+   點一個開它的 SKILL.md 檢視器。依用途分三節。 */
+const allSkills = ref(null)
+const skillsError = ref(null)
+watch(dialog, (d) => {
+  if (d !== 'skills' || allSkills.value) return
+  skillsError.value = null
+  fetch(assetUrl('skills/index.json'))
+    .then((res) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
+    .then((list) => { allSkills.value = list })
+    .catch((err) => { skillsError.value = String(err) })
+})
+// 分類＝圖層名（與圈層列一致）：Raw Maps 收三管線＋地標＋城市規則、Map Adjust
+// 收骨架/格網化、RWD Maps 收畫線＋LLM 調整/評價、其餘 route-* 都屬 Straighten。
+const skillGroupOf = (id) => {
+  if (id.startsWith('route-skeleton-')) return 'Map Adjust'
+  if (['route-rwd-draw', 'route-llm-grid', 'route-llm-eval'].includes(id)) return 'RWD Maps'
+  if (id.startsWith('route-')) return 'Straighten'
+  return 'Raw Maps'
+}
+const skillGroups = computed(() => {
+  const order = ['Raw Maps', 'Map Adjust', 'Straighten', 'RWD Maps']
+  const by = new Map(order.map((label) => [label, []]))
+  for (const s of allSkills.value ?? []) by.get(skillGroupOf(s.id)).push(s)
+  return order.map((label) => ({ label, skills: by.get(label) })).filter((g) => g.skills.length)
+})
+function openSkill(id) {
+  close()
+  openSkillDoc(id)
+}
+
 /* Settings */
 const accents = ['blue', 'violet', 'emerald', 'rose', 'amber']
 const accentColors = {
@@ -410,23 +447,12 @@ const shortcuts = [
 
 <template>
   <div v-if="dialog" class="dialog-overlay" @mousedown.self="close">
-    <!-- Raw Maps import: ONE modal — 3 big tabs (Metro Maps / Railways / Highways),
-         each keeping its own sub-tabs (dialog id = the active sub-tab) -->
+    <!-- Raw Maps import: 入口＝圈層上方三顆按鈕（城市／鐵路／高速公路），
+         modal 只留該來源的子 tab（dialog id = the active sub-tab） -->
     <div v-if="ALL_IMPORT_DIALOGS.includes(dialog)" class="dialog import-modal">
       <div class="dialog-header">
-        <h2 class="dialog-title">匯入地圖</h2>
+        <h2 class="dialog-title">{{ activeImportGroup.label }}</h2>
         <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
-      </div>
-      <div class="dialog-tabs main-tabs" role="tablist">
-        <button
-          v-for="g in IMPORT_GROUPS"
-          :key="g.id"
-          class="dialog-tab main-tab"
-          :class="{ active: g.dialogs.includes(dialog) }"
-          role="tab"
-          :aria-selected="g.dialogs.includes(dialog)"
-          @click="store.ui.dialog = g.dialogs[0]"
-        >{{ g.label }}</button>
       </div>
       <div class="dialog-tabs" role="tablist">
         <button
@@ -884,6 +910,32 @@ const shortcuts = [
       </div>
     </div>
 
+    <!-- Skills：全部 skill 總覽（toolbar 的 Skills 按鈕） -->
+    <div v-else-if="dialog === 'skills'" class="dialog skills-modal">
+      <div class="dialog-header">
+        <h2 class="dialog-title">Skills</h2>
+        <button class="btn-icon" @click="close"><MIcon name="close" :size="15" /></button>
+      </div>
+      <div class="dialog-body skills-body">
+        <div v-if="skillsError" class="import-status error">載入 skill 清單失敗：{{ skillsError }}</div>
+        <div v-else-if="!allSkills" class="import-status">載入 skill 清單…</div>
+        <template v-else>
+          <div v-for="g in skillGroups" :key="g.label" class="skills-group">
+            <div class="skills-group-title">{{ g.label }}</div>
+            <div class="skills-grid">
+              <button v-for="s in g.skills" :key="s.id" class="skill-card" @click="openSkill(s.id)">
+                <MIcon name="auto_awesome" :size="13" class="skill-card-icon" />
+                <span class="skill-card-text">
+                  <span class="skill-card-name">{{ s.id }}</span>
+                  <span v-if="s.description" class="skill-card-desc">{{ s.description }}</span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
     <!-- New project -->
     <div v-else-if="dialog === 'new-project'" class="dialog">
       <div class="dialog-header">
@@ -1006,9 +1058,6 @@ const shortcuts = [
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-/* 上層三個大 tab（Metro Maps / Railways / Highways）：字級加大並襯底，與子 tab 區隔 */
-.main-tabs { background: hsl(var(--muted) / 0.35); }
-.main-tab { font-size: 14px; font-weight: 600; padding: 10px 16px; }
 .add-d3 { width: min(820px, calc(100vw - 32px)); }
 /* Add Straighten：同一城市一排，原始/旋轉兩個變體並排 */
 .hc-city-list {
@@ -1206,6 +1255,51 @@ const shortcuts = [
 }
 .import-preview.placeholder { color: hsl(var(--muted-foreground)); }
 .btn-primary:disabled { opacity: 0.5; cursor: default; }
+
+/* Skills 總覽 modal */
+.skills-modal { width: min(880px, calc(100vw - 32px)); }
+.skills-body { max-height: 68vh; overflow-y: auto; }
+.skills-group + .skills-group { margin-top: 16px; }
+.skills-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: hsl(var(--primary));
+  padding: 2px 2px 6px;
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 8px;
+}
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 640px) { .skills-grid { grid-template-columns: minmax(0, 1fr); } }
+.skill-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.25);
+  text-align: left;
+  transition: border-color 0.12s, background 0.12s;
+}
+.skill-card:hover {
+  border-color: hsl(var(--primary) / 0.6);
+  background: hsl(var(--primary) / 0.08);
+}
+.skill-card-icon { flex-shrink: 0; margin-top: 2px; color: hsl(var(--primary)); }
+.skill-card-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.skill-card-name { font-weight: 600; font-size: 12.5px; }
+.skill-card-desc {
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 .add-data { width: min(680px, calc(100vw - 32px)); }
 .add-data-body {
