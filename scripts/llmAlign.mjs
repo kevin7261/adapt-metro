@@ -34,7 +34,9 @@ const OUT = join(DATA, 'llmviews')
 // 「自動對齊」（純最大化 H/V，寫 .json）完全分開、互不覆蓋。旗標可放任意位置。
 const rawArgs = process.argv.slice(2)
 const isPrompt = rawArgs.includes('--prompt')
-const [cmd, cityId, variant = 'orig', movesPath] = rawArgs.filter((a) => a !== '--prompt')
+// 起點佈局＝目前 outFile 內容（若符合本資料）或 base HC——「以目前顯示的佈局為
+// 起點」由 vite plugin 在執行前把顯示的那份檔 seed 進 outFile 達成（不靠旗標）。
+const [cmd, cityId, variant = 'orig', movesPath] = rawArgs.filter((a) => !a.startsWith('--'))
 if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
   console.error('usage: llmAlign.mjs export|apply|reset <cityId> <orig|rot> [moves.json] [--prompt]')
   process.exit(1)

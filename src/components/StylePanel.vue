@@ -95,6 +95,30 @@ const LLM_MODEL_OPTIONS = [
   { key: 'haiku', label: 'Haiku 4.5' },
 ]
 const llmUserPrompt = ref('')
+// 四個 LLM 功能各自的「做法說明」——哪些是 LLM 判斷、哪些用到程式，顯示在
+// 每個 tab 最下面。（llm＝模型判斷、code＝程式負責、sum＝一句結論）
+const METHOD_NOTES = {
+  autoAlign: {
+    llm: '讀整數格佈局，自己決定哪些彩色頂點移到哪一格（純最大化水平／垂直段，不用你下指示）。',
+    code: '把提案經 4 條硬規則驗證＋軸對齊退路套用；淨 H/V 段變差就整批退回（applyLlmTargets）。',
+    sum: '移動決策全由 LLM，程式只驗證與套用、不做搜尋。',
+  },
+  promptAlign: {
+    llm: '依你的一句話，自己決定哪些彩色頂點移到哪一格。',
+    code: '同自動對齊——4 條硬規則＋軸對齊退路＋淨 H/V 變差整批退回（applyLlmTargets）。',
+    sum: '移動決策全由 LLM（受你的指示引導），程式只驗證與套用。',
+  },
+  grid: {
+    llm: '依你的一句話，推理每個 X 欄／Y 列區間該佔多大（顯示權重 colW／rowW）。',
+    code: '把權重正規化進固定外框、在新像素座標重畫 H/V/45°（intervalAxes）；不搬任何格座標，拓撲由程式保證不變。',
+    sum: '權重全由 LLM 判斷，程式只做正規化與畫線。',
+  },
+  eval: {
+    llm: '讀佈局幾何，寫總評／評分／逐線評語／建議，並把建議轉成具體 moves。',
+    code: '把 moves 經與對齊相同的硬規則算出調整後佈局存檔（exec）；「執行調整」只切換顯示、不重跑。',
+    sum: '評語與建議全由 LLM，程式負責硬規則套用與顯示切換。',
+  },
+}
 const gridUserPrompt = ref('')
 const isD3 = computed(() => props.context === 'd3')
 const isMapAdjust = computed(() => isD3.value && props.viewKind === 'map-adjust')
@@ -915,6 +939,13 @@ function startResize(e) {
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
               <div class="skill-md llm-skill-md" v-html="gridSkillHtml || '<p>載入中…</p>'" />
             </details>
+
+            <h4 class="llm-h">做法說明</h4>
+            <ul class="llm-method">
+              <li><b>LLM 判斷：</b>{{ METHOD_NOTES.grid.llm }}</li>
+              <li><b>程式負責：</b>{{ METHOD_NOTES.grid.code }}</li>
+            </ul>
+            <p class="llm-method-sum">{{ METHOD_NOTES.grid.sum }}</p>
           </div>
         </template>
 
@@ -1014,6 +1045,13 @@ function startResize(e) {
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
               <div class="skill-md llm-skill-md" v-html="evalSkillHtml || '<p>載入中…</p>'" />
             </details>
+
+            <h4 class="llm-h">做法說明</h4>
+            <ul class="llm-method">
+              <li><b>LLM 判斷：</b>{{ METHOD_NOTES.eval.llm }}</li>
+              <li><b>程式負責：</b>{{ METHOD_NOTES.eval.code }}</li>
+            </ul>
+            <p class="llm-method-sum">{{ METHOD_NOTES.eval.sum }}</p>
           </div>
         </template>
 
@@ -1024,9 +1062,9 @@ function startResize(e) {
           <div class="weight-panel">
             <p class="weight-hint">
               讓模型**自動對齊**這個路網：短距離移動彩色點、把線盡量拉成水平／垂直
-              （最大化 H/V），不需要你下指示。跑完先回傳結果、**不自動套用**——按
-              「執行調整」才套用到 LLM 對齊主視圖，「恢復原佈局」切回對齊前的佈局。
-              這是各鏈與 RWD 'llm' 版面採用的「地基」結果。
+              （最大化 H/V），不需要你下指示。**以主視圖目前顯示的佈局為起點**——按
+              「執行調整」把結果套到主視圖，「恢復原佈局」切回。下游的「LLM對齊端點
+              移動…」等鏈會**跟著目前顯示的佈局重算**。
             </p>
             <template v-if="llmCanRun">
               <label class="llm-model-pick">
@@ -1078,7 +1116,7 @@ function startResize(e) {
 
               <h4 class="llm-h">套用到 LLM 對齊主視圖</h4>
               <button class="llm-run-btn" @click="emit('toggle-llm-exec')">{{ llmApplied ? '恢復原佈局' : '執行調整' }}</button>
-              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用自動對齊的座標重畫主視圖，「恢復原佈局」切回對齊前的佈局。各鏈與 RWD 'llm' 版面一律用此結果、不受切換影響。</p>
+              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用自動對齊的座標重畫主視圖並讓下游各鏈以它重算，「恢復原佈局」切回。與「指定對齊」在主視圖互斥。RWD 'llm' 版面固定以自動對齊為基準。</p>
             </template>
             <p v-else-if="!llmRunning" class="llm-note">{{ llmMsg ?? '尚未產生自動對齊——按上面的按鈕執行。' }}</p>
 
@@ -1087,18 +1125,26 @@ function startResize(e) {
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
               <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
             </details>
+
+            <h4 class="llm-h">做法說明</h4>
+            <ul class="llm-method">
+              <li><b>LLM 判斷：</b>{{ METHOD_NOTES.autoAlign.llm }}</li>
+              <li><b>程式負責：</b>{{ METHOD_NOTES.autoAlign.code }}</li>
+            </ul>
+            <p class="llm-method-sum">{{ METHOD_NOTES.autoAlign.sum }}</p>
           </div>
         </template>
 
         <!-- ============ LLM指定對齊（skill route-llm-align，寫 .prompt.json）=========
-             與自動對齊完全獨立：自己的結果檔、run/串流/結果/toggle。只在主視圖比較
-             用、不餵下游。與自動對齊在主視圖互斥（套一個會取消另一個）。 -->
+             自己的結果檔、run/串流/結果/toggle（與自動對齊獨立、UI 互不影響）。以主
+             視圖目前顯示的佈局為起點；與自動對齊在主視圖互斥（套一個會取消另一個）。 -->
         <template v-else-if="activeTab === 'llm-prompt'">
           <div class="weight-panel">
             <p class="weight-hint">
               用**一句話指定**要怎麼對齊：例「優先把紅線拉成水平」「讓東側幾條線對齊
-              同一欄」「把環狀線盡量收成矩形」。跑完先回傳、**不自動套用**——按「執行
-              調整」才套用到主視圖比較（與自動對齊互斥）。這份結果與自動對齊獨立、不餵下游。
+              同一欄」。**以主視圖目前顯示的佈局為起點**（若正顯示自動對齊，就從自動
+              對齊結果往下做）。跑完先回傳、**不自動套用**——按「執行調整」才套到主視圖
+              （與自動對齊互斥），下游各鏈跟著顯示重算。結果另存、與自動對齊 UI 互不影響。
             </p>
             <template v-if="llmCanRun">
               <label class="llm-model-pick">
@@ -1158,7 +1204,7 @@ function startResize(e) {
 
               <h4 class="llm-h">套用到 LLM 對齊主視圖</h4>
               <button class="llm-run-btn" @click="emit('toggle-prompt-exec')">{{ promptApplied ? '恢復原佈局' : '執行調整' }}</button>
-              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用指定對齊的座標重畫主視圖（會取消自動對齊的套用），「恢復原佈局」切回。不影響各鏈與 RWD 'llm' 版面。</p>
+              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用指定對齊的座標重畫主視圖並讓下游各鏈以它重算（會取消自動對齊的套用），「恢復原佈局」切回。RWD 'llm' 版面固定以自動對齊為基準、不受此切換影響。</p>
             </template>
             <p v-else-if="!promptRunning" class="llm-note">{{ promptMsg ?? '尚未產生指定對齊——在上面輸入一句話執行。' }}</p>
 
@@ -1167,6 +1213,13 @@ function startResize(e) {
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
               <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
             </details>
+
+            <h4 class="llm-h">做法說明</h4>
+            <ul class="llm-method">
+              <li><b>LLM 判斷：</b>{{ METHOD_NOTES.promptAlign.llm }}</li>
+              <li><b>程式負責：</b>{{ METHOD_NOTES.promptAlign.code }}</li>
+            </ul>
+            <p class="llm-method-sum">{{ METHOD_NOTES.promptAlign.sum }}</p>
           </div>
         </template>
       </div>
@@ -1407,6 +1460,22 @@ function startResize(e) {
 }
 .llm-model-pick select:disabled { opacity: 0.55; }
 .llm-run-hint { margin: 6px 0 0; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+/* 做法說明：每個 LLM tab 最下面——哪些是 LLM 判斷、哪些用到程式 */
+.llm-method {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: var(--sp-note);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.55;
+}
+.llm-method li { margin: 2px 0; }
+.llm-method b { color: hsl(var(--foreground)); font-weight: 600; }
+.llm-method-sum {
+  margin: 5px 0 0;
+  font-size: var(--sp-note);
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
 .llm-prompt-box {
   width: 100%;
   margin-top: 4px;

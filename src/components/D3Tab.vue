@@ -182,6 +182,9 @@ function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, o
   async function start(userPrompt = '') {
     const cid = llmCityId.value
     if (!cid || run.value === 'running') return
+    // 先擷取 params（含 align 的 base＝目前顯示佈局）——必須在 onStart 清掉 toggle
+    // 狀態「之前」算好，否則 base 會被 onStart 洗掉（re-run 自動對齊誤判成 hc）。
+    const runParams = params()
     run.value = 'running'
     tail.value = ''
     text.value = ''
@@ -194,7 +197,7 @@ function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, o
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          city: cid, ...params(),
+          city: cid, ...runParams,
           userPrompt: typeof userPrompt === 'string' ? userPrompt : '',
           model: llmModel.value, // 面板下拉選的模型（'default' → 不帶 --model）
         }),
@@ -251,9 +254,15 @@ function invalidateLlmDownstream() {
   delete stepState.llm
   delete stepHistory.llm
 }
+// 「LLM 對齊主視圖目前顯示的佈局」——align 執行時當 seed 起點傳給後端（--base）。
+function currentAlignBase() {
+  if (promptApplied.value) return 'prompt'
+  if (llmApplied.value) return 'auto'
+  return 'hc'
+}
 const llmRunner = makeHeadlessRun({
   base: '/llm-align',
-  params: () => ({ variant: hcVariant.value, kind: 'auto' }),
+  params: () => ({ variant: hcVariant.value, kind: 'auto', base: currentAlignBase() }),
   run: llmRun, tail: llmRunTail, text: llmRunText, logEl: llmLogEl,
   shouldRender: () => false, // 唯讀：跑的時候畫布照畫（base HC/舊結果）、不留白，串流顯示在面板
   onStart: () => {
@@ -269,7 +278,7 @@ const startLlmRun = llmRunner.start
 // 不動下游快取（指定對齊不餵下游，見 render）。清舊結果同 eval/grid。
 const promptRunner = makeHeadlessRun({
   base: '/llm-align',
-  params: () => ({ variant: hcVariant.value, kind: 'prompt' }),
+  params: () => ({ variant: hcVariant.value, kind: 'prompt', base: currentAlignBase() }),
   run: promptRun, tail: promptRunTail, text: promptRunText, logEl: promptLogEl,
   shouldRender: () => false,
   onStart: () => { cachedPrompt = null; promptStats.value = null; promptMsg.value = null; promptApplied.value = false },
@@ -277,22 +286,24 @@ const promptRunner = makeHeadlessRun({
 })
 const startPromptRun = promptRunner.start
 // ---- 執行 LLM 對齊結果（不用 LLM）----
-// 跟「執行 LLM 評價/互動」同一套：對齊結果檔存了移動後的座標，「執行調整」只切換
-// 「LLM 對齊」主視圖（mode 'hc-llm'）顯示。自動與指定兩個 toggle 互斥（同一個視圖
-// 只能顯示一種）。各鏈與 RWD 'llm' compact 是「地基」，一律套用「自動對齊」結果
-// （見 render 的 applyAlign）、不受任何 toggle 影響。
+// 「執行調整」切換「LLM 對齊」主視圖（mode 'hc-llm'）顯示的佈局：base HC ⇄ 自動
+// ⇄ 指定（自動與指定互斥）。**下游的鏈（hc-llm-*）跟著目前顯示的佈局走**——所以
+// toggle 一變就作廢 'llm' 鏈快取、讓它們以新的顯示佈局重算（使用者裁決）。
+// RWD 'llm' compact 是另一個 layer、沒有 toggle，維持用「自動對齊」當基準。
 const llmApplied = ref(false)
 const promptApplied = ref(false)
 function toggleLlmExec() {
   if (!cachedLlm?.cells) return
   llmApplied.value = !llmApplied.value
   if (llmApplied.value) promptApplied.value = false // 互斥
+  invalidateLlmDownstream() // 顯示佈局變了 → 鏈重算
   render()
 }
 function togglePromptExec() {
   if (!cachedPrompt?.cells) return
   promptApplied.value = !promptApplied.value
   if (promptApplied.value) llmApplied.value = false // 互斥
+  invalidateLlmDownstream() // 顯示佈局變了 → 鏈重算
   render()
 }
 // ---- LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
@@ -946,14 +957,16 @@ async function render() {
         else { promptStats.value = null; promptMsg.value = cachedPrompt?.miss ?? null; promptApplied.value = false }
       }
       // 套用規則：
-      // - 各鏈（hc-llm-*）與 RWD 'llm' compact＝地基，一律用「自動對齊」結果。
-      // - LLM 對齊主視圖（mode 'hc-llm'）＝看 toggle：指定 > 自動 > base HC（互斥）。
-      if (onMainAlign) {
+      // - LLM 對齊主視圖（'hc-llm'）與其下游鏈（hc-llm-*）＝跟著「目前顯示的佈局」：
+      //   指定 > 自動 > base HC（互斥 toggle）。鏈以此為輸入，toggle 變就重算（見
+      //   toggleLlmExec/togglePromptExec 的 invalidateLlmDownstream）。
+      // - RWD 'llm' compact（另一個 layer、沒有 toggle）＝以「自動對齊」為基準。
+      if (isRWD.value) {
+        if (cachedLlm?.cells) cells = cachedLlm.cells
+      } else {
         if (promptApplied.value && cachedPrompt?.cells) cells = cachedPrompt.cells
         else if (llmApplied.value && cachedLlm?.cells) cells = cachedLlm.cells
         // 否則維持 base HC（cells 未動）
-      } else if (cachedLlm?.cells) {
-        cells = cachedLlm.cells
       }
     }
     // 鏈的後處理順序：端點移動 → 直線縮減 → 網格合併（循環 tab 另走

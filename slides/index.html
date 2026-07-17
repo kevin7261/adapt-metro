@@ -66,6 +66,7 @@
   body{
     font-family:var(--sans); color:var(--ink); background:var(--page-bg);
     overflow:hidden; -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column;   /* header / 工作區 / 底部工具列 直式堆疊 */
   }
   a{color:inherit;}
   strong,b{font-weight:700;}
@@ -117,15 +118,61 @@
   }
   .app-toolbar .menu-item:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
 
-  /* Google Slides 式：固定 16:9 的白色投影片畫布置中，依視窗等比縮放。
+  /* ===== Google Slides 式觀看版面（無編輯功能）：header 下方＝左縮圖膠捲＋中央畫布，最底為工具列 ===== */
+  .workspace{ display:flex; flex:1; min-height:0; }
+
+  /* 左側縮圖膠捲：每頁一張等比縮小的實時預覽，可點跳頁、目前頁高亮（同 Google Slides）。
+     min-height:0 讓它在 flex 版面內能被視窗高度綁定 → 內容超出就捲動。 */
+  .filmstrip{
+    flex:0 0 184px; min-height:0; overflow-y:auto; overflow-x:hidden;
+    background:#f1f3f4; border-right:1px solid #dadce0;
+    padding:12px 10px; display:flex; flex-direction:column; gap:10px;
+  }
+  /* 捲軸樣式（細、淺灰，像 Google Slides） */
+  .filmstrip::-webkit-scrollbar{ width:10px; }
+  .filmstrip::-webkit-scrollbar-thumb{ background:#bdc1c6; border-radius:6px; border:3px solid #f1f3f4; }
+  .filmstrip::-webkit-scrollbar-thumb:hover{ background:#9aa0a6; }
+  .filmstrip{ scrollbar-width:thin; scrollbar-color:#bdc1c6 #f1f3f4; }
+  /* 縮圖項不可被壓扁——否則 flex column 會擠壓而非捲動 */
+  .filmstrip-item{ flex-shrink:0; display:flex; gap:8px; align-items:flex-start; cursor:pointer; }
+  .filmstrip-item .fs-num{
+    font-size:11px; color:#5f6368; font-family:var(--mono);
+    width:14px; text-align:right; padding-top:3px; flex-shrink:0;
+  }
+  .filmstrip-item .thumb{
+    flex:1; aspect-ratio:16/9; position:relative; overflow:hidden;
+    background:#fff; border:1px solid #dadce0; border-radius:3px;
+    box-shadow:0 1px 2px rgba(0,0,0,.08);
+  }
+  .filmstrip-item:hover .thumb{ border-color:#bdc1c6; }
+  .filmstrip-item.current .fs-num{ color:var(--blue); font-weight:700; }
+  .filmstrip-item.current .thumb{ border-color:var(--blue); box-shadow:0 0 0 2px var(--blue); }
+  /* 縮圖內是 1280×720 的實時 clone，用 transform 縮小（scale 由 JS 依寬度算） */
+  .thumb-inner{
+    position:absolute; top:0; left:0; width:1280px; height:720px; transform-origin:top left;
+    pointer-events:none; background:#fff;
+    --page-bg:#fff; --dot:transparent; --card-bg:#fff; --border:#e2e8f0;
+    --ink:#0b1220; --muted:#475569; --muted2:#64748b; --code-bg:#0f172a; --code-ink:#e2e8f0;
+  }
+  .thumb-inner .slide{
+    opacity:1 !important; visibility:visible !important; transform:none !important;
+    transition:none !important; pointer-events:none; overflow:hidden;
+  }
+  .thumb-inner .slide.divider .roman{ opacity:.12; }
+
+  /* 中央畫布：固定 16:9 白色投影片置中、依可用空間等比縮放。
      內容以 1280×720 設計解析度撰寫（字級固定 px），縮放不改排版。 */
   .deck{
-    position:relative; width:100%; height:calc(100vh - 45px); height:calc(100dvh - 45px); overflow:hidden;
+    position:relative; flex:1; min-width:0; height:100%; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
-    background-color:var(--page-bg);
-    background-image: radial-gradient(var(--dot) 1px, transparent 1px);
-    background-size: 22px 22px;
+    background-color:#f1f3f4;
   }
+
+  /* 簡報模式（全螢幕，按 ⤢ 或 F）：只留投影片、黑底置中，隱藏 header 與縮圖膠捲，
+     點畫布前進、右鍵後退、Esc 離開——與 Google Slides present 一致。 */
+  :fullscreen .app-toolbar, :fullscreen .filmstrip, :fullscreen .slidebar{ display:none; }
+  :fullscreen .deck{ background:#000; cursor:none; }
+  :fullscreen .deck:hover{ cursor:default; }
   .stage{
     position:relative; flex:0 0 auto; width:1280px; height:720px;
     background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
@@ -279,41 +326,49 @@
   .btn.primary{ background:var(--ink); color:var(--page-bg); border-color:var(--ink); }
   .btn.ghost{ background:var(--card-bg); color:var(--ink); }
 
-  /* Nav chrome */
-  .chrome{ position:fixed; inset:0; pointer-events:none; z-index:40; }
-  .progress{ position:absolute; top:0; left:0; height:3px; background:var(--blue); transition:width .3s ease; }
-  .backlink{
-    position:absolute; top:14px; left:14px; pointer-events:auto;
-    display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted);
-    background:var(--card-bg); border:1px solid var(--border); border-radius:999px; padding:5px 11px 5px 9px;
-    text-decoration:none;
+  /* 底部工具列（固定白底，使用者：bar 白色）：上層＝很長的可點 seek bar（點哪跳哪張 slide），
+     下層＝上一頁 ・ 置中頁碼 ・ 下一頁＋全螢幕。 */
+  .slidebar{
+    flex-shrink:0; display:flex; flex-direction:column; gap:7px;
+    padding:9px 14px 11px;
+    background:#ffffff; border-top:1px solid #dadce0; color:#3c4043;
   }
-  .backlink:hover{ color:var(--ink); }
-  .fsbtn{
-    position:absolute; top:14px; right:14px; pointer-events:auto;
-    width:32px; height:32px; border-radius:999px; border:1px solid var(--border); background:var(--card-bg);
-    color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  /* 很長的 seek bar：滿版、可點跳頁，fill 顯示目前進度，hover 顯示該位置頁碼 */
+  .seekbar{ position:relative; height:8px; border-radius:4px; background:#e8eaed; cursor:pointer; }
+  .seekbar:hover{ background:#dde1e6; }
+  .seekbar .seek-fill{ position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:#2563eb; transition:width .25s ease; }
+  .seekbar .seek-tip{
+    position:absolute; bottom:15px; transform:translateX(-50%);
+    background:#3c4043; color:#fff; font-size:11px; padding:2px 7px; border-radius:4px;
+    white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .1s; font-family:var(--mono);
   }
-  .fsbtn:hover{ color:var(--ink); }
-  .navbar{
-    position:absolute; bottom:14px; left:50%; transform:translateX(-50%); pointer-events:auto;
-    display:flex; align-items:center; gap:10px;
-    background:var(--card-bg); border:1px solid var(--border); border-radius:999px; padding:5px 7px;
+  .seekbar:hover .seek-tip{ opacity:1; }
+  /* 控制列：頁碼絕對置中；prev 靠左、next＋全螢幕靠右 */
+  .sb-row{ position:relative; display:flex; align-items:center; gap:6px; min-height:30px; }
+  .sb-row .counter{
+    position:absolute; left:50%; transform:translateX(-50%);
+    font-family:var(--mono); font-size:13px; color:#5f6368; user-select:none;
   }
+  .sb-right{ margin-left:auto; display:flex; align-items:center; gap:6px; }
   .navbtn{
-    width:28px; height:28px; border-radius:50%; border:none; background:transparent; color:var(--ink);
-    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px;
+    width:30px; height:30px; border-radius:6px; border:none; background:transparent; color:#5f6368;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; font-family:inherit;
   }
-  .navbtn:hover{ background:hsl(0 0% 50% / .12); }
-  .navbtn:disabled{ opacity:.3; cursor:default; }
-  .counter{ font-family:var(--mono); font-size:12px; color:var(--muted); min-width:52px; text-align:center; user-select:none; }
+  .navbtn:hover{ background:#f1f3f4; }
+  .navbtn:disabled{ opacity:.35; cursor:default; }
+  .sb-fs{  /* 只有圖示（使用者：全螢幕的字不用寫）→ 方形圖示鈕 */
+    display:inline-flex; align-items:center; justify-content:center; width:32px; height:30px; border-radius:6px;
+    border:1px solid #dadce0; background:transparent; color:#3c4043; cursor:pointer;
+  }
+  .sb-fs:hover{ background:#f1f3f4; }
+  .sb-fs .m-icon{
+    font-family:'Material Symbols Outlined'; font-size:18px; line-height:1;
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;
+  }
 
-  .edgezone{ position:absolute; top:0; bottom:0; width:56px; pointer-events:auto; cursor:pointer; z-index:5; }
-  .edgezone.left{ left:0; } .edgezone.right{ right:0; }
-
-  @media (max-width: 640px){
-    .navbar{ bottom:8px; }
-    .backlink span.txt{ display:none; }
+  /* 窄螢幕：縮圖膠捲變窄 */
+  @media (max-width: 720px){
+    .filmstrip{ flex-basis:132px; }
   }
 </style>
 <script>
@@ -351,6 +406,8 @@
     </div>
   </div>
 </header>
+<div class="workspace">
+<aside class="filmstrip" id="filmstrip" aria-label="投影片縮圖"></aside>
 <div class="deck" id="deck">
 <div class="stage" id="stage">
 
@@ -959,21 +1016,25 @@
     </div>
   </section>
 
-</div>
-</div>
+</div><!-- /stage -->
+</div><!-- /deck -->
+</div><!-- /workspace -->
 
-<div class="chrome">
-  <div class="progress" id="progress"></div>
-  <a class="backlink" href="../"><span>‹</span><span class="txt">回到系統</span></a>
-  <button class="fsbtn" id="fsBtn" title="全螢幕 (F)" aria-label="全螢幕">⤢</button>
-  <div class="edgezone left" id="edgeLeft"></div>
-  <div class="edgezone right" id="edgeRight"></div>
-  <div class="navbar">
-    <button class="navbtn" id="prevBtn" aria-label="上一頁">‹</button>
-    <span class="counter" id="counter">1 / 37</span>
-    <button class="navbtn" id="nextBtn" aria-label="下一頁">›</button>
+<!-- 底部工具列：上層＝很長的可點 seek bar（點哪跳哪張），下層＝prev・置中頁碼・next＋全螢幕 -->
+<footer class="slidebar">
+  <div class="seekbar" id="seekbar" title="點擊跳到該頁">
+    <div class="seek-fill" id="seekFill"></div>
+    <div class="seek-tip" id="seekTip"></div>
   </div>
-</div>
+  <div class="sb-row">
+    <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
+    <span class="counter" id="counter">1 / 41</span>
+    <div class="sb-right">
+      <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
+      <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
+    </div>
+  </div>
+</footer>
 
 <script>
 (function(){
@@ -993,6 +1054,38 @@
   document.addEventListener('fullscreenchange', fit);
   fit();
 
+  // ---- 左側縮圖膠捲（Google Slides 式）：每頁一張實時等比縮小的 clone，可點跳頁 ----
+  var filmstrip = document.getElementById('filmstrip');
+  var thumbItems = [];
+  slides.forEach(function(s, i){
+    var item = document.createElement('div');
+    item.className = 'filmstrip-item';
+    item.setAttribute('role', 'button');
+    item.title = (i + 1) + '　' + (s.getAttribute('data-title') || '');
+    var num = document.createElement('span');
+    num.className = 'fs-num'; num.textContent = (i + 1);
+    var thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    var inner = document.createElement('div');
+    inner.className = 'thumb-inner';
+    var clone = s.cloneNode(true);
+    clone.removeAttribute('id');
+    inner.appendChild(clone);
+    thumb.appendChild(inner);
+    item.appendChild(num); item.appendChild(thumb);
+    item.addEventListener('click', function(){ go(i); });
+    filmstrip.appendChild(item);
+    thumbItems.push(item);
+  });
+  function scaleThumbs(){
+    thumbItems.forEach(function(item){
+      var thumb = item.querySelector('.thumb'), inner = item.querySelector('.thumb-inner');
+      var w = thumb.clientWidth; if (w) inner.style.transform = 'scale(' + (w / 1280) + ')';
+    });
+  }
+  window.addEventListener('resize', scaleThumbs);
+  scaleThumbs();
+
   var progressEl = document.getElementById('progress');
   var counterEl = document.getElementById('counter');
   var prevBtn = document.getElementById('prevBtn');
@@ -1008,6 +1101,8 @@
     progressEl.style.width = ((idx + 1) / total * 100) + '%';
     prevBtn.disabled = idx === 0;
     nextBtn.disabled = idx === total - 1;
+    thumbItems.forEach(function(item, i){ item.classList.toggle('current', i === idx); });
+    if (thumbItems[idx]) thumbItems[idx].scrollIntoView({ block: 'nearest' });
     var title = slides[idx].getAttribute('data-title') || '';
     document.title = (title ? title + ' · ' : '') + '系統介紹 · Adapt-Metro';
     history.replaceState(null, '', '#' + (idx + 1));
@@ -1023,8 +1118,9 @@
 
   prevBtn.addEventListener('click', prev);
   nextBtn.addEventListener('click', next);
-  document.getElementById('edgeLeft').addEventListener('click', prev);
-  document.getElementById('edgeRight').addEventListener('click', next);
+  // 簡報模式（全螢幕）：點畫布前進、右鍵後退（Google Slides present 行為）
+  deckEl.addEventListener('click', function(){ if (document.fullscreenElement) next(); });
+  deckEl.addEventListener('contextmenu', function(e){ if (document.fullscreenElement) { e.preventDefault(); prev(); } });
 
   document.addEventListener('keydown', function(e){
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }

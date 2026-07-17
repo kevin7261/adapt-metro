@@ -1,6 +1,6 @@
 ---
 name: route-llm-align
-description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API key，由 Claude Code 的模型直接當最佳化器：export 目前佈局 → LLM 讀圖提出短距離移動 → apply 經與其他三種相同的硬規則套用並存到 data/metro/llmviews。分兩種獨立結果檔：自動對齊（<city>.<variant>.json，純最大化 H/V，是各鏈與 RWD 'llm' 的地基）與指定對齊（加 --prompt 旗標寫 .prompt.json，依使用者一句話、只在主視圖比較用）。網頁分「LLM自動對齊」「LLM指定對齊」兩 tab，跟 route-llm-eval/route-llm-grid 同一套：跑完不自動套用、按「執行調整」才套用、重跑清舊資料。當使用者要求跑/重跑/更新某城市的 LLM 對齊（自動或指定）、產生 llmview、或問 LLM 對齊 tab 為何顯示「尚未產生」時使用。演算法背景見 [[route-hillclimb]]。
+description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API key，由 Claude Code 的模型直接當最佳化器：export 目前佈局 → LLM 讀圖提出短距離移動 → apply 經與其他三種相同的硬規則套用並存到 data/metro/llmviews。分兩種獨立結果檔：自動對齊（<city>.<variant>.json，純最大化 H/V）與指定對齊（加 --prompt 旗標寫 .prompt.json，依使用者一句話）。兩者都以「主視圖目前顯示的佈局」為起點（由 vite plugin 在 spawn 前 seed 進 outFile），下游各鏈跟著目前顯示的佈局重算；RWD 'llm' 版面固定以自動對齊為基準。網頁分「LLM自動對齊」「LLM指定對齊」兩 tab，跟 route-llm-eval/route-llm-grid 同一套：跑完不自動套用、按「執行調整」才套用、重跑清舊資料。當使用者要求跑/重跑/更新某城市的 LLM 對齊（自動或指定）、產生 llmview、或問 LLM 對齊 tab 為何顯示「尚未產生」時使用。演算法背景見 [[route-hillclimb]]。
 ---
 
 # LLM 對齊 (route-llm-align)
@@ -17,21 +17,33 @@ description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API ke
 ## 架構
 
 ```
-scripts/llmAlign.mjs export <cityId> <orig|rot> [--prompt]   ← 印出目前佈局（JSON）
+scripts/llmAlign.mjs export <cityId> <orig|rot> [--prompt]
   → 你讀 offSegs、決定 moves（scratchpad 寫 moves.json）
 scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json> [--prompt]
   → 經硬規則套用、存 data/metro/llmviews/<cityId>.<variant>[.prompt].json
   → 印出新 HV、rejected 清單 → 你據此再提下一輪 → 收斂即停
 ```
 
+export 一律以「目前 outFile 內容」為起點（沒有內容才用 base HC）。**起點不是你的
+責任**——vite plugin 在 spawn 你之前，已把「主視圖目前顯示的佈局」seed 進 outFile
+（顯示自動→複製 .json、顯示指定→複製 .prompt.json、顯示原佈局→清空從 HC 起）。
+你只要正常 export→apply 迭代，**不要自己重設起點、也別去讀別的檔**。
+
 **兩種對齊（結果檔完全獨立、互不覆蓋）**——網頁分成兩個 tab：
-- **自動對齊**（`LLM自動對齊` tab）：不加旗標，寫 `<cityId>.<variant>.json`。純粹
-  最大化 H/V，不看任何使用者指示。這是**地基**——各鏈與 RWD 'llm' 版面都採用它。
+- **自動對齊**（`LLM自動對齊` tab）：不加 `--prompt`，寫 `<cityId>.<variant>.json`。
+  純粹最大化 H/V，不看使用者指示。
 - **指定對齊**（`LLM指定對齊` tab）：export／apply **一律加 `--prompt`**，寫
-  `<cityId>.<variant>.prompt.json`。依使用者的一句話（例「把紅線拉成水平」）決定
-  移動哪些點。只在「LLM 對齊」主視圖比較用、**不餵下游**。
-- 觸發時 vite plugin 會在 prompt 裡指明是哪一種、要不要加 `--prompt`——照它做，
-  **絕不把指定對齊寫進 `.json`、也不要動另一個檔**。
+  `<cityId>.<variant>.prompt.json`。依使用者的一句話決定移動哪些點。只在「LLM 對齊」
+  主視圖比較用。
+- **起點＝目前顯示的佈局**：兩種對齊都以「LLM 對齊主視圖目前顯示的佈局」為起點。
+  這由 vite plugin 在 spawn 前 seed 進 outFile（顯示自動→複製 .json、顯示指定→複製
+  .prompt.json、顯示原佈局→清空從 HC）——你只要正常 export→apply，起點已備好。
+  例：畫面正顯示自動對齊 → 跑指定對齊時 outFile 已是自動結果 → 你從它往下做。
+- **下游跟著顯示走**：主視圖顯示哪一份（base HC／自動／指定，由「執行調整」toggle
+  決定），下游的「LLM對齊端點移動…」等鏈就以它為輸入、顯示一變就重算（前端負責）；
+  RWD 'llm' 版面固定以自動對齊為基準。
+- 觸發時照 vite plugin 的 prompt 指明的旗標做，**絕不把指定對齊寫進 `.json`、也不要
+  動另一個檔**。
 
 - `cityId` = geojson 檔名去副檔名（例 `as-twn-taipei`）；variant = HC 圖層的
   原始/旋轉。佈局格子是排名制 → node 端重建的鏈與 D3Tab **完全一致**。
@@ -46,8 +58,9 @@ scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json> [--prompt]
   `text`）。跑完載入結果但**不套用**——按「執行調整」才用對齊後座標重畫「LLM 對齊」
   主視圖、「恢復原佈局」切回對齊前的 Hill Climbing 佈局。自動與指定兩個 toggle
   **互斥**（同一個主視圖只能顯示一種）。**重新跑會先清掉舊的串流與結果**。
-- **地基不受 toggle 影響**：各鏈（hc-llm-*）與 RWD 'llm' 版面一律採用**自動對齊**
-  結果（`.json`），與主視圖的切換無關；指定對齊（`.prompt.json`）只在主視圖比較用。
+- **下游跟著顯示走**：各鏈（hc-llm-*）以「主視圖目前顯示的佈局」為輸入——顯示自動
+  就用自動、顯示指定就用指定、都沒套用就用 base HC，toggle 一變就重算。RWD 'llm'
+  版面（另一個 layer、沒有 toggle）固定以**自動對齊**為基準。
 - POST `/llm-align/run`（vite dev plugin `llmAlignTrigger`）帶 `kind`（auto/prompt）
   決定寫哪個檔；指定對齊另帶 `userPrompt`。輪詢 `/llm-align/status`。GH Pages 沒有
   dev server → 按鈕回報需要本機 `npm run dev`。測試替身：`LLM_ALIGN_CMD`。

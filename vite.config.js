@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import {
   createReadStream, existsSync, statSync, readdirSync, readFileSync,
-  cpSync, mkdirSync, writeFileSync,
+  cpSync, mkdirSync, writeFileSync, rmSync,
 } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { join, normalize, resolve } from 'node:path'
@@ -153,12 +153,31 @@ function claudeSkillTrigger(spec) {
         res.end(JSON.stringify({ error: 'bad params' }))
         return
       }
-      const { key, outFile, prompt, userPrompt } = v
+      const { key, outFile, prompt, userPrompt, seedFrom, resetOut } = v
       if (jobs.get(key)?.exit === null) {
         res.statusCode = 409
         res.end(JSON.stringify({ running: true }))
         return
       }
+      // Seed the result file from the currently-displayed layout BEFORE the run,
+      // so the skill starts optimizing from it (LLM 對齊「以目前顯示的佈局為主」):
+      //   resetOut → 清掉 outFile（base=hc，從 Hill Climbing 重新起）
+      //   seedFrom → 把顯示的那份結果檔複製進 outFile（base=auto/prompt）
+      // fingerprint 不符時 skill 端會自動忽略、退回 HC，所以這裡不需驗證。
+      try {
+        const outAbs = join(root, outFile)
+        if (resetOut) {
+          if (existsSync(outAbs)) rmSync(outAbs)
+        } else if (seedFrom) {
+          const srcAbs = join(root, seedFrom)
+          if (existsSync(srcAbs)) {
+            mkdirSync(join(root, 'data/metro/llmviews'), { recursive: true })
+            cpSync(srcAbs, outAbs)
+          } else if (existsSync(outAbs)) {
+            rmSync(outAbs) // 顯示的那份還沒存檔 → 當作從 HC 起
+          }
+        }
+      } catch { /* seeding is best-effort; skill falls back to HC on mismatch */ }
       const cmd = process.env[spec.cmdEnv] ?? 'claude'
       // Optional model pick from the panel dropdown: an allow-listed short key →
       // the real model id passed to `claude --model`. 'default' / missing / any
@@ -275,6 +294,16 @@ function llmAlignTrigger() {
       // job key 完全分開，互不覆蓋、互不影響。
       const kind = b.kind === 'prompt' ? 'prompt' : 'auto'
       const suffix = kind === 'prompt' ? '.prompt' : ''
+      const outFile = `data/metro/llmviews/${b.city}.${b.variant}${suffix}.json`
+      // base＝「LLM 對齊主視圖目前顯示的佈局」（hc/auto/prompt）。每次執行都以它為
+      // 起點（使用者裁決「以目前顯示的為主」）——handler 在 spawn 前把顯示的那份檔
+      // seed 進 outFile：base=auto/prompt → 複製該檔；base=hc → 清掉 outFile 從 HC 起。
+      // base 就是本 kind 自己（顯示的正是自己）→ 不動、接著自己 refine。
+      const base = ['auto', 'prompt', 'hc'].includes(b.base) ? b.base : 'hc'
+      const baseFile = base === 'auto' ? `data/metro/llmviews/${b.city}.${b.variant}.json`
+        : base === 'prompt' ? `data/metro/llmviews/${b.city}.${b.variant}.prompt.json` : null
+      const seedFrom = (baseFile && baseFile !== outFile) ? baseFile : null
+      const resetOut = base === 'hc'
       // Optional user steering: a free-text instruction typed in the panel that
       // biases which coordinates the model moves (e.g.「優先把紅線拉成水平」).
       // 2000: LLM評價的「執行評價結果」會把建議＋逐線評語整段餵進來（>1000 字）。
@@ -284,12 +313,15 @@ function llmAlignTrigger() {
       // （按鈕在 !prompt 時 disable），這裡只負責產出穩定的 key/outFile。
       return {
         key: `${b.city}.${b.variant}.${kind}`,
-        outFile: `data/metro/llmviews/${b.city}.${b.variant}${suffix}.json`,
+        outFile,
+        seedFrom,   // handler 在 spawn 前把這份檔複製進 outFile（起點＝目前顯示）
+        resetOut,   // base=hc → spawn 前清掉 outFile，從 Hill Climbing 重新起
         userPrompt,
         prompt: `使用 route-llm-align skill：幫城市 ${b.city}（變體 ${b.variant}）產生或更新`
           + (kind === 'prompt'
             ? `「指定對齊」結果——export／apply 一律加 --prompt 旗標，寫到 ${b.city}.${b.variant}.prompt.json（不要動 .json 的自動對齊結果）。`
             : '「自動對齊」結果（寫 .json）。')
+          + '起點佈局已由系統 seed 好（＝主視圖目前顯示的佈局）——直接 export 讀現有 outFile 內容當起點、接著往下 refine 即可，不要自己重設起點。'
           + '反覆 export → 分析 → apply 迭代到收斂（上限 10 輪）；每輪 moves.json 都要含 model 與 note（本輪思路），'
           + '第一輪另附 prompt 欄位記錄本段指示。完成後只輸出最終的 水平垂直 before → after 數字與一句總結。'
           + (userPrompt ? `\n\n使用者的指示（請據此決定要移動哪些座標、往哪對齊）：${userPrompt}` : ''),
