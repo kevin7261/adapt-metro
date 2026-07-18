@@ -12,7 +12,7 @@
 import { CONTINENT } from './continents.mjs'
 import { continentCode, iocCode } from './countryCodes.mjs'
 
-export const COUNTRIES = [
+const COUNTRIES = [
   // ── East Asia (使用者先抓: 台灣 日本 中國 韓國) ──────────────────────────
   { name: 'Taiwan', name_zh: '台灣', iso2: 'TW' },        // 台鐵 TRA + 台灣高鐵 THSR
   { name: 'Japan', name_zh: '日本', iso2: 'JP' },         // JR 各社 + 新幹線 (私鉄 excluded)

@@ -1,0 +1,53 @@
+// ---- 跨 reload 持久快取（localStorage）----
+// 最貴的計算是爬山（buildHillClimb）＋後處理（iteratePost）。它們的輸出是純資料
+// （cellAfter = Map<id,[c,r]>、stats = 數字），與畫布大小無關（rank-based），且對
+// 一份資料＋變體是確定的 → 存下來、關 tab 再開或重新整理都直接載回、不重跑。
+// 失效靠「資料內容指紋」：站/線一變指紋就變 → 自動 cache miss 重算，永不載到舊的。
+// LLM 對齊視圖只為了做指紋比對而跑爬山，載回快取後連它也免重算。
+// **快取鍵必須含演算法版本**：鍵的另一半是「資料指紋」（dataFingerprint 只看資料），
+// 資料沒變但**演算法變了**（如骨架建圖改含 pass）時，舊快取的佈局與新骨架結構對不上——
+// 節點缺格子 → RWD/HC 整段線消失、站點退回舊座標懸空（倫敦 Kilburn 案，2026-07-17）。
+// 且 localStorage 不隨 dev server 重啟/硬重載清除，殘留跨天。**改了 skeleton/schematicGrid/
+// hillClimb 的演算法就把版本 +1**；另有 use-time 結構驗證兜底（見 D3Tab 的 cachedHC 使用處）。
+const HC_LS_KEY = 'd3tab-hc-cache-v8' // v8: 清掉可能與 skill 端 fingerprint 漂移的殘留 HC 快取（LLM 結果誤判 stale）；v7: 河流不放灰（座標空間縮小）＋快取加界內驗證，清掉 v6 gray-on 殘留避免超出網格；v6: 河流粉紅/灰與 metro 一致；v5: 河流全點保留＋絕對 km 粉紅（巴黎長弦案）；v4: validShift 變形段補洞（大邱案）；v3: 骨架建圖含 pass
+const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
+
+let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
+
+export function dataFingerprint(data) {
+  let h = 5381
+  const add = (s) => { for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0 }
+  for (const f of data.features) {
+    if (f.geometry?.type === 'Point') add(`${f.properties.station_id}@${f.geometry.coordinates.join(',')}`)
+    else for (const r of f.properties?.routes ?? []) add(`${r.route_id ?? ''}#${(r.stations ?? []).map((s) => s.station_id).join('.')}`)
+  }
+  return (h >>> 0).toString(36)
+}
+
+function hcLsRead() { try { return JSON.parse(localStorage.getItem(HC_LS_KEY) || '{}') } catch { return {} } }
+function hcLsWrite(o) { try { localStorage.setItem(HC_LS_KEY, JSON.stringify(o)) } catch { /* quota / private mode → 靜默跳過 */ } }
+const deCells = (arr) => new Map(arr.map(([id, c, r]) => [id, [c, r]]))
+const serCells = (m) => [...m.entries()].map(([id, [c, r]]) => [id, c, r])
+
+export function loadHcCache(key) {
+  try {
+    const e = hcLsRead()[key]; if (!e) return null
+    const posts = {}
+    for (const k of Object.keys(e.posts ?? {})) posts[k] = { cellAfter: deCells(e.posts[k].cellAfter), stats: e.posts[k].stats }
+    return { hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats }, posts }
+  } catch { return null }
+}
+
+export function saveHcCache(key, hc, posts) {
+  if (!key || !hc) return
+  const o = hcLsRead()
+  const pj = {}
+  for (const k of Object.keys(posts ?? {})) if (posts[k]) pj[k] = { cellAfter: serCells(posts[k].cellAfter), stats: posts[k].stats }
+  o[key] = { t: hcLruClock++, hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats }, posts: pj }
+  const keys = Object.keys(o)
+  if (keys.length > HC_LS_MAX) {
+    keys.sort((a, b) => (o[a].t ?? 0) - (o[b].t ?? 0))
+    for (const k of keys.slice(0, keys.length - HC_LS_MAX)) delete o[k]
+  }
+  hcLsWrite(o)
+}

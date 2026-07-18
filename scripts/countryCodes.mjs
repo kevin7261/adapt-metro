@@ -4,7 +4,7 @@
 // Countries missing here fall back to a slug of the name — add the IOC code
 // and rebuild when that happens.
 
-export const CONTINENT_CODE = {
+const CONTINENT_CODE = {
   africa: 'af',
   asia: 'as',
   europe: 'eu',

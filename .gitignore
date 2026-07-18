@@ -18,3 +18,7 @@ dist/
 .claude/*
 !.claude/skills/
 !.claude/skills/**/
+
+# Local experiment scratch dirs
+.tmp-*/
+__pycache__/

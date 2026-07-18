@@ -17,7 +17,7 @@ import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
   buildHillClimb, buildHcGraph, iteratePost,
-  movewiseStage, buildRectPolish, buildAxisAlign, buildAxisIlp,
+  buildRectPolish, buildAxisAlign, buildAxisIlp,
   straightenCompactLoop,
 } from './hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
@@ -294,14 +294,6 @@ export function viewLabels(tilt) {
     'grid-rot-post': `${rot}格網化後`,
   }
 }
-
-// 視圖畫廊顯示順序（使用者 2026-07：畫廊只要 原始／旋轉／格網化前後×2＝6 個，
-// **不含骨架化**——骨架視圖仍由 computeCityViews 算進 JSON、live D3Tab 仍有，只是
-// 畫廊不顯示）。live 視圖清單另在 D3Tab 的 VIEW_TABS。
-export const VIEW_ORDER = [
-  'original', 'rotated',
-  'grid-orig-pre', 'grid-orig-post', 'grid-rot-pre', 'grid-rot-post',
-]
 
 /**
  * Compute the 12 Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
