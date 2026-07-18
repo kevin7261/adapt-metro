@@ -243,31 +243,7 @@ function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, o
       }
     }, 2500)
   }
-  // 重新整理／重新掛載後恢復進行中的 job：server 端 jobs Map 在 dev server 行程裡
-  // 跨重整存活，所以查一次 status 就能接回還在跑的那次執行——恢復 running 狀態、
-  // 把已串流的 transcript 補回面板、繼續輪詢（跑完照樣 onDone 重載結果）。job 早已
-  // 跑完（exit 0）時不必特別處理：結果檔已在磁碟，mount 的 render() 會自行載入。
-  async function resume() {
-    const cid = llmCityId.value
-    if (!cid || run.value === 'running') return
-    try {
-      const qs = new URLSearchParams({ city: cid, ...params() })
-      const res = await fetch(`${base}/status?${qs}`)
-      const s = await res.json()
-      if (s.running) {
-        run.value = 'running'
-        tail.value = s.tail ?? ''
-        if (s.text != null) {
-          text.value = s.text
-          requestAnimationFrame(() => {
-            if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
-          })
-        }
-        poll() // 接回輪詢：完成時 onDone(true) 會重載結果並 render
-      }
-    } catch { /* 沒有 dev server（GH Pages）或查詢失敗 → 無事可恢復 */ }
-  }
-  return { start, resume, stop: () => clearTimeout(timer) }
+  return { start, stop: () => clearTimeout(timer) }
 }
 // 清掉 LLM 對齊的所有下游快取（端點移動／直線縮減／網格合併／循環／逐步）——
 // 對齊佈局一變，這些以它為輸入的結果都作廢。run 前後與 toggle 時共用。
@@ -529,9 +505,19 @@ async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk })
     const isJson = (res.headers.get('content-type') ?? '').includes('json')
     const j = res.ok && isJson ? await res.json() : null
     if (!j) return { miss: missNone }
-    if (j.fingerprint?.verts !== cachedHC.stats.verts
-      || j.fingerprint?.segs !== cachedHC.stats.segs
-      || !fpOk(j.fingerprint ?? {})) return { miss: missStale }
+    const fp = j.fingerprint ?? {}
+    const vOk = fp.verts === cachedHC.stats.verts
+    const sOk = fp.segs === cachedHC.stats.segs
+    const extraOk = fpOk(fp)
+    if (!vOk || !sOk || !extraOk) {
+      // 診斷：印出「結果檔存的指紋 vs 網頁此刻實算」哪一欄對不上（stale 定位用）。
+      console.warn('[llm-stale]', url, {
+        fileFingerprint: fp,
+        webVerts: cachedHC.stats.verts, webSegs: cachedHC.stats.segs,
+        vertsMatch: vOk, segsMatch: sOk, colsRowsMatch: extraOk,
+      })
+      return { miss: missStale }
+    }
     return onOk(j)
   } catch { return { miss: missErr } }
 }
@@ -1698,13 +1684,6 @@ onMounted(() => {
   setActive(panelApi.isActive)
 
   render()
-
-  // 重新整理／重新掛載後，接回任何還在跑的 LLM job（4 個功能：對齊/指定對齊/互動/
-  // 評價）——否則重整當下正在等 LLM 回傳的那次執行會遺失、永遠收不到結果。
-  llmRunner.resume()
-  promptRunner.resume()
-  gridRunner.resume()
-  evalRunner.resume()
 })
 
 onBeforeUnmount(() => {
