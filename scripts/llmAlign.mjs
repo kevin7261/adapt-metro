@@ -24,7 +24,12 @@ import { geoMercator } from 'd3-geo'
 import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
-import { buildHillClimb, buildHcGraph, applyLlmTargets } from '../src/stores/hillClimb.js'
+import { buildHillClimb, buildHcGraph, applyLlmTargets, setSpanCap } from '../src/stores/hillClimb.js'
+
+// 跨距上限（SPAN_CAP）：與網頁一致——vite plugin 觸發的 headless run 經
+// LLM_SPAN_CAP env 傳入網頁「已套用」的最大跨距；手動 CLI 跑（無 env）＝預設 3。
+// 兩邊同值，佈局／fingerprint 才會一致。
+setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')

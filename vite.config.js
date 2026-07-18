@@ -201,13 +201,18 @@ function claudeSkillTrigger(spec) {
       // line as the run unfolds — so we can surface the model's replies live
       // instead of only its final text. A stub command (spec.cmdEnv) that
       // prints plain lines still works: unparseable lines fall back to raw text.
+      // 跨距上限（SPAN_CAP）：網頁把「已套用」的最大跨距隨 /run body 送來，這裡經
+      // env 傳給 headless run 裡模型執行的 node 腳本（llmAlign/llmGrid/llmEval.mjs
+      // 讀 LLM_SPAN_CAP）——兩邊用同一個跨距，縮減網格尺寸（fingerprint 的 cols/rows）
+      // 才會一致；不傳＝腳本用預設 3（手動 CLI 跑也是 3）。
+      const spanCap = Math.min(99, Math.max(1, Math.round(+body?.span) || 3))
       const child = spawn(cmd, [
         '-p', runPrompt,
         ...(modelId ? ['--model', modelId] : []),
         '--output-format', 'stream-json', '--verbose',
         '--permission-mode', 'acceptEdits',
         '--allowedTools', 'Bash(node:*),Read,Write,Glob,Grep,Skill',
-      ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
+      ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LLM_SPAN_CAP: String(spanCap) } })
       const job = { child, log: [], text: '', final: '', exit: null, prompt, buf: '' }
       jobs.set(key, job)
       const append = (s) => {
