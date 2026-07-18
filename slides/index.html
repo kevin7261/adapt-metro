@@ -332,17 +332,17 @@
   /* 底部工具列（固定白底）：右邊全螢幕鈕會讓中央偏右 → 左邊補等寬佔位，
      讓 ‹ [長條] › 這一組真正水平置中（左右對稱：佔位↔全螢幕、prev↔next）。 */
   .slidebar{
-    flex-shrink:0; display:flex; align-items:center; gap:12px;
-    padding:8px 20px 11px; background:#ffffff; border-top:1px solid #ebedf0; color:#5f6368;
+    flex-shrink:0; display:flex; align-items:center; gap:10px;
+    padding:11px 16px; background:#ffffff; border-top:1px solid #ebedf0; color:#5f6368;
   }
-  .sb-ph{ flex-shrink:0; width:32px; height:32px; }  /* 左側佔位＝全螢幕鈕寬，平衡右側 */
-  /* 中央：頁碼小字置中在上、細軌道在下 */
-  .seekwrap{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0; }
-  .seekwrap .counter{
-    font-family:var(--mono); font-size:11px; letter-spacing:.02em; color:#80868b; user-select:none;
+  /* 兩端等寬（左端空、右端放數字＋全螢幕）→ ‹ [bar] › 這組落在正中央、bar 在 < > 之間置中 */
+  .sb-end{ flex-shrink:0; display:flex; align-items:center; gap:8px; width:106px; }
+  .sb-end-r{ justify-content:flex-end; }
+  .sb-end .counter{  /* 數字放右邊 */
+    font-family:var(--mono); font-size:12px; color:#5f6368; user-select:none; white-space:nowrap;
   }
   /* 細軌道（6px）＋藍 fill＋hover 才出現的小圓 knob；點哪跳哪張，hover 浮出該位置頁碼 */
-  .seekbar{ position:relative; width:100%; height:6px; border-radius:3px; background:#e6e9ec; cursor:pointer; }
+  .seekbar{ position:relative; flex:1; min-width:0; height:6px; border-radius:3px; background:#e6e9ec; cursor:pointer; }
   .seekbar .seek-fill{
     position:absolute; left:0; top:0; bottom:0; border-radius:3px; background:#2563eb;
     transition:width .25s ease; pointer-events:none;
@@ -1029,18 +1029,18 @@
 
 <!-- 底部工具列（在畫布這一欄，跟畫布一起、與縮圖膠捲無關）：‹ ［頁碼置中／細軌］ › ⤢ -->
 <footer class="slidebar">
-  <span class="sb-ph" aria-hidden="true"></span>
+  <div class="sb-end sb-end-l" aria-hidden="true"></div>
   <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
-  <div class="seekwrap">
-    <span class="counter" id="counter">1 / 41</span>
-    <div class="seekbar" id="seekbar" title="點擊跳到該頁">
-      <div class="seek-fill" id="seekFill"></div>
-      <div class="seek-knob" id="seekKnob"></div>
-      <div class="seek-tip" id="seekTip"></div>
-    </div>
+  <div class="seekbar" id="seekbar" title="點擊跳到該頁">
+    <div class="seek-fill" id="seekFill"></div>
+    <div class="seek-knob" id="seekKnob"></div>
+    <div class="seek-tip" id="seekTip"></div>
   </div>
   <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
-  <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
+  <div class="sb-end sb-end-r">
+    <span class="counter" id="counter">1 / 41</span>
+    <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
+  </div>
 </footer>
 </div><!-- /deckcol -->
 </div><!-- /workspace -->
