@@ -1,11 +1,12 @@
 <script setup>
 import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
-import { mapHandle } from '../stores/mapHandle'
 import { openLayerTab, openAllGalleryTab, dockHandle } from '../stores/dockHandle'
-import { layerData, boundsOfGeojson } from '../stores/layerData'
+import { layerData } from '../stores/layerData'
 import { dragResize } from '../lib/dragResize'
 import { openSkillDoc } from '../stores/skillHandle'
+import { openLayerDoc } from '../stores/layerDocHandle'
+import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
 import MIcon from './MIcon.vue'
 
@@ -150,12 +151,7 @@ function openLayer(layer) {
 
 // Overflow 選單動作（lookup table；template 傳常數字串）。
 const OVERFLOW_ACTIONS = {
-  zoom: (layer) => {
-    openLayer(layer)
-    const data = layerData[layer.id]
-    const bbox = data && boundsOfGeojson(data)
-    if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
-  },
+  // Zoom to layer 已移到 TopToolbar（對目前選取的圖層縮放）。
   // Toggle THIS layer's own attribute table (independent per layer); does
   // not touch the active tab / layer highlight.
   table: (layer) => store.toggleAttributeTable(layer.id),
@@ -385,13 +381,15 @@ onBeforeUnmount(() => {
                 <!-- stop only on the buttons — a click on the strip's empty area
                      must still bubble to the row and open the layer's tab -->
                 <div class="layer-actions">
+                  <!-- Zoom to layer 已移到上方 TopToolbar（對目前選取的圖層縮放）。 -->
+                  <!-- 「?」說明：這個圖層的做法／JSON 格式／顯示方式（LayerDocViewer）。
+                       放在 skill icon 前面（使用者要求）。 -->
                   <button
-                    v-if="row.layer.type === 'metro'"
                     class="btn-icon"
-                    title="Zoom to layer"
-                    @click.stop="overflow(row.layer, 'zoom')"
+                    title="這個圖層的做法／JSON 格式／顯示方式"
+                    @click.stop="openLayerDoc(docKeyForLayer(row.layer), rowLabel(row.layer))"
                   >
-                    <MIcon name="zoom_in" :size="14" />
+                    <MIcon name="help" :size="14" />
                   </button>
                   <!-- Skills（此圖層階段用到的）— attribute table 左邊，同改版前位置 -->
                   <div class="skill-wrap">
@@ -435,7 +433,14 @@ onBeforeUnmount(() => {
                   <button class="btn-icon" title="Export GeoJSON" @click.stop="overflow(row.layer, 'export')">
                     <MIcon name="download" :size="14" />
                   </button>
-                  <button class="btn-icon danger" title="Remove layer" @click.stop="overflow(row.layer, 'remove')">
+                  <!-- 只有主圖層（無 sourceLayerId）可單獨刪除；衍生子圖層不需刪除功能
+                       （使用者裁決）——整城清理走群組標題的「刪除此城市全部圖層」。 -->
+                  <button
+                    v-if="!row.layer.sourceLayerId"
+                    class="btn-icon danger"
+                    title="Remove layer"
+                    @click.stop="overflow(row.layer, 'remove')"
+                  >
                     <MIcon name="delete" :size="14" />
                   </button>
                 </div>

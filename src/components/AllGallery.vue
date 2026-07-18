@@ -36,8 +36,9 @@ async function load() {
 
 // 圖層節點：key（勾選鍵）、label（清單顯示名）、kind（卡片區段 raw/adjust/
 // straighten/rwd）、view（代表縮圖 id）、icon（與圈層面板同款圖示）。
+// 「基本」（hc 源）僅作 fallback，不列入畫廊——使用者裁決移除「原始・基本」「旋轉・基本」。
 const RWD_CHAINS = [
-  ['hc', '基本'], ['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
+  ['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
 ]
 const rwdRows = (variant, vLabel) => RWD_CHAINS.map(([c, zh]) => ({
   key: `rwd-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'rwd', view: `rwd-${c}-${variant}`, icon: 'route',

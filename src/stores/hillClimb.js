@@ -31,7 +31,7 @@ const DEFAULT_W = {
 }
 
 /* ---- exact integer geometry ---- */
-import { sharesRoute, isHV } from './netUtil.js'
+import { sharesRoute, isHV, isHVD } from './netUtil.js'
 
 const ckey = (c, r) => `${c},${r}`
 
@@ -78,6 +78,14 @@ function segsIntersect(a, b, c, d) {
 function countHV(pos, segs) {
   let n = 0
   for (const s of segs) if (isHV(pos.get(s.a), pos.get(s.b))) n++
+  return n
+}
+// 「H/V 或格對角 45°」對齊段數——LLM 對齊（applyLlmTargets）用它當接受準則，讓對角
+// 走向對到 45° 對角而非硬拉成 H/V 樓梯（使用者規則）。rect/align/ilp 三個後處理仍用
+// countHV（它們的目標是純 H/V 最大化，不變）。
+function countHVD(pos, segs) {
+  let n = 0
+  for (const s of segs) if (isHVD(pos.get(s.a), pos.get(s.b))) n++
   return n
 }
 
@@ -595,9 +603,11 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
 // targets assume simultaneous moves, so a partially applied solution can break
 // more alignments than it lands — if the net H/V count got worse, the whole
 // application is rolled back and the input layout kept.
-function applyTargets(pos, M, targets, segs, maxPasses = 6) {
+// `count` = 對齊分數函式（預設 countHV＝純水平垂直；LLM 對齊傳 countHVD＝含格對角
+// 45°，讓對角走向對到斜線而非硬拉成 H/V 樓梯）。淨對齊分數變差就整批退回。
+function applyTargets(pos, M, targets, segs, maxPasses = 6, count = countHV) {
   const start = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
-  const hv0 = countHV(pos, segs)
+  const hv0 = count(pos, segs)
   const ids = [...targets.keys()].sort()
   let passes = 0
   for (let p = 0; p < maxPasses; p++) {
@@ -617,7 +627,7 @@ function applyTargets(pos, M, targets, segs, maxPasses = 6) {
     }
     if (!changed) break
   }
-  if (countHV(pos, segs) < hv0) {
+  if (count(pos, segs) < hv0) {
     for (const [id, p] of start) pos.set(id, [p[0], p[1]])
     return { moved: 0, passes, reverted: true }
   }
@@ -1415,17 +1425,21 @@ export function applyLlmTargets(skeleton, cells, cols, rows, targetEntries) {
   }
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
+  const hvdBefore = countHVD(pos, segs)
   const targets = new Map()
   for (const [id, t] of targetEntries) {
     if (!pos.has(id)) continue
     if (!Array.isArray(t) || !Number.isInteger(t[0]) || !Number.isInteger(t[1])) continue
     targets.set(id, [t[0], t[1]])
   }
-  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs)
+  // LLM 對齊的接受準則＝H/V/對角 45°（countHVD），讓對角走向對到斜線而非 H/V 樓梯。
+  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs, 6, countHVD)
   return {
     cellAfter: pos,
     stats: {
-      hvBefore, hvAfter: countHV(pos, segs), segs: segs.length, verts: pos.size,
+      hvBefore, hvAfter: countHV(pos, segs),
+      hvdBefore, hvdAfter: countHVD(pos, segs),
+      segs: segs.length, verts: pos.size,
       moved, passes, reverted, proposed: targets.size,
     },
   }

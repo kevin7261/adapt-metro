@@ -94,21 +94,37 @@ const hvOf = (cells) => {
   }
   return n
 }
+// 「H/V 或格對角 45°」對齊段數——LLM 對齊的實際目標（見 applyLlmTargets/countHVD）。
+const hvdOf = (cells) => {
+  let n = 0
+  for (const s of segs) {
+    const A = cells.get(s.a), B = cells.get(s.b)
+    const dc = Math.abs(A[0] - B[0]), dr = Math.abs(A[1] - B[1])
+    if ((dc === 0) !== (dr === 0) || (dc === dr && dc !== 0)) n++
+  }
+  return n
+}
 
 if (cmd === 'export') {
   const verts = ids.map((id, i) => {
     const [c, r] = baseCells.get(id)
     return { i, c, r }
   })
-  // offSegs = what to fix; hvSegs = what NOT to break (a move that unaligns
-  // one of these costs exactly what a new alignment gains).
+  // offSegs = what to fix; alignedSegs = what NOT to break (a move that unaligns
+  // one of these costs exactly what a new alignment gains). 對齊＝H/V **或格對角
+  // 45°**（使用者規則：對角走向對到斜線、不要硬拉成 H/V 樓梯）——|dx|===|dy| 的段
+  // 已是對角、算已對齊、不進 offSegs（不要去拉直它）。
   const offSegs = []
-  const hvSegs = []
+  const hvSegs = []   // 已對齊段（含對角）——沿用欄名，dir 增加 'D'
   for (const s of segs) {
     const A = baseCells.get(s.a), B = baseCells.get(s.b)
     const dx = B[0] - A[0], dy = B[1] - A[1]
-    if ((A[0] === B[0]) !== (A[1] === B[1])) {
+    const isHValigned = (A[0] === B[0]) !== (A[1] === B[1])
+    const isDiag = Math.abs(dx) === Math.abs(dy) && dx !== 0
+    if (isHValigned) {
       hvSegs.push({ a: idxOf.get(s.a), b: idxOf.get(s.b), dir: dx === 0 ? 'V' : 'H' })
+    } else if (isDiag) {
+      hvSegs.push({ a: idxOf.get(s.a), b: idxOf.get(s.b), dir: 'D' }) // 格對角 45°＝已對齊
     } else {
       offSegs.push({ a: idxOf.get(s.a), b: idxOf.get(s.b), dx, dy })
     }
@@ -116,7 +132,7 @@ if (cmd === 'export') {
   console.log(JSON.stringify({
     city: cityId, variant, cols: grid.cols, rows: grid.rows,
     rounds: saved?.rounds ?? 0, model: saved?.model ?? null,
-    hv: hvOf(baseCells), segsTotal: segs.length,
+    hv: hvOf(baseCells), hvd: hvdOf(baseCells), segsTotal: segs.length,
     verts, offSegs, hvSegs,
   }))
 } else if (cmd === 'apply') {

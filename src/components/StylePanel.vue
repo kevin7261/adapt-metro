@@ -136,7 +136,8 @@ const width = ref(300)
 const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
 const TABS = computed(() => [
   { id: 'info', label: '資訊' },
-  { id: 'object', label: '物件' },
+  // 物件 tab：只有選中某個 feature 時才出現；標籤＝目前物件內容類型（站點／路線／地標）。
+  ...(objectKind.value ? [{ id: 'object', label: objectKind.value }] : []),
   // LLM 系列 tab：用 auto_awesome（AI 火花）icon 取代「LLM」字首，標籤留短詞、
   // title 存完整名（tooltip/無障礙）。互動/評價常駐 RWD；自動/指定對齊只在左邊
   // 「直線演算法」的 LLM 對齊視圖（hc-llm 及其鏈，llmView）才出現。
@@ -276,6 +277,18 @@ const objectTitle = computed(() => {
   if (rl.length) return joinTitle(rl)
   return null
 })
+// 物件 tab 的標籤＝目前選中 feature 的內容類型（三種）；沒選中任何 feature（或無
+// 可顯示內容）時回 null → TABS 不列出物件 tab。
+//  · 地標（landmark_id）＝地標　· 車站（station_id）＝站點　· 其餘（有路段路線）＝路線
+const objectKind = computed(() => {
+  const p = selectedProps.value
+  if (!p) return null
+  if (p.landmark_id) return '地標'
+  if (p.station_id) return '站點'
+  if (selectedRouteLists.value.length) return '路線'
+  return null
+})
+
 // 任何目前 tab 消失（例如「權重」「設定」tab 已移除、換視圖後某 tab 不存在）→ 退回資訊。
 watch(TABS, (tabs) => { if (!tabs.some((t) => t.id === activeTab.value)) activeTab.value = 'info' })
 

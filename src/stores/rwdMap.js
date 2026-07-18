@@ -430,88 +430,11 @@ export function mergeParallelSegs(segs) {
   return out
 }
 
-// Fold a chain of consecutive SAME-LINE segments that meet at a DEGREE-2 node
-// into ONE segment. buildHcGraph cuts an edge at every non-black node (轉折/
-// 分歧/…), so a single line that merely CHANGES DIRECTION at a 轉折 station gets
-// split there — and the router, drawing each piece independently, renders the
-// run as a per-segment right-angle staircase. Merging the run lets the router
-// draw the WHOLE thing as one minimal H/V/45° polyline (使用者規則：轉折越少越好、
-// 能 45° 就 45°); the fold node becomes an interior station placed along the
-// straightened line. Only degree-2 single-line nodes fold — a junction/transfer
-// (degree ≥3) or a node where two DIFFERENT lines meet stays a cut, so topology
-// is unchanged. Loops are excluded. Every station id is preserved (as an
-// endpoint or an interior point). Verified 0 new crossings / 0 lost stations.
-export function mergeThroughSegs(segs) {
-  const routeKey = (s) => [...(s.routes ?? [])].sort().join(',') || (s.edge?.color ?? '')
-  const deg = new Map()
-  for (const s of segs) for (const id of [s.a, s.b]) deg.set(id, (deg.get(id) ?? 0) + 1)
-  const inc = new Map()
-  segs.forEach((s, i) => { for (const id of [s.a, s.b]) { if (!inc.has(id)) inc.set(id, []); inc.get(id).push(i) } })
-  // A node folds in only when EXACTLY two segments touch it, they are the same
-  // line (identical route set), and neither is a loop edge.
-  const foldable = (id) => {
-    const ii = inc.get(id)
-    return !!ii && ii.length === 2 && deg.get(id) === 2 &&
-      routeKey(segs[ii[0]]) === routeKey(segs[ii[1]]) &&
-      segs[ii[0]].edge?.cls !== 'loop' && segs[ii[1]].edge?.cls !== 'loop'
-  }
-  const used = new Array(segs.length).fill(false)
-  const out = []
-  for (let start = 0; start < segs.length; start++) {
-    if (used[start]) continue
-    const chain = [start]; used[start] = true
-    // grow the chain outward through foldable nodes from both free ends
-    const grow = (endNode, prepend) => {
-      let node = endNode
-      while (foldable(node)) {
-        const [i0, i1] = inc.get(node)
-        const nx = used[i0] ? (used[i1] ? -1 : i1) : i0
-        if (nx < 0 || used[nx]) break
-        used[nx] = true
-        if (prepend) chain.unshift(nx); else chain.push(nx)
-        const ns = segs[nx]
-        node = ns.a === node ? ns.b : ns.a
-      }
-    }
-    grow(segs[start].b, false)
-    grow(segs[start].a, true)
-    if (chain.length === 1) { out.push(segs[start]); continue }
-    // order the chain into a connected node walk nodes[0] … nodes[last]; start
-    // from a true end (a node touched by exactly one chain segment).
-    const endCount = new Map()
-    for (const ci of chain) for (const id of [segs[ci].a, segs[ci].b]) endCount.set(id, (endCount.get(id) ?? 0) + 1)
-    let node = null
-    for (const ci of chain) { for (const id of [segs[ci].a, segs[ci].b]) if (endCount.get(id) === 1) node = id; if (node) break }
-    if (node == null) { for (const ci of chain) out.push(segs[ci]); continue } // pure cycle — leave as-is
-    const remaining = new Set(chain), nodes = [node], order = []
-    while (remaining.size) {
-      let hit = -1
-      for (const ci of remaining) { const cs = segs[ci]; if (cs.a === node) { hit = ci; node = cs.b; break } if (cs.b === node) { hit = ci; node = cs.a; break } }
-      if (hit < 0) break
-      order.push(hit); remaining.delete(hit); nodes.push(node)
-    }
-    // merged interior = each seg's interior (oriented along the walk) with each
-    // folded shared node wedged between consecutive segments.
-    const first = segs[order[0]], interior = []
-    for (let k = 0; k < order.length; k++) {
-      const cs = segs[order[k]]
-      const fwd = cs.a === nodes[k]
-      interior.push(...(fwd ? cs.interior : [...cs.interior].reverse()))
-      if (k < order.length - 1) interior.push(nodes[k + 1])
-    }
-    out.push({ a: nodes[0], b: nodes[nodes.length - 1], routes: first.routes, hops: chain.reduce((t, ci) => t + segs[ci].hops, 0), interior, edge: first.edge })
-  }
-  return out
-}
-
 // `pos` = Map<id, [x, y]> PIXEL positions of the (compact-grid) cut points.
 // opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
 export function buildRwdMap(segs, pos, opts = {}) {
-  const __segsRaw = segs
-  if (!opts.__noMerge) segs = mergeThroughSegs(segs)
-  if (globalThis.__CAP) globalThis.__CAP.push({ segsRaw: __segsRaw, segs, pos: new Map(pos), opts })
   const unit = opts.unit ?? 12
   const minGap = opts.minGap ?? unit * 0.35
   const nodes = [...pos.entries()] // [id, [x,y]] — foreign-node test

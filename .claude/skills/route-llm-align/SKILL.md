@@ -6,9 +6,13 @@ description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API ke
 # LLM 對齊 (route-llm-align)
 
 [[route-hillclimb]] 三種演算法後處理之外的**第四種**：由 LLM（執行本 skill 的模型，
-也就是你）直接讀整數格佈局、提出彩色頂點的短距離移動，目標與其他三種相同——
-**水平/垂直段最多**（一段是 H/V ⇔ 兩端恰有一個座標相同）。瀏覽器端沒有 API key
-不能即時推論，所以結果**離線預算、存檔、網頁只載入**。
+也就是你）直接讀整數格佈局、提出彩色頂點的短距離移動。目標是
+**「H/V 或格對角 45°」對齊段最多**（`countHVD`）——一段對齊 ⇔ 兩端恰有一個座標相同
+（H/V），**或** `|dc|===|dr|` 非零（格對角 45°）。**與其他三種不同**：rect/align/ilp
+純粹最大化 H/V（`countHV`），本 skill 加入對角（使用者規則：對角走向用 45°、不要把它
+硬拉成 H/V 直角樓梯）。這是**格座標** 45°；版面非正方時 RWD 把它畫成 45°＋軸向的斜線
+（見 [[route-rwd-draw]]），仍避免直角樓梯。瀏覽器端沒有 API key 不能即時推論，所以
+結果**離線預算、存檔、網頁只載入**。
 
 > 提案「動哪些點」是你的判斷；**合法性不是**——每輪提案都經
 > `applyLlmTargets`（src/stores/hillClimb.js）套用，與其他三種完全相同的
@@ -69,10 +73,11 @@ export 一律以「目前 outFile 內容」為起點（沒有內容才用 base H
 
 1. `node scripts/llmAlign.mjs export <cityId> <variant>`。輸出：
    `cols/rows`、`hv`（目前 H/V 段數）、`segsTotal`、`verts[{i,c,r}]`
-   （i = 依 id 排序的穩定索引）、`offSegs[{a,b,dx,dy}]`（尚未 H/V 的段，
-   dx/dy = b 端減 a 端的格差）、`hvSegs[{a,b,dir}]`（**已對齊、不要弄斷**——
-   先由 hvSegs 建每個頂點的鎖定方向表：出現在 V 段的點 col 被鎖、H 段的點
-   row 被鎖；同時被鎖 col 和 row 的樞紐點不要動）。
+   （i = 依 id 排序的穩定索引）、`offSegs[{a,b,dx,dy}]`（**尚未對齊**＝既非 H/V
+   也非格對角的段，dx/dy = b 端減 a 端的格差）、`hvSegs[{a,b,dir}]`（**已對齊、
+   不要弄斷**——`dir` = `H`/`V`/**`D`（格對角 45°，`|dc|===|dr|`）**；先由它建每個
+   頂點的鎖定表：V 段鎖 col、H 段鎖 row、**D 段鎖對角（兩端相對 col−row 或 col+row
+   固定）**，同時被鎖的樞紐點不要動）。
 2. 分析 offSegs、提出移動，寫 moves.json 到 scratchpad（或系統暫存）：
    `{ "model": "<你的模型名，如 Fable 5>", "moves": { "<i>": [col, row], … },
      "note": "<本輪思路摘要>", "prompt": "<第一輪附：觸發本次執行的指示>" }`
@@ -81,9 +86,12 @@ export 一律以「目前 outFile 內容」為起點（沒有內容才用 base H
    - `prompt` 第一輪寫一次即可（互動 session 摘述使用者要求；headless run
      照 -p 收到的指示寫）。
    - 移動要**短距離**（±1～3 格內），座標是絕對格座標（不是位移）。
-   - 策略提示：|dy|<|dx| 的段把兩端 row 對齊（改 dy→0 成水平）、反之對齊 col；
-     整條鏈（多段相連）對到同一 row/col 收益最大；別動已經對齊的鏈的
-     公共座標，除非整群一起搬；一格只能一個頂點，撞格的提案會被拒。
+   - 策略提示（H/V/對角三選一，取移動最短的）：
+     **`|dx|≈|dy|`（對角走向）→ 對到格對角 45°**（把較長軸縮到 `t=min(|dx|,|dy|)`、
+     兩端成 `|dc|===|dr|`）——**不要**把對角走向硬拉成 H/V（那會變直角樓梯）；
+     `|dy|≪|dx|` → 對齊 row 成水平；`|dx|≪|dy|` → 對齊 col 成垂直。整條鏈（多段
+     相連）對到同一 row/col **或同一條對角**收益最大；別動已對齊鏈的公共座標，除非
+     整群一起搬；一格只能一個頂點，撞格的提案會被拒。
    - `moves` 留空 = 純記錄 note/prompt（不計輪、佈局不動）。
 3. `node scripts/llmAlign.mjs apply <cityId> <variant> <moves.json>`。
    讀輸出的 `hv`（有沒有進步）、`reverted`（整批被退回＝這輪淨值變差）、

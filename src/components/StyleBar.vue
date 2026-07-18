@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { mapHandle } from '../stores/mapHandle'
+import { layerData, boundsOfGeojson } from '../stores/layerData'
 
 // 樣式工具列（地圖上方）：一條工具列，每個工具各自縮成一顆 icon——按某顆 icon
 // 才彈出「那一個」控制項的小視窗，且每個小視窗都有「預設」按鈕（把該屬性還原）。
@@ -32,6 +34,13 @@ const BG_PRESETS = [
 ]
 
 const isMetro = computed(() => props.layer?.type === 'metro' || props.layer?.metroLike === true)
+
+// Zoom to layer：縮放地圖到此圖層的地理範圍（原在 LayerPanel 每列，改到 tab 工具列）。
+function zoomToLayer() {
+  const data = layerData[props.layer.id]
+  const bbox = data && boundsOfGeojson(data)
+  if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
+}
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const isRwd = computed(() => props.viewKind === 'rwd')
 // 顏色點間最大跨距（SPAN_CAP）：Straighten（hillclimb）與 RWD 視圖都用得到——第 2 排
@@ -111,6 +120,11 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   <div class="stylebar">
     <!-- 第 1 排：一般工具（地圖底色／線寬／站點半徑／顯示站名…） -->
     <div class="sb-row">
+      <!-- Zoom to layer：縮放到此圖層範圍（只有 metro 地圖 tab 有） -->
+      <template v-if="isMetro">
+        <button class="sb-btn" title="縮放到此圖層範圍" @click="zoomToLayer">顯示全部</button>
+        <div class="sb-sep" />
+      </template>
       <template v-for="(grp, gi) in groups" :key="gi">
         <div v-if="gi" class="sb-sep" />
         <template v-for="t in grp" :key="t.id">

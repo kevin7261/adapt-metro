@@ -23,6 +23,7 @@ import StylePanel from './StylePanel.vue'
 import StyleBar from './StyleBar.vue'
 import AttributeTable from './AttributeTable.vue'
 import MIcon from './MIcon.vue'
+import { openLayerDoc } from '../stores/layerDocHandle'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -601,9 +602,9 @@ const rotLabel = computed(() => `旋轉 ${Math.abs(tilt.value).toFixed(0)}°`)
 const VIEW_TABS = computed(() => {
   if (isRWD.value) {
     return [
-      { header: '輸入' },
+      { header: '輸入', doc: 'movewise-loop' },
       { id: 'hc-compact', label: '循環結果' },
-      { header: '結果' },
+      { header: '結果', doc: 'rwd' },
       { id: 'rwd', label: 'RWD 路網' },
       // 「LLM互動」不再是獨立視圖——改成右側面板 tab ＋ RWD 路網上的「執行調整」
       // 切換（見 gridApplied），左邊列表不再列它。
@@ -615,12 +616,12 @@ const VIEW_TABS = computed(() => {
     // （header 項是分組標題，可點開合——見下方 navSections；全部左側功能列
     // 共用同一套分組版面，Map Adjust／RWD 的清單也有 header）。
     return [
-      { header: '原始' },
+      { header: '原始', doc: 'grid' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
-      { header: 'Hill Climbing' },
+      { header: 'Hill Climbing', doc: 'hillclimb' },
       { id: 'hc', label: 'Hill Climbing' },
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
-      { header: '直線演算法' },
+      { header: '直線演算法', doc: 'straighten' },
       { id: 'hc-rect', label: `直角爬山${iterBadge('rect')}` },
       { id: 'hc-align', label: `軸對齊${iterBadge('align')}` },
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
@@ -631,26 +632,26 @@ const VIEW_TABS = computed(() => {
       //（交替四步直到沒有點可以動，見 loopKindOf）與 逐步驗證（按「下一步」
       // 推進，見 stepKindOf）。四條鏈 × 各區塊用迴圈生成。
       ...[
-        ['end', '端點移動', (zh) => `${zh}端點移動`],
-        ['line', '直線縮減', (zh) => `${zh}直線縮減`],
-        ['gather', '網格合併', (zh) => `${zh}網格合併`],
-        ['loop', '端點移動+直線縮減+網格合併循環', (zh) => `${zh}循環`],
-        ['step', '逐步驗證', (zh) => `${zh}逐步`],
-      ].flatMap(([step, header, fmt]) => [
-        { header },
+        ['end', '端點移動', (zh) => `${zh}端點移動`, 'endpoint-move'],
+        ['line', '直線縮減', (zh) => `${zh}直線縮減`, 'line-compact'],
+        ['gather', '網格合併', (zh) => `${zh}網格合併`, 'grid-merge'],
+        ['loop', '端點移動+直線縮減+網格合併循環', (zh) => `${zh}循環`, 'movewise-loop'],
+        ['step', '逐步驗證', (zh) => `${zh}逐步`, 'step-verify'],
+      ].flatMap(([step, header, fmt, doc]) => [
+        { header, doc },
         ...[['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊']]
           .map(([k, zh]) => ({ id: `hc-${k}-${step}`, label: fmt(zh) })),
       ]),
     ]
   }
   return [
-    { header: '原始' },
+    { header: '原始', doc: 'original' },
     { id: 'original', label: '原始' },
     { id: 'rotated', label: rotLabel.value, rot: true },
-    { header: '骨架化' },
+    { header: '骨架化', doc: 'skeleton' },
     { id: 'skeleton', label: '原始骨架化' },
     { id: 'rotated-skeleton', label: `${rotLabel.value}骨架化`, rot: true },
-    { header: '格網化' },
+    { header: '格網化', doc: 'grid' },
     { id: 'grid-orig-pre', label: '原始格網化前' },
     { id: 'grid-orig-post', label: '原始格網化後' },
     { id: 'grid-rot-pre', label: `${rotLabel.value}格網化前`, rot: true },
@@ -664,7 +665,7 @@ const navSections = computed(() => {
   let cur = { header: null, items: [] }
   const secs = [cur]
   for (const t of VIEW_TABS.value) {
-    if (t.header) { cur = { header: t.header, items: [] }; secs.push(cur) }
+    if (t.header) { cur = { header: t.header, doc: t.doc, items: [] }; secs.push(cur) }
     else cur.items.push(t)
   }
   return secs.filter((s) => s.header || s.items.length)
@@ -1711,6 +1712,15 @@ onBeforeUnmount(() => {
                   class="view-nav-caret"
                 />
                 <span class="view-nav-group-label">{{ s.header }}</span>
+                <MIcon
+                  v-if="s.doc"
+                  name="help"
+                  :size="14"
+                  class="view-nav-help"
+                  role="button"
+                  title="這個圖層的做法／JSON 格式／顯示方式"
+                  @click.stop="openLayerDoc(s.doc, s.header)"
+                />
               </button>
               <div v-if="navSectionOpen(s)" class="view-nav-sec-items">
                 <button
@@ -2033,6 +2043,15 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* 「?」說明 icon：平時淡、hover 才亮，點了開 LayerDocViewer（不影響展開） */
+.view-nav-help {
+  flex-shrink: 0;
+  opacity: 0.45;
+  color: hsl(var(--muted-foreground));
+  cursor: help;
+  border-radius: 50%;
+}
+.view-nav-help:hover { opacity: 1; color: hsl(var(--primary)); }
 /* 展開的項目：縮排到 caret 之下、左側一條導引線。flat（無 header 的清單，
    理論上已不存在）不縮排。 */
 .view-nav-sec-items {

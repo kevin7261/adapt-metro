@@ -69,8 +69,9 @@ function migrateLayerNames(layers) {
   return layers
 }
 
-// 一城的標準 RWD 組：5 條循環鏈（基本 hc／直角爬山／軸對齊／整數規劃／LLM 對齊）。
-const RWD_COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm']
+// 一城的標準 RWD 組：4 條循環鏈（直角爬山／軸對齊／整數規劃／LLM 對齊）。
+// 「基本 hc」僅作 fallback、不主動建立圖層（使用者裁決移除「原始·基本」「旋轉·基本」）。
+const RWD_COMPACTS = ['rect', 'align', 'ilp', 'llm']
 
 // 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×10
 // （原始／旋轉 × RWD_COMPACTS，各掛同變體 Straighten）。舊 session 只存了部分
@@ -150,7 +151,10 @@ export const useMapStore = defineStore('map', {
 
       // Flat list — every layer opens as its own editor tab.
       // Populated by the Raw Maps import modal (metro / railway / highway).
-      layers: backfillCityChains(migrateLayerNames(p?.layers ?? [])),
+      // 舊 session 持久化的「基本」RWD 層（compact==='hc'）一併清掉——已不再建立
+      // 「原始·基本／旋轉·基本」（使用者裁決），backfill 也不會補回。
+      layers: backfillCityChains(migrateLayerNames(p?.layers ?? []))
+        .filter((l) => !(l.type === 'rwd' && l.compact === 'hc')),
 
       // 2026-07 圈層改版：群組＝城市（由 layerTree 依來源鏈動態算出），這裡只存
       // 各城市群組的收合狀態（rootLayerId -> bool；沿用 groupCollapsed 持久化欄位）。
@@ -199,7 +203,7 @@ export const useMapStore = defineStore('map', {
         c.hc.sort((a, b) => vRank(a.variant) - vRank(b.variant))
         c.rwd.sort((a, b) =>
           (vRank(rwdVariant(a)) - vRank(rwdVariant(b)))
-          || (RWD_COMPACTS.indexOf(a.compact ?? 'hc') - RWD_COMPACTS.indexOf(b.compact ?? 'hc')))
+          || (RWD_COMPACTS.indexOf(a.compact ?? 'rect') - RWD_COMPACTS.indexOf(b.compact ?? 'rect')))
         const rows = []
         if (c.metro) rows.push({ kind: 'layer', layer: c.metro })
         if (c.d3) rows.push({ kind: 'layer', layer: c.d3 })

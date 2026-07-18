@@ -8,6 +8,7 @@ import EditorArea from './components/EditorArea.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import DialogHost from './components/DialogHost.vue'
 import SkillViewer from './components/SkillViewer.vue'
+import LayerDocViewer from './components/LayerDocViewer.vue'
 
 const store = useMapStore()
 
@@ -62,6 +63,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     <CommandPalette v-if="store.ui.commandPalette" />
     <DialogHost />
     <SkillViewer />
+    <LayerDocViewer />
 
     <Transition name="toast">
       <div v-if="store.ui.toast" class="toast">{{ store.ui.toast }}</div>
