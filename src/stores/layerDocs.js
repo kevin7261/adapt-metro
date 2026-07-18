@@ -31,8 +31,19 @@ const poly = (pts, stroke, w = 2.4, dash = '') =>
 const cap = (t) => `<text x="120" y="140" fill="#93a4c3" font-size="9" text-anchor="middle" font-family="sans-serif">${t}</text>`
 const svg = (...inner) => open() + panel() + inner.join('') + '</svg>'
 
-// legend helpers: L(type, color, label) — type ∈ dot|line|dash|area|ring
+// legend helpers: L(type, color, label) — type ∈ dot|line|dash|area|ring|multi
+// (multi: c is an array of colours → interleaved coloured dashes)
 const L = (t, c, l) => ({ t, c, l })
+
+// interleaved coloured dashes (共線畫法)：每色一條、dasharray 偏移交錯
+const interleave = (x1, x2, y, colors, D = 6, w = 4) => {
+  const n = colors.length
+  return colors.map((c, i) =>
+    `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${w}" stroke-dasharray="${D} ${(n - 1) * D}" stroke-dashoffset="${-i * D}" stroke-linecap="butt"/>`
+  ).join('')
+}
+const txt = (x, y, t, anchor = 'start', fill = '#cdd8ee', size = 9) =>
+  `<text x="${x}" y="${y}" fill="${fill}" font-size="${size}" text-anchor="${anchor}" font-family="sans-serif">${t}</text>`
 
 // ---- diagrams ----
 const dGeo = svg(
@@ -43,6 +54,27 @@ const dGeo = svg(
     .map((p) => dot(p[0], p[1], '#fff', 2.6)).join(''),
   cap('地理座標的彩色路網＋白色車站'),
 )
+const dMetroCases =
+  `<svg viewBox="0 0 240 208" xmlns="http://www.w3.org/2000/svg" role="img">` +
+  `<rect x="0" y="0" width="240" height="208" rx="8" fill="${C.bg}"/>` +
+  txt(16, 18, '線的畫法', 'start', '#93a4c3', 9) +
+  // 單線 → 實線
+  poly([[16, 34], [92, 34]], C.blue, 4) + txt(100, 37, '單一路線 ＝ 原色實線') +
+  // 多線同色 → 仍實線
+  poly([[16, 56], [92, 56]], C.blue, 4) + txt(100, 59, '多線・同色 ＝ 仍是實線') +
+  // 多線異色 → 交錯虛線
+  interleave(16, 92, 78, [C.blue, C.orange, C.red]) + txt(100, 81, '多線・異色 ＝ 交錯彩色虛線') +
+  // 車站依角色
+  txt(16, 110, '車站（依角色上色）', 'start', '#93a4c3', 9) +
+  dot(40, 130, '#ffffff', 5) + txt(40, 148, '一般站', 'middle', '#cdd8ee', 8.5) +
+  dot(112, 130, C.nRed, 5) + txt(112, 148, '轉乘站', 'middle', '#cdd8ee', 8.5) +
+  dot(196, 130, C.nBlue, 5) + txt(196, 148, '端點/終點', 'middle', '#cdd8ee', 8.5) +
+  // pass：行經不停
+  txt(16, 174, '車站的行經路線（pass）', 'start', '#93a4c3', 9) +
+  `<rect x="16" y="182" width="34" height="13" rx="6.5" fill="none" stroke="#9ba3af" stroke-width="1"/>` +
+  txt(33, 191, 'pass', 'middle', '#9ba3af', 8) +
+  txt(58, 191, '＝ 該線通過但不停靠（hover 分開列）') +
+  `</svg>`
 const dSkeleton = svg(
   poly([[24, 44], [70, 52], [120, 48], [170, 60], [214, 50]], C.blue, 2.2),
   poly([[120, 48], [110, 92], [96, 122]], C.orange, 2.2),
@@ -168,35 +200,41 @@ const dLandmark = svg(
   cap('河流骨架線（瑩光天藍）＋公園面域（綠）'),
 )
 
-// legends reused by several skeleton-family layers
-const NODE_LEGEND = [
-  L('dot', C.nRed, '分歧／轉乘站（degree≥3，或換線點）'),
-  L('dot', C.nBlue, '端點站（degree≤1）'),
-  L('dot', C.nBlack, '直通中段站'),
-  L('dot', C.nPink, '代表性轉折點（彎邊上）'),
-  L('dot', C.nGray, '過長黑點段的分隔點'),
-  L('dot', C.nYellow, '路線交叉新點'),
-  L('dot', C.nPurple, '環線／頭尾共點的切斷點'),
+// mapping row: M(markType, color, 繪製方式, 實際, 資料內容) — one row of the
+// 三欄對照表. `data` may contain inline <code>. `c` is a colour (or array for
+// the interleaved 'multi' mark).
+const M = (t, c, draw, real, data) => ({ t, c, draw, real, data })
+
+// node/edge rows reused by skeleton-family layers（顏色＝畫法、角色＝實際、依 degree/分類＝資料）
+const NODE_MAP = [
+  M('dot', C.nRed, '紅點', '分歧／轉乘站', '<code>degree≥3</code>，或 degree=2 的換線點'),
+  M('dot', C.nBlue, '藍點', '端點站', '<code>degree≤1</code>'),
+  M('dot', C.nBlack, '白點', '直通中段站', 'degree=2 且兩側同 route'),
+  M('dot', C.nPink, '粉紅點', '代表性轉折', '彎邊上相對容差 DP 挑的黑點'),
+  M('dot', C.nGray, '灰點', '過長黑點段分隔', '連續黑點每 5 個插 1'),
+  M('dot', C.nYellow, '黃點', '路線交叉新點', '<code>crossings</code> 合成節點座標'),
+  M('dot', C.nPurple, '紫點', '環／頭尾共點切斷', '弧長 1/2 或 1/3·2/3 處的黑點'),
 ]
-const EDGE_LEGEND = [
-  L('area', '#e11d48', '共線合併（紅底襯）'),
-  L('area', '#16a34a', '環線（綠底襯）'),
-  L('area', '#2563eb', '頭尾共點（藍底襯）'),
+const EDGE_MAP = [
+  M('area', '#e11d48', '紅底襯', '共線合併邊', '<code>edge.cls=coline</code>（≥2 相異色）'),
+  M('area', '#16a34a', '綠底襯', '環線邊', '<code>cls=loop</code>（首尾同節點）'),
+  M('area', '#2563eb', '藍底襯', '頭尾共點邊', '<code>cls=parallel</code>（平行多重邊）'),
 ]
 
 // ---- doc entries ----
 export const LAYER_DOCS = {
   metro: {
     title: '地鐵／輕軌路網（資料圖層）', tag: '資料', skills: ['metro-osm-fetch', 'metro-audit', 'metro-cities'],
-    svg: dGeo, caption: '照地理座標畫線與白色車站，與地圖底圖一致。',
-    legend: [
-      L('line', C.blue, '路線（顏色＝官方 route_color）'),
-      L('dot', '#ffffff', '車站'),
-      L('dash', C.orange, '共線段（≥2 線）＝各線交錯彩色虛線'),
+    svg: dMetroCases, caption: '線：單線實色／共線交錯彩色虛線；站：一般白·轉乘紅·端點藍。',
+    mapping: [
+      M('line', C.blue, '原色實線', '單一路線獨走這段', '<code>route_count=1</code>'),
+      M('line', C.blue, '仍是原色實線', '多條 route 共用一段、且同一顏色', '<code>route_count≥2</code>、route_colors 皆同色 → 相異色數=1（如 Boston Green Line B/C/D/E 共幹、Vancouver Canada Line 雙向）'),
+      M('multi', [C.blue, C.orange, C.red], '交錯彩色虛線', '多條線共用、且顏色相異', '<code>route_count≥2</code> 且相異色數≥2（最多 6 色，超過夾住）'),
+      M('dot', '#ffffff', '白點', '一般車站', '非轉乘、非端點'),
+      M('dot', C.nRed, '紅點', '轉乘站', '<code>is_interchange</code>＝≥2 條相異線<b>停靠</b>（同線支線不算）'),
+      M('dot', C.nBlue, '藍點', '端點／終點站', '<code>is_terminus</code>（線的頭或尾）'),
+      M('pill', C.nGray, 'hover 標灰「pass」', '該線通過但不停靠此站', '<code>stations[].pass=true</code>（與停靠路線分開列）'),
     ],
-    dataMeaning: `<p>一筆線 feature 代表一段路網，<code>properties.routes[]</code> 列出經過它的路線：</p>
-<ul><li><code>route_color</code>／<code>route_ref</code>：官方顏色與代號。</li><li><code>stations[]</code>：這條線的<b>有序停靠站</b>（station_id／station_name／code）。</li><li><code>route_count≥2</code>：這段是多線共用的<b>共線段</b>。</li></ul>
-<p>車站是獨立的 <code>Point</code> feature（station_id／station_name）。</p>`,
     json: {
       code: `{ "type":"FeatureCollection",
   "metro_system": { "city":"Taipei", "line_count":17, "station_count":197 },
@@ -216,8 +254,11 @@ export const LAYER_DOCS = {
   highway: {
     title: '高速公路網（資料圖層）', tag: '資料', skills: ['highway-osm-fetch', 'highway-audit', 'highway-cities'],
     svg: dHighway, caption: '分層封閉式道路＋交流道節點。',
-    legend: [L('line', '#e6b800', '封閉式道路（motorway／快速公路）'), L('dot', C.nRed, '交流道（＝節點）'), L('dot', '#ffffff', '沿線里程點')],
-    dataMeaning: `<p>schema 與 metro 完全相同（下游共用）：線＝道路段、<code>routes[]</code>＝路線；<b>交流道當「車站」</b>（節點），串成網絡。metadata 換成 <code>highway_system</code>（含 audit 結果）。</p>`,
+    mapping: [
+      M('line', '#e6b800', '黃色道路線', '一段封閉式道路', '<code>LineString</code>＋<code>routes[]</code>（同 metro）'),
+      M('dot', C.nRed, '紅點', '交流道', '當「車站」的節點 <code>Point</code>'),
+      M('dot', '#ffffff', '白點', '沿線里程／端點', '<code>Point</code>'),
+    ],
     json: { code: `{ "type":"FeatureCollection",
   "highway_system": { "audit": {…} },
   "features": [ /* 同 metro：LineString+routes[]、交流道 Point */ ] }`,
@@ -227,8 +268,11 @@ export const LAYER_DOCS = {
   railway: {
     title: '國家鐵路網（資料圖層）', tag: '資料', skills: ['railway-osm-fetch', 'railway-audit'],
     svg: dRailway, caption: '幹線鐵路（紫）＋高鐵（紅）。',
-    legend: [L('line', '#7a4fbf', '一般國鐵幹線'), L('line', '#d11', '高鐵／新幹線'), L('dot', '#ffffff', '車站')],
-    dataMeaning: `<p>schema 鏡射 metro：線＝鐵路段、<code>stations[]</code>＝有序停靠站。一國拆兩檔：<code>-hsr</code>（高鐵）／<code>-rail</code>（一般國鐵）；日本一般國鐵再拆 JR 六社。</p>`,
+    mapping: [
+      M('line', '#7a4fbf', '紫線', '一般國鐵幹線', '<code>-rail</code> 檔的 route'),
+      M('line', '#d11', '紅線', '高鐵／新幹線', '<code>-hsr</code> 檔的 route（有序停站建）'),
+      M('dot', '#ffffff', '白點', '車站', '<code>Point</code>（有序 <code>stations[]</code>）'),
+    ],
     json: { code: `{ "type":"FeatureCollection",
   "railway_system": {…},
   "features": [ /* 同 metro schema */ ] }`,
@@ -238,8 +282,10 @@ export const LAYER_DOCS = {
   landmark: {
     title: '地標圖層（河流／皇居／公園）', tag: '資料', skills: ['landmark-osm-fetch'],
     svg: dLandmark, caption: '河流骨架線（瑩光天藍）＋面域地標（綠）。',
-    legend: [L('line', C.river, '河流中心線（當成一般路線）'), L('area', '#3cb44b', '皇居／公園面域')],
-    dataMeaning: `<p>河流＝<b>網路的一條線</b>：<code>route_id="river:…"</code>、每個折點都是 <code>river:true</code> 的車站 Point（全點保留）。跨河匯流＝兩河共用同一車站節點。面域地標＝獨立 <code>Polygon</code>（overlay，不進網路）。</p>`,
+    mapping: [
+      M('line', C.river, '瑩光天藍線', '河流中心線', '<code>route_id="river:…"</code>、每折點是 <code>river:true</code> 的站'),
+      M('area', '#3cb44b', '綠色半透明面', '皇居／公園面域', '<code>Polygon</code>（<code>landmark_id</code>，overlay）'),
+    ],
     json: { code: `// 河流（併進城市檔，變成一般網路路線）
 { "properties": { "route_id":"river:keelung", "route_color":"#00E5FF" } }  // 線
 { "properties": { "river":true, "station_id":"…" },
@@ -252,29 +298,29 @@ export const LAYER_DOCS = {
   mapadjust: {
     title: 'Map Adjust（示意圖工作區）', tag: '視圖', skills: ['route-skeleton-connect', 'route-skeleton-grid'],
     svg: dMapAdjust, caption: '把 Metro Maps 一步步轉成示意圖的地方。',
-    legend: [
-      L('line', C.blue, '原始：照地理座標畫'),
-      L('dot', C.nRed, '骨架化：分類節點（分歧/端點/轉折…）'),
-      L('line', C.gridline, '格網化：吸到整數格、線拉直'),
+    mapping: [
+      M('line', C.blue, '地理彎線', '原始 Metro Maps', '讀城市 GeoJSON、不改幾何'),
+      M('dot', C.nRed, '分類節點', '骨架化後的角色', '<code>stationClass</code>（紅/藍/白/…）'),
+      M('line', C.gridline, '整數格正交線', '格網化後', '節點吸到整數格 <code>(c, r)</code>'),
     ],
-    dataMeaning: `<p>Map Adjust 本身是<b>工作區</b>，不是單一結果檔。左側樹狀清單裡每個視圖（原始／骨架化／格網化前後）都有自己的 <b>?</b> 說明；由此往下才接 Hill Climbing、Straighten、RWD。</p>`,
     json: { code: `// 即時計算，讀城市 GeoJSON；各視圖細節看樹狀各自的 ?`, note: '骨架/格網化都是純函式即時算，可即時切換。' },
     algorithm: `<p>三步管線：<b>原始</b>（地理座標）→ <b>骨架化</b>（拓撲收縮＋節點分類）→ <b>格網化</b>（吸到整數格、拉直）。每一步的演算法看該視圖標題旁的 <b>?</b>。</p>`,
   },
   original: {
     title: '原始（Map Adjust）', tag: '視圖', skills: ['metro-osm-fetch'],
     svg: dGeo, caption: '與地圖底圖一模一樣。',
-    legend: [L('line', C.blue, '路線（原色）'), L('dash', C.orange, '共線交錯彩色虛線'), L('dot', '#ffffff', '車站')],
-    dataMeaning: `<p>直接讀城市 GeoJSON，不另存任何結果。座標＝真實經緯度。「依建議旋轉」只是把整體轉一個角度（tilt）方便看，不改資料。</p>`,
+    mapping: [
+      M('line', C.blue, '原色實線', '單線', '<code>route_count=1</code>'),
+      M('multi', [C.blue, C.orange, C.red], '交錯彩色虛線', '共線（多線共用）', '<code>route_count≥2</code>、≥2 相異色'),
+      M('dot', '#ffffff', '白點', '車站', '<code>Point</code>（座標＝真實經緯度）'),
+    ],
     json: { code: `// 不另存——即時讀城市 GeoJSON 畫`, note: '純顯示層，無獨立結果檔。' },
     algorithm: `<p>把城市 GeoJSON 照<b>地理座標</b>畫成 Metro Maps，不動任何幾何（單線實色、共線交錯彩色虛線）。可依建議角度旋轉到接近正南北。</p>`,
   },
   skeleton: {
     title: '骨架化（connect 骨架）', tag: '視圖', skills: ['route-skeleton-connect'],
     svg: dSkeleton, caption: '地理網路上疊節點分類色＋邊分類襯底。',
-    legend: [...NODE_LEGEND, ...EDGE_LEGEND],
-    dataMeaning: `<p>不改幾何，只<b>分類與標記</b>：</p>
-<ul><li><code>stationClass</code>：每個車站的角色（紅/藍/白/粉紅/灰/黃/紫，見左邊圖例）。</li><li><code>edges</code>：收縮後的邊，<code>cls</code> 標共線/環/頭尾共點，畫成線底下的襯底。</li><li><code>crossings</code>：幾何交叉補的黃色新節點座標。</li></ul>`,
+    mapping: [...NODE_MAP, ...EDGE_MAP],
     json: { code: `// 即時計算、可開關；不另存
 buildConnectSkeleton(geojson) → {
   stationClass: Map<id, 'red'|'blue'|'black'|'pink'|
@@ -288,8 +334,11 @@ buildConnectSkeleton(geojson) → {
   grid: {
     title: '格網化（示意格網化）', tag: '視圖', skills: ['route-skeleton-grid', 'route-skeleton-connect'],
     svg: dGrid, caption: '節點落在整數格線交叉、線在彩色點間拉直。',
-    legend: [L('line', C.gridline, '藍色分隔網格（欄=x 排名、列=y 排名）'), ...NODE_LEGEND.slice(0, 4)],
-    dataMeaning: `<p>把骨架收成<b>整數格</b>路網：每個彩色點有一組欄列座標 <code>(c, r)</code>（排名，不是公尺）。黑點沿新邊平均放回，不佔欄列。「格網化前」是節點還在地理座標＋疊上目標格線；「後」是節點已吸到格上。</p>`,
+    mapping: [
+      M('line', C.gridline, '藍色分隔網格', '欄=x 排名、列=y 排名', '<code>cutsX</code>／<code>cutsY</code>（排名，非公尺）'),
+      M('dot', C.nRed, '彩色點落在格線交叉', '各角色（同骨架）', '每點一組整數 <code>(c, r)</code>'),
+      M('line', C.blue, '彩色點間拉直的線', '示意化路線', '端點吸整數格、黑點沿新邊平均放回'),
+    ],
     json: { code: `// 全球畫廊縮圖存 hcviews/<city>.json
 { "W":200, "H":150,
   "views": { "grid-post-orig": {
@@ -300,8 +349,11 @@ buildConnectSkeleton(geojson) → {
   hillclimb: {
     title: 'Hill Climbing（多準則爬山）', tag: '視圖', skills: ['route-hillclimb'],
     svg: dHc, caption: '最佳化後大多是水平/垂直/45° 的示意佈局。',
-    legend: [L('line', C.gridline, '整數格'), ...NODE_LEGEND.slice(0, 4)],
-    dataMeaning: `<p>每個節點存一組整數格 <code>cellAfter=[id, c, r]</code>；<code>stats.hvAfter</code>＝水平/垂直段數。快取以資料<b>指紋</b>為鍵（節點集/格數變了就作廢重算）。</p>`,
+    mapping: [
+      M('line', C.gridline, '整數格', '格空間', '<code>cols × rows</code>'),
+      M('line', C.blue, 'H/V/45° 線', '最佳化後的路線', '節點移動後的線'),
+      M('dot', C.nRed, '彩色節點', '各角色（同骨架）', '<code>cellAfter=[id,c,r]</code>（<code>stats.hvAfter</code>=正交段數）'),
+    ],
     json: { code: `// hcviews/<city>.json ＋ localStorage 快取
 { "id":"…", "views": { … "lines":[{d,color}] },
   "hc": { "cellAfter": [[id,c,r], …], "stats": { "hvAfter": 49 } } }`,
@@ -312,8 +364,11 @@ buildConnectSkeleton(geojson) → {
     title: '直線演算法（H/V 最大化後處理）', tag: '視圖',
     skills: ['route-rect-polish', 'route-axis-align', 'route-axis-ilp', 'route-llm-align'],
     svg: dStraighten, caption: '比 HC 更多正交段（前 → 後對照）。',
-    legend: [L('line', C.blue, '拉直後的路線'), L('dash', '#94a3b8', '前（HC 結果）'), ...NODE_LEGEND.slice(0, 2)],
-    dataMeaning: `<p>四種後處理都輸出新的 <code>cellAfter</code>（整數格）。LLM 對齊另存結果檔，含 <code>fingerprint</code>（verts/segs/cols/rows/hvStart）驗證是否與目前資料相符，及每輪 <code>transcript</code>。</p>`,
+    mapping: [
+      M('line', C.blue, '拉直後的路線', '更多正交段', '新的 <code>cellAfter</code>'),
+      M('dash', '#94a3b8', '灰虛線', '前（HC 結果）對照', '<code>fingerprint.hvStart</code>'),
+      M('dot', C.nRed, '彩色點', '被移動的節點', '短距離移動、過相同硬規則'),
+    ],
     json: { code: `// 直角/軸/ILP：即時算（迭代到不動點）
 // LLM 對齊：llmviews/<city>.<variant>.json
 { "fingerprint": { "verts":67, "segs":82, "cols":67, "hvStart":27 },
@@ -325,52 +380,64 @@ buildConnectSkeleton(geojson) → {
   'endpoint-move': {
     title: '端點移動', tag: '視圖', skills: ['route-endpoint-move', 'route-movewise-loop'],
     svg: dEndpoint, caption: '端點移 1 格，把斜的入射段拉成正交。',
-    legend: [L('dash', '#94a3b8', '移動前位置'), L('line', C.orange, '移動方向（1 格）'), ...NODE_LEGEND.slice(0, 3)],
-    dataMeaning: `<p>即時算，不另存。輸出更新後的整數格；每次只移一個非白點 1 格。受<b>顏色點間跨距上限</b>（SPAN_CAP，預設 3）約束。</p>`,
+    mapping: [
+      M('dash', '#94a3b8', '灰虛線', '移動前位置', '前一格座標'),
+      M('line', C.orange, '橘箭頭', '移動方向（1 格）', '單一非白點移 1 格'),
+      M('dot', C.nRed, '彩色點', '被移動的節點', '受跨距上限 <code>SPAN_CAP</code>（預設 3）約束'),
+    ],
     json: { code: `// 即時算（movewise，不另存）`, note: 'movewise 三步鏈第 1 步；移動後立即縮減網格。' },
     algorithm: `<p>每個非白點一次移 <b>1 格</b>，讓入射段 H/V 淨增、或直線變長且斜線變短、或藍點收線；bendsPaid 護欄＋跨距上限擋不良移動。</p>`,
   },
   'line-compact': {
     title: '直線縮減', tag: '視圖', skills: ['route-line-compact', 'route-movewise-loop'],
     svg: dLineCompact, caption: '整條線平移一格 → 網格變小、線更集中。',
-    legend: [L('dash', '#94a3b8', '移動前'), L('line', C.blue, '整條直線'), L('line', C.orange, '平移 ±1 格')],
-    dataMeaning: `<p>即時算。把「跨相交點串接的整條直線」當一個單位平移，輸出更緊的整數格佈局，全網 H/V 段數不減。</p>`,
+    mapping: [
+      M('dash', '#94a3b8', '灰虛線', '移動前', '前一列座標'),
+      M('line', C.blue, '整條藍線', '跨相交點串接的整條直線', '當一個單位平移'),
+      M('line', C.orange, '橘箭頭', '平移 ±1 格', 'validShift 通過才採納、全網 H/V 不減'),
+    ],
     json: { code: `// 即時算（movewise，不另存）`, note: 'movewise 三步鏈第 2 步。' },
     algorithm: `<p>跨相交點串接的整條直線垂直平移 ±1 格，<b>嚴格縮小網格</b>、全網 H/V 不減；validShift 硬規則（不壓點/不新增交叉/拓撲不變）＋跨距上限。</p>`,
   },
   'grid-merge': {
     title: '網格合併', tag: '視圖', skills: ['route-grid-merge', 'route-movewise-loop'],
     svg: dGridMerge, caption: '相鄰列/欄合併，壓掉空白 → 網格更緊。',
-    legend: [L('area', '#f59e0b', '被合併的相鄰兩列/欄'), L('line', C.orange, '半平面整體移 1 格')],
-    dataMeaning: `<p>即時算。相鄰 row 兩兩、col 兩兩合併，輸出<b>更小的格數</b>（只縮不增）。</p>`,
+    mapping: [
+      M('area', '#f59e0b', '橘色框選兩列/欄', '被合併的相鄰列/欄', '相鄰 row 兩兩、col 兩兩'),
+      M('line', C.orange, '橘箭頭', '半平面整體移 1 格', '自帶壓縮、只縮不增'),
+    ],
     json: { code: `// 即時算（movewise，不另存）`, note: 'movewise 三步鏈第 3 步。' },
     algorithm: `<p>相鄰 row／col 兩兩合併：半平面整體移 1 格、自帶壓縮；validShift 判準＝不壓點／不新增交叉／拓撲不變。</p>`,
   },
   'movewise-loop': {
     title: '循環（端點移動＋直線縮減＋網格合併）', tag: '視圖', skills: ['route-movewise-loop'],
     svg: dLoop, caption: '三步輪替直到沒有點可以動 → 最緊示意佈局。',
-    legend: [L('line', C.orange, '三步輪替的推進順序')],
-    dataMeaning: `<p>即時算。三個演算法輪替把整個 network 各掃一遍，收斂後的整數格佈局同時是 <b>RWD 路網的底圖</b>。</p>`,
+    mapping: [
+      M('line', C.orange, '橘箭頭', '三步輪替順序', '端點移動→直線縮減→網格合併'),
+      M('dot', C.nRed, '彩色點', '被收斂的節點', '一輪全靜止才停；結果＝RWD 底圖'),
+    ],
     json: { code: `// 即時算；RWD 底圖用其收斂結果`, note: '一輪全靜止才停。' },
     algorithm: `<p>端點移動 → 直線縮減 → 網格合併輪替：每輪各掃整個 network 一遍，每個單一移動後立即縮減網格；一輪全靜止才停。</p>`,
   },
   'step-verify': {
     title: '逐步驗證', tag: '視圖', skills: ['route-step-verify', 'route-movewise-loop'],
     svg: dStep, caption: '舊位置虛線圈 → 新位置橘色實圈。',
-    legend: [L('ring', '#94a3b8', '移動前位置（虛線空心圈）'), L('dot', '#f59e0b', '移動後位置（橘色實圈）')],
-    dataMeaning: `<p>步進狀態在記憶體，不寫檔。「下一步」＝掃整個 network 一遍；「下一小步」＝單一移動，前後用橘圈比對，可上一步/上一小步復原。</p>`,
+    mapping: [
+      M('ring', '#94a3b8', '灰色虛線空心圈', '移動前位置', '復原堆疊記錄'),
+      M('dot', '#f59e0b', '橘色實圈', '移動後位置', '「下一步」掃一遍／「下一小步」單一移動'),
+    ],
     json: { code: `// 即時算（步進狀態在記憶體）`, note: '用來觀察四步鏈怎麼一步步收斂。' },
     algorithm: `<p>把 movewise 循環拆成可觀察的單步：每步後亮起執行到的階段 chip，前後橘圈比對，含復原堆疊。演算法本體同端點移動／直線縮減／網格合併。</p>`,
   },
   rwd: {
     title: 'RWD 路網（版面路網畫線）', tag: '視圖', skills: ['route-rwd-draw', 'route-llm-eval', 'route-llm-grid'],
     svg: dRwd, caption: '全線只有水平/垂直/45°，跟著版面形狀縮放。',
-    legend: [
-      L('line', C.blue, '水平／垂直段'),
-      L('line', C.red, '45° 斜段'),
-      L('dot', C.nRed, '分歧/轉乘'), L('dot', C.nBlack, '直通站（沿折線放回）'),
+    mapping: [
+      M('line', C.blue, '水平／垂直段', '正交走向的路線', '折線 <code>pts</code>（H/V）'),
+      M('line', C.red, '45° 斜段', '斜向的路線', '折線 <code>pts</code>（45°）＋<code>bends</code> 轉折數'),
+      M('dot', C.nRed, '紅點', '分歧／轉乘', '節點（版面 pixel 座標）'),
+      M('dot', C.nBlack, '白點', '直通站', '沿選定折線弧長放回'),
     ],
-    dataMeaning: `<p>每段折線存一串 <b>版面 pixel 頂點</b> <code>pts</code>＋顏色＋轉折數 <code>bends</code>。八方向約束以畫面 pixel 為準，所以會<b>隨板面形狀變形</b>（權重／LLM 互動改欄寬列高時在新座標重畫）。</p>`,
     json: { code: `// rwdviews/<city>.json
 { "lines": [{ "pts": [[x,y],…], "color":"#007ec7", "bends":1 }],
   "stats": {…} }`,

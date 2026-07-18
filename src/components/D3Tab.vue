@@ -1948,7 +1948,8 @@ onBeforeUnmount(() => {
           · 順接調整 {{ rwdStats.swapped }}</template><template v-if="rwdStats.straightened">
           · 直線化 {{ rwdStats.straightened }}</template><template v-if="rwdStats.diag45">
           · 轉45 {{ rwdStats.diag45 }}</template><template v-if="rwdStats.squeezed">
-          · 窄縫 {{ rwdStats.squeezed }}</template><template v-if="rwdStats.fallback">
+          · 窄縫 {{ rwdStats.squeezed }}</template><template v-if="rwdStats.colinear">
+          · 共線 {{ rwdStats.colinear }}</template><template v-if="rwdStats.fallback">
           · 兜底 {{ rwdStats.fallback }}</template><template v-if="rwdStats.forced">
           · 殘留衝突 {{ rwdStats.forced }}</template><template v-if="hcCompactStats"> · 網格
           {{ hcCompactStats.cols }}×{{ hcCompactStats.rows }}</template>

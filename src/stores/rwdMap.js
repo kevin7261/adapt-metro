@@ -220,12 +220,25 @@ function candidates(S, T, u) {
   out.push({ pts: [S, [T[0] - sx * m, T[1] - sy * m], T], bends: 1 }) // H/V → 45°（內角135°）
   out.push({ pts: [S, [T[0], S[1]], T], bends: 1 }) // L: H → V（內角90°）
   out.push({ pts: [S, [S[0], T[1]], T], bends: 1 }) // L: V → H（內角90°）
-  // 雙轉折：45–H–45（ax>ay）或 45–V–45（ay>ax），中段預設 1/2，替代 1/4、3/4
+  // 雙轉折 (a) 45–H–45（ax>ay）或 45–V–45（ay>ax）：斜–平–斜，兩端 45°。
   for (const t of [0.5, 0.25, 0.75]) {
     const k = m * t
     const P1 = [S[0] + sx * k, S[1] + sy * k]
     const P2 = [T[0] - sx * (m - k), T[1] - sy * (m - k)]
     out.push({ pts: [S, P1, P2, T], bends: 2 })
+  }
+  // 雙轉折 (b) H–45–H（ax>ay）或 V–45–V（ay>ax）：平–斜–平，**兩端軸向、中間 45°**
+  // （使用者規則：hv-45-hv 也要有）——兩端與鄰段直線續接時比 (a) 更順（讀成一條線）。
+  // 與 (a) 同折數(2)；45° 走 m 對角、兩端軸向分掉余剩 |ax−ay|；pass 2 依續接角擇優。
+  {
+    const horiz = ax > ay
+    const axisTot = Math.abs(ax - ay)
+    for (const t of [0.5, 0.25, 0.75]) {
+      const h1 = axisTot * t
+      const P1 = horiz ? [S[0] + sx * h1, S[1]] : [S[0], S[1] + sy * h1]
+      const P2 = [P1[0] + sx * m, P1[1] + sy * m]
+      out.push({ pts: [S, P1, P2, T], bends: 2 })
+    }
   }
   // 四轉折（使用者規則：45–H/V–45–H/V–45 也可以）——把對角拆成三段 45°，中間夾
   // 兩段軸向直線；45° 脚一律被軸向直線隔開，不構成禁止的 45°→45° 角。當單一
@@ -448,7 +461,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // (may exceed 2 bends); forced = STILL in conflict after even that (should be
   // 0 — only a lattice-router failure leaves one); fallback = an illegal
   // direction nothing could legalize; swapped = soft continuation swaps.
-  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, swapped: 0, squeezed: 0, straightened: 0, diag45: 0, restarts: 0, segs: 0 }
+  const stats = { straight: 0, single: 0, double: 0, multi: 0, rerouted: 0, fallback: 0, forced: 0, colinear: 0, swapped: 0, squeezed: 0, straightened: 0, diag45: 0, restarts: 0, segs: 0 }
 
   // A self-crossing loop (a single line's tracks physically cross, e.g. Naples
   // Line 1's Vomero hairpin) is emitted by buildHcGraph as the SAME cycle in both
@@ -474,13 +487,16 @@ export function buildRwdMap(segs, pos, opts = {}) {
 
   // Number of hard-rule violations of a candidate against the placed legs
   // (hug / cross / node-on-leg). 0 = clean; Infinity = an illegal X leg.
-  function conflictCount(pts, seg, placed) {
+  // crossOnly=true（共線救援，使用者規則：萬不得已可以共線、但新交叉絕對不可）：
+  // 放寬同族「共線/貼線」(legsHug)，只算交叉(legsCross)與壓點(pointOnLeg)。
+  function conflictCount(pts, seg, placed, crossOnly = false) {
     const legs = legsOfPts(pts)
     if (legs.length !== pts.length - 1) return Infinity // X leg → fallback only
     let n = 0
     for (const leg of legs) {
       for (const p of placed) {
-        if (leg.dir === p.dir ? legsHug(leg, p, minGap) : legsCross(leg, p, isNodePt)) n++
+        if (leg.dir === p.dir) { if (!crossOnly && legsHug(leg, p, minGap)) n++ }
+        else if (legsCross(leg, p, isNodePt)) n++
       }
       for (const [id, P] of nodes) {
         if (id === seg.a || id === seg.b) continue
@@ -497,7 +513,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
      A cheap flood probe runs first: if T is UNREACHABLE (the other lines wall
      S or T into a closed face — Jordan), it fails fast and reports WHICH lines
      form the wall via failInfo.blockers (fuel for rip-up-and-reroute). ---- */
-  function routeLattice(S, T, seg, placed, failInfo, gapOverride) {
+  function routeLattice(S, T, seg, placed, failInfo, gapOverride, allowColinear = false) {
     const lat = opts.lattice
     if (!lat) return null
     const gap = gapOverride ?? minGap // hug distance (salvage pass squeezes it)
@@ -534,7 +550,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
       for (let bx = bx1; bx <= bx2; bx++) {
         for (let by = by1; by <= by2; by++) {
           for (const p of buckets.get(bx * 100003 + by) ?? []) {
-            if (leg.dir === p.dir ? legsHug(leg, p, gap) : legsCross(leg, p, isNodePt)) return p
+            // allowColinear（共線救援）: 放寬同族貼線 legsHug，交叉 legsCross 照擋。
+            if (leg.dir === p.dir) { if (!allowColinear && legsHug(leg, p, gap)) return p }
+            else if (legsCross(leg, p, isNodePt)) return p
           }
         }
       }
@@ -939,6 +957,32 @@ export function buildRwdMap(segs, pos, opts = {}) {
       L.forced = false
       L.squeezed = true
       stats.squeezed++
+    }
+  }
+
+  // 共線救援（使用者規則：萬不得已可以共線，在真的找不到更佳解時；但新的交叉絕對
+  // 不可）: 窄縫都救不回的段，放寬「共線/平行貼線」再試——**交叉 legsCross 與壓點
+  // pointOnLeg 照樣絕禁**。先試 bounded-bend 候選（crossOnly，依折數）、再試 A*
+  // （allowColinear）。畫得出＝與他線共線但不交叉（勝過殘留交叉 forced）。標 colinear。
+  if (!opts.fast) for (let li = 0; li < lines.length; li++) {
+    const L = lines[li]
+    if (!L.forced) continue
+    const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+    const placed = placedOf(li)
+    let done = false
+    for (const c of candidates(S, T, unit)) {
+      if (c.fallback) continue
+      if (conflictCount(c.pts, L.seg, placed, true) === 0) {
+        L.pts = c.pts; L.legs = legsOfPts(c.pts); L.bends = c.bends
+        L.forced = false; L.colinear = true; stats.colinear++; done = true
+        break
+      }
+    }
+    if (done) continue
+    const r = routeLattice(S, T, L.seg, placed, null, minGap, true)
+    if (r) {
+      L.pts = r; L.legs = legsOfPts(r); L.bends = r.length - 2; L.routed = true
+      L.forced = false; L.colinear = true; stats.colinear++
     }
   }
 

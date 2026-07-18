@@ -21,9 +21,14 @@ function markSvg(g) {
   const c = g.c
   switch (g.t) {
     case 'line': return `<svg viewBox="0 0 22 12"><line x1="1" y1="6" x2="21" y2="6" stroke="${c}" stroke-width="3" stroke-linecap="round"/></svg>`
+    case 'multi': { // interleaved coloured dashes (共線)
+      const cols = Array.isArray(c) ? c : [c]; const n = cols.length; const D = 3
+      return `<svg viewBox="0 0 22 12">${cols.map((col, i) => `<line x1="1" y1="6" x2="21" y2="6" stroke="${col}" stroke-width="3" stroke-dasharray="${D} ${(n - 1) * D}" stroke-dashoffset="${-i * D}"/>`).join('')}</svg>`
+    }
     case 'dash': return `<svg viewBox="0 0 22 12"><line x1="1" y1="6" x2="21" y2="6" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 3"/></svg>`
     case 'area': return `<svg viewBox="0 0 22 12"><rect x="1" y="1.5" width="20" height="9" rx="2" fill="${c}" fill-opacity="0.45" stroke="${c}"/></svg>`
     case 'ring': return `<svg viewBox="0 0 22 12"><circle cx="11" cy="6" r="4" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="2.4 1.8"/></svg>`
+    case 'pill': return `<svg viewBox="0 0 26 12"><rect x="0.5" y="1.5" width="25" height="9" rx="4.5" fill="none" stroke="${c}" stroke-width="1"/><text x="13" y="8.3" fill="${c}" font-size="6.2" text-anchor="middle" font-family="sans-serif">pass</text></svg>`
     default: return `<svg viewBox="0 0 22 12"><circle cx="11" cy="6" r="4.2" fill="${c}" stroke="#0a1020" stroke-width="1"/></svg>`
   }
 }
@@ -58,24 +63,28 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
       </div>
 
       <div class="dialog-body layerdoc-body">
-        <!-- Tab 1：會顯示成怎樣（圖）＋ 顯示方式有哪些（圖例）＋ 資料代表什麼意思 -->
+        <!-- Tab 1：會顯示成怎樣（圖）＋ 繪製方式／實際／資料內容 對照 ＋ JSON 儲存 -->
         <template v-if="tab === 'show'">
           <div class="layerdoc-fig" v-html="doc.svg" />
           <p class="layerdoc-cap">{{ doc.caption }}</p>
 
           <section class="layerdoc-sec">
-            <h3><MIcon name="palette" :size="14" /> 顯示方式有哪些</h3>
-            <ul class="layerdoc-legend">
-              <li v-for="(g, i) in doc.legend" :key="i">
-                <span class="lg-mark" v-html="markSvg(g)" />
-                <span class="lg-label">{{ g.l }}</span>
-              </li>
-            </ul>
-          </section>
-
-          <section class="layerdoc-sec">
-            <h3><MIcon name="dataset" :size="14" /> 資料代表什麼意思</h3>
-            <div class="layerdoc-prose" v-html="doc.dataMeaning" />
+            <h3><MIcon name="palette" :size="14" /> 顯示方式對照</h3>
+            <table class="layerdoc-map">
+              <thead>
+                <tr><th class="col-draw">繪製方式</th><th>實際</th><th>資料內容</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="(r, i) in doc.mapping" :key="i">
+                  <td class="col-draw">
+                    <span class="lg-mark" v-html="markSvg(r)" />
+                    <span class="draw-label">{{ r.draw }}</span>
+                  </td>
+                  <td>{{ r.real }}</td>
+                  <td class="col-data" v-html="r.data" />
+                </tr>
+              </tbody>
+            </table>
           </section>
 
           <section class="layerdoc-sec">
@@ -138,11 +147,21 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   font-size: 13px; font-weight: 600; margin: 0 0 8px;
   color: hsl(var(--foreground));
 }
-.layerdoc-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.layerdoc-legend li { display: flex; align-items: center; gap: 9px; font-size: 12.5px; }
+/* 三欄對照表：繪製方式 / 實際 / 資料內容 */
+.layerdoc-map { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.layerdoc-map th, .layerdoc-map td {
+  border: 1px solid hsl(var(--border)); padding: 5px 9px; text-align: left; vertical-align: top;
+}
+.layerdoc-map th { background: hsl(var(--muted) / 0.5); font-weight: 600; font-size: 12px; white-space: nowrap; }
+.layerdoc-map .col-draw { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.layerdoc-map .draw-label { color: hsl(var(--foreground)); }
+.layerdoc-map .col-data { color: hsl(var(--muted-foreground)); }
+.layerdoc-map .col-data :deep(code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+  background: hsl(var(--muted) / 0.6); border-radius: 4px; padding: 1px 4px;
+}
 .lg-mark { flex-shrink: 0; width: 26px; height: 14px; display: inline-flex; }
 .lg-mark :deep(svg) { width: 26px; height: 14px; }
-.lg-label { color: hsl(var(--foreground)); }
 .layerdoc-prose { font-size: 13px; line-height: 1.7; }
 .layerdoc-prose :deep(p) { margin: 4px 0; }
 .layerdoc-prose :deep(ul) { margin: 4px 0; padding-left: 20px; }
