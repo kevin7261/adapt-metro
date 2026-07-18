@@ -150,9 +150,9 @@
   /* 縮圖內是 1280×720 的實時 clone，用 transform 縮小（scale 由 JS 依寬度算） */
   .thumb-inner{
     position:absolute; top:0; left:0; width:1280px; height:720px; transform-origin:top left;
-    pointer-events:none; background:#fff;
+    pointer-events:none; background:#fff; color:#0f172a;
     --page-bg:#fff; --dot:transparent; --card-bg:#fff; --border:#e2e8f0;
-    --ink:#0b1220; --muted:#475569; --muted2:#64748b; --code-bg:#0f172a; --code-ink:#e2e8f0;
+    --ink:#0f172a; --muted:#475569; --muted2:#64748b; --code-bg:#0f172a; --code-ink:#e2e8f0;
   }
   .thumb-inner .slide{
     opacity:1 !important; visibility:visible !important; transform:none !important;
@@ -160,15 +160,18 @@
   }
   .thumb-inner .slide.divider .roman{ opacity:.12; }
 
-  /* 畫布欄＝畫布＋底部工具列（在縮圖膠捲右邊），所以底部 bar 只在畫布下方、跟畫布一起置中 */
-  .deckcol{ flex:1; min-width:0; display:flex; flex-direction:column; }
-
   /* 中央畫布：固定 16:9 白色投影片置中、依可用空間等比縮放。
      內容以 1280×720 設計解析度撰寫（字級固定 px），縮放不改排版。 */
   .deck{
-    position:relative; flex:1; min-height:0; overflow:hidden;
+    position:relative; flex:1; min-width:0; height:100%; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
     background-color:#f1f3f4;
+    /* 投影片內容強制淺色（白底＋深字），不跟 OS/app 深色——否則深色模式下字變淺、白底上根本看不見。
+       明確 color 讓連「繼承字色」的標題也一定是深色。 */
+    color-scheme:light; color:#0f172a;
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#475569; --muted2:#64748b;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
   }
 
   /* 簡報模式（全螢幕，按 ⤢ 或 F）：只留投影片、黑底置中，隱藏 header 與縮圖膠捲，
@@ -331,17 +334,15 @@
 
   /* 底部工具列（固定白底）：右邊全螢幕鈕會讓中央偏右 → 左邊補等寬佔位，
      讓 ‹ [長條] › 這一組真正水平置中（左右對稱：佔位↔全螢幕、prev↔next）。 */
+  /* 滿版 footer，單行：‹ [——— 全滿 seekbar ———] › 數字 ⤢，全部垂直置中 */
   .slidebar{
-    flex-shrink:0; display:flex; align-items:center; gap:10px;
-    padding:11px 16px; background:#ffffff; border-top:1px solid #ebedf0; color:#5f6368;
+    flex-shrink:0; display:flex; align-items:center; gap:12px;
+    padding:11px 18px; background:#ffffff; border-top:1px solid #ebedf0; color:#5f6368;
   }
-  /* 兩端等寬（左端空、右端放數字＋全螢幕）→ ‹ [bar] › 這組落在正中央、bar 在 < > 之間置中 */
-  .sb-end{ flex-shrink:0; display:flex; align-items:center; gap:8px; width:106px; }
-  .sb-end-r{ justify-content:flex-end; }
-  .sb-end .counter{  /* 數字放右邊 */
-    font-family:var(--mono); font-size:12px; color:#5f6368; user-select:none; white-space:nowrap;
+  .slidebar .counter{  /* 數字放右邊 */
+    flex-shrink:0; font-family:var(--mono); font-size:12px; color:#5f6368; user-select:none; white-space:nowrap;
   }
-  /* 細軌道（6px）＋藍 fill＋hover 才出現的小圓 knob；點哪跳哪張，hover 浮出該位置頁碼 */
+  /* 全滿細軌道（6px）＋藍 fill＋hover 才出現的小圓 knob；點哪跳哪張，hover 浮出該位置頁碼 */
   .seekbar{ position:relative; flex:1; min-width:0; height:6px; border-radius:3px; background:#e6e9ec; cursor:pointer; }
   .seekbar .seek-fill{
     position:absolute; left:0; top:0; bottom:0; border-radius:3px; background:#2563eb;
@@ -415,7 +416,6 @@
 </header>
 <div class="workspace">
 <aside class="filmstrip" id="filmstrip" aria-label="投影片縮圖"></aside>
-<div class="deckcol">
 <div class="deck" id="deck">
 <div class="stage" id="stage">
 
@@ -1026,10 +1026,10 @@
 
 </div><!-- /stage -->
 </div><!-- /deck -->
+</div><!-- /workspace -->
 
-<!-- 底部工具列（在畫布這一欄，跟畫布一起、與縮圖膠捲無關）：‹ ［頁碼置中／細軌］ › ⤢ -->
+<!-- 底部工具列＝滿版 footer（橫跨整頁最底）：‹ ［細軌置中］ › ・數字＋全螢幕在右 -->
 <footer class="slidebar">
-  <div class="sb-end sb-end-l" aria-hidden="true"></div>
   <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
   <div class="seekbar" id="seekbar" title="點擊跳到該頁">
     <div class="seek-fill" id="seekFill"></div>
@@ -1037,13 +1037,9 @@
     <div class="seek-tip" id="seekTip"></div>
   </div>
   <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
-  <div class="sb-end sb-end-r">
-    <span class="counter" id="counter">1 / 41</span>
-    <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
-  </div>
+  <span class="counter" id="counter">1 / 41</span>
+  <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
 </footer>
-</div><!-- /deckcol -->
-</div><!-- /workspace -->
 
 <script>
 (function(){
