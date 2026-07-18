@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>系統介紹 · Adapt-Metro</title>
-<meta name="description" content="Adapt-Metro 系統演算法投影片：Metro Maps → Map Adjust → Straighten（爬山＋movewise 三步鏈循環）→ RWD Maps 四階段管線細節，含逐步驗證與資料格式。" />
+<meta name="description" content="Adapt-Metro 系統演算法投影片：Metro Maps → Map Adjust → Straighten（爬山＋movewise 三步鏈循環）→ RWD Maps 四階段管線細節，含逐步驗證、三條並列資料管線、資料格式與演算法文獻定位。" />
 <!-- 首頁 header 用的 Material Symbols 字型（brand 的 map 圖示、相關連結的 open_in_new）——與 index.html 一致 -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -501,7 +501,7 @@
       <tr><td>路線幾何＋車站＋屬性</td><td>OpenStreetMap，經 Overpass API</td></tr>
       <tr><td>系統覆蓋率基準（哪些城市有地鐵）</td><td>Wikipedia「List of metro systems」</td></tr>
       <tr><td>洲／國／城命名</td><td>Nominatim 反向地理編碼（以車站中心點座標為準）</td></tr>
-      <tr><td>官方路網圖（metro map）</td><td>Wikidata P15（route map）→ Wikimedia Commons；後備 Wikipedia infobox</td></tr>
+      <tr><td>官方網站連結</td><td>Wikidata P856（系統／營運商條目）；後備 OSM <code class="mono">website</code> tag、enwiki infobox（223 城已解 221）</td></tr>
       <tr><td>交叉驗證參考</td><td>Wikipedia 站數/線數 ＋ urbanrail.net</td></tr>
     </table>
     <p class="subtitle" style="margin-top:14px;">Overpass 查詢固定套用營運中過濾條件 <code class="mono">LIFE</code>：<code class="mono">["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]</code>——已通車的路線必須全部收錄，未通車/建設中/規劃中/停用一律排除，這是不變式不是偏好。</p>
@@ -593,7 +593,8 @@
       <tr><td><code class="mono">index.json</code></td><td>系統總索引：234 城清單（檔名／洲國城／線站數／營運商）＋全球統計＋ <code class="mono">wikipedia_cities_without_match</code> 覆蓋率報告</td></tr>
       <tr><td><code class="mono">views/ · hcviews/ · rwdviews/</code></td><td>三個畫廊的<strong>預算縮圖</strong>（每城一 JSON）：SVG path 字串 <code class="mono">lines[].d</code>＋節點 <code class="mono">dots[]</code>＋襯底 <code class="mono">hl[]</code>＋格線 <code class="mono">grid</code>，各 8 視圖；<code class="mono">_fp</code>＝<code class="mono">版本:內容雜湊</code> 增量指紋——資料沒變就沿用、變了只重算該城</td></tr>
       <tr><td><code class="mono">llmviews/ · llmgrids/</code></td><td>LLM 對齊／LLM 調整的離線結果（模型名、輪數、prompt、cellAfter 或 colW/rowW）＋ <code class="mono">fingerprint</code>——與當前資料不符即拒載，提示重新產生</td></tr>
-      <tr><td><code class="mono">maps/** ＋ maps_index.json</code></td><td>各系統<strong>官方路網圖</strong>圖片（Wikidata P15 → Commons），出處與 CC 授權逐張記錄，再散布需依此署名</td></tr>
+      <tr><td><code class="mono">official_sites.json</code></td><td><strong>官方網站索引</strong>（<code class="mono">npm run metro:sites</code>，223 城已解 221），前端 Info tab「官網」列讀此檔</td></tr>
+      <tr><td><code class="mono">maps/** ＋ maps_index.json</code></td><td><strong>已退役的遺留檔案</strong>——曾用來下載各系統官方路網圖（Wikidata P15 → Commons，465 MB），前端已改抓官方網站（見上），僅保留供人工查閱</td></tr>
       <tr><td><code class="mono">verify_report.json/.md · line_check_report.json</code></td><td>對照 Wikipedia／urbanrail 的全量驗證報告與逐線站數比對</td></tr>
       <tr><td><code class="mono">_overrides/</code></td><td><strong>人工裁決落地</strong>：<code class="mono">interchanges</code>（共站併/拆）、<code class="mono">route_excludes</code>、<code class="mono">station_names</code>、<code class="mono">member_appends</code>、<code class="mono">express_passthrough</code>…——重跑資料時自動套用，裁決不失傳</td></tr>
       <tr><td><code class="mono">_cache/</code></td><td>Overpass／Wikipedia／geocode 原始回應（可刪，重跑自動重抓；幾何增量）</td></tr>
@@ -738,7 +739,7 @@
       <div class="card purple"><div class="label">③ 端點吸附</div><p>每段兩端吸到整數格 (欄, 列)，與預覽藍格同一套排名。</p></div>
       <div class="card purple"><div class="label">④ 黑點均分</div><p>中段黑點沿新（拉直）小段平均放回，第 j 個站落在 j/(k+1) 處。</p></div>
     </div>
-    <p class="subtitle" style="margin-top:16px;">格網規模依城市密度而異——<strong>台北約 67×67</strong>、<strong>北京約 165×165</strong>、<strong>紐約約 270×270</strong>；欄列是等距排名，不再保留真實地理距離比例，代價交由下游最佳化處理。</p>
+    <p class="subtitle" style="margin-top:16px;">格網規模依城市密度而異——<strong>台北約 68×68</strong>、<strong>北京約 169×169</strong>、<strong>紐約約 160×160</strong>；欄列是等距排名，不再保留真實地理距離比例，代價交由下游最佳化處理。</p>
   </section>
 
   <!-- 17: DIVIDER III -->
@@ -857,7 +858,7 @@
       <tr><th>項目</th><th>結果</th><th class="num">備註</th></tr>
       <tr><td>H/V 後處理（迭代到不動點）</td><td>ILP +47.8%／直角爬山 +42.9%／軸對齊 +28.5%</td><td class="num">最大迭代 12 次</td></tr>
       <tr><td>三步鏈循環（234 城全量）</td><td><strong>234/234 全數收斂</strong>，總計約 5 秒</td><td class="num">普遍 2–5 輪</td></tr>
-      <tr><td>壓縮幅度（例）</td><td>台北 67×67 → 約 14×14；NYC 215×215 → 約 76×74</td><td class="num">拓撲逐段驗證不變</td></tr>
+      <tr><td>壓縮幅度（例）</td><td>台北 68×68 → 約 14×13；NYC 160×160 → 約 31×34</td><td class="num">拓撲逐段驗證不變</td></tr>
     </table>
     <p class="subtitle" style="margin-top:14px;">每一步的合法性都由同一套整數格精確幾何硬規則把關；「顏色點間最大跨距」可在樣式面板調整（預設 3 格），按「重新計算」即以新上限全部重算。</p>
   </section>
@@ -895,6 +896,11 @@
       <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,10 L90,50" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="5 4"/><circle cx="10" cy="10" r="4" fill="#0f172a"/><circle cx="90" cy="50" r="4" fill="#0f172a"/></svg><div class="t">兜底</div><div class="d">全衝突才用非法角度</div></div>
     </div>
     <p class="subtitle" style="margin-top:16px;"><strong>45°轉45° 禁止：</strong>折線不得有兩條相鄰腿皆為斜線（不同族），因此 H/V 線沒有合法單折繞行（唯一單折是被禁的 45-45 三角），只剩雙折平行偏移。</p>
+    <div class="grid cols-3" style="margin-top:14px;">
+      <div class="card amber"><div class="label">線方向數 4</div><p>只用 H/V；45° 一律改走純直角 L 形。工具列三選一，嚴格方向級優先——能用低一級就不用高一級。</p></div>
+      <div class="card amber"><div class="label">線方向數 8（預設）</div><p>現狀＋45°，即本節所述的候選折線規則。</p></div>
+      <div class="card amber"><div class="label">線方向數 16</div><p>再加 22.5°/67.5° 族，排在所有 45° 候選之後，只在窮盡 45° 級的所有畫法仍衝突時才用。</p></div>
+    </div>
   </section>
 
   <!-- 26: conflict escalation -->
@@ -1013,6 +1019,37 @@
     </div>
   </section>
 
+  <!-- 35: literature & positioning -->
+  <section class="slide" data-title="演算法文獻與定位">
+    <div class="eyebrow"><span class="tag"><b>35</b>演算法文獻與定位</span><span class="rule"></span><span class="eng">RELATED WORK</span></div>
+    <h1 class="title">九篇核心文獻，逐篇對應系統章節</h1>
+    <p class="subtitle"><code class="mono">data/thesis/</code> 收錄核心文獻 PDF 與逐篇中文演算法說明，每篇都標明對本系統哪個階段的思路貢獻或作為對照法。</p>
+    <table class="tbl">
+      <tr><th class="num">#</th><th>文獻</th><th>對應</th></tr>
+      <tr><td class="num">1</td><td>Stroke-based schematic maps</td><td>骨架化思路對照</td></tr>
+      <tr><td class="num">2</td><td><strong>Stott et al. 2011</strong>，Automatic Metro Map Layout Using Multicriteria Optimization (TVCG)</td><td><strong>Stage 3 爬山法主依據</strong></td></tr>
+      <tr><td class="num">3</td><td>Nöllenburg &amp; Wolff，Mixed-Integer Programming</td><td>整數規劃後處理對照</td></tr>
+      <tr><td class="num">4</td><td>力導向自動視覺化</td><td>對照法</td></tr>
+      <tr><td class="num">5</td><td>Focus+Context Metro Maps</td><td>流量權重／概括化思路</td></tr>
+      <tr><td class="num">6</td><td>Bast et al.，Octilinear Grid Graphs</td><td>八向格佈線對照（目標最接近三步鏈的「格子越少越好」）</td></tr>
+      <tr><td class="num">7</td><td>Merrick &amp; Gudmundsson，Path Simplification</td><td>路徑簡化對照</td></tr>
+      <tr><td class="num">8</td><td>SAT-based Octolinear Layouts</td><td>求解器路線對照</td></tr>
+      <tr><td class="num">9</td><td>Batik et al. 2022，Shape-Guided Mixed Metro Map Layout (Pacific Graphics)</td><td>對照法（使用者自訂形狀嵌入佈局，本系統未實作對應章節）</td></tr>
+    </table>
+    <p class="subtitle" style="margin-top:12px;">另有 <strong>Boeing 2019</strong>《Urban Spatial Order: Street Network Orientation, Configuration, and Entropy》——非上表編號文獻，但有<strong>直接程式對應</strong>：<code class="mono">src/stores/orientation.js</code> 的長度加權方向熵／φ 計算（Stage 2 示意格網化 rotated 變體的主軸角偵測）直接沿用該文公式。</p>
+  </section>
+
+  <!-- 36: three-chain positioning -->
+  <section class="slide" data-title="三步鏈的定位">
+    <div class="eyebrow"><span class="tag"><b>36</b>三步鏈的定位</span><span class="rule"></span><span class="eng">POSITIONING</span></div>
+    <h1 class="title">犧牲最佳性，換取秒級速度與逐步可視化</h1>
+    <p class="subtitle">固定拓撲下的正交示意化＋面積最小化是經典 <strong>NP-hard</strong> 問題——TSM 框架的 orthogonal compaction、VLSI 1-D compaction、Misue et al. 的 orthogonal ordering 保持都是零件級近親。</p>
+    <div class="grid cols-2" style="margin-top:8px;">
+      <div class="card blue"><div class="label">本系統的做法</div><h3>Local search，非求解器</h3><p>每種移動各守一個嚴格單調不變式，且每個移動後立即全域壓縮（movewise）——用局部搜尋逼近最佳解，不依賴 ILP／SAT 求解器。</p></div>
+      <div class="card blue"><div class="label">換到的東西</div><h3>秒級全量速度＋逐步可視化</h3><p>234 城全量約 5 秒收斂；犧牲最佳性換取速度，且每一個單一移動都可以在逐步驗證裡重播、比對前後——這是求解器路線（ILP/SAT）給不了的。</p></div>
+    </div>
+  </section>
+
   <!-- 31: Closing -->
   <section class="slide closing" data-title="查看實際運作">
     <div class="eyebrow" style="justify-content:center;"><span class="eng">THANK YOU</span></div>
@@ -1037,7 +1074,7 @@
     <div class="seek-tip" id="seekTip"></div>
   </div>
   <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
-  <span class="counter" id="counter">1 / 41</span>
+  <span class="counter" id="counter">1 / 43</span>
   <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
 </footer>
 
