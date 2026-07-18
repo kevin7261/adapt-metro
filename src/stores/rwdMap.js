@@ -249,28 +249,6 @@ function candidates(S, T, u, dirs = 8) {
   }
   out.push({ pts: [S, [T[0], S[1]], T], bends: 1 }) // L: H → V（內角90°）
   out.push({ pts: [S, [S[0], T[1]], T], bends: 1 }) // L: V → H（內角90°）
-  // 22.5° 族單折候選（僅 16 方向）：斜段用 E(22.5°)／F(67.5°)、另一段軸向補。讓段用
-  // **更貼近真實角度的斜線**（45° 被佔用或畫得繞時的替代，如使用者黃線案）。優先序
-  // H/V>45°>22.5°：這些排在 45° 單折與 L 之後（仍是 1 折，故在所有 2 折之前）。斜段
-  // 與軸段之間有軸向隔開，不構成斜轉斜。
-  if (dirs >= 16) {
-    const s = ay / ax
-    // slope t 的斜角：s>t → 斜段走完水平 ax、垂直補；s<t → 斜段走完垂直 ay、水平補。
-    const pushSkew = (t) => {
-      if (Math.abs(s - t) < 1e-9) return // 恰為該斜角＝直線，已在直線分支
-      if (s > t) { // 斜(走 ax)＋V 補
-        const yd = sy * t * ax
-        out.push({ pts: [S, [T[0], S[1] + yd], T], bends: 1 }) // 斜 → V
-        out.push({ pts: [S, [S[0], T[1] - yd], T], bends: 1 }) // V → 斜
-      } else { // 斜(走 ay)＋H 補
-        const xd = sx * ay / t
-        out.push({ pts: [S, [S[0] + xd, T[1]], T], bends: 1 }) // 斜 → H
-        out.push({ pts: [S, [T[0] - xd, S[1]], T], bends: 1 }) // H → 斜
-      }
-    }
-    pushSkew(T22)     // 22.5°（E 族）
-    pushSkew(1 / T22) // 67.5°（F 族）
-  }
   // 以下 45° 雙折/四折/階梯候選只在 8 方向以上（4 方向對角段只有上面的 L；衝突則兜底/A*）。
   if (dirs >= 8) {
   // 雙轉折 (a) 45–H–45（ax>ay）或 45–V–45（ay>ax）：斜–平–斜，兩端 45°。
@@ -354,6 +332,29 @@ function candidates(S, T, u, dirs = 8) {
     }
   }
   } // end if (dirs >= 8)
+  // 22.5° 族候選（僅 16 方向，且**排在所有 45° 候選之後**）：使用者規則「能用 45 就
+  // 不用 22.5/67.5」——嚴格方向級優先於折數，要窮盡所有 45° 畫法（單/雙/多折）都衝突
+  // 才降到 22.5°。斜段用 E(22.5°)／F(67.5°)、另一段軸向補，讓段用更貼近真實角度的斜線
+  // （45° 全被佔/畫不出時的替代，如黃線案）。斜段與軸段有軸向隔開，不構成斜轉斜。
+  if (dirs >= 16) {
+    const s = ay / ax
+    const pushSkew = (t) => { // slope t：s>t → 斜(走 ax)＋V 補；s<t → 斜(走 ay)＋H 補
+      if (Math.abs(s - t) < 1e-9) return // 恰為該斜角＝直線，已在直線分支
+      // skew:true 標記 22.5° 級候選——降折/軟調整不得把 45 級「降折」到 22.5 級
+      // （使用者規則：能 45 就不用 22.5，方向級優先於折數）。
+      if (s > t) {
+        const yd = sy * t * ax
+        out.push({ pts: [S, [T[0], S[1] + yd], T], bends: 1, skew: true }) // 斜 → V
+        out.push({ pts: [S, [S[0], T[1] - yd], T], bends: 1, skew: true }) // V → 斜
+      } else {
+        const xd = sx * ay / t
+        out.push({ pts: [S, [S[0] + xd, T[1]], T], bends: 1, skew: true }) // 斜 → H
+        out.push({ pts: [S, [T[0] - xd, S[1]], T], bends: 1, skew: true }) // H → 斜
+      }
+    }
+    pushSkew(T22)     // 22.5°（E 族）
+    pushSkew(1 / T22) // 67.5°（F 族）
+  }
   // 兜底：原方向直線（非 H/V/45）
   out.push({ pts: [S, T], bends: 0, fallback: true })
   return out
@@ -502,7 +503,6 @@ export function mergeParallelSegs(segs) {
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
 export function buildRwdMap(segs, pos, opts = {}) {
-  if (globalThis.__CAP && !opts.__t) globalThis.__CAP.push({ segs, pos: new Map(pos), opts })
   const unit = opts.unit ?? 12
   const dirsN = opts.dirs ?? 8 // 允許的線方向數 4/8/16（見 candidates）
   const minGap = opts.minGap ?? unit * 0.35
@@ -1088,8 +1088,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const L = lines[i]
         if (L.fallback || L.forced || L.routed) continue // routed shapes are bespoke
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+        const curSkew = L.legs?.some((g) => g.dir[0] === 'E' || g.dir[0] === 'F')
         const alts = candidates(S, T, unit, dirsN).filter((c) =>
-          !c.fallback && c.bends === L.bends)
+          !c.fallback && c.bends === L.bends && !(c.skew && !curSkew)) // 不從 45 級換到 22.5 級
         if (alts.length < 2) continue
         const placed = placedOf(i)
         let best = null, bestScore = contScore(L, L.pts) + 1e-6
@@ -1130,8 +1131,10 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const placed = placedOf(li)
         let adopted = false
         const ripsToTry = []
+        const curSkew = L.legs?.some((g) => g.dir[0] === 'E' || g.dir[0] === 'F')
         for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback || c.bends >= L.bends) continue
+          if (c.skew && !curSkew) continue // 使用者規則：不把 45 級「降折」到 22.5 級
           const info = conflictLines(c.pts, L.seg, placed)
           if (info.count === 0) {
             L.pts = c.pts

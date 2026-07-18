@@ -1368,7 +1368,8 @@ async function render() {
   // centres (cx/cy), which is where every network node sits (使用者規則：格線在
   // 刻度上、節點端點落在網格交叉線上，不是格子中間). The integer coordinate for
   // each column/row therefore sits right on its own grid line.
-  if (grid) {
+  // 顯示/隱藏網格（StyleBar 切換 layer.showGrid，預設顯示）——關掉時不畫藍色示意網格。
+  if (grid && panelLayer.value?.showGrid !== false) {
     const b = hcBlue ?? (gridPost.value ? grid.blueAfter : grid.blueBefore)
     const cx = [], cy = []
     for (let c = 0; c < b.xs.length - 1; c++) cx.push((b.xs[c] + b.xs[c + 1]) / 2)
@@ -1657,6 +1658,8 @@ watch(
 )
 // Toggling station labels needs a re-render (add/remove text nodes).
 watch(() => panelLayer.value?.showLabels, render)
+// 顯示/隱藏網格：切換 showGrid → 重畫（藍色示意網格 add/remove）。
+watch(() => panelLayer.value?.showGrid, render)
 
 // 「顯示全部」（StyleBar）：把 d3-zoom 重置回 identity——render() 就是把投影 fit 到
 // 容器後把 zoom 設為 identity，所以重置＝回到「全部可見」的初始 fit 狀態。

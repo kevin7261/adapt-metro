@@ -69,11 +69,18 @@ const groups = computed(() => {
   if (isMetro.value) {
     g.push([{ id: 'bg', icon: 'format_color_fill', title: '地圖底色' }])
     g.push([{ id: 'lineWidth', icon: 'line_weight', title: '線寬', num: { prop: 'strokeWidth', min: 0.5, max: 8, step: 0.5, def: 2.5, unit: 'px' } }])
-    g.push([
+    const station = [
       { id: 'radius', icon: 'scatter_plot', title: '站點半徑', num: { prop: 'radius', min: 1, max: 10, step: 0.5, def: 4, unit: 'px' } },
-      // 顯示站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
-      { id: 'labels', icon: 'label', title: '顯示站名', toggle: true },
-    ])
+    ]
+    // 顯示/隱藏網格：只有 D3 示意圖視圖（map-adjust/straighten/rwd）有藍色示意網格；
+    // 純 metro 地圖沒有網格。放在「顯示站名」前面（使用者要求）。預設顯示（showGrid
+    // 未設＝開）→ toggle 帶 defaultOn。
+    if (props.viewKind !== 'metro') {
+      station.push({ id: 'grid', icon: 'grid_on', title: '顯示/隱藏網格', toggle: 'showGrid', defaultOn: true })
+    }
+    // 顯示站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
+    station.push({ id: 'labels', icon: 'label', title: '顯示站名', toggle: 'showLabels' })
+    g.push(station)
   }
   if (editable.value) {
     const e = [
@@ -109,10 +116,13 @@ function reset() {
 // 目前展開的工具（單一）；每顆 icon 各自彈出自己的小視窗。
 const openTool = ref(null)
 const popPos = ref({ top: 0, left: 0 })
-const isActive = (t) => (t.toggle ? props.layer.showLabels : openTool.value === t.id)
+// 切換型工具（t.toggle＝layer 的屬性名，如 'showLabels'/'showGrid'）：亮起＝開。
+// defaultOn＝未設值時視為開（網格預設顯示），否則未設＝關（站名預設隱藏）。
+const toggleOn = (t) => (t.defaultOn ? props.layer[t.toggle] !== false : !!props.layer[t.toggle])
+const isActive = (t) => (t.toggle ? toggleOn(t) : openTool.value === t.id)
 function clickTool(t, e) {
-  // 直接切換的工具（顯示站名）：不開彈窗，直接改 layer 屬性。
-  if (t.toggle) { props.layer.showLabels = !props.layer.showLabels; openTool.value = null; return }
+  // 直接切換的工具（顯示站名／顯示網格）：不開彈窗，直接改 layer 屬性。
+  if (t.toggle) { props.layer[t.toggle] = !toggleOn(t); openTool.value = null; return }
   if (openTool.value === t.id) { openTool.value = null; return }
   openTool.value = t.id
   const r = e.currentTarget.getBoundingClientRect()
@@ -176,17 +186,24 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           >{{ n }}方向</button>
         </div>
         <div class="sb-sep" />
-        <!-- 版面模式：單一按鈕切換均勻網格 ↔ 權重比例，標籤顯示目前模式。 -->
+        <!-- 版面模式：均勻網格／權重網格＝二選一分段按鈕，選中的高亮（與方向數 group 一致）。 -->
+        <div class="sb-group" role="group" aria-label="版面模式">
+          <button
+            class="sb-group-btn"
+            :class="{ active: weightMode !== 'weight' }"
+            @click="emit('weight-mode', 'uniform')"
+          >均勻網格</button>
+          <button
+            class="sb-group-btn"
+            :class="{ active: weightMode === 'weight' }"
+            @click="emit('weight-mode', 'weight')"
+          >權重網格</button>
+        </div>
+        <!-- 顯示/隱藏權重：切換，標籤依目前狀態翻（權重數字顯示中→隱藏權重，反之→顯示權重）。 -->
         <button
           class="sb-btn"
-          :class="{ active: weightMode === 'weight' }"
-          @click="emit('weight-mode', weightMode === 'weight' ? 'uniform' : 'weight')"
-        >{{ weightMode === 'weight' ? '權重比例顯示' : '均勻網格顯示' }}</button>
-        <button
-          class="sb-btn"
-          :class="{ active: showWeights }"
           @click="emit('show-weights', !showWeights)"
-        >顯示權重</button>
+        >{{ showWeights ? '隱藏權重' : '顯示權重' }}</button>
 
         <div class="sb-sep" />
         <button
