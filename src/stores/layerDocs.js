@@ -234,19 +234,38 @@ export const LAYER_DOCS = {
       M('dot', C.nRed, '紅點', '轉乘站', '<code>is_interchange</code>＝≥2 條相異線<b>停靠</b>（同線支線不算）'),
       M('dot', C.nBlue, '藍點', '端點／終點站', '<code>is_terminus</code>（線的頭或尾）'),
       M('pill', C.nGray, 'hover 標灰「pass」', '該線通過但不停靠此站', '<code>stations[].pass=true</code>（與停靠路線分開列）'),
+      M('line', C.river, '瑩光天藍線', '河流中心線（地標，<code>-lm</code> 檔）', '<code>route_id="river:…"</code>、每折點是 <code>river:true</code> 的站'),
+      M('area', '#3cb44b', '綠色半透明面', '皇居／公園面域（地標 overlay）', '<code>Polygon</code>（<code>landmark_id</code>）'),
     ],
     json: {
       code: `{ "type":"FeatureCollection",
-  "metro_system": { "city":"Taipei", "line_count":17, "station_count":197 },
+  "metro_system": { "city":"Taipei", "line_count":17, "station_count":197,
+                    "combined_landmark":true, "landmark_kinds":["river-centerline"] },
   "features": [
+
+    // ① 路線（一段路網）——線色/共線都在這裡
     { "properties": { "route_count":1, "route_colors":["#007ec7"],
-        "routes":[{ "route_id":"rm94…", "route_name":"板南線",
-          "route_color":"#007ec7",
-          "stations":[{ "station_id":"n363…", "station_name":"頂埔" }, …] }] },
+        "routes":[{ "route_id":"rm94…", "route_name":"板南線", "route_color":"#007ec7",
+          "stations":[{ "station_id":"n363…", "station_name":"頂埔", "pass":false }, …] }] },
       "geometry": { "type":"MultiLineString", "coordinates":[[[121.41,24.95],…]] } },
-    { "properties": { "station_id":"n363…", "station_name":"頂埔" },
-      "geometry": { "type":"Point", "coordinates":[121.41,24.95] } } ] }`,
-      note: '標準 GeoJSON：線帶 routes[]（含有序 stations[]），車站是獨立 Point。',
+
+    // ② 車站（獨立 Point）——is_interchange / is_terminus 決定紅/藍/白
+    { "properties": { "station_id":"n363…", "station_name":"頂埔",
+        "is_interchange":false, "is_terminus":true },
+      "geometry": { "type":"Point", "coordinates":[121.41,24.95] } },
+
+    // ③ 地標·河流（-lm 檔：河流＝一般路線，折點＝站）
+    { "properties": { "route_id":"river:keelung", "route_color":"#00E5FF",
+        "routes":[{ "route_id":"river:keelung", … }] },
+      "geometry": { "type":"MultiLineString", "coordinates":[[…]] } },
+    { "properties": { "river":true, "station_id":"riv…" },
+      "geometry": { "type":"Point", "coordinates":[121.5,25.06] } },
+
+    // ④ 地標·面域（皇居/公園）——Polygon overlay，不進網路
+    { "properties": { "landmark_id":"palace-…", "kind":"park" },
+      "geometry": { "type":"Polygon", "coordinates":[[…]] } }
+  ] }`,
+      note: '一個 FeatureCollection 同時含：①路線 LineString（帶 routes[]／有序 stations[]）、②車站 Point、③河流地標（route_id=river:… 的線＋river:true 的站）、④面域地標 Polygon。',
     },
     algorithm: `<p>從 OpenStreetMap 抓 <code>subway</code>／<code>light_rail</code> 的 route relation：</p>
 <ul><li>同一站的成員合併、依 route 站序連線。</li><li>反向地理編碼分到各城市，一城一個 GeoJSON。</li><li>共線（重疊路段）在資料端去重成 <code>route_count≥2</code> 的一筆 feature。</li><li>正確性由 metro-audit 逐城對照 Wikipedia／urbanrail 驗證、收斂覆蓋率。</li></ul>`,
@@ -445,6 +464,89 @@ buildConnectSkeleton(geojson) → {
     algorithm: `<p>把「縮減網格」佈局重繪成嚴格 <b>H/V/45°</b>：每段依轉折數排序候選（直線→單折→雙折），衝突就換下一個；合法直線衝突有平行偏移與三角/L 繞行；黑點沿選定折線弧長放回。</p>`,
   },
 }
+
+// ---- Tab「程式執行」：這個圖層的程式實際怎麼跑（用到什麼程式／call 什麼 skill／抓什麼）----
+// 前端即時視圖共用格式：純函式、零網路、零 token。file/fn/skills/flow/cache 客製。
+const execPure = (file, fn, skills, flow, cache = '') => `<ul class="exec-list">
+<li><b>怎麼觸發</b>：在 Map Adjust 左側樹狀點這個視圖 → <b>瀏覽器即時計算</b>，不跑任何 npm 指令、不連伺服器。</li>
+<li><b>用到什麼程式</b>：<code>${file}</code> 的 <code>${fn}</code>（純函式、不改輸入），由 <code>src/components/D3Tab.vue</code> 在 render 時呼叫${cache ? `；${cache}` : ''}。</li>
+<li><b>會抓什麼</b>：只讀「已載入的城市 GeoJSON」（先前 <code>fetch(assetUrl('data/metro/systems/…'))</code> 載進來的），<b>零 Overpass、零網路 API、零 token</b>。</li>
+<li><b>會 call 什麼 skill</b>：${skills} — 這些是<b>演算法的文件依據</b>（給要改程式的人看的 SKILL.md），執行時<b>不會真的去呼叫</b>。</li>
+<li><b>執行流程</b>：${flow}</li>
+</ul>`
+
+const EXECUTION = {
+  metro: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：<b>離線資料管線</b>（不是網頁跑）——終端機跑 <code>npm run metro:fetch</code> → <code>npm run metro:build</code>（或一次 <code>metro:all</code>）。網頁只是把產出的 GeoJSON <code>fetch</code> 進來畫。</li>
+<li><b>用到什麼程式</b>：<code>scripts/fetchMetro.mjs</code>（抓 OSM）→ <code>scripts/geocodeSystems.mjs</code>（反向地理編碼分城）→ <code>scripts/buildGeojson.mjs</code>（組檔、共站合併、共線去重）→ <code>scripts/buildViews.mjs</code>（畫廊縮圖）。抓取共用 <code>scripts/overpass.mjs</code>。</li>
+<li><b>會抓什麼</b>：<b>OpenStreetMap Overpass API</b>——主站 <code>overpass-api.de</code> ＋ <code>overpass.kumi.systems</code>／<code>maps.mail.ru</code>／<code>overpass.private.coffee</code> 三個鏡像輪替、失敗重試——抓 route relation／node／way。回應快取在 <code>data/metro/_cache/</code>（<code>geom_*.json</code> 等）避免重抓。</li>
+<li><b>會 call 什麼 skill</b>：<code>metro-osm-fetch</code>（取得管線）、<code>metro-audit</code>（逐城對照 Wikipedia／urbanrail 驗證，<code>npm run metro:audit</code>＝<code>auditLoop.mjs</code>）、<code>metro-cities</code>＋城市專屬 skill（台北/東京/紐約…的裁決）。這些是 Claude Code 模型抓取／修補時遵循的指示。</li>
+<li><b>執行流程</b>：Overpass 抓原始關係 → 依 route 站序連線、共站合併、共線去重（<code>route_count</code>）→ 反向地理編碼分城 → 輸出 <code>data/metro/systems/&lt;洲&gt;/&lt;國&gt;/&lt;城&gt;.geojson</code>；再由 <code>buildJrCombined</code>／<code>buildLandmarkCombined</code> 併入 JR 與地標（<code>-lm</code> 檔）。</li>
+</ul>`,
+  highway: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：離線——<code>npm run highway:fetch as-twn</code> → <code>highway:build as-twn</code>（或 <code>highway:all</code>）。</li>
+<li><b>用到什麼程式</b>：<code>scripts/fetchHighways.mjs</code> → <code>scripts/buildHighwayGeojson.mjs</code> → <code>scripts/verifyHighways.mjs</code>；抓取共用 <code>scripts/overpass.mjs</code>。</li>
+<li><b>會抓什麼</b>：Overpass API 抓 <code>highway=motorway/trunk</code> 的 way 與交流道 node；快取 <code>data/highway/_cache/</code>。</li>
+<li><b>會 call 什麼 skill</b>：<code>highway-osm-fetch</code>、<code>highway-audit</code>、<code>highway-cities</code>（各國封閉式判準／配色例外）。</li>
+<li><b>執行流程</b>：抓封閉式道路 → 交流道當節點串成網絡 → 一都會區輸出 <code>data/highway/systems/…geojson</code>（schema 同 metro）→ verify 把結果寫回 <code>highway_system.audit</code>。</li>
+</ul>`,
+  railway: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：離線——<code>npm run railway:fetch</code> → <code>railway:build</code>（或 <code>railway:all</code>）。</li>
+<li><b>用到什麼程式</b>：<code>scripts/fetchRailways.mjs</code> → <code>scripts/buildRailwayGeojson.mjs</code>（＋日本 <code>buildJrCombined.mjs</code>）→ <code>scripts/wikiRailwayLines.mjs</code>／<code>verifyRailways.mjs</code>；抓取共用 <code>scripts/overpass.mjs</code>。</li>
+<li><b>會抓什麼</b>：Overpass API 抓 <code>railway=rail</code> 幹線與高鐵的 way／route relation；快取 <code>data/railway/_cache/</code>。</li>
+<li><b>會 call 什麼 skill</b>：<code>railway-osm-fetch</code>、<code>railway-audit</code>（逐線對照當地語 Wikipedia infobox 站數）。</li>
+<li><b>執行流程</b>：track-based 逐線排序 → 一國拆 <code>-hsr</code>／<code>-rail</code> 兩檔（日本一般國鐵再拆 JR 六社）→ 輸出 <code>data/railway/systems/…geojson</code>。</li>
+</ul>`,
+  landmark: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：離線——<code>npm run metro:landmarks</code>（抓）→ <code>metro:landmarkscombined</code>（併入城市檔成 <code>-lm</code>）。</li>
+<li><b>用到什麼程式</b>：<code>scripts/fetchLandmarks.mjs</code> → <code>scripts/buildLandmarkCombined.mjs</code>。</li>
+<li><b>會抓什麼</b>：Overpass 抓河流 <code>waterway=river</code> 中心線 way、皇居／公園面域（<code>leisure=park</code> 等）；快取 <code>data/metro/_cache/landmarks_*.json</code>。</li>
+<li><b>會 call 什麼 skill</b>：<code>landmark-osm-fetch</code>。</li>
+<li><b>執行流程</b>：河流中心線 → graph diameter 主線 → 全點保留轉成 route＋每折點車站 Point（<code>river:true</code>），併進城市檔；面域另存 <code>Polygon</code> overlay。</li>
+</ul>`,
+  mapadjust: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：在 dock 打開某城市的「Map Adjust」分頁——<b>前端即時</b>，不跑 npm、不連伺服器。</li>
+<li><b>用到什麼程式</b>：<code>src/components/D3Tab.vue</code> 用 <code>d3</code> 畫；點骨架化＝<code>src/stores/skeleton.js</code>、點格網化＝<code>src/stores/schematicGrid.js</code>（皆純函式）。</li>
+<li><b>會抓什麼</b>：只 <code>fetch(assetUrl('data/metro/systems/…'))</code> 讀城市 GeoJSON，<b>零網路 API、零 token</b>。</li>
+<li><b>會 call 什麼 skill</b>：<code>route-skeleton-connect</code>、<code>route-skeleton-grid</code>（演算法文件依據）。</li>
+<li><b>執行流程</b>：讀城市檔 → d3 <code>geoPath</code> 畫線與站（原始）；切到骨架化/格網化才呼叫對應純函式重算、即時切換。</li>
+</ul>`,
+  original: execPure('src/components/D3Tab.vue', 'path(f)（d3 geoPath）', '<code>metro-osm-fetch</code>',
+    '把每個 feature 的原始幾何直接畫（單線實色、共線交錯彩色虛線）；「依建議旋轉」只套一個 tilt 角度，不改資料。'),
+  skeleton: execPure('src/stores/skeleton.js', 'buildConnectSkeleton(geojson)', '<code>route-skeleton-connect</code>',
+    '建圖 → 依 degree 分節點 → 找幾何交叉補黃點 → 收縮 degree-2 黑點鏈成邊 → 邊分類 → 標粉紅/灰/紫。',
+    '結果存在記憶體 <code>cachedSkeleton</code>'),
+  grid: execPure('src/stores/schematicGrid.js', 'buildSchematicGrid + placeBlacks', '<code>route-skeleton-grid</code>',
+    '彩色點排名吸附 → <code>cellOf</code> → <code>repairOcclusions</code> 消壓點/交叉 → <code>placeBlacks</code> 把黑點沿新邊拉直。'),
+  hillclimb: execPure('src/stores/hillClimb.js', 'buildHillClimb(skeleton, cellOf, cols, rows)', '<code>route-hillclimb</code>',
+    '以格網化後為輸入，多準則適應度＋4 條硬規則爬山、短半徑移動格子、含冷卻與超長邊群集移動。',
+    '結果快取在 <code>localStorage</code>（鍵 <code>d3tab-hc-cache-v7</code>）＋記憶體 <code>cachedHC</code>，資料指紋/界內驗證不符就作廢重算'),
+  straighten: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：直角爬山／軸對齊／整數規劃＝點視圖即時算；<b>LLM 對齊</b>＝按「開始 LLM 對齊」，由 <code>vite.config.js</code> 的外掛 spawn 一個 <b>headless <code>claude -p</code></b> session。</li>
+<li><b>用到什麼程式</b>：前三種＝<code>src/stores/hillClimb.js</code> 的 <code>iteratePost(buildRectPolish／buildAxisAlign／buildAxisIlp, …)</code>（純函式，迭代到不動點）；LLM＝<code>vite.config.js</code> 收 <code>/llm-align/run</code> → 跑 <code>claude -p</code> 依 skill 提移動、寫 <code>data/metro/llmviews/&lt;city&gt;.&lt;variant&gt;.json</code>，網頁輪詢 <code>/llm-align/status</code>。</li>
+<li><b>會抓什麼</b>：前三種<b>零網路</b>；LLM 對齊會<b>啟動 Claude Code 模型</b>（headless、不用 API key），讀目前佈局的幾何脈絡、回傳短距離移動。</li>
+<li><b>會 call 什麼 skill</b>：<code>route-rect-polish</code>／<code>route-axis-align</code>／<code>route-axis-ilp</code>（前三種的文件依據）；<code>route-llm-align</code>（LLM 對齊，<b>真的被 headless session 讀取執行</b>）。</li>
+<li><b>執行流程</b>：都以「主視圖目前顯示的佈局」為起點 → 產生新 <code>cellAfter</code> → 過與其他相同的硬規則套用；LLM 版跑完不自動套用、按「執行調整」才套。</li>
+</ul>`,
+  'endpoint-move': execPure('src/stores/hillClimb.js', "movewiseStage('endp', skeleton, cells, cols, rows)", '<code>route-endpoint-move</code>、<code>route-span-cap</code>',
+    '掃每個非白點、一次移 1 格試採納（H/V 淨增等條件），受跨距上限 SPAN_CAP 擋；移動後立即縮減網格。'),
+  'line-compact': execPure('src/stores/hillClimb.js', "movewiseStage('line', …)", '<code>route-line-compact</code>',
+    '把跨相交點串接的整條直線當一個單位平移 ±1 格，validShift 通過才採納、嚴格縮小網格。'),
+  'grid-merge': execPure('src/stores/hillClimb.js', "movewiseStage('gather', …)", '<code>route-grid-merge</code>',
+    '相鄰 row／col 兩兩合併：半平面整體移 1 格自帶壓縮，不壓點/不新增交叉/拓撲不變才採納。'),
+  'movewise-loop': execPure('src/stores/hillClimb.js', 'straightenCompactLoop(skeleton, cells, cols, rows)', '<code>route-movewise-loop</code>',
+    '端點移動→直線縮減→網格合併三個純函式輪替，每輪各掃整個 network 一遍，一輪全靜止才停；結果供 RWD 底圖。'),
+  'step-verify': execPure('src/stores/hillClimb.js', 'stepChainInit / stepChainNext', '<code>route-step-verify</code>',
+    '把 movewise 循環拆成單步：<code>stepChainNext</code> 推進一掃描或一移動，前後橘圈比對，含復原堆疊（狀態只在記憶體）。'),
+  rwd: `<ul class="exec-list">
+<li><b>怎麼觸發</b>：點「RWD 路網」＝前端即時畫；「LLM 評價／互動」＝按鈕由 <code>vite.config.js</code> spawn <b>headless <code>claude -p</code></b>。</li>
+<li><b>用到什麼程式</b>：<code>src/stores/rwdMap.js</code> 的 <code>mergeParallelSegs</code>＋<code>buildRwdMap(segs, pxPos, {unit, lattice…})</code>（純函式），底圖段來自 <code>src/stores/hillClimb.js</code> 的 <code>buildHcGraph</code>；由 <code>D3Tab.vue</code> 呼叫、快取 <code>cachedRWD</code>（隨版面大小重算）。</li>
+<li><b>會抓什麼</b>：畫線<b>零網路</b>；LLM 評價（<code>/llm-eval</code>）／互動（<code>/llm-grid</code>）會啟動 Claude Code 模型（headless），寫 <code>data/metro/llmevals</code>／<code>llmgrids</code>。</li>
+<li><b>會 call 什麼 skill</b>：<code>route-rwd-draw</code>（畫線文件依據）；<code>route-llm-eval</code>／<code>route-llm-grid</code>（<b>真的被 headless session 讀取執行</b>）。</li>
+<li><b>執行流程</b>：每段依轉折數排序候選折線（直線→單折→雙折）→ 衝突換候選、必要時 A* 繞行 → 黑點沿選定折線弧長放回；八方向約束以<b>版面 pixel</b> 為準。</li>
+</ul>`,
+}
+for (const k in LAYER_DOCS) LAYER_DOCS[k].execution = EXECUTION[k] ?? '<p>（尚無說明）</p>'
 
 // Map a data-layer to a doc key (LayerPanel). Map Adjust view sections pass
 // their doc key directly. All data layers load as type 'metro'; highway/railway

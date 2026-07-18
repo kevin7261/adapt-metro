@@ -8,9 +8,10 @@ import { openSkillDoc } from '../stores/skillHandle'
 const doc = computed(() => (layerDoc.key ? LAYER_DOCS[layerDoc.key] : null))
 // 標題＝使用者點的那個圖層/區塊的名字（無描述性副標、無 tag，使用者要求）。
 const headTitle = computed(() => layerDoc.title || doc.value?.title || '')
-const tab = ref('show') // 'show' 顯示與資料 | 'algo' 演算法
+const tab = ref('show') // 'show' 顯示與資料 | 'exec' 程式執行 | 'algo' 演算法
 const TABS = [
   { id: 'show', label: '顯示與資料' },
+  { id: 'exec', label: '程式執行' },
   { id: 'algo', label: '演算法' },
 ]
 // reset to the first tab whenever a different layer opens
@@ -94,7 +95,15 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
           </section>
         </template>
 
-        <!-- Tab 2：計算的演算法內容 -->
+        <!-- Tab 2：程式執行——這個圖層的程式怎麼跑、用什麼、call 什麼 skill、抓什麼 -->
+        <template v-else-if="tab === 'exec'">
+          <section class="layerdoc-sec first">
+            <h3><MIcon name="terminal" :size="14" /> 程式執行</h3>
+            <div class="layerdoc-prose layerdoc-exec" v-html="doc.execution" />
+          </section>
+        </template>
+
+        <!-- Tab 3：計算的演算法內容 -->
         <template v-else>
           <section class="layerdoc-sec first">
             <h3><MIcon name="functions" :size="14" /> 計算的演算法</h3>
@@ -163,6 +172,12 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .lg-mark { flex-shrink: 0; width: 26px; height: 14px; display: inline-flex; }
 .lg-mark :deep(svg) { width: 26px; height: 14px; }
 .layerdoc-prose { font-size: 13px; line-height: 1.7; }
+/* 程式執行：每條 li 之間留白、標籤（怎麼觸發/用到什麼程式…）較醒目 */
+.layerdoc-exec :deep(.exec-list) { list-style: none; padding-left: 0; margin: 0; }
+.layerdoc-exec :deep(.exec-list > li) {
+  margin: 0 0 10px; padding-left: 12px; border-left: 2px solid hsl(var(--primary) / 0.35);
+}
+.layerdoc-exec :deep(.exec-list > li > b:first-child) { color: hsl(var(--primary)); }
 .layerdoc-prose :deep(p) { margin: 4px 0; }
 .layerdoc-prose :deep(ul) { margin: 4px 0; padding-left: 20px; }
 .layerdoc-prose :deep(li) { margin: 3px 0; }

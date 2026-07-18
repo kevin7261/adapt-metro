@@ -136,7 +136,7 @@ def apply_move(v, P):
 start_hvd = total_hvd()
 # greedy sweeps
 verts = list(pos.keys())
-R = 2  # per-move radius
+R = 3  # per-move radius
 for sweep in range(30):
     changed = False
     for v in verts:
