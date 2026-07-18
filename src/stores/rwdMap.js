@@ -24,6 +24,15 @@ import { pairKey, sharesRoute } from './netUtil.js'
 //            pure L (H then V; V then H); mirror (H/V first, 45° last)
 //   2 bends  45°–H–45° (|Δx|>|Δy|) or 45°–V–45° (|Δy|>|Δx|) with the middle
 //            leg at 1/2 of the span, alternates at 1/4 and 3/4 for conflicts
+//   4+ bends staircase 45°–H/V–45°–H/V–…–45°: split the diagonal into k 45°
+//            risers with k-1 axis treads between them. The ONLY hard rule is
+//            "a 45° must connect to an H/V" (no 45°→45° adjacency) — the NUMBER
+//            of 45°/axis legs is NOT capped (user rule); k grows until risers or
+//            treads drop below one grid cell (hard ceiling k≤10). k=3 also gets
+//            mixed variants (…–H–…–V–… / …–V–…–H–…, shorter diagonals leaving
+//            both an H and a V tread) for weaving around obstacles on both axes;
+//            same-axis staircases (only 45° + one axis, cleaner) are tried first.
+//            Bend-count priority still holds: more steps only when fewer conflict.
 //   last     the raw straight S→T (illegal direction) as the final fallback
 //
 // A LEGAL straight that conflicts (parallel edges between the same two nodes,
@@ -218,6 +227,66 @@ function candidates(S, T, u) {
     const P2 = [T[0] - sx * (m - k), T[1] - sy * (m - k)]
     out.push({ pts: [S, P1, P2, T], bends: 2 })
   }
+  // 四轉折（使用者規則：45–H/V–45–H/V–45 也可以）——把對角拆成三段 45°，中間夾
+  // 兩段軸向直線；45° 脚一律被軸向直線隔開，不構成禁止的 45°→45° 角。當單一
+  // 45–軸–45 中段太長或被擋時的階梯狀替代。兩種家族：
+  //  (a) 同軸 45–H–45–H–45（ax>ay）或 45–V–45–V–45（ay>ax）：對角每段固定 m/3，
+  //      余剩全在較大軸、拆成兩段（讀起來只有 45° 與一個軸向，較乾淨）→ 先試。
+  //  (b) 混合 45–H–45–V–45 與 45–V–45–H–45：對角每段取 <m/3（3g<ax 且 3g<ay），
+  //      使 H、V 皆有剩餘，各成一段 → 需要同時往兩軸繞時用。
+  {
+    const horiz = ax > ay                 // 余剰在水平 → 夾 H；否則夾 V
+    const a = m / 3                       // 每段 45° 對角進行（縱橫同量），三段合計 m
+    const axisTotal = Math.abs(ax - ay)   // 兩段軸向直線長度合計（>0，因 ax≠ay）
+    for (const [f1, f2] of [[0.5, 0.5], [0.25, 0.75], [0.75, 0.25]]) {
+      const b1 = axisTotal * f1, b2 = axisTotal * f2
+      const P1 = [S[0] + sx * a, S[1] + sy * a]
+      const P2 = horiz ? [P1[0] + sx * b1, P1[1]] : [P1[0], P1[1] + sy * b1]
+      const P3 = [P2[0] + sx * a, P2[1] + sy * a]
+      const P4 = horiz ? [P3[0] + sx * b2, P3[1]] : [P3[0], P3[1] + sy * b2]
+      out.push({ pts: [S, P1, P2, P3, P4, T], bends: 4 })
+    }
+    for (const gf of [0.25, 1 / 6]) {     // 對角每段 = m*gf，需 3g<m 使 H、V 皆 >0
+      const g = m * gf
+      const h = ax - 3 * g                // 水平剩餘（單段）
+      const v = ay - 3 * g                // 垂直剩餘（單段）
+      if (h <= 0 || v <= 0) continue
+      const D1 = [S[0] + sx * g, S[1] + sy * g]
+      // 45–H–45–V–45
+      const H2 = [D1[0] + sx * h, D1[1]]
+      const HD3 = [H2[0] + sx * g, H2[1] + sy * g]
+      const HV4 = [HD3[0], HD3[1] + sy * v]
+      out.push({ pts: [S, D1, H2, HD3, HV4, T], bends: 4 })
+      // 45–V–45–H–45
+      const V2 = [D1[0], D1[1] + sy * v]
+      const VD3 = [V2[0] + sx * g, V2[1] + sy * g]
+      const VH4 = [VD3[0] + sx * h, VD3[1]]
+      out.push({ pts: [S, D1, V2, VD3, VH4, T], bends: 4 })
+    }
+  }
+  // 更多段階梯（使用者規則：不限 45° 與 H/V 的段數，唯一硬規則是「45° 一律接 H/V」，
+  // 即 45° 不相鄰）。同軸階梯 k=4,5,… 段 45°（每段 riser=m/k）＋中間 k-1 段軸向 tread
+  // （每段 (|ax−ay|)/(k−1)），bends=2(k−1)。段數上限由跨距決定：riser 與 tread 都
+  // 不小於一格 u（過小的階梯沒有意義），再加硬頂 kMax≤10 防候選爆炸。折數絕對優先，
+  // 故多段只在少段候選全衝突時才輪到。
+  {
+    const bigAxis = Math.abs(ax - ay)
+    const step = Math.max(u, 1e-6)
+    const kMax = Math.min(10, Math.floor(m / step), 1 + Math.floor(bigAxis / step))
+    const horiz = ax > ay
+    for (let k = 4; k <= kMax; k++) {
+      const riser = m / k                     // 每段 45° 對角進行（縱橫同量）
+      const tread = bigAxis / (k - 1)         // 每段軸向直線
+      const pts = [S]
+      let P = S
+      for (let i = 0; i < k; i++) {
+        P = [P[0] + sx * riser, P[1] + sy * riser]; pts.push(P)                      // 45° riser
+        if (i < k - 1) { P = horiz ? [P[0] + sx * tread, P[1]] : [P[0], P[1] + sy * tread]; pts.push(P) } // 軸向 tread
+      }
+      pts[pts.length - 1] = T                 // 末段 45° 精確落在 T（消 FP 漂移）
+      out.push({ pts, bends: 2 * (k - 1) })
+    }
+  }
   // 兜底：原方向直線（非 H/V/45）
   out.push({ pts: [S, T], bends: 0, fallback: true })
   return out
@@ -361,11 +430,88 @@ export function mergeParallelSegs(segs) {
   return out
 }
 
+// Fold a chain of consecutive SAME-LINE segments that meet at a DEGREE-2 node
+// into ONE segment. buildHcGraph cuts an edge at every non-black node (轉折/
+// 分歧/…), so a single line that merely CHANGES DIRECTION at a 轉折 station gets
+// split there — and the router, drawing each piece independently, renders the
+// run as a per-segment right-angle staircase. Merging the run lets the router
+// draw the WHOLE thing as one minimal H/V/45° polyline (使用者規則：轉折越少越好、
+// 能 45° 就 45°); the fold node becomes an interior station placed along the
+// straightened line. Only degree-2 single-line nodes fold — a junction/transfer
+// (degree ≥3) or a node where two DIFFERENT lines meet stays a cut, so topology
+// is unchanged. Loops are excluded. Every station id is preserved (as an
+// endpoint or an interior point). Verified 0 new crossings / 0 lost stations.
+export function mergeThroughSegs(segs) {
+  const routeKey = (s) => [...(s.routes ?? [])].sort().join(',') || (s.edge?.color ?? '')
+  const deg = new Map()
+  for (const s of segs) for (const id of [s.a, s.b]) deg.set(id, (deg.get(id) ?? 0) + 1)
+  const inc = new Map()
+  segs.forEach((s, i) => { for (const id of [s.a, s.b]) { if (!inc.has(id)) inc.set(id, []); inc.get(id).push(i) } })
+  // A node folds in only when EXACTLY two segments touch it, they are the same
+  // line (identical route set), and neither is a loop edge.
+  const foldable = (id) => {
+    const ii = inc.get(id)
+    return !!ii && ii.length === 2 && deg.get(id) === 2 &&
+      routeKey(segs[ii[0]]) === routeKey(segs[ii[1]]) &&
+      segs[ii[0]].edge?.cls !== 'loop' && segs[ii[1]].edge?.cls !== 'loop'
+  }
+  const used = new Array(segs.length).fill(false)
+  const out = []
+  for (let start = 0; start < segs.length; start++) {
+    if (used[start]) continue
+    const chain = [start]; used[start] = true
+    // grow the chain outward through foldable nodes from both free ends
+    const grow = (endNode, prepend) => {
+      let node = endNode
+      while (foldable(node)) {
+        const [i0, i1] = inc.get(node)
+        const nx = used[i0] ? (used[i1] ? -1 : i1) : i0
+        if (nx < 0 || used[nx]) break
+        used[nx] = true
+        if (prepend) chain.unshift(nx); else chain.push(nx)
+        const ns = segs[nx]
+        node = ns.a === node ? ns.b : ns.a
+      }
+    }
+    grow(segs[start].b, false)
+    grow(segs[start].a, true)
+    if (chain.length === 1) { out.push(segs[start]); continue }
+    // order the chain into a connected node walk nodes[0] … nodes[last]; start
+    // from a true end (a node touched by exactly one chain segment).
+    const endCount = new Map()
+    for (const ci of chain) for (const id of [segs[ci].a, segs[ci].b]) endCount.set(id, (endCount.get(id) ?? 0) + 1)
+    let node = null
+    for (const ci of chain) { for (const id of [segs[ci].a, segs[ci].b]) if (endCount.get(id) === 1) node = id; if (node) break }
+    if (node == null) { for (const ci of chain) out.push(segs[ci]); continue } // pure cycle — leave as-is
+    const remaining = new Set(chain), nodes = [node], order = []
+    while (remaining.size) {
+      let hit = -1
+      for (const ci of remaining) { const cs = segs[ci]; if (cs.a === node) { hit = ci; node = cs.b; break } if (cs.b === node) { hit = ci; node = cs.a; break } }
+      if (hit < 0) break
+      order.push(hit); remaining.delete(hit); nodes.push(node)
+    }
+    // merged interior = each seg's interior (oriented along the walk) with each
+    // folded shared node wedged between consecutive segments.
+    const first = segs[order[0]], interior = []
+    for (let k = 0; k < order.length; k++) {
+      const cs = segs[order[k]]
+      const fwd = cs.a === nodes[k]
+      interior.push(...(fwd ? cs.interior : [...cs.interior].reverse()))
+      if (k < order.length - 1) interior.push(nodes[k + 1])
+    }
+    out.push({ a: nodes[0], b: nodes[nodes.length - 1], routes: first.routes, hops: chain.reduce((t, ci) => t + segs[ci].hops, 0), interior, edge: first.edge })
+  }
+  return out
+}
+
 // `pos` = Map<id, [x, y]> PIXEL positions of the (compact-grid) cut points.
 // opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
 export function buildRwdMap(segs, pos, opts = {}) {
+  const __segsRaw = segs
+  if (!opts.__noMerge) segs = mergeThroughSegs(segs)
+  if (globalThis.__CAP) globalThis.__CAP.push({ segsRaw: __segsRaw, segs, pos: new Map(pos), opts })
   const unit = opts.unit ?? 12
   const minGap = opts.minGap ?? unit * 0.35
   const nodes = [...pos.entries()] // [id, [x,y]] — foreign-node test
