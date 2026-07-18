@@ -21,6 +21,8 @@ const rwdVariantZh = (l) =>
   (store.layers.find((s) => s.id === l.sourceLayerId)?.variant === 'rot' ? '旋轉' : '原始')
 // 基底原始圖層名（metro→Metro Maps、railway→Railways、highway→Highways）。
 const baseLabel = (l) => (l.railway ? 'Railways' : l.highway ? 'Highways' : 'Metro Maps')
+// Metro Maps 基底層（地鐵、非鐵路／高速公路）——整城的錨點，不給單獨刪除。
+const isMetroMaps = (l) => l.type === 'metro' && !l.railway && !l.highway
 // 完整階段名（toast 用）：含子群組前綴＋變體。
 function stageLabel(l) {
   if (l.type === 'd3') return 'Map Adjust'
@@ -434,9 +436,10 @@ onBeforeUnmount(() => {
                     <MIcon name="download" :size="14" />
                   </button>
                   <!-- 只有主圖層（無 sourceLayerId）可單獨刪除；衍生子圖層不需刪除功能
-                       （使用者裁決）——整城清理走群組標題的「刪除此城市全部圖層」。 -->
+                       （使用者裁決）——整城清理走群組標題的「刪除此城市全部圖層」。
+                       Metro Maps 基底層是整城的錨點（刪它會孤立所有衍生層），不給單獨刪除。 -->
                   <button
-                    v-if="!row.layer.sourceLayerId"
+                    v-if="!row.layer.sourceLayerId && !isMetroMaps(row.layer)"
                     class="btn-icon danger"
                     title="Remove layer"
                     @click.stop="overflow(row.layer, 'remove')"
@@ -555,8 +558,8 @@ onBeforeUnmount(() => {
 .group-folder { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
 .group-name {
   flex: 1;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

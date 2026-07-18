@@ -1626,6 +1626,14 @@ watch(
 // Toggling station labels needs a re-render (add/remove text nodes).
 watch(() => panelLayer.value?.showLabels, render)
 
+// 「顯示全部」（StyleBar）：把 d3-zoom 重置回 identity——render() 就是把投影 fit 到
+// 容器後把 zoom 設為 identity，所以重置＝回到「全部可見」的初始 fit 狀態。
+function fitView() {
+  if (zoomBehavior && svgEl.value) {
+    select(svgEl.value).call(zoomBehavior.transform, zoomIdentity)
+  }
+}
+
 onMounted(() => {
   // d3-zoom drives the inner <g> transform (wheel zoom + drag pan).
   zoomBehavior = zoom()
@@ -1691,6 +1699,7 @@ onBeforeUnmount(() => {
           @hide-stops="setRwdHideStops"
           @min-stop-px="setRwdMinStopPx"
           @recalc-span="recalcSpan"
+          @fit-view="fitView"
         />
         <div class="map-main">
           <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">

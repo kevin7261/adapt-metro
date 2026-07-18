@@ -19,7 +19,7 @@ const props = defineProps({
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
   spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（Straighten/RWD）
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view'])
 
 // 地圖底色的 8 個預設快選色（依明度深→淺排序）
 const BG_PRESETS = [
@@ -34,12 +34,20 @@ const BG_PRESETS = [
 ]
 
 const isMetro = computed(() => props.layer?.type === 'metro' || props.layer?.metroLike === true)
+// metro 地圖 tab（MapLibre）＝viewKind 'metro'；其餘（map-adjust/hillclimb/rwd）是 D3 network。
+const isMetroView = computed(() => props.viewKind === 'metro')
 
-// Zoom to layer：縮放地圖到此圖層的地理範圍（原在 LayerPanel 每列，改到 tab 工具列）。
-function zoomToLayer() {
-  const data = layerData[props.layer.id]
-  const bbox = data && boundsOfGeojson(data)
-  if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
+// 「顯示全部」：把目前視圖縮放到能看見全部內容。
+//  · metro 地圖（MapLibre）：fitBounds 到圖層的地理範圍。
+//  · D3 network：emit 給 D3Tab，把 d3-zoom 重置回 identity（＝初始 fit 到容器的狀態）。
+function fitView() {
+  if (isMetroView.value) {
+    const data = layerData[props.layer.id]
+    const bbox = data && boundsOfGeojson(data)
+    if (bbox) mapHandle.map?.fitBounds(bbox, { padding: 48, maxZoom: 13 })
+  } else {
+    emit('fit-view')
+  }
 }
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const isRwd = computed(() => props.viewKind === 'rwd')
@@ -120,11 +128,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   <div class="stylebar">
     <!-- 第 1 排：一般工具（地圖底色／線寬／站點半徑／顯示站名…） -->
     <div class="sb-row">
-      <!-- Zoom to layer：縮放到此圖層範圍（只有 metro 地圖 tab 有） -->
-      <template v-if="isMetro">
-        <button class="sb-btn" title="縮放到此圖層範圍" @click="zoomToLayer">顯示全部</button>
-        <div class="sb-sep" />
-      </template>
+      <!-- 顯示全部：縮放到能看見全部內容（metro 地圖 fitBounds／D3 network 重置縮放） -->
+      <button class="sb-btn" title="顯示全部內容" @click="fitView">顯示全部</button>
+      <div class="sb-sep" />
       <template v-for="(grp, gi) in groups" :key="gi">
         <div v-if="gi" class="sb-sep" />
         <template v-for="t in grp" :key="t.id">
