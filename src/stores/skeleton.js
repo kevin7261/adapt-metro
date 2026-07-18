@@ -50,27 +50,6 @@ function dpKeep(pts, i0, i1, tol, kept) {
   }
 }
 
-// 絕對容差 DP（巴黎長弦案 2026-07-17）：pts 已換算成 km 平面座標，偏離弦線
-// > tolKm 即留轉折。河流「全點保留」後中間點角度平緩，相對容差（偏移÷弦長）
-// 在長河抓不到轉折——整段彎弧收成一條跨數十格的長弦，弦會與地鐵段假交叉
-//（實際河道沒交叉）。0.2 km 是已移除的資料層 DP 驗證過「保河形」的值。
-function dpKeepAbsKm(pts, i0, i1, tolKm, kept) {
-  if (i1 <= i0 + 1) return
-  const A = pts[i0], B = pts[i1]
-  const base = dist(A, B)
-  let maxD = -1, maxI = -1
-  for (let i = i0 + 1; i < i1; i++) {
-    const d = perpToLine(pts[i], A, B)
-    if (d > maxD) { maxD = d; maxI = i }
-  }
-  if (maxI < 0) return
-  if (maxD > tolKm) {
-    kept.set(maxI, { i0, i1, ratio: base > 1e-9 ? maxD / base : Infinity })
-    dpKeepAbsKm(pts, i0, maxI, tolKm, kept)
-    dpKeepAbsKm(pts, maxI, i1, tolKm, kept)
-  }
-}
-
 // ② geometric crossings（buildConnectSkeleton 步驟②，整段提出）：
 // 幾何交叉 → synthetic YELLOW nodes。就地改動 coord（加交叉點座標）與各
 // route 的 stations（splice 進交叉 id），回傳 { crossings, crossIds }。
@@ -280,8 +259,10 @@ export function buildConnectSkeleton(geojson) {
 
   // 河流＝**資料層的一般網路路線**（buildLandmarkCombined 把河流轉成站級 route feature：
   // 中心線**全點保留**＝每個折點都是 river 站、route_id=`river:…`）——骨架這裡**零特例**，
-  // 與地鐵一視同仁：交叉黃點、匯流紅點（共站 degree≥3）、端點藍點全走通用規則。僅存的
-  // 河流微調在 ⑥（粉紅＝絕對 0.2 km 容差、不放灰點），以 route_id 前綴 `river` 辨識。
+  // 與地鐵一視同仁：交叉黃點、匯流紅點（共站 degree≥3）、端點藍點全走通用規則。
+  // ⑥ 粉紅與地鐵完全相同（同曲折度關卡＋相對容差 DP 挑轉折）；**唯一差別＝河流不放灰點**
+  // ——河流一條邊數百連續黑點，放灰會撒數十個地理採樣切點害河流折來折去（見 ⑥ 內註解）。
+  // 不放灰後格網化 placeBlacks 把河流在黃交叉＋粉紅大轉折之間拉成直線，跟 metro network 一樣直。
 
   // ② 幾何交叉 → 黃色節點（detectCrossings，就地 splice 進 routes/coord）。
   const { crossings, crossIds } = detectCrossings(geojson, routes, coord)
@@ -504,12 +485,8 @@ export function buildConnectSkeleton(geojson) {
   // A kept vertex is marked pink only if it is still a black (through) station.
   const PINK_SINUOSITY = 1.25
   const PINK_DP_TOL = 0.25
-  // 河流合成邊：只保留「粉紅（轉折最大處）＋黃點（交叉）」，其餘折點在格網化被拉直。
-  // 故河流邊 (a) 用**絕對 km 容差**（dpKeepAbsKm，0.2 km）抓主要轉折成粉紅——河流資料
-  // 2026-07-17 起全點保留，相對容差在長河抓不到轉折（整段彎弧變一條長弦、與地鐵段假交叉，
-  // 巴黎案）、(b) **不放灰點**（灰是非黑→在 placeBlacks 會被當切點，害河流不被拉直＝使用者
-  // 回報「還是沒變直線」的主因）。
-  const RIVER_BEND_KM = 0.2
+  // 河流邊與一般地鐵邊完全相同處理（使用者裁決：不要特別不同）——同曲折度關卡、
+  // 同相對容差 DP 挑粉紅、同灰點分隔規則，無任何河流特例。
   for (const e of edges) {
     const { path } = e
     if (path.length < 3) continue
@@ -531,15 +508,9 @@ export function buildConnectSkeleton(geojson) {
     const pts = path.map((id) => coord.get(id))
     const chord = dist(pts[0], pts[pts.length - 1])
     const sinuosity = chord > 1e-9 ? cum[cum.length - 1] / chord : Infinity
-    if (isRiverEdge || sinuosity > PINK_SINUOSITY) {
+    if (sinuosity > PINK_SINUOSITY) {
       const kept = new Map()
-      if (isRiverEdge) { // 絕對 km 容差（座標換 km 平面再 DP；索引對回原 path）
-        const kx = 111.32 * Math.cos((pts[0][1] * Math.PI) / 180)
-        const ptsKm = pts.map((p) => [p[0] * kx, p[1] * 110.574])
-        dpKeepAbsKm(ptsKm, 0, ptsKm.length - 1, RIVER_BEND_KM, kept)
-      } else {
-        dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, kept)
-      }
+      dpKeep(pts, 0, pts.length - 1, PINK_DP_TOL, kept)
       for (const [i, info] of kept) {
         if (i > 0 && i < path.length - 1 && stationClass.get(path[i]) === 'black') {
           stationClass.set(path[i], 'pink')
@@ -556,8 +527,11 @@ export function buildConnectSkeleton(geojson) {
 
     // ⑥ gray separators: within each run of black between boundaries (nodes +
     // pink/purple), G = floor(N/5) grays, spread toward the middle.
-    // **河流邊不放灰**——灰是非黑，會在 placeBlacks 被當切點而阻止河流被拉直（河流只留
-    // 粉紅＋黃點當切點，其餘黑折點一律拉直）。
+    // **河流邊不放灰**——這是河流與 metro 唯一必要的差別：河流一條邊有數百個連續黑點
+    // （metro 線沒有），「每 5 黑點 1 灰」會撒出數十個灰切點，每個灰在 placeBlacks 被吸到
+    // 自己的地理格排名 → 河流沿地理曲線折來折去（實測台北：放灰 63 拐點/2611°；不放灰
+    // 5 拐點/537°）。不放灰後河流在交叉黃點＋粉紅大轉折之間一律拉成直線＝使用者要的
+    // 「格網化後彩色點之間變直線、跟 metro 一樣直」（2026-07-18）。粉紅仍與 metro 同規則。
     if (isRiverEdge) continue
     let runStart = 0
     for (let i = 1; i < path.length; i++) {

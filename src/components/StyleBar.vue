@@ -19,6 +19,18 @@ const props = defineProps({
 })
 const emit = defineEmits(['show-weights', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span'])
 
+// 地圖底色的 8 個預設快選色（依明度深→淺排序）
+const BG_PRESETS = [
+  '#000000', // 純黑
+  '#0d1117', // 深灰藍（預設）
+  '#1a1a2e', // 深藍紫
+  '#12263a', // 深海藍
+  '#0b3d2e', // 深墨綠
+  '#333333', // 中灰
+  '#f5f5f5', // 淺灰白
+  '#fdf6e3', // 米黃
+]
+
 const isMetro = computed(() => props.layer?.type === 'metro' || props.layer?.metroLike === true)
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const isRwd = computed(() => props.viewKind === 'rwd')
@@ -203,7 +215,23 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         <!-- 地圖底色（metro） -->
         <template v-if="openTool === 'bg'">
           <label class="sb-label">地圖底色</label>
-          <input type="color" class="sb-color" :value="layer.d3Bg || '#0d1117'" @input="layer.d3Bg = $event.target.value" />
+          <div class="sb-swatches">
+            <button
+              v-for="c in BG_PRESETS"
+              :key="c"
+              type="button"
+              class="sb-swatch"
+              :class="{ 'is-active': (layer.d3Bg || '#0d1117').toLowerCase() === c.toLowerCase() }"
+              :style="{ background: c }"
+              :title="c"
+              @click="layer.d3Bg = c"
+            />
+          </div>
+          <label class="sb-custom">
+            <span class="sb-label">自訂</span>
+            <span class="sb-custom-hex">{{ (layer.d3Bg || '#0d1117').toUpperCase() }}</span>
+            <input type="color" class="sb-color sb-color-sm" :value="layer.d3Bg || '#0d1117'" @input="layer.d3Bg = $event.target.value" />
+          </label>
         </template>
 
         <!-- Symbology（一般向量） -->
@@ -392,6 +420,47 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   border-radius: calc(var(--radius) - 4px);
   background: none;
   cursor: pointer;
+}
+.sb-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 4px;
+}
+.sb-swatch {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid hsla(0, 0%, 50%, 0.35);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.sb-swatch:hover {
+  transform: scale(1.12);
+}
+.sb-swatch.is-active {
+  box-shadow: 0 0 0 1.5px hsl(var(--background)), 0 0 0 3px hsl(var(--primary));
+}
+.sb-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+  margin-top: 2px;
+  border-top: 1px solid hsl(var(--border));
+  cursor: pointer;
+}
+.sb-custom-hex {
+  margin-left: auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
+  color: hsl(var(--muted-foreground));
+}
+.sb-color-sm {
+  width: 30px;
+  height: 22px;
 }
 .sb-check {
   display: inline-flex;

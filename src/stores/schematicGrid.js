@@ -202,8 +202,10 @@ function repairOcclusions(skeleton, cellOf, taken) {
 // (⑨) and the hill-climbing layout (②, src/stores/hillClimb.js).
 export function placeBlacks(skeleton, posMap, snap) {
   const cls = skeleton.stationClass
-  // 河流折點（黑點）照常在切點之間**拉直**——切點＝端點＋黃點（河流×metro 交叉）。故河流在
-  // 相鄰黃點之間畫成直線（與 metro network 一樣），轉折點被拉直、不保留地理彎（使用者裁決）。
+  // 切點＝端點＋所有彩色點（紅/藍/黃/紫/粉紅/灰），相鄰切點之間的黑點一律線性拉直，
+  // 故每條線在彩色點之間畫成直線、只在彩色點轉折。河流同此規則但**不放灰點**（見 skeleton.js
+  // ⑥）——否則數百連續黑點會生數十灰切點、河流沿地理曲線折來折去；不放灰後河流在黃交叉＋
+  // 粉紅大轉折之間拉成長直線，與 metro network 一樣直（使用者裁決 2026-07-18）。
   for (const e of skeleton.edges) {
     const path = e.path
     const cuts = []
