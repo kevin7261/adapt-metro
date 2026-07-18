@@ -243,7 +243,31 @@ function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, o
       }
     }, 2500)
   }
-  return { start, stop: () => clearTimeout(timer) }
+  // 重新整理／重新掛載後恢復進行中的 job：server 端 jobs Map 在 dev server 行程裡
+  // 跨重整存活，所以查一次 status 就能接回還在跑的那次執行——恢復 running 狀態、
+  // 把已串流的 transcript 補回面板、繼續輪詢（跑完照樣 onDone 重載結果）。job 早已
+  // 跑完（exit 0）時不必特別處理：結果檔已在磁碟，mount 的 render() 會自行載入。
+  async function resume() {
+    const cid = llmCityId.value
+    if (!cid || run.value === 'running') return
+    try {
+      const qs = new URLSearchParams({ city: cid, ...params() })
+      const res = await fetch(`${base}/status?${qs}`)
+      const s = await res.json()
+      if (s.running) {
+        run.value = 'running'
+        tail.value = s.tail ?? ''
+        if (s.text != null) {
+          text.value = s.text
+          requestAnimationFrame(() => {
+            if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
+          })
+        }
+        poll() // 接回輪詢：完成時 onDone(true) 會重載結果並 render
+      }
+    } catch { /* 沒有 dev server（GH Pages）或查詢失敗 → 無事可恢復 */ }
+  }
+  return { start, resume, stop: () => clearTimeout(timer) }
 }
 // 清掉 LLM 對齊的所有下游快取（端點移動／直線縮減／網格合併／循環／逐步）——
 // 對齊佈局一變，這些以它為輸入的結果都作廢。run 前後與 toggle 時共用。
@@ -526,6 +550,7 @@ const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
 // 重跑 buildRwdMap。'uniform' = 均勻網格（預設）。全部隨機每按一次整表重抽。
 const rwdWeightMode = ref('uniform') // 'uniform' | 'weight'
+const rwdDirs = ref(8)               // RWD 允許的線方向數：4（只H/V）| 8（+45°，預設）| 16（+22.5°）
 const rwdShowWeights = ref(true)     // 是否顯示 weight 數字（開關）
 const rwdWeights = ref(new Map())    // segKey -> 1..9
 let rwdWeightSeq = 0                  // 重抽計數，併進 RWD 快取鍵
@@ -590,6 +615,8 @@ function setRwdAutoShuffle(on) {
 }
 function toggleRwdAutoShuffle() { setRwdAutoShuffle(!rwdAutoShuffle.value) }
 function setRwdShowWeights(on) { rwdShowWeights.value = on; render() }
+// 允許的線方向數（4/8/16）：改了要作廢 RWD 快取重畫（候選集不同）。
+function setRwdDirs(n) { rwdDirs.value = n; cachedRWD = null; render() }
 function setRwdHideStops(on) { rwdHideStops.value = on; cachedRWD = null; render() }
 function setRwdMinStopPx(px) {
   const v = Math.max(1, Math.round(+px || 5))
@@ -1130,7 +1157,7 @@ async function render() {
       // space whenever the size changes (with cw ≠ ch a cell-space 45° is not
       // 45° on screen). Same-size renders reuse the cached result. The interior
       // blacks already sit ON the polylines (no placeBlacks here).
-      const sizeKey = `${w}x${h}|${gridOn ? `g${rwdGridSeq}`
+      const sizeKey = `${w}x${h}|d${rwdDirs.value}|${gridOn ? `g${rwdGridSeq}`
         : animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : 'u'}`
       if (!cachedRWD || cachedRWD.key !== sizeKey) {
         if (!animing) {
@@ -1147,6 +1174,7 @@ async function render() {
           // 候選＋兜底；動畫幀再加 fast（略過多輪衝突消解，換每幀夠快）；均勻格照舊帶 lattice。
           ...buildRwdMap(cachedSegs, pxPos, {
             unit: Math.min(cw, ch),
+            dirs: rwdDirs.value, // 允許的線方向數 4/8/16
             // 自動隱藏白點：站距 < 門檻才刪，逐級升高 weight 差門檻（見 rwdMap.js）。
             hideStops: rwdHideStops.value,
             minStopPx: rwdMinStopPx.value,
@@ -1609,6 +1637,10 @@ const appliedSpanCap = ref(null)
 watch(() => panelLayer.value?.id, () => { appliedSpanCap.value = panelLayer.value?.spanCap ?? 3 })
 function recalcSpan() {
   appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
+  // 跨距上限只約束爬山（setSpanCap → buildHillClimb），所以它與其後處理必須一併作廢，
+  // 否則 render() 的 `if (!cachedHC)` 會沿用舊上限的佈局，下游重算也只是換湯不換藥。
+  cachedHC = null
+  cachedPost = {}
   cachedEndp = {}
   cachedLine = {}
   cachedGather = {}
@@ -1663,6 +1695,13 @@ onMounted(() => {
   setActive(panelApi.isActive)
 
   render()
+
+  // 重新整理／重新掛載後，接回任何還在跑的 LLM job（4 個功能：對齊/指定對齊/互動/
+  // 評價）——否則重整當下正在等 LLM 回傳的那次執行會遺失、永遠收不到結果。
+  llmRunner.resume()
+  promptRunner.resume()
+  gridRunner.resume()
+  evalRunner.resume()
 })
 
 onBeforeUnmount(() => {
@@ -1687,6 +1726,7 @@ onBeforeUnmount(() => {
           :view-kind="isRWD ? 'rwd' : isHC ? 'hillclimb' : 'map-adjust'"
           :show-weights="rwdShowWeights"
           :weight-mode="rwdWeightMode"
+          :dirs="rwdDirs"
           :weight-auto="rwdAutoShuffle"
           :hide-stops="rwdHideStops"
           :min-stop-px="rwdMinStopPx"
@@ -1694,6 +1734,7 @@ onBeforeUnmount(() => {
           :span-applied="appliedSpanCap"
           @show-weights="setRwdShowWeights"
           @weight-mode="setRwdWeightMode"
+          @dir-count="setRwdDirs"
           @weight-random="regenRwdWeights"
           @weight-auto="toggleRwdAutoShuffle"
           @hide-stops="setRwdHideStops"

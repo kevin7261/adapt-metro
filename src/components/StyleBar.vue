@@ -13,13 +13,14 @@ const props = defineProps({
   // 以下皆為 RWD Maps 版面控制（狀態都在 D3Tab，工具列只顯示＋emit 回去）：
   showWeights: { type: Boolean, default: true }, // 顯示權重數字
   weightMode: { type: String, default: 'uniform' }, // 'uniform' | 'weight'
+  dirs: { type: Number, default: 8 }, // 允許的線方向數：4（只H/V）| 8（+45°）| 16（+22.5°）
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
   hideStops: { type: Boolean, default: false }, // 自動隱藏白點
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
   spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（Straighten/RWD）
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view'])
 
 // 地圖底色的 8 個預設快選色（依明度深→淺排序）
 const BG_PRESETS = [
@@ -161,26 +162,31 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
     <!-- 第 2 排：RWD 版面控制（只有 RWD）＋顏色點間最大跨距（Straighten/RWD）＋即時
          診斷。權重 tab、設定 tab 都已拆空——工具在這排、說明移到右側「資訊」tab。 -->
     <div v-if="hasSpan" class="sb-row sb-row-2">
-      <!-- RWD 專屬：版面模式／顯示權重數字／隱藏白點／最小站距／隨機權重 -->
+      <!-- RWD 專屬：方向數／版面模式／顯示權重數字／隱藏白點／最小站距／隨機權重 -->
       <template v-if="isRwd">
-        <!-- 版面模式：均勻網格／權重比例＝二選一的 group button -->
-        <div class="sb-group" role="group" aria-label="版面模式">
+        <!-- 線方向數：4（只H/V）／8（+45°）／16（+22.5°）＝三選一 group button -->
+        <div class="sb-group" role="group" aria-label="線方向數">
           <button
+            v-for="n in [4, 8, 16]"
+            :key="n"
             class="sb-group-btn"
-            :class="{ active: weightMode !== 'weight' }"
-            @click="emit('weight-mode', 'uniform')"
-          >均勻網格</button>
-          <button
-            class="sb-group-btn"
-            :class="{ active: weightMode === 'weight' }"
-            @click="emit('weight-mode', 'weight')"
-          >權重比例</button>
+            :class="{ active: dirs === n }"
+            :title="n === 4 ? '只用水平/垂直' : n === 8 ? '水平/垂直/45°' : '水平/垂直/45°/22.5°'"
+            @click="emit('dir-count', n)"
+          >{{ n }}方向</button>
         </div>
+        <div class="sb-sep" />
+        <!-- 版面模式：單一按鈕切換均勻網格 ↔ 權重比例，標籤顯示目前模式。 -->
+        <button
+          class="sb-btn"
+          :class="{ active: weightMode === 'weight' }"
+          @click="emit('weight-mode', weightMode === 'weight' ? 'uniform' : 'weight')"
+        >{{ weightMode === 'weight' ? '權重比例顯示' : '均勻網格顯示' }}</button>
         <button
           class="sb-btn"
           :class="{ active: showWeights }"
           @click="emit('show-weights', !showWeights)"
-        >顯示權重數字</button>
+        >顯示權重</button>
 
         <div class="sb-sep" />
         <button
@@ -198,24 +204,26 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           <span class="sb-unit">pt</span>
         </label>
         <div class="sb-sep" />
+        <!-- 權重：全部隨機一次／每 5 秒自動重抽（開關）——只在權重比例模式有意義。 -->
+        <button class="sb-btn" title="全部隨機（1–9）" @click="emit('weight-random')">隨機權重</button>
+        <button
+          class="sb-btn"
+          :class="{ active: weightAuto }"
+          @click="emit('weight-auto')"
+        >{{ weightAuto ? '停止隨機權重' : '每5秒隨機權重' }}</button>
+        <div class="sb-sep" />
       </template>
 
-      <!-- 顏色點間最大跨距（hillclimb + rwd 都有）：改數字後按「重新計算」才生效 -->
+      <!-- 顏色點間最大跨距（hillclimb + rwd 都有）：改數字即重算（不必再按按鈕）。 -->
       <label class="sb-inline" title="顏色點間最大跨距（格）">
         <span class="sb-inline-label">最大跨距</span>
         <input
           type="number" class="sb-inline-num" min="1" step="1"
           :value="layer.spanCap ?? 3"
-          @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3)"
+          @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3); emit('recalc-span')"
         />
         <span class="sb-unit">格</span>
       </label>
-      <button
-        class="sb-btn"
-        :disabled="(layer.spanCap ?? 3) === (spanApplied ?? 3)"
-        title="用新的最大跨距重跑水平垂直最大化"
-        @click="emit('recalc-span')"
-      >重新計算</button>
 
       <!-- 即時診斷（原權重 tab 的 weight-stat）：靠右，只有 RWD 有 -->
       <div v-if="isRwd && stopStat" class="sb-stat">

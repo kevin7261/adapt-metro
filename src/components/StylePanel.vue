@@ -760,7 +760,7 @@ function startResize(e) {
             </template>
 
             <!-- 顏色點間最大跨距（SPAN_CAP）：Straighten（hillclimb）與 RWD 都有——
-                 控制（最大跨距＋重新計算）已移到地圖上方工具列第 2 排，這裡只留說明。 -->
+                 控制（最大跨距）已移到地圖上方工具列第 2 排，這裡只留說明。 -->
             <template v-if="hasSpan">
               <div class="section-title">顏色點間最大跨距</div>
               <p class="weight-hint">
@@ -769,8 +769,8 @@ function startResize(e) {
                 本來就超標的舊長段只准縮短、不准再拉長。
               </p>
               <p class="weight-hint">
-                目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。上方工具列可改「最大跨距」，
-                改完不會自動重算——按「重新計算」才會用新值重跑水平垂直最大化。
+                目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。上方工具列改「最大跨距」的數字，
+                即以新值重跑水平垂直最大化（不必再按按鈕）。
               </p>
             </template>
 

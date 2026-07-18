@@ -92,22 +92,33 @@ const END_TOL = 0.5   // px — contact this close to BOTH endpoints = shared no
 
 const dist = (A, B) => Math.hypot(B[0] - A[0], B[1] - A[1])
 
-// H / V / D+ (slope +1) / D- (slope -1) / X (illegal) — the two diagonal
-// families live on different line sets, so they are separate classes.
+// 8 個方向族：H / V / D± (45°, slope ±1) / E± (22.5°, slope ±T22) / F± (67.5°,
+// slope ±1/T22) / X (非法)。E/F 只在 16 方向的候選會產生；dirOf 一律判得出（族由
+// pixel 斜率定，不需 dirs——由 candidates 依 dirs 決定產不產 22.5° 腿）。
+const T22 = Math.tan(Math.PI / 8) // ≈0.414214 = tan22.5°；1/T22 = tan67.5°≈2.4142
+const NORM_EF = Math.sqrt(1 + T22 * T22) // ≈1.08239，E/F 族 key→法向距離的除數
 function dirOf(A, B) {
   const dx = B[0] - A[0], dy = B[1] - A[1]
   if (Math.abs(dx) < Z && Math.abs(dy) < Z) return null
-  if (Math.abs(dy) < TOL) return 'H'
-  if (Math.abs(dx) < TOL) return 'V'
-  if (Math.abs(Math.abs(dx) - Math.abs(dy)) < TOL) return dx * dy > 0 ? 'D+' : 'D-'
+  const ax = Math.abs(dx), ay = Math.abs(dy), pos = dx * dy > 0
+  if (ay < TOL) return 'H'
+  if (ax < TOL) return 'V'
+  if (Math.abs(ax - ay) < TOL) return pos ? 'D+' : 'D-'
+  if (Math.abs(ay - T22 * ax) < TOL) return pos ? 'E+' : 'E-' // slope ≈ ±T22（22.5°）
+  if (Math.abs(ax - T22 * ay) < TOL) return pos ? 'F+' : 'F-' // slope ≈ ±1/T22（67.5°）
   return 'X'
 }
-// Which infinite line of its family a leg lies on (H: y, V: x, D+: y−x, D−: y+x).
+// Which infinite line of its family a leg lies on. H:y V:x D+:y−x D−:y+x；
+// E±:y∓T22·x（slope ±T22）；F±:x∓T22·y（slope ±1/T22）。
 const lineKey = (dir, P) =>
-  dir === 'H' ? P[1] : dir === 'V' ? P[0] : dir === 'D+' ? P[1] - P[0] : P[1] + P[0]
-// 1-D extent along the line (x for H/D±, y for V) for the overlap test.
+  dir === 'H' ? P[1] : dir === 'V' ? P[0]
+    : dir === 'D+' ? P[1] - P[0] : dir === 'D-' ? P[1] + P[0]
+      : dir === 'E+' ? P[1] - T22 * P[0] : dir === 'E-' ? P[1] + T22 * P[0]
+        : dir === 'F+' ? P[0] - T22 * P[1] : P[0] + T22 * P[1]
+// 1-D extent along the line for the overlap test：較垂直的族（V/F±）用 y，其餘用 x。
 const spanOf = (dir, A, B) => {
-  const v = dir === 'V' ? [A[1], B[1]] : [A[0], B[0]]
+  const useY = dir === 'V' || dir === 'F+' || dir === 'F-'
+  const v = useY ? [A[1], B[1]] : [A[0], B[0]]
   return v[0] <= v[1] ? v : [v[1], v[0]]
 }
 
@@ -119,8 +130,12 @@ function legOf(A, B) {
 }
 
 // Perpendicular gap between two same-family lines (key units → px).
-const perpGap = (p, q) =>
-  (p.dir === 'H' || p.dir === 'V') ? Math.abs(p.key - q.key) : Math.abs(p.key - q.key) / Math.SQRT2
+const perpGap = (p, q) => {
+  const d = Math.abs(p.key - q.key)
+  if (p.dir === 'H' || p.dir === 'V') return d
+  if (p.dir === 'D+' || p.dir === 'D-') return d / Math.SQRT2
+  return d / NORM_EF // E±/F±（key 差 → 法向距離）
+}
 
 // Same family: collinear overlap OR parallel hugging (gap < minGap) with a
 // shared projected extent beyond a point.
@@ -160,26 +175,31 @@ function pointOnLeg(P, leg) {
 // Bend count has ABSOLUTE priority（使用者規則：直線 > 單折 > 雙折）— every
 // 1-bend detour is tried before any 2-bend one, however large its displacement.
 // `u` is the offset unit in pixels (~one grid cell).
-function legalDetours(S, T, dir, u) {
+function legalDetours(S, T, dir, u, dirs = 8) {
   const dx = T[0] - S[0], dy = T[1] - S[1]
   const sx = Math.sign(dx), sy = Math.sign(dy)
   const ax = Math.abs(dx), ay = Math.abs(dy)
   const out = []
+  const diag = dirs >= 8 // 8 方向以上才用 45° 出入的平行偏移；4 方向改純直角偏移。
   if (dir === 'H') {
     // NO 1-bend detour exists for an H line without a 45°→45° corner (the
     // triangle apex) — and 45°轉45° is forbidden (user rule). 2 bends only:
-    // parallel offsets (45° out, run alongside, 45° back).
+    // parallel offsets. 8 方向：45° 出、平行、45° 回；4 方向：V 出、平行、V 回（純直角）。
     for (const d of [u, 2 * u]) {
       if (ax <= 2 * d) continue
       for (const e of [1, -1]) {
-        out.push({ pts: [S, [S[0] + sx * d, S[1] + e * d], [T[0] - sx * d, S[1] + e * d], T], bends: 2 })
+        out.push(diag
+          ? { pts: [S, [S[0] + sx * d, S[1] + e * d], [T[0] - sx * d, S[1] + e * d], T], bends: 2 }
+          : { pts: [S, [S[0], S[1] + e * d], [T[0], S[1] + e * d], T], bends: 2 })
       }
     }
   } else if (dir === 'V') {
     for (const d of [u, 2 * u]) {
       if (ay <= 2 * d) continue
       for (const e of [1, -1]) {
-        out.push({ pts: [S, [S[0] + e * d, S[1] + sy * d], [S[0] + e * d, T[1] - sy * d], T], bends: 2 })
+        out.push(diag
+          ? { pts: [S, [S[0] + e * d, S[1] + sy * d], [S[0] + e * d, T[1] - sy * d], T], bends: 2 }
+          : { pts: [S, [S[0] + e * d, S[1]], [S[0] + e * d, T[1]], T], bends: 2 })
       }
     }
   } else { // D+ / D-
@@ -198,28 +218,61 @@ function legalDetours(S, T, dir, u) {
 }
 
 // All candidate polylines S→T, fewest bends first (see header).
-function candidates(S, T, u) {
+// dirs = 允許的線方向數：4（只 H/V）| 8（+45°，預設）| 16（+22.5°）。優先序永遠是
+// H/V > 45° > 22.5°；dirs 只決定「允許到哪一級」。4 方向不產任何 45° 候選（對角段
+// 只 L／純直角繞行）；16 方向另加 22.5° 候選（見下，dirs>=16 段）。
+function candidates(S, T, u, dirs = 8) {
   const dx = T[0] - S[0], dy = T[1] - S[1]
   const ax = Math.abs(dx), ay = Math.abs(dy)
   const sx = Math.sign(dx), sy = Math.sign(dy)
   const out = []
-  const straightDir = dirOf(S, T)
+  let straightDir = dirOf(S, T)
+  // 16 方向以下：22.5° 直線（E±/F±）非法 → 當對角段折（用 45°／L）。
+  if (dirs < 16 && (straightDir === 'E+' || straightDir === 'E-' || straightDir === 'F+' || straightDir === 'F-')) straightDir = 'X'
+  // 4 方向：45° 直線（D±）也非法 → 當對角段折（走 'X' 分支用 L）。
+  if (dirs < 8 && (straightDir === 'D+' || straightDir === 'D-')) straightDir = 'X'
   if (!straightDir) {
     out.push({ pts: [S, T], bends: 0 })
     return out
   }
   if (straightDir !== 'X') {
     out.push({ pts: [S, T], bends: 0 })
-    out.push(...legalDetours(S, T, straightDir, u))
+    out.push(...legalDetours(S, T, straightDir, u, dirs))
     return out
   }
   const m = Math.min(ax, ay)
   // 單轉折。同折數內以「轉折角最大」優先（使用者規則：先180 再135 再90 再45）：
   // 45° 接直線的內角是 135°，兩個方向都排在內角只有 90° 的純 L 形之前。
-  out.push({ pts: [S, [S[0] + sx * m, S[1] + sy * m], T], bends: 1 }) // 45° → H/V（內角135°）
-  out.push({ pts: [S, [T[0] - sx * m, T[1] - sy * m], T], bends: 1 }) // H/V → 45°（內角135°）
+  if (dirs >= 8) {
+    out.push({ pts: [S, [S[0] + sx * m, S[1] + sy * m], T], bends: 1 }) // 45° → H/V（內角135°）
+    out.push({ pts: [S, [T[0] - sx * m, T[1] - sy * m], T], bends: 1 }) // H/V → 45°（內角135°）
+  }
   out.push({ pts: [S, [T[0], S[1]], T], bends: 1 }) // L: H → V（內角90°）
   out.push({ pts: [S, [S[0], T[1]], T], bends: 1 }) // L: V → H（內角90°）
+  // 22.5° 族單折候選（僅 16 方向）：斜段用 E(22.5°)／F(67.5°)、另一段軸向補。讓段用
+  // **更貼近真實角度的斜線**（45° 被佔用或畫得繞時的替代，如使用者黃線案）。優先序
+  // H/V>45°>22.5°：這些排在 45° 單折與 L 之後（仍是 1 折，故在所有 2 折之前）。斜段
+  // 與軸段之間有軸向隔開，不構成斜轉斜。
+  if (dirs >= 16) {
+    const s = ay / ax
+    // slope t 的斜角：s>t → 斜段走完水平 ax、垂直補；s<t → 斜段走完垂直 ay、水平補。
+    const pushSkew = (t) => {
+      if (Math.abs(s - t) < 1e-9) return // 恰為該斜角＝直線，已在直線分支
+      if (s > t) { // 斜(走 ax)＋V 補
+        const yd = sy * t * ax
+        out.push({ pts: [S, [T[0], S[1] + yd], T], bends: 1 }) // 斜 → V
+        out.push({ pts: [S, [S[0], T[1] - yd], T], bends: 1 }) // V → 斜
+      } else { // 斜(走 ay)＋H 補
+        const xd = sx * ay / t
+        out.push({ pts: [S, [S[0] + xd, T[1]], T], bends: 1 }) // 斜 → H
+        out.push({ pts: [S, [T[0] - xd, S[1]], T], bends: 1 }) // H → 斜
+      }
+    }
+    pushSkew(T22)     // 22.5°（E 族）
+    pushSkew(1 / T22) // 67.5°（F 族）
+  }
+  // 以下 45° 雙折/四折/階梯候選只在 8 方向以上（4 方向對角段只有上面的 L；衝突則兜底/A*）。
+  if (dirs >= 8) {
   // 雙轉折 (a) 45–H–45（ax>ay）或 45–V–45（ay>ax）：斜–平–斜，兩端 45°。
   for (const t of [0.5, 0.25, 0.75]) {
     const k = m * t
@@ -300,6 +353,7 @@ function candidates(S, T, u) {
       out.push({ pts, bends: 2 * (k - 1) })
     }
   }
+  } // end if (dirs >= 8)
   // 兜底：原方向直線（非 H/V/45）
   out.push({ pts: [S, T], bends: 0, fallback: true })
   return out
@@ -448,7 +502,9 @@ export function mergeParallelSegs(segs) {
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
 export function buildRwdMap(segs, pos, opts = {}) {
+  if (globalThis.__CAP && !opts.__t) globalThis.__CAP.push({ segs, pos: new Map(pos), opts })
   const unit = opts.unit ?? 12
+  const dirsN = opts.dirs ?? 8 // 允許的線方向數 4/8/16（見 candidates）
   const minGap = opts.minGap ?? unit * 0.35
   const nodes = [...pos.entries()] // [id, [x,y]] — foreign-node test
   // Node-position lookup (0.5px buckets) — legsCross may only exempt
@@ -572,6 +628,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     // points up to 2 cells away — the escape hatch when every rectilinear
     // half-step at a hub is already occupied by a same-family leg.
     function macros(P, pi, pj) {
+      if (dirsN < 8) return [] // 4 方向禁 45° 斜出/斜入 macro（A* 純直角接 lattice）
       const out = [] // { i, j, mid: [pts between node and lattice pt], len }
       for (const da of [1, 2, 3, 4]) {
         for (const db of [1, 2, 3, 4]) {
@@ -617,7 +674,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     // open space hits S quickly, a walled-off pocket exhausts quickly, and the
     // legs the frontier bumped into name the wall lines for rip-up.
     const FLOOD_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-    if (Math.abs(sx - sy) < 1e-9) FLOOD_DIRS.push([1, 1], [1, -1], [-1, 1], [-1, -1])
+    if (dirsN >= 8 && Math.abs(sx - sy) < 1e-9) FLOOD_DIRS.push([1, 1], [1, -1], [-1, 1], [-1, -1])
     {
       const targets = new Set([si * ny + sj])
       for (const m of macS) targets.add(m.i * ny + m.j)
@@ -660,7 +717,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     // On a SQUARE lattice (sx === sy) diagonal steps are exact 45° — 8 moves.
     const W = 1.4
     const DIRS = [[1, 0, sx], [-1, 0, sx], [0, 1, sy], [0, -1, sy]]
-    if (Math.abs(sx - sy) < 1e-9) {
+    if (dirsN >= 8 && Math.abs(sx - sy) < 1e-9) {
       const dl = sx * Math.SQRT2
       DIRS.push([1, 1, dl], [1, -1, dl], [-1, 1, dl], [-1, -1, dl])
     }
@@ -762,7 +819,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   function rerouteAround(w, wi) {
     const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
     const placedW = placedOf(wi)
-    for (const c of candidates(S2, T2, unit)) {
+    for (const c of candidates(S2, T2, unit, dirsN)) {
       if (c.fallback) continue
       if (conflictCount(c.pts, w.seg, placedW) === 0) return { pts: c.pts, bends: c.bends, routed: false }
     }
@@ -845,7 +902,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     ]
     for (const { s } of ordered) {
       const S = pos.get(s.a), T = pos.get(s.b)
-      const cands = candidates(S, T, unit)
+      const cands = candidates(S, T, unit, dirsN)
       const placed = placedOf(-1)
       // First conflict-FREE candidate wins (bend order). If none exists, keep
       // H/V/45° legality and take the candidate with the FEWEST violations;
@@ -887,7 +944,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
         if (curN === 0) { L.forced = false; continue }
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
         let best = null, bestN = curN
-        for (const c of candidates(S, T, unit)) {
+        for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback) continue
           const n = conflictCount(c.pts, L.seg, placed)
           if (n < bestN) { best = c; bestN = n; if (n === 0) break }
@@ -970,7 +1027,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
     const placed = placedOf(li)
     let done = false
-    for (const c of candidates(S, T, unit)) {
+    for (const c of candidates(S, T, unit, dirsN)) {
       if (c.fallback) continue
       if (conflictCount(c.pts, L.seg, placed, true) === 0) {
         L.pts = c.pts; L.legs = legsOfPts(c.pts); L.bends = c.bends
@@ -1031,7 +1088,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const L = lines[i]
         if (L.fallback || L.forced || L.routed) continue // routed shapes are bespoke
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
-        const alts = candidates(S, T, unit).filter((c) =>
+        const alts = candidates(S, T, unit, dirsN).filter((c) =>
           !c.fallback && c.bends === L.bends)
         if (alts.length < 2) continue
         const placed = placedOf(i)
@@ -1073,7 +1130,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const placed = placedOf(li)
         let adopted = false
         const ripsToTry = []
-        for (const c of candidates(S, T, unit)) {
+        for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback || c.bends >= L.bends) continue
           const info = conflictLines(c.pts, L.seg, placed)
           if (info.count === 0) {
@@ -1184,7 +1241,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   if (!opts.fast) for (let phase = 0; phase < 2; phase++) {
     softPass()
     bendReductionToFixpoint()
-    l45Pass()
+    if (dirsN >= 8) l45Pass() // 4 方向禁 45°——不做 L→45 軟調整（否則會冒出 45° 腿）
   }
 
   for (const L of lines) {
