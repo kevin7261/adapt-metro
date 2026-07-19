@@ -372,8 +372,17 @@ export function hcViewLabels(tilt) {
     'loop-rect-rot': `${rot} · 直角爬山循環`,
     'loop-align-rot': `${rot} · 軸對齊循環`,
     'loop-ilp-rot': `${rot} · 整數規劃循環`,
+    // LLM 對齊循環無離線預算（同 RWD 的 rwd-llm-*）——視圖畫廊顯示「尚未預算」，
+    // 但仍需 caption；點擊即時計算。
+    'loop-llm-orig': '原始 · LLM對齊循環',
+    'loop-llm-rot': `${rot} · LLM對齊循環`,
   }
 }
+
+// The loop chain a Straighten gallery cell maps to ('rect'|'align'|'ilp'|'llm')；
+// 剝掉 loop- 前綴與 -orig/-rot variant 後綴（同 rwdCellCompact 對 compact-/rwd-）。
+export const loopCellCompact = (viewId) =>
+  (viewId ?? '').replace(/^loop-/, '').replace(/-(orig|rot)$/, '') || 'rect'
 
 // ---- RWD Maps gallery: 4 縮減網格變體 × (縮減網格 | RWD 路網) = 8 views ----
 // The polyline `pts` (pixel) of one routed segment → an SVG path string.

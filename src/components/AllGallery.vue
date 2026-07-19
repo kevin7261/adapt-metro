@@ -3,7 +3,7 @@ import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
-import { rwdCellCompact, rwdCellVariant } from '../stores/viewGeometry'
+import { rwdCellCompact, rwdCellVariant, loopCellCompact } from '../stores/viewGeometry'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
 import MIcon from './MIcon.vue'
@@ -37,20 +37,23 @@ async function load() {
 // 圖層節點：key（勾選鍵）、label（清單顯示名）、kind（卡片區段 raw/adjust/
 // straighten/rwd）、view（代表縮圖 id）、icon（與圈層面板同款圖示）。
 // 「基本」（hc 源）僅作 fallback，不列入畫廊——使用者裁決移除「原始・基本」「旋轉・基本」。
-const RWD_CHAINS = [
+// Straighten 與 RWD Maps 共用同一組 4 條循環鏈（直角爬山／軸對齊／整數規劃／
+// LLM 對齊）：Straighten 列每鏈的「循環結果」縮圖（loop-*），RWD 列其 RWD 路網
+// 重繪（rwd-*）。LLM 對齊循環無離線預算 → 縮圖顯示「尚未預算」，點擊即時計算。
+const CHAINS = [
   ['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
 ]
-const rwdRows = (variant, vLabel) => RWD_CHAINS.map(([c, zh]) => ({
+const stRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
+  key: `st-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'straighten', view: `loop-${c}-${variant}`, icon: 'terrain',
+}))
+const rwdRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
   key: `rwd-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'rwd', view: `rwd-${c}-${variant}`, icon: 'route',
 }))
 // 左側清單樹（＝圈層面板結構）：直接列的圖層 + 可收合子群組。
 const SIDE = [
   { t: 'layer', key: 'raw', label: 'Metro Maps', kind: 'raw', view: 'thumb', icon: 'train' },
   { t: 'layer', key: 'adjust', label: 'Map Adjust', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
-  { t: 'group', id: 'straighten', label: 'Straighten', layers: [
-    { key: 'st-orig', label: '原始', kind: 'straighten', view: 'loop-rect-orig', icon: 'terrain' },
-    { key: 'st-rot', label: '旋轉', kind: 'straighten', view: 'loop-rect-rot', icon: 'terrain' },
-  ] },
+  { t: 'group', id: 'straighten', label: 'Straighten', layers: [...stRows('orig', '原始'), ...stRows('rot', '旋轉')] },
   { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉')] },
 ]
 // 攤平成全部圖層（sections 計算與全選用）。
@@ -96,9 +99,11 @@ const sections = computed(() => {
 // （Straighten 的 *-rot → 旋轉；RWD 的 cell id → 縮減網格來源＋變體），
 // 再開啟點到那種視圖的 tab。
 function pick(kind, entry, viewId) {
-  const variant = kind === 'rwd' ? rwdCellVariant(viewId)
-    : kind === 'straighten' && /-rot$/.test(viewId ?? '') ? 'rot' : 'orig'
-  const compact = kind === 'rwd' ? rwdCellCompact(viewId) : 'rect'
+  // variant 由 cell id 的 -orig/-rot 後綴決定（raw/adjust 無 viewId → 'orig'）。
+  const variant = rwdCellVariant(viewId)
+  // compact＝點到的那條鏈：RWD 從 rwd-/compact- 前綴剝、Straighten 從 loop- 前綴剝。
+  const compact = kind === 'rwd' ? rwdCellCompact(viewId)
+    : kind === 'straighten' ? loopCellCompact(viewId) : 'rect'
   const { metro, d3, hc, rwd } = store.importCityChain(entry, { variant, compact })
   const target = { raw: metro, adjust: d3, straighten: hc, rwd }[kind] ?? metro
   if (!target) { store.toast('無法建立視圖'); return }
