@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-20-simple-order-v4'
+export const RWD_ROUTER_REV = '2026-07-20-node-order-v13'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -324,6 +324,35 @@ function candidates(S, T, u, dirs = 8) {
       diagSkels.push([S, P1, P2, T])
     }
   }
+  // 三轉折混合（使用者案例 vh-45-vh-45）：axis–45–axis–45 與 45–axis–45–axis。
+  // 雙折的軸腿只能貼在起訖兩排；這一族把「中間那條軸腿」抬到中間列/欄
+  // （45 riser 分點 rf）、軸腿再分 hf——兩排走廊都被佔用時的唯一三折解。
+  {
+    const horiz = ax > ay
+    const A = Math.abs(ax - ay)
+    if (A > Z && m > Z) {
+      const axisLeg = (P, len) => (horiz ? [P[0] + sx * len, P[1]] : [P[0], P[1] + sy * len])
+      const diagLeg = (P, len) => [P[0] + sx * len, P[1] + sy * len]
+      for (const rf of [0.5, 0.25, 0.75]) {
+        const r1 = m * rf
+        for (const hf of [0.5, 0.25, 0.75]) {
+          const h1 = A * hf, h2 = A - h1
+          { // axis–45–axis–45
+            const P1 = axisLeg(S, h1)
+            const P2 = diagLeg(P1, r1)
+            const P3 = axisLeg(P2, h2)
+            diagSkels.push([S, P1, P2, P3, T])
+          }
+          { // 45–axis–45–axis
+            const P1 = diagLeg(S, r1)
+            const P2 = axisLeg(P1, h1)
+            const P3 = diagLeg(P2, m - r1)
+            diagSkels.push([S, P1, P2, P3, T])
+          }
+        }
+      }
+    }
+  }
   // 四轉折階梯 45–H/V–45–H/V–45（同軸＋混合）。
   {
     const horiz = ax > ay
@@ -352,44 +381,81 @@ function candidates(S, T, u, dirs = 8) {
       diagSkels.push([S, D1, V2, VD3, VH4, T])
     }
   }
-  // 更多段階梯 k≥4（與 8 方向相同上限）。
+  // 交替階梯一般化（使用者規則：vh-45 / 45-vh 重覆幾次**不設限**，只要能正確畫、
+  // 折數最少的合法候選勝出）——45° 腿與軸腿任意次交替，四種頭尾組合都生成：
+  // 45…45（斜多一條）、axis…axis（軸多一條）、45…axis 與 axis…45（等數兩種順序）。
+  // 均勻分點（≤4 折的家族已在上面帶 50/25/75 分點變體）；折數不用預先偏好，
+  // pickBest 的「衝突最少 → 折數最少」自然收斂到最短的合法交替。
   {
-    const bigAxis = Math.abs(ax - ay)
+    const A2 = Math.abs(ax - ay)
     const step = Math.max(u, 1e-6)
-    const kMax = Math.min(10, Math.floor(m / step), 1 + Math.floor(bigAxis / step))
     const horiz = ax > ay
-    for (let k = 4; k <= kMax; k++) {
-      const riser = m / k
-      const tread = bigAxis / (k - 1)
+    const axisLeg2 = (P, len) => (horiz ? [P[0] + sx * len, P[1]] : [P[0], P[1] + sy * len])
+    const diagLeg2 = (P, len) => [P[0] + sx * len, P[1] + sy * len]
+    const build = (kD, kA, diagFirst) => {
+      if (kD < 1 || kA < 1 || Math.abs(kD - kA) > 1) return
+      if (m / kD < step || A2 / kA < step) return // 腿短於一格＝畫不出，跳過
       const pts = [S]
-      let P = S
-      for (let i = 0; i < k; i++) {
-        P = [P[0] + sx * riser, P[1] + sy * riser]; pts.push(P)
-        if (i < k - 1) {
-          P = horiz ? [P[0] + sx * tread, P[1]] : [P[0], P[1] + sy * tread]
-          pts.push(P)
-        }
+      let P = S, d = 0, a = 0, useDiag = diagFirst
+      while (d < kD || a < kA) {
+        if (useDiag && d < kD) { P = diagLeg2(P, m / kD); d++ }
+        else if (!useDiag && a < kA) { P = axisLeg2(P, A2 / kA); a++ }
+        else return // 交替排不下去（頭尾組合與腿數不相容）
+        pts.push(P)
+        useDiag = !useDiag
       }
       pts[pts.length - 1] = T
       diagSkels.push(pts)
     }
+    for (let legs = 5; legs <= 21; legs++) { // legs-1 = 折數 4..20，由幾何 step 自然封頂
+      const hi = Math.ceil(legs / 2), lo = Math.floor(legs / 2)
+      if (legs % 2) {
+        build(hi, lo, true)  // 45 開頭、45 結尾（斜腿多一條）
+        build(lo, hi, false) // axis 開頭、axis 結尾（軸腿多一條）
+      } else {
+        build(hi, lo, true)  // 45 開頭、axis 結尾
+        build(hi, lo, false) // axis 開頭、45 結尾
+      }
+    }
   }
 
   if (dirs < 8) {
-    // 4 方向只展開基本雙折骨架（45–H/V–45 與 H/V–45–H/V 的前 6 個），
-    // 不可把四折／多折階梯展開成繞行迷宮。zRank：50%→25%→75%。
+    // 4 方向與 8/16 用**同一組骨架**（雙折 50/25/75、四折/多折階梯），唯一差別是
+    // 每條 45° 腿展開成 H/V（兩種順序都試）。判斷方式三個方向級完全一致。
     const seen = new Set()
-    for (const [i, sk] of diagSkels.slice(0, 6).entries()) {
-      const zRank = i % 3 // 0=50%, 1=25%, 2=75% within each family
+    const batch = []
+    const pushCand = (pts, zRank) => {
+      const m2 = mergeOrthoPts(pts)
+      if (!m2) return
+      const key = m2.map((p) => `${p[0].toFixed(3)},${p[1].toFixed(3)}`).join('|')
+      if (seen.has(key)) return
+      seen.add(key)
+      batch.push({ pts: m2, bends: m2.length - 2, zRank })
+    }
+    // 標準 Z 字（真正的 2 折，分點 50%→25%→75%）：V–tΔy–H–V 與 H–tΔx–V–H。
+    // 45° 腿展開共用同一個 vhFirst 旗標時產不出這種「混合順序」形（會多一折成
+    // 階梯），所以直接生成——這正是「有重疊就移到 25%/75%」要用的形。
+    for (const [zi, t] of [0.5, 0.25, 0.75].entries()) {
+      const ys = S[1] + dy * t
+      pushCand([S, [S[0], ys], [T[0], ys], T], zi) // V–H–V
+      const xs = S[0] + dx * t
+      pushCand([S, [xs, S[1]], [xs, T[1]], T], zi) // H–V–H
+    }
+    for (const [i, sk] of diagSkels.entries()) {
+      const zRank = i < 6 ? i % 3 : Infinity // 0=50%, 1=25%, 2=75%（雙折家族）
       for (const vhFirst of [true, false]) {
         const pts = expand45ToOrtho(sk, vhFirst)
-        if (!pts || pts.length !== 4) continue
+        if (!pts) continue
         const key = pts.map((p) => `${p[0].toFixed(3)},${p[1].toFixed(3)}`).join('|')
         if (seen.has(key)) continue
         seen.add(key)
-        out.push({ pts, bends: 2, zRank })
+        batch.push({ pts, bends: pts.length - 2, zRank })
       }
     }
+    // 展開＋合併後折數可能與骨架順序不同 → 依折數（同折數依 50/25/75）重排，
+    // 維持「候選由少折到多折」的全域約定（jointReroutePairs 靠它提早 break）。
+    batch.sort((a, b) => a.bends - b.bends || (a.zRank < b.zRank ? -1 : a.zRank > b.zRank ? 1 : 0))
+    out.push(...batch)
   } else {
     for (const [i, pts] of diagSkels.entries()) {
       // 50%/25%/75% only ranks the double-bend families; single-bend 45°/L
@@ -570,7 +636,9 @@ export function mergeParallelSegs(segs) {
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
 export function buildRwdMap(segs, pos, opts = {}) {
-  const unit = opts.unit ?? 12
+  // 負或 0 的 unit（暫態面板尺寸算出的負 cell 寬）會讓 minGap ≤ 0 → legsHug 永遠
+  // false，貼線／共線防護整個失效。取絕對值兜底，routing 幾何仍成立。
+  const unit = Math.abs(opts.unit ?? 12) || 12
   const dirsN = opts.dirs ?? 8 // 允許的線方向數 4/8/16（見 candidates）
   const minGap = opts.minGap ?? unit * 0.35
   const nodes = [...pos.entries()] // [id, [x,y]] — foreign-node test
@@ -621,6 +689,56 @@ export function buildRwdMap(segs, pos, opts = {}) {
     })
     .sort((p, q) => Number(q.straight) - Number(p.straight) || q.len - p.len || p.i - q.i)
 
+  /* ---- 節點旋轉系統（使用者鐵律）：點接的線的 360° 環狀順序不可變。
+     參考序＝縮減網格輸入的弦方向（pos 直連角）。畫出的折線在節點的「出線方向」
+     可以偏轉（H/V/45° 吸附本來就會轉角度），但同一節點上所有已畫線的環狀順序
+     必須與參考序一致——順序一變，兩條線就在節點旁互換位置＝拓撲改變。---- */
+  const segsAtNodeRef = new Map() // nodeId -> [{ seg, ref }]（依輸入弦角排序）
+  for (const s of usable) {
+    if (s.a === s.b) continue // loop 兩端同點——順序檢查不適用
+    const A = pos.get(s.a), B = pos.get(s.b)
+    const addRef = (n, P, Q) => {
+      if (!segsAtNodeRef.has(n)) segsAtNodeRef.set(n, [])
+      segsAtNodeRef.get(n).push({ seg: s, ref: Math.atan2(Q[1] - P[1], Q[0] - P[0]) })
+    }
+    addRef(s.a, A, B); addRef(s.b, B, A)
+  }
+  for (const list of segsAtNodeRef.values()) list.sort((p, q) => p.ref - q.ref)
+  const lineOfSeg = new Map() // seg -> line（routeAll 開頭重建）
+  const awayAngleOf = (seg, pts, nodeId) => {
+    const [P, Q] = seg.a === nodeId ? [pts[0], pts[1]] : [pts[pts.length - 1], pts[pts.length - 2]]
+    return Math.atan2(Q[1] - P[1], Q[0] - P[0])
+  }
+  // seg 以 pts 畫時是否打亂任一端節點的環狀順序。override: Map<seg,pts>（聯合重算
+  // 一對線時、另一條的擬定形狀）；還沒畫或被拆（legs 空）的線不參與。出線角完全
+  // 相同（貼線／共線雙生）視為平手、不算違規。
+  function orderViolation(seg, pts, override) {
+    if (seg.a === seg.b) return false
+    for (const nodeId of [seg.a, seg.b]) {
+      const list = segsAtNodeRef.get(nodeId)
+      if (!list || list.length < 3) continue // 2 條線沒有環狀順序可言
+      const ds = []
+      for (const e of list) {
+        let p = null
+        if (e.seg === seg) p = pts
+        else if (override && override.has(e.seg)) p = override.get(e.seg)
+        else {
+          const L = lineOfSeg.get(e.seg)
+          if (L && L.legs.length) p = L.pts
+        }
+        if (p) ds.push(awayAngleOf(e.seg, p, nodeId))
+      }
+      if (ds.length < 3) continue
+      // 依參考序排好的出線角必須「環狀遞增」＝繞一圈至多一次下降。
+      let desc = 0
+      for (let k = 0; k < ds.length; k++) {
+        if (ds[(k + 1) % ds.length] < ds[k] - 1e-9) desc++
+      }
+      if (desc > 1) return true
+    }
+    return false
+  }
+
   // Number of hard-rule violations of a candidate against the placed legs
   // (hug / cross / node-on-leg). 0 = clean; Infinity = an illegal X leg.
   // crossOnly=true（共線救援，使用者規則：萬不得已可以共線、但新交叉絕對不可）：
@@ -631,6 +749,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const legs = legsOfPts(pts)
     if (legs.length !== pts.length - 1) return Infinity // X leg → fallback only
     let n = 0, overlap = 0
+    let crossPts = null // ownerLineIdx -> Set(交點座標)：同一對線最多交叉一次
     const pathLen = pts.slice(1).reduce((sum, P, i) => sum + dist(pts[i], P), 0)
     for (const leg of legs) {
       for (const p of placed) {
@@ -639,7 +758,23 @@ export function buildRwdMap(segs, pos, opts = {}) {
           if (ov > OVER_TOL) overlap += ov
           if (!crossOnly) n++
         }
-        else if (legsCross(leg, p, isNodePt)) n++
+        else if (legsCross(leg, p, isNodePt)) {
+          n++
+          // 記下與這條線的交點（去重：跨在對方轉角上會被相鄰兩腿各報一次）。
+          const r = [leg.B[0] - leg.A[0], leg.B[1] - leg.A[1]]
+          const s2 = [p.B[0] - p.A[0], p.B[1] - p.A[1]]
+          const den = r[0] * s2[1] - r[1] * s2[0]
+          let key = 'touch'
+          if (Math.abs(den) > Z) {
+            const t = ((p.A[0] - leg.A[0]) * s2[1] - (p.A[1] - leg.A[1]) * s2[0]) / den
+            key = `${Math.round((leg.A[0] + t * r[0]) * 2)},${Math.round((leg.A[1] + t * r[1]) * 2)}`
+          }
+          crossPts ??= new Map()
+          const owner = p.li ?? -1
+          const set = crossPts.get(owner) ?? new Set()
+          set.add(key)
+          crossPts.set(owner, set)
+        }
       }
       for (const [id, P] of nodes) {
         if (id === seg.a || id === seg.b) continue
@@ -647,6 +782,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
         // acceptable — except as the very last lenient fallback (huge penalty).
         if (pointOnLeg(P, leg)) { if (lenient) n += 100; else return Infinity }
       }
+    }
+    // 同一對線最多交叉一次（使用者規則）：一對線出現第二個交點是硬違規，
+    // 不是「多一個衝突」。lenient 兜底時每多一個交點記大額罰分。
+    if (crossPts) for (const set of crossPts.values()) {
+      if (set.size > 1) { if (lenient) n += 50 * (set.size - 1); else return Infinity }
     }
     // Accumulated shared-track length above 25% of this segment's own drawn
     // path is a major error, not just one more conflict.
@@ -677,16 +817,19 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 單一共用選線器（pass 1 與衝突重掃都用同一個優先序，使用者的簡單概念）：
   // ①衝突最少 → ②45 優於 22.5°（skew）→ ③折數最少（盡量直線）→ ④共線重疊最短
   // （4 方向為了不重疊，25%/75% 可因此蓋過 50%）→ ⑤分點 50%→25%→75% → ⑥軟共線最短。
+  // 22.5°/67.5° 候選**一律參與競爭**（使用者規則：明明有 22.5 的畫法不重疊就要用）——
+  // 衝突數在 skew 之前，所以零衝突的 22.5° 贏過重疊的 45°；同分時仍 45° 優先。
   // straight=true 時套 Rule 0：零衝突直線立即勝出。lenient=true 是最後兜底
   // （壓站／超過 25% 重疊改記大額罰分，不再直接淘汰）。
-  function pickBest(cands, seg, placed, hasLegalHighDir, straight = false, lenient = false) {
+  function pickBest(cands, seg, placed, straight = false, lenient = false) {
     let chosen = null, chosenN = Infinity, chosenBends = Infinity, chosenZRank = Infinity
     let chosenHard = Infinity, chosenSoft = Infinity, chosenSkew = 1
     for (const c of cands) {
       if (c.fallback) continue
-      if (hasLegalHighDir && c.skew) continue
-      const n = conflictCount(c.pts, seg, placed, false, lenient)
+      let n = conflictCount(c.pts, seg, placed, false, lenient)
       if (n === Infinity) continue
+      // 鐵律：不可打亂節點的環狀順序。lenient 兜底時記大額罰分（仍要畫出東西）。
+      if (orderViolation(seg, c.pts)) { if (!lenient) continue; n += 200 }
       if (straight && c.bends === 0 && !c.skew && n === 0) // Rule 0: clean direct corridor
         return { chosen: c, chosenN: 0 }
       const hard = overlapLen(c.pts, placed)
@@ -714,11 +857,8 @@ export function buildRwdMap(segs, pos, opts = {}) {
      S or T into a closed face — Jordan), it fails fast and reports WHICH lines
      form the wall via failInfo.blockers (fuel for rip-up-and-reroute). ---- */
   function routeLattice(S, T, seg, placed, failInfo, gapOverride, allowColinear = false) {
-    // 4-direction RWD must use its bounded 50%/25%/75% candidates, not create
-    // an arbitrary rectilinear detour that changes a route's visual continuity.
-    // If they cannot fit, retain the local conflict for the later colinear
-    // rescue/indicator rather than drawing a U-shaped bypass.
-    if (dirsN < 8) return null
+    // 三個方向級同一套判斷：4 方向也用 A* 救援，只是 45° macro／對角步進
+    // 都關閉（見下方 dirsN >= 8 門檻）→ 純直角佈線。
     const lat = opts.lattice
     if (!lat) return null
     const gap = gapOverride ?? minGap // hug distance (salvage pass squeezes it)
@@ -990,15 +1130,17 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
     const placedW = placedOf(wi)
     const candsW = candidates(S2, T2, unit, dirsN)
-    const highOk = dirsN < 16 || candsW.some((c) =>
-      !c.fallback && !c.skew && conflictCount(c.pts, w.seg, placedW) !== Infinity)
-    for (const c of candsW) {
-      if (c.fallback) continue
-      if (highOk && c.skew) continue
-      if (conflictCount(c.pts, w.seg, placedW) === 0) return { pts: c.pts, bends: c.bends, routed: false }
+    // 45 級先掃、22.5 級後掃（同分 45 優先；45 全衝突時 22.5 乾淨解仍可用）。
+    for (const wantSkew of [false, true]) {
+      for (const c of candsW) {
+        if (c.fallback || !!c.skew !== wantSkew) continue
+        if (orderViolation(w.seg, c.pts)) continue // 環狀順序鐵律
+        if (conflictCount(c.pts, w.seg, placedW) === 0) return { pts: c.pts, bends: c.bends, routed: false }
+      }
     }
     const r = routeLattice(S2, T2, w.seg, placedW)
-    return r ? { pts: r, bends: r.length - 2, routed: true } : null
+    if (!r || orderViolation(w.seg, r)) return null
+    return { pts: r, bends: r.length - 2, routed: true }
   }
 
   // Like conflictCount but names WHICH lines block（協商式拉直要知道找誰讓路）.
@@ -1038,7 +1180,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
       }
       for (const w of walls) w.legs = [] // rip up
       const mine = routeLattice(pos.get(L.seg.a), pos.get(L.seg.b), L.seg, placedOf(li))
-      if (!mine) { undo(); return false }
+      if (!mine || orderViolation(L.seg, mine)) { undo(); return false }
       L.pts = mine
       L.legs = legsOfPts(mine)
       L.bends = mine.length - 2
@@ -1099,11 +1241,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
   function jointReroutePairs() {
     const JOINT_CAP = 16
     const prep = (S, T, seg, placed) => {
-      const all = candidates(S, T, unit, dirsN).filter((c) => !c.fallback)
-      const highOk = dirsN < 16 || all.some((c) =>
-        !c.skew && conflictCount(c.pts, seg, placed) !== Infinity)
-      return all
-        .filter((c) => !(highOk && c.skew))
+      // 22.5 級照樣入列。skew 候選生成在最後（折數 1 排在多折之後）→ 先依折數
+      // 穩定排序恢復 bend-ordered 約定（提早 break 靠它；同折數時非 skew 在前）。
+      return candidates(S, T, unit, dirsN)
+        .filter((c) => !c.fallback)
+        .sort((a, b) => a.bends - b.bends)
         .slice(0, JOINT_CAP)
         .map((c) => ({ pts: c.pts, bends: c.bends, legs: legsOfPts(c.pts) }))
         .filter((c) => c.legs.length === c.pts.length - 1)
@@ -1130,7 +1272,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
           for (const cB of candB) {
             const tot = cA.bends + cB.bends
             if (tot >= bestBends) break
-            if (conflictCount(cA.pts, A.seg, cB.legs) === 0) { best = { cA, cB }; bestBends = tot }
+            if (conflictCount(cA.pts, A.seg, cB.legs) !== 0) continue
+            // 環狀順序鐵律：兩條同時換形狀——各自檢查時把對方的擬定形狀帶進去。
+            if (orderViolation(A.seg, cA.pts, new Map([[B.seg, cB.pts]]))
+              || orderViolation(B.seg, cB.pts, new Map([[A.seg, cA.pts]]))) continue
+            best = { cA, cB }; bestBends = tot
           }
         }
         if (best) { applyCand(A, best.cA); applyCand(B, best.cB); improved = true }
@@ -1143,6 +1289,8 @@ export function buildRwdMap(segs, pos, opts = {}) {
      with the A* fallback. `priority` segments route FIRST (see below). ---- */
   function routeAll(priority) {
     lines.length = 0
+    lineOfSeg.clear()
+    const pushLine = (o) => { lines.push(o); lineOfSeg.set(o.seg, o) }
     const noRoute = new Set() // segs whose A* already failed this attempt
     // Keep direct corridors ahead even during restart-with-priority.  A restart
     // may promote a trapped bent line, but it must not steal a straight
@@ -1158,33 +1306,29 @@ export function buildRwdMap(segs, pos, opts = {}) {
       const S = pos.get(s.a), T = pos.get(s.b)
       const cands = candidates(S, T, unit, dirsN)
       const placed = placedOf(-1)
-      // Strict direction level: 22.5°/67.5° only if every H/V/45° candidate is
-      // illegal (node / >25% overlap). Ordinary conflicts stay on the 45° family
-      // and use 50%→25%→75% splits.
-      const hasLegalHighDir = dirsN < 16 || cands.some((c) =>
-        !c.fallback && !c.skew && conflictCount(c.pts, s, placed) !== Infinity)
       // 簡單優先序（使用者規則）：①衝突最少 → ②45 優於 22.5 → ③折數最少（盡量直線）
       // → ④共線重疊最短（4 方向可因此讓 25%/75% 蓋過 50%）→ ⑤分點 50%→25%→75%。
+      // 22.5° 候選同場競爭：零衝突的 22.5° 贏過重疊的 45°、同分仍 45° 優先。
       // Rule 0：只有零衝突的直線才鎖定；有重疊的直線改走 50%/Z，絕不能鎖死重疊。
-      let picked = pickBest(cands, s, placed, hasLegalHighDir, straight)
+      let picked = pickBest(cands, s, placed, straight)
       // Every candidate hit a hard veto（壓站／>25% 重疊）→ lenient rescan：仍要
       // 畫出「最不壞」的形狀並標殘留衝突。隱形線會讓白點浮空，比殘留衝突更糟。
-      if (!picked.chosen) picked = pickBest(cands, s, placed, hasLegalHighDir, false, true)
+      if (!picked.chosen) picked = pickBest(cands, s, placed, false, true)
       const { chosen, chosenN } = picked
       if (!chosen) { // only possible if even the raw fallback has an X leg
-        lines.push({ seg: s, pts: [S, T], bends: 0, fallback: true, forced: true, legs: legsOfPts([S, T]) })
+        pushLine({ seg: s, pts: [S, T], bends: 0, fallback: true, forced: true, legs: legsOfPts([S, T]) })
         continue
       }
       // Priority segments are the previously-trapped ones — if even now no
       // candidate is clean, let A* carve a corridor while the plane is open.
       if (chosenN > 0 && priority.has(s)) {
         const routed = routeLattice(S, T, s, placed)
-        if (routed) {
-          lines.push({ seg: s, pts: routed, bends: routed.length - 2, routed: true, legs: legsOfPts(routed) })
+        if (routed && !orderViolation(s, routed)) {
+          pushLine({ seg: s, pts: routed, bends: routed.length - 2, routed: true, legs: legsOfPts(routed) })
           continue
         }
       }
-      lines.push({
+      pushLine({
         seg: s, pts: chosen.pts, bends: chosen.bends,
         fallback: !!chosen.fallback, forced: chosenN > 0 && !chosen.fallback,
         // Only lock a straight that is actually clean — never lock an overlap,
@@ -1210,14 +1354,14 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
         // 消衝突重掃：與 pass 1 同一個 pickBest 優先序。
         const sweepCands = candidates(S, T, unit, dirsN)
-        const hasLegalHighDir = dirsN < 16 || sweepCands.some((c) =>
-          !c.fallback && !c.skew && conflictCount(c.pts, L.seg, placed) !== Infinity)
-        const picked = pickBest(sweepCands, L.seg, placed, hasLegalHighDir)
+        const picked = pickBest(sweepCands, L.seg, placed)
         let best = null, bestN = curN
         if (picked.chosen && picked.chosenN < curN) { best = picked.chosen; bestN = picked.chosenN }
         if (bestN > 0 && !noRoute.has(L.seg)) {
           const failInfo = {}
-          const routed = routeLattice(S, T, L.seg, placed, failInfo)
+          const routed0 = routeLattice(S, T, L.seg, placed, failInfo)
+          // A* 路徑同樣受環狀順序鐵律約束——打亂節點順序的路徑視同無路。
+          const routed = routed0 && !orderViolation(L.seg, routed0) ? routed0 : null
           if (routed) {
             best = { pts: routed, bends: routed.length - 2, routed: true }
             bestN = 0
@@ -1277,7 +1421,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const L = lines[li]
     if (!L.forced || L.lockedStraight) continue
     const r = routeLattice(pos.get(L.seg.a), pos.get(L.seg.b), L.seg, placedOf(li), null, minGap * 0.6)
-    if (r) {
+    if (r && !orderViolation(L.seg, r)) {
       L.pts = r
       L.legs = legsOfPts(r)
       L.bends = r.length - 2
@@ -1304,6 +1448,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     let bestC = null, bestLen = Infinity
     for (const c of candidates(S, T, unit, dirsN)) {
       if (c.fallback) continue
+      if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
       if (conflictCount(c.pts, L.seg, placed, true) !== 0) continue
       const len = overlapLen(c.pts, placed)
       if (len < bestLen) { bestC = c; bestLen = len; if (len === 0) break }
@@ -1314,7 +1459,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
     if (done) continue
     const r = routeLattice(S, T, L.seg, placed, null, minGap, true)
-    if (r) {
+    if (r && !orderViolation(L.seg, r)) {
       L.pts = r; L.legs = legsOfPts(r); L.bends = r.length - 2; L.routed = true
       L.forced = false; L.colinear = true; stats.colinear++
     }
@@ -1358,6 +1503,53 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 使用者規則：**同名路線盡量不轉折**——same-BEND swaps (any leg family) that
   // maximize straight continuation with same-route lines at shared nodes. Bend
   // count stays fixed (絕對優先序不動)，只重擺形狀讓路線穿過節點連成直線。
+  // 畫完仍有共線重疊的段（含 A*／共線救援的多折階梯）：在**同折數或更少折**的
+  // 兄弟候選（50%↔25%↔75% 分點、VH↔HV 順序、階梯→Z）之間再試一次——交叉／壓點
+  // 不得增加、衝突不得增加、硬共線必須嚴格變短。三個方向級同一套判斷；實務上
+  // 主要在 4 方向發揮（使用者規則：畫出來有重疊就試著移到 25%/75% 減少重疊）。
+  function overlapReducePass() {
+    for (let sweep = 0; sweep < 3; sweep++) {
+      let improved = false
+      for (let li = 0; li < lines.length; li++) {
+        const L = lines[li]
+        if (L.fallback || L.lockedStraight || L.bends <= 0) continue
+        const placed = placedOf(li)
+        const curHard = overlapLen(L.pts, placed)
+        if (curHard <= OVER_TOL) continue
+        const curN = conflictCount(L.pts, L.seg, placed, false, true)
+        const curCross = conflictCount(L.pts, L.seg, placed, true, true)
+        const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
+        let best = null, bestHard = curHard, bestBends = L.bends
+        for (const c of candidates(S, T, unit, dirsN)) {
+          if (c.fallback || c.bends > L.bends) continue
+          // 22.5 級候選可入場（使用者規則：有 22.5 的畫法能不重疊就要用）——但要
+          // 「嚴格更短的硬重疊」才換得掉 45 級形狀，同分仍留在 45 級。
+          // 交叉與壓點另計：絕不可用「較短的重疊」換來新的交叉。
+          if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
+          const cross = conflictCount(c.pts, L.seg, placed, true, true)
+          if (cross === Infinity || cross > curCross) continue
+          const n = conflictCount(c.pts, L.seg, placed, false, true)
+          if (n === Infinity || n > curN) continue
+          const hard = overlapLen(c.pts, placed)
+          if (hard < bestHard - OVER_TOL
+            || (hard < curHard - OVER_TOL && hard < bestHard + OVER_TOL && c.bends < bestBends)) {
+            best = c; bestHard = hard; bestBends = c.bends
+          }
+        }
+        if (best) {
+          L.pts = best.pts
+          L.legs = legsOfPts(best.pts)
+          L.bends = best.bends
+          L.routed = false
+          L.forced = conflictCount(L.pts, L.seg, placed) > 0
+          stats.swapped++
+          improved = true
+        }
+      }
+      if (!improved) break
+    }
+  }
+
   function softPass() {
     for (let sweep = 0; sweep < 3; sweep++) {
       let improved = false
@@ -1374,6 +1566,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
         for (const c of alts) {
           const m = contScore(L, c.pts)
           if (m <= bestScore) continue
+          if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
           if (conflictCount(c.pts, L.seg, placed) > 0) continue
           best = c
           bestScore = m
@@ -1413,6 +1606,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
         for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback || c.bends >= L.bends) continue
           if (c.skew && !curSkew) continue // 使用者規則：不把 45 級「降折」到 22.5 級
+          if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
           const info = conflictLines(c.pts, L.seg, placed)
           if (info.count === 0) {
             // Rule 0：成真直線一律可降。其餘不得為了少折而把共線變長（保住 50／25／75）。
@@ -1521,6 +1715,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
       cands45.sort((a, b) => b.score - a.score || b.cont - a.cont)
       const placed = placedOf(li)
       for (const c of cands45) {
+        if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
         if (conflictCount(c.pts, L.seg, placed) > 0) continue
         L.pts = c.pts
         L.legs = legsOfPts(c.pts)
@@ -1533,9 +1728,21 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 〔順接軟調整 → 壓短共線 → 降折到定點 → L→45〕跑兩輪：每一步挪動走廊後
   // 都可能冒出新的可直線/可順接/可縮共線機會；續接分數不降 → 拓撲連續方向不變。
   if (!opts.fast) for (let phase = 0; phase < 2; phase++) {
+    overlapReducePass() // 有重疊的段先試同折數的 25%/75% 分點把重疊縮短
     softPass() // 同顏色路線盡量直線相接（所有方向級都適用）
     bendReductionToFixpoint() // 盡量直線：能少折且不多重疊就少折
     if (dirsN >= 8) l45Pass() // 4 方向禁 45°——不做 L→45 軟調整（否則會冒出 45° 腿）
+  }
+
+  // dev 診斷（window.__rwdAudit）：畫完後逐線重算殘餘衝突，找「有衝突卻沒標 forced」
+  // 的洩漏（哪個 pass 沒把旗標寫對／沒檢查就搬線）。
+  if (typeof window !== 'undefined' && window.__rwdAudit) {
+    stats._audit = lines.map((L, i) => {
+      const n = conflictCount(L.pts, L.seg, placedOf(i), false, true)
+      const ov = orderViolation(L.seg, L.pts)
+      if (!(n > 0 || L.forced || ov)) return null
+      return { i, n, ov, f: !!L.forced, lk: !!L.lockedStraight, col: !!L.colinear, rt: !!L.routed, b: L.bends, seg: `${L.seg.a}~${L.seg.b}` }
+    }).filter(Boolean)
   }
 
   for (const L of lines) {

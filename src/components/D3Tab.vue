@@ -1174,6 +1174,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     rwdStats.value = cachedRWD.stats
     hcPos = new Map(cachedRWD.posAfter)
     rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts }))
+    if (import.meta.env.DEV) window.__rwdDebug = cachedRWD // console 檢視 routing 旗標用
     // 藍格跟著節點一起變形（畫面上格線與線／站對齊）；未開放大鏡則就是 base。
     hcBlue = fWarp ? { xs: baseBlue.xs.map(fWarp.fx), ys: baseBlue.ys.map(fWarp.fy) } : baseBlue
   } else {
@@ -1621,6 +1622,10 @@ async function render() {
 
   const hostW = el.clientWidth || 600
   const hostH = el.clientHeight || 400
+  // 面板收合／拖曳動畫中會量到幾 px 的暫態尺寸——負的 cell 寬會讓 RWD 的
+  // unit/minGap 變負、貼線防護整個失效（畫出互相重疊的線又不標衝突）。
+  // 這種暫態不畫，等 ResizeObserver 量到真尺寸再 render。
+  if (hostW < 80 || hostH < 80) return
   // RWD：可選固定版面（網頁／手機／IG）當畫線座標系，SVG letterbox 置中模擬 RWD。
   // 其他視圖仍跟面板一樣大。
   const frame = isRWD.value
