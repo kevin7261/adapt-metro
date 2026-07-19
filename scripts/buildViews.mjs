@@ -148,7 +148,7 @@ async function main() {
       // fp 加演算法版本後綴：RWD 縮圖建立在 straightenCompactLoop（端+直+中+縮
       // 循環）上，且加上旋轉 variant（2026-07），純資料指紋不會觸發重算，靠這個
       // 後綴強制全量重建。
-      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v4`, false)) === 'reused' ? reused++ : rebuilt++
+      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v5`, false)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {
       rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })

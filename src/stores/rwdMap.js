@@ -579,6 +579,17 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const atP = (i, j) => [x0 + i * sx, y0 + j * sy]
     const si = toI(S[0]), sj = toJ(S[1]), ti = toI(T[0]), tj = toJ(T[1])
     if (Math.min(si, sj, ti, tj) < 0 || si >= nx || ti >= nx || sj >= ny || tj >= ny) return null
+    // 大環繞禁止（使用者規則：只能在最短路線附近尋找可能性）——A* 與 flood 預檢都
+    // 限制在 S–T 走廊窗（bbox 外擴 LOCAL_PAD px）內，且路徑總成本（長度＋轉折罰）
+    // 不得超過 maxCost。超出＝視為無路：flood 會回報走廊內的「牆」線 → rip-up 拆牆
+    // 局部改畫；再不行走共線救援/forced。絕不畫出繞整張圖的環繞線。
+    const LOCAL_PAD = 3 * unit
+    const iLo = Math.max(0, Math.min(si, ti) - Math.ceil(LOCAL_PAD / sx))
+    const iHi = Math.min(nx - 1, Math.max(si, ti) + Math.ceil(LOCAL_PAD / sx))
+    const jLo = Math.max(0, Math.min(sj, tj) - Math.ceil(LOCAL_PAD / sy))
+    const jHi = Math.min(ny - 1, Math.max(sj, tj) + Math.ceil(LOCAL_PAD / sy))
+    const inWin = (i, j) => i >= iLo && i <= iHi && j >= jLo && j <= jHi
+    const maxCost = 3 * (Math.abs(T[0] - S[0]) + Math.abs(T[1] - S[1])) + 8 * unit
     const blockedPt = new Set() // other nodes' lattice points
     for (const [id, P] of nodes) {
       if (id === seg.a || id === seg.b) continue
@@ -636,6 +647,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
             for (const syn of [1, -1]) {
               const gi = pi + sxn * da, gj = pj + syn * db
               if (gi < 0 || gj < 0 || gi >= nx || gj >= ny) continue
+              if (!inWin(gi, gj)) continue // 走廊窗外的 macro 出入口不用（大環繞禁止）
               if (blockedPt.has(gi * ny + gj)) continue
               const G = atP(gi, gj)
               const ax = Math.abs(G[0] - P[0]), ay = Math.abs(G[1] - P[1])
@@ -675,6 +687,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     // legs the frontier bumped into name the wall lines for rip-up.
     const FLOOD_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
     if (dirsN >= 8 && Math.abs(sx - sy) < 1e-9) FLOOD_DIRS.push([1, 1], [1, -1], [-1, 1], [-1, -1])
+    const blockers = new Map() // line index -> hit count（走廊內撞到的牆線）
     {
       const targets = new Set([si * ny + sj])
       for (const m of macS) targets.add(m.i * ny + m.j)
@@ -688,13 +701,13 @@ export function buildRwdMap(segs, pos, opts = {}) {
       seed(ti, tj)
       for (const m of macT) seed(m.i, m.j)
       let reached = false
-      const blockers = new Map() // line index -> hit count
       while (fq.size) {
         const [, i, j] = fq.pop()
         if (targets.has(i * ny + j)) { reached = true; break }
         for (const [dx, dy] of FLOOD_DIRS) {
           const ni = i + dx, nj = j + dy
           if (ni < 0 || nj < 0 || ni >= nx || nj >= ny) continue
+          if (!inWin(ni, nj)) continue // 走廊窗外不探（與 A* 同界，牆線照樣記入 blockers）
           const k = ni * ny + nj
           if (seen.has(k)) continue
           if (blockedPt.has(k) && !targets.has(k)) continue
@@ -767,9 +780,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const [dx, dy, step] = DIRS[nd]
         const ni = i + dx, nj = j + dy
         if (ni < 0 || nj < 0 || ni >= nx || nj >= ny) continue
+        if (!inWin(ni, nj)) continue // 走廊窗外不走（大環繞禁止）
         if (blockedPt.has(ni * ny + nj) && !(ni === ti && nj === tj)) continue
         const nk = skey(ni, nj, nd)
         const cost = gk + step + (nd !== d ? TURN : 0)
+        if (cost > maxCost) continue // 成本上限：繞太遠＝無路，交給 rip-up/共線救援
         if (cost >= (g.get(nk) ?? Infinity)) continue
         if (!legFree(atP(i, j), atP(ni, nj))) continue
         g.set(nk, cost)
@@ -777,7 +792,12 @@ export function buildRwdMap(segs, pos, opts = {}) {
         heap.push([cost + h(ni, nj), nk, ni, nj, nd])
       }
     }
-    if (goal == null) return null
+    // A* 沒找到（含成本上限/轉折狀態限制下的失敗）：把 flood 撞到的走廊牆線
+    // 回報給 rip-up——flood 可達但 A* 放棄時，牆就是逼路徑繞遠的那些線。
+    if (goal == null) {
+      if (failInfo && blockers.size) failInfo.blockers = blockers
+      return null
+    }
     // reconstruct lattice chain, prepend seed mid pts, append portal entry + T
     const idx = []
     let head = goal
