@@ -338,52 +338,38 @@ const evalRunner = makeRun({
   onDone: () => { cachedEval = null },
 })
 const startEvalRun = evalRunner.start
-// ---- LLM 全部評價（四個 RWD 候選比較）----
-// orig／rot 各一份結果、各一套 runner——兩邊可同時跑、互不擋對方。
-const compareRecords = ref({ orig: null, rot: null })
-const compareMsgs = ref({ orig: null, rot: null })
-const compareState = {
-  orig: { run: ref(null), tail: ref(''), text: ref('') },
-  rot: { run: ref(null), tail: ref(''), text: ref('') },
-}
+// ---- LLM 全部評價（原始＋旋轉最多 8 個 RWD 候選一次比較）----
+// 選出全體／原始／旋轉三個最佳；評審只選擇、說明，不套用或修改候選佈局。
+const compareRecord = ref(null)
+const compareMsg = ref(null)
+const compareRun = ref(null)
+const compareRunTail = ref('')
+const compareRunText = ref('')
 const compareLogEl = ref(null)
-async function loadCompare(variant) {
+async function loadCompare() {
   const cid = sourceLayer.value?.id
   if (!cid) return
   try {
-    const res = await fetch(assetUrl(`data/metro/llmcompares/${cid}.${variant}.json`), { cache: 'no-store' })
+    const res = await fetch(assetUrl(`data/metro/llmcompares/${cid}.json`), { cache: 'no-store' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    compareRecords.value = { ...compareRecords.value, [variant]: await res.json() }
-    compareMsgs.value = { ...compareMsgs.value, [variant]: null }
+    compareRecord.value = await res.json()
+    compareMsg.value = null
   } catch {
-    compareRecords.value = { ...compareRecords.value, [variant]: null }
-    compareMsgs.value = { ...compareMsgs.value, [variant]: '尚未產生全部評價——按上面的按鈕比較四個 RWD Maps 結果。' }
+    compareRecord.value = null
+    compareMsg.value = '尚未產生全部評價——按上面的按鈕一次比較原始與旋轉共最多 8 個 RWD Maps 結果。'
   }
 }
-function makeCompareRunner(variant) {
-  const s = compareState[variant]
-  return makeRun({
-    base: '/llm-compare',
-    params: () => ({ variant }),
-    run: s.run, tail: s.tail, text: s.text, logEl: compareLogEl,
-    shouldRender: () => false,
-    onStart: () => {
-      compareRecords.value = { ...compareRecords.value, [variant]: null }
-      compareMsgs.value = { ...compareMsgs.value, [variant]: null }
-    },
-    onDone: async () => { await loadCompare(variant) },
-  })
-}
-const compareRunners = { orig: makeCompareRunner('orig'), rot: makeCompareRunner('rot') }
-function startCompareRun(variant) {
-  compareRunners[variant]?.start()
-}
-const compareOrigRunning = computed(() => compareState.orig.run.value === 'running')
-const compareRotRunning = computed(() => compareState.rot.run.value === 'running')
-const compareOrigText = computed(() => compareState.orig.text.value)
-const compareRotText = computed(() => compareState.rot.text.value)
-const compareOrigError = computed(() => compareState.orig.run.value === 'error' ? compareState.orig.tail.value : '')
-const compareRotError = computed(() => compareState.rot.run.value === 'error' ? compareState.rot.tail.value : '')
+const compareRunner = makeRun({
+  base: '/llm-compare',
+  params: () => ({}),
+  run: compareRun, tail: compareRunTail, text: compareRunText, logEl: compareLogEl,
+  shouldRender: () => false,
+  onStart: () => { compareRecord.value = null; compareMsg.value = null },
+  onDone: async () => { await loadCompare() },
+})
+const startCompareRun = compareRunner.start
+const compareRunning = computed(() => compareRun.value === 'running')
+const compareError = computed(() => compareRun.value === 'error' ? compareRunTail.value : '')
 // ---- 執行 LLM 評價結果（不用 LLM）----
 // 評價時 llmEval.mjs apply 已把評價附帶的 moves 經 applyLlmTargets（與 LLM 對齊
 // 完全相同的硬規則）套用、把調整後佈局存進結果檔的 exec.cells——這裡的「執行
@@ -1026,13 +1012,9 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // 動畫幀不重算 buildHcGraph（骨架／格不變）——省每幀成本，cachedSegs 沿用。
   // 平行邊（共用同兩端點的快車直達＋普通車 coline）收成一條交錯線，見 mergeParallelSegs。
   if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = mergeParallelSegs(buildHcGraph(cachedSkeleton, grid.cellOf).segs)
-  // 「比較」tab 可在任一 RWD 視圖查看；orig／rot 各自載入獨立結果。
-  if (isRWD.value) {
-    for (const variant of ['orig', 'rot']) {
-      if (!compareRecords.value[variant] && !compareMsgs.value[variant] && compareState[variant].run.value !== 'running') {
-        loadCompare(variant)
-      }
-    }
+  // 「比較」tab：一次載入城市的八候選評價結果。
+  if (isRWD.value && !compareRecord.value && !compareMsg.value && compareRun.value !== 'running') {
+    loadCompare()
   }
   // 「LLM評價」結果（llmevals，skill route-llm-eval）：唯讀評語——載入＋
   // fingerprint 驗證後只給右側面板顯示，不影響畫圖（沒有結果也照畫）。
@@ -1887,17 +1869,12 @@ onBeforeUnmount(() => {
       :eval-msg="evalMsg"
       :eval-error="evalRun === 'error' ? evalRunTail : ''"
       :eval-applied="evalApplied"
-      :compare-orig-record="isRWD ? compareRecords.orig : null"
-      :compare-rot-record="isRWD ? compareRecords.rot : null"
-      :compare-orig-running="compareOrigRunning"
-      :compare-rot-running="compareRotRunning"
+      :compare-record="isRWD ? compareRecord : null"
+      :compare-running="compareRunning"
       :compare-can-run="!!llmCityId"
-      :compare-orig-text="compareOrigText"
-      :compare-rot-text="compareRotText"
-      :compare-msg-orig="compareMsgs.orig"
-      :compare-msg-rot="compareMsgs.rot"
-      :compare-orig-error="compareOrigError"
-      :compare-rot-error="compareRotError"
+      :compare-text="compareRunText"
+      :compare-msg="compareMsg"
+      :compare-error="compareError"
       :llm-model="llmModel"
       @update:llm-model="llmModel = $event"
       :weight-mode="rwdWeightMode"

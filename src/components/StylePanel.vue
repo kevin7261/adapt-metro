@@ -64,18 +64,13 @@ const props = defineProps({
   // 「執行調整」：評價時已把附帶的 moves 過硬規則、把調整後佈局存進結果檔的
   // exec——按鈕只切換顯示（套用 exec.cells ⇄ 恢復原佈局），不再跑 LLM。
   evalApplied: { type: Boolean, default: false },
-  // LLM 全部評價：原始／旋轉各一份結果與 runner（可同時跑、互不擋）。
-  compareOrigRecord: { type: Object, default: null },
-  compareRotRecord: { type: Object, default: null },
-  compareOrigRunning: { type: Boolean, default: false },
-  compareRotRunning: { type: Boolean, default: false },
+  // LLM 全部評價：一次比較原始＋旋轉最多 8 個候選，選全體／原始／旋轉最佳。
+  compareRecord: { type: Object, default: null },
+  compareRunning: { type: Boolean, default: false },
   compareCanRun: { type: Boolean, default: false },
-  compareOrigText: { type: String, default: '' },
-  compareRotText: { type: String, default: '' },
-  compareMsgOrig: { type: String, default: null },
-  compareMsgRot: { type: String, default: null },
-  compareOrigError: { type: String, default: '' },
-  compareRotError: { type: String, default: '' },
+  compareText: { type: String, default: '' },
+  compareMsg: { type: String, default: null },
+  compareError: { type: String, default: '' },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -113,6 +108,26 @@ function fmtElapsed(ms) {
   if (!ms || ms < 0) return null
   const s = Math.round(ms / 1000)
   return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${s % 60} 秒`
+}
+// 把評價文字拆成條列：已是陣列直接用；字串依換行／分號／頓號切開。
+function toBullets(v) {
+  if (Array.isArray(v)) return v.map((x) => String(x).trim()).filter(Boolean)
+  const s = String(v ?? '').trim()
+  if (!s) return []
+  let parts = s.split(/\n+/)
+    .flatMap((line) => line.split(/[；。]/))
+    .map((x) => x
+      .replace(/^[\s•\-–—*]+/, '')
+      .replace(/^\d+[.)、]\s*/, '')
+      .replace(/[。．.]+$/u, '')
+      .trim())
+    .filter(Boolean)
+  if (parts.length <= 1) {
+    const one = parts[0] || s
+    const dunk = one.split(/[、]/).map((x) => x.trim()).filter(Boolean)
+    parts = dunk.length >= 2 ? dunk : [one.replace(/[。．.]+$/u, '').trim()].filter(Boolean)
+  }
+  return parts.length ? parts : [s]
 }
 // 四個 LLM 功能各自的「做法說明」——哪些是 LLM 判斷、哪些用到程式，顯示在
 // 每個 tab 最下面。（llm＝模型判斷、code＝程式負責、sum＝一句結論）
@@ -168,18 +183,16 @@ const TABS = computed(() => [
   ...(props.llmView ? [{ id: 'llm', label: '自動對齊', icon: 'auto_awesome', title: 'LLM自動對齊' }, { id: 'llm-prompt', label: '指定對齊', icon: 'auto_awesome', title: 'LLM指定對齊' }] : []),
 ])
 const activeTab = ref('info')
-// 「比較」tab 內切換原始／旋轉；兩邊 runner／結果完全獨立。
-const compareView = ref('orig')
-const compareRecord = computed(() =>
-  compareView.value === 'orig' ? props.compareOrigRecord : props.compareRotRecord)
-const compareMsg = computed(() =>
-  compareView.value === 'orig' ? props.compareMsgOrig : props.compareMsgRot)
-const compareBusy = computed(() =>
-  compareView.value === 'orig' ? props.compareOrigRunning : props.compareRotRunning)
-const compareText = computed(() =>
-  compareView.value === 'orig' ? props.compareOrigText : props.compareRotText)
-const compareErrShown = computed(() =>
-  compareView.value === 'orig' ? props.compareOrigError : props.compareRotError)
+function compareLabel(record, id) {
+  return record?.candidates?.find((x) => x.id === id)?.label ?? id
+}
+function compareBadges(record, c) {
+  const tags = []
+  if (c.id === record.winner) tags.push('最佳')
+  if (c.id === record.winnerOrig) tags.push('原始最佳')
+  if (c.id === record.winnerRot) tags.push('旋轉最佳')
+  return tags
+}
 
 /* ---- Object: properties of the last-clicked map feature (blank if none) ---- */
 const store = useMapStore()
@@ -1034,7 +1047,7 @@ function startResize(e) {
             <template v-if="gridRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ gridRecord.model ?? '—' }}</span></div>
-                <div v-if="fmtElapsed(gridRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(gridRecord.elapsedMs) }}</span></div>
+                <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(gridRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">網格</span><span>{{ gridRecord.cols }} 欄 × {{ gridRecord.rows }} 列</span></div>
                 <div class="info-row">
                   <span class="info-key">最大倍率</span>
@@ -1111,7 +1124,7 @@ function startResize(e) {
             <template v-if="evalRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ evalRecord.model ?? '—' }}</span></div>
-                <div v-if="fmtElapsed(evalRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(evalRecord.elapsedMs) }}</span></div>
+                <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(evalRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">網格</span><span>{{ evalRecord.stats.cols }} 欄 × {{ evalRecord.stats.rows }} 列</span></div>
                 <div class="info-row">
                   <span class="info-key">直段</span>
@@ -1186,53 +1199,106 @@ function startResize(e) {
           </div>
         </template>
 
-        <!-- ============ LLM全部評價：單一 tab，內切原始／旋轉 ============ -->
+        <!-- ============ LLM全部評價：原始＋旋轉最多 8 候選 ============ -->
         <template v-else-if="activeTab === 'compare'">
           <div class="weight-panel">
-            <div class="compare-variant" role="tablist" aria-label="比較變體">
-              <button type="button" role="tab" :class="{ active: compareView === 'orig', running: compareOrigRunning }"
-                :aria-selected="compareView === 'orig'" @click="compareView = 'orig'">原始{{ compareOrigRunning ? '…' : '' }}</button>
-              <button type="button" role="tab" :class="{ active: compareView === 'rot', running: compareRotRunning }"
-                :aria-selected="compareView === 'rot'" @click="compareView = 'rot'">旋轉{{ compareRotRunning ? '…' : '' }}</button>
-            </div>
-            <h4 class="llm-h">{{ compareView === 'orig' ? '原始佈局' : '旋轉佈局' }}：四結果比較</h4>
-            <p class="weight-hint">一次比較直角爬山、軸對齊、整數規劃與可用的 LLM 對齊，依路網方正、直線多、轉折少與畫面平衡選出最佳者。此功能只評審與說明，不會修改任一候選圖。</p>
+            <h4 class="llm-h">八結果比較</h4>
+            <p class="weight-hint">一次比較原始與旋轉的直角爬山、軸對齊、整數規劃與可用的 LLM 對齊（最多 8 個），依路網方正、直線多、轉折少與畫面平衡選出全體最佳、原始最佳與旋轉最佳。此功能只評審與說明，不會修改任一候選圖。</p>
             <template v-if="compareCanRun">
               <label class="llm-model-pick">
                 模型
-                <select :value="llmModel" :disabled="compareBusy"
+                <select :value="llmModel" :disabled="compareRunning"
                   @change="emit('update:llm-model', $event.target.value)">
                   <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
                 </select>
               </label>
-              <button class="llm-run-btn" :disabled="compareBusy"
-                @click="emit('run-compare', compareView)"
-              >{{ compareBusy ? '全部評價中…' : (compareRecord ? '重新 LLM 全部評價' : 'LLM 全部評價') }}</button>
+              <button class="llm-run-btn" :disabled="compareRunning"
+                @click="emit('run-compare')"
+              >{{ compareRunning ? '全部評價中…' : (compareRecord ? '重新 LLM 全部評價' : 'LLM 全部評價') }}</button>
             </template>
-            <template v-if="compareBusy">
+            <template v-if="compareRunning">
               <h4 class="llm-h">LLM 回傳（即時串流）</h4>
               <pre class="llm-pre eval-stream">{{ compareText || '等待模型回應…' }}</pre>
             </template>
-            <p v-if="compareErrShown" class="llm-run-hint eval-err">執行失敗：{{ compareErrShown }}</p>
+            <p v-if="compareError" class="llm-run-hint eval-err">執行失敗：{{ compareError }}</p>
             <template v-if="compareRecord">
-              <template v-for="record in [compareRecord]" :key="record.variant">
-                <div class="info-rows">
-                  <div class="info-row"><span class="info-key">模型</span><span>{{ record.model }}</span></div>
-                  <div class="info-row"><span class="info-key">最佳結果</span><b>{{ record.candidates.find((x) => x.compact === record.winner)?.label ?? record.winner }}</b></div>
+              <div class="info-rows">
+                <div class="info-row"><span class="info-key">模型</span><span>{{ compareRecord.model }}</span></div>
+                <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(compareRecord.elapsedMs) || '—' }}</span></div>
+                <div class="info-row"><span class="info-key">最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winner) }}</b></div>
+                <div class="info-row"><span class="info-key">原始最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winnerOrig) }}</b></div>
+                <div class="info-row"><span class="info-key">旋轉最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winnerRot) }}</b></div>
+              </div>
+              <h4 class="llm-h">選擇結論</h4>
+              <div class="compare-verdict">
+                <div class="compare-verdict-block">
+                  <div class="compare-verdict-head">全體最佳 · {{ compareLabel(compareRecord, compareRecord.winner) }}</div>
+                  <ul class="eval-bullets">
+                    <template v-for="pts in [toBullets(compareRecord.winnerReason)]" :key="'wr'">
+                      <li v-for="(t, i) in pts" :key="'w'+i">{{ t }}</li>
+                      <li v-if="!pts.length">—</li>
+                    </template>
+                  </ul>
                 </div>
-                <h4 class="llm-h">選擇結論</h4>
-                <div class="llm-note">{{ record.summary }}</div>
-                <div class="llm-note"><b>為何選它：</b>{{ record.winnerReason }}</div>
-                <h4 class="llm-h">四個候選的優缺點</h4>
-                <div v-for="c in record.candidates" :key="c.compact" class="eval-line">
-                  <div class="eval-line-name">{{ c.label }}<template v-if="c.compact === record.winner">（最佳）</template></div>
-                  <div class="llm-note">直線 {{ c.geometry.straight }}/{{ c.geometry.segments }} · 轉折 {{ c.geometry.bends }} · 平衡 {{ (c.geometry.balance * 100).toFixed(0) }}% · forced {{ c.geometry.forced }} · fallback {{ c.geometry.fallback }}</div>
-                  <div class="llm-note"><b>優點：</b>{{ record.analyses.find((a) => a.compact === c.compact)?.strengths ?? '—' }}</div>
-                  <div class="llm-note"><b>缺點：</b>{{ record.analyses.find((a) => a.compact === c.compact)?.weaknesses ?? '—' }}</div>
+                <div class="compare-verdict-block">
+                  <div class="compare-verdict-head">原始最佳 · {{ compareLabel(compareRecord, compareRecord.winnerOrig) }}</div>
+                  <ul class="eval-bullets">
+                    <template v-for="pts in [toBullets(compareRecord.winnerOrigReason)]" :key="'wor'">
+                      <li v-for="(t, i) in pts" :key="'wo'+i">{{ t }}</li>
+                      <li v-if="!pts.length">—</li>
+                    </template>
+                  </ul>
                 </div>
-              </template>
+                <div class="compare-verdict-block">
+                  <div class="compare-verdict-head">旋轉最佳 · {{ compareLabel(compareRecord, compareRecord.winnerRot) }}</div>
+                  <ul class="eval-bullets">
+                    <template v-for="pts in [toBullets(compareRecord.winnerRotReason)]" :key="'wrr'">
+                      <li v-for="(t, i) in pts" :key="'wr'+i">{{ t }}</li>
+                      <li v-if="!pts.length">—</li>
+                    </template>
+                  </ul>
+                </div>
+                <div v-for="sum in [toBullets(compareRecord.summary)]" :key="'sum'">
+                  <div v-if="sum.length" class="compare-verdict-block">
+                    <div class="compare-verdict-head">總結</div>
+                    <ul class="eval-bullets">
+                      <li v-for="(t, i) in sum" :key="'s'+i">{{ t }}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <h4 class="llm-h">各候選優缺點</h4>
+              <div v-for="c in compareRecord.candidates" :key="c.id" class="eval-line">
+                <div class="eval-line-name">
+                  {{ c.label }}
+                  <template v-for="tag in compareBadges(compareRecord, c)" :key="tag">
+                    <span class="compare-badge">{{ tag }}</span>
+                  </template>
+                </div>
+                <ul class="eval-bullets">
+                  <li>直線 {{ c.geometry.straight }}/{{ c.geometry.segments }}（{{ (c.geometry.straightness * 100).toFixed(1) }}%）</li>
+                  <li>轉折 {{ c.geometry.bends }}（單折 {{ c.geometry.singleBend }}／雙折 {{ c.geometry.doubleBend }}／多折 {{ c.geometry.multiBend }}）</li>
+                  <li>平衡 {{ (c.geometry.balance * 100).toFixed(0) }}% · forced {{ c.geometry.forced }} · fallback {{ c.geometry.fallback }}</li>
+                </ul>
+                <template v-for="a in [compareRecord.analyses.find((x) => x.id === c.id)]" :key="c.id + '-a'">
+                  <div class="eval-subh">優點</div>
+                  <ul class="eval-bullets">
+                    <template v-for="pros in [toBullets(a?.strengths)]" :key="c.id+'-ps'">
+                      <li v-for="(t, i) in pros" :key="'ps'+i">{{ t }}</li>
+                      <li v-if="!pros.length">—</li>
+                    </template>
+                  </ul>
+                  <div class="eval-subh">缺點</div>
+                  <ul class="eval-bullets">
+                    <template v-for="cons in [toBullets(a?.weaknesses)]" :key="c.id+'-pw'">
+                      <li v-for="(t, i) in cons" :key="'pw'+i">{{ t }}</li>
+                      <li v-if="!cons.length">—</li>
+                    </template>
+                  </ul>
+                </template>
+              </div>
             </template>
-            <p v-else-if="!compareBusy" class="llm-note">{{ compareMsg }}</p>
+            <p v-else-if="!compareRunning" class="llm-note">{{ compareMsg }}</p>
             <h4 class="llm-h">使用的 skill：route-llm-compare</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文</summary>
@@ -1278,7 +1344,7 @@ function startResize(e) {
             <template v-if="llmRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ llmRecord.model ?? '—' }}</span></div>
-                <div v-if="fmtElapsed(llmRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(llmRecord.elapsedMs) }}</span></div>
+                <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(llmRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">輪數</span><span>{{ llmRecord.rounds }}</span></div>
                 <div class="info-row">
                   <span class="info-key">水平垂直</span>
@@ -1367,7 +1433,7 @@ function startResize(e) {
             <template v-if="promptRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ promptRecord.model ?? '—' }}</span></div>
-                <div v-if="fmtElapsed(promptRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(promptRecord.elapsedMs) }}</span></div>
+                <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(promptRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">輪數</span><span>{{ promptRecord.rounds }}</span></div>
                 <div class="info-row">
                   <span class="info-key">水平垂直</span>
@@ -1591,6 +1657,20 @@ function startResize(e) {
 }
 .eval-line { margin-bottom: 6px; }
 .eval-line-name { font-size: var(--sp-body); font-weight: 600; }
+.eval-subh {
+  font-size: var(--sp-note);
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 6px 0 2px;
+}
+.eval-bullets {
+  margin: 2px 0 6px;
+  padding-left: 18px;
+  font-size: var(--sp-note);
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+}
+.eval-bullets li { margin-bottom: 3px; }
 .eval-suggestions {
   margin: 4px 0 0;
   padding-left: 18px;
@@ -1730,30 +1810,36 @@ function startResize(e) {
 }
 .weight-mode:hover { background: hsl(var(--accent)); }
 .weight-mode.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); border-color: hsl(var(--primary)); font-weight: 600; }
-/* 「比較」tab 內原始／旋轉切換 */
-.compare-variant {
-  display: flex;
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
-  overflow: hidden;
-}
-.compare-variant button {
-  flex: 1;
-  padding: 6px 10px;
-  font-size: var(--sp-body);
-  border: none;
-  background: transparent;
-  color: hsl(var(--foreground));
-  cursor: pointer;
-}
-.compare-variant button + button { border-left: 1px solid hsl(var(--border)); }
-.compare-variant button:hover { background: hsl(var(--accent)); }
-.compare-variant button.active {
+.compare-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
   background: hsl(var(--primary) / 0.12);
   color: hsl(var(--primary));
-  font-weight: 600;
+  vertical-align: middle;
 }
-.compare-variant button.running:not(.active) { color: hsl(var(--muted-foreground)); }
+.compare-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.compare-verdict-block {
+  padding: 8px 10px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.35);
+}
+.compare-verdict-head {
+  font-size: var(--sp-body);
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: 4px;
+}
+.compare-verdict-block .eval-bullets { margin-bottom: 0; }
 .weight-random {
   padding: 8px 12px;
   font-size: var(--sp-body);
