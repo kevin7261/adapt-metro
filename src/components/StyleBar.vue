@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
+import { rwdFrameGroups } from '../lib/rwdFrames'
 
 // 樣式工具列（地圖上方）：一條工具列，每個工具各自縮成一顆 icon——按某顆 icon
 // 才彈出「那一個」控制項的小視窗，且每個小視窗都有「預設」按鈕（把該屬性還原）。
@@ -14,11 +15,13 @@ const props = defineProps({
   showWeights: { type: Boolean, default: true }, // 顯示權重數字
   weightMode: { type: String, default: 'uniform' }, // 'uniform' | 'weight'
   dirs: { type: Number, default: 8 }, // 允許的線方向數：4（只H/V）| 8（+45°）| 16（+22.5°）
+  frame: { type: String, default: 'auto' }, // RWD 版面尺寸預設（目前／網頁／手機／IG）
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
   hideStops: { type: Boolean, default: false }, // 自動隱藏白點
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
   spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（Straighten/RWD）
+  fisheye: { type: Boolean, default: false }, // 滑鼠放大鏡（魚眼變形，游標處放大網格）
   // OSM 實際軌道路線（25%）：只有 metro 地圖視圖、且該城市有軌道資料時才顯示。狀態
   // 在 LayerTab，工具列只顯示＋emit 回去。
   tracksAvailable: { type: Boolean, default: false },
@@ -27,7 +30,8 @@ const props = defineProps({
   centerAvailable: { type: Boolean, default: false },
   centerOn: { type: Boolean, default: false },
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view', 'set-tracks', 'set-center'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'frame', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view', 'set-tracks', 'set-center', 'fisheye'])
+const frameGroups = rwdFrameGroups()
 
 // 地圖底色的 8 個預設快選色（依明度深→淺排序）
 const BG_PRESETS = [
@@ -201,31 +205,50 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
     <div v-if="hasSpan" class="sb-row sb-row-2">
       <!-- RWD 專屬：方向數／版面模式／顯示權重數字／隱藏白點／最小站距／隨機權重 -->
       <template v-if="isRwd">
-        <!-- 線方向數：4（只H/V）／8（+45°）／16（+22.5°）＝三選一 group button -->
-        <div class="sb-group" role="group" aria-label="線方向數">
-          <button
-            v-for="n in [4, 8, 16]"
-            :key="n"
-            class="sb-group-btn"
-            :class="{ active: dirs === n }"
-            :title="n === 4 ? '只用水平/垂直' : n === 8 ? '水平/垂直/45°' : '水平/垂直/45°/22.5°'"
-            @click="emit('dir-count', n)"
-          >{{ n }}方向</button>
-        </div>
+        <!-- 線方向數：4（只H/V）／8（+45°）／16（+22.5°）＝下拉選單 -->
+        <label class="sb-inline" title="允許的線方向數">
+          <span class="sb-inline-label">方向</span>
+          <select
+            class="sb-inline-select"
+            :value="dirs"
+            @change="emit('dir-count', +$event.target.value)"
+          >
+            <option :value="4">4方向（H/V）</option>
+            <option :value="8">8方向（+45°）</option>
+            <option :value="16">16方向（+22.5°）</option>
+          </select>
+        </label>
+        <!-- 版面尺寸：目前面板／網頁／手機／IG（固定座標系 + letterbox，模擬 RWD） -->
+        <label class="sb-inline" title="模擬 RWD 的版面尺寸">
+          <span class="sb-inline-label">版面</span>
+          <select
+            class="sb-inline-select sb-inline-select-wide"
+            :value="frame"
+            @change="emit('frame', $event.target.value)"
+          >
+            <template v-for="(g, gi) in frameGroups" :key="gi">
+              <template v-if="!g.group">
+                <option v-for="f in g.items" :key="f.id" :value="f.id">{{ f.label }}</option>
+              </template>
+              <optgroup v-else :label="g.group">
+                <option v-for="f in g.items" :key="f.id" :value="f.id">{{ f.label }}</option>
+              </optgroup>
+            </template>
+          </select>
+        </label>
         <div class="sb-sep" />
-        <!-- 版面模式：均勻網格／權重網格＝二選一分段按鈕，選中的高亮（與方向數 group 一致）。 -->
-        <div class="sb-group" role="group" aria-label="版面模式">
-          <button
-            class="sb-group-btn"
-            :class="{ active: weightMode !== 'weight' }"
-            @click="emit('weight-mode', 'uniform')"
-          >均勻網格</button>
-          <button
-            class="sb-group-btn"
-            :class="{ active: weightMode === 'weight' }"
-            @click="emit('weight-mode', 'weight')"
-          >權重網格</button>
-        </div>
+        <!-- 版面模式：均勻網格／權重網格＝下拉選單 -->
+        <label class="sb-inline" title="版面模式">
+          <span class="sb-inline-label">網格</span>
+          <select
+            class="sb-inline-select"
+            :value="weightMode === 'weight' ? 'weight' : 'uniform'"
+            @change="emit('weight-mode', $event.target.value)"
+          >
+            <option value="uniform">均勻網格</option>
+            <option value="weight">權重網格</option>
+          </select>
+        </label>
         <!-- 顯示/隱藏權重：切換，標籤依目前狀態翻（權重數字顯示中→隱藏權重，反之→顯示權重）。 -->
         <button
           class="sb-btn"
@@ -255,6 +278,15 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           :class="{ active: weightAuto }"
           @click="emit('weight-auto')"
         >{{ weightAuto ? '停止隨機權重' : '每5秒隨機權重' }}</button>
+        <div class="sb-sep" />
+        <!-- 滑鼠放大鏡：開啟後游標所在細格為焦點，附近欄／列撐開、遠處壓扁（魚眼變形，
+             外框固定）；footer 顯示游標座標。 -->
+        <button
+          class="sb-btn"
+          :class="{ active: fisheye }"
+          title="滑鼠放大鏡（魚眼變形）：游標處放大網格，footer 顯示座標"
+          @click="emit('fisheye', !fisheye)"
+        >{{ fisheye ? '關閉放大鏡' : '滑鼠放大鏡' }}</button>
         <div class="sb-sep" />
       </template>
 
@@ -452,6 +484,17 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   border: none;
 }
 .sb-inline-num:focus { outline: none; }
+.sb-inline-select {
+  padding: 0 2px;
+  font-size: 12px;
+  color: hsl(var(--foreground));
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  max-width: 140px;
+}
+.sb-inline-select-wide { max-width: 200px; }
+.sb-inline-select:focus { outline: none; }
 .sb-unit { font-size: 11px; color: hsl(var(--muted-foreground)); padding-right: 2px; }
 
 /* 單一控制項的小視窗 */

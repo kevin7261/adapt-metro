@@ -623,18 +623,19 @@ function startResize(e) {
       </div>
 
       <div class="style-body">
-        <div v-if="!(activeTab === 'info' && isMetro)" class="layer-heading">
+        <!-- 城市標題：所有 tab 都與「資訊」tab 一致（中文城市・國名 / 英文城市・國名） -->
+        <div v-if="isMetro" class="info-title">
+          <div class="info-title-zh">{{ layer.cityZh ?? layer.city }}・{{ layer.countryZh ?? layer.country }}</div>
+          <div class="info-title-en">{{ layer.city }}・{{ layer.country }}</div>
+        </div>
+        <div v-else class="layer-heading">
           <span class="layer-name">{{ layer.name }}</span>
         </div>
 
         <!-- ============ Info ============ -->
         <template v-if="activeTab === 'info'">
           <template v-if="isMetro">
-            <!-- 城市標題：中文城市。中文國名 / 英文城市。英文國名 -->
-            <div class="info-title">
-              <div class="info-title-zh">{{ layer.cityZh ?? layer.city }}・{{ layer.countryZh ?? layer.country }}</div>
-              <div class="info-title-en">{{ layer.city }}・{{ layer.country }}</div>
-            </div>
+            <!-- 城市標題已移到 style-body 頂端（所有 tab 共用），這裡不重複 -->
             <div class="info-rows">
               <div class="info-row">
                 <span class="info-key">洲別</span><span>{{ continentZh(layer.continent) }}</span>
