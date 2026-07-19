@@ -64,10 +64,12 @@ const props = defineProps({
   // 「執行調整」：評價時已把附帶的 moves 過硬規則、把調整後佈局存進結果檔的
   // exec——按鈕只切換顯示（套用 exec.cells ⇄ 恢復原佈局），不再跑 LLM。
   evalApplied: { type: Boolean, default: false },
-  // LLM 全部評價：原始／旋轉兩個獨立的四候選 RWD 比較結果。
+  // LLM 全部評價：原始／旋轉各一份四候選 RWD 比較結果；同一個「比較」tab
+  // 內用 compareView 切換，compareRunVariant 標明目前正在跑的變體。
   compareOrigRecord: { type: Object, default: null },
   compareRotRecord: { type: Object, default: null },
   compareRunning: { type: Boolean, default: false },
+  compareRunVariant: { type: String, default: 'orig' },
   compareCanRun: { type: Boolean, default: false },
   compareText: { type: String, default: '' },
   compareMsgOrig: { type: String, default: null },
@@ -160,12 +162,21 @@ const TABS = computed(() => [
   ...(props.viewKind === 'rwd' ? [
     { id: 'grid', label: '互動', icon: 'auto_awesome', title: 'LLM互動' },
     { id: 'eval', label: '評價', icon: 'auto_awesome', title: 'LLM評價' },
-    { id: 'compare-orig', label: '原始比較', icon: 'auto_awesome', title: 'LLM全部評價：原始' },
-    { id: 'compare-rot', label: '旋轉比較', icon: 'auto_awesome', title: 'LLM全部評價：旋轉' },
+    { id: 'compare', label: '比較', icon: 'auto_awesome', title: 'LLM全部評價' },
   ] : []),
   ...(props.llmView ? [{ id: 'llm', label: '自動對齊', icon: 'auto_awesome', title: 'LLM自動對齊' }, { id: 'llm-prompt', label: '指定對齊', icon: 'auto_awesome', title: 'LLM指定對齊' }] : []),
 ])
 const activeTab = ref('info')
+// 「比較」tab 內切換原始／旋轉；結果檔仍各自獨立。
+const compareView = ref('orig')
+const compareRecord = computed(() =>
+  compareView.value === 'orig' ? props.compareOrigRecord : props.compareRotRecord)
+const compareMsg = computed(() =>
+  compareView.value === 'orig' ? props.compareMsgOrig : props.compareMsgRot)
+const compareBusy = computed(() =>
+  props.compareRunning && props.compareRunVariant === compareView.value)
+const compareErrShown = computed(() =>
+  props.compareError && props.compareRunVariant === compareView.value ? props.compareError : '')
 
 /* ---- Object: properties of the last-clicked map feature (blank if none) ---- */
 const store = useMapStore()
@@ -333,7 +344,7 @@ watch(activeTab, (t) => {
   if (t === 'llm' && !llmSkillHtml.value) fetchSkillHtml('route-llm-align', llmSkillHtml)
   if (t === 'grid' && !gridSkillHtml.value) fetchSkillHtml('route-llm-grid', gridSkillHtml)
   if (t === 'eval' && !evalSkillHtml.value) fetchSkillHtml('route-llm-eval', evalSkillHtml)
-  if ((t === 'compare-orig' || t === 'compare-rot') && !compareSkillHtml.value) fetchSkillHtml('route-llm-compare', compareSkillHtml)
+  if (t === 'compare' && !compareSkillHtml.value) fetchSkillHtml('route-llm-compare', compareSkillHtml)
 })
 
 // LLM 評價執行中的即時串流（面板內，無畫布 overlay）——新字進來自動捲到底。
@@ -1172,15 +1183,16 @@ function startResize(e) {
           </div>
         </template>
 
-        <!-- ============ LLM全部評價：原始／旋轉各比較四種 RWD 結果 ============ -->
-        <template v-else-if="activeTab === 'compare-orig' || activeTab === 'compare-rot'">
+        <!-- ============ LLM全部評價：單一 tab，內切原始／旋轉 ============ -->
+        <template v-else-if="activeTab === 'compare'">
           <div class="weight-panel">
-            <template v-if="activeTab === 'compare-orig'">
-              <h4 class="llm-h">原始佈局：四結果比較</h4>
-            </template>
-            <template v-else>
-              <h4 class="llm-h">旋轉佈局：四結果比較</h4>
-            </template>
+            <div class="compare-variant" role="tablist" aria-label="比較變體">
+              <button type="button" role="tab" :class="{ active: compareView === 'orig' }"
+                :aria-selected="compareView === 'orig'" @click="compareView = 'orig'">原始</button>
+              <button type="button" role="tab" :class="{ active: compareView === 'rot' }"
+                :aria-selected="compareView === 'rot'" @click="compareView = 'rot'">旋轉</button>
+            </div>
+            <h4 class="llm-h">{{ compareView === 'orig' ? '原始佈局' : '旋轉佈局' }}：四結果比較</h4>
             <p class="weight-hint">一次比較直角爬山、軸對齊、整數規劃與可用的 LLM 對齊，依路網方正、直線多、轉折少與畫面平衡選出最佳者。此功能只評審與說明，不會修改任一候選圖。</p>
             <template v-if="compareCanRun">
               <label class="llm-model-pick">
@@ -1191,16 +1203,16 @@ function startResize(e) {
                 </select>
               </label>
               <button class="llm-run-btn" :disabled="compareRunning"
-                @click="emit('run-compare', activeTab === 'compare-orig' ? 'orig' : 'rot')"
-              >{{ compareRunning ? '全部評價中…' : ((activeTab === 'compare-orig' ? compareOrigRecord : compareRotRecord) ? '重新 LLM 全部評價' : 'LLM 全部評價') }}</button>
+                @click="emit('run-compare', compareView)"
+              >{{ compareBusy ? '全部評價中…' : (compareRecord ? '重新 LLM 全部評價' : 'LLM 全部評價') }}</button>
             </template>
-            <template v-if="compareRunning">
+            <template v-if="compareBusy">
               <h4 class="llm-h">LLM 回傳（即時串流）</h4>
               <pre class="llm-pre eval-stream">{{ compareText || '等待模型回應…' }}</pre>
             </template>
-            <p v-if="compareError" class="llm-run-hint eval-err">執行失敗：{{ compareError }}</p>
-            <template v-if="activeTab === 'compare-orig' ? compareOrigRecord : compareRotRecord">
-              <template v-for="record in [activeTab === 'compare-orig' ? compareOrigRecord : compareRotRecord]" :key="record.variant">
+            <p v-if="compareErrShown" class="llm-run-hint eval-err">執行失敗：{{ compareErrShown }}</p>
+            <template v-if="compareRecord">
+              <template v-for="record in [compareRecord]" :key="record.variant">
                 <div class="info-rows">
                   <div class="info-row"><span class="info-key">模型</span><span>{{ record.model }}</span></div>
                   <div class="info-row"><span class="info-key">最佳結果</span><b>{{ record.candidates.find((x) => x.compact === record.winner)?.label ?? record.winner }}</b></div>
@@ -1217,7 +1229,7 @@ function startResize(e) {
                 </div>
               </template>
             </template>
-            <p v-else-if="!compareRunning" class="llm-note">{{ activeTab === 'compare-orig' ? compareMsgOrig : compareMsgRot }}</p>
+            <p v-else-if="!compareBusy" class="llm-note">{{ compareMsg }}</p>
             <h4 class="llm-h">使用的 skill：route-llm-compare</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文</summary>
@@ -1715,6 +1727,29 @@ function startResize(e) {
 }
 .weight-mode:hover { background: hsl(var(--accent)); }
 .weight-mode.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); border-color: hsl(var(--primary)); font-weight: 600; }
+/* 「比較」tab 內原始／旋轉切換 */
+.compare-variant {
+  display: flex;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  overflow: hidden;
+}
+.compare-variant button {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: var(--sp-body);
+  border: none;
+  background: transparent;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+}
+.compare-variant button + button { border-left: 1px solid hsl(var(--border)); }
+.compare-variant button:hover { background: hsl(var(--accent)); }
+.compare-variant button.active {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
 .weight-random {
   padding: 8px 12px;
   font-size: var(--sp-body);

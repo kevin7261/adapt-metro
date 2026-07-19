@@ -1017,7 +1017,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // 動畫幀不重算 buildHcGraph（骨架／格不變）——省每幀成本，cachedSegs 沿用。
   // 平行邊（共用同兩端點的快車直達＋普通車 coline）收成一條交錯線，見 mergeParallelSegs。
   if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = mergeParallelSegs(buildHcGraph(cachedSkeleton, grid.cellOf).segs)
-  // 兩個「全部評價」tab 都可在任一 RWD 視圖查看；各自載入 orig/rot 的獨立結果。
+  // 「比較」tab 可在任一 RWD 視圖查看；orig／rot 各自載入獨立結果。
   if (isRWD.value) {
     for (const variant of ['orig', 'rot']) {
       if (!compareRecords.value[variant] && !compareMsgs.value[variant] && compareRun.value !== 'running') {
@@ -1881,6 +1881,7 @@ onBeforeUnmount(() => {
       :compare-orig-record="isRWD ? compareRecords.orig : null"
       :compare-rot-record="isRWD ? compareRecords.rot : null"
       :compare-running="compareRun === 'running'"
+      :compare-run-variant="compareVariant"
       :compare-can-run="!!llmCityId"
       :compare-text="compareRunText"
       :compare-msg-orig="compareMsgs.orig"
