@@ -1044,14 +1044,20 @@ export function buildRwdMap(segs, pos, opts = {}) {
       // H/V/45° legality and take the candidate with the FEWEST violations;
       // the off-angle raw straight is a last resort only when there is no
       // legal-direction candidate at all (degenerate spans).
-      let chosen = null, chosenN = Infinity, chosenLen = Infinity
+      let chosen = null, chosenN = Infinity, chosenBends = Infinity, chosenLen = Infinity
       for (const c of cands) {
         if (c.fallback) continue
         const n = conflictCount(c.pts, s, placed)
         if (n === 0) { chosen = c; chosenN = 0; break }
-        // 衝突數相同時，選重疊線最短的（使用者規則：重疊越短越好）。
+        // 選擇優先序：①衝突數最少 → ②折數最少（折數絕對優先，能直線就直線，不讓重疊
+        // 長度蓋過直線）→ ③同折數才比重疊長度（越短越好）。cands 依折數升序，故 ② 只在
+        // 前一個較少折的候選未被選時成立。
         const len = overlapLen(c.pts, placed)
-        if (n < chosenN || (n === chosenN && len < chosenLen)) { chosen = c; chosenN = n; chosenLen = len }
+        if (n < chosenN
+          || (n === chosenN && c.bends < chosenBends)
+          || (n === chosenN && c.bends === chosenBends && len < chosenLen)) {
+          chosen = c; chosenN = n; chosenBends = c.bends; chosenLen = len
+        }
       }
       if (!chosen) chosen = cands.find((c) => c.fallback) ?? cands[0]
       // Priority segments are the previously-trapped ones — if even now no
@@ -1084,13 +1090,19 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const curN = conflictCount(L.pts, L.seg, placed)
         if (curN === 0) { L.forced = false; continue }
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
-        let best = null, bestN = curN, bestLen = overlapLen(L.pts, placed)
+        // 只在有「衝突更少」的畫法時才換掉現有線（維持原重掃語意：這裡負責消衝突，
+        // 拉直交給 bendReductionToFixpoint）。候選之間 ②折數（能直線就直線，折數絕對
+        // 優先）→ ③同折數才比重疊長度（越短越好）——與 pass 1 一致。
+        let best = null, bestN = curN, bestBends = Infinity, bestLen = Infinity
         for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback) continue
           const n = conflictCount(c.pts, L.seg, placed)
-          // 衝突數相同時改採重疊更短的畫法（使用者規則：重疊線越短越好）。
           const len = n === 0 ? 0 : overlapLen(c.pts, placed)
-          if (n < bestN || (n === bestN && len < bestLen)) { best = c; bestN = n; bestLen = len; if (n === 0) break }
+          if (n < bestN
+            || (best && n === bestN && c.bends < bestBends)
+            || (best && n === bestN && c.bends === bestBends && len < bestLen)) {
+            best = c; bestN = n; bestBends = c.bends; bestLen = len; if (n === 0) break
+          }
         }
         if (bestN > 0 && !noRoute.has(L.seg)) {
           const failInfo = {}
@@ -1329,7 +1341,17 @@ export function buildRwdMap(segs, pos, opts = {}) {
             w.forced = false
           }
           const after = c.bends + walls.reduce((s, wi) => s + lines[wi].bends, 0)
-          if (!ok || after >= before) { undo(); continue } // 總折數必須嚴格下降
+          // 使用者鐵律「只要可以直線就一定是直線」：若這條因此變成**直線**(c.bends===0)，
+          // 且沒有犧牲任何原本就是直線的擋路線（絕不 un-straighten 別人），則總折數
+          // 「不增加」即可採用（不必嚴格下降）——讓已經彎的鄰線多彎一點來成全這條的
+          // 直線。其餘情況仍要求總折數嚴格下降。（不 un-straighten 直線 → 直線數嚴格
+          // 遞增 → 收斂。）
+          const ripsStraight = walls.some((wi, k) => saves[k + 1].bends === 0)
+          // 鐵律「只要可以直線就一定是直線」：目標是直線(c.bends===0)且不犧牲任何原本
+          // 就是直線的擋路線時，**不設折數預算**——擋路的彎線要多彎幾折都得讓（收斂：
+          // 直線數嚴格遞增、直線絕不被 un-straighten）。非直線目標仍要求總折數嚴格下降。
+          const budgetOk = (c.bends === 0 && !ripsStraight) || after < before
+          if (!ok || !budgetOk) { undo(); continue }
           stats.straightened++
           improved = true
           break

@@ -10,7 +10,7 @@ import { dragResize } from '../lib/dragResize'
 import { dataFingerprint, loadHcCache, saveHcCache } from '../lib/hcCache'
 import { makeHeadlessRun } from '../lib/headlessRun'
 import { resolveRwdFrame } from '../lib/rwdFrames'
-import { layerData, localizeStationNames } from '../stores/layerData'
+import { layerData, layerExport, localizeStationNames } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
@@ -1565,6 +1565,46 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
 }
 
 let renderSeq = 0
+// 目前畫面內容 → GeoJSON（圖層「匯出」下載使用者正在看的佈局，見 layerExport）。
+// lineData 的 SVG path（手繪 `M x y L x y` 或 d3 geoPath 的 `Mx,yLx,y`，可能多子路徑）
+// 解析回座標；stationData 是已放好的節點。座標＝畫面像素（示意佈局本就非地理座標）。
+// 要保留的樣式鍵（stroke/dash/fill）**不加底線**——cleanForExport 會濾掉 `_` 開頭的
+// feature 屬性。
+function pathToSubpaths(d) {
+  const out = []
+  for (const part of String(d ?? '').split(/(?=[Mm])/)) {
+    const nums = part.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi)
+    if (!nums || nums.length < 4) continue
+    const coords = []
+    for (let i = 0; i + 1 < nums.length; i += 2) coords.push([+nums[i], +nums[i + 1]])
+    if (coords.length >= 2) out.push(coords)
+  }
+  return out
+}
+function sceneToGeojson(lineData, stationData, w, h) {
+  const features = []
+  for (const ln of lineData) {
+    const subs = pathToSubpaths(ln.d)
+    if (!subs.length) continue
+    features.push({
+      type: 'Feature',
+      geometry: subs.length === 1
+        ? { type: 'LineString', coordinates: subs[0] }
+        : { type: 'MultiLineString', coordinates: subs },
+      properties: { kind: 'line', stroke: ln.stroke ?? null, ...(ln.dash ? { dash: ln.dash } : {}) },
+    })
+  }
+  for (const s of stationData) {
+    if (!Number.isFinite(s.x) || !Number.isFinite(s.y)) continue
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [s.x, s.y] },
+      properties: { ...s.props, kind: 'node', fill: s.fill },
+    })
+  }
+  return { type: 'FeatureCollection', _view: layer.value?.type ?? 'd3', _frame: { w, h }, features }
+}
+
 async function render() {
   const svg = svgEl.value, g = gEl.value, el = host.value
   if (!svg || !g || !el) return
@@ -1635,6 +1675,9 @@ async function render() {
     buildDrawData({ grid, sk, path, P, projById, stations, lineFeats, hcPos, rwdLines })
 
   drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, stations, posOf, lineData, stationData, highlightData })
+
+  // 匯出快照：把這一幀畫出的線與節點序列化成 GeoJSON，供「匯出」下載目前畫面內容。
+  layerExport[layerId] = sceneToGeojson(lineData, stationData, w, h)
 
   // 版面外框：選了固定版面（網頁／手機／IG…）時畫出該版面的邊界矩形，讓使用者看到
   // 模擬 RWD 的畫布範圍；「目前版面」（auto，跟著面板大小）不畫。畫在最上層、不吃事件。

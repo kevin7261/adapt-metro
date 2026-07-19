@@ -2,7 +2,7 @@
 import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab, openAllGalleryTab, dockHandle } from '../stores/dockHandle'
-import { layerData } from '../stores/layerData'
+import { layerData, layerExport } from '../stores/layerData'
 import { dragResize } from '../lib/dragResize'
 import { openSkillDoc } from '../stores/skillHandle'
 import { openLayerDoc } from '../stores/layerDocHandle'
@@ -189,7 +189,11 @@ async function fetchJson(file) {
 }
 async function exportLayer(layer) {
   try {
-    let data = layerData[layer.id]
+    // 使用者規則：匯出＝下載該圖層「目前畫面顯示的內容」。衍生視圖（Map Adjust／
+    // Hill Climbing／RWD／骨架／格網化…）的畫面佈局由 D3Tab 每次 render 存進 layerExport
+    // （座標＝畫面像素），優先取用；沒有時（如純 MapLibre 的捷運圖層、未開過分頁）再
+    // 退回 layerData 的來源 GeoJSON、來源圖層、或檔案。
+    let data = layerExport[layer.id] ?? layerData[layer.id]
     if (!data && layer.sourceLayerId) {
       const src = store.layers.find((l) => l.id === layer.sourceLayerId)
       if (src) data = layerData[src.id] ?? (src.file && await fetchJson(src.file))
@@ -221,6 +225,7 @@ async function exportLayer(layer) {
 function disposeLayer(l) {
   dockHandle.api?.getPanel(l.id)?.api.close()
   delete layerData[l.id]
+  delete layerExport[l.id]
   store.removeLayer(l.id)
 }
 // Remove = 拆除單一圖層。
@@ -246,6 +251,7 @@ async function recomputeCity(item) {
   for (const l of all) {
     dockHandle.api?.getPanel(l.id)?.api.close()
     delete layerData[l.id]
+    delete layerExport[l.id]
   }
   await nextTick()
   for (const l of all) openLayerTab(l)
