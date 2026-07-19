@@ -713,34 +713,53 @@ function startResize(e) {
             </template>
             </template>
 
-            <!-- Skeleton computation rules — Map Adjust view only -->
+            <!-- 圖例：Metro Maps／Map Adjust／Straighten／RWD 共用——路線＋節點＋Highlight 整合顯示 -->
+            <template v-if="isMetro && !isHighway">
+              <div class="section-title">圖例</div>
+              <div class="map-legend skeleton-rules">
+                <p class="sk-sub">路線</p>
+                <ul>
+                  <li><span class="sk-line sk-plain" /> 單線實線（route 原色）</li>
+                  <li><span class="sk-line sk-dash" /> 多線交錯虛線（共線走廊）</li>
+                  <li v-if="viewKind === 'hillclimb' || viewKind === 'rwd'"><span class="sk-line" style="background:#3b82f6" /> 藍線：示意網格</li>
+                </ul>
+                <p class="sk-sub">節點</p>
+                <ul>
+                  <li><span class="sk-dot" style="background:#e11d48" /> 紅：分歧／轉乘</li>
+                  <li><span class="sk-dot" style="background:#2563eb" /> 藍：端點</li>
+                  <li><span class="sk-dot sk-ring" /> 白：直通站</li>
+                  <li><span class="sk-dot" style="background:#a855f7" /> 紫：切斷點</li>
+                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：轉折點</li>
+                  <li><span class="sk-dot" style="background:#9ca3af" /> 灰：分隔點</li>
+                  <li><span class="sk-dot" style="background:#eab308" /> 黃：路線交叉</li>
+                </ul>
+                <p class="sk-sub">Highlight（線底下襯底）</p>
+                <ul>
+                  <li><span class="sk-hl" style="background:#e11d48" /> 紅：共線合併</li>
+                  <li><span class="sk-hl" style="background:#16a34a" /> 綠：環線</li>
+                  <li><span class="sk-hl" style="background:#2563eb" /> 藍：頭尾共點</li>
+                  <li><span class="sk-hl" style="background:#7c3aed" /> 紫：紅＋藍疊色（共線又頭尾共點）</li>
+                  <li v-if="viewKind === 'rwd'"><span class="sk-hl" style="background:#f59e0b" /> 琥珀：殘留衝突</li>
+                </ul>
+                <p v-if="isMapAdjust" class="rose-note">
+                  Map Adjust 骨架化後才套用節點色與 Highlight；依 skill <code>route-skeleton-connect</code>，
+                  座標照原地理、不移動。
+                </p>
+                <p v-else-if="!isD3" class="rose-note">
+                  Metro Maps 以白點＋路線原色為主；節點色與 Highlight 見 Map Adjust／Straighten／RWD。
+                </p>
+              </div>
+            </template>
+
+            <!-- Map Adjust：骨架化做法說明（圖例已整合在上方，這裡只留規則摘要） -->
             <template v-if="isMapAdjust">
               <div class="section-title">骨架化規則</div>
               <div class="skeleton-rules">
-                <p>不拉直、保留地理形狀，只做拓撲收縮與標記（connect 骨架）。</p>
-                <p class="sk-sub">節點（依圖 degree）</p>
-                <ul>
-                  <li><span class="sk-dot" style="background:#e11d48" /> 紅：分歧／轉乘（degree≥3，或兩側路線不同的 degree-2）</li>
-                  <li><span class="sk-dot" style="background:#2563eb" /> 藍：真端點（degree≤1）</li>
-                  <li><span class="sk-dot sk-ring" /> 白：直通中段站（degree=2、兩側同路線；不變）</li>
-                  <li><span class="sk-dot" style="background:#a855f7" /> 紫：頭尾共點／環線切斷點</li>
-                  <li><span class="sk-dot" style="background:#ec4899" /> 粉紅：代表性轉折點（邊曲折度&gt;1.25 才挑，DP 垂距/弦長&gt;0.25 的黑點）</li>
-                  <li><span class="sk-dot" style="background:#9ca3af" /> 灰：過長黑點段的分隔（每段 ≤4，G=⌊N/5⌋）</li>
-                </ul>
-                <p class="sk-sub">線畫法（照原本）</p>
-                <ul>
-                  <li><span class="sk-line sk-plain" /> 單線＝route 原色；重疊＝各 route 交錯彩色虛線</li>
-                </ul>
-                <p class="sk-sub">邊分類（線底下的 highlight 襯底）</p>
-                <ul>
-                  <li><span class="sk-line" style="background:#e11d48" /> 紅：共線合併（≥2 路線；不切紫點）</li>
-                  <li><span class="sk-line" style="background:#16a34a" /> 綠：環線（自環；1/3、2/3 切 2 紫）</li>
-                  <li><span class="sk-line" style="background:#2563eb" /> 藍：頭尾共點（平行多重邊；1/2 切 1 紫）</li>
-                  <li><span class="sk-line" style="background:#7c3aed" /> 紫：<b>非分類</b>——紅、藍襯底半透明重疊處的疊色（同走廊既是共線又有平行邊）</li>
-                </ul>
+                <p>不拉直、保留地理形狀，只做拓撲收縮與標記（connect 骨架）。節點依 degree 分色；邊分類以 Highlight 襯底標示（見上方圖例）。</p>
                 <p class="rose-note">
-                  依 skill <code>route-skeleton-connect</code>。座標一律照原地理、不移動；
-                  黃色幾何交叉為 v2（metro 交叉多為轉乘站，罕見）。
+                  紅＝分歧／轉乘（degree≥3，或兩側路線不同的 degree-2）；藍＝真端點（degree≤1）；
+                  白＝直通中段；紫＝頭尾共點／環線切斷；粉紅＝代表性轉折（曲折度&gt;1.25）；
+                  灰＝過長段分隔（每段 ≤4）。Highlight：共線紅／環線綠／頭尾共點藍；紅藍重疊呈紫。
                 </p>
               </div>
             </template>
@@ -2052,6 +2071,22 @@ function startResize(e) {
 .sk-dot.sk-ring { background: #fff; }
 .sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
 .sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
+.sk-line.sk-dash {
+  background: repeating-linear-gradient(
+    90deg,
+    #e11d48 0 4px,
+    #2563eb 4px 8px,
+    #16a34a 8px 12px,
+    transparent 12px 14px
+  );
+}
+.sk-hl {
+  width: 18px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  opacity: 0.55;
+}
 .skeleton-rules .rose-note { margin-top: 10px; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
 .section-title {
   font-size: var(--sp-head);

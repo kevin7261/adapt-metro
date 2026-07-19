@@ -234,6 +234,20 @@
         "name": "NYCS - S Rockaway Park Shuttle"
       },
       "note": "NYC S 接駁：net+ref 群組合併把三條 S shuttle 併進同群，代表 tags 取 master 7894362（OSM 上是 Franklin 的 master）、但最長變體（kept[0]）是 Rockaway Park Shuttle 的 rows → 主 route 錯名 Franklin。把 master 顯示名改為 Rockaway（Franklin 分支變體用自己 relation 名、不受影響）。上游若把 Rockaway 拆成自己的 master 應刪除本筆。"
+    },
+    {
+      "relation": 6937084,
+      "set": {
+        "ref": "TY-A"
+      },
+      "note": "桃園國際機場捷運（機捷）route_master r6937084，原 ref=A 與台北自家線的字母 ref 系統混在同一都會圈檔（桃園併入台北，見 metro-city-taipei）。使用者規則 2026-07：桃園捷運路線 id 加 TY- 前綴以資區別——機捷路線 id A → TY-A。master ref 覆蓋變體 ref（repTags），故 patch 打在 master 而非 4 條 route 變體（2108764/6937083/8487050/8487062）。只改線 id/route_ref，車站代碼 A1–A21 不受影響（另源）。"
+    },
+    {
+      "relation": 11330479,
+      "set": {
+        "ref": "TY-G"
+      },
+      "note": "桃園捷運綠線 route r11330479（未通車例外，走 uc_exceptions/gap_routes_uc），原 ref=G 與台北松山新店線/小碧潭支線同字母、在同一都會圈檔（桃園併入台北）易混淆。使用者規則 2026-07：桃園捷運的 G → TY-G。此線無 route_master，patch 直接打在 route relation；只改線 id/route_ref。"
     }
   ]
 }

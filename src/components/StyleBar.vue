@@ -13,7 +13,7 @@ const props = defineProps({
   viewKind: { type: String, default: 'metro' }, // 'metro' | 'map-adjust' | 'hillclimb' | 'rwd'
   // 以下皆為 RWD Maps 版面控制（狀態都在 D3Tab，工具列只顯示＋emit 回去）：
   showWeights: { type: Boolean, default: true }, // 顯示權重數字
-  weightMode: { type: String, default: 'uniform' }, // 'uniform' | 'weight'
+  weightMode: { type: String, default: 'uniform' }, // 'uniform' | 'weight' | 'square'
   dirs: { type: Number, default: 8 }, // 允許的線方向數：4（只H/V）| 8（+45°）| 16（+22.5°）
   frame: { type: String, default: 'auto' }, // RWD 版面尺寸預設（目前／網頁／手機／IG）
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
@@ -213,9 +213,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
             :value="dirs"
             @change="emit('dir-count', +$event.target.value)"
           >
-            <option :value="4">4方向（H/V）</option>
-            <option :value="8">8方向（+45°）</option>
-            <option :value="16">16方向（+22.5°）</option>
+            <option :value="4">4方向</option>
+            <option :value="8">8方向</option>
+            <option :value="16">16方向</option>
           </select>
         </label>
         <!-- 版面尺寸：目前面板／網頁／手機／IG（固定座標系 + letterbox，模擬 RWD） -->
@@ -242,10 +242,11 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           <span class="sb-inline-label">網格</span>
           <select
             class="sb-inline-select"
-            :value="weightMode === 'weight' ? 'weight' : 'uniform'"
+            :value="['weight', 'square'].includes(weightMode) ? weightMode : 'uniform'"
             @change="emit('weight-mode', $event.target.value)"
           >
             <option value="uniform">均勻網格</option>
+            <option value="square">方形網格</option>
             <option value="weight">權重網格</option>
           </select>
         </label>

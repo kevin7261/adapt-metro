@@ -494,8 +494,10 @@ const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, li
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
-// 重跑 buildRwdMap。'uniform' = 均勻網格（預設）。全部隨機每按一次整表重抽。
-const rwdWeightMode = ref('uniform') // 'uniform' | 'weight'
+// 重跑 buildRwdMap。'uniform' = 均勻網格（預設，欄寬列高隨板面拉伸填滿）。
+// 'square' = 方形網格（格子強制正方，取 min(欄寬,列高) 為單位、置中 letterbox）。
+// 'weight' = 權重網格。全部隨機每按一次整表重抽。
+const rwdWeightMode = ref('uniform') // 'uniform' | 'square' | 'weight'
 const rwdDirs = ref(8)               // RWD 允許的線方向數：4（只H/V）| 8（+45°，預設）| 16（+22.5°）
 const rwdFrameId = ref('auto')       // 版面尺寸：目前面板／網頁／手機／IG（模擬 RWD）
 const rwdFrameInfo = computed(() => resolveRwdFrame(rwdFrameId.value, 0, 0))
@@ -554,7 +556,7 @@ function setRwdWeightMode(m) {
     animateToWeights(rwdWeights.value.size ? rwdWeights.value : randomWeights(cachedSegs)) // 均勻→加權：動畫過去
     return
   }
-  rwdWeightMode.value = m // 回均勻：瞬時
+  rwdWeightMode.value = m // 回均勻／方形網格：瞬時（無動畫）
   cachedRWD = null
   render()
 }
@@ -1108,7 +1110,18 @@ async function computeHcLayout({ seq, w, h, grid }) {
   } else if (weighted) {
     axes = weightedAxes(cells, cachedSegs, rwdWeights.value, nC, nR, area)
   }
-  const cellPx = axes ? axes.cellPx : ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+  // 方形網格（square）：格子強制正方——取 min(欄寬,列高) 當單位、整個網格置中
+  // letterbox（不填滿板面）。均勻/權重/動畫/LLM 各模式都不是 square 時才走原本拉伸格。
+  const squareMode = isRWD.value && !gridOn && !animing && !weighted && rwdWeightMode.value === 'square'
+  const u = Math.min(cw, ch)
+  const sqx0 = 24 + (w - 48 - nC * u) / 2, sqy0 = 24 + (h - 48 - nR * u) / 2
+  const squareBlue = {
+    xs: Array.from({ length: nC + 1 }, (_, i) => sqx0 + i * u),
+    ys: Array.from({ length: nR + 1 }, (_, i) => sqy0 + i * u),
+  }
+  const cellPx = axes ? axes.cellPx
+    : squareMode ? ([c, r]) => [sqx0 + (c + 0.5) * u, sqy0 + (r + 0.5) * u]
+      : ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
   if (rwdMode.value) {
     // RWD 路網: 八方向約束以「版面 pixel」為準 — the map follows the panel shape
     // (隨板面變形), so the polylines are rebuilt in the CURRENT canvas pixel
@@ -1116,14 +1129,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
     // 45° on screen). Same-size renders reuse the cached result. The interior
     // blacks already sit ON the polylines (no placeBlacks here).
     // 未變形（base）藍格：既是 footer 欄／列查詢的座標系，也是滑鼠放大鏡的變形定義域。
-    const baseBlue = axes ? { xs: axes.colX, ys: axes.rowY } : uniformBlue(nC, nR, cw, ch)
+    const baseBlue = axes ? { xs: axes.colX, ys: axes.rowY } : squareMode ? squareBlue : uniformBlue(nC, nR, cw, ch)
     fisheyeAxes = { xs: baseBlue.xs, ys: baseBlue.ys }
     // 放大鏡：把節點的 base 像素座標 (fx,fy) 搬到變形後位置，再交給 buildRwdMap 在該
     // 空間重繞線 → 線仍嚴格遵守 4/8/16 方向（不是把折點拉斜）。fast 幀＝放大鏡或權重動畫。
     const fWarp = fisheyeWarpFn()
     const fastFrame = animing || !!fWarp
     const sizeKey = `${w}x${h}|d${rwdDirs.value}|${gridOn ? `g${rwdGridSeq}`
-      : animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : 'u'}`
+      : animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : squareMode ? 'sq' : 'u'}`
       + (fWarp ? `|f${Math.round(fWarp.x)}_${Math.round(fWarp.y)}_${fWarp.s.toFixed(2)}` : '')
     if (!cachedRWD || cachedRWD.key !== sizeKey) {
       if (!fastFrame) {
@@ -1150,7 +1163,10 @@ async function computeHcLayout({ seq, w, h, grid }) {
           linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
           ...(fastFrame ? { fast: true }
             : (weighted || gridOn) ? {}
-              : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
+              // 方形網格的 lattice 恰為正方（sx===sy）→ buildRwdMap 自動開 8 方向真 45° A*。
+              : squareMode
+                ? { lattice: { x0: sqx0, y0: sqy0, sx: u / 2, sy: u / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }
+                : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
         }),
       }
       hcBusy.value = false
@@ -1164,7 +1180,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     hcPos = new Map()
     for (const [id, p] of cells) hcPos.set(id, cellPx(p))
     placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
-    hcBlue = uniformBlue(nC, nR, cw, ch)
+    hcBlue = squareMode ? squareBlue : uniformBlue(nC, nR, cw, ch)
   }
   return { hcPos, hcBlue, rwdLines, stepMoves }
 }
