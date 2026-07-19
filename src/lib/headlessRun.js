@@ -6,6 +6,17 @@
 // cityId/model 是 getter（呼叫端的 computed/ref）、render 是呼叫端的重畫函式。
 export function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRender, onStart, onDone, cityId, model, render }) {
   let timer = null
+  // Claude Code's stream-json error contains a very large init payload before
+  // the actual 429 message. Never surface that raw transcript in the panel.
+  const readableFailure = (raw) => {
+    const s = String(raw || '')
+    if (/rate_limit|session limit|api_error.*429|hit your session limit/i.test(s)) {
+      const reset = s.match(/resets?\s+([^"\n}]+?)(?:["}\n]|$)/i)?.[1]?.trim()
+      return `Claude Code 使用額度已達上限${reset ? `；${reset} 後再試` : '；請在額度重設後再試'}。`
+    }
+    const result = s.match(/"result"\s*:\s*"([^"]+)"/)?.[1]
+    return result || s.split('\n').filter(Boolean).at(-1)?.slice(0, 400) || 'LLM 執行失敗'
+  }
   async function start(userPrompt = '') {
     const cid = cityId()
     if (!cid || run.value === 'running') return
@@ -61,6 +72,7 @@ export function makeHeadlessRun({ base, params, run, tail, text, logEl, shouldRe
         } else {
           onDone(false)
           run.value = 'error'
+          tail.value = readableFailure(`${tail.value}\n${text.value}`)
           if (shouldRender()) render() // fall to the 開始 retry state
         }
       } catch {

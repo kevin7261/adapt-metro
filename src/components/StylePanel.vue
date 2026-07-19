@@ -64,6 +64,15 @@ const props = defineProps({
   // 「執行調整」：評價時已把附帶的 moves 過硬規則、把調整後佈局存進結果檔的
   // exec——按鈕只切換顯示（套用 exec.cells ⇄ 恢復原佈局），不再跑 LLM。
   evalApplied: { type: Boolean, default: false },
+  // LLM 全部評價：原始／旋轉兩個獨立的四候選 RWD 比較結果。
+  compareOrigRecord: { type: Object, default: null },
+  compareRotRecord: { type: Object, default: null },
+  compareRunning: { type: Boolean, default: false },
+  compareCanRun: { type: Boolean, default: false },
+  compareText: { type: String, default: '' },
+  compareMsgOrig: { type: String, default: null },
+  compareMsgRot: { type: String, default: null },
+  compareError: { type: String, default: '' },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -85,7 +94,7 @@ const props = defineProps({
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
   llmModel: { type: String, default: 'opus' },
 })
-const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
+const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
 const LLM_MODEL_OPTIONS = [
   { key: 'default', label: '沿用 CLI 預設' },
@@ -148,7 +157,12 @@ const TABS = computed(() => [
   // LLM 系列 tab：用 auto_awesome（AI 火花）icon 取代「LLM」字首，標籤留短詞、
   // title 存完整名（tooltip/無障礙）。互動/評價常駐 RWD；自動/指定對齊只在左邊
   // 「直線演算法」的 LLM 對齊視圖（hc-llm 及其鏈，llmView）才出現。
-  ...(props.viewKind === 'rwd' ? [{ id: 'grid', label: '互動', icon: 'auto_awesome', title: 'LLM互動' }, { id: 'eval', label: '評價', icon: 'auto_awesome', title: 'LLM評價' }] : []),
+  ...(props.viewKind === 'rwd' ? [
+    { id: 'grid', label: '互動', icon: 'auto_awesome', title: 'LLM互動' },
+    { id: 'eval', label: '評價', icon: 'auto_awesome', title: 'LLM評價' },
+    { id: 'compare-orig', label: '原始比較', icon: 'auto_awesome', title: 'LLM全部評價：原始' },
+    { id: 'compare-rot', label: '旋轉比較', icon: 'auto_awesome', title: 'LLM全部評價：旋轉' },
+  ] : []),
   ...(props.llmView ? [{ id: 'llm', label: '自動對齊', icon: 'auto_awesome', title: 'LLM自動對齊' }, { id: 'llm-prompt', label: '指定對齊', icon: 'auto_awesome', title: 'LLM指定對齊' }] : []),
 ])
 const activeTab = ref('info')
@@ -304,6 +318,7 @@ watch(TABS, (tabs) => { if (!tabs.some((t) => t.id === activeTab.value)) activeT
 const llmSkillHtml = ref('')
 const gridSkillHtml = ref('')
 const evalSkillHtml = ref('')
+const compareSkillHtml = ref('')
 const fetchSkillHtml = async (id, target) => {
   try {
     const res = await fetch(assetUrl(`skills/${id}.md`))
@@ -318,6 +333,7 @@ watch(activeTab, (t) => {
   if (t === 'llm' && !llmSkillHtml.value) fetchSkillHtml('route-llm-align', llmSkillHtml)
   if (t === 'grid' && !gridSkillHtml.value) fetchSkillHtml('route-llm-grid', gridSkillHtml)
   if (t === 'eval' && !evalSkillHtml.value) fetchSkillHtml('route-llm-eval', evalSkillHtml)
+  if ((t === 'compare-orig' || t === 'compare-rot') && !compareSkillHtml.value) fetchSkillHtml('route-llm-compare', compareSkillHtml)
 })
 
 // LLM 評價執行中的即時串流（面板內，無畫布 overlay）——新字進來自動捲到底。
@@ -1153,6 +1169,60 @@ function startResize(e) {
               <li><b>程式負責：</b>{{ METHOD_NOTES.eval.code }}</li>
             </ul>
             <p class="llm-method-sum">{{ METHOD_NOTES.eval.sum }}</p>
+          </div>
+        </template>
+
+        <!-- ============ LLM全部評價：原始／旋轉各比較四種 RWD 結果 ============ -->
+        <template v-else-if="activeTab === 'compare-orig' || activeTab === 'compare-rot'">
+          <div class="weight-panel">
+            <template v-if="activeTab === 'compare-orig'">
+              <h4 class="llm-h">原始佈局：四結果比較</h4>
+            </template>
+            <template v-else>
+              <h4 class="llm-h">旋轉佈局：四結果比較</h4>
+            </template>
+            <p class="weight-hint">一次比較直角爬山、軸對齊、整數規劃與可用的 LLM 對齊，依路網方正、直線多、轉折少與畫面平衡選出最佳者。此功能只評審與說明，不會修改任一候選圖。</p>
+            <template v-if="compareCanRun">
+              <label class="llm-model-pick">
+                模型
+                <select :value="llmModel" :disabled="compareRunning"
+                  @change="emit('update:llm-model', $event.target.value)">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
+              <button class="llm-run-btn" :disabled="compareRunning"
+                @click="emit('run-compare', activeTab === 'compare-orig' ? 'orig' : 'rot')"
+              >{{ compareRunning ? '全部評價中…' : ((activeTab === 'compare-orig' ? compareOrigRecord : compareRotRecord) ? '重新 LLM 全部評價' : 'LLM 全部評價') }}</button>
+            </template>
+            <template v-if="compareRunning">
+              <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+              <pre class="llm-pre eval-stream">{{ compareText || '等待模型回應…' }}</pre>
+            </template>
+            <p v-if="compareError" class="llm-run-hint eval-err">執行失敗：{{ compareError }}</p>
+            <template v-if="activeTab === 'compare-orig' ? compareOrigRecord : compareRotRecord">
+              <template v-for="record in [activeTab === 'compare-orig' ? compareOrigRecord : compareRotRecord]" :key="record.variant">
+                <div class="info-rows">
+                  <div class="info-row"><span class="info-key">模型</span><span>{{ record.model }}</span></div>
+                  <div class="info-row"><span class="info-key">最佳結果</span><b>{{ record.candidates.find((x) => x.compact === record.winner)?.label ?? record.winner }}</b></div>
+                </div>
+                <h4 class="llm-h">選擇結論</h4>
+                <div class="llm-note">{{ record.summary }}</div>
+                <div class="llm-note"><b>為何選它：</b>{{ record.winnerReason }}</div>
+                <h4 class="llm-h">四個候選的優缺點</h4>
+                <div v-for="c in record.candidates" :key="c.compact" class="eval-line">
+                  <div class="eval-line-name">{{ c.label }}<template v-if="c.compact === record.winner">（最佳）</template></div>
+                  <div class="llm-note">直線 {{ c.geometry.straight }}/{{ c.geometry.segments }} · 轉折 {{ c.geometry.bends }} · 平衡 {{ (c.geometry.balance * 100).toFixed(0) }}% · forced {{ c.geometry.forced }} · fallback {{ c.geometry.fallback }}</div>
+                  <div class="llm-note"><b>優點：</b>{{ record.analyses.find((a) => a.compact === c.compact)?.strengths ?? '—' }}</div>
+                  <div class="llm-note"><b>缺點：</b>{{ record.analyses.find((a) => a.compact === c.compact)?.weaknesses ?? '—' }}</div>
+                </div>
+              </template>
+            </template>
+            <p v-else-if="!compareRunning" class="llm-note">{{ activeTab === 'compare-orig' ? compareMsgOrig : compareMsgRot }}</p>
+            <h4 class="llm-h">使用的 skill：route-llm-compare</h4>
+            <details class="llm-skill">
+              <summary>展開 SKILL.md 全文</summary>
+              <div class="skill-md llm-skill-md" v-html="compareSkillHtml || '<p>載入中…</p>'" />
+            </details>
           </div>
         </template>
 

@@ -28,6 +28,7 @@
     "metro:buildtracks": "node scripts/buildMetroTrackGeojson.mjs",
     "metro:buildcenterlines": "node scripts/buildMetroTrackCenterline.mjs",
     "metro:views": "node scripts/buildViews.mjs",
+    "metro:llmcompare": "node scripts/llmCompare.mjs",
     "metro:sites": "node scripts/fetchOfficialSites.mjs",
     "metro:landmarks": "node scripts/fetchLandmarks.mjs",
     "metro:landmarkscombined": "node scripts/buildLandmarkCombined.mjs",

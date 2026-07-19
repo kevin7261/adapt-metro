@@ -31,7 +31,7 @@ const stationSort = ref('desc')
 // Same short list as the modal's Quick Selection.
 const QUICK = ['Taipei', 'Taichung', 'Kaohsiung', 'Tokyo', 'Osaka', 'Seoul',
   'Beijing', 'Shanghai', 'Hong Kong', 'Singapore', 'London', 'Paris',
-  'Berlin', 'Vienna', 'New York', 'San Francisco']
+  'Berlin', 'Moscow', 'Vienna', 'New York', 'San Francisco']
 
 const tiles = computed(() => {
   const all = catalog.value ?? []

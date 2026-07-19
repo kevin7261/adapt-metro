@@ -392,6 +392,24 @@ function llmEvalTrigger() {
   })
 }
 
+// RWD four-candidate comparison: asks Claude to judge rect/align/ilp and the
+// available LLM-alignment result, then writes one read-only winner per variant.
+function llmCompareTrigger() {
+  return claudeSkillTrigger({
+    name: 'llm-compare-trigger',
+    prefix: '/llm-compare',
+    cmdEnv: 'LLM_COMPARE_CMD',
+    validate(b) {
+      if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
+      return {
+        key: `${b.city}.${b.variant}`,
+        outFile: `data/metro/llmcompares/${b.city}.${b.variant}.json`,
+        prompt: `使用 route-llm-compare skill：比較城市 ${b.city} 的 ${b.variant === 'orig' ? '原始' : '旋轉'} RWD Maps 四種候選（直角爬山、軸對齊、整數規劃、若存在則 LLM對齊）。先執行 llmCompare.mjs export，依方正、路線直、轉折少、畫面平衡及 forced/fallback 缺陷做判斷；每一個候選都要寫優點與缺點，最後選一個最佳並具體說明原因。用 llmCompare.mjs apply 存檔，絕不修改任何候選佈局。`,
+      }
+    },
+  })
+}
+
 // Production build: copy runtime assets Vite middleware serves in dev.
 function copyStaticAssets() {
   return {
@@ -435,7 +453,7 @@ function copyStaticAssets() {
 
 export default defineConfig({
   base: pages ? '/adapt-metro/' : '/',
-  plugins: [vue(), serveDataDir(), serveSkills(), serveSlides(), llmAlignTrigger(), llmGridTrigger(), llmEvalTrigger(), copyStaticAssets()],
+  plugins: [vue(), serveDataDir(), serveSkills(), serveSlides(), llmAlignTrigger(), llmGridTrigger(), llmEvalTrigger(), llmCompareTrigger(), copyStaticAssets()],
   server: {
     port: 5173,
   },

@@ -69,7 +69,7 @@ const STAGE_SKILLS = {
     'route-axis-align', 'route-axis-ilp', 'route-llm-align', 'route-endpoint-move',
     'route-line-compact', 'route-grid-merge', 'route-span-cap', 'route-movewise-loop',
     'route-step-verify'],
-  rwd: ['route-movewise-loop', 'route-rwd-draw', 'route-llm-grid', 'route-llm-eval'],
+  rwd: ['route-movewise-loop', 'route-rwd-draw', 'route-llm-grid', 'route-llm-eval', 'route-llm-compare'],
 }
 // 城市專屬規則：只有圖層 id 對得上的那個城市 skill 才顯示（tokyo 涵蓋全日本、
 // germany 涵蓋德國五城）。
