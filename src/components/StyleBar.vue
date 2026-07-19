@@ -19,8 +19,15 @@ const props = defineProps({
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
   spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（Straighten/RWD）
+  // OSM 實際軌道路線（25%）：只有 metro 地圖視圖、且該城市有軌道資料時才顯示。狀態
+  // 在 LayerTab，工具列只顯示＋emit 回去。
+  tracksAvailable: { type: Boolean, default: false },
+  tracksOn: { type: Boolean, default: false },
+  // 路線中線（同路線兩軌收成一條）：同上，另一個獨立的切換圖層。
+  centerAvailable: { type: Boolean, default: false },
+  centerOn: { type: Boolean, default: false },
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view', 'set-tracks', 'set-center'])
 
 // 地圖底色的 8 個預設快選色（依明度深→淺排序）
 const BG_PRESETS = [
@@ -166,6 +173,26 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
             @click.stop="clickTool(t, $event)"
           >{{ t.title }}</button>
         </template>
+      </template>
+      <!-- OSM 實際軌道路線（25%）：切換型按鈕，只有 metro 地圖且該城市有軌道資料時出現。 -->
+      <template v-if="tracksAvailable">
+        <div class="sb-sep" />
+        <button
+          class="sb-btn"
+          :class="{ active: tracksOn }"
+          title="實際路線（25%）"
+          @click="emit('set-tracks', !tracksOn)"
+        >實際路線</button>
+      </template>
+      <!-- 路線中線：同路線上下行兩軌收成一條，疊在原軌道之上、可獨立切換。 -->
+      <template v-if="centerAvailable">
+        <div class="sb-sep" />
+        <button
+          class="sb-btn"
+          :class="{ active: centerOn }"
+          title="路線中線（同路線兩軌收成一條）"
+          @click="emit('set-center', !centerOn)"
+        >路線中線</button>
       </template>
     </div>
 

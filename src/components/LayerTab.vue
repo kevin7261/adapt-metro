@@ -34,17 +34,18 @@ const disposables = []
 // Basemap picker state (bottom-right).
 const basemapId = ref(DEFAULT_BASEMAP)
 const railwayOn = ref(false) // OpenRailwayMap overlay 預設關閉（使用者 2026-07）
-const tracksOn = ref(true)
+const tracksOn = ref(false) // 實際路線預設不顯示（使用者 2026-07）
 const tracksAvailable = ref(false)
 let trackGeojson = null
+// 路線中線（同路線上下行兩軌收成一條，data/metro/tracks-center）——疊在原軌道之上
+// 的另一個圖層，可獨立切換，預設顯示。由 buildMetroTrackCenterline.mjs 產生。
+const centerOn = ref(true)
+const centerAvailable = ref(false)
+let centerGeojson = null
 const basemapMenuOpen = ref(false)
 const groups = basemapGroups()
 // Solid-color basemap (a plain black/white/custom canvas behind the metro data).
 const solidColor = ref('#ffffff')
-const currentBasemap = computed(() =>
-  basemapId.value === 'solid'
-    ? { id: 'solid', label: `純色 ${solidColor.value}` }
-    : basemapById(basemapId.value))
 
 // Per-tab view state feeding this tab's footer.
 const view = reactive({ lng: null, lat: null, zoom: 1.5, bearing: 0, pitch: 0, bounds: null })
@@ -231,6 +232,8 @@ async function addMetroLayers(fit) {
 
   await loadTrackLayer(l.file)
   if (trackGeojson) addTrackLayer()
+  await loadCenterLayer(l.file)
+  if (centerGeojson) addCenterLayer()
   addMetroSourceLayers(metroData)
   if (railwayOn.value) addRailwayLayer()
 
@@ -292,6 +295,60 @@ function syncTrackVisibility() {
 function setTracks(on) {
   tracksOn.value = on
   syncTrackVisibility()
+}
+
+/* ---- route centreline underlay（同路線兩軌收成一條中線）---- */
+async function loadCenterLayer(systemFile) {
+  if (centerGeojson) return
+  // Generated files mirror data/metro/systems beneath data/metro/tracks-center.
+  const centerFile = systemFile.replace('/data/metro/systems/', '/data/metro/tracks-center/')
+  try {
+    const res = await fetch(`${centerFile}${centerFile.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    centerGeojson = await res.json()
+    centerAvailable.value = centerGeojson.features?.length > 0
+  } catch {
+    centerGeojson = null
+    centerAvailable.value = false
+  }
+}
+
+function addCenterLayer() {
+  if (!map || !centerGeojson || map.getSource('metro-tracks-center')) return
+  // 用官方路網（systems）的路線色，讓中線與主線顏色一致——OSM 軌道自帶的顏色偶爾
+  // 與官方不同（如台北 G/R、北京 4）。以 route_ref 對應，查不到才退回 OSM 軌道色。
+  const refColor = new Map()
+  for (const f of layerData[layer.value?.id]?.features ?? [])
+    for (const r of f.properties?.routes ?? [])
+      if (r.route_ref && r.route_color && !refColor.has(r.route_ref)) refColor.set(r.route_ref, r.route_color)
+  // MapLibre expressions cannot index array-valued GeoJSON properties.
+  for (const feature of centerGeojson.features) {
+    feature.properties._trackColor = refColor.get(feature.properties?.route_ref)
+      ?? feature.properties?.route_color ?? '#64748b'
+  }
+  map.addSource('metro-tracks-center', { type: 'geojson', data: centerGeojson })
+  // 畫法與「實際路線」一模一樣（同寬同 round cap），只是透明度 50%（軌道為 25%）。
+  map.addLayer({
+    id: 'metro-tracks-center', source: 'metro-tracks-center', type: 'line',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
+      'line-color': ['get', '_trackColor'],
+      'line-width': 1.5,
+      'line-opacity': 0.5,
+    },
+  })
+  syncCenterVisibility()
+}
+
+function syncCenterVisibility() {
+  if (!map?.getLayer('metro-tracks-center')) return
+  map.setLayoutProperty('metro-tracks-center', 'visibility',
+    centerOn.value && (layer.value?.visible ?? true) ? 'visible' : 'none')
+}
+
+function setCenter(on) {
+  centerOn.value = on
+  syncCenterVisibility()
 }
 
 /* ---- landmark features（河流骨架／皇居・公園面域）----
@@ -574,6 +631,7 @@ function reAddOverlays() {
   const l = layer.value
   if (l?.type === 'metro' && layerData[l.id]) {
     if (trackGeojson) addTrackLayer()
+    if (centerGeojson) addCenterLayer()
     addMetroSourceLayers(layerData[l.id])
   }
   if (railwayOn.value) addRailwayLayer()
@@ -581,6 +639,12 @@ function reAddOverlays() {
 }
 
 function setBasemap(id) {
+  // 「地圖圖層 → 關閉」＝純色底圖（沿用上次的底色，預設白）。
+  if (id === 'solid') {
+    basemapMenuOpen.value = false
+    applySolid(solidColor.value)
+    return
+  }
   const bm = basemapById(id)
   if (bm.needsToken && !MAPBOX_ENABLED) return
   basemapId.value = id
@@ -636,6 +700,7 @@ function applyLayerState() {
     map.setLayoutProperty('metro-labels', 'visibility', l.visible && l.showLabels ? 'visible' : 'none')
   }
   syncTrackVisibility()
+  syncCenterVisibility()
   syncLandmarkVisibility()
 }
 
@@ -678,7 +743,17 @@ onBeforeUnmount(() => {
     <div class="tab-body">
       <div class="map-col">
       <!-- 樣式工具列（地圖上方）：取代原右側面板的「樣式」tab -->
-      <StyleBar v-if="layer" :layer="layer" view-kind="metro" />
+      <StyleBar
+        v-if="layer"
+        :layer="layer"
+        view-kind="metro"
+        :tracks-available="tracksAvailable"
+        :tracks-on="tracksOn"
+        :center-available="centerAvailable"
+        :center-on="centerOn"
+        @set-tracks="setTracks"
+        @set-center="setCenter"
+      />
       <div class="tab-map">
         <div ref="container" class="map-container" />
 
@@ -724,47 +799,62 @@ onBeforeUnmount(() => {
             <MIcon name="layers" :size="16" />
           </button>
           <div v-if="basemapMenuOpen" class="menu-pop basemap-menu">
-            <!-- 鐵路圖層（OpenRailwayMap）：獨立系統，置頂、與 basemap 同款單選樣式
-                 （關閉／開啟，非 checkbox）。 -->
-            <div class="menu-label">鐵路圖層</div>
-            <button
-              class="bm-item"
-              :class="{ active: !railwayOn }"
-              @click="setRailway(false)"
-            >
-              <MIcon name="check" v-if="!railwayOn" :size="13" class="bm-check" />
-              <span v-else class="bm-check-spacer" />
-              <span class="bm-label">關閉</span>
-            </button>
-            <button
-              class="bm-item"
-              :class="{ active: railwayOn }"
-              @click="setRailway(true)"
-            >
-              <MIcon name="check" v-if="railwayOn" :size="13" class="bm-check" />
-              <span v-else class="bm-check-spacer" />
-              <span class="bm-label">OpenRailwayMap 鐵路圖層</span>
-            </button>
+            <!-- 底圖分兩部分：①鐵路圖層 ②地圖圖層，各自單選（含「關閉」）。
+                 兩者都是「群組標題 → 縮排子項」的階層結構。 -->
+            <!-- ① 鐵路圖層：關閉／OpenRailwayMap，二選一。 -->
+            <div class="bm-group">
+              <div class="bm-group-title">鐵路圖層</div>
+              <button
+                class="bm-item"
+                :class="{ active: !railwayOn }"
+                @click="setRailway(false)"
+              >
+                <MIcon name="check" v-if="!railwayOn" :size="13" class="bm-check" />
+                <span v-else class="bm-check-spacer" />
+                <span class="bm-label">關閉</span>
+              </button>
+              <button
+                class="bm-item"
+                :class="{ active: railwayOn }"
+                @click="setRailway(true)"
+              >
+                <MIcon name="check" v-if="railwayOn" :size="13" class="bm-check" />
+                <span v-else class="bm-check-spacer" />
+                <span class="bm-label">OpenRailwayMap 鐵路圖層</span>
+              </button>
+            </div>
             <div class="menu-sep" />
 
-            <div class="bm-current">{{ currentBasemap.label }}</div>
-            <div class="bm-scroll">
-              <template v-for="grp in groups" :key="grp.group">
-                <div class="menu-label">{{ grp.group }}</div>
-                <button
-                  v-for="b in grp.items"
-                  :key="b.id"
-                  class="bm-item"
-                  :class="{ active: basemapId === b.id }"
-                  :disabled="b.needsToken && !MAPBOX_ENABLED"
-                  @click="setBasemap(b.id)"
-                >
-                  <MIcon name="check" v-if="basemapId === b.id" :size="13" class="bm-check" />
-                  <span v-else class="bm-check-spacer" />
-                  <span class="bm-label">{{ b.label }}</span>
-                  <span v-if="b.needsToken && !MAPBOX_ENABLED" class="bm-note">需 token</span>
-                </button>
-              </template>
+            <!-- ② 地圖圖層：關閉（純色底）＋各家底圖，供應商為子群組（再縮排一層）。 -->
+            <div class="bm-group">
+              <div class="bm-group-title">地圖圖層</div>
+              <button
+                class="bm-item"
+                :class="{ active: basemapId === 'solid' }"
+                @click="setBasemap('solid')"
+              >
+                <MIcon name="check" v-if="basemapId === 'solid'" :size="13" class="bm-check" />
+                <span v-else class="bm-check-spacer" />
+                <span class="bm-label">關閉</span>
+              </button>
+              <div class="bm-scroll">
+                <div v-for="grp in groups" :key="grp.group" class="bm-subgroup">
+                  <div class="bm-subgroup-title">{{ grp.group }}</div>
+                  <button
+                    v-for="b in grp.items"
+                    :key="b.id"
+                    class="bm-item bm-item-sub"
+                    :class="{ active: basemapId === b.id }"
+                    :disabled="b.needsToken && !MAPBOX_ENABLED"
+                    @click="setBasemap(b.id)"
+                  >
+                    <MIcon name="check" v-if="basemapId === b.id" :size="13" class="bm-check" />
+                    <span v-else class="bm-check-spacer" />
+                    <span class="bm-label">{{ b.label }}</span>
+                    <span v-if="b.needsToken && !MAPBOX_ENABLED" class="bm-note">需 token</span>
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="menu-sep" />
             <label v-if="landmarkAvailable" class="bm-overlay">
@@ -772,12 +862,6 @@ onBeforeUnmount(() => {
                 @change="setLandmarks($event.target.checked)" />
               <MIcon name="water" :size="14" />
               <span>地標圖層（河流/公園）</span>
-            </label>
-            <label v-if="tracksAvailable" class="bm-overlay">
-              <input type="checkbox" :checked="tracksOn"
-                @change="setTracks($event.target.checked)" />
-              <MIcon name="route" :size="14" />
-              <span>OSM 實際軌道路線（25%）</span>
             </label>
           </div>
         </div>
@@ -868,12 +952,25 @@ onBeforeUnmount(() => {
 .basemap-btn.active { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
 .basemap-menu {
   position: absolute; right: 0; bottom: 42px;
-  width: 240px; padding: 6px;
+  width: 248px; padding: 6px;
   display: flex; flex-direction: column;
 }
-.bm-current {
-  font-size: 12px; font-weight: 600; color: hsl(var(--foreground));
-  padding: 4px 8px 6px; border-bottom: 1px solid hsl(var(--border)); margin-bottom: 4px;
+/* 階層：① 頂層群組（鐵路圖層／地圖圖層）→ 其子項；地圖圖層下再分供應商子群組 → 底圖項。 */
+.bm-group { display: flex; flex-direction: column; }
+.bm-group-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  color: hsl(var(--foreground));
+  padding: 4px 8px 5px;
+}
+.bm-subgroup {
+  /* 供應商子群組：左側加一條淡淡的縮排導引線 */
+  margin-left: 8px; padding-left: 8px;
+  border-left: 1px solid hsl(var(--border));
+}
+.bm-subgroup-title {
+  font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  color: hsl(var(--muted-foreground));
+  padding: 5px 8px 2px;
 }
 .bm-scroll { max-height: 46vh; overflow-y: auto; }
 .bm-item {
@@ -881,6 +978,8 @@ onBeforeUnmount(() => {
   padding: 5px 8px; border-radius: calc(var(--radius) - 4px);
   text-align: left; font-size: 12.5px; color: hsl(var(--popover-foreground));
 }
+/* 供應商底下的底圖項：略小、稍縮排，與頂層「關閉」拉出層次 */
+.bm-item-sub { font-size: 12px; padding-left: 6px; }
 .bm-item:hover { background: hsl(var(--accent)); }
 .bm-item.active { color: hsl(var(--primary)); font-weight: 600; }
 .bm-item:disabled { opacity: 0.45; cursor: default; }
