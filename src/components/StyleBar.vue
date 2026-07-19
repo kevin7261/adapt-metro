@@ -295,8 +295,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
       </template>
 
       <!-- 顏色點間最大跨距（hillclimb + rwd 都有）：改數字即重算（不必再按按鈕）。 -->
-      <label class="sb-inline" title="顏色點間最大跨距（格）">
-        <span class="sb-inline-label">最大跨距</span>
+      <label class="sb-inline" title="線段最大跨距（格）">
+        <span class="sb-inline-label">線段最大跨距</span>
         <input
           type="number" class="sb-inline-num" min="1" step="1"
           :value="layer.spanCap ?? 3"
@@ -304,14 +304,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         />
         <span class="sb-unit">格</span>
       </label>
-
-      <!-- 即時診斷（原權重 tab 的 weight-stat）：靠右，只有 RWD 有 -->
-      <div v-if="isRwd && stopStat" class="sb-stat">
-        <span>最小站距 高 <b>{{ stopStat.high != null ? stopStat.high.toFixed(1) : '—' }}</b>
-          寬 <b>{{ stopStat.wide != null ? stopStat.wide.toFixed(1) : '—' }}</b> pt</span>
-        <span v-if="stopStat.canvas">畫布 <b>{{ stopStat.canvas[0] }}</b> × <b>{{ stopStat.canvas[1] }}</b> px</span>
-        <span v-if="hideStops">已隱藏 <b>{{ stopStat.hidden }}</b> 站</span>
-      </div>
     </div>
 
     <Teleport to="body">
@@ -398,17 +390,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   padding-top: 4px;
   border-top: 1px solid hsl(var(--border) / 0.6);
 }
-/* 即時診斷（最小站距／畫布／已隱藏）：靠右、灰字 */
-.sb-stat {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-left: auto;
-  font-size: 11.5px;
-  color: hsl(var(--muted-foreground));
-}
-.sb-stat b { color: hsl(var(--foreground)); font-weight: 600; }
 /* 相關功能分組的分隔線 */
 .sb-sep {
   width: 1px;

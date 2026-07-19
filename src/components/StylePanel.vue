@@ -88,11 +88,14 @@ const props = defineProps({
   // 顏色點間最大跨距：目前「已套用」的值（D3Tab 的快取是用它算的）——與滑桿
   // 值不同時「重新計算」按鈕亮起。
   spanApplied: { type: Number, default: null },
+  // 原 footer 左側運算狀態（D3／Straighten／RWD）——顯示在資訊 tab 底部。
+  layoutStatus: { type: Object, default: null }, // { text, llmRerun }
+  dataSource: { type: String, default: null },
   // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇短鍵（'default' | 'opus' |
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
   llmModel: { type: String, default: 'opus' },
 })
-const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
+const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model', 'llm-rerun'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
 const LLM_MODEL_OPTIONS = [
   { key: 'default', label: '沿用 CLI 預設' },
@@ -820,7 +823,7 @@ function startResize(e) {
                 本來就超標的舊長段只准縮短、不准再拉長。
               </p>
               <p class="weight-hint">
-                目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。上方工具列改「最大跨距」的數字，
+                目前套用值 <b>{{ spanApplied ?? 3 }}</b> 格。上方工具列改「線段最大跨距」的數字，
                 即以新值重跑水平垂直最大化（不必再按按鈕）。
               </p>
             </template>
@@ -933,6 +936,24 @@ function startResize(e) {
             </details>
           </template>
           <div v-else class="info-empty">此圖層沒有 metro 資訊。</div>
+
+          <!-- 原 footer 左側：運算狀態＋資料來源（D3／Straighten／RWD） -->
+          <template v-if="isD3 && (layoutStatus || dataSource)">
+            <div class="section-title">運算狀態</div>
+            <p v-if="layoutStatus" class="layout-status">
+              {{ layoutStatus.text }}
+              <button
+                v-if="layoutStatus.llmRerun"
+                type="button"
+                class="llm-rerun"
+                title="重新啟動 headless Claude Code 繼續改善"
+                @click="emit('llm-rerun')"
+              >重跑</button>
+            </p>
+            <div v-if="dataSource" class="info-rows">
+              <div class="info-row"><span class="info-key">資料來源</span><span>{{ dataSource }}</span></div>
+            </div>
+          </template>
         </template>
 
 
@@ -1799,6 +1820,25 @@ function startResize(e) {
 /* 權重 tab（RWD Maps 版面簡化控制）*/
 .weight-panel { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; }
 .weight-hint { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); line-height: 1.6; }
+.layout-status {
+  font-size: var(--sp-note);
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 8px;
+}
+.layout-status .llm-rerun {
+  margin-left: 8px;
+  padding: 1px 8px;
+  font-size: 11px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 3px);
+  background: transparent;
+  color: hsl(var(--primary));
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.layout-status .llm-rerun:hover { background: hsl(var(--accent)); }
 .weight-modes { display: flex; flex-direction: column; gap: 4px; }
 .weight-mode {
   text-align: left;
