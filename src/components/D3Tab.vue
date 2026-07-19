@@ -511,10 +511,10 @@ const rwdStopStat = ref(null) // { high, wide, hidden, hiddenNames, hiddenMaxT }
 // 遠處壓扁，外框固定（見 skill 「路網網格_2」）。footer 同時顯示游標座標。
 const fisheyeOn = ref(false)
 const fisheyeInfo = ref(null)  // footer 顯示：{ x, y, col, row }（游標所在像素＋粗格欄列）
-let fisheyeAxes = null         // { xs, ys, fineXs, fineYs }：藍色示意網格的粗格邊界＋4× 細格邊界
-let fisheyeItems = null        // 這一幀 <g> 內所有元素的「未變形」基準座標（懶捕捉）
-let fisheyeApplied = false     // 目前畫面是否已套用魚眼位移
-let fisheyeRaf = 0, fisheyePending = null
+let fisheyeAxes = null         // { xs, ys }：藍色示意網格的粗格邊界（footer 欄列＋外框範圍）
+let fisheyeRaf = 0             // 緩動迴圈的 rAF handle
+let feCur = null               // 目前（緩動中）焦點與強度：{ x, y, s∈[0,1] }
+let feTarget = null            // 目標焦點：{ x, y, on }（on＝游標是否在有效框內）
 // 動畫狀態：weight 改變時不瞬跳，而是內插欄／列格線位置、每幀在新像素空間重算
 // H/V/45°（fast 模式，見 rwdMap.js opts.fast 與 skill §8.3）。最後一幀走完整品質。
 let rwdAnimActive = false, rwdAnimFrom = null, rwdAnimTo = null, rwdAnimT = 0, rwdAnimRaf = 0
@@ -575,10 +575,10 @@ function setRwdShowWeights(on) { rwdShowWeights.value = on; render() }
 function setRwdDirs(n) { rwdDirs.value = n; cachedRWD = null; render() }
 function setRwdFrame(id) { rwdFrameId.value = id; cachedRWD = null; render() }
 function setRwdHideStops(on) { rwdHideStops.value = on; cachedRWD = null; render() }
-// 放大鏡開關：關掉時把畫面變形還原、清掉座標讀數（不必重畫，位置直接還回基準）。
+// 放大鏡開關：關掉時停緩動、清焦點與座標讀數，重畫回均勻（線在均勻格重繞）。
 function setFisheye(on) {
   fisheyeOn.value = on
-  if (!on) { resetFisheye(); fisheyeInfo.value = null }
+  if (!on) { stopFisheyeAnim(); feCur = null; feTarget = null; fisheyeInfo.value = null; render() }
 }
 function setRwdMinStopPx(px) {
   const v = Math.max(1, Math.round(+px || 5))
@@ -1115,21 +1115,32 @@ async function computeHcLayout({ seq, w, h, grid }) {
     // space whenever the size changes (with cw ≠ ch a cell-space 45° is not
     // 45° on screen). Same-size renders reuse the cached result. The interior
     // blacks already sit ON the polylines (no placeBlacks here).
+    // 未變形（base）藍格：既是 footer 欄／列查詢的座標系，也是滑鼠放大鏡的變形定義域。
+    const baseBlue = axes ? { xs: axes.colX, ys: axes.rowY } : uniformBlue(nC, nR, cw, ch)
+    fisheyeAxes = { xs: baseBlue.xs, ys: baseBlue.ys }
+    // 放大鏡：把節點的 base 像素座標 (fx,fy) 搬到變形後位置，再交給 buildRwdMap 在該
+    // 空間重繞線 → 線仍嚴格遵守 4/8/16 方向（不是把折點拉斜）。fast 幀＝放大鏡或權重動畫。
+    const fWarp = fisheyeWarpFn()
+    const fastFrame = animing || !!fWarp
     const sizeKey = `${w}x${h}|d${rwdDirs.value}|${gridOn ? `g${rwdGridSeq}`
       : animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : 'u'}`
+      + (fWarp ? `|f${Math.round(fWarp.x)}_${Math.round(fWarp.y)}_${fWarp.s.toFixed(2)}` : '')
     if (!cachedRWD || cachedRWD.key !== sizeKey) {
-      if (!animing) {
+      if (!fastFrame) {
         hcBusy.value = true
         busyText.value = 'RWD 路網畫線中…（H/V/45° 候選折線）'
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
       }
       const pxPos = new Map()
-      for (const [id, p] of cells) pxPos.set(id, cellPx(p))
+      for (const [id, p] of cells) {
+        const [px, py] = cellPx(p)
+        pxPos.set(id, fWarp ? [fWarp.fx(px), fWarp.fy(py)] : [px, py])
+      }
       cachedRWD = {
         key: sizeKey,
-        // 非均勻格的半格 A* lattice 尚未做（見 skill）——權重／動畫不傳 lattice，衝突走
-        // 候選＋兜底；動畫幀再加 fast（略過多輪衝突消解，換每幀夠快）；均勻格照舊帶 lattice。
+        // 非均勻格的半格 A* lattice 尚未做（見 skill）——權重／動畫／放大鏡不傳 lattice，衝突走
+        // 候選＋兜底；fast 幀（動畫/放大鏡）再略過多輪衝突消解換每幀夠快；均勻格照舊帶 lattice。
         ...buildRwdMap(cachedSegs, pxPos, {
           unit: Math.min(cw, ch),
           dirs: rwdDirs.value, // 允許的線方向數 4/8/16
@@ -1137,7 +1148,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
           hideStops: rwdHideStops.value,
           minStopPx: rwdMinStopPx.value,
           linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
-          ...(animing ? { fast: true }
+          ...(fastFrame ? { fast: true }
             : (weighted || gridOn) ? {}
               : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
         }),
@@ -1147,7 +1158,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
     rwdStats.value = cachedRWD.stats
     hcPos = new Map(cachedRWD.posAfter)
     rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts }))
-    hcBlue = axes ? { xs: axes.colX, ys: axes.rowY } : uniformBlue(nC, nR, cw, ch)
+    // 藍格跟著節點一起變形（畫面上格線與線／站對齊）；未開放大鏡則就是 base。
+    hcBlue = fWarp ? { xs: baseBlue.xs.map(fWarp.fx), ys: baseBlue.ys.map(fWarp.fy) } : baseBlue
   } else {
     hcPos = new Map()
     for (const [id, p] of cells) hcPos.set(id, cellPx(p))
@@ -1546,8 +1558,6 @@ async function render() {
   loadError.value = null
   llmMsg.value = null
   gridMsg.value = null
-  // 這一幀重畫 → 作廢上一幀的魚眼基準與軸（下次移動滑鼠時對乾淨的新 DOM 重捕捉）。
-  fisheyeItems = null; fisheyeApplied = false; fisheyeAxes = null
 
   const data = await sourceData()
   if (seq !== renderSeq) return // superseded — the newer render draws
@@ -1610,19 +1620,22 @@ async function render() {
 
   drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, stations, posOf, lineData, stationData, highlightData })
 
-  // 魚眼放大鏡的軸：藍色示意網格的粗格邊界（hcBlue／blueAfter／blueBefore），
-  // 每個粗格再切 4× 細格。只有 RWD 有格網、且開關開啟時才需要。
-  if (isRWD.value && grid) {
-    const b = hcBlue ?? (gridPost.value ? grid.blueAfter : grid.blueBefore)
-    if (b?.xs?.length > 1 && b?.ys?.length > 1) {
-      fisheyeAxes = { xs: b.xs, ys: b.ys, fineXs: subdivideAxis(b.xs, 4), fineYs: subdivideAxis(b.ys, 4) }
-    }
+  // 版面外框：選了固定版面（網頁／手機／IG…）時畫出該版面的邊界矩形，讓使用者看到
+  // 模擬 RWD 的畫布範圍；「目前版面」（auto，跟著面板大小）不畫。畫在最上層、不吃事件。
+  if (isRWD.value && frame.id !== 'auto') {
+    sel.append('rect')
+      .attr('class', 'frame-outline')
+      .attr('x', 0.5).attr('y', 0.5).attr('width', w - 1).attr('height', h - 1)
+      .attr('fill', 'none').attr('stroke', '#94a3b8').attr('stroke-width', 1.5)
+      .attr('stroke-opacity', 0.85)
+      .style('pointer-events', 'none')
   }
 
   applyStyle()
 
-  // reset zoom to identity on re-render
-  if (zoomBehavior) select(svg).call(zoomBehavior.transform, zoomIdentity)
+  // reset zoom to identity on re-render — 但放大鏡逐幀重畫時不重置（否則等於禁用縮放、
+  // 且會與每幀的變形互踩）；放大鏡結束（淡出／關閉）的那次重畫才回正。
+  if (zoomBehavior && !fisheyeActive()) select(svg).call(zoomBehavior.transform, zoomIdentity)
 }
 
 // Width / radius / opacity come from the SOURCE layer's style (the same values
@@ -1717,115 +1730,99 @@ function fitView() {
 }
 
 // ---- 滑鼠放大鏡（魚眼變形，skill 「路網網格_2」）----------------------------
-// 分軸（X、Y 各自）的一維非均勻重映射：粗格再切 4× 細格，游標所在細格為焦點，
-// 焦點 ×5、每往外一格 −1（最低 1），加總後正規化回同一外框 → 焦點附近撐開、遠處
-// 壓扁而整體寬高不變。水平線仍水平、垂直線仍垂直（分軸映射的自然性質）。
-const FISHEYE_FOCUS_MAG = 5
-function subdivideAxis(bounds, n) {
-  // 把每個粗格區間等分成 n 段細格 → 回傳細格邊界陣列（長度 = (len-1)*n + 1）。
-  const out = [bounds[0]]
-  for (let i = 0; i < bounds.length - 1; i++) {
-    const step = (bounds[i + 1] - bounds[i]) / n
-    for (let k = 1; k <= n; k++) out.push(bounds[i] + step * k)
+// 分軸（X、Y 各自）的一維非均勻重映射：以游標座標為焦點，用一條「高斯隆起」的
+// 放大密度 m(t)=1+amp·exp(−(t−focus)²/2σ²) 沿軸積分後正規化回同一外框 → 焦點附近
+// 撐開、遠處壓扁而整體寬高不變。密度對「焦點位置」與「座標」都連續 → 游標一移動整條
+// 映射平滑滑動、無跳格。**關鍵**：變形只作用在「節點的像素位置」上（fWarp 套在 pxPos），
+// 之後由 buildRwdMap 在變形後空間重繞線 → 線仍嚴格遵守目前 4/8/16 方向（不是把折點
+// 拉斜）。放大強度 s∈[0,1] 由 rAF 逐幀緩動、每幀 render 重繞 → 進出／移動都柔順。
+const FISHEYE_AMP = 4          // 焦點峰值放大 = 1+amp（×5）
+const FISHEYE_SIGMA_FRAC = 0.09 // 高斯半徑 = 外框長度 × 此比例（放大鏡影響範圍）
+const FISHEYE_EASE = 0.22      // 每幀朝目標緩動的比例（越小越柔、越慢）
+const FISHEYE_SAMPLES = 160    // 沿軸取樣段數（積分解析度，夠密就平滑）
+// 造出「原座標 → 變形後座標」的平滑分段線性函式（外框 lo/hi 固定，區間外恆等）。
+// 用均勻取樣 → 查表 O(1)。amp≤0 時退化為恆等（放大鏡淡出到無效果）。
+function buildAxisWarp(lo, hi, focus, sigma, amp) {
+  const span = hi - lo
+  if (span <= 0 || amp <= 0 || sigma <= 0) return (v) => v
+  const M = FISHEYE_SAMPLES, step = span / M
+  const inv2s2 = 1 / (2 * sigma * sigma)
+  const warped = new Float64Array(M + 1)
+  const dens = new Float64Array(M)
+  let sum = 0
+  for (let i = 0; i < M; i++) {
+    const dx = lo + (i + 0.5) * step - focus
+    const d = 1 + amp * Math.exp(-dx * dx * inv2s2)
+    dens[i] = d; sum += d
   }
-  return out
-}
-// 依焦點座標 focus，在細格邊界 fine 上造出「原座標 → 變形後座標」的分段線性函式。
-// 外框（fine[0]、fine[last]）固定不動，區間外一律恆等（頁緣、軸標籤不被拉走）。
-function buildAxisWarp(fine, focus) {
-  const n = fine.length - 1
-  const lo = fine[0], hi = fine[n]
-  let k = 0
-  for (let i = 0; i < n; i++) if (focus >= fine[i]) k = i
-  let orig = 0, mag = 0
-  const widths = []
-  for (let i = 0; i < n; i++) {
-    const w = fine[i + 1] - fine[i]
-    const m = Math.max(1, FISHEYE_FOCUS_MAG - Math.abs(i - k))
-    widths.push(w * m); orig += w; mag += w * m
-  }
-  const scale = mag > 0 ? orig / mag : 1
-  const warped = [lo]
-  for (let i = 0; i < n; i++) warped.push(warped[i] + widths[i] * scale)
+  const scale = span / (sum * step) // 正規化：總長度回到 span，外框不動
+  warped[0] = lo
+  for (let i = 0; i < M; i++) warped[i + 1] = warped[i] + dens[i] * step * scale
   return (v) => {
-    if (v <= lo || v >= hi) return v // 外框固定、區間外恆等
-    let i = 0
-    for (let j = 0; j < n; j++) if (v >= fine[j]) i = j
-    const span = fine[i + 1] - fine[i]
-    const t = span > 0 ? (v - fine[i]) / span : 0
-    return warped[i] + t * (warped[i + 1] - warped[i])
+    if (v <= lo || v >= hi) return v
+    const t = (v - lo) / step
+    const idx = Math.min(M - 1, t | 0)
+    return warped[idx] + (t - idx) * (warped[idx + 1] - warped[idx])
   }
-}
-// 懶捕捉這一幀 <g> 內所有元素的未變形基準座標（line/circle/text/path）。render 一開始
-// 會清空 → 每次重畫後第一次移動滑鼠時重新捕捉乾淨的基準（絕不從已變形狀態捕捉）。
-function ensureFisheyeBase() {
-  if (fisheyeItems || !gEl.value) return
-  const g = gEl.value, items = []
-  g.querySelectorAll('line').forEach((n) => items.push({ n, t: 'line',
-    b: [+n.getAttribute('x1'), +n.getAttribute('y1'), +n.getAttribute('x2'), +n.getAttribute('y2')] }))
-  g.querySelectorAll('circle').forEach((n) => items.push({ n, t: 'circle',
-    b: [+n.getAttribute('cx'), +n.getAttribute('cy')] }))
-  g.querySelectorAll('text').forEach((n) => items.push({ n, t: 'text',
-    b: [+n.getAttribute('x'), +n.getAttribute('y')] }))
-  g.querySelectorAll('path').forEach((n) => {
-    const pts = [], re = /([ML])\s*(-?[\d.]+)[ ,]+(-?[\d.]+)/g
-    let m; while ((m = re.exec(n.getAttribute('d') || ''))) pts.push([m[1], +m[2], +m[3]])
-    if (pts.length) items.push({ n, t: 'path', b: pts })
-  })
-  fisheyeItems = items
-}
-// 用分軸函式 fx/fy 把基準座標重寫進 DOM。RWD 的線是純 M/L 折線 → 只需搬每個折點、
-// 各段仍是直線（水平仍水平、垂直仍垂直、斜線仍是直線只是角度略變）。
-function applyFisheye(fx, fy) {
-  ensureFisheyeBase()
-  if (!fisheyeItems) return
-  for (const it of fisheyeItems) {
-    const b = it.b
-    if (it.t === 'line') {
-      it.n.setAttribute('x1', fx(b[0])); it.n.setAttribute('y1', fy(b[1]))
-      it.n.setAttribute('x2', fx(b[2])); it.n.setAttribute('y2', fy(b[3]))
-    } else if (it.t === 'circle') {
-      it.n.setAttribute('cx', fx(b[0])); it.n.setAttribute('cy', fy(b[1]))
-    } else if (it.t === 'text') {
-      it.n.setAttribute('x', fx(b[0])); it.n.setAttribute('y', fy(b[1]))
-    } else {
-      let d = ''
-      for (const p of b) d += `${p[0]} ${fx(p[1]).toFixed(2)} ${fy(p[2]).toFixed(2)} `
-      it.n.setAttribute('d', d.trim())
-    }
-  }
-  fisheyeApplied = true
-}
-function resetFisheye() {
-  if (fisheyeApplied && fisheyeItems) applyFisheye((v) => v, (v) => v)
-  fisheyeApplied = false
 }
 function coarseIndex(bounds, v) {
   for (let i = 0; i < bounds.length - 1; i++) if (v >= bounds[i] && v < bounds[i + 1]) return i
   return null
 }
-function doFisheye(e) {
-  const g = gEl.value
-  if (!g || !fisheyeAxes) return
-  const [lx, ly] = pointer(e, g)
+// 依目前（緩動中）焦點 feCur 造出這一幀的分軸魚眼函式 { fx, fy }，供 render 在建
+// pxPos／藍格前套用 → 節點搬到變形後位置，再由 buildRwdMap 在該像素空間重繞線 →
+// 線仍嚴格遵守目前的 4/8/16 方向（不是單純把折點拉斜）。強度 s≈0 或未啟用時回 null
+// （等於不變形）。fisheyeAxes 的外框 [xs0,xsN]×[ys0,ysN] 就是放大鏡的有效範圍。
+// 這一幀是否正在放大（開關開、焦點存在、強度可見）→ render 用它決定「fast 幀＋不重置縮放」。
+const fisheyeActive = () => fisheyeOn.value && isRWD.value && !!feCur && feCur.s > 0.002 && !!fisheyeAxes
+function fisheyeWarpFn() {
+  if (!fisheyeActive()) return null
+  const s = feCur.s
   const ax = fisheyeAxes
   const x0 = ax.xs[0], x1 = ax.xs[ax.xs.length - 1]
   const y0 = ax.ys[0], y1 = ax.ys[ax.ys.length - 1]
-  fisheyeInfo.value = { x: Math.round(lx), y: Math.round(ly), col: coarseIndex(ax.xs, lx), row: coarseIndex(ax.ys, ly) }
-  // 游標離開有效格網範圍 → 還原成均勻（只留座標讀數）。
-  if (lx < x0 || lx > x1 || ly < y0 || ly > y1) { resetFisheye(); return }
-  applyFisheye(buildAxisWarp(ax.fineXs, lx), buildAxisWarp(ax.fineYs, ly))
+  const amp = FISHEYE_AMP * s
+  return {
+    s, x: feCur.x, y: feCur.y,
+    fx: buildAxisWarp(x0, x1, feCur.x, (x1 - x0) * FISHEYE_SIGMA_FRAC, amp),
+    fy: buildAxisWarp(y0, y1, feCur.y, (y1 - y0) * FISHEYE_SIGMA_FRAC, amp),
+  }
+}
+// rAF 緩動迴圈：焦點 feCur.{x,y} 朝游標目標滑動、強度 feCur.s 淡入／淡出，每幀 render()
+// ——render 讀 fisheyeWarpFn 在新像素空間**重繞線**（fast 模式，同權重動畫）。停穩或
+// 完全淡出就停迴圈省 CPU；下次移動再喚醒。移動不瞬跳、進出柔順。
+function stopFisheyeAnim() { if (fisheyeRaf) { cancelAnimationFrame(fisheyeRaf); fisheyeRaf = 0 } }
+function fisheyeTick() {
+  fisheyeRaf = 0
+  if (!fisheyeAxes || !feCur || !feTarget) return
+  const E = FISHEYE_EASE
+  feCur.x += (feTarget.x - feCur.x) * E
+  feCur.y += (feTarget.y - feCur.y) * E
+  const targetS = feTarget.on ? 1 : 0
+  feCur.s += (targetS - feCur.s) * E
+  // 完全淡出 → 清掉焦點、重畫回均勻、結束迴圈（下次移動再重建 feCur）。
+  if (targetS === 0 && feCur.s < 0.006) { feCur = null; render(); return }
+  render() // 每幀在變形後像素空間重繞 H/V/45°（fisheyeWarpFn 由 render 讀取）
+  const settled = Math.abs(feTarget.x - feCur.x) < 0.4 &&
+    Math.abs(feTarget.y - feCur.y) < 0.4 && Math.abs(targetS - feCur.s) < 0.006
+  if (!settled) fisheyeRaf = requestAnimationFrame(fisheyeTick)
 }
 function onFisheyeMove(e) {
   if (!fisheyeOn.value || !isRWD.value || !fisheyeAxes) return
-  fisheyePending = e
-  if (fisheyeRaf) return // 每個動畫幀最多算一次，用最後一個事件位置
-  fisheyeRaf = requestAnimationFrame(() => { fisheyeRaf = 0; if (fisheyePending) doFisheye(fisheyePending) })
+  const [lx, ly] = pointer(e, gEl.value)
+  const ax = fisheyeAxes
+  const x0 = ax.xs[0], x1 = ax.xs[ax.xs.length - 1]
+  const y0 = ax.ys[0], y1 = ax.ys[ax.ys.length - 1]
+  const inside = lx >= x0 && lx <= x1 && ly >= y0 && ly <= y1
+  fisheyeInfo.value = { x: Math.round(lx), y: Math.round(ly), col: coarseIndex(ax.xs, lx), row: coarseIndex(ax.ys, ly) }
+  // 焦點鉗在框內（游標略出框時放大鏡停在最近邊緣、不亂飄）。
+  feTarget = { x: Math.max(x0, Math.min(x1, lx)), y: Math.max(y0, Math.min(y1, ly)), on: inside }
+  if (!feCur) feCur = { x: feTarget.x, y: feTarget.y, s: 0 } // 進場不瞬跳、由強度淡入
+  if (!fisheyeRaf) fisheyeRaf = requestAnimationFrame(fisheyeTick)
 }
 function onFisheyeLeave() {
-  if (fisheyeRaf) { cancelAnimationFrame(fisheyeRaf); fisheyeRaf = 0 }
-  fisheyePending = null
-  resetFisheye()
+  if (feTarget) feTarget.on = false // 交給緩動迴圈淡出（不硬切）
+  if (feCur && !fisheyeRaf) fisheyeRaf = requestAnimationFrame(fisheyeTick)
   fisheyeInfo.value = null
 }
 

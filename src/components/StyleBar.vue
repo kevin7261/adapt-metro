@@ -87,10 +87,10 @@ const groups = computed(() => {
     // 純 metro 地圖沒有網格。放在「顯示站名」前面（使用者要求）。預設顯示（showGrid
     // 未設＝開）→ toggle 帶 defaultOn。
     if (props.viewKind !== 'metro') {
-      station.push({ id: 'grid', icon: 'grid_on', title: '顯示/隱藏網格', toggle: 'showGrid', defaultOn: true })
+      station.push({ id: 'grid', icon: 'grid_on', title: '網格', toggle: 'showGrid', defaultOn: true })
     }
-    // 顯示站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
-    station.push({ id: 'labels', icon: 'label', title: '顯示站名', toggle: 'showLabels' })
+    // 站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
+    station.push({ id: 'labels', icon: 'label', title: '站名', toggle: 'showLabels' })
     g.push(station)
   }
   if (editable.value) {
@@ -249,18 +249,22 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
             <option value="weight">權重網格</option>
           </select>
         </label>
-        <!-- 顯示/隱藏權重：切換，標籤依目前狀態翻（權重數字顯示中→隱藏權重，反之→顯示權重）。 -->
+        <!-- 權重數字：開關，顯示中就亮起（不翻標籤）。 -->
         <button
           class="sb-btn"
+          :class="{ active: showWeights }"
+          title="顯示權重數字"
           @click="emit('show-weights', !showWeights)"
-        >{{ showWeights ? '隱藏權重' : '顯示權重' }}</button>
+        >權重</button>
 
         <div class="sb-sep" />
+        <!-- 車站白點（直通站圓點）：亮起＝顯示，暗＝依最小站距自動隱藏。 -->
         <button
           class="sb-btn"
-          :class="{ active: hideStops }"
+          :class="{ active: !hideStops }"
+          title="車站白點（直通站圓點）：亮起＝顯示，暗＝依最小站距自動隱藏"
           @click="emit('hide-stops', !hideStops)"
-        >自動隱藏白點</button>
+        >車站白點</button>
         <label class="sb-inline" title="最小站距（pt）">
           <span class="sb-inline-label">最小站距</span>
           <input
@@ -286,7 +290,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           :class="{ active: fisheye }"
           title="滑鼠放大鏡（魚眼變形）：游標處放大網格，footer 顯示座標"
           @click="emit('fisheye', !fisheye)"
-        >{{ fisheye ? '關閉放大鏡' : '滑鼠放大鏡' }}</button>
+        >放大鏡</button>
         <div class="sb-sep" />
       </template>
 
