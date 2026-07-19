@@ -20,7 +20,7 @@ import {
   straightenCompactLoop, movewiseStage,
   stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
-import { buildRwdMap, mergeParallelSegs } from '../stores/rwdMap'
+import { buildRwdMap, mergeParallelSegs, RWD_ROUTER_REV } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
 import StylePanel from './StylePanel.vue'
@@ -1135,7 +1135,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     // 空間重繞線 → 線仍嚴格遵守 4/8/16 方向（不是把折點拉斜）。fast 幀＝放大鏡或權重動畫。
     const fWarp = fisheyeWarpFn()
     const fastFrame = animing || !!fWarp
-    const sizeKey = `${w}x${h}|d${rwdDirs.value}|${gridOn ? `g${rwdGridSeq}`
+    const sizeKey = `${RWD_ROUTER_REV}|${w}x${h}|d${rwdDirs.value}|${gridOn ? `g${rwdGridSeq}`
       : animing ? `a${rwdAnimT.toFixed(3)}` : weighted ? `w${rwdWeightSeq}` : squareMode ? 'sq' : 'u'}`
       + (fWarp ? `|f${Math.round(fWarp.x)}_${Math.round(fWarp.y)}_${fWarp.s.toFixed(2)}` : '')
     if (!cachedRWD || cachedRWD.key !== sizeKey) {

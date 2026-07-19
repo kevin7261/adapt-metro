@@ -1,5 +1,9 @@
 import { pairKey, sharesRoute } from './netUtil.js'
 
+// Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
+// change so Vite HMR cannot keep displaying polylines built by an old router.
+export const RWD_ROUTER_REV = '2026-07-20-simple-order-v4'
+
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
 //
@@ -217,6 +221,49 @@ function legalDetours(S, T, dir, u, dirs = 8) {
   return out
 }
 
+// Merge consecutive collinear H/V runs; drop zero-length points.
+function mergeOrthoPts(pts) {
+  if (!pts || pts.length < 2) return null
+  const out = [pts[0]]
+  for (let i = 1; i < pts.length; i++) {
+    if (dist(pts[i], out[out.length - 1]) < Z) continue
+    out.push(pts[i])
+  }
+  if (out.length < 2) return null
+  const merged = [out[0]]
+  for (let i = 1; i < out.length - 1; i++) {
+    const d1 = dirOf(merged[merged.length - 1], out[i])
+    const d2 = dirOf(out[i], out[i + 1])
+    if (d1 && d2 && d1 === d2 && (d1 === 'H' || d1 === 'V')) continue
+    merged.push(out[i])
+  }
+  merged.push(out[out.length - 1])
+  for (let i = 1; i < merged.length; i++) {
+    const d = dirOf(merged[i - 1], merged[i])
+    if (d !== 'H' && d !== 'V') return null
+  }
+  return merged.length >= 2 ? merged : null
+}
+
+// 4 方向：把 8 方向候選裡的每條 45° 腿展開成 H/V（兩種順序都試），
+// 分點公式完全沿用 8 方向；端點 S/T 不動 → 拓撲不變。
+function expand45ToOrtho(pts45, vhFirst) {
+  const raw = [pts45[0]]
+  for (let i = 0; i + 1 < pts45.length; i++) {
+    const A = pts45[i], B = pts45[i + 1]
+    const d = dirOf(A, B)
+    if (d === 'H' || d === 'V') {
+      raw.push(B)
+      continue
+    }
+    if (d !== 'D+' && d !== 'D-') return null
+    const mid = vhFirst ? [A[0], B[1]] : [B[0], A[1]] // V→H 或 H→V
+    if (dist(A, mid) > Z) raw.push(mid)
+    raw.push(B)
+  }
+  return mergeOrthoPts(raw)
+}
+
 // All candidate polylines S→T, fewest bends first (see header).
 // dirs = 允許的線方向數：4（只 H/V）| 8（+45°，預設）| 16（+22.5°）。優先序永遠是
 // H/V > 45° > 22.5°；dirs 只決定「允許到哪一級」。4 方向不產任何 45° 候選（對角段
@@ -227,6 +274,12 @@ function candidates(S, T, u, dirs = 8) {
   const sx = Math.sign(dx), sy = Math.sign(dy)
   const out = []
   let straightDir = dirOf(S, T)
+  // Even an exact 22.5°/67.5° endpoint pair must first try the complete
+  // H/V/45° family. Keep its direct skew line as a deferred candidate instead
+  // of returning early from the direct-line branch.
+  const deferredSkewStraight = dirs >= 16
+    && (straightDir === 'E+' || straightDir === 'E-' || straightDir === 'F+' || straightDir === 'F-')
+  if (deferredSkewStraight) straightDir = 'X'
   // 16 方向以下：22.5° 直線（E±/F±）非法 → 當對角段折（用 45°／L）。
   if (dirs < 16 && (straightDir === 'E+' || straightDir === 'E-' || straightDir === 'F+' || straightDir === 'F-')) straightDir = 'X'
   // 4 方向：45° 直線（D±）也非法 → 當對角段折（走 'X' 分支用 L）。
@@ -249,29 +302,18 @@ function candidates(S, T, u, dirs = 8) {
   }
   out.push({ pts: [S, [T[0], S[1]], T], bends: 1 }) // L: H → V（內角90°）
   out.push({ pts: [S, [S[0], T[1]], T], bends: 1 }) // L: V → H（內角90°）
-  // 4 方向（只 H/V）：對角段除了上面的 L（單折、轉折在角落），也提供「Z 字」雙折——
-  // 中段落在跨距的 50%（優先）、25%、75%（使用者規則：跟 8/16 方向一樣能在這些位置轉折，
-  // 只是純直角、不用 45°）。8/16 方向不走這裡（直角樓梯禁止，對角改用 45° 候選）。
-  if (dirs < 8) {
-    for (const t of [0.5, 0.25, 0.75]) {
-      const wx = S[0] + sx * ax * t // H–V–H：中間垂直段落在水平跨距的 t 處
-      out.push({ pts: [S, [wx, S[1]], [wx, T[1]], T], bends: 2 })
-      const hy = S[1] + sy * ay * t // V–H–V：中間水平段落在垂直跨距的 t 處
-      out.push({ pts: [S, [S[0], hy], [T[0], hy], T], bends: 2 })
-    }
-  }
-  // 以下 45° 雙折/四折/階梯候選只在 8 方向以上（4 方向對角段只有上面的 L 與 Z 字雙折）。
-  if (dirs >= 8) {
-  // 雙轉折 (a) 45–H–45（ax>ay）或 45–V–45（ay>ax）：斜–平–斜，兩端 45°。
+
+  // 8 方向雙折／多折的「骨架點列」（含 45°）。4 方向會把它們展開成純 H/V；
+  // 8/16 方向直接採用。分點公式兩邊共用 → 計算方式一致，只是 45↔VH。
+  const diagSkels = []
+  // 雙轉折 (a) 45–H–45 / 45–V–45：中段 50%／25%／75%。
   for (const t of [0.5, 0.25, 0.75]) {
     const k = m * t
     const P1 = [S[0] + sx * k, S[1] + sy * k]
     const P2 = [T[0] - sx * (m - k), T[1] - sy * (m - k)]
-    out.push({ pts: [S, P1, P2, T], bends: 2 })
+    diagSkels.push([S, P1, P2, T])
   }
-  // 雙轉折 (b) H–45–H（ax>ay）或 V–45–V（ay>ax）：平–斜–平，**兩端軸向、中間 45°**
-  // （使用者規則：hv-45-hv 也要有）——兩端與鄰段直線續接時比 (a) 更順（讀成一條線）。
-  // 與 (a) 同折數(2)；45° 走 m 對角、兩端軸向分掉余剩 |ax−ay|；pass 2 依續接角擇優。
+  // 雙轉折 (b) H–45–H / V–45–V。
   {
     const horiz = ax > ay
     const axisTot = Math.abs(ax - ay)
@@ -279,70 +321,83 @@ function candidates(S, T, u, dirs = 8) {
       const h1 = axisTot * t
       const P1 = horiz ? [S[0] + sx * h1, S[1]] : [S[0], S[1] + sy * h1]
       const P2 = [P1[0] + sx * m, P1[1] + sy * m]
-      out.push({ pts: [S, P1, P2, T], bends: 2 })
+      diagSkels.push([S, P1, P2, T])
     }
   }
-  // 四轉折（使用者規則：45–H/V–45–H/V–45 也可以）——把對角拆成三段 45°，中間夾
-  // 兩段軸向直線；45° 脚一律被軸向直線隔開，不構成禁止的 45°→45° 角。當單一
-  // 45–軸–45 中段太長或被擋時的階梯狀替代。兩種家族：
-  //  (a) 同軸 45–H–45–H–45（ax>ay）或 45–V–45–V–45（ay>ax）：對角每段固定 m/3，
-  //      余剩全在較大軸、拆成兩段（讀起來只有 45° 與一個軸向，較乾淨）→ 先試。
-  //  (b) 混合 45–H–45–V–45 與 45–V–45–H–45：對角每段取 <m/3（3g<ax 且 3g<ay），
-  //      使 H、V 皆有剩餘，各成一段 → 需要同時往兩軸繞時用。
+  // 四轉折階梯 45–H/V–45–H/V–45（同軸＋混合）。
   {
-    const horiz = ax > ay                 // 余剰在水平 → 夾 H；否則夾 V
-    const a = m / 3                       // 每段 45° 對角進行（縱橫同量），三段合計 m
-    const axisTotal = Math.abs(ax - ay)   // 兩段軸向直線長度合計（>0，因 ax≠ay）
+    const horiz = ax > ay
+    const a = m / 3
+    const axisTotal = Math.abs(ax - ay)
     for (const [f1, f2] of [[0.5, 0.5], [0.25, 0.75], [0.75, 0.25]]) {
       const b1 = axisTotal * f1, b2 = axisTotal * f2
       const P1 = [S[0] + sx * a, S[1] + sy * a]
       const P2 = horiz ? [P1[0] + sx * b1, P1[1]] : [P1[0], P1[1] + sy * b1]
       const P3 = [P2[0] + sx * a, P2[1] + sy * a]
       const P4 = horiz ? [P3[0] + sx * b2, P3[1]] : [P3[0], P3[1] + sy * b2]
-      out.push({ pts: [S, P1, P2, P3, P4, T], bends: 4 })
+      diagSkels.push([S, P1, P2, P3, P4, T])
     }
-    for (const gf of [0.25, 1 / 6]) {     // 對角每段 = m*gf，需 3g<m 使 H、V 皆 >0
+    for (const gf of [0.25, 1 / 6]) {
       const g = m * gf
-      const h = ax - 3 * g                // 水平剩餘（單段）
-      const v = ay - 3 * g                // 垂直剩餘（單段）
+      const h = ax - 3 * g, v = ay - 3 * g
       if (h <= 0 || v <= 0) continue
       const D1 = [S[0] + sx * g, S[1] + sy * g]
-      // 45–H–45–V–45
       const H2 = [D1[0] + sx * h, D1[1]]
       const HD3 = [H2[0] + sx * g, H2[1] + sy * g]
       const HV4 = [HD3[0], HD3[1] + sy * v]
-      out.push({ pts: [S, D1, H2, HD3, HV4, T], bends: 4 })
-      // 45–V–45–H–45
+      diagSkels.push([S, D1, H2, HD3, HV4, T])
       const V2 = [D1[0], D1[1] + sy * v]
       const VD3 = [V2[0] + sx * g, V2[1] + sy * g]
       const VH4 = [VD3[0] + sx * h, VD3[1]]
-      out.push({ pts: [S, D1, V2, VD3, VH4, T], bends: 4 })
+      diagSkels.push([S, D1, V2, VD3, VH4, T])
     }
   }
-  // 更多段階梯（使用者規則：不限 45° 與 H/V 的段數，唯一硬規則是「45° 一律接 H/V」，
-  // 即 45° 不相鄰）。同軸階梯 k=4,5,… 段 45°（每段 riser=m/k）＋中間 k-1 段軸向 tread
-  // （每段 (|ax−ay|)/(k−1)），bends=2(k−1)。段數上限由跨距決定：riser 與 tread 都
-  // 不小於一格 u（過小的階梯沒有意義），再加硬頂 kMax≤10 防候選爆炸。折數絕對優先，
-  // 故多段只在少段候選全衝突時才輪到。
+  // 更多段階梯 k≥4（與 8 方向相同上限）。
   {
     const bigAxis = Math.abs(ax - ay)
     const step = Math.max(u, 1e-6)
     const kMax = Math.min(10, Math.floor(m / step), 1 + Math.floor(bigAxis / step))
     const horiz = ax > ay
     for (let k = 4; k <= kMax; k++) {
-      const riser = m / k                     // 每段 45° 對角進行（縱橫同量）
-      const tread = bigAxis / (k - 1)         // 每段軸向直線
+      const riser = m / k
+      const tread = bigAxis / (k - 1)
       const pts = [S]
       let P = S
       for (let i = 0; i < k; i++) {
-        P = [P[0] + sx * riser, P[1] + sy * riser]; pts.push(P)                      // 45° riser
-        if (i < k - 1) { P = horiz ? [P[0] + sx * tread, P[1]] : [P[0], P[1] + sy * tread]; pts.push(P) } // 軸向 tread
+        P = [P[0] + sx * riser, P[1] + sy * riser]; pts.push(P)
+        if (i < k - 1) {
+          P = horiz ? [P[0] + sx * tread, P[1]] : [P[0], P[1] + sy * tread]
+          pts.push(P)
+        }
       }
-      pts[pts.length - 1] = T                 // 末段 45° 精確落在 T（消 FP 漂移）
-      out.push({ pts, bends: 2 * (k - 1) })
+      pts[pts.length - 1] = T
+      diagSkels.push(pts)
     }
   }
-  } // end if (dirs >= 8)
+
+  if (dirs < 8) {
+    // 4 方向只展開基本雙折骨架（45–H/V–45 與 H/V–45–H/V 的前 6 個），
+    // 不可把四折／多折階梯展開成繞行迷宮。zRank：50%→25%→75%。
+    const seen = new Set()
+    for (const [i, sk] of diagSkels.slice(0, 6).entries()) {
+      const zRank = i % 3 // 0=50%, 1=25%, 2=75% within each family
+      for (const vhFirst of [true, false]) {
+        const pts = expand45ToOrtho(sk, vhFirst)
+        if (!pts || pts.length !== 4) continue
+        const key = pts.map((p) => `${p[0].toFixed(3)},${p[1].toFixed(3)}`).join('|')
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push({ pts, bends: 2, zRank })
+      }
+    }
+  } else {
+    for (const [i, pts] of diagSkels.entries()) {
+      // 50%/25%/75% only ranks the double-bend families; single-bend 45°/L
+      // keep zRank unset (Infinity) and win on fewer bends when clean.
+      const zRank = i < 6 ? i % 3 : Infinity
+      out.push({ pts, bends: pts.length - 2, zRank })
+    }
+  }
   // 22.5° 族候選（僅 16 方向，且**排在所有 45° 候選之後**）：使用者規則「能用 45 就
   // 不用 22.5/67.5」——嚴格方向級優先於折數，要窮盡所有 45° 畫法（單/雙/多折）都衝突
   // 才降到 22.5°。斜段用 E(22.5°)／F(67.5°)、另一段軸向補，讓段用更貼近真實角度的斜線
@@ -365,6 +420,7 @@ function candidates(S, T, u, dirs = 8) {
     }
     pushSkew(T22)     // 22.5°（E 族）
     pushSkew(1 / T22) // 67.5°（F 族）
+    if (deferredSkewStraight) out.push({ pts: [S, T], bends: 0, skew: true })
   }
   // 兜底：原方向直線（非 H/V/45）
   out.push({ pts: [S, T], bends: 0, fallback: true })
@@ -546,20 +602,20 @@ export function buildRwdMap(segs, pos, opts = {}) {
     seenLoop.add(k)
     return true
   })
-  // A geometrically legal straight corridor has absolute precedence: reserve it
-  // before any bendable segment can occupy it.  This is stronger than the
-  // usual longest-corridor heuristic — a later line must detour rather than
-  // turn a line whose endpoints can be joined directly.  The only unavoidable
-  // exception is a collision between two such straight corridors (or twin
-  // same-endpoint edges): one cannot keep both without an overlap/crossing.
-  // Within each class, longest corridors still route first; the stable
-  // tie-break keeps the result deterministic.
+  // Rule 0 / 鐵律：a CLEAN direct corridor (conflictCount === 0) has absolute
+  // precedence and is locked. A straight that already overlaps / crosses is
+  // NOT locked — later 50%/25%/75% or other candidates must resolve it.
+  // 22.5°/67.5° is never a reserved corridor. Within each class, longest
+  // corridors still route first; the stable tie-break keeps the result
+  // deterministic.
   const order = usable
     .map((s, i) => {
       const S = pos.get(s.a), T = pos.get(s.b)
       const d = dirOf(S, T)
       const straight = d && d !== 'X' &&
-        (dirsN >= 16 || (d !== 'E+' && d !== 'E-' && d !== 'F+' && d !== 'F-')) &&
+        // 22.5°/67.5° is never a reserved direct corridor: 16-direction
+        // routing must first prove every H/V/45° candidate conflicts.
+        (d !== 'E+' && d !== 'E-' && d !== 'F+' && d !== 'F-') &&
         (dirsN >= 8 || (d !== 'D+' && d !== 'D-'))
       return { s, i, len: dist(S, T), straight }
     })
@@ -569,39 +625,85 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // (hug / cross / node-on-leg). 0 = clean; Infinity = an illegal X leg.
   // crossOnly=true（共線救援，使用者規則：萬不得已可以共線、但新交叉絕對不可）：
   // 放寬同族「共線/貼線」(legsHug)，只算交叉(legsCross)與壓點(pointOnLeg)。
-  function conflictCount(pts, seg, placed, crossOnly = false) {
+  // lenient=true：最後兜底用——壓站/超過 25% 重疊不再回 Infinity，改成大額罰分，
+  // 讓「最不壞」的候選仍被畫出（隱形線會讓白點浮空，比殘留衝突更糟）。
+  function conflictCount(pts, seg, placed, crossOnly = false, lenient = false) {
     const legs = legsOfPts(pts)
     if (legs.length !== pts.length - 1) return Infinity // X leg → fallback only
-    let n = 0
+    let n = 0, overlap = 0
+    const pathLen = pts.slice(1).reduce((sum, P, i) => sum + dist(pts[i], P), 0)
     for (const leg of legs) {
       for (const p of placed) {
-        if (leg.dir === p.dir) { if (!crossOnly && legsHug(leg, p, minGap)) n++ }
+        if (leg.dir === p.dir && legsHug(leg, p, minGap)) {
+          const ov = Math.min(leg.hi, p.hi) - Math.max(leg.lo, p.lo)
+          if (ov > OVER_TOL) overlap += ov
+          if (!crossOnly) n++
+        }
         else if (legsCross(leg, p, isNodePt)) n++
       }
       for (const [id, P] of nodes) {
         if (id === seg.a || id === seg.b) continue
-        if (pointOnLeg(P, leg)) n++
+        // A route running through a foreign station changes topology; never
+        // acceptable — except as the very last lenient fallback (huge penalty).
+        if (pointOnLeg(P, leg)) { if (lenient) n += 100; else return Infinity }
       }
     }
+    // Accumulated shared-track length above 25% of this segment's own drawn
+    // path is a major error, not just one more conflict.
+    if (overlap > pathLen * 0.25 + OVER_TOL) { if (lenient) n += 50; else return Infinity }
     return n
   }
 
   // 同族貼線的投影重疊總長（px）——衝突「數」相同時的次要鍵：選重疊最短的候選
   // （使用者規則：路線重疊越少越好、重疊線越短越好，這些是重大錯誤）。交叉/壓點是
   // 硬錯誤、由 conflictCount 的計數優先排除，不計入這裡的長度。
-  function overlapLen(pts, placed) {
+  function overlapLen(pts, placed, gap = minGap) {
     const legs = legsOfPts(pts)
     if (legs.length !== pts.length - 1) return Infinity
     let len = 0
     for (const leg of legs) {
       for (const p of placed) {
-        if (leg.dir === p.dir && perpGap(leg, p) < minGap) {
+        if (leg.dir === p.dir && perpGap(leg, p) < gap) {
           const ov = Math.min(leg.hi, p.hi) - Math.max(leg.lo, p.lo)
           if (ov > OVER_TOL) len += ov
         }
       }
     }
     return len
+  }
+  // 軟共線長度：用一格距離看「幾乎同走廊」的平行重疊（硬衝突門檻以外仍要越短越好）。
+  const softOverlapLen = (pts, placed) => overlapLen(pts, placed, unit)
+
+  // 單一共用選線器（pass 1 與衝突重掃都用同一個優先序，使用者的簡單概念）：
+  // ①衝突最少 → ②45 優於 22.5°（skew）→ ③折數最少（盡量直線）→ ④共線重疊最短
+  // （4 方向為了不重疊，25%/75% 可因此蓋過 50%）→ ⑤分點 50%→25%→75% → ⑥軟共線最短。
+  // straight=true 時套 Rule 0：零衝突直線立即勝出。lenient=true 是最後兜底
+  // （壓站／超過 25% 重疊改記大額罰分，不再直接淘汰）。
+  function pickBest(cands, seg, placed, hasLegalHighDir, straight = false, lenient = false) {
+    let chosen = null, chosenN = Infinity, chosenBends = Infinity, chosenZRank = Infinity
+    let chosenHard = Infinity, chosenSoft = Infinity, chosenSkew = 1
+    for (const c of cands) {
+      if (c.fallback) continue
+      if (hasLegalHighDir && c.skew) continue
+      const n = conflictCount(c.pts, seg, placed, false, lenient)
+      if (n === Infinity) continue
+      if (straight && c.bends === 0 && !c.skew && n === 0) // Rule 0: clean direct corridor
+        return { chosen: c, chosenN: 0 }
+      const hard = overlapLen(c.pts, placed)
+      const soft = softOverlapLen(c.pts, placed)
+      const skew = c.skew ? 1 : 0
+      const zRank = c.bends >= 2 ? (c.zRank ?? Infinity) : Infinity
+      if (n < chosenN
+        || (n === chosenN && skew < chosenSkew)
+        || (n === chosenN && skew === chosenSkew && c.bends < chosenBends)
+        || (n === chosenN && skew === chosenSkew && c.bends === chosenBends && hard < chosenHard)
+        || (n === chosenN && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank < chosenZRank)
+        || (n === chosenN && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank === chosenZRank && soft < chosenSoft)) {
+        chosen = c; chosenN = n; chosenBends = c.bends
+        chosenZRank = zRank; chosenHard = hard; chosenSoft = soft; chosenSkew = skew
+      }
+    }
+    return { chosen, chosenN }
   }
 
   /* ---- lattice A* fallback (絕不交叉): when no bounded-bend candidate is
@@ -612,6 +714,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
      S or T into a closed face — Jordan), it fails fast and reports WHICH lines
      form the wall via failInfo.blockers (fuel for rip-up-and-reroute). ---- */
   function routeLattice(S, T, seg, placed, failInfo, gapOverride, allowColinear = false) {
+    // 4-direction RWD must use its bounded 50%/25%/75% candidates, not create
+    // an arbitrary rectilinear detour that changes a route's visual continuity.
+    // If they cannot fit, retain the local conflict for the later colinear
+    // rescue/indicator rather than drawing a U-shaped bypass.
+    if (dirsN < 8) return null
     const lat = opts.lattice
     if (!lat) return null
     const gap = gapOverride ?? minGap // hug distance (salvage pass squeezes it)
@@ -879,10 +986,15 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // Re-route line w around the CURRENT layout: cleanest bounded-bend candidate
   // first, the A* lattice router as backup. null = no clean shape exists.
   function rerouteAround(w, wi) {
+    if (w.lockedStraight) return null // Rule 0: never bend an eligible direct corridor.
     const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
     const placedW = placedOf(wi)
-    for (const c of candidates(S2, T2, unit, dirsN)) {
+    const candsW = candidates(S2, T2, unit, dirsN)
+    const highOk = dirsN < 16 || candsW.some((c) =>
+      !c.fallback && !c.skew && conflictCount(c.pts, w.seg, placedW) !== Infinity)
+    for (const c of candsW) {
       if (c.fallback) continue
+      if (highOk && c.skew) continue
       if (conflictCount(c.pts, w.seg, placedW) === 0) return { pts: c.pts, bends: c.bends, routed: false }
     }
     const r = routeLattice(S2, T2, w.seg, placedW)
@@ -917,7 +1029,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // then re-route each wall line around L. Commit only if EVERYONE ends clean.
   function ripUpAndRoute(L, li, blockers) {
     const tryRip = (wallIdxs) => {
-      const walls = wallIdxs.map((wi) => lines[wi]).filter((w) => w && !w.fallback)
+      const walls = wallIdxs.map((wi) => lines[wi]).filter((w) => w && !w.fallback && !w.lockedStraight)
       if (walls.length !== wallIdxs.length) return false
       const saves = [snapLine(L), ...walls.map(snapLine)]
       const undo = () => {
@@ -986,24 +1098,30 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 爆炸；仍失敗才交給下游 A*/rip-up/restart/共線/forced。
   function jointReroutePairs() {
     const JOINT_CAP = 16
-    const prep = (S, T) => candidates(S, T, unit, dirsN)
-      .filter((c) => !c.fallback).slice(0, JOINT_CAP)
-      .map((c) => ({ pts: c.pts, bends: c.bends, legs: legsOfPts(c.pts) }))
-      .filter((c) => c.legs.length === c.pts.length - 1) // 丟掉含非法 X 腿的候選
+    const prep = (S, T, seg, placed) => {
+      const all = candidates(S, T, unit, dirsN).filter((c) => !c.fallback)
+      const highOk = dirsN < 16 || all.some((c) =>
+        !c.skew && conflictCount(c.pts, seg, placed) !== Infinity)
+      return all
+        .filter((c) => !(highOk && c.skew))
+        .slice(0, JOINT_CAP)
+        .map((c) => ({ pts: c.pts, bends: c.bends, legs: legsOfPts(c.pts) }))
+        .filter((c) => c.legs.length === c.pts.length - 1)
+    }
     let improved = false
     for (let i = 0; i < lines.length; i++) {
       const A = lines[i]
-      if (A.fallback || !A.forced) continue
+      if (A.fallback || A.lockedStraight || !A.forced) continue
       for (let j = i + 1; j < lines.length; j++) {
         const B = lines[j]
-        if (B.fallback || !B.forced) continue
+        if (B.fallback || B.lockedStraight || !B.forced) continue
         if (!linesCross(A, B)) continue
         const placed = placedExcept(i, j) // 其餘所有線固定，只重算 A、B
         // 先各自篩出「對其他線乾淨」的候選（含節點壓點檢查），再組合時只需驗 A↔B。
-        const candA = prep(pos.get(A.seg.a), pos.get(A.seg.b))
+        const candA = prep(pos.get(A.seg.a), pos.get(A.seg.b), A.seg, placed)
           .filter((c) => conflictCount(c.pts, A.seg, placed) === 0)
         if (!candA.length) continue
-        const candB = prep(pos.get(B.seg.a), pos.get(B.seg.b))
+        const candB = prep(pos.get(B.seg.a), pos.get(B.seg.b), B.seg, placed)
           .filter((c) => conflictCount(c.pts, B.seg, placed) === 0)
         if (!candB.length) continue
         let best = null, bestBends = Infinity
@@ -1036,30 +1154,27 @@ export function buildRwdMap(segs, pos, opts = {}) {
       ...order.filter((o) => !o.straight && priority.has(o.s)),
       ...order.filter((o) => !o.straight && !priority.has(o.s)),
     ]
-    for (const { s } of ordered) {
+    for (const { s, straight } of ordered) {
       const S = pos.get(s.a), T = pos.get(s.b)
       const cands = candidates(S, T, unit, dirsN)
       const placed = placedOf(-1)
-      // First conflict-FREE candidate wins (bend order). If none exists, keep
-      // H/V/45° legality and take the candidate with the FEWEST violations;
-      // the off-angle raw straight is a last resort only when there is no
-      // legal-direction candidate at all (degenerate spans).
-      let chosen = null, chosenN = Infinity, chosenBends = Infinity, chosenLen = Infinity
-      for (const c of cands) {
-        if (c.fallback) continue
-        const n = conflictCount(c.pts, s, placed)
-        if (n === 0) { chosen = c; chosenN = 0; break }
-        // 選擇優先序：①衝突數最少 → ②折數最少（折數絕對優先，能直線就直線，不讓重疊
-        // 長度蓋過直線）→ ③同折數才比重疊長度（越短越好）。cands 依折數升序，故 ② 只在
-        // 前一個較少折的候選未被選時成立。
-        const len = overlapLen(c.pts, placed)
-        if (n < chosenN
-          || (n === chosenN && c.bends < chosenBends)
-          || (n === chosenN && c.bends === chosenBends && len < chosenLen)) {
-          chosen = c; chosenN = n; chosenBends = c.bends; chosenLen = len
-        }
+      // Strict direction level: 22.5°/67.5° only if every H/V/45° candidate is
+      // illegal (node / >25% overlap). Ordinary conflicts stay on the 45° family
+      // and use 50%→25%→75% splits.
+      const hasLegalHighDir = dirsN < 16 || cands.some((c) =>
+        !c.fallback && !c.skew && conflictCount(c.pts, s, placed) !== Infinity)
+      // 簡單優先序（使用者規則）：①衝突最少 → ②45 優於 22.5 → ③折數最少（盡量直線）
+      // → ④共線重疊最短（4 方向可因此讓 25%/75% 蓋過 50%）→ ⑤分點 50%→25%→75%。
+      // Rule 0：只有零衝突的直線才鎖定；有重疊的直線改走 50%/Z，絕不能鎖死重疊。
+      let picked = pickBest(cands, s, placed, hasLegalHighDir, straight)
+      // Every candidate hit a hard veto（壓站／>25% 重疊）→ lenient rescan：仍要
+      // 畫出「最不壞」的形狀並標殘留衝突。隱形線會讓白點浮空，比殘留衝突更糟。
+      if (!picked.chosen) picked = pickBest(cands, s, placed, hasLegalHighDir, false, true)
+      const { chosen, chosenN } = picked
+      if (!chosen) { // only possible if even the raw fallback has an X leg
+        lines.push({ seg: s, pts: [S, T], bends: 0, fallback: true, forced: true, legs: legsOfPts([S, T]) })
+        continue
       }
-      if (!chosen) chosen = cands.find((c) => c.fallback) ?? cands[0]
       // Priority segments are the previously-trapped ones — if even now no
       // candidate is clean, let A* carve a corridor while the plane is open.
       if (chosenN > 0 && priority.has(s)) {
@@ -1072,6 +1187,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
       lines.push({
         seg: s, pts: chosen.pts, bends: chosen.bends,
         fallback: !!chosen.fallback, forced: chosenN > 0 && !chosen.fallback,
+        // Only lock a straight that is actually clean — never lock an overlap,
+        // and never lock a 22.5°/67.5° corridor.
+        lockedStraight: straight && chosen.bends === 0 && chosenN === 0 && !chosen.fallback && !chosen.skew,
         legs: legsOfPts(chosen.pts),
       })
     }
@@ -1085,25 +1203,18 @@ export function buildRwdMap(segs, pos, opts = {}) {
       let improved = false, dirty = 0
       for (let li = 0; li < lines.length; li++) {
         const L = lines[li]
-        if (L.fallback) continue
+        if (L.fallback || L.lockedStraight) continue // Rule 0: only other lines may move.
         const placed = placedOf(li)
         const curN = conflictCount(L.pts, L.seg, placed)
         if (curN === 0) { L.forced = false; continue }
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
-        // 只在有「衝突更少」的畫法時才換掉現有線（維持原重掃語意：這裡負責消衝突，
-        // 拉直交給 bendReductionToFixpoint）。候選之間 ②折數（能直線就直線，折數絕對
-        // 優先）→ ③同折數才比重疊長度（越短越好）——與 pass 1 一致。
-        let best = null, bestN = curN, bestBends = Infinity, bestLen = Infinity
-        for (const c of candidates(S, T, unit, dirsN)) {
-          if (c.fallback) continue
-          const n = conflictCount(c.pts, L.seg, placed)
-          const len = n === 0 ? 0 : overlapLen(c.pts, placed)
-          if (n < bestN
-            || (best && n === bestN && c.bends < bestBends)
-            || (best && n === bestN && c.bends === bestBends && len < bestLen)) {
-            best = c; bestN = n; bestBends = c.bends; bestLen = len; if (n === 0) break
-          }
-        }
+        // 消衝突重掃：與 pass 1 同一個 pickBest 優先序。
+        const sweepCands = candidates(S, T, unit, dirsN)
+        const hasLegalHighDir = dirsN < 16 || sweepCands.some((c) =>
+          !c.fallback && !c.skew && conflictCount(c.pts, L.seg, placed) !== Infinity)
+        const picked = pickBest(sweepCands, L.seg, placed, hasLegalHighDir)
+        let best = null, bestN = curN
+        if (picked.chosen && picked.chosenN < curN) { best = picked.chosen; bestN = picked.chosenN }
         if (bestN > 0 && !noRoute.has(L.seg)) {
           const failInfo = {}
           const routed = routeLattice(S, T, L.seg, placed, failInfo)
@@ -1148,7 +1259,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
     // 動畫中間幀（opts.fast）只跑一次 routeAll——過渡是暫態，不需完美無交叉，
     // 略過多輪重排／rip-up／救援／軟調整，換每幀夠快（最後一幀走完整品質）。
     if (opts.fast) break
-    const bad = lines.filter((L) => L.forced)
+    // Locked direct corridors are deliberately never renegotiated. If two of
+    // them are geometrically incompatible, retrying cannot improve the layout.
+    const bad = lines.filter((L) => L.forced && !L.lockedStraight)
     if (!bad.length || round >= 6) break
     let grew = false
     for (const L of bad) {
@@ -1162,7 +1275,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // closer parallels, but crossings stay absolutely forbidden.
   if (!opts.fast) for (let li = 0; li < lines.length; li++) {
     const L = lines[li]
-    if (!L.forced) continue
+    if (!L.forced || L.lockedStraight) continue
     const r = routeLattice(pos.get(L.seg.a), pos.get(L.seg.b), L.seg, placedOf(li), null, minGap * 0.6)
     if (r) {
       L.pts = r
@@ -1181,7 +1294,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // （allowColinear）。畫得出＝與他線共線但不交叉（勝過殘留交叉 forced）。標 colinear。
   if (!opts.fast) for (let li = 0; li < lines.length; li++) {
     const L = lines[li]
-    if (!L.forced) continue
+    if (!L.forced || L.lockedStraight) continue
     const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
     const placed = placedOf(li)
     let done = false
@@ -1250,7 +1363,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
       let improved = false
       for (let i = 0; i < lines.length; i++) {
         const L = lines[i]
-        if (L.fallback || L.forced || L.routed) continue // routed shapes are bespoke
+        if (L.fallback || L.forced || L.routed || L.lockedStraight) continue // direct corridors are immutable
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
         const curSkew = L.legs?.some((g) => g.dir[0] === 'E' || g.dir[0] === 'F')
         const alts = candidates(S, T, unit, dirsN).filter((c) =>
@@ -1290,17 +1403,20 @@ export function buildRwdMap(segs, pos, opts = {}) {
       let improved = false
       for (let li = 0; li < lines.length; li++) {
         const L = lines[li]
-        if (L.fallback || L.forced || L.bends <= 0) continue
+        if (L.fallback || L.forced || L.bends <= 0 || L.lockedStraight) continue
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
         const placed = placedOf(li)
         let adopted = false
         const ripsToTry = []
         const curSkew = L.legs?.some((g) => g.dir[0] === 'E' || g.dir[0] === 'F')
+        const curSoft = softOverlapLen(L.pts, placed)
         for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback || c.bends >= L.bends) continue
           if (c.skew && !curSkew) continue // 使用者規則：不把 45 級「降折」到 22.5 級
           const info = conflictLines(c.pts, L.seg, placed)
           if (info.count === 0) {
+            // Rule 0：成真直線一律可降。其餘不得為了少折而把共線變長（保住 50／25／75）。
+            if (c.bends > 0 && softOverlapLen(c.pts, placed) > curSoft + 1e-6) continue
             L.pts = c.pts
             L.legs = legsOfPts(c.pts)
             L.bends = c.bends
@@ -1315,7 +1431,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
         }
         if (adopted) continue
         for (const { c, walls } of ripsToTry) {
-          if (walls.some((wi) => !lines[wi] || lines[wi].fallback || lines[wi].forced)) continue
+          if (walls.some((wi) => !lines[wi] || lines[wi].fallback || lines[wi].forced || lines[wi].lockedStraight)) continue
           const before = L.bends + walls.reduce((s, wi) => s + lines[wi].bends, 0)
           const saves = [snapLine(L), ...walls.map((wi) => snapLine(lines[wi]))]
           const undo = () => {
@@ -1324,6 +1440,8 @@ export function buildRwdMap(segs, pos, opts = {}) {
           }
           for (const wi of walls) lines[wi].legs = [] // rip the blockers up
           if (conflictCount(c.pts, L.seg, placedOf(li)) > 0) { undo(); continue }
+          // 非直線降折不得換來更長共線（與直接降折同一護欄）
+          if (c.bends > 0 && softOverlapLen(c.pts, placedOf(li)) > curSoft + 1e-6) { undo(); continue }
           L.pts = c.pts
           L.legs = legsOfPts(c.pts)
           L.bends = c.bends
@@ -1412,12 +1530,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
   }
 
-  // 〔順接軟調整 → 降折到定點 → L→45〕跑兩輪：每一步挪動走廊後都可能冒出
-  // 新的可直線/可順接機會，回頭再撿一次，保證「不會有可以直線的沒畫直線」
-  // 且「同名路線盡量不轉折」。
+  // 〔順接軟調整 → 壓短共線 → 降折到定點 → L→45〕跑兩輪：每一步挪動走廊後
+  // 都可能冒出新的可直線/可順接/可縮共線機會；續接分數不降 → 拓撲連續方向不變。
   if (!opts.fast) for (let phase = 0; phase < 2; phase++) {
-    softPass()
-    bendReductionToFixpoint()
+    softPass() // 同顏色路線盡量直線相接（所有方向級都適用）
+    bendReductionToFixpoint() // 盡量直線：能少折且不多重疊就少折
     if (dirsN >= 8) l45Pass() // 4 方向禁 45°——不做 L→45 軟調整（否則會冒出 45° 腿）
   }
 
