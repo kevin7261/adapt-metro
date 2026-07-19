@@ -391,7 +391,7 @@ buildConnectSkeleton(geojson) → {
     json: { code: `// 直角/軸/ILP：即時算（迭代到不動點）
 // LLM 對齊：llmviews/<city>.<variant>.json
 { "fingerprint": { "verts":67, "segs":82, "cols":67, "hvStart":27 },
-  "model":"Fable 5", "rounds":9, "cellAfter":[[id,c,r],…] }`,
+  "model":"Opus 4.8", "rounds":9, "cellAfter":[[id,c,r],…] }`,
       note: '前三種不寫檔；LLM 對齊由 Claude Code 離線產生、含指紋驗證。' },
     algorithm: `<p>在 Hill Climbing 結果上再最大化正交段，短距離移動彩色點：</p>
 <ul><li><b>直角爬山</b>：方向準則換 |sin 2θ|（45° 變最貴）。</li><li><b>軸對齊</b>：union-find 併群＋中位數座標。</li><li><b>整數規劃</b>：逐軸 0-1 精確解。</li><li><b>LLM 對齊</b>：模型讀圖提出移動，過相同硬規則套用。</li></ul>`,

@@ -9,7 +9,7 @@
 //   node scripts/llmEval.mjs reset  <cityId> <orig|rot> [compact]
 //
 // eval.json: {
-//   "model": "<模型名>",                        // 選填，預設 Fable 5；顯示在面板
+//   "model": "<模型名>",                        // 選填，預設 Opus 4.8；顯示在面板
 //   "summary": "<總評（幾句話）>",              // 必填
 //   "scores": [{ "aspect": "...", "score": 0-10, "comment": "..." }],
 //   "lines": [{ "name": "<線名>", "comment": "<這條線的具體評價>" }],
@@ -235,7 +235,7 @@ if (cmd === 'export') {
 } else if (cmd === 'apply') {
   if (!evalPath) { console.error('apply 需要 eval.json 路徑'); process.exit(1) }
   const spec = JSON.parse(await readFile(evalPath, 'utf8'))
-  spec.model ??= 'Fable 5' // 預設模型 Fable 5（Claude Code 執行時的模型）；eval.json 可覆寫
+  spec.model ??= 'Opus 4.8' // 預設模型 Opus 4.8（Claude Code 執行時的模型）；eval.json 可覆寫
   if (typeof spec.summary !== 'string' || !spec.summary.trim()) {
     console.error('eval.json 必須含非空的 "summary"（總評）'); process.exit(1)
   }

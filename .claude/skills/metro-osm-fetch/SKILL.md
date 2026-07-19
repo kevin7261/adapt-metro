@@ -296,6 +296,8 @@ npm run metro:wiki       # scripts/fetchWikiList.mjs  → _cache/wiki_metro_syst
 npm run metro:fetch      # scripts/fetchMetro.mjs     → _cache/{routes_tags,route_masters,stations,geom_*}.json
 npm run metro:geocode    # scripts/geocodeSystems.mjs → _cache/geocode.json + wiki_city_coords.json
 npm run metro:build      # scripts/buildGeojson.mjs   → data/metro/*.geojson + systems/**
+npm run metro:fetchtracks # scripts/fetchMetroTracks.mjs → _cache/tracks_v*.json（實際軌道 way）
+npm run metro:buildtracks # scripts/buildMetroTrackGeojson.mjs → data/metro/tracks/**
 npm run metro:audit      # scripts/auditLoop.mjs      → 逐城市 audit⇄修補到收斂（見 [[metro-audit]]）
 npm run metro:maps       # scripts/downloadMaps.mjs   → data/metro/maps/** + maps_index.json（官方路網圖）
 ```
@@ -474,6 +476,8 @@ data/metro/
 │   └── {洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson
 │       例：systems/asia/taiwan/as-twn-taipei.geojson
 │           systems/americas/united-states/am-usa-new-york-city.geojson
+├── tracks/
+│   └── {洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson  # 實際 OSM 軌道 way（可選地圖底層）
 └── maps/
     ├── {洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.{png|svg}  # 官方路網圖（與 systems/ 同名）
     └── maps_index.json                                    # 每張圖的出處與授權

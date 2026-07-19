@@ -167,7 +167,7 @@ const promptLogEl = ref(null)
 const llmCityId = computed(() => sourceLayer.value?.id ?? null)
 // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇：面板下拉的短鍵，隨 /run 的
 // body 送出，vite plugin 映射成 claude --model；'default' → 不帶旗標（沿用預設）。
-const llmModel = ref('fable') // 預設 Fable 5（使用者：LLM 預設模型都是 Fable 5）
+const llmModel = ref('opus') // 預設 Opus 4.8（使用者：LLM 預設模型都改 Opus 4.8）
 // 畫布 overlay 備援按鈕的下拉選項（與 StylePanel 的 LLM_MODEL_OPTIONS 一致）。
 const LLM_MODEL_OPTIONS = [
   { key: 'default', label: '沿用 CLI 預設' },
@@ -209,7 +209,7 @@ const llmRunner = makeRun({
     // 清舊結果：面板的逐輪 transcript／provenance（llmStats）與提示一起清掉，
     // 跑完 render 再載入新結果（跟 eval/grid 的 onStart 一致）。
     cachedLlm = null; llmStats.value = null; llmMsg.value = null; llmInfo.value = null
-    llmApplied.value = false; invalidateLlmDownstream()
+    llmApplied.value = false; llmApplySet(llmApplyKeys.value.auto, false); invalidateLlmDownstream()
   },
   onDone: () => { cachedLlm = null; invalidateLlmDownstream() },
 })
@@ -221,7 +221,7 @@ const promptRunner = makeRun({
   params: () => ({ variant: hcVariant.value, kind: 'prompt', base: currentAlignBase(), span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
   run: promptRun, tail: promptRunTail, text: promptRunText, logEl: promptLogEl,
   shouldRender: () => false,
-  onStart: () => { cachedPrompt = null; promptStats.value = null; promptMsg.value = null; promptApplied.value = false },
+  onStart: () => { cachedPrompt = null; promptStats.value = null; promptMsg.value = null; promptApplied.value = false; llmApplySet(llmApplyKeys.value.prompt, false) },
   onDone: () => { cachedPrompt = null },
 })
 const startPromptRun = promptRunner.start
@@ -232,10 +232,40 @@ const startPromptRun = promptRunner.start
 // RWD 'llm' compact 是另一個 layer、沒有 toggle，維持用「自動對齊」當基準。
 const llmApplied = ref(false)
 const promptApplied = ref(false)
+// 4 個 LLM 功能（自動對齊／指定對齊／LLM評價／LLM互動）的「執行調整」toggle 跨
+// reload 記憶：只把布林旗標存進 localStorage（結果本身仍從結果檔重載），鍵到
+// city+variant(+compact)。重整或切回本視圖時若有結果，就自動恢復上次「已套用」的
+// 狀態，免得每次都要重按執行調整（使用者裁決 2026-07）。跑新結果時 onStart 會清掉
+// 該鍵，維持「跑完不自動套用」。
+const LLM_APPLY_LS = 'adaptMetro.llmApplied.v1'
+function llmApplyGet(key) {
+  try { return !!JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}')[key] } catch { return false }
+}
+function llmApplySet(key, on) {
+  try {
+    const s = JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}')
+    if (on) s[key] = true; else delete s[key]
+    localStorage.setItem(LLM_APPLY_LS, JSON.stringify(s))
+  } catch { /* localStorage 不可用（隱私模式等）→ 退回「不記憶」 */ }
+}
+// 鍵隨目前 city/variant/compact 而變（rwdCompactKey 定義在後面、computed 惰性求值）。
+const llmApplyKeys = computed(() => {
+  const cid = sourceLayer.value?.id ?? '?'
+  const v = hcVariant.value
+  const c = rwdCompactKey.value
+  return {
+    auto: `auto|${cid}|${v}`,
+    prompt: `prompt|${cid}|${v}`,
+    eval: `eval|${cid}|${v}|${c}`,
+    grid: `grid|${cid}|${v}|${c}`,
+  }
+})
 function toggleLlmExec() {
   if (!cachedLlm?.cells) return
   llmApplied.value = !llmApplied.value
   if (llmApplied.value) promptApplied.value = false // 互斥
+  llmApplySet(llmApplyKeys.value.auto, llmApplied.value)
+  llmApplySet(llmApplyKeys.value.prompt, promptApplied.value)
   invalidateLlmDownstream() // 顯示佈局變了 → 鏈重算
   render()
 }
@@ -243,6 +273,8 @@ function togglePromptExec() {
   if (!cachedPrompt?.cells) return
   promptApplied.value = !promptApplied.value
   if (promptApplied.value) llmApplied.value = false // 互斥
+  llmApplySet(llmApplyKeys.value.prompt, promptApplied.value)
+  llmApplySet(llmApplyKeys.value.auto, llmApplied.value)
   invalidateLlmDownstream() // 顯示佈局變了 → 鏈重算
   render()
 }
@@ -268,7 +300,7 @@ const gridRunner = makeRun({
   params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
   run: gridRun, tail: gridRunTail, text: gridRunText, logEl: gridLogEl,
   shouldRender: () => false, // 唯讀：跑的時候畫布照畫 RWD、不留白（串流顯示在面板）
-  onStart: () => { cachedGrid = null; gridStats.value = null; gridMsg.value = null; gridApplied.value = false },
+  onStart: () => { cachedGrid = null; gridStats.value = null; gridMsg.value = null; gridApplied.value = false; llmApplySet(llmApplyKeys.value.grid, false) },
   onDone: () => { cachedGrid = null }, // 清空 → render 內重新載入結果供面板顯示＋切換
 })
 const startGridRun = gridRunner.start
@@ -280,6 +312,7 @@ const gridApplied = ref(false)
 function toggleGridExec() {
   if (!cachedGrid?.colW) return
   gridApplied.value = !gridApplied.value
+  llmApplySet(llmApplyKeys.value.grid, gridApplied.value)
   rwdGridSeq++
   cachedRWD = null // sizeKey 不含套用狀態——直接作廢重畫
   render()
@@ -301,7 +334,7 @@ const evalRunner = makeRun({
   params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
   run: evalRun, tail: evalRunTail, text: evalRunText, logEl: evalLogEl,
   shouldRender: () => false, // 唯讀評價：畫布照畫、不留白、不蓋 overlay
-  onStart: () => { cachedEval = null; evalStats.value = null; evalMsg.value = null },
+  onStart: () => { cachedEval = null; evalStats.value = null; evalMsg.value = null; evalApplied.value = false; llmApplySet(llmApplyKeys.value.eval, false) },
   onDone: () => { cachedEval = null },
 })
 const startEvalRun = evalRunner.start
@@ -314,6 +347,7 @@ const evalApplied = ref(false)
 function toggleEvalExec() {
   if (!evalStats.value?.exec?.cells) return
   evalApplied.value = !evalApplied.value
+  llmApplySet(llmApplyKeys.value.eval, evalApplied.value)
   cachedRWD = null // sizeKey 不含套用狀態——直接作廢重畫
   render()
 }
@@ -797,6 +831,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   if (useLlm.value) {
     // 唯讀載入對齊結果供面板顯示＋切換用（跟評價/互動一樣，跑的時候不阻擋畫圖：
     // 沒有結果或未套用時就照畫對齊前的 base 佈局，不留白）。
+    let justLlm = false
     if (!cachedLlm && llmRun.value !== 'running') {
       const cid = sourceLayer.value?.id
       cachedLlm = !cid
@@ -810,10 +845,13 @@ async function computeHcLayout({ seq, w, h, grid }) {
           onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
         })
       if (seq !== renderSeq) return null // superseded during fetch
+      justLlm = true
     }
     if (cachedLlm?.cells) {
       llmStats.value = cachedLlm.stats
       llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
+      // 首次載到結果時，從 localStorage 恢復上次「已套用」狀態（見 llmApplyKeys）。
+      if (justLlm) llmApplied.value = llmApplyGet(llmApplyKeys.value.auto)
     } else {
       llmStats.value = null
       llmMsg.value = cachedLlm?.miss ?? null
@@ -821,6 +859,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     }
     // 「指定對齊」（.prompt.json）只在 LLM 對齊主視圖載入＋比較用，不餵下游。
     const onMainAlign = isHC.value && mode.value === 'hc-llm'
+    let justPrompt = false
     if (onMainAlign && !cachedPrompt && promptRun.value !== 'running') {
       const cid = sourceLayer.value?.id
       cachedPrompt = !cid
@@ -834,9 +873,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
           onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
         })
       if (seq !== renderSeq) return null // superseded during fetch
+      justPrompt = true
     }
     if (onMainAlign) {
-      if (cachedPrompt?.cells) promptStats.value = cachedPrompt.stats
+      if (cachedPrompt?.cells) {
+        promptStats.value = cachedPrompt.stats
+        // 首次載到結果時恢復上次「已套用」狀態；與自動對齊互斥。
+        if (justPrompt && llmApplyGet(llmApplyKeys.value.prompt)) { promptApplied.value = true; llmApplied.value = false }
+      }
       else { promptStats.value = null; promptMsg.value = cachedPrompt?.miss ?? null; promptApplied.value = false }
     }
     // 套用規則：
@@ -938,6 +982,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   if (isRWD.value && !(rwdAnimActive && cachedSegs)) cachedSegs = mergeParallelSegs(buildHcGraph(cachedSkeleton, grid.cellOf).segs)
   // 「LLM評價」結果（llmevals，skill route-llm-eval）：唯讀評語——載入＋
   // fingerprint 驗證後只給右側面板顯示，不影響畫圖（沒有結果也照畫）。
+  let justEval = false
   if (isRWD.value && !cachedEval && evalRun.value !== 'running') {
     const cid = sourceLayer.value?.id
     cachedEval = !cid
@@ -953,16 +998,22 @@ async function computeHcLayout({ seq, w, h, grid }) {
     if (seq !== renderSeq) return null // superseded during fetch
     evalStats.value = cachedEval.stats ?? null
     evalMsg.value = cachedEval.miss ?? null
+    justEval = true
   }
   // 「執行調整」套用中：以評價存好的 exec.cells（apply 時已過硬規則）取代
   // 縮減網格佈局重畫；恢復＝這裡不取代。網格尺寸不變 → 前後可對齊比較。
   if (isRWD.value) {
     const evalExec = evalStats.value?.exec
     if (!evalExec?.cells) evalApplied.value = false
-    else if (evalApplied.value) cells = new Map(evalExec.cells.map(([id, c, r]) => [id, [c, r]]))
+    else {
+      // 首次載到結果時恢復上次「已套用」狀態（見 llmApplyKeys）。
+      if (justEval) evalApplied.value = llmApplyGet(llmApplyKeys.value.eval)
+      if (evalApplied.value) cells = new Map(evalExec.cells.map(([id, c, r]) => [id, [c, r]]))
+    }
   }
   // 「LLM互動」（llmgrids 結果檔）：載入＋fingerprint 驗證，供面板顯示與「執行
   // 調整」切換——與評價一樣是唯讀載入、不影響畫圖（沒有結果也照畫 RWD）。
+  let justGrid = false
   if (isRWD.value && !cachedGrid && gridRun.value !== 'running') {
     const cid = sourceLayer.value?.id
     cachedGrid = !cid
@@ -979,11 +1030,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
     gridStats.value = cachedGrid.stats ?? null
     gridMsg.value = cachedGrid.miss ?? null
     gridInfo.value = cachedGrid.stats ? { model: cachedGrid.stats.model } : null
+    justGrid = true
   }
   // 「執行調整」套用中：用 LLM 推理的區間權重（intervalAxes）決定欄寬列高重畫；
   // 沒有可套用的結果就強制恢復。網格拓撲不變、外框固定 → 前後可對齊比較。
   const gridExec = cachedGrid?.colW ? cachedGrid : null
   if (!gridExec) gridApplied.value = false
+  // 首次載到結果時恢復上次「已套用」狀態（見 llmApplyKeys）。
+  else if (justGrid) gridApplied.value = llmApplyGet(llmApplyKeys.value.grid)
   const gridOn = gridApplied.value && !!gridExec
   const animing = !gridOn && rwdAnimActive && isRWD.value && !!cachedSegs && !!rwdAnimTo
   weighted = !gridOn

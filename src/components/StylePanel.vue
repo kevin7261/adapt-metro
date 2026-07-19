@@ -83,7 +83,7 @@ const props = defineProps({
   spanApplied: { type: Number, default: null },
   // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇短鍵（'default' | 'opus' |
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
-  llmModel: { type: String, default: 'fable' },
+  llmModel: { type: String, default: 'opus' },
 })
 const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model'])
 // 模型下拉的選項：短鍵 → 顯示名。'default' 不帶 --model（沿用 Claude Code 預設）。
@@ -95,6 +95,13 @@ const LLM_MODEL_OPTIONS = [
   { key: 'haiku', label: 'Haiku 4.5' },
 ]
 const llmUserPrompt = ref('')
+// 執行時間（vite plugin 於 spawn→close 量到、寫進結果檔的 elapsedMs）→ 顯示在
+// 「模型」下面：<60 秒顯示秒、否則「分 秒」。沒有值就不顯示那一列。
+function fmtElapsed(ms) {
+  if (!ms || ms < 0) return null
+  const s = Math.round(ms / 1000)
+  return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${s % 60} 秒`
+}
 // 四個 LLM 功能各自的「做法說明」——哪些是 LLM 判斷、哪些用到程式，顯示在
 // 每個 tab 最下面。（llm＝模型判斷、code＝程式負責、sum＝一句結論）
 const METHOD_NOTES = {
@@ -801,6 +808,85 @@ function startResize(e) {
                 </ol>
               </div>
             </template>
+
+            <!-- 資料儲存方式：GeoJSON（原始地理資料）＋ JSON（預算佈局快取）的
+                 詳細欄位與座標系統說明，對所有 metro 圖層常駐（可折疊）。 -->
+            <div class="section-title">資料儲存方式</div>
+            <details class="data-format">
+              <summary><b>GeoJSON</b>：原始地理資料（<code>systems/&lt;洲&gt;/&lt;國&gt;/&lt;洲2碼&gt;-&lt;IOC3碼&gt;-&lt;城&gt;.geojson</code>）</summary>
+              <div class="df-body">
+                <p>
+                  標準 <code>FeatureCollection</code>，另加一個非標準頂層 <code>metro_system</code>
+                  中繼資料物件。座標為 <b>WGS84 經緯度</b>（<code>[經度, 緯度]</code>）。
+                  每檔＝一城一系統（桃園等併入母城）；另有全球彙整檔
+                  <code>metro_lines.geojson</code>／<code>metro_stations.geojson</code>。
+                </p>
+                <p class="df-sub">車站 feature（<code>Point</code>）</p>
+                <p>
+                  <code>station_id</code>、<code>station_name</code>（在地語言）、
+                  <code>station_name_local</code>／<code>station_name_en</code>、
+                  <code>lines</code>（停靠路線 refs，<b>至少一條</b>）、
+                  <code>codes</code>（官方站碼，如台北車站 <code>[A1, BL12, R10]</code>）、
+                  <code>routes</code>（每項 <code>{ ref, name, pass? }</code>）、
+                  <code>station_role</code>（interchange／terminus／normal）、
+                  <code>is_interchange</code>／<code>is_terminus</code>、
+                  <code>merged_from</code>／<code>merged_names</code>（共站合併來源）、
+                  <code>station_degree</code>、<code>pass_count</code>、
+                  <code>wikidata</code>／<code>wikipedia</code>。
+                  <b>每站輸出完全相同的欄位集</b>（缺值填 null／false）。
+                </p>
+                <p class="df-sub">路段 feature（<code>MultiLineString</code>）</p>
+                <p>
+                  頂層 <code>seg_id</code>、<code>route_count</code>、<code>route_refs</code>、
+                  <code>route_colors</code>（<b>無單數 <code>route_color</code></b>——一段可多線共用）；
+                  <code>routes</code> 為 list，每條記 <code>route_id</code>／<code>route_name</code>／
+                  <code>route_ref</code>／<code>route_color</code>（<code>#rrggbb</code>）／
+                  <code>network</code>／<code>wikidata</code>／<code>osm_route_ids</code>，及
+                  <code>stations</code>（該線完整行經序，每項 <code>{ station_id, station_name, code?, pass? }</code>，
+                  <code>pass:true</code>＝行經不停靠）。幾何＝各停靠站依站序、吸附到<b>共站合併後的車站點</b>
+                  連成的折線（示意，非真實軌道線形；重疊走廊只畫一條）。
+                </p>
+                <p class="df-sub">metro_system（頂層中繼資料）</p>
+                <p>
+                  <code>continent</code>／<code>country</code>／<code>city</code>（由車站中心點反向地理編碼取得，檔名即由此組成）、
+                  <code>osm_networks</code>、<code>operator</code>、
+                  <code>official_website</code>／<code>official_map</code>、<code>wikidata</code>、
+                  <code>line_count</code>／<code>segment_count</code>／<code>station_count</code>、
+                  <code>audit</code>（逐城市驗證結果，未跑 audit 時為 null，即上方「資料驗證」）。
+                </p>
+              </div>
+            </details>
+            <details class="data-format">
+              <summary><b>JSON</b>：預算好的版面佈局快取（<code>views/&lt;id&gt;.json</code> 等）</summary>
+              <div class="df-body">
+                <p>
+                  <b>不是原始資料</b>，而是把 GeoJSON 的經緯度投影＋演算法處理後、供 D3 直接畫的
+                  <b>畫布佈局</b>——座標是 <code>W×H</code> 畫布內的 <b>pixel</b>（非經緯度）。
+                </p>
+                <p>
+                  每檔含：<code>id</code>／<code>file</code>（指回來源 geojson）、
+                  <code>city</code>／<code>country</code>／<code>cityZh</code>／<code>countryZh</code>／<code>continent</code>、
+                  <code>line_count</code>／<code>station_count</code>、
+                  <code>tilt</code>／<code>canRotate</code>（建議旋轉角）、
+                  <code>W</code>／<code>H</code>（畫布尺寸）、
+                  <code>views</code>（各種佈局），及 <code>_fp</code> 指紋
+                  （<b>來源 geojson 一變就重算</b>）。
+                </p>
+                <p>
+                  <code>views</code> 每個鍵是一種佈局（<code>original</code>／<code>rotated</code>／
+                  <code>skeleton</code>／<code>grid-orig-pre</code>／<code>grid-*-post</code>…），
+                  值含 <code>lines</code>（每條 <code>{ d: SVG path 字串, color }</code>）與對應點資料。
+                </p>
+                <p>
+                  各後續演算法階段另存於平行資料夾：
+                  <code>hcviews/</code>（Straighten／爬山法）、
+                  <code>rwdviews/</code>（RWD 版面）、
+                  <code>llmviews/</code>（LLM 對齊）、
+                  <code>llmevals/</code>／<code>llmgrids/</code>（LLM 評價／互動）；
+                  <code>index.json</code> 存全站系統清單與覆蓋率統計。
+                </p>
+              </div>
+            </details>
           </template>
           <div v-else class="info-empty">此圖層沒有 metro 資訊。</div>
         </template>
@@ -918,6 +1004,7 @@ function startResize(e) {
             <template v-if="gridRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ gridRecord.model ?? '—' }}</span></div>
+                <div v-if="fmtElapsed(gridRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(gridRecord.elapsedMs) }}</span></div>
                 <div class="info-row"><span class="info-key">網格</span><span>{{ gridRecord.cols }} 欄 × {{ gridRecord.rows }} 列</span></div>
                 <div class="info-row">
                   <span class="info-key">最大倍率</span>
@@ -994,6 +1081,7 @@ function startResize(e) {
             <template v-if="evalRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ evalRecord.model ?? '—' }}</span></div>
+                <div v-if="fmtElapsed(evalRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(evalRecord.elapsedMs) }}</span></div>
                 <div class="info-row"><span class="info-key">網格</span><span>{{ evalRecord.stats.cols }} 欄 × {{ evalRecord.stats.rows }} 列</span></div>
                 <div class="info-row">
                   <span class="info-key">直段</span>
@@ -1105,6 +1193,7 @@ function startResize(e) {
             <template v-if="llmRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ llmRecord.model ?? '—' }}</span></div>
+                <div v-if="fmtElapsed(llmRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(llmRecord.elapsedMs) }}</span></div>
                 <div class="info-row"><span class="info-key">輪數</span><span>{{ llmRecord.rounds }}</span></div>
                 <div class="info-row">
                   <span class="info-key">水平垂直</span>
@@ -1193,6 +1282,7 @@ function startResize(e) {
             <template v-if="promptRecord">
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ promptRecord.model ?? '—' }}</span></div>
+                <div v-if="fmtElapsed(promptRecord.elapsedMs)" class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(promptRecord.elapsedMs) }}</span></div>
                 <div class="info-row"><span class="info-key">輪數</span><span>{{ promptRecord.rounds }}</span></div>
                 <div class="info-row">
                   <span class="info-key">水平垂直</span>
@@ -1745,6 +1835,47 @@ function startResize(e) {
   color: hsl(var(--muted-foreground));
 }
 .rose-note .rose-red { color: #e11d48; font-weight: 600; }
+
+/* 資料儲存方式：可折疊的 GeoJSON／JSON 欄位說明 */
+.data-format { margin: 6px 0; }
+.data-format > summary {
+  cursor: pointer;
+  font-size: var(--sp-body);
+  color: hsl(var(--foreground));
+  padding: 4px 0;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.data-format > summary::before {
+  content: '▸';
+  font-size: 0.9em;
+  color: hsl(var(--muted-foreground));
+  transition: transform 0.12s ease;
+}
+.data-format[open] > summary::before { transform: rotate(90deg); }
+.data-format > summary::-webkit-details-marker { display: none; }
+.df-body {
+  font-size: var(--sp-note);
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  padding: 2px 0 8px 14px;
+}
+.df-body p { margin: 4px 0; }
+.df-body .df-sub {
+  font-weight: 600;
+  margin-top: 8px;
+  color: hsl(var(--foreground));
+}
+.df-body code {
+  font-size: 0.92em;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  overflow-wrap: anywhere;
+}
 
 /* 設定 tab：顏色點間最大跨距 */
 .settings-panel { display: flex; flex-direction: column; gap: 10px; }

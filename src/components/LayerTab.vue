@@ -34,6 +34,9 @@ const disposables = []
 // Basemap picker state (bottom-right).
 const basemapId = ref(DEFAULT_BASEMAP)
 const railwayOn = ref(false) // OpenRailwayMap overlay 預設關閉（使用者 2026-07）
+const tracksOn = ref(true)
+const tracksAvailable = ref(false)
+let trackGeojson = null
 const basemapMenuOpen = ref(false)
 const groups = basemapGroups()
 // Solid-color basemap (a plain black/white/custom canvas behind the metro data).
@@ -60,7 +63,11 @@ onMounted(() => {
   map.addControl(new maplibregl.FullscreenControl(), 'top-right')
   map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left')
 
-  map.on('load', () => addMetroLayers(true))
+  map.on('load', () => {
+    addMetroLayers(true)
+    // 開圖時若工具列已設過地圖底色，直接套成純色底圖。
+    if (layer.value?.d3Bg) applySolid(layer.value.d3Bg)
+  })
 
   map.on('mousemove', (e) => {
     view.lng = e.lngLat.lng
@@ -222,6 +229,8 @@ async function addMetroLayers(fit) {
   const metroData = { type: 'FeatureCollection', features: data.features.filter((f) => !f.properties?.landmark_id) }
   const lmFeats = data.features.filter((f) => f.properties?.landmark_id)
 
+  await loadTrackLayer(l.file)
+  if (trackGeojson) addTrackLayer()
   addMetroSourceLayers(metroData)
   if (railwayOn.value) addRailwayLayer()
 
@@ -237,6 +246,52 @@ async function addMetroLayers(fit) {
   } else {
     landmarkAvailable.value = false
   }
+}
+
+/* ---- actual OSM track geometry underlay ---- */
+async function loadTrackLayer(systemFile) {
+  if (trackGeojson) return
+  // Generated files mirror data/metro/systems beneath data/metro/tracks.
+  const trackFile = systemFile.replace('/data/metro/systems/', '/data/metro/tracks/')
+  try {
+    const res = await fetch(`${trackFile}${trackFile.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    trackGeojson = await res.json()
+    tracksAvailable.value = trackGeojson.features?.length > 0
+  } catch {
+    trackGeojson = null
+    tracksAvailable.value = false
+  }
+}
+
+function addTrackLayer() {
+  if (!map || !trackGeojson || map.getSource('metro-tracks')) return
+  // MapLibre expressions cannot index array-valued GeoJSON properties.
+  for (const feature of trackGeojson.features) {
+    feature.properties._trackColor = feature.properties?.route_colors?.[0] ?? '#64748b'
+  }
+  map.addSource('metro-tracks', { type: 'geojson', data: trackGeojson })
+  map.addLayer({
+    id: 'metro-tracks', source: 'metro-tracks', type: 'line',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
+      'line-color': ['get', '_trackColor'],
+      'line-width': 1.5,
+      'line-opacity': 0.25,
+    },
+  })
+  syncTrackVisibility()
+}
+
+function syncTrackVisibility() {
+  if (!map?.getLayer('metro-tracks')) return
+  map.setLayoutProperty('metro-tracks', 'visibility',
+    tracksOn.value && (layer.value?.visible ?? true) ? 'visible' : 'none')
+}
+
+function setTracks(on) {
+  tracksOn.value = on
+  syncTrackVisibility()
 }
 
 /* ---- landmark features（河流骨架／皇居・公園面域）----
@@ -517,7 +572,10 @@ function setRailway(on) {
 // setStyle wipes all sources/layers — re-add our metro data + overlays afterwards.
 function reAddOverlays() {
   const l = layer.value
-  if (l?.type === 'metro' && layerData[l.id]) addMetroSourceLayers(layerData[l.id])
+  if (l?.type === 'metro' && layerData[l.id]) {
+    if (trackGeojson) addTrackLayer()
+    addMetroSourceLayers(layerData[l.id])
+  }
   if (railwayOn.value) addRailwayLayer()
   if (landmarkGeojson) addLandmarkLayers()
 }
@@ -577,10 +635,16 @@ function applyLayerState() {
   if (map.getLayer('metro-labels')) {
     map.setLayoutProperty('metro-labels', 'visibility', l.visible && l.showLabels ? 'visible' : 'none')
   }
+  syncTrackVisibility()
   syncLandmarkVisibility()
 }
 
 watch(layer, applyLayerState, { deep: true })
+
+// 工具列「地圖底色」寫入 layer.d3Bg（D3 視圖用作 CSS 背景色）。metro/MapLibre 視圖
+// 沒有 CSS 背景可套，改由這裡把該色套成純色底圖——與工具列共用同一個屬性，成為底色
+// 的唯一入口（右下角選單原本的「底圖顏色」區塊已移除）。
+watch(() => layer.value?.d3Bg, (c) => { if (c) applySolid(c) })
 
 /* context menu actions */
 function copyCoords() {
@@ -660,6 +724,29 @@ onBeforeUnmount(() => {
             <MIcon name="layers" :size="16" />
           </button>
           <div v-if="basemapMenuOpen" class="menu-pop basemap-menu">
+            <!-- 鐵路圖層（OpenRailwayMap）：獨立系統，置頂、與 basemap 同款單選樣式
+                 （關閉／開啟，非 checkbox）。 -->
+            <div class="menu-label">鐵路圖層</div>
+            <button
+              class="bm-item"
+              :class="{ active: !railwayOn }"
+              @click="setRailway(false)"
+            >
+              <MIcon name="check" v-if="!railwayOn" :size="13" class="bm-check" />
+              <span v-else class="bm-check-spacer" />
+              <span class="bm-label">關閉</span>
+            </button>
+            <button
+              class="bm-item"
+              :class="{ active: railwayOn }"
+              @click="setRailway(true)"
+            >
+              <MIcon name="check" v-if="railwayOn" :size="13" class="bm-check" />
+              <span v-else class="bm-check-spacer" />
+              <span class="bm-label">OpenRailwayMap 鐵路圖層</span>
+            </button>
+            <div class="menu-sep" />
+
             <div class="bm-current">{{ currentBasemap.label }}</div>
             <div class="bm-scroll">
               <template v-for="grp in groups" :key="grp.group">
@@ -680,41 +767,17 @@ onBeforeUnmount(() => {
               </template>
             </div>
             <div class="menu-sep" />
-            <div class="bm-color">
-              <div class="menu-label">底圖顏色</div>
-              <div class="bm-color-row">
-                <button
-                  class="bm-swatch white"
-                  :class="{ active: basemapId === 'solid' && solidColor.toLowerCase() === '#ffffff' }"
-                  title="White"
-                  @click="applySolid('#ffffff')"
-                />
-                <button
-                  class="bm-swatch black"
-                  :class="{ active: basemapId === 'solid' && solidColor.toLowerCase() === '#000000' }"
-                  title="Black"
-                  @click="applySolid('#000000')"
-                />
-                <label class="bm-swatch custom" title="自訂顏色">
-                  <input type="color" :value="solidColor"
-                    @input="applySolid($event.target.value)" />
-                </label>
-                <span class="bm-color-hint">自訂</span>
-              </div>
-            </div>
-
-            <div class="menu-sep" />
             <label v-if="landmarkAvailable" class="bm-overlay">
               <input type="checkbox" :checked="landmarkOn"
                 @change="setLandmarks($event.target.checked)" />
               <MIcon name="water" :size="14" />
               <span>地標圖層（河流/公園）</span>
             </label>
-            <label class="bm-overlay">
-              <input type="checkbox" :checked="railwayOn"
-                @change="setRailway($event.target.checked)" />
-              <MIcon name="train" :size="14" />
-              <span>OpenRailwayMap 鐵路圖層</span>
+            <label v-if="tracksAvailable" class="bm-overlay">
+              <input type="checkbox" :checked="tracksOn"
+                @change="setTracks($event.target.checked)" />
+              <MIcon name="route" :size="14" />
+              <span>OSM 實際軌道路線（25%）</span>
             </label>
           </div>
         </div>
@@ -835,30 +898,6 @@ onBeforeUnmount(() => {
   color: hsl(var(--foreground));
 }
 .bm-overlay input { accent-color: hsl(var(--primary)); }
-
-/* ---- solid base color ---- */
-.bm-color { padding: 2px 0 4px; }
-.bm-color-row { display: flex; align-items: center; gap: 8px; padding: 2px 8px 4px; }
-.bm-swatch {
-  width: 24px; height: 24px; flex-shrink: 0;
-  border-radius: calc(var(--radius) - 4px);
-  border: 1px solid hsl(var(--border));
-  cursor: pointer; padding: 0;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-}
-.bm-swatch.white { background: #ffffff; }
-.bm-swatch.black { background: #000000; }
-.bm-swatch.active { border-color: hsl(var(--primary)); box-shadow: 0 0 0 2px hsl(var(--primary) / 0.4); }
-.bm-swatch.custom {
-  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
-  position: relative;
-}
-.bm-swatch.custom input {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer;
-  width: 100%; height: 100%; border: none; padding: 0;
-}
-.bm-color-hint { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
 </style>
 
 <style>

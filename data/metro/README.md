@@ -41,6 +41,8 @@ npm run metro:wiki     # 抓 Wikipedia 地鐵系統清單 -> _cache/wiki_metro_s
 npm run metro:fetch    # 抓 OSM 全球 subway+LRT 路線/車站原始資料 -> _cache/*.json（幾何增量）
 npm run metro:geocode  # 反向地理編碼每個系統中心點 -> _cache/geocode.json（洲/國/城）
 npm run metro:build    # 組成最終 GeoJSON（含同名站合併、_overrides 綁定、audit 嵌入）
+npm run metro:fetchtracks  # 抓 OSM route relation 的實際軌道 way 幾何 -> _cache/tracks_v*.json
+npm run metro:buildtracks  # 產生地圖可選的 25% 透明實際軌道路線圖層 -> tracks/**
 npm run metro:audit    # 逐城市 audit⇄修補到收斂 -> _cache/audit_state.json + metro_system.audit
 
 npm run metro:maps     # 下載各系統官方路網圖 -> maps/**（需先有 index.json）
@@ -49,7 +51,8 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 腳本在 `scripts/`（純 Node.js，無外部套件）：`overpass.mjs`（多端點重試+快取的 Overpass client）、
 `fetchWikiList.mjs`、`fetchMetro.mjs`、`geocodeSystems.mjs`（Nominatim 反向地理編碼，限速 1 req/s）、
-`continents.mjs`（ISO 國碼→洲對照）、`buildGeojson.mjs`。
+`continents.mjs`（ISO 國碼→洲對照）、`buildGeojson.mjs`、`fetchMetroTracks.mjs`、
+`buildMetroTrackGeojson.mjs`。
 
 ## 輸出檔案
 
@@ -58,6 +61,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 | `metro_lines.geojson` | 全球所有**路段**（MultiLineString，重疊已去重，`routes` list 記行經路線） |
 | `metro_stations.geojson` | 全球所有地鐵**車站**（Point，共站已合併） |
 | `systems/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 每個城市/系統一個檔；**資料夾用全名**（洲：asia/europe/americas（北美南美合併）/africa/oceania，**不會有 unknown**——定位不到城市的雜訊不輸出；國家 slug 全名），**檔名用代碼**（洲 2 碼 as/eu/am/af/oc＋國家奧運 IOC 3 碼小寫，台灣 twn（ISO，使用者指定）、德國 ger…，對照表 `scripts/countryCodes.mjs`），例如 `systems/asia/taiwan/as-twn-taipei.geojson`；含該系統的路段+車站，並附系統中繼資料 |
+| `tracks/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 與 `systems/` 同路徑命名的**實際 OSM 軌道 way**（LineString）；僅供地圖底下的可選 25% 透明圖層，絕不取代站序 network |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
 | `maps/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
 | `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-audit` |

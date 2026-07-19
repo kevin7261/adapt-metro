@@ -206,6 +206,7 @@ function claudeSkillTrigger(spec) {
       // 讀 LLM_SPAN_CAP）——兩邊用同一個跨距，縮減網格尺寸（fingerprint 的 cols/rows）
       // 才會一致；不傳＝腳本用預設 3（手動 CLI 跑也是 3）。
       const spanCap = Math.min(99, Math.max(1, Math.round(+body?.span) || 3))
+      const startedAt = Date.now() // 量測執行時間（spawn→close）寫進結果檔供面板顯示
       const child = spawn(cmd, [
         '-p', runPrompt,
         ...(modelId ? ['--model', modelId] : []),
@@ -267,6 +268,7 @@ function claudeSkillTrigger(spec) {
             j.prompt = j.prompt ?? prompt
             if (userPrompt) j.userPrompt = userPrompt // last steering instruction
             j.finalOutput = job.final || job.text.slice(-1500)
+            j.elapsedMs = Date.now() - startedAt // 執行時間（毫秒），面板顯示在模型下面
             writeFileSync(f, JSON.stringify(j))
           }
         } catch { /* provenance is best-effort */ }
