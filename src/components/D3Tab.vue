@@ -339,14 +339,14 @@ const evalRunner = makeRun({
 })
 const startEvalRun = evalRunner.start
 // ---- LLM 全部評價（四個 RWD 候選比較）----
-// 每個 orig/rot 變體各有一份結果，評審只選擇、說明，不會套用或修改候選佈局。
+// orig／rot 各一份結果、各一套 runner——兩邊可同時跑、互不擋對方。
 const compareRecords = ref({ orig: null, rot: null })
 const compareMsgs = ref({ orig: null, rot: null })
-const compareRun = ref(null)
-const compareRunTail = ref('')
-const compareRunText = ref('')
+const compareState = {
+  orig: { run: ref(null), tail: ref(''), text: ref('') },
+  rot: { run: ref(null), tail: ref(''), text: ref('') },
+}
 const compareLogEl = ref(null)
-const compareVariant = ref('orig')
 async function loadCompare(variant) {
   const cid = sourceLayer.value?.id
   if (!cid) return
@@ -360,21 +360,30 @@ async function loadCompare(variant) {
     compareMsgs.value = { ...compareMsgs.value, [variant]: '尚未產生全部評價——按上面的按鈕比較四個 RWD Maps 結果。' }
   }
 }
-const compareRunner = makeRun({
-  base: '/llm-compare',
-  params: () => ({ variant: compareVariant.value }),
-  run: compareRun, tail: compareRunTail, text: compareRunText, logEl: compareLogEl,
-  shouldRender: () => false,
-  onStart: () => {
-    compareRecords.value = { ...compareRecords.value, [compareVariant.value]: null }
-    compareMsgs.value = { ...compareMsgs.value, [compareVariant.value]: null }
-  },
-  onDone: async () => { await loadCompare(compareVariant.value) },
-})
-function startCompareRun(variant) {
-  compareVariant.value = variant
-  compareRunner.start()
+function makeCompareRunner(variant) {
+  const s = compareState[variant]
+  return makeRun({
+    base: '/llm-compare',
+    params: () => ({ variant }),
+    run: s.run, tail: s.tail, text: s.text, logEl: compareLogEl,
+    shouldRender: () => false,
+    onStart: () => {
+      compareRecords.value = { ...compareRecords.value, [variant]: null }
+      compareMsgs.value = { ...compareMsgs.value, [variant]: null }
+    },
+    onDone: async () => { await loadCompare(variant) },
+  })
 }
+const compareRunners = { orig: makeCompareRunner('orig'), rot: makeCompareRunner('rot') }
+function startCompareRun(variant) {
+  compareRunners[variant]?.start()
+}
+const compareOrigRunning = computed(() => compareState.orig.run.value === 'running')
+const compareRotRunning = computed(() => compareState.rot.run.value === 'running')
+const compareOrigText = computed(() => compareState.orig.text.value)
+const compareRotText = computed(() => compareState.rot.text.value)
+const compareOrigError = computed(() => compareState.orig.run.value === 'error' ? compareState.orig.tail.value : '')
+const compareRotError = computed(() => compareState.rot.run.value === 'error' ? compareState.rot.tail.value : '')
 // ---- 執行 LLM 評價結果（不用 LLM）----
 // 評價時 llmEval.mjs apply 已把評價附帶的 moves 經 applyLlmTargets（與 LLM 對齊
 // 完全相同的硬規則）套用、把調整後佈局存進結果檔的 exec.cells——這裡的「執行
@@ -1020,7 +1029,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // 「比較」tab 可在任一 RWD 視圖查看；orig／rot 各自載入獨立結果。
   if (isRWD.value) {
     for (const variant of ['orig', 'rot']) {
-      if (!compareRecords.value[variant] && !compareMsgs.value[variant] && compareRun.value !== 'running') {
+      if (!compareRecords.value[variant] && !compareMsgs.value[variant] && compareState[variant].run.value !== 'running') {
         loadCompare(variant)
       }
     }
@@ -1880,13 +1889,15 @@ onBeforeUnmount(() => {
       :eval-applied="evalApplied"
       :compare-orig-record="isRWD ? compareRecords.orig : null"
       :compare-rot-record="isRWD ? compareRecords.rot : null"
-      :compare-running="compareRun === 'running'"
-      :compare-run-variant="compareVariant"
+      :compare-orig-running="compareOrigRunning"
+      :compare-rot-running="compareRotRunning"
       :compare-can-run="!!llmCityId"
-      :compare-text="compareRunText"
+      :compare-orig-text="compareOrigText"
+      :compare-rot-text="compareRotText"
       :compare-msg-orig="compareMsgs.orig"
       :compare-msg-rot="compareMsgs.rot"
-      :compare-error="compareRun === 'error' ? compareRunTail : ''"
+      :compare-orig-error="compareOrigError"
+      :compare-rot-error="compareRotError"
       :llm-model="llmModel"
       @update:llm-model="llmModel = $event"
       :weight-mode="rwdWeightMode"

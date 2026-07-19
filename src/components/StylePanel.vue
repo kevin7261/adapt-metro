@@ -64,17 +64,18 @@ const props = defineProps({
   // 「執行調整」：評價時已把附帶的 moves 過硬規則、把調整後佈局存進結果檔的
   // exec——按鈕只切換顯示（套用 exec.cells ⇄ 恢復原佈局），不再跑 LLM。
   evalApplied: { type: Boolean, default: false },
-  // LLM 全部評價：原始／旋轉各一份四候選 RWD 比較結果；同一個「比較」tab
-  // 內用 compareView 切換，compareRunVariant 標明目前正在跑的變體。
+  // LLM 全部評價：原始／旋轉各一份結果與 runner（可同時跑、互不擋）。
   compareOrigRecord: { type: Object, default: null },
   compareRotRecord: { type: Object, default: null },
-  compareRunning: { type: Boolean, default: false },
-  compareRunVariant: { type: String, default: 'orig' },
+  compareOrigRunning: { type: Boolean, default: false },
+  compareRotRunning: { type: Boolean, default: false },
   compareCanRun: { type: Boolean, default: false },
-  compareText: { type: String, default: '' },
+  compareOrigText: { type: String, default: '' },
+  compareRotText: { type: String, default: '' },
   compareMsgOrig: { type: String, default: null },
   compareMsgRot: { type: String, default: null },
-  compareError: { type: String, default: '' },
+  compareOrigError: { type: String, default: '' },
+  compareRotError: { type: String, default: '' },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -167,16 +168,18 @@ const TABS = computed(() => [
   ...(props.llmView ? [{ id: 'llm', label: '自動對齊', icon: 'auto_awesome', title: 'LLM自動對齊' }, { id: 'llm-prompt', label: '指定對齊', icon: 'auto_awesome', title: 'LLM指定對齊' }] : []),
 ])
 const activeTab = ref('info')
-// 「比較」tab 內切換原始／旋轉；結果檔仍各自獨立。
+// 「比較」tab 內切換原始／旋轉；兩邊 runner／結果完全獨立。
 const compareView = ref('orig')
 const compareRecord = computed(() =>
   compareView.value === 'orig' ? props.compareOrigRecord : props.compareRotRecord)
 const compareMsg = computed(() =>
   compareView.value === 'orig' ? props.compareMsgOrig : props.compareMsgRot)
 const compareBusy = computed(() =>
-  props.compareRunning && props.compareRunVariant === compareView.value)
+  compareView.value === 'orig' ? props.compareOrigRunning : props.compareRotRunning)
+const compareText = computed(() =>
+  compareView.value === 'orig' ? props.compareOrigText : props.compareRotText)
 const compareErrShown = computed(() =>
-  props.compareError && props.compareRunVariant === compareView.value ? props.compareError : '')
+  compareView.value === 'orig' ? props.compareOrigError : props.compareRotError)
 
 /* ---- Object: properties of the last-clicked map feature (blank if none) ---- */
 const store = useMapStore()
@@ -1187,22 +1190,22 @@ function startResize(e) {
         <template v-else-if="activeTab === 'compare'">
           <div class="weight-panel">
             <div class="compare-variant" role="tablist" aria-label="比較變體">
-              <button type="button" role="tab" :class="{ active: compareView === 'orig' }"
-                :aria-selected="compareView === 'orig'" @click="compareView = 'orig'">原始</button>
-              <button type="button" role="tab" :class="{ active: compareView === 'rot' }"
-                :aria-selected="compareView === 'rot'" @click="compareView = 'rot'">旋轉</button>
+              <button type="button" role="tab" :class="{ active: compareView === 'orig', running: compareOrigRunning }"
+                :aria-selected="compareView === 'orig'" @click="compareView = 'orig'">原始{{ compareOrigRunning ? '…' : '' }}</button>
+              <button type="button" role="tab" :class="{ active: compareView === 'rot', running: compareRotRunning }"
+                :aria-selected="compareView === 'rot'" @click="compareView = 'rot'">旋轉{{ compareRotRunning ? '…' : '' }}</button>
             </div>
             <h4 class="llm-h">{{ compareView === 'orig' ? '原始佈局' : '旋轉佈局' }}：四結果比較</h4>
             <p class="weight-hint">一次比較直角爬山、軸對齊、整數規劃與可用的 LLM 對齊，依路網方正、直線多、轉折少與畫面平衡選出最佳者。此功能只評審與說明，不會修改任一候選圖。</p>
             <template v-if="compareCanRun">
               <label class="llm-model-pick">
                 模型
-                <select :value="llmModel" :disabled="compareRunning"
+                <select :value="llmModel" :disabled="compareBusy"
                   @change="emit('update:llm-model', $event.target.value)">
                   <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
                 </select>
               </label>
-              <button class="llm-run-btn" :disabled="compareRunning"
+              <button class="llm-run-btn" :disabled="compareBusy"
                 @click="emit('run-compare', compareView)"
               >{{ compareBusy ? '全部評價中…' : (compareRecord ? '重新 LLM 全部評價' : 'LLM 全部評價') }}</button>
             </template>
@@ -1750,6 +1753,7 @@ function startResize(e) {
   color: hsl(var(--primary));
   font-weight: 600;
 }
+.compare-variant button.running:not(.active) { color: hsl(var(--muted-foreground)); }
 .weight-random {
   padding: 8px 12px;
   font-size: var(--sp-body);
