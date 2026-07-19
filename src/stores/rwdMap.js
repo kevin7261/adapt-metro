@@ -535,11 +535,24 @@ export function buildRwdMap(segs, pos, opts = {}) {
     seenLoop.add(k)
     return true
   })
-  // Longest corridors route first (they have the fewest workable alternatives);
-  // stable tie-break keeps the result deterministic.
+  // A geometrically legal straight corridor has absolute precedence: reserve it
+  // before any bendable segment can occupy it.  This is stronger than the
+  // usual longest-corridor heuristic — a later line must detour rather than
+  // turn a line whose endpoints can be joined directly.  The only unavoidable
+  // exception is a collision between two such straight corridors (or twin
+  // same-endpoint edges): one cannot keep both without an overlap/crossing.
+  // Within each class, longest corridors still route first; the stable
+  // tie-break keeps the result deterministic.
   const order = usable
-    .map((s, i) => ({ s, i, len: dist(pos.get(s.a), pos.get(s.b)) }))
-    .sort((p, q) => q.len - p.len || p.i - q.i)
+    .map((s, i) => {
+      const S = pos.get(s.a), T = pos.get(s.b)
+      const d = dirOf(S, T)
+      const straight = d && d !== 'X' &&
+        (dirsN >= 16 || (d !== 'E+' && d !== 'E-' && d !== 'F+' && d !== 'F-')) &&
+        (dirsN >= 8 || (d !== 'D+' && d !== 'D-'))
+      return { s, i, len: dist(S, T), straight }
+    })
+    .sort((p, q) => Number(q.straight) - Number(p.straight) || q.len - p.len || p.i - q.i)
 
   // Number of hard-rule violations of a candidate against the placed legs
   // (hug / cross / node-on-leg). 0 = clean; Infinity = an illegal X leg.
@@ -916,9 +929,15 @@ export function buildRwdMap(segs, pos, opts = {}) {
   function routeAll(priority) {
     lines.length = 0
     const noRoute = new Set() // segs whose A* already failed this attempt
+    // Keep direct corridors ahead even during restart-with-priority.  A restart
+    // may promote a trapped bent line, but it must not steal a straight
+    // corridor merely because that line happened to be trapped in the prior
+    // attempt.
     const ordered = [
-      ...order.filter((o) => priority.has(o.s)),
-      ...order.filter((o) => !priority.has(o.s)),
+      ...order.filter((o) => o.straight && priority.has(o.s)),
+      ...order.filter((o) => o.straight && !priority.has(o.s)),
+      ...order.filter((o) => !o.straight && priority.has(o.s)),
+      ...order.filter((o) => !o.straight && !priority.has(o.s)),
     ]
     for (const { s } of ordered) {
       const S = pos.get(s.a), T = pos.get(s.b)
