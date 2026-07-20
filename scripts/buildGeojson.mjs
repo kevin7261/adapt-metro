@@ -1362,7 +1362,12 @@ async function build() {
   // boston：MBTA Green Line（B/C/D/E 支線，OSM 標 route=light_rail）＋ Mattapan Trolley
   // 是波士頓地鐵系統核心（官方 rapid transit 圖含綠線）——有 Red/Orange/Blue subway 原被
   // 「附掛純 LRT 剔除」丟掉，加入白名單保留（使用者 2026-07 指定「要抓綠線」）。
-  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka', 'boston'])
+  // losangeles：LA Metro Rail 的 A/C/E/K 為 route=light_rail、B/D 為 route=subway，
+  //   同屬「Metro Rail」系統；wiki List of metro systems 只計 B/D(19 站) → 覆蓋率不跌破
+  //   0.6 使輕軌被剔。使用者 2026-07 指定要含輕軌（同波士頓綠線待遇）。
+  // guadalajara：Mi Tren（SITEUR）L1/L2/L4 為 route=light_rail、L3 為 route=subway，
+  //   同一系統；覆蓋率 18/28=0.64 剛好卡在門檻上使輕軌被剔。使用者 2026-07 指定收全系統。
+  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka', 'boston', 'losangeles', 'guadalajara'])
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
