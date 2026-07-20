@@ -502,6 +502,27 @@ const hcBusy = ref(false)
 const busyText = ref('')
 const hcStats = ref(null)
 const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 stats
+// 各佈局實際算了多久（毫秒）——tab 名後面標注用。key：`hc`（②初步直線化本體）、
+// `layout-<kind>`（初步直線化群組的 ①〜⑧ 比較）、`post-<kind>`（直線演算法鏈）。
+// 值跟著快取走：算過就一直是那個數字，按「重新計算此城市全部圖層」清掉才重算。
+const calcMs = ref({})
+function syncCalcMs() {
+  const out = {}
+  if (cachedHC?.stats?.ms != null) out.hc = cachedHC.stats.ms
+  for (const k of Object.keys(cachedLayout)) {
+    if (cachedLayout[k]?.stats?.ms != null) out[`layout-${k}`] = cachedLayout[k].stats.ms
+  }
+  for (const k of Object.keys(cachedPost)) {
+    if (cachedPost[k]?.stats?.ms != null) out[`post-${k}`] = cachedPost[k].stats.ms
+  }
+  calcMs.value = out
+}
+// 「88ms」/「1.2s」；沒算過回空字串（tab 名就不帶標注）。
+const msText = (ms) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
+const msBadge = (key) => {
+  const t = msText(calcMs.value[key])
+  return t ? ` · ${t}` : ''
+}
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const endpStats = ref(null)      // 端點移動: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
@@ -631,16 +652,18 @@ const VIEW_TABS = computed(() => {
       // 只供觀看，不進下游；下游（直線演算法／端點移動／RWD）仍只吃 `hc`——
       // 標籤特別註記「往後執行」／「僅比較」。
       { header: '初步直線化', doc: 'hillclimb' },
-      { id: 'layout-stroke', label: '①筆畫法（僅比較）' },
-      { id: 'hc', label: '②Hill Climbing（往後執行）' },
+      { id: 'layout-stroke', label: `①筆畫法（僅比較）${msBadge('layout-stroke')}` },
+      { id: 'hc', label: `②Hill Climbing（往後執行）${msBadge('hc')}` },
       ...LAYOUT_KINDS.filter((p) => p.kind !== 'stroke').map(({ kind, zh }) => ({
-        id: `layout-${kind}`, label: `${zh}（僅比較）`,
+        id: `layout-${kind}`, label: `${zh}（僅比較）${msBadge(`layout-${kind}`)}`,
       })),
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
       { header: '直線演算法', doc: 'straighten' },
       // 論文①〜⑧的八條鏈（paperAlign.js PAPER_KINDS——名稱帶論文圈號，與
       // data/thesis/<n>_*_演算法說明.md 一一對應）＋ LLM 對齊，共 9 條。
-      ...PAPER_KINDS.map(({ kind, zh }) => ({ id: `hc-${kind}`, label: `${zh}${iterBadge(kind)}` })),
+      ...PAPER_KINDS.map(({ kind, zh }) => ({
+        id: `hc-${kind}`, label: `${zh}${iterBadge(kind)}${msBadge(`post-${kind}`)}`,
+      })),
       // 第九種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       // 鏈的三步＋循環＋逐步（每步一區、每條鏈一個 tab，前面的 tab 不受後面
