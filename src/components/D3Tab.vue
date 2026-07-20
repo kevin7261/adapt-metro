@@ -20,6 +20,7 @@ import {
   straightenCompactLoop, movewiseStage,
   stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
+import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from '../stores/paperAlign'
 import { buildRwdMap, mergeParallelSegs, RWD_ROUTER_REV } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
@@ -114,12 +115,14 @@ const tilt = ref(0)
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // ---- HC mode 解析 ----
-// HC 視圖 id 都是 `hc-<kind>[-<step>]`：kind ∈ rect|align|ilp|llm（四條鏈），
-// step ∈ end|line|gather|loop|step（鏈的三步＋循環＋逐步驗證）。舊的六張
-// kind 查表（POST/END/LINE/GATHER/LOOP/STEP_KIND）全部由這一條 regex 導出。
-// hc 鏈不進四個後處理區（使用者 2026-07 裁決）——只有 rect/align/ilp/llm 四條鏈；
-// RWD 底圖仍可用 hc 鏈的循環（loop 區塊的 isRWD fallback，key 'hc'）。
-const HC_MODE_RE = /^hc-(rect|align|ilp|llm)(?:-(end|line|gather|loop|step))?$/
+// HC 視圖 id 都是 `hc-<kind>[-<step>]`：kind ∈ rect|align|ilp|llm（原四條鏈）＋
+// 七條論文鏈 stroke|milp|force|lsq|octi|path|sat（paperAlign.js，2026-07 使用者
+// 裁決全部未實作論文都要接上），step ∈ end|line|gather|loop|step（鏈的三步＋
+// 循環＋逐步驗證）。舊的六張 kind 查表全部由這一條 regex 導出。
+// hc 鏈不進後處理區（使用者 2026-07 裁決）；RWD 底圖仍可用 hc 鏈的循環
+// （loop 區塊的 isRWD fallback，key 'hc'）。
+const PAPER_KIND_IDS = PAPER_KINDS.map((p) => p.kind)
+const HC_MODE_RE = new RegExp(`^hc-(rect|align|ilp|llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|step))?$`)
 // 該 step 專屬的鏈 kind（step 不符 → null）——對應舊 END/LINE/GATHER/LOOP/STEP_KIND[mode]。
 const kindAtStep = (m, step) => {
   const mm = HC_MODE_RE.exec(m)
@@ -339,7 +342,7 @@ const evalRunner = makeRun({
   onDone: () => { cachedEval = null },
 })
 const startEvalRun = evalRunner.start
-// ---- LLM 全部評價（原始＋旋轉最多 8 個 RWD 候選一次比較）----
+// ---- LLM 全部評價（原始＋旋轉最多 22 個 RWD 候選一次比較，含七條論文鏈）----
 // 選出全體／原始／旋轉三個最佳；評審只選擇、說明，不套用或修改候選佈局。
 const compareRecord = ref(null)
 const compareMsg = ref(null)
@@ -357,7 +360,7 @@ async function loadCompare() {
     compareMsg.value = null
   } catch {
     compareRecord.value = null
-    compareMsg.value = '尚未產生全部評價——按上面的按鈕一次比較原始與旋轉共最多 8 個 RWD Maps 結果。'
+    compareMsg.value = '尚未產生全部評價——按上面的按鈕一次比較原始與旋轉共最多 22 個 RWD Maps 結果。'
   }
 }
 const compareRunner = makeRun({
@@ -393,7 +396,7 @@ function toggleEvalExec() {
 const postIters = ref({}) // kind -> iterations used (set once computed)
 const iterBadge = (kind) =>
   (postIters.value[kind] ? ` ${postIters.value[kind]}/${POST_ITER_CAP}` : '')
-const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp, ...PAPER_BUILD }
 // 各 step 區塊的語意（kind 查詢一律走上方的 endKindOf/lineKindOf/…）：
 // - 端點移動（左選單第 4 部份，鏈的第 1 步）：在該鏈的結果之上做端點移動
 //   （原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／縮減網格／RWD 底圖的輸入。
@@ -419,7 +422,7 @@ const STEP_STAGES = [
 // 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
 const postKind = computed(() =>
   isHC.value ? postKindOf(mode.value)
-    : isRWD.value && ['rect', 'align', 'ilp'].includes(layer.value?.compact) ? layer.value.compact
+    : isRWD.value && ['rect', 'align', 'ilp', ...PAPER_KIND_IDS].includes(layer.value?.compact) ? layer.value.compact
       : null)
 // 縮減網格已非獨立步驟（每一個移動後由 movewiseStage 自動壓縮）；hcCompact
 // 只剩 RWD 圖層在用（其「循環結果」輸入視圖 id 沿用 'hc-compact'）。
@@ -620,6 +623,8 @@ const VIEW_TABS = computed(() => {
       { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
       // 第四種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
+      // 七條論文鏈（paperAlign.js——2026-07 使用者裁決：未實作論文全部接上）。
+      ...PAPER_KINDS.map(({ kind, zh }) => ({ id: `hc-${kind}`, label: `${zh}${iterBadge(kind)}` })),
       // 鏈的三步＋循環＋逐步（每步一區、每條鏈一個 tab，前面的 tab 不受後面
       // 步驟影響）：該鏈結果 → 端點移動 → 直線縮減 → 網格合併；另有 循環
       //（交替四步直到沒有點可以動，見 loopKindOf）與 逐步驗證（按「下一步」
@@ -632,7 +637,8 @@ const VIEW_TABS = computed(() => {
         ['step', '逐步驗證', (zh) => `${zh}逐步`, 'step-verify'],
       ].flatMap(([step, header, fmt, doc]) => [
         { header, doc },
-        ...[['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊']]
+        ...[['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
+          ...PAPER_KINDS.map(({ kind, zh }) => [kind, zh])]
           .map(([k, zh]) => ({ id: `hc-${k}-${step}`, label: fmt(zh) })),
       ]),
     ]
@@ -878,7 +884,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
       hcBusy.value = true
       busyText.value = { rect: '直角爬山中…（|sin 2θ| 短半徑再爬，迭代到不動）',
         align: '軸對齊中…（群組合併 + 中位數座標，迭代到不動）',
-        ilp: '整數規劃中…（逐軸樹 DP 精確解，迭代到不動）' }[kind]
+        ilp: '整數規劃中…（逐軸樹 DP 精確解，迭代到不動）',
+        stroke: '筆畫法中…（筆畫串接 + 4 主方向投影，迭代到不動）',
+        milp: 'MILP規劃中…（3 候選方向精確指派 + 座標重建，迭代到不動）',
+        force: '力導向中…（磁力彈簧 40 輪 + 嚴格接受，迭代到不動）',
+        lsq: '最小平方中…（八方向化 Gauss–Seidel，迭代到不動）',
+        octi: '八向格網中…（ldeg 排序逐邊定案 + 嚴格接受，迭代到不動）',
+        path: '路徑簡化中…（C-directed 最少 link 刺穿，迭代到不動）',
+        sat: 'SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
       await new Promise((r) => setTimeout(r, 30))
       if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
       cachedPost[kind] = iteratePost(POST_BUILD[kind], cachedSkeleton, cachedHC.cellAfter, grid.cols, grid.rows)
@@ -1863,6 +1876,14 @@ const layoutStatus = computed(() => {
     if (postKind.value === 'rect') t += ` · 適應度 ${fmtFit(s.before)} → ${fmtFit(s.after)} · ${s.rounds} 輪`
     else if (postKind.value === 'align') t += ` · 橫群 ${s.groupsH} · 縱群 ${s.groupsV}`
     else if (postKind.value === 'ilp') t += ` · ${s.comps} 元件` + (s.fallback ? `（${s.fallback} 退回）` : '')
+    // 論文鏈（paperAlign.js）：八方向系——補「含 45° 對齊」讀數與各自的機構統計。
+    else if (PAPER_ZH[postKind.value]) {
+      if (s.hvdBefore != null) t += ` · 含45° ${s.hvdBefore} → ${s.hvdAfter}`
+      if (postKind.value === 'stroke') t += ` · ${s.strokes} 筆畫／${s.substrokes} 子筆畫`
+      else if (postKind.value === 'milp' || postKind.value === 'sat') t += ` · ${s.comps} 元件` + (s.fallback ? `（${s.fallback} 退回）` : '')
+      else if (postKind.value === 'octi') t += ` · 定案 ${s.settled} 點`
+      else if (postKind.value === 'path') t += ` · ${s.chains} 鏈／${s.links} link`
+    }
     if (hcCompact.value && hcCompactStats.value) {
       const c = hcCompactStats.value
       t += ` · 網格 ${c.fromCols}×${c.fromRows} → ${c.cols}×${c.rows}`

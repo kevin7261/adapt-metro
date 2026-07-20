@@ -28,7 +28,11 @@ const icon = computed(() =>
 // 圈層一城一群組後，同一城市的管線圖層同名（城市名，Straighten/RWD 另帶變體）
 // ——tab 標題附上階段以便區分。RWD 一城 10 個（變體 × 5 鏈），再附上鏈名。
 const STAGE_SUFFIX = { d3: 'Map Adjust', hillclimb: 'Straighten', rwd: 'RWD' }
-const RWD_COMPACT_ZH = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本' }
+const RWD_COMPACT_ZH = {
+  rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本',
+  stroke: '筆畫法', milp: 'MILP規劃', force: '力導向', lsq: '最小平方',
+  octi: '八向格網', path: '路徑簡化', sat: 'SAT規劃',
+}
 const title = computed(() => {
   const l = layer.value
   if (l) {

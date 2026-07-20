@@ -1,6 +1,19 @@
 {
   "patches": [
     {
+      "relation": 7627370,
+      "set": { "name": "Ligne 1", "name:en": "Line 1" },
+      "note": "Algiers Metro L1 route_master：見下方四條 route relation 的統一說明。master 也一併統一（repTags 取 master）。"
+    },
+    { "relation": 289331,  "set": { "name": "Ligne 1", "name:en": "Line 1" }, "note": "Algiers Ligne 1 統一名（見 8210886 說明）。" },
+    { "relation": 6545466, "set": { "name": "Ligne 1", "name:en": "Line 1" }, "note": "Algiers Ligne 1 統一名（見 8210886 說明）。" },
+    { "relation": 8210887, "set": { "name": "Ligne 1", "name:en": "Line 1" }, "note": "Algiers Ligne 1 統一名（見 8210886 說明）。" },
+    {
+      "relation": 8210886,
+      "set": { "name": "Ligne 1", "name:en": "Line 1" },
+      "note": "Algiers Metro Ligne 1 底下四個 relation（Metro L1 / L1R / L1-2 / L1R-2）是同一條官方 Ligne 1 的 Y 型分支變體（El-Harrach 支＋Aïn Naâdja 支），OSM 各給不同 name。分支帶新站→依設計各自成 route（line_count＝route 數會 >官方線數，同港鐵東鐵綫佔 3 的既定行為，非 bug），但因 name 不一致，車站 routes[]/lines 以 ref+name 去重時無法收斂、出現 ['L1','L1'] 重複、hover 像兩條線。四條 relation 全部統一官方名『Ligne 1』(en: Line 1) 使顯示身分一致、車站標記收斂成單一 L1。站數 19 本就正確。上游補齊統一名後可移除。"
+    },
+    {
       "relation": 15624911,
       "set": {
         "ref": "L2",

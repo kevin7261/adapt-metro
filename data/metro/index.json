@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 234,
   "wikipedia_system_count": 233,
-  "line_total": 1744,
-  "station_total": 16970,
+  "line_total": 1764,
+  "station_total": 17157,
   "systems": [
     {
       "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
@@ -4000,6 +4000,103 @@
       }
     },
     {
+      "file": "systems/americas/united-states/am-usa-los-angeles.geojson",
+      "continent": "north-america",
+      "country": "United States",
+      "city": "Los Angeles",
+      "osm_networks": [
+        "LACMTA",
+        "LAX SkyLink",
+        "Los Angeles County Metropolitan Transportation Authority",
+        "Metro Rail",
+        "Metrolink",
+        "SkyLink",
+        "Unknown"
+      ],
+      "operator": "Los Angeles County Metropolitan Transportation Authority",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Los_Angeles_Metro_Rail",
+      "wikidata": "Q1339558",
+      "line_count": 8,
+      "segment_count": 14,
+      "station_count": 110,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/americas/united-states/am-usa-los-angeles.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "19 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 19 站（wiki List 記 19，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "19/19 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "21 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "19/19 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-11T15:22:16.864Z"
+      }
+    },
+    {
       "file": "systems/asia/turkey/as-tur-istanbul.geojson",
       "continent": "asia",
       "country": "Turkey",
@@ -5566,6 +5663,107 @@
           "2 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Binhai Express 12/15、福州地铁6号线 14/16"
         ],
         "audited_at": "2026-07-11T15:22:16.622Z"
+      }
+    },
+    {
+      "file": "systems/americas/mexico/am-mex-guadalajara.geojson",
+      "continent": "north-america",
+      "country": "Mexico",
+      "city": "Guadalajara",
+      "osm_networks": [
+        "Línea 4 del Tren Eléctrico Urbano de Guadalajara",
+        "Mi Tren",
+        "SITEUR"
+      ],
+      "operator": "SITEUR",
+      "official_website": null,
+      "official_map": "https://es.wikipedia.org/wiki/Línea_Verde_(Tren_Metropolitano_de_Cochabamba)",
+      "wikidata": "Q114313190",
+      "line_count": 7,
+      "segment_count": 9,
+      "station_count": 86,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/americas/mexico/am-mex-guadalajara.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "18 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 18 站（wiki List 記 28，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "18/18 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "18 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "18/18 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "1 條線無 wiki 站數對照：Mi Tren Línea 3",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線無 wiki 站數對照：Mi Tren Línea 3"
+        ],
+        "audited_at": "2026-07-11T15:22:16.772Z"
       }
     },
     {
@@ -10606,6 +10804,106 @@
       }
     },
     {
+      "file": "systems/asia/india/as-ind-chennai.geojson",
+      "continent": "asia",
+      "country": "India",
+      "city": "Chennai",
+      "osm_networks": [
+        "Chennai Metro",
+        "Unknown"
+      ],
+      "operator": "Chennai Metro Rail Limited",
+      "official_website": null,
+      "official_map": "https://en.wikipedia.org/wiki/Green_Line_(Chennai_Metro)",
+      "wikidata": "Q1639576",
+      "line_count": 3,
+      "segment_count": 4,
+      "station_count": 41,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/asia/india/as-ind-chennai.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "20 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 20 站（wiki List 記 42，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "20/20 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "22 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "20/20 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "2 條線無 wiki 站數對照：Green Line (Chennai Central ⇔ St. Thomas Mount)、Inter-Corridor Line (Chennai International Airport → Chennai Central)",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "2 條線無 wiki 站數對照：Green Line (Chennai Central ⇔ St. Thomas Mount)、Inter-Corridor Line (Chennai International Airport → Chennai Central)"
+        ],
+        "audited_at": "2026-07-11T15:22:16.700Z"
+      }
+    },
+    {
       "file": "systems/asia/turkey/as-tur-bursa.geojson",
       "continent": "asia",
       "country": "Turkey",
@@ -12300,103 +12598,6 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-los-angeles.geojson",
-      "continent": "north-america",
-      "country": "United States",
-      "city": "Los Angeles",
-      "osm_networks": [
-        "LACMTA",
-        "LAX SkyLink",
-        "Los Angeles County Metropolitan Transportation Authority",
-        "Metro Rail",
-        "Metrolink",
-        "SkyLink",
-        "Unknown"
-      ],
-      "operator": "Los Angeles County Metropolitan Transportation Authority",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Los_Angeles_Metro_Rail",
-      "wikidata": "Q1339558",
-      "line_count": 2,
-      "segment_count": 3,
-      "station_count": 19,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/americas/united-states/am-usa-los-angeles.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "2 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "19 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 19 站（wiki List 記 19，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "19/19 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "21 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "19/19 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-11T15:22:16.864Z"
-      }
-    },
-    {
       "file": "systems/americas/mexico/am-mex-monterrey.geojson",
       "continent": "north-america",
       "country": "Mexico",
@@ -13106,106 +13307,6 @@
           "3 條線無 wiki 站數對照：Line 1、Line 2、Ramal línea 2 : Corredor Sur → Aeropuerto"
         ],
         "audited_at": "2026-07-11T15:22:16.783Z"
-      }
-    },
-    {
-      "file": "systems/asia/india/as-ind-chennai.geojson",
-      "continent": "asia",
-      "country": "India",
-      "city": "Chennai",
-      "osm_networks": [
-        "Chennai Metro",
-        "Unknown"
-      ],
-      "operator": "Chennai Metro Rail Limited",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Green_Line_(Chennai_Metro)",
-      "wikidata": "Q1639576",
-      "line_count": 2,
-      "segment_count": 3,
-      "station_count": 20,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/india/as-ind-chennai.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "2 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "20 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 20 站（wiki List 記 42，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "20/20 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "22 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "20/20 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "2 條線無 wiki 站數對照：Green Line (Chennai Central ⇔ St. Thomas Mount)、Inter-Corridor Line (Chennai International Airport → Chennai Central)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "2 條線無 wiki 站數對照：Green Line (Chennai Central ⇔ St. Thomas Mount)、Inter-Corridor Line (Chennai International Airport → Chennai Central)"
-        ],
-        "audited_at": "2026-07-11T15:22:16.700Z"
       }
     },
     {
@@ -20244,22 +20345,22 @@
       }
     },
     {
-      "file": "systems/americas/mexico/am-mex-guadalajara.geojson",
-      "continent": "north-america",
-      "country": "Mexico",
-      "city": "Guadalajara",
+      "file": "systems/asia/india/as-ind-noida.geojson",
+      "continent": "asia",
+      "country": "India",
+      "city": "Noida",
       "osm_networks": [
-        "Línea 4 del Tren Eléctrico Urbano de Guadalajara",
-        "Mi Tren",
-        "SITEUR"
+        "NMRC",
+        "Noida Metro",
+        "Unknown"
       ],
-      "operator": "SITEUR",
+      "operator": "NMRC",
       "official_website": null,
-      "official_map": "https://es.wikipedia.org/wiki/Línea_3_del_Tren_Eléctrico_Urbano_de_Guadalajara",
-      "wikidata": "Q5986357",
+      "official_map": "https://en.wikipedia.org/wiki/Aqua_Line_(Noida_Metro)",
+      "wikidata": "Q16909221",
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 18,
+      "station_count": 21,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -20267,7 +20368,7 @@
           {
             "id": "system_exists",
             "ok": true,
-            "detail": "matched OSM system systems/americas/mexico/am-mex-guadalajara.geojson",
+            "detail": "matched OSM system systems/asia/india/as-ind-noida.geojson",
             "level": "error"
           },
           {
@@ -20279,25 +20380,25 @@
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "18 stations",
+            "detail": "14 stations",
             "level": "error"
           },
           {
             "id": "station_count_info",
             "ok": true,
-            "detail": "OSM 18 站（wiki List 記 28，計法含轉乘重複，僅參考）",
+            "detail": "OSM 14 站（wiki List 記 21，計法含轉乘重複，僅參考）",
             "level": "warn"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "18/18 站皆有所屬路線",
+            "detail": "14/14 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "18 個折點/端點皆為車站",
+            "detail": "14 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -20315,7 +20416,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "18/18 站皆有名稱",
+            "detail": "14/14 站皆有名稱",
             "level": "error"
           },
           {
@@ -20331,17 +20432,17 @@
             "level": "error"
           },
           {
-            "id": "line_wiki_coverage",
+            "id": "line_wiki_planned",
             "ok": false,
-            "detail": "1 條線無 wiki 站數對照：Mi Tren Línea 3",
+            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16",
             "level": "warn"
           }
         ],
         "reasons": [],
         "warnings": [
-          "1 條線無 wiki 站數對照：Mi Tren Línea 3"
+          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16"
         ],
-        "audited_at": "2026-07-11T15:22:16.772Z"
+        "audited_at": "2026-07-11T15:22:16.715Z"
       }
     },
     {
@@ -22371,106 +22472,6 @@
           "1 條線無 wiki 站數對照：Astana LRT: Nurly Zhol → Airport"
         ],
         "audited_at": "2026-07-11T15:22:16.757Z"
-      }
-    },
-    {
-      "file": "systems/asia/india/as-ind-noida.geojson",
-      "continent": "asia",
-      "country": "India",
-      "city": "Noida",
-      "osm_networks": [
-        "Noida Metro",
-        "RapidX"
-      ],
-      "operator": "National Capital Region Transport Corporation",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Delhi–Meerut_Regional_Rapid_Transit_System",
-      "wikidata": "Q30644700",
-      "line_count": 1,
-      "segment_count": 1,
-      "station_count": 14,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/india/as-ind-noida.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "1 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "14 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 14 站（wiki List 記 21，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "14/14 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "14 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "14/14 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_planned",
-            "ok": false,
-            "detail": "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：Delhi–Meerut RRTS (Sarai Kale Khan ⇔ Modipuram) 14/16"
-        ],
-        "audited_at": "2026-07-11T15:22:16.715Z"
       }
     },
     {

@@ -16,7 +16,11 @@ const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raste
 
 // 2026-07 圈層改版：群組＝城市。Raw Maps / Map Adjust 直接列出；Straighten
 // （原始/旋轉）與 RWD Maps（原始/旋轉 × 5 鏈＝10 層）收成可收合的子群組。
-const RWD_COMPACT_ZH = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本' }
+const RWD_COMPACT_ZH = {
+  rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本',
+  stroke: '筆畫法', milp: 'MILP規劃', force: '力導向', lsq: '最小平方',
+  octi: '八向格網', path: '路徑簡化', sat: 'SAT規劃',
+}
 const rwdVariantZh = (l) =>
   (store.layers.find((s) => s.id === l.sourceLayerId)?.variant === 'rot' ? '旋轉' : '原始')
 // 基底原始圖層名（metro→Metro Maps、railway→Railways、highway→Highways）。

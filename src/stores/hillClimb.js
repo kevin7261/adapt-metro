@@ -75,15 +75,16 @@ function segsIntersect(a, b, c, d) {
 
 // A segment counts as horizontal/vertical when exactly ONE coordinate matches
 // (both matching = degenerate; isHV 來自 netUtil). Shared readout of the three post-pass tabs.
-function countHV(pos, segs) {
+// （export：paperAlign.js 的七條論文鏈也用同一套讀數。）
+export function countHV(pos, segs) {
   let n = 0
   for (const s of segs) if (isHV(pos.get(s.a), pos.get(s.b))) n++
   return n
 }
-// 「H/V 或格對角 45°」對齊段數——LLM 對齊（applyLlmTargets）用它當接受準則，讓對角
-// 走向對到 45° 對角而非硬拉成 H/V 樓梯（使用者規則）。rect/align/ilp 三個後處理仍用
-// countHV（它們的目標是純 H/V 最大化，不變）。
-function countHVD(pos, segs) {
+// 「H/V 或格對角 45°」對齊段數——LLM 對齊（applyLlmTargets）與 paperAlign.js 的
+// 七條論文鏈（八方向系演算法）用它當接受準則，讓對角走向對到 45° 對角而非硬拉成
+// H/V 樓梯（使用者規則）。rect/align/ilp 三個後處理仍用 countHV（純 H/V 最大化）。
+export function countHVD(pos, segs) {
   let n = 0
   for (const s of segs) if (isHVD(pos.get(s.a), pos.get(s.b))) n++
   return n
@@ -99,9 +100,10 @@ function cyclicEqual(a, b) {
 }
 
 // Movement machinery shared by the optimizer and the post-passes (直角爬山 /
-// 軸對齊 / 整數規劃): neighbourhood lookups, the §5 hard rules and the mutating
-// move primitive. Closes over the LIVE `pos`; cellOwner mirrors it.
-function makeMover(pos, segs, inc, cols, rows) {
+// 軸對齊 / 整數規劃，以及 paperAlign.js 的七條論文鏈): neighbourhood lookups,
+// the §5 hard rules and the mutating move primitive. Closes over the LIVE
+// `pos`; cellOwner mirrors it.
+export function makeMover(pos, segs, inc, cols, rows) {
   const other = (s, u) => (s.a === u ? s.b : s.a)
   const nbrsOf = (v) => {
     const out = new Set()
@@ -603,9 +605,10 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
 // targets assume simultaneous moves, so a partially applied solution can break
 // more alignments than it lands — if the net H/V count got worse, the whole
 // application is rolled back and the input layout kept.
-// `count` = 對齊分數函式（預設 countHV＝純水平垂直；LLM 對齊傳 countHVD＝含格對角
-// 45°，讓對角走向對到斜線而非硬拉成 H/V 樓梯）。淨對齊分數變差就整批退回。
-function applyTargets(pos, M, targets, segs, maxPasses = 6, count = countHV) {
+// `count` = 對齊分數函式（預設 countHV＝純水平垂直；LLM 對齊與 paperAlign.js 傳
+// countHVD＝含格對角 45°，讓對角走向對到斜線而非硬拉成 H/V 樓梯）。淨對齊分數
+// 變差就整批退回。
+export function applyTargets(pos, M, targets, segs, maxPasses = 6, count = countHV) {
   const start = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
   const hv0 = count(pos, segs)
   const ids = [...targets.keys()].sort()

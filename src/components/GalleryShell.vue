@@ -26,7 +26,7 @@ const TABS = [
   { id: 'stations', label: '依車站數排序' },
   { id: 'global', label: '全球地鐵地圖' },
 ]
-const tab = ref('stations')
+const tab = ref(TABS[0].id)
 const stationSort = ref('desc')
 
 const tiles = computed(() => {

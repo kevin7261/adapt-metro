@@ -31,7 +31,10 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 34 // 34: RWD 畫線器 deskew-v18——「能 45 就不用 22.5」補強：joint 重算
+const VIEWS_VERSION = 35 // 35: 新增七條論文直線鏈（stroke/milp/sat/force/lsq/octi/path，
+                         //     src/stores/paperAlign.js）——HC 畫廊 6→13 視圖/variant、
+                         //     RWD 畫廊 8→22 視圖/variant，全城重算。
+                         // 34: RWD 畫線器 deskew-v18——「能 45 就不用 22.5」補強：joint 重算
                          //     依 (skew, 折數) 取捨＋收尾 deskewPass 把走廊空出後的 22.5 段
                          //     升回 45 級（全 234 城 22.5 腿 341→316、cross/forced 不變）。
                          // 33: RWD 畫線器 joint-cross-v17——交叉對聯合重算改直接偵測真交叉

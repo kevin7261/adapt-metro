@@ -69,9 +69,10 @@ function migrateLayerNames(layers) {
   return layers
 }
 
-// 一城的標準 RWD 組：4 條循環鏈（直角爬山／軸對齊／整數規劃／LLM 對齊）。
+// 一城的標準 RWD 組：11 條循環鏈（直角爬山／軸對齊／整數規劃／LLM 對齊＋七條
+// 論文鏈 stroke/milp/force/lsq/octi/path/sat——paperAlign.js，2026-07 使用者裁決）。
 // 「基本 hc」僅作 fallback、不主動建立圖層（使用者裁決移除「原始·基本」「旋轉·基本」）。
-const RWD_COMPACTS = ['rect', 'align', 'ilp', 'llm']
+const RWD_COMPACTS = ['rect', 'align', 'ilp', 'llm', 'stroke', 'milp', 'force', 'lsq', 'octi', 'path', 'sat']
 
 // 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×10
 // （原始／旋轉 × RWD_COMPACTS，各掛同變體 Straighten）。舊 session 只存了部分

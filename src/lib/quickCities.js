@@ -20,6 +20,7 @@ export const QUICK_CITIES = [
   { zh: '維也納', en: 'Vienna' }, { zh: '維也納＋地標', en: 'Vienna + Landmark' },
   { zh: '紐約', en: 'New York' }, { zh: '紐約＋地標', en: 'New York City + Landmark' },
   { zh: '波士頓', en: 'Boston' },
+  { zh: '洛杉磯', en: 'Los Angeles' },
   { zh: '雪梨', en: 'Sydney' }, { zh: '墨西哥城', en: 'Mexico City' },
   { zh: '舊金山', en: 'San Francisco' },
 ]

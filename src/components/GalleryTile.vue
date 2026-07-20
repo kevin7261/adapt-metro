@@ -10,6 +10,7 @@ import { assetUrl } from '../lib/assetUrl'
 const props = defineProps({
   system: { type: Object, required: true },
   bare: { type: Boolean, default: false },
+  label: { type: String, default: '' },   // bare 模式下方的名稱（對齊 CityViewGrid 的 vc-label）
 })
 const emit = defineEmits(['pick'])
 
@@ -137,6 +138,7 @@ onBeforeUnmount(() => observer?.disconnect())
       </svg>
       <span v-if="state === 'error'" class="tile-msg">載入失敗</span>
     </div>
+    <span v-if="bare && label" class="tile-label">{{ label }}</span>
     <div v-if="!bare" class="tile-meta">
       <span class="tile-city">{{ system.cityZh ?? system.city }} · {{ system.countryZh ?? system.country }}</span>
       <span class="tile-en">{{ system.city }} · {{ system.country }}</span>
@@ -167,6 +169,15 @@ onBeforeUnmount(() => observer?.disconnect())
 .tile.bare { border: none; border-radius: 0; }
 .tile.bare:hover { transform: none; box-shadow: none; }
 .tile.bare .tile-canvas { border-bottom: none; aspect-ratio: 4 / 3; }
+/* bare 模式的名稱列（對齊 CityViewGrid 的 .vc-label） */
+.tile-label {
+  padding: 3px 5px 5px;
+  font-size: 10px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tile:hover .tile-label { color: hsl(var(--foreground)); }
 .tile-canvas {
   position: relative;
   aspect-ratio: 16 / 11;

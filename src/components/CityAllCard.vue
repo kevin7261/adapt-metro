@@ -21,8 +21,9 @@ const SECTIONS = {
   straighten: { label: 'Straighten', dataDir: 'hcviews', labelsForTilt: hcViewLabels },
   rwd: { label: 'RWD Maps', dataDir: 'rwdviews', labelsForTilt: rwdViewLabels },
 }
-// 所有區段用固定欄數 → 卡片內每一張縮圖同寬同高（使用者：城市裡每個圖一樣大）。
-const COLS = 2
+// 四個區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排成一列，
+// 每個區段內的縮圖上下排（單欄垂直堆疊）——使用者指定的版面。
+const COLS = 1
 </script>
 
 <template>
@@ -40,32 +41,36 @@ const COLS = 2
       <span class="ah-open">匯入 ›</span>
     </button>
 
-    <template v-for="sec in sections" :key="sec.id">
-      <div class="sec-label">{{ SECTIONS[sec.id].label }}</div>
-      <!-- Raw：左＝自繪路網縮圖、右＝官方路線圖（原本空白的第二格） -->
-      <div v-if="sec.id === 'raw'" class="raw-grid" :style="{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }">
-        <GalleryTile :system="entry" bare @pick="(sys) => emit('pick', 'raw', sys)" />
-        <OfficialMapTile :system="entry" bare />
+    <div v-if="sections.length" class="sec-row">
+      <div v-for="sec in sections" :key="sec.id" class="sec-col">
+        <div class="sec-label">{{ SECTIONS[sec.id].label }}</div>
+        <!-- Raw：自繪路網縮圖＋官方路線圖，上下排（滿 2 列往右加欄） -->
+        <div v-if="sec.id === 'raw'" class="raw-grid">
+          <GalleryTile :system="entry" bare label="自繪路網" @pick="(sys) => emit('pick', 'raw', sys)" />
+          <OfficialMapTile :system="entry" bare label="官方路線圖" />
+        </div>
+        <CityViewGrid
+          v-else
+          :entry="entry"
+          :data-dir="SECTIONS[sec.id].dataDir"
+          :order="sec.order"
+          :labels-for-tilt="SECTIONS[sec.id].labelsForTilt"
+          :columns="COLS"
+          :max-rows="4"
+          :cta-label="SECTIONS[sec.id].label"
+          :head="false"
+          bare
+          @pick="(e, viewId) => emit('pick', sec.id, e, viewId)"
+        />
       </div>
-      <CityViewGrid
-        v-else
-        :entry="entry"
-        :data-dir="SECTIONS[sec.id].dataDir"
-        :order="sec.order"
-        :labels-for-tilt="SECTIONS[sec.id].labelsForTilt"
-        :columns="COLS"
-        :cta-label="SECTIONS[sec.id].label"
-        :head="false"
-        bare
-        @pick="(e, viewId) => emit('pick', sec.id, e, viewId)"
-      />
-    </template>
-    <div v-if="!sections.length" class="all-empty">上方勾選要顯示的地圖</div>
+    </div>
+    <div v-else class="all-empty">上方勾選要顯示的地圖</div>
   </div>
 </template>
 
 <style scoped>
 .all-card {
+  --gv-tile: 200px;   /* 每個小視圖固定寬度（raw-grid 與 CityViewGrid 共用） */
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
   overflow: hidden;
@@ -92,6 +97,15 @@ const COLS = 2
 .ah-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
 .all-head:hover .ah-open { opacity: 1; }
 
+/* 四區段橫向並排：Metro Maps｜Map Adjust｜Straighten｜RWD Maps
+   每區段依內容決定寬度（縮圖滿 2 列後向右加欄）；整列過寬時水平捲動。 */
+.sec-row { display: flex; align-items: flex-start; overflow-x: auto; }
+.sec-col {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+.sec-col:not(:first-child) { border-left: 1px solid hsl(var(--border)); }
 /* 區段標籤：Raw Maps / Map Adjust / Straighten / RWD Maps */
 .sec-label {
   padding: 4px 12px;
@@ -103,9 +117,15 @@ const COLS = 2
   background: hsl(var(--muted) / 0.2);
   border-bottom: 1px solid hsl(var(--border));
 }
-.sec-label:not(:first-of-type) { border-top: 1px solid hsl(var(--border)); }
-/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致（1px 分隔線當格線） */
-.raw-grid { display: grid; gap: 1px; background: hsl(var(--border)); }
+/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致——滿 4 列後往右加欄 */
+.raw-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, auto);
+  grid-auto-columns: var(--gv-tile, 108px);
+  gap: 1px;
+  background: hsl(var(--border));
+}
 .all-empty {
   padding: 18px 12px;
   font-size: 12px;

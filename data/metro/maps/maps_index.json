@@ -2,8 +2,12 @@
   "americas/united-states/am-usa-new-york-city": {
     "city": "New York City",
     "country": "United States",
-    "wikidata": "Q7733",
-    "map_file": null
+    "wikidata": null,
+    "map_file": "maps/americas/united-states/am-usa-new-york-city.png",
+    "commons_file": null,
+    "source_url": "https://web.archive.org/web/20260715114557id_/https://www.mta.info/map/5256",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": null
   },
   "europe/united-kingdom/eu-gbr-london": {
     "city": "London",
@@ -747,8 +751,12 @@
   "asia/malaysia/as-mas-kuala-lumpur": {
     "city": "Kuala Lumpur",
     "country": "Malaysia",
-    "wikidata": "Q3271384",
-    "map_file": null
+    "wikidata": null,
+    "map_file": "maps/asia/malaysia/as-mas-kuala-lumpur.png",
+    "commons_file": null,
+    "source_url": "https://web.archive.org/web/20230324161030id_/https://myrapid.com.my/wp-content/uploads/2023/03/20230211_integrated_kv_transit_map.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": null
   },
   "asia/japan/as-jpn-yokohama": {
     "city": "Yokohama",
@@ -996,13 +1004,12 @@
   "europe/hungary/eu-hun-budapest": {
     "city": "Budapest",
     "country": "Hungary",
-    "wikidata": "Q211044",
-    "map_file": "maps/europe/hungary/eu-hun-budapest.svg",
-    "commons_file": "File:Budapest Metro Map.SVG",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Budapest_Metro_Map.SVG",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Vampeare"
+    "wikidata": null,
+    "map_file": "maps/europe/hungary/eu-hun-budapest.png",
+    "commons_file": null,
+    "source_url": "https://web.archive.org/web/20211025021944id_/https://bkk.hu/downloads/map/177/",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": null
   },
   "asia/uzbekistan/as-uzb-tashkent": {
     "city": "Tashkent",
@@ -1135,13 +1142,12 @@
   "europe/france/eu-fra-toulouse": {
     "city": "Toulouse",
     "country": "France",
-    "wikidata": "Q3529461",
-    "map_file": "maps/europe/france/eu-fra-toulouse.svg",
-    "commons_file": "File:Toulouse new line C map.svg",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Toulouse_new_line_C_map.svg",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Sémhur"
+    "wikidata": null,
+    "map_file": "maps/europe/france/eu-fra-toulouse.png",
+    "commons_file": null,
+    "source_url": "https://www.projetsmetro.tisseo.fr/sites/default/files/media/images/plan_lignes_principales_022025-01.png",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": null
   },
   "africa/algeria/af-alg-algiers": {
     "city": "Algiers",
@@ -1308,11 +1314,12 @@
     "city": "Panama City",
     "country": "Panama",
     "wikidata": null,
-    "map_file": "maps/americas/panama/am-pan-panama-city.png",
+    "map_file": null,
     "commons_file": null,
-    "source_url": "https://elmetrodepanama.com/wp-content/uploads/2023/03/Guia-de-Bolsillo-Ramal-ES.pdf",
-    "license": "Official operator map (© operator; thesis use)",
-    "artist": "Operator pocket-guide PDF pg2 L1/L2 schematic"
+    "source_url": null,
+    "license": null,
+    "artist": null,
+    "note": "official schematic only inside multi-page guide (not extractable) — blank per policy"
   },
   "asia/india/as-ind-chennai": {
     "city": "Chennai",
@@ -2366,5 +2373,5 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784573737751
+  "_rev": 1784576158667
 }

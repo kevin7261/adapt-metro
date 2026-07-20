@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 
 // One city's view card (Hill Climbing / RWD Maps 共用): a title header + a grid
@@ -13,12 +13,19 @@ const props = defineProps({
   order: { type: Array, required: true },      // view id 順序
   labels: { type: Object, default: null },     // 靜態標籤表（RWD）
   labelsForTilt: { type: Function, default: null }, // (tilt) => labels（HC）
-  columns: { type: Number, required: true },   // grid 欄數（HC 4、RWD 2）
+  columns: { type: Number, required: true },   // grid 欄數（maxRows 未設時用）
+  maxRows: { type: Number, default: null },    // 設定＝改為「填滿 N 列後向右加欄」（欄流）
   ctaLabel: { type: String, required: true },  // 「建立 X ›」的 X
   head: { type: Boolean, default: true },      // false = 不畫城市標題列（視圖畫廊自己有）
   bare: { type: Boolean, default: false },     // true = 無外框（嵌在視圖畫廊卡片內）
 })
 const emit = defineEmits(['pick'])
+
+// maxRows 設定時：欄流（grid-auto-flow: column），每欄固定寬、填滿 maxRows 列
+// 後往右加欄；否則沿用固定欄數的列流。
+const gridStyle = computed(() => props.maxRows
+  ? { gridAutoFlow: 'column', gridTemplateRows: `repeat(${props.maxRows}, auto)`, gridAutoColumns: 'var(--gv-tile, 108px)' }
+  : { gridTemplateColumns: `repeat(${props.columns}, 1fr)` })
 
 const root = ref(null)
 const data = ref(null)          // { W, H, tilt?, views:{...}, stats:{...} }
@@ -63,7 +70,7 @@ onBeforeUnmount(() => observer?.disconnect())
       <span class="sh-open">建立 {{ ctaLabel }} ›</span>
     </button>
 
-    <div class="sgrid" :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }">
+    <div class="sgrid" :style="gridStyle">
       <button
         v-for="id in order"
         :key="id"

@@ -180,8 +180,20 @@ const isThroughService = (t = {}) =>
 
 // 機廠/車輛段不是客運設施：出入段線 route（新北捷運淡海機廠）與 depot 停靠點
 //（安坑機廠——具名 stop_position 會被當站源）一律排除。
-const DEPOT_NAME = /機廠|机厂|機厰|車輛段|车辆段|\bdepot\b/i
-const isDepot = (t = {}) => DEPOT_NAME.test(`${t.name || ''} ${t['name:en'] || ''}`)
+// 機廠/車輛段中文設施名一律排除；英文 "depot" 需小心——**乘客路線/車站常以其
+// 機廠端點命名**（清奈 Blue Line 終點站「Wimco Nagar Depot」、諾伊達 Aqua Line
+// 終點「Depot Station」都是真乘客站），那不是出入段線。故英文 depot 只在「無乘客
+// 線碼 ref、且不是正式車站（無 station 標、railway≠station、名稱不含 station）」時
+// 才視為機廠出入段——真正的浮空 depot stop_position 才會中。中文設施名不受此限。
+const DEPOT_ZH = /機廠|机厂|機厰|車輛段|车辆段/
+const isDepot = (t = {}) => {
+  const s = `${t.name || ''} ${t['name:en'] || ''}`
+  if (DEPOT_ZH.test(s)) return true
+  if (!/\bdepot\b/i.test(s)) return false
+  if (t.ref) return false                                    // 有乘客線碼＝正式路線/車站
+  if (t.railway === 'station' || t.station || /\bstation\b/i.test(s)) return false
+  return true
+}
 
 // 機場航廈間接駁電車（APM／people mover，如桃園機場「旅客自動電車運輸系統」、
 // 各國機場 Skytrain／Aerotrain）不是都會地鐵/輕軌——使用者指定排除（台北不抓

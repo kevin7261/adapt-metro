@@ -30,6 +30,7 @@ import {
   buildHillClimb, iteratePost,
   buildRectPolish, buildAxisAlign, buildAxisIlp, straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
+import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
 
 // 跨距上限（SPAN_CAP）：與網頁一致——vite plugin 觸發的 headless run 經
 // LLM_SPAN_CAP env 傳入網頁「已套用」的最大跨距；手動 CLI 跑（無 env）＝預設 3。
@@ -39,8 +40,8 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const OUT = join(DATA, 'llmgrids')
-const COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm']
-const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp }
+const COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm', ...PAPER_KINDS.map((p) => p.kind)]
+const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp, ...PAPER_BUILD }
 
 // compact 參數可省略（預設 'hc'）——apply 的最後一個參數永遠是 weights.json。
 const argv = process.argv.slice(2)

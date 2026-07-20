@@ -42,6 +42,8 @@ async function load() {
 // 重繪（rwd-*）。LLM 對齊循環無離線預算 → 縮圖顯示「尚未預算」，點擊即時計算。
 const CHAINS = [
   ['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
+  ['stroke', '筆畫法'], ['milp', 'MILP規劃'], ['force', '力導向'], ['lsq', '最小平方'],
+  ['octi', '八向格網'], ['path', '路徑簡化'], ['sat', 'SAT規劃'],
 ]
 const stRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
   key: `st-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'straighten', view: `loop-${c}-${variant}`, icon: 'terrain',
@@ -225,12 +227,11 @@ function pick(kind, entry, viewId) {
   padding: 0 4px;
 }
 
+/* 一行一個城市：單欄，卡片橫向鋪滿整列 */
 .tile-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   align-content: start;
 }
-@container (max-width: 720px) { .tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@container (max-width: 460px) { .tile-grid { grid-template-columns: minmax(0, 1fr); } }
 </style>

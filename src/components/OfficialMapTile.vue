@@ -12,6 +12,7 @@ const props = defineProps({
   system: { type: Object, required: true },
   bare: { type: Boolean, default: false },
   link: { type: Boolean, default: false },   // true = 資訊 tab 的連結列模式
+  label: { type: String, default: '' },      // bare 模式下方的名稱（對齊 CityViewGrid 的 vc-label）
 })
 
 const root = ref(null)
@@ -94,6 +95,7 @@ const cityLabel = () => `${props.system.cityZh ?? props.system.city} · ${props.
       <img v-if="state === 'done'" :src="src" :alt="`${system.cityZh ?? system.city} 官方路線圖`" loading="lazy" />
       <!-- 無圖 / 載入失敗：留白（不顯示文字），方塊大小仍與其他格一致 -->
     </div>
+    <span v-if="bare && label" class="omap-label">{{ label }}</span>
   </button>
 
   <!-- 燈箱 modal：點圖放大看原圖，點背景 / 關閉鈕 / Esc 關閉 -->
@@ -129,6 +131,16 @@ const cityLabel = () => `${props.system.cityZh ?? props.system.city} · ${props.
 }
 .omap.clickable { cursor: zoom-in; }
 .omap.bare { border: none; border-radius: 0; }
+/* bare 模式的名稱列（對齊 CityViewGrid 的 .vc-label） */
+.omap-label {
+  display: block;
+  padding: 3px 5px 5px;
+  font-size: 10px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.omap.clickable:hover .omap-label { color: hsl(var(--foreground)); }
 .omap-canvas {
   position: relative;
   aspect-ratio: 4 / 3;
