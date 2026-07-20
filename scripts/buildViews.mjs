@@ -31,7 +31,10 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 31 // 31: 河流全點保留（-lm 檔）＋骨架河流粉紅改絕對 0.2km 容差（巴黎長弦案）。
+const VIEWS_VERSION = 32 // 32: RWD 畫線器 skew-mix-v16——16 方向補 45＋22.5 混合／雙折 22.5
+                         //     候選家族、A* 樓梯→45 後處理（destairPass）、pickBest 補
+                         //     路徑總長最弱 tie-break（全 234 城 forced 208→164、樓梯 26→8）。
+                         // 31: 河流全點保留（-lm 檔）＋骨架河流粉紅改絕對 0.2km 容差（巴黎長弦案）。
                          // 30: 格網化吸附後修復（repairOcclusions，大邱重疊案——排名吸附不再產出
                          //     壓點/交叉/共線重疊）＋ validShift ③′ 變形段檢查＋compactGridSafe。
                          // 29: 移除深色線 halo（使用者 2026-07-17：知道黑線在深背景看不見即可，

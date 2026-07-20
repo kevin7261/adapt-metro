@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-20-near-gap-v15'
+export const RWD_ROUTER_REV = '2026-07-20-skew-mix-v16'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -486,6 +486,62 @@ function candidates(S, T, u, dirs = 8) {
     }
     pushSkew(T22)     // 22.5°（E 族）
     pushSkew(1 / T22) // 67.5°（F 族）
+    // 22.5° 雙折家族（斜–軸–斜／軸–斜–軸，分點 50/25/75）＋ 45°＋22.5° 混合家族
+    // （45–軸–斜／斜–軸–45，使用者規則：同一條路可以 45 與 22.5 組合）。所有斜腿
+    // 仍以軸向隔開（斜轉斜禁止），全部標 skew:true——同衝突數時 45 級照樣優先，
+    // 但「有 45＋22.5 的畫法可以不重疊」時不再被迫貼線／繞遠／forced。
+    const FSPLIT = [0.5, 0.25, 0.75]
+    // 每條腿都要長過方向判定容差（TOL），否則次像素腿會被 dirOf 誤判成 H/V。
+    const MINLEG = 2 * TOL
+    const pushMix = (pts, fi) => {
+      for (let i = 0; i + 1 < pts.length; i++) {
+        if (Math.abs(pts[i + 1][0] - pts[i][0]) + Math.abs(pts[i + 1][1] - pts[i][1]) < MINLEG) return
+      }
+      out.push({ pts, bends: pts.length - 2, skew: true, zRank: fi })
+    }
+    for (const t of [T22, 1 / T22]) {
+      const eFull = ay / t      // skew 腿走完全部 Δy 所需的 x 前進量（配 H 補）
+      const hRest = ax - eFull  // H 剩餘（>0 才可行）
+      const vRest = ay - t * ax // V 剩餘（skew 腿走完全部 Δx，>0 才可行）
+      for (const [fi, f] of FSPLIT.entries()) {
+        if (hRest > Z) {
+          const e1 = eFull * f // 斜–H–斜：兩條同族斜腿分掉 eFull、H 在中間
+          const P1 = [S[0] + sx * e1, S[1] + sy * t * e1]
+          pushMix([S, P1, [P1[0] + sx * hRest, P1[1]], T], fi)
+          const h1 = hRest * f // H–斜–H：斜腿一條走完、H 分兩端
+          const Q1 = [S[0] + sx * h1, S[1]]
+          pushMix([S, Q1, [Q1[0] + sx * eFull, Q1[1] + sy * ay], T], fi)
+        }
+        if (vRest > Z) {
+          const x1 = ax * f // 斜–V–斜
+          const P1 = [S[0] + sx * x1, S[1] + sy * t * x1]
+          pushMix([S, P1, [P1[0], P1[1] + sy * vRest], T], fi)
+          const v1 = vRest * f // V–斜–V
+          const Q1 = [S[0], S[1] + sy * v1]
+          pushMix([S, Q1, [Q1[0] + sx * ax, Q1[1] + sy * t * ax], T], fi)
+        }
+        // 45＋22.5 混合：45 腿走 d（兩軸各 d）、斜腿補另一斜量、軸向腿隔在中間。
+        const d = Math.min(ax, ay) * f
+        { // H 補：45 與斜腿合力走完 Δy，剩餘 Δx 給 H
+          const e = (ay - d) / t, h = ax - d - e
+          if (d > Z && e > Z && h > Z) {
+            const A1 = [S[0] + sx * d, S[1] + sy * d] // 45–H–斜
+            pushMix([S, A1, [A1[0] + sx * h, A1[1]], T], fi)
+            const B1 = [S[0] + sx * e, S[1] + sy * t * e] // 斜–H–45
+            pushMix([S, B1, [B1[0] + sx * h, B1[1]], T], fi)
+          }
+        }
+        { // V 補：45 與斜腿合力走完 Δx，剩餘 Δy 給 V
+          const e = ax - d, v = ay - d - t * e
+          if (d > Z && e > Z && v > Z) {
+            const A1 = [S[0] + sx * d, S[1] + sy * d] // 45–V–斜
+            pushMix([S, A1, [A1[0], A1[1] + sy * v], T], fi)
+            const B1 = [S[0] + sx * e, S[1] + sy * t * e] // 斜–V–45
+            pushMix([S, B1, [B1[0], B1[1] + sy * v], T], fi)
+          }
+        }
+      }
+    }
     if (deferredSkewStraight) out.push({ pts: [S, T], bends: 0, skew: true })
   }
   // 兜底：原方向直線（非 H/V/45）
@@ -823,17 +879,34 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 偏好）。
   const nearOverlapLen = (pts, placed) => overlapLen(pts, placed, unit * 0.45)
 
+  // 候選路徑總長（px）——「線要越短越好」的 tie-break 用。
+  const pathLenOf = (pts) => {
+    let L = 0
+    for (let i = 1; i < pts.length; i++) L += dist(pts[i - 1], pts[i])
+    return L
+  }
+
   // 單一共用選線器（pass 1 與衝突重掃都用同一個優先序，使用者的簡單概念）：
   // ①衝突最少 → ②近距貼線最短（重疊要越少越好——視覺上的貼線也是重疊）→
   // ③45 優於 22.5°（skew）→ ④折數最少（盡量直線）→ ⑤共線重疊最短
-  // （4 方向為了不重疊，25%/75% 可因此蓋過 50%）→ ⑥分點 50%→25%→75% → ⑦軟共線最短。
+  // （4 方向為了不重疊，25%/75% 可因此蓋過 50%）→ ⑥分點 50%→25%→75% →
+  // ⑦軟共線最短 → ⑧路徑總長最短（線要越短越好，使用者規則——放在最弱一階：
+  // 其他準則全平手時才挑較短的繞行；放前面會翻動既有裁決、實測東京 JR forced 變多）。
   // 22.5°/67.5° 候選**一律參與競爭**（使用者規則：明明有 22.5 的畫法不重疊就要用）——
   // 衝突數與近距貼線都在 skew 之前：零衝突的 22.5° 贏過重疊**或貼線**的 45°；
   // 兩者都乾淨時仍 45° 優先。straight=true 時套 Rule 0：零衝突直線立即勝出。
   // lenient=true 是最後兜底（壓站／超過 25% 重疊改記大額罰分，不再直接淘汰）。
   function pickBest(cands, seg, placed, straight = false, lenient = false) {
-    let chosen = null, chosenN = Infinity, chosenBends = Infinity, chosenZRank = Infinity
-    let chosenHard = Infinity, chosenSoft = Infinity, chosenSkew = 1, chosenNear = Infinity
+    let chosen = null, chosenKeys = null, chosenN = Infinity
+    const T2 = OVER_TOL // 近距貼線／路徑總長的比較容差（浮點）；其餘鍵沿用嚴格比較
+    const TOLS = [0, T2, 0, 0, 0, 0, 0, T2] // n, near, skew, bends, hard, zRank, soft, len
+    const beats = (a, b) => {
+      for (let k = 0; k < a.length; k++) {
+        if (a[k] < b[k] - TOLS[k]) return true
+        if (a[k] > b[k] + TOLS[k]) return false
+      }
+      return false
+    }
     for (const c of cands) {
       if (c.fallback) continue
       let n = conflictCount(c.pts, seg, placed, false, lenient)
@@ -842,23 +915,17 @@ export function buildRwdMap(segs, pos, opts = {}) {
       if (orderViolation(seg, c.pts)) { if (!lenient) continue; n += 200 }
       if (straight && c.bends === 0 && !c.skew && n === 0) // Rule 0: clean direct corridor
         return { chosen: c, chosenN: 0 }
-      const near = nearOverlapLen(c.pts, placed)
-      const hard = overlapLen(c.pts, placed)
-      const soft = softOverlapLen(c.pts, placed)
-      const skew = c.skew ? 1 : 0
-      const zRank = c.bends >= 2 ? (c.zRank ?? Infinity) : Infinity
-      const T2 = OVER_TOL // 近距長度比較用同一容差（浮點）
-      if (n < chosenN
-        || (n === chosenN && near < chosenNear - T2)
-        || (n === chosenN && near < chosenNear + T2 && skew < chosenSkew)
-        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends < chosenBends)
-        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends === chosenBends && hard < chosenHard)
-        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank < chosenZRank)
-        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank === chosenZRank && soft < chosenSoft)) {
-        chosen = c; chosenN = n; chosenBends = c.bends
-        chosenZRank = zRank; chosenHard = hard; chosenSoft = soft; chosenSkew = skew
-        chosenNear = near
-      }
+      const keys = [
+        n,
+        nearOverlapLen(c.pts, placed),
+        c.skew ? 1 : 0,
+        c.bends,
+        overlapLen(c.pts, placed),
+        c.bends >= 2 ? (c.zRank ?? Infinity) : Infinity,
+        softOverlapLen(c.pts, placed),
+        pathLenOf(c.pts),
+      ]
+      if (!chosenKeys || beats(keys, chosenKeys)) { chosen = c; chosenKeys = keys; chosenN = n }
     }
     return { chosen, chosenN }
   }
@@ -1758,9 +1825,83 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
   }
 
-  // 〔順接軟調整 → 壓短共線 → 降折到定點 → L→45〕跑兩輪：每一步挪動走廊後
-  // 都可能冒出新的可直線/可順接/可縮共線機會；續接分數不降 → 拓撲連續方向不變。
+  /* ---- A* 樓梯 → 45°（destairPass）：非正方版面的 A* 只能走 H/V 步（斜步在
+     pixel 上不是 45°），救援出來的路徑是直角樓梯——違反「對角走向用 45°、直角
+     樓梯禁止」。後處理：把每條 A* 畫的線裡「連續 H/V 交替、≥2 個直角轉折」的
+     樓梯子段抓出來，用同一套 8/16 方向候選（含 45° 腿，pixel 空間）在子段兩端點
+     之間重畫再接回原線——折數不得增加、必須含斜腿或嚴格少折、整條線零衝突、
+     貼線不得變長、環狀順序不變、拼接處不得出現斜轉斜。全部乾淨才換。 ---- */
+  function findStairRuns(pts) {
+    const ds = []
+    for (let i = 0; i + 1 < pts.length; i++) ds.push(dirOf(pts[i], pts[i + 1]))
+    const runs = [] // [legLo, legHi]：腿 legLo..legHi 交替 H/V，直角轉折數 = legHi−legLo
+    let a = -1
+    for (let i = 0; i <= ds.length; i++) {
+      const hv = i < ds.length && (ds[i] === 'H' || ds[i] === 'V')
+      const ok = hv && (a < 0 || i === a || ds[i] !== ds[i - 1])
+      if (ok) { if (a < 0) a = i; continue }
+      if (a >= 0 && i - 1 - a >= 2) runs.push([a, i - 1])
+      a = hv ? i : -1
+    }
+    return runs
+  }
+  function destairPass() {
+    for (let li = 0; li < lines.length; li++) {
+      const L = lines[li]
+      if (!L.routed || L.fallback || L.forced || L.squeezed || L.colinear) continue
+      for (let guard = 0; guard < 8; guard++) {
+        const pts = L.pts
+        const placed = placedOf(li)
+        const curNear = nearOverlapLen(pts, placed)
+        let swapped = false
+        for (const [a, b] of findStairRuns(pts)) {
+          const A = pts[a], B = pts[b + 1]
+          const runBends = b - a
+          const head = pts.slice(0, a + 1), tail = pts.slice(b + 1)
+          for (const c of candidates(A, B, unit, dirsN)) {
+            if (c.fallback || c.skew || c.bends > runBends) continue
+            const hasDiag = c.pts.some((P, i) => i > 0 && (dirOf(c.pts[i - 1], P) ?? 'X')[0] === 'D')
+            if (!hasDiag && c.bends >= runBends) continue // 純 H/V 同折數＝還是樓梯，不換
+            const raw = [...head, ...c.pts.slice(1, -1), ...tail]
+            const merged = [raw[0]] // 拼接處同向腿合併（折數才數得對）
+            for (let i = 1; i < raw.length - 1; i++) {
+              if (dist(raw[i], merged[merged.length - 1]) < Z) continue
+              const d1 = dirOf(merged[merged.length - 1], raw[i])
+              const d2 = dirOf(raw[i], raw[i + 1])
+              if (d1 && d2 && d1 === d2 && d1 !== 'X') continue
+              merged.push(raw[i])
+            }
+            merged.push(raw[raw.length - 1])
+            const legs = legsOfPts(merged)
+            if (legs.length !== merged.length - 1) continue
+            let diagAdj = false // 斜轉斜禁止（含拼接邊界）
+            for (let k = 1; k < legs.length; k++) {
+              const d1 = legs[k - 1].dir, d2 = legs[k].dir
+              if (d1 !== 'H' && d1 !== 'V' && d2 !== 'H' && d2 !== 'V' && d1 !== d2) { diagAdj = true; break }
+            }
+            if (diagAdj) continue
+            if (merged.length - 2 > L.bends) continue // 整條線折數不得增加
+            if (orderViolation(L.seg, merged)) continue
+            if (conflictCount(merged, L.seg, placed) !== 0) continue
+            if (nearOverlapLen(merged, placed) > curNear + OVER_TOL) continue
+            L.pts = merged
+            L.legs = legs
+            L.bends = merged.length - 2
+            stats.diag45++
+            swapped = true
+            break
+          }
+          if (swapped) break // 換過一段 → 這條線重掃（run 索引已失效）
+        }
+        if (!swapped) break
+      }
+    }
+  }
+
+  // 〔A* 樓梯轉 45 → 順接軟調整 → 壓短共線 → 降折到定點 → L→45〕跑兩輪：每一步
+  // 挪動走廊後都可能冒出新的可直線/可順接/可縮共線機會；續接分數不降 → 拓撲連續方向不變。
   if (!opts.fast) for (let phase = 0; phase < 2; phase++) {
+    if (dirsN >= 8) destairPass() // A* 直角樓梯 → 45°（非正方版面救援路徑的後處理）
     overlapReducePass() // 有重疊的段先試同折數的 25%/75% 分點把重疊縮短
     softPass() // 同顏色路線盡量直線相接（所有方向級都適用）
     bendReductionToFixpoint() // 盡量直線：能少折且不多重疊就少折
