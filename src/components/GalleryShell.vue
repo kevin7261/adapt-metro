@@ -32,9 +32,12 @@ function scrollToCity(id) {
 
 // 「依車站數排序」tab 照站數順序、不分組；其餘 tab 依洲別/國家分組。
 const grouped = computed(() => tab.value !== 'stations')
-// 索引群組的收合狀態（key: 'c:洲' / 'k:洲|國'）。
-const collapsed = reactive({})
-const toggleGroup = (key) => { collapsed[key] = !collapsed[key] }
+// 索引群組的收合狀態。預設「縮」：洲別預設收起（只顯示洲別標題）；展開洲別後其
+// 國家預設展開（直接看到城市），可再個別收起國家。
+const expandedCont = reactive({})     // true = 展開該洲
+const collapsedCountry = reactive({}) // true = 收起該國城市
+const toggleCont = (k) => { expandedCont[k] = !expandedCont[k] }
+const toggleCountry = (k) => { collapsedCountry[k] = !collapsedCountry[k] }
 
 // 右側索引依「加入 modal」的分類分組：洲別 → 國家 → 城市。**順序完全跟著左邊
 // 卡片（tiles）走**——逐一掃過 tiles、洲別/國家一變就插一個標題，故左右順序一致。
@@ -73,8 +76,8 @@ function makeResize(widthRef, dir, min, max) {
     window.addEventListener('pointerup', up)
   }
 }
-const startSideResize = makeResize(sideWidth, 1, 150, 420)   // 把手在右緣：往右拖變寬
-const startIndexResize = makeResize(indexWidth, -1, 140, 460) // 把手在左緣：往左拖變寬
+const startSideResize = makeResize(sideWidth, 1, 150, 640)   // 把手在右緣：往右拖變寬
+const startIndexResize = makeResize(indexWidth, -1, 140, 640) // 把手在左緣：往左拖變寬
 
 const TABS = [
   { id: 'quick', label: '快速選擇' },
@@ -147,17 +150,17 @@ const tiles = computed(() => {
         <!-- 分組模式 -->
         <template v-if="grouped">
           <template v-for="g in indexGroups" :key="g.continent">
-            <button class="gi-cont" @click="toggleGroup('c:' + g.continent)">
-              <MIcon :name="collapsed['c:' + g.continent] ? 'chevron_right' : 'expand_more'" :size="14" class="gi-chev" />
+            <button class="gi-cont" @click="toggleCont(g.continent)">
+              <MIcon :name="expandedCont[g.continent] ? 'expand_more' : 'chevron_right'" :size="14" class="gi-chev" />
               <span>{{ g.contLabel }}</span>
             </button>
-            <template v-if="!collapsed['c:' + g.continent]">
+            <template v-if="expandedCont[g.continent]">
               <template v-for="c in g.countries" :key="c.country">
-                <button class="gi-country" @click="toggleGroup('k:' + g.continent + '|' + c.country)">
-                  <MIcon :name="collapsed['k:' + g.continent + '|' + c.country] ? 'chevron_right' : 'expand_more'" :size="12" class="gi-chev" />
+                <button class="gi-country" @click="toggleCountry(g.continent + '|' + c.country)">
+                  <MIcon :name="collapsedCountry[g.continent + '|' + c.country] ? 'chevron_right' : 'expand_more'" :size="12" class="gi-chev" />
                   <span>{{ c.countryLabel }}</span>
                 </button>
-                <template v-if="!collapsed['k:' + g.continent + '|' + c.country]">
+                <template v-if="!collapsedCountry[g.continent + '|' + c.country]">
                   <button
                     v-for="t in c.cities"
                     :key="t.id"

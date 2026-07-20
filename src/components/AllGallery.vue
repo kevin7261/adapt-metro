@@ -227,11 +227,12 @@ function pick(kind, entry, viewId) {
   padding: 0 4px;
 }
 
-/* 一行一個城市：單欄，卡片橫向鋪滿整列 */
+/* 卡片自動排列：視圖少的城市會同一排放多個，容器窄時卡片佔滿整寬——
+   auto-fill＋min(100%, …) 保證永遠不出現水平捲軸。 */
 .tile-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
   gap: 16px;
-  align-content: start;
+  align-items: start;
 }
 </style>

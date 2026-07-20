@@ -21,8 +21,8 @@ const props = defineProps({
 })
 const emit = defineEmits(['pick'])
 
-// maxRows 設定時：欄流（grid-auto-flow: column），每欄固定寬、填滿 maxRows 列
-// 後往右加欄；否則沿用固定欄數的列流。
+// maxRows 設定時：欄流——每欄固定寬（--gv-tile），填滿 maxRows 列後往右加欄。
+// 一個城市高固定 maxRows 個視圖、超過往右排；否則沿用固定欄數的列流。
 const gridStyle = computed(() => props.maxRows
   ? { gridAutoFlow: 'column', gridTemplateRows: `repeat(${props.maxRows}, auto)`, gridAutoColumns: 'var(--gv-tile, 108px)' }
   : { gridTemplateColumns: `repeat(${props.columns}, 1fr)` })

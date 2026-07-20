@@ -71,6 +71,7 @@ const COLS = 1
 <style scoped>
 .all-card {
   --gv-tile: 200px;   /* 每個小視圖固定寬度（raw-grid 與 CityViewGrid 共用） */
+  max-width: 100%;
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
   overflow: hidden;
@@ -97,11 +98,12 @@ const COLS = 1
 .ah-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
 .all-head:hover .ah-open { opacity: 1; }
 
-/* 四區段橫向並排：Metro Maps｜Map Adjust｜Straighten｜RWD Maps
-   每區段依內容決定寬度（縮圖滿 2 列後向右加欄）；整列過寬時水平捲動。 */
-.sec-row { display: flex; align-items: flex-start; overflow-x: auto; }
+/* 四區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排；卡片寬度不夠時
+   區段換行、區段內縮圖也換行——一律不出現水平捲軸。 */
+.sec-row { display: flex; flex-wrap: wrap; align-items: flex-start; }
 .sec-col {
-  flex: 0 0 auto;
+  flex: 1 1 var(--gv-tile, 200px);
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -117,12 +119,11 @@ const COLS = 1
   background: hsl(var(--muted) / 0.2);
   border-bottom: 1px solid hsl(var(--border));
 }
-/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致——滿 4 列後往右加欄 */
+/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致——固定寬縮圖自動填滿換行 */
 .raw-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(4, auto);
-  grid-auto-columns: var(--gv-tile, 108px);
+  grid-template-columns: repeat(auto-fill, var(--gv-tile, 108px));
+  justify-content: start;
   gap: 1px;
   background: hsl(var(--border));
 }
