@@ -248,6 +248,13 @@
         "ref": "TY-G"
       },
       "note": "桃園捷運綠線 route r11330479（未通車例外，走 uc_exceptions/gap_routes_uc），原 ref=G 與台北松山新店線/小碧潭支線同字母、在同一都會圈檔（桃園併入台北）易混淆。使用者規則 2026-07：桃園捷運的 G → TY-G。此線無 route_master，patch 直接打在 route relation；只改線 id/route_ref。"
+    },
+    {
+      "relation": 17585171,
+      "set": {
+        "colour": "#5786c5"
+      },
+      "note": "Incheon International Airport Shuttle Train route_master r17585171（及 4 條 route 變體）OSM 完全沒標 colour／ref → route_color=null、前端退回預設紅。NamuWiki（ko:인천국제공항 셔틀트레인）象徵色：Blue Line（T1↔탑승동）#5786c5、Orange Line（T2↔탑승동）#f99d1b；合併成單一 route_master 後取 Blue 為代表色。Remove once upstream OSM adds colour."
     }
   ]
 }

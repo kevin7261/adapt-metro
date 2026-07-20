@@ -1,0 +1,240 @@
+{
+  "generated": "2026-07-20T18:58:19.181Z",
+  "by": {
+    "black_white": 5,
+    "named_red": 17
+  },
+  "issues": [
+    {
+      "sev": "info",
+      "kind": "black_white",
+      "city": "London",
+      "id": "eu-gbr-london",
+      "detail": "5 black/white",
+      "lines": [
+        "Northern=#000000",
+        "Northern=#000000",
+        "Northern=#000000",
+        "Northern=#000000",
+        "Northern=#000000"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Nuremberg",
+      "id": "eu-ger-nuremberg",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "U2"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "black_white",
+      "city": "Madrid",
+      "id": "eu-esp-madrid",
+      "detail": "1 black/white",
+      "lines": [
+        "R=#ffffff"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Moscow",
+      "id": "eu-rus-moscow",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Stockholm",
+      "id": "eu-swe-stockholm",
+      "detail": "2 colour=red (#e6194b)",
+      "lines": [
+        "13",
+        "14"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Bielefeld",
+      "id": "eu-ger-bielefeld",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "4"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Baku",
+      "id": "as-aze-baku",
+      "detail": "2 colour=red (#e6194b)",
+      "lines": [
+        "1",
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Saint Petersburg",
+      "id": "eu-rus-saint-petersburg",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Mumbai",
+      "id": "as-ind-mumbai",
+      "detail": "2 colour=red (#e6194b)",
+      "lines": [
+        "7",
+        "9"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Bilbao",
+      "id": "eu-esp-bilbao",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "L1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "black_white",
+      "city": "Bilbao",
+      "id": "eu-esp-bilbao",
+      "detail": "1 black/white",
+      "lines": [
+        "L2=#000000"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Tashkent",
+      "id": "as-uzb-tashkent",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Ahmedabad",
+      "id": "as-ind-ahmedabad",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "2"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Minsk",
+      "id": "eu-blr-minsk",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "2"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Kharkiv",
+      "id": "eu-ukr-kharkiv",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1 Холодногірсько-заводська"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Hyderabad",
+      "id": "as-ind-hyderabad",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Mashhad",
+      "id": "as-iri-mashhad",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "3"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Pyongyang",
+      "id": "as-prk-pyongyang",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Santo Domingo",
+      "id": "am-dom-santo-domingo",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "2"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "named_red",
+      "city": "Novosibirsk",
+      "id": "eu-rus-novosibirsk",
+      "detail": "1 colour=red (#e6194b)",
+      "lines": [
+        "1"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "black_white",
+      "city": "Porto Alegre",
+      "id": "am-bra-porto-alegre",
+      "detail": "1 black/white",
+      "lines": [
+        "Conexão Metrô-Aeroporto=#000000"
+      ]
+    },
+    {
+      "sev": "info",
+      "kind": "black_white",
+      "city": "London + Landmark",
+      "id": "eu-gbr-london-lm",
+      "detail": "5 black/white",
+      "lines": [
+        "Northern=#000000",
+        "Northern=#000000",
+        "Northern=#000000",
+        "Northern=#000000",
+        "Northern=#000000"
+      ]
+    }
+  ]
+}

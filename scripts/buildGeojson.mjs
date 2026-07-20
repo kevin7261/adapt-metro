@@ -96,6 +96,18 @@ const CSS_COLORS = {
   silver: '#c0c0c0', gold: '#ffd700', violet: '#ee82ee', indigo: '#4b0082',
   // CSS 具名色的其餘常見值（aqua≡cyan、fuchsia≡magenta）——Pune Aqua Line 標 "aqua"
   aqua: '#42d4f4', fuchsia: '#f032e6', olive: '#808000', turquoise: '#40e0d0',
+  // OSM 偶用 CSS Level 3 具名色（未進上表會原樣落到 route_color，前端當無效色）
+  // Moscow Line 2 = darkgreen；Baku 2B = lightgreen；Sendai = DeepSkyBlue / SeaGreen
+  darkgreen: '#006400', lightgreen: '#90ee90',
+  deepskyblue: '#00bfff', seagreen: '#2e8b57',
+  darkblue: '#00008b', lightblue: '#add8e6', skyblue: '#87ceeb',
+  darkred: '#8b0000', lightcoral: '#f08080', coral: '#ff7f50',
+  darkorange: '#ff8c00', darkviolet: '#9400d3', mediumpurple: '#9370db',
+  forestgreen: '#228b22', mediumseagreen: '#3cb371', springgreen: '#00ff7f',
+  steelblue: '#4682b4', royalblue: '#4169e1', dodgerblue: '#1e90ff',
+  crimson: '#dc143c', tomato: '#ff6347', orangered: '#ff4500',
+  chocolate: '#d2691e', saddlebrown: '#8b4513', sandybrown: '#f4a460',
+  hotpink: '#ff69b4', deeppink: '#ff1493', mediumvioletred: '#c71585',
 }
 
 function normColor(c) {
