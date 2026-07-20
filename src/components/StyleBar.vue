@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { mapHandle } from '../stores/mapHandle'
 import { layerData, boundsOfGeojson } from '../stores/layerData'
 import { rwdFrameGroups } from '../lib/rwdFrames'
+import { DEFAULT_RIVER_GRAY_SINUOSITY } from '../stores/skeleton'
 
 // 樣式工具列（地圖上方）：一條工具列，每個工具各自縮成一顆 icon——按某顆 icon
 // 才彈出「那一個」控制項的小視窗，且每個小視窗都有「預設」按鈕（把該屬性還原）。
@@ -74,12 +75,12 @@ const hasRow2 = computed(() => isRwd.value || isHillclimb.value || isMapAdjust.v
 // 草稿＝layer.riverGraySinuosity；已套用＝riverGrayApplied（來自 D3Tab 的 applied 快照，
 // 與 panelLayer.riverGraySinuosityApplied 同步）。
 const riverGrayDirty = computed(() => {
-  const draft = +(props.layer?.riverGraySinuosity ?? 1.25)
-  const applied = +(props.riverGrayApplied ?? props.layer?.riverGraySinuosityApplied ?? 1.25)
+  const draft = +(props.layer?.riverGraySinuosity ?? DEFAULT_RIVER_GRAY_SINUOSITY)
+  const applied = +(props.riverGrayApplied ?? props.layer?.riverGraySinuosityApplied ?? DEFAULT_RIVER_GRAY_SINUOSITY)
   return Math.abs(draft - applied) > 1e-9
 })
 function setRiverGrayDraft(raw) {
-  const v = Math.max(1.01, Math.round((+raw || 1.25) * 100) / 100)
+  const v = Math.max(1.01, Math.round((+raw || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
   props.layer.riverGraySinuosity = v // 只改草稿，不觸發重算
 }
 
@@ -330,11 +331,11 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
       <!-- 河流分隔曲折度（只 Map Adjust）：輸入改草稿，按「確定」才重算本城市骨架灰點。
            門檻＝粉紅／黃點等邊界之間子段弧長÷弦長；> 此值就在最中間放灰並遞迴細分。
            下限 1.01（1.0 會讓幾乎每個河點變灰、佈局卡死）。 -->
-      <label v-if="isMapAdjust" class="sb-inline" title="河流分隔曲折度：粉紅／黃點之間子段弧長÷弦長 > 此值就放灰分隔點（預設 1.25）">
+      <label v-if="isMapAdjust" class="sb-inline" title="河流分隔曲折度：粉紅／黃點之間子段弧長÷弦長 > 此值就放灰分隔點（預設 1.15）">
         <span class="sb-inline-label">河流分隔曲折度</span>
         <input
           type="number" class="sb-inline-num" min="1.01" max="3" step="0.01"
-          :value="layer.riverGraySinuosity ?? 1.25"
+          :value="layer.riverGraySinuosity ?? DEFAULT_RIVER_GRAY_SINUOSITY"
           @change="setRiverGrayDraft($event.target.value)"
         />
       </label>

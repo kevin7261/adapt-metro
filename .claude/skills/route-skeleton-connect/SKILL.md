@@ -233,7 +233,7 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
      grayInfo: Map<id, {chordA,chordB,pt,foot,sinuosity}>,  // 河流灰分隔的 hover 參考線
      crossings: [{ id, coord:[lng,lat] }],
      riverGraySinuosity: number }`。`buildConnectSkeleton(geojson, opts?)` 的 `opts.riverGraySinuosity`
-  覆蓋河流灰門檻（預設 `DEFAULT_RIVER_GRAY_SINUOSITY`＝1.25，夾 ≥1.01）。`stationClass`／`edges` 的 path 可含合成交叉 id
+  覆蓋河流灰門檻（預設 `DEFAULT_RIVER_GRAY_SINUOSITY`＝1.15，夾 ≥1.01）。`stationClass`／`edges` 的 path 可含合成交叉 id
   （`xN`，見 ②）；`crossings` 給前端解析其座標。`edge.geom` ＝該邊的**真實折線座標串**（依
   route 停靠站切段、含跳站段穿過的中段站折點），供**地理視圖的邊分類襯底**沿線畫。座標一律
   取原座標（**不移動、不拉直**）。（線本身不用 edges 畫——見上「核心原則」，一律畫 line
@@ -263,7 +263,7 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
   - **灰點＝依曲折度遞迴細分**（使用者裁決 2026-07-21，取代早期「河流不放灰」）：與 metro
     的「每 5 黑點 1 灰」規則不同。**粉紅計算完後**，任兩相鄰**邊界點**（邊端點＝黃交叉／
     紅匯流／藍端點 ＋ 內部粉紅）之間，若該**子段曲折度**（子段弧長÷子段弦長）仍
-    **> `riverGraySinuosity`（預設 `DEFAULT_RIVER_GRAY_SINUOSITY`＝1.25）**，就在子段裡「**最中間**」
+    **> `riverGraySinuosity`（預設 `DEFAULT_RIVER_GRAY_SINUOSITY`＝1.15）**，就在子段裡「**最中間**」
     （弧長中點最近）的黑點設**灰分隔點**；灰也成為邊界、**遞迴細分**左右兩半，直到每個子段都
     近乎筆直。灰點**納入後續計算**（`schematicGrid` 把非黑點當切點 → 灰點之間拉直、格網化把
     灰吸到格排名）。**只在黑點放灰**（不覆蓋粉紅/節點）。
@@ -273,7 +273,7 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
     RWD 三個獨立 D3Tab 綁同一 `panelLayer`（metro／自有 d3），`watch(riverGraySinuosityApplied)`
     讓**已開啟**的 Straighten／RWD 一併重算骨架＋HC／RWD 佈局；未開的分頁下次打開時
     `resetPerDataset` 讀 `riverGraySinuosityApplied`。下限 **1.01**（不可設 1.0：幾乎每個黑點
-    變灰、佈局卡死；1.05→1.1 另有 40× 效能懸崖）。畫廊預計算用預設 1.25。
+    變灰、佈局卡死；1.05→1.1 另有 40× 效能懸崖）。畫廊預計算用預設 **1.15**。
     早期「每 5 黑點 1 灰」在河流會撒數十個地理採樣切點害河流折來折去，故河流改用此曲折度細分。
   - **hover 畫參考線**：灰點與粉紅一樣可 hover——畫「子段弦（虛線，曲折度基準）＋灰點到弦的
     垂距（實線）」並在 tooltip 顯示子段曲折度（`grayInfo`，`skeleton.js` 回傳；D3Tab 的

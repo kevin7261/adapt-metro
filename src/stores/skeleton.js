@@ -224,8 +224,9 @@ function detectCrossings(geojson, routes, coord) {
 
 // 河流灰分隔的預設子段曲折度門檻（可被 opts.riverGraySinuosity 覆蓋；Map Adjust
 // 工具列可調）。**不可設 1.0**：真實地理點幾乎不共線 → 幾乎每個黑點都會變灰、
-// RWD/HC 佈局彩色切點爆量而卡死；1.05→1.1 之間另有 40× 效能懸崖。
-export const DEFAULT_RIVER_GRAY_SINUOSITY = 1.25
+// RWD/HC 佈局彩色切點爆量而卡死；1.05→1.1 之間另有 40× 效能懸崖。預設 1.15
+// （比 metro 粉紅 1.25 積極、佈局仍可負擔）。
+export const DEFAULT_RIVER_GRAY_SINUOSITY = 1.15
 
 export function buildConnectSkeleton(geojson, opts = {}) {
   // stations
@@ -492,7 +493,7 @@ export function buildConnectSkeleton(geojson, opts = {}) {
   // A kept vertex is marked pink only if it is still a black (through) station.
   const PINK_SINUOSITY = 1.25
   const PINK_DP_TOL = 0.25
-  // 河流灰分隔的子段曲折度門檻——預設 DEFAULT_RIVER_GRAY_SINUOSITY（1.25），可由
+  // 河流灰分隔的子段曲折度門檻——預設 DEFAULT_RIVER_GRAY_SINUOSITY（1.15），可由
   // opts.riverGraySinuosity 覆蓋（Map Adjust 工具列設定＋按確定套用）。夾 ≥1.01，
   // 避免 1.0 讓幾乎每個黑點變灰、佈局卡死（見 DEFAULT_RIVER_GRAY_SINUOSITY 註解）。
   const RIVER_GRAY_SINUOSITY = Math.max(1.01, +opts.riverGraySinuosity || DEFAULT_RIVER_GRAY_SINUOSITY)

@@ -54,7 +54,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #app { height: 100%; margin: 0; }
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+  /* 'TASA Orbiter' 只含拉丁字母與數字，故英文/數字用它，中文自動 fall back 到後面的 sans-serif */
+  font-family: 'TASA Orbiter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
   font-size: 14px;
   color: hsl(var(--foreground));
