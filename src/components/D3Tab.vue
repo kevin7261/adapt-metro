@@ -12,7 +12,7 @@ import { makeHeadlessRun } from '../lib/headlessRun'
 import { resolveRwdFrame } from '../lib/rwdFrames'
 import { layerData, layerExport, localizeStationNames } from '../stores/layerData'
 import { computeOrientation } from '../stores/orientation'
-import { buildConnectSkeleton } from '../stores/skeleton'
+import { buildConnectSkeleton, DEFAULT_RIVER_GRAY_SINUOSITY } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
 import {
   buildHillClimb, buildHcGraph,
@@ -444,6 +444,8 @@ let cachedSkeleton = null
 let cachedHC = null
 let cachedPost = {}    // rect / align / ilp post-pass results, keyed by kind
 let cachedFp = null    // 本資料的內容指紋（localStorage 快取鍵用）
+// 河流分隔曲折度「已套用」值（Map Adjust 工具列輸入是草稿；按確定才寫這裡並重算骨架）
+const appliedRiverGraySinuosity = ref(null)
 
 let cachedLlm = null   // fetched llmview (自動對齊): { cells, stats } or { miss: hint }
 let cachedPrompt = null // fetched .prompt.json (指定對齊): { cells, stats } or { miss }
@@ -786,7 +788,13 @@ function uniformBlue(nC, nR, cw, ch) {
 function resetPerDataset(data) {
   cacheData = data
   tilt.value = computeOrientation(data).tilt
-  cachedSkeleton = buildConnectSkeleton(data)
+  if (appliedRiverGraySinuosity.value == null) {
+    appliedRiverGraySinuosity.value = panelLayer.value?.riverGraySinuosity ?? DEFAULT_RIVER_GRAY_SINUOSITY
+  }
+  if (panelLayer.value && panelLayer.value.riverGraySinuosity == null) {
+    panelLayer.value.riverGraySinuosity = appliedRiverGraySinuosity.value
+  }
+  cachedSkeleton = buildConnectSkeleton(data, { riverGraySinuosity: appliedRiverGraySinuosity.value })
   cachedHC = null
   cachedPost = {}
   cachedLlm = null
@@ -819,7 +827,7 @@ function resetPerDataset(data) {
   // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
   // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
   tipIdx = buildPopupIndex(data) // hover 索引（refColor/segs/站點）——per dataset 一次
-  cachedFp = dataFingerprint(data)
+  cachedFp = `${dataFingerprint(data)}:rg${appliedRiverGraySinuosity.value}`
   const hit = loadHcCache(`${cachedFp}:${hcVariant.value}`)
   if (hit) { cachedHC = hit.hc; cachedPost = hit.posts }
 }
@@ -1478,18 +1486,27 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
   // Reference lines for a bend/separator point: the chord (sinuosity baseline,
   // dashed), the DP sub-segment baseline (solid, pink only), and this point's
   // perpendicular drop to it. `color` = 粉紅 #ec4899 / 灰分隔 #9ca3af.
+  // NOTE: `info.foot` from skeleton.js is the perpendicular foot in raw lng/lat
+  // space, but the projection scales lng/lat differently (lng compressed by
+  // cos(lat) + tilt), so drawing pt→foot with projected endpoints looks skewed.
+  // Recompute the foot in PIXEL space here so the drop is visually perpendicular.
   function drawRef(info, color = '#ec4899') {
     refG.selectAll('*').remove()
-    const seg = (a, b, dash) => refG.append('line')
-      .attr('x1', P(a)[0]).attr('y1', P(a)[1]).attr('x2', P(b)[0]).attr('y2', P(b)[1])
+    const segPx = (a, b, dash) => refG.append('line')
+      .attr('x1', a[0]).attr('y1', a[1]).attr('x2', b[0]).attr('y2', b[1])
       .attr('stroke', color).attr('stroke-width', 1.5)
       .attr('stroke-dasharray', dash || null)
-    if (info.chordA) seg(info.chordA, info.chordB, '4 3') // chord (sinuosity)
-    if (info.baseA) seg(info.baseA, info.baseB)           // DP baseline (pink)
-    seg(info.pt, info.foot)                                // perpendicular (垂距)
+    if (info.chordA) segPx(P(info.chordA), P(info.chordB), '4 3') // chord (sinuosity)
+    if (info.baseA) segPx(P(info.baseA), P(info.baseB))           // DP baseline (pink)
+    // Baseline the perpendicular drops onto: DP sub-segment (pink) or sub-chord (gray).
+    const bA = P(info.baseA ?? info.chordA), bB = P(info.baseB ?? info.chordB), Ppt = P(info.pt)
+    const dx = bB[0] - bA[0], dy = bB[1] - bA[1], L2 = dx * dx + dy * dy || 1e-9
+    const t = ((Ppt[0] - bA[0]) * dx + (Ppt[1] - bA[1]) * dy) / L2
+    const foot = [bA[0] + t * dx, bA[1] + t * dy] // pixel-space perpendicular foot
+    segPx(Ppt, foot) // perpendicular (垂距) — visually perpendicular on screen
     refG.append('circle')
       .attr('class', 'ref-foot')
-      .attr('cx', P(info.foot)[0]).attr('cy', P(info.foot)[1])
+      .attr('cx', foot[0]).attr('cy', foot[1])
       .attr('r', 2 / zk).attr('fill', color)
   }
   const clearRef = () => refG.selectAll('*').remove()
@@ -1745,8 +1762,9 @@ function pinkExtra(info) {
 }
 // Gray (river separator) EXTRA — the sub-segment (pink/yellow 邊界之間) it split.
 function grayExtra(info) {
+  const th = (cachedSkeleton?.riverGraySinuosity ?? appliedRiverGraySinuosity.value ?? DEFAULT_RIVER_GRAY_SINUOSITY).toFixed(2)
   return '<hr class="tip-sep"/><span style="color:#9ca3af">● 分隔點（灰）</span>'
-    + `<br/>子段曲折度 = 弧長÷弦長 = <b>${info.sinuosity.toFixed(2)}</b>（&gt;1.15 要再分隔）`
+    + `<br/>子段曲折度 = 弧長÷弦長 = <b>${info.sinuosity.toFixed(2)}</b>（&gt;${th} 要再分隔）`
     + '<br/><span style="color:#9ca3af;font-size:11px">粉紅／黃點等邊界之間仍太彎，'
     + '就在最中間的點放灰分隔並遞迴細分；虛線＝子段弦，實線＝垂距。</span>'
 }
@@ -1911,7 +1929,13 @@ watch(mode, render)
 // 樣式 tab 的「顏色點間最大跨距」：滑桿只改 layer.spanCap，不自動重算——
 // 快取沿用 appliedSpanCap（上次套用的值），按「重新計算」才作廢重算。
 const appliedSpanCap = ref(null)
-watch(() => panelLayer.value?.id, () => { appliedSpanCap.value = panelLayer.value?.spanCap ?? 3 })
+watch(() => panelLayer.value?.id, () => {
+  appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
+  appliedRiverGraySinuosity.value = panelLayer.value?.riverGraySinuosity ?? DEFAULT_RIVER_GRAY_SINUOSITY
+  if (panelLayer.value && panelLayer.value.riverGraySinuosity == null) {
+    panelLayer.value.riverGraySinuosity = appliedRiverGraySinuosity.value
+  }
+})
 function recalcSpan() {
   appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
   // 跨距上限只約束爬山（setSpanCap → buildHillClimb），所以它與其後處理必須一併作廢，
@@ -1927,6 +1951,47 @@ function recalcSpan() {
   cachedRWD = null
   render()
 }
+
+// Map Adjust 工具列「河流分隔曲折度」：輸入只改 panelLayer.riverGraySinuosity（草稿），
+// 按「確定」寫入已套用值。門檻存在共用的 panelLayer（metro／自有 d3）上——Map Adjust、
+// Straighten、RWD 三個獨立 D3Tab 都綁同一物件，watch 會讓**已開啟**的 Straighten／RWD
+// 一併重算骨架＋HC／RWD 佈局；未開的分頁下次打開時 resetPerDataset 也會讀到新門檻。
+function applyRiverGrayAndInvalidate(v) {
+  const th = Math.max(1.01, Math.round((+v || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
+  if (appliedRiverGraySinuosity.value === th && cachedSkeleton?.riverGraySinuosity === th) return
+  appliedRiverGraySinuosity.value = th
+  if (panelLayer.value) panelLayer.value.riverGraySinuosity = th
+  if (!cacheData) { render(); return }
+  cachedSkeleton = buildConnectSkeleton(cacheData, { riverGraySinuosity: th })
+  cachedHC = null
+  cachedPost = {}
+  cachedLlm = null
+  cachedPrompt = null
+  cachedGrid = null
+  cachedEval = null
+  cachedEndp = {}
+  cachedLine = {}
+  cachedGather = {}
+  cachedLoop = {}
+  stepState = {}
+  stepHistory = {}
+  cachedRWD = null
+  cachedFp = `${dataFingerprint(cacheData)}:rg${th}`
+  render()
+}
+function recalcRiverGray() {
+  const raw = panelLayer.value?.riverGraySinuosity
+  const v = Math.max(1.01, Math.round((+raw || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
+  // 先寫共用 layer，觸發其他已開的 Straighten／RWD tab 的 watch；本 tab 也走同一套重算。
+  if (panelLayer.value) panelLayer.value.riverGraySinuosity = v
+  applyRiverGrayAndInvalidate(v)
+  store.toast(`河流分隔曲折度 ${v}：骨架／Straighten／RWD Maps 已重算`)
+}
+// 其他分頁（或本分頁）改了共用 panelLayer.riverGraySinuosity → 跟著重算。
+watch(() => panelLayer.value?.riverGraySinuosity, (v) => {
+  if (v == null) return
+  applyRiverGrayAndInvalidate(v)
+})
 // Live style sync from the bound layer (Style tab sliders).
 watch(
   () => [panelLayer.value?.strokeWidth, panelLayer.value?.radius, panelLayer.value?.opacity],
@@ -2105,6 +2170,7 @@ onBeforeUnmount(() => {
           :min-stop-px="rwdMinStopPx"
           :stop-stat="rwdStopStat"
           :span-applied="appliedSpanCap"
+          :river-gray-applied="appliedRiverGraySinuosity"
           :fisheye="fisheyeOn"
           @fisheye="setFisheye"
           @show-weights="setRwdShowWeights"
@@ -2116,6 +2182,7 @@ onBeforeUnmount(() => {
           @hide-stops="setRwdHideStops"
           @min-stop-px="setRwdMinStopPx"
           @recalc-span="recalcSpan"
+          @recalc-river-gray="recalcRiverGray"
           @fit-view="fitView"
         />
         <div class="map-main">

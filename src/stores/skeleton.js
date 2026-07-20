@@ -222,7 +222,12 @@ function detectCrossings(geojson, routes, coord) {
   return { crossings, crossIds }
 }
 
-export function buildConnectSkeleton(geojson) {
+// 河流灰分隔的預設子段曲折度門檻（可被 opts.riverGraySinuosity 覆蓋；Map Adjust
+// 工具列可調）。**不可設 1.0**：真實地理點幾乎不共線 → 幾乎每個黑點都會變灰、
+// RWD/HC 佈局彩色切點爆量而卡死；1.05→1.1 之間另有 40× 效能懸崖。
+export const DEFAULT_RIVER_GRAY_SINUOSITY = 1.25
+
+export function buildConnectSkeleton(geojson, opts = {}) {
   // stations
   const coord = new Map() // id -> [lng,lat]
   for (const f of geojson?.features ?? []) {
@@ -487,14 +492,12 @@ export function buildConnectSkeleton(geojson) {
   // A kept vertex is marked pink only if it is still a black (through) station.
   const PINK_SINUOSITY = 1.25
   const PINK_DP_TOL = 0.25
-  // 河流灰分隔的子段曲折度門檻（使用者裁決 2026-07-21：由 1.25 → 試 1.0/1.05/1.1/1.20 → 定 1.15）——
-  // 子段曲折度 > 此值就在最中間放灰、遞迴細分。**不可設 1.0**：真實地理點幾乎不共線 → 幾乎每個
-  // 黑點都會變灰（台北 382/393）、RWD/HC 佈局彩色切點爆量而卡死（單城 >3 分鐘跑不完）；1.05→1.1
-  // 之間另有 40× 效能懸崖（台北 1.05＝71 灰 ~57s、1.1＝23 灰 ~1.6s）。1.15 比 metro 粉紅 1.25
-  // 積極、佈局仍可負擔（台北約 11 灰 ~1.5s）。
-  const RIVER_GRAY_SINUOSITY = 1.15
+  // 河流灰分隔的子段曲折度門檻——預設 DEFAULT_RIVER_GRAY_SINUOSITY（1.25），可由
+  // opts.riverGraySinuosity 覆蓋（Map Adjust 工具列設定＋按確定套用）。夾 ≥1.01，
+  // 避免 1.0 讓幾乎每個黑點變灰、佈局卡死（見 DEFAULT_RIVER_GRAY_SINUOSITY 註解）。
+  const RIVER_GRAY_SINUOSITY = Math.max(1.01, +opts.riverGraySinuosity || DEFAULT_RIVER_GRAY_SINUOSITY)
   // 河流邊與一般地鐵邊完全相同處理（使用者裁決：不要特別不同）——同曲折度關卡、
-  // 同相對容差 DP 挑粉紅、同灰點分隔規則，無任何河流特例。
+  // 同相對容差 DP 挑粉紅；灰點則用上方門檻遞迴細分。
   for (const e of edges) {
     const { path } = e
     if (path.length < 3) continue
@@ -594,5 +597,5 @@ export function buildConnectSkeleton(geojson) {
 
   // 河流合成站的座標（非 Point feature，前端拿不到）——連同 crossings 一起併進 posById，
   // 讓格網化（schematicGrid）把河流一起示意化、移動後視圖也畫得出河流邊。
-  return { stationClass, edges, pinkInfo, grayInfo, crossings }
+  return { stationClass, edges, pinkInfo, grayInfo, crossings, riverGraySinuosity: RIVER_GRAY_SINUOSITY }
 }

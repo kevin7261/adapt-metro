@@ -21,6 +21,7 @@ const props = defineProps({
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
   spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（只 Straighten）
+  riverGrayApplied: { type: Number, default: null }, // 河流分隔曲折度「已套用」值（只 Map Adjust）
   fisheye: { type: Boolean, default: false }, // 滑鼠放大鏡（魚眼變形，游標處放大網格）
   // OSM 實際軌道路線（25%）：只有 metro 地圖視圖、且該城市有軌道資料時才顯示。狀態
   // 在 LayerTab，工具列只顯示＋emit 回去。
@@ -30,7 +31,7 @@ const props = defineProps({
   centerAvailable: { type: Boolean, default: false },
   centerOn: { type: Boolean, default: false },
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'frame', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'fit-view', 'set-tracks', 'set-center', 'fisheye'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'frame', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'recalc-river-gray', 'fit-view', 'set-tracks', 'set-center', 'fisheye'])
 const frameGroups = rwdFrameGroups()
 
 // 地圖底色的 8 個預設快選色（依明度深→淺排序）
@@ -64,9 +65,21 @@ function fitView() {
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const isRwd = computed(() => props.viewKind === 'rwd')
 // 第 2 排：RWD 有版面控制；Straighten（hillclimb）才有顏色點間最大跨距（SPAN_CAP
-// 只約束爬山 movewise，RWD 畫線不用）。
+// 只約束爬山 movewise，RWD 畫線不用）；Map Adjust 有河流分隔曲折度。
 const isHillclimb = computed(() => props.viewKind === 'hillclimb')
-const hasRow2 = computed(() => isRwd.value || isHillclimb.value)
+const isMapAdjust = computed(() => props.viewKind === 'map-adjust')
+const hasRow2 = computed(() => isRwd.value || isHillclimb.value || isMapAdjust.value)
+
+// 河流分隔曲折度草稿 vs 已套用——不同才亮「確定」。
+const riverGrayDirty = computed(() => {
+  const draft = +(props.layer?.riverGraySinuosity ?? 1.25)
+  const applied = +(props.riverGrayApplied ?? 1.25)
+  return Math.abs(draft - applied) > 1e-9
+})
+function setRiverGrayDraft(raw) {
+  const v = Math.max(1.01, Math.round((+raw || 1.25) * 100) / 100)
+  props.layer.riverGraySinuosity = v
+}
 
 // 工具依「相關功能」分組（每組一格，組間加分隔線）：
 //  · 路線：線寬（＋一般向量的 Symbology/顏色/邊寬）
@@ -311,6 +324,26 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         />
         <span class="sb-unit">格</span>
       </label>
+
+      <!-- 河流分隔曲折度（只 Map Adjust）：輸入改草稿，按「確定」才重算本城市骨架灰點。
+           門檻＝粉紅／黃點等邊界之間子段弧長÷弦長；> 此值就在最中間放灰並遞迴細分。
+           下限 1.01（1.0 會讓幾乎每個河點變灰、佈局卡死）。 -->
+      <label v-if="isMapAdjust" class="sb-inline" title="河流分隔曲折度：粉紅／黃點之間子段弧長÷弦長 > 此值就放灰分隔點（預設 1.25）">
+        <span class="sb-inline-label">河流分隔曲折度</span>
+        <input
+          type="number" class="sb-inline-num" min="1.01" max="3" step="0.01"
+          :value="layer.riverGraySinuosity ?? 1.25"
+          @change="setRiverGrayDraft($event.target.value)"
+        />
+      </label>
+      <button
+        v-if="isMapAdjust"
+        class="sb-btn"
+        :class="{ active: riverGrayDirty }"
+        :disabled="!riverGrayDirty"
+        title="套用河流分隔曲折度並重算本城市骨架（灰點＋下游格網／HC／RWD）"
+        @click="emit('recalc-river-gray')"
+      >確定</button>
     </div>
 
     <Teleport to="body">
