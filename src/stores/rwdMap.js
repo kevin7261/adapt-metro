@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-20-skew-mix-v16'
+export const RWD_ROUTER_REV = '2026-07-20-joint-cross-v17'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -1325,12 +1325,65 @@ export function buildRwdMap(segs, pos, opts = {}) {
     L.routed = false; L.fallback = false; L.forced = false
   }
 
+  // 仍彼此交叉的線對枚舉（bbox 先篩、再 legsCross）。**與 forced 旗標完全脫鉤**
+  // （使用者規則：出現交叉就要確認兩條線有沒有不交叉的畫法）——曾以「兩條都
+  // forced」當入場條件，漏掉最常見的「先畫時乾淨、被後畫的 forced 線壓過」交叉對。
+  function crossingPairs() {
+    const bb = lines.map((L) => {
+      let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity
+      for (const p of L.pts) {
+        if (p[0] < x1) x1 = p[0]; if (p[0] > x2) x2 = p[0]
+        if (p[1] < y1) y1 = p[1]; if (p[1] > y2) y2 = p[1]
+      }
+      return [x1, y1, x2, y2]
+    })
+    const out = []
+    for (let i = 0; i < lines.length; i++) {
+      for (let j = i + 1; j < lines.length; j++) {
+        if (bb[i][0] > bb[j][2] || bb[j][0] > bb[i][2] || bb[i][1] > bb[j][3] || bb[j][1] > bb[i][3]) continue
+        if (linesCross(lines[i], lines[j])) out.push([i, j])
+      }
+    }
+    return out
+  }
+
+  // 成對 rip（交叉對的最後聯合手段）：拆掉對方、A* 畫自己、對方 rerouteAround
+  // 繞回（兩種順序都試），兩條都乾淨才提交——bounded-bend 組合放不下時，這是
+  // 「兩條線到底有沒有不交叉畫法」的實質驗證。
+  // 交叉是最高級錯誤：對方若是鎖定直線也**解鎖讓路**（殘留交叉比彎線更糟）——
+  // 但直線自己不當 F（不主動 A* 繞遠），只在當 W 時被動繞；繞完仍是乾淨直線才保留鎖。
+  function jointRipPair(i, j) {
+    const tryOrder = (fi, si) => {
+      const F = lines[fi], W = lines[si]
+      if (F.lockedStraight) return false // 直線不主動繞，只能當被讓路的 W
+      const saves = [snapLine(F), snapLine(W)]
+      const wasLocked = W.lockedStraight
+      const undo = () => {
+        Object.assign(F, saves[0]); Object.assign(W, saves[1])
+        W.lockedStraight = wasLocked
+      }
+      W.legs = [] // rip the partner
+      const r = routeLattice(pos.get(F.seg.a), pos.get(F.seg.b), F.seg, placedOf(fi))
+      if (!r || orderViolation(F.seg, r)) { undo(); return false }
+      F.pts = r; F.legs = legsOfPts(r); F.bends = r.length - 2; F.routed = true; F.forced = false
+      W.lockedStraight = false // 暫時解鎖（rerouteAround 不動鎖定直線）
+      const done = rerouteAround(W, si)
+      if (!done) { undo(); return false }
+      W.pts = done.pts; W.legs = legsOfPts(done.pts); W.bends = done.bends
+      W.routed = done.routed; W.forced = false
+      W.lockedStraight = wasLocked && done.bends === 0 && !done.routed // 仍是乾淨直線才保留鎖
+      return true
+    }
+    return tryOrder(i, j) || tryOrder(j, i)
+  }
+
   // 交錯的兩條線一起重新計算（使用者規則：畫了線會交錯就要 2 條線重新計算）——
   // 個別重掃把另一條當固定、互相擋時解不開；這裡把彼此交叉的兩條「同時拆掉」，
   // 聯合搜兩者的 bounded-bend 候選組合，取「兩條都乾淨（含彼此不交叉）且總轉折數
   // 最少」的一組（折數絕對優先照舊）。組合有上限（每條前 JOINT_CAP 個候選）避免
-  // 爆炸；仍失敗才交給下游 A*/rip-up/restart/共線/forced。
-  function jointReroutePairs() {
+  // 爆炸。deep=true（重掃後的那輪）時組合無解再升級 jointRipPair（A* 成對拆繞）；
+  // 仍失敗才交給下游 restart/窄縫/共線/forced。
+  function jointReroutePairs(deep = false) {
     const JOINT_CAP = 16
     const prep = (S, T, seg, placed) => {
       // 22.5 級照樣入列。skew 候選生成在最後（折數 1 排在多折之後）→ 先依折數
@@ -1343,13 +1396,17 @@ export function buildRwdMap(segs, pos, opts = {}) {
         .filter((c) => c.legs.length === c.pts.length - 1)
     }
     let improved = false
-    for (let i = 0; i < lines.length; i++) {
-      const A = lines[i]
-      if (A.fallback || A.lockedStraight || !A.forced) continue
-      for (let j = i + 1; j < lines.length; j++) {
-        const B = lines[j]
-        if (B.fallback || B.lockedStraight || !B.forced) continue
-        if (!linesCross(A, B)) continue
+    for (const [i, j] of crossingPairs()) {
+      const A = lines[i], B = lines[j]
+      if (A.fallback || B.fallback) continue
+      if (!linesCross(A, B)) continue // 本輪稍早的重算可能已解掉
+      if (A.lockedStraight || B.lockedStraight) {
+        // 鎖定直線 × forced 的交叉對：bounded-bend 組合不動直線，直接進成對 rip
+        // ——唯一能（被動）解鎖直線的交叉手段。淺輪不動（維持既有裁決成本）。
+        if (deep && jointRipPair(i, j)) improved = true
+        continue
+      }
+      {
         const placed = placedExcept(i, j) // 其餘所有線固定，只重算 A、B
         // 先各自篩出「對其他線乾淨」的候選（含節點壓點檢查），再組合時只需驗 A↔B。
         const candA = prep(pos.get(A.seg.a), pos.get(A.seg.b), A.seg, placed)
@@ -1371,8 +1428,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
             best = { cA, cB }; bestBends = tot
           }
         }
-        if (best) { applyCand(A, best.cA); applyCand(B, best.cB); improved = true }
+        if (best) { applyCand(A, best.cA); applyCand(B, best.cB); improved = true; continue }
       }
+      // bounded-bend 組合無解 → deep 輪升級成對 rip＋A*（拆掉對方讓 A* 開路、
+      // 對方繞回，兩種順序、全乾淨才提交）。
+      if (deep && jointRipPair(i, j)) improved = true
     }
     return improved
   }
@@ -1477,9 +1537,10 @@ export function buildRwdMap(segs, pos, opts = {}) {
       }
       if (!improved || !dirty) break
     }
-    // 個別重掃後仍互相交錯的成對線：兩條一起重算（使用者規則）。可能一次解一對、
-    // 有連鎖 → 迭代到不再改善（上限 3 輪）。動畫中間幀（fast）跳過換每幀夠快。
-    if (!opts.fast) for (let r = 0; r < 3 && jointReroutePairs(); r++);
+    // 個別重掃後仍互相交錯的成對線：兩條一起重算（使用者規則）。deep=true——
+    // bounded-bend 組合無解時升級成對 rip＋A*。可能一次解一對、有連鎖 → 迭代到
+    // 不再改善（上限 3 輪）。動畫中間幀（fast）跳過換每幀夠快。
+    if (!opts.fast) for (let r = 0; r < 3 && jointReroutePairs(true); r++);
   }
 
   /* ---- restart-with-priority（negotiation rerouting）: a segment that stays
