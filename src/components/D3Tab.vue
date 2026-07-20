@@ -123,6 +123,16 @@ const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // （loop 區塊的 isRWD fallback，key 'hc'）。
 const PAPER_KIND_IDS = PAPER_KINDS.map((p) => p.kind)
 const HC_MODE_RE = new RegExp(`^hc-(llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|step))?$`)
+// 「Hill Climbing」區的 8 個主佈局比較（格網化後 → 各演算法，不進下游）：
+// ②＝真正的爬山；其餘 7 個＝論文鏈 build 直接餵格網（不含 rect——② 就是爬山本體）。
+// mode id：`hc` 或 `layout-<kind>`；下游（直線演算法／端點移動／RWD）仍只吃 `hc`。
+const LAYOUT_KINDS = PAPER_KINDS.filter((p) => p.kind !== 'rect')
+const LAYOUT_KIND_IDS = LAYOUT_KINDS.map((p) => p.kind)
+const LAYOUT_MODE_RE = new RegExp(`^layout-(${LAYOUT_KIND_IDS.join('|')})$`)
+const layoutKindOf = (m) => {
+  const mm = LAYOUT_MODE_RE.exec(m)
+  return mm ? mm[1] : null
+}
 // 該 step 專屬的鏈 kind（step 不符 → null）——對應舊 END/LINE/GATHER/LOOP/STEP_KIND[mode]。
 const kindAtStep = (m, step) => {
   const mm = HC_MODE_RE.exec(m)
@@ -140,8 +150,10 @@ const postKindOf = (m) => {
   return mm && mm[1] !== 'llm' ? mm[1] : null
 }
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
+// layout-* 也走 computeHcLayout（但只跑該演算法、不碰 HC／下游）。
 const hcMode = computed(() =>
   mode.value === 'hc' || HC_MODE_RE.test(mode.value) ||
+  !!layoutKindOf(mode.value) ||
   mode.value === 'hc-compact' || // RWD 圖層的「循環結果」輸入視圖沿用這個 id（HC 圖層已無縮減網格 tabs）
   mode.value === 'rwd')
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
@@ -445,6 +457,7 @@ let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
 let cachedPost = {}    // 論文鏈後處理結果, keyed by kind (PAPER_KIND_IDS)
+let cachedLayout = {}  // Hill Climbing 區「格網→論文鏈」比較結果, keyed by LAYOUT_KIND_IDS
 let cachedFp = null    // 本資料的內容指紋（localStorage 快取鍵用）
 // 河流分隔曲折度「已套用」值（Map Adjust 工具列輸入是草稿；按確定才寫這裡並重算骨架）
 const appliedRiverGraySinuosity = ref(null)
@@ -488,6 +501,7 @@ async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, d
 const hcBusy = ref(false)
 const busyText = ref('')
 const hcStats = ref(null)
+const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 stats
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
 const endpStats = ref(null)      // 端點移動: { hvBefore, hvAfter, segs, moved, endpoints, iters, ... }
@@ -613,8 +627,14 @@ const VIEW_TABS = computed(() => {
     return [
       { header: '原始', doc: 'grid' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
+      // 8 個主佈局比較（格網化後為輸入；②＝爬山，其餘＝論文鏈直接餵格網）。
+      // 只供觀看，不進下游；下游（直線演算法／端點移動／RWD）仍只吃 `hc`。
       { header: 'Hill Climbing', doc: 'hillclimb' },
-      { id: 'hc', label: 'Hill Climbing' },
+      { id: 'layout-stroke', label: '①筆畫法' },
+      { id: 'hc', label: '②Hill Climbing' },
+      ...LAYOUT_KINDS.filter((p) => p.kind !== 'stroke').map(({ kind, zh }) => ({
+        id: `layout-${kind}`, label: zh,
+      })),
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
       { header: '直線演算法', doc: 'straighten' },
       // 論文①〜⑧的八條鏈（paperAlign.js PAPER_KINDS——名稱帶論文圈號，與
@@ -804,6 +824,7 @@ function resetPerDataset(data) {
   cachedSkeleton = buildConnectSkeleton(data, { riverGraySinuosity: th })
   cachedHC = null
   cachedPost = {}
+  cachedLayout = {}
   cachedLlm = null
   cachedPrompt = null
   cachedGrid = null
@@ -816,6 +837,7 @@ function resetPerDataset(data) {
   stepHistory = {}
   cachedRWD = null
   hcStats.value = null
+  layoutStats.value = null
   postStats.value = null
   postIters.value = {}
   llmInfo.value = null
@@ -849,6 +871,41 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // 計算」前，快取與新計算都維持舊上限，避免同畫面新舊混雜。
   if (appliedSpanCap.value == null) appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
   setSpanCap(appliedSpanCap.value)
+
+  // Hill Climbing 區的 layout-* 比較視圖：論文鏈直接餵格網化後，不跑爬山、不進下游。
+  {
+    const layoutKind = layoutKindOf(mode.value)
+    if (layoutKind) {
+      if (!cachedLayout[layoutKind]) {
+        hcBusy.value = true
+        busyText.value = {
+          stroke: '①筆畫法中…（格網 → 筆畫串接，迭代到不動）',
+          milp: '③MILP規劃中…（格網 → 方向指派，迭代到不動）',
+          force: '④力導向中…（格網 → 磁力彈簧，迭代到不動）',
+          lsq: '⑤最小平方中…（格網 → Gauss–Seidel，迭代到不動）',
+          octi: '⑥八向格網中…（格網 → 逐邊定案，迭代到不動）',
+          path: '⑦路徑簡化中…（格網 → C-directed 簡化，迭代到不動）',
+          sat: '⑧SAT規劃中…（格網 → DPLL 指派，迭代到不動）',
+        }[layoutKind]
+        await new Promise((r) => setTimeout(r, 30))
+        if (seq !== renderSeq) { hcBusy.value = false; return null }
+        cachedLayout[layoutKind] = iteratePost(
+          POST_BUILD[layoutKind], cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
+        hcBusy.value = false
+      }
+      layoutStats.value = cachedLayout[layoutKind].stats
+      const cells = cachedLayout[layoutKind].cellAfter
+      const nC = grid.cols, nR = grid.rows
+      const cw = (w - 48) / nC, ch = (h - 48) / nR
+      const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+      hcPos = new Map()
+      for (const [id, p] of cells) hcPos.set(id, cellPx(p))
+      placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+      return { hcPos, hcBlue, rwdLines, stepMoves }
+    }
+  }
+  layoutStats.value = null
+
   // 兜底結構驗證：快取的爬山結果必須（a）涵蓋目前格網的所有節點、且（b）每個格子都落在
   // 目前格網範圍 [0,cols)×[0,rows) 內。演算法/分類改版後，同一份資料的舊快取可能：節點集
   // 對不上（缺格子＝RWD/HC 線消失、站懸空），或座標空間變大（如河流分類改變使 cols/rows
@@ -1821,8 +1878,25 @@ const layoutStatus = computed(() => {
     const s = hcStats.value
     return {
       text: `適應度 ${fmtFit(s.before)} → ${fmtFit(s.after)} · ${s.rounds} 輪 · 移動 ${s.moved} 站`
-        + (s.clusterMoves ? ` · ${s.clusterMoves} 群集` : ''),
+        + (s.clusterMoves ? ` · ${s.clusterMoves} 群集` : '')
+        + (s.hvBefore != null ? ` · 水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段` : ''),
       llmRerun: false,
+    }
+  }
+  {
+    const lk = layoutKindOf(m)
+    if (isHC.value && lk && layoutStats.value) {
+      const s = layoutStats.value
+      let t = `水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段 · 迭代 ${s.iters}/${s.iterCap}`
+        + (s.converged ? '' : '（達上限未收斂）')
+        + ` · 移動 ${s.moved} 站`
+        + (s.reverted ? '（淨值未改善，退回）' : '')
+      if (s.hvdBefore != null) t += ` · 含45° ${s.hvdBefore} → ${s.hvdAfter}`
+      if (lk === 'stroke') t += ` · ${s.strokes} 筆畫／${s.substrokes} 子筆畫`
+      else if (lk === 'milp' || lk === 'sat') t += ` · ${s.comps} 元件` + (s.fallback ? `（${s.fallback} 退回）` : '')
+      else if (lk === 'octi') t += ` · 定案 ${s.settled} 點`
+      else if (lk === 'path') t += ` · ${s.chains} 鏈／${s.links} link`
+      return { text: t, llmRerun: false }
     }
   }
   if (isHC.value && lineKindOf(m) && lineStats.value) {
@@ -1968,6 +2042,7 @@ function recalcSpan() {
   // 否則 render() 的 `if (!cachedHC)` 會沿用舊上限的佈局，下游重算也只是換湯不換藥。
   cachedHC = null
   cachedPost = {}
+  cachedLayout = {}
   cachedEndp = {}
   cachedLine = {}
   cachedGather = {}
@@ -1990,6 +2065,7 @@ function applyRiverGrayAndInvalidate(v) {
   cachedSkeleton = buildConnectSkeleton(cacheData, { riverGraySinuosity: th })
   cachedHC = null
   cachedPost = {}
+  cachedLayout = {}
   cachedLlm = null
   cachedPrompt = null
   cachedGrid = null
