@@ -628,12 +628,13 @@ const VIEW_TABS = computed(() => {
       { header: '原始', doc: 'grid' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
       // 8 個主佈局比較（格網化後為輸入；②＝爬山，其餘＝論文鏈直接餵格網）。
-      // 只供觀看，不進下游；下游（直線演算法／端點移動／RWD）仍只吃 `hc`。
+      // 只供觀看，不進下游；下游（直線演算法／端點移動／RWD）仍只吃 `hc`——
+      // 標籤特別註記「往後執行」／「僅比較」。
       { header: 'Hill Climbing', doc: 'hillclimb' },
-      { id: 'layout-stroke', label: '①筆畫法' },
-      { id: 'hc', label: '②Hill Climbing' },
+      { id: 'layout-stroke', label: '①筆畫法（僅比較）' },
+      { id: 'hc', label: '②Hill Climbing（往後執行）' },
       ...LAYOUT_KINDS.filter((p) => p.kind !== 'stroke').map(({ kind, zh }) => ({
-        id: `layout-${kind}`, label: zh,
+        id: `layout-${kind}`, label: `${zh}（僅比較）`,
       })),
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
       { header: '直線演算法', doc: 'straighten' },
@@ -901,6 +902,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
       hcPos = new Map()
       for (const [id, p] of cells) hcPos.set(id, cellPx(p))
       placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+      hcBlue = uniformBlue(nC, nR, cw, ch)
       return { hcPos, hcBlue, rwdLines, stepMoves }
     }
   }

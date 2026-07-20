@@ -25,3 +25,4 @@ __pycache__/
 
 # Resumable raw OSM responses for the optional metro track underlay.
 data/metro/_cache/tracks_v*.json
+data/metro/maps/_staging_2026-07-21/

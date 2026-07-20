@@ -377,7 +377,7 @@ buildConnectSkeleton(geojson) → {
 { "id":"…", "views": { … "lines":[{d,color}] },
   "hc": { "cellAfter": [[id,c,r], …], "stats": { "hvAfter": 49 } } }`,
       note: 'cellAfter＝每節點整數格；改演算法要 bump 快取版本。' },
-    algorithm: `<p>以「格網化後」為輸入，並排比較 <b>8 個主佈局</b>（①筆畫法／②Hill Climbing／③MILP／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT）。②＝真正的多準則爬山（適應度＋硬規則＋群集移動）；其餘 7 個＝論文鏈 build 直接餵格網（短距離、同硬規則），<b>只供觀看、不進下游</b>——直線演算法／端點移動／RWD 仍只吃爬山結果。</p>`,
+    algorithm: `<p>以「格網化後」為輸入，並排比較 <b>8 個主佈局</b>（①筆畫法／②Hill Climbing／③MILP／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT）。左側標籤：<b>②Hill Climbing（往後執行）</b>＝真正的多準則爬山，也是直線演算法／端點移動／RWD 的唯一上游；其餘 7 個標 <b>（僅比較）</b>＝論文鏈 build 直接餵格網，只供觀看、不進下游。</p>`,
   },
   straighten: {
     title: '直線演算法（H/V 最大化後處理）', tag: '視圖',
