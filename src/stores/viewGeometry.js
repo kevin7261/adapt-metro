@@ -17,23 +17,17 @@ import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
   buildHillClimb, buildHcGraph, iteratePost,
-  buildRectPolish, buildAxisAlign, buildAxisIlp,
   straightenCompactLoop,
 } from './hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from './paperAlign.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 
-// 離線可預算的鏈（LLM 對齊除外——要 headless session）：hc ＋ 3 個原後處理 ＋
-// 7 條論文鏈。HC 畫廊與 RWD 畫廊共用同一份清單與後處理映射。
-const CHAIN_KINDS = ['hc', 'rect', 'align', 'ilp', ...PAPER_KINDS.map((p) => p.kind)]
-const CHAIN_POST = {
-  hc: null, rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp,
-  ...PAPER_BUILD,
-}
-const CHAIN_ZH = {
-  hc: 'Hill Climbing', rect: '直角爬山', align: '軸對齊', ilp: '整數規劃',
-  llm: 'LLM 對齊', ...PAPER_ZH,
-}
+// 離線可預算的鏈（LLM 對齊除外——要 headless session）：hc ＋ 論文①〜⑧的
+// 八條鏈（PAPER_KINDS，名稱與 data/thesis 論文一一對應）。HC 畫廊與 RWD 畫廊
+// 共用同一份清單與後處理映射。
+const CHAIN_KINDS = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
+const CHAIN_POST = { hc: null, ...PAPER_BUILD }
+const CHAIN_ZH = { hc: 'Hill Climbing', llm: 'LLM 對齊', ...PAPER_ZH }
 
 // Same palettes as D3Tab.vue.
 const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
@@ -311,13 +305,13 @@ export function viewLabels(tilt) {
 
 /**
  * Compute the Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
- * 2026-07：原始＋旋轉 兩個 variant × 每 variant 12 個階段）。每 variant：
+ * 2026-07：原始＋旋轉 兩個 variant × 每 variant 11 個階段）。每 variant：
  *   1) 格網化後 — hillclimbing 的輸入佈局（= Map Adjust 的 grid-*-post）。
  *   2) Hill Climbing — 整數格多準則最佳化後。
- *   3–12) 各鏈循環結果 — 每條鏈（基本 hc / 直角爬山 rect / 軸對齊 align /
- *        整數規劃 ilp ＋七條論文鏈 CHAIN_KINDS）以 hc 結果為基底，先跑該鏈的
- *        後處理（迭代到不動點；hc 不做），再 straightenCompactLoop（端點移動＋
- *        直線縮減＋網格合併循環到不動點，同 RWD 畫廊的 compact-{kind}）。
+ *   3–11) 各鏈循環結果 — 每條鏈（基本 hc ＋ 論文①〜⑧的八條鏈 CHAIN_KINDS）
+ *        以 hc 結果為基底，先跑該鏈的後處理（迭代到不動點；hc 不做），再
+ *        straightenCompactLoop（端點移動＋直線縮減＋網格合併循環到不動點，
+ *        同 RWD 畫廊的 compact-{kind}）。
  * 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）；
  * 黑點沿新段用 placeBlacks 放回（cellsToPos 內含）。
  * @returns {{ W, H, tilt, canRotate, views, stats }}
@@ -347,7 +341,7 @@ export function computeCityHcViews(geojson, opts = {}) {
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
     stats[`hc-${variant}`] = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
 
-    // 3–12) 各鏈循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
+    // 3–11) 各鏈循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
     for (const kind of CHAIN_KINDS) {
       const base = CHAIN_POST[kind]
         ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
@@ -386,7 +380,7 @@ export function hcViewLabels(tilt) {
   return out
 }
 
-// The loop chain a Straighten gallery cell maps to ('rect'|'align'|'ilp'|'llm')；
+// The loop chain a Straighten gallery cell maps to （PAPER_KINDS 之一或 'llm'）；
 // 剝掉 loop- 前綴與 -orig/-rot variant 後綴（同 rwdCellCompact 對 compact-/rwd-）。
 export const loopCellCompact = (viewId) =>
   (viewId ?? '').replace(/^loop-/, '').replace(/-(orig|rot)$/, '') || 'rect'
@@ -428,7 +422,7 @@ function drawRwd(skeleton, stations, rwd, sep) {
 }
 
 // Compute the RWD Maps gallery views for one city（原始＋旋轉 兩 variant）：
-// each variant × 縮減網格 sources（基本／直角爬山／軸對齊／整數規劃＋七條論文鏈）
+// each variant × 縮減網格 sources（基本 hc ＋ 論文①〜⑧的八條鏈）
 // as both the compact grid AND its RWD 路網 redraw. Same pure stores the live
 // RWD tab uses. 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）。
 export function computeCityRwdViews(geojson, opts = {}) {
@@ -491,7 +485,7 @@ export function rwdViewLabels(tilt) {
   out['rwd-llm-rot'] = `${rot} · LLM 對齊 · RWD 路網`
   return out
 }
-// The compact source a gallery cell maps to ('hc'|'rect'|'align'|'ilp')；剝掉
+// The compact source a gallery cell maps to （'hc' 或 PAPER_KINDS 之一）；剝掉
 // compact-/rwd- 前綴與 -orig/-rot variant 後綴。
 export const rwdCellCompact = (viewId) =>
   (viewId ?? '').replace(/^(compact|rwd)-/, '').replace(/-(orig|rot)$/, '') || 'hc'

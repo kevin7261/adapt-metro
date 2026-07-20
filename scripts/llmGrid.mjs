@@ -28,7 +28,7 @@ import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
   buildHillClimb, iteratePost,
-  buildRectPolish, buildAxisAlign, buildAxisIlp, straightenCompactLoop, setSpanCap,
+  straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
 
@@ -40,8 +40,8 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const OUT = join(DATA, 'llmgrids')
-const COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm', ...PAPER_KINDS.map((p) => p.kind)]
-const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp, ...PAPER_BUILD }
+const COMPACTS = ['hc', ...PAPER_KINDS.map((p) => p.kind), 'llm']
+const POST_BUILD = { ...PAPER_BUILD }
 
 // compact 參數可省略（預設 'hc'）——apply 的最後一個參數永遠是 weights.json。
 const argv = process.argv.slice(2)
@@ -86,7 +86,7 @@ const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
 const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
 
 // The RWD view compacts the layout its layer.compact picks — the HC result,
-// a post-pass ('rect'/'align'/'ilp'), or the offline LLM 對齊 (llmviews
+// a paper post-pass (PAPER_KINDS ①〜⑧), or the offline LLM 對齊 (llmviews
 // file) — then, same as D3Tab, EVERY chain runs the 端點移動+直線縮減+
 // 網格合併+縮減網格 **循環到不動點**（straightenCompactLoop——使用者 2026-07
 // 裁決 RWD 建立在循環結果上，fingerprint 的 cols/rows 必須跟 D3Tab 一致）。

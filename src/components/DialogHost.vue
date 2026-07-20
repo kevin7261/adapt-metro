@@ -9,6 +9,7 @@ import { layerData } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
 import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
+import { PAPER_KINDS } from '../stores/paperAlign'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -321,20 +322,12 @@ function addHillClimbView(src, variant) {
    (端點移動+直線縮減+中位集中+縮減網格循環, straightenCompactLoop),
    redrawn with strict H/V/45° polylines (版面路網畫線規則). */
 const hcLayerChoices = computed(() => store.layers.filter((l) => l.type === 'hillclimb'))
-// RWD 抓的是循環的 11 個結果（rect/align/ilp/llm ＋七條論文鏈的循環，對應 D3Tab
-// 的 LOOP_KIND）；舊圖層的 'hc'（基本循環）僅作 fallback、不再提供建立。
+// RWD 抓的是循環的 9 個結果（論文①〜⑧＋LLM 對齊的循環，對應 D3Tab 的
+// LOOP_KIND）；舊圖層的 'hc'（基本循環）僅作 fallback、不再提供建立。
+// 鏈名統一取自 paperAlign 的 PAPER_KINDS（帶論文圈號）。
 const RWD_VARIANTS = [
-  { id: 'rect', label: '直角爬山循環' },
-  { id: 'align', label: '軸對齊循環' },
-  { id: 'ilp', label: '整數規劃循環' },
+  ...PAPER_KINDS.map(({ kind, zh }) => ({ id: kind, label: `${zh}循環` })),
   { id: 'llm', label: 'LLM 對齊循環' },
-  { id: 'stroke', label: '筆畫法循環' },
-  { id: 'milp', label: 'MILP規劃循環' },
-  { id: 'force', label: '力導向循環' },
-  { id: 'lsq', label: '最小平方循環' },
-  { id: 'octi', label: '八向格網循環' },
-  { id: 'path', label: '路徑簡化循環' },
-  { id: 'sat', label: 'SAT規劃循環' },
 ]
 function hcMeta(l) {
   const d3l = store.layers.find((s) => s.id === l.sourceLayerId)

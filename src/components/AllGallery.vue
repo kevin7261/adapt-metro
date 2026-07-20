@@ -4,6 +4,7 @@ import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
 import { rwdCellCompact, rwdCellVariant, loopCellCompact } from '../stores/viewGeometry'
+import { PAPER_KINDS } from '../stores/paperAlign'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
 import MIcon from './MIcon.vue'
@@ -37,13 +38,13 @@ async function load() {
 // 圖層節點：key（勾選鍵）、label（清單顯示名）、kind（卡片區段 raw/adjust/
 // straighten/rwd）、view（代表縮圖 id）、icon（與圈層面板同款圖示）。
 // 「基本」（hc 源）僅作 fallback，不列入畫廊——使用者裁決移除「原始・基本」「旋轉・基本」。
-// Straighten 與 RWD Maps 共用同一組 4 條循環鏈（直角爬山／軸對齊／整數規劃／
-// LLM 對齊）：Straighten 列每鏈的「循環結果」縮圖（loop-*），RWD 列其 RWD 路網
-// 重繪（rwd-*）。LLM 對齊循環無離線預算 → 縮圖顯示「尚未預算」，點擊即時計算。
+// Straighten 與 RWD Maps 共用同一組 9 條循環鏈（論文①〜⑧＋LLM 對齊，鏈名取自
+// paperAlign 的 PAPER_KINDS）：Straighten 列每鏈的「循環結果」縮圖（loop-*），
+// RWD 列其 RWD 路網重繪（rwd-*）。LLM 對齊循環無離線預算 → 縮圖顯示「尚未預算」，
+// 點擊即時計算。
 const CHAINS = [
-  ['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
-  ['stroke', '筆畫法'], ['milp', 'MILP規劃'], ['force', '力導向'], ['lsq', '最小平方'],
-  ['octi', '八向格網'], ['path', '路徑簡化'], ['sat', 'SAT規劃'],
+  ...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]),
+  ['llm', 'LLM 對齊'],
 ]
 const stRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
   key: `st-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'straighten', view: `loop-${c}-${variant}`, icon: 'terrain',

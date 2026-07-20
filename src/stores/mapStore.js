@@ -69,12 +69,14 @@ function migrateLayerNames(layers) {
   return layers
 }
 
-// 一城的標準 RWD 組：11 條循環鏈（直角爬山／軸對齊／整數規劃／LLM 對齊＋七條
-// 論文鏈 stroke/milp/force/lsq/octi/path/sat——paperAlign.js，2026-07 使用者裁決）。
+// 一城的標準 RWD 組：9 條循環鏈＝論文①〜⑧（paperAlign.js PAPER_KINDS，順序＝
+// 論文編號：①stroke ②rect ③milp ④force ⑤lsq ⑥octi ⑦path ⑧sat）＋ LLM 對齊。
+// 2026-07 使用者裁決：直線演算法名稱要與 data/thesis 論文一一對應——自創的
+// 軸對齊（align）/整數規劃（ilp）鏈已移除，載入舊 session 時一併清掉。
 // 「基本 hc」僅作 fallback、不主動建立圖層（使用者裁決移除「原始·基本」「旋轉·基本」）。
-const RWD_COMPACTS = ['rect', 'align', 'ilp', 'llm', 'stroke', 'milp', 'force', 'lsq', 'octi', 'path', 'sat']
+const RWD_COMPACTS = ['stroke', 'rect', 'milp', 'force', 'lsq', 'octi', 'path', 'sat', 'llm']
 
-// 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×10
+// 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×18
 // （原始／旋轉 × RWD_COMPACTS，各掛同變體 Straighten）。舊 session 只存了部分
 // ——載入時回填缺的層（與 importCityChain 的 ensure 邏輯一致；沒建過 Map Adjust
 // 的城市不強加）。Idempotent：齊了就什麼都不做。
@@ -152,10 +154,11 @@ export const useMapStore = defineStore('map', {
 
       // Flat list — every layer opens as its own editor tab.
       // Populated by the Raw Maps import modal (metro / railway / highway).
-      // 舊 session 持久化的「基本」RWD 層（compact==='hc'）一併清掉——已不再建立
-      // 「原始·基本／旋轉·基本」（使用者裁決），backfill 也不會補回。
+      // 舊 session 持久化的「基本」RWD 層（compact==='hc'）與已移除的自創鏈
+      // （align/ilp——2026-07 改為只留與論文對應的 8 條＋LLM）一併清掉；
+      // backfill 也不會補回。
       layers: backfillCityChains(migrateLayerNames(p?.layers ?? []))
-        .filter((l) => !(l.type === 'rwd' && l.compact === 'hc')),
+        .filter((l) => !(l.type === 'rwd' && ['hc', 'align', 'ilp'].includes(l.compact))),
 
       // 2026-07 圈層改版：群組＝城市（由 layerTree 依來源鏈動態算出），這裡只存
       // 各城市群組的收合狀態（rootLayerId -> bool；沿用 groupCollapsed 持久化欄位）。
@@ -257,8 +260,8 @@ export const useMapStore = defineStore('map', {
     },
 
     // 匯入一個城市＝整組管線圖層（圈層一城一群組）：Raw Maps ×1、Map Adjust
-    // ×1、Straighten ×2（原始＋旋轉）、RWD Maps ×10（原始／旋轉 × 5 條鏈：基本
-    // Hill Climbing 循環／直角爬山／軸對齊／整數規劃／LLM 對齊；各掛在同變體的
+    // ×1、Straighten ×2（原始＋旋轉）、RWD Maps ×18（原始／旋轉 × 9 條鏈：
+    // 論文①〜⑧＋LLM 對齊，見 RWD_COMPACTS；各掛在同變體的
     // Straighten 上）。variant/compact 指定「要開啟」的 Straighten 與 RWD；已存
     // 在的層直接重用，只補缺的。回傳 { metro, d3, hc, rwd }（hc/rwd = variant/
     // compact 指定的那個）。
@@ -447,8 +450,8 @@ export const useMapStore = defineStore('map', {
     // Add an RWD Maps view (版面路網) — draws a Hill Climbing chain's 循環結果
     // layout (straightenCompactLoop) with strict H/V/45° polylines
     // (see skill route-rwd-draw).
-    // compact = 要重繪的循環結果，抓循環的 4 個結果之一（'rect' 直角爬山循環 /
-    // 'align' 軸對齊循環 / 'ilp' 整數規劃循環 / 'llm' LLM 對齊循環），對應
+    // compact = 要重繪的循環結果，抓 9 條鏈（論文①〜⑧＋'llm'，見 RWD_COMPACTS）
+    // 的循環結果之一，對應
     // D3Tab 的 LOOP_KIND；舊圖層的 'hc'（基本循環）僅作 fallback。
     addRwdLayer(hcLayerId, compact = 'rect') {
       const src = this.layers.find((l) => l.id === hcLayerId)

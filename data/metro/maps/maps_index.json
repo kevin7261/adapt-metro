@@ -1505,13 +1505,12 @@
   "americas/brazil/am-bra-salvador": {
     "city": "Salvador",
     "country": "Brazil",
-    "wikidata": "Q10318644",
+    "wikidata": null,
     "map_file": "maps/americas/brazil/am-bra-salvador.png",
-    "commons_file": "File:Metromapmaker Salvador 2021 S.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Metromapmaker_Salvador_2021_S.png",
-    "license": "CC BY-SA 3.0 br",
-    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/br/deed.en",
-    "artist": "by Luan"
+    "commons_file": null,
+    "source_url": "https://trilhos.motiva.com.br/content/dam/conteudo-multicanal/mobilidade/conteudo/pt/midia/imagens/estacao/mapas/mapa_ba.png",
+    "license": "Official operator map (© CCR Metrô Bahia; thesis use)",
+    "artist": null
   },
   "asia/iran/as-iri-shiraz": {
     "city": "Shiraz",
@@ -2341,5 +2340,5 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784579919396
+  "_rev": 1784581217183
 }

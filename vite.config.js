@@ -10,10 +10,10 @@ import { join, normalize, resolve } from 'node:path'
 // GitHub Pages project site: https://kevin7261.github.io/adapt-metro/
 const pages = process.env.GITHUB_PAGES === '1'
 
-// 縮減網格鏈 id 白名單（LLM 端點的 compact 參數）：原四鏈＋七條論文鏈
-// （src/stores/paperAlign.js 的 PAPER_KINDS——vite config 不 import src，避免拖進瀏覽器依賴）。
-const COMPACT_KINDS = ['hc', 'rect', 'align', 'ilp', 'llm',
-  'stroke', 'milp', 'force', 'lsq', 'octi', 'path', 'sat']
+// 縮減網格鏈 id 白名單（LLM 端點的 compact 參數）：hc ＋ 論文①〜⑧的八條鏈
+// ＋ llm（src/stores/paperAlign.js 的 PAPER_KINDS——vite config 不 import src，
+// 避免拖進瀏覽器依賴）。align/ilp 已移除（2026-07：只留與論文對應的鏈）。
+const COMPACT_KINDS = ['hc', 'stroke', 'rect', 'milp', 'force', 'lsq', 'octi', 'path', 'sat', 'llm']
 
 // Serve the repo's data/ directory (metro catalog + per-system GeoJSON)
 // at /data/* without copying 100+ MB into public/.
@@ -411,7 +411,7 @@ function llmCompareTrigger() {
       return {
         key: b.city,
         outFile: `data/metro/llmcompares/${b.city}.json`,
-        prompt: `使用 route-llm-compare skill：一次比較城市 ${b.city} 的原始＋旋轉 RWD Maps 候選（最多 22 個：直角爬山／軸對齊／整數規劃／筆畫法／MILP規劃／力導向／最小平方／八向格網／路徑簡化／SAT規劃／若存在則 LLM對齊 × 原始／旋轉）。先執行 llmCompare.mjs export，依方正、路線直、轉折少、畫面平衡及 forced/fallback 缺陷做判斷；summary／winnerReason／winnerOrigReason／winnerRotReason／每個候選的 strengths／weaknesses 一律用字串陣列條列（每點一句短話）；必須選出 winner（全體最佳）、winnerOrig（原始最佳）、winnerRot（旋轉最佳），id 形如 orig.rect／rot.ilp。用 llmCompare.mjs apply 存檔，絕不修改任何候選佈局。`,
+        prompt: `使用 route-llm-compare skill：一次比較城市 ${b.city} 的原始＋旋轉 RWD Maps 候選（最多 18 個：①筆畫法／②直角爬山／③MILP規劃／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT規劃／若存在則 LLM對齊 × 原始／旋轉）。先執行 llmCompare.mjs export，依方正、路線直、轉折少、畫面平衡及 forced/fallback 缺陷做判斷；summary／winnerReason／winnerOrigReason／winnerRotReason／每個候選的 strengths／weaknesses 一律用字串陣列條列（每點一句短話）；必須選出 winner（全體最佳）、winnerOrig（原始最佳）、winnerRot（旋轉最佳），id 形如 orig.rect／rot.milp。用 llmCompare.mjs apply 存檔，絕不修改任何候選佈局。`,
       }
     },
   })

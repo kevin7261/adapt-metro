@@ -381,24 +381,23 @@ buildConnectSkeleton(geojson) → {
   },
   straighten: {
     title: '直線演算法（H/V 最大化後處理）', tag: '視圖',
-    skills: ['route-rect-polish', 'route-axis-align', 'route-axis-ilp', 'route-llm-align',
-      'route-stroke-align', 'route-milp-align', 'route-force-align', 'route-lsq-align',
-      'route-octi-align', 'route-path-align', 'route-sat-align'],
+    skills: ['route-paper-align', 'route-stroke-align', 'route-rect-polish',
+      'route-milp-align', 'route-force-align', 'route-lsq-align',
+      'route-octi-align', 'route-path-align', 'route-sat-align', 'route-llm-align'],
     svg: dStraighten, caption: '比 HC 更多正交段（前 → 後對照）。',
     mapping: [
       M('line', C.blue, '拉直後的路線', '更多正交段', '新的 <code>cellAfter</code>'),
       M('dash', '#94a3b8', '灰虛線', '前（HC 結果）對照', '<code>fingerprint.hvStart</code>'),
       M('dot', C.nRed, '彩色點', '被移動的節點', '短距離移動、過相同硬規則'),
     ],
-    json: { code: `// 直角/軸/ILP：即時算（迭代到不動點）
+    json: { code: `// ①〜⑧論文鏈：即時算（迭代到不動點）
 // LLM 對齊：llmviews/<city>.<variant>.json
 { "fingerprint": { "verts":67, "segs":82, "cols":67, "hvStart":27 },
   "model":"Opus 4.8", "rounds":9, "cellAfter":[[id,c,r],…] }`,
-      note: '前三種不寫檔；LLM 對齊由 Claude Code 離線產生、含指紋驗證。' },
-    algorithm: `<p>在 Hill Climbing 結果上再最大化正交段，短距離移動彩色點：</p>
-<ul><li><b>直角爬山</b>：方向準則換 |sin 2θ|（45° 變最貴）。</li><li><b>軸對齊</b>：union-find 併群＋中位數座標。</li><li><b>整數規劃</b>：逐軸 0-1 精確解。</li><li><b>LLM 對齊</b>：模型讀圖提出移動，過相同硬規則套用。</li></ul>
-<p>另有七條<b>論文鏈</b>（<code>src/stores/paperAlign.js</code>，同一套硬規則套用）：</p>
-<ul><li><b>筆畫法</b>（Li &amp; Dong）：段串成筆畫、按方向失真遞迴切割、吸 4 主方向再垂直投影。</li><li><b>MILP規劃</b>（Nöllenburg）：邊方向指派的生成樹 DP＋feedback 枚舉，再重建座標。</li><li><b>力導向</b>（Hong et al.）：磁性彈簧力（吸引/排斥/八方向磁力）迭代。</li><li><b>最小平方</b>（Wang &amp; Chi）：Gauss-Seidel 逼近八方向吸附後的邊向量。</li><li><b>八向格網</b>（Bast et al.）：依 ldeg 逐邊安置、位移＋轉折成本取最小。</li><li><b>路徑簡化</b>（Merrick &amp; Gudmundsson）：C-directed 最少折線簡化。</li><li><b>SAT規劃</b>（Fuchs）：方向指派的 DPLL 分支定界。</li></ul>`,
+      note: '論文鏈不寫檔；LLM 對齊由 Claude Code 離線產生、含指紋驗證。' },
+    algorithm: `<p>在 Hill Climbing 結果上再最大化正交段，短距離移動彩色點。9 條鏈＝
+論文①〜⑧（名稱與 <code>data/thesis/&lt;n&gt;_*_演算法說明.md</code> 一一對應）＋ LLM 對齊：</p>
+<ul><li><b>①筆畫法</b>（Li &amp; Dong 2010）：段串成筆畫、按方向失真遞迴切割、吸 4 主方向再垂直投影。</li><li><b>②直角爬山</b>（Stott et al. 2011）：爬山法的方向準則換 |sin 2θ|（45° 變最貴）短半徑再爬。</li><li><b>③MILP規劃</b>（Nöllenburg &amp; Wolff 2011）：邊方向指派的生成樹 DP＋feedback 枚舉，再重建座標。</li><li><b>④力導向</b>（Hong et al. 2006）：磁性彈簧力（吸引/排斥/八方向磁力）迭代。</li><li><b>⑤最小平方</b>（Wang &amp; Chi 2011）：Gauss-Seidel 逼近八方向吸附後的邊向量。</li><li><b>⑥八向格網</b>（Bast et al. 2020）：依 ldeg 逐邊安置、位移＋轉折成本取最小。</li><li><b>⑦路徑簡化</b>（Merrick &amp; Gudmundsson 2007）：C-directed 最少折線簡化。</li><li><b>⑧SAT規劃</b>（Fuchs 2022）：方向指派的 DPLL 分支定界。</li><li><b>LLM 對齊</b>：模型讀圖提出移動，過相同硬規則套用。</li></ul>`,
   },
   'endpoint-move': {
     title: '端點移動', tag: '視圖', skills: ['route-endpoint-move', 'route-movewise-loop'],
@@ -526,10 +525,10 @@ const EXECUTION = {
     '以格網化後為輸入，多準則適應度＋4 條硬規則爬山、短半徑移動格子、含冷卻與超長邊群集移動。',
     '結果快取在 <code>localStorage</code>（鍵 <code>d3tab-hc-cache-v7</code>）＋記憶體 <code>cachedHC</code>，資料指紋/界內驗證不符就作廢重算'),
   straighten: `<ul class="exec-list">
-<li><b>怎麼觸發</b>：直角爬山／軸對齊／整數規劃＋七條論文鏈（筆畫法／MILP規劃／力導向／最小平方／八向格網／路徑簡化／SAT規劃）＝點視圖即時算；<b>LLM 對齊</b>＝按「開始 LLM 對齊」，由 <code>vite.config.js</code> 的外掛 spawn 一個 <b>headless <code>claude -p</code></b> session。</li>
-<li><b>用到什麼程式</b>：前三種＝<code>src/stores/hillClimb.js</code> 的 <code>iteratePost(buildRectPolish／buildAxisAlign／buildAxisIlp, …)</code>（純函式，迭代到不動點）；七條論文鏈＝<code>src/stores/paperAlign.js</code> 的 <code>PAPER_BUILD</code>（同樣走 <code>iteratePost</code>）；LLM＝<code>vite.config.js</code> 收 <code>/llm-align/run</code> → 跑 <code>claude -p</code> 依 skill 提移動、寫 <code>data/metro/llmviews/&lt;city&gt;.&lt;variant&gt;.json</code>，網頁輪詢 <code>/llm-align/status</code>。</li>
+<li><b>怎麼觸發</b>：論文①〜⑧的八條鏈（①筆畫法／②直角爬山／③MILP規劃／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT規劃）＝點視圖即時算；<b>LLM 對齊</b>＝按「開始 LLM 對齊」，由 <code>vite.config.js</code> 的外掛 spawn 一個 <b>headless <code>claude -p</code></b> session。</li>
+<li><b>用到什麼程式</b>：八條論文鏈＝<code>src/stores/paperAlign.js</code> 的 <code>PAPER_BUILD</code>（②直角爬山的本體 <code>buildRectPolish</code> 在 <code>hillClimb.js</code>；都是純函式、走 <code>iteratePost</code> 迭代到不動點）；LLM＝<code>vite.config.js</code> 收 <code>/llm-align/run</code> → 跑 <code>claude -p</code> 依 skill 提移動、寫 <code>data/metro/llmviews/&lt;city&gt;.&lt;variant&gt;.json</code>，網頁輪詢 <code>/llm-align/status</code>。</li>
 <li><b>會抓什麼</b>：即時算的鏈<b>零網路</b>；LLM 對齊會<b>啟動 Claude Code 模型</b>（headless、不用 API key），讀目前佈局的幾何脈絡、回傳短距離移動。</li>
-<li><b>會 call 什麼 skill</b>：<code>route-rect-polish</code>／<code>route-axis-align</code>／<code>route-axis-ilp</code>＋七條論文鏈各自的 <code>route-*-align</code>（即時鏈的文件依據）；<code>route-llm-align</code>（LLM 對齊，<b>真的被 headless session 讀取執行</b>）。</li>
+<li><b>會 call 什麼 skill</b>：<code>route-rect-polish</code>（②）＋其餘論文鏈各自的 <code>route-*-align</code>（即時鏈的文件依據）；<code>route-llm-align</code>（LLM 對齊，<b>真的被 headless session 讀取執行</b>）。</li>
 <li><b>執行流程</b>：都以「主視圖目前顯示的佈局」為起點 → 產生新 <code>cellAfter</code> → 過與其他相同的硬規則套用；LLM 版跑完不自動套用、按「執行調整」才套。</li>
 </ul>`,
   'endpoint-move': execPure('src/stores/hillClimb.js', "movewiseStage('endp', skeleton, cells, cols, rows)", '<code>route-endpoint-move</code>、<code>route-span-cap</code>',

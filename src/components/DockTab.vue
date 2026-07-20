@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useMapStore } from '../stores/mapStore'
+import { PAPER_ZH } from '../stores/paperAlign'
 import MIcon from './MIcon.vue'
 
 // Custom dockview tab: layer-type icon + title + close.
@@ -26,13 +27,10 @@ const panelId = computed(() => p.value.api?.id ?? inner.value.id)
 const icon = computed(() =>
   typeIcons[layer.value?.type] ?? GALLERY_ICON[panelId.value] ?? inner.value.icon ?? p.value.icon ?? 'circle')
 // 圈層一城一群組後，同一城市的管線圖層同名（城市名，Straighten/RWD 另帶變體）
-// ——tab 標題附上階段以便區分。RWD 一城 10 個（變體 × 5 鏈），再附上鏈名。
+// ——tab 標題附上階段以便區分。RWD 一城 18 個（變體 × 9 鏈），再附上鏈名。
 const STAGE_SUFFIX = { d3: 'Map Adjust', hillclimb: 'Straighten', rwd: 'RWD' }
-const RWD_COMPACT_ZH = {
-  rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本',
-  stroke: '筆畫法', milp: 'MILP規劃', force: '力導向', lsq: '最小平方',
-  octi: '八向格網', path: '路徑簡化', sat: 'SAT規劃',
-}
+// 鏈名統一取自 paperAlign 的 PAPER_ZH（帶論文圈號①〜⑧）＋ LLM 對齊。
+const RWD_COMPACT_ZH = { ...PAPER_ZH, llm: 'LLM 對齊', hc: '基本' }
 const title = computed(() => {
   const l = layer.value
   if (l) {

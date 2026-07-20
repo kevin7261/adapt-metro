@@ -8,6 +8,7 @@ import { openSkillDoc } from '../stores/skillHandle'
 import { openLayerDoc } from '../stores/layerDocHandle'
 import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
+import { PAPER_ZH } from '../stores/paperAlign'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -15,12 +16,9 @@ const store = useMapStore()
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
 // 2026-07 圈層改版：群組＝城市。Raw Maps / Map Adjust 直接列出；Straighten
-// （原始/旋轉）與 RWD Maps（原始/旋轉 × 5 鏈＝10 層）收成可收合的子群組。
-const RWD_COMPACT_ZH = {
-  rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM 對齊', hc: '基本',
-  stroke: '筆畫法', milp: 'MILP規劃', force: '力導向', lsq: '最小平方',
-  octi: '八向格網', path: '路徑簡化', sat: 'SAT規劃',
-}
+// （原始/旋轉）與 RWD Maps（原始/旋轉 × 9 鏈＝18 層）收成可收合的子群組。
+// 鏈名統一取自 paperAlign 的 PAPER_ZH（帶論文圈號①〜⑧）＋ LLM 對齊。
+const RWD_COMPACT_ZH = { ...PAPER_ZH, llm: 'LLM 對齊', hc: '基本' }
 const rwdVariantZh = (l) =>
   (store.layers.find((s) => s.id === l.sourceLayerId)?.variant === 'rot' ? '旋轉' : '原始')
 // 基底原始圖層名（metro→Metro Maps、railway→Railways、highway→Highways）。

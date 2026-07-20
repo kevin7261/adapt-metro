@@ -138,12 +138,12 @@ function toBullets(v) {
 const METHOD_NOTES = {
   autoAlign: {
     llm: '讀整數格佈局，自己決定哪些彩色頂點移到哪一格（純最大化水平／垂直段，不用你下指示）。',
-    code: '把提案經 4 條硬規則驗證＋軸對齊退路套用；淨 H/V 段變差就整批退回（applyLlmTargets）。',
+    code: '把提案經 4 條硬規則驗證＋沿軸滑動退路套用；淨 H/V 段變差就整批退回（applyLlmTargets）。',
     sum: '移動決策全由 LLM，程式只驗證與套用、不做搜尋。',
   },
   promptAlign: {
     llm: '依你的一句話，自己決定哪些彩色頂點移到哪一格。',
-    code: '同自動對齊——4 條硬規則＋軸對齊退路＋淨 H/V 變差整批退回（applyLlmTargets）。',
+    code: '同自動對齊——4 條硬規則＋沿軸滑動退路＋淨 H/V 變差整批退回（applyLlmTargets）。',
     sum: '移動決策全由 LLM（受你的指示引導），程式只驗證與套用。',
   },
   grid: {
@@ -1258,7 +1258,7 @@ function startResize(e) {
         <template v-else-if="activeTab === 'compare'">
           <div class="weight-panel">
             <h4 class="llm-h">八結果比較</h4>
-            <p class="weight-hint">一次比較原始與旋轉的直角爬山、軸對齊、整數規劃與可用的 LLM 對齊（最多 8 個），依路網方正、直線多、轉折少與畫面平衡選出全體最佳、原始最佳與旋轉最佳。此功能只評審與說明，不會修改任一候選圖。</p>
+            <p class="weight-hint">一次比較原始與旋轉的論文①〜⑧八條鏈與可用的 LLM 對齊（最多 18 個），依路網方正、直線多、轉折少與畫面平衡選出全體最佳、原始最佳與旋轉最佳。此功能只評審與說明，不會修改任一候選圖。</p>
             <template v-if="compareCanRun">
               <label class="llm-model-pick">
                 模型

@@ -1,4 +1,4 @@
-// 七條「論文直線演算法」後處理鏈（Straighten tabs）——與 直角爬山/軸對齊/整數規劃
+// 「論文直線演算法」後處理鏈（Straighten tabs）——每條鏈與 ②直角爬山（hillClimb.js）
 // 相同契約：以 Hill Climbing 的整數格佈局為輸入、短距離移動彩色頂點、產生 targets
 // 後經 **同一套 §5 硬規則**（applyTargets：不壓點、不新增交叉、象限與邊環繞序不變、
 // 淨對齊分數變差整批退回）套用；由 iteratePost 迭代到不動點。回傳形狀
@@ -6,10 +6,11 @@
 //
 // 每條鏈都是對應論文核心機制的「整數格短距離後處理」改編（原論文多為全圖佈局器；
 // 這裡的輸入已是示意格網化＋爬山後的佈局，所以取其方向指派／能量模型／路徑簡化的
-// 核心，座標變動以 WINDOW 格為上限——與整數規劃鏈的 ±2 視窗同精神）。忠實度與
-// 簡化點逐條記在各 build 函式的註解與對應 skill。
+// 核心，座標變動以 WINDOW 格為上限）。忠實度與簡化點逐條記在各 build 函式的註解
+// 與對應 skill。
 //
 //   stroke  ① Li & Dong 2010 筆畫法（stroke-based）        [route-stroke-align]
+//   rect    ② Stott et al. 2011 直角爬山（|sin 2θ| 再爬）  [route-rect-polish]（build 在 hillClimb.js）
 //   milp    ③ Nöllenburg & Wolff 2011 MILP                 [route-milp-align]
 //   force   ④ Hong et al. 2006 力導向（磁力彈簧）          [route-force-align]
 //   lsq     ⑤ Wang & Chi 2011 最小平方（Focus+Context）    [route-lsq-align]
@@ -24,16 +25,16 @@
 // semantics follow the other post-passes (pos is a fresh map from buildHcGraph).
 
 import {
-  buildHcGraph, makeMover, applyTargets, countHV, countHVD,
+  buildHcGraph, makeMover, applyTargets, countHV, countHVD, buildRectPolish,
 } from './hillClimb.js'
 import { sharesRoute, isHVD } from './netUtil.js'
 
 const TWO_PI = 2 * Math.PI
-const WINDOW = 2 // 目標離目前位置的 Chebyshev 上限（短距離後處理——同整數規劃鏈）
+const WINDOW = 2 // 目標離目前位置的 Chebyshev 上限（短距離後處理）
 
 /* ==================== 共用小工具 ==================== */
 
-// 空圖的統一回傳（同 buildAxisAlign 的空 stats 形狀）。
+// 空圖的統一回傳（同各後處理鏈的空 stats 形狀）。
 const emptyResult = (pos, segs) => ({
   cellAfter: pos,
   stats: { hvBefore: 0, hvAfter: 0, segs: segs?.length ?? 0, verts: pos?.size ?? 0, moved: 0, passes: 0, reverted: false },
@@ -1048,16 +1049,22 @@ export function buildPathAlign(skeleton, cells, cols, rows) {
 }
 
 /* ==================== 鏈目錄（下游 UI/管線共用） ==================== */
-// 七條論文鏈的 kind、中文 tab 名與 build 函式——D3Tab / viewGeometry / 畫廊 /
-// mapStore 統一從這裡取，避免每處手抄清單。順序＝論文編號。
+// 「直線演算法」＝論文①〜⑧＋LLM 對齊共 9 條（2026-07 使用者裁決：名稱要與
+// data/thesis/<n>_*_演算法說明.md 一一對應，讓人一眼看出是哪篇論文；舊的
+// 軸對齊/整數規劃為自創、不對應論文，已移除）。kind、中文 tab 名（帶論文
+// 圈號）與 build 函式——D3Tab / viewGeometry / 畫廊 / mapStore 統一從這裡取，
+// 避免每處手抄清單。順序＝論文編號；②直角爬山＝Stott 爬山法的 |sin 2θ| 變體
+// （build 在 hillClimb.js，skill route-rect-polish）。LLM 對齊非即時 build，
+// 不在此表（下游自行以 'llm' 補在表尾）。
 export const PAPER_KINDS = [
-  { kind: 'stroke', zh: '筆畫法', build: buildStrokeAlign },
-  { kind: 'milp', zh: 'MILP規劃', build: buildMilpAlign },
-  { kind: 'force', zh: '力導向', build: buildForceAlign },
-  { kind: 'lsq', zh: '最小平方', build: buildLsqAlign },
-  { kind: 'octi', zh: '八向格網', build: buildOctiAlign },
-  { kind: 'path', zh: '路徑簡化', build: buildPathAlign },
-  { kind: 'sat', zh: 'SAT規劃', build: buildSatAlign },
+  { kind: 'stroke', zh: '①筆畫法', build: buildStrokeAlign },
+  { kind: 'rect', zh: '②直角爬山', build: buildRectPolish },
+  { kind: 'milp', zh: '③MILP規劃', build: buildMilpAlign },
+  { kind: 'force', zh: '④力導向', build: buildForceAlign },
+  { kind: 'lsq', zh: '⑤最小平方', build: buildLsqAlign },
+  { kind: 'octi', zh: '⑥八向格網', build: buildOctiAlign },
+  { kind: 'path', zh: '⑦路徑簡化', build: buildPathAlign },
+  { kind: 'sat', zh: '⑧SAT規劃', build: buildSatAlign },
 ]
 export const PAPER_BUILD = Object.fromEntries(PAPER_KINDS.map((p) => [p.kind, p.build]))
 export const PAPER_ZH = Object.fromEntries(PAPER_KINDS.map((p) => [p.kind, p.zh]))

@@ -31,7 +31,7 @@ import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
   buildHillClimb, buildHcGraph, iteratePost, applyLlmTargets,
-  buildRectPolish, buildAxisAlign, buildAxisIlp, straightenCompactLoop, setSpanCap,
+  straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
 
@@ -43,8 +43,8 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const OUT = join(DATA, 'llmevals')
-const COMPACTS = ['hc', 'rect', 'align', 'ilp', 'llm', ...PAPER_KINDS.map((p) => p.kind)]
-const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp, ...PAPER_BUILD }
+const COMPACTS = ['hc', ...PAPER_KINDS.map((p) => p.kind), 'llm']
+const POST_BUILD = { ...PAPER_BUILD }
 
 const argv = process.argv.slice(2)
 const [cmd, cityId, variant = 'orig'] = argv

@@ -99,8 +99,8 @@ function cyclicEqual(a, b) {
   return true
 }
 
-// Movement machinery shared by the optimizer and the post-passes (直角爬山 /
-// 軸對齊 / 整數規劃，以及 paperAlign.js 的七條論文鏈): neighbourhood lookups,
+// Movement machinery shared by the optimizer and the post-passes（②直角爬山
+// 與 paperAlign.js 的其他論文鏈；retired 的軸對齊/整數規劃亦同）: neighbourhood lookups,
 // the §5 hard rules and the mutating move primitive. Closes over the LIVE
 // `pos`; cellOwner mirrors it.
 export function makeMover(pos, segs, inc, cols, rows) {
@@ -643,11 +643,11 @@ export function applyTargets(pos, M, targets, segs, maxPasses = 6, count = count
 }
 
 // 迭代到不動點: feed a post-pass its own output until nothing moves (or the
-// cap hits). One run is NOT a fixed point for any of the three — 直角爬山's
-// radius schedule runs out before a no-improvement round, and 軸對齊/整數規劃
-// create fresh alignment chances by moving (near-axis segments appear, the ±k
-// window re-centres). 直角爬山 terminates by monotone fitness; the other two
-// rely on the cap (measured: 2–12 iterations to converge, no cycles).
+// cap hits). One run is NOT a fixed point for any pass — 直角爬山's radius
+// schedule runs out before a no-improvement round, and the target-based
+// passes create fresh alignment chances by moving (near-axis segments appear,
+// the ±k window re-centres). 直角爬山 terminates by monotone fitness; the
+// others rely on the cap (measured: 2–12 iterations to converge, no cycles).
 // Aggregated stats: hvBefore/before from the first run, hvAfter/after from the
 // last, counters summed, moved = vertices that differ from the ORIGINAL input,
 // plus { iters, iterCap, converged }.
@@ -687,7 +687,8 @@ export function iteratePost(build, skeleton, cells, cols, rows, opts = {}) {
   }
 }
 
-// ① 直角爬山: a second, short-radius hill-climbing polish with the direction
+// ②直角爬山（論文② Stott et al. 的直角變體；paperAlign.js 的 PAPER_KINDS 以
+// kind 'rect' 掛載）: a second, short-radius hill-climbing polish with the direction
 // criterion switched from octilinear |sin 4θ| to RECTILINEAR |sin 2θ| — 45°
 // legs now cost as much as the worst direction, so segments get pulled onto
 // horizontals/verticals wherever the hard rules allow. Criteria, hard rules
@@ -702,7 +703,9 @@ export function buildRectPolish(skeleton, cells, cols, rows, opts = {}) {
   })
 }
 
-// ② 軸對齊: orientation assignment + coordinate assignment. Per axis, every
+// 軸對齊（RETIRED CHAIN，2026-07）：不對應任何 data/thesis 論文，直線演算法
+// 改為「論文①〜⑧＋LLM 對齊」後已從 UI／畫廊／LLM 管線全部下架；函式保留
+// 作為程式庫參考（無呼叫者）。Orientation assignment + coordinate assignment. Per axis, every
 // segment strictly closer to that axis (45° stays diagonal) and closable
 // within maxShift votes its endpoints into one union-find group; each group
 // aligns on the median member coordinate (L1-minimal total movement; members
@@ -1448,7 +1451,10 @@ export function applyLlmTargets(skeleton, cells, cols, rows, targetEntries) {
   }
 }
 
-// ③ 整數規劃: per-axis 0-1 integer program, solved EXACTLY. Every vertex
+// 整數規劃（RETIRED CHAIN，2026-07）：不對應任何 data/thesis 論文（③ 的
+// Nöllenburg MILP 由 paperAlign.js 的 buildMilpAlign 對應），已從 UI／畫廊／
+// LLM 管線全部下架；函式保留作為程式庫參考（paperAlign 的 MILP/SAT 鏈沿用
+// 同款生成樹 DP＋feedback 枚舉機構）。Per-axis 0-1 integer program, solved EXACTLY. Every vertex
 // incident to an alignable segment gets an offset variable in [-window,
 // window]; objective = maximise the number of aligned segments with total
 // displacement as tie-breaker; quadrant preservation (no sign flip) is a

@@ -15,8 +15,7 @@ import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton, DEFAULT_RIVER_GRAY_SINUOSITY } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
 import {
-  buildHillClimb, buildHcGraph,
-  buildRectPolish, buildAxisAlign, buildAxisIlp, iteratePost, POST_ITER_CAP,
+  buildHillClimb, buildHcGraph, iteratePost, POST_ITER_CAP,
   straightenCompactLoop, movewiseStage,
   stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
@@ -109,20 +108,21 @@ const tilt = ref(0)
 // Map Adjust view modes (tabs). Grid modes ('grid-*') do the schematic gridding
 // (⑨, see skill route-skeleton-grid); the rest are original/rotated/skeleton.
 // A Hill Climbing view chains: the grid-post input, the optimized layout
-// ('hc', ②, see skill route-hillclimb), three H/V-maximising post-passes
-// (直角爬山/軸對齊/整數規劃), then per chain the 4-step tail 端點移動
+// ('hc', ②, see skill route-hillclimb), the H/V-maximising post-passes
+// (論文①〜⑧＋LLM 對齊), then per chain the 4-step tail 端點移動
 // ('*-end') → 直線縮減 ('*-line') → 網格合併 ('*-gather') → 縮減網格
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
 // ---- HC mode 解析 ----
-// HC 視圖 id 都是 `hc-<kind>[-<step>]`：kind ∈ rect|align|ilp|llm（原四條鏈）＋
-// 七條論文鏈 stroke|milp|force|lsq|octi|path|sat（paperAlign.js，2026-07 使用者
-// 裁決全部未實作論文都要接上），step ∈ end|line|gather|loop|step（鏈的三步＋
-// 循環＋逐步驗證）。舊的六張 kind 查表全部由這一條 regex 導出。
+// HC 視圖 id 都是 `hc-<kind>[-<step>]`：kind ∈ 論文①〜⑧的八條鏈
+// stroke|rect|milp|force|lsq|octi|path|sat（paperAlign.js 的 PAPER_KINDS，
+// 名稱與 data/thesis 論文一一對應）＋ llm（LLM 對齊），step ∈
+// end|line|gather|loop|step（鏈的三步＋循環＋逐步驗證）。
+// 舊的六張 kind 查表全部由這一條 regex 導出。
 // hc 鏈不進後處理區（使用者 2026-07 裁決）；RWD 底圖仍可用 hc 鏈的循環
 // （loop 區塊的 isRWD fallback，key 'hc'）。
 const PAPER_KIND_IDS = PAPER_KINDS.map((p) => p.kind)
-const HC_MODE_RE = new RegExp(`^hc-(rect|align|ilp|llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|step))?$`)
+const HC_MODE_RE = new RegExp(`^hc-(llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|step))?$`)
 // 該 step 專屬的鏈 kind（step 不符 → null）——對應舊 END/LINE/GATHER/LOOP/STEP_KIND[mode]。
 const kindAtStep = (m, step) => {
   const mm = HC_MODE_RE.exec(m)
@@ -387,16 +387,15 @@ function toggleEvalExec() {
   cachedRWD = null // sizeKey 不含套用狀態——直接作廢重畫
   render()
 }
-// The three H/V-maximising post-passes (short-distance moves of coloured
-// vertices AFTER the hill climbing — see skill route-hillclimb): 直角爬山
-// re-climbs with |sin 2θ|, 軸對齊 merges near-axis chains on median
-// coordinates, 整數規劃 solves per-axis offset programs exactly. Each is
+// The H/V-maximising post-passes (short-distance moves of coloured vertices
+// AFTER the hill climbing — see skill route-hillclimb): the eight paper chains
+// ①〜⑧ from paperAlign.js (names map 1:1 to data/thesis papers). Each is
 // iterated to a FIXED POINT (fed its own output until nothing moves, cap
 // POST_ITER_CAP). postIters drives the 「n/20」 badge on the tab button.
 const postIters = ref({}) // kind -> iterations used (set once computed)
 const iterBadge = (kind) =>
   (postIters.value[kind] ? ` ${postIters.value[kind]}/${POST_ITER_CAP}` : '')
-const POST_BUILD = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp, ...PAPER_BUILD }
+const POST_BUILD = { ...PAPER_BUILD }
 // 各 step 區塊的語意（kind 查詢一律走上方的 endKindOf/lineKindOf/…）：
 // - 端點移動（左選單第 4 部份，鏈的第 1 步）：在該鏈的結果之上做端點移動
 //   （原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／縮減網格／RWD 底圖的輸入。
@@ -418,11 +417,11 @@ const STEP_STAGES = [
   { k: 'endp', label: '端點移動' }, { k: 'line', label: '直線縮減' },
   { k: 'gather', label: '網格合併' },
 ]
-// RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc'|'rect'|'align'|'ilp'）決定
-// 要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
+// RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc' 或 PAPER_KIND_IDS
+// 之一）決定要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
 const postKind = computed(() =>
   isHC.value ? postKindOf(mode.value)
-    : isRWD.value && ['rect', 'align', 'ilp', ...PAPER_KIND_IDS].includes(layer.value?.compact) ? layer.value.compact
+    : isRWD.value && PAPER_KIND_IDS.includes(layer.value?.compact) ? layer.value.compact
       : null)
 // 縮減網格已非獨立步驟（每一個移動後由 movewiseStage 自動壓縮）；hcCompact
 // 只剩 RWD 圖層在用（其「循環結果」輸入視圖 id 沿用 'hc-compact'）。
@@ -445,16 +444,16 @@ const canRotate = computed(() => Math.abs(tilt.value) >= 0.5)
 let cacheData = null
 let cachedSkeleton = null
 let cachedHC = null
-let cachedPost = {}    // rect / align / ilp post-pass results, keyed by kind
+let cachedPost = {}    // 論文鏈後處理結果, keyed by kind (PAPER_KIND_IDS)
 let cachedFp = null    // 本資料的內容指紋（localStorage 快取鍵用）
 // 河流分隔曲折度「已套用」值（Map Adjust 工具列輸入是草稿；按確定才寫這裡並重算骨架）
 const appliedRiverGraySinuosity = ref(null)
 
 let cachedLlm = null   // fetched llmview (自動對齊): { cells, stats } or { miss: hint }
 let cachedPrompt = null // fetched .prompt.json (指定對齊): { cells, stats } or { miss }
-let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
-let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
-let cachedGather = {}  // 網格合併 (movewiseStage 'gather')，keyed by 鏈 'hc'/'rect'/'align'/'ilp'/'llm'
+let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 kind（①〜⑧＋'llm'）
+let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 kind（①〜⑧＋'llm'）
+let cachedGather = {}  // 網格合併 (movewiseStage 'gather')，keyed by 鏈 kind（①〜⑧＋'llm'）
 let cachedLoop = {}    // 端點移動+直線縮減+網格合併+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
 let stepState = {}     // 逐步驗證 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
 let stepHistory = {}   // 逐步驗證 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
@@ -618,17 +617,15 @@ const VIEW_TABS = computed(() => {
       { id: 'hc', label: 'Hill Climbing' },
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
       { header: '直線演算法', doc: 'straighten' },
-      { id: 'hc-rect', label: `直角爬山${iterBadge('rect')}` },
-      { id: 'hc-align', label: `軸對齊${iterBadge('align')}` },
-      { id: 'hc-ilp', label: `整數規劃${iterBadge('ilp')}` },
-      // 第四種（LLM）: the badge carries the rounds AND the model that produced it
-      { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
-      // 七條論文鏈（paperAlign.js——2026-07 使用者裁決：未實作論文全部接上）。
+      // 論文①〜⑧的八條鏈（paperAlign.js PAPER_KINDS——名稱帶論文圈號，與
+      // data/thesis/<n>_*_演算法說明.md 一一對應）＋ LLM 對齊，共 9 條。
       ...PAPER_KINDS.map(({ kind, zh }) => ({ id: `hc-${kind}`, label: `${zh}${iterBadge(kind)}` })),
+      // 第九種（LLM）: the badge carries the rounds AND the model that produced it
+      { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       // 鏈的三步＋循環＋逐步（每步一區、每條鏈一個 tab，前面的 tab 不受後面
       // 步驟影響）：該鏈結果 → 端點移動 → 直線縮減 → 網格合併；另有 循環
       //（交替四步直到沒有點可以動，見 loopKindOf）與 逐步驗證（按「下一步」
-      // 推進，見 stepKindOf）。四條鏈 × 各區塊用迴圈生成。
+      // 推進，見 stepKindOf）。9 條鏈（①〜⑧＋LLM）× 各區塊用迴圈生成。
       ...[
         ['end', '端點移動', (zh) => `${zh}端點移動`, 'endpoint-move'],
         ['line', '直線縮減', (zh) => `${zh}直線縮減`, 'line-compact'],
@@ -637,8 +634,7 @@ const VIEW_TABS = computed(() => {
         ['step', '逐步驗證', (zh) => `${zh}逐步`, 'step-verify'],
       ].flatMap(([step, header, fmt, doc]) => [
         { header, doc },
-        ...[['rect', '直角爬山'], ['align', '軸對齊'], ['ilp', '整數規劃'], ['llm', 'LLM 對齊'],
-          ...PAPER_KINDS.map(({ kind, zh }) => [kind, zh])]
+        ...[...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]), ['llm', 'LLM 對齊']]
           .map(([k, zh]) => ({ id: `hc-${k}-${step}`, label: fmt(zh) })),
       ]),
     ]
@@ -882,16 +878,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
     const kind = postKind.value
     if (!cachedPost[kind]) {
       hcBusy.value = true
-      busyText.value = { rect: '直角爬山中…（|sin 2θ| 短半徑再爬，迭代到不動）',
-        align: '軸對齊中…（群組合併 + 中位數座標，迭代到不動）',
-        ilp: '整數規劃中…（逐軸樹 DP 精確解，迭代到不動）',
-        stroke: '筆畫法中…（筆畫串接 + 4 主方向投影，迭代到不動）',
-        milp: 'MILP規劃中…（3 候選方向精確指派 + 座標重建，迭代到不動）',
-        force: '力導向中…（磁力彈簧 40 輪 + 嚴格接受，迭代到不動）',
-        lsq: '最小平方中…（八方向化 Gauss–Seidel，迭代到不動）',
-        octi: '八向格網中…（ldeg 排序逐邊定案 + 嚴格接受，迭代到不動）',
-        path: '路徑簡化中…（C-directed 最少 link 刺穿，迭代到不動）',
-        sat: 'SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
+      busyText.value = { stroke: '①筆畫法中…（筆畫串接 + 4 主方向投影，迭代到不動）',
+        rect: '②直角爬山中…（|sin 2θ| 短半徑再爬，迭代到不動）',
+        milp: '③MILP規劃中…（3 候選方向精確指派 + 座標重建，迭代到不動）',
+        force: '④力導向中…（磁力彈簧 40 輪 + 嚴格接受，迭代到不動）',
+        lsq: '⑤最小平方中…（八方向化 Gauss–Seidel，迭代到不動）',
+        octi: '⑥八向格網中…（ldeg 排序逐邊定案 + 嚴格接受，迭代到不動）',
+        path: '⑦路徑簡化中…（C-directed 最少 link 刺穿，迭代到不動）',
+        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
       await new Promise((r) => setTimeout(r, 30))
       if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
       cachedPost[kind] = iteratePost(POST_BUILD[kind], cachedSkeleton, cachedHC.cellAfter, grid.cols, grid.rows)
@@ -1874,8 +1868,6 @@ const layoutStatus = computed(() => {
       + ` · 移動 ${s.moved} 站`
       + (s.reverted ? '（淨值未改善，退回）' : '')
     if (postKind.value === 'rect') t += ` · 適應度 ${fmtFit(s.before)} → ${fmtFit(s.after)} · ${s.rounds} 輪`
-    else if (postKind.value === 'align') t += ` · 橫群 ${s.groupsH} · 縱群 ${s.groupsV}`
-    else if (postKind.value === 'ilp') t += ` · ${s.comps} 元件` + (s.fallback ? `（${s.fallback} 退回）` : '')
     // 論文鏈（paperAlign.js）：八方向系——補「含 45° 對齊」讀數與各自的機構統計。
     else if (PAPER_ZH[postKind.value]) {
       if (s.hvdBefore != null) t += ` · 含45° ${s.hvdBefore} → ${s.hvdAfter}`

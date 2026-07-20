@@ -5,7 +5,7 @@
 //
 //   in : data/metro/index.json + data/metro/systems/**/*.geojson
 //   out: data/metro/views/<id>.json     (原始/旋轉/骨架化/格網化前後 ×…)
-//        data/metro/hcviews/<id>.json    (格網化後/Hill Climbing/4 循環 hc/rect/align/ilp)
+//        data/metro/hcviews/<id>.json    (格網化後/Hill Climbing/9 循環 hc＋論文①〜⑧)
 //        data/metro/{views,hcviews}/index.json
 //
 // The geometry is produced by src/stores/viewGeometry.js — the SAME pure
@@ -31,7 +31,10 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 35 // 35: 新增七條論文直線鏈（stroke/milp/sat/force/lsq/octi/path，
+const VIEWS_VERSION = 36 // 36: 直線鏈改為與論文一一對應的 9 條（①〜⑧＋LLM）——
+                         //     移除自創的 align/ilp 鏈，rect 併入論文②；HC 畫廊
+                         //     13→11 視圖/variant、RWD 畫廊 22→18 視圖/variant，全城重算。
+                         // 35: 新增七條論文直線鏈（stroke/milp/sat/force/lsq/octi/path，
                          //     src/stores/paperAlign.js）——HC 畫廊 6→13 視圖/variant、
                          //     RWD 畫廊 8→22 視圖/variant，全城重算。
                          // 34: RWD 畫線器 deskew-v18——「能 45 就不用 22.5」補強：joint 重算

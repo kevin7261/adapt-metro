@@ -1,4 +1,4 @@
-// Compare the RWD-map candidates for one city（原四鏈＋七條論文鏈 × orig/rot）.
+// Compare the RWD-map candidates for one city（論文①〜⑧＋LLM 對齊 9 鏈 × orig/rot）.
 // Read-only judge: picks overall / orig / rot winners, never moves points.
 //
 // node scripts/llmCompare.mjs export <cityId>
@@ -13,8 +13,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, buildHcGraph, iteratePost, buildRectPolish, buildAxisAlign,
-  buildAxisIlp, straightenCompactLoop,
+  buildHillClimb, buildHcGraph, iteratePost, straightenCompactLoop,
 } from '../src/stores/hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from '../src/stores/rwdMap.js'
 import { PAPER_BUILD, PAPER_ZH, PAPER_KINDS } from '../src/stores/paperAlign.js'
@@ -22,9 +21,9 @@ import { PAPER_BUILD, PAPER_ZH, PAPER_KINDS } from '../src/stores/paperAlign.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const OUT = join(DATA, 'llmcompares')
-const POST = { rect: buildRectPolish, align: buildAxisAlign, ilp: buildAxisIlp, ...PAPER_BUILD }
-const NAMES = { rect: '直角爬山', align: '軸對齊', ilp: '整數規劃', llm: 'LLM對齊', ...PAPER_ZH }
-const COMPACTS = ['rect', 'align', 'ilp', 'llm', ...PAPER_KINDS.map((p) => p.kind)]
+const POST = { ...PAPER_BUILD }
+const NAMES = { llm: 'LLM對齊', ...PAPER_ZH }
+const COMPACTS = [...PAPER_KINDS.map((p) => p.kind), 'llm']
 const VARIANT_ZH = { orig: '原始', rot: '旋轉' }
 const [cmd, cityId, resultPath] = process.argv.slice(2)
 if (!['export', 'apply', 'reset'].includes(cmd) || !cityId) {
@@ -113,7 +112,7 @@ const fingerprint = {
 if (cmd === 'export') {
   console.log(JSON.stringify({
     city: cityId, cityName: meta.city, candidates, fingerprint,
-    instruction: '一次比較同一城市的原始＋旋轉共最多 22 個 RWD 路網（id＝variant.compact）。以方正、路線直、轉折少、畫面平衡為最高標準；forced/fallback 是嚴重缺點。必須逐一說明每個候選優缺點，並選出三個：winner（全體最佳）、winnerOrig（原始組最佳）、winnerRot（旋轉組最佳）；三者皆須是 candidates 的 id。',
+    instruction: '一次比較同一城市的原始＋旋轉共最多 18 個 RWD 路網（id＝variant.compact）。以方正、路線直、轉折少、畫面平衡為最高標準；forced/fallback 是嚴重缺點。必須逐一說明每個候選優缺點，並選出三個：winner（全體最佳）、winnerOrig（原始組最佳）、winnerRot（旋轉組最佳）；三者皆須是 candidates 的 id。',
   }))
   process.exit(0)
 }
