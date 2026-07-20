@@ -788,13 +788,18 @@ function uniformBlue(nC, nR, cw, ch) {
 function resetPerDataset(data) {
   cacheData = data
   tilt.value = computeOrientation(data).tilt
-  if (appliedRiverGraySinuosity.value == null) {
-    appliedRiverGraySinuosity.value = panelLayer.value?.riverGraySinuosity ?? DEFAULT_RIVER_GRAY_SINUOSITY
+  // 已套用門檻存在共用 panelLayer.riverGraySinuosityApplied（按確定才寫）；草稿是
+  // riverGraySinuosity。Straighten／RWD 與 Map Adjust 綁同一 panelLayer。
+  const applied = panelLayer.value?.riverGraySinuosityApplied
+    ?? panelLayer.value?.riverGraySinuosity
+    ?? DEFAULT_RIVER_GRAY_SINUOSITY
+  const th = Math.max(1.01, Math.round((+applied || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
+  appliedRiverGraySinuosity.value = th
+  if (panelLayer.value) {
+    if (panelLayer.value.riverGraySinuosity == null) panelLayer.value.riverGraySinuosity = th
+    if (panelLayer.value.riverGraySinuosityApplied == null) panelLayer.value.riverGraySinuosityApplied = th
   }
-  if (panelLayer.value && panelLayer.value.riverGraySinuosity == null) {
-    panelLayer.value.riverGraySinuosity = appliedRiverGraySinuosity.value
-  }
-  cachedSkeleton = buildConnectSkeleton(data, { riverGraySinuosity: appliedRiverGraySinuosity.value })
+  cachedSkeleton = buildConnectSkeleton(data, { riverGraySinuosity: th })
   cachedHC = null
   cachedPost = {}
   cachedLlm = null
@@ -827,7 +832,7 @@ function resetPerDataset(data) {
   // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
   // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
   tipIdx = buildPopupIndex(data) // hover 索引（refColor/segs/站點）——per dataset 一次
-  cachedFp = `${dataFingerprint(data)}:rg${appliedRiverGraySinuosity.value}`
+  cachedFp = `${dataFingerprint(data)}:rg${th}`
   const hit = loadHcCache(`${cachedFp}:${hcVariant.value}`)
   if (hit) { cachedHC = hit.hc; cachedPost = hit.posts }
 }
@@ -1931,9 +1936,17 @@ watch(mode, render)
 const appliedSpanCap = ref(null)
 watch(() => panelLayer.value?.id, () => {
   appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
-  appliedRiverGraySinuosity.value = panelLayer.value?.riverGraySinuosity ?? DEFAULT_RIVER_GRAY_SINUOSITY
-  if (panelLayer.value && panelLayer.value.riverGraySinuosity == null) {
-    panelLayer.value.riverGraySinuosity = appliedRiverGraySinuosity.value
+  const applied = panelLayer.value?.riverGraySinuosityApplied
+    ?? panelLayer.value?.riverGraySinuosity
+    ?? DEFAULT_RIVER_GRAY_SINUOSITY
+  appliedRiverGraySinuosity.value = Math.max(1.01, Math.round((+applied || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
+  if (panelLayer.value) {
+    if (panelLayer.value.riverGraySinuosity == null) {
+      panelLayer.value.riverGraySinuosity = appliedRiverGraySinuosity.value
+    }
+    if (panelLayer.value.riverGraySinuosityApplied == null) {
+      panelLayer.value.riverGraySinuosityApplied = appliedRiverGraySinuosity.value
+    }
   }
 })
 function recalcSpan() {
@@ -1952,15 +1965,14 @@ function recalcSpan() {
   render()
 }
 
-// Map Adjust 工具列「河流分隔曲折度」：輸入只改 panelLayer.riverGraySinuosity（草稿），
-// 按「確定」寫入已套用值。門檻存在共用的 panelLayer（metro／自有 d3）上——Map Adjust、
-// Straighten、RWD 三個獨立 D3Tab 都綁同一物件，watch 會讓**已開啟**的 Straighten／RWD
-// 一併重算骨架＋HC／RWD 佈局；未開的分頁下次打開時 resetPerDataset 也會讀到新門檻。
+// Map Adjust 工具列「河流分隔曲折度」：
+//   · riverGraySinuosity       ＝草稿（輸入框，改了不重算）
+//   · riverGraySinuosityApplied ＝已套用（按確定才寫；Map Adjust／Straighten／RWD 共用
+//     同一 panelLayer，watch 此欄讓已開啟的 Straighten／RWD 一併重算骨架＋佈局）
 function applyRiverGrayAndInvalidate(v) {
   const th = Math.max(1.01, Math.round((+v || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
   if (appliedRiverGraySinuosity.value === th && cachedSkeleton?.riverGraySinuosity === th) return
   appliedRiverGraySinuosity.value = th
-  if (panelLayer.value) panelLayer.value.riverGraySinuosity = th
   if (!cacheData) { render(); return }
   cachedSkeleton = buildConnectSkeleton(cacheData, { riverGraySinuosity: th })
   cachedHC = null
@@ -1982,13 +1994,15 @@ function applyRiverGrayAndInvalidate(v) {
 function recalcRiverGray() {
   const raw = panelLayer.value?.riverGraySinuosity
   const v = Math.max(1.01, Math.round((+raw || DEFAULT_RIVER_GRAY_SINUOSITY) * 100) / 100)
-  // 先寫共用 layer，觸發其他已開的 Straighten／RWD tab 的 watch；本 tab 也走同一套重算。
-  if (panelLayer.value) panelLayer.value.riverGraySinuosity = v
+  if (panelLayer.value) {
+    panelLayer.value.riverGraySinuosity = v
+    panelLayer.value.riverGraySinuosityApplied = v // 觸發其他已開 tab 的 watch
+  }
   applyRiverGrayAndInvalidate(v)
   store.toast(`河流分隔曲折度 ${v}：骨架／Straighten／RWD Maps 已重算`)
 }
-// 其他分頁（或本分頁）改了共用 panelLayer.riverGraySinuosity → 跟著重算。
-watch(() => panelLayer.value?.riverGraySinuosity, (v) => {
+// 其他分頁（或本分頁）改了共用的「已套用」門檻 → 跟著重算。
+watch(() => panelLayer.value?.riverGraySinuosityApplied, (v) => {
   if (v == null) return
   applyRiverGrayAndInvalidate(v)
 })

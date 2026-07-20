@@ -71,14 +71,16 @@ const isMapAdjust = computed(() => props.viewKind === 'map-adjust')
 const hasRow2 = computed(() => isRwd.value || isHillclimb.value || isMapAdjust.value)
 
 // 河流分隔曲折度草稿 vs 已套用——不同才亮「確定」。
+// 草稿＝layer.riverGraySinuosity；已套用＝riverGrayApplied（來自 D3Tab 的 applied 快照，
+// 與 panelLayer.riverGraySinuosityApplied 同步）。
 const riverGrayDirty = computed(() => {
   const draft = +(props.layer?.riverGraySinuosity ?? 1.25)
-  const applied = +(props.riverGrayApplied ?? 1.25)
+  const applied = +(props.riverGrayApplied ?? props.layer?.riverGraySinuosityApplied ?? 1.25)
   return Math.abs(draft - applied) > 1e-9
 })
 function setRiverGrayDraft(raw) {
   const v = Math.max(1.01, Math.round((+raw || 1.25) * 100) / 100)
-  props.layer.riverGraySinuosity = v
+  props.layer.riverGraySinuosity = v // 只改草稿，不觸發重算
 }
 
 // 工具依「相關功能」分組（每組一格，組間加分隔線）：
@@ -341,7 +343,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         class="sb-btn"
         :class="{ active: riverGrayDirty }"
         :disabled="!riverGrayDirty"
-        title="套用河流分隔曲折度並重算本城市骨架（灰點＋下游格網／HC／RWD）"
+        title="套用河流分隔曲折度並重算本城市：骨架灰點 ＋ Straighten ＋ RWD Maps（已開啟的分頁會一併重算）"
         @click="emit('recalc-river-gray')"
       >確定</button>
     </div>

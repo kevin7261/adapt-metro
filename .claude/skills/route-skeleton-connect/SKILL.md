@@ -268,10 +268,12 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
     近乎筆直。灰點**納入後續計算**（`schematicGrid` 把非黑點當切點 → 灰點之間拉直、格網化把
     灰吸到格排名）。**只在黑點放灰**（不覆蓋粉紅/節點）。
     **可調（Map Adjust 工具列，2026-07-21）**：`buildConnectSkeleton(geojson, { riverGraySinuosity })`
-    接受門檻；StyleBar 第 2 排「河流分隔曲折度」輸入草稿（`layer.riverGraySinuosity`），按
-    **「確定」** 才套用並重算**本城市**骨架（灰點切換）＋下游格網／HC／RWD 全部作廢。下限
-    **1.01**（不可設 1.0：真實地理點幾乎不共線 → 幾乎每個黑點變灰、佈局卡死；1.05→1.1 另有
-    40× 效能懸崖）。畫廊預計算（`viewGeometry`／`buildViews`）用預設 1.25。
+    接受門檻。StyleBar「河流分隔曲折度」寫**草稿** `panelLayer.riverGraySinuosity`（改數字不重算）；
+    按 **「確定」** 寫**已套用** `panelLayer.riverGraySinuosityApplied`。Map Adjust／Straighten／
+    RWD 三個獨立 D3Tab 綁同一 `panelLayer`（metro／自有 d3），`watch(riverGraySinuosityApplied)`
+    讓**已開啟**的 Straighten／RWD 一併重算骨架＋HC／RWD 佈局；未開的分頁下次打開時
+    `resetPerDataset` 讀 `riverGraySinuosityApplied`。下限 **1.01**（不可設 1.0：幾乎每個黑點
+    變灰、佈局卡死；1.05→1.1 另有 40× 效能懸崖）。畫廊預計算用預設 1.25。
     早期「每 5 黑點 1 灰」在河流會撒數十個地理採樣切點害河流折來折去，故河流改用此曲折度細分。
   - **hover 畫參考線**：灰點與粉紅一樣可 hover——畫「子段弦（虛線，曲折度基準）＋灰點到弦的
     垂距（實線）」並在 tooltip 顯示子段曲折度（`grayInfo`，`skeleton.js` 回傳；D3Tab 的
