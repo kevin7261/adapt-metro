@@ -14,14 +14,14 @@ _Drawing and Labeling High-Quality Metro Maps by Mixed-Integer Programming_
 1. **方向指派模型 `dirModel`**（與 [[route-sat-align]] 完全同模型，只換求解器）：
    - 每段 3 候選方向＝目前幾何最近八方向扇區 ±1（論文的 sector constraint）。
    - 成本＝`λ1(=3)`·Σ 同路線相鄰段彎折 bd（S1 線彎，bd = 4 − 環狀差）＋
-     `λ2(=2)`·Σ 非原方向候選（S2 相對位置）；S3 緊湊由座標階段隱含。
+     `λ2(=2)`·Σ 非原方向候選（S2 相對位置）；S3（總長最小化）交給下游「縮減網格」——它就是全域壓縮這張圖的步驟。
    - 硬限制：同頂點兩段出向不得相同（H2 環繞序的可線性化部份）。
 2. **精確求解**：段為節點、共享頂點的段對為邊 → 分連通元件 → 生成樹＋回邊 →
    feedback 段集合枚舉（3^|fb|，上限 2187 trials 或 2e6 節點·trials，超限元件
    fallback 保持原方向）＋樹 DP（同 hillClimb.js 中 buildAxisIlp 的求解機構——該鏈已下架、函式保留，變數換成段
    的八方向）。
 3. **座標重建 `coordsFromDirs`**：逐段把兩端往「沿選定方向、長度＝目前投影長
-   （下限 1 格）」的理想相對位置拉，鬆弛 40 輪；`snapAligned` 對齊感知量化 →
+   （下限＝H3 最短邊長 `hops`，即吞掉的白點數 + 1）」的理想相對位置拉，鬆弛 40 輪；`snapAligned` 對齊感知量化 →
    `finishPass` 夾 WINDOW＋硬規則。
 
 ## 與論文的差異

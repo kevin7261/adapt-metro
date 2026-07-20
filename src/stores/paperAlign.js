@@ -72,47 +72,69 @@ function finishPass(pos, M, segs, targets, cols, rows, extra = {}) {
   }
 }
 
-// 逐批（逐筆畫/逐路線/逐頂點）漸進套用：每批各自過 applyTargets（淨 HVD 變差
+// 逐批（逐筆畫/逐路線/逐頂點）漸進套用器：每批各自過 applyTargets（淨 HVD 變差
 // 該批獨立退回——對應論文的 progressive 排程：先處理的定案、壞的局部提案不拖垮
-// 整體）。opts.strict：批要**嚴格**改善 HVD 才收（單頂點批用——中性移動會讓
-// iteratePost 永不收斂地漂移；嚴格遞增以段數為上界保證終止）。
-function finishBatches(pos, M, segs, batches, cols, rows, extra = {}, opts = {}) {
+// 整體）。批可以給**多個候選**（Map[]，依序試到第一個被接受為止——①筆畫法的
+// 「4 主方向優先、壅擠時退而求其次用 ±45°」，論文 §4.3/§9.9）。
+// opts.strict：批要**嚴格**改善 HVD 才收（單頂點批用——中性移動會讓 iteratePost
+// 永不收斂地漂移；嚴格遞增以段數為上界保證終止）。
+// 一批套完才算下一批的幾何（漸進式：後面的筆畫/路線看到的是已定案的位置）。
+function makeApplier(pos, M, segs, cols, rows, opts = {}) {
   const hvBefore = countHV(pos, segs)
   const hvdBefore = countHVD(pos, segs)
   let moved = 0, passes = 0, reverted = false
-  let proposed = 0, revertedN = 0
-  for (const targets of batches) {
+  let proposed = 0, revertedN = 0, batches = 0
+  // 回傳是否被接受（被擋下或退回 → false，呼叫者可改試下一個候選）。
+  const applyOne = (targets) => {
     const clamped = clampTargets(pos, targets, cols, rows)
-    if (!clamped.size) continue
+    if (!clamped.size) return false
     proposed += clamped.size
-    const cnt0 = opts.strict ? countHVD(pos, segs) : 0
-    const orig = opts.strict
-      ? new Map([...clamped.keys()].map((id) => [id, [...pos.get(id)]])) : null
+    const cnt0 = countHVD(pos, segs)
+    const orig = new Map([...clamped.keys()].map((id) => [id, [...pos.get(id)]]))
     const r = applyTargets(pos, M, clamped, segs, 6, countHVD)
-    if (opts.strict && r.moved && countHVD(pos, segs) <= cnt0) {
-      // 中性（或被部份擋掉後無淨益）的批 → 回退（單頂點批：一一放回原格是安全的）。
+    if (!r.moved) return false
+    if (opts.strict && countHVD(pos, segs) <= cnt0) {
+      // 中性（或被部份擋掉後無淨益）的批 → 回退（一一放回原格是安全的）。
       for (const [id, p] of orig) {
         const cur = pos.get(id)
         if (cur[0] !== p[0] || cur[1] !== p[1]) M.applyMove(id, p)
       }
       revertedN++
-      continue
+      return false
     }
     moved += r.moved
     passes += r.passes
     reverted ||= r.reverted
     if (r.reverted) revertedN++
+    return !r.reverted
   }
   return {
-    cellAfter: pos,
-    stats: {
-      hvBefore, hvAfter: countHV(pos, segs),
-      hvdBefore, hvdAfter: countHVD(pos, segs),
-      segs: segs.length, verts: pos.size,
-      moved, passes, reverted, proposed, revertedN, batches: batches.length,
-      ...extra,
+    // targets: Map 或 Map[]（候選依序試）。
+    apply(targets) {
+      batches++
+      for (const t of Array.isArray(targets) ? targets : [targets]) {
+        if (applyOne(t)) return true
+      }
+      return false
     },
+    result: (extra = {}) => ({
+      cellAfter: pos,
+      stats: {
+        hvBefore, hvAfter: countHV(pos, segs),
+        hvdBefore, hvdAfter: countHVD(pos, segs),
+        segs: segs.length, verts: pos.size,
+        moved, passes, reverted, proposed, revertedN, batches,
+        ...extra,
+      },
+    }),
   }
+}
+
+// 先算好全部批次再逐批套用（④⑥ 用——提案器與佈局無關，不需要漸進重算）。
+function finishBatches(pos, M, segs, batches, cols, rows, extra = {}, opts = {}) {
+  const app = makeApplier(pos, M, segs, cols, rows, opts)
+  for (const targets of batches) app.apply(targets)
+  return app.result(extra)
 }
 
 // 連續解的「對齊感知」量化（力導向/最小平方用）：頂點依 id 序逐一吸到連續位置
@@ -170,10 +192,12 @@ const angBetween = (a, b) => {
 }
 
 /* ==================== ① 筆畫法（stroke-based） ==================== */
-// Li & Dong 2010：把段串成「筆畫」（同名/同路線優先＋every-best-fit 良好連續），
-// 逐筆畫依「最大方向扭曲 > 45°」遞迴切成子筆畫，各子筆畫吸附 4 主方向（H/V 優先、
-// 45° 為輔），成員頂點**垂直投影**到過錨點（度數最高的交點）的定向直線上。
-// 漸進式：筆畫依（路線數 > 長度 > 度數）排序，先處理的頂點定案、後續筆畫視為錨。
+// Li & Dong 2010：把段串成「筆畫」（§3.1 同路線＝具名優先，§3.2 剩餘段跨路線
+// every-best-fit、偏角 < 45°），逐筆畫依「最大方向扭曲 > 45°」遞迴切成子筆畫，
+// 各子筆畫吸附 **4 主方向**（§4.3：先試最近的水平/垂直，被擋下才退用最近的
+// ±45°），成員頂點**垂直投影**到過錨點（§D：已定案筆畫的交點 → 無交點取首尾
+// 中點）的定向直線上。漸進式（§6.3）：筆畫依（類型 > 總長 > 交點數）排序，
+// 每條子筆畫**當場套用**、頂點定案，後續筆畫看到的是已定案的佈局。
 // 改編：拓撲一致性不用論文的點在多邊形修復——targets 統一走 applyTargets 硬規則
 // （擋下會翻轉拓撲的投影，效果等價於「移不動就留在原地」）。
 export function buildStrokeAlign(skeleton, cells, cols, rows) {
@@ -181,31 +205,37 @@ export function buildStrokeAlign(skeleton, cells, cols, rows) {
   if (!pos.size || !segs.length) return emptyResult(pos, segs)
   const M = makeMover(pos, segs, inc, cols, rows)
 
-  // --- FormStrokes：每個頂點上 every-best-fit 配對（共線接續，偏角 < 45°）---
-  // 偏角 deflection = π − 兩出向夾角（0 = 完全直行）。只允許共享路線的段配對
-  // （捷運圖：路線天然是具名筆畫——論文 §3.1）。
+  // --- FormStrokes（§3.1 具名優先 → §3.2 無名 every-best-fit）---
+  // 偏角 deflection = π − 兩出向夾角（0 = 完全直行）。捷運圖裡「路線」就是名稱
+  // （§3.1 註：捷運應用 3.1 就足夠）：同路線的段在頂點上直接串接，**不設偏角
+  // 門檻**（路線該轉彎就轉彎，過彎的筆畫由 §4.2 的方向扭曲切分處理）；同路線有
+  // 多種接法（分歧）時才用偏角排序決定配對。剩下沒配到的段再跑第二輪
+  // every-best-fit（§3.2：跨路線、偏角 < T 才配）。
   const T = Math.PI / 4
   const nextSeg = new Map() // `${segIdx}|${vertexId}` -> 接續的 segIdx
   for (const [v, list] of inc) {
     if (list.length < 2) continue
-    const cand = []
+    const named = [], unnamed = []
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
         const si = segs[list[i]], sj = segs[list[j]]
-        if (!sharesRoute(si.routes, sj.routes)) continue
         const a1 = outAngle(pos, si, v), a2 = outAngle(pos, sj, v)
         if (a1 == null || a2 == null) continue
         const def = Math.PI - angBetween(a1, a2)
-        if (def < T) cand.push([def, list[i], list[j]])
+        const pair = [def, list[i], list[j]]
+        if (sharesRoute(si.routes, sj.routes)) named.push(pair)
+        else if (def < T) unnamed.push(pair)
       }
     }
-    cand.sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2])
     const used = new Set()
-    for (const [, si, sj] of cand) {
-      if (used.has(si) || used.has(sj)) continue
-      used.add(si); used.add(sj)
-      nextSeg.set(`${si}|${v}`, sj)
-      nextSeg.set(`${sj}|${v}`, si)
+    for (const cand of [named, unnamed]) { // 具名先配，無名只能撿剩下的
+      cand.sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2])
+      for (const [, si, sj] of cand) {
+        if (used.has(si) || used.has(sj)) continue
+        used.add(si); used.add(sj)
+        nextSeg.set(`${si}|${v}`, sj)
+        nextSeg.set(`${sj}|${v}`, si)
+      }
     }
   }
   // 由配對關係走出筆畫（頂點鏈）。從「無接續」的一端開始走到底。
@@ -238,7 +268,8 @@ export function buildStrokeAlign(skeleton, cells, cols, rows) {
     for (const id of ids) for (const k of inc.get(id)) for (const r of segs[k].routes) routes.add(r)
     strokes.push({ ids, routes })
   }
-  // 排序（式 3）：路線數（type）> 弧長 > 交點數。
+  // 排序（式 3）：類型（路線數）> 總長 > 交點數（與其他筆畫共享的頂點數——
+  // 筆畫在一個頂點最多用掉 2 條段，所以 deg ≥ 3 的頂點就是共享點）。
   const arcLen = (ids) => {
     let m = 0
     for (let i = 1; i < ids.length; i++) {
@@ -247,44 +278,56 @@ export function buildStrokeAlign(skeleton, cells, cols, rows) {
     }
     return m
   }
-  const degSum = (ids) => ids.reduce((n, id) => n + inc.get(id).length, 0)
+  const junctions = (ids) => ids.filter((id) => inc.get(id).length >= 3).length
   strokes.sort((x, y) => y.routes.size - x.routes.size || arcLen(y.ids) - arcLen(x.ids)
-    || degSum(y.ids) - degSum(x.ids))
+    || junctions(y.ids) - junctions(x.ids))
 
-  // --- 逐筆畫：遞迴切分 → 4 主方向吸附 → 垂直投影 ---
-  const targets = new Map()
+  // --- 逐筆畫：遞迴切分 → 方向指派 → 垂直投影（每條子筆畫即時套用）---
+  const app = makeApplier(pos, M, segs, cols, rows)
   const fixed = new Set() // 先處理的筆畫定案的頂點——後續筆畫不再改它
+  const fixOrder = new Map() // id -> 定案序（越小＝所屬筆畫排序鍵越高）
   let strokesN = 0, subN = 0
-  const at = (id) => targets.get(id) ?? pos.get(id)
-  const orient = (ids) => { // 子筆畫吸附方向：H/V 優先（偏差可多容 7.5°），否則 45°
+  const at = (id) => pos.get(id) // 漸進式：永遠讀「已套用」的目前佈局
+  // 子筆畫首尾連線方位角 → 4 主方向（§4.3）。回傳 [主要, 備援]：主要＝最近的
+  // 水平/垂直，備援＝最近的 ±45°（論文：先試 H/V，壅擠/不一致時才退用斜線）。
+  const orient = (ids) => {
     const A = at(ids[0]), B = at(ids[ids.length - 1])
     const ang = Math.atan2(B[1] - A[1], B[0] - A[0])
     const devTo = (base) => Math.min(angBetween(ang, base), angBetween(ang, base + Math.PI))
-    const devH = devTo(0), devV = devTo(Math.PI / 2)
-    const devD1 = devTo(Math.PI / 4), devD2 = devTo(3 * Math.PI / 4)
-    const hv = Math.min(devH, devV), dg = Math.min(devD1, devD2)
-    if (hv <= dg + Math.PI / 24) return devH <= devV ? 0 : 2 // 主方向偏好（論文 §4.3）
-    return devD1 <= devD2 ? 1 : 3 // 扇區 1 / 3（45° / 135°）
+    const hv = devTo(0) <= devTo(Math.PI / 2) ? 0 : 2
+    const dg = devTo(Math.PI / 4) <= devTo(3 * Math.PI / 4) ? 1 : 3
+    return [hv, dg]
   }
-  const project = (ids) => {
-    subN++
-    const dirSec = orient(ids)
-    const [ux, uy] = SECTOR_VEC[dirSec]
-    const un = Math.hypot(ux, uy)
-    // 錨點＝度數最高者（交點權重高——論文 §5.1 的 common 值），並取「不動」為先。
-    let anchor = ids[0]
-    for (const id of ids) {
-      if (fixed.has(id) && !fixed.has(anchor)) { anchor = id; continue }
-      if (fixed.has(anchor) && !fixed.has(id)) continue
-      if (inc.get(id).length > inc.get(anchor).length) anchor = id
+  // 錨點（子計算 D）：交點優先（已定案筆畫中排序鍵最高者的交點），無交點時取
+  // 首尾中點。
+  const anchorOf = (ids) => {
+    const js = ids.filter((id) => inc.get(id).length >= 3)
+    if (!js.length) {
+      const A = at(ids[0]), B = at(ids[ids.length - 1])
+      return [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2]
     }
-    const A = at(anchor)
+    const done = js.filter((id) => fixed.has(id))
+    if (done.length) {
+      done.sort((a, b) => fixOrder.get(a) - fixOrder.get(b))
+      return at(done[0])
+    }
+    js.sort((a, b) => inc.get(b).length - inc.get(a).length || String(a).localeCompare(String(b)))
+    return at(js[0])
+  }
+  // 垂直投影到「過錨點、方向 dirSec」的直線（水平/垂直＝保留另一軸；±45° 等價
+  // 於旋轉→投影→逆旋轉）。
+  const project = (ids, dirSec) => {
+    const [ux, uy] = SECTOR_VEC[dirSec]
+    const un2 = ux * ux + uy * uy
+    const A = anchorOf(ids)
+    const t = new Map()
     for (const id of ids) {
       if (fixed.has(id)) continue
       const p = at(id)
-      const t = ((p[0] - A[0]) * ux + (p[1] - A[1]) * uy) / (un * un)
-      targets.set(id, [A[0] + t * ux, A[1] + t * uy])
+      const k = ((p[0] - A[0]) * ux + (p[1] - A[1]) * uy) / un2
+      t.set(id, [A[0] + k * ux, A[1] + k * uy])
     }
+    return t
   }
   // 最大方向扭曲切分（類 DP、準則是「角度」非垂距——論文 §4.2 方法一）。
   const split = (ids) => {
@@ -302,22 +345,20 @@ export function buildStrokeAlign(skeleton, cells, cols, rows) {
       split(ids.slice(0, wi + 1))
       split(ids.slice(wi))
     } else {
-      project(ids)
+      subN++
+      const [hv, dg] = orient(ids)
+      app.apply([project(ids, hv), project(ids, dg)]) // 主方向優先、斜線備援
     }
   }
-  const batches = []
   for (const st of strokes) {
     if (st.ids.length < 2) continue
     strokesN++
-    const before = new Set(targets.keys())
     split(st.ids)
-    // 本筆畫新產生的 targets 自成一批（漸進式：逐筆畫套用、壞提案獨立退回）。
-    const batch = new Map()
-    for (const [id, t] of targets) if (!before.has(id)) batch.set(id, t)
-    if (batch.size) batches.push(batch)
-    for (const id of st.ids) fixed.add(id) // 漸進式：本筆畫定案
+    for (const id of st.ids) { // 漸進式：本筆畫定案
+      if (!fixed.has(id)) { fixed.add(id); fixOrder.set(id, strokesN) }
+    }
   }
-  return finishBatches(pos, M, segs, batches, cols, rows, { strokes: strokesN, substrokes: subN })
+  return app.result({ strokes: strokesN, substrokes: subN })
 }
 
 /* ==================== ③/⑧ 共用：方向指派模型 ==================== */
@@ -357,9 +398,11 @@ function dirModel(pos, segs, inc) {
 }
 
 // 方向指派 → 座標重建：迭代鬆弛（shape-matching 式）。每輪逐段把兩端往「沿選定
-// 方向、長度＝目前投影長（下限 1 格）」的理想相對位置拉。連續空間收斂後由
-// snapAligned 做對齊感知量化、finishPass 夾 WINDOW ＋硬規則（S3 緊湊由段長貼
-// 理想值隱含；不加錨定項——targets 的 WINDOW 夾擠已限制位移）。
+// 方向、長度＝目前投影長」的理想相對位置拉，並套 H3 最短邊長：deg-2 壓縮的段
+// 其 L_min = 吞掉的白點數 + 1（③ 步驟 0b／⑧ 步驟 0b：壓縮路徑的 L_min ← n+1，
+// 白點之後等距回插才有空間）。連續空間收斂後由 snapAligned 做對齊感知量化、
+// finishPass 夾 WINDOW ＋硬規則。S3（總長最小化）交給下游「縮減網格」——它就是
+// 全域壓縮這張圖的步驟，不在這裡重複施力。
 function coordsFromDirs(pos, segs, dirs) {
   const P = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
   const ROUNDS = 40
@@ -371,9 +414,9 @@ function coordsFromDirs(pos, segs, dirs) {
       const A = P.get(s.a), B = P.get(s.b)
       const [ux, uy] = SECTOR_VEC[d]
       const un = Math.hypot(ux, uy)
-      // 目前沿方向的投影長（下限 1 格），重建理想 B′ = A + u·len。
+      // 目前沿方向的投影長（下限 = H3 最短邊長 hops），重建理想 B′ = A + u·len。
       const proj = ((B[0] - A[0]) * ux + (B[1] - A[1]) * uy) / un
-      const len = Math.max(1, proj)
+      const len = Math.max(s.hops, proj)
       const tx = A[0] + (ux / un) * len, ty = A[1] + (uy / un) * len
       const ex = (B[0] - tx) / 2, ey = (B[1] - ty) / 2
       A[0] += ex; A[1] += ey
@@ -627,105 +670,142 @@ export function buildSatAlign(skeleton, cells, cols, rows) {
 }
 
 /* ==================== ④ 力導向（Hong et al. 磁力彈簧） ==================== */
-// Method 5 的力模型在格空間跑固定輪數：彈簧引力（理想邊長）＋頂點對斥力＋
-// 頂點×不相鄰邊斥力＋八方向磁場力（每邊只受最近方向、垂直於邊的力偶）。
-// 初始佈局＝目前整數格位置（＝論文 §3.5「保留地理嵌入的變體」——PrEd 的 8 區域
-// 移動限制由 applyTargets 硬規則等價把關）。deg-2 已在骨架收縮。確定性：固定
-// 頂點順序、無隨機（GEM 階段以現有佈局取代）。
+// Method 5（STEP 3 改良版 PrEd）的力模型在格空間跑固定輪數，逐頂點算合力、當場
+// 移動：引力 d/δ（δ 由邊權——吞掉的白點數——決定）＋全頂點對斥力 δ²/d²＋頂點×
+// 不相鄰邊斥力 (γ−d)²/d ＋八方向磁場力 c_m·b·len^α·θ^β（力偶垂直於邊），位移再
+// 過 **PrEd 8 區域移動上限**（§5.1：沿合力方向不得穿過任何不相鄰邊）。
+// STEP 1 的 deg-2 收縮已由骨架完成（白點＝被吞掉的站，STEP 4 等距回插由下游
+// placeBlacks 做）；STEP 2 的 GEM 初始佈局不需要——輸入已是格網化＋爬山的佈局
+// （論文允許以地理/既有佈局起始）。確定性：固定頂點順序、無隨機。
 export function buildForceAlign(skeleton, cells, cols, rows) {
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) return emptyResult(pos, segs)
   const M = makeMover(pos, segs, inc, cols, rows)
 
-  // 理想邊長：中位每跳長（同爬山法的 L），邊權 = hops（吞掉的黑點數，上限 W）。
+  // 理想距離 δ(u,v) = sqrt(L·(min(W, weight)+1))（§5.3）——weight = 邊吞掉的
+  // deg-2 站數，本層即段的黑點數，所以 min(W,weight)+1 = min(W+1, hops)。
+  // 格空間把單位常數 L 校準成「每跳中位長 ℓ 的平方」：δ = ℓ·sqrt(min(26, hops))，
+  // 保留論文的 sqrt 尺度律（吞越多站越長，但成長趨緩）。
   const lens = segs.map((s) => {
     const A = pos.get(s.a), B = pos.get(s.b)
     return Math.hypot(B[0] - A[0], B[1] - A[1]) / s.hops
   }).sort((a, b) => a - b)
-  const L = Math.max(1, lens[lens.length >> 1] || 1)
-  const Wcap = 6 // 邊權上限（論文 W=25 是站數尺度；這裡骨架 hops 通常個位數）
-  const GAMMA = 1.5 * L // 頂點×邊期望距離
-  const CM = 0.1, BM = 8.0, ALPHA = 0.5, BETA = 0.5 // 磁場力參數（格空間尺度——
-  // 論文 c_m=0.1, b=30, α=1, β=0.5 是像素尺度；格空間把 b 縮小、α 降 0.5 防長邊
-  // 力偶爆掉，量級調到與彈簧/斥力抗衡（磁力要能贏，八方向對齊才會發生）。
-  const STEP = 0.25 // 每輪每頂點位移上限（格）——短距離後處理的溫度
+  const ELL = Math.max(1, lens[lens.length >> 1] || 1)
+  const Wcap = 25 // 論文 W = 25
+  const deltaOf = (hops) => ELL * Math.sqrt(Math.min(Wcap + 1, hops))
+  const GAMMA = 3 * ELL // 頂點×邊期望距離（論文 γ=100 是其輸入座標尺度）
+  const CM = 0.1, BM = 30.0, ALPHA = 1.0, BETA = 0.5 // 論文 c_m, b, α, β
   const ids = [...pos.keys()].sort()
   const P = new Map(ids.map((id) => [id, [...pos.get(id)]]))
+  const nbrSeg = new Map(ids.map((id) => [id, inc.get(id)])) // v 的鄰接段
   const ROUNDS = 40
-  for (let r = 0; r < ROUNDS; r++) {
-    const F = new Map(ids.map((id) => [id, [0, 0]]))
-    // 彈簧（式 1）：沿邊、朝理想長度（引力/斥力合一：過長拉近、過短推開）。
-    for (const s of segs) {
+  // PrEd 8 區域移動上限（§5.1）：對每條不相鄰邊，算 v 沿 8 個方向各走多遠會穿過
+  // 它，取最小；合力方向的上限就是本輪位移上限（保嵌入的原始機制）。
+  const clipByPredZones = (v, fx, fy) => {
+    const move = Math.hypot(fx, fy)
+    if (move < 1e-12) return [0, 0]
+    const p = P.get(v)
+    const k = sectorOf(fx, fy)
+    const [vx0, vy0] = SECTOR_VEC[k]
+    const vn = Math.hypot(vx0, vy0)
+    const dvx = vx0 / vn, dvy = vy0 / vn
+    let limit = Infinity
+    const incSet = new Set(inc.get(v))
+    for (let si = 0; si < segs.length; si++) {
+      if (incSet.has(si)) continue
+      const s = segs[si]
+      if (s.a === v || s.b === v) continue
       const A = P.get(s.a), B = P.get(s.b)
-      const dx = B[0] - A[0], dy = B[1] - A[1]
-      const d = Math.hypot(dx, dy) || 1e-9
-      const ideal = L * Math.min(Wcap, s.hops)
-      const f = (d - ideal) / d * 0.5
-      F.get(s.a)[0] += dx * f; F.get(s.a)[1] += dy * f
-      F.get(s.b)[0] -= dx * f; F.get(s.b)[1] -= dy * f
+      const ex = B[0] - A[0], ey = B[1] - A[1]
+      const nx = -ey, ny = ex // 邊的法向
+      const denom = dvx * nx + dvy * ny
+      if (Math.abs(denom) < 1e-12) continue // 平行
+      const t = ((A[0] - p[0]) * nx + (A[1] - p[1]) * ny) / denom
+      if (t <= 0) continue
+      const cx = p[0] + t * dvx, cy = p[1] + t * dvy
+      const l2 = ex * ex + ey * ey
+      if (l2 < 1e-12) continue
+      const u = ((cx - A[0]) * ex + (cy - A[1]) * ey) / l2
+      if (u < 0 || u > 1) continue
+      limit = Math.min(limit, t)
     }
-    // 頂點對斥力（式 1）：δ²/d² 沿連線推開（只算近的，遠場影響極小）。
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const A = P.get(ids[i]), B = P.get(ids[j])
-        const dx = B[0] - A[0], dy = B[1] - A[1]
-        const d2 = dx * dx + dy * dy
-        if (d2 > (3 * L) * (3 * L) || d2 < 1e-9) continue
-        const f = (L * L) / d2 * 0.3 / Math.sqrt(d2)
-        F.get(ids[i])[0] -= dx * f; F.get(ids[i])[1] -= dy * f
-        F.get(ids[j])[0] += dx * f; F.get(ids[j])[1] += dy * f
+    if (move <= limit) return [fx, fy]
+    const scale = limit / move
+    return [fx * scale, fy * scale]
+  }
+  for (let r = 0; r < ROUNDS; r++) {
+    // 論文 STEP 3 是逐頂點算合力、當場移動（頂點順序固定＝確定性）。
+    for (const v of ids) {
+      const p = P.get(v)
+      let fx = 0, fy = 0
+      // ── 引力（鄰接邊，帶邊權）：ratio = d/δ ──
+      for (const si of inc.get(v)) {
+        const s = segs[si]
+        const o = P.get(s.a === v ? s.b : s.a)
+        const dx = o[0] - p[0], dy = o[1] - p[1]
+        const d = Math.hypot(dx, dy) || 1e-9
+        const ratio = d / deltaOf(s.hops)
+        fx += ratio * dx; fy += ratio * dy
       }
-    }
-    // 頂點×不相鄰邊斥力（式 2）：投影落在段內且距離 < γ 才作用。
-    for (const id of ids) {
-      const p = P.get(id)
-      const incSet = new Set(inc.get(id))
+      // ── 斥力（所有頂點對）：ratio = δ²/d² ──
+      const nbrDelta = new Map()
+      for (const si of nbrSeg.get(v)) {
+        const s = segs[si]
+        nbrDelta.set(s.a === v ? s.b : s.a, deltaOf(s.hops))
+      }
+      for (const u of ids) {
+        if (u === v) continue
+        const o = P.get(u)
+        const dx = o[0] - p[0], dy = o[1] - p[1]
+        const d2 = dx * dx + dy * dy
+        if (d2 < 1e-12) continue
+        const dl = nbrDelta.get(u) ?? deltaOf(1)
+        const ratio = (dl * dl) / d2
+        fx -= ratio * dx; fy -= ratio * dy
+      }
+      // ── 頂點×不相鄰邊斥力（PrEd，式 2）──
+      const incSet = new Set(inc.get(v))
       for (let si = 0; si < segs.length; si++) {
         if (incSet.has(si)) continue
         const s = segs[si]
-        if (s.a === id || s.b === id) continue
+        if (s.a === v || s.b === v) continue
         const A = P.get(s.a), B = P.get(s.b)
-        const dx = B[0] - A[0], dy = B[1] - A[1]
-        const l2 = dx * dx + dy * dy
-        if (l2 < 1e-9) continue
-        const t = ((p[0] - A[0]) * dx + (p[1] - A[1]) * dy) / l2
-        if (t < 0 || t > 1) continue
-        const ix = A[0] + t * dx, iy = A[1] + t * dy
-        const d = Math.hypot(p[0] - ix, p[1] - iy)
-        if (d >= GAMMA || d < 1e-9) continue
-        const f = ((GAMMA - d) * (GAMMA - d)) / d * 0.05 / d
-        F.get(id)[0] += (p[0] - ix) * f
-        F.get(id)[1] += (p[1] - iy) * f
+        const ex = B[0] - A[0], ey = B[1] - A[1]
+        const l2 = ex * ex + ey * ey
+        if (l2 < 1e-12) continue
+        const t = ((p[0] - A[0]) * ex + (p[1] - A[1]) * ey) / l2
+        if (t <= 0 || t >= 1) continue // 投影落在段內才作用
+        const ix = A[0] + t * ex, iy = A[1] + t * ey
+        const dvi = Math.hypot(p[0] - ix, p[1] - iy)
+        if (dvi >= GAMMA || dvi < 1e-9) continue
+        const coeff = ((GAMMA - dvi) * (GAMMA - dvi)) / dvi
+        fx -= coeff * (ix - p[0]); fy -= coeff * (iy - p[1])
       }
-    }
-    // 磁場力（式 4）：每邊取最近八方向，力偶垂直於邊、兩端反向。
-    for (const s of segs) {
-      const A = P.get(s.a), B = P.get(s.b)
-      const dx = B[0] - A[0], dy = B[1] - A[1]
-      const d = Math.hypot(dx, dy)
-      if (d < 1e-9) continue
-      const ang = Math.atan2(dy, dx)
-      const sec = sectorOf(dx, dy)
-      const target = sec * Math.PI / 4
-      let diff = ang - target
-      while (diff > Math.PI) diff -= TWO_PI
-      while (diff < -Math.PI) diff += TWO_PI
-      const mag = CM * BM * Math.pow(d, ALPHA) * Math.pow(Math.abs(diff), BETA)
-      const sgn = diff > 0 ? -1 : 1 // 把邊轉回最近方向
-      // 垂直於邊的單位向量（逆時針）：(-dy, dx)/d
-      const px = -dy / d, py = dx / d
-      F.get(s.b)[0] += px * mag * sgn; F.get(s.b)[1] += py * mag * sgn
-      F.get(s.a)[0] -= px * mag * sgn; F.get(s.a)[1] -= py * mag * sgn
-    }
-    // 更新（位移截斷 STEP——PrEd 區域限制的保守替代；硬規則最後把關）。
-    for (const id of ids) {
-      const f = F.get(id)
-      const m = Math.hypot(f[0], f[1])
-      if (m < 1e-9) continue
-      const k = Math.min(1, STEP / m)
-      const p = P.get(id)
-      p[0] += f[0] * k
-      p[1] += f[1] * k
+      // ── 磁場力（式 4）：每條鄰接邊取最近八方向，力偶垂直於邊 ──
+      for (const si of inc.get(v)) {
+        const s = segs[si]
+        const o = P.get(s.a === v ? s.b : s.a)
+        const ex = o[0] - p[0], ey = o[1] - p[1]
+        const len = Math.hypot(ex, ey)
+        if (len < 1e-9) continue
+        const ang = Math.atan2(ey, ex)
+        const target = sectorOf(ex, ey) * Math.PI / 4
+        let delta = target - ang
+        while (delta > Math.PI) delta -= TWO_PI
+        while (delta < -Math.PI) delta += TWO_PI
+        const fm = CM * BM * Math.pow(len, ALPHA) * Math.pow(Math.abs(delta), BETA)
+        const sgn = Math.sign(delta) || 0
+        const px = -ey / len * sgn, py = ex / len * sgn
+        fx += -fm * px; fy += -fm * py // v 受 −F_m·perp（u 在自己的迴圈收到反向）
+      }
+      // GEM 溫度（STEP 2 的 step_size ← min(T[v], |F|)）：一輪位移不超過一個理想
+      // 邊長——沒有它，格空間的 δ²/d² 斥力在近距離會把座標推到溢位。
+      const mag = Math.hypot(fx, fy)
+      if (!Number.isFinite(mag) || mag < 1e-12) continue
+      const temp = deltaOf(1)
+      if (mag > temp) { fx *= temp / mag; fy *= temp / mag }
+      const [cx, cy] = clipByPredZones(v, fx, fy)
+      p[0] += cx; p[1] += cy
     }
   }
   // 力平衡是「接近」八方向而非嚴格對齊（論文自承的弱點）——整批套用常淨變差被
@@ -804,17 +884,49 @@ export function buildOctiAlign(skeleton, cells, cols, rows) {
     for (const si of list) for (const r of segs[si].routes) rs.add(r)
     ldeg.set(v, rs.size)
   }
-  // 邊排序：端點 ldeg 較大者優先（完整 dangling 排程的簡化——同「複雜區先佔位」）。
-  const order = [...Array(segs.length).keys()].sort((a, b) => {
-    const la = Math.max(ldeg.get(segs[a].a), ldeg.get(segs[a].b))
-    const lb = Math.max(ldeg.get(segs[b].a), ldeg.get(segs[b].b))
-    return lb - la || a - b
-  })
-  // 位移懲罰＝c_m·d（論文式 8 的 (c_h+c_m)/D 中、格網邊實際成本 c′_h=0 的
-  // 對應——offset 技巧下每跳成本歸零，位移只付 c_m）；非八方向弦＝至少一個
-  // 45°/135° 彎（真格網路由的下界），計 c_45 = 2。
-  const CMOVE = 0.5
-  const BEND = [0, 3, 2, 1.5, 0] // 弦與已定案段的站上彎折成本（環狀差 0..4）
+  // 邊排序（STEP 3）：從 ldeg 最高的站起，UNPROCESSED → DANGLING → PROCESSED
+  // 逐層往外長，每層鄰居也依 ldeg 降冪——複雜轉乘樞紐先佔位。
+  const order = []
+  {
+    const state = new Map([...pos.keys()].map((id) => [id, 'U']))
+    const byLdeg = (a, b) => ldeg.get(b) - ldeg.get(a) || String(a).localeCompare(String(b))
+    const segBetween = new Map() // "v|u" -> segIdx（同對頂點多段時保留全部）
+    segs.forEach((s, si) => {
+      for (const k of [`${s.a}|${s.b}`, `${s.b}|${s.a}`]) {
+        if (!segBetween.has(k)) segBetween.set(k, [])
+        segBetween.get(k).push(si)
+      }
+    })
+    const taken = new Set()
+    for (;;) {
+      const un = [...state].filter(([, st]) => st === 'U').map(([id]) => id).sort(byLdeg)
+      if (!un.length) break
+      state.set(un[0], 'D')
+      for (;;) {
+        const dang = [...state].filter(([, st]) => st === 'D').map(([id]) => id).sort(byLdeg)
+        if (!dang.length) break
+        const vd = dang[0]
+        const nbrs = new Set()
+        for (const si of inc.get(vd)) nbrs.add(segs[si].a === vd ? segs[si].b : segs[si].a)
+        for (const u of [...nbrs].filter((x) => state.get(x) === 'U').sort(byLdeg)) {
+          for (const si of segBetween.get(`${vd}|${u}`) ?? []) {
+            if (!taken.has(si)) { taken.add(si); order.push(si) }
+          }
+          state.set(u, 'D')
+        }
+        state.set(vd, 'P')
+      }
+    }
+    for (let si = 0; si < segs.length; si++) if (!taken.has(si)) order.push(si)
+  }
+  // 成本參數（§1）：c_135 = 1, c_90 = 1.5, c_45 = 2, c_180 = 0, c_h = 1, c_m = 0.5，
+  // 成本偏移 a = c_45 − c_135 = 1 → 格網移動邊 H/V 收 c_h − a = 0、對角收 0.5。
+  const C_H = 1, C_M = 0.5, A_OFF = 1
+  // 站上彎折成本，索引 = 兩個出向的環狀差 Δ（＝進出港口的夾角格數）：
+  // Δ=4 直行（180°）→ c_180 = 0；Δ=3（135°）→ 1；Δ=2（90°）→ 1.5；
+  // Δ=1（45°）→ 2；Δ=0 兩段同向重疊 → 不允許。
+  const BEND = [Infinity, 2, 1.5, 1, 0]
+  const HOP = [C_H - A_OFF, C_H - A_OFF + 0.5] // [H/V, 對角] 每跳成本 = 0 / 0.5
   const R = WINDOW // 候選半徑 r（論文 3D；短距離後處理夾 WINDOW）
   const settled = new Map() // id -> [c,r]
   const occupied = new Set() // 已定案格 + 其他頂點目前格（一格一站）
@@ -845,7 +957,7 @@ export function buildOctiAlign(skeleton, cells, cols, rows) {
       const q = settled.get(u)
       if (!q) continue
       const osec = sectorOf(q[0] - P[0], q[1] - P[1])
-      m += BEND[cyc8(sec, osec)] * 0.5
+      m += BEND[cyc8(sec, osec)]
     }
     return m
   }
@@ -855,16 +967,20 @@ export function buildOctiAlign(skeleton, cells, cols, rows) {
     let best = null, bestCost = Infinity
     const pa0 = pos.get(s.a), pb0 = pos.get(s.b)
     for (const A of CA) {
-      const dispA = Math.max(Math.abs(A[0] - pa0[0]), Math.abs(A[1] - pa0[1]))
+      // 位移懲罰（STEP 4）：與原位的距離 / D × (c_h + c_m)。
+      const dispA = Math.hypot(A[0] - pa0[0], A[1] - pa0[1]) * (C_H + C_M)
       for (const B of CB) {
         if (A[0] === B[0] && A[1] === B[1]) continue
-        const dispB = Math.max(Math.abs(B[0] - pb0[0]), Math.abs(B[1] - pb0[1]))
+        const dispB = Math.hypot(B[0] - pb0[0], B[1] - pb0[1]) * (C_H + C_M)
         const dx = B[0] - A[0], dy = B[1] - A[1]
-        // 弦的八方向性：正對格網方向 = 0，否則以「距最近扇區的角度」計價（c_45 級）。
-        const exact = dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)
         const sec = sectorOf(dx, dy)
-        const angDev = exact ? 0 : angBetween(Math.atan2(dy, dx), sec * Math.PI / 4)
-        let cost = (dispA + dispB) * CMOVE + (exact ? 0 : 2 + angDev / (Math.PI / 8))
+        // 弦＝格網路徑：正八方向時是一條直線（每跳付 HOP，H/V 0、對角 0.5）；
+        // 非八方向時最省也要靠兩個 135° 折繞（2·c_135），再加走過的跳數。
+        const diag = Math.abs(dx) === Math.abs(dy) && dx !== 0
+        const exact = dx === 0 || dy === 0 || diag
+        const hops = Math.max(Math.abs(dx), Math.abs(dy))
+        let cost = dispA + dispB + hops * HOP[exact && diag ? 1 : 0]
+        if (!exact) cost += 2 * BEND[3] // 2 × c_135
         cost += stationBend(s.a, A, sec, si) + stationBend(s.b, B, (sec + 4) % 8, si)
         if (cost < bestCost - 1e-12) { bestCost = cost; best = [A, B] }
       }
@@ -892,11 +1008,20 @@ export function buildOctiAlign(skeleton, cells, cols, rows) {
 // **固定**，後續路線只動自己獨有的頂點（固定點機制的簡化）。
 // 實作採 O(|C|²·n²) 的直觀版 reach 計算（論文自己說可以先寫直觀版）；link 位置
 // 取可行 offset 區間中點、順序刺穿用貪婪參數單調驗證（Definition 1）。
+// §3 的兩個品質擴充都在：**最大彎角 α = 90°**（相鄰 link 方向的環狀差 ≥ 2，禁銳
+// 角彎）與**最小 link 長 l_min**（一個 link 至少跨一段，防零長 link 鑽漏洞）。
 export function buildPathAlign(skeleton, cells, cols, rows) {
   const { pos, segs, inc } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) return emptyResult(pos, segs)
   const M = makeMover(pos, segs, inc, cols, rows)
-  const EPS = 1.4 // ε（格）——相鄰站均距 1–2 倍的下緣（§5.9）
+  // ε（格）：論文建議「相鄰站均距的 1–2 倍」起試——取段長中位數，夾在
+  // [1, WINDOW]（超過 WINDOW 的位移本來就會被夾掉）。
+  const segLens = segs.map((s) => {
+    const A = pos.get(s.a), B = pos.get(s.b)
+    return Math.hypot(B[0] - A[0], B[1] - A[1])
+  }).sort((a, b) => a - b)
+  const EPS = Math.min(WINDOW, Math.max(1, segLens[segLens.length >> 1] || 1))
+  const MAX_TURN = 2 // 最大彎角 α = 90° → 相鄰 link 的方向環狀差不得 < 2
 
   // 每條路線的段集合 → 分解成最大開放鏈（頂點序列）。
   const routeSegs = new Map() // routeId -> [segIdx]
@@ -949,10 +1074,9 @@ export function buildPathAlign(skeleton, cells, cols, rows) {
   const routeOrder = [...routeSegs.keys()].sort((a, b) =>
     importance(routeSegs.get(b)) - importance(routeSegs.get(a)) || String(a).localeCompare(String(b)))
 
-  const targets = new Map()
-  const batches = []
+  const app = makeApplier(pos, M, segs, cols, rows)
   const fixed = new Set()
-  const at = (id) => targets.get(id) ?? pos.get(id)
+  const at = (id) => pos.get(id) // 漸進式：讀「已定案」的目前佈局
   const DIR8 = [0, 1, 2, 3, 4, 5, 6, 7] // 8 方向（|C|=8——順序刺穿沿行進方向單調，反向要自己的方向）
   let linksTotal = 0, chainsN = 0
   for (const r of routeOrder) {
@@ -992,35 +1116,46 @@ export function buildPathAlign(skeleton, cells, cols, rows) {
         }
         return j
       }
-      // 最少 link：BFS 分層（狀態＝點索引；同方向連續 link 無意義，不必記方向——
-      // reach 已把「一直線能蓋多遠」算滿，換 link 必換方向才有進展）。
-      const from = new Array(n).fill(-1)
-      const dirAt = new Array(n).fill(-1)
-      let frontier = [0]
-      const seenPt = new Set([0])
-      let found = n === 1
+      // 最少 link：BFS 分層。狀態 = (點索引, 本 link 方向)——記方向才能施加
+      // §3 的最大彎角 α = 90°：相鄰兩 link 的彎角 = 45°×方向環狀差，> α 的三元組
+      // 直接跳過（環狀差 > 2 ＝ 內角 < 90° 的銳角彎）；環狀差 0 是同向，不算新
+      // link。每個 link 至少跨一個輸入點（j > i）＝最小 link 長，零長 link 不會出現。
+      const key = (i, c) => `${i}|${c}`
+      const from = new Map() // key -> [prevI, prevC]
+      let frontier = [[0, -1]]
+      const seen = new Set([key(0, -1)])
+      let goal = null
       let guard = 0
-      while (frontier.length && !found && guard++ < n + 2) {
+      while (frontier.length && !goal && guard++ < n + 2) {
         const next = []
-        for (const i of frontier) {
+        for (const [i, cprev] of frontier) {
           for (const c of DIR8) {
-            const j = reach(i, c)
-            if (j <= i) continue
-            if (!seenPt.has(j)) {
-              seenPt.add(j)
-              from[j] = i
-              dirAt[j] = c
-              next.push(j)
-              if (j === n - 1) { found = true }
+            if (cprev >= 0) {
+              const turn = cyc8(c, cprev)
+              if (turn === 0 || turn > MAX_TURN) continue // 同向 / 超過最大彎角 α
             }
+            const j = reach(i, c)
+            if (j <= i) continue // 最小 link 長：一個 link 至少往前吃一個點
+            const k = key(j, c)
+            if (seen.has(k)) continue
+            seen.add(k)
+            from.set(k, [i, cprev])
+            next.push([j, c])
+            if (j === n - 1) { goal = [j, c]; break }
           }
+          if (goal) break
         }
         frontier = next
       }
-      if (!found) continue // ε 太小蓋不住（罕見）——這條鏈放棄，硬規則保底
+      if (!goal) continue // ε 太小或彎角限制蓋不住（罕見）——這條鏈放棄，硬規則保底
       // 回溯 links，逐 link 把中間頂點垂直投影上去。
       const cuts = []
-      for (let j = n - 1; j > 0; j = from[j]) cuts.push([from[j], j, dirAt[j]])
+      for (let st = goal; st[0] > 0;) {
+        const [i, c] = st
+        const [pi, pc] = from.get(key(i, c))
+        cuts.push([pi, i, c])
+        st = [pi, pc]
+      }
       cuts.reverse()
       linksTotal += cuts.length
       const batch = new Map()
@@ -1037,15 +1172,14 @@ export function buildPathAlign(skeleton, cells, cols, rows) {
           if (fixed.has(id)) continue
           const p = pts[k]
           const dperp = p[0] * nx2 + p[1] * ny2 - o
-          targets.set(id, [p[0] - dperp * nx2, p[1] - dperp * ny2])
-          batch.set(id, targets.get(id))
+          batch.set(id, [p[0] - dperp * nx2, p[1] - dperp * ny2])
         }
       }
-      if (batch.size) batches.push(batch)
+      if (batch.size) app.apply(batch)
       for (const id of chain) fixed.add(id) // 本路線定案（漸進式）
     }
   }
-  return finishBatches(pos, M, segs, batches, cols, rows, { chains: chainsN, links: linksTotal })
+  return app.result({ chains: chainsN, links: linksTotal })
 }
 
 /* ==================== 鏈目錄（下游 UI/管線共用） ==================== */

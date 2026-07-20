@@ -397,7 +397,7 @@ buildConnectSkeleton(geojson) → {
       note: '論文鏈不寫檔；LLM 對齊由 Claude Code 離線產生、含指紋驗證。' },
     algorithm: `<p>在 Hill Climbing 結果上再最大化正交段，短距離移動彩色點。9 條鏈＝
 論文①〜⑧（名稱與 <code>data/thesis/&lt;n&gt;_*_演算法說明.md</code> 一一對應）＋ LLM 對齊：</p>
-<ul><li><b>①筆畫法</b>（Li &amp; Dong 2010）：段串成筆畫、按方向失真遞迴切割、吸 4 主方向再垂直投影。</li><li><b>②直角爬山</b>（Stott et al. 2011）：爬山法的方向準則換 |sin 2θ|（45° 變最貴）短半徑再爬。</li><li><b>③MILP規劃</b>（Nöllenburg &amp; Wolff 2011）：邊方向指派的生成樹 DP＋feedback 枚舉，再重建座標。</li><li><b>④力導向</b>（Hong et al. 2006）：磁性彈簧力（吸引/排斥/八方向磁力）迭代。</li><li><b>⑤最小平方</b>（Wang &amp; Chi 2011）：Gauss-Seidel 逼近八方向吸附後的邊向量。</li><li><b>⑥八向格網</b>（Bast et al. 2020）：依 ldeg 逐邊安置、位移＋轉折成本取最小。</li><li><b>⑦路徑簡化</b>（Merrick &amp; Gudmundsson 2007）：C-directed 最少折線簡化。</li><li><b>⑧SAT規劃</b>（Fuchs 2022）：方向指派的 DPLL 分支定界。</li><li><b>LLM 對齊</b>：模型讀圖提出移動，過相同硬規則套用。</li></ul>`,
+<ul><li><b>①筆畫法</b>（Li &amp; Dong 2010）：段串成筆畫、按方向失真遞迴切割、吸 4 主方向再垂直投影。</li><li><b>②直角爬山</b>（Stott et al. 2011）：爬山法的方向準則換 |sin 2θ|（45° 變最貴）再爬一輪。</li><li><b>③MILP規劃</b>（Nöllenburg &amp; Wolff 2011）：邊方向指派的生成樹 DP＋feedback 枚舉，再重建座標。</li><li><b>④力導向</b>（Hong et al. 2006）：磁性彈簧力（吸引/排斥/八方向磁力）迭代。</li><li><b>⑤最小平方</b>（Wang &amp; Chi 2011）：Gauss-Seidel 逼近八方向吸附後的邊向量。</li><li><b>⑥八向格網</b>（Bast et al. 2020）：依 ldeg 逐邊安置、位移＋轉折成本取最小。</li><li><b>⑦路徑簡化</b>（Merrick &amp; Gudmundsson 2007）：C-directed 最少折線簡化。</li><li><b>⑧SAT規劃</b>（Fuchs 2022）：方向指派的 DPLL 分支定界。</li><li><b>LLM 對齊</b>：模型讀圖提出移動，過相同硬規則套用。</li></ul>`,
   },
   'endpoint-move': {
     title: '端點移動', tag: '視圖', skills: ['route-endpoint-move', 'route-movewise-loop'],
@@ -522,7 +522,7 @@ const EXECUTION = {
   grid: execPure('src/stores/schematicGrid.js', 'buildSchematicGrid + placeBlacks', '<code>route-skeleton-grid</code>',
     '彩色點排名吸附 → <code>cellOf</code> → <code>repairOcclusions</code> 消壓點/交叉 → <code>placeBlacks</code> 把黑點沿新邊拉直。'),
   hillclimb: execPure('src/stores/hillClimb.js', 'buildHillClimb(skeleton, cellOf, cols, rows)', '<code>route-hillclimb</code>',
-    '以格網化後為輸入，多準則適應度＋4 條硬規則爬山、短半徑移動格子、含冷卻與超長邊群集移動。',
+    '以格網化後為輸入，多準則適應度＋4 條硬規則爬山（搜尋半徑 8 起逐輪冷卻），含超長邊與折彎群集移動。',
     '結果快取在 <code>localStorage</code>（鍵 <code>d3tab-hc-cache-v7</code>）＋記憶體 <code>cachedHC</code>，資料指紋/界內驗證不符就作廢重算'),
   straighten: `<ul class="exec-list">
 <li><b>怎麼觸發</b>：論文①〜⑧的八條鏈（①筆畫法／②直角爬山／③MILP規劃／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT規劃）＝點視圖即時算；<b>LLM 對齊</b>＝按「開始 LLM 對齊」，由 <code>vite.config.js</code> 的外掛 spawn 一個 <b>headless <code>claude -p</code></b> session。</li>

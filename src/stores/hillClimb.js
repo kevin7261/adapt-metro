@@ -14,7 +14,9 @@
 // c_N2 edge length, c_N3 balanced edge length (deg-2), c_N4 line straightness,
 // c_N5 octilinearity. Hard rules (veto, §5): bounding area, relative position
 // (quadrant), occlusions (cell/vertex-on-edge/edge crossings), edge ordering.
-// Local minima: overlength-edge cluster moves (§6.1). Labels (§7) are out of
+// Local minima: cluster moves — overlength-edge components (§6.1) and bend
+// (kink) clusters (§6.2); the optional dual-graph partition (§6.3) is omitted
+// as the paper allows. Labels (§7) are out of
 // scope — station labels here are a style toggle drawn after layout.
 //
 // Pure function in CELL SPACE: deterministic, input maps unchanged.
@@ -512,10 +514,10 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
     return best
   }
 
-  /* ---- overlength-edge clusters (§6.1) ---- */
+  /* ---- clusters (§6): overlength-edge components + bend clusters ---- */
   const overlength = (s) => segLen(s) > s.hops * L + 1e-9
-  function clusterComponents() {
-    // connected components over IDEAL-length edges; overlength edges separate
+  function overlengthClusters() {
+    // §6.1 connected components over IDEAL-length edges; overlength edges separate
     const { find, union } = makeUnionFind(pos.keys())
     for (const s of segs) if (!overlength(s)) union(s.a, s.b)
     const comps = new Map()
@@ -529,6 +531,30 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
       .filter((c) => c.length < pos.size && c.length <= 200)
       .map((c) => c.sort())
   }
+  // §6.2 bend clusters: a degree-2 station whose two same-line neighbours u,w
+  // leave it visibly off the u→w line is a "kink" — moving the kink station on
+  // its own straightens the line (single moves get stuck because every other
+  // criterion punishes them). Threshold = 22.5°, half the octilinear spacing
+  // (the direction where c_N5's |sin 4θ| peaks, i.e. maximally off-grid).
+  const KINK = Math.PI / 8
+  function bendClusters() {
+    const out = []
+    for (const [v, list] of inc) {
+      if (list.length !== 2) continue
+      if (!sharesRoute(segs[list[0]].routes, segs[list[1]].routes)) continue
+      const u = other(segs[list[0]], v), w = other(segs[list[1]], v)
+      const pv = pos.get(v), pu = pos.get(u), pw = pos.get(w)
+      if ((pw[0] === pu[0] && pw[1] === pu[1]) || (pv[0] === pu[0] && pv[1] === pu[1])) continue
+      const base = Math.atan2(pw[1] - pu[1], pw[0] - pu[0])
+      const toV = Math.atan2(pv[1] - pu[1], pv[0] - pu[0])
+      let d = Math.abs(base - toV)
+      if (d > Math.PI) d = TWO_PI - d
+      if (d > KINK) out.push([v])
+    }
+    return out
+  }
+  // §6.3 partition clusters (dual-graph cut) are optional in the paper — omitted.
+  const clusterComponents = () => [...overlengthClusters(), ...bendClusters()]
 
   function bestClusterShift(comp, R) {
     const inC = new Set(comp)
@@ -561,14 +587,19 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
     return best
   }
   /* ---- main loop (Algorithm 1): per-vertex moves + cluster moves, cooling ---- */
-  // Search rectangle shrinks each round. Cap at ±2 cells so stations don't
-  // wander far from the schematic-grid input (paper used up to 8).
-  const radii = opts.radii ?? [2, 1, 1]
+  // Paper table 4: max station move 8, 5 iterations; the search rectangle cools
+  // by one cell per round (min 1). Convergence = a full round (stations +
+  // clusters) that no longer lowers the total fitness. Labels (§7) are out of
+  // scope here — this layer has no label positions to optimise.
+  const maxMove = opts.maxMove ?? 8
+  const maxRounds = opts.maxRounds ?? 5
   const vertIds = [...pos.keys()].sort()
   const before = totalFitness()
   const hvBefore = countHV(pos, segs)
   let rounds = 0, moved = 0, clusterMoves = 0
-  for (const R of radii) {
+  let mT = before
+  let R = maxMove
+  for (let i = 0; i < maxRounds; i++) {
     rounds++
     let improved = false
     for (const v of vertIds) {
@@ -576,10 +607,14 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
       if (P) { applyMove(v, P); moved++; improved = true }
     }
     for (const comp of clusterComponents()) {
-      const d = bestClusterShift(comp, Math.min(R, 3))
+      const d = bestClusterShift(comp, R)
       if (d) { applyShift(comp, d); clusterMoves++; improved = true }
     }
+    R = Math.max(1, R - 1) // cooling
     if (!improved) break // a full round without improvement → converged
+    const mNew = totalFitness()
+    if (mNew >= mT) break // total fitness no longer decreasing → converged
+    mT = mNew
   }
   const after = totalFitness()
 
@@ -697,7 +732,6 @@ export function iteratePost(build, skeleton, cells, cols, rows, opts = {}) {
 export function buildRectPolish(skeleton, cells, cols, rows, opts = {}) {
   return buildHillClimb(skeleton, cells, cols, rows, {
     rect: true,
-    radii: [2, 1, 1],
     weights: { octi: DEFAULT_W.octi * 3 },
     ...opts,
   })

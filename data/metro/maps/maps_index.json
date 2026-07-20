@@ -748,11 +748,11 @@
     "city": "Yokohama",
     "country": "Japan",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/japan/as-jpn-yokohama.png",
     "commons_file": null,
     "source_url": null,
-    "license": null,
-    "artist": null,
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "横浜市交通局 市営地下鉄ブルーライン/グリーンライン路線図 (source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
   },
   "asia/india/as-ind-mumbai": {
@@ -1170,11 +1170,11 @@
     "city": "Athens",
     "country": "Greece",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/europe/greece/eu-gre-athens.png",
     "commons_file": null,
     "source_url": null,
-    "license": null,
-    "artist": null,
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "ΣΤΑΣΥ official Athens metro+tram network map (source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
   },
   "americas/united-states/am-usa-miami": {
@@ -1379,11 +1379,11 @@
     "city": "Mashhad",
     "country": "Iran",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/iran/as-iri-mashhad.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
+    "source_url": "https://metro.mashhad.ir/parameters/mashhad/modules/cdk/upload/content/portal_content/Image/157/map-new.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "شرکت بهره‌برداری قطار شهری مشهد — official Mashhad Urban Railway 4-line network map",
     "note": "no official schematic — left blank per policy 2026-07"
   },
   "europe/france/eu-fra-lille": {
@@ -1423,11 +1423,11 @@
     "city": "Kyoto",
     "country": "Japan",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/japan/as-jpn-kyoto.png",
     "commons_file": null,
     "source_url": null,
-    "license": null,
-    "artist": null,
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "京都市交通局 地下鉄全線路線図（他社線を含む）(source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
   },
   "asia/north-korea/as-prk-pyongyang": {
@@ -1631,11 +1631,11 @@
     "city": "Jinhua",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/china/as-chn-jinhua.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
+    "source_url": "http://www.jhmtr.net/wiringDiagram/",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "金华市轨道交通集团 金义东线官方线路图（官网页面内嵌 SVG 原样提取，未改几何/标签/配色）",
     "note": "no official schematic — left blank per policy 2026-07"
   },
   "asia/china/as-chn-taiyuan": {
@@ -1769,11 +1769,11 @@
     "city": "Turin",
     "country": "Italy",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/europe/italy/eu-ita-turin.png",
     "commons_file": null,
     "source_url": null,
-    "license": null,
-    "artist": null,
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "GTT official Metropolitana di Torino Linea 1 diagram (source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
   },
   "americas/brazil/am-bra-belo-horizonte": {
@@ -2340,5 +2340,5 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784581217183
+  "_rev": 1784586135687
 }

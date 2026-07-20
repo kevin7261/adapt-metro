@@ -14,7 +14,7 @@ import MIcon from './MIcon.vue'
 // 要顯示的圖層；每個圖層對應一張代表縮圖（Metro Maps＝OSM路網縮圖／官方路線圖，
 // 其餘取 data/metro/
 // {views,hcviews,rwdviews}/ 的代表視圖；RWD LLM 無預算圖 → 顯示「尚未預算」，
-// 點擊仍即時計算）。預設顯示 Metro Maps＋全部 RWD Maps。點任何一格都匯入該城市
+// 點擊仍即時計算）。預設只顯示 Metro Maps（不含 RWD Maps）。點任何一格都匯入該城市
 // 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
 const store = useMapStore()
 
@@ -69,9 +69,9 @@ const SIDE = [
 // 攤平成全部圖層（sections 計算與全選用）。
 const ALL = SIDE.flatMap((n) => (n.t === 'layer' ? [n] : n.layers))
 
-// 已勾選的圖層。預設：Raw Maps ＋全部 RWD Maps。
+// 已勾選的圖層。預設：只勾 Raw Maps（Metro Maps）；RWD／Adjust／Straighten 需手動勾。
 const shown = ref(new Set([
-  ...ALL.filter((l) => l.kind === 'raw' || l.kind === 'rwd').map((l) => l.key),
+  ...ALL.filter((l) => l.kind === 'raw').map((l) => l.key),
 ]))
 const isOn = (key) => shown.value.has(key)
 function toggle(key) {
@@ -93,8 +93,8 @@ function toggleGroup(node) {
   for (const l of node.layers) { if (on) s.delete(l.key); else s.add(l.key) }
   shown.value = s
 }
-// 子群組收合（清單內，本地狀態；預設展開）。
-const collapsed = reactive({ raw: false, adjust: false, straighten: false, rwd: false })
+// 子群組收合（清單內，本地狀態；預設全部縮起）。
+const collapsed = reactive({ raw: true, adjust: true, straighten: true, rwd: true })
 
 // 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
 const sections = computed(() => {
