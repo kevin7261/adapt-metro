@@ -1684,11 +1684,13 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
       hideTip()
     })
 
-  // Station name labels above the dots (toggled by the Style tab).
+  // Station name labels above the dots (toggled by the Style tab). 河流節點與合成的
+  // 路線交叉點沒有真站名（使用者要求）——開站名時不標。
   if (panelLayer.value?.showLabels) {
     const r = panelLayer.value?.radius ?? 4
+    const crossIds = new Set((sk?.crossings ?? []).map((c) => c.id))
     stationsG.selectAll('text.st-label')
-      .data(stationData)
+      .data(stationData.filter((d) => !d.props.river && !crossIds.has(d.props.station_id)))
       .join('text')
       .attr('class', 'st-label')
       .attr('x', (d) => d.x)

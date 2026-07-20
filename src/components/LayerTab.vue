@@ -580,7 +580,8 @@ function addMetroSourceLayers(data) {
   // Station name labels, placed above the dot (toggled by the Style tab).
   map.addLayer({
     id: 'metro-labels', source: 'metro', type: 'symbol',
-    filter: ['==', ['geometry-type'], 'Point'],
+    // 河流節點（river:true）沒有站圈也不標名（與 metro-stations 同一條規則）。
+    filter: ['all', ['==', ['geometry-type'], 'Point'], ['!', ['has', 'river']]],
     // 站名從 zoom ≥ 10 就顯示（原本 13 太高，在預設總覽 zoom 開站名看起來沒反應）；
     // text-allow-overlap:false + text-optional 會自動碰撞剔除，低 zoom 不會塞滿。
     minzoom: 10,

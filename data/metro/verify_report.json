@@ -2,9 +2,9 @@
   "summary": {
     "generated_against": "Wikipedia: List of metro systems (+ urbanrail.net reference)",
     "wikipedia_systems": 233,
-    "our_systems": 223,
-    "matched_ok": 206,
-    "flagged": 27,
+    "our_systems": 235,
+    "matched_ok": 203,
+    "flagged": 30,
     "invariant_violations": {
       "wiki_city_without_data": 2,
       "stations_without_line": 0,
@@ -20,10 +20,10 @@
       "broken": 0,
       "order": 0,
       "zero": 0,
-      "low": 3,
-      "high": 22
+      "low": 2,
+      "high": 26
     },
-    "extras": 10
+    "extras": 22
   },
   "flags": [
     {
@@ -52,22 +52,6 @@
     },
     {
       "severity": "low",
-      "city": "Chennai",
-      "country": "India",
-      "system": "Chennai Metro",
-      "our_file": "systems/asia/india/as-ind-chennai.geojson",
-      "our_stations": 20,
-      "our_lines": 2,
-      "wiki_stations": 42,
-      "wiki_length_km": 54.1,
-      "ratio": 0.48,
-      "note": "站數偏少（20 vs wiki 42）",
-      "has_map": false,
-      "wiki_url": "https://en.wikipedia.org/wiki/Chennai_Metro",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Chennai"
-    },
-    {
-      "severity": "low",
       "city": "Lagos",
       "country": "Nigeria",
       "system": "Lagos Rail Mass Transit[Nb 72]",
@@ -78,7 +62,7 @@
       "wiki_length_km": 13,
       "ratio": 0.38,
       "note": "站數偏少（5 vs wiki 13）",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos"
     },
@@ -94,7 +78,7 @@
       "wiki_length_km": 12.7,
       "ratio": 0.2,
       "note": "站數偏少（2 vs wiki 10）",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Samara_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Samara"
     },
@@ -104,12 +88,12 @@
       "country": "Germany",
       "system": "Berlin U-Bahn",
       "our_file": "systems/europe/germany/eu-ger-berlin.geojson",
-      "our_stations": 310,
+      "our_stations": 309,
       "our_lines": 27,
       "wiki_stations": 175,
       "wiki_length_km": 155.6,
       "ratio": 1.77,
-      "note": "站數偏多（310 vs wiki 175），可能混入輕軌",
+      "note": "站數偏多（309 vs wiki 175），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Berlin_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin"
@@ -136,12 +120,12 @@
       "country": "Japan",
       "system": "Toei Subway",
       "our_file": "systems/asia/japan/as-jpn-tokyo.geojson",
-      "our_stations": 201,
+      "our_stations": 202,
       "our_lines": 14,
       "wiki_stations": 99,
       "wiki_length_km": 109,
-      "ratio": 2.03,
-      "note": "站數偏多（201 vs wiki 99），可能混入輕軌",
+      "ratio": 2.04,
+      "note": "站數偏多（202 vs wiki 99），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Toei_Subway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -190,9 +174,25 @@
       "wiki_length_km": 70.05,
       "ratio": 1.63,
       "note": "站數偏多（104 vs wiki 64），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/BTS_Skytrain",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok"
+    },
+    {
+      "severity": "high",
+      "city": "Boston",
+      "country": "United States",
+      "system": "MBTA subway[Nb 92]",
+      "our_file": "systems/americas/united-states/am-usa-boston.geojson",
+      "our_stations": 120,
+      "our_lines": 9,
+      "wiki_stations": 52,
+      "wiki_length_km": 63.9,
+      "ratio": 2.31,
+      "note": "站數偏多（120 vs wiki 52），可能混入輕軌",
+      "has_map": true,
+      "wiki_url": "https://en.wikipedia.org/wiki/MBTA_subway[Nb_92]",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Boston"
     },
     {
       "severity": "high",
@@ -206,7 +206,7 @@
       "wiki_length_km": 38.4,
       "ratio": 2.76,
       "note": "站數偏多（135 vs wiki 49），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Nuremberg_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Nuremberg"
     },
@@ -216,12 +216,12 @@
       "country": "United Kingdom",
       "system": "Docklands Light Railway",
       "our_file": "systems/europe/united-kingdom/eu-gbr-london.geojson",
-      "our_stations": 267,
+      "our_stations": 262,
       "our_lines": 26,
       "wiki_stations": 45,
       "wiki_length_km": 34,
-      "ratio": 5.93,
-      "note": "站數偏多（267 vs wiki 45），可能混入輕軌",
+      "ratio": 5.82,
+      "note": "站數偏多（262 vs wiki 45），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Docklands_Light_Railway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20London"
@@ -238,9 +238,25 @@
       "wiki_length_km": 45.5,
       "ratio": 1.87,
       "note": "站數偏多（71 vs wiki 38），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Kaohsiung_Rapid_Transit",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Kaohsiung"
+    },
+    {
+      "severity": "high",
+      "city": "Guadalajara",
+      "country": "Mexico",
+      "system": "SITEUR[Nb 65]",
+      "our_file": "systems/americas/mexico/am-mex-guadalajara.geojson",
+      "our_stations": 54,
+      "our_lines": 4,
+      "wiki_stations": 28,
+      "wiki_length_km": 46.5,
+      "ratio": 1.93,
+      "note": "站數偏多（54 vs wiki 28），可能混入輕軌",
+      "has_map": true,
+      "wiki_url": "https://en.wikipedia.org/wiki/SITEUR[Nb_65]",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Guadalajara"
     },
     {
       "severity": "high",
@@ -254,9 +270,25 @@
       "wiki_length_km": 64,
       "ratio": 2.96,
       "note": "站數偏多（68 vs wiki 23），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Réseau_express_métropolitain",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal"
+    },
+    {
+      "severity": "high",
+      "city": "Hiroshima",
+      "country": "Japan",
+      "system": "Astram Line",
+      "our_file": "systems/asia/japan/as-jpn-hiroshima.geojson",
+      "our_stations": 98,
+      "our_lines": 10,
+      "wiki_stations": 22,
+      "wiki_length_km": 18.4,
+      "ratio": 4.45,
+      "note": "站數偏多（98 vs wiki 22），可能混入輕軌",
+      "has_map": true,
+      "wiki_url": "https://en.wikipedia.org/wiki/Astram_Line",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Hiroshima"
     },
     {
       "severity": "high",
@@ -280,15 +312,31 @@
       "country": "United States",
       "system": "Staten Island Railway",
       "our_file": "systems/americas/united-states/am-usa-new-york-city.geojson",
-      "our_stations": 439,
-      "our_lines": 27,
+      "our_stations": 444,
+      "our_lines": 11,
       "wiki_stations": 21,
       "wiki_length_km": 22.5,
-      "ratio": 20.9,
-      "note": "站數偏多（439 vs wiki 21），可能混入輕軌",
-      "has_map": false,
+      "ratio": 21.14,
+      "note": "站數偏多（444 vs wiki 21），可能混入輕軌",
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Staten_Island_Railway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
+    },
+    {
+      "severity": "high",
+      "city": "Los Angeles",
+      "country": "United States",
+      "system": "Metro Rail[Nb 96]",
+      "our_file": "systems/americas/united-states/am-usa-los-angeles.geojson",
+      "our_stations": 110,
+      "our_lines": 8,
+      "wiki_stations": 19,
+      "wiki_length_km": 34.31,
+      "ratio": 5.79,
+      "note": "站數偏多（110 vs wiki 19），可能混入輕軌",
+      "has_map": true,
+      "wiki_url": "https://en.wikipedia.org/wiki/Metro_Rail[Nb_96]",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles"
     },
     {
       "severity": "high",
@@ -296,12 +344,12 @@
       "country": "Japan",
       "system": "Yurikamome",
       "our_file": "systems/asia/japan/as-jpn-tokyo.geojson",
-      "our_stations": 201,
+      "our_stations": 202,
       "our_lines": 14,
       "wiki_stations": 16,
       "wiki_length_km": 14.7,
-      "ratio": 12.56,
-      "note": "站數偏多（201 vs wiki 16），可能混入輕軌",
+      "ratio": 12.63,
+      "note": "站數偏多（202 vs wiki 16），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Yurikamome",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -334,7 +382,7 @@
       "wiki_length_km": 10.6,
       "ratio": 3.21,
       "note": "站數偏多（45 vs wiki 14），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
     },
@@ -350,7 +398,7 @@
       "wiki_length_km": 22.9,
       "ratio": 4.5,
       "note": "站數偏多（63 vs wiki 14），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/PATCO_Speedline",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Philadelphia"
     },
@@ -360,12 +408,12 @@
       "country": "Japan",
       "system": "Nippori-Toneri Liner",
       "our_file": "systems/asia/japan/as-jpn-tokyo.geojson",
-      "our_stations": 201,
+      "our_stations": 202,
       "our_lines": 14,
       "wiki_stations": 13,
       "wiki_length_km": 9.7,
-      "ratio": 15.46,
-      "note": "站數偏多（201 vs wiki 13），可能混入輕軌",
+      "ratio": 15.54,
+      "note": "站數偏多（202 vs wiki 13），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Nippori-Toneri_Liner",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -382,7 +430,7 @@
       "wiki_length_km": 16.9,
       "ratio": 3.85,
       "note": "站數偏多（50 vs wiki 13），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Manila_Metro_Rail_Transit_System",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Manila"
     },
@@ -392,13 +440,13 @@
       "country": "United States",
       "system": "PATH",
       "our_file": "systems/americas/united-states/am-usa-new-york-city.geojson",
-      "our_stations": 439,
-      "our_lines": 27,
+      "our_stations": 444,
+      "our_lines": 11,
       "wiki_stations": 13,
       "wiki_length_km": 22.2,
-      "ratio": 33.77,
-      "note": "站數偏多（439 vs wiki 13），可能混入輕軌",
-      "has_map": false,
+      "ratio": 34.15,
+      "note": "站數偏多（444 vs wiki 13），可能混入輕軌",
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/PATH",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
     },
@@ -408,12 +456,12 @@
       "country": "Japan",
       "system": "Rinkai Line",
       "our_file": "systems/asia/japan/as-jpn-tokyo.geojson",
-      "our_stations": 201,
+      "our_stations": 202,
       "our_lines": 14,
       "wiki_stations": 8,
       "wiki_length_km": 12.2,
-      "ratio": 25.13,
-      "note": "站數偏多（201 vs wiki 8），可能混入輕軌",
+      "ratio": 25.25,
+      "note": "站數偏多（202 vs wiki 8），可能混入輕軌",
       "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Rinkai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
@@ -446,7 +494,7 @@
       "wiki_length_km": 4.1,
       "ratio": 7.5,
       "note": "站數偏多（45 vs wiki 6），可能混入輕軌",
-      "has_map": false,
+      "has_map": true,
       "wiki_url": "https://en.wikipedia.org/wiki/Minatomirai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
     }
@@ -479,6 +527,13 @@
       "country": "Germany",
       "station_count": 59,
       "line_count": 4
+    },
+    {
+      "file": "systems/americas/bolivia/am-bol-cochabamba.geojson",
+      "city": "Cochabamba",
+      "country": "Bolivia",
+      "station_count": 32,
+      "line_count": 3
     },
     {
       "file": "systems/europe/germany/eu-ger-essen.geojson",
@@ -521,6 +576,83 @@
       "country": "China",
       "station_count": 10,
       "line_count": 1
+    },
+    {
+      "file": "systems/asia/japan/as-jpn-tokyo-jr.geojson",
+      "city": "Tokyo + Yamanote",
+      "country": "Japan",
+      "station_count": 214,
+      "line_count": 15
+    },
+    {
+      "file": "systems/asia/japan/as-jpn-osaka-jr.geojson",
+      "city": "Osaka + Loop",
+      "country": "Japan",
+      "station_count": 132,
+      "line_count": 11
+    },
+    {
+      "file": "systems/americas/united-states/am-usa-new-york-city-lm.geojson",
+      "city": "New York City + Landmark",
+      "country": "United States",
+      "station_count": 444,
+      "line_count": 11
+    },
+    {
+      "file": "systems/asia/china/as-chn-shanghai-lm.geojson",
+      "city": "Shanghai + Landmark",
+      "country": "China",
+      "station_count": 407,
+      "line_count": 21
+    },
+    {
+      "file": "systems/asia/japan/as-jpn-tokyo-lm.geojson",
+      "city": "Tokyo + Landmark",
+      "country": "Japan",
+      "station_count": 202,
+      "line_count": 14
+    },
+    {
+      "file": "systems/asia/south-korea/as-kor-seoul-lm.geojson",
+      "city": "Seoul + Landmark",
+      "country": "South Korea",
+      "station_count": 426,
+      "line_count": 23
+    },
+    {
+      "file": "systems/asia/taiwan/as-twn-taipei-lm.geojson",
+      "city": "Taipei + Landmark",
+      "country": "Taiwan",
+      "station_count": 197,
+      "line_count": 17
+    },
+    {
+      "file": "systems/europe/austria/eu-aut-vienna-lm.geojson",
+      "city": "Vienna + Landmark",
+      "country": "Austria",
+      "station_count": 99,
+      "line_count": 5
+    },
+    {
+      "file": "systems/europe/france/eu-fra-paris-lm.geojson",
+      "city": "Paris + Landmark",
+      "country": "France",
+      "station_count": 321,
+      "line_count": 20
+    },
+    {
+      "file": "systems/europe/germany/eu-ger-berlin-lm.geojson",
+      "city": "Berlin + Landmark",
+      "country": "Germany",
+      "station_count": 309,
+      "line_count": 27
+    },
+    {
+      "file": "systems/europe/united-kingdom/eu-gbr-london-lm.geojson",
+      "city": "London + Landmark",
+      "country": "United Kingdom",
+      "station_count": 262,
+      "line_count": 26
     }
   ]
 }

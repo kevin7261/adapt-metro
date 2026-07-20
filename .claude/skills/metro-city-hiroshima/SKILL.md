@@ -28,22 +28,47 @@ plain railway/tram」的**城市層例外**，機制比照德國五城的 S-Bahn
 - 使用者當時是在「只有廣島特例／所有日本電車城市／全球都收電車」三選一中明確選
   **只有廣島特例**。
 
-### 現況與待辦（截至 2026-07-21 尚未實作）
+### 實作（2026-07-21 完成）
 
-- 現有資料只有 Astram Line：`osm_networks: ["Unknown", "広島高速交通株式会社"]`，
-  1 線 22 站，audit 全綠通過。
-- **廣電資料從未進過快取**——`fetchMetro.mjs` 的 `MODES` 寫死
-  `["route"~"^(subway|light_rail)$"]`，tram 從一開始就不在全球批抓範圍內
-  （查過 `_cache`，`広島電鉄`／`Hiroden` 零筆）。故需**新開 `route=tram` 的定向抓取**，
-  不能只改 build 端過濾。
-- 實作時要注意的已知議題（實作後補齊本節）：
-  - **宮島線**（広電宮島口方向）是鐵路規格的郊外線，與市內路面段營運上直通，
-    站/停留場的性質不同，站點合併與 `station_role` 判定需個別確認。
-  - 路面停留場多為 `railway=tram_stop`，非 `station=subway|light_rail`，
-    站源判準需另開分支（見 [[metro-osm-fetch]] 的站源查詢）。
-  - 廣電線號與營運系統（1/2/3/5/6/7/8/9 號線）與實體線路（本線/宇品線/江波線/
-    皆実線/白島線/横川線/宮島線）非一對一，逐線 wiki 站數對照（`line_wiki_stations`）
-    要以哪一層為準需裁決。
+三個著力點，全部沿用德國 S-Bahn 的既有機制，**沒有動全球判準**：
+
+1. **`scripts/fetchHiroden.mjs`（新檔，`npm run metro:fetchhiroden`）**——`route=tram`
+   的定向補抓。廣島市 bbox `(34.25,132.25,34.47,132.53)`（含宮島線西端），再以
+   `operator|network|name` 比對 `広島電鉄|廣島電鉄|Hiroden|Hiroshima Electric Railway`
+   過濾，寫 `gap_routes_hiroden.json` / `gap_geom_hiroden.json` /
+   `gap_stations_hiroden.json`（後載者勝）。`fetchMetro.mjs` 的 `MODES` 一字未改。
+2. **站源**：路面停留場多標 `railway=tram_stop`，基準站源查詢撈不到——改由 relation
+   成員中的**有名節點**直接當站源寫進 `gap_stations_*`（與 fetchSbahnDe 同法）。
+3. **`buildGeojson.mjs` 兩處**：
+   - `lrtOnly` 判準從 `route === 'light_rail'` 放寬為 `^(light_rail|tram)$`——tram 必須
+     歸在 LRT 這側，否則路面電車會被當成 subway 汙染 `hasSubway` 與 LRT 仲裁。
+     全球基準查詢不收 tram，故此條對其他城市天然無作用。
+   - `NETWORK_CITY` 加 `広島電鉄` pin → Hiroshima（不靠 geocode 重心：廣電含宮島線
+     一路西南，重心會把 Astram 拖出廣島桶）。
+   - `LRT_ADDON_CITIES` 加 `hiroshima`。**這步必要**：Astram Line 在 OSM 是
+     `route=subway`（不是 light_rail），已獨力達成 wiki 覆蓋率，LRT 仲裁不會放行
+     廣電——與波士頓綠線／LA 輕軌／瓜達拉哈拉同待遇。
+
+### 現況（實作後）
+
+- `as-jpn-hiroshima.geojson`：**10 線 98 站 20 段**，
+  `osm_networks: ["Unknown", "広島電鉄", "広島電鉄株式会社", "広島高速交通株式会社"]`。
+  ＝ Astram Line 1 線 22 站 ＋ 廣電 1/2/3/5/6/7/8/9 號線＋循環線（內回り）共 9 條。
+- 抓取結果：18 個 tram relation（每線雙向變體）、164 個有名節點。
+- **`metro:verify` 會把廣島列為 `high`（98 vs wiki 22，ratio 4.45）——這是預期的**：
+  wiki 的 Hiroshima 條目只算 Astram Line，收廣電是使用者裁決造成的刻意分歧。
+  同類已存在：波士頓 2.31、LA 5.79、瓜達拉哈拉 1.93、柏林 1.77。**不要為了讓
+  ratio 回到 1 而把廣電剔掉**。全域不變式（`stations_without_line`／`broken_routes`
+  等）維持 0，未受影響。
+- 只有廣島一個系統檔變動，其餘 234 城 byte-for-byte 不變（已確認）。
+
+### 尚未處理（下次碰廣島時再看）
+
+- **宮島線**（広電宮島口方向）是鐵路規格郊外線，與市內路面段直通營運；目前跟市內
+  停留場一視同仁，站點合併與 `station_role` 尚未個別確認。
+- 廣電的**營運線號**（1/2/3/5/6/7/8/9）與**實體線路**（本線/宇品線/江波線/皆実線/
+  白島線/横川線/宮島線）非一對一。目前資料以營運線號為線單位；`line_wiki_stations`
+  逐線對照要以哪一層為準**尚未裁決**，故未做逐線站數比對。
 
 ## 修改此例外時
 

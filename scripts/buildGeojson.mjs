@@ -1005,13 +1005,11 @@ async function build() {
     }
     // 一組內全部 relation 都是 light_rail（或 tram）才算 LRT 線（混合視為 subway）。
     // tram 只可能來自廣島特例的定向補抓（fetchHiroden.mjs，見 metro-city-hiroshima）——
-    // 全球基準查詢不收 tram，故此條對其他城市天然無作用。必須算 LRT：否則廣電會被
-    // 當成 subway 使 hasSubway=true，反而讓同城的 Astram Line（light_rail）被範圍規則剔掉。
+    // 全球基準查詢不收 tram，故此條對其他城市天然無作用。tram 必須歸在 LRT 這側：
+    // 否則路面電車會被當成 subway，讓 hasSubway 誤判為真、污染下面的 LRT 範圍仲裁
+    //（廣島的真 subway 是 Astram Line，route=subway）。
     const lrtOnly = gRef.rids.every((r) =>
       /^(light_rail|tram)$/.test((routesTags.get(r) || {}).route || ''))
-    if (process.env.DEBUG_LRTONLY && new RegExp(process.env.DEBUG_LRTONLY,'i').test(`${network} ${t.name ?? ''}`))
-      console.log('  [lrtOnly]', (t.name||'').slice(0,30), '| net:', network, '| rids:', gRef.rids.join(','),
-        '| routes:', gRef.rids.map((r)=>(routesTags.get(r)||{}).route ?? 'MISSING').join(','), '->', lrtOnly)
     if (process.env.DEBUG_CITY && new RegExp(process.env.DEBUG_CITY, 'i')
       .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
       console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),
@@ -1391,7 +1389,11 @@ async function build() {
   //   0.6 使輕軌被剔。使用者 2026-07 指定要含輕軌（同波士頓綠線待遇）。
   // guadalajara：Mi Tren（SITEUR）L1/L2/L4 為 route=light_rail、L3 為 route=subway，
   //   同一系統；覆蓋率 18/28=0.64 剛好卡在門檻上使輕軌被剔。使用者 2026-07 指定收全系統。
-  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka', 'boston', 'losangeles', 'guadalajara'])
+  // hiroshima：Astram Line（route=subway，wiki 22 站）之外，使用者 2026-07-21 裁決
+  //   「廣島要收路面電車，且只有廣島特例」——広島電鉄（route=tram，由 fetchHiroden.mjs
+  //   補抓）算 LRT，會被範圍規則剔掉（Astram 已獨力達成 wiki 覆蓋率，仲裁不會放行）。
+  //   故與波士頓綠線／LA 輕軌同待遇，白名單放行。見 metro-city-hiroshima。
+  const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka', 'boston', 'losangeles', 'guadalajara', 'hiroshima'])
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
