@@ -859,7 +859,8 @@ function resetPerDataset(data) {
   tipIdx = buildPopupIndex(data) // hover 索引（refColor/segs/站點）——per dataset 一次
   cachedFp = `${dataFingerprint(data)}:rg${th}`
   const hit = loadHcCache(`${cachedFp}:${hcVariant.value}`)
-  if (hit) { cachedHC = hit.hc; cachedPost = hit.posts }
+  if (hit) { cachedHC = hit.hc; cachedPost = hit.posts; cachedLayout = hit.layouts ?? {} }
+  syncCalcMs()
 }
 
 // 爬山鏈的佈局計算（render 的第 2 段）：在 grid 之上跑 Hill Climbing（含
@@ -890,9 +891,15 @@ async function computeHcLayout({ seq, w, h, grid }) {
         }[layoutKind]
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return null }
+        const t0 = performance.now()
         cachedLayout[layoutKind] = iteratePost(
           POST_BUILD[layoutKind], cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
+        cachedLayout[layoutKind].stats.ms = Math.round(performance.now() - t0)
         hcBusy.value = false
+        // 算過就存下來（同 ② 與後處理鏈）：關 tab／重新整理都直接載回，只有按
+        // 「重新計算此城市全部圖層」才清掉重算。
+        saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost, cachedLayout)
+        syncCalcMs()
       }
       layoutStats.value = cachedLayout[layoutKind].stats
       const cells = cachedLayout[layoutKind].cellAfter
@@ -925,9 +932,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
     busyText.value = '爬山最佳化中…（多準則適應度 + 硬規則掃描）'
     await new Promise((r) => setTimeout(r, 30)) // let the busy hint paint first
     if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
+    const t0 = performance.now()
     cachedHC = buildHillClimb(cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
+    cachedHC.stats.ms = Math.round(performance.now() - t0)
     hcBusy.value = false
-    saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost) // 存下爬山結果，下次載檔免重算
+    saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost, cachedLayout) // 存下爬山結果，下次載檔免重算
+    syncCalcMs()
   }
   hcStats.value = cachedHC.stats
   let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
@@ -947,9 +957,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
         sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
       await new Promise((r) => setTimeout(r, 30))
       if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
+      const t0 = performance.now()
       cachedPost[kind] = iteratePost(POST_BUILD[kind], cachedSkeleton, cachedHC.cellAfter, grid.cols, grid.rows)
+      cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
       hcBusy.value = false
-      saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost) // 併入後處理結果一起存
+      saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost, cachedLayout) // 併入後處理結果一起存
+      syncCalcMs()
     }
     postStats.value = cachedPost[kind].stats
     postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }

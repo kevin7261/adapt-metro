@@ -9,7 +9,7 @@
 // 節點缺格子 → RWD/HC 整段線消失、站點退回舊座標懸空（倫敦 Kilburn 案，2026-07-17）。
 // 且 localStorage 不隨 dev server 重啟/硬重載清除，殘留跨天。**改了 skeleton/schematicGrid/
 // hillClimb 的演算法就把版本 +1**；另有 use-time 結構驗證兜底（見 D3Tab 的 cachedHC 使用處）。
-const HC_LS_KEY = 'd3tab-hc-cache-v8' // v8: 清掉可能與 skill 端 fingerprint 漂移的殘留 HC 快取（LLM 結果誤判 stale）；v7: 河流不放灰（座標空間縮小）＋快取加界內驗證，清掉 v6 gray-on 殘留避免超出網格；v6: 河流粉紅/灰與 metro 一致；v5: 河流全點保留＋絕對 km 粉紅（巴黎長弦案）；v4: validShift 變形段補洞（大邱案）；v3: 骨架建圖含 pass
+const HC_LS_KEY = 'd3tab-hc-cache-v9' // v9: 論文忠實度校正（②冷卻/群集、①③④⑥⑦⑧ 改回論文做法）＋新增 layouts（①〜⑧ 比較佈局）與耗時 stats.ms；v8: 清掉可能與 skill 端 fingerprint 漂移的殘留 HC 快取（LLM 結果誤判 stale）；v7: 河流不放灰（座標空間縮小）＋快取加界內驗證，清掉 v6 gray-on 殘留避免超出網格；v6: 河流粉紅/灰與 metro 一致；v5: 河流全點保留＋絕對 km 粉紅（巴黎長弦案）；v4: validShift 變形段補洞（大邱案）；v3: 骨架建圖含 pass
 const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
 
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
@@ -29,21 +29,49 @@ function hcLsWrite(o) { try { localStorage.setItem(HC_LS_KEY, JSON.stringify(o))
 const deCells = (arr) => new Map(arr.map(([id, c, r]) => [id, [c, r]]))
 const serCells = (m) => [...m.entries()].map(([id, [c, r]]) => [id, c, r])
 
+const deMap = (obj) => {
+  const out = {}
+  for (const k of Object.keys(obj ?? {})) out[k] = { cellAfter: deCells(obj[k].cellAfter), stats: obj[k].stats }
+  return out
+}
+const serMap = (obj) => {
+  const out = {}
+  for (const k of Object.keys(obj ?? {})) if (obj[k]) out[k] = { cellAfter: serCells(obj[k].cellAfter), stats: obj[k].stats }
+  return out
+}
+
 export function loadHcCache(key) {
   try {
     const e = hcLsRead()[key]; if (!e) return null
-    const posts = {}
-    for (const k of Object.keys(e.posts ?? {})) posts[k] = { cellAfter: deCells(e.posts[k].cellAfter), stats: e.posts[k].stats }
-    return { hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats }, posts }
+    return {
+      hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats },
+      posts: deMap(e.posts),
+      layouts: deMap(e.layouts), // 初步直線化群組的 ①〜⑧ 比較佈局
+    }
   } catch { return null }
 }
 
-export function saveHcCache(key, hc, posts) {
+// 清掉某份資料（指紋 fp）的全部快取（原始/旋轉變體都清）——「重新計算此城市全部
+// 圖層」按鈕用：清完 ② 與 ①〜⑧ 都會重算，回到剛匯入的狀態。
+export function clearHcCache(fpPrefix) {
+  if (!fpPrefix) return 0
+  const o = hcLsRead()
+  let n = 0
+  for (const k of Object.keys(o)) if (k.startsWith(fpPrefix)) { delete o[k]; n++ }
+  if (n) hcLsWrite(o)
+  return n
+}
+
+export function saveHcCache(key, hc, posts, layouts) {
   if (!key || !hc) return
   const o = hcLsRead()
-  const pj = {}
-  for (const k of Object.keys(posts ?? {})) if (posts[k]) pj[k] = { cellAfter: serCells(posts[k].cellAfter), stats: posts[k].stats }
-  o[key] = { t: hcLruClock++, hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats }, posts: pj }
+  const pj = serMap(posts)
+  o[key] = {
+    t: hcLruClock++,
+    hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats },
+    posts: pj,
+    layouts: serMap(layouts),
+  }
   const keys = Object.keys(o)
   if (keys.length > HC_LS_MAX) {
     keys.sort((a, b) => (o[a].t ?? 0) - (o[b].t ?? 0))
