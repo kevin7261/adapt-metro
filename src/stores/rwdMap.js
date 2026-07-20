@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-20-node-order-v13'
+export const RWD_ROUTER_REV = '2026-07-20-near-hug-v14'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -813,17 +813,27 @@ export function buildRwdMap(segs, pos, opts = {}) {
   }
   // 軟共線長度：用一格距離看「幾乎同走廊」的平行重疊（硬衝突門檻以外仍要越短越好）。
   const softOverlapLen = (pts, placed) => overlapLen(pts, placed, unit)
+  // 近距貼線長度（使用者：視覺上的貼線也是「重疊」）：間距**小於半格**的平行併走。
+  // minGap（硬貼線 0.35u）抓不到 0.35u–0.5u 的視覺貼近；但**恰好半格（0.5u）是
+  // 半格 lattice／平行偏移的合法設計間距**，不能算貼線——門檻取 0.45u（嚴格介於
+  // 0.35 與 0.5 之間）：只抓「比合法半格更近」的併走。曾取 0.55u 把半格也算進去，
+  // 結果台北 16 方向把離別線半格的正常 45 形當貼線、無故降去 22.5（使用者：明明
+  // 不用 22.5 卻用 22.5）。這條在 pickBest 排在 45/22.5 取捨**之前**（「右邊可以
+  // 用 22.5 解決重疊卻沒有」＝45 形貼著別條線跑、完全不貼線的 22.5 卻輸在方向級
+  // 偏好）。
+  const nearOverlapLen = (pts, placed) => overlapLen(pts, placed, unit * 0.45)
 
   // 單一共用選線器（pass 1 與衝突重掃都用同一個優先序，使用者的簡單概念）：
-  // ①衝突最少 → ②45 優於 22.5°（skew）→ ③折數最少（盡量直線）→ ④共線重疊最短
-  // （4 方向為了不重疊，25%/75% 可因此蓋過 50%）→ ⑤分點 50%→25%→75% → ⑥軟共線最短。
+  // ①衝突最少 → ②近距貼線最短（重疊要越少越好——視覺上的貼線也是重疊）→
+  // ③45 優於 22.5°（skew）→ ④折數最少（盡量直線）→ ⑤共線重疊最短
+  // （4 方向為了不重疊，25%/75% 可因此蓋過 50%）→ ⑥分點 50%→25%→75% → ⑦軟共線最短。
   // 22.5°/67.5° 候選**一律參與競爭**（使用者規則：明明有 22.5 的畫法不重疊就要用）——
-  // 衝突數在 skew 之前，所以零衝突的 22.5° 贏過重疊的 45°；同分時仍 45° 優先。
-  // straight=true 時套 Rule 0：零衝突直線立即勝出。lenient=true 是最後兜底
-  // （壓站／超過 25% 重疊改記大額罰分，不再直接淘汰）。
+  // 衝突數與近距貼線都在 skew 之前：零衝突的 22.5° 贏過重疊**或貼線**的 45°；
+  // 兩者都乾淨時仍 45° 優先。straight=true 時套 Rule 0：零衝突直線立即勝出。
+  // lenient=true 是最後兜底（壓站／超過 25% 重疊改記大額罰分，不再直接淘汰）。
   function pickBest(cands, seg, placed, straight = false, lenient = false) {
     let chosen = null, chosenN = Infinity, chosenBends = Infinity, chosenZRank = Infinity
-    let chosenHard = Infinity, chosenSoft = Infinity, chosenSkew = 1
+    let chosenHard = Infinity, chosenSoft = Infinity, chosenSkew = 1, chosenNear = Infinity
     for (const c of cands) {
       if (c.fallback) continue
       let n = conflictCount(c.pts, seg, placed, false, lenient)
@@ -832,18 +842,22 @@ export function buildRwdMap(segs, pos, opts = {}) {
       if (orderViolation(seg, c.pts)) { if (!lenient) continue; n += 200 }
       if (straight && c.bends === 0 && !c.skew && n === 0) // Rule 0: clean direct corridor
         return { chosen: c, chosenN: 0 }
+      const near = nearOverlapLen(c.pts, placed)
       const hard = overlapLen(c.pts, placed)
       const soft = softOverlapLen(c.pts, placed)
       const skew = c.skew ? 1 : 0
       const zRank = c.bends >= 2 ? (c.zRank ?? Infinity) : Infinity
+      const T2 = OVER_TOL // 近距長度比較用同一容差（浮點）
       if (n < chosenN
-        || (n === chosenN && skew < chosenSkew)
-        || (n === chosenN && skew === chosenSkew && c.bends < chosenBends)
-        || (n === chosenN && skew === chosenSkew && c.bends === chosenBends && hard < chosenHard)
-        || (n === chosenN && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank < chosenZRank)
-        || (n === chosenN && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank === chosenZRank && soft < chosenSoft)) {
+        || (n === chosenN && near < chosenNear - T2)
+        || (n === chosenN && near < chosenNear + T2 && skew < chosenSkew)
+        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends < chosenBends)
+        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends === chosenBends && hard < chosenHard)
+        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank < chosenZRank)
+        || (n === chosenN && near < chosenNear + T2 && skew === chosenSkew && c.bends === chosenBends && hard === chosenHard && zRank === chosenZRank && soft < chosenSoft)) {
         chosen = c; chosenN = n; chosenBends = c.bends
         chosenZRank = zRank; chosenHard = hard; chosenSoft = soft; chosenSkew = skew
+        chosenNear = near
       }
     }
     return { chosen, chosenN }
@@ -1130,13 +1144,24 @@ export function buildRwdMap(segs, pos, opts = {}) {
     const S2 = pos.get(w.seg.a), T2 = pos.get(w.seg.b)
     const placedW = placedOf(wi)
     const candsW = candidates(S2, T2, unit, dirsN)
-    // 45 級先掃、22.5 級後掃（同分 45 優先；45 全衝突時 22.5 乾淨解仍可用）。
-    for (const wantSkew of [false, true]) {
+    // 乾淨候選之中依 pickBest 同一優先序取捨：近距貼線最短 → 45 優於 22.5 → 折數
+    // 最少（候選本身已 bend-ordered）。「右邊可以用 22.5 解決重疊」＝零貼線的 22.5
+    // 要贏過貼著別條線跑的 45。
+    {
+      let best = null, bestNear = Infinity, bestSkew = 1
       for (const c of candsW) {
-        if (c.fallback || !!c.skew !== wantSkew) continue
+        if (c.fallback) continue
         if (orderViolation(w.seg, c.pts)) continue // 環狀順序鐵律
-        if (conflictCount(c.pts, w.seg, placedW) === 0) return { pts: c.pts, bends: c.bends, routed: false }
+        if (conflictCount(c.pts, w.seg, placedW) !== 0) continue
+        const near = nearOverlapLen(c.pts, placedW)
+        const skew = c.skew ? 1 : 0
+        if (near < bestNear - OVER_TOL
+          || (near < bestNear + OVER_TOL && skew < bestSkew)) {
+          best = c; bestNear = Math.min(near, bestNear); bestSkew = skew
+          if (near <= OVER_TOL && !skew) break // 不貼線的 45 級＝最優，提早收
+        }
       }
+      if (best) return { pts: best.pts, bends: best.bends, routed: false }
     }
     const r = routeLattice(S2, T2, w.seg, placedW)
     if (!r || orderViolation(w.seg, r)) return null
@@ -1515,15 +1540,17 @@ export function buildRwdMap(segs, pos, opts = {}) {
         if (L.fallback || L.lockedStraight || L.bends <= 0) continue
         const placed = placedOf(li)
         const curHard = overlapLen(L.pts, placed)
-        if (curHard <= OVER_TOL) continue
+        const curNear = nearOverlapLen(L.pts, placed)
+        if (curHard <= OVER_TOL && curNear <= OVER_TOL) continue
         const curN = conflictCount(L.pts, L.seg, placed, false, true)
         const curCross = conflictCount(L.pts, L.seg, placed, true, true)
         const S = pos.get(L.seg.a), T = pos.get(L.seg.b)
-        let best = null, bestHard = curHard, bestBends = L.bends
+        const T2 = OVER_TOL
+        let best = null, bestHard = curHard, bestNear = curNear, bestBends = L.bends
         for (const c of candidates(S, T, unit, dirsN)) {
           if (c.fallback || c.bends > L.bends) continue
           // 22.5 級候選可入場（使用者規則：有 22.5 的畫法能不重疊就要用）——但要
-          // 「嚴格更短的硬重疊」才換得掉 45 級形狀，同分仍留在 45 級。
+          // 「嚴格更短的硬重疊或近距貼線」才換得掉 45 級形狀，同分仍留在 45 級。
           // 交叉與壓點另計：絕不可用「較短的重疊」換來新的交叉。
           if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
           const cross = conflictCount(c.pts, L.seg, placed, true, true)
@@ -1531,9 +1558,13 @@ export function buildRwdMap(segs, pos, opts = {}) {
           const n = conflictCount(c.pts, L.seg, placed, false, true)
           if (n === Infinity || n > curN) continue
           const hard = overlapLen(c.pts, placed)
-          if (hard < bestHard - OVER_TOL
-            || (hard < curHard - OVER_TOL && hard < bestHard + OVER_TOL && c.bends < bestBends)) {
-            best = c; bestHard = hard; bestBends = c.bends
+          if (hard > curHard + T2) continue // 縮貼線不得換來更長的硬重疊
+          const near = nearOverlapLen(c.pts, placed)
+          if (hard < bestHard - T2
+            || (hard < bestHard + T2 && near < bestNear - T2)
+            || (hard < bestHard + T2 && near < bestNear + T2 && c.bends < bestBends
+              && (hard < curHard - T2 || near < curNear - T2))) {
+            best = c; bestHard = Math.min(hard, bestHard); bestNear = Math.min(near, bestNear); bestBends = c.bends
           }
         }
         if (best) {
@@ -1714,9 +1745,11 @@ export function buildRwdMap(segs, pos, opts = {}) {
       cands45.forEach((c) => { c.cont = contScore(L, c.pts) })
       cands45.sort((a, b) => b.score - a.score || b.cont - a.cont)
       const placed = placedOf(li)
+      const curNear = nearOverlapLen(L.pts, placed)
       for (const c of cands45) {
         if (orderViolation(L.seg, c.pts)) continue // 環狀順序鐵律
         if (conflictCount(c.pts, L.seg, placed) > 0) continue
+        if (nearOverlapLen(c.pts, placed) > curNear + OVER_TOL) continue // 不得新添貼線
         L.pts = c.pts
         L.legs = legsOfPts(c.pts)
         stats.diag45++

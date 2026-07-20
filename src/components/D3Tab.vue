@@ -1174,7 +1174,10 @@ async function computeHcLayout({ seq, w, h, grid }) {
     rwdStats.value = cachedRWD.stats
     hcPos = new Map(cachedRWD.posAfter)
     rwdLines = cachedRWD.lines.map((L) => ({ ...L, px: L.pts }))
-    if (import.meta.env.DEV) window.__rwdDebug = cachedRWD // console 檢視 routing 旗標用
+    if (import.meta.env.DEV) { // console 檢視 routing 旗標用（By：多分頁同開時依 key＋段數區分）
+      window.__rwdDebug = cachedRWD
+      ;(window.__rwdDebugBy ??= {})[`${cachedRWD.key}|s${cachedSegs.length}`] = cachedRWD
+    }
     // 藍格跟著節點一起變形（畫面上格線與線／站對齊）；未開放大鏡則就是 base。
     hcBlue = fWarp ? { xs: baseBlue.xs.map(fWarp.fx), ys: baseBlue.ys.map(fWarp.fy) } : baseBlue
   } else {
