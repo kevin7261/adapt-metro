@@ -9,11 +9,12 @@ import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
 import MIcon from './MIcon.vue'
 
-// 視圖畫廊：every city 的「所有地圖」縮圖。左側清單＝圈層面板的同款結構（Raw
-// Maps / Map Adjust 直接列、Straighten 與 RWD Maps 為可收合子群組），逐一勾選
-// 要顯示的圖層；每個圖層對應一張代表縮圖（Raw＝路網縮圖，其餘取 data/metro/
+// 視圖畫廊：every city 的「所有地圖」縮圖。左側清單＝圈層面板的同款結構（Metro
+// Maps / Map Adjust / Straighten / RWD Maps 各為可收合子群組），逐一勾選
+// 要顯示的圖層；每個圖層對應一張代表縮圖（Metro Maps＝OSM路網縮圖／官方路線圖，
+// 其餘取 data/metro/
 // {views,hcviews,rwdviews}/ 的代表視圖；RWD LLM 無預算圖 → 顯示「尚未預算」，
-// 點擊仍即時計算）。預設顯示 Raw Maps＋全部 RWD Maps。點任何一格都匯入該城市
+// 點擊仍即時計算）。預設顯示 Metro Maps＋全部 RWD Maps。點任何一格都匯入該城市
 // 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
 const store = useMapStore()
 
@@ -54,7 +55,10 @@ const rwdRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
 }))
 // 左側清單樹（＝圈層面板結構）：直接列的圖層 + 可收合子群組。
 const SIDE = [
-  { t: 'layer', key: 'raw', label: 'Metro Maps', kind: 'raw', view: 'thumb', icon: 'train' },
+  { t: 'group', id: 'raw', label: 'Metro Maps', layers: [
+    { key: 'raw-osm', label: 'OSM路網', kind: 'raw', view: 'thumb', icon: 'train' },
+    { key: 'raw-official', label: '官方路線圖', kind: 'raw', view: 'official', icon: 'map' },
+  ] },
   { t: 'group', id: 'adjust', label: 'Map Adjust', layers: [
     { key: 'adjust-orig', label: '原始・格網化後', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
     { key: 'adjust-rot', label: '旋轉・格網化後', kind: 'adjust', view: 'grid-rot-post', icon: 'polyline' },
@@ -66,7 +70,9 @@ const SIDE = [
 const ALL = SIDE.flatMap((n) => (n.t === 'layer' ? [n] : n.layers))
 
 // 已勾選的圖層。預設：Raw Maps ＋全部 RWD Maps。
-const shown = ref(new Set(['raw', ...ALL.filter((l) => l.kind === 'rwd').map((l) => l.key)]))
+const shown = ref(new Set([
+  ...ALL.filter((l) => l.kind === 'raw' || l.kind === 'rwd').map((l) => l.key),
+]))
 const isOn = (key) => shown.value.has(key)
 function toggle(key) {
   const s = new Set(shown.value)
@@ -88,7 +94,7 @@ function toggleGroup(node) {
   shown.value = s
 }
 // 子群組收合（清單內，本地狀態；預設展開）。
-const collapsed = reactive({ adjust: false, straighten: false, rwd: false })
+const collapsed = reactive({ raw: false, adjust: false, straighten: false, rwd: false })
 
 // 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
 const sections = computed(() => {

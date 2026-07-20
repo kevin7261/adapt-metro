@@ -6,6 +6,243 @@
 
 ---
 
+## 計算邏輯與程式骨架
+
+> 以下依論文寫「要算什麼、怎麼算」——用虛擬碼、公式與迴圈描述計算步驟。實作時照此邏輯寫；不要呼叫既有程式裡的函式名，也不要寫「call xxx」。
+
+### 1. 輸入（抽象資料）
+
+- 無向圖 `G = (V, E)`，每個頂點 `v ∈ V` 附初始座標 `(x_v, y_v)`（可以是地理座標或隨機佈局）。
+- 路線集合 `lines`：每條路線是頂點的有序序列，所有路線合起來覆蓋 `V` 與 `E` 中所有元素（每個頂點/邊至少屬一條路線）。
+- 演算法參數：`L = 0.16, W = 25.0, γ = 100.0, c_m = 0.1, b = 30.0, α = 1.0, β = 0.5`，最大迭代輪數 `MAX_ITER`。
+
+### 2. 輸出
+
+每個頂點的最終連續空間座標 `(x_v, y_v)`（非格點；邊接近但不保證嚴格八方向）。
+
+### 3. 建議內部狀態
+
+| 變數 | 說明 |
+|---|---|
+| `G′ = (V′, E′)` | deg-2 簡化後的骨架圖（只含轉乘站與端點） |
+| `weight[e]` | 簡化邊 `e` 吞掉的 deg-2 頂點數（決定理想邊長） |
+| `deg2_chains` | 每條簡化邊對應的原始 deg-2 鏈序列（供回插使用） |
+| `pos[v]` | 頂點當前座標 `(x, y)`（整個演算法中持續更新） |
+| `T[v]` | GEM 每頂點局部溫度（GEM 階段使用） |
+| `skew[v]` | GEM 旋轉偵測向量（累積過去移動方向，用來偵測旋轉/振盪） |
+
+### 4. 主計算流程（Method 5 完整虛擬碼）
+
+```
+──────────────────────────────────────────────────
+STEP 1：度 2 簡化（deg-2 contraction）
+──────────────────────────────────────────────────
+初始化 weight[e] ← 0 對所有 e
+
+repeat：
+  找任意一個 deg(v) = 2 的頂點 v，其兩鄰接頂點為 a, b
+  記錄 deg2_chains[a,b].append(v)        // 保留順序，供回插
+  w_new = weight[a,v] + 1 + weight[v,b]  // 含 v 本身 +1
+  if 邊 (a,b) 已存在：
+    weight[a,b] ← max(weight[a,b], w_new)  // 重邊取大
+  else：
+    新增邊 (a,b)；weight[a,b] ← w_new
+  從 G 移除頂點 v 與其兩條邊
+until 沒有 deg(v) = 2 的頂點
+→ 得到 G′ = (V′, E′)
+
+特殊情況：
+  自環（路線端點繞回同站）：v 的兩條邊指向同一頂點 a，
+    視為一條 a-a 邊，weight = 原鏈長，回插時沿閉合路徑等距。
+  重邊（兩頂點之間有多條輸入邊）：保留所有邊；斥力公式中
+    对同一顶点对的多条边分别計算后取最大理想距離（避免被
+    最短邊拉太近）。
+
+──────────────────────────────────────────────────
+STEP 2：GEM 初始佈局（可選；地理初始時直接跳到 STEP 3）
+──────────────────────────────────────────────────
+T_init ← 10.0；T_min ← 0.1；T_global ← T_init
+T[v] ← T_init；skew[v] ← (0,0)  對所有 v ∈ V′
+
+repeat：
+  隨機排列 V′ 的訪問順序 order
+  for each v in order：
+    // 計算 GEM 合力（不帶邊權）
+    F ← (0, 0)
+    for each u ≠ v in V′：
+      d ← dist(pos[v], pos[u])
+      if (v,u) ∈ E′：
+        F += (d² / c) * normalize(pos[u] - pos[v])   // 引力
+      F -= (c² / d²) * normalize(pos[u] - pos[v])    // 斥力
+      // c 為理想邊長常數（GEM 階段不帶 weight，用全域均值）
+
+    // 依溫度截斷移動
+    step_size ← min(T[v], |F|)
+    Δpos ← step_size * normalize(F)
+    pos[v] += Δpos
+
+    // 溫度更新（偵測振盪/旋轉）
+    if dot(Δpos, skew[v]) < 0：   // 振盪
+      T[v] ← T[v] * 0.5
+      skew[v] ← (0,0)
+    elif cross(Δpos, skew[v]) 顯著≠0：  // 旋轉
+      T[v] ← T[v] * 0.9
+    else：
+      T[v] ← min(T[v] * 1.1, T_init)
+    skew[v] ← Δpos
+
+until 所有 T[v] < T_min
+
+──────────────────────────────────────────────────
+STEP 3：改良版 PrEd（Method 5 主迴圈）
+──────────────────────────────────────────────────
+for iter = 1 to MAX_ITER：
+  for each v in V′：
+    Fx ← 0；Fy ← 0
+
+    // ── 引力（鄰接邊，帶邊權）──
+    for each u ∈ neighbors(v) in G′：
+      δ ← sqrt(L * min(W, weight[v,u]))   // 理想距離
+      d ← dist(pos[v], pos[u])
+      ratio ← d / δ
+      Fx += ratio * (pos[u].x - pos[v].x)
+      Fy += ratio * (pos[u].y - pos[v].y)
+
+    // ── 斥力（所有頂點對）──
+    for each u ≠ v in V′：
+      d ← dist(pos[v], pos[u])
+      // 無邊時 δ 取 sqrt(L * 1)（吞 0 站）
+      δ ← sqrt(L * (if (v,u)∈E′ then min(W,weight[v,u]) else 1))
+      ratio ← δ² / d²
+      Fx -= ratio * (pos[u].x - pos[v].x)
+      Fy -= ratio * (pos[u].y - pos[v].y)
+
+    // ── 頂點×不相鄰邊斥力（PrEd，式 2）──
+    for each edge (a,b) ∈ E′ where v ∉ {a,b}：
+      t ← dot(pos[v]-pos[a], pos[b]-pos[a]) / |pos[b]-pos[a]|²
+      if 0 < t < 1：                          // 投影點落在線段內
+        i_v.x ← pos[a].x + t*(pos[b].x-pos[a].x)
+        i_v.y ← pos[a].y + t*(pos[b].y-pos[a].y)
+        dvi ← dist(pos[v], i_v)
+        if dvi < γ：
+          coeff ← (γ - dvi)² / dvi
+          Fx -= coeff * (i_v.x - pos[v].x)
+          Fy -= coeff * (i_v.y - pos[v].y)
+
+    // ── 磁場力（式 4，每條鄰接邊僅取最近方向）──
+    for each u ∈ neighbors(v) in G′：
+      edge_dx ← pos[u].x - pos[v].x
+      edge_dy ← pos[u].y - pos[v].y
+      edge_len ← sqrt(edge_dx² + edge_dy²)
+      edge_angle ← atan2(edge_dy, edge_dx)
+      // 8 個磁場方向：k*45°（k=0..7）
+      nearest_k ← round(edge_angle / (π/4)) mod 8
+      target_angle ← nearest_k * π/4
+      θ ← |angle_diff(edge_angle, target_angle)|  // ∈ [0, π/8]
+      F_m ← c_m * b * edge_len^α * θ^β
+      // 磁場力方向：垂直於邊，轉向 target_angle
+      cross_sign ← sign(sin(target_angle - edge_angle))
+      perp_x ← -edge_dy / edge_len * cross_sign
+      perp_y ←  edge_dx / edge_len * cross_sign
+      // v 受 -F_m * perp，u 受 +F_m * perp（力偶，純旋轉，兩端反向）
+      Fx += -F_m * perp_x
+      Fy += -F_m * perp_y
+      // u 的磁場力：在 u 的迭代中計算（對稱地反向施加）
+
+    // ── PrEd 8 區域移動上限（見關鍵子計算 §5.1）──
+    (Fx, Fy) ← clip_by_pred_zones(v, Fx, Fy)
+
+    pos[v].x += Fx
+    pos[v].y += Fy
+  end for
+end for
+
+──────────────────────────────────────────────────
+STEP 4：回插 deg-2 頂點
+──────────────────────────────────────────────────
+for each 簡化邊 (a,b) with deg2_chains[a,b] = [v_1, v_2, ..., v_k]：
+  // 最終佈局中 (a,b) 就是一條直線段（G′ 的邊在最終座標中）
+  total_len ← dist(pos[a], pos[b])
+  for i = 1 to k：
+    t ← i / (k+1)           // 等距弧長參數
+    pos[v_i].x ← pos[a].x + t*(pos[b].x - pos[a].x)
+    pos[v_i].y ← pos[a].y + t*(pos[b].y - pos[a].y)
+end for
+
+輸出 pos[v] 對所有 v ∈ V（原始圖的所有頂點）
+```
+
+### 5. 關鍵子計算
+
+#### 5.1 PrEd 8 區域移動上限（clip_by_pred_zones）
+
+PrEd 的核心保嵌入機制：對頂點 `v`，把它周圍空間切成 8 個扇形（每個 45°），對每條不相鄰邊計算「v 在此方向移動多遠就會穿越該邊」，取最小值作為該方向的移動上限。
+
+```
+clip_by_pred_zones(v, Fx, Fy)：
+  max_dist[dir] ← ∞  for dir = 0..7  // 8 方向（每 45°）
+
+  for each edge (a,b) ∈ E′ where v ∉ {a,b}：
+    // 8 個方向向量：dir_vec[k] = (cos(k*45°), sin(k*45°))
+    for dir = 0..7：
+      dv ← dir_vec[dir]
+      // 求 pos[v] + t*dv 與直線 ab 的交點（求 t > 0）
+      // 直線 ab：法向 n = rot90(pos[b]-pos[a])，方程 dot(p-pos[a], n) = 0
+      n ← (-( pos[b].y - pos[a].y ), pos[b].x - pos[a].x)
+      denom ← dot(dv, n)
+      if |denom| < ε：continue  // 平行，無交叉
+      t ← dot(pos[a] - pos[v], n) / denom
+      if t <= 0：continue  // 交點在反向
+      // 確認交點在線段 (a,b) 內
+      p_cross ← pos[v] + t * dv
+      s ← dot(p_cross - pos[a], pos[b]-pos[a]) / |pos[b]-pos[a]|²
+      if 0 ≤ s ≤ 1：
+        max_dist[dir] ← min(max_dist[dir], t)
+
+  // 把合力 (Fx, Fy) 分解到 8 方向，各分量截斷
+  // 簡化做法：把 (Fx,Fy) 投影到最近方向並截斷
+  move_len ← sqrt(Fx²+Fy²)
+  if move_len = 0：return (0,0)
+  dir_k ← round(atan2(Fy,Fx) / (π/4)) mod 8
+  limit ← max_dist[dir_k]
+  if move_len > limit：
+    scale ← limit / move_len
+    Fx ← Fx * scale；Fy ← Fy * scale
+  return (Fx, Fy)
+```
+
+#### 5.2 磁場力偶方向推導
+
+```
+確定旋轉方向（cross_sign）的規則：
+  target_angle = nearest_k * 45°（以弧度）
+  delta = target_angle - edge_angle
+  // 正規化到 (-π, π]
+  while delta >  π：delta -= 2π
+  while delta < -π：delta += 2π
+  cross_sign = sign(delta)  // +1 → 逆時針旋轉邊；-1 → 順時針
+
+施力符號確認：
+  – v 受 (-F_m * perp_x, -F_m * perp_y)（把 v 推向使邊轉動的方向）
+  – u 受 (+F_m * perp_x, +F_m * perp_y)（反向等大）
+  – 合力為零（純力偶），不平移整條邊，只旋轉
+```
+
+#### 5.3 理想距離 δ 的計算
+
+```
+對邊 (u,v) 帶權 w = weight[u,v]：
+  δ(u,v) = sqrt(L * min(W, w))
+
+物理意義：
+  w = 0（端對端，無吞掉站）→ δ = sqrt(L) ≈ 0.4
+  w = 1（吞 1 站）         → δ = sqrt(2L) ≈ 0.57
+  w = 25（上限，吞 ≥25站） → δ = sqrt(26L) ≈ 2.04
+  比例約為 1 : 1.4 : 5——吞越多站的邊，理想長度越長，回插時才能均勻放下。
+```
+
+---
+
 ## 1. 問題定義
 
 **metro map graph**：圖 G + 一組路徑（lines），每條線是站的序列，共同覆蓋所有頂點與邊（一站/邊可屬多線，但至少屬一線）。

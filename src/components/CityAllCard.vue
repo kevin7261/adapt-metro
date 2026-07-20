@@ -43,10 +43,16 @@ const COLS = 1
     <div v-if="sections.length" class="sec-row">
       <div v-for="sec in sections" :key="sec.id" class="sec-col">
         <div class="sec-label">{{ SECTIONS[sec.id].label }}</div>
-        <!-- Raw：自繪路網縮圖＋官方路線圖，上下排（滿 2 列往右加欄） -->
+        <!-- Raw：OSM路網縮圖／官方路線圖（依左側清單勾選，上下排） -->
         <div v-if="sec.id === 'raw'" class="raw-grid">
-          <GalleryTile :system="entry" bare label="自繪路網" @pick="(sys) => emit('pick', 'raw', sys)" />
-          <OfficialMapTile :system="entry" bare label="官方路線圖" />
+          <GalleryTile
+            v-if="sec.order.includes('thumb')"
+            :system="entry"
+            bare
+            label="OSM路網"
+            @pick="(sys) => emit('pick', 'raw', sys)"
+          />
+          <OfficialMapTile v-if="sec.order.includes('official')" :system="entry" bare label="官方路線圖" />
         </div>
         <CityViewGrid
           v-else

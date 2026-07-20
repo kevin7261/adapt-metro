@@ -7,6 +7,304 @@
 
 ---
 
+## 計算邏輯與程式骨架
+
+> 以下依論文寫「要算什麼、怎麼算」——用虛擬碼、公式與迴圈描述計算步驟。實作時照此邏輯寫；不要呼叫既有程式裡的函式名，也不要寫「call xxx」。
+
+### 輸入
+
+- `P = [p_1, p_2, …, p_n]`：折線路徑，每個 p_i 是二維浮點座標 `(x_i, y_i)`。
+- `C`：有限方向集合，每個元素是單位向量 `(cos θ, sin θ)`。**必須對每個 c ∈ C 也包含反方向 −c**。  
+  - 4 方向：`{(1,0), (−1,0), (0,1), (0,−1)}` 共 4 個向量。  
+  - 8 方向：再加 `{(1,1)/√2, (−1,1)/√2, (1,−1)/√2, (−1,−1)/√2}` 共 8 個向量。
+- `ε > 0`：距離閾值（浮點數）。每個輸入點 p_i 的可接受誤差半徑。
+- （多路線模式）`fixed_points`：字典，`vertex_index → 固定座標`，表示已由先前路線確定位置的頂點，其「ε-圓」退化為半徑 0 的點。
+
+### 輸出
+
+`P′ = [p′_1, p′_2, …, p′_{k+1}]`：簡化折線，k+1 個頂點、k 段，滿足：
+1. 每段 `(p′_j, p′_{j+1})` 平行於 C 中某個方向。
+2. P′ **依序刺穿** p_1…p_n 的所有 ε-圓（固定點的圓半徑為 0）。
+3. k 在所有滿足上述條件的簡化中**最小**。
+
+### 建議內部狀態
+
+```
+# 每個輸入點的 ε-圓
+circle[i] = { center: p_i, radius: ε }   # 固定點時 radius = 0
+
+# 方向對（排除平行對）與三元組
+dir_pairs   = [(c1, c2)     | c1 ∈ C, c2 ∈ C, not parallel(c1, c2)]
+dir_triples = [(c1, c2, c3) | (c1,c2) ∈ dir_pairs, c3 ∈ C, not parallel(c2, c3)]
+
+# 動態規劃表：方向對 (ci, cj) → 目前「刺穿前綴最長」的 BoundaryPath
+# BoundaryPath = {
+#   links : [LinkBoundary, …],   # 已建好的 link boundary 序列（長度 = k）
+#   reach : int,                 # 這條路徑刺穿到 p_reach（含）
+# }
+beta : dict[(ci, cj)] → BoundaryPath
+
+# LinkBoundary = {
+#   dir    : c,                  # 本 link 的射線方向
+#   rays   : [(Q_j, c), …],      # 組成包絡的射線（起點 Q_j，方向 c）
+#   envelope : Polyline,         # 射線族的上包絡折線（在 c_next 方向上排序）
+#   i_start  : int,              # 本 link 負責刺穿 circles[i_start..i_end]
+#   i_end    : int,
+# }
+```
+
+### 主計算流程
+
+```
+ALGORITHM SimplifyPath(circles[1..n], C, fixed_points):
+
+  # ── 步驟 0：套用固定點 ──
+  for i in fixed_points:
+      circle[i].radius ← 0
+      circle[i].center ← fixed_points[i]
+
+  # ── 步驟 1：建 k=1 的初始 boundary path（每個方向對一條）──
+  for (c1, c2) in dir_pairs:
+      B ← BUILD_LINK_BOUNDARY(circles[1..n], c1, c2, start=1)
+      beta[(c1,c2)] ← BoundaryPath(links=[B], reach=B.i_end)
+
+  # ── 步驟 2：逐層擴展，直到某條路徑刺穿全部 n 點 ──
+  k ← 1
+  while max reach over all beta < n:
+      next_beta ← {}
+      for (c1, c2, c3) in dir_triples:
+          bp ← beta.get((c1, c2))
+          if bp is None or bp.reach == n: continue
+          B_new ← EXPAND_BOUNDARY_PATH(bp, c3, circles[1..n])
+          new_bp ← BoundaryPath(links = bp.links + [B_new],
+                                 reach = B_new.i_end)
+          key ← (c2, c3)
+          if key not in next_beta or new_bp.reach > next_beta[key].reach:
+              next_beta[key] ← new_bp
+      # 合併：每個方向對保留 reach 最遠的
+      for key, bp in next_beta:
+          if key not in beta or bp.reach > beta[key].reach:
+              beta[key] ← bp
+      k ← k + 1
+
+  # ── 步驟 3：選出第一條刺穿全部 n 點的路徑 ──
+  best_bp ← any bp in beta where bp.reach == n
+
+  # ── 步驟 4：從邊界路徑反推具體頂點 ──
+  return COMPUTE_PATH(best_bp, circles[1..n])
+```
+
+### 關鍵子計算
+
+#### A. ε-圓「依序刺穿」的判定
+
+**核心幾何**：射線 `Q + t·c`（`t ≥ 0`）與圓 `(center, r)` 的交集是參數區間 `[t_enter, t_exit]`：
+
+```
+d    ← center − Q
+proj ← dot(d, c)            # 射線方向投影
+perp² ← |d|² − proj²        # 垂直距離平方
+
+if perp² > r²:  return ∅    # 射線不過此圓
+half  ← sqrt(r² − perp²)
+t_enter ← proj − half
+t_exit  ← proj + half
+交集區間 ← [t_enter, t_exit]
+```
+
+**依序刺穿判斷**（Definition 1）：對 circles[1..m]，射線必須先後依序通過每個圓。用「滾動下界」驗證：
+
+```
+FUNCTION ray_stabs_in_order(Q, c, circles[i..j]) → bool:
+    t_lb ← −∞     # 下一個圓的 t_enter 必須 ≥ t_lb
+    for k = i to j:
+        [t_enter, t_exit] ← ray_circle_interval(Q, c, circles[k])
+        if 區間為空 or t_exit < t_lb:
+            return false   # 此圓完全在已通過區域之前
+        t_lb ← max(t_lb, t_enter)
+    return true
+```
+
+**求射線最遠刺穿前綴**：
+
+```
+FUNCTION ray_reach(Q, c, circles[1..n]) → int:
+    t_lb ← −∞
+    for i = 1 to n:
+        [t_enter, t_exit] ← ray_circle_interval(Q, c, circles[i])
+        if 區間為空 or t_exit < t_lb: return i − 1
+        t_lb ← max(t_lb, t_enter)
+    return n
+```
+
+#### B. 建立單一 Link Boundary（BUILD_LINK_BOUNDARY）
+
+一個 link boundary（方向對 (c1, c2)）是「所有可從本段射出方向 c1、依序刺穿指定前綴的射線」的包絡折線。**直觀版**（O(n) 次射線檢查，每次 O(n)，總計 O(n²)）：
+
+```
+FUNCTION BUILD_LINK_BOUNDARY(circles[1..n], c1, c2, start=1) → LinkBoundary:
+    # c1 = 本 link 射線方向；c2 = 下一 link 方向（決定切線偏側）
+    # c2_perp = c2 旋轉 90° 的方向（用來在 c2 側找切線起點）
+    c2_perp ← rotate90(c2)
+
+    rays ← []
+    reach ← start − 1
+
+    for i = start to n:
+        # 在 circle[i] 上，沿 c2 偏 c1 側找切線起點候選 α_i
+        # 「偏 c1 側」= 使下一段 c2 射線能從本段 c1 射線接出的那側
+        # 幾何：α_i = circle[i].center + r · sign(cross(c1, c2)) · c2_perp
+        sign ← sign(cross_2d(c1, c2))   # +1 左偏、−1 右偏
+        alpha_i ← circle[i].center + circle[i].radius × sign × c2_perp
+
+        # 驗證：從 alpha_i 出發方向 c1，是否能依序刺穿 circles[start..i]
+        if not ray_stabs_in_order(alpha_i, c1, circles[start..i]):
+            break   # 找不到合法起點，無法再延伸
+
+        rays.append((alpha_i, c1))
+        reach ← i
+
+    envelope ← COMPUTE_UPPER_ENVELOPE(rays, c1, c2)
+    return LinkBoundary(dir=c1, rays=rays, envelope=envelope,
+                        i_start=start, i_end=reach)
+```
+
+**上包絡（upper envelope）**：把射線起點按 c2 方向排序，取「在 c1 方向上最遠」的分段折線。對直觀版，可直接用凸包 / 排序取端點。
+
+#### C. 擴展邊界路徑（EXPAND_BOUNDARY_PATH）
+
+把新 link boundary B_new（方向 c3）接到已有 BoundaryPath bp（最後一段方向 c2）的尾端。
+
+```
+FUNCTION EXPAND_BOUNDARY_PATH(bp, c3, circles[1..n]) → LinkBoundary:
+    B_last ← bp.links[-1]     # 最後一個 link boundary，方向 c2
+    start  ← bp.reach + 1     # 從下一個未刺穿的點開始
+    c2     ← B_last.dir
+    c3_perp ← rotate90(c3)
+
+    new_rays ← []
+    reach    ← start − 1
+
+    for i = start to n:
+        # ── 步驟 1：從 B_last 的包絡上找 stabbing interval ──
+        # 即：B_last.envelope 上哪些點 Q，使得 (Q, c3) 能刺穿 circles[start..i]？
+        interval ← STABBING_INTERVAL(circles[start..i], c3, B_last.envelope)
+
+        if interval 為空: break   # 無法延伸
+
+        # ── 步驟 2：取 interval 邊界上、c2 方向最小的起點 γ ──
+        gamma ← interval 在 B_last.envelope 上 c2 方向最小的端點
+
+        new_rays.append((gamma, c3))
+        reach ← i
+
+        # ── 步驟 3：回溯截斷 B_last 並轉移責任 ──
+        # 過 gamma 作方向 c2 的直線 γ̄，與 B_last.envelope 相交於截斷點 X
+        X ← line_intersect_envelope(gamma, c2, B_last.envelope)
+        if X 存在:
+            # 把 B_last 截短到 X 之前
+            B_last.envelope ← truncate_envelope(B_last.envelope, X)
+            # 驗證截短後 B_last 尾端的圓是否仍被刺穿
+            # 若某個 circle[j]（j ≤ bp.reach）因截斷而漏刺 → 責任轉移：
+            #   B_last.i_end ← j − 1；start ← j（改由 B_new 從 j 開始刺）
+            B_last, start ← RECHECK_AND_TRANSFER(B_last, start)
+
+    B_new ← LinkBoundary(dir=c3, rays=new_rays,
+                          envelope=COMPUTE_UPPER_ENVELOPE(new_rays, c3, ...),
+                          i_start=start, i_end=reach)
+    return B_new
+```
+
+#### D. Stabbing Interval 計算
+
+`STABBING_INTERVAL(circles[i..j], c, envelope)` 回傳 envelope 上「出發方向 c 可依序刺穿 circles[i..j]」的合法起點區間。
+
+**直觀版（逐點採樣）**：
+
+```
+FUNCTION STABBING_INTERVAL(circles[i..j], c, envelope) → Interval:
+    feasible_params ← []
+    for t in linspace(0, envelope.length, N_samples):
+        Q ← envelope.point_at(t)
+        if ray_stabs_in_order(Q, c, circles[i..j]):
+            feasible_params.append(t)
+
+    if 無可行點: return ∅
+    return [min(feasible_params), max(feasible_params)]
+```
+
+**精確版（邊界由切線確定）**：stabbing interval 的邊界恰好是「射線恰切過某個 circle[k]」的位置——對每個 k，解「從 envelope 上的 Q 出發方向 c、與 circle[k] 恰相切」的 Q，共兩解（左切/右切）。取所有切線起點後，以「刺穿條件從可行變不可行」的轉換點為區間端點。
+
+#### E. 從邊界路徑反推頂點（COMPUTE_PATH）
+
+```
+FUNCTION COMPUTE_PATH(bp, circles[1..n]) → P′:
+    k ← len(bp.links)
+    P′ ← array[1..k+1]
+
+    # 最後一頂點：p_n 的 ε-圓內、沿 B_k 主方向最遠（t 最大）的點
+    c_last ← bp.links[k-1].dir
+    P′[k+1] ← farthest_in_circle(circles[n], c_last)
+    # = circles[n].center + circles[n].radius × c_last
+
+    # 從後往前逐層回推
+    for j = k downto 2:
+        B_j   ← bp.links[j-1]      # 第 j 段，方向 c_j
+        B_j_1 ← bp.links[j-2]      # 第 j-1 段，方向 c_{j-1}
+        # P′[j] = 過 P′[j+1]、方向 −c_j 的射線，與 B_{j-1} 包絡的交點
+        P′[j] ← ray_intersect_envelope(P′[j+1], −B_j.dir, B_j_1.envelope)
+
+    # 第一頂點：p_1 的 ε-圓內、沿 B_1 主方向最靠後（t 最小）的點
+    c_first ← bp.links[0].dir
+    P′[1] ← nearest_in_circle(circles[1], c_first)
+    # = circles[1].center − circles[1].radius × c_first
+
+    return P′
+```
+
+#### F. 多路線固定點機制
+
+```
+ALGORITHM SimplifyMetroMap(lines, vertex_coords, C, ε):
+    # ── 1. 路線重要性排序（轉乘站數降序）──
+    for L in lines:
+        L.importance ← count of L.vertices that appear in ≥ 2 lines
+    sorted_lines ← sort(lines, by=importance, descending=true)
+
+    fixed ← {}   # vertex_id → 固定後的 2D 座標
+
+    for L in sorted_lines:
+        # ── 2. 在已固定頂點處切開子路徑 ──
+        subpaths ← split_at_fixed(L.vertices, fixed)
+
+        for subpath in subpaths:
+            # subpath = [v_1, v_2, …, v_m]（頂點 id 序列）
+            coords ← [vertex_coords[v] for v in subpath]
+
+            # ── 3. 固定點的 ε-圓退化為點 ──
+            fp ← {}
+            if subpath[0] in fixed: fp[0]   ← fixed[subpath[0]]
+            if subpath[-1] in fixed: fp[m-1] ← fixed[subpath[-1]]
+
+            # ── 4. 建圓並執行路徑簡化 ──
+            circles ← build_circles(coords, ε, fp)
+            P′ ← SimplifyPath(circles, C)
+
+            # ── 5. 把簡化路徑上的頂點投影回最近 link，固定座標 ──
+            for i, v in enumerate(subpath):
+                proj ← project_to_nearest_link(coords[i], P′)
+                fixed[v] ← proj
+
+    return fixed   # 所有頂點的最終格座標
+```
+
+**投影規則**（`project_to_nearest_link`）：
+- 找 P′ 中最近的 link（線段）。
+- 投影點 = 垂直投影到 link 上的最近點（若投影落在線段外則取最近端點）。
+- 等距重排（美觀但可能超 ε）：在 link 上以等距間隔重新排列同 link 上的所有投影點。
+
+---
+
 ## 1. 問題定義
 
 **C-directed 路徑簡化問題（Problem 1）**：
