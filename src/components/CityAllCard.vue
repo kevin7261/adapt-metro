@@ -27,7 +27,7 @@ const COLS = 1
 </script>
 
 <template>
-  <div class="all-card">
+  <div class="all-card" :data-city="entry.id">
     <button
       class="all-head"
       :title="`匯入 ${entry.cityZh ?? entry.city}（整組管線圖層）`"
