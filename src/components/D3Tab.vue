@@ -1492,8 +1492,10 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
   }
   const clearRef = () => refG.selectAll('*').remove()
 
+  // 隱藏 Highlight（StyleBar 切換 layer.showHighlight，預設顯示）——關掉時不畫邊分類
+  // 襯底／RWD 殘留衝突光暈（Metro Maps 沒有此鈕，見 StyleBar）。
   highlightG.selectAll('path.hl')
-    .data(highlightData)
+    .data(panelLayer.value?.showHighlight === false ? [] : highlightData)
     .join('path')
     .attr('class', 'hl')
     .attr('d', (d) => d.d)
@@ -1909,6 +1911,8 @@ watch(
 watch(() => panelLayer.value?.showLabels, render)
 // 顯示/隱藏網格：切換 showGrid → 重畫（藍色示意網格 add/remove）。
 watch(() => panelLayer.value?.showGrid, render)
+// 顯示/隱藏 Highlight：切換 showHighlight → 重畫（邊分類襯底／殘留衝突光暈 add/remove）。
+watch(() => panelLayer.value?.showHighlight, render)
 
 // 「顯示全部」（StyleBar）：把 d3-zoom 重置回 identity——render() 就是把投影 fit 到
 // 容器後把 zoom 設為 identity，所以重置＝回到「全部可見」的初始 fit 狀態。

@@ -92,6 +92,12 @@ const groups = computed(() => {
     }
     // 站名＝直接切換（不彈小視窗）；按鈕亮起＝開。預設關（layer.showLabels 未設）。
     station.push({ id: 'labels', icon: 'label', title: '站名', toggle: 'showLabels' })
+    // 隱藏 Highlight（邊分類襯底：共線紅底／環線綠／頭尾共點藍，RWD 另含殘留衝突
+    // 琥珀光暈）——除 Metro Maps 外都可切換（使用者要求，放在「站名」後面）。預設顯示
+    //（showHighlight 未設＝開）→ toggle 帶 defaultOn。
+    if (props.viewKind !== 'metro') {
+      station.push({ id: 'highlight', icon: 'highlight', title: '注意路段', toggle: 'showHighlight', defaultOn: true })
+    }
     g.push(station)
   }
   if (editable.value) {

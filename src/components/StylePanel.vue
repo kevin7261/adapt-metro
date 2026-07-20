@@ -713,7 +713,7 @@ function startResize(e) {
             </template>
             </template>
 
-            <!-- 圖例：Metro Maps／Map Adjust／Straighten／RWD 共用——路線＋節點＋Highlight 整合顯示 -->
+            <!-- 圖例：Metro Maps／Map Adjust／Straighten／RWD 共用——路線＋節點＋注意路段（Highlight）整合顯示 -->
             <template v-if="isMetro && !isHighway">
               <div class="section-title">圖例</div>
               <div class="map-legend skeleton-rules">
@@ -733,7 +733,7 @@ function startResize(e) {
                   <li><span class="sk-dot" style="background:#9ca3af" /> 灰：分隔點</li>
                   <li><span class="sk-dot" style="background:#eab308" /> 黃：路線交叉</li>
                 </ul>
-                <p class="sk-sub">Highlight（線底下襯底）</p>
+                <p class="sk-sub">注意路段（線底下襯底）</p>
                 <ul>
                   <li><span class="sk-hl" style="background:#e11d48" /> 紅：共線合併</li>
                   <li><span class="sk-hl" style="background:#16a34a" /> 綠：環線</li>
@@ -742,11 +742,11 @@ function startResize(e) {
                   <li v-if="viewKind === 'rwd'"><span class="sk-hl" style="background:#f59e0b" /> 琥珀：殘留衝突</li>
                 </ul>
                 <p v-if="isMapAdjust" class="rose-note">
-                  Map Adjust 骨架化後才套用節點色與 Highlight；依 skill <code>route-skeleton-connect</code>，
+                  Map Adjust 骨架化後才套用節點色與 注意路段；依 skill <code>route-skeleton-connect</code>，
                   座標照原地理、不移動。
                 </p>
                 <p v-else-if="!isD3" class="rose-note">
-                  Metro Maps 以白點＋路線原色為主；節點色與 Highlight 見 Map Adjust／Straighten／RWD。
+                  Metro Maps 以白點＋路線原色為主；節點色與 注意路段 見 Map Adjust／Straighten／RWD。
                 </p>
               </div>
             </template>
@@ -755,11 +755,11 @@ function startResize(e) {
             <template v-if="isMapAdjust">
               <div class="section-title">骨架化規則</div>
               <div class="skeleton-rules">
-                <p>不拉直、保留地理形狀，只做拓撲收縮與標記（connect 骨架）。節點依 degree 分色；邊分類以 Highlight 襯底標示（見上方圖例）。</p>
+                <p>不拉直、保留地理形狀，只做拓撲收縮與標記（connect 骨架）。節點依 degree 分色；邊分類以 注意路段 襯底標示（見上方圖例）。</p>
                 <p class="rose-note">
                   紅＝分歧／轉乘（degree≥3，或兩側路線不同的 degree-2）；藍＝真端點（degree≤1）；
                   白＝直通中段；紫＝頭尾共點／環線切斷；粉紅＝代表性轉折（曲折度&gt;1.25）；
-                  灰＝過長段分隔（每段 ≤4）。Highlight：共線紅／環線綠／頭尾共點藍；紅藍重疊呈紫。
+                  灰＝過長段分隔（每段 ≤4）。注意路段：共線紅／環線綠／頭尾共點藍；紅藍重疊呈紫。
                 </p>
               </div>
             </template>
