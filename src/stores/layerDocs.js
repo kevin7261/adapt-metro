@@ -366,7 +366,7 @@ buildConnectSkeleton(geojson) → {
     algorithm: `<p>彩色點做「排名吸附」：欄＝x 排名、列＝y 排名，每點一格（撞格外移到最近空格）。每條線在彩色點切開、端點吸到整數欄列並拉直，黑點沿新邊平均放回。</p>`,
   },
   hillclimb: {
-    title: 'Hill Climbing（多準則爬山）', tag: '視圖', skills: ['route-hillclimb'],
+    title: '初步直線化（多準則爬山）', tag: '視圖', skills: ['route-hillclimb'],
     svg: dHc, caption: '最佳化後大多是水平/垂直/45° 的示意佈局。',
     mapping: [
       M('line', C.gridline, '整數格', '格空間', '<code>cols × rows</code>'),

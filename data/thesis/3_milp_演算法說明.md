@@ -6,6 +6,285 @@
 
 ---
 
+## 計算邏輯與程式骨架
+
+> 以下依論文寫「要算什麼、怎麼算」——用虛擬碼、公式與迴圈描述計算步驟。實作時照此邏輯寫；不要呼叫既有程式裡的函式名，也不要寫「call xxx」。
+
+### 輸入
+
+- **頂點集合** `V`：每個頂點 v 有地理座標 `(x_v^geo, y_v^geo)`。非平面圖先在每對相交邊的幾何交叉點插入 dummy 頂點，使輸入成為平面嵌入。
+- **邊集合** `E ⊆ V × V`：無向，|E| = m。
+- **路線覆蓋** `𝓛`：每條 metro line 是 E 的子集，形成一條頂點路徑。
+- **最小邊長** `ℓ_e > 0`（L∞ 度量）；若全局統一，可令所有邊 ℓ_e = 1。
+- **最小邊距** `d_min > 0`（非相鄰邊的 L∞ 距離下限）。
+- **目標函數權重** `(λ_S1, λ_S2, λ_S3)`（建議 (3, 2, 1)）。
+- **座標上界** `M`（big-M；取所有可能座標差的上界，約等於格點數 n）。
+
+### 輸出
+
+- 每個頂點 v 的新座標 `(x_v, y_v)`（整數格，L∞ 整數限制的副作用）。
+- 每條有向邊 `(u→v)` 的指派方向 `dir[u,v] ∈ {0,1,...,7}`（逆時針，0=東、1=東北……7=東南）。
+
+### 建議內部狀態（MIP 決策變數）
+
+| 變數 | 型別 | 數量 | 說明 |
+|---|---|---|---|
+| `x[v], y[v]` | 連續（結果自動為整數）| 每頂點 | 輸出座標 |
+| `z1[v]` | 輔助連續 | 每頂點 | = (x[v]+y[v])/2，東北–西南軸 |
+| `z2[v]` | 輔助連續 | 每頂點 | = (x[v]−y[v])/2，東南–西北軸 |
+| `dir[u,v]` | 整數 ∈ {0..7} | 每有向邊 2m | 邊的八方向指派 |
+| `α_prec[e], α_orig[e], α_succ[e]` | 0/1 | 3m（無向）| 三候選方向之一選擇 |
+| `β_i[v]` | 0/1 | Σ_v deg(v) | 頂點環繞順序的「繞回位置」|
+| `γ_{D}[e1,e2]` | 0/1 | lazy 加入 | 邊對 e1,e2 的分隔方向（共 8 個方向）|
+| `bd[u,v,w]` | 連續 ≥ 0 | 每線上鄰邊對 | 折彎成本 |
+| `δ1[u,v,w], δ2[u,v,w]` | 0/1 | 每線上鄰邊對各 2 | 折彎線性化輔助 |
+| `rpos[e]` | 0/1 | m（無向）| 邊是否偏離最近輸入方向 |
+| `λ_edge[e]` | 連續 ≥ 0 | m（無向）| 邊 L∞ 長度上界，最小化總長用 |
+
+### 主計算流程
+
+```
+Algorithm MILPMetroMap(V, E, 𝓛, ℓ, d_min, λ_S1, λ_S2, λ_S3, M):
+
+  ## 前處理
+
+  # 步驟 0a：計算每有向邊的初始扇區（輸入地理方向）
+  for each undirected edge {u,v} ∈ E:
+      dx ← x_v^geo − x_u^geo;  dy ← y_v^geo − y_u^geo
+      sec_u[v] ← round( atan2(dy, dx) / (π/4) ) mod 8
+      sec_v[u] ← (sec_u[v] + 4) mod 8     # 反方向
+      prec_u[v] ← (sec_u[v] − 1 + 8) mod 8
+      succ_u[v] ← (sec_u[v] + 1) mod 8    # 三個候選方向
+
+  # 步驟 0b：度 2 縮減（大幅降低模型規模）
+  deg2_paths ← []
+  for each maximal path P = u₀—v₁—v₂—…—v_k—u₁ where all v_i have deg = 2:
+      deg2_paths.append( (P, u₀, u₁, [v₁..v_k]) )
+      replace P in graph with dummy path u₀—a—b—u₁  # 長度 3 路徑
+      # 記錄對應關係，供後處理回插
+
+  # 步驟 0c：記錄每個頂點的鄰邊逆時針輸入順序
+  for each v ∈ V:
+      original_order[v] ← sort adj(v) by sec_v[u] ascending (逆時針)
+
+  ## 建立 MIP 模型
+
+  model ← new MIPModel()
+
+  # 宣告座標變數
+  for each v ∈ V:
+      x[v], y[v] ← model.addVar(continuous, lb=0, ub=M)
+      z1[v] = (x[v] + y[v]) / 2          # 用 addConstr 或輔助表達式
+      z2[v] = (x[v] - y[v]) / 2
+
+  # H1 + H3：八方向 + 最小邊長（每無向邊 5 個變數、12 條限制）
+  for each undirected edge {u,v} ∈ E:
+      dir_uv ← model.addIntVar(lb=0, ub=7)
+      α_p, α_o, α_s ← model.addBinaryVars(3)
+      model.addConstr( α_p + α_o + α_s = 1 )         # 三選一
+      model.addConstr( dir_uv = prec_u[v]·α_p
+                               + sec_u[v]·α_o
+                               + succ_u[v]·α_s )      # 綁定方向整數
+      for (α_i, dir_i) in [(α_p, prec_u[v]),
+                            (α_o, sec_u[v]),
+                            (α_s, succ_u[v])]:
+          addDirectionAndLengthConstraints(model, u, v, dir_i, α_i, ℓ_e, M)
+          # 見子計算 A
+
+  # H2：頂點環繞順序（每頂點 deg(v) 個二元變數，deg(v)+1 條限制）
+  for each v ∈ V with deg(v) ≥ 2:
+      nbrs ← original_order[v]    # u_1, u_2, ..., u_k（逆時針序）
+      k ← deg(v)
+      β ← model.addBinaryVars(k)
+      model.addConstr( Σ_{i=1}^{k} β[i] = 1 )        # 恰一處繞回
+      for i in 1..k:
+          u_i    ← nbrs[i]
+          u_next ← nbrs[(i mod k) + 1]
+          model.addConstr( dir[v, u_i] ≤ dir[v, u_next] − 1 + 8·β[i] )
+          # β[i] = 1 的那條約束允許遞減（跨 7→0 繞回）
+
+  # S1：折彎成本（每線上鄰邊對 3 個變數、2 條限制）
+  cost_S1_expr ← 0
+  for each line L ∈ 𝓛:
+      for each consecutive triple (u, v, w) in L:
+          bd   ← model.addVar(continuous, lb=0)
+          δ1, δ2 ← model.addBinaryVars(2)
+          # Δdir = dir[u,v] − dir[v,w]（以差值線性化折彎角）
+          # |Δdir mod 8| 的最小值即折彎等級（0/1/2/3 對應 0°/45°/90°/135°）
+          model.addConstr( −bd ≤ dir[u,v] − dir[v,w] − 8·δ1 + 8·δ2 )
+          model.addConstr(  bd ≥ dir[u,v] − dir[v,w] − 8·δ1 + 8·δ2 )
+          # bd 在目標最小化驅動下自動等於 |Δdir − 8δ1 + 8δ2| 的最小值
+          cost_S1_expr += bd
+
+  # S2：相對位置成本（每無向邊 1 個二元變數、2 條限制）
+  cost_S2_expr ← 0
+  for each undirected edge {u,v} ∈ E:
+      rpos_uv ← model.addBinaryVar()
+      model.addConstr( −M·rpos_uv ≤ dir_uv − sec_u[v] )
+      model.addConstr(  dir_uv − sec_u[v] ≤ M·rpos_uv )
+      # rpos_uv = 0 ⟺ dir_uv = sec_u[v]（選中最近方向，無位置偏離）
+      cost_S2_expr += rpos_uv
+
+  # S3：總邊長成本（每無向邊 1 個連續變數、4 條限制）
+  cost_S3_expr ← 0
+  for each undirected edge {u,v} ∈ E:
+      λ_uv ← model.addVar(continuous, lb=ℓ_e)
+      model.addConstr(  x[u] − x[v] ≤ λ_uv )
+      model.addConstr( −x[u] + x[v] ≤ λ_uv )
+      model.addConstr(  y[u] − y[v] ≤ λ_uv )
+      model.addConstr( −y[u] + y[v] ≤ λ_uv )
+      # λ_uv ≥ L∞_length(e)，最小化時 λ_uv 緊貼等於 L∞ 長度
+      cost_S3_expr += λ_uv
+
+  # 目標函數
+  model.minimize( λ_S1·cost_S1_expr
+                + λ_S2·cost_S2_expr
+                + λ_S3·cost_S3_expr )
+
+  ## 求解（Lazy H4 循環）
+
+  sol ← solveWithLazyH4(model, V, E, d_min, M)
+  # 見子計算 B
+
+  ## 後處理：等距回插度 2 頂點
+
+  for each (original_path P = u₀—v₁—…—v_k—u₁, dummy_path u₀—a—b—u₁) in deg2_paths:
+      # 沿三段繪製線段（u₀→a, a→b, b→u₁）計算總弧長
+      seg_lens ← [L∞_dist(sol.x[u₀],sol.y[u₀], sol.x[a],sol.y[a]),
+                  L∞_dist(sol.x[a], sol.y[a],  sol.x[b],sol.y[b]),
+                  L∞_dist(sol.x[b], sol.y[b],  sol.x[u₁],sol.y[u₁])]
+      total_len ← Σ seg_lens
+      # 把 k 個原始頂點按等距比例 i/(k+1) 插回
+      for i in 1..k:
+          t ← i / (k + 1)
+          v_i.x, v_i.y ← interpolateAlongPath(u₀, a, b, u₁, t, sol)
+
+  return {(x[v], y[v]) for v ∈ V}, {dir[u,v] for (u,v) directed edge}
+```
+
+### 關鍵子計算
+
+#### A. 單邊方向與長度約束 `addDirectionAndLengthConstraints(model, u, v, dir_i, α_i, ℓ, M)`
+
+每個候選方向 `dir_i` 決定「哪個座標軸相等、哪個方向的軸差 ≥ ℓ」。`α_i = 0` 時因 M 很大而自動滿足（big-M 技巧）：
+
+```
+addDirectionAndLengthConstraints(model, u, v, dir_i, α_i, ℓ, M):
+    # dir_i ∈ {0..7}；0=東（v 在 u 正東），1=東北，2=北，…，7=東南（逆時針）
+    # 注意：α_i 是二元變數，α_i = 1 才「啟動」這組約束
+
+    if dir_i = 0:   # 東：y 相等，x[v] ≥ x[u] + ℓ
+        model.addConstr(  y[u] − y[v] ≤ M·(1−α_i) )
+        model.addConstr( −y[u] + y[v] ≤ M·(1−α_i) )
+        model.addConstr(  x[v] − x[u] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 1: # 東北：z2（東南–西北軸）相等，z1[v] ≥ z1[u] + ℓ
+        model.addConstr(  z2[u] − z2[v] ≤ M·(1−α_i) )
+        model.addConstr( −z2[u] + z2[v] ≤ M·(1−α_i) )
+        model.addConstr(  z1[v] − z1[u] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 2: # 北：x 相等，y[v] ≥ y[u] + ℓ
+        model.addConstr(  x[u] − x[v] ≤ M·(1−α_i) )
+        model.addConstr( −x[u] + x[v] ≤ M·(1−α_i) )
+        model.addConstr(  y[v] − y[u] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 3: # 西北：z1（東北–西南軸）相等，z2[v] ≥ z2[u] + ℓ
+        model.addConstr(  z1[u] − z1[v] ≤ M·(1−α_i) )
+        model.addConstr( −z1[u] + z1[v] ≤ M·(1−α_i) )
+        model.addConstr(  z2[v] − z2[u] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 4: # 西：y 相等，x[u] ≥ x[v] + ℓ
+        model.addConstr(  y[u] − y[v] ≤ M·(1−α_i) )
+        model.addConstr( −y[u] + y[v] ≤ M·(1−α_i) )
+        model.addConstr(  x[u] − x[v] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 5: # 西南：z2 相等，z1[u] ≥ z1[v] + ℓ
+        model.addConstr(  z2[u] − z2[v] ≤ M·(1−α_i) )
+        model.addConstr( −z2[u] + z2[v] ≤ M·(1−α_i) )
+        model.addConstr(  z1[u] − z1[v] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 6: # 南：x 相等，y[u] ≥ y[v] + ℓ
+        model.addConstr(  x[u] − x[v] ≤ M·(1−α_i) )
+        model.addConstr( −x[u] + x[v] ≤ M·(1−α_i) )
+        model.addConstr(  y[u] − y[v] ≥ ℓ − M·(1−α_i) )
+
+    elif dir_i = 7: # 東南：z1 相等，z2[u] ≥ z2[v] + ℓ
+        model.addConstr(  z1[u] − z1[v] ≤ M·(1−α_i) )
+        model.addConstr( −z1[u] + z1[v] ≤ M·(1−α_i) )
+        model.addConstr(  z2[u] − z2[v] ≥ ℓ − M·(1−α_i) )
+```
+
+#### B. Lazy H4 求解循環 `solveWithLazyH4(model, V, E, d_min, M)`
+
+初始模型不含 H4；每得到一個候選解就在外部檢查邊距違規，只為違規邊對補加 H4 限制：
+
+```
+solveWithLazyH4(model, V, E, d_min, M):
+    added_pairs ← ∅   # 已加入 H4 的邊對集合
+
+    loop:
+        sol ← model.solve(time_limit = 設定值)  # 接受次優解（intermediate incumbent）
+        if sol is infeasible: error("無解；嘗試放寬 ℓ_e 或 d_min")
+
+        # 從解中讀出座標，計算所有不相鄰邊對的 L∞ 距離
+        violations ← []
+        for each pair (e1={u1,v1}, e2={u2,v2}) with e1 ∩ e2 = ∅:
+            if L∞_edgeDist(e1, e2, sol) < d_min:
+                violations.append( (e1, e2) )
+
+        if violations is empty: break   # 所有邊距都合法，接受解
+
+        # 只為新違規的邊對補加 H4
+        for (e1, e2) in violations:
+            if (e1, e2) ∉ added_pairs:
+                addH4Constraints(model, e1, e2, d_min, M)
+                added_pairs.add( (e1, e2) )
+        # 重新求解
+
+    return sol
+
+
+addH4Constraints(model, e1={u1,v1}, e2={u2,v2}, d_min, M):
+    # 引入 8 個分隔方向二元變數
+    γ ← {D: model.addBinaryVar() for D in {E,NE,N,NW,W,SW,S,SE}}
+    model.addConstr( Σ_D γ[D] ≥ 1 )    # 至少一個方向上分隔
+
+    # 以下僅列 γ_E（e1 整條在 e2 東邊 d_min）與 γ_N（e1 整條在 e2 北邊 d_min）示範；
+    # 其餘六個方向按座標軸類推
+
+    # γ_E = 1：x[u1], x[v1] 均 ≥ x[u2] + d_min 且 x[v2] + d_min
+    for (s1, s2) in {(u1,u2),(u1,v2),(v1,u2),(v1,v2)}:
+        model.addConstr( x[s1] − x[s2] ≥ d_min − M·(1−γ[E]) )
+
+    # γ_W = 1：x[u2], x[v2] 均 ≥ x[u1] + d_min 且 x[v1] + d_min（左右互換）
+    for (s2, s1) in {(u2,u1),(u2,v1),(v2,u1),(v2,v1)}:
+        model.addConstr( x[s2] − x[s1] ≥ d_min − M·(1−γ[W]) )
+
+    # γ_N = 1：y[u1], y[v1] 均 ≥ y[u2] + d_min（e1 在 e2 北邊）
+    for (s1, s2) in {(u1,u2),(u1,v2),(v1,u2),(v1,v2)}:
+        model.addConstr( y[s1] − y[s2] ≥ d_min − M·(1−γ[N]) )
+
+    # γ_S 類推（南向，y 互換）
+    # γ_NE / γ_SW 用 z1 座標（(x+y)/2）；γ_NW / γ_SE 用 z2 座標（(x-y)/2）
+
+
+L∞_edgeDist(e1={u1,v1}, e2={u2,v2}, sol):
+    # 兩線段的 L∞ 距離 = 各軸投影區間的最大「間隙」
+    gaps ← []
+    for axis_coord in [sol.x, sol.y,
+                       lambda v: (sol.x[v]+sol.y[v])/2,   # z1
+                       lambda v: (sol.x[v]-sol.y[v])/2]:  # z2
+        a1 ← min(axis_coord(u1), axis_coord(v1))
+        b1 ← max(axis_coord(u1), axis_coord(v1))
+        a2 ← min(axis_coord(u2), axis_coord(v2))
+        b2 ← max(axis_coord(u2), axis_coord(v2))
+        gap ← max(a1 − b2, a2 − b1, 0)   # 若區間重疊則 gap = 0
+        gaps.append(gap)
+    return max(gaps)
+```
+
+---
+
 ## 1. 問題定義
 
 輸入：平面圖 `G = (V, E)`（非平面時先在交叉處插 dummy 頂點）、每個頂點的地理座標 `Π(v)`、線覆蓋 `𝓛`（每條 metro line 是一條路徑，每條邊至少屬於一條線）、每邊最小長度 `ℓ_e`、最小邊距 `d_min`。

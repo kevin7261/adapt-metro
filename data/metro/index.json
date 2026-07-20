@@ -1,7 +1,7 @@
 {
   "generated_from": "OpenStreetMap via Overpass API (route=subway|light_rail, operational only; line geometry = stops connected in member order; same-named stations merged)",
   "baseline": "Wikipedia: List of metro systems",
-  "system_count": 234,
+  "system_count": 235,
   "wikipedia_system_count": 233,
   "line_total": 1764,
   "station_total": 17157,
@@ -5666,107 +5666,6 @@
       }
     },
     {
-      "file": "systems/americas/mexico/am-mex-guadalajara.geojson",
-      "continent": "north-america",
-      "country": "Mexico",
-      "city": "Guadalajara",
-      "osm_networks": [
-        "Línea 4 del Tren Eléctrico Urbano de Guadalajara",
-        "Mi Tren",
-        "SITEUR"
-      ],
-      "operator": "SITEUR",
-      "official_website": null,
-      "official_map": "https://es.wikipedia.org/wiki/Línea_Verde_(Tren_Metropolitano_de_Cochabamba)",
-      "wikidata": "Q114313190",
-      "line_count": 7,
-      "segment_count": 9,
-      "station_count": 86,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/americas/mexico/am-mex-guadalajara.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "1 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "18 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 18 站（wiki List 記 28，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "18/18 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "18 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "18/18 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "1 條線無 wiki 站數對照：Mi Tren Línea 3",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "1 條線無 wiki 站數對照：Mi Tren Línea 3"
-        ],
-        "audited_at": "2026-07-11T15:22:16.772Z"
-      }
-    },
-    {
       "file": "systems/europe/netherlands/eu-ned-amsterdam.geojson",
       "continent": "europe",
       "country": "Netherlands",
@@ -9577,6 +9476,23 @@
       }
     },
     {
+      "file": "systems/americas/bolivia/am-bol-cochabamba.geojson",
+      "continent": "south-america",
+      "country": "Bolivia",
+      "city": "Cochabamba",
+      "osm_networks": [
+        "Mi Tren"
+      ],
+      "operator": "Operadora del Tren Metropolitano de Cochabamba - Mi Tren",
+      "official_website": null,
+      "official_map": "https://es.wikipedia.org/wiki/Línea_Verde_(Tren_Metropolitano_de_Cochabamba)",
+      "wikidata": "Q114313190",
+      "line_count": 3,
+      "segment_count": 5,
+      "station_count": 32,
+      "audit": null
+    },
+    {
       "file": "systems/asia/china/as-chn-wenzhou.geojson",
       "continent": "asia",
       "country": "China",
@@ -11296,6 +11212,107 @@
           "1 條線少於 wiki 全線總數（可能含未通車段，待人工確認）：1号线：会展中心 -> 芳泉 19/40"
         ],
         "audited_at": "2026-07-11T15:22:16.645Z"
+      }
+    },
+    {
+      "file": "systems/americas/mexico/am-mex-guadalajara.geojson",
+      "continent": "north-america",
+      "country": "Mexico",
+      "city": "Guadalajara",
+      "osm_networks": [
+        "Línea 4 del Tren Eléctrico Urbano de Guadalajara",
+        "Mi Tren",
+        "SITEUR"
+      ],
+      "operator": "SITEUR",
+      "official_website": null,
+      "official_map": "https://es.wikipedia.org/wiki/Línea_1_del_Tren_Eléctrico_Urbano_de_Guadalajara",
+      "wikidata": "Q5985920",
+      "line_count": 4,
+      "segment_count": 4,
+      "station_count": 54,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/americas/mexico/am-mex-guadalajara.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "18 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 18 站（wiki List 記 28，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "18/18 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "18 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "18/18 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "1 條線無 wiki 站數對照：Mi Tren Línea 3",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "1 條線無 wiki 站數對照：Mi Tren Línea 3"
+        ],
+        "audited_at": "2026-07-11T15:22:16.772Z"
       }
     },
     {
