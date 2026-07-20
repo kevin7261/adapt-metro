@@ -1646,7 +1646,9 @@ function startResize(e) {
 }
 .obj-merged-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .obj-merged-local { margin-left: 5px; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
-.obj-merged-line { margin-left: auto; color: #fff; flex-shrink: 0; }
+/* ref 徽章跟 hover 一樣：白字、緊接在站名後面（不靠右）。用 .obj-merged-row 前綴提高
+   特異度蓋過後定義的 .line-ref（muted 字色），否則字色會退成 muted（使用者回報）。 */
+.obj-merged-row .obj-merged-line { color: #fff; flex-shrink: 0; }
 .obj-merged-row .obj-merged-line + .obj-merged-line { margin-left: 4px; }
 .obj-station-list {
   margin: 0 0 10px; padding-left: 26px; font-size: var(--sp-body); line-height: 1.7;
