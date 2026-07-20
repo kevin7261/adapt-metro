@@ -2076,6 +2076,7 @@ watch(() => panelLayer.value?.id, () => {
 })
 function recalcSpan() {
   appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
+  calcMs.value = {}
   // 跨距上限只約束爬山（setSpanCap → buildHillClimb），所以它與其後處理必須一併作廢，
   // 否則 render() 的 `if (!cachedHC)` 會沿用舊上限的佈局，下游重算也只是換湯不換藥。
   cachedHC = null
@@ -2101,6 +2102,7 @@ function applyRiverGrayAndInvalidate(v) {
   appliedRiverGraySinuosity.value = th
   if (!cacheData) { render(); return }
   cachedSkeleton = buildConnectSkeleton(cacheData, { riverGraySinuosity: th })
+  calcMs.value = {}
   cachedHC = null
   cachedPost = {}
   cachedLayout = {}

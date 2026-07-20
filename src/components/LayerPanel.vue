@@ -9,6 +9,7 @@ import { openLayerDoc } from '../stores/layerDocHandle'
 import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
 import { PAPER_ZH } from '../stores/paperAlign'
+import { clearHcCache, dataFingerprint } from '../lib/hcCache'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -244,12 +245,17 @@ function removeCityLayers(item) {
   store.toast(`已刪除「${item.group.label}」的 ${all.length} 個圖層`)
 }
 
-// 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON，再重開——tab
-// 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust / Straighten / RWD 會整條鏈
-// 重新計算。
+// 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 localStorage 的
+// 佈局快取**，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust /
+// Straighten / RWD 會整條鏈重新計算（初步直線化②與 ①〜⑧ 的比較佈局平常算過就
+// 一直沿用，只有這顆按鈕會讓它們重算）。
 async function recomputeCity(item) {
   const all = layersOf(item)
   if (!all.length) return
+  for (const l of all) { // 先用來源 GeoJSON 的指紋清掉該城市的持久佈局快取
+    const data = layerData[l.id]
+    if (data?.features) clearHcCache(dataFingerprint(data))
+  }
   for (const l of all) {
     dockHandle.api?.getPanel(l.id)?.api.close()
     delete layerData[l.id]
