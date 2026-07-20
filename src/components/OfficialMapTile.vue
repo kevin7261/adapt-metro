@@ -31,7 +31,10 @@ async function load() {
     const rec = index[key] || index[mapsKeyBase(key)] || null
     if (!rec || !rec.map_file) { state.value = 'nomap'; return }
     meta.value = rec
-    src.value = assetUrl(`data/metro/${rec.map_file}`)
+    // 帶版本號破除瀏覽器快取——覆蓋同路徑圖檔後 URL 不變會顯示舊圖，用 maps_index
+    // 的 _rev（每次重建圖庫遞增）當 query 讓瀏覽器重抓。
+    const rev = index._rev ? `?v=${index._rev}` : ''
+    src.value = assetUrl(`data/metro/${rec.map_file}${rev}`)
     state.value = 'done'
   } catch {
     state.value = 'error'

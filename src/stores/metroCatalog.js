@@ -61,7 +61,7 @@ export function loadSitesIndex() {
 let mapsIndexPromise = null
 
 export function loadMapsIndex() {
-  mapsIndexPromise ??= fetch(assetUrl('data/metro/maps/maps_index.json'))
+  mapsIndexPromise ??= fetch(assetUrl('data/metro/maps/maps_index.json'), { cache: 'no-cache' })
     .then((r) => {
       if (!r.ok) throw new Error(`maps_index.json ${r.status}`)
       return r.json()

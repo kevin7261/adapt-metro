@@ -8,6 +8,7 @@ import { openLayerTab } from '../stores/dockHandle'
 import { layerData } from '../stores/layerData'
 import { openSkillDoc } from '../stores/skillHandle'
 import { assetUrl } from '../lib/assetUrl'
+import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -341,37 +342,10 @@ function addRwdView(src, compact = 'rect') {
   store.toast(`已建立 RWD Maps 視圖（來源：${src.name} ${vLabel}）`)
 }
 
-/* Quick Selection — 常用城市 */
-const QUICK_CITIES = [
-  // 原城市順序不變；同城市的變體（＋山手／＋環狀／＋地標）緊接 base 放一起。
-  { zh: '台北', en: 'Taipei' }, { zh: '台北＋地標', en: 'Taipei + Landmark' },
-  { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
-  { zh: '東京', en: 'Tokyo' }, { zh: '東京＋山手', en: 'Tokyo + Yamanote' }, { zh: '東京＋地標', en: 'Tokyo + Landmark' },
-  { zh: '大阪', en: 'Osaka' }, { zh: '大阪＋環狀', en: 'Osaka + Loop' },
-  { zh: '首爾', en: 'Seoul' }, { zh: '首爾＋地標', en: 'Seoul + Landmark' },
-  { zh: '北京', en: 'Beijing' },
-  { zh: '上海', en: 'Shanghai' }, { zh: '上海＋地標', en: 'Shanghai + Landmark' },
-  { zh: '香港', en: 'Hong Kong' }, { zh: '新加坡', en: 'Singapore' },
-  { zh: '倫敦', en: 'London' }, { zh: '倫敦＋地標', en: 'London + Landmark' },
-  { zh: '巴黎', en: 'Paris' }, { zh: '巴黎＋地標', en: 'Paris + Landmark' },
-  { zh: '柏林', en: 'Berlin' }, { zh: '柏林＋地標', en: 'Berlin + Landmark' },
-  { zh: '慕尼黑', en: 'Munich' },
-  { zh: '莫斯科', en: 'Moscow' },
-  { zh: '維也納', en: 'Vienna' }, { zh: '維也納＋地標', en: 'Vienna + Landmark' },
-  { zh: '紐約', en: 'New York' }, { zh: '紐約＋地標', en: 'New York City + Landmark' },
-  { zh: '波士頓', en: 'Boston' },
-  { zh: '雪梨', en: 'Sydney' }, { zh: '墨西哥城', en: 'Mexico City' },
-  { zh: '舊金山', en: 'San Francisco' },
-]
+/* Quick Selection — 常用城市（清單見 lib/quickCities，與視圖畫廊共用同一份） */
 const quickCities = computed(() => {
   if (!catalog.value) return []
-  return QUICK_CITIES.map((q) => ({
-    ...q,
-    // 精確比對優先，其次前綴容錯（index 的 "New York City" vs 顯示名 "New York"）
-    sys: catalog.value.find((s) => s.city === q.en)
-      ?? catalog.value.find((s) => (s.city || '').toLowerCase().startsWith(q.en.toLowerCase()))
-      ?? null,
-  }))
+  return QUICK_CITIES.map((q) => ({ ...q, sys: matchQuickSystem(catalog.value, q.en) }))
 })
 // 快選依洲別分組（洲別依中文名排序，各洲內維持原順序）。
 const quickByContinent = computed(() => groupQuickByContinent(quickCities.value))

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
 
 // 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）的共用外殼：
 // 三個子分頁（快速選擇 / 依車站數排序 / 全球地鐵地圖）、多到少/少到多 segmented
@@ -28,18 +29,11 @@ const TABS = [
 const tab = ref('stations')
 const stationSort = ref('desc')
 
-// Same short list as the modal's Quick Selection.
-const QUICK = ['Taipei', 'Taichung', 'Kaohsiung', 'Tokyo', 'Osaka', 'Seoul',
-  'Beijing', 'Shanghai', 'Hong Kong', 'Singapore', 'London', 'Paris',
-  'Berlin', 'Moscow', 'Vienna', 'New York', 'San Francisco']
-
 const tiles = computed(() => {
   const all = catalog.value ?? []
   if (tab.value === 'quick') {
-    return QUICK
-      .map((c) => all.find((s) => s.city === c)
-        ?? all.find((s) => (s.city || '').toLowerCase().startsWith(c.toLowerCase())))
-      .filter(Boolean)
+    // 與加入 modal 的「快速選擇」共用同一份清單（含＋地標／＋山手／＋環狀變體）。
+    return QUICK_CITIES.map((q) => matchQuickSystem(all, q.en)).filter(Boolean)
   }
   if (tab.value === 'stations') {
     const dir = stationSort.value === 'asc' ? 1 : -1
