@@ -422,9 +422,9 @@
   <!-- 1: TITLE -->
   <section class="slide titleslide active" data-title="系統介紹">
     <div class="kicker"><span class="bullet"></span> Adapt-Metro · SYSTEM INTRODUCTION</div>
-    <h1 class="title">從地鐵路網到<br/>響應式八向示意圖</h1>
+    <h1 class="title">從地鐵路網到<br/>響應式示意圖</h1>
     <p class="subtitle">一個純前端、零求解器依賴的四階段管線 —— <strong>Metro Maps → Map Adjust → Straighten → RWD Maps</strong>。
-      234 座城市的真實路網、多準則爬山最佳化＋<strong>三步鏈循環壓縮</strong>（端點移動→直線縮減→網格合併）、嚴格 H/V/45° 折線，全部在瀏覽器裡完成，隨版面即時重排，而且<strong>每一個單一移動都能逐步重播</strong>。這份投影片逐一拆解每個階段實際在做的事。</p>
+      234 座城市的真實路網、多準則爬山最佳化＋<strong>三步鏈循環壓縮</strong>（端點移動→直線縮減→網格合併）、嚴格方向約束折線（<strong>4／8／16 方向</strong>可選，預設 H/V/45° 八向），全部在瀏覽器裡完成，隨版面即時重排，而且<strong>每一個單一移動都能逐步重播</strong>。這份投影片逐一拆解每個階段實際在做的事。</p>
     <div class="grid cols-2" style="max-width:820px;">
       <div class="card blue">
         <div class="label">INPUT</div>
@@ -433,8 +433,8 @@
       </div>
       <div class="card amber">
         <div class="label">OUTPUT</div>
-        <h3>響應式八向示意圖</h3>
-        <p>只用水平／垂直／45° 三種方向的折線，版面一變就在新像素座標重新求解，絕不交叉。</p>
+        <h3>響應式示意圖</h3>
+        <p>只用嚴格方向約束的折線（預設 H/V/45°，可選 4 或 16 方向），版面一變就在新像素座標重新求解，絕不交叉。</p>
       </div>
     </div>
   </section>
@@ -448,9 +448,9 @@
       <div class="card blue"><div class="label">STAGE 1 · METRO MAPS</div><h3>真實路網</h3><p>匯入城市地鐵/輕軌 GeoJSON，原始地理座標與官方顏色。</p></div>
       <div class="card purple"><div class="label">STAGE 2 · MAP ADJUST</div><h3>骨架與格網</h3><p>拓撲收縮成骨架，再吸附到整數格路網。</p></div>
       <div class="card rose"><div class="label">STAGE 3 · STRAIGHTEN</div><h3>爬山＋三步鏈循環</h3><p>多準則爬山、H/V 最大化四法，再以「端點移動→直線縮減→網格合併」循環把網格壓到最小。</p></div>
-      <div class="card amber"><div class="label">STAGE 4 · RWD MAPS</div><h3>版面畫線</h3><p>H/V/45° 折線繪製，依版面與流量權重即時重排。</p></div>
+      <div class="card amber"><div class="label">STAGE 4 · RWD MAPS</div><h3>版面畫線</h3><p>4／8／16 方向折線繪製（預設 H/V/45°），依版面、裝置模擬與流量權重即時重排。</p></div>
     </div>
-    <p class="subtitle" style="margin-top:18px;">純函式、確定性、無亂數——同一份輸入永遠得到同一份輸出，唯一的例外是選用性的 LLM 對齊／調整（離線預算、存檔、網頁只載入）。</p>
+    <p class="subtitle" style="margin-top:18px;">純函式、確定性、無亂數——同一份輸入永遠得到同一份輸出，唯一的例外是選用性的 LLM 對齊／互動／評價／比較（離線預算、存檔、網頁只載入）。</p>
   </section>
 
   <!-- 3: WHAT IS A SCHEMATIC MAP -->
@@ -810,7 +810,7 @@
       <div class="farrow">→</div>
       <div class="card green fstep"><div class="label">3 · apply</div><p>經硬規則套用，回報 H/V 有沒有進步、reverted、rejected 清單</p></div>
     </div>
-    <p class="subtitle" style="margin-top:14px;">重複 1–3 直到 H/V 不再有進步空間，<strong>上限 10 輪</strong>。網頁按鈕顯示「n 輪 · 模型名」；<strong>絕不手改</strong>結果檔——一律經 apply 驗證。</p>
+    <p class="subtitle" style="margin-top:14px;">重複 1–3 直到 H/V 不再有進步空間，<strong>上限 10 輪</strong>。網頁按鈕顯示「n 輪 · 模型名」；<strong>絕不手改</strong>結果檔——一律經 apply 驗證。分兩種結果：<strong>自動對齊</strong>（純最大化 H/V）與<strong>指定對齊</strong>（依使用者一句話，另存 <code class="mono">.prompt.json</code>），網頁各一個 tab。</p>
   </section>
 
   <!-- 22: movewise chain -->
@@ -820,7 +820,7 @@
     <p class="subtitle">四條鏈的結果再各走一條三步鏈：<strong>端點移動 → 直線縮減 → 網格合併</strong>。「縮減網格」不是獨立步驟——<strong>每一個單一移動完成後就把整排/整欄沒有彩色點的欄列移除</strong>（movewise），網格隨時緻密、尺寸逐移動縮小。</p>
     <div class="grid cols-4">
       <div class="card rose"><div class="label">共同守則 1</div><h3>一次只移一格</h3><p>三個演算法一致；遠距離的對齊與合併靠「移一格→壓縮→再移一格」逐步完成。</p></div>
-      <div class="card rose"><div class="label">共同守則 2</div><h3>跨距上限</h3><p>任何移動不得讓受影響段的兩個顏色點橫跨超過 n 格（Chebyshev；樣式面板手動輸入、預設 3、按「重新計算」套用）。舊長段只准縮短。</p></div>
+      <div class="card rose"><div class="label">共同守則 2</div><h3>跨距上限</h3><p>任何移動不得讓受影響段的兩個顏色點橫跨超過 n 格（Chebyshev；Straighten 工具列輸入、預設 3、改數字即重算——只約束爬山 movewise，RWD 畫線不用）。舊長段只准縮短。</p></div>
       <div class="card rose"><div class="label">共同守則 3</div><h3>拓撲鐵律</h3><p>所有移動走同一套硬規則：不壓點、不新增交叉、不產生路線重疊、象限與邊環繞序不變——怎麼壓，拓撲都不變。</p></div>
       <div class="card rose"><div class="label">共同守則 4</div><h3>單調收斂</h3><p>每種移動各守一個嚴格單調量（H/V 數、網格欄列數…），不用能量函數也保證終止。</p></div>
     </div>
@@ -860,7 +860,7 @@
       <tr><td>三步鏈循環（234 城全量）</td><td><strong>234/234 全數收斂</strong>，總計約 5 秒</td><td class="num">普遍 2–5 輪</td></tr>
       <tr><td>壓縮幅度（例）</td><td>台北 68×68 → 約 14×13；NYC 160×160 → 約 31×34</td><td class="num">拓撲逐段驗證不變</td></tr>
     </table>
-    <p class="subtitle" style="margin-top:14px;">每一步的合法性都由同一套整數格精確幾何硬規則把關；「顏色點間最大跨距」可在樣式面板調整（預設 3 格），按「重新計算」即以新上限全部重算。</p>
+    <p class="subtitle" style="margin-top:14px;">每一步的合法性都由同一套整數格精確幾何硬規則把關；「線段最大跨距」可在 Straighten 工具列調整（預設 3 格、只約束爬山 movewise），改數字即以新上限全部重算。</p>
   </section>
 
   <!-- 23: DIVIDER IV -->
@@ -868,8 +868,8 @@
     <div class="roman">IV</div>
     <div class="stagechip"><span class="sw" style="background:var(--amber);"></span>STAGE 4 · RWD MAPS</div>
     <h1 class="title">RWD Maps ——<br/>版面路網畫線</h1>
-    <p class="subtitle">把 Straighten「循環」的收斂結果重繪成嚴格 H/V/45° 折線；八方向約束以「畫面像素」為準，版面一變就在新像素座標重新求解，圖隨板面變形。</p>
-    <div class="pillrow"><span class="pill">同軌路線合併</span><span class="pill">候選折線</span><span class="pill">絕不交叉的五層消解</span><span class="pill">軟目標收尾</span><span class="pill">流量權重</span><span class="pill">LLM 調整</span></div>
+    <p class="subtitle">把 Straighten「循環」的收斂結果重繪成嚴格方向約束的折線（<strong>4／8／16 方向</strong>，預設 H/V/45°）；方向約束以「畫面像素」為準，版面一變（resize／裝置模擬／權重／魚眼）就在新像素座標重新求解，圖隨板面變形。</p>
+    <div class="pillrow"><span class="pill">同軌路線合併</span><span class="pill">候選折線</span><span class="pill">方向級與選擇序</span><span class="pill">絕不交叉的多層消解</span><span class="pill">軟目標收尾</span><span class="pill">版面模擬與魚眼</span><span class="pill">流量權重</span><span class="pill">LLM 互動・評價・比較</span></div>
   </section>
 
   <!-- 24: parallel route merging -->
@@ -887,52 +887,79 @@
   <!-- 25: candidate polylines -->
   <section class="slide" data-title="候選折線">
     <div class="eyebrow"><span class="tag"><b>26</b>候選折線與轉折優先序</span><span class="rule"></span><span class="eng">CANDIDATE ROUTING</span></div>
-    <h1 class="title">直線 &gt; 單折 &gt; 雙折，轉折數絕對優先</h1>
-    <p class="subtitle">每段依轉折數由少到多產生候選折線，所有選擇點都取「第一個零衝突候選」。方向判準：Δy≈0→H、Δx≈0→V、|Δx|≈|Δy|→45°。</p>
+    <h1 class="title">直線 &gt; 單折 &gt; 雙折 &gt; 多折，轉折數絕對優先</h1>
+    <p class="subtitle">每段依轉折數由少到多產生候選折線：直線、單折（45° 或 L）、雙折兩家族（45–H–45／H–45–H，分點 1/2·1/4·3/4）、三折混合（axis–45–axis–45）、45° 與軸腿任意次交替的階梯（折數硬頂 ≤20）。方向判準以像素為準：Δy≈0→H、Δx≈0→V、|Δx|≈|Δy|→45°。</p>
     <div class="bendrow">
-      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,30 H90" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round"/><circle cx="10" cy="30" r="4" fill="#0f172a"/><circle cx="90" cy="30" r="4" fill="#0f172a"/></svg><div class="t">直線</div><div class="d">0 轉折</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,30 H90" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round"/><circle cx="10" cy="30" r="4" fill="#0f172a"/><circle cx="90" cy="30" r="4" fill="#0f172a"/></svg><div class="t">直線</div><div class="d">0 轉折・規則 0 鐵律：可直線且零衝突就鎖定</div></div>
       <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,15 H55 L90,50" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="4" fill="#0f172a"/><circle cx="90" cy="50" r="4" fill="#0f172a"/></svg><div class="t">單轉折</div><div class="d">L 形或 45°收尾</div></div>
-      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,15 L35,40 H65 L90,15" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="4" fill="#0f172a"/><circle cx="90" cy="15" r="4" fill="#0f172a"/></svg><div class="t">雙轉折</div><div class="d">45–H–45 或 45–V–45</div></div>
-      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,10 L90,50" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="5 4"/><circle cx="10" cy="10" r="4" fill="#0f172a"/><circle cx="90" cy="50" r="4" fill="#0f172a"/></svg><div class="t">兜底</div><div class="d">全衝突才用非法角度</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,15 L35,40 H65 L90,15" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="4" fill="#0f172a"/><circle cx="90" cy="15" r="4" fill="#0f172a"/></svg><div class="t">雙轉折</div><div class="d">45–H–45／H–45–H 兩家族</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,50 L30,30 H50 L70,10 H90" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="50" r="4" fill="#0f172a"/><circle cx="90" cy="10" r="4" fill="#0f172a"/></svg><div class="t">交替階梯</div><div class="d">45° 與軸腿任意次交替</div></div>
+      <div class="bendcard"><svg viewBox="0 0 100 60"><path d="M10,10 L90,50" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="5 4"/><circle cx="10" cy="10" r="4" fill="#0f172a"/><circle cx="90" cy="50" r="4" fill="#0f172a"/></svg><div class="t">兜底</div><div class="d">全衝突才用非法角度（實測全城 0）</div></div>
     </div>
-    <p class="subtitle" style="margin-top:16px;"><strong>45°轉45° 禁止：</strong>折線不得有兩條相鄰腿皆為斜線（不同族），因此 H/V 線沒有合法單折繞行（唯一單折是被禁的 45-45 三角），只剩雙折平行偏移。</p>
-    <div class="grid cols-3" style="margin-top:14px;">
-      <div class="card amber"><div class="label">線方向數 4</div><p>只用 H/V；45° 一律改走純直角 L 形。工具列三選一，嚴格方向級優先——能用低一級就不用高一級。</p></div>
-      <div class="card amber"><div class="label">線方向數 8（預設）</div><p>現狀＋45°，即本節所述的候選折線規則。</p></div>
-      <div class="card amber"><div class="label">線方向數 16</div><p>再加 22.5°/67.5° 族，排在所有 45° 候選之後，只在窮盡 45° 級的所有畫法仍衝突時才用。</p></div>
+    <div class="grid cols-2" style="margin-top:14px;">
+      <div class="card amber"><div class="label">45° 轉 45° 禁止</div><p>折線不得有兩條相鄰腿皆為斜線——斜腿一律被軸向直線隔開；H/V 線因此沒有合法單折繞行（唯一單折是被禁的 45-45 三角），只剩單折大繞行與雙折平行偏移。</p></div>
+      <div class="card amber"><div class="label">直角樓梯禁止</div><p>對角走向的段要用 45° 斜線，不畫一階一階的 H-V-H 樓梯（vh-vh-vh）；A* 救援在非正方版面只能走直角、產生的樓梯由收尾 destairPass 換回 45° 折線。</p></div>
+    </div>
+  </section>
+
+  <!-- 25b: direction levels & selection order -->
+  <section class="slide" data-title="方向級與選擇序">
+    <div class="eyebrow"><span class="tag"><b>27</b>方向級與候選選擇序</span><span class="rule"></span><span class="eng">DIRECTION LEVELS &amp; PICKBEST</span></div>
+    <h1 class="title">4／8／16 方向：能用低一級就不用高一級</h1>
+    <p class="subtitle">工具列「方向」下拉三選一（預設 8），三個方向級<strong>同一套判斷邏輯</strong>。方向級優先是 tie-break 不是硬閘：衝突數（含近距貼線）排在方向級之前——零衝突的 22.5° 贏過有重疊或貼線的 45°；兩者都乾淨時 45° 一定優先。</p>
+    <div class="grid cols-3">
+      <div class="card amber"><div class="label">4 方向（只 H/V）</div><p>不產任何 45° 候選；對角段用同一組候選骨架、每條 45° 腿展開成 H/V，另直接生成真 Z 字（V–H–V／H–V–H，分點 50/25/75）；A* 純直角步進。實測全城 45°＝0。</p></div>
+      <div class="card amber"><div class="label">8 方向（預設）</div><p>＋45°。本節所述的完整候選折線規則。</p></div>
+      <div class="card amber"><div class="label">16 方向（＋22.5°/67.5°）</div><p>加 22.5° 族候選：單折、雙折（斜–軸–斜／軸–斜–軸）、45＋22.5 混合家族（同一條路可以 45 與 22.5 組合）；斜腿仍一律被軸向腿隔開。收尾 deskewPass 把走廊空出後的 22.5 段升回 45 級——折數可增（方向級優先於折數）。</p></div>
+    </div>
+    <div class="card blue" style="margin-top:14px;">
+      <div class="label">候選選擇序（pickBest，八鍵字典序）</div>
+      <p>① 衝突數最少 → ② 近距貼線最短（視覺上的貼線也是「重疊」）→ ③ 45 優於 22.5° → ④ 折數最少 → ⑤ 硬共線重疊最短 → ⑥ 分點 50%→25%→75% → ⑦ 軟共線最短 → ⑧ 路徑總長最短（線越短越好，最弱一階）。</p>
     </div>
   </section>
 
   <!-- 26: conflict escalation -->
   <section class="slide" data-title="絕不交叉">
-    <div class="eyebrow"><span class="tag"><b>27</b>絕不交叉的五層消解</span><span class="rule"></span><span class="eng">CONFLICT ESCALATION</span></div>
-    <h1 class="title">候選都衝突時，依序升級五個層級</h1>
-    <p class="subtitle">「路線交叉絕不允許」是最高優先硬規則；衝突判定含共線重疊/平行貼線、線段相交（端點對端點除外）、壓過節點三種。</p>
+    <div class="eyebrow"><span class="tag"><b>28</b>絕不交叉的多層消解</span><span class="rule"></span><span class="eng">CONFLICT ESCALATION</span></div>
+    <h1 class="title">候選都衝突時，依序升級七個層級</h1>
+    <p class="subtitle">「路線交叉絕不允許」是最高優先硬規則。衝突判定：共線重疊/平行貼線（累積 ≤25% 弧長硬上限）、線段相交（端點對端點除外，<strong>同一對線最多交叉一次</strong>）、壓過節點直接淘汰、<strong>節點環狀順序不可變</strong>（rotation system——同節點任兩條線不得互換位置）。</p>
     <div class="stack" style="margin-top:8px;">
-      <div class="row"><span class="num-badge">1</span><div class="rowtext"><h4>衝突消減重掃</h4><p>全部繞線完後重訪每條仍有衝突的線，以完整資訊重選最少衝突候選，至多 4 輪。</p></div></div>
-      <div class="row"><span class="num-badge">2</span><div class="rowtext"><h4>A* 格點佈線</h4><p>半格 lattice 上找只穿過自由空間的路徑；正方虛擬格時斜向步進也合法（8 方向）。</p></div></div>
+      <div class="row"><span class="num-badge">1</span><div class="rowtext"><h4>衝突消減重掃 ＋ 成對線聯合重算</h4><p>重訪每條仍有衝突的線重選候選（至多 4 輪）；仍彼此交錯的一對直接偵測真交叉入場，兩條同時拆掉、聯合搜 bounded-bend 候選組合（方向級優先於總折數），深輪再升級成對 rip——「這對線到底有沒有不交叉畫法」的實質驗證，鎖定直線也解鎖讓路。</p></div></div>
+      <div class="row"><span class="num-badge">2</span><div class="rowtext"><h4>A* 格點佈線（大環繞禁止）</h4><p>半格 lattice 上找只穿過自由空間的路徑；限制在 S–T 走廊窗內、路徑成本設上限——寧可留下局部殘留衝突，也不畫繞整張圖的環繞線。正方格時斜步合法（8 方向）。</p></div></div>
       <div class="row"><span class="num-badge">3</span><div class="rowtext"><h4>Rip-up &amp; Reroute</h4><p>PCB 佈線手法：被封死（Jordan 曲線圍死）時，拆掉最常撞到的牆線，先畫被關的段、再讓牆線改繞。</p></div></div>
       <div class="row"><span class="num-badge">4</span><div class="rowtext"><h4>Restart-with-priority</h4><p>仍失敗的段下一輪全圖重排時最先繞線（牆還沒築起來），原牆線改繞它們；至多 6 輪。</p></div></div>
-      <div class="row"><span class="num-badge">5</span><div class="rowtext"><h4>窄縫救援</h4><p>最後仍無路的段以 60% 貼線距離再 A* 一次，交叉依然絕禁。</p></div></div>
+      <div class="row"><span class="num-badge">5</span><div class="rowtext"><h4>窄縫救援 → 共線救援 → forced</h4><p>以 60% 貼線距離再 A* 一次；再不行放寬「共線/貼線」約束（交叉與壓點依然絕禁）——共線是可接受的次佳解。全部失敗才標 forced（琥珀殘留衝突＝深度 Jordan 封閉的極限案例）。</p></div></div>
     </div>
-    <p class="subtitle" style="margin-top:12px;"><strong>實測：</strong>台北／倫敦／北京 0 殘留衝突；全 234 城 0 孤立站、0 非法角度兜底；紐約曼哈頓密網 5/451 段列為已知極限。</p>
+    <p class="subtitle" style="margin-top:12px;"><strong>實測全 234 城：</strong>0 孤立站、0 非法角度兜底；成對聯合重算上線後殘留交叉對 139→112、forced 208→132（多為紐約/東京 JR/巴黎等密網角落）。</p>
   </section>
 
   <!-- 27: soft goals -->
   <section class="slide" data-title="軟目標收尾">
-    <div class="eyebrow"><span class="tag"><b>28</b>軟目標與收尾迭代</span><span class="rule"></span><span class="eng">SOFT GOALS</span></div>
+    <div class="eyebrow"><span class="tag"><b>29</b>軟目標與收尾迭代</span><span class="rule"></span><span class="eng">SOFT GOALS &amp; FINISHING PASSES</span></div>
     <h1 class="title">同名路線盡量不轉折，L 形能改 45° 就改</h1>
-    <p class="subtitle">衝突消解後的微調，排在折數絕對優先序之後——不會為此增加任何段的折數。</p>
+    <p class="subtitle">衝突消解後的微調，排在折數絕對優先序之後——不會為此增加共線或交叉。收尾迭代跑兩輪：〔A* 樓梯轉 45（destairPass）→ 22.5 升回 45（deskewPass）→ 壓短共線（移分點）→ 順接軟調整 → 降折到定點 → L→45（最後）〕，每步挪動走廊後回頭重撿。</p>
     <div class="grid cols-2">
       <div class="card amber"><div class="label">順接軟調整</div><h3>續接角評分</h3><p>同轉折數的候選間互換，分數＝與共站同路線折線的續接角——直線續接(180°) 最佳，依序 135°、90°、45°。</p></div>
-      <div class="card amber"><div class="label">L→45（最後一步）</div><h3>能改就必須改</h3><p>純水平接垂直的單折 L 形，若改成「45°＋直線」不與任何線重疊，就必須改——排在收尾迭代的最末，結果不再被其他 pass 改動。</p></div>
+      <div class="card amber"><div class="label">降折到定點＋協商式拉直</div><h3>能少折就少折，能直線就直線</h3><p>降折不得讓軟共線變長；更直的畫法只被 1–2 條線擋住時，拆掉那些線、採用直畫法、擋路線改繞，全部乾淨才提交。變成直線時不設折數預算——已經彎的鄰線要多彎幾折都得讓。</p></div>
+      <div class="card amber"><div class="label">destairPass ＋ deskewPass</div><h3>樓梯換 45、22.5 升回 45</h3><p>A* 救援在非正方版面產生的直角樓梯子段用同一套候選重畫成 45° 折線；16 方向下衝突消解後走廊空出的 22.5 段升回乾淨的 45 級（折數可增，方向級優先於折數）。</p></div>
+      <div class="card amber"><div class="label">L→45（最後一步）</div><h3>能改就必須改</h3><p>純水平接垂直的單折 L 形，若改成「45°＋直線」不與任何線重疊就必須改——優先選同路線鄰段同方向 45° 的那端，結果不再被其他 pass 改動。</p></div>
     </div>
-    <p class="subtitle" style="margin-top:14px;">收尾迭代跑兩輪：〔順接軟調整 → 降折到定點 → L→45（最後）〕，每步挪動走廊後回頭重撿。</p>
+  </section>
+
+  <!-- 27b: frames & fisheye -->
+  <section class="slide" data-title="版面模擬與魚眼">
+    <div class="eyebrow"><span class="tag"><b>30</b>版面模擬與魚眼放大鏡</span><span class="rule"></span><span class="eng">DEVICE FRAMES &amp; FISHEYE</span></div>
+    <h1 class="title">同一份佈局，任何版面都重新求解</h1>
+    <p class="subtitle">方向約束以「畫面像素」為準——欄寬 ≠ 列高是常態，格座標的對角線在畫面上不是 45°，所以折線永遠在<strong>當下畫布的像素空間</strong>重建；視窗或版面一變就重跑整個佈線器（同尺寸 render 用快取）。</p>
+    <div class="grid cols-2">
+      <div class="card amber"><div class="label">版面模擬（工具列「版面」下拉）</div><h3>類 Illustrator artboard 的裝置預設</h3><p>目前面板／網頁橫直（1920×1080…）／手機直橫（iPhone/Android/iPad）／IG（貼文正方、限時動態、直式、橫式）——以固定寬高當畫線座標系、SVG letterbox 置中，用來模擬 RWD 在各裝置的實際輸出。</p></div>
+      <div class="card amber"><div class="label">滑鼠放大鏡（魚眼變形）</div><h3>游標處放大網格，每幀重繞線</h3><p>游標所在細格為焦點，附近欄／列撐開、遠處壓扁（外框固定）；每幀在變形後的像素空間以 fast 模式重繞線（同權重動畫），停穩才 settle 到完整品質。footer 顯示游標座標與欄列。</p></div>
+    </div>
   </section>
 
   <!-- 28: traffic weight -->
   <section class="slide" data-title="流量權重">
-    <div class="eyebrow"><span class="tag"><b>29</b>流量權重與響應式概括化</span><span class="rule"></span><span class="eng">WEIGHT-DRIVEN GENERALIZATION</span></div>
+    <div class="eyebrow"><span class="tag"><b>31</b>流量權重與響應式概括化</span><span class="rule"></span><span class="eng">WEIGHT-DRIVEN GENERALIZATION</span></div>
     <h1 class="title">依流量放大主幹、隱藏次要站</h1>
     <p class="subtitle">版面簡化不改拓撲——只把權重轉成非均勻的欄寬列高，在新像素座標重跑 RWD 繪線。weight 粒度＝相鄰兩站的 link，不是段的兩端點。</p>
     <div class="grid cols-2">
@@ -943,14 +970,25 @@
   </section>
 
   <!-- 29: LLM grid -->
-  <section class="slide" data-title="LLM 調整">
-    <div class="eyebrow"><span class="tag"><b>30</b>LLM 調整工作流程</span><span class="rule"></span><span class="eng">NATURAL-LANGUAGE GRID WEIGHTS</span></div>
+  <section class="slide" data-title="LLM 互動">
+    <div class="eyebrow"><span class="tag"><b>32</b>LLM 互動工作流程</span><span class="rule"></span><span class="eng">NATURAL-LANGUAGE GRID WEIGHTS</span></div>
     <h1 class="title">一句話，讓 AI 推理每欄每列的顯示權重</h1>
-    <p class="subtitle">第二種「權重＝大小」來源：使用者說「把市中心那幾欄拉開」，語言模型逐欄／逐列推理顯示權重——不搬任何站的整數格座標，只改顯示比例，不做任何幾何求解。</p>
+    <p class="subtitle">第二種「權重＝大小」來源：使用者說「把市中心那幾欄拉開」，語言模型逐欄／逐列推理顯示權重——不搬任何站的整數格座標，只改顯示比例，不做任何幾何求解。跑完不自動套用，按「執行調整」才在新像素座標重畫。</p>
     <div class="codebox">{ <span class="k">"model"</span>: <span class="s">"Fable 5"</span>, <span class="k">"colW"</span>: [1, 1, 4.5, 3, 1, 0.8], <span class="k">"rowW"</span>: [0.9, 1, 3.8, 1.2],
   <span class="k">"note"</span>: <span class="s">"市中心兩欄放大 4.5x／3x，緊鄰一欄緩衝"</span>,
   <span class="k">"userPrompt"</span>: <span class="s">"把市中心那幾欄拉開"</span> }</div>
     <p class="subtitle" style="margin-top:14px;"><strong>規則：</strong>必須給全部區間權重、只能回區間 weight（不可回單點座標）；核心目標區間縮放要明顯（3–5 倍，至少一組 ≥3）；漸近而非單格尖峰——核心最大、緊鄰緩衝、外層回到 1。系統負責正規化外框與重畫，模型只決定意圖與強度。</p>
+  </section>
+
+  <!-- 29b: LLM eval & compare -->
+  <section class="slide" data-title="LLM 評價與比較">
+    <div class="eyebrow"><span class="tag"><b>33</b>LLM 評價與 LLM 比較</span><span class="rule"></span><span class="eng">LLM AS CRITIC &amp; JUDGE</span></div>
+    <h1 class="title">AI 評路網佈局，並在八個結果中選最佳</h1>
+    <p class="subtitle">兩個唯讀取向的 LLM 功能，與 LLM 對齊／互動同一套「離線預算、存檔、網頁載入」架構——瀏覽器端沒有 API key、不做即時推論。</p>
+    <div class="grid cols-2">
+      <div class="card green"><div class="label">LLM 評價（route-llm-eval）</div><h3>讀幾何寫評語＋轉成具體 moves</h3><p>模型讀縮減網格佈局的幾何脈絡（逐線段方向統計、彎折數、頂點鏈），寫評價（哪些線可以更直/更方正/彎太多）並把建議轉成 moves——<strong>最優先消除銳角</strong>（夾角&lt;90° 的尖折改成 90° 直角或 180° 直通）。moves 經硬規則 apply 存檔；「執行調整」只切換套用⇄恢復比較前後，不再跑 LLM。</p></div>
+      <div class="card green"><div class="label">LLM 比較（route-llm-compare）</div><h3>八結果評審，選全體／原始／旋轉最佳</h3><p>一次比較原始與旋轉變體的直角爬山、軸對齊、整數規劃與可用的 LLM 對齊（最多 8 個），依方正/直線比例、轉折數、平衡、硬失敗（forced/fallback）評分，選出 winner、winnerOrig、winnerRot 並逐一列優缺點。純評審——不動任何座標。</p></div>
+    </div>
   </section>
 
   <!-- 30: system at a glance -->
@@ -967,7 +1005,7 @@
 
   <!-- parallel: correspondence -->
   <section class="slide" data-title="三管線一一對應">
-    <div class="eyebrow"><span class="tag"><b>31</b>三管線一一對應</span><span class="rule"></span><span class="eng">ONE-TO-ONE CORRESPONDENCE</span></div>
+    <div class="eyebrow"><span class="tag"><b>34</b>三管線一一對應</span><span class="rule"></span><span class="eng">ONE-TO-ONE CORRESPONDENCE</span></div>
     <h1 class="title">系統單位不同，schema 相同</h1>
     <p class="subtitle">三條管線輸出同一份 GeoJSON 規格（<code class="mono">seg_id</code>／<code class="mono">routes[]</code>／<code class="mono">stations[]</code>／<code class="mono">lines</code>…），系統中繼放各自的 <code class="mono">*_system</code> 並鏡射一份 <code class="mono">metro_system{kind}</code>，讓前端一律當 metro 圖層渲染。每條管線都有成對的取得／驗證 skill，互為 fetch⇄audit 迴圈。</p>
     <table class="tbl">
@@ -982,7 +1020,7 @@
 
   <!-- parallel: railway -->
   <section class="slide" data-title="Railway 國家鐵路">
-    <div class="eyebrow"><span class="tag"><b>32</b>Railway · 國家鐵路</span><span class="rule"></span><span class="eng">NATIONAL RAILWAYS</span></div>
+    <div class="eyebrow"><span class="tag"><b>35</b>Railway · 國家鐵路</span><span class="rule"></span><span class="eng">NATIONAL RAILWAYS</span></div>
     <h1 class="title">一國拆高鐵/一般，日本再拆 JR 六社</h1>
     <p class="subtitle">收 <code class="mono">railway=rail</code> 幹線＋高鐵（新幹線／TGV／高鐵／KTX），不含地鐵/輕軌/路面電車；私鐵預設收、用 <code class="mono">_overrides</code> 兩層過濾逐國排除。</p>
     <div class="grid cols-3">
@@ -995,7 +1033,7 @@
 
   <!-- parallel: highway + landmark -->
   <section class="slide" data-title="Highway 與 Landmark">
-    <div class="eyebrow"><span class="tag"><b>33</b>Highway ＋ Landmark</span><span class="rule"></span><span class="eng">HIGHWAYS &amp; LANDMARKS</span></div>
+    <div class="eyebrow"><span class="tag"><b>36</b>Highway ＋ Landmark</span><span class="rule"></span><span class="eng">HIGHWAYS &amp; LANDMARKS</span></div>
     <h1 class="title">交流道＝站；河流＝骨架線</h1>
     <div class="grid cols-2">
       <div class="card amber"><div class="label">HIGHWAY · 高速公路</div><h3>封閉式道路網，交流道當車站</h3><p>收國道 motorway ＋封閉式快速公路，交流道 <code class="mono">motorway_junction</code> 串成網絡、依 ref 分組。驗證看交流道命名率／里程單調／無假長線／只收封閉式。目前台灣三都會區：台北 126／台中 83／高雄 52 交流道。國家專屬判準與路標配色見 <code class="mono">highway-cities</code>。</p></div>
@@ -1005,7 +1043,7 @@
   </section>
 
   <section class="slide" data-title="系統總覽">
-    <div class="eyebrow"><span class="tag"><b>34</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
+    <div class="eyebrow"><span class="tag"><b>37</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
     <h1 class="title">一個瀏覽器，跑完整條產線</h1>
     <div class="grid cols-4">
       <div class="card blue"><div class="big">234</div><p>城市路網資料集</p></div>
@@ -1015,13 +1053,13 @@
     </div>
     <div class="grid cols-2" style="margin-top:16px;">
       <div class="card"><div class="label">技術堆疊</div><h3>Vue 3 · Pinia · MapLibre · D3 v7</h3><p>地理底圖用 MapLibre，示意圖渲染用 D3；佈局最佳化與畫線全部在瀏覽器執行，部署於 GitHub Pages 靜態站台。</p></div>
-      <div class="card"><div class="label">介面</div><h3>多面板・圖層即產線</h3><p>每個「圖層分頁」對應產線一個階段，可逐步檢視與調整；LLM 對齊／調整為選用性離線步驟，其餘全零網路、零 token。</p></div>
+      <div class="card"><div class="label">介面</div><h3>多面板・圖層即產線</h3><p>每個「圖層分頁」對應產線一個階段，可逐步檢視與調整；LLM 對齊／互動／評價／比較為選用性離線步驟，其餘全零網路、零 token。</p></div>
     </div>
   </section>
 
   <!-- 35: literature & positioning -->
   <section class="slide" data-title="演算法文獻與定位">
-    <div class="eyebrow"><span class="tag"><b>35</b>演算法文獻與定位</span><span class="rule"></span><span class="eng">RELATED WORK</span></div>
+    <div class="eyebrow"><span class="tag"><b>38</b>演算法文獻與定位</span><span class="rule"></span><span class="eng">RELATED WORK</span></div>
     <h1 class="title">九篇核心文獻，逐篇對應系統章節</h1>
     <p class="subtitle"><code class="mono">data/thesis/</code> 收錄核心文獻 PDF 與逐篇中文演算法說明，每篇都標明對本系統哪個階段的思路貢獻或作為對照法。</p>
     <table class="tbl">
@@ -1041,7 +1079,7 @@
 
   <!-- 36: three-chain positioning -->
   <section class="slide" data-title="三步鏈的定位">
-    <div class="eyebrow"><span class="tag"><b>36</b>三步鏈的定位</span><span class="rule"></span><span class="eng">POSITIONING</span></div>
+    <div class="eyebrow"><span class="tag"><b>39</b>三步鏈的定位</span><span class="rule"></span><span class="eng">POSITIONING</span></div>
     <h1 class="title">犧牲最佳性，換取秒級速度與逐步可視化</h1>
     <p class="subtitle">固定拓撲下的正交示意化＋面積最小化是經典 <strong>NP-hard</strong> 問題——TSM 框架的 orthogonal compaction、VLSI 1-D compaction、Misue et al. 的 orthogonal ordering 保持都是零件級近親。</p>
     <div class="grid cols-2" style="margin-top:8px;">
@@ -1074,7 +1112,7 @@
     <div class="seek-tip" id="seekTip"></div>
   </div>
   <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
-  <span class="counter" id="counter">1 / 43</span>
+  <span class="counter" id="counter">1 / 46</span>
   <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
 </footer>
 
