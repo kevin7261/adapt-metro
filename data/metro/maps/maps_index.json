@@ -2131,12 +2131,11 @@
     "city": "Taichung",
     "country": "Taiwan",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/taiwan/as-twn-taichung.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.tmrt.com.tw/metro-life/map",
+    "license": "Official operator map (© TMRT; thesis use)",
+    "artist": null
   },
   "asia/pakistan/as-pak-lahore": {
     "city": "Lahore",
@@ -2342,5 +2341,5 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784578184640
+  "_rev": 1784579919396
 }

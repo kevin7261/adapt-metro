@@ -54,7 +54,10 @@ const rwdRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
 // 左側清單樹（＝圈層面板結構）：直接列的圖層 + 可收合子群組。
 const SIDE = [
   { t: 'layer', key: 'raw', label: 'Metro Maps', kind: 'raw', view: 'thumb', icon: 'train' },
-  { t: 'layer', key: 'adjust', label: 'Map Adjust', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
+  { t: 'group', id: 'adjust', label: 'Map Adjust', layers: [
+    { key: 'adjust-orig', label: '原始・格網化後', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
+    { key: 'adjust-rot', label: '旋轉・格網化後', kind: 'adjust', view: 'grid-rot-post', icon: 'polyline' },
+  ] },
   { t: 'group', id: 'straighten', label: 'Straighten', layers: [...stRows('orig', '原始'), ...stRows('rot', '旋轉')] },
   { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉')] },
 ]
@@ -84,7 +87,7 @@ function toggleGroup(node) {
   shown.value = s
 }
 // 子群組收合（清單內，本地狀態；預設展開）。
-const collapsed = reactive({ straighten: false, rwd: false })
+const collapsed = reactive({ adjust: false, straighten: false, rwd: false })
 
 // 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
 const sections = computed(() => {
@@ -227,12 +230,12 @@ function pick(kind, entry, viewId) {
   padding: 0 4px;
 }
 
-/* 卡片自動排列：視圖少的城市會同一排放多個，容器窄時卡片佔滿整寬——
-   auto-fill＋min(100%, …) 保證永遠不出現水平捲軸。 */
+/* 卡片自動排列：視圖少（窄）的城市同一排放多個、放不下就換行；卡片最寬 100%
+   （很寬的城市卡片在卡片內部水平捲，頁面本身不出現水平捲軸）。 */
 .tile-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
 }
 </style>

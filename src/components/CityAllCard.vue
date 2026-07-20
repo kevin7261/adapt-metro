@@ -38,7 +38,6 @@ const COLS = 1
         <span class="ah-en">{{ entry.city }} · {{ entry.country }}</span>
       </span>
       <span class="ah-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
-      <span class="ah-open">匯入 ›</span>
     </button>
 
     <div v-if="sections.length" class="sec-row">
@@ -56,7 +55,7 @@ const COLS = 1
           :order="sec.order"
           :labels-for-tilt="SECTIONS[sec.id].labelsForTilt"
           :columns="COLS"
-          :max-rows="4"
+          :max-rows="3"
           :cta-label="SECTIONS[sec.id].label"
           :head="false"
           bare
@@ -70,7 +69,7 @@ const COLS = 1
 
 <style scoped>
 .all-card {
-  --gv-tile: 200px;   /* 每個小視圖固定寬度（raw-grid 與 CityViewGrid 共用） */
+  --gv-tile: 240px;   /* 每個小視圖固定寬度（raw-grid 與 CityViewGrid 共用） */
   max-width: 100%;
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
@@ -94,16 +93,14 @@ const COLS = 1
 .ah-zh { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .all-head:hover .ah-zh { color: hsl(var(--primary)); }
 .ah-en { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ah-stats { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; }
-.ah-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
-.all-head:hover .ah-open { opacity: 1; }
+.ah-stats { margin-left: auto; font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; }
 
-/* 四區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排；卡片寬度不夠時
-   區段換行、區段內縮圖也換行——一律不出現水平捲軸。 */
-.sec-row { display: flex; flex-wrap: wrap; align-items: flex-start; }
+/* 四區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排，各區段內縮圖
+   從上往下排、最多 4 個換行往右加欄。城市視圖太寬時，水平捲動只發生在「這張卡片
+   內部」——頁面本身不出現水平捲軸。 */
+.sec-row { display: flex; align-items: flex-start; overflow-x: auto; }
 .sec-col {
-  flex: 1 1 var(--gv-tile, 200px);
-  min-width: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
 }
@@ -119,11 +116,12 @@ const COLS = 1
   background: hsl(var(--muted) / 0.2);
   border-bottom: 1px solid hsl(var(--border));
 }
-/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致——固定寬縮圖自動填滿換行 */
+/* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致——從上往下排、最多 3 個換行（往右加欄） */
 .raw-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, var(--gv-tile, 108px));
-  justify-content: start;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-columns: var(--gv-tile, 108px);
   gap: 1px;
   background: hsl(var(--border));
 }

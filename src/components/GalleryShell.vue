@@ -65,15 +65,25 @@ function makeResize(widthRef, dir, min, max) {
   return (e) => {
     e.preventDefault()
     const startX = e.clientX, startW = widthRef.value
+    const el = e.currentTarget
+    // 把手抓住 pointer——拖過其他 dockview 面板/iframe 時事件才不會漏、不會拖到一半卡住。
+    el.setPointerCapture?.(e.pointerId)
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'col-resize'
     const move = (ev) => {
       widthRef.value = Math.max(min, Math.min(max, startW + (ev.clientX - startX) * dir))
     }
-    const up = () => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
+    const up = (ev) => {
+      el.releasePointerCapture?.(ev.pointerId)
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerup', up)
+      el.removeEventListener('pointercancel', up)
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
     }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerup', up)
+    el.addEventListener('pointercancel', up)
   }
 }
 const startSideResize = makeResize(sideWidth, 1, 150, 640)   // 把手在右緣：往右拖變寬
@@ -241,6 +251,7 @@ const tiles = computed(() => {
 .pane-resize {
   flex: 0 0 5px;
   cursor: col-resize;
+  touch-action: none;
   background: hsl(var(--border));
   transition: background 0.12s;
 }
