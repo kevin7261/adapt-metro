@@ -67,8 +67,8 @@ function layersOf(item) {
 // Straighten＝爬山＋全部後處理/movewise；RWD＝循環結果輸入＋畫線＋LLM 調整/評價。
 const STAGE_SKILLS = {
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
-  hillclimb: ['route-skeleton-grid', 'route-hillclimb', 'route-rect-polish',
-    'route-axis-align', 'route-axis-ilp', 'route-llm-align', 'route-endpoint-move',
+  hillclimb: ['route-skeleton-grid', 'route-hillclimb', 'route-paper-align',
+    'route-rect-polish', 'route-llm-align', 'route-endpoint-move',
     'route-line-compact', 'route-grid-merge', 'route-span-cap', 'route-movewise-loop',
     'route-step-verify'],
   rwd: ['route-movewise-loop', 'route-rwd-draw', 'route-llm-grid', 'route-llm-eval', 'route-llm-compare'],

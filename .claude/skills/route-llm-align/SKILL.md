@@ -1,11 +1,11 @@
 ---
 name: route-llm-align
-description: LLM 對齊（第四種 H/V 最大化後處理）——不用 API key，由 Claude Code 的模型直接當最佳化器：export 目前佈局 → LLM 讀圖提出短距離移動 → apply 經與其他三種相同的硬規則套用並存到 data/metro/llmviews。分兩種獨立結果檔：自動對齊（<city>.<variant>.json，純最大化 H/V）與指定對齊（加 --prompt 旗標寫 .prompt.json，依使用者一句話）。兩者都以「主視圖目前顯示的佈局」為起點（由 vite plugin 在 spawn 前 seed 進 outFile），下游各鏈跟著目前顯示的佈局重算；RWD 'llm' 版面固定以自動對齊為基準。網頁分「LLM自動對齊」「LLM指定對齊」兩 tab，跟 route-llm-eval/route-llm-grid 同一套：跑完不自動套用、按「執行調整」才套用、重跑清舊資料。當使用者要求跑/重跑/更新某城市的 LLM 對齊（自動或指定）、產生 llmview、或問 LLM 對齊 tab 為何顯示「尚未產生」時使用。演算法背景見 [[route-hillclimb]]。
+description: LLM 對齊（直線演算法第九條鏈——論文①〜⑧之外的 LLM 鏈）——不用 API key，由 Claude Code 的模型直接當最佳化器：export 目前佈局 → LLM 讀圖提出短距離移動 → apply 經與其他論文鏈相同的硬規則套用並存到 data/metro/llmviews。分兩種獨立結果檔：自動對齊（<city>.<variant>.json，純最大化 H/V）與指定對齊（加 --prompt 旗標寫 .prompt.json，依使用者一句話）。兩者都以「主視圖目前顯示的佈局」為起點（由 vite plugin 在 spawn 前 seed 進 outFile），下游各鏈跟著目前顯示的佈局重算；RWD 'llm' 版面固定以自動對齊為基準。網頁分「LLM自動對齊」「LLM指定對齊」兩 tab，跟 route-llm-eval/route-llm-grid 同一套：跑完不自動套用、按「執行調整」才套用、重跑清舊資料。當使用者要求跑/重跑/更新某城市的 LLM 對齊（自動或指定）、產生 llmview、或問 LLM 對齊 tab 為何顯示「尚未產生」時使用。演算法背景見 [[route-hillclimb]]。
 ---
 
 # LLM 對齊 (route-llm-align)
 
-[[route-hillclimb]] 三種演算法後處理之外的**第四種**：由 LLM（執行本 skill 的模型，
+直線演算法（論文①〜⑧＋LLM，見 [[route-paper-align]]）中唯一非論文的**第九條鏈**：由 LLM（執行本 skill 的模型，
 也就是你）直接讀整數格佈局、提出彩色頂點的短距離移動。目標是
 **「H/V 或格對角 45°」對齊段最多**（`countHVD`）——一段對齊 ⇔ 兩端恰有一個座標相同
 （H/V），**或** `|dc|===|dr|` 非零（格對角 45°）。**與其他三種不同**：rect/align/ilp

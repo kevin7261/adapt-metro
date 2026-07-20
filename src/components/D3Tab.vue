@@ -606,8 +606,8 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 9 個部份：原始／Hill Climbing／直線演算法／端點移動／直線縮減
-    // ／網格合併／縮減網格／端點移動+直線縮減+網格合併+縮減網格循環／逐步驗證
+    // 左選單分 8 個部份：原始／Hill Climbing／直線演算法／端點移動／直線縮減
+    // ／網格合併／端點移動+直線縮減+網格合併循環／逐步驗證
     // （header 項是分組標題，可點開合——見下方 navSections；全部左側功能列
     // 共用同一套分組版面，Map Adjust／RWD 的清單也有 header）。
     return [

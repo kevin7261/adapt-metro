@@ -70,15 +70,14 @@ Hill Climbing 圖層的 縮減網格（compactGrid cells）
 拿坡里（自交叉假環）6→3（乾淨直角三角形）。真環線（單向遍歷、各邊端點對唯一）不受影響。
 
 - 新圖層由 Layers 面板 RWD Maps group 的 **+** 建立：選一個 Hill Climbing 圖層
-  （存在 `layer.sourceLayerId`）＋**循環的 4 個結果之一**（直角爬山循環/軸對齊循環/
-  整數規劃循環/LLM 對齊循環，即 rect/align/ilp/llm 四條鏈的
+  （存在 `layer.sourceLayerId`）＋**循環的 9 個結果之一**（論文①〜⑧＋LLM 對齊的循環，即 stroke/rect/milp/force/lsq/octi/path/sat/llm 九條鏈的
   端點移動+直線縮減+中位集中+縮減網格循環，存在 `layer.compact`）——來源即該鏈的
   循環結果；舊圖層的 `'hc'`（基本循環）僅作 fallback、對話框不再提供。
 - Tab 有 3 個視圖：**循環結果**（輸入，id 沿用 'hc-compact'）、**RWD 路網**（結果）與 **LLM調整**
   （同一套 RWD 畫線，欄寬列高改由 LLM 推理的區間權重決定，見 [[route-llm-grid]]
   與下方「LLM 調整」節）；工具列顯示段數與轉折直方圖（直線/單折/雙折/兜底/強制重疊）。
 - **8 視圖畫廊**（RWD Maps group 的方格鈕 → `openRwdGalleryTab`）：全城市預算縮圖，
-  每城 4 種縮減網格（基本/直角爬山/軸對齊/整數規劃）× (縮減網格 | RWD 路網)＝8 格。
+  每城 9 種縮減網格（基本 hc＋論文①〜⑧）× (縮減網格 | RWD 路網)＝18 格。
   離線由 `computeCityRwdViews`（viewGeometry.js）算、存 `data/metro/rwdviews/<id>.json`，
   `RwdGallery.vue`＋`RwdViewGrid.vue` 載入；點一格＝建立 metro→d3→HC(原始)→RWD(該縮減)。
 

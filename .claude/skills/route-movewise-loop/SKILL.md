@@ -38,6 +38,6 @@ opts.skip 跳過；網格合併用 cursor 逐邊界）。單獨的三個 stage t
   「循環結果」沿用 id 'hc-compact'；`layer.compact` 選鏈，hc 鏈仍可當 RWD
   底圖——D3Tab loop 區塊的 isRWD fallback、key 'hc'）。
 - 端點移動/直線縮減/網格合併/循環/逐步驗證**五個 tab 區都沒有 hc 鏈**
-  （只有 直角爬山/軸對齊/整數規劃/LLM 對齊 四條鏈，使用者裁決）。
+  （只有論文①〜⑧＋LLM 對齊 九條鏈，無 hc 鏈，使用者裁決）。
 - 畫廊（hcviews 卡片、rwdviews）與 `scripts/llmGrid.mjs` 鏡射同一條鏈——
   **改了演算法要 bump `scripts/buildViews.mjs` 的 VIEWS_VERSION 重算**。

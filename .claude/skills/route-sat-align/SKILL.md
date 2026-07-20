@@ -1,6 +1,6 @@
 ---
 name: route-sat-align
-description: SAT規劃（論文直線鏈 sat，Fuchs 2022）——與 MILP規劃完全同模型（每段 3 個八方向候選、一熱、同頂點同向硬子句、S1/S2 軟子句），求解器換成 DPLL 分支定界（most-constrained 優先、單元傳播 veto、目前最佳成本剪枝、節點上限 60000 超限元件退回原方向）。當使用者要求修改 SAT 鏈、調分支順序/預算、或問「SAT規劃」tab 的行為時使用。模型與座標重建與 [[route-milp-align]] 共用，見 [[route-paper-align]]。
+description: SAT規劃（論文直線鏈 sat，Fuchs 2022）——與 MILP規劃完全同模型（每段 3 個八方向候選、一熱、同頂點同向硬子句、S1/S2 軟子句），求解器換成 DPLL 分支定界（most-constrained 優先、單元傳播 veto、目前最佳成本剪枝、節點上限 60000 超限元件退回原方向）。當使用者要求修改 SAT 鏈、調分支順序/預算、或問「⑧SAT規劃」tab 的行為時使用。模型與座標重建與 [[route-milp-align]] 共用，見 [[route-paper-align]]。
 ---
 
 # SAT規劃 (route-sat-align)
@@ -33,7 +33,7 @@ _SAT-based Optimization of Octolinear Metro Map Layouts_（`data/thesis/8_…pdf
 
 - `buildSatAlign(skeleton, cells, cols, rows)`（src/stores/paperAlign.js）
   → `{ cellAfter, stats }`；stats 含 `comps`/`fallback`。
-- kind `sat`、tab 名「SAT規劃」；`iteratePost` 迭代、`countHVD` 接受。
+- kind `sat`、tab 名「⑧SAT規劃」；`iteratePost` 迭代、`countHVD` 接受。
 
 ## 修改時
 

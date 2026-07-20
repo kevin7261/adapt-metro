@@ -1,6 +1,6 @@
 ---
 name: route-path-align
-description: 路徑簡化（論文直線鏈 path，Merrick & Gudmundsson 2007）——每條路線的頂點鏈當折線，C=8 方向、ε-圓刺穿求最少 link 的 C-directed 簡化（reach＋BFS 分層），頂點垂直投影到刺穿它的 link；路線依轉乘站數排序漸進、先處理的定案。當使用者要求修改路徑簡化鏈、調 ε/方向集/固定點機制、或問「路徑簡化」tab 的行為時使用。共用機構見 [[route-paper-align]]。
+description: 路徑簡化（論文直線鏈 path，Merrick & Gudmundsson 2007）——每條路線的頂點鏈當折線，C=8 方向、ε-圓刺穿求最少 link 的 C-directed 簡化（reach＋BFS 分層），頂點垂直投影到刺穿它的 link；路線依轉乘站數排序漸進、先處理的定案。當使用者要求修改路徑簡化鏈、調 ε/方向集/固定點機制、或問「⑦路徑簡化」tab 的行為時使用。共用機構見 [[route-paper-align]]。
 ---
 
 # 路徑簡化 (route-path-align)
@@ -34,7 +34,7 @@ description: 路徑簡化（論文直線鏈 path，Merrick & Gudmundsson 2007）
 
 - `buildPathAlign(skeleton, cells, cols, rows)`（src/stores/paperAlign.js）
   → `{ cellAfter, stats }`；stats 含 `chains`（處理鏈數）/`links`（總 link 數）。
-- kind `path`、tab 名「路徑簡化」；`iteratePost` 迭代、`countHVD` 接受。
+- kind `path`、tab 名「⑦路徑簡化」；`iteratePost` 迭代、`countHVD` 接受。
 
 ## 修改時
 

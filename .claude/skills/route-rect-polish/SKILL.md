@@ -1,11 +1,13 @@
 ---
 name: route-rect-polish
-description: 直角爬山（H/V 最大化後處理①）——把爬山法的方向準則從八方向 |sin 4θ| 換成直角 |sin 2θ|（45° 變最貴）、短半徑 [2,1,1] 在 Hill Climbing 結果上再爬，並迭代到不動點（上限 20 次）。當使用者要求修改直角爬山、調 rect 模式權重/半徑、或問「直角爬山」tab 的行為時使用。總覽與共用機構見 [[route-hillclimb]]。
+description: ②直角爬山（直線演算法論文②——Stott et al. 2011 爬山法的直角變體；tab 名「②直角爬山」）——把爬山法的方向準則從八方向 |sin 4θ| 換成直角 |sin 2θ|（45° 變最貴）、短半徑 [2,1,1] 在 Hill Climbing 結果上再爬，並迭代到不動點（上限 20 次）。當使用者要求修改直角爬山、調 rect 模式權重/半徑、或問「直角爬山」tab 的行為時使用。總覽與共用機構見 [[route-hillclimb]]。
 ---
 
-# 直角爬山 (route-rect-polish)
+# ②直角爬山 (route-rect-polish)
 
-[[route-hillclimb]] 的**第一種 H/V 最大化後處理**：輸入 = Hill Climbing 的
+直線演算法（論文①〜⑧＋LLM）中的**論文② Stott et al. 2011 鏈**（build 在
+hillClimb.js、以 kind 'rect' 掛在 paperAlign.js 的 PAPER_KINDS；總目錄見
+[[route-paper-align]]）：輸入 = Hill Climbing 的
 `cellAfter`，目標 = 短距離移動彩色頂點讓**水平/垂直段最多**
 （一段是 H/V ⇔ 兩端恰有一個座標相同）。
 

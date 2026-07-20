@@ -1,6 +1,6 @@
 ---
 name: route-milp-align
-description: MILP規劃（論文直線鏈 milp，Nöllenburg & Wolff 2011）——每段 3 個八方向候選（最近扇區 ±1）、成本＝λ1·同路線相鄰段彎折＋λ2·偏離原方向、同頂點同向硬 veto；配對圖分元件用生成樹 DP＋feedback 段枚舉精確求解方向指派，再鬆弛重建座標＋snapAligned 量化。當使用者要求修改 MILP 鏈、調候選數/權重/枚舉上限、或問「MILP規劃」tab 的行為時使用。共用機構見 [[route-paper-align]]（dirModel 與 SAT規劃共用）。
+description: MILP規劃（論文直線鏈 milp，Nöllenburg & Wolff 2011）——每段 3 個八方向候選（最近扇區 ±1）、成本＝λ1·同路線相鄰段彎折＋λ2·偏離原方向、同頂點同向硬 veto；配對圖分元件用生成樹 DP＋feedback 段枚舉精確求解方向指派，再鬆弛重建座標＋snapAligned 量化。當使用者要求修改 MILP 鏈、調候選數/權重/枚舉上限、或問「③MILP規劃」tab 的行為時使用。共用機構見 [[route-paper-align]]（dirModel 與 SAT規劃共用）。
 ---
 
 # MILP規劃 (route-milp-align)
@@ -18,7 +18,7 @@ _Drawing and Labeling High-Quality Metro Maps by Mixed-Integer Programming_
    - 硬限制：同頂點兩段出向不得相同（H2 環繞序的可線性化部份）。
 2. **精確求解**：段為節點、共享頂點的段對為邊 → 分連通元件 → 生成樹＋回邊 →
    feedback 段集合枚舉（3^|fb|，上限 2187 trials 或 2e6 節點·trials，超限元件
-   fallback 保持原方向）＋樹 DP（同 [[route-axis-ilp]] 的求解機構，變數換成段
+   fallback 保持原方向）＋樹 DP（同 hillClimb.js 中 buildAxisIlp 的求解機構——該鏈已下架、函式保留，變數換成段
    的八方向）。
 3. **座標重建 `coordsFromDirs`**：逐段把兩端往「沿選定方向、長度＝目前投影長
    （下限 1 格）」的理想相對位置拉，鬆弛 40 輪；`snapAligned` 對齊感知量化 →
@@ -35,7 +35,7 @@ _Drawing and Labeling High-Quality Metro Maps by Mixed-Integer Programming_
 
 - `buildMilpAlign(skeleton, cells, cols, rows)`（src/stores/paperAlign.js）
   → `{ cellAfter, stats }`；stats 含 `comps`（元件數）/`fallback`（超限退回數）。
-- kind `milp`、tab 名「MILP規劃」；`iteratePost` 迭代、`countHVD` 接受。
+- kind `milp`、tab 名「③MILP規劃」；`iteratePost` 迭代、`countHVD` 接受。
 
 ## 修改時
 

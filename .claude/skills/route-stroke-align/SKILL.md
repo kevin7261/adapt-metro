@@ -1,6 +1,6 @@
 ---
 name: route-stroke-align
-description: 筆畫法（論文直線鏈 stroke，Li & Dong 2010）——把段串成筆畫（同路線 every-best-fit 共線接續）、依最大方向扭曲 >45° 遞迴切子筆畫、各子筆畫吸 4 主方向（H/V 優先）後把成員頂點垂直投影到過錨點的定向直線，逐筆畫漸進套用。當使用者要求修改筆畫法、調筆畫配對/切分門檻/投影規則、或問「筆畫法」tab 的行為時使用。七條論文鏈的共用機構見 [[route-paper-align]]、總覽見 [[route-hillclimb]]。
+description: 筆畫法（論文直線鏈 stroke，Li & Dong 2010）——把段串成筆畫（同路線 every-best-fit 共線接續）、依最大方向扭曲 >45° 遞迴切子筆畫、各子筆畫吸 4 主方向（H/V 優先）後把成員頂點垂直投影到過錨點的定向直線，逐筆畫漸進套用。當使用者要求修改筆畫法、調筆畫配對/切分門檻/投影規則、或問「①筆畫法」tab 的行為時使用。論文鏈總目錄與共用機構見 [[route-paper-align]]、總覽見 [[route-hillclimb]]。
 ---
 
 # 筆畫法 (route-stroke-align)
@@ -35,7 +35,7 @@ _A stroke-based method for automated generation of schematic network maps_
 - `buildStrokeAlign(skeleton, cells, cols, rows)`（src/stores/paperAlign.js）
   → `{ cellAfter, stats }`；stats 含 `hvBefore/hvAfter/hvdBefore/hvdAfter/moved/
   proposed/revertedN/strokes/substrokes`。
-- 註冊在 `PAPER_KINDS`（kind `stroke`、tab 名「筆畫法」）；UI 經
+- 註冊在 `PAPER_KINDS`（kind `stroke`、tab 名「①筆畫法」）；UI 經
   `iteratePost(buildStrokeAlign, …)` 迭代到不動點（上限 20）；接受準則用
   `countHVD`（八方向系演算法，45° 不算退步）。
 - 下游鏈（端點移動/直線縮減/網格合併/循環/RWD/畫廊）與其他鏈完全同構。
