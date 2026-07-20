@@ -7,6 +7,409 @@
 
 ---
 
+## 計算邏輯與程式骨架
+
+> 以下依論文寫「要算什麼、怎麼算」——用虛擬碼、公式與迴圈描述計算步驟。實作時照此邏輯寫；不要呼叫既有程式裡的函式名，也不要寫「call xxx」。
+
+### 輸入
+
+- `V`：頂點集合，每個頂點 v 有原始嵌入座標 `(x_I(v), y_I(v))`。
+- `E`：邊集合，每邊 `e = (u,v)` 帶有：
+  - `L_min(e)`：最短長（預設 1）。
+  - `sec_u(v)`：`u` 看向 `v` 的原始八方向扇區編號 `∈ {0,1,2,3,4,5,6,7}`（前處理算好、當常數）。`sec_v(u) = (sec_u(v) + 4) mod 8`。
+  - `S(u,v) = { (sec_u(v) + d) mod 8 | d ∈ {−dev,…,dev} }`，`dev=1` → 3 個候選方向。
+- `𝓛`：路線集合，每條路線是頂點序列（用於 S1 線彎約束）。
+- `d_min`：最小邊距（預設 1）。
+- `(f1, f2, f3)`：軟限制權重（建議 (3,2,1)）。
+- `x_max`：座標上界（從緊設定，例如 `2 × |V|`）。
+- `timeout`：求解器最長執行時間（秒）。
+
+### 輸出
+
+對每個頂點 v，最終座標 `(x(v), y(v))`（整數格），滿足：
+- 所有邊八方向對齊（H1）。
+- 環繞順序保持（H2）。
+- 邊長 ≥ L_min（H3）。
+- 平面性（H4）。
+- S1/S2/S3 軟成本之加權和盡量小（MaxSAT 目標）。
+
+### 建議內部狀態
+
+```
+# 四軸放大 2 倍座標（整數變數，一元編碼展開成布林向量）
+# z0(v) = 2·x(v)，  z1(v) = x(v)+y(v)，
+# z2(v) = 2·y(v)，  z3(v) = y(v)−x(v)
+# 值域：z0 ∈ [0, 2·x_max]，z1 ∈ [0, 2·x_max]，
+#        z2 ∈ [0, 2·x_max]，z3 ∈ [−x_max, x_max]
+z[v][axis] : 整數變數（一元編碼後是一組布林）
+
+# 每邊方向變數
+dir[u][v] : 整數 ∈ S(u,v)（一元編碼）
+dir[v][u] = (dir[u][v] + 4) mod 8
+
+# 邊方向選擇布林（一熱）
+alpha[i][u][v] : bool，i ∈ S(u,v)；恰一為真 → 本邊方向為 i
+
+# 環繞順序輔助布林
+beta[i][v]  : bool；v 的第 i 對鄰居之間「繞回」
+
+# 平面性分離布林（按需加入）
+gamma[i][e1][e2] : bool；e1, e2 在 z_i 軸上分離
+
+# 軟成本量測變數（一元編碼）
+theta[u][v][w] : 整數 ∈ [0,3]，線彎角
+xi[u][v]       : 整數 ∈ [0,dev]，方向偏差
+lambda_[u][v]  : 整數 ≥ L_min，L∞ 邊長
+
+# 軟子句集合（帶權重）
+soft_clauses : [(clause_literals, weight), …]
+
+# 硬子句集合（CNF）
+hard_clauses : [clause_literals, …]
+```
+
+### 主計算流程
+
+```
+ALGORITHM BuildAndSolve(V, E, L, params):
+
+  # ── 步驟 0：前處理 ──
+  # 0a. 平面化：在每個拓撲交叉點插 dummy 頂點，斷邊成兩段
+  V, E ← planarize(V, E)
+
+  # 0b. deg-2 壓縮：把內部全度-2 的路徑 v_1..v_n 換成單邊 (v_1,v_n)，
+  #     L_min(v_1,v_n) ← n+1（畫完後等距插回）
+  E, compressed_paths ← compress_deg2_paths(V, E)
+
+  # ── 步驟 1：一元編碼宣告 ──
+  for v in V:
+      for axis in {0,1,2,3}:
+          z[v][axis] ← declare_unary(lo=z_lo[axis], hi=z_hi[axis])
+          # 加單調性子句：¬z[v][axis]^i ∨ z[v][axis]^{i−1}，∀ i ≥ lo+2
+          hard_clauses += UNARY_MONOTONE(z[v][axis])
+
+  for (u,v) in E:
+      dir[u][v] ← declare_unary(lo=min(S(u,v)), hi=max(S(u,v)))
+      hard_clauses += UNARY_MONOTONE(dir[u][v])
+
+  for measurable in {theta, xi, lambda_}:
+      for 每個對應的三元組/邊:
+          hard_clauses += UNARY_MONOTONE(…)
+
+  # ── 步驟 2：加硬子句 ──
+  for (u,v) in E:
+      hard_clauses += H1_DIRECTION(u, v)    # 一熱 + 方向賦值 + 正交座標相等 + 最短長
+  for v in V where deg(v) ≥ 2:
+      hard_clauses += H2_ORDER(v)            # 環繞順序嚴格遞增 + 恰一繞回
+  # H4 平面性先不加（lazy 策略）
+
+  # ── 步驟 3：加量測子句（不等式展開）──
+  for (u,v,w) in line_triples:
+      hard_clauses += S1_BEND_CONSTRAINT(u, v, w)   # θ ≥ |dir 差| 的展開
+  for (u,v) in E:
+      hard_clauses += S2_DEVIATION_CONSTRAINT(u, v)  # ξ ≥ |dir − sec| 的展開
+      hard_clauses += S3_LENGTH_CONSTRAINT(u, v)     # λ ≥ L∞ 邊長的展開
+
+  # ── 步驟 4：加軟子句（一元 literal 直讀）──
+  for (u,v,w) in line_triples:
+      for i = 1 to 3:
+          soft_clauses += [(¬theta[u][v][w]^i, weight=f1)]
+          # 轉乘站可用 2·f1
+  for (u,v) in E:
+      for i = 1 to dev:
+          soft_clauses += [(¬xi[u][v]^i, weight=f2)]
+      for i = L_min(u,v)+1 to L_min(u,v)+4:
+          soft_clauses += [(¬lambda_[u][v]^i, weight=f3)]
+  # 端點站（deg=1）的 lambda_ 直接硬鎖 = L_min，省掉軟子句
+
+  # ── 步驟 5：Lazy 平面性迴圈 ──
+  violated_pairs ← {(e1,e2) | e1,e2 ∈ E, 幾何相交}
+  # （初始為空；先解再檢查）
+
+  loop:
+      # 加入新違規的分離子句
+      for (e1, e2) in violated_pairs:
+          hard_clauses += H4_PLANARITY(e1, e2)   # 8 個 gamma 布林 + 分離不等式
+
+      # 呼叫 MaxSAT 求解器
+      model ← maxsat_solve(hard_clauses, soft_clauses, timeout=timeout)
+
+      if model 為 UNSAT: 報錯（格網 x_max 太小或問題無解）
+
+      # 從 model 讀出 x(v), y(v)（z0/2、z2/2）
+      solution ← extract_coordinates(model, z)
+
+      # 幾何檢查
+      new_violations ← check_planar_intersections(solution, E)
+      if new_violations 為空: break
+      violated_pairs ← new_violations   # 下輪加入子句重解
+
+  # ── 步驟 6：等距插回 deg-2 壓縮的頂點 ──
+  solution ← restore_deg2_vertices(solution, compressed_paths)
+
+  return solution
+```
+
+### 關鍵子計算
+
+#### A. 一元編碼（Unary / Order Encoding）
+
+整數變數 `a`，值域 `[lo, hi]`，用 `hi − lo` 個布林位元 `a^{lo+1}, a^{lo+2}, …, a^{hi}` 表示：
+
+```
+a^i = true  ⟺  a ≥ i
+（a^lo 恆真，省略；a^{hi+1} 恆假，省略）
+```
+
+**單調性子句**（必加，否則語義崩潰）：
+```
+for i = lo+2 to hi:
+    add clause (¬a^i ∨ a^{i−1})    # a ≥ i 蘊含 a ≥ i−1
+```
+
+**常用不等式展開**：
+
+| 不等式 | 子句形式 | 數量 |
+|---|---|---|
+| `a = c`（c 常數） | `a^c` 且 `¬a^{c+1}` | 2 條 |
+| `a ≤ b` | `¬a^i ∨ b^i`，i 跨兩者重疊域；加邊界 `¬a^{hi_b+1}`, `b^{lo_a}` | O(域大小) |
+| `a + g ≤ b`（g 常數） | `¬a^i ∨ b^{i+g}`，加邊界 | O(域大小) |
+| `a − b ≤ c` | `¬a^i ∨ b^j ∨ c^{i−j+1}`，∀i,j | O(域²) |
+| `a + b + g = c` | 組合上述規則 | O(域²) |
+
+**Literal 直讀技巧**（sec 是常數時）：
+- `dir(u,v) > c`  ⟺  `dir[u][v]^{c+1}` 直接是一個 literal，不需新子句。
+
+#### B. 硬子句展開：H1 邊方向與最短長
+
+對每條邊 `e = (u,v)`，先算扇區 `sec_u(v)`，允許方向集合 `S(u,v)` 大小通常為 3（dev=1）：
+
+```
+FUNCTION H1_DIRECTION(u, v) → clauses:
+    clauses ← []
+
+    # 一熱：至少一
+    clauses += [⋁_{i ∈ S(u,v)} alpha[i][u][v]]
+
+    # 一熱：至多一（所有 i<j 對）
+    for i,j in pairs(S(u,v)), i≠j:
+        clauses += [¬alpha[i][u][v] ∨ ¬alpha[j][u][v]]
+
+    for i in S(u,v):
+        # alpha_i → dir(u,v) = i
+        clauses += UNARY_EQ(dir[u][v], i, guard=alpha[i][u][v])
+        # alpha_i → dir(v,u) = (i+4)%8
+        clauses += UNARY_EQ(dir[v][u], (i+4)%8, guard=alpha[i][u][v])
+
+        # 確定 z_i^o（與方向 i 正交的軸）
+        perp_axis ← (i + 2) mod 4    # 軸索引：0=z0,1=z1,2=z2,3=z3
+        # alpha_i → z_{perp_axis}(u) = z_{perp_axis}(v)（正交座標相等）
+        clauses += UNARY_EQ_GUARDED(z[u][perp_axis], z[v][perp_axis],
+                                     guard=alpha[i][u][v])
+
+        # alpha_i → z_i(u) + 2·L_min(e) ≤ z_i(v)（i<4 時）
+        #            z_{i-4}(v) + 2·L_min(e) ≤ z_{i-4}(u)（i≥4 時）
+        if i < 4:
+            clauses += UNARY_ADD_LEQ(z[u][i], 2*L_min(e), z[v][i],
+                                      guard=alpha[i][u][v])
+        else:
+            clauses += UNARY_ADD_LEQ(z[v][i-4], 2*L_min(e), z[u][i-4],
+                                      guard=alpha[i][u][v])
+
+    return clauses
+```
+
+**帶守衛的一元等式/不等式**：把守衛 literal g 加到每條子句：
+```
+UNARY_EQ(a, c, guard=g) → [(¬g ∨ a^c), (¬g ∨ ¬a^{c+1})]
+UNARY_ADD_LEQ(a, offset, b, guard=g):
+    # a + offset ≤ b，展開成：∀i: ¬g ∨ ¬a^i ∨ b^{i+offset}
+    for i = lo_a+1 to hi_a:
+        clause ← [¬g, ¬a^i, b^{i+offset}]   # b^{i+offset} 若超域則省略
+        clauses += [clause]
+```
+
+#### C. 硬子句展開：H2 環繞順序
+
+`deg(v)` 個鄰居依輸入逆時針序排列為 `u_1, …, u_d`，方向值必須嚴格遞增（mod 8 恰一繞回）：
+
+```
+FUNCTION H2_ORDER(v) → clauses:
+    d ← deg(v)
+    if d == 2:
+        # 只需兩邊不同向：∀ i ∈ S(v,u_1) ∩ S(v,u_2): ¬alpha[i][v][u_1] ∨ ¬alpha[i][v][u_2]
+        ...
+        return
+
+    # beta[i][v]：第 i 對與第 i+1 對之間「繞回」（mod 8 跳回 0）
+    clauses += [⋁_i beta[i][v]]                   # 至少一個繞回
+    for i≠j: clauses += [¬beta[i][v] ∨ ¬beta[j][v]]  # 至多一個
+
+    for i = 1 to d:
+        next ← (i mod d) + 1
+        # 若非繞回點：dir(v,u_i) + 1 ≤ dir(v,u_{next})
+        # 展開：¬¬beta[i][v] → 不加此子句；即加 (beta[i][v] ∨ dir(v,u_i)+1 ≤ dir(v,u_next))
+        for k in S(v, u_i):
+            for l in S(v, u_next) where l ≤ k:
+                clauses += [beta[i][v], ¬alpha[k][v][u_i], ¬alpha[l][v][u_next]]
+                # 若 beta[i] 為假，則方向 k 與 l 不能同時成立（因 l ≤ k 違反嚴格遞增）
+
+    return clauses
+```
+
+#### D. 軟成本量測：S1 線彎
+
+對路線上相鄰邊 `(u,v),(v,w)`，線彎角 `θ = min(|dir(u,v) − dir(v,w)| mod 8, 8 − …) ∈ {0,1,2,3,4}`（4 已是 180° 反向，實務 ≤ 3）。
+
+用修正布林 `δ1, δ2` 消去絕對值與取小：
+
+```
+# θ ≥ dir(v,w) − dir(u,v)（若未繞回）→ δ1 = false
+# θ ≥ dir(u,v) − dir(v,w)（若未繞回反方向）→ δ2 = false
+# δ1 = true 時改用 dir(v,w) + θ − 8 ≥ dir(u,v)（繞回修正）
+# δ2 = true 時改用 dir(u,v) + θ − 8 ≥ dir(v,w)
+
+硬子句（展開成一元 literal，參數省略守衛）：
+  ¬δ2 ∨ dir(u,v) + θ ≥ dir(v,w)       # (19.1) δ2=false → θ 正向下界
+  ¬δ1 ∨ dir(v,w) + θ ≥ dir(u,v)       # (19.2)
+   δ1 ∨ dir(u,v) + θ − 8 ≥ dir(v,w)   # (19.3) δ1=true → 繞回版
+   δ2 ∨ dir(v,w) + θ − 8 ≥ dir(u,v)   # (19.4)
+
+每條不等式展開方式（以「¬δ2 ∨ dir(u,v) + θ ≥ dir(v,w)」為例）：
+  對所有 i（dir(u,v) 的值域）, j（dir(v,w) 的值域）, t（θ 的值域）：
+    若 i + t < j（即不等式被違反）：
+        add clause (δ2, ¬dir[u][v]^i, dir[u][v]^{i−1}, ¬dir[v][w]^{j+1}, …)
+  → 實際用一元 literal 一個個枚舉 i,j: add (δ2, ¬alpha_i[u][v], ¬alpha_j[v][w], θ^{j−i+1})
+    即：若 dir=i、dir=j，則 θ ≥ j−i （+1 因一元 a^i = a ≥ i）
+```
+
+**軟子句**（目標：θ 盡量小）：
+
+```
+for i = 1 to 3:
+    soft_clauses += [(¬theta[u][v][w]^i, weight = f1)]
+    # θ^i = true ⟺ θ ≥ i；¬θ^i = true 時不罰；θ^i = true 時罰 f1
+    # 效果：θ 每多 1 級多罰 f1，壓力使求解器把 θ 最小化
+```
+
+轉乘站（`deg(v) > 2`）可改用 `weight = 2·f1`。
+
+#### E. 平面性子句（H4，按需加入）
+
+**按需流程**：
+
+```
+FUNCTION H4_PLANARITY(e1=(a,b), e2=(c,d)) → clauses:
+    # 8 個分離布林 gamma[i][e1][e2]，i ∈ {0..7}（四軸正負各一）
+    clauses += [⋁_{i=0..7} gamma[i][e1][e2]]   # 至少一個分離方向（14.1）
+
+    for i = 0..7:
+        # gamma[i] → 在 z_{i mod 4} 軸上，e1 的兩端點均比 e2 的兩端點小至少 d_min
+        # 展開四端點組合（式 15.1–15.4）：
+        for (p, q) in {(a,c),(a,d),(b,c),(b,d)}:
+            # z_{i mod 4}(p) + d_min ≤ z_{i mod 4}(q)（i < 4）
+            # 或 z_{i mod 4}(q) + d_min ≤ z_{i mod 4}(p)（i ≥ 4，對稱方向）
+            axis ← i mod 4
+            if i < 4:
+                clauses += [(¬gamma[i][e1][e2]) ∨ UNARY_ADD_LEQ(z[p][axis], d_min, z[q][axis])]
+            else:
+                clauses += [(¬gamma[i][e1][e2]) ∨ UNARY_ADD_LEQ(z[q][axis], d_min, z[p][axis])]
+
+    return clauses
+```
+
+**幾何交叉偵測**（從 model 讀出浮點座標後）：
+
+```
+FUNCTION check_planar_intersections(solution, E) → violated_pairs:
+    pairs ← []
+    for (e1, e2) in all_non_adjacent_pairs(E):
+        seg1 ← (solution[e1.u], solution[e1.v])
+        seg2 ← (solution[e2.u], solution[e2.v])
+        if segments_intersect(seg1, seg2):
+            pairs.append((e1, e2))
+    return pairs
+```
+
+#### F. Timeout 退回策略
+
+**路線 A：MaxSAT 求解器（如 RC2 / PySAT）**
+
+RC2 不支援中途解，timeout 就一無所有。建議做法：
+```
+# 用 binary search on cost bound C_max 取得 anytime 行為：
+best_solution ← None
+C_max ← 初始上界（例如所有軟子句都不滿足的總罰值）
+
+for C_try in [C_max, C_max//2, C_max//4, …]:
+    # 加一條硬子句：軟成本 ≤ C_try
+    # （一元加法展開：Σ weights × cost_indicators ≤ C_try）
+    result ← maxsat_solve(hard + cost_bound(C_try), soft, timeout=timeout//log2(C_max))
+    if result is SAT:
+        best_solution ← result
+        C_max ← actual_cost(result)
+    # 若 UNSAT 表示 C_try 太緊，放寬繼續
+
+return best_solution
+```
+
+**路線 B：MaxSMT（Z3 νZ，支援中途解）**
+
+```
+solver ← Z3_optimize()
+for clause in hard_clauses:
+    solver.add(clause)
+for (clause, weight) in soft_clauses:
+    solver.add_soft(clause, weight=weight)
+
+solver.set("timeout", timeout × 1000)   # ms
+result ← solver.check()                  # sat / unsat / unknown
+
+# Z3 4.9+ 即使 unknown 也可讀 model（最後一個 SAT 的中途解）
+if result in {sat, unknown}:
+    model ← solver.model()
+    return extract_coordinates(model)
+else:
+    return None
+```
+
+**自寫分支定界（DPLL-style）**：
+
+```
+ALGORITHM DPLL_MaxSAT(hard, soft, timeout):
+    # 優先隊列：(已違反軟子句的罰值下界, 剩餘變數清單, 部分賦值)
+    pq ← priority_queue()
+    pq.push((0, all_variables, {}))
+    best_cost ← ∞
+    best_model ← None
+
+    while pq not empty and elapsed < timeout:
+        cost_lb, remain_vars, assignment ← pq.pop_min()
+        if cost_lb ≥ best_cost: continue   # 剪枝
+
+        # 單元傳播（BCP）
+        assignment, conflict ← unit_propagate(hard, assignment)
+        if conflict: continue
+
+        if remain_vars 為空:
+            cost ← eval_soft_cost(soft, assignment)
+            if cost < best_cost:
+                best_cost ← cost; best_model ← assignment
+            continue
+
+        # Most-constrained 變數選擇
+        v ← most_constrained(remain_vars, hard, assignment)
+
+        for val in {true, false}:
+            new_assign ← assignment ∪ {v: val}
+            lb ← cost_lb + violated_soft_lower_bound(soft, new_assign)
+            pq.push((lb, remain_vars − {v}, new_assign))
+
+    return best_model, best_cost
+```
+
+---
+
 ## 1. 問題定義（與 MILP 相同，重述要點）
 
 輸入：平面圖 G = (V,E)（最大度 8）、線覆蓋 𝓛、輸入嵌入 Γ_I(G)。

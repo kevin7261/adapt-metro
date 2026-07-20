@@ -6,6 +6,216 @@
 
 ---
 
+## 計算邏輯與程式骨架
+
+> 以下依論文寫「要算什麼、怎麼算」——用虛擬碼、公式與迴圈描述計算步驟。實作時照此邏輯寫；不要呼叫既有程式裡的函式名，也不要寫「call xxx」。
+
+### 輸入
+
+- **頂點集合** `V`：每個頂點 v 有地理座標 `(x_v, y_v)`（路網交點、捷運站等）。
+- **線段集合** `L`：每條線段 `seg = (u, v, name?)`，兩端點 ∈ V；`name` 可為空（無名線段）。
+- **偏角閾值** `T`：建議 45°（π/4 弧度），決定哪些相鄰線段可接成同一筆畫。
+- **方向集合** `D`：4 主方向模式 `{0°, 45°, 90°, 135°}` 或 8 方向模式（全部 45° 整倍數）。
+
+### 輸出
+
+- 新座標 `pos[v] = (x'_v, y'_v)` for all v ∈ V（投影後，拓撲不變）。
+- 每條子筆畫的指派方向 `assigned_dir[sub] ∈ D`。
+
+### 建議內部狀態
+
+| 名稱 | 說明 |
+|---|---|
+| `strokes` | 有序 Stroke 列表；每條筆畫 = 有序頂點串列 + 所包含線段 + 名稱（可空）|
+| `processed` | `Set<Segment>`，已分配到某筆畫的線段 |
+| `adj[v]` | 頂點 v 的所有相鄰線段（鄰接表）|
+| `stroke_weight[s]` | 三鍵排序鍵 `(type, totalLength, numJunctions)` |
+| `sub_strokes` | 每條筆畫切分後產生的子筆畫列表 |
+| `assigned_dir[sub]` | 子筆畫指派方向（弧度）|
+| `pos[v]` | 各頂點當前（可能已投影）座標 |
+| `connect[v][seg]` | 在頂點 v，線段 seg 的 every-best-fit 接續配對記錄 |
+
+### 主計算流程
+
+```
+Algorithm StrokeBasedSchematization(V, L, T, D):
+
+  ## 第一階段：形成筆畫（FormStrokes）
+
+  processed ← ∅
+
+  # 步驟 1a：具名線段優先串接（同名且首尾相鄰直接串成一條筆畫）
+  for each unique name n in L:
+      segs_n ← {seg ∈ L : seg.name = n}
+      chain ← 依端點相鄰關係把 segs_n 串成有序頂點鏈
+      strokes.add( Stroke(vertices = chain, name = n) )
+      processed ← processed ∪ segs_n
+
+  # 步驟 1b：無名線段：every-best-fit 全域配對
+  for each vertex v ∈ V with deg(v) ≥ 2:
+      unproc ← {seg ∈ adj[v] : seg ∉ processed}
+      # 列出所有未處理線段對及其偏角
+      pairs ← []
+      for each (seg_i, seg_j) in unproc × unproc, i ≠ j:
+          angle ← deflectionAngle(seg_i, seg_j, v)   # 見子計算 A
+          pairs.append( (angle, seg_i, seg_j) )
+      pairs.sort( by angle ascending )
+      matched_here ← ∅
+      for (angle, seg_i, seg_j) in pairs:
+          if angle ≥ T: break          # 剩餘角度更大，全部放棄
+          if seg_i ∉ matched_here and seg_j ∉ matched_here:
+              connect[v][seg_i] ← seg_j
+              connect[v][seg_j] ← seg_i
+              matched_here ← matched_here ∪ {seg_i, seg_j}
+
+  # 依 connect 的傳遞閉包，把無名線段串成筆畫
+  for each seg ∈ L \ processed:
+      trace stroke by following connect links from both ends until no extension
+      strokes.add( Stroke(vertices = traced chain, name = null) )
+      processed ← processed ∪ {所有已串入的線段}
+
+  ## 第二階段：計算排序鍵，建立待處理佇列
+
+  for each stroke s in strokes:
+      stroke_weight[s] ← ( s.type,             # 預先定義，數字越大越優先
+                            totalLength(s),      # 所有線段長度之和
+                            numJunctions(s) )    # 與其他筆畫共享的頂點數
+  queue ← strokes sorted by stroke_weight descending（三鍵字典序）
+
+  ## 第三階段：漸進式定向與投影（Progressive Schematization）
+
+  while queue not empty:
+      s ← queue.dequeue()    # 取當前最高權重的未處理筆畫
+
+      # 步驟 3a：方向扭曲切分（類 Douglas–Peucker，但用角度而非垂距）
+      sub_list ← splitByDirectionDistortion(s, T)   # 見子計算 B
+
+      # 步驟 3b：每個子筆畫指派最近的允許方向
+      for each sub in sub_list:
+          dx ← last_vertex(sub).x − first_vertex(sub).x
+          dy ← last_vertex(sub).y − first_vertex(sub).y
+          base_angle ← atan2(dy, dx)               # 子筆畫首尾連線方位角
+          assigned_dir[sub] ← snapToNearest(base_angle, D)
+          # snapToNearest：取 D 中使 |角度差| 最小的方向
+
+      # 步驟 3c：拓撲一致性檢查與修復
+      for each sub in sub_list:
+          d ← assigned_dir[sub]
+          anchor ← chooseAnchor(sub)                # 見子計算 D
+          polygon ← simplePolygon(
+                        original_polyline(sub),
+                        directed_line(first_vertex(sub), last_vertex(sub), d))
+                      # 原折線與定向直線首尾相連圍成的多邊形
+
+          for each v_off ∈ V \ vertices(sub):
+              if pointInPolygon(pos[v_off], polygon):
+                  # v_off 在多邊形內 → 投影會改變拓撲關係
+                  side ← originalSide(v_off, polygon)  # 原始位置在哪一側
+                  # 把 v_off 垂直推出多邊形（最小位移），停在邊界的 side 一側
+                  pos[v_off] ← pushOutOfPolygon(pos[v_off], polygon, side)
+
+      # 步驟 3d：把子筆畫的頂點垂直投影到定向直線
+      for each sub in sub_list:
+          for each v on sub:
+              pos[v] ← perpendicularProject(pos[v], assigned_dir[sub], anchor)
+              # 見子計算 C
+              # 注意：捷運車站一律保留（不刪）；純幾何形狀中間點可刪除
+
+  return pos
+```
+
+### 關鍵子計算
+
+#### A. 偏角計算 `deflectionAngle(seg_i, seg_j, v)`
+
+```
+deflectionAngle(seg_i, seg_j, v):
+    # seg_i 與 seg_j 共享頂點 v；分別取兩段「從 v 出發」的單位方向向量
+    d_i ← normalize( otherEndpoint(seg_i, v) − v )
+    d_j ← normalize( otherEndpoint(seg_j, v) − v )
+    interior_angle ← acos( clamp(dot(d_i, d_j), −1, 1) )  # ∈ [0°, 180°]
+    deflection ← 180° − interior_angle   # 偏角 = 180° − 夾角
+    # 偏角越小 = 兩段越接近「直著走」，越適合接成同一筆畫
+    return deflection
+```
+
+#### B. 方向扭曲切分 `splitByDirectionDistortion(stroke, T)`
+
+```
+splitByDirectionDistortion(stroke, T):
+    verts ← stroke.vertices     # 有序頂點串列
+    if |verts| ≤ 2: return [stroke]   # 只有首尾，無法再切
+
+    a ← verts[0];  m ← verts[-1]
+    base_dir ← atan2(m.y − a.y, m.x − a.x)   # 首尾連線方位角
+
+    max_distortion ← 0;  split_v ← null
+    for each p in verts[1..-2]:         # 所有中間頂點
+        dir_ap ← atan2(p.y − a.y, p.x − a.x)  # a→p 方位角
+        distortion ← |angleDiff(dir_ap, base_dir)|
+        # angleDiff：取 [0°, 180°] 範圍內的最小角差
+        if distortion > max_distortion:
+            max_distortion ← distortion
+            split_v ← p
+
+    if max_distortion < T:
+        return [stroke]      # 整條筆畫不需切分
+
+    left  ← SubStroke( verts 從 a 到 split_v )
+    right ← SubStroke( verts 從 split_v 到 m )
+    return splitByDirectionDistortion(left, T)
+         + splitByDirectionDistortion(right, T)   # 遞迴
+
+angleDiff(θ1, θ2):
+    diff ← (θ1 − θ2 + 360°) mod 360°
+    return min(diff, 360° − diff)   # ∈ [0°, 180°]
+```
+
+#### C. 垂直投影 `perpendicularProject(pt, d, anchor)`
+
+```
+perpendicularProject(pt, d, anchor):
+    # 定向直線通過 anchor，方向角 d（弧度）
+    if d ≈ 0° 或 180° (水平):
+        return ( pt.x, anchor.y )           # 保留 x；y 統一為 anchor.y
+
+    elif d ≈ 90° 或 270° (垂直):
+        return ( anchor.x, pt.y )           # 保留 y；x 統一為 anchor.x
+
+    else:   # ±45°（d ≈ 45°, 135°, 225°, 315°）
+        # 旋轉座標系，讓定向直線對齊水平，做水平投影，再逆旋轉
+        pt_rot     ← rotate(pt,     −d)
+        anchor_rot ← rotate(anchor, −d)
+        proj_rot   ← ( pt_rot.x, anchor_rot.y )   # 在旋轉系中投影
+        return rotate(proj_rot, +d)                # 逆旋轉回原座標系
+
+rotate(pt, theta):
+    return ( pt.x·cos(theta) − pt.y·sin(theta),
+             pt.x·sin(theta) + pt.y·cos(theta) )
+```
+
+#### D. 錨點選取 `chooseAnchor(sub)`
+
+```
+chooseAnchor(sub):
+    # 錨點決定投影直線的「共同座標」，偏向最重要的交點以減少位移
+    junctions ← [v for v in sub.vertices
+                   if v is shared with at least one other stroke]
+
+    if junctions is empty:
+        return midpoint( first_vertex(sub), last_vertex(sub) )
+
+    # 取「已定案筆畫中、排序鍵最高者」的交點作錨
+    best_j ← argmax_{ v in junctions }(
+                max stroke_weight[s] for s in alreadyProcessedStrokes
+                                      where v ∈ s.vertices )
+    return pos[best_j]
+    # 若交點均等重要，可改用加權平均：
+    #   anchor ← Σ(stroke_weight[s_v] · pos[v]) / Σ stroke_weight[s_v]
+```
+
+---
+
 ## 1. 問題定義
 
 輸入一個地理座標下的路網（捷運網 / 道路網），輸出一張「示意圖」（schematic map）：

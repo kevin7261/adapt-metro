@@ -6,6 +6,255 @@
 
 ---
 
+## 計算邏輯與程式骨架
+
+> 以下依論文寫「要算什麼、怎麼算」——用虛擬碼、公式與迴圈描述計算步驟。實作時照此邏輯寫；不要呼叫既有程式裡的函式名，也不要寫「call xxx」。
+
+### 1. 輸入（抽象資料）
+
+- 無向圖 `G = (V, E)`，每站 `v_i ∈ V` 帶地理座標 `(x_i, y_i)`（以螢幕像素或地圖單位表示）。
+- 路線集合 `lines`：每條路線是站的有序序列；同一站可屬多條路線；focal edge 集合（Focus+Context 情境下的「目標路徑邊集合」）。
+- 螢幕邊界 `[x_min, x_max] × [y_min, y_max]`。
+- 算法參數：`w_g = 0.05, w_ℓ = 5, w_o = 10`，最小站-邊距離 `ε`，收斂容忍 `tol`。
+
+### 2. 輸出
+
+- 階段一輸出 `V′ = {v′_i}`：平滑化後的連續空間座標（邊長規律、角度均分，但方向任意）。
+- 最終輸出 `Ṽ = {ṽ_i}`：八方向化後的座標（每條邊盡量水平/垂直/45°）。
+
+### 3. 建議內部狀態
+
+| 變數 | 說明 |
+|---|---|
+| `θ_ij` | 邊 `(i,j)` 的當前旋轉角（Gauss-Newton 外迴圈中交替更新） |
+| `R_ij` | 旋轉矩陣 `[cosθ -sinθ; sinθ cosθ]`，初始為 `I` |
+| `V′[i]` | 每站當前座標，在外迴圈中持續更新 |
+| `D_α, D_β` | focal/contextual 目標邊長（由式 13 預先解出） |
+| `cross_whitelist` | 原圖中已存在的邊交叉對（開始就有，不算違規） |
+| `active_set` | 目前活躍的邊界/邊距懲罰項（只有違規時才加入） |
+| `coarse_removed` | 粗化時依序移除的站記錄（含比例 r_i，供還原用） |
+
+### 4. 主計算流程
+
+```
+──────────────────────────────────────────────────
+前處理 A：解出目標邊長 D_α, D_β
+──────────────────────────────────────────────────
+// 式 13：總長守恆 + D_α = 2 D_β
+// N_α = focal 邊數；N_β = contextual 邊數
+// total_len = Σ |v_i - v_j|（所有邊的原始長度之和）
+// 解方程組：
+//   N_α * D_α + N_β * D_β = total_len
+//   D_α = 2 * D_β
+// → D_β = total_len / (2*N_α + N_β)
+//   D_α = 2 * D_β
+// 若無 focus（一般佈局），令 D_α = D_β = total_len / |E|
+
+D_β ← total_len / (2*N_α + N_β)
+D_α ← 2 * D_β
+
+──────────────────────────────────────────────────
+前處理 B：記錄交叉白名單
+──────────────────────────────────────────────────
+cross_whitelist ← {}
+for each pair of edges (i,j), (k,l) where {i,j} ∩ {k,l} = ∅：
+  if segments_intersect(v_i,v_j, v_k,v_l)：
+    cross_whitelist.add({(i,j),(k,l)})
+
+──────────────────────────────────────────────────
+前處理 C：Coarse-to-fine 粗化
+──────────────────────────────────────────────────
+G_c ← G 的拷貝；coarse_removed ← []
+repeat：
+  best_v ← none；best_d ← ∞
+  for each v_i that is a degree-2 in G_c（兩鄰居 v_j, v_k）：
+    d_ijk ← point_to_segment_dist(pos[v_i], pos[v_j], pos[v_k])
+    if d_ijk < best_d：best_d ← d_ijk；best_v ← v_i
+  if best_d > threshold（e.g. ε·2）：break
+  v_i ← best_v；兩鄰居 v_j, v_k
+  r_i ← dot(pos[v_i]-pos[v_j], pos[v_k]-pos[v_j]) / |pos[v_k]-pos[v_j]|²
+  coarse_removed.prepend((v_i, v_j, v_k, r_i))  // prepend 供還原時反序使用
+  把 v_i 從 G_c 移除；若 (v_j,v_k) 不存在則新增邊 {v_j,v_k}
+until 收斂或達到目標粗化大小
+
+──────────────────────────────────────────────────
+主迭代：階段一（平滑變形）——對 G_c 跑 Gauss-Newton 外迴圈
+──────────────────────────────────────────────────
+// 初始化
+V′ ← G_c 的地理座標
+R_ij ← I（單位矩陣）對所有邊
+active_set ← {}
+
+repeat（Gauss-Newton 外迴圈）：
+
+  // ── 建超定線性系統 A·x = b（x = [v′_0.x, v′_0.y, v′_1.x, v′_1.y, ...] 展開） ──
+
+  // Ω_m 貢獻（角度均分 + 線直，對每站 v_i、每對相鄰邊 {i,j},{i,k}）：
+  //   令 f = deg(v_i)；θ_target = 2π / f
+  //   ─── f = 2（直通站）────────────────────
+  //   方程：v′_i = (v′_j + v′_k) / 2
+  //   → 線性行：1·v′_i.x − 0.5·v′_j.x − 0.5·v′_k.x = 0（x 方向）
+  //               1·v′_i.y − 0.5·v′_j.y − 0.5·v′_k.y = 0（y 方向）
+  //   ─── f ≥ 3（轉乘站）──────────────────────
+  //   等腰三角形幾何：v_i 應在底邊 v_j→v_k 的「中點法線」上，高度為
+  //     h = tan((π − θ_target)/2) · |底邊|/2
+  //   用上一輪 V′ 算 h（作常數），展開成 v′_i, v′_j, v′_k 的線性方程（見關鍵子計算 §5.1）
+  //   每對 {i,j},{i,k} 貢獻 2 行（x, y 各一）
+
+  // Ω_ℓ 貢獻（邊長規律，對每條邊 (i,j)）：
+  //   s_ij = D_{ij} / |v_i - v_j|   （D_{ij} = D_α 或 D_β）
+  //   目標：v′_i − v′_j = s_ij · R_ij · (v_i − v_j)
+  //   令 target_ij = s_ij · R_ij · (v_i − v_j)（已知常數向量）
+  //   行：1·v′_i.x − 1·v′_j.x = target_ij.x（帶權 sqrt(w_ℓ)）
+  //       1·v′_i.y − 1·v′_j.y = target_ij.y
+
+  // Ω_g 貢獻（錨定，對每站 v_i）：
+  //   行：1·v′_i.x = v_i.x（帶權 sqrt(w_g)）
+  //       1·v′_i.y = v_i.y
+
+  // Active set 貢獻（邊界/邊距懲罰）：
+  //   對每個 active 的邊界違規 v_i（e.g. v′_i.x < x_min）：
+  //     行：1·v′_i.x = x_min（帶大權）
+  //   對每個 active 的站-邊違規 (v_i, {j,k})：
+  //     // p_jk = r·v′_j + (1-r)·v′_k（用上輪 V′ 算 r，作常數）
+  //     δ_vec = ε / |v_i − p_jk| * (v_i − p_jk)（用上輪座標算，作常數）
+  //     目標：v′_i − p_jk = δ_vec  → 展開成 v′_i, v′_j, v′_k 的線性行
+
+  // ── 共軛梯度求解（CG）──
+  V′_new ← CG_solve(AᵀA, Aᵀb)  （見關鍵子計算 §5.2）
+  ΔV′ ← V′_new − V′
+
+  // ── 交叉抑制（crossing damping）──
+  for t = 1 to 20：
+    new_cross ← false
+    for each edge pair (i,j),(k,l) ∉ cross_whitelist：
+      if NOT intersect(V′+(i,j)) AND intersect((V′+ΔV′)+(i,j))：
+        new_cross ← true；break
+    if NOT new_cross：break
+    ΔV′ ← ΔV′ / 2
+  V′ ← V′ + ΔV′
+
+  // ── 更新旋轉矩陣 R_ij ──
+  for each edge (i,j)：
+    // 從「原始邊向量」旋轉到「當前邊向量」的角度
+    θ_ij ← atan2(V′[j].y−V′[i].y, V′[j].x−V′[i].x)
+          − atan2(v_j.y−v_i.y, v_j.x−v_i.x)
+    R_ij ← [cos θ_ij, −sin θ_ij; sin θ_ij, cos θ_ij]
+
+  // ── 更新 Active set ──
+  for each v_i：
+    if V′[i].x < x_min or V′[i].x > x_max or V′[i].y < y_min or V′[i].y > y_max：
+      加入邊界懲罰 to active_set
+    for each edge (j,k)（v_i 不在邊上）：
+      if point_to_segment_dist(V′[i], V′[j], V′[k]) < ε：
+        計算 r = dot(V′[i]−V′[j], V′[k]−V′[j]) / |V′[k]−V′[j]|²；clamp(r,0,1)
+        加入站-邊懲罰（含 r 常數）to active_set
+
+until ‖ΔV′‖ < tol 或達到最大迭代次數
+
+──────────────────────────────────────────────────
+粗到細還原：把 coarse_removed 的站逐一插回
+──────────────────────────────────────────────────
+for each (v_i, v_j, v_k, r_i) in coarse_removed（反序，最後移除的先還原）：
+  V′[i] ← V′[j] + r_i * (V′[k] − V′[j])  // 線性內插回
+  把 v_i 加回圖（G_c 擴充一個站）
+// 以還原後的 V′ 繼續跑上述主迭代直到收斂（以細圖為目標）
+
+──────────────────────────────────────────────────
+階段二：八方向化（octilinearity）
+──────────────────────────────────────────────────
+// 以階段一最終 V′ 為輸入，建新系統
+Ṽ ← V′
+
+// Ω_o 貢獻（對每條邊 (i,j)）：
+//   edge_vec = V′[i] − V′[j]
+//   nearest_oct = 最近八方向單位向量（0°/45°/90°/135° 的正負向，共 8 個）
+//   target_vec = nearest_oct * |edge_vec|  // 保長度，吸方向
+//   行：1·ṽ_i.x − 1·ṽ_j.x = target_vec.x（帶權 sqrt(w_o)）
+//       1·ṽ_i.y − 1·ṽ_j.y = target_vec.y
+
+// Ω_g 貢獻（錨定到 V′，不再用原始座標）：
+//   行：1·ṽ_i.x = V′[i].x（帶權 sqrt(w_g)）
+
+// 注意：階段二不再有 Ω_m、Ω_ℓ 的行
+// Active set（邊界/邊距）沿用階段一的方式動態加入
+
+Ṽ_new ← CG_solve(A'ᵀA', A'ᵀb')
+ΔṼ ← Ṽ_new − Ṽ
+// 同樣做交叉抑制（damping），套用 ΔṼ
+Ṽ ← Ṽ + ΔṼ
+
+輸出 Ṽ
+```
+
+### 5. 關鍵子計算
+
+#### 5.1 Ω_m 角度均分（f ≥ 3 展開）
+
+```
+站 v_i，一對鄰邊 {i,j},{i,k}，全角均分目標角 θ = 2π/f：
+  // 等腰三角形：底邊從 v′_j 到 v′_k
+  //   底邊中點 M = (v′_j + v′_k) / 2
+  //   底邊向量 d = v′_k − v′_j
+  //   法向（逆時針旋轉 90°）：n = (-d.y, d.x)
+  //   v_i 應在 M + h_coeff * n 處，其中
+  //   h_coeff = tan((π − θ)/2) / 2（h = tan((π−θ)/2) · |d|/2，除以 |d| 後只剩係數）
+
+// 用「上一輪 V′ 的座標」計算 |d|，令 h_const = tan((π−θ)/2) * |d_prev| / 2：
+  方程（x 方向）：
+    v′_i.x = (v′_j.x + v′_k.x)/2 + h_coeff_prev * (-(v′_k_prev.y - v′_j_prev.y))
+           = 0.5*v′_j.x + 0.5*v′_k.x + h_const_x
+  其中 h_const_x = h_coeff * (-(v′_k_prev.y - v′_j_prev.y))（上一輪的常數）
+  整理成：1·v′_i.x − 0.5·v′_j.x − 0.5·v′_k.x = h_const_x
+  y 方向同理（n.y = d.x 分量）
+
+// 特例 θ = π（f=2）：tan(0) = 0 → h_const = 0 → 退化成共線條件
+```
+
+#### 5.2 共軛梯度法（CG）骨架
+
+```
+// 求解 min ‖A·x − b‖²，即 AᵀA·x = Aᵀb
+// 不顯式建 AᵀA；只需「矩陣×向量」乘積
+
+CG_solve(A, b, x_init)：
+  x ← x_init
+  r ← b − A·x；p ← r；rs_old ← rᵀr
+  for iter = 1 to CG_MAX：
+    Ap ← A·p                   // 一次矩陣×向量
+    α ← rs_old / (pᵀ·Ap)
+    x ← x + α·p
+    r ← r − α·Ap
+    rs_new ← rᵀr
+    if sqrt(rs_new) < tol：break
+    β ← rs_new / rs_old
+    p ← r + β·p
+    rs_old ← rs_new
+  return x
+
+// 實務上把 AᵀA 理解為：
+//   (AᵀA)·x = Aᵀ(A·x)
+//   先算 z = A·x，再算 Aᵀ·z
+//   — A·x：把未知數代入所有方程式右手邊（稀疏乘）
+//   — Aᵀ·z：把每行的殘差反向累加到對應未知數
+```
+
+#### 5.3 交叉抑制（段相交判斷）
+
+```
+segments_intersect(p1, p2, p3, p4)：
+  // 以向量叉積判斷 p1p2 與 p3p4 是否真正相交（不含端點接觸）
+  d1 = cross(p4−p3, p1−p3)
+  d2 = cross(p4−p3, p2−p3)
+  d3 = cross(p2−p1, p3−p1)
+  d4 = cross(p2−p1, p4−p1)
+  if (sign(d1)≠sign(d2)) AND (sign(d3)≠sign(d4))：return true
+  // 共線端點接觸：依實際需要決定是否計入（一般不算交叉）
+  return false
+```
+
+---
+
 ## 1. 問題定義
 
 輸入：地理座標的捷運圖 `G = {V, E}`（v_i ∈ ℝ² 為站的地理位置），以及（focus+context 情境下）一條由最短路徑演算法算出的「乘客路線」。
