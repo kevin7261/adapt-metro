@@ -168,9 +168,9 @@ const width = ref(300)
 // Panel sections — the LLM對齊 tab is always present for Hill Climbing views
 // (hosts run controls + streaming + the 執行調整/恢復 toggle, like LLM評價/互動).
 // 「樣式」tab 已移到地圖上方的樣式工具列（StyleBar），這裡不再列出。
-// 顏色點間最大跨距（SPAN_CAP）只有 Straighten（hillclimb）與 RWD 視圖用得到——
-// 只有這些視圖才顯示「設定」tab（原本在地圖上方樣式工具列的彈窗，改放這裡）。
-const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
+// 顏色點間最大跨距（SPAN_CAP）只約束 Straighten（hillclimb）的 movewise——資訊 tab
+// 說明只在 hillclimb 顯示（RWD 工具列也不再放這個控制）。
+const hasSpan = computed(() => props.viewKind === 'hillclimb')
 const TABS = computed(() => [
   { id: 'info', label: '資訊' },
   // 物件 tab：只有選中某個 feature 時才出現；標籤＝目前物件內容類型（站點／路線／地標）。
@@ -832,8 +832,8 @@ function startResize(e) {
               </div>
             </template>
 
-            <!-- 顏色點間最大跨距（SPAN_CAP）：Straighten（hillclimb）與 RWD 都有——
-                 控制（最大跨距）已移到地圖上方工具列第 2 排，這裡只留說明。 -->
+            <!-- 顏色點間最大跨距（SPAN_CAP）：只 Straighten——控制在地圖上方工具列，
+                 這裡只留說明。 -->
             <template v-if="hasSpan">
               <div class="section-title">顏色點間最大跨距</div>
               <p class="weight-hint">

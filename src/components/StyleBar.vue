@@ -20,7 +20,7 @@ const props = defineProps({
   hideStops: { type: Boolean, default: false }, // 自動隱藏白點
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
-  spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（Straighten/RWD）
+  spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（只 Straighten）
   fisheye: { type: Boolean, default: false }, // 滑鼠放大鏡（魚眼變形，游標處放大網格）
   // OSM 實際軌道路線（25%）：只有 metro 地圖視圖、且該城市有軌道資料時才顯示。狀態
   // 在 LayerTab，工具列只顯示＋emit 回去。
@@ -63,15 +63,16 @@ function fitView() {
 }
 const editable = computed(() => props.layer && !props.layer.isBasemap && !isMetro.value)
 const isRwd = computed(() => props.viewKind === 'rwd')
-// 顏色點間最大跨距（SPAN_CAP）：Straighten（hillclimb）與 RWD 視圖都用得到——第 2 排
-// 只要 hasSpan 就出現（RWD 另有一整組權重控制）。
-const hasSpan = computed(() => props.viewKind === 'hillclimb' || props.viewKind === 'rwd')
+// 第 2 排：RWD 有版面控制；Straighten（hillclimb）才有顏色點間最大跨距（SPAN_CAP
+// 只約束爬山 movewise，RWD 畫線不用）。
+const isHillclimb = computed(() => props.viewKind === 'hillclimb')
+const hasRow2 = computed(() => isRwd.value || isHillclimb.value)
 
 // 工具依「相關功能」分組（每組一格，組間加分隔線）：
 //  · 路線：線寬（＋一般向量的 Symbology/顏色/邊寬）
 //  · 車站：站點半徑、顯示站名
 //  · 地圖：地圖底色
-//  · 版面：顏色點間最大跨距（Straighten/RWD）
+//  · 版面：顏色點間最大跨距（只 Straighten）
 // 數字型的尺寸工具（線寬／半徑）直接在工具列用數字輸入，不彈小視窗——
 // `num` = { prop, min, max, step, def }。其餘工具（顏色/Symbology/底色/跨距）
 // 仍是點 icon 彈出自己的控制項。
@@ -103,7 +104,7 @@ const groups = computed(() => {
     g.push(e)
   }
   // RWD Maps 的版面控制（模式切換／隱藏白點／隨機權重…）改在模板裡直接列出（型別
-  // 不一，見下方 v-if="isRwd" 區塊）。顏色點間最大跨距則移到右側面板的「設定」tab。
+  // 不一，見下方 v-if="isRwd" 區塊）。
   return g
 })
 
@@ -200,9 +201,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
       </template>
     </div>
 
-    <!-- 第 2 排：RWD 版面控制（只有 RWD）＋顏色點間最大跨距（Straighten/RWD）＋即時
-         診斷。權重 tab、設定 tab 都已拆空——工具在這排、說明移到右側「資訊」tab。 -->
-    <div v-if="hasSpan" class="sb-row sb-row-2">
+    <!-- 第 2 排：RWD 版面控制／Straighten 的線段最大跨距。權重 tab、設定 tab 都已
+         拆空——工具在這排、說明移到右側「資訊」tab。 -->
+    <div v-if="hasRow2" class="sb-row sb-row-2">
       <!-- RWD 專屬：方向數／版面模式／顯示權重數字／隱藏白點／最小站距／隨機權重 -->
       <template v-if="isRwd">
         <!-- 線方向數：4（只H/V）／8（+45°）／16（+22.5°）＝下拉選單 -->
@@ -292,11 +293,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           title="滑鼠放大鏡（魚眼變形）：游標處放大網格，footer 顯示座標"
           @click="emit('fisheye', !fisheye)"
         >放大鏡</button>
-        <div class="sb-sep" />
       </template>
 
-      <!-- 顏色點間最大跨距（hillclimb + rwd 都有）：改數字即重算（不必再按按鈕）。 -->
-      <label class="sb-inline" title="線段最大跨距（格）">
+      <!-- 顏色點間最大跨距（只 Straighten）：改數字即重算（不必再按按鈕）。 -->
+      <label v-if="isHillclimb" class="sb-inline" title="線段最大跨距（格）">
         <span class="sb-inline-label">線段最大跨距</span>
         <input
           type="number" class="sb-inline-num" min="1" step="1"
