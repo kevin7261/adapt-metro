@@ -1315,10 +1315,11 @@ function buildDrawData({ grid, sk, path, P, projById, stations, lineFeats, hcPos
     // RWD 路網：自動隱藏的白點（直通站）不畫（cachedRWD.hidden）。
     const hiddenWhite = (rwdLines && cachedRWD?.hidden) || null
     // 河流站點（properties.river）＝一般網路節點，但**沒有白點**（使用者）：只在骨架分類為
-    // 顯著點（紅匯流/藍端點/粉紅轉折/紫切點/黃）時才畫；黑/灰的河流折點不畫。
+    // 顯著點（紅匯流/藍端點/粉紅轉折/紫切點/黃/灰分隔）時才畫；黑的河流折點不畫。灰分隔點
+    // （依曲折度遞迴細分放）要顯示、可 hover 畫參考線（見 grayInfo）。
     const riverShow = (p) => {
       const c = sk.stationClass.get(p.station_id)
-      return c && c !== 'black' && c !== 'gray'
+      return c && c !== 'black'
     }
     stationData = stations
       .filter((f) => !(hiddenWhite && hiddenWhite.has(f.properties.station_id)))
@@ -1474,21 +1475,22 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
     }
   } else rwdStopStat.value = null
 
-  // Pink reference lines: the whole-edge chord (sinuosity baseline), the DP
-  // sub-segment baseline, and this point's perpendicular drop to it.
-  function drawRef(info) {
+  // Reference lines for a bend/separator point: the chord (sinuosity baseline,
+  // dashed), the DP sub-segment baseline (solid, pink only), and this point's
+  // perpendicular drop to it. `color` = 粉紅 #ec4899 / 灰分隔 #9ca3af.
+  function drawRef(info, color = '#ec4899') {
     refG.selectAll('*').remove()
     const seg = (a, b, dash) => refG.append('line')
       .attr('x1', P(a)[0]).attr('y1', P(a)[1]).attr('x2', P(b)[0]).attr('y2', P(b)[1])
-      .attr('stroke', '#ec4899').attr('stroke-width', 1.5)
+      .attr('stroke', color).attr('stroke-width', 1.5)
       .attr('stroke-dasharray', dash || null)
-    seg(info.chordA, info.chordB, '4 3') // edge chord (sinuosity)
-    seg(info.baseA, info.baseB)          // DP baseline
-    seg(info.pt, info.foot)              // perpendicular (垂距)
+    if (info.chordA) seg(info.chordA, info.chordB, '4 3') // chord (sinuosity)
+    if (info.baseA) seg(info.baseA, info.baseB)           // DP baseline (pink)
+    seg(info.pt, info.foot)                                // perpendicular (垂距)
     refG.append('circle')
       .attr('class', 'ref-foot')
       .attr('cx', P(info.foot)[0]).attr('cy', P(info.foot)[1])
-      .attr('r', 2 / zk).attr('fill', '#ec4899')
+      .attr('r', 2 / zk).attr('fill', color)
   }
   const clearRef = () => refG.selectAll('*').remove()
 
@@ -1542,11 +1544,14 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
     .on('click', (e, d) => { e.stopPropagation(); store.setSelectedFeature(panelLayer.value?.id, d.props) })
     .on('mouseenter', function (e, d) {
       select(this).raise().attr('r', ((panelLayer.value?.radius ?? 4) + 3) / zk)
-      // Same station hover as Metro Maps (name + local + lines); a pink bend
-      // point appends its sinuosity detail below rather than replacing it.
-      const info = sk?.pinkInfo?.get(d.props.station_id)
-      if (info && !gridMode.value) drawRef(info)
-      showTip(e, stationPopupHtml(d.props, tipIdx?.refColor) + (info ? pinkExtra(info) : '')) // 共用 popupHtml
+      // Same station hover as Metro Maps (name + local + lines); a pink bend or
+      // gray river separator appends its sinuosity detail below (not replacing).
+      const pInfo = sk?.pinkInfo?.get(d.props.station_id)
+      const gInfo = sk?.grayInfo?.get(d.props.station_id)
+      const info = pInfo || gInfo
+      if (info && !gridMode.value) drawRef(info, pInfo ? '#ec4899' : '#9ca3af')
+      showTip(e, stationPopupHtml(d.props, tipIdx?.refColor)
+        + (pInfo ? pinkExtra(pInfo) : gInfo ? grayExtra(gInfo) : '')) // 共用 popupHtml
     })
     .on('mousemove', moveTip)
     .on('mouseleave', function () {
@@ -1738,6 +1743,13 @@ function pinkExtra(info) {
     + '<br/><span style="color:#9ca3af;font-size:11px">曲折度：整條邊的弧長比兩端直線'
     + '（弦）長多少——越大越彎；虛線＝弦，實線＝DP 基線與垂距。</span>'
 }
+// Gray (river separator) EXTRA — the sub-segment (pink/yellow 邊界之間) it split.
+function grayExtra(info) {
+  return '<hr class="tip-sep"/><span style="color:#9ca3af">● 分隔點（灰）</span>'
+    + `<br/>子段曲折度 = 弧長÷弦長 = <b>${info.sinuosity.toFixed(2)}</b>（&gt;1.15 要再分隔）`
+    + '<br/><span style="color:#9ca3af;font-size:11px">粉紅／黃點等邊界之間仍太彎，'
+    + '就在最中間的點放灰分隔並遞迴細分；虛線＝子段弦，實線＝垂距。</span>'
+}
 function showTip(e, html) {
   const el = tipEl.value
   if (!el) return
@@ -1747,10 +1759,23 @@ function showTip(e, html) {
 }
 function moveTip(e) {
   const el = tipEl.value
-  if (!el || el.style.display === 'none') return
-  const [x, y] = pointer(e, host.value)
-  el.style.left = `${x + 14}px`
-  el.style.top = `${y + 14}px`
+  const cvs = host.value
+  if (!el || !cvs || el.style.display === 'none') return
+  // Position relative to the canvas (host is the offset parent) so it tracks the
+  // cursor exactly, then flip/clamp inside the visible canvas box so the tooltip
+  // is never clipped by overflow:hidden and never spills outside the view.
+  const pad = 6
+  const [px, py] = pointer(e, cvs)
+  const w = el.offsetWidth, h = el.offsetHeight
+  const cw = cvs.clientWidth, ch = cvs.clientHeight
+  let x = px + 14
+  let y = py + 14
+  if (x + w + pad > cw) x = px - w - 14              // flip to the left of cursor
+  x = Math.max(pad, Math.min(x, cw - w - pad))
+  if (y + h + pad > ch) y = py - h - 14              // flip above cursor
+  y = Math.max(pad, Math.min(y, ch - h - pad))
+  el.style.left = `${x}px`
+  el.style.top = `${y}px`
 }
 function hideTip() {
   if (tipEl.value) tipEl.value.style.display = 'none'
@@ -2678,7 +2703,7 @@ onBeforeUnmount(() => {
 .ma-tip {
   position: absolute;
   display: none;
-  z-index: 10;
+  z-index: 9999;
   pointer-events: none;
   max-width: 260px;
   background: hsl(var(--popover));

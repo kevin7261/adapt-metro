@@ -1,6 +1,7 @@
 <script setup>
 import { viewLabels, hcViewLabels, rwdViewLabels } from '../stores/viewGeometry'
 import GalleryTile from './GalleryTile.vue'
+import OfficialMapTile from './OfficialMapTile.vue'
 import CityViewGrid from './CityViewGrid.vue'
 
 // 視圖畫廊的一張城市卡：城市標題列＋（勾選的）各種地圖區段——Raw Maps 縮圖
@@ -41,9 +42,10 @@ const COLS = 2
 
     <template v-for="sec in sections" :key="sec.id">
       <div class="sec-label">{{ SECTIONS[sec.id].label }}</div>
-      <!-- Raw 縮圖也放進固定欄數的網格，佔一個 cell → 與其他圖同大小 -->
+      <!-- Raw：左＝自繪路網縮圖、右＝官方路線圖（原本空白的第二格） -->
       <div v-if="sec.id === 'raw'" class="raw-grid" :style="{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }">
         <GalleryTile :system="entry" bare @pick="(sys) => emit('pick', 'raw', sys)" />
+        <OfficialMapTile :system="entry" bare />
       </div>
       <CityViewGrid
         v-else

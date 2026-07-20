@@ -10,6 +10,7 @@ import { dragResize } from '../lib/dragResize'
 import { assetUrl } from '../lib/assetUrl'
 import { computeOrientation } from '../stores/orientation'
 import OrientationRose from './OrientationRose.vue'
+import OfficialMapTile from './OfficialMapTile.vue'
 import MIcon from './MIcon.vue'
 
 // The layer this tab edits — passed in by LayerTab.
@@ -566,6 +567,14 @@ const urbanrailUrl = computed(() => {
 const urbanrailLabel = computed(() =>
   URBANRAIL_CITIES[layer.value.city] ? layer.value.city : prettyContinent(layer.value.continent))
 
+// 官方路線圖（downloadMaps.mjs 抓的圖檔）——資訊 tab urbanrail 下方顯示，點擊開燈箱。
+// OfficialMapTile 需要 { file, city, cityZh, country, countryZh }；圖層物件湊一個即可。
+const systemForMap = computed(() => layer.value ? {
+  file: layer.value.file,
+  city: layer.value.city, cityZh: layer.value.cityZh,
+  country: layer.value.country, countryZh: layer.value.countryZh,
+} : null)
+
 /* ---- resize ---- */
 const dragging = ref(false)
 function startResize(e) {
@@ -666,6 +675,11 @@ function startResize(e) {
                 <a :href="urbanrailUrl" target="_blank" rel="noopener" class="info-link">
                   UrbanRail.Net：{{ urbanrailLabel }} <MIcon name="open_in_new" :size="11" />
                 </a>
+              </div>
+              <!-- 官方路線圖：urbanrail 下方，一列連結（同 urbanrail 樣式），點擊開燈箱 -->
+              <div v-if="!isHighway && systemForMap" class="info-row">
+                <span class="info-key">官方路線圖</span>
+                <OfficialMapTile :system="systemForMap" link />
               </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">
                 <span class="info-key">路網</span>

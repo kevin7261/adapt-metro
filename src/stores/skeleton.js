@@ -463,6 +463,8 @@ export function buildConnectSkeleton(geojson) {
   const stationClass = new Map(cls)
   // Per pink station: the geometry used to pick it, for the hover reference lines.
   const pinkInfo = new Map()
+  // Per gray (river separator) station: the sub-segment chord it split, for hover.
+  const grayInfo = new Map()
   const arcAt = (path) => {
     const cum = [0]
     for (let i = 1; i < path.length; i++) cum.push(cum[i - 1] + dist(coord.get(path[i - 1]), coord.get(path[i])))
@@ -485,6 +487,12 @@ export function buildConnectSkeleton(geojson) {
   // A kept vertex is marked pink only if it is still a black (through) station.
   const PINK_SINUOSITY = 1.25
   const PINK_DP_TOL = 0.25
+  // 河流灰分隔的子段曲折度門檻（使用者裁決 2026-07-21：由 1.25 → 試 1.0/1.05/1.1/1.20 → 定 1.15）——
+  // 子段曲折度 > 此值就在最中間放灰、遞迴細分。**不可設 1.0**：真實地理點幾乎不共線 → 幾乎每個
+  // 黑點都會變灰（台北 382/393）、RWD/HC 佈局彩色切點爆量而卡死（單城 >3 分鐘跑不完）；1.05→1.1
+  // 之間另有 40× 效能懸崖（台北 1.05＝71 灰 ~57s、1.1＝23 灰 ~1.6s）。1.15 比 metro 粉紅 1.25
+  // 積極、佈局仍可負擔（台北約 11 灰 ~1.5s）。
+  const RIVER_GRAY_SINUOSITY = 1.15
   // 河流邊與一般地鐵邊完全相同處理（使用者裁決：不要特別不同）——同曲折度關卡、
   // 同相對容差 DP 挑粉紅、同灰點分隔規則，無任何河流特例。
   for (const e of edges) {
@@ -525,14 +533,50 @@ export function buildConnectSkeleton(geojson) {
       }
     }
 
+    // ⑥ 河流灰分隔（使用者裁決 2026-07-21）＝**依曲折度遞迴細分**（與 metro 的「每 5 黑點
+    // 1 灰」不同）：粉紅計算完後，任兩相鄰邊界點（邊端點/黃交叉/紅匯流/藍端點＋內部粉紅）
+    // 之間，若該**子段**曲折度（子段弧長÷子段弦長）仍 > RIVER_GRAY_SINUOSITY（=1.0），就在
+    // 子段裡「最中間」（弧長中點最近）的黑點設灰分隔點；灰也成為邊界、遞迴細分左右兩半，
+    // 直到每個子段都近乎筆直。灰點納入後續計算（schematicGrid 把非黑點當切點 → 灰點之間
+    // 拉直）、hover 畫子段弦＋垂距參考線（grayInfo）。
+    if (isRiverEdge) {
+      const graySplit = (lo, hi) => {
+        if (hi <= lo + 1) return
+        const arc = cum[hi] - cum[lo]
+        const chordLH = dist(pts[lo], pts[hi])
+        const sinu = chordLH > 1e-9 ? arc / chordLH : Infinity
+        if (sinu <= RIVER_GRAY_SINUOSITY) return
+        const target = (cum[lo] + cum[hi]) / 2 // 弧長中點
+        let best = -1, bd = Infinity
+        for (let i = lo + 1; i < hi; i++) {
+          if (stationClass.get(path[i]) !== 'black') continue // 只在黑點放灰（不覆蓋粉紅/節點）
+          const d = Math.abs(cum[i] - target)
+          if (d < bd) { bd = d; best = i }
+        }
+        if (best < 0) return
+        stationClass.set(path[best], 'gray')
+        const A = pts[lo], B = pts[hi]
+        grayInfo.set(path[best], {
+          chordA: A, chordB: B, // 子段弦（曲折度基準）
+          pt: pts[best], foot: footOnLine(pts[best], A, B), // 灰點＋其垂足
+          sinuosity: sinu,
+        })
+        graySplit(lo, best)
+        graySplit(best, hi)
+      }
+      // 邊界＝邊端點 ＋ 任何已標記的非黑內部點（粉紅/紫）；逐相鄰邊界遞迴細分。
+      let bprev = 0
+      for (let i = 1; i < path.length; i++) {
+        if (i === path.length - 1 || stationClass.get(path[i]) !== 'black') {
+          graySplit(bprev, i)
+          bprev = i
+        }
+      }
+      continue
+    }
+
     // ⑥ gray separators: within each run of black between boundaries (nodes +
     // pink/purple), G = floor(N/5) grays, spread toward the middle.
-    // **河流邊不放灰**——這是河流與 metro 唯一必要的差別：河流一條邊有數百個連續黑點
-    // （metro 線沒有），「每 5 黑點 1 灰」會撒出數十個灰切點，每個灰在 placeBlacks 被吸到
-    // 自己的地理格排名 → 河流沿地理曲線折來折去（實測台北：放灰 63 拐點/2611°；不放灰
-    // 5 拐點/537°）。不放灰後河流在交叉黃點＋粉紅大轉折之間一律拉成直線＝使用者要的
-    // 「格網化後彩色點之間變直線、跟 metro 一樣直」（2026-07-18）。粉紅仍與 metro 同規則。
-    if (isRiverEdge) continue
     let runStart = 0
     for (let i = 1; i < path.length; i++) {
       const boundary = i === path.length - 1 || stationClass.get(path[i]) !== 'black'
@@ -550,5 +594,5 @@ export function buildConnectSkeleton(geojson) {
 
   // 河流合成站的座標（非 Point feature，前端拿不到）——連同 crossings 一起併進 posById，
   // 讓格網化（schematicGrid）把河流一起示意化、移動後視圖也畫得出河流邊。
-  return { stationClass, edges, pinkInfo, crossings }
+  return { stationClass, edges, pinkInfo, grayInfo, crossings }
 }

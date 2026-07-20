@@ -22,6 +22,7 @@ function serveDataDir() {
     const types = {
       json: 'application/json', geojson: 'application/json',
       png: 'image/png', svg: 'image/svg+xml', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+      gif: 'image/gif', webp: 'image/webp',
     }
     const ext = file.split('.').pop().toLowerCase()
     res.setHeader('Content-Type', types[ext] ?? 'application/octet-stream')

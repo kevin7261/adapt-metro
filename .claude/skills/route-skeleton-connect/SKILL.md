@@ -229,7 +229,9 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
 - `buildConnectSkeleton(geojson)` 為**純函式**：不改輸入；回傳
   `{ stationClass: Map<id, 'red'|'blue'|'black'|'purple'|'pink'|'gray'|'yellow'>,
      edges: [{ path:[id…], geom:[[lng,lat]…], cls:'coline'|'loop'|'parallel'|'plain', color, routeColors, renderColors }],
-     crossings: [{ id, coord:[lng,lat] }], riverNodes:[{ id, coord:[lng,lat] }] }`。`stationClass`／`edges` 的 path 可含合成交叉 id
+     pinkInfo: Map<id, {chordA,chordB,baseA,baseB,pt,foot,sinuosity,ratio}>,
+     grayInfo: Map<id, {chordA,chordB,pt,foot,sinuosity}>,  // 河流灰分隔的 hover 參考線
+     crossings: [{ id, coord:[lng,lat] }] }`。`stationClass`／`edges` 的 path 可含合成交叉 id
   （`xN`，見 ②）；`crossings` 給前端解析其座標。`edge.geom` ＝該邊的**真實折線座標串**（依
   route 停靠站切段、含跳站段穿過的中段站折點），供**地理視圖的邊分類襯底**沿線畫。座標一律
   取原座標（**不移動、不拉直**）。（線本身不用 edges 畫——見上「核心原則」，一律畫 line
@@ -256,13 +258,25 @@ n 依 MAX_OVERLAP=6 夾住）——與 metro map 完全相同。邊分類畫成*
   轉折——straight-ish 河段不挑粉紅、只在大轉折放，格網化後 `placeBlacks` 把彩色點之間拉直。
   曾有的河流絕對 0.2 km 粉紅容差（`dpKeepAbsKm`，巴黎長弦案 2026-07-17）已移除。
   僅存的河流微調（以 route_id 前綴 `river` 辨識）：
-  - **不放灰點**（河流與 metro 唯一必要差別）：河流一條邊有**數百連續黑點**（metro 線
-    沒有），「每 5 黑點 1 灰」會撒數十個灰切點，每個灰在 `placeBlacks` 被吸到自己的地理格
-    排名 → 河流沿地理曲線折來折去（實測台北：放灰 63 拐點/2611°；不放灰 5 拐點/537°）。
-    不放灰後河流在黃交叉＋粉紅大轉折之間一律拉成直線＝使用者要的效果。
-  - **沒有白點（渲染）**：river 站分類為黑/灰時不畫（D3Tab／viewGeometry 的 riverShow／
-    riverDotVisible）；地圖 LayerTab 的站圈 filter `['!',['has','river']]` 整批不畫。
-    顯示的河流節點＝藍端點/紅匯流/粉紅轉折/紫切點/黃交叉。
+  - **灰點＝依曲折度遞迴細分**（使用者裁決 2026-07-21，取代早期「河流不放灰」）：與 metro
+    的「每 5 黑點 1 灰」規則不同。**粉紅計算完後**，任兩相鄰**邊界點**（邊端點＝黃交叉／
+    紅匯流／藍端點 ＋ 內部粉紅）之間，若該**子段曲折度**（子段弧長÷子段弦長）仍
+    **> `RIVER_GRAY_SINUOSITY`（＝1.15，使用者 2026-07-21：由 1.25 → 試 1.0/1.05/1.1/1.20 → 定 1.15）**，
+    就在子段裡「**最中間**」（弧長中點最近）的黑點設**灰分隔點**；灰也成為邊界、**遞迴細分**
+    左右兩半，直到每個子段都近乎筆直。灰點**納入後續計算**（`schematicGrid` 把非黑點當切點 →
+    灰點之間拉直、格網化把灰吸到格排名）。**只在黑點放灰**（不覆蓋粉紅/節點）。**1.15** 比 metro
+    粉紅 1.25 積極、佈局仍可負擔（台北約 11 灰 ~1.5s）。
+    **⚠ 門檻不可設 1.0**：真實地理點幾乎不會完全共線 → 子段曲折度幾乎都 > 1.0 → 幾乎每個黑點
+    都被切成灰（台北 382/393、巴黎 282/288）、RWD/HC 佈局彩色切點爆量單城 >3 分鐘跑不完；
+    **1.05→1.1 之間另有 40× 效能懸崖**（台北 1.05＝71 灰 ~57s、1.1＝23 灰 ~1.6s，密集匯流河網
+    的病態組態）。
+    早期「每 5 黑點 1 灰」在河流會撒數十個地理採樣切點害河流折來折去，故河流改用此曲折度細分。
+  - **hover 畫參考線**：灰點與粉紅一樣可 hover——畫「子段弦（虛線，曲折度基準）＋灰點到弦的
+    垂距（實線）」並在 tooltip 顯示子段曲折度（`grayInfo`，`skeleton.js` 回傳；D3Tab 的
+    `drawRef`/`grayExtra`）。
+  - **沒有白點（渲染）**：river 站分類為**黑**時不畫（D3Tab／viewGeometry 的 riverShow／
+    riverDotVisible 只濾黑，不再濾灰）；地圖 LayerTab 的站圈 filter `['!',['has','river']]`
+    整批不畫。顯示的河流節點＝藍端點/紅匯流/粉紅轉折/紫切點/黃交叉/**灰分隔**。
 - degree／route 集合一律由 `routes[].stations` 建圖得出（不讀 `station_role`）。
 - 已實作：①②③④⑤⑥（節點/邊分類、黃色幾何交叉、紫點、粉紅、灰）。②黃點是幾何標記，
   只在純骨架視圖畫、格網化視圖不畫（見 ②）。

@@ -61,11 +61,12 @@ function projByIdFor(projection, stations, skeleton) {
   return projById
 }
 
-// 河流站點沒有白點（使用者）：骨架視圖只在分類為顯著點時畫（黑/灰不畫）；原始視圖一律不畫。
+// 河流站點沒有白點（使用者）：骨架視圖只在分類為顯著點時畫（黑不畫；灰＝依曲折度遞迴細分的
+// 分隔點要畫）；原始視圖一律不畫。
 const riverDotVisible = (f, skeleton) => {
   if (!f.properties?.river) return true
   const c = skeleton?.stationClass?.get(f.properties.station_id)
-  return !!c && c !== 'black' && c !== 'gray'
+  return !!c && c !== 'black'
 }
 
 // Integer cell → pixel cell-centre + uniform blue separators (same as D3Tab)。
