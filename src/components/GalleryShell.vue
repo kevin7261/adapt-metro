@@ -177,21 +177,28 @@ const tiles = computed(() => {
                     class="gi-item"
                     :title="`${t.cityZh ?? t.city} · ${t.countryZh ?? t.country}`"
                     @click="scrollToCity(t.id)"
-                  >{{ t.cityZh ?? t.city }}</button>
+                  >
+                    <span class="gi-name">{{ t.cityZh ?? t.city }}</span>
+                    <span class="gi-en">{{ t.city }}</span>
+                  </button>
                 </template>
               </template>
             </template>
           </template>
         </template>
-        <!-- 依車站數排序：照順序的平面清單 -->
+        <!-- 依車站數排序：照順序的平面清單（中/英城市·國名＋n線n站，與左側卡片一致） -->
         <template v-else>
           <button
             v-for="t in tiles"
             :key="t.id"
             class="gi-item flat"
-            :title="`${t.cityZh ?? t.city} · ${t.countryZh ?? t.country}`"
+            :title="`${t.cityZh ?? t.city} · ${t.countryZh ?? t.country} · ${t.line_count ?? 0} 線 · ${t.station_count ?? 0} 站`"
             @click="scrollToCity(t.id)"
-          >{{ t.cityZh ?? t.city }}</button>
+          >
+            <span class="gi-name">{{ t.cityZh ?? t.city }} · {{ t.countryZh ?? t.country }}</span>
+            <span class="gi-en">{{ t.city }} · {{ t.country }}</span>
+            <span class="gi-meta">{{ t.line_count ?? 0 }} 線 · {{ t.station_count ?? 0 }} 站</span>
+          </button>
         </template>
       </nav>
     </div>
@@ -304,19 +311,35 @@ const tiles = computed(() => {
 }
 .gi-country:hover { color: hsl(var(--primary)); }
 .gi-chev { flex-shrink: 0; opacity: 0.55; }
-/* 城市（可點捲動目標） */
+/* 城市（可點捲動目標）——中文＋英文兩列，與左側卡片一致 */
 .gi-item {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
   width: 100%;
   padding: 4px 10px 4px 34px;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.35;
   text-align: left;
   color: hsl(var(--foreground) / 0.82);
+}
+.gi-item.flat { padding: 5px 12px; }
+.gi-name,
+.gi-en,
+.gi-meta {
+  display: block;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.gi-item.flat { padding-left: 12px; }
+.gi-en,
+.gi-meta {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+}
 .gi-item:hover { background: hsl(var(--accent)); color: hsl(var(--primary)); }
+.gi-item:hover .gi-en,
+.gi-item:hover .gi-meta { color: hsl(var(--primary) / 0.75); }
 </style>
