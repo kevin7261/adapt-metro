@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-20-joint-cross-v17'
+export const RWD_ROUTER_REV = '2026-07-20-deskew-v18'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -1386,13 +1386,14 @@ export function buildRwdMap(segs, pos, opts = {}) {
   function jointReroutePairs(deep = false) {
     const JOINT_CAP = 16
     const prep = (S, T, seg, placed) => {
-      // 22.5 級照樣入列。skew 候選生成在最後（折數 1 排在多折之後）→ 先依折數
-      // 穩定排序恢復 bend-ordered 約定（提早 break 靠它；同折數時非 skew 在前）。
+      // 22.5 級照樣入列，但**方向級優先於折數**（使用者規則：能 45 就不用 22.5）——
+      // 依 (skew, bends) 排序：所有 45 級在前、22.5 級殿後。曾只依折數排＋只比總
+      // 折數，22.5 單折會贏過乾淨的 45 雙折（台北藍線案 2026-07-20）。
       return candidates(S, T, unit, dirsN)
         .filter((c) => !c.fallback)
-        .sort((a, b) => a.bends - b.bends)
+        .sort((a, b) => (a.skew ? 1 : 0) - (b.skew ? 1 : 0) || a.bends - b.bends)
         .slice(0, JOINT_CAP)
-        .map((c) => ({ pts: c.pts, bends: c.bends, legs: legsOfPts(c.pts) }))
+        .map((c) => ({ pts: c.pts, bends: c.bends, skew: !!c.skew, legs: legsOfPts(c.pts) }))
         .filter((c) => c.legs.length === c.pts.length - 1)
     }
     let improved = false
@@ -1415,17 +1416,19 @@ export function buildRwdMap(segs, pos, opts = {}) {
         const candB = prep(pos.get(B.seg.a), pos.get(B.seg.b), B.seg, placed)
           .filter((c) => conflictCount(c.pts, B.seg, placed) === 0)
         if (!candB.length) continue
-        let best = null, bestBends = Infinity
-        for (const cA of candA) { // 兩者皆 bend-ordered → 可提早 break
-          if (cA.bends >= bestBends) break
+        // 組合目標＝(skew 腿數, 總折數) 字典序——方向級優先於折數（能 45 就不用
+        // 22.5），同方向級才比總折數最少。
+        let best = null, bestSkew = Infinity, bestBends = Infinity
+        for (const cA of candA) {
           for (const cB of candB) {
+            const sk = (cA.skew ? 1 : 0) + (cB.skew ? 1 : 0)
             const tot = cA.bends + cB.bends
-            if (tot >= bestBends) break
+            if (sk > bestSkew || (sk === bestSkew && tot >= bestBends)) continue
             if (conflictCount(cA.pts, A.seg, cB.legs) !== 0) continue
             // 環狀順序鐵律：兩條同時換形狀——各自檢查時把對方的擬定形狀帶進去。
             if (orderViolation(A.seg, cA.pts, new Map([[B.seg, cB.pts]]))
               || orderViolation(B.seg, cB.pts, new Map([[A.seg, cA.pts]]))) continue
-            best = { cA, cB }; bestBends = tot
+            best = { cA, cB }; bestSkew = sk; bestBends = tot
           }
         }
         if (best) { applyCand(A, best.cA); applyCand(B, best.cB); improved = true; continue }
@@ -1959,10 +1962,47 @@ export function buildRwdMap(segs, pos, opts = {}) {
     }
   }
 
-  // 〔A* 樓梯轉 45 → 順接軟調整 → 壓短共線 → 降折到定點 → L→45〕跑兩輪：每一步
-  // 挪動走廊後都可能冒出新的可直線/可順接/可縮共線機會；續接分數不降 → 拓撲連續方向不變。
+  /* ---- 22.5 → 45 升級（deskewPass，使用者規則：能 45 就不用 22.5、方向級優先
+     於折數）：22.5 是「當下 45 全衝突」時的暫時解；衝突消解後走廊常已空出來，但
+     降折與軟調整都不會「增折換方向級」，22.5 一畫就永遠留著。收尾每輪重試：任何
+     含 22.5/67.5 腿的線，只要存在**乾淨的 45 級候選**（零衝突、近距貼線與硬重疊
+     都不得變長、環狀順序不變），就換成其中折數最少的——折數可以增加（方向級優先
+     於折數）。貼線護欄保住既有裁決：45 形要貼著別條線跑時仍保留不貼線的 22.5。 ---- */
+  function deskewPass() {
+    for (let li = 0; li < lines.length; li++) {
+      const L = lines[li]
+      if (L.fallback || L.forced) continue
+      if (!L.legs?.some((g) => g.dir[0] === 'E' || g.dir[0] === 'F')) continue
+      const placed = placedOf(li)
+      const curNear = nearOverlapLen(L.pts, placed)
+      const curHard = overlapLen(L.pts, placed)
+      let best = null
+      for (const c of candidates(pos.get(L.seg.a), pos.get(L.seg.b), unit, dirsN)) {
+        if (c.fallback || c.skew) continue
+        if (best && c.bends >= best.bends) continue // 候選未依折數全排序 → 自行追最少折
+        if (conflictCount(c.pts, L.seg, placed) !== 0) continue
+        if (orderViolation(L.seg, c.pts)) continue
+        if (nearOverlapLen(c.pts, placed) > curNear + OVER_TOL) continue
+        if (overlapLen(c.pts, placed) > curHard + OVER_TOL) continue
+        best = c
+      }
+      if (best) {
+        L.pts = best.pts
+        L.legs = legsOfPts(best.pts)
+        L.bends = best.bends
+        L.routed = false
+        if (L.colinear) { L.colinear = false; stats.colinear-- } // 升級後已全乾淨
+        stats.diag45++
+      }
+    }
+  }
+
+  // 〔A* 樓梯轉 45 → 22.5 升回 45 → 順接軟調整 → 壓短共線 → 降折到定點 → L→45〕
+  // 跑兩輪：每一步挪動走廊後都可能冒出新的可直線/可順接/可縮共線機會；
+  // 續接分數不降 → 拓撲連續方向不變。
   if (!opts.fast) for (let phase = 0; phase < 2; phase++) {
     if (dirsN >= 8) destairPass() // A* 直角樓梯 → 45°（非正方版面救援路徑的後處理）
+    if (dirsN >= 16) deskewPass() // 走廊空出來的 22.5 段升回 45 級（能 45 就不用 22.5）
     overlapReducePass() // 有重疊的段先試同折數的 25%/75% 分點把重疊縮短
     softPass() // 同顏色路線盡量直線相接（所有方向級都適用）
     bendReductionToFixpoint() // 盡量直線：能少折且不多重疊就少折
