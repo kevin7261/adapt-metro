@@ -1804,6 +1804,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
      彩色錨點（a/b）是拓撲錨點不可刪；保留的白點沿弧長**重新均分**。
    hidden：被藏白點 id；globalT = cutoff T（供讀數）。
    buildRwdMap 的收尾段——只讀 routing 結果（lines[].pts）與 opts，不碰 routing 狀態。---- */
+// dev 診斷用（scripts/*.mjs 離線重算單線候選、驗證 45/22.5 取捨）——非公開 API。
+export const _rwdInternals = { candidates, legsOfPts, legsHug, legsCross, pointOnLeg, dirOf, perpGap, T22, OVER_TOL }
+
 function placeWhiteStops(lines, pos, opts) {
   const posAfter = new Map(pos)
   const hidden = new Set()
