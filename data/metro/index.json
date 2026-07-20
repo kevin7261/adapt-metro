@@ -18849,6 +18849,8 @@
       "city": "Hiroshima",
       "osm_networks": [
         "Unknown",
+        "広島電鉄",
+        "広島電鉄株式会社",
         "広島高速交通株式会社"
       ],
       "operator": "Hiroshima Rapid Transit",

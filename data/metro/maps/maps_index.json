@@ -750,7 +750,7 @@
     "wikidata": null,
     "map_file": "maps/asia/japan/as-jpn-yokohama.png",
     "commons_file": null,
-    "source_url": null,
+    "source_url": "https://navi.hamabus.city.yokohama.lg.jp/blt-storage/pc/img/koutuu/railmap-pc.png",
     "license": "Official operator map (© operator; thesis use)",
     "artist": "横浜市交通局 市営地下鉄ブルーライン/グリーンライン路線図 (source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
@@ -1172,7 +1172,7 @@
     "wikidata": null,
     "map_file": "maps/europe/greece/eu-gre-athens.png",
     "commons_file": null,
-    "source_url": null,
+    "source_url": "https://stasy.gr/wp-content/uploads/2022/10/MAP_STASY_2022.pdf",
     "license": "Official operator map (© operator; thesis use)",
     "artist": "ΣΤΑΣΥ official Athens metro+tram network map (source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
@@ -1425,7 +1425,7 @@
     "wikidata": null,
     "map_file": "maps/asia/japan/as-jpn-kyoto.png",
     "commons_file": null,
-    "source_url": null,
+    "source_url": "https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000008/8995/nihongo_240529.pdf",
     "license": "Official operator map (© operator; thesis use)",
     "artist": "京都市交通局 地下鉄全線路線図（他社線を含む）(source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"
@@ -1771,7 +1771,7 @@
     "wikidata": null,
     "map_file": "maps/europe/italy/eu-ita-turin.png",
     "commons_file": null,
-    "source_url": null,
+    "source_url": "https://www.gtt.to.it/cms/risorse/urbana/img/metrotorino3.jpg",
     "license": "Official operator map (© operator; thesis use)",
     "artist": "GTT official Metropolitana di Torino Linea 1 diagram (source URL pending re-confirmation)",
     "note": "no official schematic — left blank per policy 2026-07"

@@ -738,6 +738,11 @@ async function build() {
     // 雪梨 Sydney Trains（舊稱 CityRail）市郊 T 線（route=train，由 fetchSydneyTrains.mjs
     // 補抓，使用者指定「雪梨要抓 CityRail」）：network=Sydney Trains 直綁雪梨。
     [/sydney trains|cityrail/i, { city: 'Sydney', country: 'Australia', continent: 'oceania' }],
+    // 広島電鉄（廣電）路面電車（route=tram，由 fetchHiroden.mjs 補抓；使用者 2026-07-21
+    // 裁決「只有廣島特例」收 tram）：pin 廣島，不靠 geocode 重心——廣電含宮島線一路向
+    // 西南，重心會把同城的 Astram Line 拖出廣島桶。
+    [/広島電鉄|廣島電鉄|hiroden|hiroshima electric railway/i,
+      { city: 'Hiroshima', country: 'Japan', continent: 'asia' }],
   ]
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file. Naming (metro-osm-fetch skill): DIRECTORIES use full names
@@ -998,8 +1003,15 @@ async function build() {
         }
       }
     }
-    // 一組內全部 relation 都是 light_rail 才算 LRT 線（混合視為 subway）
-    const lrtOnly = gRef.rids.every((r) => (routesTags.get(r) || {}).route === 'light_rail')
+    // 一組內全部 relation 都是 light_rail（或 tram）才算 LRT 線（混合視為 subway）。
+    // tram 只可能來自廣島特例的定向補抓（fetchHiroden.mjs，見 metro-city-hiroshima）——
+    // 全球基準查詢不收 tram，故此條對其他城市天然無作用。必須算 LRT：否則廣電會被
+    // 當成 subway 使 hasSubway=true，反而讓同城的 Astram Line（light_rail）被範圍規則剔掉。
+    const lrtOnly = gRef.rids.every((r) =>
+      /^(light_rail|tram)$/.test((routesTags.get(r) || {}).route || ''))
+    if (process.env.DEBUG_LRTONLY && new RegExp(process.env.DEBUG_LRTONLY,'i').test(`${network} ${t.name ?? ''}`))
+      console.log('  [lrtOnly]', (t.name||'').slice(0,30), '| net:', network, '| rids:', gRef.rids.join(','),
+        '| routes:', gRef.rids.map((r)=>(routesTags.get(r)||{}).route ?? 'MISSING').join(','), '->', lrtOnly)
     if (process.env.DEBUG_CITY && new RegExp(process.env.DEBUG_CITY, 'i')
       .test(`${network} ${t.name ?? ''} ${t.__own ?? ''}`))
       console.log('  [resolve]', (t['name:en'] || t.name || '').slice(0, 40),

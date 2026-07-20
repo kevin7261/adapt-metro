@@ -60,6 +60,9 @@ async function checkQueryVersion() {
 // (construction:route=subway) never matches the base queries.
 const LIFE = '["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]'
 // Include subway + LRT; exclude train / plain railway / tram (authoritative scope).
+// City-level exceptions never widen this query — they fetch into gap_* caches:
+//   route=train  -> fetchSbahnDe.mjs (German S-Bahn), fetchSydneyTrains.mjs
+//   route=tram   -> fetchHiroden.mjs (広島電鉄; Hiroshima ONLY, see metro-city-hiroshima)
 const MODES = '["route"~"^(subway|light_rail)$"]'
 const MASTER_MODES = '["route_master"~"^(subway|light_rail)$"]'
 

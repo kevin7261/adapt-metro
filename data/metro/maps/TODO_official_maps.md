@@ -11,9 +11,14 @@
 
 ## 現況（2026-07-21 更新）
 
-- ✅ 官方營運商圖：**95**（+5）
+- ✅ 官方營運商圖：**96**
 - 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：86
-- ⬜ 留白：**42**（-5）
+- ⬜ 留白：**41**
+
+> 數字請以實際重數為準（下方待辦 A 的 47 城表已過時）：
+> ```
+> python3 -c "import json;d=json.load(open('data/metro/maps/maps_index.json'));m={k:v for k,v in d.items() if isinstance(v,dict)};o=[s for s,v in m.items() if v.get('map_file') and 'Official operator map' in (v.get('license') or '')];print('official',len(o),'blank',len([s for s,v in m.items() if not v.get('map_file')]))"
+> ```
 
 > `maps_index.json` 共 224 筆，但 `metro:build` 後系統數已達 **235**——科恰班巴
 > （新增，見 [[metro-city-guadalajara]]）、東京 JR、大阪 JR 與地標變體等 **11 個系統
@@ -29,9 +34,21 @@
 **驗證後剔除**：河內（衛星空拍圖疊線）、巴庫（深色底地理圖）、洛陽（官方版本身就是
 地形底圖）、南通（只有遠期規劃圖）、台州（營運商無官網）、滁州（南京官方圖不含寧滁線）。
 
-**⚠️ provenance 缺口**：雅典/杜林/京都/橫濱這 4 張的 `source_url` 為 `null`——agent 在回報前
-被砍，來源網址遺失，PDF 內嵌中繼資料也只有 Adobe XMP 命名空間、挖不出下載來源。
-**不得憑印象補寫**，需重新到營運商官網確認後補上（圖檔本身已驗證合格，可照常使用）。
+**✅ provenance 缺口已補齊（2026-07-21）**：雅典/杜林/京都/橫濱這 4 張原本 `source_url` 為
+`null`（agent 在回報前被砍）。已重新到官網逐一查回並**用「下載→同法重新轉檔→MD5 比對」
+驗證確認就是同一份檔案**（非憑印象填寫）：
+
+| 城市 | source_url | 驗證方式 |
+|---|---|---|
+| 京都 | `https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000008/8995/nihongo_240529.pdf` | `qlmanage -s 2400` 渲染後 MD5 相同 |
+| 雅典 | `https://stasy.gr/wp-content/uploads/2022/10/MAP_STASY_2022.pdf` | 同上（stasy.gr 有 Cloudflare，需經 Wayback `id_` 取檔） |
+| 杜林 | `https://www.gtt.to.it/cms/risorse/urbana/img/metrotorino3.jpg` | `sips -s format png` 轉檔後 MD5 相同 |
+| 橫濱 | `https://navi.hamabus.city.yokohama.lg.jp/blt-storage/pc/img/koutuu/railmap-pc.png` | 原生 PNG，MD5 直接相同 |
+
+排除的錯誤候選（供日後省事）：雅典 `stasy.gr/wp-content/uploads/2021/12/Stasy_Map.pdf` 是
+2021 舊版（3 號線尚未通到比雷埃夫斯、底圖較深）；杜林 `.../avvisi/img/grafo_metro_bengasi.jpg`
+其實是 350×166 的手機翻拍照。橫濱官方 `/kotsu/sub/` 底下只有互動式路線圖，靜態 PNG 藏在
+`navi.hamabus…` 這個路線查詢子站。
 
 **已移出的殘留錯誤檔**（`_staging_2026-07-21/_rejected_leftovers/`）：洛陽/滁州/南通/台州
 四城路徑下的舊檔——其中 `as-chn-chuzhou.png` 其實是**舊版南京地鐵圖**，留著會誤導。

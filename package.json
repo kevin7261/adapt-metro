@@ -19,6 +19,7 @@
     "metro:fetchsbahn": "node scripts/fetchSbahnDe.mjs",
     "metro:fetchsydney": "node scripts/fetchSydneyTrains.mjs",
     "metro:fetchsglrt": "node scripts/fetchSingaporeLrt.mjs",
+    "metro:fetchhiroden": "node scripts/fetchHiroden.mjs",
     "metro:manuallines": "node scripts/buildManualLines.mjs",
     "metro:refresh": "node scripts/refreshRelations.mjs",
     "metro:refetchfailed": "node scripts/refetchFailedCities.mjs",
