@@ -2485,17 +2485,17 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
 
   // stale-file cleanup：桶的命名/歸屬改變時，上一輪寫出的舊檔要刪掉
   // （index 不引用的 systems/*.geojson 一律不留，避免殘留誤導）。
-  // **例外：additive 合併系統 `*-jr.geojson`／`*-lm.geojson`／`*-lrt.geojson`**（東京＋山手／
-  // 城市＋地標／新加坡＋LRT，由 buildJrCombined／buildLandmarkCombined／buildSingaporeVariants
-  // 維護）不是 buildGeojson 的產出，**絕不刪**——
-  // 否則每次 base 重建都會把它們掃掉、下游圖層變英文/找不到（使用者多次回報）。
+  // **例外：additive 合併系統 `*-jr`／`*-lm`／`*-lrt`／`*-incheon`／`*-rail`.geojson**（東京＋山手／
+  // 城市＋地標／新加坡＋LRT／首爾＋仁川／台北＋台鐵＋高鐵／東京＋JR＋私鐵，由 buildJrCombined／
+  // buildLandmarkCombined／buildSingaporeVariants／buildCombinedSystems 維護）不是 buildGeojson
+  // 的產出，**絕不刪**——否則每次 base 重建都會把它們掃掉、下游圖層變英文/找不到（使用者多次回報）。
   {
     const wanted = new Set(index.map((i) => join(BASE, i.file)))
     const walk = async (d) => {
       for (const e of await readdir(d, { withFileTypes: true })) {
         const p = join(d, e.name)
         if (e.isDirectory()) await walk(p)
-        else if (p.endsWith('.geojson') && !wanted.has(p) && !/-(?:jr|lm|lrt)\.geojson$/.test(e.name)) {
+        else if (p.endsWith('.geojson') && !wanted.has(p) && !/-(?:jr|lm|lrt|incheon|rail)\.geojson$/.test(e.name)) {
           await rm(p, { force: true })
           console.log(`  stale removed: ${p.slice(BASE.length + 1)}`)
         }
@@ -2518,7 +2518,7 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
   try {
     const prev = JSON.parse(await readFile(join(BASE, 'index.json'), 'utf8'))
     const have = new Set(index.map((i) => i.file))
-    combined = (prev.systems || []).filter((s) => /-(?:jr|lm|lrt)\.geojson$/.test(s.file || '') && !have.has(s.file))
+    combined = (prev.systems || []).filter((s) => /-(?:jr|lm|lrt|incheon|rail)\.geojson$/.test(s.file || '') && !have.has(s.file))
   } catch { /* first run */ }
   const indexAll = [...index, ...combined]
 

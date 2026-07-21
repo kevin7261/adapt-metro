@@ -598,7 +598,7 @@ export function buildConnectSkeleton(geojson, opts = {}) {
 
   // 河流合成站的座標（非 Point feature，前端拿不到）——連同 crossings 一起併進 posById，
   // 讓格網化（schematicGrid）把河流一起示意化、移動後視圖也畫得出河流邊。
-  // routes：routeId → { id, name, color, stations }——⑨ Shape-Guided 選路／貼形用；
+  // routes：routeId → { id, name, color, stations }——Shape-Guided 選路／貼形用；
   // 其他呼叫端可忽略。
   return { stationClass, edges, pinkInfo, grayInfo, crossings, riverGraySinuosity: RIVER_GRAY_SINUOSITY, routes }
 }

@@ -5,10 +5,13 @@
 // 例如 index 的 "New York City" vs 顯示名 "New York"）。
 export const QUICK_CITIES = [
   { zh: '台北', en: 'Taipei' }, { zh: '台北＋地標', en: 'Taipei + Landmark' },
+  { zh: '台北＋台鐵＋高鐵', en: 'Taipei + TRA + HSR' },
   { zh: '台中', en: 'Taichung' }, { zh: '高雄', en: 'Kaohsiung' },
   { zh: '東京', en: 'Tokyo' }, { zh: '東京＋山手', en: 'Tokyo + Yamanote' }, { zh: '東京＋地標', en: 'Tokyo + Landmark' },
+  { zh: '東京＋JR＋私鐵', en: 'Tokyo + JR + Private' },
   { zh: '大阪', en: 'Osaka' }, { zh: '大阪＋環狀', en: 'Osaka + Loop' },
-  { zh: '首爾', en: 'Seoul' }, { zh: '首爾＋地標', en: 'Seoul + Landmark' },
+  { zh: '首爾', en: 'Seoul' }, { zh: '首爾＋仁川', en: 'Seoul + Incheon' }, { zh: '首爾＋地標', en: 'Seoul + Landmark' },
+  { zh: '仁川', en: 'Incheon' },
   { zh: '北京', en: 'Beijing' },
   { zh: '上海', en: 'Shanghai' }, { zh: '上海＋地標', en: 'Shanghai + Landmark' },
   { zh: '香港', en: 'Hong Kong' },
@@ -32,3 +35,25 @@ export const matchQuickSystem = (systems, en) =>
   systems.find((s) => s.city === en)
   ?? systems.find((s) => (s.city || '').toLowerCase().startsWith(en.toLowerCase()))
   ?? null
+
+// 「快速選擇」地鐵排序（視圖畫廊右側 list 與加入 modal 共用）：base＋變體（＋地標／
+// ＋山手／＋環狀／＋LRT，city 形如 "Base + X"）併成單元不拆開，再依「洲別固定序 →
+// 國家首次出現序（避免同洲被拆成兩群）→ 國內 base 車站數多到少」排。continentRank
+// 由呼叫端傳入（避免 lib→stores 相依）。
+export function orderQuickMetro(matched, continentRank) {
+  const baseOf = (en) => (en || '').split(/\s*[+＋]\s*/)[0]
+  const units = [], byBase = new Map()
+  for (const s of matched) {
+    const b = baseOf(s.city)
+    if (s.city !== b && byBase.has(b)) { byBase.get(b).items.push(s); continue }
+    const u = { base: s, items: [s] }
+    units.push(u); byBase.set(b, u)
+  }
+  const countryRank = new Map()
+  for (const u of units) if (!countryRank.has(u.base.country)) countryRank.set(u.base.country, countryRank.size)
+  units.sort((a, b) =>
+    continentRank(a.base.continent) - continentRank(b.base.continent) ||
+    countryRank.get(a.base.country) - countryRank.get(b.base.country) ||
+    (b.base.station_count ?? 0) - (a.base.station_count ?? 0))
+  return units.flatMap((u) => u.items)
+}

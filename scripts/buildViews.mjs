@@ -35,7 +35,9 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 41 // 41: ⑨ Shape-Guided 形狀庫只留方形（拿掉圓）。
+const VIEWS_VERSION = 44 // 44: 移除論文⑨ Shape-Guided（改掛 D3Tab 循環之後，不進畫廊鏈）。
+                         // 43: ⑨ Shape-Guided 對齊論文 Smooth（固定 Ωc 最近點＋硬投影；非弧長）。
+                         // 41: ⑨ Shape-Guided 形狀庫只留方形（拿掉圓）。
                          // 40: ⑨ Shape-Guided 形狀庫收成圓／方兩種（拿掉愛心／體育場）。
                          // 39: 新增論文⑨ Shape-Guided（kind shape）——自動選路＋
                          //     內建形狀（圓/愛心/體育場/方）、不適合略過；HC/RWD
@@ -144,15 +146,8 @@ async function main() {
     if (withStats) out.stats = r.stats
     await writeFile(outPath, JSON.stringify(out))
     cat.push(meta(sys, id, r))
-    // HC 重算時印 ⑨ Shape-Guided 選路／形狀（時間後加註）；略過也標出
-    if (withStats && r.stats) {
-      const sh = r.stats['loop-shape-orig'] ?? r.stats['loop-shape-rot']
-      const note = sh?.note ? ` · ${sh.note}` : ''
-      const shMs = sh?.ms != null ? (sh.ms < 1000 ? `${sh.ms}ms` : `${(sh.ms / 1000).toFixed(1)}s`) : null
-      const total = ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
-      console.log(`  ✓ ${id}  ${total}`
-        + (shMs != null ? `  shape ${shMs}${note}` : ''))
-    }
+    const total = ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
+    if (withStats) console.log(`  ✓ ${id}  ${total}`)
     return 'built'
   }
 

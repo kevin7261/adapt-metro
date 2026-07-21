@@ -2845,92 +2845,10 @@
       "official_website": null,
       "official_map": "https://en.wikipedia.org/wiki/East–West_Line_(Singapore)",
       "wikidata": "Q40176",
-      "line_count": 13,
-      "segment_count": 19,
-      "station_count": 184,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/singapore/as-sgp-singapore.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "8 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "146 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 146 站（wiki List 記 143，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "146/146 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "182 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "146/146 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)"
-        ],
-        "audited_at": "2026-07-11T15:22:16.810Z"
-      }
+      "line_count": 8,
+      "segment_count": 14,
+      "station_count": 146,
+      "audit": null
     },
     {
       "file": "systems/europe/spain/eu-esp-barcelona.geojson",
@@ -23185,7 +23103,7 @@
       "wikidata": "Q16950",
       "line_count": 26,
       "segment_count": 34,
-      "station_count": 488,
+      "station_count": 487,
       "audit": null
     },
     {
@@ -23214,8 +23132,8 @@
       "official_map": "https://zh.wikipedia.org/wiki/臺北捷運",
       "wikidata": "Q714810",
       "line_count": 19,
-      "segment_count": 21,
-      "station_count": 210,
+      "segment_count": 22,
+      "station_count": 206,
       "audit": null
     },
     {
@@ -23284,15 +23202,23 @@
         "都営地下鉄新宿線",
         "銀座線",
         "銀座線;千代田線;半蔵門線",
-        "Japan Railways"
+        "Japan Railways",
+        "Tokyo Waterfront Area Rapid Transit",
+        "京成電鉄",
+        "京王",
+        "小田急電鉄",
+        "東武鉄道",
+        "株式会社ゆりかもめ",
+        "相模鉄道",
+        "首都圏新都市鉄道"
       ],
       "operator": "東京地下鉄",
       "official_website": null,
       "official_map": "https://ja.wikipedia.org/wiki/東京地下鉄",
       "wikidata": "Q682894",
-      "line_count": 41,
-      "segment_count": 76,
-      "station_count": 289,
+      "line_count": 53,
+      "segment_count": 102,
+      "station_count": 476,
       "audit": null
     }
   ],

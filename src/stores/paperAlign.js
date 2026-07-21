@@ -7,7 +7,6 @@ import { buildForceAlign } from './paper/force.js'
 import { buildLsqAlign } from './paper/lsq.js'
 import { buildOctiAlign } from './paper/octi.js'
 import { buildPathAlign } from './paper/path.js'
-import { buildShapeAlign } from './paper/shape.js'
 
 export { buildStrokeAlign } from './paper/stroke.js'
 export { buildMilpAlign } from './paper/milp.js'
@@ -18,6 +17,7 @@ export { buildOctiAlign } from './paper/octi.js'
 export { buildPathAlign } from './paper/path.js'
 export { buildShapeAlign } from './paper/shape.js'
 
+// 直線演算法①〜⑧（Shape-Guided 不在此列——掛在各鏈「循環」之後，見 D3Tab／route-shape-align）
 export const PAPER_KINDS = [
   { kind: 'stroke', zh: '①筆畫法', build: buildStrokeAlign },
   { kind: 'rect', zh: '②直角爬山', build: buildRectPolish },
@@ -27,7 +27,6 @@ export const PAPER_KINDS = [
   { kind: 'octi', zh: '⑥八向格網', build: buildOctiAlign },
   { kind: 'path', zh: '⑦路徑簡化', build: buildPathAlign },
   { kind: 'sat', zh: '⑧SAT規劃', build: buildSatAlign },
-  { kind: 'shape', zh: '⑨Shape-Guided', build: buildShapeAlign },
 ]
 export const PAPER_BUILD = Object.fromEntries(PAPER_KINDS.map((p) => [p.kind, p.build]))
 export const PAPER_ZH = Object.fromEntries(PAPER_KINDS.map((p) => [p.kind, p.zh]))

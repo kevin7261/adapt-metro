@@ -9,7 +9,7 @@
 // 節點缺格子 → RWD/HC 整段線消失、站點退回舊座標懸空（倫敦 Kilburn 案，2026-07-17）。
 // 且 localStorage 不隨 dev server 重啟/硬重載清除，殘留跨天。**改了 skeleton/schematicGrid/
 // hillClimb 的演算法就把版本 +1**；另有 use-time 結構驗證兜底（見 D3Tab 的 cachedHC 使用處）。
-const HC_LS_KEY = 'd3tab-hc-cache-v12' // v12: ⑨ Shape-Guided 只方形；v11: ⑨ 形狀庫圓／方；v10: 新增論文⑨ Shape-Guided（shape）鏈；v9: 論文忠實度校正（②冷卻/群集、①③④⑥⑦⑧ 改回論文做法）＋新增 layouts（①〜⑧ 比較佈局）與耗時 stats.ms；v8: 清掉可能與 skill 端 fingerprint 漂移的殘留 HC 快取（LLM 結果誤判 stale）；v7: 河流不放灰（座標空間縮小）＋快取加界內驗證，清掉 v6 gray-on 殘留避免超出網格；v6: 河流粉紅/灰與 metro 一致；v5: 河流全點保留＋絕對 km 粉紅（巴黎長弦案）；v4: validShift 變形段補洞（大邱案）；v3: 骨架建圖含 pass
+const HC_LS_KEY = 'd3tab-hc-cache-v25' // v25: Shape-Guided 成方且交叉/重疊不合規不交付；v24: 強制成方；v23: validMove；v22: 先嵌方；v21: 規定表；v20: LS 吸附；v19: 正方／禁交叉重疊；v18: 軸向貼方；v17: 禁硬鎖；v16: 環線＋品質；v15: 移出論文鏈；v14: Smooth；v13: 弧長；v12: 只方形；v11: 圓／方；v10: 新增⑨；v9: 論文忠實度校正＋layouts＋stats.ms；v8: llm fingerprint；v7: 河流不放灰；v6: 河流粉紅/灰；v5: 河流全點；v4: validShift；v3: pass
 const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
 
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）

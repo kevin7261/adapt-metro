@@ -18,10 +18,10 @@ import {
   straightenCompactLoop, movewiseStage,
   stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
-import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from '../stores/paperAlign'
+import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH, buildShapeAlign } from '../stores/paperAlign'
 import {
   LAYOUT_KINDS, PAPER_KIND_IDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
-  loopKindOf, stepKindOf, postKindOf, needsHcLayout,
+  loopKindOf, shapeKindOf, stepKindOf, postKindOf, needsHcLayout,
 } from '../lib/hcMode'
 import { LLM_MODEL_OPTIONS } from '../lib/llmModels'
 import { llmApplyGet, llmApplySet } from '../lib/llmApplyPersist'
@@ -365,7 +365,9 @@ const POST_BUILD = { ...PAPER_BUILD }
 //   ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變。
 // - 循環（第 8 部份）：交替 端點移動→直線縮減→網格合併→縮減網格，跑到某輪
 //   「沒有點可以動」為止（straightenCompactLoop）。
-// - 逐步驗證（第 9 部份）：同一條四步鏈，由使用者按「下一步」一步步執行：每步＝
+// - Shape-Guided（循環與逐步之間）：對①〜⑧各鏈的**循環結果**跑論文貼形
+//   （buildShapeAlign；規定表城市才算，否則略過）。不進 PAPER_KINDS／畫廊 RWD compact。
+// - 逐步驗證：同一條四步鏈，由使用者按「下一步」一步步執行：每步＝
 //   目前階段的一個單掃描（或一次縮減網格），掃不動自動換下一階段，一輪全沒動靜
 //   ＝完成（stepChainInit/stepChainNext）。也沒有 hc 鏈（使用者 2026-07 裁決）。
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc' 或 PAPER_KIND_IDS
@@ -407,6 +409,7 @@ let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 kin
 let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 kind（①〜⑧＋'llm'）
 let cachedGather = {}  // 網格合併 (movewiseStage 'gather')，keyed by 鏈 kind（①〜⑧＋'llm'）
 let cachedLoop = {}    // 端點移動+直線縮減+網格合併+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
+let cachedShape = {}   // Shape-Guided（對①〜⑧循環結果貼形），keyed by 論文鏈 kind
 let stepState = {}     // 逐步驗證 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
 let stepHistory = {}   // 逐步驗證 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
@@ -445,7 +448,10 @@ const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 s
 // `layout-<kind>`（初步直線化群組的 ①〜⑧ 比較）、`post-<kind>`（直線演算法鏈）。
 // 值跟著快取走：算過就一直是那個數字，按「重新計算此城市全部圖層」清掉才重算。
 const calcMs = ref({})
-const calcNotes = ref({}) // ⑨ Shape-Guided：時間後加註「路線→形狀」或「略過」
+const calcNotes = ref({}) // 論文鏈等：時間後加註；Shape-Guided 略過／錯誤 → 不顯示 ms
+const shapeRouteName = ref(null) // 規定路線名（例：山手線）；有算過才顯示
+const shapeNoNeed = ref(false)   // 規定外／無法安全成方 → 整組不顯示計算時間
+const shapeFailLabel = ref(null) // '不需計算' | null
 function syncCalcMs() {
   const out = {}
   const notes = {}
@@ -458,15 +464,37 @@ function syncCalcMs() {
     if (cachedPost[k]?.stats?.ms != null) out[`post-${k}`] = cachedPost[k].stats.ms
     if (cachedPost[k]?.stats?.note) notes[`post-${k}`] = cachedPost[k].stats.note
   }
+  let shapeRoute = null
+  let anyShape = false
+  let anyShapeOk = false
+  for (const k of Object.keys(cachedShape)) {
+    const st = cachedShape[k]?.stats
+    if (!st) continue
+    anyShape = true
+    if (st.skipped) {
+      // 規定外／格網無法安全成方：不顯示時間，寫「不需計算」
+      notes[`shape-${k}`] = '不需計算'
+      if (st.route) shapeRoute = st.route
+    } else {
+      anyShapeOk = true
+      if (st.ms != null) out[`shape-${k}`] = st.ms
+      if (st.route) shapeRoute = st.route
+    }
+  }
   calcMs.value = out
   calcNotes.value = notes
+  shapeRouteName.value = shapeRoute
+  // 有任一成功 → 標題寫路線；否則若已有結果且全略過 → 不需計算
+  shapeNoNeed.value = anyShape && !anyShapeOk
+  shapeFailLabel.value = anyShape && !anyShapeOk ? '不需計算' : null
 }
 // 「88ms」/「1.2s」；沒算過回空字串（tab 名就不帶標注）。
 const msText = (ms) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
 const msBadge = (key) => {
+  const n = calcNotes.value[key]
+  if (n === '不需計算') return ' · 不需計算'
   const t = msText(calcMs.value[key])
   if (!t) return ''
-  const n = calcNotes.value[key]
   return n ? ` · ${t} · ${n}` : ` · ${t}`
 }
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
@@ -476,6 +504,7 @@ const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, mov
 const gatherStats = ref(null)    // 網格合併: { moved, segs, verts, iters, iterCap, converged }
 const stepInfo = ref(null)       // 逐步驗證: { info, steps, round, done }（顯示在浮動面板）
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
+const shapeStats = ref(null)     // Shape-Guided: { note, route, shapeZh, skipped, moved, ... }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
@@ -612,21 +641,34 @@ const VIEW_TABS = computed(() => {
       })),
       // 第九種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
-      // 鏈的三步＋循環＋逐步（每步一區、每條鏈一個 tab，前面的 tab 不受後面
-      // 步驟影響）：該鏈結果 → 端點移動 → 直線縮減 → 網格合併；另有 循環
-      //（交替四步直到沒有點可以動，見 loopKindOf）與 逐步驗證（按「下一步」
-      // 推進，見 stepKindOf）。9 條鏈（①〜⑧＋LLM）× 各區塊用迴圈生成。
+      // 鏈的三步＋循環（每步一區、每條鏈一個 tab）：該鏈結果 → 端點移動 →
+      // 直線縮減 → 網格合併 → 循環；再 Shape-Guided（只①〜⑧循環結果）→ 逐步驗證。
       ...[
         ['end', '端點移動', (zh) => `${zh}端點移動`, 'endpoint-move'],
         ['line', '直線縮減', (zh) => `${zh}直線縮減`, 'line-compact'],
         ['gather', '網格合併', (zh) => `${zh}網格合併`, 'grid-merge'],
         ['loop', '端點移動+直線縮減+網格合併循環', (zh) => `${zh}循環`, 'movewise-loop'],
-        ['step', '逐步驗證', (zh) => `${zh}逐步`, 'step-verify'],
       ].flatMap(([step, header, fmt, doc]) => [
         { header, doc },
         ...[...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]), ['llm', 'LLM 對齊']]
           .map(([k, zh]) => ({ id: `hc-${k}-${step}`, label: fmt(zh) })),
       ]),
+      // Shape-Guided：規定城市寫路線名；規定外 →「Shape-Guided 不需計算」
+      {
+        header: shapeRouteName.value
+          ? `Shape-Guided ${shapeRouteName.value}`
+          : shapeFailLabel.value
+            ? `Shape-Guided ${shapeFailLabel.value}`
+            : 'Shape-Guided',
+        doc: 'shape-guided',
+      },
+      ...PAPER_KINDS.map(({ kind, zh }) => ({
+        id: `hc-${kind}-shape`,
+        label: `${zh}${msBadge(`shape-${kind}`)}`,
+      })),
+      { header: '逐步驗證', doc: 'step-verify' },
+      ...[...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]), ['llm', 'LLM 對齊']]
+        .map(([k, zh]) => ({ id: `hc-${k}-step`, label: `${zh}逐步` })),
     ]
   }
   return [
@@ -785,12 +827,17 @@ function resetPerDataset(data) {
   cachedLine = {}
   cachedGather = {}
   cachedLoop = {}
+  cachedShape = {}
   stepState = {}
   stepHistory = {}
   cachedRWD = null
   hcStats.value = null
   layoutStats.value = null
   postStats.value = null
+  shapeStats.value = null
+  shapeRouteName.value = null
+  shapeNoNeed.value = false
+  shapeFailLabel.value = null
   postIters.value = {}
   llmInfo.value = null
   llmStats.value = null
@@ -839,7 +886,6 @@ async function computeHcLayout({ seq, w, h, grid }) {
           octi: '⑥八向格網中…（格網 → 逐邊定案，迭代到不動）',
           path: '⑦路徑簡化中…（格網 → C-directed 簡化，迭代到不動）',
           sat: '⑧SAT規劃中…（格網 → DPLL 指派，迭代到不動）',
-          shape: '⑨Shape-Guided中…（格網 → 選路貼形，迭代到不動）',
         }[layoutKind]
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return null }
@@ -906,8 +952,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
         lsq: '⑤最小平方中…（八方向化 Gauss–Seidel，迭代到不動）',
         octi: '⑥八向格網中…（ldeg 排序逐邊定案 + 嚴格接受，迭代到不動）',
         path: '⑦路徑簡化中…（C-directed 最少 link 刺穿，迭代到不動）',
-        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）',
-        shape: '⑨Shape-Guided中…（選最適路線＋形狀貼形，不適合略過）' }[kind]
+        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
       await new Promise((r) => setTimeout(r, 30))
       if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
       const t0 = performance.now()
@@ -1040,9 +1085,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   // 循環 tabs: on the chain's result, rounds of the three movewise stages
   // until a round moves nothing (straightenCompactLoop).
+  // Shape-Guided tabs 也先跑循環（輸入＝①〜⑧循環結果）。
   {
     // RWD（含其「縮減網格」輸入視圖）也走這裡：建立在該鏈的循環結果之上。
-    const loopKind = loopKindOf(mode.value) ?? (isRWD.value ? rwdCompactKey.value : null)
+    const loopKind = loopKindOf(mode.value)
+      ?? shapeKindOf(mode.value)
+      ?? (isRWD.value ? rwdCompactKey.value : null)
     if (loopKind) {
       if (!cachedLoop[loopKind]) cachedLoop[loopKind] = straightenCompactLoop(cachedSkeleton, cells, nC, nR)
       cells = cachedLoop[loopKind].cellAfter
@@ -1050,6 +1098,44 @@ async function computeHcLayout({ seq, w, h, grid }) {
       nR = cachedLoop[loopKind].rows
       loopStats.value = cachedLoop[loopKind].stats
       if (isRWD.value) hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
+    }
+  }
+  // Shape-Guided：在①〜⑧循環結果上貼形（各鏈獨立；規定表無此城才整組不需計算）
+  {
+    const sk = shapeKindOf(mode.value)
+    if (sk) {
+      if (!cachedShape[sk]) {
+        // 僅「規定外／找不到規定路段」可共享；貼方失敗不可連坐其他鏈
+        if (shapeNoNeed.value && shapeFailLabel.value === '不需計算') {
+          const sample = Object.values(cachedShape).find(
+            (v) => v?.stats?.skipped && v?.stats?.note === '不需計算' && !v?.stats?.routeSegment,
+          )
+          if (sample) cachedShape[sk] = sample
+        }
+        if (!cachedShape[sk]) {
+          hcBusy.value = true
+          busyText.value = `Shape-Guided中…（${PAPER_ZH[sk] ?? sk}循環）`
+          await new Promise((r) => setTimeout(r, 30))
+          if (seq !== renderSeq) { hcBusy.value = false; return null }
+          const t0 = performance.now()
+          const cityId = sourceLayer.value?.id ?? null
+          cachedShape[sk] = iteratePost(buildShapeAlign, cachedSkeleton, cells, nC, nR, { cityId })
+          cachedShape[sk].stats.ms = Math.round(performance.now() - t0)
+          // 規定表無此城（沒有 routeSegment）→ ①〜⑧ 都不必再跑
+          if (cachedShape[sk].stats.skipped && !cachedShape[sk].stats.routeSegment) {
+            cachedShape[sk].stats.note = '不需計算'
+            for (const { kind } of PAPER_KINDS) {
+              if (!cachedShape[kind]) cachedShape[kind] = cachedShape[sk]
+            }
+          }
+          hcBusy.value = false
+          syncCalcMs()
+        }
+      }
+      cells = cachedShape[sk].cellAfter
+      shapeStats.value = cachedShape[sk].stats
+    } else {
+      shapeStats.value = null
     }
   }
   // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
@@ -1832,6 +1918,18 @@ const layoutStatus = computed(() => {
       llmRerun: false,
     }
   }
+  if (isHC.value && shapeKindOf(m) && shapeStats.value) {
+    const s = shapeStats.value
+    if (s.skipped) {
+      return { text: 'Shape-Guided 不需計算', llmRerun: false }
+    }
+    return {
+      text: `Shape-Guided 移動 ${s.moved} 站`
+        + ` · 水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段`
+        + (s.hvdBefore != null ? ` · 含45° ${s.hvdBefore} → ${s.hvdAfter}` : ''),
+      llmRerun: false,
+    }
+  }
   if (isHC.value && endKindOf(m) && endpStats.value) {
     const s = endpStats.value
     return {
@@ -1954,9 +2052,13 @@ function recalcSpan() {
   cachedLine = {}
   cachedGather = {}
   cachedLoop = {}
+  cachedShape = {}
   stepState = {}
   stepHistory = {}
   cachedRWD = null
+  shapeRouteName.value = null
+  shapeNoNeed.value = false
+  shapeFailLabel.value = null
   render()
 }
 
@@ -1982,9 +2084,13 @@ function applyRiverGrayAndInvalidate(v) {
   cachedLine = {}
   cachedGather = {}
   cachedLoop = {}
+  cachedShape = {}
   stepState = {}
   stepHistory = {}
   cachedRWD = null
+  shapeRouteName.value = null
+  shapeNoNeed.value = false
+  shapeFailLabel.value = null
   cachedFp = `${dataFingerprint(cacheData)}:rg${th}`
   render()
 }

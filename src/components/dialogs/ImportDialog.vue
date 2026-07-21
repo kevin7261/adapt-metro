@@ -7,7 +7,7 @@ import {
 import { loadHighwayCatalog } from '../../stores/highwayCatalog'
 import { loadRailwayCatalog } from '../../stores/railwayCatalog'
 import { openLayerTab } from '../../stores/dockHandle'
-import { QUICK_CITIES, matchQuickSystem } from '../../lib/quickCities'
+import { QUICK_CITIES, matchQuickSystem, orderQuickMetro } from '../../lib/quickCities'
 import { IMPORT_DIALOGS, useDialogCatalog } from './useDialogCatalog'
 import CityIndexList from '../CityIndexList.vue'
 import MIcon from '../MIcon.vue'
@@ -224,10 +224,11 @@ const byStations = computed(() => {
 /* ---- 共用「城市索引清單」（CityIndexList）的 items 與標籤／metric ----
    使用者：加入 modal 的「快速選擇」「依車站數」要跟視圖畫廊右側 list 一樣。
    快速選擇＝洲別→國家→城市可收合分組；依數量＝平面清單＋頂端 sort icon。 */
-// 地鐵快選：與視圖畫廊完全同一份（QUICK_CITIES→系統，依洲別 stable 排序使同洲相鄰）。
+// 地鐵快選：與視圖畫廊完全同一份＋同一套排序（國內依車站數多到少，變體緊跟 base）。
 const metroQuickItems = computed(() =>
-  QUICK_CITIES.map((q) => matchQuickSystem(catalog.value ?? [], q.en)).filter(Boolean)
-    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent)))
+  orderQuickMetro(
+    QUICK_CITIES.map((q) => matchQuickSystem(catalog.value ?? [], q.en)).filter(Boolean),
+    continentRank))
 const metroMetric = (t) => `${t.line_count ?? 0} 線 · ${t.station_count ?? 0} 站`
 
 // 高速公路：country-unit（metro-unit 顯示城市·國家）。metric＝條數／交流道數。

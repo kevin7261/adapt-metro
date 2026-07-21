@@ -344,13 +344,6 @@ export function computeCityHcViews(geojson, opts = {}) {
       const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
       views[`loop-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
       const st = { cols: comp.cols, rows: comp.rows, ms: Date.now() - t0 }
-      // ⑨ Shape-Guided：把選路／形狀／略過寫進 stats，供 buildViews 日誌與畫廊對照
-      if (kind === 'shape' && post?.stats) {
-        st.note = post.stats.note ?? null
-        st.shape = post.stats.shape ?? null
-        st.route = post.stats.route ?? null
-        st.skipped = !!post.stats.skipped
-      }
       stats[`loop-${kind}-${variant}`] = st
     }
 

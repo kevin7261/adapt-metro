@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
+import { QUICK_CITIES, matchQuickSystem, orderQuickMetro } from '../lib/quickCities'
 import { continentRank } from '../stores/metroCatalog'
 import CityIndexList from './CityIndexList.vue'
 
@@ -82,12 +82,9 @@ const stationSort = ref('desc')
 const tiles = computed(() => {
   const all = catalog.value ?? []
   if (tab.value === 'quick') {
-    // 與加入 modal 的「快速選擇」共用同一份清單（含＋地標／＋山手／＋環狀變體）。
-    // 依洲別排序（stable，保留同洲內原本的策展順序＋變體相鄰）——否則 QUICK_CITIES
-    // 若把某洲的城市穿插在另一洲之間（如雪梨夾在北美城市間），右側索引會依「相鄰
-    // 洲別變了就開新群組」的規則把同一洲拆成兩個群組（曾出現兩個「北美洲」）。
-    return QUICK_CITIES.map((q) => matchQuickSystem(all, q.en)).filter(Boolean)
-      .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
+    // 與加入 modal 的「快速選擇」共用同一份清單＋同一套排序（國內依車站數多到少）。
+    const matched = QUICK_CITIES.map((q) => matchQuickSystem(all, q.en)).filter(Boolean)
+    return orderQuickMetro(matched, continentRank)
   }
   if (tab.value === 'stations') {
     const dir = stationSort.value === 'asc' ? 1 : -1

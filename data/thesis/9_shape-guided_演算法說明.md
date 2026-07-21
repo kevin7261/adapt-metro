@@ -1,4 +1,4 @@
-# ⑨ Shape-Guided 混合式地鐵圖佈局（Shape-Guided Mixed Metro Map Layout）
+# Shape-Guided 混合式地鐵圖佈局（Shape-Guided Mixed Metro Map Layout）
 
 > 論文：T. Batik, S. Terziadis, Y.-S. Wang, M. Nöllenburg & H.-Y. Wu (2022).
 > *Shape-Guided Mixed Metro Map Layout*. Computer Graphics Forum (Pacific Graphics 2022), 41(7), 495–506. DOI: 10.1111/cgf.14695
@@ -360,10 +360,12 @@ dmin < dlow < d < dup
 
 ## 與本系統（Adapt-Metro）的關係
 
-本系統已實作對應章節為直線演算法**⑨ Shape-Guided**（`route-shape-align`，
-kind `shape`）——整數格短距離改編：自動選最適合嵌形的路線＋內建形狀
-（**只方形**），描形站貼形、其餘近八方向；不適合則略過。完整論文
-三步（Fréchet 比對／LS 變形／Octi 織入）未原樣實作（成本與短距離契約不合）。
+本系統已實作對應章節為 **Shape-Guided**（`route-shape-align`）——**不是**
+直線演算法第 9 條：D3Tab 掛在「循環」與「逐步驗證」之間，對①〜⑧各鏈的
+**循環結果**跑整數格貼形（變形段對齊開源 `Smooth.cpp`：自動選路＋內建**只方形**；
+Ωc 用固定最近點；比對路徑 W 必收；平滑／混合 LS 後硬投影；格網 snap＋WINDOW）。
+不適合則略過。不進畫廊 RWD compact／`PAPER_KINDS`。完整 Fréchet Dijkstra／Octi
+織入未原樣實作（成本與短距離契約不合）。
 概念親緣：
 
 - 第三步格網對齊直接改造 **Bast et al.（⑥）**——與本系統 RWD 的 A\* 格點救援同源（port／彎折成本／逐邊定案）。

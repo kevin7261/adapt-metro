@@ -27,10 +27,14 @@ const ROOT = join(__dirname, '..')
 const METRO = join(ROOT, 'data', 'metro')
 const RAILWAY = join(ROOT, 'data', 'railway')
 
-// 大台北都會區（台北市＋新北市；排除基隆/桃園）＝ Taipei metro bbox ＋ 0.03° 邊界
-const TAIPEI_BBOX = [121.17, 24.90, 121.69, 25.23]
+// 大台北都會區（台北市＋新北市；排除桃園中壢/基隆）——西界 121.33 剛好留鶯歌、切掉桃園端
+const TAIPEI_BBOX = [121.33, 24.90, 121.70, 25.22]
 // 大東京都心 ＝ Tokyo metro bbox ＋ 0.05° 邊界（私鐵/JR 於此範圍截斷成都心段）
 const TOKYO_BBOX = [139.56, 35.54, 140.01, 35.84]
+// 東京鐵路噪音：無序大雜燴「一般鐵路」＋貨物/連絡線（重複幹線幾何、非客運）。
+// 京成由 fetchTokyoPrivate 從 OSM 完整抓，故 railway 的零星京成在此排除避免重複；東武東上線
+// 只在 railway 有（OSM 的 operator=東武 route=train 沒有東上/伊勢崎本線），故 railway 保留東武。
+const TOKYO_RAIL_EXCLUDE = /一般鐵路|貨物|Link Line|品鶴線|武蔵野南線|高架段|京成/
 
 const TARGETS = [
   {
@@ -58,10 +62,13 @@ const TARGETS = [
     cityEn: 'Taipei + TRA + HSR',
     cityZh: '台北＋台鐵＋高鐵',
     countryZh: '台灣',
+    // 端點精確控制（使用者）：台鐵縱貫線只畫 中壢↔汐止、高鐵只畫 南港↔桃園。
     railway: [
-      { file: 'systems/asia/taiwan/as-twn-rail.geojson', bbox: TAIPEI_BBOX },
-      { file: 'systems/asia/taiwan/as-twn-hsr.geojson', bbox: TAIPEI_BBOX },
+      { file: 'systems/asia/taiwan/as-twn-rail.geojson', select: { '縱貫線': ['中壢', '汐止'] } },
+      { file: 'systems/asia/taiwan/as-twn-hsr.geojson', select: { '台灣高速鐵路': ['南港', '桃園'] } },
     ],
+    // 高鐵 板橋↔南港 與台鐵共線、中間台鐵站（萬華/松山）標 pass（使用者）
+    passThrough: true,
   },
   {
     slug: 'as-jpn-tokyo-rail',
@@ -70,11 +77,20 @@ const TARGETS = [
     cityEn: 'Tokyo + JR + Private',
     cityZh: '東京＋JR＋私鐵',
     countryZh: '日本',
+    // 排除無序大雜燴桶「一般鐵路」與貨物/連絡線（會把遠處不相連的站串成跨市假線）。
+    // 不抓新幹線（使用者）——不納 as-jpn-hsr。
     railway: [
-      { file: 'systems/asia/japan/as-jpn-east-rail.geojson', bbox: TOKYO_BBOX },
-      { file: 'systems/asia/japan/as-jpn-central-rail.geojson', bbox: TOKYO_BBOX },
-      { file: 'systems/asia/japan/as-jpn-hsr.geojson', bbox: TOKYO_BBOX },
+      { file: 'systems/asia/japan/as-jpn-east-rail.geojson', bbox: TOKYO_BBOX, exclude: TOKYO_RAIL_EXCLUDE },
+      { file: 'systems/asia/japan/as-jpn-central-rail.geojson', bbox: TOKYO_BBOX, exclude: TOKYO_RAIL_EXCLUDE },
     ],
+    // 主要私鐵（東急/京急/小田急/京王/西武/相鉄…）不在 railway 資料內，由
+    // scripts/fetchTokyoPrivate.mjs（npm run metro:fetchtokyoprivate）另從 OSM 抓、寫此檔；
+    // 有就併、沒有就跳過（不擋 metro:combined）。
+    extraLinesFile: '_overrides/tokyo-private-lines.json',
+    // 異名共站（連通轉乘但站名不同，~213m）：JR 田町 ↔ 都営 三田
+    aliases: { '田町': '三田' },
+    // JR 各線大量共線（東海道本線 vs 京浜東北/山手…）：共軌重疊只畫一條、跳過的站標 pass
+    passThrough: true,
   },
 ]
 
@@ -88,12 +104,13 @@ function haversine([lon1, lat1], [lon2, lat2]) {
   return 2 * R * Math.asin(Math.sqrt(a))
 }
 const inBbox = ([lon, lat], [w, s, e, n]) => lon >= w && lon <= e && lat >= s && lat <= n
-// 站名正規化：小寫、去空白/句點、去尾綴（駅/站/역/station）、去消歧義括號
+// 站名正規化：臺→台、小寫、去空白/句點、去尾綴（車站/駅/站/역/station）、去消歧義括號
 function normName(s) {
   return (s || '')
+    .replace(/臺/g, '台')
     .replace(/\(.*?\)/g, '')
     .replace(/[’'`.]/g, '')
-    .replace(/(駅|站|역|station)$/i, '')
+    .replace(/(車站|駅|站|역|station)$/i, '')
     .replace(/\s+/g, '')
     .trim()
     .toLowerCase()
@@ -104,8 +121,9 @@ function normName(s) {
 //            operator, wikidata, wikipedia, osmIds:[], loop,
 //            stations:[{ id, name, nameLocal, nameEn, code, coord }] }
 
-// 從既有 metro/railway geojson 抽出各條線（依 route.stations 完整站序），可 bbox 過濾。
-function extractLinesFromGeojson(gj, { bbox = null } = {}) {
+// 從既有 metro/railway geojson 抽出各條線（依 route.stations 完整站序），可 bbox 過濾、
+// exclude 正則過濾線名（去掉貨物/連絡線與無序的「一般鐵路」大雜燴桶）。
+function extractLinesFromGeojson(gj, { bbox = null, exclude = null, select = null } = {}) {
   const ptById = new Map()
   for (const f of gj.features) {
     if (f.geometry?.type !== 'Point') continue
@@ -123,8 +141,13 @@ function extractLinesFromGeojson(gj, { bbox = null } = {}) {
     for (const r of f.properties.routes || []) {
       if (seen.has(r.route_id)) continue
       seen.add(r.route_id)
+      if (exclude && exclude.test(`${r.route_name || ''} ${r.route_name_local || ''}`)) continue
+      // select 模式：只收指定 route_name、且依 [from,to] 兩端站名夾出區間（精確控端點，
+      // 不受 bbox 矩形限制——如台鐵縱貫線只畫中壢↔汐止、高鐵只畫南港↔桃園）
+      const clip = select && (select[r.route_name] || select[r.route_ref])
+      if (select && !clip) continue
       const rawSeq = (r.stations || []).filter((s) => !s.pass)
-      const stations = []
+      let stations = []
       for (const s of rawSeq) {
         const pt = ptById.get(s.station_id)
         if (!pt) continue
@@ -134,7 +157,14 @@ function extractLinesFromGeojson(gj, { bbox = null } = {}) {
           nameEn: pt.nameEn, code: s.code || null, coord: pt.coord,
         })
       }
-      // 去掉 bbox 過濾後相鄰重複
+      if (clip) {
+        const idx = (nm) => stations.findIndex((s) => normName(s.name) === normName(nm))
+        let a = idx(clip[0]), b = idx(clip[1])
+        if (a < 0 || b < 0) { console.warn(`  ⚠ select 端點找不到：${r.route_name} [${clip}] (a=${a},b=${b})`); continue }
+        if (a > b) [a, b] = [b, a]
+        stations = stations.slice(a, b + 1)
+      }
+      // 去掉相鄰重複
       const seq = stations.filter((s, i) => i === 0 || s.id !== stations[i - 1].id)
       if (seq.length < 2) continue
       const loop = rawSeq.length > 2 && rawSeq[0].station_id === rawSeq[rawSeq.length - 1].station_id
@@ -237,6 +267,50 @@ function recomputeFlags(features) {
   }
 }
 
+// ---- 快車跨站共線 pass-through ------------------------------------------
+// 某線相鄰兩停靠站 A→B（>2km）之間，若另一條線提供 A…B 的近直線中間站路徑（總長
+// ≤1.35× 直線、非繞路），把那些中間站以 pass 頂點插入此線（行經不停靠）。中間站取最少者
+// ＝最直接的共線走廊（高鐵 板橋→南港 沿台鐵經萬華/松山）。同 metro-osm-fetch 的自動偵測精神。
+function applyPassThrough(lines, featById) {
+  const idIndex = (seq, id) => seq.findIndex((s) => s.id === id)
+  for (const L of lines) {
+    const out = []
+    for (let i = 0; i < L.seq.length; i++) {
+      out.push(L.seq[i])
+      if (i + 1 >= L.seq.length) continue
+      const a = L.seq[i], b = L.seq[i + 1]
+      const direct = haversine(a.coord, b.coord)
+      if (direct < 2000) continue
+      let best = null
+      for (const M of lines) {
+        if (M === L) continue
+        const ia = idIndex(M.seq, a.id), ib = idIndex(M.seq, b.id)
+        if (ia < 0 || ib < 0 || Math.abs(ia - ib) < 2) continue
+        const [lo, hi] = ia < ib ? [ia, ib] : [ib, ia]
+        let len = 0
+        for (let k = lo; k < hi; k++) len += haversine(M.seq[k].coord, M.seq[k + 1].coord)
+        if (len > 1.35 * direct) continue
+        const inter = M.seq.slice(lo + 1, hi)
+        const ordered = ia < ib ? inter : [...inter].reverse()
+        if (!best || ordered.length < best.length) best = ordered
+      }
+      if (best) for (const m of best) out.push({ ...m, pass: true })
+    }
+    L.finalSeq = out
+  }
+  // pass 站：車站 routes[] 加 {ref,name,pass:true}（不進 lines[]、不算停靠）
+  for (const L of lines) {
+    for (const s of L.finalSeq) {
+      if (!s.pass) continue
+      const f = featById.get(s.id)
+      if (!f) continue
+      const p = f.properties
+      if (!(p.routes || []).some((r) => r.ref === L.ref && r.name === L.name && r.pass))
+        p.routes = [...(p.routes || []), { ref: L.ref, name: L.name, pass: true }]
+    }
+  }
+}
+
 // ---- per-target build ---------------------------------------------------
 async function build(t) {
   const gj = JSON.parse(await readFile(join(METRO, t.base), 'utf8'))
@@ -253,9 +327,17 @@ async function build(t) {
   }
   for (const rw of t.railway || []) {
     const src = JSON.parse(await readFile(join(RAILWAY, rw.file), 'utf8'))
-    addLines.push(...extractLinesFromGeojson(src, { bbox: rw.bbox }))
+    addLines.push(...extractLinesFromGeojson(src, { bbox: rw.bbox, exclude: rw.exclude, select: rw.select }))
   }
   for (const spec of t.osmLines || []) addLines.push(await extractLineFromOsm(spec))
+  if (t.extraLinesFile) {
+    try {
+      const extra = JSON.parse(await readFile(join(METRO, t.extraLinesFile), 'utf8'))
+      const lines = extra.lines || []
+      addLines.push(...lines)
+      console.log(`  + ${lines.length} extra lines from ${t.extraLinesFile}`)
+    } catch { console.log(`  (no ${t.extraLinesFile} — run its fetch script to include; skipping)`) }
+  }
 
   console.log(`\n[${t.slug}] base ${gj.metro_system.city} (${baseStationCount} st) + ${addLines.length} lines`)
 
@@ -270,7 +352,8 @@ async function build(t) {
   const indexStation = (f) => {
     addIdx(f.properties.station_name, f)
     addIdx(f.properties.station_name_en, f)
-    for (const m of f.properties.merged_names || []) addIdx(m.station_name, f)
+    addIdx(f.properties.station_name_local, f) // 在地名（韓文/日文/中文）——跨資料集有的用
+    for (const m of f.properties.merged_names || []) addIdx(m.station_name, f)      // 羅馬字、有的用在地名，兩邊都索引才對得上（首爾仁川 검암 Geomam 共站）
   }
   for (const f of features) if (f.geometry?.type === 'Point') indexStation(f)
 
@@ -280,7 +363,7 @@ async function build(t) {
   // 合併/新增一個 SourceLine 的站，回傳可畫線用的 station feature
   function resolveStation(s, line) {
     const target = aliases[s.name] || s.name
-    const keys = [normName(target), normName(s.nameEn)].filter(Boolean)
+    const keys = [normName(target), normName(s.nameEn), normName(s.nameLocal)].filter(Boolean)
     let hit = null
     if (!noMerge.has(normName(s.name))) {
       const cands = new Set()
@@ -341,46 +424,81 @@ async function build(t) {
     return feat
   }
 
-  // 逐條附加線：合併站 → 建線段 feature
-  let segIdx = 0
-  let merged = 0, added = 0
+  // Phase 1：解析各線停靠站（合併/新增站，附加線 ref 掛進車站 routes/lines）
   const before = features.filter((f) => f.geometry?.type === 'Point').length
   for (const line of addLines) {
-    const vtx = []
-    const routeStations = []
-    for (const s of line.stations) {
+    line.seq = line.stations.map((s) => {
       const f = resolveStation(s, line)
-      if (f.properties.merged_from === 1 && f.properties.station_id === s.id) added++
-      else merged++
-      vtx.push(f.geometry.coordinates)
-      routeStations.push({
-        station_id: f.properties.station_id, station_name: f.properties.station_name,
-        ...(s.code ? { code: s.code } : {}),
-      })
-    }
-    if (line.loop && routeStations.length > 2) {
-      routeStations.push({ ...routeStations[0] })
-      vtx.push(vtx[0])
-    }
+      return { id: f.properties.station_id, coord: f.geometry.coordinates, code: s.code || null, name: f.properties.station_name }
+    })
+  }
+
+  // Phase 2：快車跨站共線 pass-through（如高鐵沿台鐵走廊、中間台鐵站標 pass）
+  if (t.passThrough) {
+    const featById = new Map(features.filter((f) => f.geometry?.type === 'Point').map((f) => [f.properties.station_id, f]))
+    applyPassThrough(addLines, featById)
+  }
+
+  // Phase 3：路段化（重疊只畫一條）——把「行經 route 集合」相同的邊分組成一個 MultiLineString
+  // feature；共軌重疊段只輸出一次幾何、routes[] 列出全部行經線（渲染層依相異色數畫 n 色）。
+  // 每條 route 的完整站序（含 pass）掛在它出現的每個 seg（與 base metro 一致）。
+  const routeDesc = new Map()
+  for (const line of addLines) {
+    const seq = line.finalSeq || line.seq
+    const rs = seq.map((x) => ({
+      station_id: x.id, station_name: x.name,
+      ...(x.code && !x.pass ? { code: x.code } : {}),
+      ...(x.pass ? { pass: true } : {}),
+    }))
+    if (line.loop && rs.length > 2) rs.push({ ...rs[0] })
+    routeDesc.set(line, {
+      route_id: line.routeId, route_name: line.name, route_name_local: line.nameLocal,
+      route_name_en: line.nameEn, route_ref: line.ref, route_color: line.color,
+      network: line.network, network_local: line.networkLocal, operator: line.operator,
+      wikidata: line.wikidata, wikipedia: line.wikipedia, osm_route_ids: line.osmIds,
+      status: null, order_suspect: 0, stations: rs,
+    })
+  }
+  // 無向邊 → 行經 route 集合
+  const edgeMap = new Map()
+  const addEdge = (u, v, line) => {
+    if (!u || !v || u.id === v.id) return
+    const key = u.id < v.id ? `${u.id}|${v.id}` : `${v.id}|${u.id}`
+    let e = edgeMap.get(key)
+    if (!e) { e = { coordA: u.coord, coordB: v.coord, lines: new Set() }; edgeMap.set(key, e) }
+    e.lines.add(line)
+  }
+  for (const line of addLines) {
+    const seq = line.finalSeq || line.seq
+    for (let i = 0; i + 1 < seq.length; i++) addEdge(seq[i], seq[i + 1], line)
+    if (line.loop && seq.length > 2) addEdge(seq[seq.length - 1], seq[0], line)
+  }
+  // 依 route 集合分組 → 每組一個 feature
+  const bySig = new Map()
+  for (const e of edgeMap.values()) {
+    const lines = [...e.lines]
+    const sig = lines.map((l) => l.routeId).sort().join('|')
+    let g = bySig.get(sig)
+    if (!g) { g = { lines, coords: [] }; bySig.set(sig, g) }
+    g.coords.push([e.coordA, e.coordB])
+  }
+  let segIdx = 0
+  for (const g of bySig.values()) {
     features.push({
       type: 'Feature',
-      geometry: { type: 'MultiLineString', coordinates: [vtx] },
+      geometry: { type: 'MultiLineString', coordinates: g.coords },
       properties: {
-        seg_id: `${t.slug}-add-${segIdx++}`,
-        routes: [{
-          route_id: line.routeId, route_name: line.name, route_name_local: line.nameLocal,
-          route_name_en: line.nameEn, route_ref: line.ref, route_color: line.color,
-          network: line.network, network_local: line.networkLocal, operator: line.operator,
-          wikidata: line.wikidata, wikipedia: line.wikipedia, osm_route_ids: line.osmIds,
-          status: null, order_suspect: 0, stations: routeStations,
-        }],
-        route_count: 1, route_refs: [line.ref], route_colors: [line.color],
+        seg_id: `${t.slug}-seg-${segIdx++}`,
+        routes: g.lines.map((l) => routeDesc.get(l)),
+        route_count: g.lines.length,
+        route_refs: g.lines.map((l) => l.ref),
+        route_colors: g.lines.map((l) => l.color),
         city, country,
       },
     })
   }
   const afterPts = features.filter((f) => f.geometry?.type === 'Point').length
-  console.log(`  merged ${merged}, new stations +${afterPts - before}`)
+  console.log(`  new stations +${afterPts - before}, ${edgeMap.size} edges → ${bySig.size} segments`)
 
   recomputeFlags(features)
 
