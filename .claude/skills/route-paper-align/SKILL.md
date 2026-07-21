@@ -26,8 +26,8 @@ Climbing 的 `cellAfter`，短距離移動彩色頂點，回傳 `{ cellAfter, st
 | `llm` | LLM 對齊 | —（非論文；headless Claude Code） | route-llm-align |
 
 （② 的全圖佈局本體＝主演算法 Hill Climbing，本鏈是其直角後處理變體；⑨
-Shape-Guided 使用者裁決不做；⑫ One Metro World 無演算法內容。）論文與逐篇
-說明在 `data/thesis/`。
+Shape-Guided 使用者裁決不做——說明見 `data/thesis/9_shape-guided_演算法說明.md`；
+One Metro World 無演算法內容。）論文與逐篇說明在 `data/thesis/`。
 
 ## 共用機構（paperAlign.js 頂部）
 
