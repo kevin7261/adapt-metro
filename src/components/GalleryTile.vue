@@ -168,9 +168,9 @@ onBeforeUnmount(() => observer?.disconnect())
    CityViewGrid 的 cell（4/3）→ 卡片內每張圖同大小 */
 .tile.bare { border: none; border-radius: 0; }
 .tile.bare:hover { transform: none; box-shadow: none; }
-/* 視圖畫廊卡片內：縮圖高固定 180、寬依網路長寬比（不限制） */
-.tile.bare .tile-canvas { border-bottom: none; aspect-ratio: auto; height: var(--gv-h, 180px); }
-.tile.bare .tile-canvas svg { height: 100%; width: auto; max-width: none; }
+/* 視圖畫廊卡片內：縮圖固定 240×180（4/3），圖以 contain letterbox 塞入 */
+.tile.bare .tile-canvas { border-bottom: none; aspect-ratio: auto; width: var(--gv-w, 240px); height: var(--gv-h, 180px); }
+.tile.bare .tile-canvas svg { width: 100%; height: 100%; max-width: none; }
 /* bare 模式的名稱列（對齊 CityViewGrid 的 .vc-label） */
 .tile-label {
   padding: 3px 5px 5px;

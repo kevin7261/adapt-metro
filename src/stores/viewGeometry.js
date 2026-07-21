@@ -23,12 +23,20 @@ import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from './paperAlign.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 import { NODE_COLOR, EDGE_HL, stationColor, strokesOf as strokesOfShared } from '../lib/metroDraw.js'
 
-// 離線可預算的鏈（LLM 對齊除外——要 headless session）：hc ＋ 論文①〜⑧的
-// 八條鏈（PAPER_KINDS，名稱與 data/thesis 論文一一對應）。HC 畫廊與 RWD 畫廊
-// 共用同一份清單與後處理映射。
+// 離線可預算的鏈：hc ＋ 論文①〜⑧（PAPER_KINDS）。LLM 對齊另讀
+// data/metro/llmviews/<city>.<variant>.json（由 route-llm-align / llmAlignBatch
+// 預算），有檔且 fingerprint 相符才寫進 loop-llm-*／rwd-llm-*；否則畫廊顯示
+// 「尚未預算」。HC 畫廊與 RWD 畫廊共用同一份清單與後處理映射。
 const CHAIN_KINDS = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
 const CHAIN_POST = { hc: null, ...PAPER_BUILD }
 const CHAIN_ZH = { hc: 'Hill Climbing', llm: 'LLM 對齊', ...PAPER_ZH }
+
+// llmview 檔 → 可用的 cell Map（fingerprint 必須與目前 HC 一致，否則當缺檔）。
+function llmCellsIfMatch(llmview, fingerprint) {
+  if (!llmview?.cellAfter || !llmview.fingerprint) return null
+  if (JSON.stringify(llmview.fingerprint) !== JSON.stringify(fingerprint)) return null
+  return new Map(llmview.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+}
 
 // Single colour → solid; overlap (≥2 DISTINCT colours) → interleaved dashes.
 // viewGeometry 用 color 欄位（縮圖 JSON）；D3Tab 用 stroke。
@@ -285,13 +293,16 @@ export function viewLabels(tilt) {
 
 /**
  * Compute the Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
- * 2026-07：原始＋旋轉 兩個 variant × 每 variant 11 個階段）。每 variant：
+ * 2026-07：原始＋旋轉 兩個 variant × 每 variant 格網化後／HC／論文鏈循環＋
+ * 可選 LLM 對齊循環）。每 variant：
  *   1) 格網化後 — hillclimbing 的輸入佈局（= Map Adjust 的 grid-*-post）。
  *   2) Hill Climbing — 整數格多準則最佳化後。
  *   3–11) 各鏈循環結果 — 每條鏈（基本 hc ＋ 論文①〜⑧的八條鏈 CHAIN_KINDS）
  *        以 hc 結果為基底，先跑該鏈的後處理（迭代到不動點；hc 不做），再
  *        straightenCompactLoop（端點移動＋直線縮減＋網格合併循環到不動點，
  *        同 RWD 畫廊的 compact-{kind}）。
+ *   12) LLM 對齊循環 — opts.llmByVariant[variant] 有相符 fingerprint 的
+ *        llmviews 時才寫 loop-llm-*（否則畫廊「尚未預算」）。
  * 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）；
  * 黑點沿新段用 placeBlacks 放回（cellsToPos 內含）。
  * @returns {{ W, H, tilt, canRotate, views, stats }}
@@ -332,14 +343,29 @@ export function computeCityHcViews(geojson, opts = {}) {
       views[`loop-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
       stats[`loop-${kind}-${variant}`] = { cols: comp.cols, rows: comp.rows }
     }
+
+    // LLM 對齊循環：讀 opts.llmByVariant[variant]（llmviews 檔），fingerprint
+    // 相符才預算；缺檔／過期 → 不寫入，畫廊顯示「尚未預算」。
+    const fp = {
+      verts: hc.stats.verts, segs: hc.stats.segs,
+      cols: grid.cols, rows: grid.rows, hvStart: hc.stats.hvAfter,
+    }
+    const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
+    if (llmBase) {
+      const comp = straightenCompactLoop(skeleton, llmBase, grid.cols, grid.rows)
+      const m = cellMapper(comp.cols, comp.rows)
+      const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
+      views[`loop-llm-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
+      stats[`loop-llm-${variant}`] = { cols: comp.cols, rows: comp.rows }
+    }
   }
 
   return { W, H, tilt, canRotate, views, stats }
 }
 
-// 視圖畫廊顯示順序：每 variant 格網化後→Hill Climbing→各鏈循環（原始組＋旋轉組）。
+// 視圖畫廊顯示順序：每 variant 格網化後→Hill Climbing→各鏈循環（含 LLM）原始組＋旋轉組。
 export const HC_VIEW_ORDER = ['orig', 'rot'].flatMap((v) => [
-  `grid-post-${v}`, `hc-${v}`, ...CHAIN_KINDS.map((k) => `loop-${k}-${v}`),
+  `grid-post-${v}`, `hc-${v}`, ...CHAIN_KINDS.map((k) => `loop-${k}-${v}`), `loop-llm-${v}`,
 ])
 
 // View id → 中文 caption for the HC 視圖畫廊（旋轉 variant 標「旋轉 N°」）.
@@ -351,8 +377,6 @@ export function hcViewLabels(tilt) {
     'grid-post-rot': `${rot} · 格網化後`,
     'hc-rot': `${rot} · Hill Climbing`,
   }
-  // LLM 對齊循環無離線預算（同 RWD 的 rwd-llm-*）——視圖畫廊顯示「尚未預算」，
-  // 但仍需 caption；點擊即時計算。
   for (const kind of [...CHAIN_KINDS, 'llm']) {
     out[`loop-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環`
     out[`loop-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環`
@@ -402,9 +426,10 @@ function drawRwd(skeleton, stations, rwd, sep) {
 }
 
 // Compute the RWD Maps gallery views for one city（原始＋旋轉 兩 variant）：
-// each variant × 縮減網格 sources（基本 hc ＋ 論文①〜⑧的八條鏈）
+// each variant × 縮減網格 sources（基本 hc ＋ 論文①〜⑧的八條鏈 ＋ 可選 LLM）
 // as both the compact grid AND its RWD 路網 redraw. Same pure stores the live
 // RWD tab uses. 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）。
+// opts.llmByVariant = { orig?, rot? } 各為 llmviews JSON（fingerprint 相符才預算）。
 export function computeCityRwdViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
   const cellMapper = cellMapperFor(x0, y0, x1, y1)
@@ -419,21 +444,13 @@ export function computeCityRwdViews(geojson, opts = {}) {
     // Topology segments (from the original grid cellOf), parallel/same-track merged
     // — positions come from each compact layout below.
     const segs = mergeParallelSegs(buildHcGraph(skeleton, grid.cellOf).segs)
-    for (const kind of CHAIN_KINDS) {
-      // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋網格合併＋縮減網格
-      // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
-      // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
-      const base = CHAIN_POST[kind]
-        ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-        : hc.cellAfter
+    const bakeCompactRwd = (kind, base) => {
       const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
       const m = cellMapper(comp.cols, comp.rows)
-      // 縮減網格: original network snapped to the compact cells (per-feature).
       const compPos = new Map()
       for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
       placeBlacks(skeleton, compPos, snap)
       views[`compact-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-      // RWD 路網: strict H/V/45° redraw of that compact layout.
       const pxPos = new Map()
       for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
       const rwd = buildRwdMap(segs, pxPos, {
@@ -442,27 +459,42 @@ export function computeCityRwdViews(geojson, opts = {}) {
       })
       views[`rwd-${kind}-${variant}`] = drawRwd(skeleton, stations, rwd, m.sep)
     }
+
+    for (const kind of CHAIN_KINDS) {
+      // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋網格合併＋縮減網格
+      // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
+      // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
+      const base = CHAIN_POST[kind]
+        ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+        : hc.cellAfter
+      bakeCompactRwd(kind, base)
+    }
+
+    // LLM 對齊：同 HC 畫廊——有相符的 llmviews 才預算 compact-llm / rwd-llm。
+    const fp = {
+      verts: hc.stats.verts, segs: hc.stats.segs,
+      cols: grid.cols, rows: grid.rows, hvStart: hc.stats.hvAfter,
+    }
+    const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
+    if (llmBase) bakeCompactRwd('llm', llmBase)
   }
   return { W, H, tilt, canRotate, views }
 }
 
-// The RWD gallery views: 每 variant（原始→旋轉）× 每鏈（縮減網格 | RWD 路網）。
+// The RWD gallery views: 每 variant（原始→旋轉）× 每鏈（縮減網格 | RWD 路網）含 LLM。
 export const RWD_VIEW_ORDER = ['orig', 'rot'].flatMap((v) =>
-  CHAIN_KINDS.flatMap((k) => [`compact-${k}-${v}`, `rwd-${k}-${v}`]))
+  [...CHAIN_KINDS, 'llm'].flatMap((k) => [`compact-${k}-${v}`, `rwd-${k}-${v}`]))
 
 // View id → 中文 caption for the RWD gallery（旋轉 variant 標「旋轉 N°」）.
 export function rwdViewLabels(tilt) {
   const rot = `旋轉 ${Math.abs(tilt).toFixed(0)}°`
   const out = {}
-  for (const kind of CHAIN_KINDS) {
+  for (const kind of [...CHAIN_KINDS, 'llm']) {
     out[`compact-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環縮減網格`
     out[`rwd-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環 · RWD 路網`
     out[`compact-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環縮減網格`
     out[`rwd-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環 · RWD 路網`
   }
-  // LLM 對齊無預算縮圖（需即時計算）——僅提供標籤給視圖畫廊的代表格。
-  out['rwd-llm-orig'] = '原始 · LLM 對齊 · RWD 路網'
-  out['rwd-llm-rot'] = `${rot} · LLM 對齊 · RWD 路網`
   return out
 }
 // The compact source a gallery cell maps to （'hc' 或 PAPER_KINDS 之一）；剝掉

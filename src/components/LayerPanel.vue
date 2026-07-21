@@ -346,7 +346,7 @@ onBeforeUnmount(() => {
           title="刪除全部圖層"
           @click="removeAllLayers"
         >
-          <MIcon name="delete_sweep" :size="14" />
+          <MIcon name="delete" :size="14" />
           <span>全部刪除</span>
         </button>
         <button class="bar-btn" title="視圖畫廊（所有城市 · 所有地圖）" @click="openAllGalleryTab()">

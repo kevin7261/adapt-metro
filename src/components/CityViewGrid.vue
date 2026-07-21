@@ -25,8 +25,8 @@ const emit = defineEmits(['pick'])
 // maxRows 設定時：欄流——每欄固定寬（--gv-tile），填滿 maxRows 列後往右加欄。
 // 一個城市高固定 maxRows 個視圖、超過往右排；否則沿用固定欄數的列流。
 const gridStyle = computed(() => props.maxRows
-  // 縮圖高固定、寬不限（依網路長寬比）→ 欄寬取內容寬（max-content），不再固定 --gv-tile。
-  ? { gridAutoFlow: 'column', gridTemplateRows: `repeat(${props.maxRows}, auto)`, gridAutoColumns: 'max-content' }
+  // 縮圖固定 240×180（4/3）→ 欄寬固定 --gv-w，圖以 contain letterbox 塞入。
+  ? { gridAutoFlow: 'column', gridTemplateRows: `repeat(${props.maxRows}, auto)`, gridAutoColumns: 'var(--gv-w, 240px)' }
   : { gridTemplateColumns: `repeat(${props.columns}, 1fr)` })
 
 const root = ref(null)
@@ -180,15 +180,16 @@ onBeforeUnmount(() => observer?.disconnect())
 .view-cell:hover { background: hsl(var(--accent) / 0.6); }
 .vc-canvas {
   position: relative;
-  height: var(--gv-h, 180px);   /* 高固定 180，寬依網路長寬比（不再限制） */
+  width: var(--gv-w, 240px);    /* 固定 240×180（4/3），圖以 contain letterbox 塞入 */
+  height: var(--gv-h, 180px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px;
   background: hsl(var(--muted) / 0.35);
 }
-/* 高固定、寬自動＝依 viewBox 長寬比撐出寬度（寬不限） */
-.vc-canvas svg { height: 100%; width: auto; max-width: none; overflow: visible; }
+/* 填滿固定框、preserveAspectRatio="xMidYMid meet" 保持長寬比 letterbox */
+.vc-canvas svg { width: 100%; height: 100%; overflow: visible; }
 .grid-sep { stroke: #3b82f6; stroke-width: 0.2; stroke-opacity: 0.18; }
 .hl { fill: none; stroke-width: 3.2; stroke-opacity: 0.28; stroke-linecap: round; stroke-linejoin: round; }
 .ln { fill: none; stroke-width: 1.4; stroke-linejoin: round; }

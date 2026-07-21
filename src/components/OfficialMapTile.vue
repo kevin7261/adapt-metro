@@ -158,6 +158,8 @@ const cityLabel = () => `${props.system.cityZh ?? props.system.city} · ${props.
   /* 官方圖多為白底 → 給白底避免深色主題下透明區看不清 */
   background: #ffffff;
 }
+/* 視圖畫廊卡片內：固定 240×180（＝4/3，與其他格等大） */
+.omap.bare .omap-canvas { width: var(--gv-w, 240px); height: var(--gv-h, 180px); aspect-ratio: auto; }
 /* img 絕對定位填滿 4/3 框、object-fit:contain fit 長或寬——不論圖片原比例，
    方塊尺寸永遠鎖在 4/3，與其他所有格一致（不會撐破 grid row） */
 .omap-canvas img {

@@ -13,8 +13,9 @@ import MIcon from './MIcon.vue'
 // Maps / Map Adjust / Straighten / RWD Maps 各為可收合子群組），逐一勾選
 // 要顯示的圖層；每個圖層對應一張代表縮圖（Metro Maps＝OSM路網縮圖／官方路線圖，
 // 其餘取 data/metro/
-// {views,hcviews,rwdviews}/ 的代表視圖；RWD LLM 無預算圖 → 顯示「尚未預算」，
-// 點擊仍即時計算）。預設只顯示 Metro Maps（不含 RWD Maps）。點任何一格都匯入該城市
+// {views,hcviews,rwdviews}/ 的代表視圖；LLM 對齊鏈在有 llmviews 時由
+// buildViews 預算進 hcviews/rwdviews，缺檔才顯示「尚未預算」）。預設只顯示
+// Metro Maps（不含 RWD Maps）。點任何一格都匯入該城市
 // 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
 const store = useMapStore()
 
@@ -41,8 +42,7 @@ async function load() {
 // 「基本」（hc 源）僅作 fallback，不列入畫廊——使用者裁決移除「原始・基本」「旋轉・基本」。
 // Straighten 與 RWD Maps 共用同一組 9 條循環鏈（論文①〜⑧＋LLM 對齊，鏈名取自
 // paperAlign 的 PAPER_KINDS）：Straighten 列每鏈的「循環結果」縮圖（loop-*），
-// RWD 列其 RWD 路網重繪（rwd-*）。LLM 對齊循環無離線預算 → 縮圖顯示「尚未預算」，
-// 點擊即時計算。
+// RWD 列其 RWD 路網重繪（rwd-*）。LLM 對齊循環由 llmviews＋buildViews 離線預算。
 const CHAINS = [
   ...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]),
   ['llm', 'LLM 對齊'],

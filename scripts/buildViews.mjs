@@ -1,16 +1,20 @@
 // Pre-compute the per-city view thumbnails the galleries render as SVG:
-//   • 8 Map Adjust views   → data/metro/views/<id>.json
-//   • 12 Hill Climbing views → data/metro/hcviews/<id>.json
+//   • Map Adjust views   → data/metro/views/<id>.json
+//   • Straighten views   → data/metro/hcviews/<id>.json（含 LLM 對齊循環，若有 llmviews）
+//   • RWD Maps views     → data/metro/rwdviews/<id>.json（含 LLM compact/rwd）
 // plus an index.json catalog in each dir.
 //
 //   in : data/metro/index.json + data/metro/systems/**/*.geojson
-//   out: data/metro/views/<id>.json     (原始/旋轉/骨架化/格網化前後 ×…)
-//        data/metro/hcviews/<id>.json    (格網化後/Hill Climbing/9 循環 hc＋論文①〜⑧)
-//        data/metro/{views,hcviews}/index.json
+//        + data/metro/llmviews/<id>.{orig,rot}.json（可選；有則預算 LLM 縮圖）
+//   out: data/metro/views/<id>.json
+//        data/metro/hcviews/<id>.json
+//        data/metro/rwdviews/<id>.json
+//        data/metro/{views,hcviews,rwdviews}/index.json
 //
 // The geometry is produced by src/stores/viewGeometry.js — the SAME pure
 // stores the live Map Adjust / Hill Climbing tab (D3Tab.vue) uses — so the
-// thumbnails match the interactive views. Run after metro:build.
+// thumbnails match the interactive views. Run after metro:build（與
+// scripts/llmAlignBatch.mjs 全球 LLM 對齊之後重跑，畫廊才消「尚未預算」）.
 //
 //   node scripts/buildViews.mjs
 import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises'
@@ -113,7 +117,8 @@ async function main() {
 
   // 一型一城：`_fp` 未變就沿用舊檔（讀回 meta 進 catalog）、否則重算並寫入 `_fp`。
   // 回傳 'reused' | 'built'；丟出例外交給呼叫端記 failure。
-  async function buildOrReuse(dir, computeFn, cat, sys, id, geojson, fp, withStats) {
+  // computeOpts 傳給 computeFn（例：llmByVariant 讓 HC/RWD 預算 LLM 對齊縮圖）。
+  async function buildOrReuse(dir, computeFn, cat, sys, id, geojson, fp, withStats, computeOpts) {
     const outPath = join(dir, `${id}.json`)
     try {
       const existing = JSON.parse(await readFile(outPath, 'utf8'))
@@ -127,12 +132,18 @@ async function main() {
         return 'reused'
       }
     } catch { /* 無舊檔／壞檔／舊格式無 _fp → 重算 */ }
-    const r = computeFn(geojson)
+    const r = computeFn(geojson, computeOpts)
     const out = { ...meta(sys, id, r), W: r.W, H: r.H, views: r.views, _fp: fp }
     if (withStats) out.stats = r.stats
     await writeFile(outPath, JSON.stringify(out))
     cat.push(meta(sys, id, r))
     return 'built'
+  }
+
+  async function readLlm(id, variant) {
+    try {
+      return JSON.parse(await readFile(join(BASE, 'llmviews', `${id}.${variant}.json`), 'utf8'))
+    } catch { return null }
   }
 
   for (const sys of systems) {
@@ -147,6 +158,17 @@ async function main() {
       continue
     }
     const fp = `${VIEWS_VERSION}:${strHash(raw)}` // 內容一變指紋就變 → 該城三型全部重算
+    // LLM 對齊結果納入 HC/RWD 指紋：llmviews 一寫入／更新就重算該城縮圖（消「尚未預算」）。
+    const llmByVariant = { orig: await readLlm(id, 'orig'), rot: await readLlm(id, 'rot') }
+    const llmFp = strHash(JSON.stringify({
+      orig: llmByVariant.orig?.fingerprint ?? null,
+      rot: llmByVariant.rot?.fingerprint ?? null,
+      oHv: llmByVariant.orig?.hvAfter ?? null,
+      rHv: llmByVariant.rot?.hvAfter ?? null,
+      oMv: llmByVariant.orig?.moved ?? null,
+      rMv: llmByVariant.rot?.moved ?? null,
+    }))
+    const llmOpts = { llmByVariant }
 
     // 8 Map Adjust views
     try {
@@ -156,23 +178,18 @@ async function main() {
       failures.push({ id, city: sys.city, error: String(err?.message ?? err) })
     }
 
-    // 12 Hill Climbing views（視圖畫廊：原始＋旋轉 × 格網化後/Hill Climbing＋4 循環）
+    // Hill Climbing／Straighten 畫廊（含 LLM 對齊循環，有 llmviews 才寫入）
     try {
-      // fp 加演算法版本後綴：HC 畫廊＝原始＋旋轉 兩 variant × 6 階段（格網化後/
-      // Hill Climbing＋4 個循環結果 straightenCompactLoop，2026-07），純資料指紋
-      // 不會觸發重算，靠這個後綴強制重建（views/rwdviews 內容未變、沿用快取）。
-      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v3`, true)) === 'reused' ? reused++ : rebuilt++
+      // fp 加演算法版本後綴 + llm 指紋：llmviews 更新 → 該城 HC 縮圖重算。
+      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v4:llm=${llmFp}`, true, llmOpts)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {
       hcFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
     }
 
-    // 16 RWD Maps views (原始＋旋轉 × 4 縮減網格變體 × 縮減網格|RWD 路網)
+    // RWD Maps views（含 LLM 對齊 compact/rwd，有 llmviews 才寫入）
     try {
-      // fp 加演算法版本後綴：RWD 縮圖建立在 straightenCompactLoop（端+直+中+縮
-      // 循環）上，且加上旋轉 variant（2026-07），純資料指紋不會觸發重算，靠這個
-      // 後綴強制全量重建。
-      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v5`, false)) === 'reused' ? reused++ : rebuilt++
+      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v6:llm=${llmFp}`, false, llmOpts)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {
       rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })

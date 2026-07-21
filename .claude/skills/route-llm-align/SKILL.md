@@ -69,6 +69,23 @@ export 一律以「目前 outFile 內容」為起點（沒有內容才用 base H
   決定寫哪個檔；指定對齊另帶 `userPrompt`。輪詢 `/llm-align/status`。GH Pages 沒有
   dev server → 按鈕回報需要本機 `npm run dev`。測試替身：`LLM_ALIGN_CMD`。
 
+## 全球批次（最初結果、消畫廊空白）
+
+Straighten／RWD 畫廊的「原始／旋轉・LLM 對齊」縮圖依賴
+`data/metro/llmviews/<city>.{orig,rot}.json`。缺檔＝「尚未預算」。
+
+一次性為全球城市各算 orig＋rot（啟發式短距 H/V／對角，經同一套
+`applyLlmTargets` 硬規則；已有 fingerprint 相符的檔會跳過）：
+
+```
+node scripts/llmAlignBatch.mjs          # 缺檔才算
+node scripts/llmAlignBatch.mjs --force  # 全部重算
+```
+
+跑完再 `npm run metro:views`（buildViews 會把相符的 llmviews 編進
+`hcviews` 的 `loop-llm-*` 與 `rwdviews` 的 `rwd-llm-*`／`compact-llm-*`）。
+頭城要細調品質時仍用本 skill 的 export→apply 迴圈（或網頁按鈕）覆寫該城。
+
 ## 執行迴圈（你要做的事）
 
 1. `node scripts/llmAlign.mjs export <cityId> <variant>`。輸出：
