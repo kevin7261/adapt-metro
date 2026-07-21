@@ -2,13 +2,14 @@
 import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../../stores/mapStore'
 import {
-  continentCols, countryCols, groupQuickByContinent,
+  continentCols, countryCols, groupQuickByContinent, continentRank,
 } from '../../stores/metroCatalog'
 import { loadHighwayCatalog } from '../../stores/highwayCatalog'
 import { loadRailwayCatalog } from '../../stores/railwayCatalog'
 import { openLayerTab } from '../../stores/dockHandle'
 import { QUICK_CITIES, matchQuickSystem } from '../../lib/quickCities'
 import { IMPORT_DIALOGS, useDialogCatalog } from './useDialogCatalog'
+import CityIndexList from '../CityIndexList.vue'
 import MIcon from '../MIcon.vue'
 
 const props = defineProps({
@@ -219,6 +220,44 @@ const byStations = computed(() => {
   const dir = stationSort.value === 'asc' ? 1 : -1
   return [...catalog.value].sort((a, b) => (a.station_count - b.station_count) * dir)
 })
+
+/* ---- 共用「城市索引清單」（CityIndexList）的 items 與標籤／metric ----
+   使用者：加入 modal 的「快速選擇」「依車站數」要跟視圖畫廊右側 list 一樣。
+   快速選擇＝洲別→國家→城市可收合分組；依數量＝平面清單＋頂端 sort icon。 */
+// 地鐵快選：與視圖畫廊完全同一份（QUICK_CITIES→系統，依洲別 stable 排序使同洲相鄰）。
+const metroQuickItems = computed(() =>
+  QUICK_CITIES.map((q) => matchQuickSystem(catalog.value ?? [], q.en)).filter(Boolean)
+    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent)))
+const metroMetric = (t) => `${t.line_count ?? 0} 線 · ${t.station_count ?? 0} 站`
+
+// 高速公路：country-unit（metro-unit 顯示城市·國家）。metric＝條數／交流道數。
+const hwQuickItems = computed(() =>
+  (highwayCatalog.value ?? []).filter((s) => QUICK_COUNTRIES.some((q) => s.city === q.en || s.cityZh === q.zh))
+    .slice().sort((a, b) => continentRank(a.continent) - continentRank(b.continent)))
+const hwPrimaryZh = (s) => (s.unit === 'metro' ? (s.cityZh ?? s.city) : (s.countryZh ?? s.country))
+const hwPrimaryEn = (s) => (s.unit === 'metro' ? s.city : s.country)
+const hwMetric = (s) => `${s.line_count ?? 0} 條 · ${s.station_count ?? 0} 交流道`
+
+// 國家鐵路：一國最多兩系統（高鐵／一般國鐵），以 labelEn 區分（英文副名）。
+const railQuickItems = computed(() => {
+  const cat = railwayCatalog.value ?? []
+  const wanted = new Set(QUICK_RAIL)
+  return cat.filter((s) => wanted.has(s.country))
+    .slice().sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
+})
+const railPrimaryZh = (s) => `${s.countryZh ?? s.country}${s.railClass === 'high_speed' ? ' 高鐵' : ' 國鐵'}`
+const railPrimaryEn = (s) => s.labelEn ?? s.country
+const railMetric = (s) => `${s.line_count ?? 0} 線 · ${s.station_count ?? 0} 站`
+
+// 全球地圖 tab：整份 catalog 也用同一份分組清單（洲別→國家→城市，取代 miller 三欄）。
+// 依洲別→國家→城市排序，使分組連續。
+const bySort = (a, b) =>
+  continentRank(a.continent) - continentRank(b.continent)
+  || String(a.country ?? '').localeCompare(String(b.country ?? ''))
+  || String(a.city ?? '').localeCompare(String(b.city ?? ''))
+const metroAllItems = computed(() => [...(catalog.value ?? [])].sort(bySort))
+const hwAllItems = computed(() => [...(highwayCatalog.value ?? [])].sort(bySort))
+const railAllItems = computed(() => [...(railwayCatalog.value ?? [])].sort(bySort))
 </script>
 
 <template>
@@ -246,110 +285,39 @@ const byStations = computed(() => {
       <div v-else-if="!catalog" class="import-status">載入全球地鐵城市清單…</div>
 
       <template v-else>
-        <!-- Quick Selection：依洲別分組，每組一排 3 個 -->
-        <div v-if="dialog === 'import-quick'" class="quick-groups">
-          <div v-for="g in quickByContinent" :key="g.continent" class="quick-group">
-            <div class="quick-group-title">{{ g.label }}</div>
-            <div class="quick-grid">
-              <button
-                v-for="q in g.cities"
-                :key="q.en"
-                class="quick-cell"
-                :disabled="!q.sys"
-                :title="q.sys ? '' : '資料集中找不到此城市'"
-                @click="importSystem(q.sys)"
-              >
-                <span class="quick-zh">{{ q.zh }}<template v-if="q.sys?.countryZh"> · {{ q.sys.countryZh }}</template></span>
-                <span class="quick-en">{{ q.en }}<template v-if="q.sys?.country"> · {{ q.sys.country }}</template></span>
-                <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <!-- 快速選擇：洲別→國家→城市可收合分組（跟視圖畫廊右側 list 一樣） -->
+        <CityIndexList
+          v-if="dialog === 'import-quick'"
+          class="import-list"
+          :items="metroQuickItems"
+          grouped
+          :metric-of="metroMetric"
+          @pick="importSystem"
+        />
 
-        <!-- Sort by Station Count -->
-        <template v-else-if="dialog === 'import-stations'">
-          <div class="sort-bar">
-            <div class="sort-toggle">
-              <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
-              <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
-            </div>
-            <span class="sort-meta">{{ byStations.length }} 個系統</span>
-          </div>
-          <div class="quick-grid">
-            <button
-              v-for="(s, i) in byStations"
-              :key="s.file"
-              class="quick-cell"
-              @click="importSystem(s)"
-            >
-              <span class="quick-rank">#{{ i + 1 }}</span>
-              <span class="quick-zh">{{ s.cityZh ?? s.city }} · {{ s.countryZh ?? s.country }}</span>
-              <span class="quick-en">{{ s.city }} · {{ s.country }}</span>
-              <span class="quick-meta">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
-            </button>
-          </div>
-        </template>
+        <!-- 依車站數排序：平面清單＋頂端 sort icon -->
+        <CityIndexList
+          v-else-if="dialog === 'import-stations'"
+          class="import-list"
+          :items="byStations"
+          sortable
+          v-model:sort-dir="stationSort"
+          count-noun="個系統"
+          :metric-of="metroMetric"
+          @pick="importSystem"
+        />
 
         <!-- Global Metro Map -->
-        <template v-else-if="dialog === 'import-metro'">
-          <div class="miller">
-            <div class="miller-col">
-              <div class="miller-head">洲別</div>
-              <div class="miller-list">
-                <button
-                  v-for="c in continents"
-                  :key="c.value"
-                  class="miller-item"
-                  :class="{ active: selContinent === c.value }"
-                  @click="selContinent = c.value"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
-              </div>
-            </div>
-            <div class="miller-col">
-              <div class="miller-head">國家</div>
-              <div class="miller-list">
-                <div v-if="!selContinent" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選洲別</div>
-                <button
-                  v-for="c in countries"
-                  :key="c.value"
-                  class="miller-item"
-                  :class="{ active: selCountry === c.value }"
-                  @click="selCountry = c.value"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
-              </div>
-            </div>
-            <div class="miller-col">
-              <div class="miller-head">城市</div>
-              <div class="miller-list">
-                <div v-if="!selCountry" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選國家</div>
-                <button
-                  v-for="c in cities"
-                  :key="c.value"
-                  class="miller-item"
-                  :class="{ active: selCity === c.value }"
-                  @click="selCity = c.value"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="import-preview" :class="{ placeholder: !selectedSystem }">
-            <MIcon name="train" :size="14" />
-            <span v-if="selectedSystem">
-              {{ selectedSystem.cityZh ?? selectedSystem.city }} — {{ selectedSystem.line_count }} 條線 ·
-              {{ selectedSystem.station_count }} 站
-              <template v-if="selectedSystem.operator">（{{ selectedSystem.operator }}）</template>
-            </span>
-            <span v-else>選擇一個城市以匯入其 metro map</span>
-          </div>
-        </template>
+        <!-- 全球地鐵地圖：整份 catalog 用同一份分組清單（洲別→國家→城市，跟視圖 right view 一樣） -->
+        <CityIndexList
+          v-else-if="dialog === 'import-metro'"
+          class="import-list"
+          :items="metroAllItems"
+          grouped
+          :metric-of="metroMetric"
+          @pick="importSystem"
+        />
       </template>
-    </div>
-
-    <div v-if="dialog === 'import-metro'" class="dialog-footer">
-      <button class="btn-outline" @click="emit('close')">取消</button>
-      <button class="btn-primary" :disabled="!selectedSystem" @click="importSystem(selectedSystem)">確定</button>
     </div>
 
     <!-- Highways big tab -->
@@ -361,94 +329,43 @@ const byStations = computed(() => {
       </div>
 
       <template v-else>
-        <!-- 快速選擇：依洲別分組，每組一排 -->
-        <div v-if="dialog === 'import-highway-quick'" class="quick-groups">
-          <div v-for="g in hwQuickByContinent" :key="g.continent" class="quick-group">
-            <div class="quick-group-title">{{ g.label }}</div>
-            <div class="quick-grid">
-              <button
-                v-for="q in g.cities"
-                :key="q.en"
-                class="quick-cell"
-                :disabled="!q.sys"
-                :title="q.sys ? '' : '資料集中還沒有此國家（先抓取）'"
-                @click="importHighway(q.sys)"
-              >
-                <span class="quick-zh">{{ q.zh }}</span>
-                <span class="quick-en">{{ q.en }}</span>
-                <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 交流道 · ${q.sys.line_count} 條` : '—' }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <!-- 快速選擇：洲別→國家→都會區可收合分組（跟視圖畫廊右側 list 一樣） -->
+        <CityIndexList
+          v-if="dialog === 'import-highway-quick'"
+          class="import-list"
+          :items="hwQuickItems"
+          grouped
+          :primary-zh="hwPrimaryZh"
+          :primary-en="hwPrimaryEn"
+          :metric-of="hwMetric"
+          @pick="importHighway"
+        />
 
-        <!-- 依交流道數排序 -->
-        <template v-else-if="dialog === 'import-highway-stations'">
-          <div class="sort-bar">
-            <div class="sort-toggle">
-              <button class="sort-btn" :class="{ active: highwaySort === 'desc' }" @click="highwaySort = 'desc'">交流道多到少</button>
-              <button class="sort-btn" :class="{ active: highwaySort === 'asc' }" @click="highwaySort = 'asc'">少到多</button>
-            </div>
-            <span class="sort-meta">{{ highwaysByStations.length }} 個國家／地區</span>
-          </div>
-          <div class="quick-grid">
-            <button
-              v-for="(s, i) in highwaysByStations"
-              :key="s.file"
-              class="quick-cell"
-              @click="importHighway(s)"
-            >
-              <span class="quick-rank">#{{ i + 1 }}</span>
-              <span class="quick-zh">{{ hwZh(s) }}</span>
-              <span class="quick-en">{{ hwEn(s) }}</span>
-              <span class="quick-meta">{{ s.station_count }} 交流道 · {{ s.line_count }} 條</span>
-            </button>
-          </div>
-        </template>
+        <!-- 依交流道數排序：平面清單＋頂端 sort icon -->
+        <CityIndexList
+          v-else-if="dialog === 'import-highway-stations'"
+          class="import-list"
+          :items="highwaysByStations"
+          sortable
+          v-model:sort-dir="highwaySort"
+          count-noun="國家／地區"
+          :primary-zh="hwPrimaryZh"
+          :primary-en="hwPrimaryEn"
+          :metric-of="hwMetric"
+          @pick="importHighway"
+        />
 
-        <!-- 全球高速公路地圖：洲別 → 國家 → 都會區 -->
-        <template v-else-if="dialog === 'import-highway-map'">
-          <div class="miller">
-            <div class="miller-col">
-              <div class="miller-head">洲別</div>
-              <div class="miller-list">
-                <button
-                  v-for="c in hwContinents"
-                  :key="c.value"
-                  class="miller-item"
-                  :class="{ active: hwContinent === c.value }"
-                  @click="hwContinent = c.value"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
-              </div>
-            </div>
-            <div class="miller-col">
-              <div class="miller-head">國家</div>
-              <div class="miller-list">
-                <div v-if="!hwContinent" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選洲別</div>
-                <button
-                  v-for="c in hwCountryList"
-                  :key="c.value"
-                  class="miller-item"
-                  :class="{ active: hwCountry === c.value }"
-                  @click="hwCountry = c.value"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
-              </div>
-            </div>
-            <div class="miller-col">
-              <div class="miller-head">都會區</div>
-              <div class="miller-list">
-                <div v-if="!hwCountry" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選國家</div>
-                <button
-                  v-for="c in hwCityList"
-                  :key="c.sys.file"
-                  class="miller-item"
-                  @click="importHighway(c.sys)"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span>
-                  <span class="miller-meta">{{ c.sys.station_count }} 交流道</span></button>
-              </div>
-            </div>
-          </div>
-        </template>
+        <!-- 全球高速公路地圖：整份 catalog 用同一份分組清單（洲別→國家→都會區） -->
+        <CityIndexList
+          v-else-if="dialog === 'import-highway-map'"
+          class="import-list"
+          :items="hwAllItems"
+          grouped
+          :primary-zh="hwPrimaryZh"
+          :primary-en="hwPrimaryEn"
+          :metric-of="hwMetric"
+          @pick="importHighway"
+        />
       </template>
     </div>
 
@@ -461,81 +378,43 @@ const byStations = computed(() => {
       </div>
 
       <template v-else>
-        <!-- 快速選擇：依洲別分組，每組一排 -->
-        <div v-if="dialog === 'import-railway-quick'" class="quick-groups">
-          <div v-for="g in rwQuickByContinent" :key="g.continent" class="quick-group">
-            <div class="quick-group-title">{{ g.label }}</div>
-            <div class="quick-grid">
-              <button
-                v-for="q in g.cities"
-                :key="q.en"
-                class="quick-cell"
-                :disabled="!q.sys"
-                :title="q.sys ? '' : '資料集中還沒有此國家（先抓取）'"
-                @click="importRailway(q.sys)"
-              >
-                <span class="quick-zh">{{ q.zh }}</span>
-                <span class="quick-en">{{ q.en }}</span>
-                <span class="quick-meta">{{ q.sys ? `${q.sys.station_count} 站 · ${q.sys.line_count} 線` : '—' }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <!-- 快速選擇：洲別→國家→系統可收合分組（跟視圖畫廊右側 list 一樣） -->
+        <CityIndexList
+          v-if="dialog === 'import-railway-quick'"
+          class="import-list"
+          :items="railQuickItems"
+          grouped
+          :primary-zh="railPrimaryZh"
+          :primary-en="railPrimaryEn"
+          :metric-of="railMetric"
+          @pick="importRailway"
+        />
 
-        <!-- 依車站數排序 -->
-        <template v-else-if="dialog === 'import-railway-stations'">
-          <div class="sort-bar">
-            <div class="sort-toggle">
-              <button class="sort-btn" :class="{ active: railwaySort === 'desc' }" @click="railwaySort = 'desc'">車站多到少</button>
-              <button class="sort-btn" :class="{ active: railwaySort === 'asc' }" @click="railwaySort = 'asc'">少到多</button>
-            </div>
-            <span class="sort-meta">{{ railwaysByStations.length }} 個系統（高鐵／一般國鐵分開）</span>
-          </div>
-          <div class="quick-grid">
-            <button
-              v-for="(s, i) in railwaysByStations"
-              :key="s.file"
-              class="quick-cell"
-              @click="importRailway(s)"
-            >
-              <span class="quick-rank">#{{ i + 1 }}</span>
-              <span class="quick-zh">{{ rwZh(s) }}</span>
-              <span class="quick-en">{{ rwEn(s) }}</span>
-              <span class="quick-meta">{{ s.station_count }} 站 · {{ s.line_count }} 線</span>
-            </button>
-          </div>
-        </template>
+        <!-- 依車站數排序：平面清單＋頂端 sort icon（高鐵／一般國鐵分開列） -->
+        <CityIndexList
+          v-else-if="dialog === 'import-railway-stations'"
+          class="import-list"
+          :items="railwaysByStations"
+          sortable
+          v-model:sort-dir="railwaySort"
+          count-noun="個系統"
+          :primary-zh="railPrimaryZh"
+          :primary-en="railPrimaryEn"
+          :metric-of="railMetric"
+          @pick="importRailway"
+        />
 
-        <!-- 全球鐵路地圖：洲別 → 國家 -->
-        <template v-else-if="dialog === 'import-railway-map'">
-          <div class="miller">
-            <div class="miller-col">
-              <div class="miller-head">洲別</div>
-              <div class="miller-list">
-                <button
-                  v-for="c in rwContinents"
-                  :key="c.value"
-                  class="miller-item"
-                  :class="{ active: rwContinent === c.value }"
-                  @click="rwContinent = c.value"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span></button>
-              </div>
-            </div>
-            <div class="miller-col">
-              <div class="miller-head">國家</div>
-              <div class="miller-list">
-                <div v-if="!rwContinent" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選洲別</div>
-                <button
-                  v-for="c in rwCountryList"
-                  :key="c.sys.file"
-                  class="miller-item"
-                  @click="importRailway(c.sys)"
-                >{{ c.zh }} <span class="miller-en">{{ c.en }}</span>
-                  <span class="miller-meta">{{ c.sys.station_count }} 站</span></button>
-              </div>
-            </div>
-          </div>
-        </template>
+        <!-- 全球鐵路地圖：整份 catalog 用同一份分組清單（洲別→國家→系統） -->
+        <CityIndexList
+          v-else-if="dialog === 'import-railway-map'"
+          class="import-list"
+          :items="railAllItems"
+          grouped
+          :primary-zh="railPrimaryZh"
+          :primary-en="railPrimaryEn"
+          :metric-of="railMetric"
+          @pick="importRailway"
+        />
       </template>
     </div>
   </div>

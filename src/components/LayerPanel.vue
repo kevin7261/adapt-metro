@@ -269,6 +269,14 @@ function removeCityLayers(item) {
   store.toast(`已刪除「${item.group.label}」的 ${all.length} 個圖層`)
 }
 
+// 刪除全部圖層（所有城市／所有階段）——左上「全部刪除」鈕。
+function removeAllLayers() {
+  const all = [...store.layers]
+  if (!all.length) return
+  for (const l of all) disposeLayer(l)
+  store.toast(`已刪除全部 ${all.length} 個圖層`)
+}
+
 // 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 localStorage 的
 // 佈局快取**，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust /
 // Straighten / RWD 會整條鏈重新計算（初步直線化②與 ①〜⑧ 的比較佈局平常算過就
@@ -330,8 +338,17 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- 最上面（靠右）：田 視圖 ＋ + 加入 下拉（地鐵／鐵路／高速公路） -->
+      <!-- 最上面（靠右）：全部刪除 ＋ 田 視圖 ＋ + 加入 下拉（地鐵／鐵路／高速公路） -->
       <div class="panel-actions">
+        <button
+          v-if="store.layers.length"
+          class="bar-btn bar-btn-danger"
+          title="刪除全部圖層"
+          @click="removeAllLayers"
+        >
+          <MIcon name="delete_sweep" :size="14" />
+          <span>全部刪除</span>
+        </button>
         <button class="bar-btn" title="視圖畫廊（所有城市 · 所有地圖）" @click="openAllGalleryTab()">
           <MIcon name="grid_view" :size="14" />
           <span>視圖</span>
@@ -565,6 +582,13 @@ onBeforeUnmount(() => {
 .bar-btn:hover, .bar-btn.active {
   background: hsl(var(--accent));
   border-color: hsl(var(--muted-foreground) / 0.35);
+}
+/* 全部刪除：紅色警示配色 */
+.bar-btn-danger { color: hsl(var(--destructive)); }
+.bar-btn-danger:hover {
+  background: hsl(var(--destructive) / 0.12);
+  border-color: hsl(var(--destructive) / 0.5);
+  color: hsl(var(--destructive));
 }
 .import-wrap { position: relative; flex-shrink: 0; }
 /* 下拉選單：貼齊 + 按鈕右緣下方，不被面板裁切（動作列在最上方、無 overflow） */

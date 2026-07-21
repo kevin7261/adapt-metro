@@ -61,6 +61,9 @@
 
 /* 依車站數排序 */
 .stations-body { display: flex; flex-direction: column; min-height: 0; }
+/* 加入 modal 的快速選擇／依數量排序改用共用清單（CityIndexList）——捲動容器，
+   頂端 sort icon 隨捲動吸頂（sticky top:0 相對於此容器）。 */
+.import-list { max-height: 56vh; overflow-y: auto; margin: 0 -4px; }
 .sort-bar { display: flex; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
 /* segmented group button：與 gallery 一致——多到少／少到多 併成一組 */
 .sort-toggle {

@@ -1,8 +1,8 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
-import { continentZh, prettyContinent, continentRank } from '../stores/metroCatalog'
-import MIcon from './MIcon.vue'
+import { continentRank } from '../stores/metroCatalog'
+import CityIndexList from './CityIndexList.vue'
 
 // 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）的共用外殼：
 // 三個子分頁（快速選擇 / 依車站數排序 / 全球地鐵地圖）、多到少/少到多 segmented
@@ -30,47 +30,29 @@ function scrollToCity(id) {
   el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-// 「依車站數排序」tab 照站數順序、不分組；其餘 tab 依洲別/國家分組。
+// 「依車站數排序」tab 照站數順序、不分組；其餘 tab 依洲別/國家分組（右側索引由
+// 共用元件 CityIndexList 呈現，分組/收合/sort icon 都在那裡）。
 const grouped = computed(() => tab.value !== 'stations')
-// 索引群組的收合狀態。預設全「縮」：洲別預設收起（只顯示洲別標題）；展開洲別後
-// 其國家也預設收起（只顯示國家標題），再個別點開國家才看到城市。
-const expandedCont = reactive({})     // true = 展開該洲
-const expandedCountry = reactive({})  // true = 展開該國城市（預設收起）
-const toggleCont = (k) => { expandedCont[k] = !expandedCont[k] }
-const toggleCountry = (k) => { expandedCountry[k] = !expandedCountry[k] }
-
-// 右側索引依「加入 modal」的分類分組：洲別 → 國家 → 城市。**順序完全跟著左邊
-// 卡片（tiles）走**——逐一掃過 tiles、洲別/國家一變就插一個標題，故左右順序一致。
-const indexGroups = computed(() => {
-  const groups = []
-  let g = null, c = null
-  for (const t of tiles.value) {
-    if (!g || g.continent !== t.continent) {
-      g = { continent: t.continent, contLabel: continentZh(t.continent), contLabelEn: prettyContinent(t.continent), countries: [] }
-      groups.push(g); c = null
-    }
-    if (!c || c.country !== t.country) {
-      c = { country: t.country, countryLabel: t.countryZh ?? t.country, countryLabelEn: t.country, cities: [] }
-      g.countries.push(c)
-    }
-    c.cities.push(t)
-  }
-  return groups
-})
 
 // 左（顯示圖層）與右（城市索引）兩塊面板都可左右拖拉調寬。
 const sideWidth = ref(220)
 const indexWidth = ref(184)
-function makeResize(widthRef, dir, min, max) {
+function makeResize(widthRef, dir, min, otherRef) {
   return (e) => {
     e.preventDefault()
     const startX = e.clientX, startW = widthRef.value
     const el = e.currentTarget
+    // 上限不再寫死（原本 640＝只能拖一半）——改依畫廊主體寬度動態算，最多拖到只留
+    // 「另一側面板寬 ＋ 240px 卡片區」，其餘都能給這一側（否則卡片區被擠到 0，縮圖
+    // 幾何算出 NaN）。
+    const main = el.closest('.gallery-main')
     // 把手抓住 pointer——拖過其他 dockview 面板/iframe 時事件才不會漏、不會拖到一半卡住。
     el.setPointerCapture?.(e.pointerId)
     document.body.style.userSelect = 'none'
     document.body.style.cursor = 'col-resize'
     const move = (ev) => {
+      const mainW = main?.clientWidth ?? window.innerWidth
+      const max = Math.max(min, mainW - (otherRef?.value ?? 0) - 240)
       widthRef.value = Math.max(min, Math.min(max, startW + (ev.clientX - startX) * dir))
     }
     const up = (ev) => {
@@ -86,8 +68,8 @@ function makeResize(widthRef, dir, min, max) {
     el.addEventListener('pointercancel', up)
   }
 }
-const startSideResize = makeResize(sideWidth, 1, 150, 640)   // 把手在右緣：往右拖變寬
-const startIndexResize = makeResize(indexWidth, -1, 140, 640) // 把手在左緣：往左拖變寬
+const startSideResize = makeResize(sideWidth, 1, 120, indexWidth)   // 把手在右緣：往右拖變寬
+const startIndexResize = makeResize(indexWidth, -1, 120, sideWidth) // 把手在左緣：往左拖變寬
 
 const TABS = [
   { id: 'quick', label: '快速選擇' },
@@ -111,9 +93,11 @@ const tiles = computed(() => {
     const dir = stationSort.value === 'asc' ? 1 : -1
     return [...all].sort((a, b) => ((a.station_count ?? 0) - (b.station_count ?? 0)) * dir)
   }
-  // global: grouped by continent, then country + city
+  // global: 依洲別「固定順序」（亞洲→歐洲→北美→南美→非洲→大洋洲，continentRank）分組，
+  // 再國家→城市——與加入 modal／其他 tab 的 list 一致（原本用 localeCompare 會變字母序＝
+  // 非洲排最前，與 list 不一樣）。
   return [...all].sort((a, b) =>
-    String(a.continent).localeCompare(String(b.continent)) ||
+    continentRank(a.continent) - continentRank(b.continent) ||
     String(a.country).localeCompare(String(b.country)) ||
     String(a.city).localeCompare(String(b.city)))
 })
@@ -132,14 +116,6 @@ const tiles = computed(() => {
         @click="tab = t.id"
       >{{ t.label }}</button>
 
-      <!-- 右側：排序鈕（依車站數 tab 才有）＋城市數，靠右不影響 tab 置中 -->
-      <div class="gallery-tabs-right">
-        <div v-if="tab === 'stations'" class="sort-toggle">
-          <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
-          <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
-        </div>
-        <span class="gallery-count">{{ tiles.length }} 城市</span>
-      </div>
     </div>
 
     <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區＋右側索引，
@@ -164,57 +140,14 @@ const tiles = computed(() => {
            「依車站數排序」tab 則照站數順序、不分組。順序跟左邊卡片一致。 -->
       <div v-if="catalog && tiles.length" class="pane-resize" title="拖拉調整寬度" @pointerdown="startIndexResize" />
       <nav v-if="catalog && tiles.length" class="gallery-index" :style="{ width: indexWidth + 'px' }" aria-label="城市索引">
-        <!-- 分組模式 -->
-        <template v-if="grouped">
-          <template v-for="g in indexGroups" :key="g.continent">
-            <button class="gi-cont" @click="toggleCont(g.continent)">
-              <MIcon :name="expandedCont[g.continent] ? 'expand_more' : 'chevron_right'" :size="14" class="gi-chev" />
-              <span class="gi-lbl-wrap">
-                <span class="gi-lbl">{{ g.contLabel }}</span>
-                <span v-if="g.contLabelEn && g.contLabelEn !== g.contLabel" class="gi-lbl-en">{{ g.contLabelEn }}</span>
-              </span>
-              <span class="gi-count">{{ g.countries.length }}</span>
-            </button>
-            <template v-if="expandedCont[g.continent]">
-              <template v-for="c in g.countries" :key="c.country">
-                <button class="gi-country" @click="toggleCountry(g.continent + '|' + c.country)">
-                  <MIcon :name="expandedCountry[g.continent + '|' + c.country] ? 'expand_more' : 'chevron_right'" :size="12" class="gi-chev" />
-                  <span class="gi-lbl-wrap">
-                    <span class="gi-lbl">{{ c.countryLabel }}</span>
-                    <span v-if="c.countryLabelEn && c.countryLabelEn !== c.countryLabel" class="gi-lbl-en">{{ c.countryLabelEn }}</span>
-                  </span>
-                  <span class="gi-count">{{ c.cities.length }}</span>
-                </button>
-                <template v-if="expandedCountry[g.continent + '|' + c.country]">
-                  <button
-                    v-for="t in c.cities"
-                    :key="t.id"
-                    class="gi-item"
-                    :title="`${t.cityZh ?? t.city} · ${t.countryZh ?? t.country}`"
-                    @click="scrollToCity(t.id)"
-                  >
-                    <span class="gi-name">{{ t.cityZh ?? t.city }}</span>
-                    <span class="gi-en">{{ t.city }}</span>
-                  </button>
-                </template>
-              </template>
-            </template>
-          </template>
-        </template>
-        <!-- 依車站數排序：照順序的平面清單（中/英城市·國名＋n線n站，與左側卡片一致） -->
-        <template v-else>
-          <button
-            v-for="t in tiles"
-            :key="t.id"
-            class="gi-item flat"
-            :title="`${t.cityZh ?? t.city} · ${t.countryZh ?? t.country} · ${t.line_count ?? 0} 線 · ${t.station_count ?? 0} 站`"
-            @click="scrollToCity(t.id)"
-          >
-            <span class="gi-name">{{ t.cityZh ?? t.city }} · {{ t.countryZh ?? t.country }}</span>
-            <span class="gi-en">{{ t.city }} · {{ t.country }}</span>
-            <span class="gi-meta">{{ t.line_count ?? 0 }} 線 · {{ t.station_count ?? 0 }} 站</span>
-          </button>
-        </template>
+        <CityIndexList
+          :items="tiles"
+          :grouped="grouped"
+          :sortable="tab === 'stations'"
+          v-model:sort-dir="stationSort"
+          count-noun="城市"
+          @pick="scrollToCity($event.id)"
+        />
       </nav>
     </div>
 
@@ -268,32 +201,6 @@ const tiles = computed(() => {
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
-/* tab 右側：排序鈕＋城市數，絕對靠右，不佔置中版位 */
-.gallery-tabs-right {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-/* segmented group button：多到少／少到多 併成一組 */
-.sort-toggle {
-  display: inline-flex;
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
-  overflow: hidden;
-}
-.sort-btn {
-  padding: 3px 12px;
-  font-size: 12px;
-  color: hsl(var(--muted-foreground));
-  border-right: 1px solid hsl(var(--border));
-}
-.sort-btn:last-child { border-right: none; }
-.sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
-.gallery-count { font-size: 12px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 /* 主體：左側清單｜卡片區｜右側索引，中間以可拖拉的把手分隔 */
 .gallery-main { flex: 1; display: flex; min-height: 0; }
 .gallery-side {
@@ -317,8 +224,7 @@ const tiles = computed(() => {
 .gallery-status { padding: 32px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px; line-height: 1.7; }
 .gallery-status code { font-size: 12px; background: hsl(var(--muted) / 0.6); padding: 1px 5px; border-radius: 4px; }
 
-/* 右側城市索引：依洲別/國家分組（可收合），順序跟左邊卡片一致。
-   block 排版（非 flex）——flex column 子項會被壓扁裁切文字。 */
+/* 右側城市索引外框（內容由 CityIndexList 呈現）。block 排版讓子項不被壓扁。 */
 .gallery-index {
   display: block;
   flex-shrink: 0;
@@ -326,96 +232,4 @@ const tiles = computed(() => {
   padding: 0 0 14px;
   background: hsl(var(--card));
 }
-/* 洲別標題（可點收合、置頂） */
-.gi-cont {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  width: 100%;
-  padding: 7px 10px 6px;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: left;
-  color: hsl(var(--foreground));
-  background: hsl(var(--muted) / 0.5);
-  border-bottom: 1px solid hsl(var(--border));
-  backdrop-filter: blur(2px);
-}
-.gi-cont:hover { color: hsl(var(--primary)); }
-/* 國家標題（可點收合） */
-.gi-country {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  width: 100%;
-  padding: 5px 10px 3px 16px;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: left;
-  color: hsl(var(--muted-foreground));
-}
-.gi-country:hover { color: hsl(var(--primary)); }
-.gi-chev { flex-shrink: 0; opacity: 0.55; }
-/* 標題：中文主名一行、英文副名一行（與城市列 gi-name/gi-en 中英兩行一致） */
-.gi-lbl-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-  flex: 1;
-  line-height: 1.25;
-}
-.gi-lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-.gi-lbl-en {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-  font-size: 11px;
-  font-weight: 400;
-  color: hsl(var(--muted-foreground));
-}
-/* 標題右側的選項數（洲別＝國家數、國家＝城市數） */
-.gi-count {
-  margin-left: auto;
-  flex-shrink: 0;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: hsl(var(--muted-foreground) / 0.8);
-  font-variant-numeric: tabular-nums;
-}
-/* 城市（可點捲動目標）——中文＋英文兩列，與左側卡片一致 */
-.gi-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  width: 100%;
-  padding: 4px 10px 4px 34px;
-  font-size: 13px;
-  line-height: 1.35;
-  text-align: left;
-  color: hsl(var(--foreground) / 0.82);
-}
-.gi-item.flat { padding: 5px 12px; }
-.gi-name,
-.gi-en,
-.gi-meta {
-  display: block;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.gi-en,
-.gi-meta {
-  font-size: 11px;
-  color: hsl(var(--muted-foreground));
-}
-.gi-item:hover { background: hsl(var(--accent)); color: hsl(var(--primary)); }
-.gi-item:hover .gi-en,
-.gi-item:hover .gi-meta { color: hsl(var(--primary) / 0.75); }
 </style>

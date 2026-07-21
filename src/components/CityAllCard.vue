@@ -75,7 +75,7 @@ const COLS = 1
 
 <style scoped>
 .all-card {
-  --gv-tile: 240px;   /* 每個小視圖固定寬度（raw-grid 與 CityViewGrid 共用） */
+  --gv-h: 180px;      /* 每個小視圖固定高度；寬度不限（依網路長寬比，raw-grid 與 CityViewGrid 共用） */
   max-width: 100%;
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
@@ -127,7 +127,7 @@ const COLS = 1
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(3, auto);
-  grid-auto-columns: var(--gv-tile, 108px);
+  grid-auto-columns: max-content;   /* 縮圖寬不限＝取內容寬 */
   gap: 1px;
   background: hsl(var(--border));
 }
