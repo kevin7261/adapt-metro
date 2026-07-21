@@ -457,8 +457,15 @@ function syncCalcMs() {
   const notes = {}
   if (cachedHC?.stats?.ms != null) out.hc = cachedHC.stats.ms
   for (const k of Object.keys(cachedLayout)) {
-    if (cachedLayout[k]?.stats?.ms != null) out[`layout-${k}`] = cachedLayout[k].stats.ms
-    if (cachedLayout[k]?.stats?.note) notes[`layout-${k}`] = cachedLayout[k].stats.note
+    const st = cachedLayout[k]?.stats
+    if (!st) continue
+    if (k === 'shape' && (st.skipped || st.note === '不需計算')) {
+      notes[`layout-${k}`] = '不需計算'
+      continue
+    }
+    if (st.ms != null) out[`layout-${k}`] = st.ms
+    // Shape-Guided 成功的 →方 不佔 badge（與①〜⑧比較列一致）
+    if (st.note && k !== 'shape') notes[`layout-${k}`] = st.note
   }
   for (const k of Object.keys(cachedPost)) {
     if (cachedPost[k]?.stats?.ms != null) out[`post-${k}`] = cachedPost[k].stats.ms
@@ -623,8 +630,8 @@ const VIEW_TABS = computed(() => {
     return [
       { header: '原始', doc: 'grid' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
-      // 8 個主佈局比較（格網化後為輸入；②＝爬山，其餘＝論文鏈直接餵格網）。
-      // 只供觀看，不進下游；下游（直線演算法／端點移動／RWD）仍只吃 `hc`——
+      // 8 個主佈局比較（格網化後為輸入；②＝爬山，其餘＝論文鏈直接餵格網）
+      // ＋⑨ Shape-Guided。只供觀看，不進下游；下游仍只吃 `hc`——
       // 標籤特別註記「往後執行」／「僅比較」。
       { header: '初步直線化', doc: 'hillclimb' },
       { id: 'layout-stroke', label: `①筆畫法（僅比較）${msBadge('layout-stroke')}` },
@@ -632,6 +639,7 @@ const VIEW_TABS = computed(() => {
       ...LAYOUT_KINDS.filter((p) => p.kind !== 'stroke').map(({ kind, zh }) => ({
         id: `layout-${kind}`, label: `${zh}（僅比較）${msBadge(`layout-${kind}`)}`,
       })),
+      { id: 'layout-shape', label: `⑨Shape-Guided（僅比較）${msBadge('layout-shape')}` },
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
       { header: '直線演算法', doc: 'straighten' },
       // 論文①〜⑧的八條鏈（paperAlign.js PAPER_KINDS——名稱帶論文圈號，與
@@ -886,12 +894,19 @@ async function computeHcLayout({ seq, w, h, grid }) {
           octi: '⑥八向格網中…（格網 → 逐邊定案，迭代到不動）',
           path: '⑦路徑簡化中…（格網 → C-directed 簡化，迭代到不動）',
           sat: '⑧SAT規劃中…（格網 → DPLL 指派，迭代到不動）',
+          shape: '⑨Shape-Guided中…（格網 → 規定路段嵌形）',
         }[layoutKind]
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return null }
         const t0 = performance.now()
-        cachedLayout[layoutKind] = iteratePost(
-          POST_BUILD[layoutKind], cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
+        if (layoutKind === 'shape') {
+          const cityId = sourceLayer.value?.id ?? null
+          cachedLayout[layoutKind] = iteratePost(
+            buildShapeAlign, cachedSkeleton, grid.cellOf, grid.cols, grid.rows, { cityId })
+        } else {
+          cachedLayout[layoutKind] = iteratePost(
+            POST_BUILD[layoutKind], cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
+        }
         cachedLayout[layoutKind].stats.ms = Math.round(performance.now() - t0)
         hcBusy.value = false
         // 算過就存下來（同 ② 與後處理鏈）：關 tab／重新整理都直接載回，只有按
@@ -1879,6 +1894,18 @@ const layoutStatus = computed(() => {
     const lk = layoutKindOf(m)
     if (isHC.value && lk && layoutStats.value) {
       const s = layoutStats.value
+      if (lk === 'shape') {
+        if (s.skipped || s.note === '不需計算') {
+          return { text: 'Shape-Guided 不需計算', llmRerun: false }
+        }
+        return {
+          text: `Shape-Guided${s.route ? ` ${s.route}` : ''} · 移動 ${s.moved} 站`
+            + (s.quality?.square ? ' · 已成方' : '')
+            + (s.rulesOk === false ? ' · 規則未過' : '')
+            + (s.crosses ? ` · 交叉 ${s.crosses}` : ''),
+          llmRerun: false,
+        }
+      }
       let t = `水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段 · 迭代 ${s.iters}/${s.iterCap}`
         + (s.converged ? '' : '（達上限未收斂）')
         + ` · 移動 ${s.moved} 站`

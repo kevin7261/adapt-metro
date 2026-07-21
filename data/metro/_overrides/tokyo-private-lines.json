@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-21T17:40:21.250Z",
+  "generated_at": "2026-07-21T18:00:15.786Z",
   "bbox": [
     139.56,
     35.54,
-    140.01,
+    140.42,
     35.84
   ],
   "note": "東京主要私鐵（route=train，operator 過濾）→ buildCombinedSystems 併入 as-jpn-tokyo-rail",
@@ -134,6 +134,193 @@
       ],
       "loop": false,
       "stations": [
+        {
+          "id": "n7858255371",
+          "name": "成田空港",
+          "nameLocal": "成田空港",
+          "nameEn": "Narita Airport Terminal 1",
+          "code": "KS42",
+          "coord": [
+            140.3857872,
+            35.7653577
+          ]
+        },
+        {
+          "id": "n7858346610",
+          "name": "空港第2ビル",
+          "nameLocal": "空港第2ビル",
+          "nameEn": "Narita Airport Terminal 2·3",
+          "code": "KS41",
+          "coord": [
+            140.3872202,
+            35.7732538
+          ]
+        },
+        {
+          "id": "n7858255375",
+          "name": "京成成田",
+          "nameLocal": "京成成田",
+          "nameEn": "Keisei-Narita",
+          "code": "KS40",
+          "coord": [
+            140.3156259,
+            35.7763281
+          ]
+        },
+        {
+          "id": "n7858025488",
+          "name": "公津の杜",
+          "nameLocal": "公津の杜",
+          "nameEn": "Kozunomori",
+          "code": "KS39",
+          "coord": [
+            140.295276,
+            35.7604672
+          ]
+        },
+        {
+          "id": "n7858255378",
+          "name": "宗吾参道",
+          "nameLocal": "宗吾参道",
+          "nameEn": "Sogosando",
+          "code": "KS38",
+          "coord": [
+            140.2810201,
+            35.7526291
+          ]
+        },
+        {
+          "id": "n7858255380",
+          "name": "京成酒々井",
+          "nameLocal": "京成酒々井",
+          "nameEn": "Keisei-Shisui",
+          "code": "KS37",
+          "coord": [
+            140.2700606,
+            35.7367885
+          ]
+        },
+        {
+          "id": "n7858255382",
+          "name": "大佐倉",
+          "nameLocal": "大佐倉",
+          "nameEn": "Osakura",
+          "code": "KS36",
+          "coord": [
+            140.2511054,
+            35.7300635
+          ]
+        },
+        {
+          "id": "n7858182734",
+          "name": "京成佐倉",
+          "nameLocal": "京成佐倉",
+          "nameEn": "Keisei-Sakura",
+          "code": "KS35",
+          "coord": [
+            140.2297222,
+            35.7251714
+          ]
+        },
+        {
+          "id": "n7858182737",
+          "name": "京成臼井",
+          "nameLocal": "京成臼井",
+          "nameEn": "Keisei-Usui",
+          "code": "KS34",
+          "coord": [
+            140.1807658,
+            35.7299377
+          ]
+        },
+        {
+          "id": "n7858182740",
+          "name": "ユーカリが丘",
+          "nameLocal": "ユーカリが丘",
+          "nameEn": "Yukarigaoka",
+          "code": "KS33",
+          "coord": [
+            140.1563812,
+            35.7217146
+          ]
+        },
+        {
+          "id": "n7858182742",
+          "name": "志津",
+          "nameLocal": "志津",
+          "nameEn": "Shizu",
+          "code": "KS32",
+          "coord": [
+            140.1449771,
+            35.7174387
+          ]
+        },
+        {
+          "id": "n7858182744",
+          "name": "勝田台",
+          "nameLocal": "勝田台",
+          "nameEn": "Katsutadai",
+          "code": "KS31",
+          "coord": [
+            140.1260488,
+            35.7154417
+          ]
+        },
+        {
+          "id": "n172704865",
+          "name": "京成大和田",
+          "nameLocal": "京成大和田",
+          "nameEn": "Keisei-Owada",
+          "code": "KS30",
+          "coord": [
+            140.1087147,
+            35.7123582
+          ]
+        },
+        {
+          "id": "n7858159329",
+          "name": "八千代台",
+          "nameLocal": "八千代台",
+          "nameEn": "Yachiyodai",
+          "code": "KS29",
+          "coord": [
+            140.0906288,
+            35.7012475
+          ]
+        },
+        {
+          "id": "n7858159332",
+          "name": "実籾",
+          "nameLocal": "実籾",
+          "nameEn": "Mimomi",
+          "code": "KS28",
+          "coord": [
+            140.0684215,
+            35.686889
+          ]
+        },
+        {
+          "id": "n7858158402",
+          "name": "京成大久保",
+          "nameLocal": "京成大久保",
+          "nameEn": "Keisei-Okubo",
+          "code": "KS27",
+          "coord": [
+            140.0481815,
+            35.6859407
+          ]
+        },
+        {
+          "id": "n3276703423",
+          "name": "京成津田沼",
+          "nameLocal": "京成津田沼",
+          "nameEn": "Keisei Tsudanuma",
+          "code": "KS26",
+          "coord": [
+            140.0248061,
+            35.6835498
+          ]
+        },
         {
           "id": "n7858158404",
           "name": "谷津",
@@ -412,6 +599,136 @@
       ]
     },
     {
+      "routeId": "tokyopriv-r2060618",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 千葉線",
+      "nameLocal": "京成電鉄 千葉線",
+      "nameEn": "Keisei Chiba Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q841998",
+      "wikipedia": "ja:京成千葉線",
+      "osmIds": [
+        2060618
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2982996958",
+          "name": "京成津田沼",
+          "nameLocal": "京成津田沼",
+          "nameEn": "Keisei Tsudanuma",
+          "code": "KS26",
+          "coord": [
+            140.0248445,
+            35.6837127
+          ]
+        },
+        {
+          "id": "n9901314517",
+          "name": "京成幕張本郷",
+          "nameLocal": "京成幕張本郷",
+          "nameEn": "Keisei Makuhari-Hongo",
+          "code": "KS52",
+          "coord": [
+            140.0421609,
+            35.6726512
+          ]
+        },
+        {
+          "id": "n243794142",
+          "name": "京成幕張",
+          "nameLocal": "京成幕張",
+          "nameEn": "Keisei Makuhari",
+          "code": "KS53",
+          "coord": [
+            140.0558853,
+            35.6609226
+          ]
+        },
+        {
+          "id": "n9901314523",
+          "name": "検見川",
+          "nameLocal": "検見川",
+          "nameEn": "Kemigawa",
+          "code": "KS54",
+          "coord": [
+            140.0665406,
+            35.652592
+          ]
+        },
+        {
+          "id": "n9901314525",
+          "name": "京成稲毛",
+          "nameLocal": "京成稲毛",
+          "nameEn": "Keisei Inage",
+          "code": "KS55",
+          "coord": [
+            140.0856249,
+            35.6376437
+          ]
+        },
+        {
+          "id": "n9901314527",
+          "name": "みどり台",
+          "nameLocal": "みどり台",
+          "nameEn": "Midoridai",
+          "code": "KS56",
+          "coord": [
+            140.0974793,
+            35.6249766
+          ]
+        },
+        {
+          "id": "n9901314529",
+          "name": "西登戸",
+          "nameLocal": "西登戸",
+          "nameEn": "Nishi-Nobuto",
+          "code": "KS57",
+          "coord": [
+            140.1029454,
+            35.6174677
+          ]
+        },
+        {
+          "id": "n9916327145",
+          "name": "新千葉",
+          "nameLocal": "新千葉",
+          "nameEn": "Shin-Chiba",
+          "code": "KS58",
+          "coord": [
+            140.1084318,
+            35.6124772
+          ]
+        },
+        {
+          "id": "n1986866031",
+          "name": "京成千葉",
+          "nameLocal": "京成千葉",
+          "nameEn": "Keisei Chiba",
+          "code": "KS59",
+          "coord": [
+            140.1142993,
+            35.6116826
+          ]
+        },
+        {
+          "id": "n2982996957",
+          "name": "千葉中央",
+          "nameLocal": "千葉中央",
+          "nameEn": "Chiba-Chuo",
+          "code": "KS60",
+          "coord": [
+            140.1178546,
+            35.6073315
+          ]
+        }
+      ]
+    },
+    {
       "routeId": "tokyopriv-r3338455",
       "opk": "京成",
       "ref": "KS",
@@ -498,6 +815,81 @@
       ]
     },
     {
+      "routeId": "tokyopriv-r2060696",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 千原線",
+      "nameLocal": "京成電鉄 千原線",
+      "nameEn": "Keisei Chihara Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q842069",
+      "wikipedia": null,
+      "osmIds": [
+        2060696
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2982996957",
+          "name": "千葉中央",
+          "nameLocal": "千葉中央",
+          "nameEn": "Chiba-Chuo",
+          "code": "KS60",
+          "coord": [
+            140.1178546,
+            35.6073315
+          ]
+        },
+        {
+          "id": "n2545318851",
+          "name": "千葉寺",
+          "nameLocal": "千葉寺",
+          "nameEn": "Chibadera",
+          "code": "KS61",
+          "coord": [
+            140.1322066,
+            35.5903626
+          ]
+        },
+        {
+          "id": "n8068316720",
+          "name": "大森台",
+          "nameLocal": "大森台",
+          "nameEn": "Omoridai",
+          "code": "KS62",
+          "coord": [
+            140.1494323,
+            35.5841725
+          ]
+        },
+        {
+          "id": "n8068316722",
+          "name": "学園前",
+          "nameLocal": "学園前",
+          "nameEn": "Gakuemmae",
+          "code": "KS63",
+          "coord": [
+            140.1584311,
+            35.5606155
+          ]
+        },
+        {
+          "id": "n2545318909",
+          "name": "おゆみ野",
+          "nameLocal": "おゆみ野",
+          "nameEn": "Oyumino",
+          "code": "KS64",
+          "coord": [
+            140.166123,
+            35.5500986
+          ]
+        }
+      ]
+    },
+    {
       "routeId": "tokyopriv-r1927482",
       "opk": "京成",
       "ref": "KS",
@@ -546,6 +938,48 @@
           "coord": [
             139.8681224,
             35.75101
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3347989",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 東成田線",
+      "nameLocal": "京成電鉄 東成田線",
+      "nameEn": "Keisei Higashi-Narita Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q4492924",
+      "wikipedia": "ja:京成東成田線",
+      "osmIds": [
+        3347989
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2543426468",
+          "name": "京成成田",
+          "nameLocal": "京成成田",
+          "nameEn": "Keisei-Narita",
+          "code": "KS40",
+          "coord": [
+            140.3154742,
+            35.7764723
+          ]
+        },
+        {
+          "id": "n7961261831",
+          "name": "東成田",
+          "nameLocal": "東成田",
+          "nameEn": "Higashi-Narita",
+          "code": "KS44",
+          "coord": [
+            140.3870535,
+            35.7700406
           ]
         }
       ]
@@ -698,6 +1132,180 @@
           "coord": [
             140.0006173,
             35.7721896
+          ]
+        },
+        {
+          "id": "n7962936938",
+          "name": "鎌ヶ谷大仏",
+          "nameLocal": "鎌ヶ谷大仏",
+          "nameEn": "Kamagayadaibutsu",
+          "code": "KS76",
+          "coord": [
+            140.0138587,
+            35.7579571
+          ]
+        },
+        {
+          "id": "n7962936936",
+          "name": "二和向台",
+          "nameLocal": "二和向台",
+          "nameEn": "Futawamukodai",
+          "code": "KS75",
+          "coord": [
+            140.0235809,
+            35.7539666
+          ]
+        },
+        {
+          "id": "n7962936934",
+          "name": "三咲",
+          "nameLocal": "三咲",
+          "nameEn": "Misaki",
+          "code": "KS74",
+          "coord": [
+            140.0285431,
+            35.7490782
+          ]
+        },
+        {
+          "id": "n245519436",
+          "name": "滝不動",
+          "nameLocal": "滝不動",
+          "nameEn": "Takifudo",
+          "code": "KS73",
+          "coord": [
+            140.0260084,
+            35.7377089
+          ]
+        },
+        {
+          "id": "n7962936931",
+          "name": "高根公団",
+          "nameLocal": "高根公団",
+          "nameEn": "Takanekodan",
+          "code": "KS72",
+          "coord": [
+            140.0297018,
+            35.7302687
+          ]
+        },
+        {
+          "id": "n7962936962",
+          "name": "高根木戸",
+          "nameLocal": "高根木戸",
+          "nameEn": "Takanekido",
+          "code": "KS71",
+          "coord": [
+            140.0348228,
+            35.7267566
+          ]
+        },
+        {
+          "id": "n6286901529",
+          "name": "北習志野",
+          "nameLocal": "北習志野",
+          "nameEn": null,
+          "code": "KS70",
+          "coord": [
+            140.0420401,
+            35.7214941
+          ]
+        },
+        {
+          "id": "n2650130430",
+          "name": "習志野",
+          "nameLocal": "習志野",
+          "nameEn": "Narashino",
+          "code": "KS69",
+          "coord": [
+            140.0427376,
+            35.7151508
+          ]
+        },
+        {
+          "id": "n245519813",
+          "name": "薬園台",
+          "nameLocal": "薬園台",
+          "nameEn": "Yakuendai",
+          "code": "KS68",
+          "coord": [
+            140.0379512,
+            35.7101692
+          ]
+        },
+        {
+          "id": "n7962936927",
+          "name": "前原",
+          "nameLocal": "前原",
+          "nameEn": "Maebara",
+          "code": "KS67",
+          "coord": [
+            140.0278518,
+            35.7009366
+          ]
+        },
+        {
+          "id": "n7962936925",
+          "name": "新津田沼",
+          "nameLocal": "新津田沼",
+          "nameEn": "Shin-Tsudanuma",
+          "code": "KS66",
+          "coord": [
+            140.0238278,
+            35.6901774
+          ]
+        },
+        {
+          "id": "n4532112000",
+          "name": "京成津田沼",
+          "nameLocal": "京成津田沼",
+          "nameEn": "Keisei Tsudanuma",
+          "code": "KS26",
+          "coord": [
+            140.0248584,
+            35.6837883
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r9486564",
+      "opk": "京成電鉄",
+      "ref": "SR",
+      "name": "芝山鉄道線",
+      "nameLocal": "芝山鉄道線",
+      "nameEn": "Shibayama Line",
+      "color": "#888888",
+      "network": "京成電鉄株式会社",
+      "networkLocal": "京成電鉄株式会社",
+      "operator": "京成電鉄株式会社",
+      "wikidata": "Q1104545",
+      "wikipedia": "ja:芝山鉄道",
+      "osmIds": [
+        9486564
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n7961261831",
+          "name": "東成田",
+          "nameLocal": "東成田",
+          "nameEn": "Higashi-Narita",
+          "code": "KS44",
+          "coord": [
+            140.3870535,
+            35.7700406
+          ]
+        },
+        {
+          "id": "n7964573922",
+          "name": "芝山千代田",
+          "nameLocal": "芝山千代田",
+          "nameEn": "Shibayama-Chiyoda",
+          "code": null,
+          "coord": [
+            140.399475,
+            35.7540381
           ]
         }
       ]
@@ -977,8 +1585,8 @@
       "routeId": "tokyopriv-r10056053",
       "opk": "京王",
       "ref": "KO",
-      "name": "京王新線",
-      "nameLocal": "京王新線",
+      "name": "京王線",
+      "nameLocal": "京王線",
       "nameEn": "Keio New Line",
       "color": "#e50b84",
       "network": "京王線",
@@ -1248,8 +1856,8 @@
       "routeId": "tokyopriv-r11271039",
       "opk": "京王",
       "ref": "KO",
-      "name": "京王電鉄京王線",
-      "nameLocal": "京王電鉄京王線",
+      "name": "京王線",
+      "nameLocal": "京王線",
       "nameEn": "Keio Railway Keio Line",
       "color": "#e50b84",
       "network": "京王",

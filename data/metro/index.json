@@ -23205,6 +23205,7 @@
         "Japan Railways",
         "Tokyo Waterfront Area Rapid Transit",
         "京成電鉄",
+        "京成電鉄株式会社",
         "京王",
         "小田急電鉄",
         "東武鉄道",
@@ -23216,9 +23217,9 @@
       "official_website": null,
       "official_map": "https://ja.wikipedia.org/wiki/東京地下鉄",
       "wikidata": "Q682894",
-      "line_count": 53,
-      "segment_count": 102,
-      "station_count": 476,
+      "line_count": 59,
+      "segment_count": 108,
+      "station_count": 538,
       "audit": null
     }
   ],

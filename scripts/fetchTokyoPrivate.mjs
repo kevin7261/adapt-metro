@@ -21,7 +21,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT = join(__dirname, '..', 'data', 'metro', '_overrides', 'tokyo-private-lines.json')
 
 // 與 buildCombinedSystems.mjs 的 TOKYO_BBOX 一致（大東京都心）
-const TOKYO_BBOX = [139.56, 35.54, 140.01, 35.84]
+// 東界延到 140.42 納成田空港（京成本線/成田スカイアクセス往東到成田機場，使用者）
+const TOKYO_BBOX = [139.56, 35.54, 140.42, 35.84]
 const inBbox = ([lon, lat]) =>
   lon >= TOKYO_BBOX[0] && lon <= TOKYO_BBOX[2] && lat >= TOKYO_BBOX[1] && lat <= TOKYO_BBOX[3]
 

@@ -10,8 +10,9 @@ export const HC_MODE_RE = new RegExp(
   `^hc-(llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|shape|step))?$`)
 
 // 「Hill Climbing」區的主佈局比較（不含 rect——② 就是爬山本體）。
+// shape＝⑨ Shape-Guided（僅比較；不進 PAPER_KINDS／下游鏈）。
 export const LAYOUT_KINDS = PAPER_KINDS.filter((p) => p.kind !== 'rect')
-export const LAYOUT_KIND_IDS = LAYOUT_KINDS.map((p) => p.kind)
+export const LAYOUT_KIND_IDS = [...LAYOUT_KINDS.map((p) => p.kind), 'shape']
 export const LAYOUT_MODE_RE = new RegExp(`^layout-(${LAYOUT_KIND_IDS.join('|')})$`)
 
 export const layoutKindOf = (m) => {

@@ -30,7 +30,8 @@ const RAILWAY = join(ROOT, 'data', 'railway')
 // 大台北都會區（台北市＋新北市；排除桃園中壢/基隆）——西界 121.33 剛好留鶯歌、切掉桃園端
 const TAIPEI_BBOX = [121.33, 24.90, 121.70, 25.22]
 // 大東京都心 ＝ Tokyo metro bbox ＋ 0.05° 邊界（私鐵/JR 於此範圍截斷成都心段）
-const TOKYO_BBOX = [139.56, 35.54, 140.01, 35.84]
+// 東界延到 140.42 納成田空港（JR 成田線/京成往東到成田機場，使用者）
+const TOKYO_BBOX = [139.56, 35.54, 140.42, 35.84]
 // 東京鐵路噪音：無序大雜燴「一般鐵路」＋貨物/連絡線（重複幹線幾何、非客運）。
 // 京成由 fetchTokyoPrivate 從 OSM 完整抓，故 railway 的零星京成在此排除避免重複；東武東上線
 // 只在 railway 有（OSM 的 operator=東武 route=train 沒有東上/伊勢崎本線），故 railway 保留東武。
