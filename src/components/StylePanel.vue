@@ -67,6 +67,17 @@ const props = defineProps({
   compareText: { type: String, default: '' },
   compareMsg: { type: String, default: null },
   compareError: { type: String, default: '' },
+  // ⑨ LLM 成方（Shape-Guided 的 LLM 版，skill route-llm-shape）：結果檔
+  // （model / square / crosses / transcript）＋run 控制與即時串流——只在
+  // 「LLM 成方」比較視圖（layout-shape-llm）顯示，跟自動對齊同一套唯讀 UX。
+  shapeRecord: { type: Object, default: null },
+  shapeRunning: { type: Boolean, default: false },
+  shapeCanRun: { type: Boolean, default: false },
+  shapeView: { type: Boolean, default: false }, // 目前在 layout-shape-llm view
+  shapeText: { type: String, default: '' },
+  shapeMsg: { type: String, default: null },
+  shapeError: { type: String, default: '' },
+  shapeApplied: { type: Boolean, default: false },
   // 'd3' when shown inside a Map Adjust (D3.js) tab — Info then documents the
   // skeleton rules instead of the audit verdict.
   context: { type: String, default: 'map' },
@@ -91,7 +102,7 @@ const props = defineProps({
   // 'fable' | 'sonnet' | 'haiku'）；下拉改動時 emit update:llm-model 回 D3Tab。
   llmModel: { type: String, default: 'opus' },
 })
-const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model', 'llm-rerun'])
+const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'run-shape', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'toggle-shape-exec', 'weight-mode', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'show-weights', 'recalc-span', 'update:llm-model', 'llm-rerun'])
 
 const store = useMapStore()
 const selectedProps = computed(() => store.selectedFeatures[props.layer.id] ?? null)
@@ -103,7 +114,7 @@ const activeTab = ref('info')
 const layer = computed(() => props.layer)
 const isMetro = computed(() => layer.value?.type === 'metro' || layer.value?.metroLike === true)
 
-const LLM_TABS = new Set(['grid', 'eval', 'compare', 'llm', 'llm-prompt'])
+const LLM_TABS = new Set(['grid', 'eval', 'compare', 'llm', 'llm-prompt', 'shape-llm'])
 const isLlmTab = computed(() => LLM_TABS.has(activeTab.value))
 
 function parseRoutes(p) {
@@ -136,6 +147,7 @@ const TABS = computed(() => [
     { id: 'compare', label: '比較', icon: 'auto_awesome', title: 'LLM全部評價' },
   ] : []),
   ...(props.llmView ? [{ id: 'llm', label: '自動對齊', icon: 'auto_awesome', title: 'LLM自動對齊' }, { id: 'llm-prompt', label: '指定對齊', icon: 'auto_awesome', title: 'LLM指定對齊' }] : []),
+  ...(props.shapeView ? [{ id: 'shape-llm', label: 'LLM成方', icon: 'auto_awesome', title: 'LLM成方' }] : []),
 ])
 
 watch(TABS, (tabs) => { if (!tabs.some((t) => t.id === activeTab.value)) activeTab.value = 'info' })
@@ -259,8 +271,17 @@ function startResize(e) {
           :compare-text="compareText"
           :compare-msg="compareMsg"
           :compare-error="compareError"
+          :shape-record="shapeRecord"
+          :shape-running="shapeRunning"
+          :shape-can-run="shapeCanRun"
+          :shape-text="shapeText"
+          :shape-msg="shapeMsg"
+          :shape-error="shapeError"
+          :shape-applied="shapeApplied"
           :llm-model="llmModel"
           @run-llm="emit('run-llm', $event)"
+          @run-shape="emit('run-shape')"
+          @toggle-shape-exec="emit('toggle-shape-exec')"
           @run-prompt="emit('run-prompt', $event)"
           @run-grid="emit('run-grid', $event)"
           @run-eval="emit('run-eval', $event)"

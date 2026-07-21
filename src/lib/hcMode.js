@@ -11,7 +11,9 @@ export const HC_MODE_RE = new RegExp(
 // 「Hill Climbing」區的主佈局比較（不含 rect——② 就是爬山本體）。
 // shape＝⑨ Shape-Guided（僅比較；不進 PAPER_KINDS／下游鏈）。
 export const LAYOUT_KINDS = PAPER_KINDS.filter((p) => p.kind !== 'rect')
-export const LAYOUT_KIND_IDS = [...LAYOUT_KINDS.map((p) => p.kind), 'shape']
+// shape-llm＝⑨ Shape-Guided 的 LLM 版（route-llm-shape，僅比較；載檔案端結果）。
+// 放在 shape 之前，讓 `layout-shape-llm` 優先吃較長的 kind（$ 錨定其實兩序皆可）。
+export const LAYOUT_KIND_IDS = [...LAYOUT_KINDS.map((p) => p.kind), 'shape-llm', 'shape']
 export const LAYOUT_MODE_RE = new RegExp(`^layout-(${LAYOUT_KIND_IDS.join('|')})$`)
 
 export const layoutKindOf = (m) => {

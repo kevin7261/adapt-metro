@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { serveDataDir } from './vite/serveDataDir.js'
 import { serveSlides } from './vite/serveSlides.js'
 import { serveSkills } from './vite/serveSkills.js'
-import { llmAlignTrigger, llmGridTrigger, llmEvalTrigger, llmCompareTrigger } from './vite/llmTriggers.js'
+import { llmAlignTrigger, llmGridTrigger, llmEvalTrigger, llmCompareTrigger, llmShapeTrigger } from './vite/llmTriggers.js'
 import { copyStaticAssets } from './vite/copyStaticAssets.js'
 
 // GitHub Pages project site: https://kevin7261.github.io/adapt-metro/
@@ -20,6 +20,7 @@ export default defineConfig({
     llmGridTrigger(),
     llmEvalTrigger(),
     llmCompareTrigger(),
+    llmShapeTrigger(),
     copyStaticAssets(),
   ],
   server: {

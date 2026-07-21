@@ -15,7 +15,7 @@ export { buildForceAlign } from './paper/force.js'
 export { buildLsqAlign } from './paper/lsq.js'
 export { buildOctiAlign } from './paper/octi.js'
 export { buildPathAlign } from './paper/path.js'
-export { buildShapeAlign, applyShapeGreens } from './paper/shape.js'
+export { buildShapeAlign, applyShapeGreens, shapeLlmContext, applyShapeLlmTargets } from './paper/shape.js'
 
 // 直線演算法①〜⑧（Shape-Guided 不在此列——獨立⑨ layout-shape，見 D3Tab／route-shape-align）
 export const PAPER_KINDS = [

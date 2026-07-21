@@ -49,6 +49,29 @@ export function llmAlignTrigger() {
   })
 }
 
+export function llmShapeTrigger() {
+  return claudeSkillTrigger({
+    name: 'llm-shape-trigger',
+    prefix: '/llm-shape',
+    cmdEnv: 'LLM_SHAPE_CMD',
+    validate(b) {
+      if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
+      // ⑨ LLM 成方＝Shape-Guided 的 LLM 版：只自動（無指定模式），寫獨立結果檔。
+      // 只對規定表三城有意義（山手／新加坡環狀／大江戶環形段）；他城 export 回 null。
+      return {
+        key: `${b.city}.${b.variant}.shape`,
+        outFile: `data/metro/llmshapes/${b.city}.${b.variant}.json`,
+        prompt: `使用 route-llm-shape skill：幫城市 ${b.city}（變體 ${b.variant}）用 LLM 把規定路段收成`
+          + '四邊直線正方（isFourLineSquare），是 Shape-Guided（⑨）的 LLM 版。'
+          + '反覆 export → 分析環站與正方目標 → apply（提案經拓撲鐵律逐步套用）迭代到成方或收斂'
+          + '（上限 10 輪）；每輪 moves.json 都要含 model 與 note（本輪思路），第一輪另附 prompt 欄位。'
+          + '成方是硬目標——被鐵律擋下的提案（rejected）改成更短、更分批的移動再試，'
+          + '必要時先把擋路的非環站讓開。完成後只輸出最終成方與否、交叉前後、迭代輪數與一句總結。',
+      }
+    },
+  })
+}
+
 export function llmGridTrigger() {
   return claudeSkillTrigger({
     name: 'llm-grid-trigger',

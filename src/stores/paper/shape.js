@@ -1,7 +1,7 @@
-// Shape-Guided（Batik et al. 2022）——依論文／開源 MetroShapes::Smooth 的整數格改編。
-// 硬目標：規定路段嵌方形（四邊 H/V）＋拓撲鐵律（不當交叉不增、點周圍邊環繞序不變）。
-// 掛在「⑨Shape-Guided／layout-shape」（格網→貼形）；要不要算看 shapePresets（未規定＝不跑）。
-// §4 擺方 → §5 LS（交叉／環繞序守門）→ §6 拓撲安全變形＋釘方（禁增交叉軟交付）
+// Shape-Guided（Batik et al. 2022 精神）——§4/§5 暖身＋§6 徑向成方（密網實用主路徑）。
+// §4 規定路段 W → §5 平滑／混合 LS（平面性守門）
+// → §6 徑向／RBF 整網成方＋釘四邊＋清交叉（Octi 僅 opts.tryOcti 可選加強）。
+// 掛在「⑨Shape-Guided／layout-shape」；要不要算看 shapePresets（未規定＝不跑）。
 import {
   buildHcGraph, countHV, countHVD, makeMover,
 } from '../hillClimb.js'
@@ -11,6 +11,7 @@ import {
 import {
   SHAPE_SQUARE, getShapePreset,
 } from './shapePresets.js'
+import { runShapeOctiGrid } from './shapeOcti.js'
 
 const SHAPE_ZH = { [SHAPE_SQUARE]: '方', 0: '方', square: '方' }
 const MIN_CUTS = 6
@@ -269,11 +270,13 @@ function edgeOrdersMatch(posA, posB, segs, inc, isGreen = () => false) {
   return true
 }
 
-/** 拓撲鐵律：交叉不增、無撞格、環繞序＝輸入（可略過綠控） */
-function topoIronOk(layout, geo, segs, inc, cross0, isGreen = () => false) {
+/**
+ * 論文 D1 平面性：不當交叉 ≤ 輸入、無撞格。
+ * （環繞序是 Stott／本庫 HC 規則，不在 Batik 2022 Shape-Guided 論文裡——不成交付條件。）
+ */
+function topoPlanarOk(layout, segs, cross0) {
   if (hasCellClash(layout)) return false
   if (improperCrossCount(layout, segs) > cross0) return false
-  if (!edgeOrdersMatch(geo, layout, segs, inc, isGreen)) return false
   return true
 }
 
@@ -317,6 +320,39 @@ function occupiedKeys(posMap) {
   const s = new Set()
   for (const [, p] of posMap) s.add(ckey(p[0], p[1]))
   return s
+}
+
+/**
+ * 把綠控寫進骨架：path 插入、stationClass=green（placeBlacks 會當切點轉折）。
+ */
+export function applyShapeGreens(skeleton, greens) {
+  if (!greens?.length) return skeleton
+  const stationClass = new Map(skeleton.stationClass)
+  const edges = skeleton.edges.map((e) => ({
+    ...e,
+    path: e.path.slice(),
+    routeColors: e.routeColors ? e.routeColors.slice() : e.routeColors,
+    renderColors: e.renderColors ? e.renderColors.slice() : e.renderColors,
+  }))
+  for (const g of greens) {
+    const id = g.id
+    stationClass.set(id, 'green')
+    let placed = false
+    for (const e of edges) {
+      if (e.path.includes(id)) { placed = true; break }
+      const ia = e.path.indexOf(g.a)
+      const ib = e.path.indexOf(g.b)
+      if (ia < 0 || ib < 0) continue
+      const after = ia < ib ? ia + 1 : ib + 1
+      e.path.splice(after, 0, id)
+      placed = true
+      break
+    }
+    if (!placed) {
+      console.warn('[shape] green not placed', g)
+    }
+  }
+  return { ...skeleton, stationClass, edges }
 }
 
 function resolveCellClashes(layout, frozen, cols, rows) {
@@ -403,416 +439,6 @@ function segCrossCount(posMap, segs, si) {
     if (segIntersect(A, B, C, D)) n++
   }
   return n
-}
-
-/**
- * 論文「必要時插轉折」：只在規定路段 W 的斜邊上插綠點（格點），
- * 讓相鄰 W 站以 H+V 折到同一方邊／轉角。絕不插在其他路線。
- */
-function tryInsertWCornerBend(pos, segs, pathSet, box, cols, rows, seq) {
-  if (!box) return null
-  const corners = [
-    [box.minX, box.minY], [box.maxX, box.minY],
-    [box.maxX, box.maxY], [box.minX, box.maxY],
-  ]
-  const occ = occupiedKeys(pos)
-  // 只掃 W—W 段（含已插入的綠控仍算 W 路徑：一端綠一端 W 也算）
-  const isOnWPath = (id) => pathSet.has(id) || isShapeGreenId(id)
-  let best = null
-  for (let bi = 0; bi < segs.length; bi++) {
-    const s = segs[bi]
-    if (!isOnWPath(s.a) || !isOnWPath(s.b)) continue
-    // 至少一端是真 W 站（避免綠—綠再拆）
-    if (!pathSet.has(s.a) && !pathSet.has(s.b)) continue
-    const A = pos.get(s.a), B = pos.get(s.b)
-    if (!A || !B) continue
-    if (A[0] === B[0] || A[1] === B[1]) continue // 已是 H/V，不必插
-    // 候選格：兩種 L 轉折＋方框四角（皆網格交叉點）
-    const cells = [
-      [B[0], A[1]], [A[0], B[1]],
-      ...corners,
-    ]
-    for (const [c, r] of cells) {
-      if (c < 0 || r < 0 || c >= cols || r >= rows) continue
-      if (occ.has(ckey(c, r))) continue
-      // 轉折後兩段都必須是 H/V
-      const hv1 = (A[0] === c || A[1] === r)
-      const hv2 = (B[0] === c || B[1] === r)
-      if (!hv1 || !hv2) continue
-      if ((A[0] === c && A[1] === r) || (B[0] === c && B[1] === r)) continue
-      const trialPos = new Map([...pos].map(([id, p]) => [id, [...p]]))
-      const trialSegs = cloneSegs(segs)
-      const gid = `shape-g${seq}`
-      const trialInc = splitSegAt(trialSegs, trialPos, bi, gid, [c, r])
-      if (hasCellClash(trialPos)) continue
-      // 優先：消除這條斜邊；方角優先
-      const onCorner = corners.some(([x, y]) => x === c && y === r)
-      const score = (onCorner ? 0 : 10) + Math.hypot(c - (A[0] + B[0]) / 2, r - (A[1] + B[1]) / 2)
-      if (!best || score < best.score) {
-        best = {
-          score, pos: trialPos, segs: trialSegs, inc: trialInc,
-          green: { id: gid, c, r, a: s.a, b: s.b },
-        }
-      }
-    }
-  }
-  return best
-}
-
-/**
- * 把綠控寫進骨架：path 插入、stationClass=green（placeBlacks 會當切點轉折）。
- */
-export function applyShapeGreens(skeleton, greens) {
-  if (!greens?.length) return skeleton
-  const stationClass = new Map(skeleton.stationClass)
-  const edges = skeleton.edges.map((e) => ({
-    ...e,
-    path: e.path.slice(),
-    routeColors: e.routeColors ? e.routeColors.slice() : e.routeColors,
-    renderColors: e.renderColors ? e.renderColors.slice() : e.renderColors,
-  }))
-  for (const g of greens) {
-    const id = g.id
-    stationClass.set(id, 'green')
-    let placed = false
-    for (const e of edges) {
-      if (e.path.includes(id)) { placed = true; break }
-      const ia = e.path.indexOf(g.a)
-      const ib = e.path.indexOf(g.b)
-      if (ia < 0 || ib < 0) continue
-      const after = ia < ib ? ia + 1 : ib + 1
-      e.path.splice(after, 0, id)
-      placed = true
-      break
-    }
-    if (!placed) {
-      // 兜底：找不到 a/b 邊時略過（不應發生）
-      console.warn('[shape] green not placed', g)
-    }
-  }
-  return { ...skeleton, stationClass, edges }
-}
-
-/**
- * 只動非 W：從 base 出發、validMove 移向 targets（W 凍結在 base）。
- * 禁止整網 RBF 硬吸附——那會把密網撕成義大利麵。
- */
-function topoSafeNonW(base, targets, segs, inc, cols, rows, pathSet) {
-  const pos = new Map([...base].map(([id, p]) => [id, [...p]]))
-  const M = makeMover(pos, segs, inc, cols, rows)
-  const ids = [...targets.keys()].filter((id) => !pathSet.has(id) && pos.has(id))
-  for (let pass = 0; pass < 60; pass++) {
-    let moved = 0
-    for (const id of ids) {
-      const tgt = targets.get(id)
-      const cur = pos.get(id)
-      if (!tgt || !cur) continue
-      const dist0 = Math.hypot(cur[0] - tgt[0], cur[1] - tgt[1])
-      if (dist0 < 0.5) continue
-      const tc = Math.max(0, Math.min(cols - 1, Math.round(tgt[0])))
-      const tr = Math.max(0, Math.min(rows - 1, Math.round(tgt[1])))
-      const cands = [[tc, tr]]
-      const dx = Math.sign(tc - cur[0]), dy = Math.sign(tr - cur[1])
-      if (dx || dy) {
-        cands.push([cur[0] + dx, cur[1] + dy])
-        if (dx) cands.push([cur[0] + dx, cur[1]])
-        if (dy) cands.push([cur[0], cur[1] + dy])
-      }
-      for (let rad = 1; rad <= 4; rad++) {
-        for (let dc = -rad; dc <= rad; dc++) {
-          for (let dr = -rad; dr <= rad; dr++) {
-            if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
-            cands.push([cur[0] + dc, cur[1] + dr])
-          }
-        }
-      }
-      let best = null, bd = dist0
-      const seen = new Set()
-      for (const [c, r] of cands) {
-        if (c < 0 || r < 0 || c >= cols || r >= rows) continue
-        const key = ckey(c, r)
-        if (seen.has(key)) continue
-        seen.add(key)
-        if (c === cur[0] && r === cur[1]) continue
-        if (!M.validMove(id, [c, r])) continue
-        const d = Math.hypot(c - tgt[0], r - tgt[1])
-        if (d + 1e-9 < bd) { bd = d; best = [c, r] }
-      }
-      if (best) { M.applyMove(id, best); moved++ }
-    }
-    if (!moved) break
-  }
-  return pos
-}
-
-/** 綠點硬上限：論文「必要時」轉折，方最多四角附近數點，絕不可灑滿網 */
-const MAX_SHAPE_GREENS = 4
-
-/**
- * 試把目前佈局收成「四邊方 ∧ 鐵律」：可微釘＋必要時 W 綠轉折。
- * 破鐵律一律回 null（禁止硬釘後帶傷交付）。
- */
-function tryFinishSquareIron(
-  layout, segs, geo, pick, pathSet, box, cols, rows, cross0, seq0, greensBudget,
-) {
-  const ironOk = (L, sgs, ic) =>
-    topoIronOk(L, geo, sgs, ic, cross0, isShapeGreenId)
-  let tLayout = new Map([...layout].map(([id, p]) => [id, [...p]]))
-  let tSegs = cloneSegs(segs)
-  let tInc = rebuildInc(tSegs)
-  const tGreens = []
-  let tSeq = seq0
-
-  if (isFourLineSquare(pick.cutIds, tLayout, tSegs) && ironOk(tLayout, tSegs, tInc)) {
-    return { layout: tLayout, segs: tSegs, inc: tInc, greens: tGreens, seq: tSeq }
-  }
-
-  const pinned = pinWFourSidesOnBox(tLayout, pick.cutIds, box, cols, rows)
-  if (pinned) {
-    for (const [id, p] of pinned) tLayout.set(id, p)
-  }
-  // 釘後立刻檢查：破鐵律就不接受這個釘（山手密網硬釘＝撕網）
-  if (!ironOk(tLayout, tSegs, tInc)) {
-    // 退回未釘，只靠已有座標＋W 綠試成方
-    tLayout = new Map([...layout].map(([id, p]) => [id, [...p]]))
-  }
-
-  while (
-    tGreens.length < greensBudget
-    && !isFourLineSquare(pick.cutIds, tLayout, tSegs)
-  ) {
-    const g = tryInsertWCornerBend(
-      tLayout, tSegs, pathSet, box, cols, rows, tSeq)
-    if (!g || !ironOk(g.pos, g.segs, g.inc)) break
-    tLayout = g.pos
-    tSegs = g.segs
-    tInc = g.inc
-    tGreens.push(g.green)
-    tSeq++
-  }
-
-  // 非 W 往輸入拉一輪（W／綠凍結），助恢復環繞序——仍須鐵律
-  {
-    const freeze = new Map(
-      [...tLayout].filter(([id]) => pathSet.has(id) || isShapeGreenId(id)))
-    const soft = topoSafeNonW(tLayout, geo, tSegs, tInc, cols, rows, pathSet)
-    for (const [id, p] of freeze) soft.set(id, p)
-    if (isFourLineSquare(pick.cutIds, soft, tSegs) && ironOk(soft, tSegs, tInc)) {
-      tLayout = soft
-    }
-  }
-
-  if (!isFourLineSquare(pick.cutIds, tLayout, tSegs)) return null
-  if (!ironOk(tLayout, tSegs, tInc)) return null
-  return { layout: tLayout, segs: tSegs, inc: tInc, greens: tGreens, seq: tSeq }
-}
-
-/** 由基礎正方產生平移變體（密網需掃更多放置位置） */
-function expandBoxPlacements(boxes, cols, rows) {
-  const out = []
-  const seen = new Set()
-  const add = (b) => {
-    if (!b || b.side < 2) return
-    if (b.minX < 0 || b.minY < 0 || b.maxX >= cols || b.maxY >= rows) return
-    if (b.maxX - b.minX !== b.side || b.maxY - b.minY !== b.side) return
-    const k = `${b.side}:${b.minX},${b.minY}`
-    if (seen.has(k)) return
-    seen.add(k)
-    out.push(b)
-  }
-  for (const b of boxes) {
-    add(b)
-    for (const dx of [-4, -2, -1, 0, 1, 2, 4]) {
-      for (const dy of [-4, -2, -1, 0, 1, 2, 4]) {
-        if (!dx && !dy) continue
-        add({
-          minX: b.minX + dx, minY: b.minY + dy,
-          maxX: b.maxX + dx, maxY: b.maxY + dy,
-          side: b.side,
-        })
-      }
-    }
-  }
-  out.sort((a, b) => a.side - b.side || a.minX - b.minX || a.minY - b.minY)
-  return out
-}
-
-/** 鐵律內隨機晃非 W（脫出局部卡住） */
-function ironShakeNonW(base, segs, inc, cols, rows, pathSet, geo, cross0, n = 12) {
-  const pos = new Map([...base].map(([id, p]) => [id, [...p]]))
-  const M = makeMover(pos, segs, inc, cols, rows)
-  const ids = [...pos.keys()].filter((id) => !pathSet.has(id) && !isShapeGreenId(id))
-  for (let k = 0; k < n; k++) {
-    if (!ids.length) break
-    const id = ids[(Math.random() * ids.length) | 0]
-    const cur = pos.get(id)
-    if (!cur) continue
-    const cands = []
-    for (let dc = -2; dc <= 2; dc++) {
-      for (let dr = -2; dr <= 2; dr++) {
-        if (!dc && !dr) continue
-        cands.push([cur[0] + dc, cur[1] + dr])
-      }
-    }
-    for (let i = cands.length - 1; i > 0; i--) {
-      const j = (Math.random() * (i + 1)) | 0
-      ;[cands[i], cands[j]] = [cands[j], cands[i]]
-    }
-    for (const [c, r] of cands) {
-      if (c < 0 || r < 0 || c >= cols || r >= rows) continue
-      if (!M.validMove(id, [c, r])) continue
-      M.applyMove(id, [c, r])
-      if (!topoIronOk(pos, geo, segs, inc, cross0, isShapeGreenId)) {
-        M.applyMove(id, cur) // 理論上 validMove 已保；雙重保險
-      }
-      break
-    }
-  }
-  return pos
-}
-
-/**
- * §6F：成方 ∧ 鐵律——**絕不提前結束**，輪替邊長／平移／慢移／W 綠／晃動直到成功。
- */
-async function forceSquareWithGreens(
-  geo, pick, pathSet, segs, inc, cols, rows, boxes, box0, cross0, opts,
-) {
-  await shapeProgress(opts, '§6F 成方∧鐵律（持續算到成功）…')
-
-  const forced0 = forceFourSideSquare(geo, pick.cutIds, cols, rows)
-  const seed = [...(boxes.length ? boxes : [])]
-  if (forced0?.box && !seed.some((b) => b.side === forced0.box.side
-    && b.minX === forced0.box.minX && b.minY === forced0.box.minY)) {
-    seed.push(forced0.box)
-  }
-  if (!seed.length && box0) seed.push(box0)
-  let boxList = expandBoxPlacements(seed, cols, rows)
-  if (!boxList.length && box0) boxList = [box0]
-
-  const ironOk = (layout, sgs, ic) =>
-    topoIronOk(layout, geo, sgs, ic, cross0, isShapeGreenId)
-
-  let epoch = 0
-  // 使用者要求：不管多久一定要算完——只在成方∧鐵律時 return
-  for (;;) {
-    epoch++
-    const greenCap = Math.min(12, MAX_SHAPE_GREENS + Math.floor((epoch - 1) / 3))
-    await shapeProgress(opts,
-      `§6F 第 ${epoch} 輪（${boxList.length} 個方框，W綠上限 ${greenCap}）…`)
-
-    for (let bi = 0; bi < boxList.length; bi++) {
-      const box = boxList[bi]
-      const targets = fourSideTargets(pick.cutIds, box, false)
-      if (!targets) continue
-
-      let L = new Map([...geo].map(([id, p]) => [id, [...p]]))
-      let workSegs = cloneSegs(segs)
-      let workInc = rebuildInc(workSegs)
-      const greens = []
-      let seq = 0
-      let stuckRounds = 0
-      const rounds = 40 + Math.min(80, epoch * 8)
-
-      if (epoch === 1 || bi % 5 === 0 || stuckRounds > 0) {
-        await shapeProgress(opts,
-          `§6F e${epoch} 慢移 s${box.side}@(${box.minX},${box.minY})…`)
-      }
-
-      for (let round = 0; round < rounds; round++) {
-        const morphed = rbfMorph(geo, pick.cutIds, targets.targets)
-        const attract = morphed || targets.targets
-        const before = [...L.values()].map((p) => p.join(',')).join('|')
-        let stepped = topoSafeTowardTargets(
-          L, attract, workSegs, workInc, cols, rows, pathSet)
-        stepped = topoSafeTowardTargets(
-          stepped, targets.targets, workSegs, workInc, cols, rows, pathSet)
-        if (ironOk(stepped, workSegs, workInc)) L = stepped
-
-        const q = squareQuality(pick.cutIds, L)
-        if (q.onEdge >= 0.5 || isFourLineSquare(pick.cutIds, L, workSegs)) {
-          const fin = tryFinishSquareIron(
-            L, workSegs, geo, pick, pathSet, box, cols, rows, cross0,
-            seq, greenCap - greens.length)
-          if (fin) {
-            for (const g of fin.greens) greens.push(g)
-            await shapeProgress(opts,
-              `§6F 完成成方∧鐵律（e${epoch} s${box.side}，W綠×${greens.length}）`)
-            return {
-              layout: fin.layout,
-              via: greens.length
-                ? `persist+Wgreen×${greens.length}`
-                : `persist/s${box.side}`,
-              box,
-              greens,
-              segs: fin.segs,
-              inc: fin.inc,
-            }
-          }
-        }
-
-        if (isFourLineSquare(pick.cutIds, L, workSegs) && ironOk(L, workSegs, workInc)) {
-          await shapeProgress(opts, `§6F 完成成方∧鐵律（e${epoch}）`)
-          return {
-            layout: L,
-            via: greens.length ? `persist+Wgreen×${greens.length}` : `persist/s${box.side}`,
-            box, greens, segs: workSegs, inc: workInc,
-          }
-        }
-
-        const after = [...L.values()].map((p) => p.join(',')).join('|')
-        if (before === after) stuckRounds++
-        else stuckRounds = 0
-
-        // 卡住：先試 W 綠；再鐵律內晃非 W——絕不 break 結束整輪搜尋
-        if (stuckRounds >= 6) {
-          let progressed = false
-          if (greens.length < greenCap) {
-            const g = tryInsertWCornerBend(
-              L, workSegs, pathSet, box, cols, rows, seq)
-            if (g && ironOk(g.pos, g.segs, g.inc)) {
-              L = g.pos
-              workSegs = g.segs
-              workInc = g.inc
-              greens.push(g.green)
-              seq++
-              progressed = true
-              await shapeProgress(opts,
-                `§6F e${epoch} 必要 W 轉折×${greens.length}`)
-            }
-          }
-          if (!progressed) {
-            const shaken = ironShakeNonW(
-              L, workSegs, workInc, cols, rows, pathSet, geo, cross0, 16)
-            if (ironOk(shaken, workSegs, workInc)) L = shaken
-          }
-          stuckRounds = 0
-        }
-
-        if (round > 0 && round % 20 === 0) {
-          await shapeProgress(opts,
-            `§6F e${epoch} s${box.side} r${round}/${rounds} onEdge=${q.onEdge.toFixed(2)}`)
-        }
-      }
-    }
-
-    // 每輪結束再擴一次方框平移（隨 epoch 加大位移）
-    if (epoch % 2 === 0) {
-      const more = []
-      for (const b of seed) {
-        const span = 2 + epoch
-        for (let dx = -span; dx <= span; dx += 2) {
-          for (let dy = -span; dy <= span; dy += 2) {
-            more.push({
-              minX: b.minX + dx, minY: b.minY + dy,
-              maxX: b.maxX + dx, maxY: b.maxY + dy,
-              side: b.side,
-            })
-          }
-        }
-      }
-      boxList = expandBoxPlacements([...seed, ...more], cols, rows)
-    }
-  }
 }
 
 /**
@@ -1847,6 +1473,254 @@ function aggressiveRepairRules(posMap, segs, frozen, cols, rows, crossBudget, in
   return rulesOk()
 }
 
+/** 方框內的非 W 站沿徑向外推到框外（騰出空間、降交叉） */
+function evacuateNonWOutsideSquare(layout, pathSet, box, cols, rows) {
+  const { minX, minY, maxX, maxY } = box
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
+  const used = new Set()
+  for (const [id, p] of layout) {
+    if (pathSet.has(id) || isShapeGreenId(id)) used.add(ckey(p[0], p[1]))
+  }
+  for (const [id, p] of [...layout]) {
+    if (pathSet.has(id) || isShapeGreenId(id)) continue
+    const inside = p[0] >= minX && p[0] <= maxX && p[1] >= minY && p[1] <= maxY
+    if (!inside) { used.add(ckey(p[0], p[1])); continue }
+    const ang = Math.atan2(p[1] - cy, p[0] - cx || 1e-9)
+    let found = null
+    const r0 = Math.max(maxX - minX, maxY - minY) / 2 + 1
+    for (let dist = r0; dist < Math.max(cols, rows) + 2 && !found; dist++) {
+      const c = Math.max(0, Math.min(cols - 1, Math.round(cx + Math.cos(ang) * dist)))
+      const r = Math.max(0, Math.min(rows - 1, Math.round(cy + Math.sin(ang) * dist)))
+      if (used.has(ckey(c, r))) continue
+      if (c >= minX && c <= maxX && r >= minY && r <= maxY) continue
+      found = [c, r]
+    }
+    if (found) {
+      layout.set(id, found)
+      used.add(ckey(found[0], found[1]))
+    }
+  }
+}
+
+/**
+ * §6 主路徑：徑向（失敗則 RBF）整網變形 → 互不撞吸附 → 釘四邊方 → 疏散＋修交叉。
+ * 比 Octi 逐邊路由更適合密網；成方是硬步驟，平面靠修交叉逼近。
+ */
+async function runRadialSquareGrid({
+  seed, cutIds, pathSet, segs, inc, cols, rows, cross0,
+  onProgress, tick,
+}) {
+  const progress = async (msg) => {
+    if (typeof onProgress === 'function') onProgress(msg)
+    if (typeof tick === 'function') await tick()
+    else await new Promise((r) => setTimeout(r, 0))
+  }
+
+  await progress('§6 徑向：選正方框並整網變形…')
+  const baseBox = wSquareBox(seed, cutIds, cols, rows)
+  if (!baseBox) return null
+  const boxes = shrinkBoxes(baseBox, cutIds, cols, rows)
+
+  let best = null
+  let bestScore = Infinity
+
+  for (let bi = 0; bi < boxes.length; bi++) {
+    const box = boxes[bi]
+    if (bi === 0 || bi % 2 === 0) {
+      await progress(`§6 徑向：候選 ${bi + 1}/${boxes.length}（邊=${box.side}）…`)
+    }
+    const ft = fourSideTargets(cutIds, box, false)
+    if (!ft?.targets) continue
+
+    let cont = radialMorph(seed, cutIds, box, ft.targets)
+    if (!cont) cont = rbfMorph(seed, cutIds, ft.targets)
+    if (!cont) continue
+
+    let L = mutualSnap(cont, pathSet, cols, rows)
+    if (!L) continue
+    const pinned = pinWFourSidesOnBox(L, cutIds, box, cols, rows)
+    if (pinned) L = pinned
+    else {
+      const forced = forceFourSideSquare(L, cutIds, cols, rows)
+      if (forced) L = forced.layout
+    }
+    resolveCellClashes(L, pathSet, cols, rows)
+    clearStationsOnEdges(L, segs, pathSet, cols, rows)
+    evacuateNonWOutsideSquare(L, pathSet, box, cols, rows)
+    resolveCellClashes(L, pathSet, cols, rows)
+
+    for (let pass = 0; pass < 6; pass++) {
+      aggressiveRepairRules(L, segs, pathSet, cols, rows, cross0, inc, {
+        box, slideW: true,
+      })
+      if (isFourLineSquare(cutIds, L, segs) && topoPlanarOk(L, segs, cross0)) break
+    }
+
+    const four = isFourLineSquare(cutIds, L, segs)
+    const planar = topoPlanarOk(L, segs, cross0)
+    const cx = improperCrossCount(L, segs)
+    const score = (four ? 0 : 1000) + (planar ? 0 : 100) + cx
+    if (score < bestScore) {
+      bestScore = score
+      best = {
+        layout: new Map([...L].map(([id, p]) => [id, [...p]])),
+        segs,
+        greens: [],
+        box,
+        via: `radial·side${box.side}`,
+        rulesOk: four && planar,
+        crosses: cx,
+        four,
+        planar,
+      }
+    }
+    if (four && planar) {
+      await progress(`§6 徑向：成方且平面（邊=${box.side}，交叉 ${cross0}→${cx}）`)
+      return best
+    }
+  }
+
+  if (best) {
+    await progress(
+      `§6 徑向：最佳（方=${best.four} 平面=${best.planar} 交叉 ${cross0}→${best.crosses}）`)
+  } else {
+    await progress('§6 徑向：無候選')
+  }
+  return best
+}
+
+/**
+ * 論文交付：成方 ∧ D1 ∧ 綠僅 W —— 規定必做且結果必交（永不退回輸入）。
+ * 種子已合規直接用；否則釘四邊方＋疏散＋積極修交叉，耗盡候選後仍交釘方結果。
+ */
+async function ensurePaperDelivery({
+  seedLayout, seedSegs, seedGreens, seedVia,
+  baseSegs, baseInc, cutIds, pathSet, cols, rows, cross0,
+  onProgress, tick,
+}) {
+  const progress = async (msg, force = true) => {
+    if (typeof onProgress === 'function') onProgress(msg)
+    if (!force) return
+    if (typeof tick === 'function') await tick()
+    else await new Promise((r) => setTimeout(r, 0))
+  }
+  const greensOk = (greens) => (greens ?? []).every((g) =>
+    (pathSet.has(g.a) || isShapeGreenId(g.a))
+    && (pathSet.has(g.b) || isShapeGreenId(g.b)))
+  const verdict = (L, sgs, greens) => {
+    const four = isFourLineSquare(cutIds, L, sgs)
+    const planar = topoPlanarOk(L, sgs, cross0)
+    const gok = greensOk(greens)
+    return { four, planar, gok, ok: four && planar && gok }
+  }
+
+  if (seedLayout && seedSegs) {
+    const v = verdict(seedLayout, seedSegs, seedGreens)
+    if (v.ok) {
+      await progress('論文交付：已合規')
+      return {
+        layout: seedLayout, segs: seedSegs, greens: seedGreens ?? [],
+        via: seedVia ?? 'radial', rulesOk: true,
+      }
+    }
+  }
+
+  // 剝綠，從純站佈局強制釘方（綠僅 W——強制路徑可不插綠，四邊 H/V 已夠）
+  const base = new Map()
+  for (const [id, p] of (seedLayout ?? [])) {
+    if (isShapeGreenId(id)) continue
+    base.set(id, [...p])
+  }
+  if (!base.size) {
+    await progress('強制交付：無種子佈局')
+    return null
+  }
+
+  const baseBox = wSquareBox(base, cutIds, cols, rows)
+  const boxes = shrinkBoxes(baseBox, cutIds, cols, rows)
+  let bestFour = null
+  let bestFourCx = Infinity
+
+  for (let bi = 0; bi < boxes.length; bi++) {
+    const box = boxes[bi]
+    await progress(`強制交付：釘方＋修平面（${bi + 1}/${boxes.length}，邊=${box.side}）…`)
+    let L = pinWFourSidesOnBox(base, cutIds, box, cols, rows)
+    if (!L) {
+      const forced = forceFourSideSquare(base, cutIds, cols, rows)
+      if (!forced) continue
+      L = forced.layout
+    }
+    resolveCellClashes(L, pathSet, cols, rows)
+    clearStationsOnEdges(L, baseSegs, pathSet, cols, rows)
+    evacuateNonWOutsideSquare(L, pathSet, box, cols, rows)
+    resolveCellClashes(L, pathSet, cols, rows)
+    for (let pass = 0; pass < 5; pass++) {
+      aggressiveRepairRules(L, baseSegs, pathSet, cols, rows, cross0, baseInc, {
+        box, slideW: true,
+      })
+      if (verdict(L, baseSegs, []).ok) break
+    }
+    const v = verdict(L, baseSegs, [])
+    const cx = improperCrossCount(L, baseSegs)
+    if (v.ok) {
+      await progress(`完成論文交付（force·side${box.side}，交叉 ${cross0}→${cx}）`)
+      return {
+        layout: L, segs: baseSegs, greens: [],
+        via: `force·side${box.side}`, rulesOk: true,
+      }
+    }
+    if (v.four && cx < bestFourCx) {
+      bestFourCx = cx
+      bestFour = {
+        layout: new Map([...L].map(([id, p]) => [id, [...p]])),
+        box,
+      }
+    }
+  }
+
+  // 末路：在最佳成方候選上繼續清交叉，仍必交出釘方（不退回輸入）
+  let L
+  let box
+  if (bestFour) {
+    L = bestFour.layout
+    box = bestFour.box
+  } else {
+    const forced = forceFourSideSquare(base, cutIds, cols, rows)
+    if (!forced) {
+      await progress('強制交付：釘方失敗 → 交種子佈局')
+      return {
+        layout: base, segs: baseSegs, greens: [],
+        via: 'force·seed', rulesOk: false,
+      }
+    }
+    L = forced.layout
+    box = forced.box
+  }
+  await progress(`強制交付：最終清交叉（${bestFourCx < Infinity ? bestFourCx : '?'}→≤${cross0}）…`)
+  evacuateNonWOutsideSquare(L, pathSet, box, cols, rows)
+  resolveCellClashes(L, pathSet, cols, rows)
+  for (let i = 0; i < 12; i++) {
+    if (verdict(L, baseSegs, []).ok) break
+    aggressiveRepairRules(L, baseSegs, pathSet, cols, rows, cross0, baseInc, {
+      box, slideW: true,
+    })
+    if (i % 3 === 2) {
+      await progress(`強制交付：清交叉 ${i + 1}/12（${improperCrossCount(L, baseSegs)}）…`)
+    }
+  }
+  const cx = improperCrossCount(L, baseSegs)
+  const v = verdict(L, baseSegs, [])
+  await progress(
+    v.ok
+      ? `完成論文交付（force，交叉 ${cross0}→${cx}）`
+      : `交付釘方（方=${v.four} 平面=${v.planar} 交叉 ${cross0}→${cx}；不退回）`)
+  return {
+    layout: L, segs: baseSegs, greens: [],
+    via: v.ok ? 'force' : 'force·deliver',
+    rulesOk: v.ok,
+  }
+}
+
 /**
  * 以環線 bbox 中心做軸向等比縮放，使環線外接框成正方，再互不撞整數吸附。
  * 仿射保平面（連續域交叉不變）；作 LS 吸附失敗時的備援。
@@ -2169,8 +2043,8 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
       while (d < -Math.PI) d += TWO_PI
       R[si] = d
     }
-    // 論文 §5：新交叉或環繞序變 → 退回上一輪
-    if (improperCrossCount(P, segs) > cross0 || !edgeOrdersMatch(Pprev, P, segs, inc)) {
+    // 論文 §5：平面性——新交叉 → 退回上一輪（D1；無「環繞序」條款）
+    if (improperCrossCount(P, segs) > cross0) {
       for (const [id, p] of Pprev) P.set(id, p)
     }
   }
@@ -2229,14 +2103,14 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
     }
   }
 
-  // 論文 §5：每輪平面性＋環繞序守門
+  // 論文 §5：每輪平面性守門（交叉不增）
   for (let round = 0; round < MIXED_ROUNDS; round++) {
     if (round > 0 && round % 15 === 0) {
       await shapeProgress(opts, `§5.2 混合 LS ${round}/${MIXED_ROUNDS}`)
     }
     const Pprev = new Map([...P].map(([id, p]) => [id, [...p]]))
     mixedStep()
-    if (improperCrossCount(P, segs) > cross0 || !edgeOrdersMatch(Pprev, P, segs, inc)) {
+    if (improperCrossCount(P, segs) > cross0) {
       for (const [id, p] of Pprev) P.set(id, p)
     }
   }
@@ -2254,39 +2128,53 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
     }
     const Pprev = new Map([...P].map(([id, p]) => [id, [...p]]))
     mixedStep()
-    if (improperCrossCount(P, segs) > cross0 || !edgeOrdersMatch(Pprev, P, segs, inc)) {
+    if (improperCrossCount(P, segs) > cross0) {
       for (const [id, p] of Pprev) P.set(id, p)
     }
   }
 
-  // ── §6：四邊直線方＋硬規則（交叉／重疊不得變差）──
-  // RBF 變形場讓整網跟著 W 走 → 釘邊／修復；僅 four∧!clash∧cross≤cross0 交付，否則退回輸入。
-  await shapeProgress(opts, '§6 格網：檢查是否已成四邊方…')
+  // ── §6：徑向成方＋清交叉（主路徑；Octi 僅 opts.tryOcti）──
+  await shapeProgress(opts, '§6 格網：徑向成方＋清交叉…')
   const hvBefore = countHV(pos, segs)
   const hvdBefore = countHVD(pos, segs)
 
-  if (isFourLineSquare(pick.cutIds, pos) && !hasPointOverlap(pos, segs)
-    && topoIronOk(pos, geo, segs, inc, cross0)) {
-    await shapeProgress(opts, '已成四邊方且拓撲完好 → 略過變形')
+  // mixed → 整數格（撞格先清）
+  const mixed = new Map()
+  for (const [id, p] of P) {
+    mixed.set(id, [
+      Math.max(0, Math.min(cols - 1, Math.round(p[0]))),
+      Math.max(0, Math.min(rows - 1, Math.round(p[1]))),
+    ])
+  }
+  resolveCellClashes(mixed, pathSet, cols, rows)
+
+  if (isFourLineSquare(pick.cutIds, mixed, segs) && !hasPointOverlap(mixed, segs)
+    && topoPlanarOk(mixed, segs, cross0)) {
+    await shapeProgress(opts, 'mixed 已成四邊方且平面完好 → 交付')
+    for (const [id, p] of mixed) pos.set(id, [...p])
     const q0 = squareQuality(pick.cutIds, pos)
     return {
       cellAfter: pos,
       greens: [],
       stats: {
-        hvBefore, hvAfter: hvBefore,
-        hvdBefore, hvdAfter: hvdBefore,
+        hvBefore, hvAfter: countHV(pos, segs),
+        hvdBefore, hvdAfter: countHVD(pos, segs),
         segs: segs.length, verts: pos.size,
-        moved: 0, passes: 1, reverted: false,
+        moved: [...pos].filter(([id, p]) => {
+          const s = geo.get(id)
+          return s && (s[0] !== p[0] || s[1] !== p[1])
+        }).length,
+        passes: 1, reverted: false,
         smoothRounds: SMOOTH_ROUNDS, mixedRounds: MIXED_ROUNDS,
         adjustRounds: ADJUST_ROUNDS,
         skipped: false,
         ...shapeMeta,
         shapeVerts: Sshape.size,
         score: +pick.score.toFixed(3),
-        note: '→方',
+        note: '→方（mixed）',
         quality: { ar: 1, onEdge: +q0.onEdge.toFixed(2), sides: 4, square: true, fourLine: true },
         crosses: `${cross0}→${cross0}`,
-        via: 'already',
+        via: 'mixed-already',
         rulesOk: true,
         greens: [],
         greenCount: 0,
@@ -2294,188 +2182,108 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
     }
   }
 
-  const box0 = wSquareBox(geo, pick.cutIds, cols, rows)
-  const boxes = shrinkBoxes(box0, pick.cutIds, cols, rows)
+  const radial = await runRadialSquareGrid({
+    seed: mixed,
+    cutIds: pick.cutIds,
+    pathSet,
+    segs,
+    inc,
+    cols,
+    rows,
+    cross0,
+    onProgress: opts.onProgress,
+    tick: opts.tick,
+  })
 
-  // 鐵律：四邊方 ∧ 無撞格 ∧ 交叉不增 ∧ 點周圍邊環繞序＝輸入
-  const tryAccept = (layout, viaTag, useBox, { pin = true } = {}) => {
-    const L = new Map([...layout].map(([id, p]) => [id, [...p]]))
-    if (pin && useBox) {
-      // 接近四邊即可微釘；釘完必須仍過鐵律（論文 D1）——禁止「未接近也硬釘」
-      const q = squareQuality(pick.cutIds, L)
-      if (isFourLineSquare(pick.cutIds, L) || q.onEdge >= 0.7) {
-        const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
-        if (pinned) for (const [id, p] of pinned) L.set(id, p)
-      }
-    }
-    clearStationsOnEdges(L, segs, pathSet, cols, rows, { allowSlideFrozen: null })
-    // 已成方∧鐵律 → 直接收（勿再 aggressiveRepair，易改環繞序）
-    if (isFourLineSquare(pick.cutIds, L) && topoIronOk(L, geo, segs, inc, cross0)) {
-      return { layout: L, via: viaTag, box: useBox }
-    }
-    aggressiveRepairRules(L, segs, pathSet, cols, rows, cross0, inc, {
-      box: useBox, slideW: false,
+  // 可選：徑向未合規時再試 Octi（慢；預設關）
+  let octi = null
+  if (opts.tryOcti && !radial?.rulesOk) {
+    await shapeProgress(opts, '§6 加強：Octi 織形（opts.tryOcti）…')
+    octi = await runShapeOctiGrid({
+      mixed,
+      cutIds: pick.cutIds,
+      pathSet,
+      segs,
+      inc,
+      cols,
+      rows,
+      isShapeSeg,
+      cross0,
+      onProgress: opts.onProgress,
+      tick: opts.tick,
     })
-    if (!isFourLineSquare(pick.cutIds, L)) return null
-    if (!topoIronOk(L, geo, segs, inc, cross0)) return null
-    return { layout: L, via: viaTag, box: useBox }
   }
 
-  let accepted = null
-  let affMeta = box0 ? { side: box0.side } : undefined
-
-  // A0：拓撲安全逐步移向四邊（validMove；保交叉＋環繞序）——一律先試
-  const boxesTry = boxes
-  if (boxesTry.length) {
-    await shapeProgress(opts, `§6A0 拓撲安全移方（${boxesTry.length} 邊長）…`)
-    for (const box of boxesTry) {
-      const targets = fourSideTargets(pick.cutIds, box, false)
-      if (!targets) continue
-      // 連續 RBF 當吸引場，再用 validMove 落地（禁止 mutualSnap 撕序）
-      const morphed = rbfMorph(geo, pick.cutIds, targets.targets)
-      if (morphed) {
-        const stepped = topoSafeTowardTargets(
-          geo, morphed, segs, inc, cols, rows, pathSet)
-        // 再把 W 往四邊目標收一輪
-        const towardW = topoSafeTowardTargets(
-          stepped, targets.targets, segs, inc, cols, rows, pathSet)
-        accepted = tryAccept(towardW, `topo-safe/s${box.side}`, box, { pin: true })
-        if (accepted) {
-          await shapeProgress(opts, `§6A0 通過（邊長 ${box.side}）`)
-          break
-        }
-      }
-      const wOnly = topoSafeTowardTargets(
-        geo, targets.targets, segs, inc, cols, rows, pathSet)
-      accepted = tryAccept(wOnly, `topo-safe-W/s${box.side}`, box, { pin: true })
-      if (accepted) {
-        await shapeProgress(opts, `§6A0 W-only 通過（邊長 ${box.side}）`)
-        break
-      }
-    }
-    if (!accepted) await shapeProgress(opts, '§6A0 未過鐵律')
+  // 選種子：合規優先 → 成方且交叉少 → 徑向 → mixed
+  const rankSeed = (s) => {
+    if (!s?.layout) return 1e9
+    const four = s.rulesOk || isFourLineSquare(pick.cutIds, s.layout, s.segs ?? segs)
+    const cx = s.crosses ?? improperCrossCount(s.layout, s.segs ?? segs)
+    const planar = s.rulesOk || topoPlanarOk(s.layout, s.segs ?? segs, cross0)
+    return (four ? 0 : 1000) + (planar ? 0 : 100) + cx
   }
-
-  // A：RBF 連續場 → validMove 吸附（不用 mutualSnap）
-  if (!accepted && boxesTry.length) {
-    await shapeProgress(opts, `§6A RBF→validMove（須過鐵律）…`)
-    for (const box of boxesTry) {
-      const targets = fourSideTargets(pick.cutIds, box, false)
-      if (!targets) continue
-      const morphed = rbfMorph(geo, pick.cutIds, targets.targets)
-      if (!morphed) continue
-      const snapped = topoSafeTowardTargets(
-        geo, morphed, segs, inc, cols, rows, pathSet)
-      if (!topoIronOk(snapped, geo, segs, inc, cross0)) continue
-      accepted = tryAccept(snapped, `rbf+validMove/s${box.side}`, box, { pin: true })
-      if (accepted) {
-        await shapeProgress(opts, `§6A 通過（邊長 ${box.side}）`)
-        break
-      }
-    }
-    if (!accepted) await shapeProgress(opts, '§6A 未過鐵律')
-  }
-
-  // B–E：徑向／仿射／僅 W（皆須過鐵律才收）
-  const smallBoxes = boxes.slice(Math.max(0, boxes.length - 3))
-
-  if (!accepted && smallBoxes.length) {
-    await shapeProgress(opts, '§6B 徑向→validMove…')
-    for (const box of smallBoxes) {
-      const morphed = radialMorph(geo, pick.cutIds, box, null)
-      if (!morphed) continue
-      const snapped = topoSafeTowardTargets(
-        geo, morphed, segs, inc, cols, rows, pathSet)
-      if (!topoIronOk(snapped, geo, segs, inc, cross0)) continue
-      accepted = tryAccept(snapped, `radial+validMove/s${box.side}`, box, { pin: false })
-      if (accepted) {
-        await shapeProgress(opts, `§6B 通過（邊長 ${box.side}）`)
-        break
-      }
+  let seed = radial
+  if (octi && rankSeed(octi) < rankSeed(seed)) {
+    seed = {
+      layout: octi.layout,
+      segs: octi.segs,
+      greens: octi.greens ?? [],
+      via: octi.via,
+      rulesOk: false,
+      box: octi.box,
+      crosses: octi.crosses,
     }
   }
-
-  if (!accepted && smallBoxes.length) {
-    await shapeProgress(opts, '§6C 徑向目標→validMove…')
-    for (const box of smallBoxes) {
-      const targets = fourSideTargets(pick.cutIds, box, false)
-      if (!targets) continue
-      const morphed = radialMorph(geo, pick.cutIds, box, targets.targets)
-      if (!morphed) continue
-      const snapped = topoSafeTowardTargets(
-        geo, morphed, segs, inc, cols, rows, pathSet)
-      if (!topoIronOk(snapped, geo, segs, inc, cross0)) continue
-      accepted = tryAccept(snapped, `radial-tgt+validMove/s${box.side}`, box, { pin: false })
-      if (accepted) {
-        await shapeProgress(opts, `§6C 通過（邊長 ${box.side}）`)
-        break
-      }
-    }
+  if (!seed) {
+    seed = { layout: mixed, segs, greens: [], via: 'mixed', rulesOk: false }
   }
 
-  if (!accepted) await shapeProgress(opts, '§6D 仿射→validMove…')
-  const aff = !accepted ? affineSquareSnap(geo, pick.cutIds, cols, rows) : null
-  if (!accepted && aff?.snapped) {
-    affMeta = { sx: aff.sx, sy: aff.sy, side: aff.side }
-    const abox = wSquareBox(aff.snapped, pick.cutIds, cols, rows) ?? box0
-    if (abox) {
-      for (const box of shrinkBoxes(abox, pick.cutIds, cols, rows).slice(-3)) {
-        const targets = fourSideTargets(pick.cutIds, box, false)
-        if (!targets) continue
-        const base = topoIronOk(aff.snapped, geo, segs, inc, cross0)
-          ? aff.snapped
-          : topoSafeTowardTargets(geo, aff.snapped, segs, inc, cols, rows, pathSet)
-        const stepped = topoSafeTowardTargets(
-          base, targets.targets, segs, inc, cols, rows, pathSet)
-        accepted = tryAccept(stepped, `affine+validMove/s${box.side}`, box, { pin: false })
-        if (accepted) {
-          await shapeProgress(opts, `§6D 通過（邊長 ${box.side}）`)
-          break
-        }
-      }
-    }
-  }
-
-  if (!accepted) {
-    await shapeProgress(opts, '§6E 僅 W 拓撲安全移方…')
-    for (const box of (boxes.slice(-3).length ? boxes.slice(-3) : boxes)) {
-      const targets = fourSideTargets(pick.cutIds, box, false)
-      if (!targets) continue
-      const stepped = topoSafeTowardTargets(
-        geo, targets.targets, segs, inc, cols, rows, pathSet)
-      accepted = tryAccept(stepped, `force-topo/s${box.side}`, box, { pin: false })
-      if (accepted) {
-        affMeta = { side: box.side, ...(affMeta || {}) }
-        await shapeProgress(opts, `§6E 通過（邊長 ${box.side}）`)
-        break
-      }
-    }
-    if (!accepted) await shapeProgress(opts, '§6E 未過鐵律')
-  }
+  // 必交：不合規則釘方修交叉，永不退回輸入
+  const delivered = await ensurePaperDelivery({
+    seedLayout: seed.layout,
+    seedSegs: seed.segs ?? segs,
+    seedGreens: seed.greens ?? [],
+    seedVia: seed.via ?? 'radial',
+    baseSegs: segs,
+    baseInc: inc,
+    cutIds: pick.cutIds,
+    pathSet,
+    cols,
+    rows,
+    cross0,
+    onProgress: opts.onProgress,
+    tick: opts.tick,
+  })
 
   let greens = []
   let finalSegs = segs
   let finalInc = inc
+  let via = 'force·seed'
+  let affMeta
+  let rulesOk = false
 
-  if (!accepted) {
-    // §6F：持續算到成方∧鐵律（不提前退回、不交假方）
-    const forced = await forceSquareWithGreens(
-      geo, pick, pathSet, segs, inc, cols, rows, boxes, box0, cross0, opts)
-    accepted = { layout: forced.layout, via: forced.via, box: forced.box }
-    greens = forced.greens ?? []
-    finalSegs = forced.segs ?? segs
-    finalInc = forced.inc ?? rebuildInc(finalSegs)
+  if (delivered) {
+    greens = delivered.greens ?? []
+    finalSegs = delivered.segs
+    finalInc = rebuildInc(finalSegs)
+    via = delivered.via
+    rulesOk = !!delivered.rulesOk
+    for (const [id, p] of delivered.layout) pos.set(id, [p[0], p[1]])
+    for (const id of [...pos.keys()]) {
+      if (isShapeGreenId(id) && !greens.some((g) => g.id === id)) pos.delete(id)
+    }
+  } else {
+    for (const [id, p] of (seed.layout ?? mixed)) pos.set(id, [...p])
+    via = seed.via ?? 'mixed-fallback'
+    await shapeProgress(opts, `交付 ${via}（強制釘方失敗；不退回輸入）`)
   }
-
-  await shapeProgress(opts, `完成 →方∧鐵律（${accepted.via}）`)
-  for (const [id, p] of accepted.layout) pos.set(id, [p[0], p[1]])
-  if (accepted.box) affMeta = { side: accepted.box.side, ...(affMeta || {}) }
 
   const cross1 = improperCrossCount(pos, finalSegs)
   const four = isFourLineSquare(pick.cutIds, pos, finalSegs)
   const q = squareQuality(pick.cutIds, pos)
   const orderOk = edgeOrdersMatch(geo, pos, finalSegs, finalInc, isShapeGreenId)
-  const rulesOk = four && !hasCellClash(pos) && cross1 <= cross0 && orderOk
+  const planar = !hasCellClash(pos) && cross1 <= cross0
+  rulesOk = rulesOk && four && planar
   let moved = 0
   for (const [id, p] of pos) {
     if (isShapeGreenId(id)) continue
@@ -2484,6 +2292,10 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
   }
 
   const greensSer = greens.map((g) => ({ id: g.id, c: g.c, r: g.r, a: g.a, b: g.b }))
+  const side = delivered?.layout && seed?.box?.side != null
+    ? seed.box.side
+    : (octi?.box?.side ?? radial?.box?.side)
+  if (side != null) affMeta = { side }
 
   return {
     cellAfter: pos,
@@ -2499,7 +2311,9 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
       ...shapeMeta,
       shapeVerts: Sshape.size,
       score: +pick.score.toFixed(3),
-      note: greensSer.length ? `→方∧鐵律·W綠×${greensSer.length}` : '→方∧鐵律',
+      note: rulesOk
+        ? (greensSer.length ? `→方·${via}·W綠×${greensSer.length}` : `→方·${via}`)
+        : `→方·${via}（持續交付）`,
       quality: {
         ar: +q.ar.toFixed(2),
         onEdge: +q.onEdge.toFixed(2),
@@ -2509,13 +2323,187 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
       },
       crosses: `${cross0}→${cross1}`,
       orderOk,
-      via: accepted.via,
+      via,
       rulesOk,
       greens: greensSer,
       greenCount: greensSer.length,
-      affine: affMeta?.sx != null
-        ? { sx: +affMeta.sx.toFixed(3), sy: +affMeta.sy.toFixed(3), side: +(+affMeta.side || 0).toFixed(2) }
-        : affMeta?.side != null ? { side: affMeta.side } : undefined,
+      affine: affMeta?.side != null ? { side: affMeta.side } : undefined,
+    },
+  }
+}
+
+/* ==========================================================================
+ * ⑨ LLM 成方（route-llm-shape）——Shape-Guided 的 LLM 版共用機構
+ *
+ * 與 §5/§6 的演算法本體（buildShapeAlign）完全不同的路徑：不跑 LS 平滑／Octi 織
+ * 形，而是把「移哪些點」交給 LLM（scripts/llmShape.mjs＋skill route-llm-shape），
+ * 這裡只負責兩件事，跟 hillClimb.js 的 applyLlmTargets 對 LLM 對齊的角色一樣：
+ *   1) shapeLlmContext：export 給 LLM 讀——規定路段 W 的環站、建議的正方目標格、
+ *      目前是否已成四邊方、輸入交叉數。
+ *   2) applyShapeLlmTargets：apply——把 LLM 提的目標格（＋可選綠折點）落地，再以
+ *      論文 D1（交叉不增／無撞格）把關；不成方或破平面則退回。
+ * 成方判準沿用 isFourLineSquare（四邊直線正方；可經綠折點走 L 形角）。LLM 可在相鄰
+ * 環站之間插入綠點當四角轉折——環站只要滑到邊上（小移動）、不必被拉到角上（大移動），
+ * network 改變最小（跟演算法本體 applyShapeGreens/splitSegAt 同一套）。
+ * ========================================================================== */
+
+/** export：回傳規定路段 W 的環站、正方目標格與目前成方狀態（null＝此城非規定表） */
+export function shapeLlmContext(skeleton, cells, cols, rows, cityId) {
+  const { pos, segs } = buildHcGraph(skeleton, cells)
+  if (!pos.size || !segs.length) return null
+  const pick = pickRouteAndAlign(skeleton, pos, cityId)
+  if (!pick) return null
+  const { cutIds } = pick
+  const cross0 = improperCrossCount(pos, segs)
+  const box = wSquareBox(pos, cutIds, cols, rows)
+  const ft = box ? fourSideTargets(cutIds, box, true) : null
+  const q = squareQuality(cutIds, pos)
+  const square = isFourLineSquare(cutIds, pos, segs)
+  const ring = []
+  const seen = new Set()
+  for (const id of cutIds) {
+    if (seen.has(id)) continue
+    seen.add(id)
+    ring.push(id)
+  }
+  // 邊表（連通性）——讓 LLM 能把「整條線／整個分支」當一組一起搬（整組移動）。
+  const edges = segs.map((s) => [s.a, s.b])
+  return {
+    routeName: pick.routeName,
+    routeId: pick.routeId,
+    cutIds: ring,
+    edges,
+    box: box ? { minX: box.minX, minY: box.minY, maxX: box.maxX, maxY: box.maxY, side: box.side } : null,
+    targets: ft?.targets ?? null,
+    cross0,
+    square,
+    quality: {
+      ar: Number.isFinite(q.ar) ? +q.ar.toFixed(2) : null,
+      onEdge: +(q.onEdge ?? 0).toFixed(2),
+      sides: q.sides ?? 0,
+    },
+  }
+}
+
+/**
+ * apply：把 LLM 提的目標格（[[id,[c,r]],…]）經拓撲安全的逐步移動落地。
+ * 任何站都可移（不限環站）——讓 LLM 能像演算法本體一樣把其他站讓開，替 W 騰出方框。
+ * 回傳 { cellAfter, stats }（stats 含成方與否、交叉前後、被鐵律擋下未到位的提案）。
+ */
+export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries, cityId, greenSpecs = []) {
+  const g0 = buildHcGraph(skeleton, cells)
+  const pos0 = g0.pos
+  const segs0 = g0.segs
+  if (!pos0.size || !segs0.length) {
+    return { cellAfter: pos0, stats: { segs: 0, verts: pos0.size, moved: 0, square: false, reverted: false, rejected: [], greens: [] } }
+  }
+  const pick = pickRouteAndAlign(skeleton, pos0, cityId)
+  const cutIds = pick ? pick.cutIds : []
+  const cross0 = improperCrossCount(pos0, segs0) // 論文 D1 基準（未插綠點）
+  const squareBefore = cutIds.length ? isFourLineSquare(cutIds, pos0, segs0) : false
+  const clone = (m) => new Map([...m].map(([id, p]) => [id, [...p]]))
+  const geo0 = clone(pos0) // 未插綠點的輸入佈局（退回基準）
+
+  // ── 綠點：在規定路段相鄰環站之間插入轉折控制點（跟演算法本體 splitSegAt 同一套）。
+  // 讓正方的四個角是綠折點——環站只要滑到邊上（小移動），不必被拉到角上（大移動），
+  // network 改變最小。綠點不進 targets（凍結在角格）；成方判準 isFourLineSquare 吃
+  // segs、會走綠折點的 L 形連線，所以四角綠折仍算「四邊直線正方」。──
+  let pos = clone(pos0)
+  let segs = cloneSegs(segs0)
+  let inc = rebuildInc(segs)
+  const greens = []
+  let gi = 0
+  const cl = (c, lim) => Math.max(0, Math.min(lim - 1, c))
+  for (const spec of (greenSpecs ?? [])) {
+    if (greens.length >= 4) break // 方形至多 4 個角綠折
+    const a = spec.a, b = spec.b
+    if (!Number.isInteger(spec.c) || !Number.isInteger(spec.r)) continue
+    const si = segs.findIndex((s) => (s.a === a && s.b === b) || (s.a === b && s.b === a))
+    if (si < 0) continue // a、b 之間沒有直接段——略過（回報在 greensRejected）
+    const gid = `shape-g${gi++}`
+    inc = splitSegAt(segs, pos, si, gid, [cl(spec.c, cols), cl(spec.r, rows)])
+    greens.push({ id: gid, c: cl(spec.c, cols), r: cl(spec.r, rows), a, b })
+  }
+  const geo = clone(pos) // 含綠點（在角格）的基準
+
+  const targets = new Map()
+  for (const [id, t] of targetEntries) {
+    if (!pos.has(id) || isShapeGreenId(id)) continue // 綠點凍結、不接受外部移動
+    if (!Array.isArray(t) || !Number.isInteger(t[0]) || !Number.isInteger(t[1])) continue
+    targets.set(id, [cl(t[0], cols), cl(t[1], rows)])
+  }
+
+  const pathSet = new Set(cutIds)
+  const frozen = new Set([...targets.keys(), ...greens.map((g) => g.id)])
+
+  // 策略 A（原子整批）：目標格「一次到位」（不經逐點中間態），被壓到的非目標站推離，
+  // 再用論文 D1 整體把關——過關就採用。這讓 LLM 直接指定完整正方一次成形（逐點貪心
+  // 會被中間態的暫時交叉卡死）。**被推擠到的點也可再移動**（只要最終不破 D1）。
+  let chosen = null
+  let via = 'greedy'
+  if (targets.size) {
+    const tcells = new Set()
+    let dup = false
+    for (const [, t] of targets) {
+      const k = ckey(t[0], t[1])
+      if (tcells.has(k)) { dup = true; break }
+      tcells.add(k)
+    }
+    if (!dup) {
+      const trial = clone(geo)
+      for (const [id, t] of targets) trial.set(id, t)
+      resolveCellClashes(trial, frozen, cols, rows) // 被壓到的非凍結站→最近空格（自由讓開）
+      if (!hasPointOverlap(trial, segs) && topoPlanarOk(trial, segs, cross0)) {
+        chosen = trial
+        via = 'batch'
+      }
+    }
+  }
+  // 策略 B（退回）：逐點貪心朝目標移動——A 不過關時至少安全推進
+  if (!chosen) chosen = topoSafeTowardTargets(geo, targets, segs, inc, cols, rows, pathSet)
+
+  // 保險：再驗論文 D1；不符則整批退回（連綠點一起退回到未插綠的輸入）
+  const ironOk = topoPlanarOk(chosen, segs, cross0)
+  const reverted = !ironOk
+  const finalPos = reverted ? geo0 : chosen
+  const finalSegs = reverted ? segs0 : segs
+  const finalGreens = reverted ? [] : greens
+  if (reverted) via = 'reverted'
+
+  const cross1 = improperCrossCount(finalPos, finalSegs)
+  const square = cutIds.length ? isFourLineSquare(cutIds, finalPos, finalSegs) : false
+  const q = cutIds.length ? squareQuality(cutIds, finalPos) : { ar: Infinity, onEdge: 0, sides: 0 }
+  const rejected = [...targets]
+    .filter(([id, t]) => {
+      const p = finalPos.get(id)
+      return p && (p[0] !== t[0] || p[1] !== t[1])
+    })
+    .map(([id, t]) => ({ id, want: t, got: finalPos.get(id) }))
+  let moved = 0
+  for (const [id, p] of finalPos) {
+    if (isShapeGreenId(id)) continue
+    const s = cells.get(id)
+    if (s && (s[0] !== p[0] || s[1] !== p[1])) moved++
+  }
+
+  return {
+    cellAfter: finalPos,
+    greens: finalGreens.map((g) => ({ id: g.id, c: g.c, r: g.r, a: g.a, b: g.b })),
+    stats: {
+      route: pick?.routeName ?? null,
+      segs: finalSegs.length, verts: pos0.size, moved, via,
+      cross0, cross1, crosses: `${cross0}→${cross1}`,
+      squareBefore, square,
+      greenCount: finalGreens.length,
+      quality: {
+        ar: Number.isFinite(q.ar) ? +q.ar.toFixed(2) : null,
+        onEdge: +(q.onEdge ?? 0).toFixed(2),
+        sides: q.sides ?? 0,
+        fourLine: square,
+      },
+      reverted,
+      proposed: targets.size,
+      rejected,
     },
   }
 }

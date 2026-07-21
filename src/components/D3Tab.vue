@@ -209,6 +209,7 @@ const llmApplyKeys = computed(() => {
     prompt: `prompt|${cid}|${v}`,
     eval: `eval|${cid}|${v}|${c}`,
     grid: `grid|${cid}|${v}|${c}`,
+    shape: `shape|${cid}|${v}`,
   }
 })
 function toggleLlmExec() {
@@ -289,6 +290,38 @@ const evalRunner = makeRun({
   onDone: () => { cachedEval = null },
 })
 const startEvalRun = evalRunner.start
+// ---- ⑨ LLM 成方（route-llm-shape）：Shape-Guided 的 LLM 版，僅比較 ----
+// 與演算法本體 buildShapeAlign 同輸入（格網化後 grid.cellOf）、同硬規則（拓撲鐵
+// 律），但「移哪些點」交給 LLM。跟 LLM 對齊一樣離線算好、網頁只載入＋fingerprint
+// 驗證；只自動（無指定模式）。跑完直接顯示（不需要「執行調整」toggle——這個 view
+// 本身就是成方結果視圖，跟 layout-shape 一樣是獨立比較視圖）。
+const shapeLlmInfo = ref(null)   // { rounds, model } — 選單 badge
+const shapeLlmStats = ref(null)  // the whole llmshape file（右側面板）
+const shapeLlmMsg = ref(null)    // hint when result missing / stale
+const shapeLlmRun = ref(null)    // null | 'running' | 'error'
+const shapeLlmRunTail = ref('')
+const shapeLlmRunText = ref('')
+const shapeLlmLogEl = ref(null)
+let cachedShapeLlm = null        // fetched: { cells, stats } or { miss }
+const shapeLlmRunner = makeRun({
+  base: '/llm-shape',
+  params: () => ({ variant: hcVariant.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
+  run: shapeLlmRun, tail: shapeLlmRunTail, text: shapeLlmRunText, logEl: shapeLlmLogEl,
+  shouldRender: () => false, // 唯讀：跑的時候畫布照畫（成方前的格網化後），串流顯示在面板
+  onStart: () => { cachedShapeLlm = null; shapeLlmStats.value = null; shapeLlmMsg.value = null; shapeLlmInfo.value = null; shapeLlmApplied.value = false; llmApplySet(llmApplyKeys.value.shape, false) },
+  onDone: () => { cachedShapeLlm = null }, // 清空 → render 內重新載入最終結果
+})
+const startShapeLlmRun = shapeLlmRunner.start
+// 「執行調整／恢復原佈局」toggle（跟自動對齊 llmApplied/toggleLlmExec 同一套邏輯）：
+// 切換 LLM 成方視圖顯示成方後座標 ⇄ 成方前（格網化後）。僅比較、無下游，所以不用
+// invalidate 任何鏈快取，只重畫。跨 reload 記憶用 llmApplyKeys.shape。
+const shapeLlmApplied = ref(false)
+function toggleShapeLlmExec() {
+  if (!cachedShapeLlm?.cells) return
+  shapeLlmApplied.value = !shapeLlmApplied.value
+  llmApplySet(llmApplyKeys.value.shape, shapeLlmApplied.value)
+  render()
+}
 // ---- LLM 全部評價（原始＋旋轉最多 22 個 RWD 候選一次比較，含七條論文鏈）----
 // 選出全體／原始／旋轉三個最佳；評審只選擇、說明，不套用或修改候選佈局。
 const compareRecord = ref(null)
@@ -716,6 +749,13 @@ const VIEW_TABS = computed(() => {
         label: `格網→貼形（僅比較）${msBadge('layout-shape')}`,
         disabled: !shapeEnabled.value,
       },
+      // ⑨ 的 LLM 版（route-llm-shape）：同輸入（格網化後）、同硬規則（拓撲鐵律），
+      // 但「移哪些點」由 LLM 決定。僅比較，載入 data/metro/llmshapes 的結果。
+      {
+        id: 'layout-shape-llm',
+        label: `LLM 成方（僅比較）${shapeLlmInfo.value ? ` · ${shapeLlmInfo.value.rounds}輪 · ${shapeLlmInfo.value.model}` : ''}`,
+        disabled: !shapeEnabled.value,
+      },
       // ①〜⑧ 主佈局比較（格網化後為輸入；②＝爬山）。只供觀看，不進下游；
       // 下游仍只吃 `hc`——標籤特別註記「往後執行」／「僅比較」。
       { header: '初步直線化', doc: 'hillclimb' },
@@ -902,6 +942,7 @@ function resetPerDataset(data) {
   cachedPrompt = null
   cachedGrid = null
   cachedEval = null
+  cachedShapeLlm = null
   cachedEndp = {}
   cachedLine = {}
   cachedGather = {}
@@ -1008,6 +1049,60 @@ async function computeHcLayout({ seq, w, h, grid }) {
         placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
         hcBlue = uniformBlue(nC, nR, cw, ch)
         return { hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk }
+      }
+      // ⑨ LLM 成方（route-llm-shape）：離線算好、載檔案顯示；輸入同 shape＝格網化後。
+      if (layoutKind === 'shape-llm') {
+        const cityId = sourceLayer.value?.id ?? null
+        const nC = grid.cols, nR = grid.rows
+        const cw = (w - 48) / nC, ch = (h - 48) / nR
+        const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+        // drawSk：套用成方結果時把綠折點寫進骨架（跟演算法版 shapeDrawSkeleton 一樣，
+        // 讓四角綠折當轉折點畫出 L 形）；顯示成方前則用原骨架。
+        const drawGrid = (cells, note, greens = null) => {
+          layoutStats.value = note
+          const drawSk = greens?.length ? applyShapeGreens(cachedSkeleton, greens) : cachedSkeleton
+          hcPos = new Map()
+          for (const [id, p] of cells) hcPos.set(id, cellPx(p))
+          placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
+          hcBlue = uniformBlue(nC, nR, cw, ch)
+          return { hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk }
+        }
+        shapeAwaitExec.value = false // 執行鈕在右側面板（不用畫布 overlay）
+        if (!shapeEnabled.value) {
+          shapeLlmStats.value = null; shapeLlmInfo.value = null; shapeLlmMsg.value = null
+          return drawGrid(grid.cellOf, { skipped: true, note: '不需計算', moved: 0 })
+        }
+        // 唯讀載入成方結果（跟自動對齊一樣：跑完不自動套用，按「執行調整」才顯示
+        // 成方後座標；預設顯示成方前的格網化後，方便前後比較）。
+        let justShape = false
+        if (!cachedShapeLlm && shapeLlmRun.value !== 'running') {
+          cachedShapeLlm = !cityId
+            ? { miss: '匯入資料不支援 LLM 成方（沒有城市 id 可對應結果檔）' }
+            : await fetchLlmResult(`data/metro/llmshapes/${cityId}.${hcVariant.value}.json`, {
+              missNone: '尚未產生 LLM 成方——按「開始 LLM 成方」讓模型把規定路段收成方',
+              missStale: 'LLM 成方結果與目前資料不符（資料已更新）——請重新產生',
+              missErr: '無法載入 LLM 成方結果',
+              fpOk: (fp) => fp.cols === grid.cols && fp.rows === grid.rows,
+              onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
+            })
+          if (seq !== renderSeq) return null // superseded during fetch
+          justShape = true
+        }
+        if (cachedShapeLlm?.cells) {
+          shapeLlmStats.value = cachedShapeLlm.stats
+          shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
+          // 首次載到結果時恢復上次「已套用」狀態（見 llmApplyKeys.shape）。
+          if (justShape) shapeLlmApplied.value = llmApplyGet(llmApplyKeys.value.shape)
+          // 套用時顯示成方後（含綠折點）；否則顯示成方前的格網化後（無綠點）。
+          const cells = shapeLlmApplied.value ? cachedShapeLlm.cells : grid.cellOf
+          const greens = shapeLlmApplied.value ? (cachedShapeLlm.stats.greens ?? null) : null
+          return drawGrid(cells, cachedShapeLlm.stats, greens)
+        }
+        shapeLlmStats.value = null
+        shapeLlmInfo.value = null
+        shapeLlmMsg.value = cachedShapeLlm?.miss ?? null
+        shapeLlmApplied.value = false
+        return drawGrid(grid.cellOf, { pending: true, note: '待執行', moved: 0 })
       }
       if (!cachedLayout[layoutKind]) {
         hcBusy.value = true
@@ -2139,7 +2234,7 @@ watch([shapeEnabled, () => sourceLayer.value?.id], () => {
   syncCalcMs()
   if (shapeEnabled.value) return
   if (cachedLayout.shape) delete cachedLayout.shape
-  if (mode.value === 'layout-shape') mode.value = 'hc'
+  if (mode.value === 'layout-shape' || mode.value === 'layout-shape-llm') mode.value = 'hc'
 })
 // 樣式 tab 的「顏色點間最大跨距」：滑桿只改 layer.spanCap，不自動重算——
 // 快取沿用 appliedSpanCap（上次套用的值），按「重新計算」才作廢重算。
@@ -2198,6 +2293,7 @@ function applyRiverGrayAndInvalidate(v) {
   cachedPrompt = null
   cachedGrid = null
   cachedEval = null
+  cachedShapeLlm = null
   cachedEndp = {}
   cachedLine = {}
   cachedGather = {}
@@ -2534,8 +2630,18 @@ onBeforeUnmount(() => {
       :compare-text="compareRunText"
       :compare-msg="compareMsg"
       :compare-error="compareError"
+      :shape-record="isHC && mode === 'layout-shape-llm' ? shapeLlmStats : null"
+      :shape-running="shapeLlmRun === 'running'"
+      :shape-can-run="!!llmCityId && shapeEnabled"
+      :shape-view="isHC && mode === 'layout-shape-llm'"
+      :shape-text="shapeLlmRunText"
+      :shape-msg="shapeLlmMsg"
+      :shape-error="shapeLlmRun === 'error' ? shapeLlmRunTail : ''"
+      :shape-applied="shapeLlmApplied"
       :llm-model="llmModel"
       @update:llm-model="llmModel = $event"
+      @run-shape="startShapeLlmRun"
+      @toggle-shape-exec="toggleShapeLlmExec"
       :weight-mode="rwdWeightMode"
       :weight-auto="rwdAutoShuffle"
       :show-weights="rwdShowWeights"

@@ -9,7 +9,7 @@
 // 節點缺格子 → RWD/HC 整段線消失、站點退回舊座標懸空（倫敦 Kilburn 案，2026-07-17）。
 // 且 localStorage 不隨 dev server 重啟/硬重載清除，殘留跨天。**改了 skeleton/schematicGrid/
 // hillClimb 的演算法就把版本 +1**；另有 use-time 結構驗證兜底（見 D3Tab 的 cachedHC 使用處）。
-const HC_LS_KEY = 'd3tab-hc-cache-v37' // v37: Shape §6F 持續算到成方∧鐵律；v36: 破鐵律不交付；v35: W綠≤4；v34: 慢移＋綠控；v33: 鐵律；v32: RBF；v31: 綠控；v30: 禁 soft-topo；v29: 縮方重試；v28: 嚴格 D1；v27: 成方不得增交叉；v26: 四邊直線方；v25: 合規才交付；v24: 強制成方；v23: validMove；v22: 先嵌方；v21: 規定表；v20: LS 吸附；v19: 正方／禁交叉重疊；v18: 軸向貼方；v17: 禁硬鎖；v16: 環線＋品質；v15: 移出論文鏈；v14: Smooth；v13: 弧長；v12: 只方形；v11: 圓／方；v10: 新增⑨；v9: 論文忠實度校正＋layouts＋stats.ms；v8: llm fingerprint；v7: 河流不放灰；v6: 河流粉紅/灰；v5: 河流全點；v4: validShift；v3: pass
+const HC_LS_KEY = 'd3tab-hc-cache-v45' // v45: §6 改徑向成方（Octi 可選 tryOcti）；v44: 必交付；v43: 論文規定必做；v42: 綠僅W＋論文平面性；v41: 算完即交付；v40: 成方∧平面；v39: Octi 加速；v38: 論文 Octi；v37: 持續算；v36: 破鐵律不交付；v35: W綠≤4；v34: 慢移＋綠控；v33: 鐵律；v32: RBF；v31: 綠控；v30: 禁 soft-topo；v29: 縮方重試；v28: 嚴格 D1；v27: 成方不得增交叉；v26: 四邊直線方；v25: 合規才交付；v24: 強制成方；v23: validMove；v22: 先嵌方；v21: 規定表；v20: LS 吸附；v19: 正方／禁交叉重疊；v18: 軸向貼方；v17: 禁硬鎖；v16: 環線＋品質；v15: 移出論文鏈；v14: Smooth；v13: 弧長；v12: 只方形；v11: 圓／方；v10: 新增⑨；v9: 論文忠實度校正＋layouts＋stats.ms；v8: llm fingerprint；v7: 河流不放灰；v6: 河流粉紅/灰；v5: 河流全點；v4: validShift；v3: pass
 const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
 
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）

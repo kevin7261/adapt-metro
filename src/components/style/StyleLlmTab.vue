@@ -42,9 +42,16 @@ const props = defineProps({
   compareText: { type: String, default: '' },
   compareMsg: { type: String, default: null },
   compareError: { type: String, default: '' },
+  shapeRecord: { type: Object, default: null },
+  shapeRunning: { type: Boolean, default: false },
+  shapeCanRun: { type: Boolean, default: false },
+  shapeText: { type: String, default: '' },
+  shapeMsg: { type: String, default: null },
+  shapeError: { type: String, default: '' },
+  shapeApplied: { type: Boolean, default: false },
   llmModel: { type: String, default: 'opus' },
 })
-const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'update:llm-model'])
+const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-compare', 'run-shape', 'toggle-eval-exec', 'toggle-grid-exec', 'toggle-llm-exec', 'toggle-prompt-exec', 'toggle-shape-exec', 'update:llm-model'])
 
 const llmUserPrompt = ref('')
 const gridUserPrompt = ref('')
@@ -64,6 +71,7 @@ const llmSkillHtml = ref('')
 const gridSkillHtml = ref('')
 const evalSkillHtml = ref('')
 const compareSkillHtml = ref('')
+const shapeSkillHtml = ref('')
 const fetchSkillHtml = async (id, target) => {
   try {
     const res = await fetch(assetUrl(`skills/${id}.md`))
@@ -79,6 +87,7 @@ watch(() => props.kind, (t) => {
   if (t === 'grid' && !gridSkillHtml.value) fetchSkillHtml('route-llm-grid', gridSkillHtml)
   if (t === 'eval' && !evalSkillHtml.value) fetchSkillHtml('route-llm-eval', evalSkillHtml)
   if (t === 'compare' && !compareSkillHtml.value) fetchSkillHtml('route-llm-compare', compareSkillHtml)
+  if (t === 'shape-llm' && !shapeSkillHtml.value) fetchSkillHtml('route-llm-shape', shapeSkillHtml)
 }, { immediate: true })
 
 const evalStreamEl = ref(null)
@@ -103,6 +112,12 @@ const promptStreamEl = ref(null)
 watch(() => props.promptText, () => {
   requestAnimationFrame(() => {
     if (promptStreamEl.value) promptStreamEl.value.scrollTop = promptStreamEl.value.scrollHeight
+  })
+})
+const shapeStreamEl = ref(null)
+watch(() => props.shapeText, () => {
+  requestAnimationFrame(() => {
+    if (shapeStreamEl.value) shapeStreamEl.value.scrollTop = shapeStreamEl.value.scrollHeight
   })
 })
 </script>
@@ -575,6 +590,94 @@ watch(() => props.promptText, () => {
               <li><b>程式負責：</b>{{ METHOD_NOTES.promptAlign.code }}</li>
             </ul>
             <p class="llm-method-sum">{{ METHOD_NOTES.promptAlign.sum }}</p>
+          </div>
+        </template>
+
+        <!-- ============ ⑨ LLM 成方（skill route-llm-shape）：Shape-Guided 的 LLM 版 ====
+             同輸入（格網化後）、同硬規則（拓撲鐵律），但「移哪些點」由 LLM 決定。
+             離線算好、網頁只載入；僅比較（此 view 本身即成方結果，不需執行調整 toggle）。 -->
+        <template v-if="kind === 'shape-llm'">
+          <div class="weight-panel">
+            <p class="weight-hint">
+              讓模型把**規定路段**（山手線／新加坡環狀線／大江戶線環形段）收成
+              **四邊直線正方**。這是 ⑨ Shape-Guided 的 LLM 版：輸入同樣是「格網化後」、
+              每一步移動都經**與演算法本體完全相同的拓撲鐵律**（交叉不增／無撞格／
+              環繞序不變）把關——模型只決定移哪些點，弄不壞佈局。跑完直接畫在左邊
+              「LLM 成方」視圖（不需要執行調整）。
+            </p>
+            <template v-if="shapeCanRun">
+              <label class="llm-model-pick">
+                模型
+                <select :value="llmModel" :disabled="shapeRunning"
+                  @change="emit('update:llm-model', $event.target.value)">
+                  <option v-for="m in LLM_MODEL_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option>
+                </select>
+              </label>
+              <button
+                class="llm-run-btn"
+                :disabled="shapeRunning"
+                @click="emit('run-shape')"
+              >{{ shapeRunning ? '成方中…' : (shapeRecord ? '重新 LLM 成方' : '開始 LLM 成方') }}</button>
+              <p class="llm-run-hint">按下會啟動本機 headless Claude Code 依 route-llm-shape skill 逐輪 export→apply 把規定路段收成方並存檔（跑完直接顯示）。GH Pages 上沒有 dev server → 需本機 npm run dev。</p>
+            </template>
+            <p v-else class="llm-run-hint">匯入資料沒有城市 id 或非規定表城市——無法對應結果檔。</p>
+
+            <template v-if="shapeRunning">
+              <h4 class="llm-h">LLM 回傳（即時串流）</h4>
+              <pre ref="shapeStreamEl" class="llm-pre eval-stream">{{ shapeText || '等待模型回應…' }}</pre>
+            </template>
+            <p v-if="shapeError" class="llm-run-hint eval-err">執行失敗：{{ shapeError }}</p>
+
+            <template v-if="shapeRecord">
+              <div class="info-rows">
+                <div class="info-row"><span class="info-key">模型</span><span>{{ shapeRecord.model ?? '—' }}</span></div>
+                <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(shapeRecord.elapsedMs) || '—' }}</span></div>
+                <div class="info-row"><span class="info-key">規定路段</span><span>{{ shapeRecord.route ?? '—' }}</span></div>
+                <div class="info-row"><span class="info-key">輪數</span><span>{{ shapeRecord.rounds }}</span></div>
+                <div class="info-row">
+                  <span class="info-key">成方</span>
+                  <span>{{ shapeRecord.square ? '✓ 已成四邊方' : '✗ 尚未成方' }}</span>
+                </div>
+                <div class="info-row"><span class="info-key">交叉</span><span>{{ shapeRecord.crosses ?? '—' }}</span></div>
+                <div v-if="shapeRecord.via" class="info-row">
+                  <span class="info-key">套用路徑</span>
+                  <span>{{ { batch: '整批到位', greedy: '逐點貪心', reverted: '破鐵律已退回' }[shapeRecord.via] ?? shapeRecord.via }}</span>
+                </div>
+                <div v-if="shapeRecord.greenCount != null" class="info-row">
+                  <span class="info-key">綠折點</span>
+                  <span>{{ shapeRecord.greenCount }} 個（方形四角轉折）</span>
+                </div>
+                <div class="info-row"><span class="info-key">移動</span><span>{{ shapeRecord.moved }} 站</span></div>
+              </div>
+              <template v-if="(shapeRecord.transcript ?? []).length">
+                <h4 class="llm-h">LLM 回傳（逐輪）</h4>
+                <div v-for="(t, i) in shapeRecord.transcript" :key="i" class="llm-round">
+                  <div class="llm-round-head">
+                    {{ t.round ? `第 ${t.round} 輪` : '附註' }} · 提案 {{ t.proposed }} 點
+                    · {{ t.square ? '成方' : '未成方' }}<template v-if="t.via"> · {{ { batch: '整批', greedy: '貪心', reverted: '退回' }[t.via] ?? t.via }}</template><template v-if="t.greens"> · 綠折 {{ t.greens }}</template><template v-if="t.crosses"> · 交叉 {{ t.crosses }}</template>
+                    <template v-if="t.rejected"> · 鐵律擋下 {{ t.rejected }}</template>
+                  </div>
+                  <div class="llm-note">{{ t.note ?? '（無說明）' }}</div>
+                </div>
+              </template>
+              <template v-if="shapeRecord.finalOutput">
+                <h4 class="llm-h">最終輸出</h4>
+                <pre class="llm-pre">{{ shapeRecord.finalOutput }}</pre>
+              </template>
+
+              <!-- 執行調整：跟自動對齊同一套——跑完不自動套用，這顆只切換 LLM 成方
+                   視圖顯示成方後座標 ⇄ 成方前（格網化後），可來回比較，不再跑 LLM。 -->
+              <h4 class="llm-h">套用到 LLM 成方視圖</h4>
+              <button class="llm-run-btn" @click="emit('toggle-shape-exec')">{{ shapeApplied ? '恢復原佈局' : '執行調整' }}</button>
+              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用成方後的座標重畫「LLM 成方」視圖，「恢復原佈局」切回成方前的格網化後，可來回比較成方前後。</p>
+            </template>
+            <p v-else-if="!shapeRunning" class="llm-note">{{ shapeMsg ?? '尚未產生 LLM 成方——按上面的按鈕執行。' }}</p>
+
+            <h4 class="llm-h">使用的 skill：route-llm-shape</h4>
+            <details class="llm-skill">
+              <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
+              <div class="skill-md llm-skill-md" v-html="shapeSkillHtml || '<p>載入中…</p>'"></div>
+            </details>
           </div>
         </template>
 </template>
