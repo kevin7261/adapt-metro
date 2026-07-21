@@ -133,16 +133,18 @@ const toggleSort = () => emit('update:sortDir', props.sortDir === 'desc' ? 'asc'
   border-bottom: 1px solid hsl(var(--border));
 }
 .gi-toolbar.sticky { position: sticky; top: 0; z-index: 2; }
+/* 與標準按鈕（.bar-btn／.side-all）同高，畫廊左右兩側按鈕大小一致 */
 .gi-sort-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
+  border-radius: var(--radius);
   color: hsl(var(--muted-foreground));
+  background: hsl(var(--background));
 }
 .gi-sort-btn:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
 .gi-toolbar-count { font-size: 12px; color: hsl(var(--muted-foreground)); white-space: nowrap; }

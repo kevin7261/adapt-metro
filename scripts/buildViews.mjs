@@ -35,7 +35,12 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 38 // 38: 論文忠實度校正（使用者：初步直線化與直線演算法一律照
+const VIEWS_VERSION = 41 // 41: ⑨ Shape-Guided 形狀庫只留方形（拿掉圓）。
+                         // 40: ⑨ Shape-Guided 形狀庫收成圓／方兩種（拿掉愛心／體育場）。
+                         // 39: 新增論文⑨ Shape-Guided（kind shape）——自動選路＋
+                         //     內建形狀（圓/愛心/體育場/方）、不適合略過；HC/RWD
+                         //     畫廊每 variant +2 視圖（loop-shape / compact+rwd-shape）。
+                         // 38: 論文忠實度校正（使用者：初步直線化與直線演算法一律照
                          //     data/thesis 的論文說明，不自創）——②冷卻改論文表 4
                          //     （R 8→1、最多 5 輪、總適應度收斂）＋§6.2 折彎群集；
                          //     ①具名筆畫優先＋4 主方向 H/V 先試斜線備援＋論文錨點規則；
@@ -132,11 +137,22 @@ async function main() {
         return 'reused'
       }
     } catch { /* 無舊檔／壞檔／舊格式無 _fp → 重算 */ }
+    const t0 = Date.now()
     const r = computeFn(geojson, computeOpts)
+    const ms = Date.now() - t0
     const out = { ...meta(sys, id, r), W: r.W, H: r.H, views: r.views, _fp: fp }
     if (withStats) out.stats = r.stats
     await writeFile(outPath, JSON.stringify(out))
     cat.push(meta(sys, id, r))
+    // HC 重算時印 ⑨ Shape-Guided 選路／形狀（時間後加註）；略過也標出
+    if (withStats && r.stats) {
+      const sh = r.stats['loop-shape-orig'] ?? r.stats['loop-shape-rot']
+      const note = sh?.note ? ` · ${sh.note}` : ''
+      const shMs = sh?.ms != null ? (sh.ms < 1000 ? `${sh.ms}ms` : `${(sh.ms / 1000).toFixed(1)}s`) : null
+      const total = ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
+      console.log(`  ✓ ${id}  ${total}`
+        + (shMs != null ? `  shape ${shMs}${note}` : ''))
+    }
     return 'built'
   }
 

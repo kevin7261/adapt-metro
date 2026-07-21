@@ -569,7 +569,8 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 11px;
+  height: 30px;          /* 全站按鈕統一高度 30px（工具列標準） */
+  padding: 0 11px;
   font-size: 12px;
   font-weight: 550;
   color: hsl(var(--foreground));

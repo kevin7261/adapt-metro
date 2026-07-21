@@ -187,8 +187,11 @@ const tiles = computed(() => {
   background: hsl(var(--card));
 }
 .gallery-tab {
-  padding: 8px 26px;
-  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;          /* 與工具列按鈕同高 30px */
+  padding: 0 26px;
+  font-size: 12px;
   font-weight: 500;
   color: hsl(var(--muted-foreground));
   border-bottom: 2px solid transparent;

@@ -206,7 +206,7 @@ const NATIONAL_INFRA = /DB Station|DB InfraGO|\bInfraGO\b|DB Netz|DB Fernverkehr
 // 機場航廈接駁電車（APM／people mover／VAL）的通用詞 ＋ 各機場的專名。專名精確
 // 匹配以免誤傷真地鐵（巴黎 Ligne 14 終點在 Orly 但名含「Aéroport」不含 CDGVAL）。
 // 注意：不可加「skyline」——檀香山地鐵正式名就叫 Skyline，會誤剔整個系統。
-const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*電車|people ?mover|\bapm\b|sky\s?train|aero\s?train|air\s?train|plane ?train|shuttle tram|terminal (?:shuttle|train|tram)|\bCDGVAL\b|\bOrlyval\b/i
+const AIRPORT_APM = /旅客自動電車|自動電車運輸|航廈電車|航站.*電車|셔틀트레인|people ?mover|\bapm\b|sky\s?train|aero\s?train|air\s?train|plane ?train|shuttle ?(?:tram|train)|terminal (?:shuttle|train|tram)|\bCDGVAL\b|\bOrlyval\b/i
 const isAirportApm = (t = {}) =>
   AIRPORT_APM.test(`${t.name || ''} ${t['name:en'] || ''} ${t.network || ''} ${t.operator || ''}`)
 

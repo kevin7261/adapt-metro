@@ -130,7 +130,10 @@ function pick(kind, entry, viewId) {
     <template #side>
       <div class="side-head">
         <span class="side-title">顯示圖層</span>
-        <button class="side-all" @click="toggleAll">{{ allOn ? '全部清除' : '全部顯示' }}</button>
+        <button class="side-all bar-btn" @click="toggleAll">
+          <MIcon :name="allOn ? 'deselect' : 'select_all'" :size="14" />
+          <span>{{ allOn ? '全部清除' : '全部顯示' }}</span>
+        </button>
       </div>
       <template v-for="node in SIDE" :key="node.key ?? node.id">
         <!-- 直接列的圖層（Raw Maps / Map Adjust） -->
@@ -182,16 +185,25 @@ function pick(kind, entry, viewId) {
 <style scoped>
 .side-head { display: flex; align-items: center; gap: 6px; padding: 2px 4px 8px; }
 .side-title { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); }
+/* 與 LayerPanel 工具列標準按鈕（.bar-btn：＋加入／視圖／全部刪除）完全同款
+   （padding／font／icon＋text／radius／hover 全部一致）——全站按鈕 size 一致 */
 .side-all {
   margin-left: auto;
-  padding: 2px 8px;
-  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;          /* 與工具列 bar-btn 同高 30px */
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 550;
+  color: hsl(var(--foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 4px);
-  color: hsl(var(--muted-foreground));
+  border-radius: calc(var(--radius));
+  background: hsl(var(--background));
   white-space: nowrap;
+  transition: background 0.1s ease, border-color 0.1s ease;
 }
-.side-all:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
+.side-all:hover { background: hsl(var(--accent)); border-color: hsl(var(--muted-foreground) / 0.35); }
 
 /* 圖層列（＝圈層面板 layer-row 的清單版） */
 .side-row {
@@ -211,7 +223,7 @@ function pick(kind, entry, viewId) {
 .side-icon { flex-shrink: 0; color: hsl(var(--muted-foreground)); }
 .side-row.on .side-icon { color: hsl(var(--primary)); }
 .side-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.side-row input, .side-sub-check { accent-color: hsl(var(--primary)); margin: 0; flex-shrink: 0; }
+.side-row input, .side-sub-check { accent-color: hsl(var(--primary)); margin: 0; flex-shrink: 0; width: 14px; height: 14px; }
 
 /* 子群組標題（可收合 + 整組開關） */
 .side-sub { display: flex; align-items: center; gap: 4px; padding: 4px 6px; }

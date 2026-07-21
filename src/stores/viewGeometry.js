@@ -332,16 +332,26 @@ export function computeCityHcViews(geojson, opts = {}) {
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
     stats[`hc-${variant}`] = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
 
-    // 3–11) 各鏈循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
+    // 3–N) 各鏈循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
     for (const kind of CHAIN_KINDS) {
-      const base = CHAIN_POST[kind]
-        ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-        : hc.cellAfter
+      const t0 = Date.now()
+      const post = CHAIN_POST[kind]
+        ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows)
+        : null
+      const base = post ? post.cellAfter : hc.cellAfter
       const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
       const m = cellMapper(comp.cols, comp.rows)
       const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
       views[`loop-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-      stats[`loop-${kind}-${variant}`] = { cols: comp.cols, rows: comp.rows }
+      const st = { cols: comp.cols, rows: comp.rows, ms: Date.now() - t0 }
+      // ⑨ Shape-Guided：把選路／形狀／略過寫進 stats，供 buildViews 日誌與畫廊對照
+      if (kind === 'shape' && post?.stats) {
+        st.note = post.stats.note ?? null
+        st.shape = post.stats.shape ?? null
+        st.route = post.stats.route ?? null
+        st.skipped = !!post.stats.skipped
+      }
+      stats[`loop-${kind}-${variant}`] = st
     }
 
     // LLM 對齊循環：讀 opts.llmByVariant[variant]（llmviews 檔），fingerprint

@@ -445,14 +445,14 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
-  padding: 0 9px;
+  height: 30px;          /* 全站按鈕統一高度 30px（＝bar-btn） */
+  padding: 0 11px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 550;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: calc(var(--radius));
   background: hsl(var(--background));
   transition: background 0.08s ease, color 0.08s ease, border-color 0.08s ease;
 }
@@ -478,9 +478,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   background: hsl(var(--background));
 }
 .sb-group-btn {
-  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;          /* 全站按鈕統一高度 30px */
+  padding: 0 11px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 550;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
   background: transparent;
@@ -500,11 +503,11 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 26px;
-  padding: 0 6px;
+  height: 30px;          /* 數字輸入框（input）與按鈕同高 30px */
+  padding: 0 8px;
   color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: calc(var(--radius));
   background: hsl(var(--background));
 }
 .sb-inline-label { font-size: 12px; white-space: nowrap; }
@@ -626,10 +629,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 }
 .sb-check input { accent-color: hsl(var(--primary)); margin: 0; }
 .sb-btn2 {
-  padding: 4px 10px;
-  font-size: 11.5px;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;          /* 全站按鈕統一高度 30px */
+  padding: 0 11px;
+  font-size: 12px;
   border: 1px solid hsl(var(--primary) / 0.5);
-  border-radius: calc(var(--radius) - 4px);
+  border-radius: calc(var(--radius));
   color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.1);
   white-space: nowrap;

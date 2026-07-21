@@ -7,6 +7,7 @@ import { buildForceAlign } from './paper/force.js'
 import { buildLsqAlign } from './paper/lsq.js'
 import { buildOctiAlign } from './paper/octi.js'
 import { buildPathAlign } from './paper/path.js'
+import { buildShapeAlign } from './paper/shape.js'
 
 export { buildStrokeAlign } from './paper/stroke.js'
 export { buildMilpAlign } from './paper/milp.js'
@@ -15,6 +16,7 @@ export { buildForceAlign } from './paper/force.js'
 export { buildLsqAlign } from './paper/lsq.js'
 export { buildOctiAlign } from './paper/octi.js'
 export { buildPathAlign } from './paper/path.js'
+export { buildShapeAlign } from './paper/shape.js'
 
 export const PAPER_KINDS = [
   { kind: 'stroke', zh: '①筆畫法', build: buildStrokeAlign },
@@ -25,6 +27,7 @@ export const PAPER_KINDS = [
   { kind: 'octi', zh: '⑥八向格網', build: buildOctiAlign },
   { kind: 'path', zh: '⑦路徑簡化', build: buildPathAlign },
   { kind: 'sat', zh: '⑧SAT規劃', build: buildSatAlign },
+  { kind: 'shape', zh: '⑨Shape-Guided', build: buildShapeAlign },
 ]
 export const PAPER_BUILD = Object.fromEntries(PAPER_KINDS.map((p) => [p.kind, p.build]))
 export const PAPER_ZH = Object.fromEntries(PAPER_KINDS.map((p) => [p.kind, p.zh]))

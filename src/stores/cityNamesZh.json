@@ -942,5 +942,17 @@
   "as-sgp-singapore-lrt": {
     "country": "新加坡",
     "city": "新加坡＋LRT"
+  },
+  "as-kor-seoul-incheon": {
+    "country": "南韓",
+    "city": "首爾＋仁川"
+  },
+  "as-twn-taipei-rail": {
+    "country": "台灣",
+    "city": "台北＋台鐵＋高鐵"
+  },
+  "as-jpn-tokyo-rail": {
+    "country": "日本",
+    "city": "東京＋JR＋私鐵"
   }
 }

@@ -445,22 +445,29 @@ const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 s
 // `layout-<kind>`（初步直線化群組的 ①〜⑧ 比較）、`post-<kind>`（直線演算法鏈）。
 // 值跟著快取走：算過就一直是那個數字，按「重新計算此城市全部圖層」清掉才重算。
 const calcMs = ref({})
+const calcNotes = ref({}) // ⑨ Shape-Guided：時間後加註「路線→形狀」或「略過」
 function syncCalcMs() {
   const out = {}
+  const notes = {}
   if (cachedHC?.stats?.ms != null) out.hc = cachedHC.stats.ms
   for (const k of Object.keys(cachedLayout)) {
     if (cachedLayout[k]?.stats?.ms != null) out[`layout-${k}`] = cachedLayout[k].stats.ms
+    if (cachedLayout[k]?.stats?.note) notes[`layout-${k}`] = cachedLayout[k].stats.note
   }
   for (const k of Object.keys(cachedPost)) {
     if (cachedPost[k]?.stats?.ms != null) out[`post-${k}`] = cachedPost[k].stats.ms
+    if (cachedPost[k]?.stats?.note) notes[`post-${k}`] = cachedPost[k].stats.note
   }
   calcMs.value = out
+  calcNotes.value = notes
 }
 // 「88ms」/「1.2s」；沒算過回空字串（tab 名就不帶標注）。
 const msText = (ms) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
 const msBadge = (key) => {
   const t = msText(calcMs.value[key])
-  return t ? ` · ${t}` : ''
+  if (!t) return ''
+  const n = calcNotes.value[key]
+  return n ? ` · ${t} · ${n}` : ` · ${t}`
 }
 const postStats = ref(null)      // { hvBefore, hvAfter, segs, moved, ... }
 const hcCompactStats = ref(null) // { fromCols, fromRows, cols, rows }
@@ -832,6 +839,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
           octi: '⑥八向格網中…（格網 → 逐邊定案，迭代到不動）',
           path: '⑦路徑簡化中…（格網 → C-directed 簡化，迭代到不動）',
           sat: '⑧SAT規劃中…（格網 → DPLL 指派，迭代到不動）',
+          shape: '⑨Shape-Guided中…（格網 → 選路貼形，迭代到不動）',
         }[layoutKind]
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return null }
@@ -898,7 +906,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
         lsq: '⑤最小平方中…（八方向化 Gauss–Seidel，迭代到不動）',
         octi: '⑥八向格網中…（ldeg 排序逐邊定案 + 嚴格接受，迭代到不動）',
         path: '⑦路徑簡化中…（C-directed 最少 link 刺穿，迭代到不動）',
-        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
+        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）',
+        shape: '⑨Shape-Guided中…（選最適路線＋形狀貼形，不適合略過）' }[kind]
       await new Promise((r) => setTimeout(r, 30))
       if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
       const t0 = performance.now()
