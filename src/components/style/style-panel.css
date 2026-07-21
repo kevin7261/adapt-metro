@@ -1,0 +1,658 @@
+/* ---- 面板字級系統（使用者 2026-07：右側 tab 標題/內文字級與顏色要一致）----
+   標題 15/700 前景、副標 12 灰、小節標題 11.5/600 灰、內文 12.5 前景、
+   註記 11.5 灰、徽章 10.5、等寬 11。六個 tab 一律取用這組變數，不得自訂字級。 */
+.style-panel {
+  --sp-title: 15px;   /* 主標題（城市名/站名/路線名） */
+  --sp-sub: 12px;     /* 副標（標題下第二行英文） */
+  --sp-head: 11.5px;  /* 小節標題（section-title/llm-h/obj-pass-sub…） */
+  --sp-body: 12.5px;  /* 內文（rows/表格/站表/按鈕/輸入） */
+  --sp-note: 11.5px;  /* 註記/提示（hint/note） */
+  --sp-badge: 10.5px; /* 小徽章（建設中/pass/站碼/日期） */
+  --sp-mono: 11px;    /* 等寬（ref 碼/pre 區塊） */
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  background: hsl(var(--card));
+  border-left: 1px solid hsl(var(--border));
+}
+.rail {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  background: hsl(var(--card));
+  border-left: 1px solid hsl(var(--border));
+}
+.rail-icon { color: hsl(var(--muted-foreground)); }
+.rail-label {
+  writing-mode: vertical-rl;
+  font-size: var(--sp-mono);
+  color: hsl(var(--muted-foreground));
+}
+
+/* header tabs */
+.tabs-header { padding: 4px 8px 0 8px; align-items: flex-end; }
+.panel-tabs { display: flex; gap: 2px; }
+.panel-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 10px 8px;
+  font-size: var(--sp-body);
+  color: hsl(var(--muted-foreground));
+  border-bottom: 2px solid transparent;
+  border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0;
+  white-space: nowrap;
+}
+.panel-tab:hover { background: hsl(var(--accent) / 0.6); color: hsl(var(--foreground)); }
+.panel-tab.active {
+  color: hsl(var(--primary));
+  font-weight: 600;
+  border-bottom-color: hsl(var(--primary));
+}
+
+.style-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* Object tab: all properties of the clicked feature */
+.obj-empty { color: hsl(var(--muted-foreground)); font-size: var(--sp-body); padding: 8px 2px; }
+.obj-route-head {
+  display: flex; align-items: center; gap: 6px;
+  margin: 10px 0 4px; font-size: var(--sp-body); font-weight: 600; min-width: 0;
+}
+.obj-route-head:first-of-type { margin-top: 0; }
+/* 收合切換：整條路線標題可點，caret 指示展開狀態 */
+.obj-route-toggle {
+  width: 100%; border: 0; background: none; cursor: pointer; text-align: left;
+  padding: 2px 0; color: inherit; font: inherit; font-weight: 600;
+  border-radius: 4px;
+}
+/* 資訊 tab 路線列（可展開整線站表）：沿用 line-row 版面、加按鈕重置 */
+.line-row-toggle {
+  width: 100%; border: 0; background: none; cursor: pointer; text-align: left;
+  color: inherit; font: inherit; border-radius: 4px;
+}
+.line-row-toggle:hover { background: hsl(var(--muted) / 0.45); }
+.line-row-toggle .obj-route-count { margin-left: auto; }
+.obj-route-toggle:hover { background: hsl(var(--muted) / 0.45); }
+.obj-route-caret { flex-shrink: 0; color: hsl(var(--muted-foreground)); font-size: 16px; /* 圖示字元（非文字階層） */ }
+.obj-route-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.obj-route-count {
+  margin-left: auto; flex-shrink: 0;
+  font-weight: 400; font-size: var(--sp-badge); color: hsl(var(--muted-foreground));
+}
+/* 站序中的通過(不停)站：灰字 + pass 標記 */
+.obj-station-list .st-pass { color: hsl(var(--muted-foreground)); }
+/* 官方站碼（A1、BL12…）小徽章 */
+.obj-st-code {
+  display: inline-block; min-width: 22px; margin-right: 6px; padding: 0 4px;
+  font-size: var(--sp-badge); font-weight: 600; text-align: center; border-radius: 3px;
+  background: hsl(var(--muted) / 0.6); color: hsl(var(--muted-foreground));
+}
+.obj-pass-sub { margin: 8px 0 2px; font-size: var(--sp-head); font-weight: 600; color: hsl(var(--muted-foreground)); }
+/* 行經（不停靠）路線 */
+.obj-pass { margin: 6px 0 10px; }
+.obj-pass-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--sp-body); padding: 2px 0; min-width: 0;
+}
+.obj-pass-tag {
+  margin-left: auto; flex-shrink: 0;
+  font-size: var(--sp-badge); font-weight: 600; color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border)); border-radius: 999px; padding: 0 7px;
+}
+/* 物件標題（車站名 / 路線名，物件 tab 最上方） */
+.obj-title {
+  margin: 0 0 8px; font-size: var(--sp-title); font-weight: 700; line-height: 1.3;
+  color: hsl(var(--foreground));
+}
+.obj-title-local {
+  display: block; margin-top: 1px;
+  font-size: var(--sp-sub); font-weight: 400; color: hsl(var(--muted-foreground));
+}
+/* 共站合併：異名轉乘站的各線站名 */
+.obj-merged { margin: 6px 0 10px; }
+.obj-merged-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--sp-body); padding: 2px 0; min-width: 0;
+}
+.obj-merged-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.obj-merged-local { margin-left: 5px; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+/* ref 徽章跟 hover 一樣：白字、緊接在站名後面（不靠右）。用 .obj-merged-row 前綴提高
+   特異度蓋過後定義的 .line-ref（muted 字色），否則字色會退成 muted（使用者回報）。 */
+.obj-merged-row .obj-merged-line { color: #fff; flex-shrink: 0; }
+.obj-merged-row .obj-merged-line + .obj-merged-line { margin-left: 4px; }
+.obj-station-list {
+  margin: 0 0 10px; padding-left: 26px; font-size: var(--sp-body); line-height: 1.7;
+  color: hsl(var(--foreground));
+}
+.obj-station-list li::marker { color: hsl(var(--muted-foreground)); font-size: var(--sp-badge); }
+/* LLM對齊 tab: run provenance */
+.llm-h {
+  margin: 14px 0 6px;
+  font-size: var(--sp-head);
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+.llm-pre {
+  font-size: var(--sp-mono);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 10px;
+  max-height: 220px;
+  overflow: auto;
+}
+.llm-round {
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.llm-round-head {
+  font-size: var(--sp-head);
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.llm-note { font-size: var(--sp-note); line-height: 1.6; color: hsl(var(--muted-foreground)); white-space: pre-wrap; }
+/* LLM評價 tab：執行中串流／失敗訊息／評分列／逐線評語／建議清單 */
+.eval-stream { max-height: 200px; }
+.eval-err { color: hsl(var(--destructive)); }
+.eval-score { margin-bottom: 6px; }
+.eval-score-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--sp-body);
+  font-variant-numeric: tabular-nums;
+}
+.eval-line { margin-bottom: 6px; }
+.eval-line-name { font-size: var(--sp-body); font-weight: 600; }
+.eval-subh {
+  font-size: var(--sp-note);
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 6px 0 2px;
+}
+.eval-bullets {
+  margin: 2px 0 6px;
+  padding-left: 18px;
+  font-size: var(--sp-note);
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+}
+.eval-bullets li { margin-bottom: 3px; }
+.eval-suggestions {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: var(--sp-note);
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+.eval-suggestions li { margin-bottom: 4px; }
+.llm-skill summary {
+  cursor: pointer;
+  font-size: var(--sp-note);
+  color: hsl(var(--primary));
+  user-select: none;
+  margin-bottom: 6px;
+}
+.llm-skill summary:hover { text-decoration: underline; }
+.llm-skill-md {
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 12px;
+  max-height: 320px;
+  overflow: auto;
+  font-size: var(--sp-body);
+}
+.llm-run-btn {
+  width: 100%;
+  height: 30px;
+  margin-top: 16px;
+  font-size: var(--sp-body);
+  font-weight: 600;
+  border: 1px solid hsl(var(--primary) / 0.55);
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+}
+.llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
+.llm-run-btn:disabled { opacity: 0.55; cursor: default; }
+.llm-model-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: var(--sp-note);
+  color: hsl(var(--muted-foreground));
+}
+.llm-model-pick select {
+  flex: 1;
+  height: 28px;
+  padding: 0 6px;
+  font-size: var(--sp-body);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
+.llm-model-pick select:disabled { opacity: 0.55; }
+.llm-run-hint { margin: 6px 0 0; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+/* 做法說明：每個 LLM tab 最下面——哪些是 LLM 判斷、哪些用到程式 */
+.llm-method {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: var(--sp-note);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.55;
+}
+.llm-method li { margin: 2px 0; }
+.llm-method b { color: hsl(var(--foreground)); font-weight: 600; }
+.llm-method-sum {
+  margin: 5px 0 0;
+  font-size: var(--sp-note);
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+.llm-prompt-box {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-size: var(--sp-body);
+  font-family: inherit;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.llm-prompt-box:focus { outline: none; border-color: hsl(var(--primary) / 0.6); }
+.llm-prompt-box:disabled { opacity: 0.6; }
+
+.obj-table { width: 100%; border-collapse: collapse; font-size: var(--sp-body); }
+.obj-table tr { border-bottom: 1px solid hsl(var(--border)); }
+.obj-key {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 8px 5px 2px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+}
+.obj-val {
+  padding: 5px 2px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  font-variant-numeric: tabular-nums;
+}
+.obj-li { padding: 1px 0; }
+.obj-li + .obj-li { border-top: 1px dotted hsl(var(--border)); }
+.layer-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+.layer-name {
+  font-size: var(--sp-body);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Info */
+/* 權重 tab（RWD Maps 版面簡化控制）*/
+.weight-panel { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; }
+.weight-hint { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); line-height: 1.6; }
+.layout-status {
+  font-size: var(--sp-note);
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 8px;
+}
+.layout-status .llm-rerun {
+  margin-left: 8px;
+  padding: 1px 8px;
+  font-size: 11px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 3px);
+  background: transparent;
+  color: hsl(var(--primary));
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.layout-status .llm-rerun:hover { background: hsl(var(--accent)); }
+.weight-modes { display: flex; flex-direction: column; gap: 4px; }
+.weight-mode {
+  text-align: left;
+  padding: 7px 12px;
+  font-size: var(--sp-body);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+.weight-mode:hover { background: hsl(var(--accent)); }
+.weight-mode.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); border-color: hsl(var(--primary)); font-weight: 600; }
+.compare-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  vertical-align: middle;
+}
+.compare-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.compare-verdict-block {
+  padding: 8px 10px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.35);
+}
+.compare-verdict-head {
+  font-size: var(--sp-body);
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: 4px;
+}
+.compare-verdict-block .eval-bullets { margin-bottom: 0; }
+.weight-random {
+  padding: 8px 12px;
+  font-size: var(--sp-body);
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-weight: 500;
+}
+.weight-random:hover { background: hsl(var(--primary) / 0.2); }
+.weight-auto.active {
+  background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary)); font-weight: 600;
+}
+.weight-auto.active:hover { background: hsl(var(--primary) / 0.9); }
+.weight-hide-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px; }
+.weight-hide-toggle { display: flex; align-items: center; gap: 6px; font-size: var(--sp-body); cursor: pointer; }
+.weight-hide-px { display: flex; align-items: center; gap: 4px; font-size: var(--sp-body); color: hsl(var(--muted-foreground)); }
+.weight-hide-px input {
+  width: 46px; padding: 3px 5px; font-size: var(--sp-body); text-align: right;
+  border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--background)); color: hsl(var(--foreground));
+}
+.weight-stat { font-size: var(--sp-body); color: hsl(var(--muted-foreground)); padding: 0 2px; }
+.weight-stat b { color: hsl(var(--foreground)); font-variant-numeric: tabular-nums; }
+.hidden-list { padding: 2px; }
+.hidden-list-title { font-size: var(--sp-head); font-weight: 600; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+.hidden-list-items {
+  margin: 0; padding: 6px 8px 6px 26px; max-height: 160px; overflow-y: auto;
+  border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--muted) / 0.4); font-size: var(--sp-body); line-height: 1.6;
+}
+.hidden-list-items li { color: hsl(var(--foreground)); }
+/* Info tab 城市標題（中英雙行）——與物件 tab 的 .obj-title 同級 */
+.info-title { margin: 0 0 10px; }
+.info-title-zh { font-size: var(--sp-title); font-weight: 700; line-height: 1.3; color: hsl(var(--foreground)); }
+.info-title-en { margin-top: 1px; font-size: var(--sp-sub); font-weight: 400; color: hsl(var(--muted-foreground)); }
+.info-rows { display: flex; flex-direction: column; gap: 2px; }
+.info-row {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: var(--sp-body);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+.info-row:last-child { border-bottom: none; }
+.info-key {
+  width: 84px;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+}
+.info-row > span:not(.info-key), .info-row > a { min-width: 0; overflow-wrap: anywhere; }
+.info-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+.info-link:hover { text-decoration: underline; }
+.info-empty { font-size: var(--sp-body); color: hsl(var(--muted-foreground)); padding: 8px 0; }
+
+/* Audit */
+.audit-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: var(--sp-body);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.audit-banner.pass {
+  background: hsl(142 71% 45% / 0.12);
+  color: hsl(142 60% 40%);
+}
+.dark .audit-banner.pass { color: hsl(142 65% 55%); }
+.audit-banner.fail {
+  background: hsl(var(--destructive) / 0.12);
+  color: hsl(var(--destructive));
+}
+.audit-date {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: var(--sp-badge);
+  opacity: 0.75;
+}
+.audit-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.audit-item {
+  display: flex;
+  gap: 6px;
+  font-size: var(--sp-note);
+  line-height: 1.45;
+  color: hsl(var(--foreground));
+}
+.audit-item.ok { color: hsl(var(--muted-foreground)); }
+.audit-ic { flex-shrink: 0; margin-top: 2px; }
+.audit-ic.ok { color: hsl(142 60% 42%); }
+.audit-ic.warn { color: hsl(38 92% 50%); }
+.audit-list.fail .audit-ic { color: hsl(var(--destructive)); }
+
+.line-list { display: flex; flex-direction: column; gap: 2px; }
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 2px;
+  font-size: var(--sp-body);
+  min-width: 0;
+}
+.line-swatch {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.line-uc {
+  font-size: var(--sp-badge);
+  color: hsl(38 92% 40%);
+  background: hsl(38 92% 50% / 0.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  /* 緊跟線名（使用者 2026-07：「建設中要寫在路線名後面」）——原本 margin-left:auto
+     會和站數的 auto margin 平分空隙、章浮在列中間；改小固定間距貼著名字。 */
+  margin-left: 6px;
+  flex: none;
+}
+.line-ref {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--sp-mono);
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted));
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  /* 固定最小寬＋置中：單字（G/R）與雙三字（LB/TML）ref 同寬，路線名才會對齊
+     （使用者 2026-07：建設中章與線名沒對齊——根因是 ref 徽章寬度不一）。 */
+  min-width: 34px;
+  text-align: center;
+  box-sizing: border-box;
+}
+.line-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Style */
+.field { margin-bottom: 12px; flex: 1; min-width: 0; }
+.check-field { display: flex; align-items: center; gap: 8px; font-size: var(--sp-body); cursor: pointer; }
+.check-field input { accent-color: hsl(var(--primary)); }
+.field-row { display: flex; gap: 10px; }
+.bg-row { display: flex; align-items: center; gap: 8px; }
+.color-input {
+  width: 100%;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid hsl(var(--input));
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  cursor: pointer;
+}
+.skeleton-rules { font-size: var(--sp-body); line-height: 1.55; color: hsl(var(--foreground)); }
+.skeleton-rules p { margin: 4px 0; }
+.skeleton-rules .sk-sub { font-weight: 600; margin-top: 10px; color: hsl(var(--muted-foreground)); }
+.skeleton-rules ul { list-style: none; margin: 4px 0; padding: 0; }
+.skeleton-rules li { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+.sk-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid #3f3f46;
+}
+.sk-dot.sk-ring { background: #fff; }
+.sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+.sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
+.sk-line.sk-dash {
+  background: repeating-linear-gradient(
+    90deg,
+    #e11d48 0 4px,
+    #2563eb 4px 8px,
+    #16a34a 8px 12px,
+    transparent 12px 14px
+  );
+}
+.sk-hl {
+  width: 18px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+.skeleton-rules .rose-note { margin-top: 10px; font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+.section-title {
+  font-size: var(--sp-head);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: hsl(var(--muted-foreground));
+  border-top: 1px solid hsl(var(--border));
+  padding-top: 12px;
+  margin: 12px 0 10px;
+}
+.rose-stats { margin-top: 10px; }
+.rose-note {
+  margin-top: 8px;
+  font-size: var(--sp-note);
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+.rose-note .rose-red { color: #e11d48; font-weight: 600; }
+
+/* 資料儲存方式：可折疊的 GeoJSON／JSON 欄位說明 */
+.data-format { margin: 6px 0; }
+.data-format > summary {
+  cursor: pointer;
+  font-size: var(--sp-body);
+  color: hsl(var(--foreground));
+  padding: 4px 0;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.data-format > summary::before {
+  content: '▸';
+  font-size: 0.9em;
+  color: hsl(var(--muted-foreground));
+  transition: transform 0.12s ease;
+}
+.data-format[open] > summary::before { transform: rotate(90deg); }
+.data-format > summary::-webkit-details-marker { display: none; }
+.df-body {
+  font-size: var(--sp-note);
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  padding: 2px 0 8px 14px;
+}
+.df-body p { margin: 4px 0; }
+.df-body .df-sub {
+  font-weight: 600;
+  margin-top: 8px;
+  color: hsl(var(--foreground));
+}
+.df-body code {
+  font-size: 0.92em;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  overflow-wrap: anywhere;
+}
+
+/* 設定 tab：顏色點間最大跨距 */
+.settings-panel { display: flex; flex-direction: column; gap: 10px; }
+.settings-panel .section-title { border-top: none; padding-top: 0; margin-top: 4px; }
+.settings-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.settings-label { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+.settings-num {
+  width: 64px;
+  padding: 5px 8px;
+  font-size: 13px;
+  /* 靠左：數字在左、原生上下箭頭在右，兩者不互相擋住 */
+  text-align: left;
+  color: hsl(var(--foreground));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+}
+.settings-num:focus { outline: 2px solid hsl(var(--ring)); outline-offset: -1px; }
+.settings-unit { font-size: var(--sp-note); color: hsl(var(--muted-foreground)); }
+.settings-recalc {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 4px);
+  white-space: nowrap;
+}
+.settings-recalc:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
+.settings-recalc:disabled { opacity: 0.45; cursor: default; }
+.settings-note { margin-top: 2px; }

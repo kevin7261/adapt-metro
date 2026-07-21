@@ -4,7 +4,7 @@
 // （全區間、正數、外框由前端正規化）並存檔，網頁端（D3Tab 的「LLM調整」tab）
 // 只載入 data/metro/llmgrids/ 的結果。
 //
-//   node scripts/llmGrid.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
+//   node scripts/llmGrid.mjs export <cityId> <orig|rot> [hc|stroke|rect|milp|force|lsq|octi|path|sat|llm]
 //   node scripts/llmGrid.mjs apply  <cityId> <orig|rot> [compact] <weights.json>
 //   node scripts/llmGrid.mjs reset  <cityId> <orig|rot> [compact]
 //
@@ -52,7 +52,7 @@ for (const a of argv.slice(3)) {
   else weightsPath = a
 }
 if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
-  console.error('usage: llmGrid.mjs export|apply|reset <cityId> <orig|rot> [hc|rect|align|ilp|llm] [weights.json]')
+  console.error('usage: llmGrid.mjs export|apply|reset <cityId> <orig|rot> [hc|stroke|rect|milp|force|lsq|octi|path|sat|llm] [weights.json]')
   process.exit(1)
 }
 const outFile = join(OUT, `${cityId}.${variant}.${compact}.json`)

@@ -5,7 +5,6 @@ import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
-import { dragResize } from '../lib/dragResize'
 // 爬山/後處理結果的 localStorage 持久快取（指紋失效＋LRU），見 hcCache.js 檔頭說明。
 import { dataFingerprint, loadHcCache, saveHcCache } from '../lib/hcCache'
 import { makeHeadlessRun } from '../lib/headlessRun'
@@ -20,6 +19,16 @@ import {
   stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
 import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from '../stores/paperAlign'
+import {
+  LAYOUT_KINDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
+  loopKindOf, stepKindOf, postKindOf, needsHcLayout,
+} from '../lib/hcMode'
+import { LLM_MODEL_OPTIONS } from '../lib/llmModels'
+import { llmApplyGet, llmApplySet } from '../lib/llmApplyPersist'
+import {
+  NODE_COLOR, EDGE_HL, EDGE_LABEL, dashStrokes, featStrokes, stationColor,
+} from '../lib/metroDraw'
+import { sceneToGeojson } from '../lib/sceneExport'
 import { buildRwdMap, mergeParallelSegs, RWD_ROUTER_REV } from '../stores/rwdMap'
 import { randomWeights, weightedAxes, intervalAxes, linkWeight, uniformAxes, lerpAxes } from '../stores/rwdWeight'
 import { stationPopupHtml, linePopupHtml, buildPopupIndex, stationsAlongSeg } from '../stores/popupHtml'
@@ -27,7 +36,8 @@ import StylePanel from './StylePanel.vue'
 import StyleBar from './StyleBar.vue'
 import AttributeTable from './AttributeTable.vue'
 import MIcon from './MIcon.vue'
-import { openLayerDoc } from '../stores/layerDocHandle'
+import D3ViewNav from './d3/D3ViewNav.vue'
+import D3StepPanel from './d3/D3StepPanel.vue'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -79,24 +89,6 @@ const tipEl = ref(null)     // hover tooltip
 const loading = ref(false)
 const loadError = ref(null)
 
-// Left view-list rail width — draggable via the divider (canvas re-renders on
-// resize through the ResizeObserver on host).
-const viewNavWidth = ref(132)
-const navDragging = ref(false)
-function startNavResize(e) {
-  e.preventDefault()
-  const startW = viewNavWidth.value
-  // 拖到極限：上限＝容器寬 − 留給畫布的一小條；下限縮到很小；不設固定 90/300。
-  const host = e.currentTarget?.parentElement
-  dragResize(e, {
-    dragging: navDragging,
-    onMove: (dx) => {
-      const maxW = host ? Math.max(90, host.clientWidth - 80) : 600
-      viewNavWidth.value = Math.min(maxW, Math.max(40, startW + dx))
-    },
-  })
-}
-
 // Suggested rotation (Boeing-style dominant-axis tilt, from the Info rose).
 // `rotated` re-projects the whole map with projection.angle(tilt) — measured:
 // a positive d3 angle turns the map counter-clockwise, which is exactly what
@@ -113,49 +105,10 @@ const tilt = ref(0)
 // ('*-end') → 直線縮減 ('*-line') → 網格合併 ('*-gather') → 縮減網格
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
 const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc' : 'original')
-// ---- HC mode 解析 ----
-// HC 視圖 id 都是 `hc-<kind>[-<step>]`：kind ∈ 論文①〜⑧的八條鏈
-// stroke|rect|milp|force|lsq|octi|path|sat（paperAlign.js 的 PAPER_KINDS，
-// 名稱與 data/thesis 論文一一對應）＋ llm（LLM 對齊），step ∈
-// end|line|gather|loop|step（鏈的三步＋循環＋逐步驗證）。
-// 舊的六張 kind 查表全部由這一條 regex 導出。
-// hc 鏈不進後處理區（使用者 2026-07 裁決）；RWD 底圖仍可用 hc 鏈的循環
-// （loop 區塊的 isRWD fallback，key 'hc'）。
-const PAPER_KIND_IDS = PAPER_KINDS.map((p) => p.kind)
-const HC_MODE_RE = new RegExp(`^hc-(llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|step))?$`)
-// 「Hill Climbing」區的 8 個主佈局比較（格網化後 → 各演算法，不進下游）：
-// ②＝真正的爬山；其餘 7 個＝論文鏈 build 直接餵格網（不含 rect——② 就是爬山本體）。
-// mode id：`hc` 或 `layout-<kind>`；下游（直線演算法／端點移動／RWD）仍只吃 `hc`。
-const LAYOUT_KINDS = PAPER_KINDS.filter((p) => p.kind !== 'rect')
-const LAYOUT_KIND_IDS = LAYOUT_KINDS.map((p) => p.kind)
-const LAYOUT_MODE_RE = new RegExp(`^layout-(${LAYOUT_KIND_IDS.join('|')})$`)
-const layoutKindOf = (m) => {
-  const mm = LAYOUT_MODE_RE.exec(m)
-  return mm ? mm[1] : null
-}
-// 該 step 專屬的鏈 kind（step 不符 → null）——對應舊 END/LINE/GATHER/LOOP/STEP_KIND[mode]。
-const kindAtStep = (m, step) => {
-  const mm = HC_MODE_RE.exec(m)
-  return mm && mm[2] === step ? mm[1] : null
-}
-const endKindOf = (m) => kindAtStep(m, 'end')       // 端點移動（鏈第 1 步）
-const lineKindOf = (m) => kindAtStep(m, 'line')     // 直線縮減（鏈第 2 步）
-const gatherKindOf = (m) => kindAtStep(m, 'gather') // 網格合併（鏈第 3 步）
-const loopKindOf = (m) => kindAtStep(m, 'loop')     // 端點移動+直線縮減+網格合併+縮減網格循環
-const stepKindOf = (m) => kindAtStep(m, 'step')     // 逐步驗證（同一條四步鏈、按「下一步」推進）
-// 瀏覽器端後處理 kind（任何 step 都要先有該鏈的後處理結果）——llm 不在內
-//（LLM 對齊在檔案端算好，這裡只載入）。對應舊 POST_KIND[mode]。
-const postKindOf = (m) => {
-  const mm = HC_MODE_RE.exec(m)
-  return mm && mm[1] !== 'llm' ? mm[1] : null
-}
+// ---- HC mode 解析（lib/hcMode.js）----
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 // layout-* 也走 computeHcLayout（但只跑該演算法、不碰 HC／下游）。
-const hcMode = computed(() =>
-  mode.value === 'hc' || HC_MODE_RE.test(mode.value) ||
-  !!layoutKindOf(mode.value) ||
-  mode.value === 'hc-compact' || // RWD 圖層的「循環結果」輸入視圖沿用這個 id（HC 圖層已無縮減網格 tabs）
-  mode.value === 'rwd')
+const hcMode = computed(() => needsHcLayout(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
 // route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
 // 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
@@ -184,14 +137,6 @@ const llmCityId = computed(() => sourceLayer.value?.id ?? null)
 // 三個 LLM 功能（評價/對齊/調整）共用的模型選擇：面板下拉的短鍵，隨 /run 的
 // body 送出，vite plugin 映射成 claude --model；'default' → 不帶旗標（沿用預設）。
 const llmModel = ref('opus') // 預設 Opus 4.8（使用者：LLM 預設模型都改 Opus 4.8）
-// 畫布 overlay 備援按鈕的下拉選項（與 StylePanel 的 LLM_MODEL_OPTIONS 一致）。
-const LLM_MODEL_OPTIONS = [
-  { key: 'default', label: '沿用 CLI 預設' },
-  { key: 'opus', label: 'Opus 4.8' },
-  { key: 'fable', label: 'Fable 5' },
-  { key: 'sonnet', label: 'Sonnet 5' },
-  { key: 'haiku', label: 'Haiku 4.5' },
-]
 // run/poll 機構本體在 lib/headlessRun.js（三個 LLM 功能共用）——這裡把本元件的
 // 城市 id、模型選擇與重畫函式注入進去（render 是 function declaration，取值安全）。
 const makeRun = (cfg) => makeHeadlessRun({
@@ -252,18 +197,7 @@ const promptApplied = ref(false)
 // reload 記憶：只把布林旗標存進 localStorage（結果本身仍從結果檔重載），鍵到
 // city+variant(+compact)。重整或切回本視圖時若有結果，就自動恢復上次「已套用」的
 // 狀態，免得每次都要重按執行調整（使用者裁決 2026-07）。跑新結果時 onStart 會清掉
-// 該鍵，維持「跑完不自動套用」。
-const LLM_APPLY_LS = 'adaptMetro.llmApplied.v1'
-function llmApplyGet(key) {
-  try { return !!JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}')[key] } catch { return false }
-}
-function llmApplySet(key, on) {
-  try {
-    const s = JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}')
-    if (on) s[key] = true; else delete s[key]
-    localStorage.setItem(LLM_APPLY_LS, JSON.stringify(s))
-  } catch { /* localStorage 不可用（隱私模式等）→ 退回「不記憶」 */ }
-}
+// 該鍵，維持「跑完不自動套用」。llmApplyGet/Set 見 lib/llmApplyPersist.js。
 // 鍵隨目前 city/variant/compact 而變（rwdCompactKey 定義在後面、computed 惰性求值）。
 const llmApplyKeys = computed(() => {
   const cid = sourceLayer.value?.id ?? '?'
@@ -423,12 +357,6 @@ const POST_BUILD = { ...PAPER_BUILD }
 // - 逐步驗證（第 9 部份）：同一條四步鏈，由使用者按「下一步」一步步執行：每步＝
 //   目前階段的一個單掃描（或一次縮減網格），掃不動自動換下一階段，一輪全沒動靜
 //   ＝完成（stepChainInit/stepChainNext）。也沒有 hc 鏈（使用者 2026-07 裁決）。
-// 面板的階段 chips：這一步執行的工作（lastStage）會亮起。
-// 縮減網格不是獨立階段——每一步完成後自動壓（訊息尾巴會標「縮減網格 a×b → c×d」）。
-const STEP_STAGES = [
-  { k: 'endp', label: '端點移動' }, { k: 'line', label: '直線縮減' },
-  { k: 'gather', label: '網格合併' },
-]
 // RWD 視圖建立在某個「縮減網格」之上：其 layer.compact（'hc' 或 PAPER_KIND_IDS
 // 之一）決定要不要先套後處理再縮減（'hc'/未設＝基本縮減）。使 RWD 能選任一縮減網格變體。
 const postKind = computed(() =>
@@ -697,9 +625,6 @@ const VIEW_TABS = computed(() => {
     { id: 'grid-rot-post', label: `${rotLabel.value}格網化後`, rot: true },
   ]
 })
-// 左側功能列分組可開合（使用者規則：不用全部展開）。VIEW_TABS 依 header 收成
-// sections；預設收合、只展開「含目前視圖」的那一組，點 header 切換。
-// navOpen 只記使用者手動切換過的組（true/false），沒記錄的走預設。
 const navSections = computed(() => {
   let cur = { header: null, items: [] }
   const secs = [cur]
@@ -709,12 +634,6 @@ const navSections = computed(() => {
   }
   return secs.filter((s) => s.header || s.items.length)
 })
-const navOpen = ref({})
-const navSectionOpen = (s) =>
-  !s.header || (navOpen.value[s.header] ?? s.items.some((t) => t.id === mode.value))
-function toggleNavSection(s) {
-  if (s.header) navOpen.value[s.header] = !navSectionOpen(s)
-}
 
 const disposables = []
 let zoomBehavior = null
@@ -732,15 +651,6 @@ function applyZoomSizing(k) {
   g.selectAll('text.st-label')
     .style('font-size', `${9 / k}px`)
     .attr('y', (d) => d.y - (r0 + 3) / k)
-}
-
-// Same station-role colouring as the MapLibre tab's STATION_COLOR: interchange
-// red, terminus blue, else white. 用 is_interchange（正式拓撲轉乘：degree>2 或 ≥2
-// 線在此終止），不用 lines>1——後者把多線共軌的中途站（非轉乘）也誤判成紅（NYC 尤甚）。
-function stationColor(p) {
-  if (p.is_interchange) return '#e11d48'
-  if (p.is_terminus) return '#2563eb'
-  return '#ffffff'
 }
 
 async function sourceData() {
@@ -1304,33 +1214,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   return { hcPos, hcBlue, rwdLines, stepMoves }
 }
 
-const MAX_OVERLAP = 6, DASH = 5 // overlap interleaved-dash pattern (screen px)
-// 單色 route → 實線原色；共線（≥2 相異色）→ 交錯彩色虛線（dasharray 逐邊重
-// 置相位，同 RWD／原始逐段畫法）。extra 帶 props（原始 feature，hover 走
-// popupHtml）或 html（骨架邊/RWD 的現成 tooltip）。三個畫線分支共用。
-const dashStrokes = (d, colsIn, fallback, extra) => {
-  const cols = (colsIn ?? []).slice(0, MAX_OVERLAP)
-  if (new Set(cols).size >= 2) {
-    const n = cols.length
-    return cols.map((c, i) => ({ d, stroke: c, ...extra, dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}` }))
-  }
-  return [{ d, stroke: cols[0] ?? fallback ?? '#e11d48', ...extra }]
-}
-// 地標 feature（河流骨架／皇居・公園）在 D3 視圖用地標色畫（與 LayerTab 一致）——
-// 河流骨架瑩光天藍 #00E5FF、面域綠 #58a866；否則會退回 route 預設色（玫瑰紅）＝使用者回報
-// 「地標顏色跟本來不一樣」。
-const isLandmark = (p) => p && p.landmark_id != null
-const landmarkStroke = (p) => (/river/.test(p.kind || '') ? '#00E5FF' : '#58a866') // 河流瑩光天藍
-const featStrokes = (f, d, extra) => isLandmark(f.properties)
-  ? [{ d, stroke: landmarkStroke(f.properties), ...extra }]
-  : dashStrokes(d, f.properties.route_colors, null, extra)
-// 'black' = untouched through station → keep the normal white fill; only the
-// specially-marked nodes get a colour. All keep the dark border (set below).
-const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
-// Edge-class colours are drawn as a BOTTOM HIGHLIGHT (underlay) — NOT the line
-// colour. The line itself is always the original metro-map rendering.
-const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
-const EDGE_LABEL = { coline: '共線合併', loop: '環線', parallel: '頭尾共點', plain: '一般' }
+// 色盤／共線虛線／地標色：lib/metroDraw.js（與 viewGeometry 同源）。
 
 // 畫線資料組裝（render 的第 3 段）：把 RWD 折線／骨架拓撲邊／原始 feature 幾何
 // 轉成 lineData（含 hover html）、stationData（節點分類色）與 highlightData
@@ -1702,45 +1586,7 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
 }
 
 let renderSeq = 0
-// 目前畫面內容 → GeoJSON（圖層「匯出」下載使用者正在看的佈局，見 layerExport）。
-// lineData 的 SVG path（手繪 `M x y L x y` 或 d3 geoPath 的 `Mx,yLx,y`，可能多子路徑）
-// 解析回座標；stationData 是已放好的節點。座標＝畫面像素（示意佈局本就非地理座標）。
-// 要保留的樣式鍵（stroke/dash/fill）**不加底線**——cleanForExport 會濾掉 `_` 開頭的
-// feature 屬性。
-function pathToSubpaths(d) {
-  const out = []
-  for (const part of String(d ?? '').split(/(?=[Mm])/)) {
-    const nums = part.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi)
-    if (!nums || nums.length < 4) continue
-    const coords = []
-    for (let i = 0; i + 1 < nums.length; i += 2) coords.push([+nums[i], +nums[i + 1]])
-    if (coords.length >= 2) out.push(coords)
-  }
-  return out
-}
-function sceneToGeojson(lineData, stationData, w, h) {
-  const features = []
-  for (const ln of lineData) {
-    const subs = pathToSubpaths(ln.d)
-    if (!subs.length) continue
-    features.push({
-      type: 'Feature',
-      geometry: subs.length === 1
-        ? { type: 'LineString', coordinates: subs[0] }
-        : { type: 'MultiLineString', coordinates: subs },
-      properties: { kind: 'line', stroke: ln.stroke ?? null, ...(ln.dash ? { dash: ln.dash } : {}) },
-    })
-  }
-  for (const s of stationData) {
-    if (!Number.isFinite(s.x) || !Number.isFinite(s.y)) continue
-    features.push({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [s.x, s.y] },
-      properties: { ...s.props, kind: 'node', fill: s.fill },
-    })
-  }
-  return { type: 'FeatureCollection', _view: layer.value?.type ?? 'd3', _frame: { w, h }, features }
-}
+// 目前畫面內容 → GeoJSON（圖層「匯出」）：lib/sceneExport.js。
 
 async function render() {
   const svg = svgEl.value, g = gEl.value, el = host.value
@@ -1818,7 +1664,7 @@ async function render() {
   drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, stations, posOf, lineData, stationData, highlightData })
 
   // 匯出快照：把這一幀畫出的線與節點序列化成 GeoJSON，供「匯出」下載目前畫面內容。
-  layerExport[layerId] = sceneToGeojson(lineData, stationData, w, h)
+  layerExport[layerId] = sceneToGeojson(lineData, stationData, w, h, layer.value?.type ?? 'd3')
 
   // 版面外框：選了固定版面（網頁／手機／IG…）時畫出該版面的邊界矩形，讓使用者看到
   // 模擬 RWD 的畫布範圍；「目前版面」（auto，跟著面板大小）不畫。畫在最上層、不吃事件。
@@ -2331,56 +2177,11 @@ onBeforeUnmount(() => {
           @fit-view="fitView"
         />
         <div class="map-main">
-          <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
-            <div
-              v-for="s in navSections"
-              :key="s.header ?? 'flat'"
-              class="view-nav-sec"
-              :class="{ open: navSectionOpen(s), flat: !s.header }"
-            >
-              <button
-                v-if="s.header"
-                class="view-nav-group"
-                :aria-expanded="navSectionOpen(s)"
-                @click="toggleNavSection(s)"
-              >
-                <MIcon
-                  :name="navSectionOpen(s) ? 'expand_more' : 'chevron_right'"
-                  :size="14"
-                  class="view-nav-caret"
-                />
-                <span class="view-nav-group-label">{{ s.header }}</span>
-                <MIcon
-                  v-if="s.doc"
-                  name="help"
-                  :size="14"
-                  class="view-nav-help"
-                  role="button"
-                  title="這個圖層的做法／JSON 格式／顯示方式"
-                  @click.stop="openLayerDoc(s.doc, s.header)"
-                />
-              </button>
-              <div v-if="navSectionOpen(s)" class="view-nav-sec-items">
-                <button
-                  v-for="t in s.items"
-                  :key="t.id"
-                  class="view-nav-item"
-                  :class="{ active: mode === t.id }"
-                  role="tab"
-                  :aria-selected="mode === t.id"
-                  :disabled="!panelLayer || (t.rot && !canRotate)"
-                  :title="t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : ''"
-                  @click="mode = t.id"
-                >{{ t.label }}</button>
-              </div>
-            </div>
-          </div>
-          <div
-            class="view-nav-resize"
-            :class="{ dragging: navDragging }"
-            role="separator"
-            aria-orientation="vertical"
-            @pointerdown="startNavResize"
+          <D3ViewNav
+            :sections="navSections"
+            v-model:mode="mode"
+            :panel-layer="panelLayer"
+            :can-rotate="canRotate"
           />
 
           <!-- 地圖底色（樣式 tab 的 layer.d3Bg）——未設定時用主題預設背景 -->
@@ -2402,22 +2203,14 @@ onBeforeUnmount(() => {
                不留白，串流與「執行調整/恢復原佈局」都在右側「LLM對齊」面板 tab。 -->
           <!-- 逐步驗證 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
                怎麼一步步收斂；「重設」回到該鏈的起點。 -->
-          <div v-if="isHC && stepKindOf(mode)" class="step-panel">
-            <button class="step-btn back" :disabled="!panelLayer || !stepInfo?.hist" @click="stepPrev(false)">◀ 上一步</button>
-            <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="stepNext()">下一步 ▶</button>
-            <button class="step-btn back sub" :disabled="!panelLayer || !stepInfo?.hist" @click="stepPrev(true)">‹ 上一小步</button>
-            <button class="step-btn sub" :disabled="!panelLayer || stepInfo?.done" @click="stepNext(1)">下一小步 ›</button>
-            <button class="step-btn ghost" :disabled="!panelLayer" @click="stepReset">重設</button>
-            <span class="step-count" v-if="stepInfo">第 {{ stepInfo.steps }} 步</span>
-            <!-- 這一步是哪一個工作：執行到的階段亮起 -->
-            <span class="step-stages" v-if="stepInfo">
-              <template v-for="(s, i) in STEP_STAGES" :key="s.k">
-                <span v-if="i" class="step-arrow">→</span>
-                <span class="step-chip" :class="{ active: stepInfo.lastStage === s.k }">{{ s.label }}</span>
-              </template>
-            </span>
-            <span class="step-msg" v-if="stepInfo" :class="{ done: stepInfo.done }">{{ stepInfo.info }}</span>
-          </div>
+          <D3StepPanel
+            v-if="isHC && stepKindOf(mode)"
+            :panel-layer="panelLayer"
+            :step-info="stepInfo"
+            @prev="stepPrev"
+            @next="stepNext"
+            @reset="stepReset"
+          />
           </div>
         </div>
 
@@ -2544,109 +2337,6 @@ onBeforeUnmount(() => {
   min-height: 0;
   min-width: 0;
 }
-.view-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
-  padding: 6px;
-  overflow-y: auto;
-}
-/* 分組（原始／Hill Climbing／直線演算法／…）——全部左側功能列共用同一套版面：
-   header 一列（caret＋標題＋項目數 badge）可開合，展開的項目縮排並帶樹狀導引線。 */
-.view-nav-sec {
-  flex-shrink: 0; /* view 很多時不被壓扁——超出改由 .view-nav 的捲軸承接 */
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.view-nav-sec:not(:first-child):not(.flat) {
-  margin-top: 3px;
-  padding-top: 3px;
-  border-top: 1px solid hsl(var(--border) / 0.5);
-}
-.view-nav-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  padding: 6px 8px;
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: hsl(var(--muted-foreground));
-  user-select: none;
-  border: none;
-  border-radius: calc(var(--radius) - 2px);
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-.view-nav-group:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
-/* 同 Layers 面板的 group-chevron（MIcon chevron_right / expand_more, 14px）。 */
-.view-nav-caret {
-  flex-shrink: 0;
-  color: hsl(var(--muted-foreground));
-}
-.view-nav-group-label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* 「?」說明 icon：平時淡、hover 才亮，點了開 LayerDocViewer（不影響展開） */
-.view-nav-help {
-  flex-shrink: 0;
-  opacity: 0.45;
-  color: hsl(var(--muted-foreground));
-  cursor: help;
-  border-radius: 50%;
-}
-.view-nav-help:hover { opacity: 1; color: hsl(var(--primary)); }
-/* 展開的項目：縮排到 caret 之下、左側一條導引線。flat（無 header 的清單，
-   理論上已不存在）不縮排。 */
-.view-nav-sec-items {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  margin-left: 14px;
-  padding-left: 5px;
-  border-left: 1px solid hsl(var(--border) / 0.7);
-}
-.view-nav-sec.flat .view-nav-sec-items {
-  margin-left: 0;
-  padding-left: 0;
-  border-left: none;
-}
-/* Draggable divider between the view list and the canvas. */
-.view-nav-resize {
-  width: 5px;
-  flex-shrink: 0;
-  cursor: col-resize;
-  border-left: 1px solid hsl(var(--border));
-  background: transparent;
-}
-.view-nav-resize:hover, .view-nav-resize.dragging { background: hsl(var(--primary) / 0.3); }
-.view-nav-item {
-  flex-shrink: 0; /* view 很多時不被壓扁——超出改由 .view-nav 的捲軸承接 */
-  text-align: left;
-  padding: 6px 10px;
-  font-size: 12.5px;
-  border: none;
-  border-radius: calc(var(--radius) - 2px);
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.view-nav-item:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
-.view-nav-item.active {
-  background: hsl(var(--primary) / 0.12);
-  color: hsl(var(--primary));
-  font-weight: 600;
-}
-.view-nav-item:disabled { opacity: 0.4; cursor: default; }
 /* Footer status bar — RWD 診斷靠左、資料來源靠右。 */
 .ma-statusbar {
   display: flex;
@@ -2689,89 +2379,6 @@ onBeforeUnmount(() => {
 }
 .ma-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
 .ma-svg:active { cursor: grabbing; }
-/* 逐步驗證 浮動控制列（左上）：下一步／重設＋這一步做了什麼。 */
-.step-panel {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  background: hsl(var(--card) / 0.92);
-  backdrop-filter: blur(4px);
-  font-size: 12px;
-  z-index: 5;
-  pointer-events: auto;
-}
-.step-btn {
-  flex-shrink: 0;
-  padding: 4px 12px;
-  font-size: 12.5px;
-  font-weight: 600;
-  border: none;
-  border-radius: calc(var(--radius) - 2px);
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  cursor: pointer;
-}
-.step-btn:hover:not(:disabled) { opacity: 0.9; }
-.step-btn:disabled { opacity: 0.4; cursor: default; }
-.step-btn.sub {
-  background: hsl(var(--primary) / 0.12);
-  color: hsl(var(--primary));
-}
-.step-btn.back {
-  background: transparent;
-  border: 1px solid hsl(var(--primary) / 0.45);
-  color: hsl(var(--primary));
-  font-weight: 500;
-}
-.step-btn.back.sub { border-style: dashed; }
-.step-btn.ghost {
-  background: transparent;
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--muted-foreground));
-  font-weight: 500;
-}
-.step-count {
-  flex-shrink: 0;
-  font-weight: 600;
-  color: hsl(var(--primary));
-}
-.step-msg {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: hsl(var(--muted-foreground));
-}
-.step-msg.done { color: hsl(142 70% 40%); font-weight: 600; }
-/* 階段 chips：這一步執行的工作亮起。 */
-.step-stages {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-.step-chip {
-  padding: 2px 7px;
-  font-size: 11px;
-  border-radius: 999px;
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--muted-foreground));
-  white-space: nowrap;
-}
-.step-chip.active {
-  background: hsl(var(--primary));
-  border-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  font-weight: 600;
-}
-.step-arrow { color: hsl(var(--muted-foreground) / 0.5); font-size: 10px; }
 .ma-hint {
   position: absolute;
   inset: 0;

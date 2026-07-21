@@ -10,6 +10,7 @@
     "build": "vite build",
     "build:pages": "GITHUB_PAGES=1 vite build",
     "preview": "vite preview",
+    "characterize": "node scripts/characterize.mjs",
     "predeploy": "npm run build:pages && touch dist/.nojekyll",
     "deploy": "gh-pages -d dist --no-history",
     "metro:wiki": "node scripts/fetchWikiList.mjs",

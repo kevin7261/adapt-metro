@@ -2,117 +2,12 @@ import { defineStore } from 'pinia'
 import { assetUrl } from '../lib/assetUrl'
 import { loadPersisted } from './persist'
 import CITY_ZH from './cityNamesZh.json'
+import { RWD_COMPACTS } from '../lib/rwdCompacts'
+import {
+  metroDisplayName, variantLabel, migrateLayerNames, backfillCityChains,
+} from './layerMigrations'
 
 let toastTimer = null
-
-// Display name for a metro system = Chinese 城市・國名 (from cityNamesZh.json,
-// keyed by the geojson file stem; 中點分隔，與 Info tab 城市標題一致)。
-// Falls back to the id if a city is missing.
-function metroDisplayName(id) {
-  const zh = CITY_ZH[id]
-  if (zh) return `${zh.city}・${zh.country}`
-  // 圖層顯示名一定要中文（使用者規則）：合併系統（-jr／-lm）若漏建中文名，退回 base
-  // 城市中文名＋後綴，**絕不**顯示英文 slug。（現行 234 系統皆有中文名，此為未來防呆。）
-  const m = /^(.+)-(jr|lm)$/.exec(id)
-  const b = m && CITY_ZH[m[1]]
-  if (b) return `${b.city}${m[2] === 'lm' ? '＋地標' : '＋線'}・${b.country}`
-  return id
-}
-// Straighten (hillclimb) layers carry which grid-post variant they optimized.
-const variantLabel = (v) => (v === 'rot' ? '旋轉' : '原始')
-
-// One-time migration for sessions saved before layer names dropped their type
-// prefixes (d3- / hc-d3- / rwd-hc-d3-). Recompute each derived layer's name
-// from its source chain — exactly what the add* actions now do — so the result
-// matches new layers and is idempotent (running it again is a no-op). Imported
-// D3 views (no source) and metro layers keep their own names.
-// Recover the metro geojson stem from a legacy prefixed name
-// ("rwd-hc-d3-am-mex-mexico-city-orig" → "am-mex-mexico-city"), so a derived
-// layer can still be renamed even if its source metro layer was removed.
-function legacyMetroId(name) {
-  if (typeof name !== 'string') return null
-  const stem = name.replace(/^(rwd-)?(hc-)?(d3-)?/, '').replace(/-(orig|rot)$/, '')
-  return CITY_ZH[stem] ? stem : null
-}
-
-function migrateLayerNames(layers) {
-  const byId = new Map(layers.map((l) => [l.id, l]))
-  // 2026-07: the Railways / Highways groups were folded into Raw Maps (one
-  // group, one import modal with 3 big tabs) — remap layers persisted under
-  // the retired group ids.
-  for (const l of layers) {
-    if (l.groupId === 'railway-maps' || l.groupId === 'highway-maps') l.groupId = 'metro-maps'
-  }
-  // Backfill Chinese city/country on metro layers imported before this field.
-  for (const l of layers) {
-    if (l.type === 'metro' && CITY_ZH[l.id]) {
-      l.countryZh ??= CITY_ZH[l.id].country
-      l.cityZh ??= CITY_ZH[l.id].city
-    }
-  }
-  const nameOf = (l) => {
-    if (!l) return undefined
-    // Railway/highway networks load as type 'metro' but their id (rw-/hw-…) is not
-    // in cityNamesZh — keep the country/city name set at import (國名, e.g. 台灣),
-    // never the raw slug.
-    if (l.railway) return l.countryZh ?? l.name
-    if (l.highway) return l.cityZh ?? l.countryZh ?? l.name
-    if (l.type === 'metro') return metroDisplayName(l.id)
-    const src = l.sourceLayerId ? byId.get(l.sourceLayerId) : null
-    // Prefer the source chain; fall back to parsing the old prefixed name.
-    const base = src ? nameOf(src) : (legacyMetroId(l.name) ? metroDisplayName(legacyMetroId(l.name)) : null)
-    if (base == null) return l.name // imported view or unknown → keep as-is
-    if (l.type === 'hillclimb') return `${base}（${variantLabel(l.variant)}）`
-    return base // d3 / rwd
-  }
-  for (const l of layers) l.name = nameOf(l)
-  return layers
-}
-
-// 一城的標準 RWD 組：9 條循環鏈＝論文①〜⑧（paperAlign.js PAPER_KINDS，順序＝
-// 論文編號：①stroke ②rect ③milp ④force ⑤lsq ⑥octi ⑦path ⑧sat）＋ LLM 對齊。
-// 2026-07 使用者裁決：直線演算法名稱要與 data/thesis 論文一一對應——自創的
-// 軸對齊（align）/整數規劃（ilp）鏈已移除，載入舊 session 時一併清掉。
-// 「基本 hc」僅作 fallback、不主動建立圖層（使用者裁決移除「原始·基本」「旋轉·基本」）。
-const RWD_COMPACTS = ['stroke', 'rect', 'milp', 'force', 'lsq', 'octi', 'path', 'sat', 'llm']
-
-// 2026-07 補齊變體：一城的標準組是 Straighten ×2（原始＋旋轉）＋ RWD ×18
-// （原始／旋轉 × RWD_COMPACTS，各掛同變體 Straighten）。舊 session 只存了部分
-// ——載入時回填缺的層（與 importCityChain 的 ensure 邏輯一致；沒建過 Map Adjust
-// 的城市不強加）。Idempotent：齊了就什麼都不做。
-function backfillCityChains(layers) {
-  const nextId = (prefix) => {
-    let n = 1
-    while (layers.some((l) => l.id === `${prefix}-${n}`)) n++
-    return `${prefix}-${n}`
-  }
-  for (const metro of [...layers]) {
-    if (metro.type !== 'metro' || metro.railway || metro.highway) continue
-    const d3 = layers.find((l) => l.type === 'd3' && l.sourceLayerId === metro.id)
-    if (!d3) continue
-    const hcOf = {}
-    for (const v of ['orig', 'rot']) {
-      let hc = layers.find((l) => l.type === 'hillclimb' && l.sourceLayerId === d3.id && l.variant === v)
-      if (!hc) {
-        hc = {
-          id: nextId('hc-view'), name: `${d3.name}（${variantLabel(v)}）`, type: 'hillclimb',
-          groupId: 'hillclimb', sourceLayerId: d3.id, variant: v, visible: true, opacity: 1,
-        }
-        layers.push(hc)
-      }
-      hcOf[v] = hc
-    }
-    for (const v of ['orig', 'rot']) for (const c of RWD_COMPACTS) {
-      if (!layers.some((l) => l.type === 'rwd' && l.sourceLayerId === hcOf[v].id && l.compact === c)) {
-        layers.push({
-          id: nextId('rwd-view'), name: hcOf[v].name, type: 'rwd',
-          groupId: 'rwd', sourceLayerId: hcOf[v].id, compact: c, visible: true, opacity: 1,
-        })
-      }
-    }
-  }
-  return layers
-}
 
 export const useMapStore = defineStore('map', {
   // Hydrate from the persisted session (localStorage) so layers survive reloads.

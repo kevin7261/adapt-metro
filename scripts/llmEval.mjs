@@ -4,7 +4,7 @@
 // 更方正、哪條線彎太多…），apply 驗證並存檔。**只評價、不修改**——不搬任何
 // 座標，網頁端（StylePanel 的「LLM評價」tab）只載入 data/metro/llmevals/ 的結果。
 //
-//   node scripts/llmEval.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
+//   node scripts/llmEval.mjs export <cityId> <orig|rot> [hc|stroke|rect|milp|force|lsq|octi|path|sat|llm]
 //   node scripts/llmEval.mjs apply  <cityId> <orig|rot> [compact] <eval.json>
 //   node scripts/llmEval.mjs reset  <cityId> <orig|rot> [compact]
 //
@@ -54,7 +54,7 @@ for (const a of argv.slice(3)) {
   else evalPath = a
 }
 if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
-  console.error('usage: llmEval.mjs export|apply|reset <cityId> <orig|rot> [hc|rect|align|ilp|llm] [eval.json]')
+  console.error('usage: llmEval.mjs export|apply|reset <cityId> <orig|rot> [hc|stroke|rect|milp|force|lsq|octi|path|sat|llm] [eval.json]')
   process.exit(1)
 }
 const outFile = join(OUT, `${cityId}.${variant}.${compact}.json`)

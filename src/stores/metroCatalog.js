@@ -102,3 +102,34 @@ const CONTINENT_ZH = {
 export function continentZh(slug) {
   return CONTINENT_ZH[slug] ?? prettyContinent(slug)
 }
+
+// Fixed continent order for Quick Selection and miller browse columns:
+// 亞洲 → 歐洲 → 北美洲 → 南美洲 → 非洲 → 大洋洲.
+export const CONTINENT_ORDER = ['asia', 'europe', 'north-america', 'south-america', 'africa', 'oceania']
+export const continentRank = (slug) => {
+  const i = CONTINENT_ORDER.indexOf(slug)
+  return i === -1 ? CONTINENT_ORDER.length : i
+}
+export const continentCols = (list) => [...new Set(list.map((s) => s.continent))]
+  .sort((a, b) => continentRank(a) - continentRank(b))
+  .map((value) => ({ value, zh: continentZh(value), en: prettyContinent(value) }))
+export const countryCols = (list, continent) => {
+  const seen = new Map()
+  for (const s of list) {
+    if (s.continent === continent && !seen.has(s.country)) {
+      seen.set(s.country, { value: s.country, zh: s.countryZh ?? s.country, en: s.country })
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.en.localeCompare(b.en))
+}
+export const groupQuickByContinent = (list) => {
+  const groups = new Map()
+  for (const q of list) {
+    const cont = q.sys?.continent ?? 'zzz'
+    if (!groups.has(cont)) groups.set(cont, [])
+    groups.get(cont).push(q)
+  }
+  return [...groups.entries()]
+    .map(([continent, cities]) => ({ continent, label: continentZh(continent), cities }))
+    .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
+}

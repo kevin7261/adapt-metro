@@ -21,6 +21,7 @@ import {
 } from './hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from './paperAlign.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
+import { NODE_COLOR, EDGE_HL, stationColor, strokesOf as strokesOfShared } from '../lib/metroDraw.js'
 
 // 離線可預算的鏈（LLM 對齊除外——要 headless session）：hc ＋ 論文①〜⑧的
 // 八條鏈（PAPER_KINDS，名稱與 data/thesis 論文一一對應）。HC 畫廊與 RWD 畫廊
@@ -29,11 +30,11 @@ const CHAIN_KINDS = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
 const CHAIN_POST = { hc: null, ...PAPER_BUILD }
 const CHAIN_ZH = { hc: 'Hill Climbing', llm: 'LLM 對齊', ...PAPER_ZH }
 
-// Same palettes as D3Tab.vue.
-const NODE_COLOR = { red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7', pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308' }
-const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
-const MAX_OVERLAP = 6
-const DASH = 5
+// Single colour → solid; overlap (≥2 DISTINCT colours) → interleaved dashes.
+// viewGeometry 用 color 欄位（縮圖 JSON）；D3Tab 用 stroke。
+function strokesOf(routeColors, color, d) {
+  return strokesOfShared(routeColors, color, d, { colorKey: 'color' })
+}
 
 // 三個 computeCity* 的共用開場白：縮圖外框、站/線 feature、tilt、骨架、投影工廠。
 function prepCity(geojson, opts) {
@@ -96,27 +97,6 @@ function cellsToPos(cellAfter, cellPx, skeleton, snap) {
   for (const [id, cell] of cellAfter) pos.set(id, cellPx(cell))
   placeBlacks(skeleton, pos, snap)
   return pos
-}
-
-// Geographic (original/rotated) station fill — matches the MapLibre tab's
-// STATION_COLOR and D3Tab.stationColor: interchange red, terminus blue, else
-// white. 用 is_interchange（正式拓撲轉乘），不用 lines>1——後者把多線共軌的中途站
-// （非轉乘）也誤判成紅（NYC 尤甚）。
-function stationColor(p) {
-  if (p.is_interchange) return '#e11d48'
-  if (p.is_terminus) return '#2563eb'
-  return '#ffffff'
-}
-
-// Single colour → solid; overlap (≥2 DISTINCT colours) → interleaved dashes.
-// Distinct-colour test (not route count) matches the skeleton's coline rule.
-function strokesOf(routeColors, color, d) {
-  const cols = (routeColors ?? []).slice(0, MAX_OVERLAP)
-  if (new Set(cols).size >= 2) {
-    const n = cols.length
-    return cols.map((c, i) => ({ d, color: c, dash: `0 ${i * DASH} ${DASH} ${(n - 1 - i) * DASH}` }))
-  }
-  return [{ d, color: cols[0] ?? color ?? '#e11d48' }]
 }
 
 // 格網化後 / Hill Climbing / 縮減網格 / RWD 底圖的線 = skeleton **拓撲邊** 在搬移後
