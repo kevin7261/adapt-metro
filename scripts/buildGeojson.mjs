@@ -2485,8 +2485,9 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
 
   // stale-file cleanup：桶的命名/歸屬改變時，上一輪寫出的舊檔要刪掉
   // （index 不引用的 systems/*.geojson 一律不留，避免殘留誤導）。
-  // **例外：additive 合併系統 `*-jr.geojson`／`*-lm.geojson`**（東京＋山手／城市＋地標，由
-  // buildJrCombined／buildLandmarkCombined 維護）不是 buildGeojson 的產出，**絕不刪**——
+  // **例外：additive 合併系統 `*-jr.geojson`／`*-lm.geojson`／`*-lrt.geojson`**（東京＋山手／
+  // 城市＋地標／新加坡＋LRT，由 buildJrCombined／buildLandmarkCombined／buildSingaporeVariants
+  // 維護）不是 buildGeojson 的產出，**絕不刪**——
   // 否則每次 base 重建都會把它們掃掉、下游圖層變英文/找不到（使用者多次回報）。
   {
     const wanted = new Set(index.map((i) => join(BASE, i.file)))
@@ -2494,7 +2495,7 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
       for (const e of await readdir(d, { withFileTypes: true })) {
         const p = join(d, e.name)
         if (e.isDirectory()) await walk(p)
-        else if (p.endsWith('.geojson') && !wanted.has(p) && !/-(?:jr|lm)\.geojson$/.test(e.name)) {
+        else if (p.endsWith('.geojson') && !wanted.has(p) && !/-(?:jr|lm|lrt)\.geojson$/.test(e.name)) {
           await rm(p, { force: true })
           console.log(`  stale removed: ${p.slice(BASE.length + 1)}`)
         }
@@ -2508,15 +2509,16 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
     .filter((s) => !matchedCities.has(s.city))
     .map((s) => ({ city: s.city, country: s.country, name: s.name }))
 
-  // 保留 additive 合併系統的 index 條目（`*-jr`／`*-lm`）——buildGeojson 不產生它們，但也
-  // **不得**把它們從 index 移除（否則每次 base 重建，前端就找不到 東京＋山手／城市＋地標，
-  // 圖層名變英文）。它們的檔案也在上面的 stale-cleanup 被豁免，故 index＋檔案一起存活。
+  // 保留 additive 合併系統的 index 條目（`*-jr`／`*-lm`／`*-lrt`）——buildGeojson 不產生
+  // 它們，但也**不得**把它們從 index 移除（否則每次 base 重建，前端就找不到 東京＋山手／
+  // 城市＋地標／新加坡＋LRT，圖層名變英文）。它們的檔案也在上面的 stale-cleanup 被豁免，
+  // 故 index＋檔案一起存活。
   // 資料可能因 base 更新而過時 → metro:build/metro:all 會接著重跑兩個 combined builder 刷新。
   let combined = []
   try {
     const prev = JSON.parse(await readFile(join(BASE, 'index.json'), 'utf8'))
     const have = new Set(index.map((i) => i.file))
-    combined = (prev.systems || []).filter((s) => /-(?:jr|lm)\.geojson$/.test(s.file || '') && !have.has(s.file))
+    combined = (prev.systems || []).filter((s) => /-(?:jr|lm|lrt)\.geojson$/.test(s.file || '') && !have.has(s.file))
   } catch { /* first run */ }
   const indexAll = [...index, ...combined]
 

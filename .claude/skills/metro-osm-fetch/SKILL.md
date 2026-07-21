@@ -513,6 +513,15 @@ data/metro/
      济南（Lixia District）→ Jinan 靠這步。
 - **一城一檔**：所有解析到同一 `{洲}-{國}-{城}` 的 network 會合併進同一個檔，
   `metro_system.osm_networks` 列出被合併的來源 network 字串。
+- **additive／split 變體系統（`*-jr`／`*-lm`／`*-lrt`）**：由**獨立的後處理腳本**在 base
+  build 之後產出，**buildGeojson 不產生它們、也絕不刪**——stale-cleanup 與 index 保留正則
+  `-(jr|lm|lrt)` 一律豁免、metro:build 每次重跑對應 builder 刷新。
+  - `*-jr`（`buildJrCombined.mjs`）：東京／大阪 base ＋ 附加一條 JR 環線。
+  - `*-lm`（`buildLandmarkCombined.mjs`）：城市 base ＋ 地標（河流／公園）。
+  - `*-lrt`（`buildSingaporeVariants.mjs`／`npm run metro:sgvariants`）：新加坡專屬——把
+    buildGeojson 產出的「MRT＋LRT」完整 `as-sgp-singapore` 拆成**純 MRT（覆寫 base）**與
+    **MRT＋LRT＋Sentosa Express（`as-sgp-singapore-lrt`）**兩系統；Sentosa 的 VivoCity 站
+    併入 HarbourFront（怡豐城↔港灣）成共站轉乘。逐城裁決見 [[metro-cities]]。
 
 ## 車站的城市指派（空間，非依標籤）
 

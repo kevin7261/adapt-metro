@@ -86,6 +86,17 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   （不在基準查詢，由 `scripts/fetchSingaporeLrt.mjs`／`npm run metro:fetchsglrt` 補抓，
   route=monorail＋名稱含 LRT，**排除 Changi 機場 Skytrain**——那是航廈接駁 monorail）。
   monorail 非 light_rail → 不被 LRT 範圍規則剔除、自動保留。詳見 [[metro-osm-fetch]]。
+- **新加坡拆成兩個系統（使用者裁決 2026-07）**：buildGeojson 照舊產出「MRT＋LRT」完整檔，
+  由 `scripts/buildSingaporeVariants.mjs`（`npm run metro:sgvariants`，接在 buildGeojson 之後、
+  buildViews 之前）**後處理拆成兩檔**（不動 buildGeojson 的 LRT 仲裁）——
+  **新加坡 `as-sgp-singapore`（覆寫）＝純 MRT**（剔除 `route_ref∈{BPLRT,PGLRT,SKLRT}` 的
+  routes/segments、去 LRT 站碼 `^(BP|PE|PW|SE|SW)\d`／`STC`／`PTC`、去掉後無線的站整站刪）；
+  **新加坡＋LRT `as-sgp-singapore-lrt`（新增）＝MRT＋三條 LRT＋Sentosa Express（聖淘沙捷運，
+  relation 2353581，VivoCity→Resorts World→Imbiah→Beach）**。Sentosa 的 VivoCity 站（怡豐城）
+  以 alias `{ VivoCity: HarbourFront }` 併入 HarbourFront MRT（港灣，CC29/NE1，站體 <1.2km），
+  使聖淘沙線經怡豐城接上路網、成為共站轉乘（連通分量＝1，非孤立離島）。`-lrt` 是 additive
+  合併系統（同 `*-jr`／`*-lm`）：buildGeojson 的 stale-cleanup 與 index 保留正則 `-(jr|lm|lrt)`
+  豁免、絕不刪。中文名見 `cityNamesZh.json`（新加坡／新加坡＋LRT）。
 - **大阪ニュートラム（使用者 2026-07：「大阪的 New Tram 也要抓」）**：南港ポートタウン線
   （ref P，Osaka Metro 自家 AGT，OSM 標 `route=light_rail`、relations 444913/9603948）——
   大阪有 subway 原被「附掛純 LRT 剔除」規則丟掉，`LRT_ADDON_CITIES` 加 `osaka` 保留

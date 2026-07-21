@@ -32,12 +32,12 @@ function scrollToCity(id) {
 
 // 「依車站數排序」tab 照站數順序、不分組；其餘 tab 依洲別/國家分組。
 const grouped = computed(() => tab.value !== 'stations')
-// 索引群組的收合狀態。預設「縮」：洲別預設收起（只顯示洲別標題）；展開洲別後其
-// 國家預設展開（直接看到城市），可再個別收起國家。
+// 索引群組的收合狀態。預設全「縮」：洲別預設收起（只顯示洲別標題）；展開洲別後
+// 其國家也預設收起（只顯示國家標題），再個別點開國家才看到城市。
 const expandedCont = reactive({})     // true = 展開該洲
-const collapsedCountry = reactive({}) // true = 收起該國城市
+const expandedCountry = reactive({})  // true = 展開該國城市（預設收起）
 const toggleCont = (k) => { expandedCont[k] = !expandedCont[k] }
-const toggleCountry = (k) => { collapsedCountry[k] = !collapsedCountry[k] }
+const toggleCountry = (k) => { expandedCountry[k] = !expandedCountry[k] }
 
 // 右側索引依「加入 modal」的分類分組：洲別 → 國家 → 城市。**順序完全跟著左邊
 // 卡片（tiles）走**——逐一掃過 tiles、洲別/國家一變就插一個標題，故左右順序一致。
@@ -163,14 +163,16 @@ const tiles = computed(() => {
             <button class="gi-cont" @click="toggleCont(g.continent)">
               <MIcon :name="expandedCont[g.continent] ? 'expand_more' : 'chevron_right'" :size="14" class="gi-chev" />
               <span>{{ g.contLabel }}</span>
+              <span class="gi-count">{{ g.countries.length }}</span>
             </button>
             <template v-if="expandedCont[g.continent]">
               <template v-for="c in g.countries" :key="c.country">
                 <button class="gi-country" @click="toggleCountry(g.continent + '|' + c.country)">
-                  <MIcon :name="collapsedCountry[g.continent + '|' + c.country] ? 'chevron_right' : 'expand_more'" :size="12" class="gi-chev" />
+                  <MIcon :name="expandedCountry[g.continent + '|' + c.country] ? 'expand_more' : 'chevron_right'" :size="12" class="gi-chev" />
                   <span>{{ c.countryLabel }}</span>
+                  <span class="gi-count">{{ c.cities.length }}</span>
                 </button>
-                <template v-if="!collapsedCountry[g.continent + '|' + c.country]">
+                <template v-if="expandedCountry[g.continent + '|' + c.country]">
                   <button
                     v-for="t in c.cities"
                     :key="t.id"
@@ -311,6 +313,15 @@ const tiles = computed(() => {
 }
 .gi-country:hover { color: hsl(var(--primary)); }
 .gi-chev { flex-shrink: 0; opacity: 0.55; }
+/* 標題右側的選項數（洲別＝國家數、國家＝城市數） */
+.gi-count {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground) / 0.8);
+  font-variant-numeric: tabular-nums;
+}
 /* 城市（可點捲動目標）——中文＋英文兩列，與左側卡片一致 */
 .gi-item {
   display: flex;

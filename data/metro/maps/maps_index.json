@@ -832,12 +832,11 @@
     "city": "Recife",
     "country": "Brazil",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/americas/brazil/am-bra-recife.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.gov.br/cbtu/pt-br/servicos/cbtu-recife/recife_mapa.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official CBTU Metrorec map"
   },
   "africa/egypt/af-egy-cairo": {
     "city": "Cairo",
@@ -1181,12 +1180,11 @@
     "city": "Miami",
     "country": "United States",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/americas/united-states/am-usa-miami.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.miamidade.gov/transit/library/metrorail-map.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Miami-Dade DTPW Metrorail map (Oct 2025)"
   },
   "asia/india/as-ind-bengaluru": {
     "city": "Bengaluru",
@@ -1296,12 +1294,11 @@
     "city": "Panama City",
     "country": "Panama",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/americas/panama/am-pan-panama-city.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "official schematic only inside multi-page guide (not extractable) — blank per policy"
+    "source_url": "https://elmetrodepanama.com/wp-content/uploads/2025/07/Mapa-Metro-L1L2-webmetro.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Metro de Panamá L1+L2 schematic (2025)"
   },
   "asia/india/as-ind-chennai": {
     "city": "Chennai",
@@ -1337,12 +1334,11 @@
     "city": "Brasília",
     "country": "Brazil",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/americas/brazil/am-bra-brasilia.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://metro.df.gov.br/wp-content/uploads/2024/10/MAPA2022a-1.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Metrô-DF network map"
   },
   "europe/france/eu-fra-rennes": {
     "city": "Rennes",
@@ -1779,12 +1775,11 @@
     "city": "Belo Horizonte",
     "country": "Brazil",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/americas/brazil/am-bra-belo-horizonte.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.metrobh.com.br/wp-content/uploads/2023/08/Mapa_MetroBH.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Metrô BH map (Linha 1 operating; Linha 2 shown as planned)"
   },
   "europe/russia/eu-rus-kazan": {
     "city": "Kazan",
@@ -2338,7 +2333,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784594715635,
+  "_rev": 1784598214880,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",

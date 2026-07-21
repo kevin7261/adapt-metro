@@ -938,5 +938,9 @@
   "eu-gbr-london-lm": {
     "country": "英國",
     "city": "倫敦＋地標"
+  },
+  "as-sgp-singapore-lrt": {
+    "country": "新加坡",
+    "city": "新加坡＋LRT"
   }
 }
