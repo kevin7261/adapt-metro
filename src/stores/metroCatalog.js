@@ -76,13 +76,14 @@ export function loadMapsIndex() {
 // system entry（catalog / views index／圖層，含 `file`）→ maps_index 的鍵。
 // `file` 兩種形式都吃：catalog/views 的相對 `systems/…​.geojson`、圖層的
 // `/data/metro/systems/…​.geojson`（帶前綴）——一律抓 `systems/` 之後那段。
-// `-lm`（Landmark 疊加）/`-jr`（JR 合併）變體共用母城市的官方圖 → 去尾綴退回母城。
+// `-lm`（Landmark 疊加）/`-jr`（JR 合併）/`-lrt`（新加坡＋LRT）變體共用母城市的官方圖
+// → 去尾綴退回母城。
 export function mapsKeyFor(entry) {
   const m = (entry?.file || '').match(/systems\/(.+)\.geojson$/)
   return m ? m[1] : null
 }
 export function mapsKeyBase(key) {
-  return key.replace(/-(lm|jr)$/, '')
+  return key.replace(/-(lm|jr|lrt)$/, '')
 }
 
 // 'north-america' → 'North America'

@@ -196,6 +196,14 @@
     "wikidata": "Q40176",
     "http_status": 200
   },
+  "asia/singapore/as-sgp-singapore-lrt": {
+    "city": "Singapore + LRT",
+    "country": "Singapore",
+    "website": "https://www.smrt.com.sg/",
+    "source": "wikidata",
+    "wikidata": "Q40176",
+    "http_status": 200
+  },
   "europe/spain/eu-esp-barcelona": {
     "city": "Barcelona",
     "country": "Spain",
