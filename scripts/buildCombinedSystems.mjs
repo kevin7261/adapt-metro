@@ -35,7 +35,8 @@ const TOKYO_BBOX = [139.56, 35.54, 140.42, 35.84]
 // 東京鐵路噪音：無序大雜燴「一般鐵路」＋貨物/連絡線（重複幹線幾何、非客運）。
 // 京成由 fetchTokyoPrivate 從 OSM 完整抓，故 railway 的零星京成在此排除避免重複；東武東上線
 // 只在 railway 有（OSM 的 operator=東武 route=train 沒有東上/伊勢崎本線），故 railway 保留東武。
-const TOKYO_RAIL_EXCLUDE = /一般鐵路|貨物|Link Line|品鶴線|武蔵野南線|高架段|京成/
+// 山手線改由 OSM 抓乾淨環線（railway 版缺大崎、未閉合）；内房線/総武本線/千葉方面本線不用抓（使用者）
+const TOKYO_RAIL_EXCLUDE = /一般鐵路|貨物|Link Line|品鶴線|武蔵野南線|高架段|京成|南武線|山手線|内房線|総武本線/
 
 const TARGETS = [
   {
@@ -88,6 +89,33 @@ const TARGETS = [
     // scripts/fetchTokyoPrivate.mjs（npm run metro:fetchtokyoprivate）另從 OSM 抓、寫此檔；
     // 有就併、沒有就跳過（不擋 metro:combined）。
     extraLinesFile: '_overrides/tokyo-private-lines.json',
+    // 從 OSM 抓乾淨的線（railway 版有缺/斷）：山手線環線（含大崎、閉合）＋ JR 成田線到成田空港
+    osmLines: [
+      {
+        rel: 1972960, loop: true, lang: 'ja',
+        ref: 'JY', name: '山手線', nameLocal: '山手線', nameEn: 'Yamanote Line', color: '#9acd32',
+        network: 'JR East', networkLocal: '東日本旅客鉄道', operator: '東日本旅客鉄道',
+        wikidata: 'Q216580', wikipedia: 'ja:山手線',
+      },
+      {
+        rel: 14298300, lang: 'ja', // JR成田線（成田空港 → 千葉）
+        ref: 'JO', name: '成田線', nameLocal: '成田線', nameEn: 'Narita Line', color: '#00b2a9',
+        network: 'JR East', networkLocal: '東日本旅客鉄道', operator: '東日本旅客鉄道',
+        wikidata: 'Q1362617', wikipedia: 'ja:成田線',
+      },
+      {
+        rel: 3340252, lang: 'ja', // 京成成田空港線（成田スカイアクセス，京成上野→成田空港，經北総線）
+        ref: 'KS-AE', name: '京成成田空港線', nameLocal: '成田スカイアクセス', nameEn: 'Narita SKY ACCESS', color: '#f7931e',
+        network: '京成電鉄', networkLocal: '京成電鉄', operator: '京成電鉄',
+        wikidata: 'Q1057299', wikipedia: 'ja:成田空港線',
+      },
+      {
+        rel: 3340250, lang: 'ja', // 北総線各駅（京成高砂→印旛日本医大，與スカイアクセス共軌）
+        ref: 'HS', name: '北総線', nameLocal: '北総線', nameEn: 'Hokuso Line', color: '#00bfff',
+        network: '北総鉄道', networkLocal: '北総鉄道', operator: '北総鉄道',
+        wikidata: 'Q1064544', wikipedia: 'ja:北総鉄道北総線',
+      },
+    ],
     // 異名共站（連通轉乘但站名不同）——JR/私鐵靠很近的官方乗換駅要併成一站（使用者稽核）
     aliases: {
       '田町': '三田',            // JR 田町 ↔ 都営 三田
@@ -245,24 +273,27 @@ out body;`
     const n = nodes.get(m.ref)
     if (!n) continue
     const t = n.tags || {}
+    // 顯示名語言：日本用 name:ja、韓國（AREX）用 name:en 為主（比照各地 metro 顯示語言）
+    const lang = spec.lang || 'ko'
+    const local = t['name:' + lang] || t.name || null
     const nameEn = t['name:en'] || null
-    const nameLocal = t['name:ko'] || t.name || null
-    const disp = nameEn || nameLocal
+    const disp = lang === 'ja' ? (local || nameEn) : (nameEn || local)
     if (!disp) continue
     const prev = stations[stations.length - 1]
     if (prev && prev.id === `n${m.ref}`) continue
     stations.push({
-      id: `n${m.ref}`, name: disp, nameLocal: nameLocal || disp,
+      id: `n${m.ref}`, name: disp, nameLocal: local || disp,
       nameEn, code: t.ref || null, coord: [n.lon, n.lat],
     })
   }
   if (stations.length > 2 && stations[0].id === stations[stations.length - 1].id) stations.pop()
+  const seq = spec.loop ? stations : fixOrder(stations)
   return {
     routeId: `osm${spec.rel}`, ref: spec.ref, name: spec.name,
     nameLocal: spec.nameLocal, nameEn: spec.nameEn, color: spec.color,
     network: spec.network, networkLocal: spec.networkLocal, operator: spec.operator,
     wikidata: spec.wikidata, wikipedia: spec.wikipedia,
-    osmIds: [spec.rel], loop: false, stations,
+    osmIds: [spec.rel], loop: spec.loop || false, stations: seq,
   }
 }
 

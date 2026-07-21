@@ -18,10 +18,11 @@ import {
   straightenCompactLoop, movewiseStage,
   stepChainInit, stepChainNext, setSpanCap,
 } from '../stores/hillClimb'
-import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH, buildShapeAlign } from '../stores/paperAlign'
+import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH, buildShapeAlign, applyShapeGreens } from '../stores/paperAlign'
+import { getShapePreset } from '../stores/paper/shapePresets.js'
 import {
   LAYOUT_KINDS, PAPER_KIND_IDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
-  loopKindOf, shapeKindOf, stepKindOf, postKindOf, needsHcLayout,
+  loopKindOf, stepKindOf, postKindOf, needsHcLayout,
 } from '../lib/hcMode'
 import { LLM_MODEL_OPTIONS } from '../lib/llmModels'
 import { llmApplyGet, llmApplySet } from '../lib/llmApplyPersist'
@@ -365,8 +366,9 @@ const POST_BUILD = { ...PAPER_BUILD }
 //   ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變。
 // - 循環（第 8 部份）：交替 端點移動→直線縮減→網格合併→縮減網格，跑到某輪
 //   「沒有點可以動」為止（straightenCompactLoop）。
-// - Shape-Guided（循環與逐步之間）：對①〜⑧各鏈的**循環結果**跑論文貼形
-//   （buildShapeAlign；規定表城市才算，否則略過）。不進 PAPER_KINDS／畫廊 RWD compact。
+// - Shape-Guided：⑨獨立區在「初步直線化」之上（layout-shape＝格網貼形）。
+//   僅規定表城市可點／可算。
+//   不進 PAPER_KINDS／畫廊 RWD compact／直線演算法①〜⑧。
 // - 逐步驗證：同一條四步鏈，由使用者按「下一步」一步步執行：每步＝
 //   目前階段的一個單掃描（或一次縮減網格），掃不動自動換下一階段，一輪全沒動靜
 //   ＝完成（stepChainInit/stepChainNext）。也沒有 hc 鏈（使用者 2026-07 裁決）。
@@ -409,7 +411,6 @@ let cachedEndp = {}    // 端點移動 (movewiseStage 'endp')，keyed by 鏈 kin
 let cachedLine = {}    // 直線縮減 (movewiseStage 'line')，keyed by 鏈 kind（①〜⑧＋'llm'）
 let cachedGather = {}  // 網格合併 (movewiseStage 'gather')，keyed by 鏈 kind（①〜⑧＋'llm'）
 let cachedLoop = {}    // 端點移動+直線縮減+網格合併+縮減網格循環 (straightenCompactLoop)，keyed by 鏈
-let cachedShape = {}   // Shape-Guided（對①〜⑧循環結果貼形），keyed by 論文鏈 kind
 let stepState = {}     // 逐步驗證 進度 (stepChainInit/Next 的 state)，keyed by 鏈；按「下一步」推進
 let stepHistory = {}   // 逐步驗證 復原堆疊，keyed by 鏈：[{ st, kind:'big'|'sub' }]（上一步/上一小步用）
 let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
@@ -444,14 +445,21 @@ const hcBusy = ref(false)
 const busyText = ref('')
 const hcStats = ref(null)
 const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 stats
+// Shape-Guided：按「執行」才算；過程 log 顯示在畫布 overlay
+const shapeRunning = ref(false)
+const shapeLog = ref([])
+const shapeAwaitExec = ref(false) // 目前在 Shape tab 且尚無結果 → 顯示執行鈕
+let shapeRunCtx = null // { cells, cols, rows, cityId }（僅 layout-shape）
 // 各佈局實際算了多久（毫秒）——tab 名後面標注用。key：`hc`（②初步直線化本體）、
 // `layout-<kind>`（初步直線化群組的 ①〜⑧ 比較）、`post-<kind>`（直線演算法鏈）。
 // 值跟著快取走：算過就一直是那個數字，按「重新計算此城市全部圖層」清掉才重算。
 const calcMs = ref({})
 const calcNotes = ref({}) // 論文鏈等：時間後加註；Shape-Guided 略過／錯誤 → 不顯示 ms
 const shapeRouteName = ref(null) // 規定路線名（例：山手線）；有算過才顯示
-const shapeNoNeed = ref(false)   // 規定外／無法安全成方 → 整組不顯示計算時間
+const shapeNoNeed = ref(false)   // 規定外 → 整組 disable、不計算
 const shapeFailLabel = ref(null) // '不需計算' | null
+/** 規定表有此城才開 Shape-Guided；否則選單 disable、不跑、不快取 */
+const shapeEnabled = computed(() => !!getShapePreset(sourceLayer.value?.id))
 function syncCalcMs() {
   const out = {}
   const notes = {}
@@ -459,8 +467,8 @@ function syncCalcMs() {
   for (const k of Object.keys(cachedLayout)) {
     const st = cachedLayout[k]?.stats
     if (!st) continue
-    if (k === 'shape' && (st.skipped || st.note === '不需計算')) {
-      notes[`layout-${k}`] = '不需計算'
+    if (k === 'shape' && (st.skipped || st.note === '不需計算' || st.pending)) {
+      notes[`layout-${k}`] = st.pending ? '待執行' : '不需計算'
       continue
     }
     if (st.ms != null) out[`layout-${k}`] = st.ms
@@ -471,35 +479,92 @@ function syncCalcMs() {
     if (cachedPost[k]?.stats?.ms != null) out[`post-${k}`] = cachedPost[k].stats.ms
     if (cachedPost[k]?.stats?.note) notes[`post-${k}`] = cachedPost[k].stats.note
   }
-  let shapeRoute = null
-  let anyShape = false
-  let anyShapeOk = false
-  for (const k of Object.keys(cachedShape)) {
-    const st = cachedShape[k]?.stats
-    if (!st) continue
-    anyShape = true
-    if (st.skipped) {
-      // 規定外／格網無法安全成方：不顯示時間，寫「不需計算」
-      notes[`shape-${k}`] = '不需計算'
-      if (st.route) shapeRoute = st.route
-    } else {
-      anyShapeOk = true
-      if (st.ms != null) out[`shape-${k}`] = st.ms
-      if (st.route) shapeRoute = st.route
-    }
+  const shapeSt = cachedLayout.shape?.stats
+  const shapeRoute = shapeSt?.route ?? null
+  // 規定外：選單一進來就標「不需計算」、不依賴先算過
+  if (!shapeEnabled.value) {
+    notes['layout-shape'] = '不需計算'
+    shapeRouteName.value = null
+    shapeNoNeed.value = true
+    shapeFailLabel.value = '不需計算'
+  } else {
+    shapeRouteName.value = shapeRoute
+    shapeNoNeed.value = false
+    shapeFailLabel.value = null
   }
   calcMs.value = out
   calcNotes.value = notes
-  shapeRouteName.value = shapeRoute
-  // 有任一成功 → 標題寫路線；否則若已有結果且全略過 → 不需計算
-  shapeNoNeed.value = anyShape && !anyShapeOk
-  shapeFailLabel.value = anyShape && !anyShapeOk ? '不需計算' : null
+}
+
+/** Shape-Guided 單次結果（不走 iteratePost 多輪） */
+function wrapShapeResult(res, t0) {
+  const greens = res.greens ?? res.stats?.greens ?? []
+  return {
+    cellAfter: res.cellAfter,
+    greens,
+    stats: {
+      ...res.stats,
+      greens,
+      ms: Math.round(performance.now() - t0),
+      iters: 1,
+      iterCap: 1,
+      converged: true,
+    },
+  }
+}
+
+function shapeGreensOf(wrapped) {
+  return wrapped?.greens ?? wrapped?.stats?.greens ?? []
+}
+
+function shapeDrawSkeleton(wrapped) {
+  const greens = shapeGreensOf(wrapped)
+  if (!greens.length || !cachedSkeleton) return cachedSkeleton
+  return applyShapeGreens(cachedSkeleton, greens)
+}
+
+async function runShapeNow({ force = false } = {}) {
+  if (!shapeEnabled.value || shapeRunning.value) return
+  const ctx = shapeRunCtx
+  if (!ctx || !cachedSkeleton) return
+  if (force) delete cachedLayout.shape
+  shapeRunning.value = true
+  shapeAwaitExec.value = false
+  shapeLog.value = []
+  hcBusy.value = true
+  busyText.value = 'Shape-Guided 執行中…'
+  const onProgress = (msg) => {
+    shapeLog.value = [...shapeLog.value.slice(-80), msg]
+    busyText.value = msg
+  }
+  const tick = () => new Promise((r) => setTimeout(r, 0))
+  const t0 = performance.now()
+  try {
+    const res = await buildShapeAlign(
+      cachedSkeleton, ctx.cells, ctx.cols, ctx.rows,
+      { cityId: ctx.cityId, onProgress, tick })
+    cachedLayout.shape = wrapShapeResult(res, t0)
+    saveHcCache(`${cachedFp}:${hcVariant.value}`, cachedHC, cachedPost, cachedLayout)
+    syncCalcMs()
+  } catch (e) {
+    shapeLog.value = [...shapeLog.value, `錯誤：${e?.message || e}`]
+    console.error('[shape]', e)
+  } finally {
+    shapeRunning.value = false
+    hcBusy.value = false
+    busyText.value = ''
+    render()
+  }
+}
+
+function rerunShapeNow() {
+  return runShapeNow({ force: true })
 }
 // 「88ms」/「1.2s」；沒算過回空字串（tab 名就不帶標注）。
 const msText = (ms) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
 const msBadge = (key) => {
   const n = calcNotes.value[key]
-  if (n === '不需計算') return ' · 不需計算'
+  if (n === '不需計算' || n === '待執行') return ` · ${n}`
   const t = msText(calcMs.value[key])
   if (!t) return ''
   return n ? ` · ${t} · ${n}` : ` · ${t}`
@@ -511,7 +576,16 @@ const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, mov
 const gatherStats = ref(null)    // 網格合併: { moved, segs, verts, iters, iterCap, converged }
 const stepInfo = ref(null)       // 逐步驗證: { info, steps, round, done }（顯示在浮動面板）
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
-const shapeStats = ref(null)     // Shape-Guided: { note, route, shapeZh, skipped, moved, ... }
+/** 已有結果時顯示「重新計算」（cached* 非 reactive，靠 stats） */
+const shapeCanRerun = computed(() => {
+  if (!shapeEnabled.value || shapeRunning.value || shapeAwaitExec.value) return false
+  if (layoutKindOf(mode.value) === 'shape') {
+    const s = layoutStats.value
+    return !!(s && !s.pending && !s.skipped)
+  }
+  return false
+})
+const shapeLogText = computed(() => shapeLog.value.join('\n'))
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
@@ -623,23 +697,33 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單分 8 個部份：原始／初步直線化／直線演算法／端點移動／直線縮減
-    // ／網格合併／端點移動+直線縮減+網格合併循環／逐步驗證
-    // （header 項是分組標題，可點開合——見下方 navSections；全部左側功能列
-    // 共用同一套分組版面，Map Adjust／RWD 的清單也有 header）。
+    // 左選單：原始／Shape-Guided／初步直線化／直線演算法／端點移動／直線縮減
+    // ／網格合併／循環／逐步驗證
     return [
       { header: '原始', doc: 'grid' },
       { id: 'grid-post', label: hcVariant.value === 'rot' ? `${rotLabel.value}格網化後` : '原始格網化後' },
-      // 8 個主佈局比較（格網化後為輸入；②＝爬山，其餘＝論文鏈直接餵格網）
-      // ＋⑨ Shape-Guided。只供觀看，不進下游；下游仍只吃 `hc`——
-      // 標籤特別註記「往後執行」／「僅比較」。
+      // ⑨ Shape-Guided：獨立一區、在初步直線化之上（不進直線演算法①〜⑧）
+      {
+        header: !shapeEnabled.value
+          ? '⑨Shape-Guided 不需計算'
+          : shapeRouteName.value
+            ? `⑨Shape-Guided ${shapeRouteName.value}`
+            : '⑨Shape-Guided',
+        doc: 'shape-guided',
+      },
+      {
+        id: 'layout-shape',
+        label: `格網→貼形（僅比較）${msBadge('layout-shape')}`,
+        disabled: !shapeEnabled.value,
+      },
+      // ①〜⑧ 主佈局比較（格網化後為輸入；②＝爬山）。只供觀看，不進下游；
+      // 下游仍只吃 `hc`——標籤特別註記「往後執行」／「僅比較」。
       { header: '初步直線化', doc: 'hillclimb' },
       { id: 'layout-stroke', label: `①筆畫法（僅比較）${msBadge('layout-stroke')}` },
       { id: 'hc', label: `②Hill Climbing（往後執行）${msBadge('hc')}` },
       ...LAYOUT_KINDS.filter((p) => p.kind !== 'stroke').map(({ kind, zh }) => ({
         id: `layout-${kind}`, label: `${zh}（僅比較）${msBadge(`layout-${kind}`)}`,
       })),
-      { id: 'layout-shape', label: `⑨Shape-Guided（僅比較）${msBadge('layout-shape')}` },
       // iterated-to-fixed-point passes: the button carries 「已迭代/上限」
       { header: '直線演算法', doc: 'straighten' },
       // 論文①〜⑧的八條鏈（paperAlign.js PAPER_KINDS——名稱帶論文圈號，與
@@ -650,7 +734,7 @@ const VIEW_TABS = computed(() => {
       // 第九種（LLM）: the badge carries the rounds AND the model that produced it
       { id: 'hc-llm', label: `LLM 對齊${llmInfo.value ? ` ${llmInfo.value.rounds}輪 · ${llmInfo.value.model}` : ''}` },
       // 鏈的三步＋循環（每步一區、每條鏈一個 tab）：該鏈結果 → 端點移動 →
-      // 直線縮減 → 網格合併 → 循環；再 Shape-Guided（只①〜⑧循環結果）→ 逐步驗證。
+      // 直線縮減 → 網格合併 → 循環 → 逐步驗證。
       ...[
         ['end', '端點移動', (zh) => `${zh}端點移動`, 'endpoint-move'],
         ['line', '直線縮減', (zh) => `${zh}直線縮減`, 'line-compact'],
@@ -661,19 +745,6 @@ const VIEW_TABS = computed(() => {
         ...[...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]), ['llm', 'LLM 對齊']]
           .map(([k, zh]) => ({ id: `hc-${k}-${step}`, label: fmt(zh) })),
       ]),
-      // Shape-Guided：規定城市寫路線名；規定外 →「Shape-Guided 不需計算」
-      {
-        header: shapeRouteName.value
-          ? `Shape-Guided ${shapeRouteName.value}`
-          : shapeFailLabel.value
-            ? `Shape-Guided ${shapeFailLabel.value}`
-            : 'Shape-Guided',
-        doc: 'shape-guided',
-      },
-      ...PAPER_KINDS.map(({ kind, zh }) => ({
-        id: `hc-${kind}-shape`,
-        label: `${zh}${msBadge(`shape-${kind}`)}`,
-      })),
       { header: '逐步驗證', doc: 'step-verify' },
       ...[...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]), ['llm', 'LLM 對齊']]
         .map(([k, zh]) => ({ id: `hc-${k}-step`, label: `${zh}逐步` })),
@@ -835,17 +906,19 @@ function resetPerDataset(data) {
   cachedLine = {}
   cachedGather = {}
   cachedLoop = {}
-  cachedShape = {}
   stepState = {}
   stepHistory = {}
   cachedRWD = null
   hcStats.value = null
   layoutStats.value = null
   postStats.value = null
-  shapeStats.value = null
   shapeRouteName.value = null
   shapeNoNeed.value = false
   shapeFailLabel.value = null
+  shapeRunning.value = false
+  shapeLog.value = []
+  shapeAwaitExec.value = false
+  shapeRunCtx = null
   postIters.value = {}
   llmInfo.value = null
   llmStats.value = null
@@ -884,6 +957,58 @@ async function computeHcLayout({ seq, w, h, grid }) {
   {
     const layoutKind = layoutKindOf(mode.value)
     if (layoutKind) {
+      // ⑨ Shape-Guided：按「執行」才算（不自動）；未算時畫格網化後＋overlay 執行鈕
+      if (layoutKind === 'shape') {
+        if (!shapeEnabled.value) {
+          layoutStats.value = { skipped: true, note: '不需計算', moved: 0 }
+          syncCalcMs()
+          shapeAwaitExec.value = false
+          shapeRunCtx = null
+          const cells = grid.cellOf
+          const nC = grid.cols, nR = grid.rows
+          const cw = (w - 48) / nC, ch = (h - 48) / nR
+          const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+          hcPos = new Map()
+          for (const [id, p] of cells) hcPos.set(id, cellPx(p))
+          placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+          hcBlue = uniformBlue(nC, nR, cw, ch)
+          return { hcPos, hcBlue, rwdLines, stepMoves }
+        }
+        const cityId = sourceLayer.value?.id ?? null
+        if (!cachedLayout.shape) {
+          shapeAwaitExec.value = !shapeRunning.value
+          shapeRunCtx = {
+            cells: new Map([...grid.cellOf].map(([id, p]) => [id, [...p]])),
+            cols: grid.cols, rows: grid.rows, cityId,
+          }
+          layoutStats.value = { pending: true, note: '待執行', moved: 0 }
+          const cells = grid.cellOf
+          const nC = grid.cols, nR = grid.rows
+          const cw = (w - 48) / nC, ch = (h - 48) / nR
+          const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+          hcPos = new Map()
+          for (const [id, p] of cells) hcPos.set(id, cellPx(p))
+          placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
+          hcBlue = uniformBlue(nC, nR, cw, ch)
+          return { hcPos, hcBlue, rwdLines, stepMoves }
+        }
+        shapeAwaitExec.value = false
+        shapeRunCtx = {
+          cells: new Map([...grid.cellOf].map(([id, p]) => [id, [...p]])),
+          cols: grid.cols, rows: grid.rows, cityId,
+        }
+        layoutStats.value = cachedLayout.shape.stats
+        const cells = cachedLayout.shape.cellAfter
+        const drawSk = shapeDrawSkeleton(cachedLayout.shape)
+        const nC = grid.cols, nR = grid.rows
+        const cw = (w - 48) / nC, ch = (h - 48) / nR
+        const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+        hcPos = new Map()
+        for (const [id, p] of cells) hcPos.set(id, cellPx(p))
+        placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
+        hcBlue = uniformBlue(nC, nR, cw, ch)
+        return { hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk }
+      }
       if (!cachedLayout[layoutKind]) {
         hcBusy.value = true
         busyText.value = {
@@ -894,19 +1019,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
           octi: '⑥八向格網中…（格網 → 逐邊定案，迭代到不動）',
           path: '⑦路徑簡化中…（格網 → C-directed 簡化，迭代到不動）',
           sat: '⑧SAT規劃中…（格網 → DPLL 指派，迭代到不動）',
-          shape: '⑨Shape-Guided中…（格網 → 規定路段嵌形）',
         }[layoutKind]
         await new Promise((r) => setTimeout(r, 30))
         if (seq !== renderSeq) { hcBusy.value = false; return null }
         const t0 = performance.now()
-        if (layoutKind === 'shape') {
-          const cityId = sourceLayer.value?.id ?? null
-          cachedLayout[layoutKind] = iteratePost(
-            buildShapeAlign, cachedSkeleton, grid.cellOf, grid.cols, grid.rows, { cityId })
-        } else {
-          cachedLayout[layoutKind] = iteratePost(
-            POST_BUILD[layoutKind], cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
-        }
+        cachedLayout[layoutKind] = iteratePost(
+          POST_BUILD[layoutKind], cachedSkeleton, grid.cellOf, grid.cols, grid.rows)
         cachedLayout[layoutKind].stats.ms = Math.round(performance.now() - t0)
         hcBusy.value = false
         // 算過就存下來（同 ② 與後處理鏈）：關 tab／重新整理都直接載回，只有按
@@ -1100,11 +1218,9 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   // 循環 tabs: on the chain's result, rounds of the three movewise stages
   // until a round moves nothing (straightenCompactLoop).
-  // Shape-Guided tabs 也先跑循環（輸入＝①〜⑧循環結果）。
   {
     // RWD（含其「縮減網格」輸入視圖）也走這裡：建立在該鏈的循環結果之上。
     const loopKind = loopKindOf(mode.value)
-      ?? shapeKindOf(mode.value)
       ?? (isRWD.value ? rwdCompactKey.value : null)
     if (loopKind) {
       if (!cachedLoop[loopKind]) cachedLoop[loopKind] = straightenCompactLoop(cachedSkeleton, cells, nC, nR)
@@ -1115,44 +1231,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
       if (isRWD.value) hcCompactStats.value = { fromCols: grid.cols, fromRows: grid.rows, cols: nC, rows: nR }
     }
   }
-  // Shape-Guided：在①〜⑧循環結果上貼形（各鏈獨立；規定表無此城才整組不需計算）
-  {
-    const sk = shapeKindOf(mode.value)
-    if (sk) {
-      if (!cachedShape[sk]) {
-        // 僅「規定外／找不到規定路段」可共享；貼方失敗不可連坐其他鏈
-        if (shapeNoNeed.value && shapeFailLabel.value === '不需計算') {
-          const sample = Object.values(cachedShape).find(
-            (v) => v?.stats?.skipped && v?.stats?.note === '不需計算' && !v?.stats?.routeSegment,
-          )
-          if (sample) cachedShape[sk] = sample
-        }
-        if (!cachedShape[sk]) {
-          hcBusy.value = true
-          busyText.value = `Shape-Guided中…（${PAPER_ZH[sk] ?? sk}循環）`
-          await new Promise((r) => setTimeout(r, 30))
-          if (seq !== renderSeq) { hcBusy.value = false; return null }
-          const t0 = performance.now()
-          const cityId = sourceLayer.value?.id ?? null
-          cachedShape[sk] = iteratePost(buildShapeAlign, cachedSkeleton, cells, nC, nR, { cityId })
-          cachedShape[sk].stats.ms = Math.round(performance.now() - t0)
-          // 規定表無此城（沒有 routeSegment）→ ①〜⑧ 都不必再跑
-          if (cachedShape[sk].stats.skipped && !cachedShape[sk].stats.routeSegment) {
-            cachedShape[sk].stats.note = '不需計算'
-            for (const { kind } of PAPER_KINDS) {
-              if (!cachedShape[kind]) cachedShape[kind] = cachedShape[sk]
-            }
-          }
-          hcBusy.value = false
-          syncCalcMs()
-        }
-      }
-      cells = cachedShape[sk].cellAfter
-      shapeStats.value = cachedShape[sk].stats
-    } else {
-      shapeStats.value = null
-    }
-  }
+  // layout-shape 在上方 early-return 已處理；其餘 mode 關掉待執行態
+  if (layoutKindOf(mode.value) !== 'shape') shapeAwaitExec.value = false
   // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
   // 推進 stepState 後重畫；見 stepKindOf）。
   {
@@ -1452,6 +1532,12 @@ function buildDrawData({ grid, sk, path, P, projById, stations, lineFeats, hcPos
     for (const c of sk.crossings ?? []) {
       const p = posOf(c.id)
       if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: c.id, station_name: '路線交叉點' }, fill: NODE_COLOR.yellow })
+    }
+    // Shape-Guided 綠色控制點（合成節點，讓路線轉折消交叉）
+    for (const [id, cls] of sk.stationClass ?? []) {
+      if (cls !== 'green') continue
+      const p = posOf(id)
+      if (p) stationData.push({ x: p[0], y: p[1], props: { station_id: id, station_name: '控制點' }, fill: NODE_COLOR.green })
     }
   } else {
     // 原始 = EXACTLY the Metro Maps drawing: single route → solid colour, overlap
@@ -1774,15 +1860,17 @@ async function render() {
   // 爬山鏈：計算這一幀的佈局座標（computeHcLayout，見上）；非 HC/RWD 視圖維持
   // null → 下面 posOf 落回格網/地理座標。
   let hcPos = null, hcBlue = null, rwdLines = null, stepMoves = []
+  let drawSkeleton = null
   if (grid && needsHC.value && hcMode.value) {
     const layout = await computeHcLayout({ seq, w, h, grid })
     if (!layout) return // superseded mid-compute — the newer render draws
-    ;({ hcPos, hcBlue, rwdLines, stepMoves } = layout)
+    ;({ hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton } = layout)
   }
+  const skDraw = drawSkeleton || sk
   const { posOf, lineData, stationData, highlightData } =
-    buildDrawData({ grid, sk, path, P, projById, stations, lineFeats, hcPos, rwdLines })
+    buildDrawData({ grid, sk: skDraw, path, P, projById, stations, lineFeats, hcPos, rwdLines })
 
-  drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, stations, posOf, lineData, stationData, highlightData })
+  drawScene({ sel, w, h, grid, sk: skDraw, P, hcBlue, rwdLines, stepMoves, stations, posOf, lineData, stationData, highlightData })
 
   // 匯出快照：把這一幀畫出的線與節點序列化成 GeoJSON，供「匯出」下載目前畫面內容。
   layerExport[layerId] = sceneToGeojson(lineData, stationData, w, h, layer.value?.type ?? 'd3')
@@ -1898,11 +1986,16 @@ const layoutStatus = computed(() => {
         if (s.skipped || s.note === '不需計算') {
           return { text: 'Shape-Guided 不需計算', llmRerun: false }
         }
+        if (s.pending) {
+          return { text: 'Shape-Guided 待執行（按執行開始算）', llmRerun: false }
+        }
         return {
           text: `Shape-Guided${s.route ? ` ${s.route}` : ''} · 移動 ${s.moved} 站`
-            + (s.quality?.square ? ' · 已成方' : '')
+            + (s.quality?.square || s.quality?.fourLine ? ' · 已成方' : '')
+            + (s.greenCount ? ` · 綠控 ${s.greenCount}` : '')
             + (s.rulesOk === false ? ' · 規則未過' : '')
-            + (s.crosses ? ` · 交叉 ${s.crosses}` : ''),
+            + (s.crosses ? ` · 交叉 ${s.crosses}` : '')
+            + (s.via ? ` · ${s.via}` : ''),
           llmRerun: false,
         }
       }
@@ -1942,18 +2035,6 @@ const layoutStatus = computed(() => {
         + ` · 水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段`
         + ` · 網格 ${s.fromCols}×${s.fromRows} → ${s.cols}×${s.rows}`
         + (s.converged ? '' : '（達上限未收斂）'),
-      llmRerun: false,
-    }
-  }
-  if (isHC.value && shapeKindOf(m) && shapeStats.value) {
-    const s = shapeStats.value
-    if (s.skipped) {
-      return { text: 'Shape-Guided 不需計算', llmRerun: false }
-    }
-    return {
-      text: `Shape-Guided 移動 ${s.moved} 站`
-        + ` · 水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段`
-        + (s.hvdBefore != null ? ` · 含45° ${s.hvdBefore} → ${s.hvdAfter}` : ''),
       llmRerun: false,
     }
   }
@@ -2049,6 +2130,17 @@ const dataSourceText = computed(() => {
 
 watch(() => layer.value?.sourceLayerId, () => { cacheData = null; render() })
 watch(mode, render)
+// 舊版「循環後 Shape-Guided」mode 已移除 → 退回 ②
+watch(mode, (m) => {
+  if (/^hc-.+-shape$/.test(m)) mode.value = 'hc'
+}, { immediate: true })
+// 規定外：Shape-Guided 選單 disable；若仍停在相關 tab → 退回 ②
+watch([shapeEnabled, () => sourceLayer.value?.id], () => {
+  syncCalcMs()
+  if (shapeEnabled.value) return
+  if (cachedLayout.shape) delete cachedLayout.shape
+  if (mode.value === 'layout-shape') mode.value = 'hc'
+})
 // 樣式 tab 的「顏色點間最大跨距」：滑桿只改 layer.spanCap，不自動重算——
 // 快取沿用 appliedSpanCap（上次套用的值），按「重新計算」才作廢重算。
 const appliedSpanCap = ref(null)
@@ -2079,7 +2171,6 @@ function recalcSpan() {
   cachedLine = {}
   cachedGather = {}
   cachedLoop = {}
-  cachedShape = {}
   stepState = {}
   stepHistory = {}
   cachedRWD = null
@@ -2111,7 +2202,6 @@ function applyRiverGrayAndInvalidate(v) {
   cachedLine = {}
   cachedGather = {}
   cachedLoop = {}
-  cachedShape = {}
   stepState = {}
   stepHistory = {}
   cachedRWD = null
@@ -2350,6 +2440,28 @@ onBeforeUnmount(() => {
           </svg>
           <div ref="tipEl" class="ma-tip" />
           <div v-if="loading" class="ma-hint">載入中…</div>
+          <div v-else-if="shapeRunning" class="ma-hint llm-hint">
+            <div class="llm-run-card">
+              <div class="llm-spinner" />
+              <div class="llm-run-title">Shape-Guided 計算中</div>
+              <div class="llm-run-desc">{{ busyText }}</div>
+              <div class="llm-run-label">過程</div>
+              <pre class="llm-run-log">{{ shapeLogText }}</pre>
+            </div>
+          </div>
+          <div v-else-if="shapeAwaitExec" class="ma-hint llm-hint">
+            <div class="llm-run-card">
+              <div class="llm-run-title">Shape-Guided</div>
+              <div class="llm-run-desc">
+                規定路段嵌成正方形（四邊 H/V），且不可改變拓撲。
+                底圖為輸入佈局；按執行才開始計算。
+              </div>
+              <button type="button" class="llm-run-btn" @click="runShapeNow()">執行</button>
+            </div>
+          </div>
+          <div v-else-if="shapeCanRerun" class="shape-rerun-dock">
+            <button type="button" class="llm-run-btn shape-rerun-btn" @click="rerunShapeNow">重新計算</button>
+          </div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
           <!-- LLM 比較結果：本 RWD 視圖若是全部／原始／旋轉最佳，右上角標示 -->
@@ -2629,6 +2741,34 @@ onBeforeUnmount(() => {
   padding: 8px 10px;
   background: hsl(var(--muted) / 0.5);
   border-radius: calc(var(--radius) - 2px);
+}
+.llm-run-btn {
+  width: 100%;
+  height: 32px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid hsl(var(--primary) / 0.55);
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+}
+.llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
+.shape-rerun-dock {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+  pointer-events: auto;
+}
+.shape-rerun-btn {
+  width: auto;
+  min-width: 96px;
+  margin-top: 0;
+  padding: 0 14px;
+  background: hsl(var(--card) / 0.95);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
 }
 .llm-box {
   display: flex;

@@ -3,6 +3,7 @@
 export const NODE_COLOR = {
   red: '#e11d48', blue: '#2563eb', black: '#ffffff', purple: '#a855f7',
   pink: '#ec4899', gray: '#9ca3af', yellow: '#eab308',
+  green: '#22c55e', // Shape-Guided 控制點（路線轉折）
 }
 export const EDGE_HL = { coline: '#e11d48', loop: '#16a34a', parallel: '#2563eb' }
 export const EDGE_LABEL = { coline: '共線合併', loop: '環線', parallel: '頭尾共點', plain: '一般' }

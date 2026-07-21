@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T18:15:23.461Z",
+  "generated_at": "2026-07-21T19:02:26.602Z",
   "bbox": [
     139.56,
     35.54,
@@ -815,81 +815,6 @@
       ]
     },
     {
-      "routeId": "tokyopriv-r2060696",
-      "opk": "京成",
-      "ref": "KS",
-      "name": "京成電鉄 千原線",
-      "nameLocal": "京成電鉄 千原線",
-      "nameEn": "Keisei Chihara Line",
-      "color": "#0000cd",
-      "network": "京成電鉄",
-      "networkLocal": "京成電鉄",
-      "operator": "京成電鉄",
-      "wikidata": "Q842069",
-      "wikipedia": null,
-      "osmIds": [
-        2060696
-      ],
-      "loop": false,
-      "stations": [
-        {
-          "id": "n2982996957",
-          "name": "千葉中央",
-          "nameLocal": "千葉中央",
-          "nameEn": "Chiba-Chuo",
-          "code": "KS60",
-          "coord": [
-            140.1178546,
-            35.6073315
-          ]
-        },
-        {
-          "id": "n2545318851",
-          "name": "千葉寺",
-          "nameLocal": "千葉寺",
-          "nameEn": "Chibadera",
-          "code": "KS61",
-          "coord": [
-            140.1322066,
-            35.5903626
-          ]
-        },
-        {
-          "id": "n8068316720",
-          "name": "大森台",
-          "nameLocal": "大森台",
-          "nameEn": "Omoridai",
-          "code": "KS62",
-          "coord": [
-            140.1494323,
-            35.5841725
-          ]
-        },
-        {
-          "id": "n8068316722",
-          "name": "学園前",
-          "nameLocal": "学園前",
-          "nameEn": "Gakuemmae",
-          "code": "KS63",
-          "coord": [
-            140.1584311,
-            35.5606155
-          ]
-        },
-        {
-          "id": "n2545318909",
-          "name": "おゆみ野",
-          "nameLocal": "おゆみ野",
-          "nameEn": "Oyumino",
-          "code": "KS64",
-          "coord": [
-            140.166123,
-            35.5500986
-          ]
-        }
-      ]
-    },
-    {
       "routeId": "tokyopriv-r1927482",
       "opk": "京成",
       "ref": "KS",
@@ -1264,48 +1189,6 @@
           "coord": [
             140.0248584,
             35.6837883
-          ]
-        }
-      ]
-    },
-    {
-      "routeId": "tokyopriv-r9486564",
-      "opk": "京成電鉄",
-      "ref": "SR",
-      "name": "芝山鉄道線",
-      "nameLocal": "芝山鉄道線",
-      "nameEn": "Shibayama Line",
-      "color": "#888888",
-      "network": "京成電鉄株式会社",
-      "networkLocal": "京成電鉄株式会社",
-      "operator": "京成電鉄株式会社",
-      "wikidata": "Q1104545",
-      "wikipedia": "ja:芝山鉄道",
-      "osmIds": [
-        9486564
-      ],
-      "loop": false,
-      "stations": [
-        {
-          "id": "n7961261831",
-          "name": "東成田",
-          "nameLocal": "東成田",
-          "nameEn": "Higashi-Narita",
-          "code": "KS44",
-          "coord": [
-            140.3870535,
-            35.7700406
-          ]
-        },
-        {
-          "id": "n7964573922",
-          "name": "芝山千代田",
-          "nameLocal": "芝山千代田",
-          "nameEn": "Shibayama-Chiyoda",
-          "code": null,
-          "coord": [
-            140.399475,
-            35.7540381
           ]
         }
       ]
@@ -3406,48 +3289,6 @@
       ]
     },
     {
-      "routeId": "tokyopriv-r5219659",
-      "opk": "東武",
-      "ref": "TS",
-      "name": "東武大師線",
-      "nameLocal": "東武大師線",
-      "nameEn": "Tōbu Daishi Line",
-      "color": "#888888",
-      "network": "東武鉄道",
-      "networkLocal": "東武鉄道",
-      "operator": "東武鉄道",
-      "wikidata": "Q2913662",
-      "wikipedia": "ja:東武大師線",
-      "osmIds": [
-        5219659
-      ],
-      "loop": false,
-      "stations": [
-        {
-          "id": "n2490597819",
-          "name": "西新井",
-          "nameLocal": "西新井",
-          "nameEn": "Nishiarai",
-          "code": null,
-          "coord": [
-            139.7899186,
-            35.7774204
-          ]
-        },
-        {
-          "id": "n925048202",
-          "name": "大師前",
-          "nameLocal": "大師前",
-          "nameEn": "Daishimae",
-          "code": null,
-          "coord": [
-            139.7817593,
-            35.7788876
-          ]
-        }
-      ]
-    },
-    {
       "routeId": "tokyopriv-r3300716",
       "opk": "株式会社ゆりかもめ",
       "ref": "U",
@@ -3639,92 +3480,6 @@
           "coord": [
             139.79536,
             35.6537949
-          ]
-        }
-      ]
-    },
-    {
-      "routeId": "tokyopriv-r10322300",
-      "opk": "相模",
-      "ref": "SO",
-      "name": "相鉄",
-      "nameLocal": "相鉄",
-      "nameEn": "Sotetsu",
-      "color": "#0071c1",
-      "network": "相鉄",
-      "networkLocal": "相模鉄道",
-      "operator": "相模鉄道",
-      "wikidata": null,
-      "wikipedia": null,
-      "osmIds": [
-        10322300
-      ],
-      "loop": false,
-      "stations": [
-        {
-          "id": "n1656328806",
-          "name": "武蔵小杉",
-          "nameLocal": "武蔵小杉",
-          "nameEn": "Musashi-Kosugi",
-          "code": "JO15;JS15",
-          "coord": [
-            139.6633332,
-            35.5744653
-          ]
-        },
-        {
-          "id": "n2203982848",
-          "name": "西大井",
-          "nameLocal": "西大井",
-          "nameEn": "Nishi-Oi",
-          "code": "JO16;JS16",
-          "coord": [
-            139.721647,
-            35.6018647
-          ]
-        },
-        {
-          "id": "n3406728236",
-          "name": "大崎",
-          "nameLocal": "大崎",
-          "nameEn": "Osaki",
-          "code": "JA08;JS19;R08",
-          "coord": [
-            139.7281603,
-            35.6192342
-          ]
-        },
-        {
-          "id": "n2218777355",
-          "name": "恵比寿",
-          "nameLocal": "恵比寿",
-          "nameEn": "Ebisu",
-          "code": "JA09;JS18",
-          "coord": [
-            139.7102242,
-            35.6464471
-          ]
-        },
-        {
-          "id": "n3406728262",
-          "name": "渋谷",
-          "nameLocal": "渋谷",
-          "nameEn": "Shibuya",
-          "code": "JA10;JS19",
-          "coord": [
-            139.7017785,
-            35.6580851
-          ]
-        },
-        {
-          "id": "n3558156213",
-          "name": "新宿",
-          "nameLocal": "新宿",
-          "nameEn": "Shinjuku",
-          "code": "JA11;JS20",
-          "coord": [
-            139.7012854,
-            35.6891409
           ]
         }
       ]
