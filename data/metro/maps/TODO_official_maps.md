@@ -11,8 +11,9 @@
 
 ## 現況（2026-07-21 更新）
 
-- ✅ 官方營運商圖：**98**（+2：東京 JR、大阪 JR）
-- 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：86
+- ✅ 官方營運商圖：**97**（廣島從社群 Astram CC 圖升級為官方「広島電鉄 電車路線図」，
+  使用者裁決 2026-07-21；hiroden.co.jp 被 WAF 擋，改用 MLIT 政府鏡像 `001185332.pdf`）
+- 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：85
 - ⬜ 留白：**42**（+1：科恰班巴補進索引，暫留白）
 
 > 數字請以實際重數為準（下方待辦 A 的 47 城表已過時）：
@@ -23,10 +24,12 @@
 > **✅ 索引缺口已補齊（2026-07-21）**：先前 `metro:build` 後系統數 235、maps_index
 > 只有 224 筆。實際比對後缺 12 個（非 11），已處理：
 > - **科恰班巴**（獨立系統）→ 補 `map_file:null` 條目，暫留白（無官方示意圖；找圖屬留白城市工作）。
-> - **東京 JR / 大阪 JR**（JR 合併系統）→ 使用者裁決「去找 JR 官方路網圖」，已完成：
->   - 東京 JR：JR 東日本官方「路線ネットワーク」（`map_tokyo.pdf`，2026.3.14，含山手線等全 JR 東京圈線）。JR East 官網被 Akamai 擋，經 Wayback `id_` 取檔＋渲染目視驗證，`source_url` 用 Wayback 形式（比照 NYC 前例）。
->   - 大阪 JR：JR 西日本官方「近畿エリア路線図」（`jr-odekake.net/station/pdf/ubn.pdf`，2026.3.14，含大阪環状線）。官網可直接下載。
-> - **其餘 9 個 `-lm` 地標變體**：`metroCatalog.js` 的 `mapsKeyBase()` 會去 `-lm/-jr` 尾綴退回母城市共用官方圖，**設計上本就不需要獨立條目**（-jr 現在有了自己的圖，會優先於母城）。
+> - **東京 JR / 大阪 JR**（JR 合併系統）與 **`-lm` 地標變體**：使用者最終裁決（2026-07-21）
+>   ——這些變體的官方圖**一律跟母城東京/大阪顯示同一張**，不給獨立 JR 圖。做法＝
+>   maps_index **不放** `-jr`/`-lm` 條目，靠 `metroCatalog.js` 的 `mapsKeyBase()` 去尾綴
+>   fallback 到母城。⚠️ 注意：**不可**放 `map_file:null` 條目——那會讓 tile 顯示「無圖」
+>   而非 fallback（`rec = index[key] || index[base]`，key 存在但 null 就中斷 fallback）。
+>   （曾一度照前一個選擇給 tokyo-jr/osaka-jr 各自的 JR East/West 官方圖，後依此裁決撤回。）
 >
 > ⚠️ 注意：這些手工策展的官方圖（含本次 JR、NYC/London/Tokyo 等）都是本地營運商檔、
 > 不在 Commons，**無法用 `_overrides/map_overrides.json` 釘選**（該機制只吃 Commons 檔名

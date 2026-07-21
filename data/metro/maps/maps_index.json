@@ -1390,12 +1390,11 @@
     "city": "Lille",
     "country": "France",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/europe/france/eu-fra-lille.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.ilevia.fr/cms/institutionnel/wp-content/uploads/sites/4/2019/12/plan-metro-dec2019.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Ilévia 'Les lignes de métro' schematic (M1/M2), éd. 2019"
   },
   "europe/russia/eu-rus-nizhny-novgorod": {
     "city": "Nizhny Novgorod",
@@ -1906,11 +1905,10 @@
     "country": "Japan",
     "wikidata": "Q389415",
     "map_file": "maps/asia/japan/as-jpn-hiroshima.png",
-    "commons_file": "File:Astramline map.png",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Astramline_map.png",
-    "license": "CC BY-SA 4.0",
-    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-    "artist": "Hisagi"
+    "commons_file": null,
+    "source_url": "https://www.mlit.go.jp/common/001185332.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official 広島電鉄 電車路線図 (Hiroden streetcar route map; MLIT-hosted)"
   },
   "asia/india/as-ind-jaipur": {
     "city": "Jaipur",
@@ -2340,7 +2338,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784591627937,
+  "_rev": 1784594715635,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",
@@ -2351,25 +2349,5 @@
     "license": null,
     "artist": null,
     "note": "standalone system missing from index (built after last downloadMaps run); no operator-official schematic yet — blank per policy 2026-07"
-  },
-  "asia/japan/as-jpn-tokyo-jr": {
-    "city": "Tokyo + Yamanote",
-    "country": "Japan",
-    "wikidata": "Q682894",
-    "map_file": "maps/asia/japan/as-jpn-tokyo-jr.png",
-    "commons_file": null,
-    "source_url": "https://web.archive.org/web/20260712092846id_/https://www.jreast.co.jp/map/pdf/map_tokyo.pdf",
-    "license": "Official operator map (© operator; thesis use)",
-    "artist": "Official JR East 路線ネットワーク (Railway Lines Network) schematic, 2026.3.14"
-  },
-  "asia/japan/as-jpn-osaka-jr": {
-    "city": "Osaka + Loop",
-    "country": "Japan",
-    "wikidata": "Q51211653",
-    "map_file": "maps/asia/japan/as-jpn-osaka-jr.png",
-    "commons_file": null,
-    "source_url": "https://www.jr-odekake.net/station/pdf/ubn.pdf",
-    "license": "Official operator map (© operator; thesis use)",
-    "artist": "Official JR West 近畿エリア路線図 (JR Line Route Map), 2026.3.14"
   }
 }
