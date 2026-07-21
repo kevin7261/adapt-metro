@@ -23205,10 +23205,12 @@
         "Japan Railways",
         "京成電鉄",
         "北総鉄道",
+        "東武鉄道",
+        "埼玉高速鉄道",
         "Tokyo Waterfront Area Rapid Transit",
         "京王",
         "小田急電鉄",
-        "東武鉄道",
+        "東京モノレール",
         "株式会社ゆりかもめ",
         "首都圏新都市鉄道"
       ],
@@ -23216,9 +23218,9 @@
       "official_website": null,
       "official_map": "https://ja.wikipedia.org/wiki/東京地下鉄",
       "wikidata": "Q682894",
-      "line_count": 55,
-      "segment_count": 103,
-      "station_count": 519,
+      "line_count": 60,
+      "segment_count": 109,
+      "station_count": 583,
       "audit": null
     }
   ],

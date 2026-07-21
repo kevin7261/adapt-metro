@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T20:23:56.188Z",
+  "generated_at": "2026-07-21T20:26:55.192Z",
   "bbox": [
     139.56,
     35.54,
@@ -2076,8 +2076,8 @@
       "routeId": "tokyopriv-r3417174",
       "opk": "東京モノレール",
       "ref": "MO",
-      "name": "東京モノレール羽田空港線 普通",
-      "nameLocal": "東京モノレール羽田空港線 普通",
+      "name": "東京モノレール羽田空港線",
+      "nameLocal": "東京モノレール羽田空港線",
       "nameEn": "Tokyo Monorail Local",
       "color": "#003685",
       "network": "東京モノレール",
