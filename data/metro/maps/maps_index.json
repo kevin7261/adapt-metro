@@ -83,12 +83,11 @@
     "city": "Dusseldorf",
     "country": "Germany",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/europe/germany/eu-ger-dusseldorf.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://cdn.rheinbahn.de/bc045c48bd4dad28/b5faea5d8e96/Duesseldorf_Schienennetz.pdf",
+    "license": "Official operator map (© Rheinbahn AG; thesis use)",
+    "artist": "Official Rheinbahn Netzplan Düsseldorf Stadt- und Straßenbahn, 2026-03"
   },
   "asia/china/as-chn-chongqing": {
     "city": "Chongqing",
@@ -892,12 +891,11 @@
     "city": "Bilbao",
     "country": "Spain",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/europe/spain/eu-esp-bilbao.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.metrobilbao.eus/img/line_maps/mapa_zonas.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Metro Bilbao lines+zones schematic (L1/L2/L3)"
   },
   "asia/india/as-ind-kolkata": {
     "city": "Kolkata",
@@ -1851,12 +1849,11 @@
     "city": "Brescia",
     "country": "Italy",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/europe/italy/eu-ita-brescia.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.bresciamobilita.it/public/resources/brescia mobilita/utenti/metrobs/linea-completa.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Brescia Mobilità single-line map (17 stations)"
   },
   "europe/russia/eu-rus-yekaterinburg": {
     "city": "Yekaterinburg",
@@ -2326,7 +2323,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784599610973,
+  "_rev": 1784620095786,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",

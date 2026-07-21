@@ -11,10 +11,34 @@
 
 ## 現況（2026-07-21 更新）
 
-- ✅ 官方營運商圖：**97**（廣島從社群 Astram CC 圖升級為官方「広島電鉄 電車路線図」，
-  使用者裁決 2026-07-21；hiroden.co.jp 被 WAF 擋，改用 MLIT 政府鏡像 `001185332.pdf`）
+- ✅ 官方營運商圖：**113**
 - 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：85
-- ⬜ 留白：**42**（+1：科恰班巴補進索引，暫留白）
+- ⬜ 留白：**26**
+
+> ### 2026-07-21 平行 agent 收官（16 城新增官方圖）
+> 額度重置後派 6 個平行 agent 掃 41 留白城，逐城「找官方圖→下載→**agent 自行讀圖驗證**
+> →存 PNG」，agent **不碰 maps_index.json**（避免並行寫入互相蓋掉），回報後由主 session
+> 逐張抽查再寫 index。命中率被「官網 WAF/地區封鎖」與「官方圖本身是地理/規劃圖」兩個
+> 因素卡住，屬正常。
+>
+> **新增官方圖（16）**：廣島（電車路線図，本輪稍早）、Lille、貝洛奧里藏特、巴西利亞、
+> 雷西非、巴拿馬城、邁阿密、Hyderabad、Pune、Mumbai、Wuhan、Isfahan、Shiraz、Bursa、
+> Bilbao、Brescia、Düsseldorf。（Düsseldorf 推翻先前「無官方圖」判定——Rheinbahn 官方
+> Netzplan 2026-03 從 CDN 取得。）
+>
+> **26 城維持留白（分兩類）**：
+> - *官網此環境抓不到*（region-block/WAF/DNS）：多數中國城（大連/合肥/蘭州/溫州/台州/
+>   洛陽/南通/滁州）、加爾各答、胡志明市、Karaj、Lahore、Adana、Algiers、Rennes…
+> - *找得到但依政策判退*（地理圖/衛星/規劃圖/深底）：Indore(GIS 規劃)、Tabriz(全線畫實線
+>   的規劃圖)、Baku(深底地理)、Jakarta(Google Maps 截圖)、Hanoi(規劃圖)、Gwangju(規劃圖)、
+>   埼玉(觀光導覽圖)、Genoa(地理街圖)、Cochabamba(只有社群圖)、Panama Nueva Red Maestra(規劃圖，已改用 L1+L2 營運圖)。
+> - *無地鐵*：Bezirk Landeck（只有纜車＋區域巴士）。
+>
+> ⚠️ **Astana 懸而未決**：agent 抓到一張單綠線圖，但來源是新聞站鏡像、圖上**無任何營運商
+> 標題/logo/圖例**，無法確認是官方圖還是媒體製圖 → 主 session 判退、**未寫入 index**（維持
+> 留白）。但該 PNG 已被 workflow 連同其他圖一起 commit 進 `data/metro/maps/asia/kazakhstan/
+> as-kaz-astana.png`，成為**未被 index 引用的孤兒檔**。待使用者裁決：要嘛找到有品牌的官方
+> 版寫入、要嘛 `git rm` 該檔。
 
 > 數字請以實際重數為準（下方待辦 A 的 47 城表已過時）：
 > ```
