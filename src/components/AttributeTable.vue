@@ -233,9 +233,9 @@ function startResize(e) {
       <div class="attr-actions">
         <div class="filter-wrap">
           <MIcon name="filter_alt" :size="12" class="filter-icon" />
-          <input v-model="filter" class="filter-input" placeholder="Filter…" />
+          <input v-model="filter" class="filter-input" placeholder="篩選…" />
         </div>
-        <button class="btn-icon" title="Close" @click="toggleId && store.toggleAttributeTable(toggleId, false)">
+        <button class="btn-icon" title="關閉" @click="toggleId && store.toggleAttributeTable(toggleId, false)">
           <MIcon name="close" :size="14" />
         </button>
       </div>
@@ -281,7 +281,7 @@ function startResize(e) {
             @click="selectedRow = row._key"
           >
             <td class="row-action-col">
-              <button class="btn-icon zoom-btn" title="Zoom to feature" @click.stop="onRow(row)">
+              <button class="btn-icon zoom-btn" title="縮放至此物件" @click.stop="onRow(row)">
                 <MIcon name="zoom_in" :size="12" />
               </button>
             </td>

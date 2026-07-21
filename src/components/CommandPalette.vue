@@ -83,7 +83,7 @@ onMounted(() => inputEl.value?.focus())
           ref="inputEl"
           v-model="query"
           class="palette-input"
-          placeholder="Type a command or search…"
+          placeholder="輸入指令或搜尋…"
           @input="activeIdx = 0"
           @keydown="onKey"
         />

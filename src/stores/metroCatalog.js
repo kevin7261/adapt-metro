@@ -88,6 +88,7 @@ export function mapsKeyBase(key) {
 
 // 'north-america' → 'North America'
 export function prettyContinent(slug) {
+  if (!slug || typeof slug !== 'string') return '—'
   return slug
     .split('-')
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))

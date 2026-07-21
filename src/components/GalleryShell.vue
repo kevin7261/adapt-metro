@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
-import { continentZh } from '../stores/metroCatalog'
+import { continentZh, prettyContinent } from '../stores/metroCatalog'
 import MIcon from './MIcon.vue'
 
 // 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）的共用外殼：
@@ -46,11 +46,11 @@ const indexGroups = computed(() => {
   let g = null, c = null
   for (const t of tiles.value) {
     if (!g || g.continent !== t.continent) {
-      g = { continent: t.continent, contLabel: continentZh(t.continent), countries: [] }
+      g = { continent: t.continent, contLabel: continentZh(t.continent), contLabelEn: prettyContinent(t.continent), countries: [] }
       groups.push(g); c = null
     }
     if (!c || c.country !== t.country) {
-      c = { country: t.country, countryLabel: t.countryZh ?? t.country, cities: [] }
+      c = { country: t.country, countryLabel: t.countryZh ?? t.country, countryLabelEn: t.country, cities: [] }
       g.countries.push(c)
     }
     c.cities.push(t)
@@ -162,14 +162,20 @@ const tiles = computed(() => {
           <template v-for="g in indexGroups" :key="g.continent">
             <button class="gi-cont" @click="toggleCont(g.continent)">
               <MIcon :name="expandedCont[g.continent] ? 'expand_more' : 'chevron_right'" :size="14" class="gi-chev" />
-              <span>{{ g.contLabel }}</span>
+              <span class="gi-lbl-wrap">
+                <span class="gi-lbl">{{ g.contLabel }}</span>
+                <span v-if="g.contLabelEn && g.contLabelEn !== g.contLabel" class="gi-lbl-en">{{ g.contLabelEn }}</span>
+              </span>
               <span class="gi-count">{{ g.countries.length }}</span>
             </button>
             <template v-if="expandedCont[g.continent]">
               <template v-for="c in g.countries" :key="c.country">
                 <button class="gi-country" @click="toggleCountry(g.continent + '|' + c.country)">
                   <MIcon :name="expandedCountry[g.continent + '|' + c.country] ? 'expand_more' : 'chevron_right'" :size="12" class="gi-chev" />
-                  <span>{{ c.countryLabel }}</span>
+                  <span class="gi-lbl-wrap">
+                    <span class="gi-lbl">{{ c.countryLabel }}</span>
+                    <span v-if="c.countryLabelEn && c.countryLabelEn !== c.countryLabel" class="gi-lbl-en">{{ c.countryLabelEn }}</span>
+                  </span>
                   <span class="gi-count">{{ c.cities.length }}</span>
                 </button>
                 <template v-if="expandedCountry[g.continent + '|' + c.country]">
@@ -204,11 +210,31 @@ const tiles = computed(() => {
         </template>
       </nav>
     </div>
+
+    <!-- Footer：每個 tab 都有 footer（即使沒資訊）。這裡顯示城市數當中性內容。 -->
+    <footer class="gallery-statusbar">
+      <span>{{ catalog ? `${tiles.length} 城市` : '—' }}</span>
+    </footer>
   </div>
 </template>
 
 <style scoped>
 .gallery { display: flex; flex-direction: column; height: 100%; background: hsl(var(--background)); }
+/* Footer（與 LayerTab StatusBar／D3Tab ma-statusbar 同款）：每個 tab 都有 footer */
+.gallery-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+}
 .gallery-tabs {
   display: flex;
   align-items: center;
@@ -313,6 +339,25 @@ const tiles = computed(() => {
 }
 .gi-country:hover { color: hsl(var(--primary)); }
 .gi-chev { flex-shrink: 0; opacity: 0.55; }
+/* 標題：中文主名一行、英文副名一行（與城市列 gi-name/gi-en 中英兩行一致） */
+.gi-lbl-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.25;
+}
+.gi-lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.gi-lbl-en {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 400;
+  color: hsl(var(--muted-foreground));
+}
 /* 標題右側的選項數（洲別＝國家數、國家＝城市數） */
 .gi-count {
   margin-left: auto;

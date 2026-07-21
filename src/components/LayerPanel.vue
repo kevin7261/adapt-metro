@@ -148,8 +148,26 @@ function onImportMenuClick(e) {
   if (importMenuOpen.value && !e.target.closest('.import-wrap')) importMenuOpen.value = false
 }
 
-// Click a layer → open (or focus) its editor tab, like opening a file in an IDE.
+// Click a layer → open (or focus) its editor tab；不負責關閉。
+// 開／關改走列上的眼睛按鈕；列的 highlight（selected）＝目前正在看的 tab。
 function openLayer(layer) {
+  store.selectedLayerId = layer.id
+  openLayerTab(layer)
+}
+
+function isLayerTabOpen(layer) {
+  const ids = store.openTabIds
+  return Array.isArray(ids) ? ids.includes(layer.id) : !!dockHandle.api?.getPanel(layer.id)
+}
+
+// 眼睛：開／關該圖層的 editor tab（已開則關、未開則開並聚焦）。
+function toggleLayerTab(layer) {
+  const existing = dockHandle.api?.getPanel(layer.id)
+  if (existing) {
+    existing.api.close()
+    if (store.selectedLayerId === layer.id) store.selectedLayerId = null
+    return
+  }
   store.selectedLayerId = layer.id
   openLayerTab(layer)
 }
@@ -157,9 +175,15 @@ function openLayer(layer) {
 // Overflow 選單動作（lookup table；template 傳常數字串）。
 const OVERFLOW_ACTIONS = {
   // Zoom to layer 已移到 TopToolbar（對目前選取的圖層縮放）。
-  // Toggle THIS layer's own attribute table (independent per layer); does
-  // not touch the active tab / layer highlight.
-  table: (layer) => store.toggleAttributeTable(layer.id),
+  // 物件列表在圖層自己的 editor tab 內渲染——所以「開啟物件列表」時要確保該
+  // tab 已開（眼睛按鈕可能已把 tab 關掉，否則切開關看不到任何反應＝像失效）。
+  table: (layer) => {
+    if (!store.ui.attributeTableOpen[layer.id]) { // 即將開 → 先確保 tab 開著並聚焦
+      store.selectedLayerId = layer.id
+      openLayerTab(layer)
+    }
+    store.toggleAttributeTable(layer.id)
+  },
   export: (layer) => exportLayer(layer),
   remove: (layer) => removeLayer(layer),
 }
@@ -289,7 +313,7 @@ onBeforeUnmount(() => {
 <template>
   <!-- Collapsed rail -->
   <aside v-if="!store.ui.layerPanelOpen" class="rail" aria-label="Layers (collapsed)">
-    <button class="btn-icon" title="Expand layers panel" @click="store.ui.layerPanelOpen = true">
+    <button class="btn-icon" title="展開圖層面板" @click="store.ui.layerPanelOpen = true">
       <MIcon name="left_panel_open" :size="15" />
     </button>
     <span class="rail-label">圖層</span>
@@ -300,7 +324,7 @@ onBeforeUnmount(() => {
       <div class="panel-header">
         <span class="panel-title">圖層</span>
         <div class="header-actions">
-          <button class="btn-icon" title="Collapse panel" @click="store.ui.layerPanelOpen = false">
+          <button class="btn-icon" title="收合面板" @click="store.ui.layerPanelOpen = false">
             <MIcon name="left_panel_close" :size="14" />
           </button>
         </div>
@@ -395,7 +419,7 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- stop only on the buttons — a click on the strip's empty area
-                     must still bubble to the row and open the layer's tab -->
+                     must still bubble to the row and open/focus the layer's tab -->
                 <div class="layer-actions">
                   <!-- Zoom to layer 已移到上方 TopToolbar（對目前選取的圖層縮放）。 -->
                   <!-- 「?」說明：這個圖層的做法／JSON 格式／顯示方式（LayerDocViewer）。
@@ -412,7 +436,7 @@ onBeforeUnmount(() => {
                     <button
                       class="btn-icon"
                       :class="{ active: skillMenuFor === row.layer.id }"
-                      title="Skills"
+                      title="技能說明"
                       @click.stop="toggleSkillMenu(row.layer, $event)"
                     >
                       <MIcon name="auto_awesome" :size="14" />
@@ -441,13 +465,22 @@ onBeforeUnmount(() => {
                   <button
                     class="btn-icon"
                     :class="{ active: store.ui.attributeTableOpen[row.layer.id] }"
-                    title="Attribute table"
+                    title="物件列表"
                     @click.stop="overflow(row.layer, 'table')"
                   >
                     <MIcon name="table" :size="14" />
                   </button>
-                  <button class="btn-icon" title="Export GeoJSON" @click.stop="overflow(row.layer, 'export')">
+                  <button class="btn-icon" title="匯出 GeoJSON" @click.stop="overflow(row.layer, 'export')">
                     <MIcon name="download" :size="14" />
+                  </button>
+                  <!-- 眼睛：開／關此圖層的 editor tab（與列 highlight＝目前正在看的 tab 分開） -->
+                  <button
+                    class="btn-icon"
+                    :class="{ active: isLayerTabOpen(row.layer) }"
+                    :title="isLayerTabOpen(row.layer) ? '關閉此圖層分頁' : '開啟此圖層分頁'"
+                    @click.stop="toggleLayerTab(row.layer)"
+                  >
+                    <MIcon :name="isLayerTabOpen(row.layer) ? 'visibility' : 'visibility_off'" :size="14" />
                   </button>
                   <!-- 只有主圖層（無 sourceLayerId）可單獨刪除；衍生子圖層不需刪除功能
                        （使用者裁決）——整城清理走群組標題的「刪除此城市全部圖層」。
@@ -455,7 +488,7 @@ onBeforeUnmount(() => {
                   <button
                     v-if="!row.layer.sourceLayerId && !isMetroMaps(row.layer)"
                     class="btn-icon danger"
-                    title="Remove layer"
+                    title="移除圖層"
                     @click.stop="overflow(row.layer, 'remove')"
                   >
                     <MIcon name="delete" :size="14" />

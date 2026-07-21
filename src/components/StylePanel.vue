@@ -160,7 +160,7 @@ function startResize(e) {
 <template>
   <!-- Collapsed rail -->
   <aside v-if="!open" class="rail" aria-label="Panel (collapsed)">
-    <button class="btn-icon" title="Expand panel" @click="open = true">
+    <button class="btn-icon" title="展開面板" @click="open = true">
       <MIcon name="right_panel_open" :size="15" />
     </button>
     <MIcon name="tune" :size="14" class="rail-icon" />
@@ -193,7 +193,7 @@ function startResize(e) {
             {{ t.label }}
           </button>
         </div>
-        <button class="btn-icon" title="Collapse panel" @click="open = false">
+        <button class="btn-icon" title="收合面板" @click="open = false">
           <MIcon name="right_panel_close" :size="14" />
         </button>
       </div>

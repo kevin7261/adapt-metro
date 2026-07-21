@@ -50,7 +50,7 @@ function close(e) {
   <div class="dock-tab" @pointerdown.middle="close">
     <MIcon :name="icon" :size="13" class="dock-tab-icon" />
     <span class="dock-tab-title">{{ title }}</span>
-    <button class="dock-tab-close" title="Close" @click="close" @pointerdown.stop>
+    <button class="dock-tab-close" title="關閉分頁" @click="close" @pointerdown.stop>
       <MIcon name="close" :size="12" />
     </button>
   </div>

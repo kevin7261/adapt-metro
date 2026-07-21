@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { loadMapsIndex, mapsKeyFor, mapsKeyBase } from '../stores/metroCatalog'
 import MIcon from './MIcon.vue'
@@ -51,7 +51,18 @@ watch(open, (v) => {
   else window.removeEventListener('keydown', onKey)
 })
 
-onMounted(() => {
+onMounted(async () => {
+  // link 模式（資訊 tab 文字列）直接載——不必懶載；也可避開 fragment root
+  // 上 ref 尚未就緒時 observe(null) 導致永遠停在「載入中…」。
+  if (props.link) {
+    await load()
+    return
+  }
+  await nextTick()
+  if (!root.value) {
+    await load()
+    return
+  }
   observer = new IntersectionObserver((entries) => {
     for (const en of entries) {
       if (en.isIntersecting) { load(); observer.disconnect(); observer = null; break }

@@ -20,7 +20,7 @@ import {
 } from '../stores/hillClimb'
 import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from '../stores/paperAlign'
 import {
-  LAYOUT_KINDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
+  LAYOUT_KINDS, PAPER_KIND_IDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
   loopKindOf, stepKindOf, postKindOf, needsHcLayout,
 } from '../lib/hcMode'
 import { LLM_MODEL_OPTIONS } from '../lib/llmModels'
@@ -2291,9 +2291,11 @@ onBeforeUnmount(() => {
     />
     </div>
 
-    <!-- Footer：RWD 診斷（最小站距／畫布／放大鏡座標）。運算狀態與資料來源在右側「資訊」tab。 -->
-    <footer v-if="isRWD && (rwdStopStat || fisheyeOn)" class="ma-statusbar">
-      <div v-if="rwdStopStat" class="ma-diag">
+    <!-- Footer：永遠顯示（每個 tab 都有 footer，即使沒資訊）。RWD 診斷（最小站距／
+         畫布／放大鏡座標）在有資料時顯示，否則顯示目前視圖名當中性佔位。運算狀態與
+         資料來源在右側「資訊」tab。 -->
+    <footer class="ma-statusbar">
+      <div v-if="isRWD && rwdStopStat" class="ma-diag">
         <span>最小站距 高 <b>{{ rwdStopStat.high != null ? rwdStopStat.high.toFixed(1) : '—' }}</b>
           寬 <b>{{ rwdStopStat.wide != null ? rwdStopStat.wide.toFixed(1) : '—' }}</b> pt</span>
         <span v-if="rwdStopStat.canvas">畫布 <b>{{ rwdStopStat.canvas[0] }}</b> × <b>{{ rwdStopStat.canvas[1] }}</b> px</span>
@@ -2305,6 +2307,7 @@ onBeforeUnmount(() => {
           v-if="fisheyeInfo.col != null && fisheyeInfo.row != null">（欄 {{ fisheyeInfo.col }}, 列 {{ fisheyeInfo.row }}）</template></template>
         <template v-else>移動滑鼠以放大網格</template>
       </span>
+      <span v-if="!(isRWD && rwdStopStat) && !fisheyeOn" class="ma-empty">{{ panelLayer?.name ?? '—' }}</span>
     </footer>
   </div>
 </template>
@@ -2361,6 +2364,8 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
 }
 .ma-diag b { color: hsl(var(--foreground)); font-weight: 600; }
+/* 沒診斷資訊時的中性佔位（footer 仍在，維持每個 tab 都有 footer） */
+.ma-empty { font-size: 11.5px; color: hsl(var(--muted-foreground) / 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* 放大鏡座標：跟診斷同一側（左邊） */
 .ma-coords {
   display: inline-flex;

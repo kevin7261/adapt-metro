@@ -57,6 +57,14 @@ onMounted(() => {
     center: [10, 25],
     zoom: 1.5,
     attributionControl: false,  // no on-map copyright overlay (per request)
+    // 內建控制項（縮放／羅盤／全螢幕）的 tooltip 中文化——MapLibre 預設英文。
+    locale: {
+      'NavigationControl.ZoomIn': '放大',
+      'NavigationControl.ZoomOut': '縮小',
+      'NavigationControl.ResetBearing': '拖曳旋轉地圖，點擊回正北',
+      'FullscreenControl.Enter': '進入全螢幕',
+      'FullscreenControl.Exit': '離開全螢幕',
+    },
   })
 
   if (import.meta.env.DEV) window.__map = map // debug probe (dev only)
@@ -794,7 +802,7 @@ onBeforeUnmount(() => {
           <button
             class="basemap-btn"
             :class="{ active: basemapMenuOpen }"
-            title="Basemaps"
+            title="地圖底圖"
             @click="basemapMenuOpen = !basemapMenuOpen"
           >
             <MIcon name="layers" :size="16" />

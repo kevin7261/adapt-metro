@@ -181,7 +181,7 @@ watch(() => props.promptText, () => {
             <h4 class="llm-h">使用的 skill：route-llm-grid</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
-              <div class="skill-md llm-skill-md" v-html="gridSkillHtml || '<p>載入中…</p>'" />
+              <div class="skill-md llm-skill-md" v-html="gridSkillHtml || '<p>載入中…</p>'"></div>
             </details>
 
             <h4 class="llm-h">做法說明</h4>
@@ -288,7 +288,7 @@ watch(() => props.promptText, () => {
             <h4 class="llm-h">使用的 skill：route-llm-eval</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
-              <div class="skill-md llm-skill-md" v-html="evalSkillHtml || '<p>載入中…</p>'" />
+              <div class="skill-md llm-skill-md" v-html="evalSkillHtml || '<p>載入中…</p>'"></div>
             </details>
 
             <h4 class="llm-h">做法說明</h4>
@@ -403,7 +403,7 @@ watch(() => props.promptText, () => {
             <h4 class="llm-h">使用的 skill：route-llm-compare</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文</summary>
-              <div class="skill-md llm-skill-md" v-html="compareSkillHtml || '<p>載入中…</p>'" />
+              <div class="skill-md llm-skill-md" v-html="compareSkillHtml || '<p>載入中…</p>'"></div>
             </details>
           </div>
         </template>
@@ -477,7 +477,7 @@ watch(() => props.promptText, () => {
             <h4 class="llm-h">使用的 skill：route-llm-align</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
-              <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
+              <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'"></div>
             </details>
 
             <h4 class="llm-h">做法說明</h4>
@@ -566,7 +566,7 @@ watch(() => props.promptText, () => {
             <h4 class="llm-h">使用的 skill：route-llm-align</h4>
             <details class="llm-skill">
               <summary>展開 SKILL.md 全文（模型執行時遵循的協定）</summary>
-              <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'" />
+              <div class="skill-md llm-skill-md" v-html="llmSkillHtml || '<p>載入中…</p>'"></div>
             </details>
 
             <h4 class="llm-h">做法說明</h4>
