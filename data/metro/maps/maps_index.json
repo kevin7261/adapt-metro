@@ -663,12 +663,11 @@
     "city": "Dalian",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/china/as-chn-dalian.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://imgbdb4.bendibao.com/dlbdb/traffic/20247/03/2024703130100_29346.png",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official 大连地铁 (Dalian Metro) System Map 线网图 — operator site region-blocked, sourced via bendibao mirror"
   },
   "asia/saudi-arabia/as-ksa-riyadh": {
     "city": "Riyadh",
@@ -2319,7 +2318,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784633158243,
+  "_rev": 1784634046517,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",

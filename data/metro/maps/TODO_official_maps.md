@@ -11,10 +11,27 @@
 
 ## 現況（2026-07-21 更新）
 
-- ✅ 官方營運商圖：**113**
+- ✅ 官方營運商圖：**118**
 - 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：85
-- ⬜ 留白：**26**
+- ⬜ 留白：**21**
 
+> ### 2026-07-21 第二輪「去別的地方抓」（+5：Astana＋retry 4）
+> 使用者指示「空白的盡量去別的地方抓」——官網被擋就找官方圖的**鏡像/轉載**。再派 4 個
+> agent 掃 24 城，命中 4，加上 Astana 共 +5：
+> - **Astana**：cts.gov.kz（營運商）只有互動 Yandex 圖、無靜態圖；改用官方啟用示意圖經
+>   新聞轉載版（無 logo，attribution 已誠實標註）。
+> - **Lahore**：Orange Line 官方圖（OLMRTS/PMA），Wayback。
+> - **Karaj**：官方德黑蘭地鐵圖（Line 5 綠線含 Golshahr/Karaj/Garmdarreh 走廊），Wayback。
+> - **Adana**：市府官方「Metro ve Tramvay Haritası」（現有線具名、二期虛線），adana.bel.tr 鏡像。
+> - **Dalian**：官方「大连地铁线网图」（含變形聲明），bendibao 鏡像。
+>
+> **21 城仍留白，且經第二輪徹查（Wayback/政府鏡像/百度/微信/圖搜/Commons 都試過）確認無解**：
+> - 中國 7（滁州/合肥/蘭州/洛陽/南通/台州/溫州）：官網 SPA 或只有地理/規劃/時刻表圖；
+>   滁州確認連南京官方圖也不含宁滁线。
+> - 只有地理/規劃/插畫/社群改繪圖（重試無用，除非營運商發布正式示意圖）：Indore、Kolkata
+>   （2019 工程圖多為施工中）、Jakarta、Hanoi、胡志明、Tabriz、Baku、Genoa、Rennes、Gwangju、
+>   埼玉、Algiers、Cochabamba。
+> - 無地鐵：Bezirk Landeck（纜車＋區域巴士）——建議從資料集移除，非缺圖。
 > ### 2026-07-21 平行 agent 收官（16 城新增官方圖）
 > 額度重置後派 6 個平行 agent 掃 41 留白城，逐城「找官方圖→下載→**agent 自行讀圖驗證**
 > →存 PNG」，agent **不碰 maps_index.json**（避免並行寫入互相蓋掉），回報後由主 session
