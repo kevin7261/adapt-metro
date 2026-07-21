@@ -13,7 +13,7 @@ defineProps({
     class="material-symbols-outlined m-icon"
     :style="{
       fontSize: size + 'px',
-      fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 20`,
+      fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' 300, 'GRAD' 0, 'opsz' 20`,
     }"
     aria-hidden="true"
   >{{ name }}</span>
@@ -29,5 +29,17 @@ defineProps({
   overflow: hidden;
   vertical-align: middle;
   user-select: none;
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
 }
 </style>

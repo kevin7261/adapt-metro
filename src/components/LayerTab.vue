@@ -942,7 +942,7 @@ onBeforeUnmount(() => {
 .ctx-menu { min-width: 200px; }
 .ctx-coords {
   padding: 6px 8px 2px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11.5px;
   color: hsl(var(--muted-foreground));
 }

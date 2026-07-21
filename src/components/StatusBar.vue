@@ -28,14 +28,14 @@ const bbox = computed(() => {
 .status-bar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  height: 28px;
+  gap: 14px;
+  height: 24px;
   flex-shrink: 0;
   padding: 0 12px;
   border-top: 1px solid hsl(var(--border));
-  background: hsl(var(--muted) / 0.4);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11.5px;
+  background: hsl(var(--card));
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
   color: hsl(var(--muted-foreground));
   white-space: nowrap;
   overflow: hidden;

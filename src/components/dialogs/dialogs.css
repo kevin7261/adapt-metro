@@ -9,7 +9,8 @@
 }
 .dialog-tab {
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: 12.5px;
+  font-weight: 500;
   color: hsl(var(--muted-foreground));
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
@@ -17,7 +18,7 @@
 }
 .dialog-tab:hover { color: hsl(var(--foreground)); }
 .dialog-tab.active {
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
@@ -329,7 +330,7 @@
 }
 .shortcut-row:last-child { border-bottom: none; }
 kbd {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border));

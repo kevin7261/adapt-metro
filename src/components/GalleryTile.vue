@@ -185,21 +185,20 @@ onBeforeUnmount(() => observer?.disconnect())
   align-items: center;
   justify-content: center;
   padding: 8px;
-  background:
-    radial-gradient(120% 120% at 50% 0%, hsl(var(--muted) / 0.55), hsl(var(--muted) / 0.25));
+  background: hsl(var(--muted) / 0.35);
   border-bottom: 1px solid hsl(var(--border));
 }
 .tile-canvas svg { width: 100%; height: 100%; overflow: visible; }
 .tile-dot { stroke: #3f3f46; stroke-width: 0.3; }
 .tile-msg { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
-/* shimmer while the geojson streams in */
+/* 載入中：平面底色淡入淡出（不用漸層） */
 .tile-canvas.loading {
-  background: linear-gradient(100deg,
-    hsl(var(--muted) / 0.3) 30%, hsl(var(--muted) / 0.55) 50%, hsl(var(--muted) / 0.3) 70%);
-  background-size: 200% 100%;
   animation: tile-shimmer 1.2s ease-in-out infinite;
 }
-@keyframes tile-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes tile-shimmer {
+  0%, 100% { background-color: hsl(var(--muted) / 0.3); }
+  50% { background-color: hsl(var(--muted) / 0.55); }
+}
 
 .tile-meta { padding: 7px 9px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .tile-city {

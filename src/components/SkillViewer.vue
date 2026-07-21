@@ -98,7 +98,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 /* 原始 md：行號＋等寬、水平捲動；行號不可選取（複製時只拿內容） */
 .skill-raw { overflow: auto; }
-.skill-raw-table { border-collapse: collapse; width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.55; }
+.skill-raw-table { border-collapse: collapse; width: 100%; font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.55; }
 .skill-raw-table .ln {
   position: sticky; left: 0;
   padding: 0 10px 0 4px; text-align: right; vertical-align: top;
@@ -119,7 +119,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .skill-md ul, .skill-md ol { margin: 6px 0; padding-left: 22px; }
 .skill-md li { margin: 2px 0; }
 .skill-md code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11.5px;
   background: hsl(var(--muted) / 0.6);
   border-radius: 4px;

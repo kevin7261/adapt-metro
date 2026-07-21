@@ -8,7 +8,7 @@ const store = useMapStore()
 /* Settings */
 const accents = ['blue', 'violet', 'emerald', 'rose', 'amber']
 const accentColors = {
-  blue: '#2563eb', violet: '#7c3aed', emerald: '#16a34a', rose: '#e11d48', amber: '#f97316',
+  blue: '#3b9eff', violet: '#a78bfa', emerald: '#34b27b', rose: '#f43f5e', amber: '#f59e0b',
 }
 </script>
 

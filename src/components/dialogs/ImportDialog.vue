@@ -309,7 +309,7 @@ const byStations = computed(() => {
             <div class="miller-col">
               <div class="miller-head">國家</div>
               <div class="miller-list">
-                <div v-if="!selContinent" class="miller-empty">← 先選洲別</div>
+                <div v-if="!selContinent" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選洲別</div>
                 <button
                   v-for="c in countries"
                   :key="c.value"
@@ -322,7 +322,7 @@ const byStations = computed(() => {
             <div class="miller-col">
               <div class="miller-head">城市</div>
               <div class="miller-list">
-                <div v-if="!selCountry" class="miller-empty">← 先選國家</div>
+                <div v-if="!selCountry" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選國家</div>
                 <button
                   v-for="c in cities"
                   :key="c.value"
@@ -424,7 +424,7 @@ const byStations = computed(() => {
             <div class="miller-col">
               <div class="miller-head">國家</div>
               <div class="miller-list">
-                <div v-if="!hwContinent" class="miller-empty">← 先選洲別</div>
+                <div v-if="!hwContinent" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選洲別</div>
                 <button
                   v-for="c in hwCountryList"
                   :key="c.value"
@@ -437,7 +437,7 @@ const byStations = computed(() => {
             <div class="miller-col">
               <div class="miller-head">都會區</div>
               <div class="miller-list">
-                <div v-if="!hwCountry" class="miller-empty">← 先選國家</div>
+                <div v-if="!hwCountry" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選國家</div>
                 <button
                   v-for="c in hwCityList"
                   :key="c.sys.file"
@@ -524,7 +524,7 @@ const byStations = computed(() => {
             <div class="miller-col">
               <div class="miller-head">國家</div>
               <div class="miller-list">
-                <div v-if="!rwContinent" class="miller-empty">← 先選洲別</div>
+                <div v-if="!rwContinent" class="miller-empty"><MIcon name="arrow_back" :size="12" /> 先選洲別</div>
                 <button
                   v-for="c in rwCountryList"
                   :key="c.sys.file"

@@ -416,7 +416,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 .stylebar {
   display: flex;
   flex-direction: column; /* 一般工具在第 1 排、RWD 版面控制在第 2 排 */
-  gap: 4px;
+  gap: 3px;
   padding: 5px 8px;
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
@@ -426,7 +426,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   display: flex;
   align-items: center;
   flex-wrap: wrap; /* 放不下就換行不裁切 */
-  gap: 4px;
+  gap: 3px;
 }
 /* 第 2 排（RWD）與第 1 排間的分隔線 */
 .sb-row-2 {
@@ -436,8 +436,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 /* 相關功能分組的分隔線 */
 .sb-sep {
   width: 1px;
-  height: 20px;
-  margin: 0 4px;
+  height: 18px;
+  margin: 0 3px;
   background: hsl(var(--border));
 }
 /* 純文字按鈕（不用 icon）：寬度隨字撐開 */
@@ -445,32 +445,42 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  padding: 0 10px;
+  height: 26px;
+  padding: 0 9px;
   font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--background));
+  transition: background 0.08s ease, color 0.08s ease, border-color 0.08s ease;
 }
 .sb-btn:hover:not(:disabled), .sb-btn.active {
+  color: hsl(var(--foreground));
+  background: hsl(var(--accent));
+  border-color: hsl(var(--border));
+}
+.sb-btn.active {
   color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.12);
-  border-color: hsl(var(--primary) / 0.4);
+  border-color: hsl(var(--primary) / 0.35);
 }
-.sb-btn:disabled { opacity: 0.45; cursor: default; }
+.sb-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* 二選一的 group button（均勻網格／權重比例）：兩顆併成一體、選中的高亮 */
 .sb-group {
   display: inline-flex;
-  height: 28px;
+  height: 26px;
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
+  border-radius: calc(var(--radius) - 2px);
   overflow: hidden;
+  background: hsl(var(--background));
 }
 .sb-group-btn {
-  padding: 0 10px;
+  padding: 0 9px;
   font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
   background: transparent;
@@ -478,10 +488,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   border-right: 1px solid hsl(var(--border));
 }
 .sb-group-btn:last-child { border-right: none; }
-.sb-group-btn:hover { color: hsl(var(--foreground)); }
+.sb-group-btn:hover { color: hsl(var(--foreground)); background: hsl(var(--accent)); }
 .sb-group-btn.active {
   color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.15);
+  background: hsl(var(--primary) / 0.12);
   font-weight: 600;
 }
 
@@ -490,11 +500,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 28px;
+  height: 26px;
   padding: 0 6px;
   color: hsl(var(--muted-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 3px);
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--background));
 }
 .sb-inline-label { font-size: 12px; white-space: nowrap; }
 .sb-inline:focus-within {

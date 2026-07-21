@@ -1,82 +1,94 @@
-/* ---- Design tokens (mirrors GeoLibre packages/ui/src/globals.css) ---- */
+/* ---- Design tokens（Cursor 風格：中性灰階、平面、無漸層） ---- */
 :root {
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 96.5%;
+  --card-foreground: 0 0% 9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 40%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
-  --radius: 0.5rem;
+  --popover-foreground: 0 0% 9%;
+  --primary: 213 94% 46%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 94%;
+  --secondary-foreground: 0 0% 14%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 42%;
+  --accent: 0 0% 92.5%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 88%;
+  --input: 0 0% 86%;
+  --ring: 213 94% 46%;
+  --radius: 0.375rem;
+  --shadow: 0 4px 16px rgb(0 0 0 / 0.1), 0 1px 3px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 12px 40px rgb(0 0 0 / 0.14), 0 2px 8px rgb(0 0 0 / 0.06);
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 48%;
+  --background: 0 0% 7.8%;
+  --foreground: 0 0% 89%;
+  --card: 0 0% 9.4%;
+  --card-foreground: 0 0% 89%;
+  --popover: 0 0% 11%;
+  --popover-foreground: 0 0% 89%;
+  --primary: 213 100% 67%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 89%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 55%;
+  --accent: 0 0% 15.5%;
+  --accent-foreground: 0 0% 92%;
+  --destructive: 0 70% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 16.5%;
+  --input: 0 0% 18%;
+  --ring: 213 100% 67%;
+  --shadow: 0 4px 16px rgb(0 0 0 / 0.35), 0 1px 3px rgb(0 0 0 / 0.25);
+  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.45), 0 2px 8px rgb(0 0 0 / 0.3);
 }
 
 /* Accent color schemes (swap --primary / --ring only) */
-[data-theme='violet'] { --primary: 262.1 83.3% 57.8%; --ring: 262.1 83.3% 57.8%; }
-[data-theme='emerald'] { --primary: 142.1 76.2% 36.3%; --ring: 142.1 76.2% 36.3%; }
-[data-theme='rose'] { --primary: 346.8 77.2% 49.8%; --ring: 346.8 77.2% 49.8%; }
-[data-theme='amber'] { --primary: 24.6 95% 53.1%; --ring: 24.6 95% 53.1%; }
+[data-theme='violet'] { --primary: 258 90% 68%; --ring: 258 90% 68%; }
+[data-theme='emerald'] { --primary: 152 55% 44%; --ring: 152 55% 44%; }
+[data-theme='rose'] { --primary: 350 85% 62%; --ring: 350 85% 62%; }
+[data-theme='amber'] { --primary: 32 95% 52%; --ring: 32 95% 52%; }
 
 /* ---- Base ---- */
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #app { height: 100%; margin: 0; }
 body {
-  /* 'TASA Orbiter' 只含拉丁字母與數字，故英文/數字用它，中文自動 fall back 到後面的 sans-serif */
-  font-family: 'TASA Orbiter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-  font-size: 14px;
+  /* Google Fonts：Inter（UI）＋ Noto Sans TC（中文）＋ JetBrains Mono（等寬） */
+  font-family: 'Inter', 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  letter-spacing: -0.006em;
   color: hsl(var(--foreground));
   background: hsl(var(--background));
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
-:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+:focus-visible { outline: 1.5px solid hsl(var(--ring)); outline-offset: 1px; }
 button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.3); border-radius: 4px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.28);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.42); }
 ::-webkit-scrollbar-track { background: transparent; }
 
 /* ---- Shared primitives ---- */
 .btn-ghost {
-  display: inline-flex; align-items: center; gap: 4px;
-  height: 32px; padding: 0 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 28px; padding: 0 9px;
   border-radius: calc(var(--radius) - 2px);
-  font-size: 13px; white-space: nowrap;
-  color: hsl(var(--foreground));
-  transition: background 0.12s, color 0.12s;
+  font-size: 12.5px; font-weight: 500; white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+  transition: background 0.1s ease, color 0.1s ease;
 }
 .btn-ghost:hover { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
 .btn-ghost.active, .btn-icon.active { color: hsl(var(--primary)); }
@@ -85,128 +97,134 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   display: inline-flex; align-items: center; justify-content: center;
   width: 28px; height: 28px; flex-shrink: 0;
   border-radius: calc(var(--radius) - 2px);
-  color: hsl(var(--foreground));
-  transition: background 0.12s;
+  color: hsl(var(--muted-foreground));
+  transition: background 0.1s ease, color 0.1s ease;
 }
-.btn-icon:hover { background: hsl(var(--accent)); }
-.btn-icon:disabled { opacity: 0.4; cursor: default; }
-.btn-icon:disabled:hover { background: none; }
+.btn-icon:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.btn-icon:disabled { opacity: 0.35; cursor: default; }
+.btn-icon:disabled:hover { background: none; color: hsl(var(--muted-foreground)); }
 
 .btn-primary {
   display: inline-flex; align-items: center; gap: 6px;
-  height: 32px; padding: 0 14px;
+  height: 30px; padding: 0 12px;
   border-radius: calc(var(--radius) - 2px);
-  font-size: 13px; font-weight: 500;
+  font-size: 12.5px; font-weight: 500;
   background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+  transition: background 0.1s ease;
 }
-.btn-primary:hover { filter: brightness(1.08); }
+.btn-primary:hover {
+  background: color-mix(in srgb, hsl(var(--primary)) 88%, white);
+}
 .btn-outline {
   display: inline-flex; align-items: center; gap: 6px;
-  height: 32px; padding: 0 14px;
+  height: 30px; padding: 0 12px;
   border-radius: calc(var(--radius) - 2px);
-  font-size: 13px;
+  font-size: 12.5px; font-weight: 500;
   border: 1px solid hsl(var(--border));
   background: transparent; color: hsl(var(--foreground));
+  transition: background 0.1s ease;
 }
 .btn-outline:hover { background: hsl(var(--accent)); }
 
 .input {
-  height: 32px; padding: 0 10px;
+  height: 30px; padding: 0 10px;
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid hsl(var(--input));
-  background: transparent;
-  font-size: 13px; color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-size: 12.5px; color: hsl(var(--foreground));
   width: 100%;
+  transition: border-color 0.1s ease, outline-color 0.1s ease;
 }
 .input::placeholder { color: hsl(var(--muted-foreground)); }
-.input:focus { outline: 2px solid hsl(var(--ring)); outline-offset: -1px; }
+.input:focus { outline: 1.5px solid hsl(var(--ring)); outline-offset: -1px; border-color: transparent; }
 
 .select {
   height: 30px; padding: 0 8px; width: 100%;
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid hsl(var(--input));
   background: hsl(var(--background)); color: hsl(var(--foreground));
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .slider { width: 100%; accent-color: hsl(var(--primary)); height: 16px; }
 
 .field-label {
-  display: block; font-size: 12px; font-weight: 500;
+  display: block; font-size: 11.5px; font-weight: 500;
   color: hsl(var(--muted-foreground)); margin-bottom: 4px;
 }
 
 /* ---- Dropdown / popover menus ---- */
 .menu-pop {
-  position: absolute; z-index: 200; min-width: 232px;
+  position: absolute; z-index: 200; min-width: 220px;
   background: hsl(var(--popover)); color: hsl(var(--popover-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow);
   padding: 4px;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 .menu-item {
   display: flex; align-items: center; gap: 8px;
   width: 100%; padding: 6px 8px;
-  border-radius: calc(var(--radius) - 4px);
+  border-radius: calc(var(--radius) - 2px);
   text-align: left; white-space: nowrap;
   color: hsl(var(--popover-foreground));
+  transition: background 0.08s ease;
 }
 .menu-item:hover, .menu-item.open { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
-.menu-item .shortcut { margin-left: auto; font-size: 11px; color: hsl(var(--muted-foreground)); padding-left: 16px; }
-.menu-item .sub-arrow { margin-left: auto; opacity: 0.6; }
+.menu-item .shortcut { margin-left: auto; font-size: 11px; color: hsl(var(--muted-foreground)); padding-left: 16px; font-variant-numeric: tabular-nums; }
+.menu-item .sub-arrow { margin-left: auto; opacity: 0.55; }
 .menu-sep { height: 1px; margin: 4px 0; background: hsl(var(--border)); }
 .menu-label {
-  padding: 6px 8px 2px; font-size: 11px; font-weight: 600;
-  color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.03em;
+  padding: 6px 8px 3px; font-size: 11px; font-weight: 500;
+  color: hsl(var(--muted-foreground)); letter-spacing: 0.02em;
 }
 
 /* ---- Dialog ---- */
 .dialog-overlay {
   position: fixed; inset: 0; z-index: 300;
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(0 0 0 / 0.45);
   display: flex; align-items: center; justify-content: center;
 }
 .dialog {
-  background: hsl(var(--card)); color: hsl(var(--card-foreground));
+  background: hsl(var(--popover)); color: hsl(var(--popover-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  box-shadow: 0 16px 48px rgb(0 0 0 / 0.3);
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow-lg);
   width: min(560px, calc(100vw - 32px));
   max-height: calc(100vh - 64px);
   display: flex; flex-direction: column;
 }
 .dialog-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px 10px;
+  padding: 12px 14px 8px;
 }
-.dialog-title { font-size: 15px; font-weight: 600; margin: 0; }
-.dialog-body { padding: 4px 16px 16px; overflow-y: auto; font-size: 13px; }
+.dialog-title { font-size: 14px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+.dialog-body { padding: 4px 14px 14px; overflow-y: auto; font-size: 12.5px; }
 .dialog-footer {
   display: flex; justify-content: flex-end; gap: 8px;
-  padding: 12px 16px; border-top: 1px solid hsl(var(--border));
+  padding: 10px 14px; border-top: 1px solid hsl(var(--border));
 }
 
 /* ---- Resize handles ---- */
 .resize-x {
-  width: 4px; cursor: col-resize; flex-shrink: 0;
-  background: transparent; transition: background 0.15s;
+  width: 3px; cursor: col-resize; flex-shrink: 0;
+  background: transparent; transition: background 0.12s;
 }
-.resize-x:hover, .resize-x.dragging { background: hsl(var(--primary) / 0.5); }
+.resize-x:hover, .resize-x.dragging { background: hsl(var(--primary) / 0.45); }
 .resize-y {
-  height: 4px; cursor: row-resize; flex-shrink: 0;
-  background: transparent; transition: background 0.15s;
+  height: 3px; cursor: row-resize; flex-shrink: 0;
+  background: transparent; transition: background 0.12s;
 }
-.resize-y:hover, .resize-y.dragging { background: hsl(var(--primary) / 0.5); }
+.resize-y:hover, .resize-y.dragging { background: hsl(var(--primary) / 0.45); }
 
 /* ---- Panel chrome ---- */
 .panel-header {
   display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid hsl(var(--border));
-  padding: 4px 12px; min-height: 38px; flex-shrink: 0;
+  padding: 4px 10px; min-height: 36px; flex-shrink: 0;
 }
-.panel-title { font-size: 13px; font-weight: 600; }
+.panel-title { font-size: 12.5px; font-weight: 600; letter-spacing: -0.01em; }
 
 /* ---- Dockview theme (editor tabs — follows app tokens) ---- */
 .dockview-theme-adapt {
@@ -224,21 +242,21 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   --dv-tab-divider-color: hsl(var(--border));
   --dv-separator-border: hsl(var(--border));
   --dv-sash-color: transparent;
-  --dv-active-sash-color: hsl(var(--primary) / 0.5);
+  --dv-active-sash-color: hsl(var(--primary) / 0.45);
   --dv-paneview-active-outline-color: hsl(var(--primary));
   --dv-paneview-header-border-color: hsl(var(--border));
-  --dv-drag-over-background-color: hsl(var(--primary) / 0.15);
+  --dv-drag-over-background-color: hsl(var(--primary) / 0.12);
   --dv-drag-over-border-color: hsl(var(--primary));
   --dv-icon-hover-background-color: hsl(var(--accent));
-  --dv-scrollbar-background-color: hsl(var(--muted-foreground) / 0.3);
-  --dv-tabs-container-scrollbar-color: hsl(var(--muted-foreground) / 0.5);
+  --dv-scrollbar-background-color: hsl(var(--muted-foreground) / 0.28);
+  --dv-tabs-container-scrollbar-color: hsl(var(--muted-foreground) / 0.45);
   --dv-context-menu-background-color: hsl(var(--popover));
   --dv-context-menu-color: hsl(var(--popover-foreground));
   --dv-tab-group-color: hsl(var(--primary));
 
   /* structure */
-  --dv-tabs-and-actions-container-height: 35px;
-  --dv-tabs-and-actions-container-font-size: 12.5px;
+  --dv-tabs-and-actions-container-height: 34px;
+  --dv-tabs-and-actions-container-font-size: 12px;
   --dv-tab-font-size: inherit;
   --dv-tab-close-icon-size: inherit;
   --dv-border-radius: 0px;
@@ -252,7 +270,7 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   --dv-overlay-z-index: 250;
 
   /* floating groups */
-  --dv-floating-box-shadow: 0 8px 32px rgb(0 0 0 / 0.35), 0 2px 8px rgb(0 0 0 / 0.2);
+  --dv-floating-box-shadow: var(--shadow-lg);
   --dv-floating-border: 1px solid hsl(var(--border));
   --dv-floating-group-border: none;
   --dv-drag-over-border: none;
@@ -262,12 +280,17 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   --dv-floating-titlebar-border-bottom: var(--dv-floating-border);
 }
 
+/* Active dock tab: subtle top accent like Cursor editor tabs */
+.dockview-theme-adapt .dv-tab.dv-active-tab {
+  box-shadow: inset 0 1px 0 0 hsl(var(--primary));
+}
+
 /* ---- MapLibre control theming (match app tokens) ---- */
 .maplibregl-ctrl-group {
-  background: hsl(var(--card)) !important;
+  background: hsl(var(--popover)) !important;
   border: 1px solid hsl(var(--border));
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15) !important;
-  border-radius: calc(var(--radius) - 2px) !important;
+  box-shadow: var(--shadow) !important;
+  border-radius: calc(var(--radius) - 1px) !important;
   overflow: hidden;
 }
 .maplibregl-ctrl-group button { background: transparent !important; }
@@ -275,13 +298,13 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 .maplibregl-ctrl-group button + button { border-top: 1px solid hsl(var(--border)) !important; }
 .dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) hue-rotate(180deg); }
 .maplibregl-ctrl-scale {
-  background: hsl(var(--card) / 0.7) !important;
-  border-color: hsl(var(--foreground) / 0.6) !important;
+  background: hsl(var(--popover) / 0.85) !important;
+  border-color: hsl(var(--foreground) / 0.45) !important;
   color: hsl(var(--foreground)) !important;
   font-size: 10px !important;
 }
 .maplibregl-ctrl-attrib {
-  background: hsl(var(--card) / 0.7) !important;
+  background: hsl(var(--popover) / 0.8) !important;
   font-size: 10px;
 }
 .maplibregl-ctrl-attrib a { color: hsl(var(--muted-foreground)) !important; }

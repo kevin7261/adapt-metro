@@ -182,12 +182,12 @@ const cityLabel = () => `${props.system.cityZh ?? props.system.city} · ${props.
 .omap-link:not(.ready) { color: hsl(var(--muted-foreground)); cursor: default; pointer-events: none; }
 .omap.clickable:hover img { opacity: 0.92; }
 .omap-canvas.loading {
-  background: linear-gradient(100deg,
-    hsl(var(--muted) / 0.3) 30%, hsl(var(--muted) / 0.55) 50%, hsl(var(--muted) / 0.3) 70%);
-  background-size: 200% 100%;
   animation: omap-shimmer 1.2s ease-in-out infinite;
 }
-@keyframes omap-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes omap-shimmer {
+  0%, 100% { background-color: hsl(var(--muted) / 0.3); }
+  50% { background-color: hsl(var(--muted) / 0.55); }
+}
 
 /* ---- 燈箱 modal ---- */
 .omap-modal {

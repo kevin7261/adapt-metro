@@ -1,4 +1,6 @@
 <script setup>
+import MIcon from '../MIcon.vue'
+
 // 面板的階段 chips：這一步執行的工作（lastStage）會亮起。
 const STEP_STAGES = [
   { k: 'endp', label: '端點移動' }, { k: 'line', label: '直線縮減' },
@@ -15,16 +17,16 @@ const emit = defineEmits(['prev', 'next', 'reset'])
 
 <template>
   <div class="step-panel">
-    <button class="step-btn back" :disabled="!panelLayer || !stepInfo?.hist" @click="emit('prev', false)">◀ 上一步</button>
-    <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="emit('next')">下一步 ▶</button>
-    <button class="step-btn back sub" :disabled="!panelLayer || !stepInfo?.hist" @click="emit('prev', true)">‹ 上一小步</button>
-    <button class="step-btn sub" :disabled="!panelLayer || stepInfo?.done" @click="emit('next', 1)">下一小步 ›</button>
+    <button class="step-btn back" :disabled="!panelLayer || !stepInfo?.hist" @click="emit('prev', false)"><MIcon name="arrow_back" :size="13" /> 上一步</button>
+    <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="emit('next')">下一步 <MIcon name="arrow_forward" :size="13" /></button>
+    <button class="step-btn back sub" :disabled="!panelLayer || !stepInfo?.hist" @click="emit('prev', true)"><MIcon name="chevron_left" :size="13" /> 上一小步</button>
+    <button class="step-btn sub" :disabled="!panelLayer || stepInfo?.done" @click="emit('next', 1)">下一小步 <MIcon name="chevron_right" :size="13" /></button>
     <button class="step-btn ghost" :disabled="!panelLayer" @click="emit('reset')">重設</button>
     <span class="step-count" v-if="stepInfo">第 {{ stepInfo.steps }} 步</span>
     <!-- 這一步是哪一個工作：執行到的階段亮起 -->
     <span class="step-stages" v-if="stepInfo">
       <template v-for="(s, i) in STEP_STAGES" :key="s.k">
-        <span v-if="i" class="step-arrow">→</span>
+        <MIcon v-if="i" name="arrow_right_alt" :size="12" class="step-arrow" />
         <span class="step-chip" :class="{ active: stepInfo.lastStage === s.k }">{{ s.label }}</span>
       </template>
     </span>
@@ -53,6 +55,9 @@ const emit = defineEmits(['prev', 'next', 'reset'])
 }
 .step-btn {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 12px;
   font-size: 12.5px;
   font-weight: 600;
@@ -115,5 +120,5 @@ const emit = defineEmits(['prev', 'next', 'reset'])
   color: hsl(var(--primary-foreground));
   font-weight: 600;
 }
-.step-arrow { color: hsl(var(--muted-foreground) / 0.5); font-size: 10px; }
+.step-arrow { color: hsl(var(--muted-foreground) / 0.5); }
 </style>

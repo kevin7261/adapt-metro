@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
+import MIcon from './MIcon.vue'
 
 // One city's view card (Hill Climbing / RWD Maps 共用): a title header + a grid
 // of pre-computed views. Geometry is fetched lazily
@@ -67,7 +68,7 @@ onBeforeUnmount(() => observer?.disconnect())
         <span class="sh-en">{{ entry.city }} · {{ entry.country }}</span>
       </span>
       <span class="sh-stats">{{ entry.line_count }} 線 · {{ entry.station_count }} 站</span>
-      <span class="sh-open">建立 {{ ctaLabel }} ›</span>
+      <span class="sh-open">建立 {{ ctaLabel }} <MIcon name="chevron_right" :size="12" /></span>
     </button>
 
     <div class="sgrid" :style="gridStyle">
@@ -159,7 +160,7 @@ onBeforeUnmount(() => observer?.disconnect())
 .sgrid-head:hover .sh-zh { color: hsl(var(--primary)); }
 .sh-en { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sh-stats { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; }
-.sh-open { margin-left: auto; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
+.sh-open { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; font-size: 10.5px; color: hsl(var(--primary)); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
 .sgrid-head:hover .sh-open { opacity: 1; }
 
 .sgrid {
@@ -183,7 +184,7 @@ onBeforeUnmount(() => observer?.disconnect())
   align-items: center;
   justify-content: center;
   padding: 4px;
-  background: radial-gradient(120% 120% at 50% 0%, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.2));
+  background: hsl(var(--muted) / 0.35);
 }
 .vc-canvas svg { width: 100%; height: 100%; overflow: visible; }
 .grid-sep { stroke: #3b82f6; stroke-width: 0.2; stroke-opacity: 0.18; }
@@ -200,10 +201,10 @@ onBeforeUnmount(() => observer?.disconnect())
 .view-cell:hover .vc-label { color: hsl(var(--foreground)); }
 
 .vc-canvas.loading {
-  background: linear-gradient(100deg,
-    hsl(var(--muted) / 0.3) 30%, hsl(var(--muted) / 0.5) 50%, hsl(var(--muted) / 0.3) 70%);
-  background-size: 200% 100%;
   animation: sg-shimmer 1.2s ease-in-out infinite;
 }
-@keyframes sg-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes sg-shimmer {
+  0%, 100% { background-color: hsl(var(--muted) / 0.3); }
+  50% { background-color: hsl(var(--muted) / 0.5); }
+}
 </style>

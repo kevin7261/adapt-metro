@@ -1932,12 +1932,11 @@
     "city": "Karaj",
     "country": "Iran",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/iran/as-iri-karaj.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://metro.tehran.ir/Portals/0/map/نقشه اردیبهشت.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Tehran Urban & Suburban Railway map — Line 5 (green) serves the Karaj corridor (Golshahr/Karaj/Garmdarreh/Mohammad Shahr)"
   },
   "europe/greece/eu-gre-thessaloniki": {
     "city": "Thessaloniki",
@@ -2040,12 +2039,11 @@
     "city": "Adana",
     "country": "Turkey",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/turkey/as-tur-adana.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.adana.bel.tr/panel/uploads/slides_v/haber/hafif-rayli-sistem-guzergah.png",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Adana Büyükşehir Belediyesi 'Adana Metro ve Tramvay Hattı Haritası' (existing metro named, 2nd stage dashed)"
   },
   "asia/india/as-ind-lucknow": {
     "city": "Lucknow",
@@ -2123,12 +2121,11 @@
     "city": "Lahore",
     "country": "Pakistan",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/pakistan/as-pak-lahore.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://web.olmrts.com.pk/Content/assets/img/ol-lahore-routemap.jpeg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Orange Line Metro (Punjab Masstransit Authority / OLMRTS) 26-station schematic"
   },
   "asia/vietnam/as-vie-ho-chi-minh-city": {
     "city": "Ho Chi Minh City",
@@ -2322,7 +2319,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784627877012,
+  "_rev": 1784633158243,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",

@@ -224,14 +224,14 @@ const tiles = computed(() => {
 .gallery-statusbar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  height: 28px;
+  gap: 14px;
+  height: 24px;
   flex-shrink: 0;
   padding: 0 12px;
   border-top: 1px solid hsl(var(--border));
-  background: hsl(var(--muted) / 0.4);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11.5px;
+  background: hsl(var(--card));
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
   color: hsl(var(--muted-foreground));
   white-space: nowrap;
 }
@@ -242,10 +242,12 @@ const tiles = computed(() => {
   padding: 0 12px;
   border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
+  background: hsl(var(--card));
 }
 .gallery-tab {
-  padding: 9px 12px;
-  font-size: 13px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
   color: hsl(var(--muted-foreground));
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
@@ -253,7 +255,7 @@ const tiles = computed(() => {
 }
 .gallery-tab:hover { color: hsl(var(--foreground)); }
 .gallery-tab.active {
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }

@@ -2,7 +2,7 @@
    標題 15/700 前景、副標 12 灰、小節標題 11.5/600 灰、內文 12.5 前景、
    註記 11.5 灰、徽章 10.5、等寬 11。六個 tab 一律取用這組變數，不得自訂字級。 */
 .style-panel {
-  --sp-title: 15px;   /* 主標題（城市名/站名/路線名） */
+  --sp-title: 14px;   /* 主標題（城市名/站名/路線名） */
   --sp-sub: 12px;     /* 副標（標題下第二行英文） */
   --sp-head: 11.5px;  /* 小節標題（section-title/llm-h/obj-pass-sub…） */
   --sp-body: 12.5px;  /* 內文（rows/表格/站表/按鈕/輸入） */
@@ -17,7 +17,7 @@
   border-left: 1px solid hsl(var(--border));
 }
 .rail {
-  width: 44px;
+  width: 42px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -43,14 +43,16 @@
   gap: 3px;
   padding: 7px 10px 8px;
   font-size: var(--sp-body);
+  font-weight: 500;
   color: hsl(var(--muted-foreground));
   border-bottom: 2px solid transparent;
-  border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0;
+  border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;
   white-space: nowrap;
+  transition: color 0.08s ease, background 0.08s ease;
 }
-.panel-tab:hover { background: hsl(var(--accent) / 0.6); color: hsl(var(--foreground)); }
+.panel-tab:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 .panel-tab.active {
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
@@ -506,7 +508,7 @@
   flex: none;
 }
 .line-ref {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--sp-mono);
   color: hsl(var(--muted-foreground));
   background: hsl(var(--muted));
@@ -547,7 +549,10 @@
 }
 .sk-dot.sk-ring { background: #fff; }
 .sk-line { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
-.sk-line.sk-plain { background: linear-gradient(90deg, #e11d48, #2563eb, #16a34a); }
+/* 三色硬邊條紋（非漸層）：代表「多條路線各自原色」 */
+.sk-line.sk-plain {
+  background: linear-gradient(90deg, #e11d48 0 33.3%, #2563eb 33.3% 66.6%, #16a34a 66.6% 100%);
+}
 .sk-line.sk-dash {
   background: repeating-linear-gradient(
     90deg,

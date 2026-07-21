@@ -94,17 +94,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 }
 .toast {
   position: absolute;
-  bottom: 44px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 400;
   background: hsl(var(--popover));
   color: hsl(var(--popover-foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 13px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  border-radius: calc(var(--radius) + 2px);
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
   white-space: nowrap;
 }
 .toast-enter-active, .toast-leave-active { transition: opacity 0.2s, transform 0.2s; }

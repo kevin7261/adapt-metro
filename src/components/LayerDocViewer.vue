@@ -166,7 +166,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .layerdoc-map .draw-label { color: hsl(var(--foreground)); }
 .layerdoc-map .col-data { color: hsl(var(--muted-foreground)); }
 .layerdoc-map .col-data :deep(code) {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
   background: hsl(var(--muted) / 0.6); border-radius: 4px; padding: 1px 4px;
 }
 .lg-mark { flex-shrink: 0; width: 26px; height: 14px; display: inline-flex; }
@@ -182,11 +182,11 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .layerdoc-prose :deep(ul) { margin: 4px 0; padding-left: 20px; }
 .layerdoc-prose :deep(li) { margin: 3px 0; }
 .layerdoc-prose :deep(code), .layerdoc-note :deep(code) {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
   background: hsl(var(--muted) / 0.6); border-radius: 4px; padding: 1px 5px;
 }
 .layerdoc-code {
-  margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.55;
+  margin: 0; font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.55;
   background: hsl(var(--muted) / 0.5); border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px); padding: 10px 12px; overflow-x: auto; white-space: pre;
 }

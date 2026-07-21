@@ -521,7 +521,7 @@ onBeforeUnmount(() => {
   border-right: 1px solid hsl(var(--border));
 }
 .rail {
-  width: 44px;
+  width: 42px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -535,6 +535,7 @@ onBeforeUnmount(() => {
   writing-mode: vertical-rl;
   font-size: 11px;
   color: hsl(var(--muted-foreground));
+  letter-spacing: 0.04em;
 }
 .header-actions { display: flex; gap: 2px; }
 
@@ -543,22 +544,23 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
-  padding: 8px 8px 0;
+  gap: 4px;
+  padding: 8px 8px 4px;
 }
 /* 田 視圖 ／ + 加入：中性配色（不用藍色），文字＋圖示 */
 .bar-btn {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
-  font-size: 12.5px;
-  font-weight: 600;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
   color: hsl(var(--foreground));
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px);
-  background: hsl(var(--card));
+  background: hsl(var(--background));
   white-space: nowrap;
+  transition: background 0.1s ease;
 }
 .bar-btn:hover, .bar-btn.active { background: hsl(var(--accent)); }
 .import-wrap { position: relative; flex-shrink: 0; }
@@ -573,7 +575,7 @@ onBeforeUnmount(() => {
 }
 .import-menu .menu-item { width: 100%; }
 
-.tree { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+.tree { flex: 1; overflow-y: auto; padding: 4px 6px 8px; display: flex; flex-direction: column; gap: 2px; }
 .tree-empty {
   font-size: 11.5px;
   color: hsl(var(--muted-foreground));
@@ -581,32 +583,33 @@ onBeforeUnmount(() => {
   line-height: 1.7;
 }
 
-/* ---- group card (GeoLibre-style: chevron + folder + name) ---- */
+/* ---- group（Cursor file-tree 感：扁平、少邊框） ---- */
 .group-card {
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
-  background: hsl(var(--muted) / 0.25);
-  padding: 4px;
+  border: none;
+  border-radius: calc(var(--radius) - 1px);
+  background: transparent;
+  padding: 2px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 1px;
 }
 .group-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  border-radius: calc(var(--radius) - 4px);
+  gap: 5px;
+  padding: 5px 6px;
+  border-radius: calc(var(--radius) - 2px);
   cursor: pointer;
   user-select: none;
 }
-.group-header:hover { background: hsl(var(--accent) / 0.6); }
+.group-header:hover { background: hsl(var(--accent)); }
 .group-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
 .group-folder { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
 .group-name {
   flex: 1;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -621,16 +624,16 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   padding: 4px 6px 4px 10px;
-  border-radius: calc(var(--radius) - 4px);
+  border-radius: calc(var(--radius) - 2px);
   cursor: pointer;
   user-select: none;
 }
-.subgroup-header:hover { background: hsl(var(--accent) / 0.6); }
+.subgroup-header:hover { background: hsl(var(--accent)); }
 .sub-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
 .subgroup-name {
   flex: 1;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 500;
   color: hsl(var(--muted-foreground));
   overflow: hidden;
   text-overflow: ellipsis;
@@ -638,7 +641,7 @@ onBeforeUnmount(() => {
 }
 .subgroup-count {
   font-size: 10.5px;
-  color: hsl(var(--muted-foreground) / 0.8);
+  color: hsl(var(--muted-foreground) / 0.75);
   font-variant-numeric: tabular-nums;
   padding: 0 4px;
 }
@@ -647,24 +650,26 @@ onBeforeUnmount(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 6px 8px;
-  border-radius: calc(var(--radius) - 4px);
+  gap: 3px;
+  padding: 5px 7px;
+  border-radius: calc(var(--radius) - 2px);
   cursor: pointer;
-  border: 1px solid hsl(var(--border) / 0.6);
-  background: hsl(var(--card));
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background 0.08s ease;
 }
 /* 子群組內的圖層列：縮排，左緣加一條線標示層級 */
 .layer-row.nested { margin-left: 12px; border-left: 2px solid hsl(var(--border)); }
-.layer-row:hover { background: hsl(var(--accent) / 0.6); }
+.layer-row:hover { background: hsl(var(--accent)); }
 /* Active layer = the layer shown in the active editor tab. */
 .layer-row.selected {
-  background: hsl(var(--primary) / 0.18);
-  border-color: hsl(var(--primary) / 0.55);
+  background: hsl(var(--primary) / 0.14);
+  border-color: transparent;
 }
-.layer-row.selected .layer-name { color: hsl(var(--primary)); font-weight: 600; }
+.layer-row.selected .layer-name { color: hsl(var(--foreground)); font-weight: 600; }
+.layer-row.selected :deep(.type-icon) { color: hsl(var(--primary)); }
 .layer-title { display: flex; align-items: center; gap: 2px; min-width: 0; }
-.type-icon { flex-shrink: 0; margin: 0 3px; }
+.type-icon { flex-shrink: 0; margin: 0 3px; color: hsl(var(--muted-foreground)); }
 .layer-name {
   flex: 1;
   font-size: 12.5px;

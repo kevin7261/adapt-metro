@@ -62,15 +62,17 @@ function close(e) {
   align-items: center;
   gap: 6px;
   height: 100%;
-  padding: 0 4px;
+  padding: 0 6px 0 4px;
   min-width: 0;
 }
-.dock-tab-icon { flex-shrink: 0; color: hsl(var(--primary)); }
+.dock-tab-icon { flex-shrink: 0; color: hsl(var(--muted-foreground)); }
 .dock-tab-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12.5px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 .dock-tab-close {
   display: inline-flex;
@@ -82,6 +84,7 @@ function close(e) {
   border-radius: 4px;
   color: hsl(var(--muted-foreground));
   opacity: 0;
+  transition: opacity 0.08s ease, background 0.08s ease;
 }
 .dock-tab:hover .dock-tab-close { opacity: 1; }
 .dock-tab-close:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }

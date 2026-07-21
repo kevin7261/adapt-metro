@@ -78,9 +78,9 @@ onBeforeUnmount(() => {
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-height: 44px;
-  padding: 4px 8px;
+  gap: 2px;
+  min-height: 40px;
+  padding: 4px 10px;
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));
@@ -88,19 +88,23 @@ onBeforeUnmount(() => {
 .brand {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px 0 4px;
+  gap: 7px;
+  padding: 0 10px 0 2px;
   font-size: 13px;
   font-weight: 600;
-  color: hsl(var(--primary));
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
   white-space: nowrap;
   flex-shrink: 0;
   text-decoration: none;
+  border-radius: calc(var(--radius) - 2px);
 }
+.brand:hover { background: hsl(var(--accent)); }
+.brand :deep(.m-icon) { color: hsl(var(--primary)); }
 
 .skills-link { margin-left: auto; }
 .toolbar a.btn-ghost { text-decoration: none; }
 .skills-wrap { position: relative; }
-.info-menu { top: 34px; right: 0; left: auto; min-width: 220px; }
+.info-menu { top: 32px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
 </style>

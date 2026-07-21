@@ -11,8 +11,8 @@ const J = (v, fb) => {
 // 小元件（樣式對齊 StylePanel 的 .line-swatch/.line-ref/.obj-route-count/.obj-pass-tag/.obj-title）
 const H = {
   swatch: (c) => `<span style="width:14px;height:6px;border-radius:3px;background:${c || '#e11d48'};margin-right:8px;flex:none"></span>`,
-  ref: (t) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:rgba(127,127,140,.22);color:rgba(155,163,175,1);margin-right:8px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
-  refC: (t, c) => t ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:${c || 'rgba(127,127,140,.35)'};color:#fff;margin-right:4px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
+  ref: (t) => t ? `<span style="font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:rgba(127,127,140,.22);color:rgba(155,163,175,1);margin-right:8px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
+  refC: (t, c) => t ? `<span style="font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;padding:1px 5px;border-radius:4px;background:${c || 'rgba(127,127,140,.35)'};color:#fff;margin-right:4px;flex:none;min-width:34px;text-align:center;box-sizing:border-box">${t}</span>` : '',
   dim: (t) => `<span style="margin-left:auto;padding-left:12px;font-weight:400;font-size:11px;color:rgba(155,163,175,1);flex:none">${t}</span>`,
   row: (inner) => `<div style="display:flex;align-items:center;gap:0;margin-top:4px;white-space:nowrap">${inner}</div>`,
   title: (name, en) => `<div style="font-weight:700;font-size:15px;line-height:1.3">${name}</div>` +
@@ -120,7 +120,7 @@ export function linePopupHtml(p, onSeg = []) {
         const code = codeOf.get(st.station_id)
         return `<div style="display:flex;align-items:center;margin:2px 0 0 22px;font-size:11.5px${isPass ? ';color:rgba(155,163,175,1)' : ''}">` +
           `<span style="opacity:.55;min-width:16px;text-align:right;margin-right:6px">${i + 1}.</span>` +
-          (code ? `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;padding:0 4px;border-radius:3px;background:rgba(127,127,140,.22);margin-right:6px">${code}</span>` : '') +
+          (code ? `<span style="font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;padding:0 4px;border-radius:3px;background:rgba(127,127,140,.22);margin-right:6px">${code}</span>` : '') +
           `<span>${st.station_name}</span>` + (isPass ? H.passTag() : '') + `</div>`
       }).join('')
     }
