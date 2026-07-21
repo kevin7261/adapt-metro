@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T19:02:26.602Z",
+  "generated_at": "2026-07-21T20:23:56.188Z",
   "bbox": [
     139.56,
     35.54,
@@ -2068,6 +2068,310 @@
           "coord": [
             139.5645639,
             35.6171843
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3417174",
+      "opk": "東京モノレール",
+      "ref": "MO",
+      "name": "東京モノレール羽田空港線 普通",
+      "nameLocal": "東京モノレール羽田空港線 普通",
+      "nameEn": "Tokyo Monorail Local",
+      "color": "#003685",
+      "network": "東京モノレール",
+      "networkLocal": "東京モノレール",
+      "operator": "東京モノレール",
+      "wikidata": "Q8015774",
+      "wikipedia": "ja:東京モノレール羽田空港線",
+      "osmIds": [
+        3417174
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6233258068",
+          "name": "モノレール浜松町",
+          "nameLocal": "モノレール浜松町",
+          "nameEn": "Monorail Hamamatsucho",
+          "code": "MO01",
+          "coord": [
+            139.7567934,
+            35.6555976
+          ]
+        },
+        {
+          "id": "n6233288127",
+          "name": "天王洲アイル",
+          "nameLocal": "天王洲アイル",
+          "nameEn": "Tennozu Isle",
+          "code": "MO02",
+          "coord": [
+            139.7508064,
+            35.6227519
+          ]
+        },
+        {
+          "id": "n6233306620",
+          "name": "大井競馬場前",
+          "nameLocal": "大井競馬場前",
+          "nameEn": "Oikeibajo-Mae",
+          "code": "MO03",
+          "coord": [
+            139.7470745,
+            35.5951293
+          ]
+        },
+        {
+          "id": "n6233228616",
+          "name": "流通センター",
+          "nameLocal": "流通センター",
+          "nameEn": "Ryutsu Center",
+          "code": "MO04",
+          "coord": [
+            139.7491442,
+            35.5816902
+          ]
+        },
+        {
+          "id": "n12628416139",
+          "name": "昭和島",
+          "nameLocal": "昭和島",
+          "nameEn": "Showajima",
+          "code": "MO05",
+          "coord": [
+            139.7500681,
+            35.5707693
+          ]
+        },
+        {
+          "id": "n6233024958",
+          "name": "整備場",
+          "nameLocal": "整備場",
+          "nameEn": "Seibijo",
+          "code": "MO06",
+          "coord": [
+            139.7533778,
+            35.5551633
+          ]
+        },
+        {
+          "id": "n6233024960",
+          "name": "天空橋",
+          "nameLocal": "天空橋",
+          "nameEn": "Tenkubashi",
+          "code": "MO07",
+          "coord": [
+            139.7543945,
+            35.5489899
+          ]
+        },
+        {
+          "id": "n6233196292",
+          "name": "羽田空港第3ターミナル",
+          "nameLocal": "羽田空港第3ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "MO08",
+          "coord": [
+            139.7686676,
+            35.5438943
+          ]
+        },
+        {
+          "id": "n6233025300",
+          "name": "新整備場",
+          "nameLocal": "新整備場",
+          "nameEn": "Shinseibijo",
+          "code": "MO09",
+          "coord": [
+            139.7868127,
+            35.542837
+          ]
+        },
+        {
+          "id": "n6233192379",
+          "name": "羽田空港第1ターミナル",
+          "nameLocal": "羽田空港第1ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "MO10",
+          "coord": [
+            139.7845042,
+            35.5491467
+          ]
+        },
+        {
+          "id": "n6233041642",
+          "name": "羽田空港第2ターミナル",
+          "nameLocal": "羽田空港第2ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "MO11",
+          "coord": [
+            139.7882856,
+            35.5508377
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3423146",
+      "opk": "東京都交通局",
+      "ref": "NT",
+      "name": "日暮里・舎人ライナー",
+      "nameLocal": "日暮里・舎人ライナー",
+      "nameEn": "Nippori-Toneri Liner",
+      "color": "#ff69b4",
+      "network": "日暮里・舎人ライナー",
+      "networkLocal": "東京都交通局",
+      "operator": "東京都交通局",
+      "wikidata": "Q910032",
+      "wikipedia": "ja:東京都交通局日暮里・舎人ライナー",
+      "osmIds": [
+        3423146
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6368871712",
+          "name": "日暮里",
+          "nameLocal": "日暮里",
+          "nameEn": "Nippori",
+          "code": "NT01",
+          "coord": [
+            139.7712873,
+            35.7289168
+          ]
+        },
+        {
+          "id": "n6368871734",
+          "name": "西日暮里",
+          "nameLocal": "西日暮里",
+          "nameEn": "Nishi-nippori",
+          "code": "NT02",
+          "coord": [
+            139.7680432,
+            35.7337204
+          ]
+        },
+        {
+          "id": "n722149194",
+          "name": "赤土小学校前",
+          "nameLocal": "赤土小学校前",
+          "nameEn": "Akado-shogakkomae",
+          "code": "NT03",
+          "coord": [
+            139.7689755,
+            35.7428641
+          ]
+        },
+        {
+          "id": "n722149196",
+          "name": "熊野前",
+          "nameLocal": "熊野前",
+          "nameEn": "Kumanomae",
+          "code": "04",
+          "coord": [
+            139.7698041,
+            35.7485037
+          ]
+        },
+        {
+          "id": "n722149198",
+          "name": "足立小台",
+          "nameLocal": "足立小台",
+          "nameEn": "Adachi-odai",
+          "code": "NT-05",
+          "coord": [
+            139.7703354,
+            35.7546723
+          ]
+        },
+        {
+          "id": "n722149200",
+          "name": "扇大橋",
+          "nameLocal": "扇大橋",
+          "nameEn": "Ogi-ohashi",
+          "code": "06",
+          "coord": [
+            139.77078,
+            35.7639817
+          ]
+        },
+        {
+          "id": "n722149203",
+          "name": "高野",
+          "nameLocal": "高野",
+          "nameEn": "Koya",
+          "code": "07",
+          "coord": [
+            139.7706489,
+            35.7684884
+          ]
+        },
+        {
+          "id": "n722149205",
+          "name": "江北",
+          "nameLocal": "江北",
+          "nameEn": "Kohoku",
+          "code": "NT08",
+          "coord": [
+            139.7702593,
+            35.7739596
+          ]
+        },
+        {
+          "id": "n722149207",
+          "name": "西新井大師西",
+          "nameLocal": "西新井大師西",
+          "nameEn": "Nishiaraidaishi-nishi",
+          "code": "09",
+          "coord": [
+            139.7700397,
+            35.7815513
+          ]
+        },
+        {
+          "id": "n722149212",
+          "name": "谷在家",
+          "nameLocal": "谷在家",
+          "nameEn": "Yazaike",
+          "code": "10",
+          "coord": [
+            139.7700116,
+            35.7887166
+          ]
+        },
+        {
+          "id": "n722149216",
+          "name": "舎人公園",
+          "nameLocal": "舎人公園",
+          "nameEn": "Toneri-koen",
+          "code": "11",
+          "coord": [
+            139.7700819,
+            35.7963752
+          ]
+        },
+        {
+          "id": "n722149228",
+          "name": "舎人",
+          "nameLocal": "舎人",
+          "nameEn": "Toneri",
+          "code": "12",
+          "coord": [
+            139.7700797,
+            35.8056467
+          ]
+        },
+        {
+          "id": "n6368880407",
+          "name": "見沼代親水公園",
+          "nameLocal": "見沼代親水公園",
+          "nameEn": "Minumadai-shinsuikoen",
+          "code": "NT13",
+          "coord": [
+            139.7706798,
+            35.8144994
           ]
         }
       ]

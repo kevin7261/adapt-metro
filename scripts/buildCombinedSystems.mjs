@@ -115,6 +115,24 @@ const TARGETS = [
         network: '北総鉄道', networkLocal: '北総鉄道', operator: '北総鉄道',
         wikidata: 'Q1064544', wikipedia: 'ja:北総鉄道北総線',
       },
+      {
+        rel: 5326726, lang: 'ja', // JR京葉線各停（東京→蘇我）——railway 版只有「京葉線高架段」片段缺東京
+        ref: 'JE', name: '京葉線', nameLocal: '京葉線', nameEn: 'Keiyo Line', color: '#c9242f',
+        network: 'JR East', networkLocal: '東日本旅客鉄道', operator: '東日本旅客鉄道',
+        wikidata: 'Q812501', wikipedia: 'ja:京葉線',
+      },
+      {
+        rel: 9504526, lang: 'ja', // 東武スカイツリーライン（伊勢崎線，operator 無標故 operator 查詢抓不到）
+        ref: 'TS', name: '東武スカイツリーライン', nameLocal: '東武スカイツリーライン', nameEn: 'Tobu Skytree Line', color: '#0f6cc3',
+        network: '東武鉄道', networkLocal: '東武鉄道', operator: '東武鉄道',
+        wikidata: 'Q1076858', wikipedia: 'ja:東武伊勢崎線',
+      },
+      {
+        rel: 7002081, lang: 'ja', // 埼玉高速鉄道線（赤羽岩淵→浦和美園，route=subway 故 train/AGT 查詢都沒抓）
+        ref: 'SR', name: '埼玉高速鉄道線', nameLocal: '埼玉スタジアム線', nameEn: 'Saitama Rapid Railway', color: '#00a99d',
+        network: '埼玉高速鉄道', networkLocal: '埼玉高速鉄道', operator: '埼玉高速鉄道',
+        wikidata: 'Q1191587', wikipedia: 'ja:埼玉高速鉄道線',
+      },
     ],
     // 異名共站（連通轉乘但站名不同）——JR/私鐵靠很近的官方乗換駅要併成一站（使用者稽核）
     aliases: {

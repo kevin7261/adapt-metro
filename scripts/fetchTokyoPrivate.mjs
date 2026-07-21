@@ -144,9 +144,12 @@ function orderedStops(members) {
 // 分組：operator|ref（無 ref 用 operator|cleanName）。先剔除直通/優等服務。
 const groups = new Map()
 let skipped = 0
+// 新交通/單軌是「線」不是服務——名含ライナー/普通/快速也不套服務過濾（日暮里・舎人ライナー等）
+const AGT_ALLOW = /ゆりかもめ|舎人|東京モノレール|多摩都市モノレール/
 for (const e of cands) {
   const t = e.tags || {}
-  if (SERVICE_EXCLUDE.test(`${t.name || ''} ${t.ref || ''}`)) { skipped++; continue }
+  const isAgt = AGT_ALLOW.test(t.name || '')
+  if (!isAgt && SERVICE_EXCLUDE.test(`${t.name || ''} ${t.ref || ''}`)) { skipped++; continue }
   // 相鉄（相模鉄道）＝橫濱系統，東京只有零星片段（使用者：不用抓）
   if (/相鉄|相模鉄道/.test(`${t.operator || ''} ${t.name || ''}`)) { skipped++; continue }
   // 東武大師線＝西新井↔大師前 2 站支線（使用者：不用抓）
@@ -194,8 +197,9 @@ for (const [key, g] of groups) {
   const LINE_CANON = { '京王新線': '京王線', '京王電鉄京王線': '京王線' }
   const name = LINE_CANON[rawName] || rawName
   // 名稱仍含種別（急行/快速/特急/普通…）＝殘留的服務變體片段（各停已另成一條）→ 丟。
-  // 真實線名不含這些；(?<!京浜) 讓「京浜急行」社名不被 急行 誤傷、「エクスプレス」不在此列。
-  if (/(?<!京浜)急行|快速|特急|準急|通勤|普通|各停|各駅/.test(name)) continue
+  // 真實線名不含這些；(?<!京浜) 讓「京浜急行」社名不被 急行 誤傷、「エクスプレス」不在此列、
+  // AGT/單軌（舎人ライナー/モノレール普通…）名帶種別但是線本身、不丟。
+  if (!AGT_ALLOW.test(name) && /(?<!京浜)急行|快速|特急|準急|通勤|普通|各停|各駅/.test(name)) continue
   lines.push({
     routeId: `tokyopriv-r${g.id}`,
     opk: key.split('|')[0],

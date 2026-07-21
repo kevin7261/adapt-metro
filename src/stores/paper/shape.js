@@ -388,6 +388,23 @@ function findAllCrossingPairs(posMap, segs, limit = 400) {
   return out
 }
 
+/** 單段的不當交叉數（綠控增量評估，避免每次 O(n²) 全量重算） */
+function segCrossCount(posMap, segs, si) {
+  const s = segs[si]
+  const A = posMap.get(s.a), B = posMap.get(s.b)
+  if (!A || !B) return 0
+  let n = 0
+  for (let j = 0; j < segs.length; j++) {
+    if (j === si) continue
+    const t = segs[j]
+    if (s.a === t.a || s.a === t.b || s.b === t.a || s.b === t.b) continue
+    const C = posMap.get(t.a), D = posMap.get(t.b)
+    if (!C || !D) continue
+    if (segIntersect(A, B, C, D)) n++
+  }
+  return n
+}
+
 /**
  * 對一組不當交叉：在其中一段插入綠控轉折，嚴格減少交叉並保遠端環繞序。
  * @returns {{ pos, segs, inc, green } | null}
@@ -551,169 +568,133 @@ function greenDirCandidates(A, B, box) {
 }
 
 /**
- * 硬釘 W 成四邊方；其餘只 validMove 跟著 RBF 場（不硬吸）。
- * 剩餘交叉用綠控轉折消掉。必定交付 fourLine。
+ * 硬釘 W 成四邊方；其餘跟 RBF 整網變形（同胚場），再綠控消殘餘交叉。
+ * 禁止「只釘 W、其餘留原地」——那會把貫穿環線的地鐵撕成義大利麵。
  */
 async function forceSquareWithGreens(
   geo, pick, pathSet, segs, inc, cols, rows, boxes, box0, cross0, opts,
 ) {
-  await shapeProgress(opts, '§6F 強制成方（validMove＋綠控）…')
+  await shapeProgress(opts, '§6F 強制成方（RBF 整網＋綠控）…')
 
-  // 1) 用 forceFourSideSquare 取夠大的正方（站數均分四邊），不要用過短的 shrink box
   const forced = forceFourSideSquare(geo, pick.cutIds, cols, rows)
-  let useBox = forced?.box
-    || (boxes.length ? boxes[0] : null)
-    || box0
+  let useBox = forced?.box || (boxes.length ? boxes[0] : null) || box0
   let L = new Map([...geo].map(([id, p]) => [id, [...p]]))
+
+  // 1) W → 精確四邊方
   if (forced?.layout) {
-    for (const [id, p] of forced.layout) L.set(id, p)
+    for (const id of pathSet) {
+      const p = forced.layout.get(id)
+      if (p) L.set(id, [...p])
+    }
   } else if (useBox) {
     const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
     if (pinned) for (const [id, p] of pinned) L.set(id, p)
   }
-  if (!isFourLineSquare(pick.cutIds, L) && useBox) {
-    const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
-    if (pinned) for (const [id, p] of pinned) L.set(id, p)
-  }
+  if (!useBox && forced?.box) useBox = forced.box
 
-  // 2) RBF 只當吸引場；非 W 用 validMove 落地（W 已釘死不動）
+  // 2) RBF 整網：非 W 跟變形場走（硬吸附整數格；稍後綠控修交叉）
   if (useBox) {
     const targets = fourSideTargets(pick.cutIds, useBox, false)
     if (targets) {
+      await shapeProgress(opts, '§6F RBF 整網變形…')
       const morphed = rbfMorph(geo, pick.cutIds, targets.targets)
       if (morphed) {
-        await shapeProgress(opts, '§6F 非 W 拓撲安全跟隨…')
-        L = topoSafeNonW(L, morphed, segs, inc, cols, rows, pathSet)
+        for (const [id, p] of morphed) {
+          if (pathSet.has(id)) continue
+          L.set(id, [
+            Math.max(0, Math.min(cols - 1, Math.round(p[0]))),
+            Math.max(0, Math.min(rows - 1, Math.round(p[1]))),
+          ])
+        }
       }
-      // W 再釘一次（validMove 不應動到，保險）
-      const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
-      if (pinned) for (const [id, p] of pinned) L.set(id, p)
     }
+    // W 再釘死（RBF 可能微移錨點）
+    const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
+    if (pinned) for (const [id, p] of pinned) L.set(id, p)
     snapCorridorsToSquare(L, pick.cutIds, useBox, segs, inc)
   }
   clearStationsOnEdges(L, segs, pathSet, cols, rows, { allowSlideFrozen: null })
-  // 方內非 W 站往外推（減少貫穿方形的弦）
-  if (useBox) {
-    const cx = (useBox.minX + useBox.maxX) / 2
-    const cy = (useBox.minY + useBox.maxY) / 2
-    const half = useBox.side / 2
-    for (const [id, p] of L) {
-      if (pathSet.has(id) || isShapeGreenId(id)) continue
-      if (p[0] <= useBox.minX || p[0] >= useBox.maxX
-        || p[1] <= useBox.minY || p[1] >= useBox.maxY) continue
-      const dx = p[0] - cx, dy = p[1] - cy
-      const scale = Math.max(Math.abs(dx), Math.abs(dy)) || 1
-      const t = (half + 1.5) / scale
-      let c = Math.round(cx + dx * t)
-      let r = Math.round(cy + dy * t)
-      c = Math.max(0, Math.min(cols - 1, c))
-      r = Math.max(0, Math.min(rows - 1, r))
-      // 若仍在方內，推到最近邊外一格
-      if (c > useBox.minX && c < useBox.maxX && r > useBox.minY && r < useBox.maxY) {
-        const toL = p[0] - useBox.minX, toR = useBox.maxX - p[0]
-        const toT = p[1] - useBox.minY, toB = useBox.maxY - p[1]
-        const m = Math.min(toL, toR, toT, toB)
-        if (m === toL) c = useBox.minX - 1
-        else if (m === toR) c = useBox.maxX + 1
-        else if (m === toT) r = useBox.minY - 1
-        else r = useBox.maxY + 1
-        c = Math.max(0, Math.min(cols - 1, c))
-        r = Math.max(0, Math.min(rows - 1, r))
-      }
-      L.set(id, [c, r])
-    }
-  }
   resolveCellClashes(L, pathSet, cols, rows)
   if (useBox) {
     const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
     if (pinned) for (const [id, p] of pinned) L.set(id, p)
   }
 
-  // 3) 輻射邊正交繞行（一次處理，遠快於逐交叉搜尋）
   let workSegs = cloneSegs(segs)
   let workInc = rebuildInc(workSegs)
   const greens = []
   let seq = 0
+  const crossAfterMorph = improperCrossCount(L, workSegs)
+  await shapeProgress(opts, `§6F 變形後交叉 ${crossAfterMorph}，開始綠控…`)
 
-  const freeCell = (c, r) => {
-    if (c < 0 || r < 0 || c >= cols || r >= rows) return false
-    if (occupiedKeys(L).has(ckey(c, r))) return false
-    return true
-  }
-  const outsideOk = (c, r) => {
-    if (!useBox) return true
-    // 允許邊上外一圈；禁止深入方內
-    return !(c > useBox.minX && c < useBox.maxX && r > useBox.minY && r < useBox.maxY)
-  }
+  const freeCell = (c, r) => c >= 0 && r >= 0 && c < cols && r < rows
+    && !occupiedKeys(L).has(ckey(c, r))
 
-  await shapeProgress(opts, '§6F 輻射邊 L 繞行…')
-  // 反序插入，避免 index 漂移
-  const spokeIdx = []
-  for (let si = 0; si < workSegs.length; si++) {
-    const s = workSegs[si]
-    const aW = pathSet.has(s.a), bW = pathSet.has(s.b)
-    if (aW === bW) continue // 兩端都 W 或都非 W
-    // 已是 H/V 則不必繞
-    const A = L.get(s.a), B = L.get(s.b)
-    if (!A || !B) continue
-    if (A[0] === B[0] || A[1] === B[1]) continue
-    spokeIdx.push(si)
-  }
-  for (let k = spokeIdx.length - 1; k >= 0; k--) {
-    const si = spokeIdx[k]
-    // 前面插入可能已使 index 失效——改以端點重找
-    const want = segs[spokeIdx[k]] // 原始端點（clone 時 a/b 同）
-    // 用當前 workSegs 找仍是 a-b 的段
-    let bi = -1
-    for (let i = 0; i < workSegs.length; i++) {
-      const s = workSegs[i]
-      if ((s.a === want.a && s.b === want.b) || (s.a === want.b && s.b === want.a)) {
-        bi = i
-        break
-      }
-    }
-    if (bi < 0) continue
-    const s = workSegs[bi]
-    const aW = pathSet.has(s.a)
-    const u = aW ? s.a : s.b
-    const v = aW ? s.b : s.a
-    const U = L.get(u), V = L.get(v)
-    if (!U || !V) continue
-    if (U[0] === V[0] || U[1] === V[1]) continue
-    const cands = [
-      [V[0], U[1]],
-      [U[0], V[1]],
-    ]
-    // 微調找空格
-    let cell = null
-    for (const [c0, r0] of cands) {
-      for (const [dc, dr] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
-        const c = c0 + dc, r = r0 + dr
-        if (!freeCell(c, r) || !outsideOk(c, r)) continue
-        cell = [c, r]
-        break
-      }
-      if (cell) break
-    }
-    if (!cell) continue
-    const gid = `shape-g${seq++}`
-    splitSegAt(workSegs, L, bi, gid, cell)
-    greens.push({ id: gid, c: cell[0], r: cell[1], a: s.a, b: s.b })
-  }
-  workInc = rebuildInc(workSegs)
-  await shapeProgress(opts,
-    `§6F L 繞行 ${greens.length} 點，交叉 ${improperCrossCount(L, workSegs)}`)
-
-  // 4) 殘餘交叉：便宜搜尋（只看前幾對、短半徑）
-  const maxExtra = 80
-  let extra = 0
-  while (extra < maxExtra) {
-    const crossNow = improperCrossCount(L, workSegs)
-    if (crossNow <= cross0) break
-    const pairs = findAllCrossingPairs(L, workSegs, 40)
+  // 3) 綠控：增量評估（只算被彎那段的交叉），掃對選最大增益
+  const maxGreens = 80
+  let crossNow = crossAfterMorph
+  while (greens.length < maxGreens && crossNow > cross0) {
+    const pairs = findAllCrossingPairs(L, workSegs, 30)
     if (!pairs.length) break
+    let best = null
+    for (const pair of pairs) {
+      for (const bi of [pair.i, pair.j]) {
+        const s = workSegs[bi]
+        if (pathSet.has(s.a) && pathSet.has(s.b) && useBox) {
+          const A0 = L.get(s.a), B0 = L.get(s.b)
+          if (A0 && B0 && (A0[0] === B0[0] || A0[1] === B0[1])) continue
+        }
+        const A = L.get(s.a), B = L.get(s.b)
+        if (!A || !B) continue
+        const oldC = segCrossCount(L, workSegs, bi)
+        if (oldC <= 0) continue
+        const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2
+        for (const [ux, uy] of greenDirCandidates(A, B, useBox).slice(0, 6)) {
+          for (let d = 1; d <= 10; d++) {
+            const c = Math.round(mx + ux * d), r = Math.round(my + uy * d)
+            if (!freeCell(c, r)) continue
+            const trialPos = new Map([...L].map(([id, p]) => [id, [...p]]))
+            const trialSegs = cloneSegs(workSegs)
+            const gid = `shape-g${seq}`
+            splitSegAt(trialSegs, trialPos, bi, gid, [c, r])
+            const sj = trialSegs.length - 1
+            const newC = segCrossCount(trialPos, trialSegs, bi)
+              + segCrossCount(trialPos, trialSegs, sj)
+            if (newC >= oldC) continue
+            if (hasCellClash(trialPos)) continue
+            const gain = oldC - newC
+            if (!best || gain > best.gain) {
+              best = {
+                gain, pos: trialPos, segs: trialSegs, delta: gain,
+                green: { id: gid, c, r, a: s.a, b: s.b },
+              }
+              if (gain >= 2) break
+            }
+          }
+          if (best?.gain >= 2) break
+        }
+        if (best?.gain >= 2) break
+      }
+      if (best?.gain >= 2) break
+    }
+    if (!best) break
+    L = best.pos
+    workSegs = best.segs
+    greens.push(best.green)
+    crossNow = Math.max(0, crossNow - best.delta)
+    seq++
+    if (greens.length % 15 === 0) {
+      // 校正一次真實交叉（增量可能有誤差）
+      crossNow = improperCrossCount(L, workSegs)
+      await shapeProgress(opts, `§6F 綠控 ${greens.length}，交叉 ${crossNow}`)
+    }
+  }
+  // 校正＋短抛光（全量交叉，最多再 20 點）
+  crossNow = improperCrossCount(L, workSegs)
+  let polish = 0
+  while (polish < 20 && crossNow > cross0 && greens.length < maxGreens) {
+    const pairs = findAllCrossingPairs(L, workSegs, 20)
     let placed = null
-    const crossBefore = crossNow
     for (const pair of pairs) {
       for (const bi of [pair.i, pair.j]) {
         const s = workSegs[bi]
@@ -721,19 +702,20 @@ async function forceSquareWithGreens(
         const A = L.get(s.a), B = L.get(s.b)
         if (!A || !B) continue
         const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2
-        for (const [ux, uy] of greenDirCandidates(A, B, useBox).slice(0, 6)) {
-          for (let d = 1; d <= 10 && !placed; d++) {
+        for (const [ux, uy] of greenDirCandidates(A, B, useBox).slice(0, 4)) {
+          for (let d = 1; d <= 8 && !placed; d++) {
             const c = Math.round(mx + ux * d), r = Math.round(my + uy * d)
-            if (!freeCell(c, r) || !outsideOk(c, r)) continue
+            if (!freeCell(c, r)) continue
             const trialPos = new Map([...L].map(([id, p]) => [id, [...p]]))
             const trialSegs = cloneSegs(workSegs)
             const gid = `shape-g${seq}`
             splitSegAt(trialSegs, trialPos, bi, gid, [c, r])
-            const crossAfter = improperCrossCount(trialPos, trialSegs)
-            if (crossAfter >= crossBefore || hasCellClash(trialPos)) continue
+            const ca = improperCrossCount(trialPos, trialSegs)
+            if (ca >= crossNow || hasCellClash(trialPos)) continue
             placed = {
               pos: trialPos, segs: trialSegs,
               green: { id: gid, c, r, a: s.a, b: s.b },
+              cross: ca,
             }
           }
         }
@@ -745,11 +727,9 @@ async function forceSquareWithGreens(
     L = placed.pos
     workSegs = placed.segs
     greens.push(placed.green)
+    crossNow = placed.cross
     seq++
-    extra++
-    if (extra % 10 === 0) {
-      await shapeProgress(opts, `§6F 殘餘綠控 ${extra}，交叉 ${improperCrossCount(L, workSegs)}`)
-    }
+    polish++
   }
   workInc = rebuildInc(workSegs)
 
@@ -2245,9 +2225,9 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
   let accepted = null
   let affMeta = box0 ? { side: box0.side } : undefined
 
-  // A0：拓撲安全逐步移向四邊（validMove；保交叉＋環繞序）——密網首選
-  // 大切點環（山手等）鐵律版幾乎無解，只試 2 個邊長後進 §6F，避免空轉數十秒
-  const boxesTry = pick.cutIds.length >= 18 ? boxes.slice(0, 2) : boxes
+  // A0：拓撲安全逐步移向四邊（validMove；保交叉＋環繞序）
+  // 大切點環（山手／Circle）鐵律版幾乎無解 → 直接 §6F
+  const boxesTry = pick.cutIds.length >= 18 ? [] : boxes
   if (boxesTry.length) {
     await shapeProgress(opts, `§6A0 拓撲安全移方（${boxesTry.length} 邊長）…`)
     for (const box of boxesTry) {
