@@ -417,7 +417,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   display: flex;
   flex-direction: column; /* 一般工具在第 1 排、RWD 版面控制在第 2 排 */
   gap: 3px;
-  padding: 5px 8px;
+  padding: 6px 10px;
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));

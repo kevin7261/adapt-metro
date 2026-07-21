@@ -91,6 +91,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  background: hsl(var(--card));
 }
 .toast {
   position: absolute;

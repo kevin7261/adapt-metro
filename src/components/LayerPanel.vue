@@ -527,7 +527,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding-top: 8px;
+  padding-top: 10px;
   background: hsl(var(--card));
   border-right: 1px solid hsl(var(--border));
 }
@@ -544,25 +544,28 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
-  padding: 8px 8px 4px;
+  gap: 6px;
+  padding: 10px 10px 6px;
 }
 /* 田 視圖 ／ + 加入：中性配色（不用藍色），文字＋圖示 */
 .bar-btn {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 10px;
+  padding: 6px 11px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 550;
   color: hsl(var(--foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: calc(var(--radius));
   background: hsl(var(--background));
   white-space: nowrap;
-  transition: background 0.1s ease;
+  transition: background 0.1s ease, border-color 0.1s ease;
 }
-.bar-btn:hover, .bar-btn.active { background: hsl(var(--accent)); }
+.bar-btn:hover, .bar-btn.active {
+  background: hsl(var(--accent));
+  border-color: hsl(var(--muted-foreground) / 0.35);
+}
 .import-wrap { position: relative; flex-shrink: 0; }
 /* 下拉選單：貼齊 + 按鈕右緣下方，不被面板裁切（動作列在最上方、無 overflow） */
 .import-menu {
@@ -575,7 +578,7 @@ onBeforeUnmount(() => {
 }
 .import-menu .menu-item { width: 100%; }
 
-.tree { flex: 1; overflow-y: auto; padding: 4px 6px 8px; display: flex; flex-direction: column; gap: 2px; }
+.tree { flex: 1; overflow-y: auto; padding: 4px 8px 10px; display: flex; flex-direction: column; gap: 6px; }
 .tree-empty {
   font-size: 11.5px;
   color: hsl(var(--muted-foreground));
@@ -583,39 +586,39 @@ onBeforeUnmount(() => {
   line-height: 1.7;
 }
 
-/* ---- group（Cursor file-tree 感：扁平、少邊框） ---- */
+/* ---- group：抬升卡片，對比側欄底色 ---- */
 .group-card {
-  border: none;
-  border-radius: calc(var(--radius) - 1px);
-  background: transparent;
-  padding: 2px 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) + 2px);
+  background: hsl(var(--background));
+  padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 .group-header {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 6px;
-  border-radius: calc(var(--radius) - 2px);
+  padding: 6px 7px;
+  border-radius: calc(var(--radius));
   cursor: pointer;
   user-select: none;
 }
 .group-header:hover { background: hsl(var(--accent)); }
 .group-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
-.group-folder { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
+.group-folder { color: hsl(var(--primary) / 0.85); flex-shrink: 0; }
 .group-name {
   flex: 1;
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 650;
+  letter-spacing: -0.015em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .group-add { width: 22px; height: 22px; color: hsl(var(--muted-foreground)); }
-.group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
+.group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.14); }
 .group-del:hover { color: hsl(var(--destructive)); background: hsl(var(--destructive) / 0.12); }
 
 /* 子群組標題（Straighten / RWD Maps）：可收合，縮排一層對齊子群組列 */
@@ -623,8 +626,8 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 6px 4px 10px;
-  border-radius: calc(var(--radius) - 2px);
+  padding: 5px 6px 5px 10px;
+  border-radius: calc(var(--radius));
   cursor: pointer;
   user-select: none;
 }
@@ -633,7 +636,7 @@ onBeforeUnmount(() => {
 .subgroup-name {
   flex: 1;
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 550;
   color: hsl(var(--muted-foreground));
   overflow: hidden;
   text-overflow: ellipsis;
@@ -641,7 +644,7 @@ onBeforeUnmount(() => {
 }
 .subgroup-count {
   font-size: 10.5px;
-  color: hsl(var(--muted-foreground) / 0.75);
+  color: hsl(var(--muted-foreground) / 0.8);
   font-variant-numeric: tabular-nums;
   padding: 0 4px;
 }
@@ -651,22 +654,26 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 5px 7px;
-  border-radius: calc(var(--radius) - 2px);
+  padding: 6px 8px;
+  border-radius: calc(var(--radius));
   cursor: pointer;
   border: 1px solid transparent;
-  background: transparent;
-  transition: background 0.08s ease;
+  background: hsl(var(--card) / 0.55);
+  transition: background 0.08s ease, border-color 0.08s ease;
 }
 /* 子群組內的圖層列：縮排，左緣加一條線標示層級 */
-.layer-row.nested { margin-left: 12px; border-left: 2px solid hsl(var(--border)); }
+.layer-row.nested {
+  margin-left: 10px;
+  border-left: 2px solid hsl(var(--border));
+  background: transparent;
+}
 .layer-row:hover { background: hsl(var(--accent)); }
 /* Active layer = the layer shown in the active editor tab. */
 .layer-row.selected {
-  background: hsl(var(--primary) / 0.14);
-  border-color: transparent;
+  background: hsl(var(--primary) / 0.18);
+  border-color: hsl(var(--primary) / 0.4);
 }
-.layer-row.selected .layer-name { color: hsl(var(--foreground)); font-weight: 600; }
+.layer-row.selected .layer-name { color: hsl(var(--foreground)); font-weight: 650; }
 .layer-row.selected :deep(.type-icon) { color: hsl(var(--primary)); }
 .layer-title { display: flex; align-items: center; gap: 2px; min-width: 0; }
 .type-icon { flex-shrink: 0; margin: 0 3px; color: hsl(var(--muted-foreground)); }
@@ -702,9 +709,9 @@ onBeforeUnmount(() => {
 .layer-actions .btn-icon:hover { color: hsl(var(--foreground)); }
 .layer-actions .btn-icon.active {
   color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.12);
+  background: hsl(var(--primary) / 0.16);
 }
-.layer-actions .btn-icon.danger { color: hsl(var(--destructive) / 0.7); }
+.layer-actions .btn-icon.danger { color: hsl(var(--destructive) / 0.75); }
 .layer-actions .btn-icon.danger:hover {
   color: hsl(var(--destructive));
   background: hsl(var(--destructive) / 0.12);

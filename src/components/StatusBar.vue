@@ -29,11 +29,11 @@ const bbox = computed(() => {
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 24px;
+  height: 26px;
   flex-shrink: 0;
   padding: 0 12px;
   border-top: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
+  background: hsl(var(--background));
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
   color: hsl(var(--muted-foreground));

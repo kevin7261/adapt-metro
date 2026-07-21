@@ -78,9 +78,9 @@ onBeforeUnmount(() => {
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 2px;
-  min-height: 40px;
-  padding: 4px 10px;
+  gap: 4px;
+  min-height: 44px;
+  padding: 6px 12px;
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));
@@ -89,22 +89,35 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 0 10px 0 2px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  height: auto;
+  padding: 0 10px 0 4px;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
   color: hsl(var(--foreground));
   white-space: nowrap;
   flex-shrink: 0;
   text-decoration: none;
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: 0;
+  background: transparent;
+  border: none;
 }
-.brand:hover { background: hsl(var(--accent)); }
+.brand:hover { background: transparent; color: hsl(var(--foreground)); }
 .brand :deep(.m-icon) { color: hsl(var(--primary)); }
 
 .skills-link { margin-left: auto; }
 .toolbar a.btn-ghost { text-decoration: none; }
+.toolbar .btn-ghost {
+  height: 32px;
+  padding: 0 11px;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid transparent;
+}
+.toolbar .btn-ghost:hover {
+  border-color: hsl(var(--border));
+  background: hsl(var(--card));
+}
 .skills-wrap { position: relative; }
-.info-menu { top: 32px; right: 0; left: auto; min-width: 220px; }
+.info-menu { top: 36px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
 </style>

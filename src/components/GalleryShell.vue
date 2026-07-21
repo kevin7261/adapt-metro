@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { QUICK_CITIES, matchQuickSystem } from '../lib/quickCities'
-import { continentZh, prettyContinent } from '../stores/metroCatalog'
+import { continentZh, prettyContinent, continentRank } from '../stores/metroCatalog'
 import MIcon from './MIcon.vue'
 
 // 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）的共用外殼：
@@ -101,7 +101,11 @@ const tiles = computed(() => {
   const all = catalog.value ?? []
   if (tab.value === 'quick') {
     // 與加入 modal 的「快速選擇」共用同一份清單（含＋地標／＋山手／＋環狀變體）。
+    // 依洲別排序（stable，保留同洲內原本的策展順序＋變體相鄰）——否則 QUICK_CITIES
+    // 若把某洲的城市穿插在另一洲之間（如雪梨夾在北美城市間），右側索引會依「相鄰
+    // 洲別變了就開新群組」的規則把同一洲拆成兩個群組（曾出現兩個「北美洲」）。
     return QUICK_CITIES.map((q) => matchQuickSystem(all, q.en)).filter(Boolean)
+      .sort((a, b) => continentRank(a.continent) - continentRank(b.continent))
   }
   if (tab.value === 'stations') {
     const dir = stationSort.value === 'asc' ? 1 : -1
@@ -128,11 +132,14 @@ const tiles = computed(() => {
         @click="tab = t.id"
       >{{ t.label }}</button>
 
-      <div v-if="tab === 'stations'" class="sort-toggle">
-        <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
-        <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
+      <!-- 右側：排序鈕（依車站數 tab 才有）＋城市數，靠右不影響 tab 置中 -->
+      <div class="gallery-tabs-right">
+        <div v-if="tab === 'stations'" class="sort-toggle">
+          <button class="sort-btn" :class="{ active: stationSort === 'desc' }" @click="stationSort = 'desc'">多到少</button>
+          <button class="sort-btn" :class="{ active: stationSort === 'asc' }" @click="stationSort = 'asc'">少到多</button>
+        </div>
+        <span class="gallery-count">{{ tiles.length }} 城市</span>
       </div>
-      <span class="gallery-count">{{ tiles.length }} 城市</span>
     </div>
 
     <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區＋右側索引，
@@ -225,18 +232,20 @@ const tiles = computed(() => {
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 24px;
+  height: 26px;
   flex-shrink: 0;
   padding: 0 12px;
   border-top: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
+  background: hsl(var(--background));
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
   color: hsl(var(--muted-foreground));
   white-space: nowrap;
 }
 .gallery-tabs {
+  position: relative;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 2px;
   padding: 0 12px;
@@ -245,7 +254,7 @@ const tiles = computed(() => {
   background: hsl(var(--card));
 }
 .gallery-tab {
-  padding: 8px 12px;
+  padding: 8px 26px;
   font-size: 12.5px;
   font-weight: 500;
   color: hsl(var(--muted-foreground));
@@ -259,10 +268,19 @@ const tiles = computed(() => {
   font-weight: 600;
   border-bottom-color: hsl(var(--primary));
 }
+/* tab 右側：排序鈕＋城市數，絕對靠右，不佔置中版位 */
+.gallery-tabs-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 /* segmented group button：多到少／少到多 併成一組 */
 .sort-toggle {
   display: inline-flex;
-  margin-left: 10px;
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 3px);
   overflow: hidden;
@@ -275,7 +293,7 @@ const tiles = computed(() => {
 }
 .sort-btn:last-child { border-right: none; }
 .sort-btn.active { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
-.gallery-count { margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.gallery-count { font-size: 12px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 /* 主體：左側清單｜卡片區｜右側索引，中間以可拖拉的把手分隔 */
 .gallery-main { flex: 1; display: flex; min-height: 0; }
 .gallery-side {
