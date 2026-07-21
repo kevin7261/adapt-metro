@@ -108,12 +108,15 @@ function orderedStops(members) {
     const n = memberNodes.get(m.ref)
     if (!n) continue
     const t = n.tags || {}
-    const name = t['name:ja'] || t.name || t['name:en']
+    // 去 stop 編號尾綴（つくば節點名如「南流山02」「八潮03」＝OSM 月台序號，非站名）——
+    // 日文站名不會以阿拉伯數字結尾，可安全剝除。
+    const strip = (s) => (s || '').replace(/\s*\d+$/, '')
+    const name = strip(t['name:ja'] || t.name || t['name:en'])
     if (!name) continue
     if (out.length && out[out.length - 1].id === `n${m.ref}`) continue
     out.push({
-      id: `n${m.ref}`, name, nameLocal: t['name:ja'] || t.name || name,
-      nameEn: t['name:en'] || null, code: t.ref || null, coord: [n.lon, n.lat],
+      id: `n${m.ref}`, name, nameLocal: strip(t['name:ja'] || t.name) || name,
+      nameEn: strip(t['name:en']) || null, code: t.ref || null, coord: [n.lon, n.lat],
     })
   }
   return out

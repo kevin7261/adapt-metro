@@ -88,8 +88,21 @@ const TARGETS = [
     // scripts/fetchTokyoPrivate.mjs（npm run metro:fetchtokyoprivate）另從 OSM 抓、寫此檔；
     // 有就併、沒有就跳過（不擋 metro:combined）。
     extraLinesFile: '_overrides/tokyo-private-lines.json',
-    // 異名共站（連通轉乘但站名不同，~213m）：JR 田町 ↔ 都営 三田
-    aliases: { '田町': '三田' },
+    // 異名共站（連通轉乘但站名不同）——JR/私鐵靠很近的官方乗換駅要併成一站（使用者稽核）
+    aliases: {
+      '田町': '三田',            // JR 田町 ↔ 都営 三田
+      '山頂駅': '王子',          // JR 王子 節點誤名「山頂駅」（帶京浜東北/東北/湘南新宿）→ 王子
+      '京成船橋': '船橋',        // 京成船橋 ↔ JR/東武 船橋
+      '代々木八幡': '代々木公園', // 小田急 代々木八幡 ↔ 千代田線 代々木公園
+      '馬喰町': '東日本橋',      // JR 馬喰町 ↔ 都営 東日本橋/馬喰横山 複合
+      '浜松町': '大門',          // JR 浜松町 ↔ 都営 大門
+      '千駄ケ谷': '国立競技場',  // JR 千駄ケ谷 ↔ 大江戸 国立競技場
+      '原宿': '明治神宮前',      // JR 原宿 ↔ 千代田/副都心 明治神宮前〈原宿〉
+      '京成千葉': '千葉',        // 京成千葉 ↔ JR 千葉
+      '京成上野': '上野',        // 京成上野 ↔ JR/metro 上野
+      '新日本橋': '三越前',      // JR 新日本橋 ↔ 銀座/半蔵門 三越前
+      '秋葉原02': '秋葉原',      // つくば 秋葉原（OSM 節點誤名 02）→ 秋葉原/岩本町 複合
+    },
     // JR 各線大量共線（東海道本線 vs 京浜東北/山手…）：共軌重疊只畫一條、跳過的站標 pass
     passThrough: true,
   },
@@ -105,11 +118,36 @@ function haversine([lon1, lat1], [lon2, lat2]) {
   return 2 * R * Math.asin(Math.sqrt(a))
 }
 const inBbox = ([lon, lat], [w, s, e, n]) => lon >= w && lon <= e && lat >= s && lat <= n
+
+// 修正斷序：偵測明顯回跳長邊（max 邊 > 2.5km 且 > 3× 中位邊）→ 從離重心最遠端做最近鄰重排。
+// 只用於線性線（呼叫端已排除環線）；正常有序的線 max 邊不會異常，直接原樣返回。
+function fixOrder(sts) {
+  if (sts.length < 4) return sts
+  const eds = []
+  for (let i = 0; i + 1 < sts.length; i++) eds.push(haversine(sts[i].coord, sts[i + 1].coord))
+  const sorted = [...eds].sort((a, b) => a - b)
+  const med = sorted[sorted.length >> 1] || 1
+  const maxE = Math.max(...eds)
+  if (maxE < 2500 || maxE < 3 * med) return sts
+  const cx = sts.reduce((a, s) => a + s.coord[0], 0) / sts.length
+  const cy = sts.reduce((a, s) => a + s.coord[1], 0) / sts.length
+  let start = 0, fd = -1
+  for (let i = 0; i < sts.length; i++) { const d = haversine([cx, cy], sts[i].coord); if (d > fd) { fd = d; start = i } }
+  const used = new Array(sts.length).fill(false)
+  const out = [sts[start]]; used[start] = true
+  for (let k = 1; k < sts.length; k++) {
+    const last = out[out.length - 1]
+    let bi = -1, bd = Infinity
+    for (let i = 0; i < sts.length; i++) { if (used[i]) continue; const d = haversine(last.coord, sts[i].coord); if (d < bd) { bd = d; bi = i } }
+    out.push(sts[bi]); used[bi] = true
+  }
+  return out
+}
 // 站名正規化：臺→台、小寫、去空白/句點、去尾綴（車站/駅/站/역/station）、去消歧義括號
 function normName(s) {
   return (s || '')
     .replace(/臺/g, '台')
-    .replace(/\(.*?\)/g, '')
+    .replace(/[(（〈［].*?[)）〉］]/g, '') // 去消歧義括號（半形()／全形（）／角括號〈〉）
     .replace(/[’'`.]/g, '')
     .replace(/(車站|駅|站|역|station)$/i, '')
     .replace(/\s+/g, '')
@@ -166,10 +204,13 @@ function extractLinesFromGeojson(gj, { bbox = null, exclude = null, select = nul
         stations = stations.slice(a, b + 1)
       }
       // 去掉相鄰重複
-      const seq = stations.filter((s, i) => i === 0 || s.id !== stations[i - 1].id)
-      if (seq.length < 2) continue
+      const dedup = stations.filter((s, i) => i === 0 || s.id !== stations[i - 1].id)
+      if (dedup.length < 2) continue
       const loop = rawSeq.length > 2 && rawSeq[0].station_id === rawSeq[rawSeq.length - 1].station_id
-        && seq.length > 2
+        && dedup.length > 2
+      // 修正斷序（railway 上游 route 成員順序有錯，如東海道本線品川被丟到最尾）：非環線且
+      // 有明顯回跳長邊時，用最近鄰重排恢復線性站序（否則 pass-through 會插重複、線形打結）
+      const seq = loop ? dedup : fixOrder(dedup)
       lines.push({
         routeId: r.route_id, ref: r.route_ref || r.route_name, name: r.route_name,
         nameLocal: r.route_name_local ?? r.route_name, nameEn: r.route_name_en ?? null,
@@ -275,6 +316,7 @@ function recomputeFlags(features) {
 function applyPassThrough(lines, featById) {
   const idIndex = (seq, id) => seq.findIndex((s) => s.id === id)
   for (const L of lines) {
+    const present = new Set(L.seq.map((s) => s.id)) // 此線已有的站——pass 不得插重複
     const out = []
     for (let i = 0; i < L.seq.length; i++) {
       out.push(L.seq[i])
@@ -293,9 +335,11 @@ function applyPassThrough(lines, featById) {
         if (len > 1.35 * direct) continue
         const inter = M.seq.slice(lo + 1, hi)
         const ordered = ia < ib ? inter : [...inter].reverse()
+        // 只採納「全部都是此線還沒有的站」的中間段——避免把已停靠站重複插成 pass、線形打結
+        if (ordered.some((m) => present.has(m.id))) continue
         if (!best || ordered.length < best.length) best = ordered
       }
-      if (best) for (const m of best) out.push({ ...m, pass: true })
+      if (best) for (const m of best) { out.push({ ...m, pass: true }); present.add(m.id) }
     }
     L.finalSeq = out
   }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T18:00:15.786Z",
+  "generated_at": "2026-07-21T18:15:23.461Z",
   "bbox": [
     139.56,
     35.54,
@@ -138,7 +138,7 @@
           "id": "n7858255371",
           "name": "成田空港",
           "nameLocal": "成田空港",
-          "nameEn": "Narita Airport Terminal 1",
+          "nameEn": "Narita Airport Terminal",
           "code": "KS42",
           "coord": [
             140.3857872,
@@ -149,7 +149,7 @@
           "id": "n7858346610",
           "name": "空港第2ビル",
           "nameLocal": "空港第2ビル",
-          "nameEn": "Narita Airport Terminal 2·3",
+          "nameEn": "Narita Airport Terminal 2·",
           "code": "KS41",
           "coord": [
             140.3872202,
@@ -1561,7 +1561,7 @@
           "id": "n8132987834",
           "name": "羽田空港第3ターミナル",
           "nameLocal": "羽田空港第3ターミナル",
-          "nameEn": "Haneda Airport Terminal 3",
+          "nameEn": "Haneda Airport Terminal",
           "code": "KK16",
           "coord": [
             139.7670419,
@@ -1572,7 +1572,7 @@
           "id": "n8132987867",
           "name": "羽田空港第1・第2ターミナル",
           "nameLocal": "羽田空港第1・第2ターミナル",
-          "nameEn": "Haneda Airport Terminal 1・2",
+          "nameEn": "Haneda Airport Terminal 1・",
           "code": "KK17",
           "coord": [
             139.7860523,
@@ -4022,8 +4022,8 @@
         },
         {
           "id": "n7369435826",
-          "name": "小竹向原02",
-          "nameLocal": "小竹向原02",
+          "name": "小竹向原",
+          "nameLocal": "小竹向原",
           "nameEn": "Kotake-mukaihara",
           "code": null,
           "coord": [
@@ -4053,8 +4053,8 @@
       "stations": [
         {
           "id": "n2445314143",
-          "name": "南流山02",
-          "nameLocal": "南流山02",
+          "name": "南流山",
+          "nameLocal": "南流山",
           "nameEn": "Minami-Nagareyama",
           "code": "TX10",
           "coord": [
@@ -4064,8 +4064,8 @@
         },
         {
           "id": "n1933600407",
-          "name": "三郷中央02",
-          "nameLocal": "三郷中央02",
+          "name": "三郷中央",
+          "nameLocal": "三郷中央",
           "nameEn": "Misato-chuo",
           "code": "09",
           "coord": [
@@ -4075,8 +4075,8 @@
         },
         {
           "id": "n7756045685",
-          "name": "八潮03",
-          "nameLocal": "八潮03",
+          "name": "八潮",
+          "nameLocal": "八潮",
           "nameEn": "Yashio",
           "code": "08",
           "coord": [
@@ -4086,8 +4086,8 @@
         },
         {
           "id": "n7756036396",
-          "name": "六町02",
-          "nameLocal": "六町02",
+          "name": "六町",
+          "nameLocal": "六町",
           "nameEn": "Rokucho",
           "code": "07",
           "coord": [
@@ -4097,8 +4097,8 @@
         },
         {
           "id": "n7756036690",
-          "name": "青井02",
-          "nameLocal": "青井02",
+          "name": "青井",
+          "nameLocal": "青井",
           "nameEn": "Aoi",
           "code": "06",
           "coord": [
@@ -4119,8 +4119,8 @@
         },
         {
           "id": "n2037827867",
-          "name": "南千住02",
-          "nameLocal": "南千住02",
+          "name": "南千住",
+          "nameLocal": "南千住",
           "nameEn": "Minami-Senju",
           "code": "TX04",
           "coord": [
@@ -4130,8 +4130,8 @@
         },
         {
           "id": "n7412555526",
-          "name": "浅草02",
-          "nameLocal": "浅草02",
+          "name": "浅草",
+          "nameLocal": "浅草",
           "nameEn": "Asakusa",
           "code": "TX03",
           "coord": [
@@ -4141,8 +4141,8 @@
         },
         {
           "id": "n6209071062",
-          "name": "新御徒町02",
-          "nameLocal": "新御徒町02",
+          "name": "新御徒町",
+          "nameLocal": "新御徒町",
           "nameEn": "Shin-Okachimachi",
           "code": "TX02",
           "coord": [
@@ -4152,8 +4152,8 @@
         },
         {
           "id": "n6238841529",
-          "name": "秋葉原02",
-          "nameLocal": "秋葉原02",
+          "name": "秋葉原",
+          "nameLocal": "秋葉原",
           "nameEn": "Akihabara",
           "code": "TX01",
           "coord": [

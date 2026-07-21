@@ -1,9 +1,9 @@
 // Shape-Guided（Batik et al. 2022）——依論文／開源 MetroShapes::Smooth 的整數格改編。
 // 掛在 D3Tab「循環」與「逐步驗證」之間：輸入＝①〜⑧各鏈的循環結果。
 // 要不要算、算哪段：一律看 shapePresets（使用者規定）；其餘城市＝不需計算。
-// §4 規定路段＋擺方 → §5 LS → §6 成方且合規才交付（交叉不增、無重疊）
+// §4 規定路段＋擺方 → §5 LS → §6 強制四邊直線正方（只 H/V）
 import {
-  buildHcGraph, countHV, countHVD, makeMover,
+  buildHcGraph, makeMover, countHV, countHVD,
 } from '../hillClimb.js'
 import {
   emptyResult, sectorOf, SECTOR_VEC, TWO_PI,
@@ -23,7 +23,6 @@ const SMOOTH_ROUNDS = 120
 const MIXED_ROUNDS = 60
 const ADJUST_ROUNDS = 40
 const WC_PATH = 20
-const WALK_ROUNDS = 160
 const ckey = (c, r) => `${c},${r}`
 
 /* ---------- 內建形狀：只方形（shape=0） ---------- */
@@ -306,22 +305,11 @@ function lsSquareSnap(P, cutIds, shapePoly, cols, rows) {
   return snapped
 }
 
-/** 順時針正方周界格（含角，不重複） */
-function squarePerimeterCells(minX, minY, maxX, maxY) {
-  const perim = []
-  for (let x = minX; x < maxX; x++) perim.push([x, minY])
-  for (let y = minY; y < maxY; y++) perim.push([maxX, y])
-  for (let x = maxX; x > minX; x--) perim.push([x, maxY])
-  for (let y = maxY; y > minY; y--) perim.push([minX, y])
-  return perim
-}
-
 /**
- * 規定路段 W 依站序強制鋪正方周界；其餘站從 base 跟過來（撞格則外推）。
- * 這是「一定成方」的目標佈局。
+ * 規定路段 W → 正方「四條直線邊」（只 H/V，角點轉折、禁止斜切角）。
+ * 站序均分到四邊；相鄰站必在同一邊或共角 → 畫出來只有 4 條邊。
  */
-function forceSquareLayout(base, cutIds, cols, rows) {
-  // 閉合環首尾同站 → 去重但保序
+function forceFourSideSquare(base, cutIds, cols, rows) {
   const ring = []
   const seen = new Set()
   for (const id of cutIds) {
@@ -329,18 +317,25 @@ function forceSquareLayout(base, cutIds, cols, rows) {
     seen.add(id)
     ring.push(id)
   }
-  if (ring.length < MIN_CUTS - 1) return null
+  if (ring.length < 4) return null
 
+  const n = ring.length
   const pts = ring.map((id) => base.get(id)).filter(Boolean)
-  if (pts.length < ring.length) return null
-  let minX = Math.min(...pts.map((p) => p[0])), maxX = Math.max(...pts.map((p) => p[0]))
-  let minY = Math.min(...pts.map((p) => p[1])), maxY = Math.max(...pts.map((p) => p[1]))
-  let cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
-  const need = ring.length
-  // 周界格數 ≈ 4*side；side 至少容納全部環站
+  if (pts.length < n) return null
+  let minX0 = Math.min(...pts.map((p) => p[0])), maxX0 = Math.max(...pts.map((p) => p[0]))
+  let minY0 = Math.min(...pts.map((p) => p[1])), maxY0 = Math.max(...pts.map((p) => p[1]))
+  const cx = (minX0 + maxX0) / 2, cy = (minY0 + maxY0) / 2
+
+  // 四邊站數（含起角、不含終角），總和 = n
+  const q = Math.floor(n / 4)
+  const rem = n % 4
+  const sizes = [0, 1, 2, 3].map((i) => q + (i < rem ? 1 : 0))
+  if (sizes.some((s) => s < 1)) return null
+
+  // 邊長至少能放下該邊「起角→終角」的站距
   let side = Math.max(
-    Math.round(Math.max(maxX - minX, maxY - minY)),
-    Math.ceil(need / 4),
+    Math.max(...sizes),
+    Math.round(Math.max(maxX0 - minX0, maxY0 - minY0)),
     2,
   )
 
@@ -358,85 +353,490 @@ function forceSquareLayout(base, cutIds, cols, rows) {
   let box = null
   for (let s = side; s <= Math.min(cols, rows) - 1; s++) {
     box = fit(s)
-    if (box && squarePerimeterCells(box.minX, box.minY, box.maxX, box.maxY).length >= need) break
-    box = null
+    if (box) break
   }
-  if (!box) {
-    // 最後手段：用最大可放正方
-    const sMax = Math.min(cols, rows) - 1
-    box = fit(Math.max(2, sMax))
-  }
+  if (!box) box = fit(Math.max(2, Math.min(cols, rows) - 1))
   if (!box) return null
 
-  const perim = squarePerimeterCells(box.minX, box.minY, box.maxX, box.maxY)
-  if (perim.length < need) return null
+  const { minX, minY, maxX, maxY } = box
+  // 底→右→頂→左（螢幕 y 向下）
+  const corners = [
+    [minX, minY],
+    [maxX, minY],
+    [maxX, maxY],
+    [minX, maxY],
+  ]
+  const atSide = (sideI, t) => {
+    const A = corners[sideI], B = corners[(sideI + 1) % 4]
+    return [
+      Math.round(A[0] + (B[0] - A[0]) * t),
+      Math.round(A[1] + (B[1] - A[1]) * t),
+    ]
+  }
+
+  const cornerIdx = [0]
+  let acc = 0
+  for (let i = 0; i < 3; i++) {
+    acc += sizes[i]
+    cornerIdx.push(acc)
+  }
 
   const out = new Map([...base].map(([id, p]) => [id, [...p]]))
   const used = new Set()
-  // 依站序均勻鋪周界（保環順序＝論文嵌形）
-  for (let i = 0; i < ring.length; i++) {
-    const target = Math.round((i / ring.length) * perim.length) % perim.length
-    let placed = null
-    for (let k = 0; k < perim.length; k++) {
-      const cell = perim[(target + k) % perim.length]
-      const key = ckey(cell[0], cell[1])
-      if (used.has(key)) continue
-      placed = cell
-      used.add(key)
-      break
+  /** 只在同一邊上找空格，避免跨邊造成斜切角 */
+  const placeUniqueOnSide = (sideI, prefer) => {
+    const A = corners[sideI], B = corners[(sideI + 1) % 4]
+    const cells = []
+    if (A[0] === B[0]) {
+      const y0 = Math.min(A[1], B[1]), y1 = Math.max(A[1], B[1])
+      for (let y = y0; y <= y1; y++) cells.push([A[0], y])
+    } else {
+      const x0 = Math.min(A[0], B[0]), x1 = Math.max(A[0], B[0])
+      for (let x = x0; x <= x1; x++) cells.push([x, A[1]])
     }
-    if (!placed) return null
-    out.set(ring[i], [placed[0], placed[1]])
+    let best = null, bd = Infinity
+    for (const cell of cells) {
+      if (used.has(ckey(cell[0], cell[1]))) continue
+      const d = Math.hypot(cell[0] - prefer[0], cell[1] - prefer[1])
+      if (d < bd) { bd = d; best = cell }
+    }
+    return best
   }
 
-  // 其餘站：若撞到環站格，先標著等 repair 推開（此處只清同格）
-  for (const [id, p] of out) {
-    if (seen.has(id)) continue
-    if (used.has(ckey(p[0], p[1]))) {
-      // 暫移到原位附近空格（粗放；精修交給 repair）
-      let found = null
-      for (let rad = 1; rad <= 6 && !found; rad++) {
-        for (let dc = -rad; dc <= rad && !found; dc++) {
-          for (let dr = -rad; dr <= rad && !found; dr++) {
-            if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
-            const c = Math.max(0, Math.min(cols - 1, p[0] + dc))
-            const r = Math.max(0, Math.min(rows - 1, p[1] + dr))
-            if (used.has(ckey(c, r))) continue
-            const clash = [...out].some(([oid, op]) => oid !== id && op[0] === c && op[1] === r)
-            if (clash) continue
-            found = [c, r]
-          }
-        }
-      }
-      if (found) out.set(id, found)
+  for (let sideI = 0; sideI < 4; sideI++) {
+    const i0 = cornerIdx[sideI]
+    const i1 = sideI === 3 ? n : cornerIdx[sideI + 1]
+    const nOn = i1 - i0
+    for (let j = 0; j < nOn; j++) {
+      const t = j / sizes[sideI]
+      const prefer = atSide(sideI, t)
+      const cell = placeUniqueOnSide(sideI, prefer)
+      if (!cell) return null
+      used.add(ckey(cell[0], cell[1]))
+      out.set(ring[i0 + j], cell)
     }
   }
+
+  // 其餘站撞到環站格 → 外推
+  for (const [id, p] of out) {
+    if (seen.has(id)) continue
+    if (!used.has(ckey(p[0], p[1]))) continue
+    let found = null
+    for (let rad = 1; rad <= 8 && !found; rad++) {
+      for (let dc = -rad; dc <= rad && !found; dc++) {
+        for (let dr = -rad; dr <= rad && !found; dr++) {
+          if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
+          const c = Math.max(0, Math.min(cols - 1, p[0] + dc))
+          const r = Math.max(0, Math.min(rows - 1, p[1] + dr))
+          if (used.has(ckey(c, r))) continue
+          const clash = [...out].some(([oid, op]) => oid !== id && op[0] === c && op[1] === r)
+          if (clash) continue
+          found = [c, r]
+        }
+      }
+    }
+    if (found) out.set(id, found)
+  }
+
   return { layout: out, box, side: box.side }
 }
 
-/** 佈局是否合規：無重疊、交叉不比輸入多 */
-function layoutRulesOk(posMap, segs, cross0) {
-  return !hasPointOverlap(posMap, segs) && improperCrossCount(posMap, segs) <= cross0
-}
-
-function isSquareEnough(cutIds, posMap, soft = false) {
-  const q = squareQuality(cutIds, posMap)
-  if (soft) return { ok: q.ar <= QUALITY_AR, q }
-  return { ok: q.ok, q }
+/** 是否為四邊直線方形：外接正方、站在邊上、相鄰段皆 H/V */
+function isFourLineSquare(cutIds, posMap) {
+  const ring = []
+  const seen = new Set()
+  for (const id of cutIds) {
+    if (seen.has(id)) continue
+    seen.add(id)
+    ring.push(id)
+  }
+  if (ring.length < 4) return false
+  const pts = ring.map((id) => posMap.get(id)).filter(Boolean)
+  if (pts.length < ring.length) return false
+  const minX = Math.min(...pts.map((p) => p[0])), maxX = Math.max(...pts.map((p) => p[0]))
+  const minY = Math.min(...pts.map((p) => p[1])), maxY = Math.max(...pts.map((p) => p[1]))
+  if (maxX - minX !== maxY - minY || maxX === minX) return false
+  for (const p of pts) {
+    if (p[0] !== minX && p[0] !== maxX && p[1] !== minY && p[1] !== maxY) return false
+  }
+  for (let i = 0; i < ring.length; i++) {
+    const a = posMap.get(ring[i]), b = posMap.get(ring[(i + 1) % ring.length])
+    if (!a || !b) return false
+    if (a[0] !== b[0] && a[1] !== b[1]) return false // 斜線＝不是四邊直線
+  }
+  return true
 }
 
 /**
- * 輕量修規則（快）：清重疊＋只動「交叉邊端點」的非凍結站。
- * 最多幾輪；不成也回傳目前交叉數。
+ * 在既有正方 box 上把 W 釘成四邊直線（其餘站不動）。
+ * box 應已是正方（通常來自整網仿射後的 W 外接框）——只推 W 到邊上，少撕網。
  */
-function lightRepairRules(posMap, segs, frozen, cols, rows, crossBudget) {
-  for (let round = 0; round < 6; round++) {
-    if (layoutRulesOk(posMap, segs, crossBudget)) return true
-    repairPointOverlaps(posMap, segs, cols, rows, crossBudget + 5, {
-      frozen, relaxCross: true, maxRad: 8,
+function pinWFourSidesOnBox(layout, cutIds, box, cols, rows) {
+  const ring = []
+  const seen = new Set()
+  for (const id of cutIds) {
+    if (seen.has(id)) continue
+    seen.add(id)
+    ring.push(id)
+  }
+  if (ring.length < 4) return null
+  const n = ring.length
+  const { minX, minY, maxX, maxY } = box
+  if (maxX - minX !== maxY - minY || maxX <= minX) return null
+
+  const q = Math.floor(n / 4)
+  const rem = n % 4
+  const sizes = [0, 1, 2, 3].map((i) => q + (i < rem ? 1 : 0))
+  if (sizes.some((s) => s < 1)) return null
+
+  const corners = [
+    [minX, minY], [maxX, minY], [maxX, maxY], [minX, maxY],
+  ]
+  const atSide = (sideI, t) => {
+    const A = corners[sideI], B = corners[(sideI + 1) % 4]
+    return [
+      Math.round(A[0] + (B[0] - A[0]) * t),
+      Math.round(A[1] + (B[1] - A[1]) * t),
+    ]
+  }
+  const cornerIdx = [0]
+  let acc = 0
+  for (let i = 0; i < 3; i++) {
+    acc += sizes[i]
+    cornerIdx.push(acc)
+  }
+
+  const out = new Map([...layout].map(([id, p]) => [id, [...p]]))
+  const used = new Set()
+  const placeUniqueOnSide = (sideI, prefer) => {
+    const A = corners[sideI], B = corners[(sideI + 1) % 4]
+    const cells = []
+    if (A[0] === B[0]) {
+      const y0 = Math.min(A[1], B[1]), y1 = Math.max(A[1], B[1])
+      for (let y = y0; y <= y1; y++) cells.push([A[0], y])
+    } else {
+      const x0 = Math.min(A[0], B[0]), x1 = Math.max(A[0], B[0])
+      for (let x = x0; x <= x1; x++) cells.push([x, A[1]])
+    }
+    let best = null, bd = Infinity
+    for (const cell of cells) {
+      if (used.has(ckey(cell[0], cell[1]))) continue
+      const d = Math.hypot(cell[0] - prefer[0], cell[1] - prefer[1])
+      if (d < bd) { bd = d; best = cell }
+    }
+    return best
+  }
+
+  for (let sideI = 0; sideI < 4; sideI++) {
+    const i0 = cornerIdx[sideI]
+    const i1 = sideI === 3 ? n : cornerIdx[sideI + 1]
+    for (let j = 0; j < i1 - i0; j++) {
+      const prefer = atSide(sideI, j / sizes[sideI])
+      const cell = placeUniqueOnSide(sideI, prefer)
+      if (!cell) return null
+      used.add(ckey(cell[0], cell[1]))
+      out.set(ring[i0 + j], cell)
+    }
+  }
+
+  // 非 W 若撞到 W 格 → 外推（不改 W）
+  for (const [id, p] of out) {
+    if (seen.has(id)) continue
+    if (!used.has(ckey(p[0], p[1]))) continue
+    let found = null
+    for (let rad = 1; rad <= 10 && !found; rad++) {
+      for (let dc = -rad; dc <= rad && !found; dc++) {
+        for (let dr = -rad; dr <= rad && !found; dr++) {
+          if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
+          const c = Math.max(0, Math.min(cols - 1, p[0] + dc))
+          const r = Math.max(0, Math.min(rows - 1, p[1] + dr))
+          if (used.has(ckey(c, r))) continue
+          const clash = [...out].some(([oid, op]) => oid !== id && op[0] === c && op[1] === r)
+          if (clash) continue
+          found = [c, r]
+        }
+      }
+    }
+    if (found) out.set(id, found)
+  }
+  return out
+}
+
+function wSquareBox(posMap, cutIds, cols, rows) {
+  const pts = []
+  const seen = new Set()
+  for (const id of cutIds) {
+    if (seen.has(id)) continue
+    seen.add(id)
+    const p = posMap.get(id)
+    if (p) pts.push(p)
+  }
+  if (pts.length < 4) return null
+  const minX0 = Math.min(...pts.map((p) => p[0]))
+  const maxX0 = Math.max(...pts.map((p) => p[0]))
+  const minY0 = Math.min(...pts.map((p) => p[1]))
+  const maxY0 = Math.max(...pts.map((p) => p[1]))
+  const side = Math.max(2, Math.max(maxX0 - minX0, maxY0 - minY0))
+  const cx = (minX0 + maxX0) / 2, cy = (minY0 + maxY0) / 2
+  let minX = Math.round(cx - side / 2), minY = Math.round(cy - side / 2)
+  let maxX = minX + side, maxY = minY + side
+  if (minX < 0) { maxX -= minX; minX = 0 }
+  if (minY < 0) { maxY -= minY; minY = 0 }
+  if (maxX >= cols) { const d = maxX - (cols - 1); minX = Math.max(0, minX - d); maxX = minX + side }
+  if (maxY >= rows) { const d = maxY - (rows - 1); minY = Math.max(0, minY - d); maxY = minY + side }
+  if (maxX >= cols || maxY >= rows) return null
+  return { minX, minY, maxX, maxY, side }
+}
+
+/**
+ * W 已釘在 layout；其餘站依連續座標 cont 重新互不撞吸附（跟已變形的鄰接，不要留在舊格）。
+ */
+function reseedOthersFromCont(layout, cont, pathSet, cols, rows) {
+  const used = new Set()
+  for (const id of pathSet) {
+    const p = layout.get(id)
+    if (p) used.add(ckey(p[0], p[1]))
+  }
+  const others = [...layout.keys()]
+    .filter((id) => !pathSet.has(id))
+    .sort((a, b) => String(a).localeCompare(String(b)))
+  for (const id of others) {
+    const prefer = cont.get(id) || layout.get(id)
+    if (!prefer) continue
+    let best = null, bd = Infinity
+    const c0 = Math.round(prefer[0]), r0 = Math.round(prefer[1])
+    for (let rad = 0; rad <= 14; rad++) {
+      for (let dc = -rad; dc <= rad; dc++) {
+        for (let dr = -rad; dr <= rad; dr++) {
+          if (rad > 0 && Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
+          const c = Math.max(0, Math.min(cols - 1, c0 + dc))
+          const r = Math.max(0, Math.min(rows - 1, r0 + dr))
+          const key = ckey(c, r)
+          if (used.has(key)) continue
+          const cost = Math.hypot(c - prefer[0], r - prefer[1])
+          if (cost < bd) { bd = cost; best = [c, r] }
+        }
+      }
+      if (best && bd < 0.5) break
+    }
+    if (best) {
+      used.add(ckey(best[0], best[1]))
+      layout.set(id, best)
+    }
+  }
+}
+
+/** 站序均分到正方四邊的連續／整數目標（底→右→頂→左） */
+function fourSideTargets(cutIds, box, asInt = true) {
+  const ring = []
+  const seen = new Set()
+  for (const id of cutIds) {
+    if (seen.has(id)) continue
+    seen.add(id)
+    ring.push(id)
+  }
+  if (ring.length < 4) return null
+  const n = ring.length
+  const { minX, minY, maxX, maxY } = box
+  const q = Math.floor(n / 4)
+  const rem = n % 4
+  const sizes = [0, 1, 2, 3].map((i) => q + (i < rem ? 1 : 0))
+  if (sizes.some((s) => s < 1)) return null
+  const corners = [
+    [minX, minY], [maxX, minY], [maxX, maxY], [minX, maxY],
+  ]
+  const cornerIdx = [0]
+  let acc = 0
+  for (let i = 0; i < 3; i++) {
+    acc += sizes[i]
+    cornerIdx.push(acc)
+  }
+  const out = new Map()
+  for (let sideI = 0; sideI < 4; sideI++) {
+    const i0 = cornerIdx[sideI]
+    const i1 = sideI === 3 ? n : cornerIdx[sideI + 1]
+    const A = corners[sideI], B = corners[(sideI + 1) % 4]
+    for (let j = 0; j < i1 - i0; j++) {
+      const t = j / sizes[sideI]
+      let x = A[0] + (B[0] - A[0]) * t
+      let y = A[1] + (B[1] - A[1]) * t
+      if (asInt) { x = Math.round(x); y = Math.round(y) }
+      out.set(ring[i0 + j], [x, y])
+    }
+  }
+  return { targets: out, ring, sizes, cornerIdx, corners }
+}
+
+/** 把落在方框內部的非 W 站推到最近外緣（減少穿心交叉） */
+function pushInteriorOut(posMap, pathSet, box, cols, rows) {
+  const { minX, minY, maxX, maxY } = box
+  const used = new Set([...posMap].map(([, p]) => ckey(p[0], p[1])))
+  for (const [id, p] of [...posMap]) {
+    if (pathSet.has(id)) continue
+    if (p[0] <= minX || p[0] >= maxX || p[1] <= minY || p[1] >= maxY) continue
+    const cand = [
+      [minX, p[1]], [maxX, p[1]], [p[0], minY], [p[0], maxY],
+      [minX - 1, p[1]], [maxX + 1, p[1]], [p[0], minY - 1], [p[0], maxY + 1],
+    ]
+    let best = null, bd = Infinity
+    for (const [cx, cy] of cand) {
+      const c = Math.max(0, Math.min(cols - 1, Math.round(cx)))
+      const r = Math.max(0, Math.min(rows - 1, Math.round(cy)))
+      const key = ckey(c, r)
+      if (used.has(key) && key !== ckey(p[0], p[1])) continue
+      // 必須在框外或邊上
+      if (c > minX && c < maxX && r > minY && r < maxY) continue
+      const d = Math.hypot(c - p[0], r - p[1])
+      if (d < bd) { bd = d; best = [c, r] }
+    }
+    if (best) {
+      used.delete(ckey(p[0], p[1]))
+      used.add(ckey(best[0], best[1]))
+      posMap.set(id, best)
+    }
+  }
+}
+
+/**
+ * 以 validMove 逐步把站移向目標（保硬規則）；W 優先，擋路非 W 可被推離目標方向。
+ */
+function walkTowardTargets(pos, segs, inc, cols, rows, targets, preferIds, maxRounds = 400) {
+  const M = makeMover(pos, segs, inc, cols, rows)
+  const order = [
+    ...preferIds.filter((id) => targets.has(id)),
+    ...[...targets.keys()].filter((id) => !preferIds.includes(id)),
+  ]
+  for (let round = 0; round < maxRounds; round++) {
+    let any = false
+    for (const id of order) {
+      const t = targets.get(id)
+      const p = pos.get(id)
+      if (!t || !p) continue
+      if (p[0] === t[0] && p[1] === t[1]) continue
+      const cands = []
+      for (let dc = -2; dc <= 2; dc++) {
+        for (let dr = -2; dr <= 2; dr++) {
+          if (!dc && !dr) continue
+          const c = p[0] + dc, r = p[1] + dr
+          if (c < 0 || r < 0 || c >= cols || r >= rows) continue
+          const d0 = Math.abs(p[0] - t[0]) + Math.abs(p[1] - t[1])
+          const d1 = Math.abs(c - t[0]) + Math.abs(r - t[1])
+          if (d1 >= d0) continue
+          cands.push({ c, r, d1 })
+        }
+      }
+      cands.sort((a, b) => a.d1 - b.d1)
+      let moved = false
+      for (const { c, r } of cands) {
+        if (M.validMove(id, [c, r])) {
+          M.applyMove(id, [c, r])
+          any = true
+          moved = true
+          break
+        }
+      }
+      if (moved) continue
+      // 擋路：試著把鄰近非目標站推離 t
+      for (const [oid, op] of pos) {
+        if (targets.has(oid)) continue
+        if (Math.hypot(op[0] - p[0], op[1] - p[1]) > 3) continue
+        const away = [
+          [op[0] + Math.sign(op[0] - t[0] || 1), op[1]],
+          [op[0], op[1] + Math.sign(op[1] - t[1] || 1)],
+          [op[0] + Math.sign(op[0] - t[0] || 1), op[1] + Math.sign(op[1] - t[1] || 1)],
+        ]
+        for (const [c, r] of away) {
+          if (c < 0 || r < 0 || c >= cols || r >= rows) continue
+          if (M.validMove(oid, [c, r])) {
+            M.applyMove(oid, [c, r])
+            any = true
+            break
+          }
+        }
+      }
+    }
+    if (!any) break
+  }
+}
+
+/**
+ * 以規定路段站的位移做反距離加權（RBF）變形場——W 到四邊目標時整網跟著走，
+ * 比「只釘 W、其餘不動」少撕裂。回傳連續座標。
+ */
+function rbfMorph(srcPos, cutIds, targets) {
+  const anchors = []
+  const seen = new Set()
+  for (const id of cutIds) {
+    if (seen.has(id) || !targets.has(id)) continue
+    seen.add(id)
+    const s = srcPos.get(id), t = targets.get(id)
+    if (s && t) anchors.push({ s, dx: t[0] - s[0], dy: t[1] - s[1] })
+  }
+  if (!anchors.length) return null
+  const out = new Map()
+  for (const [id, p] of srcPos) {
+    if (targets.has(id)) {
+      out.set(id, [...targets.get(id)])
+      continue
+    }
+    let sx = 0, sy = 0, w = 0
+    for (const a of anchors) {
+      const d2 = (p[0] - a.s[0]) ** 2 + (p[1] - a.s[1]) ** 2
+      const wi = 1 / Math.max(1e-3, d2)
+      sx += wi * a.dx
+      sy += wi * a.dy
+      w += wi
+    }
+    out.set(id, [p[0] + sx / w, p[1] + sy / w])
+  }
+  return out
+}
+
+/** 連續座標 → 互不撞整數格（W 優先佔格） */
+function mutualSnap(cont, pathSet, cols, rows) {
+  const used = new Set()
+  const snapped = new Map()
+  const order = [...cont.keys()].sort((a, b) =>
+    (pathSet.has(a) ? 0 : 1) - (pathSet.has(b) ? 0 : 1) || String(a).localeCompare(String(b)))
+  for (const id of order) {
+    const p = cont.get(id)
+    let best = null, bd = Infinity
+    const c0 = Math.round(p[0]), r0 = Math.round(p[1])
+    for (let rad = 0; rad <= 12; rad++) {
+      for (let dc = -rad; dc <= rad; dc++) {
+        for (let dr = -rad; dr <= rad; dr++) {
+          if (rad > 0 && Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
+          const c = Math.max(0, Math.min(cols - 1, c0 + dc))
+          const r = Math.max(0, Math.min(rows - 1, r0 + dr))
+          if (used.has(ckey(c, r))) continue
+          const cost = Math.hypot(c - p[0], r - p[1])
+          if (cost < bd) { bd = cost; best = [c, r] }
+        }
+      }
+      if (best && bd < 0.5) break
+    }
+    if (!best) return null
+    used.add(ckey(best[0], best[1]))
+    snapped.set(id, best)
+  }
+  return snapped
+}
+
+/**
+ * 積極修規則：W 凍結；清重疊＋依交叉參與度移動其餘站，直到 cross≤budget 且無重疊。
+ * 不成則回 false（呼叫端應放棄該候選，勿交付蜘蛛網）。
+ */
+function aggressiveRepairRules(posMap, segs, frozen, cols, rows, crossBudget) {
+  const rulesOk = () =>
+    !hasPointOverlap(posMap, segs) && improperCrossCount(posMap, segs) <= crossBudget
+
+  for (let round = 0; round < 40; round++) {
+    if (rulesOk()) return true
+    repairPointOverlaps(posMap, segs, cols, rows, crossBudget + 24, {
+      frozen, relaxCross: true, maxRad: 16,
     })
-    // 只收集目前仍交叉的邊端點
-    const hot = new Set()
+
+    const score = new Map()
     for (let i = 0; i < segs.length; i++) {
       const si = segs[i]
       const A = posMap.get(si.a), B = posMap.get(si.b)
@@ -446,23 +846,26 @@ function lightRepairRules(posMap, segs, frozen, cols, rows, crossBudget) {
         if (si.a === sj.a || si.a === sj.b || si.b === sj.a || si.b === sj.b) continue
         const C = posMap.get(sj.a), D = posMap.get(sj.b)
         if (!C || !D) continue
-        if (segIntersect(A, B, C, D)) {
-          if (!frozen.has(si.a)) hot.add(si.a)
-          if (!frozen.has(si.b)) hot.add(si.b)
-          if (!frozen.has(sj.a)) hot.add(sj.a)
-          if (!frozen.has(sj.b)) hot.add(sj.b)
+        if (!segIntersect(A, B, C, D)) continue
+        for (const id of [si.a, si.b, sj.a, sj.b]) {
+          if (!frozen.has(id)) score.set(id, (score.get(id) || 0) + 1)
         }
       }
     }
     let cross = improperCrossCount(posMap, segs)
-    for (const id of hot) {
+    if (cross <= crossBudget && !hasPointOverlap(posMap, segs)) return true
+
+    const order = [...score.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id)
+    let improved = false
+    for (const id of order) {
       if (cross <= crossBudget) break
       const p = posMap.get(id)
+      if (!p) continue
       const occ = new Set(
         [...posMap].filter(([oid]) => oid !== id).map(([, q]) => ckey(q[0], q[1])),
       )
       let best = null, bestC = cross
-      for (let rad = 1; rad <= 6; rad++) {
+      for (let rad = 1; rad <= 12; rad++) {
         for (let dc = -rad; dc <= rad; dc++) {
           for (let dr = -rad; dr <= rad; dr++) {
             if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue
@@ -479,58 +882,15 @@ function lightRepairRules(posMap, segs, frozen, cols, rows, crossBudget) {
         }
         if (best && bestC < cross) break
       }
-      if (best) { posMap.set(id, best); cross = bestC }
-    }
-  }
-  return layoutRulesOk(posMap, segs, crossBudget)
-}
-
-/** 朝目標每步 1 格，全程 makeMover.validMove——永不破壞硬規則 */
-function walkAllToward(M, pos, targets, pathSet, maxRounds) {
-  let movedVerts = 0
-  const start = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
-  const order = [...targets.keys()].sort((a, b) =>
-    (pathSet.has(a) ? 0 : 1) - (pathSet.has(b) ? 0 : 1)
-    || String(a).localeCompare(String(b)))
-  for (let round = 0; round < maxRounds; round++) {
-    let any = false
-    for (const id of order) {
-      const t = targets.get(id)
-      const cur = pos.get(id)
-      if (!t || !cur) continue
-      if (cur[0] === t[0] && cur[1] === t[1]) continue
-      const dc = Math.sign(t[0] - cur[0])
-      const dr = Math.sign(t[1] - cur[1])
-      const cands = []
-      if (dc && dr) cands.push([cur[0] + dc, cur[1] + dr])
-      if (dc) cands.push([cur[0] + dc, cur[1]])
-      if (dr) cands.push([cur[0], cur[1] + dr])
-      for (const P of cands) {
-        if (P[0] === cur[0] && P[1] === cur[1]) continue
-        if (!M.validMove(id, P)) continue
-        M.applyMove(id, P)
-        any = true
-        break
+      if (best) {
+        posMap.set(id, best)
+        cross = bestC
+        improved = true
       }
     }
-    if (!any) break
+    if (!improved) break
   }
-  for (const [id, p] of pos) {
-    const s = start.get(id)
-    if (!s || s[0] !== p[0] || s[1] !== p[1]) movedVerts++
-  }
-  return movedVerts
-}
-
-/** 若佈局已成方且合規 → 套用；否則 null */
-function tryAtomicSquare(layout, cutIds, pathSet, segs, cols, rows, cross0, softSquare) {
-  const scratch = new Map([...layout].map(([id, p]) => [id, [...p]]))
-  if (!layoutRulesOk(scratch, segs, cross0)) {
-    if (!lightRepairRules(scratch, segs, pathSet, cols, rows, cross0)) return null
-  }
-  const { ok, q } = isSquareEnough(cutIds, scratch, softSquare)
-  if (!ok || !layoutRulesOk(scratch, segs, cross0)) return null
-  return { layout: scratch, q }
+  return rulesOk()
 }
 
 /**
@@ -576,7 +936,7 @@ function affineSquareSnap(src, cutIds, cols, rows) {
     used.add(ckey(best[0], best[1]))
     snapped.set(id, best)
   }
-  return { snapped, sx, sy, side }
+  return { snapped, cont, sx, sy, side }
 }
 
 /* ---------- §4：依規定表取路線／路段＋擺方形（不自動猜環） ---------- */
@@ -904,15 +1264,14 @@ export function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
   }
   for (let round = 0; round < ADJUST_ROUNDS; round++) mixedStep()
 
-  // ── §6：成方＋合規（交叉不增、無重疊）才硬套；否則 validMove 逐步靠近 ──
+  // ── §6：四邊直線方＋硬規則（交叉／重疊不得變差）──
+  // RBF 變形場讓整網跟著 W 走 → 釘邊／外推／修復；不成則退回（不交付蜘蛛網）。
   const hvBefore = countHV(pos, segs)
   const hvdBefore = countHVD(pos, segs)
   const cross0 = improperCrossCount(pos, segs)
-  const overlap0 = hasPointOverlap(pos, segs)
-  const M = makeMover(pos, segs, inc, cols, rows)
 
-  const q0 = squareQuality(pick.cutIds, pos)
-  if (q0.already && !overlap0) {
+  if (isFourLineSquare(pick.cutIds, pos) && !hasPointOverlap(pos, segs)) {
+    const q0 = squareQuality(pick.cutIds, pos)
     return {
       cellAfter: pos,
       stats: {
@@ -927,7 +1286,7 @@ export function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
         shapeVerts: Sshape.size,
         score: +pick.score.toFixed(3),
         note: '→方',
-        quality: { ar: +q0.ar.toFixed(2), onEdge: +q0.onEdge.toFixed(2), sides: q0.sides, square: true },
+        quality: { ar: 1, onEdge: +q0.onEdge.toFixed(2), sides: 4, square: true, fourLine: true },
         crosses: `${cross0}→${cross0}`,
         via: 'already',
         rulesOk: true,
@@ -935,62 +1294,118 @@ export function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
     }
   }
 
-  const aff = affineSquareSnap(geo, pick.cutIds, cols, rows)
-  const ls = lsSquareSnap(P, pick.cutIds, shapePoly, cols, rows)
+  const box = wSquareBox(geo, pick.cutIds, cols, rows)
+  const sideTargets = box ? fourSideTargets(pick.cutIds, box, false) : null
+  const intTargets = box ? fourSideTargets(pick.cutIds, box, true) : null
 
-  // 原子候選：必須同時成方＋合規才套用（絕不交付交叉/重疊變差的圖）
-  const atomics = []
-  if (aff) {
-    const pinned = forceSquareLayout(aff.snapped, pick.cutIds, cols, rows)
-    if (pinned) atomics.push({ layout: pinned.layout, via: 'affine+perim', soft: false, meta: { ...aff, side: pinned.side } })
-    atomics.push({ layout: aff.snapped, via: 'affine', soft: true, meta: aff })
-  }
-  if (ls) {
-    const pinned = forceSquareLayout(ls, pick.cutIds, cols, rows)
-    if (pinned) atomics.push({ layout: pinned.layout, via: 'ls+perim', soft: false, meta: { side: pinned.side } })
+  const tryAccept = (layout, viaTag, useBox) => {
+    const L = new Map([...layout].map(([id, p]) => [id, [...p]]))
+    let crossA = improperCrossCount(L, segs)
+    // 釘死 W 到整數四邊（RBF 吸附後可能差 1 格）
+    if (useBox && intTargets) {
+      const pinned = pinWFourSidesOnBox(L, pick.cutIds, useBox, cols, rows)
+      if (pinned) {
+        for (const [id, p] of pinned) {
+          if (pathSet.has(id)) L.set(id, p)
+        }
+        pushInteriorOut(L, pathSet, useBox, cols, rows)
+      }
+    }
+    const crossB = improperCrossCount(L, segs)
+    const fourB = isFourLineSquare(pick.cutIds, L)
+    aggressiveRepairRules(L, segs, pathSet, cols, rows, cross0)
+    const crossC = improperCrossCount(L, segs)
+    const fourC = isFourLineSquare(pick.cutIds, L)
+    const ov = hasPointOverlap(L, segs)
+    _dbg.push({ viaTag, crossA, crossB, fourB, crossC, fourC, ov, budget: cross0 })
+    if (!fourC) return null
+    if (ov) return null
+    if (crossC > cross0) return null
+    return { layout: L, via: viaTag }
   }
 
   let accepted = null
-  let affMeta
-  for (const cand of atomics) {
-    const ok = tryAtomicSquare(
-      cand.layout, pick.cutIds, pathSet, segs, cols, rows, cross0, cand.soft,
+  let affMeta = box ? { side: box.side } : undefined
+  const _dbg = []
+
+  // A：RBF 整網變形 → 互不撞吸附 → 釘邊修復（主路徑）
+  if (box && sideTargets) {
+    const morphed = rbfMorph(geo, pick.cutIds, sideTargets.targets)
+    if (morphed) {
+      const snapped = mutualSnap(morphed, pathSet, cols, rows)
+      _dbg.push({
+        step: 'rbf-snap',
+        box: box?.side,
+        snap: !!snapped,
+        four: snapped ? isFourLineSquare(pick.cutIds, snapped) : false,
+        cross: snapped ? improperCrossCount(snapped, segs) : null,
+      })
+      if (snapped) {
+        accepted = tryAccept(snapped, 'rbf+snap+repair', box)
+        _dbg.push({ step: 'rbf-accept', ok: !!accepted })
+      }
+    }
+  } else {
+    _dbg.push({ step: 'no-box', box: !!box, targets: !!sideTargets })
+  }
+
+  // B：連續 §5 解上同樣 RBF（以 P 為源）
+  if (!accepted && box && sideTargets) {
+    const morphed = rbfMorph(
+      new Map([...P].map(([id, p]) => [id, [p[0], p[1]]])),
+      pick.cutIds, sideTargets.targets,
     )
-    if (!ok) continue
-    accepted = { ...ok, via: cand.via }
-    affMeta = cand.meta
-    break
+    if (morphed) {
+      const snapped = mutualSnap(morphed, pathSet, cols, rows)
+      if (snapped) accepted = tryAccept(snapped, 'rbf-P+snap+repair', box)
+    }
+  }
+
+  // C：仿射＋釘邊
+  const aff = !accepted ? affineSquareSnap(geo, pick.cutIds, cols, rows) : null
+  if (!accepted && aff?.snapped) {
+    affMeta = { sx: aff.sx, sy: aff.sy, side: aff.side }
+    const abox = wSquareBox(aff.snapped, pick.cutIds, cols, rows) ?? box
+    if (abox) {
+      const pinned = pinWFourSidesOnBox(aff.snapped, pick.cutIds, abox, cols, rows)
+      if (pinned) {
+        pushInteriorOut(pinned, pathSet, abox, cols, rows)
+        accepted = tryAccept(pinned, 'affine+pin+repair', abox)
+      }
+    }
+  }
+
+  // D：force 最後手段
+  if (!accepted) {
+    const forced = forceFourSideSquare(geo, pick.cutIds, cols, rows)
+    if (forced) {
+      const morphed = rbfMorph(geo, pick.cutIds,
+        new Map([...forced.layout].filter(([id]) => pathSet.has(id))))
+      const base = morphed
+        ? (mutualSnap(morphed, pathSet, cols, rows) ?? forced.layout)
+        : forced.layout
+      accepted = tryAccept(base, 'force+rbf+repair', forced.box)
+      if (accepted) affMeta = { side: forced.side, ...(affMeta || {}) }
+    }
   }
 
   if (accepted) {
     for (const [id, p] of accepted.layout) pos.set(id, [p[0], p[1]])
   } else {
-    // 合規優先：用 validMove 朝「仿射＋周界」目標走——永不破壞硬規則
-    const base = aff?.snapped
-      ?? ls
-      ?? new Map([...geo].map(([id, p]) => [id, [...p]]))
-    const pinned = forceSquareLayout(base, pick.cutIds, cols, rows)
-    const targets = pinned?.layout ?? base
-    if (pinned) affMeta = { side: pinned.side, ...(aff ?? {}) }
-    walkAllToward(M, pos, targets, pathSet, WALK_ROUNDS)
+    for (const [id, p] of geo) pos.set(id, [...p])
   }
 
   const cross1 = improperCrossCount(pos, segs)
-  const overlap1 = hasPointOverlap(pos, segs)
-  // 只在「比輸入更差」時退回——輸入若已有重疊不強迫清掉
-  const worsened = cross1 > cross0 || (overlap1 && !overlap0)
-  if (worsened) {
-    for (const [id, p] of geo) pos.set(id, [...p])
-  }
-  const crossFinal = worsened ? cross0 : cross1
-  const qFinal = squareQuality(pick.cutIds, pos)
-  const rulesOk = !worsened
+  const four = isFourLineSquare(pick.cutIds, pos)
+  const q = squareQuality(pick.cutIds, pos)
+  const rulesOk = accepted != null
+    && four
+    && !hasPointOverlap(pos, segs)
+    && cross1 <= cross0
   let moved = 0
-  if (!worsened) {
-    for (const [id, p] of pos) {
-      const s = geo.get(id)
-      if (!s || s[0] !== p[0] || s[1] !== p[1]) moved++
-    }
+  for (const [id, p] of pos) {
+    const s = geo.get(id)
+    if (!s || s[0] !== p[0] || s[1] !== p[1]) moved++
   }
 
   return {
@@ -999,23 +1414,25 @@ export function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
       hvBefore, hvAfter: countHV(pos, segs),
       hvdBefore, hvdAfter: countHVD(pos, segs),
       segs: segs.length, verts: pos.size,
-      moved, passes: 1, reverted: worsened,
+      moved, passes: 1, reverted: !accepted,
       smoothRounds: SMOOTH_ROUNDS, mixedRounds: MIXED_ROUNDS,
       adjustRounds: ADJUST_ROUNDS,
       skipped: false,
       ...shapeMeta,
       shapeVerts: Sshape.size,
       score: +pick.score.toFixed(3),
-      note: '→方',
+      note: accepted ? '→方' : '無法成方且保規則',
       quality: {
-        ar: +qFinal.ar.toFixed(2),
-        onEdge: +qFinal.onEdge.toFixed(2),
-        sides: qFinal.sides,
-        square: qFinal.ok || qFinal.ar <= QUALITY_AR,
+        ar: +q.ar.toFixed(2),
+        onEdge: +q.onEdge.toFixed(2),
+        sides: q.sides,
+        square: four || q.ok,
+        fourLine: four,
       },
-      crosses: `${cross0}→${crossFinal}`,
-      via: worsened ? 'reverted-rules' : (accepted?.via ?? 'walk+validMove'),
+      crosses: `${cross0}→${cross1}`,
+      via: accepted?.via ?? 'reverted',
       rulesOk,
+      debug: _dbg,
       affine: affMeta?.sx != null
         ? { sx: +affMeta.sx.toFixed(3), sy: +affMeta.sy.toFixed(3), side: +(+affMeta.side || 0).toFixed(2) }
         : affMeta?.side != null ? { side: affMeta.side } : undefined,
