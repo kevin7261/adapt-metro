@@ -18,8 +18,8 @@ _Drawing and Labeling High-Quality Metro Maps by Mixed-Integer Programming_
    - 硬限制：同頂點兩段出向不得相同（H2 環繞序的可線性化部份）。
 2. **精確求解**：段為節點、共享頂點的段對為邊 → 分連通元件 → 生成樹＋回邊 →
    feedback 段集合枚舉（3^|fb|，上限 2187 trials 或 2e6 節點·trials，超限元件
-   fallback 保持原方向）＋樹 DP（同 hillClimb.js 中 buildAxisIlp 的求解機構——該鏈已下架、函式保留，變數換成段
-   的八方向）。
+   fallback 保持原方向）＋樹 DP（沿用已下架整數規劃鏈的生成樹 DP＋feedback
+   枚舉機構，變數換成段的八方向）。
 3. **座標重建 `coordsFromDirs`**：逐段把兩端往「沿選定方向、長度＝目前投影長
    （下限＝H3 最短邊長 `hops`，即吞掉的白點數 + 1）」的理想相對位置拉，鬆弛 40 輪；`snapAligned` 對齊感知量化 →
    `finishPass` 夾 WINDOW＋硬規則。

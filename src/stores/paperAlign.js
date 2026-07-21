@@ -467,7 +467,7 @@ export function buildMilpAlign(skeleton, cells, cols, rows) {
     }
     nodes.sort((a, b) => a - b)
     comps++
-    // 生成樹＋回邊 → feedback 段集合（同 buildAxisIlp 的機構）。
+    // 生成樹＋回邊 → feedback 段集合（沿用已下架整數規劃鏈的機構）。
     const treeAdj = new Map(nodes.map((n) => [n, []]))
     const backPairs = []
     const inTree = new Set([nodes[0]])

@@ -166,10 +166,9 @@ badge、工具列顯示 迭代 n/20（達上限未收斂會標註）。共用機
    當最佳化器（export → 提案 → `applyLlmTargets` 經同一套硬規則套用 → 存
    `data/metro/llmviews/`），網頁只載入；不迭代包裝（LLM 迴圈本身就是迭代）。
 
-（**已下架（2026-07）**：自創的 軸對齊 `buildAxisAlign` 與 整數規劃
-`buildAxisIlp`——不對應任何 data/thesis 論文，使用者裁決直線演算法只留與論文
-一一對應的 8 條＋LLM；函式保留在 hillClimb.js 無呼叫者，paperAlign 的 MILP/SAT
-沿用其生成樹 DP＋feedback 枚舉機構。）
+（**已下架（2026-07）**：自創的軸對齊與整數規劃鏈——不對應任何 data/thesis
+論文，使用者裁決直線演算法只留與論文一一對應的 8 條＋LLM；實作已從
+`hillClimb.js` 移除。paperAlign 的 MILP/SAT 沿用其生成樹 DP＋feedback 枚舉機構。）
 
 每條鏈各有自己的縮減網格 tab，且一律壓縮
 **該鏈「端點移動後」的結果**（鏈 = 該鏈結果 → 端點移動 → 縮減網格）；
