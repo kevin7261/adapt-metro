@@ -270,12 +270,11 @@
     "city": "Wuhan",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/china/as-chn-wuhan.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.wuhanrt.com/file/tempFile/1232459/线网线路图.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official 武汉地铁集团 (Wuhan Metro Group) network route map, 2024-10 rev"
   },
   "asia/china/as-chn-tianjin": {
     "city": "Tianjin",
@@ -1040,12 +1039,11 @@
     "city": "Bursa",
     "country": "Turkey",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/turkey/as-tur-bursa.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://www.burulas.com.tr/asset/img/bursaray/guzergah.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Burulaş / Bursa BB BursaRay M1+M2 schematic"
   },
   "asia/china/as-chn-guiyang": {
     "city": "Guiyang",
@@ -1509,12 +1507,11 @@
     "city": "Shiraz",
     "country": "Iran",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/iran/as-iri-shiraz.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://shirazmetro.ir/wp-content/uploads/2020/02/new_map-min.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Shiraz Urban Railway Org map (built lines solid, planned dotted)"
   },
   "asia/japan/as-jpn-sendai": {
     "city": "Sendai",
@@ -1928,12 +1925,11 @@
     "city": "Isfahan",
     "country": "Iran",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/iran/as-iri-isfahan.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://metroisfahan.ir/Portal/Post/Map2.jpg",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official Isfahan Metro Company (شرکت مترو منطقه اصفهان) Line 1 map"
   },
   "asia/iran/as-iri-karaj": {
     "city": "Karaj",
@@ -2330,7 +2326,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784598884293,
+  "_rev": 1784599610973,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",
