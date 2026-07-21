@@ -54,9 +54,9 @@ function compareLabel(record, id) {
 }
 function compareBadges(record, c) {
   const tags = []
-  if (c.id === record.winner) tags.push('最佳')
-  if (c.id === record.winnerOrig) tags.push('原始最佳')
-  if (c.id === record.winnerRot) tags.push('旋轉最佳')
+  if (c.id === record.winner) tags.push({ kind: 'all', label: '全部最佳' })
+  if (c.id === record.winnerOrig) tags.push({ kind: 'orig', label: '原始最佳' })
+  if (c.id === record.winnerRot) tags.push({ kind: 'rot', label: '旋轉最佳' })
   return tags
 }
 
@@ -304,7 +304,7 @@ watch(() => props.promptText, () => {
         <template v-if="kind === 'compare'">
           <div class="weight-panel">
             <h4 class="llm-h">八結果比較</h4>
-            <p class="weight-hint">一次比較原始與旋轉的論文①〜⑧八條鏈與可用的 LLM 對齊（最多 18 個），依路網方正、直線多、轉折少與畫面平衡選出全體最佳、原始最佳與旋轉最佳。此功能只評審與說明，不會修改任一候選圖。</p>
+            <p class="weight-hint">一次比較原始與旋轉的論文①〜⑧八條鏈與可用的 LLM 對齊（最多 18 個），依路網方正、直線多、轉折少與畫面平衡選出全部最佳、原始最佳與旋轉最佳。此功能只評審與說明，不會修改任一候選圖。</p>
             <template v-if="compareCanRun">
               <label class="llm-model-pick">
                 模型
@@ -326,14 +326,14 @@ watch(() => props.promptText, () => {
               <div class="info-rows">
                 <div class="info-row"><span class="info-key">模型</span><span>{{ compareRecord.model }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(compareRecord.elapsedMs) || '—' }}</span></div>
-                <div class="info-row"><span class="info-key">最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winner) }}</b></div>
+                <div class="info-row"><span class="info-key">全部最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winner) }}</b></div>
                 <div class="info-row"><span class="info-key">原始最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winnerOrig) }}</b></div>
                 <div class="info-row"><span class="info-key">旋轉最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winnerRot) }}</b></div>
               </div>
               <h4 class="llm-h">選擇結論</h4>
               <div class="compare-verdict">
                 <div class="compare-verdict-block">
-                  <div class="compare-verdict-head">全體最佳 · {{ compareLabel(compareRecord, compareRecord.winner) }}</div>
+                  <div class="compare-verdict-head">全部最佳 · {{ compareLabel(compareRecord, compareRecord.winner) }}</div>
                   <ul class="eval-bullets">
                     <template v-for="pts in [toBullets(compareRecord.winnerReason)]" :key="'wr'">
                       <li v-for="(t, i) in pts" :key="'w'+i">{{ t }}</li>
@@ -372,8 +372,8 @@ watch(() => props.promptText, () => {
               <div v-for="c in compareRecord.candidates" :key="c.id" class="eval-line">
                 <div class="eval-line-name">
                   {{ c.label }}
-                  <template v-for="tag in compareBadges(compareRecord, c)" :key="tag">
-                    <span class="compare-badge">{{ tag }}</span>
+                  <template v-for="tag in compareBadges(compareRecord, c)" :key="tag.kind">
+                    <span class="compare-badge" :class="'compare-badge--' + tag.kind">{{ tag.label }}</span>
                   </template>
                 </div>
                 <ul class="eval-bullets">

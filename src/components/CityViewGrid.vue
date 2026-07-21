@@ -33,7 +33,25 @@ const root = ref(null)
 const data = ref(null)          // { W, H, tilt?, views:{...}, stats:{...} }
 const state = ref('idle')       // idle | loading | done | error
 const lab = ref(props.labelsForTilt ? props.labelsForTilt(props.entry.tilt ?? 0) : props.labels)
+// RWD 畫廊：llmcompares → 右上角「全部／原始／旋轉最佳」徽章
+const compare = ref(null)       // { winner, winnerOrig, winnerRot } | null
 let observer = null
+
+// rwd-rect-orig → orig.rect（與 llmcompares 候選 id 對齊）
+function compareIdOf(viewId) {
+  const m = /^rwd-([a-z]+)-(orig|rot)$/.exec(viewId ?? '')
+  return m ? `${m[2]}.${m[1]}` : null
+}
+function compareTags(viewId) {
+  const r = compare.value
+  const id = compareIdOf(viewId)
+  if (!r || !id) return []
+  const tags = []
+  if (r.winner === id) tags.push({ kind: 'all', label: '全部最佳' })
+  if (r.winnerOrig === id) tags.push({ kind: 'orig', label: '原始最佳' })
+  if (r.winnerRot === id) tags.push({ kind: 'rot', label: '旋轉最佳' })
+  return tags
+}
 
 async function load() {
   if (state.value !== 'idle') return
@@ -45,6 +63,17 @@ async function load() {
     if (props.labelsForTilt) lab.value = props.labelsForTilt(json.tilt ?? 0)
     data.value = json
     state.value = 'done'
+    if (props.dataDir === 'rwdviews') {
+      try {
+        const cr = await fetch(assetUrl(`data/metro/llmcompares/${props.entry.id}.json`), { cache: 'no-cache' })
+        if (cr.ok) {
+          const cj = await cr.json()
+          compare.value = {
+            winner: cj.winner, winnerOrig: cj.winnerOrig, winnerRot: cj.winnerRot,
+          }
+        }
+      } catch { /* 無比較結果＝不顯示徽章 */ }
+    }
   } catch {
     state.value = 'error'
   }
@@ -126,6 +155,14 @@ onBeforeUnmount(() => observer?.disconnect())
               class="dot"
             />
           </svg>
+          <div v-if="compareTags(id).length" class="vc-badges">
+            <span
+              v-for="t in compareTags(id)"
+              :key="t.kind"
+              class="vc-badge"
+              :class="'vc-badge--' + t.kind"
+            >{{ t.label }}</span>
+          </div>
           <span v-if="state === 'error'" class="vc-msg">載入失敗</span>
           <span v-else-if="data && !data.views[id]" class="vc-msg">尚未預算</span>
         </div>
@@ -190,6 +227,29 @@ onBeforeUnmount(() => observer?.disconnect())
 }
 /* 填滿固定框、preserveAspectRatio="xMidYMid meet" 保持長寬比 letterbox */
 .vc-canvas svg { width: 100%; height: 100%; overflow: visible; }
+.vc-badges {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  pointer-events: none;
+}
+.vc-badge {
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+}
+.vc-badge--all { background: #f59e0b; }   /* 全部最佳：金 */
+.vc-badge--orig { background: #0d9488; }  /* 原始最佳：青绿 */
+.vc-badge--rot { background: #2563eb; }   /* 旋轉最佳：藍 */
 .grid-sep { stroke: #3b82f6; stroke-width: 0.2; stroke-opacity: 0.18; }
 .hl { fill: none; stroke-width: 3.2; stroke-opacity: 0.28; stroke-linecap: round; stroke-linejoin: round; }
 .ln { fill: none; stroke-width: 1.4; stroke-linejoin: round; }

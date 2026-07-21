@@ -320,6 +320,17 @@ const compareRunner = makeRun({
 const startCompareRun = compareRunner.start
 const compareRunning = computed(() => compareRun.value === 'running')
 const compareError = computed(() => compareRun.value === 'error' ? compareRunTail.value : '')
+// 目前 RWD 路網視圖對應的比較候選 id（variant.compact）→ 右上角徽章。
+const compareViewTags = computed(() => {
+  const r = compareRecord.value
+  if (!isRWD.value || !rwdMode.value || !r) return []
+  const id = `${hcVariant.value}.${rwdCompactKey.value}`
+  const tags = []
+  if (r.winner === id) tags.push({ kind: 'all', label: '全部最佳' })
+  if (r.winnerOrig === id) tags.push({ kind: 'orig', label: '原始最佳' })
+  if (r.winnerRot === id) tags.push({ kind: 'rot', label: '旋轉最佳' })
+  return tags
+})
 // ---- 執行 LLM 評價結果（不用 LLM）----
 // 評價時 llmEval.mjs apply 已把評價附帶的 moves 經 applyLlmTargets（與 LLM 對齊
 // 完全相同的硬規則）套用、把調整後佈局存進結果檔的 exec.cells——這裡的「執行
@@ -2199,6 +2210,15 @@ onBeforeUnmount(() => {
           <div v-if="loading" class="ma-hint">載入中…</div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
+          <!-- LLM 比較結果：本 RWD 視圖若是全部／原始／旋轉最佳，右上角標示 -->
+          <div v-if="compareViewTags.length" class="ma-compare-badges">
+            <span
+              v-for="t in compareViewTags"
+              :key="t.kind"
+              class="ma-compare-badge"
+              :class="'ma-compare-badge--' + t.kind"
+            >{{ t.label }}</span>
+          </div>
           <!-- LLM 對齊改成唯讀＋toggle（跟 LLM評價/互動一樣）：跑的時候不蓋畫布、
                不留白，串流與「執行調整/恢復原佈局」都在右側「LLM對齊」面板 tab。 -->
           <!-- 逐步驗證 控制面板：按「下一步」執行一個單掃描步驟，看四步鏈
@@ -2384,6 +2404,30 @@ onBeforeUnmount(() => {
 }
 .ma-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
 .ma-svg:active { cursor: grabbing; }
+/* LLM 比較：全部／原始／旋轉最佳徽章（RWD 路網畫布右上角） */
+.ma-compare-badges {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  pointer-events: none;
+}
+.ma-compare-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+}
+.ma-compare-badge--all { background: #f59e0b; }   /* 全部最佳：金 */
+.ma-compare-badge--orig { background: #0d9488; }  /* 原始最佳：青绿 */
+.ma-compare-badge--rot { background: #2563eb; }   /* 旋轉最佳：藍 */
 .ma-hint {
   position: absolute;
   inset: 0;
