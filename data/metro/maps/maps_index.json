@@ -2284,12 +2284,11 @@
     "city": "Astana",
     "country": "Kazakhstan",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/kazakhstan/as-kaz-astana.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no official schematic — left blank per policy 2026-07"
+    "source_url": "https://static.tengrinews.kz/userdata/u424/2026-05/resize/6ca38d00e456c9e4235c62ef2a702692.png",
+    "license": "Official operator scheme (© operator; thesis use)",
+    "artist": "Astana LRT official launch line scheme (operator City Transportation Systems / cts.gov.kz), May 2026 — cts.gov.kz publishes only an interactive Yandex map, so this operator-issued scheme is sourced via news reproduction (Tengrinews); no operator logo on the graphic"
   },
   "asia/india/as-ind-noida": {
     "city": "Noida",
@@ -2323,7 +2322,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784620095786,
+  "_rev": 1784627877012,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",
