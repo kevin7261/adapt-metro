@@ -2340,5 +2340,36 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784586135687
+  "_rev": 1784591627937,
+  "americas/bolivia/am-bol-cochabamba": {
+    "city": "Cochabamba",
+    "country": "Bolivia",
+    "wikidata": "Q114313190",
+    "map_file": null,
+    "commons_file": null,
+    "source_url": null,
+    "license": null,
+    "artist": null,
+    "note": "standalone system missing from index (built after last downloadMaps run); no operator-official schematic yet — blank per policy 2026-07"
+  },
+  "asia/japan/as-jpn-tokyo-jr": {
+    "city": "Tokyo + Yamanote",
+    "country": "Japan",
+    "wikidata": "Q682894",
+    "map_file": "maps/asia/japan/as-jpn-tokyo-jr.png",
+    "commons_file": null,
+    "source_url": "https://web.archive.org/web/20260712092846id_/https://www.jreast.co.jp/map/pdf/map_tokyo.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official JR East 路線ネットワーク (Railway Lines Network) schematic, 2026.3.14"
+  },
+  "asia/japan/as-jpn-osaka-jr": {
+    "city": "Osaka + Loop",
+    "country": "Japan",
+    "wikidata": "Q51211653",
+    "map_file": "maps/asia/japan/as-jpn-osaka-jr.png",
+    "commons_file": null,
+    "source_url": "https://www.jr-odekake.net/station/pdf/ubn.pdf",
+    "license": "Official operator map (© operator; thesis use)",
+    "artist": "Official JR West 近畿エリア路線図 (JR Line Route Map), 2026.3.14"
+  }
 }

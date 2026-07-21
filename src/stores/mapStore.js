@@ -211,13 +211,15 @@ export const useMapStore = defineStore('map', {
         const rows = []
         if (c.metro) rows.push({ kind: 'layer', layer: c.metro })
         if (c.d3) rows.push({ kind: 'layer', layer: c.d3 })
+        // 子群組（Straighten 2 層／RWD Maps 18 層）預設收合——不設值＝collapsed
+        // （避免剛匯入的城市把整組 18 層全攤開）。城市群組本身仍預設展開。
         if (c.hc.length) {
           const id = `${c.root.id}:straighten`
-          rows.push({ kind: 'group', id, label: 'Straighten', collapsed: !!state.cityCollapsed[id], layers: c.hc })
+          rows.push({ kind: 'group', id, label: 'Straighten', collapsed: state.cityCollapsed[id] ?? true, layers: c.hc })
         }
         if (c.rwd.length) {
           const id = `${c.root.id}:rwd`
-          rows.push({ kind: 'group', id, label: 'RWD Maps', collapsed: !!state.cityCollapsed[id], layers: c.rwd })
+          rows.push({ kind: 'group', id, label: 'RWD Maps', collapsed: state.cityCollapsed[id] ?? true, layers: c.rwd })
         }
         out.push({ group: { id: c.root.id, label: c.root.name, collapsed: !!state.cityCollapsed[c.root.id] }, rows })
       }
@@ -254,9 +256,11 @@ export const useMapStore = defineStore('map', {
       if (id) this.activeTabId = id
     },
 
-    // 圈層城市群組收合（key = root layer id；持久化於 groupCollapsed）。
-    toggleCityCollapsed(rootId) {
-      this.cityCollapsed = { ...this.cityCollapsed, [rootId]: !this.cityCollapsed[rootId] }
+    // 圈層城市群組／子群組收合（key = root layer id 或 `${root}:straighten|rwd`；
+    // 持久化於 groupCollapsed）。子群組預設收合、城市群組預設展開，兩者預設不同，
+    // 所以由呼叫端傳入「目前顯示的 collapsed 值」取反，才不會因不同預設而點一下沒反應。
+    setCityCollapsed(id, collapsed) {
+      this.cityCollapsed = { ...this.cityCollapsed, [id]: collapsed }
     },
 
     // 匯入一個城市＝整組管線圖層（圈層一城一群組）：Raw Maps ×1、Map Adjust

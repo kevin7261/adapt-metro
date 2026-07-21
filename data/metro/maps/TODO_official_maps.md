@@ -11,18 +11,27 @@
 
 ## 現況（2026-07-21 更新）
 
-- ✅ 官方營運商圖：**96**
+- ✅ 官方營運商圖：**98**（+2：東京 JR、大阪 JR）
 - 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：86
-- ⬜ 留白：**41**
+- ⬜ 留白：**42**（+1：科恰班巴補進索引，暫留白）
 
 > 數字請以實際重數為準（下方待辦 A 的 47 城表已過時）：
 > ```
 > python3 -c "import json;d=json.load(open('data/metro/maps/maps_index.json'));m={k:v for k,v in d.items() if isinstance(v,dict)};o=[s for s,v in m.items() if v.get('map_file') and 'Official operator map' in (v.get('license') or '')];print('official',len(o),'blank',len([s for s,v in m.items() if not v.get('map_file')]))"
 > ```
 
-> `maps_index.json` 共 224 筆，但 `metro:build` 後系統數已達 **235**——科恰班巴
-> （新增，見 [[metro-city-guadalajara]]）、東京 JR、大阪 JR 與地標變體等 **11 個系統
-> 在地圖索引裡沒有對應條目**，需另行補齊。
+> **✅ 索引缺口已補齊（2026-07-21）**：先前 `metro:build` 後系統數 235、maps_index
+> 只有 224 筆。實際比對後缺 12 個（非 11），已處理：
+> - **科恰班巴**（獨立系統）→ 補 `map_file:null` 條目，暫留白（無官方示意圖；找圖屬留白城市工作）。
+> - **東京 JR / 大阪 JR**（JR 合併系統）→ 使用者裁決「去找 JR 官方路網圖」，已完成：
+>   - 東京 JR：JR 東日本官方「路線ネットワーク」（`map_tokyo.pdf`，2026.3.14，含山手線等全 JR 東京圈線）。JR East 官網被 Akamai 擋，經 Wayback `id_` 取檔＋渲染目視驗證，`source_url` 用 Wayback 形式（比照 NYC 前例）。
+>   - 大阪 JR：JR 西日本官方「近畿エリア路線図」（`jr-odekake.net/station/pdf/ubn.pdf`，2026.3.14，含大阪環状線）。官網可直接下載。
+> - **其餘 9 個 `-lm` 地標變體**：`metroCatalog.js` 的 `mapsKeyBase()` 會去 `-lm/-jr` 尾綴退回母城市共用官方圖，**設計上本就不需要獨立條目**（-jr 現在有了自己的圖，會優先於母城）。
+>
+> ⚠️ 注意：這些手工策展的官方圖（含本次 JR、NYC/London/Tokyo 等）都是本地營運商檔、
+> 不在 Commons，**無法用 `_overrides/map_overrides.json` 釘選**（該機制只吃 Commons 檔名
+> 或 no-map 釘選）。故一旦跑 `downloadMaps.mjs` 全量重建會被清成 null 並刪 png——
+> 目前策展流程是手改 `maps_index.json`，**不要再跑 downloadMaps 全量重建**（只可 `--only`）。
 
 ### 2026-07-21 這輪的結果
 

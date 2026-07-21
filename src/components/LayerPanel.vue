@@ -342,7 +342,7 @@ onBeforeUnmount(() => {
         </div>
         <div v-for="item in store.layerTree" :key="item.group.id" class="group-card">
           <!-- 城市群組標題：chevron + folder + 城市名 + 刪除整組 -->
-          <div class="group-header" @click="store.toggleCityCollapsed(item.group.id)">
+          <div class="group-header" @click="store.setCityCollapsed(item.group.id, !item.group.collapsed)">
             <MIcon :name="item.group.collapsed ? 'chevron_right' : 'expand_more'" :size="14" class="group-chevron" />
             <MIcon :name="item.group.collapsed ? 'folder' : 'folder_open'" :size="14" class="group-folder" />
             <span class="group-name">{{ item.group.label }}</span>
@@ -370,7 +370,7 @@ onBeforeUnmount(() => {
               <div
                 v-if="row.t === 'sub'"
                 class="subgroup-header"
-                @click="store.toggleCityCollapsed(row.sub.id)"
+                @click="store.setCityCollapsed(row.sub.id, !row.sub.collapsed)"
               >
                 <MIcon :name="row.sub.collapsed ? 'chevron_right' : 'expand_more'" :size="13" class="sub-chevron" />
                 <span class="subgroup-name">{{ row.sub.label }}</span>
