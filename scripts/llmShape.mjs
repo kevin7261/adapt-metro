@@ -164,13 +164,14 @@ if (cmd === 'export') {
     square: res.stats.square, quality: res.stats.quality,
     via: res.stats.via, crosses: res.stats.crosses,
     greens: res.greens ?? [], greenCount: res.stats.greenCount,
+    settled: res.stats.settled,
     segs: res.stats.segs, moved: movedVsBase,
     cellAfter: [...res.cellAfter].map(([id, [c, r]]) => [id, c, r]),
   }))
   console.log(JSON.stringify({
     round: rounds,
     square: res.stats.square, via: res.stats.via, crosses: res.stats.crosses,
-    greens: res.stats.greenCount, quality: res.stats.quality,
+    greens: res.stats.greenCount, settled: res.stats.settled, quality: res.stats.quality,
     reverted: res.stats.reverted, movedThisRound: res.stats.moved, movedVsBase,
     rejected,
   }, null, 1))

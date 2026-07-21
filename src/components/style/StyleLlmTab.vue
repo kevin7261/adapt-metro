@@ -645,7 +645,11 @@ watch(() => props.shapeText, () => {
                 </div>
                 <div v-if="shapeRecord.greenCount != null" class="info-row">
                   <span class="info-key">綠折點</span>
-                  <span>{{ shapeRecord.greenCount }} 個（方形四角轉折）</span>
+                  <span>{{ shapeRecord.greenCount }} 個（方形轉折）</span>
+                </div>
+                <div v-if="shapeRecord.settled != null" class="info-row">
+                  <span class="info-key">回歸</span>
+                  <span>{{ shapeRecord.settled }} 站拉回原位（不破鐵律）</span>
                 </div>
                 <div class="info-row"><span class="info-key">移動</span><span>{{ shapeRecord.moved }} 站</span></div>
               </div>

@@ -2386,9 +2386,65 @@ export function shapeLlmContext(skeleton, cells, cols, rows, cityId) {
 }
 
 /**
- * apply：把 LLM 提的目標格（[[id,[c,r]],…]）經拓撲安全的逐步移動落地。
- * 任何站都可移（不限環站）——讓 LLM 能像演算法本體一樣把其他站讓開，替 W 騰出方框。
- * 回傳 { cellAfter, stats }（stats 含成方與否、交叉前後、被鐵律擋下未到位的提案）。
+ * 收方後回歸：其餘被推開的站逐步拉回原相對位置——只要不破論文 D1（交叉不增／無撞格）。
+ * **直線上的環站也可調整**：環站移動額外要求 isFourLineSquare 仍成立（吃 segs、會走
+ * 綠折點）——所以有綠折點的地方環站有更多回歸空間、沒有的地方就沿方邊滑（都不破方）。
+ * 綠折點凍結在角/彎不動。跟演算本體「W 鎖方後再跑一輪只動其餘站」同精神，讓 network
+ * 形狀與原圖差異最小。回傳 { pos, settled }（settled＝實際被拉回的站數）。
+ */
+function settleTowardOriginal(layout, original, segs, cols, rows, cutIds, cross0, maxPasses = 40) {
+  const pos = new Map([...layout].map(([id, p]) => [id, [...p]]))
+  const ringSet = new Set(cutIds)
+  let settled = 0
+  const occ = () => {
+    const s = new Set()
+    for (const [, p] of pos) s.add(ckey(p[0], p[1]))
+    return s
+  }
+  for (let pass = 0; pass < maxPasses; pass++) {
+    let moved = 0
+    const taken = occ()
+    for (const [id, cur] of pos) {
+      if (isShapeGreenId(id)) continue // 綠折點凍結
+      const orig = original.get(id)
+      if (!orig) continue
+      const d0 = Math.hypot(cur[0] - orig[0], cur[1] - orig[1])
+      if (d0 < 0.5) continue
+      const dc = Math.sign(orig[0] - cur[0]), dr = Math.sign(orig[1] - cur[1])
+      // 朝原位一步（先對角、再單軸）；只收「更靠近原位」的候選
+      const cands = [[cur[0] + dc, cur[1] + dr], [cur[0] + dc, cur[1]], [cur[0], cur[1] + dr]]
+      let done = false
+      for (const cand of cands) {
+        if (done) break
+        if (cand[0] === cur[0] && cand[1] === cur[1]) continue
+        if (cand[0] < 0 || cand[1] < 0 || cand[0] >= cols || cand[1] >= rows) continue
+        if (taken.has(ckey(cand[0], cand[1]))) continue
+        const dnew = Math.hypot(cand[0] - orig[0], cand[1] - orig[1])
+        if (dnew >= d0) continue
+        pos.set(id, cand)
+        const okD1 = !hasPointOverlap(pos, segs) && topoPlanarOk(pos, segs, cross0)
+        // 環站額外守成方（沿方邊滑、或經綠折點的 L 形微調——都不破四邊直線正方）
+        const okSquare = !ringSet.has(id) || isFourLineSquare(cutIds, pos, segs)
+        if (okD1 && okSquare) {
+          taken.delete(ckey(cur[0], cur[1]))
+          taken.add(ckey(cand[0], cand[1]))
+          moved++
+          settled++
+          done = true
+        } else {
+          pos.set(id, cur) // 破 D1／破方 → 退回，這站就停在這（已盡量靠回）
+        }
+      }
+    }
+    if (!moved) break
+  }
+  return { pos, settled }
+}
+
+/**
+ * apply：把 LLM 提的目標格（[[id,[c,r]],…]）＋可選綠折點落地，成方後把被推開的其餘站
+ * 拉回原相對位置（不破論文 D1），讓 network 形狀與原圖差異最小。
+ * 回傳 { cellAfter, greens, stats }（stats 含成方與否、交叉前後、被擋下未到位的提案）。
  */
 export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries, cityId, greenSpecs = []) {
   const g0 = buildHcGraph(skeleton, cells)
@@ -2465,6 +2521,15 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   // 保險：再驗論文 D1；不符則整批退回（連綠點一起退回到未插綠的輸入）
   const ironOk = topoPlanarOk(chosen, segs, cross0)
   const reverted = !ironOk
+  // 收方後回歸：正方（環站＋綠折）鎖住，其餘被推開的站拉回原相對位置（不破 D1），
+  // 讓 network 形狀與原圖差異最小。geo0＝未插綠的輸入位置＝回歸目標。
+  let settled = 0
+  if (!reverted) {
+    // 環站可沿方邊/經綠折點微調回歸（守成方）；其餘站自由回歸（守 D1）；綠折點凍結。
+    const s = settleTowardOriginal(chosen, geo0, segs, cols, rows, cutIds, cross0)
+    chosen = s.pos
+    settled = s.settled
+  }
   const finalPos = reverted ? geo0 : chosen
   const finalSegs = reverted ? segs0 : segs
   const finalGreens = reverted ? [] : greens
@@ -2495,6 +2560,7 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
       cross0, cross1, crosses: `${cross0}→${cross1}`,
       squareBefore, square,
       greenCount: finalGreens.length,
+      settled,
       quality: {
         ar: Number.isFinite(q.ar) ? +q.ar.toFixed(2) : null,
         onEdge: +(q.onEdge ?? 0).toFixed(2),
