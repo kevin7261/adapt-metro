@@ -114,16 +114,32 @@ const riverDotVisible = (f, skeleton) => {
   return !!c && c !== 'black'
 }
 
-// Integer cell → pixel cell-centre + uniform blue separators (same as D3Tab)。
-// HC / RWD 兩處共用（RWD 另需 cw/ch，一併回傳、HC 拿到多餘欄位無害）。
-const cellMapperFor = (x0, y0, x1, y1) => (nC, nR) => {
-  const cw = (x1 - x0) / nC, ch = (y1 - y0) / nR
+// Integer cell → pixel cell-centre + uniform blue separators。
+// stretch：欄／列各吃滿畫布（舊行為；格非正方 → 斜線看起來不像 45°）。
+// square：格子強制正方、置中 letterbox——Straighten 畫廊／D3Tab 共用，避免
+// 縮圖 4:3 與面板 3:2 把同一組 cell 拉成兩種形狀。
+const cellMapperFor = (x0, y0, x1, y1, { square = false } = {}) => (nC, nR) => {
+  const aw = x1 - x0, ah = y1 - y0
+  if (!square) {
+    const cw = aw / nC, ch = ah / nR
+    return {
+      cw, ch,
+      cellPx: ([c, r]) => [x0 + (c + 0.5) * cw, y0 + (r + 0.5) * ch],
+      sep: {
+        xs: Array.from({ length: nC + 1 }, (_, i) => x0 + i * cw),
+        ys: Array.from({ length: nR + 1 }, (_, i) => y0 + i * ch),
+      },
+    }
+  }
+  const u = Math.min(aw / nC, ah / nR)
+  const sx0 = x0 + (aw - nC * u) / 2
+  const sy0 = y0 + (ah - nR * u) / 2
   return {
-    cw, ch,
-    cellPx: ([c, r]) => [x0 + (c + 0.5) * cw, y0 + (r + 0.5) * ch],
+    cw: u, ch: u,
+    cellPx: ([c, r]) => [sx0 + (c + 0.5) * u, sy0 + (r + 0.5) * u],
     sep: {
-      xs: Array.from({ length: nC + 1 }, (_, i) => x0 + i * cw),
-      ys: Array.from({ length: nR + 1 }, (_, i) => y0 + i * ch),
+      xs: Array.from({ length: nC + 1 }, (_, i) => sx0 + i * u),
+      ys: Array.from({ length: nR + 1 }, (_, i) => sy0 + i * u),
     },
   }
 }
@@ -331,10 +347,10 @@ export function viewLabels(tilt) {
  */
 export function computeCityHcViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
-  const cellMapper = cellMapperFor(x0, y0, x1, y1)
-
   const views = {}
   const stats = {}
+  // Straighten 縮圖（HC／loop）用正方格——與 D3Tab Straighten 一致。
+  const cellMapperSq = cellMapperFor(x0, y0, x1, y1, { square: true })
   for (const variant of ['orig', 'rot']) {
     const angle = variant === 'rot' && canRotate ? tilt : 0
     const projection = projFor(angle)
@@ -350,7 +366,7 @@ export function computeCityHcViews(geojson, opts = {}) {
 
     // 2) Hill Climbing — 畫廊參考圖 only（不餵①〜⑧／LLM／循環）。
     const hc = buildHillClimb(skeleton, gridBase, grid.cols, grid.rows)
-    const m1 = cellMapper(grid.cols, grid.rows)
+    const m1 = cellMapperSq(grid.cols, grid.rows)
     const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
     stats[`hc-${variant}`] = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
@@ -363,7 +379,7 @@ export function computeCityHcViews(geojson, opts = {}) {
       const fromCells = cellsDoc?.loops?.[kind]
       if (fromCells?.cellAfter && fromCells.cols != null && fromCells.rows != null) {
         const cellAfter = new Map(fromCells.cellAfter.map(([id, c, r]) => [id, [c, r]]))
-        const m = cellMapper(fromCells.cols, fromCells.rows)
+        const m = cellMapperSq(fromCells.cols, fromCells.rows)
         const compPos = cellsToPos(cellAfter, m.cellPx, skeleton, snap)
         views[key] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
         stats[key] = { cols: fromCells.cols, rows: fromCells.rows, fromCells: true }
@@ -380,7 +396,7 @@ export function computeCityHcViews(geojson, opts = {}) {
         const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
         if (!llmBase) continue
         const comp = straightenCompactLoop(skeleton, llmBase, grid.cols, grid.rows)
-        const m = cellMapper(comp.cols, comp.rows)
+        const m = cellMapperSq(comp.cols, comp.rows)
         const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
         views[key] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
         stats[key] = { cols: comp.cols, rows: comp.rows }
@@ -392,7 +408,7 @@ export function computeCityHcViews(geojson, opts = {}) {
         : null
       const base = post ? post.cellAfter : gridBase
       const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
-      const m = cellMapper(comp.cols, comp.rows)
+      const m = cellMapperSq(comp.cols, comp.rows)
       const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
       views[key] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
       stats[key] = { cols: comp.cols, rows: comp.rows, ms: Date.now() - t0 }
@@ -411,7 +427,7 @@ export function computeCityHcViews(geojson, opts = {}) {
           const fromCells = shapeCellsDoc?.loops?.[kind]
           if (fromCells?.cellAfter && fromCells.cols != null && fromCells.rows != null) {
             const cellAfter = new Map(fromCells.cellAfter.map(([id, c, r]) => [id, [c, r]]))
-            const m = cellMapper(fromCells.cols, fromCells.rows)
+            const m = cellMapperSq(fromCells.cols, fromCells.rows)
             const compPos = cellsToPos(cellAfter, m.cellPx, shSk, snap)
             views[key] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
             stats[key] = { cols: fromCells.cols, rows: fromCells.rows, fromCells: true }
@@ -422,7 +438,7 @@ export function computeCityHcViews(geojson, opts = {}) {
             ? iteratePost(CHAIN_POST[kind], shSk, shp.cells, grid.cols, grid.rows) : null
           const base = post ? post.cellAfter : shp.cells
           const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
-          const m = cellMapper(comp.cols, comp.rows)
+          const m = cellMapperSq(comp.cols, comp.rows)
           const compPos = cellsToPos(comp.cellAfter, m.cellPx, shSk, snap)
           views[key] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
           stats[key] = { cols: comp.cols, rows: comp.rows }
@@ -442,7 +458,8 @@ export function patchHcGalleryFromCells(geojson, galleryDoc, cellsByVariant, opt
   if (!geojson || !galleryDoc?.views || !cellsByVariant) return 0
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } =
     prepCity(geojson, { W: galleryDoc.W, H: galleryDoc.H, pad: opts.pad })
-  const cellMapper = cellMapperFor(x0, y0, x1, y1)
+  // 正方格（與 D3Tab Straighten 一致）——同一組 cells 不會因縮圖長寬比被拉歪。
+  const cellMapper = cellMapperFor(x0, y0, x1, y1, { square: true })
   let n = 0
   for (const [variantKey, cellsDoc] of Object.entries(cellsByVariant)) {
     if (!cellsDoc?.loops) continue
@@ -537,14 +554,45 @@ function drawRwd(skeleton, stations, rwd, sep) {
   return out
 }
 
+// 從循環結果（cellAfter＋cols/rows）畫 compact＋RWD 一對視圖。
+// 正方格 letterbox；形狀變體傳 frozenIds（shapeLock，同 D3Tab）。
+function bakeRwdPair(views, {
+  kind, variant, shapeSuffix, sk, stations, lineFeats, segs, snap,
+  cellAfter, cols, rows, cellMapper, x0, y0, frozenIds = null,
+}) {
+  const m = cellMapper(cols, rows)
+  const compPos = cellsToPos(cellAfter, m.cellPx, sk, snap)
+  const suffix = `${kind}-${variant}${shapeSuffix}`
+  views[`compact-${suffix}`] = drawFromPos(sk, stations, lineFeats, compPos, m.sep)
+  const pxPos = new Map()
+  for (const [id, cell] of cellAfter) pxPos.set(id, m.cellPx(cell))
+  const rwd = buildRwdMap(segs, pxPos, {
+    unit: Math.min(m.cw, m.ch),
+    lattice: { x0: m.sep.xs[0], y0: m.sep.ys[0], sx: m.cw / 2, sy: m.ch / 2, nx: cols * 2 + 1, ny: rows * 2 + 1 },
+    ...(frozenIds ? { frozenIds } : {}),
+  })
+  views[`rwd-${suffix}`] = drawRwd(sk, stations, rwd, m.sep)
+}
+
+function loopCellsFromDoc(cellsDoc, kind) {
+  const L = cellsDoc?.loops?.[kind]
+  if (!L?.cellAfter || L.cols == null || L.rows == null) return null
+  return {
+    cellAfter: new Map(L.cellAfter.map(([id, c, r]) => [id, [c, r]])),
+    cols: L.cols,
+    rows: L.rows,
+  }
+}
+
 // Compute the RWD Maps gallery views for one city（原始＋旋轉 兩 variant）：
 // each variant × 縮減網格 sources（基本 hc ＋ 論文①〜⑧的八條鏈 ＋ 可選 LLM）
-// as both the compact grid AND its RWD 路網 redraw. Same pure stores the live
-// RWD tab uses. 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）。
-// opts.llmByVariant = { orig?, rot? } 各為 llmviews JSON（fingerprint 相符才預算）。
+// as both the compact grid AND its RWD 路網 redraw.
+// **優先用 straighten-cells 的 loops（與 D3Tab 同一份）**；缺檔才現場循環。
+// opts.cellsByVariant / llmByVariant / shapeByVariant / cityId。
 export function computeCityRwdViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
-  const cellMapper = cellMapperFor(x0, y0, x1, y1)
+  // 正方格——與 D3Tab Straighten／RWD square 一致，避免縮圖長寬比拉歪。
+  const cellMapper = cellMapperFor(x0, y0, x1, y1, { square: true })
   const views = {}
   for (const variant of ['orig', 'rot']) {
     const angle = variant === 'rot' && canRotate ? tilt : 0
@@ -553,79 +601,137 @@ export function computeCityRwdViews(geojson, opts = {}) {
     const grid = buildSchematicGrid(skeleton, projById, extArr)
     const snap = (id) => grid.posAfter.get(id) ?? null
     const gridBase = grid.cellOf
-    // Topology segments (from the original grid cellOf), parallel/same-track merged
-    // — positions come from each compact layout below.
     const segs = mergeParallelSegs(buildHcGraph(skeleton, gridBase).segs)
-    const bakeCompactRwd = (kind, base) => {
+    const cellsDoc = opts.cellsByVariant?.[variant]
+
+    const bakeKind = (kind, base) => {
+      const fromCells = loopCellsFromDoc(cellsDoc, kind)
+      if (fromCells) {
+        bakeRwdPair(views, {
+          kind, variant, shapeSuffix: '', sk: skeleton, stations, lineFeats, segs, snap,
+          ...fromCells, cellMapper, x0, y0,
+        })
+        return
+      }
+      if (base == null) return
       const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
-      const m = cellMapper(comp.cols, comp.rows)
-      const compPos = new Map()
-      for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
-      placeBlacks(skeleton, compPos, snap)
-      views[`compact-${kind}-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-      const pxPos = new Map()
-      for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
-      const rwd = buildRwdMap(segs, pxPos, {
-        unit: Math.min(m.cw, m.ch),
-        lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
+      bakeRwdPair(views, {
+        kind, variant, shapeSuffix: '', sk: skeleton, stations, lineFeats, segs, snap,
+        cellAfter: comp.cellAfter, cols: comp.cols, rows: comp.rows, cellMapper, x0, y0,
       })
-      views[`rwd-${kind}-${variant}`] = drawRwd(skeleton, stations, rwd, m.sep)
     }
 
     for (const kind of CHAIN_KINDS) {
-      // base＝格網化後（同 D3Tab）；論文鏈先 iteratePost，再循環到不動點。
+      if (loopCellsFromDoc(cellsDoc, kind)) { bakeKind(kind, null); continue }
       const base = CHAIN_POST[kind]
         ? iteratePost(CHAIN_POST[kind], skeleton, gridBase, grid.cols, grid.rows).cellAfter
         : gridBase
-      bakeCompactRwd(kind, base)
+      bakeKind(kind, base)
     }
 
-    // LLM 對齊：fingerprint 對齊格網化後。
-    const gGraph = buildHcGraph(skeleton, gridBase)
-    const fp = {
-      verts: gGraph.pos.size, segs: gGraph.segs.length,
-      cols: grid.cols, rows: grid.rows,
-      hvStart: countHV(gGraph.pos, gGraph.segs),
+    // LLM：有 cells.loops.llm 優先；否則 llmviews→循環。
+    {
+      const fromCells = loopCellsFromDoc(cellsDoc, 'llm')
+      if (fromCells) bakeKind('llm', null)
+      else {
+        const gGraph = buildHcGraph(skeleton, gridBase)
+        const fp = {
+          verts: gGraph.pos.size, segs: gGraph.segs.length,
+          cols: grid.cols, rows: grid.rows,
+          hvStart: countHV(gGraph.pos, gGraph.segs),
+        }
+        const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
+        if (llmBase) bakeKind('llm', llmBase)
+      }
     }
-    const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
-    if (llmBase) bakeCompactRwd('llm', llmBase)
 
-    // 形狀變體：成方 cells 當 base → 各鏈 → 循環 → compact＋RWD。
+    // 形狀變體：優先 *.orig-shape.shapelike.json cells；否則成方→各鏈→循環。
     // 必須傳 frozenIds（shapeLock）——否則 A* 會繞破方形邊、極慢。
+    const shapeCellsDoc = opts.cellsByVariant?.[`${variant}-shape`]
     const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
-    if (shp) {
-      const shSk = shp.greens.length ? applyShapeGreens(skeleton, shp.greens) : skeleton
-      const frozen = shapeFrozenSet(shSk, opts.cityId, shp.greens)
-      const shSegs = mergeParallelSegs(buildHcGraph(shSk, shp.cells).segs)
+    if (shapeCellsDoc?.loops || shp) {
+      const shSk = (shp?.greens?.length) ? applyShapeGreens(skeleton, shp.greens) : skeleton
+      const frozen = shp ? shapeFrozenSet(shSk, opts.cityId, shp.greens) : (
+        opts.cityId ? shapeFrozenSet(shSk, opts.cityId, opts.shapeByVariant?.[variant]?.greens ?? []) : new Set()
+      )
+      const baseCells = shp?.cells ?? gridBase
+      const shSegs = mergeParallelSegs(buildHcGraph(shSk, baseCells).segs)
       const shSnap = (id) => grid.posAfter.get(id) ?? null
       setFrozen({ ringIds: [...frozen], members: frozen })
       try {
-        const bakeShapeRwd = (kind, base) => {
-          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
-          const m = cellMapper(comp.cols, comp.rows)
-          const compPos = new Map()
-          for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
-          placeBlacks(shSk, compPos, shSnap)
-          views[`compact-${kind}-${variant}-shape`] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
-          const pxPos = new Map()
-          for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
-          const rwd = buildRwdMap(shSegs, pxPos, {
-            unit: Math.min(m.cw, m.ch),
-            lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
-            frozenIds: frozen,
-          })
-          views[`rwd-${kind}-${variant}-shape`] = drawRwd(shSk, stations, rwd, m.sep)
-        }
-        for (const kind of CHAIN_KINDS) {
+        for (const kind of [...CHAIN_KINDS, 'llm']) {
+          const fromCells = loopCellsFromDoc(shapeCellsDoc, kind)
+          if (fromCells) {
+            bakeRwdPair(views, {
+              kind, variant, shapeSuffix: '-shape', sk: shSk, stations, lineFeats,
+              segs: shSegs, snap: shSnap, ...fromCells, cellMapper, x0, y0, frozenIds: frozen,
+            })
+            continue
+          }
+          if (!shp || kind === 'llm') continue
           const base = CHAIN_POST[kind]
             ? iteratePost(CHAIN_POST[kind], shSk, shp.cells, grid.cols, grid.rows).cellAfter
             : shp.cells
-          bakeShapeRwd(kind, base)
+          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
+          bakeRwdPair(views, {
+            kind, variant, shapeSuffix: '-shape', sk: shSk, stations, lineFeats,
+            segs: shSegs, snap: shSnap,
+            cellAfter: comp.cellAfter, cols: comp.cols, rows: comp.rows,
+            cellMapper, x0, y0, frozenIds: frozen,
+          })
         }
       } finally { setFrozen(null) }
     }
   }
   return { W, H, tilt, canRotate, views }
+}
+
+/**
+ * 瀏覽器畫廊用：用 straighten-cells 重畫 RWD Maps 的 compact-*／rwd-* 縮圖
+ *（與點進去 D3Tab 同一份循環結果）。有 cells 的鏈才覆寫。回傳覆寫筆數。
+ */
+export function patchRwdGalleryFromCells(geojson, galleryDoc, cellsByVariant, opts = {}) {
+  if (!geojson || !galleryDoc?.views || !cellsByVariant) return 0
+  const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } =
+    prepCity(geojson, { W: galleryDoc.W, H: galleryDoc.H, pad: opts.pad })
+  const cellMapper = cellMapperFor(x0, y0, x1, y1, { square: true })
+  let n = 0
+  for (const [variantKey, cellsDoc] of Object.entries(cellsByVariant)) {
+    if (!cellsDoc?.loops) continue
+    const isShape = variantKey.endsWith('-shape')
+    const variant = isShape ? variantKey.replace(/-shape$/, '') : variantKey
+    if (variant !== 'orig' && variant !== 'rot') continue
+    const angle = variant === 'rot' && canRotate ? tilt : 0
+    const projection = projFor(angle)
+    const projById = projByIdFor(projection, stations, skeleton)
+    const grid = buildSchematicGrid(skeleton, projById, extArr)
+    const snap = (id) => grid.posAfter.get(id) ?? null
+    const greens = opts.shapeByVariant?.[variant]?.greens
+    const sk = (isShape && greens?.length) ? applyShapeGreens(skeleton, greens) : skeleton
+    const frozen = isShape && opts.cityId
+      ? shapeFrozenSet(sk, opts.cityId, greens ?? [])
+      : null
+    // segs 拓撲：形狀用成方 base（有 greens 的 sk）；一般用格網化後。
+    const baseForSegs = isShape && opts.shapeByVariant?.[variant]
+      ? shapeIfMatch(opts.shapeByVariant[variant], grid)?.cells ?? grid.cellOf
+      : grid.cellOf
+    const segs = mergeParallelSegs(buildHcGraph(sk, baseForSegs).segs)
+    if (frozen) setFrozen({ ringIds: [...frozen], members: frozen })
+    try {
+      for (const [kind, L] of Object.entries(cellsDoc.loops)) {
+        if (!L?.cellAfter || L.cols == null || L.rows == null) continue
+        const cellAfter = new Map(L.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+        bakeRwdPair(galleryDoc.views, {
+          kind, variant, shapeSuffix: isShape ? '-shape' : '',
+          sk, stations, lineFeats, segs, snap,
+          cellAfter, cols: L.cols, rows: L.rows, cellMapper, x0, y0,
+          frozenIds: frozen,
+        })
+        n += 2 // compact-* ＋ rwd-*
+      }
+    } finally { if (frozen) setFrozen(null) }
+  }
+  return n
 }
 
 // The RWD gallery views: 每 variant（原始→旋轉→形狀）× 每鏈（縮減網格 | RWD 路網）含 LLM。

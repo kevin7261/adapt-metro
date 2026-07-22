@@ -2,15 +2,42 @@
   "patches": [
     {
       "relation": 7627370,
-      "set": { "name": "Ligne 1", "name:en": "Line 1" },
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
       "note": "Algiers Metro L1 route_master：見下方四條 route relation 的統一說明。master 也一併統一（repTags 取 master）。"
     },
-    { "relation": 289331,  "set": { "name": "Ligne 1", "name:en": "Line 1" }, "note": "Algiers Ligne 1 統一名（見 8210886 說明）。" },
-    { "relation": 6545466, "set": { "name": "Ligne 1", "name:en": "Line 1" }, "note": "Algiers Ligne 1 統一名（見 8210886 說明）。" },
-    { "relation": 8210887, "set": { "name": "Ligne 1", "name:en": "Line 1" }, "note": "Algiers Ligne 1 統一名（見 8210886 說明）。" },
+    {
+      "relation": 289331,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Ligne 1 統一名（見 8210886 說明）。"
+    },
+    {
+      "relation": 6545466,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Ligne 1 統一名（見 8210886 說明）。"
+    },
+    {
+      "relation": 8210887,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Ligne 1 統一名（見 8210886 說明）。"
+    },
     {
       "relation": 8210886,
-      "set": { "name": "Ligne 1", "name:en": "Line 1" },
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
       "note": "Algiers Metro Ligne 1 底下四個 relation（Metro L1 / L1R / L1-2 / L1R-2）是同一條官方 Ligne 1 的 Y 型分支變體（El-Harrach 支＋Aïn Naâdja 支），OSM 各給不同 name。分支帶新站→依設計各自成 route（line_count＝route 數會 >官方線數，同港鐵東鐵綫佔 3 的既定行為，非 bug），但因 name 不一致，車站 routes[]/lines 以 ref+name 去重時無法收斂、出現 ['L1','L1'] 重複、hover 像兩條線。四條 relation 全部統一官方名『Ligne 1』(en: Line 1) 使顯示身分一致、車站標記收斂成單一 L1。站數 19 本就正確。上游補齊統一名後可移除。"
     },
     {
@@ -268,6 +295,92 @@
         "colour": "#5786c5"
       },
       "note": "Incheon International Airport Shuttle Train route_master r17585171（及 4 條 route 變體）OSM 完全沒標 colour／ref → route_color=null、前端退回預設紅。NamuWiki（ko:인천국제공항 셔틀트레인）象徵色：Blue Line（T1↔탑승동）#5786c5、Orange Line（T2↔탑승동）#f99d1b；合併成單一 route_master 後取 Blue 為代表色。Remove once upstream OSM adds colour."
+    },
+    {
+      "relation": 19382689,
+      "set": {
+        "ref": "CBE",
+        "colour": "#34ACE1"
+      },
+      "note": "墨爾本 Metro Tunnel（2025 通車）貫通運營：relation 19382689「Watergardens => Cranbourne」的 OSM ref 是箭頭寫法「WGS=>CBE」且不屬於任何 route_master，會自成一條無名的「Metro Tunnel」線（32 站）與 Cranbourne 線並存。實際上它就是 Cranbourne 線經地鐵隧道的全程班次（PTV 官方路網圖：Cranbourne 線 Cranbourne↔Sunbury 方向）。設 ref=CBE 讓它併入 Cranbourne 線分組（原本只剩 Dandenong–Cranbourne 接駁段 4 站），colour 補官方淺藍。上游改用正規 ref 後可移除。"
+    },
+    {
+      "relation": 10391556,
+      "set": {
+        "ref": "Airport"
+      },
+      "note": "布里斯本機場線 route_master（ref=BDBR，Roma Street → Airport）：同一條線的兩個方向在 OSM 用相反的四碼 ref（BDBR／BRBD），會被 network+ref 分組拆成兩條線。統一成官方線名 ref=Airport（另一方向的 route 2047576 同步）。"
+    },
+    {
+      "relation": 2047576,
+      "set": {
+        "ref": "Airport"
+      },
+      "note": "布里斯本機場線反向 route（ref=BRBD，無 master）：同上，統一 ref=Airport 併回機場線。"
+    },
+    {
+      "relation": 15625847,
+      "set": {
+        "ref": "Caboolture"
+      },
+      "note": "布里斯本卡布爾徹線 route_master（ref=CABR）：CABR／BRCA 是同一條線的兩個方向，另有 ref=Caboolture 的 Nightlink 變體，三者統一成官方線名 ref=Caboolture。"
+    },
+    {
+      "relation": 19224286,
+      "set": {
+        "ref": "Caboolture"
+      },
+      "note": "布里斯本卡布爾徹線反向 route_master（ref=BRCA）：同上。"
+    },
+    {
+      "relation": 19224700,
+      "set": {
+        "ref": "Rosewood"
+      },
+      "note": "布里斯本羅斯伍德/伊普斯威奇線 route_master（ref=RWIP，Rosewood => Ipswich 區間車）：與 ref=Rosewood 的全程線是同一條，統一 ref=Rosewood。"
+    },
+    {
+      "relation": 13903112,
+      "set": {
+        "ref": "GAW"
+      },
+      "note": "阿德萊德高勒線 route_master（ref=GAWC，Gawler Central）：GAW／GAWC／SALIS 是同一條 Gawler 線的全程、延伸終點與 Salisbury 區間，統一成 ref=GAW（官方 Gawler line）。"
+    },
+    {
+      "relation": 16672157,
+      "set": {
+        "ref": "GAW"
+      },
+      "note": "阿德萊德高勒線 Salisbury 區間 route_master（ref=SALIS）：同上，併入 GAW。"
+    },
+    {
+      "relation": 16672584,
+      "set": {
+        "ref": "OUTHA"
+      },
+      "note": "阿德萊德奧斯本區間 route_master（ref=OSBORN）：Osborne 是 Outer Harbor 線上的中間站，區間車併入 ref=OUTHA。"
+    },
+    {
+      "relation": 16672579,
+      "set": {
+        "ref": "SEAFRD"
+      },
+      "note": "阿德萊德諾蘭加區間 route（ref=NOAR，無 master）：Noarlunga Centre 是 Seaford 線上的中間站，區間車併入 ref=SEAFRD。"
+    },
+    {
+      "relation": 548496,
+      "set": {
+        "ref": "T1"
+      },
+      "note": "阿爾及爾電車（SETRAM）：同一條線的兩個方向在 OSM 用 ref「T1 A」/「T1 R」（aller／retour），會被拆成兩條線。統一 ref=T1。"
+    },
+    {
+      "relation": 6545828,
+      "set": {
+        "ref": "T1",
+        "colour": "#0363ff"
+      },
+      "note": "阿爾及爾電車反向 route（ref=T1 R）：同上；colour 統一成與去程相同的官方藍（OSM 上兩向色碼不同 #6633FF/#0363ff）。"
     }
   ]
 }

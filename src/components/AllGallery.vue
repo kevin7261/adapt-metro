@@ -192,9 +192,18 @@ function pick(kind, entry, viewId) {
   const { metro, d3, hc, rwd } = store.importCityChain(entry, { variant, compact })
   const target = { raw: metro, adjust: d3, straighten: hc, rwd }[kind] ?? metro
   if (!target) { store.toast('無法建立視圖'); return }
-  // Straighten 縮圖＝循環後 → 開 tab 時切到對應「…循環」視圖（與縮圖一致）。
+  // 開 tab 時切到與縮圖一致的視圖，並寫入 layer.viewMode（關掉再開仍停在此）。
+  let openMode = null
   if (kind === 'straighten' && compact) {
-    setPendingViewMode(target.id, compact === 'llm' ? 'hc-llm-loop' : `hc-${compact}-loop`)
+    openMode = compact === 'llm' ? 'hc-llm-loop' : `hc-${compact}-loop`
+  } else if (kind === 'adjust' && viewId) {
+    openMode = viewId // grid-orig-post / grid-rot-post …
+  } else if (kind === 'rwd') {
+    openMode = 'rwd'
+  }
+  if (openMode) {
+    target.viewMode = openMode
+    setPendingViewMode(target.id, openMode)
   }
   openLayerTab(target)
   store.toast(`已匯入 ${entry.cityZh ?? entry.city}`)

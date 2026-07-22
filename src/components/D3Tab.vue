@@ -115,12 +115,26 @@ const tilt = ref(0)
 // (論文①〜⑧＋LLM 對齊), then per chain the 4-step tail 端點移動
 // ('*-end') → 直線縮減 ('*-line') → 網格合併 ('*-gather') → 縮減網格
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
-// Straighten 預設進直線演算法①；視圖畫廊點「循環後」縮圖時由 pendingViewMode
-// 覆寫成 hc-<kind>-loop（與縮圖一致）。
-const mode = ref(
-  isRWD.value ? 'rwd'
-    : isHC.value ? (takePendingViewMode(layerId) || 'hc-stroke')
-      : 'original')
+// 視圖 mode：畫廊 pending > 圖層上次選的 viewMode > 預設。
+// 關掉 tab 再開／reload 後仍停在同一個左側視圖（含畫廊點進去的循環後）。
+function defaultViewMode() {
+  if (isRWD.value) return 'rwd'
+  if (isHC.value) return 'hc-stroke'
+  return 'original'
+}
+function initialViewMode() {
+  const pending = takePendingViewMode(layerId)
+  if (pending) return pending
+  const saved = layer.value?.viewMode
+  if (typeof saved === 'string' && saved) return saved
+  return defaultViewMode()
+}
+const mode = ref(initialViewMode())
+function persistViewMode(m) {
+  const l = layer.value
+  if (l && typeof m === 'string' && m && l.viewMode !== m) l.viewMode = m
+}
+watch(mode, (m) => persistViewMode(m), { immediate: true })
 // ---- HC mode 解析（lib/hcMode.js）----
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 // layout-* 也走 computeHcLayout（但只跑該演算法、不碰 HC／下游）。
@@ -724,7 +738,8 @@ const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // 重跑 buildRwdMap。'uniform' = 均勻網格（預設，欄寬列高隨板面拉伸填滿）。
 // 'square' = 方形網格（格子強制正方，取 min(欄寬,列高) 為單位、置中 letterbox）。
 // 'weight' = 權重網格。全部隨機每按一次整表重抽。
-const rwdWeightMode = ref('uniform') // 'uniform' | 'square' | 'weight'
+// 預設正方格——與視圖畫廊 RWD 縮圖同一套 cell→pixel（letterbox），避免斜線被拉歪。
+const rwdWeightMode = ref('square') // 'uniform' | 'square' | 'weight'
 const rwdDirs = ref(8)               // RWD 允許的線方向數：4（只H/V）| 8（+45°，預設）| 16（+22.5°）
 const rwdFrameId = ref('auto')       // 版面尺寸：目前面板／網頁／手機／IG（模擬 RWD）
 const rwdFrameInfo = computed(() => resolveRwdFrame(rwdFrameId.value, 0, 0))
@@ -1281,15 +1296,20 @@ async function computeHcLayout({ seq, w, h, grid }) {
     if (layoutKind) {
       if (layoutKind === 'shape-llm') {
         const nC = grid.cols, nR = grid.rows
-        const cw = (w - 48) / nC, ch = (h - 48) / nR
-        const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
+        // 正方格 letterbox（與 Straighten 循環／畫廊一致）
+        const u = Math.min((w - 48) / nC, (h - 48) / nR)
+        const sx0 = 24 + (w - 48 - nC * u) / 2, sy0 = 24 + (h - 48 - nR * u) / 2
+        const cellPx = ([c, r]) => [sx0 + (c + 0.5) * u, sy0 + (r + 0.5) * u]
         const drawGrid = (cells, note, greens = null) => {
           layoutStats.value = note
           const drawSk = greens?.length ? applyShapeGreens(cachedSkeleton, greens) : cachedSkeleton
           hcPos = new Map()
           for (const [id, p] of cells) hcPos.set(id, cellPx(p))
           placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
-          hcBlue = uniformBlue(nC, nR, cw, ch)
+          hcBlue = {
+            xs: Array.from({ length: nC + 1 }, (_, i) => sx0 + i * u),
+            ys: Array.from({ length: nR + 1 }, (_, i) => sy0 + i * u),
+          }
           return {
             hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk,
             guideBoxPx: null,
@@ -1357,9 +1377,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
     return true
   }
   // 直線演算法：以格網化後（／成方）為輸入，短距離移動（每 kind 快取一次）。
+  // 循環 tab 若已有 loop 結果，不必先有 post（避免「有 loop 無 post」時空白）。
   if (postKind.value) {
     const kind = postKind.value
-    if (!cachedPost[kind]) {
+    const loopAhead = loopKindOf(mode.value)
+    const skipPost = !!(loopAhead && cachedLoop[loopAhead])
+    if (!cachedPost[kind] && !skipPost) {
       if (denyBake()) return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
       const t0 = performance.now()
       await runBusy({
@@ -1379,9 +1402,11 @@ async function computeHcLayout({ seq, w, h, grid }) {
       persistHcCells(shapeFeedsHc)
       syncCalcMs()
     }
-    postStats.value = cachedPost[kind].stats
-    postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }
-    cells = cachedPost[kind].cellAfter
+    if (cachedPost[kind]) {
+      postStats.value = cachedPost[kind].stats
+      postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }
+      cells = cachedPost[kind].cellAfter
+    }
   }
   // 成方座標快照：後續 LLM 對齊／評價覆寫 cells 時釘回去（離線檔可能破方）。
   let frozenPin = shapeFeedsHc ? snapshotFrozen(cells, frozenIds) : null
@@ -1665,9 +1690,13 @@ async function computeHcLayout({ seq, w, h, grid }) {
   } else if (weighted) {
     axes = weightedAxes(cells, cachedSegs, rwdWeights.value, nC, nR, area)
   }
-  // 方形網格（square）：格子強制正方——取 min(欄寬,列高) 當單位、整個網格置中
-  // letterbox（不填滿板面）。均勻/權重/動畫/LLM 各模式都不是 square 時才走原本拉伸格。
-  const squareMode = isRWD.value && !gridOn && !animing && !weighted && rwdWeightMode.value === 'square'
+  // 方形網格：格子強制正方、置中 letterbox。
+  // - RWD「square」權重模式：原本就正方
+  // - Straighten（非 RWD）：一律正方——與視圖畫廊 loop-* 縮圖同一套映射，
+  //   避免面板長寬比把同一組 cells 拉成與縮圖不同的形狀
+  const squareMode = isRWD.value
+    ? (!gridOn && !animing && !weighted && rwdWeightMode.value === 'square')
+    : !axes
   const u = Math.min(cw, ch)
   const sqx0 = 24 + (w - 48 - nC * u) / 2, sqy0 = 24 + (h - 48 - nR * u) / 2
   const squareBlue = {
@@ -2764,10 +2793,11 @@ function onFisheyeLeave() {
 }
 
 onMounted(() => {
-  // 視圖畫廊再點同一 Straighten 層：切到對應循環後 mode（與 loop-* 縮圖一致）。
+  // 視圖畫廊再點同一圖層：切到對應 mode（Straighten 循環後／Map Adjust 格網／RWD）。
   const offPending = onPendingViewMode((id, m) => {
-    if (id !== layerId || !m || !isHC.value) return
+    if (id !== layerId || !m) return
     takePendingViewMode(layerId)
+    persistViewMode(m)
     if (mode.value === m) return
     mode.value = m
     render()

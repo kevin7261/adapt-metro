@@ -3,17 +3,89 @@
     "country": "阿爾及利亞",
     "city": "阿爾及爾"
   },
+  "af-alg-constantine": {
+    "country": "阿爾及利亞",
+    "city": "君士坦丁"
+  },
+  "af-alg-mostaganem": {
+    "country": "阿爾及利亞",
+    "city": "莫斯塔加內姆"
+  },
+  "af-alg-oran": {
+    "country": "阿爾及利亞",
+    "city": "奧蘭"
+  },
+  "af-alg-ouargla": {
+    "country": "阿爾及利亞",
+    "city": "瓦爾格拉"
+  },
+  "af-alg-setif": {
+    "country": "阿爾及利亞",
+    "city": "塞提夫"
+  },
+  "af-alg-sidi-bel-abbes": {
+    "country": "阿爾及利亞",
+    "city": "西迪貝勒阿巴斯"
+  },
+  "af-egy-alexandria": {
+    "country": "埃及",
+    "city": "亞歷山卓"
+  },
   "af-egy-cairo": {
     "country": "埃及",
     "city": "開羅"
+  },
+  "af-eth-addis-ababa": {
+    "country": "衣索比亞",
+    "city": "阿迪斯阿貝巴"
+  },
+  "af-mar-casablanca": {
+    "country": "摩洛哥",
+    "city": "卡薩布蘭卡"
+  },
+  "af-mar-rabat": {
+    "country": "摩洛哥",
+    "city": "拉巴特"
+  },
+  "af-mri-port-louis": {
+    "country": "模里西斯",
+    "city": "路易港"
+  },
+  "af-ngr-abuja": {
+    "country": "奈及利亞",
+    "city": "阿布加"
   },
   "af-ngr-lagos": {
     "country": "奈及利亞",
     "city": "拉哥斯"
   },
+  "af-rsa-cape-town": {
+    "country": "南非",
+    "city": "開普敦"
+  },
+  "af-rsa-durban": {
+    "country": "南非",
+    "city": "德班"
+  },
+  "af-rsa-johannesburg": {
+    "country": "南非",
+    "city": "約翰尼斯堡"
+  },
+  "af-sen-dakar": {
+    "country": "塞內加爾",
+    "city": "達卡"
+  },
+  "af-tun-tunis": {
+    "country": "突尼西亞",
+    "city": "突尼斯"
+  },
   "am-arg-buenos-aires": {
     "country": "阿根廷",
     "city": "布宜諾斯艾利斯"
+  },
+  "am-bol-cochabamba": {
+    "country": "玻利維亞",
+    "city": "科恰班巴"
   },
   "am-bra-belo-horizonte": {
     "country": "巴西",
@@ -130,6 +202,10 @@
   "am-usa-new-york-city": {
     "country": "美國",
     "city": "紐約"
+  },
+  "am-usa-new-york-city-lm": {
+    "country": "美國",
+    "city": "紐約＋地標"
   },
   "am-usa-philadelphia": {
     "country": "美國",
@@ -294,6 +370,10 @@
   "as-chn-shanghai": {
     "country": "中國",
     "city": "上海"
+  },
+  "as-chn-shanghai-lm": {
+    "country": "中國",
+    "city": "上海＋地標"
   },
   "as-chn-shaoxing": {
     "country": "中國",
@@ -511,6 +591,10 @@
     "country": "日本",
     "city": "大阪"
   },
+  "as-jpn-osaka-jr": {
+    "country": "日本",
+    "city": "大阪＋環狀"
+  },
   "as-jpn-saitama-prefecture": {
     "country": "日本",
     "city": "埼玉縣"
@@ -526,6 +610,18 @@
   "as-jpn-tokyo": {
     "country": "日本",
     "city": "東京"
+  },
+  "as-jpn-tokyo-jr": {
+    "country": "日本",
+    "city": "東京＋山手"
+  },
+  "as-jpn-tokyo-lm": {
+    "country": "日本",
+    "city": "東京＋地標"
+  },
+  "as-jpn-tokyo-rail": {
+    "country": "日本",
+    "city": "東京＋JR＋私鐵"
   },
   "as-jpn-yokohama": {
     "country": "日本",
@@ -567,6 +663,14 @@
     "country": "南韓",
     "city": "首爾"
   },
+  "as-kor-seoul-incheon": {
+    "country": "南韓",
+    "city": "首爾＋仁川"
+  },
+  "as-kor-seoul-lm": {
+    "country": "南韓",
+    "city": "首爾＋地標"
+  },
   "as-ksa-mecca": {
     "country": "沙烏地阿拉伯",
     "city": "麥加"
@@ -598,6 +702,10 @@
   "as-sgp-singapore": {
     "country": "新加坡",
     "city": "新加坡"
+  },
+  "as-sgp-singapore-lrt": {
+    "country": "新加坡",
+    "city": "新加坡＋LRT"
   },
   "as-tha-bangkok": {
     "country": "泰國",
@@ -639,6 +747,14 @@
     "country": "台灣",
     "city": "台北"
   },
+  "as-twn-taipei-lm": {
+    "country": "台灣",
+    "city": "台北＋地標"
+  },
+  "as-twn-taipei-rail": {
+    "country": "台灣",
+    "city": "台北＋台鐵＋高鐵"
+  },
   "as-uae-dubai": {
     "country": "阿拉伯聯合大公國",
     "city": "杜拜"
@@ -662,6 +778,10 @@
   "eu-aut-vienna": {
     "country": "奧地利",
     "city": "維也納"
+  },
+  "eu-aut-vienna-lm": {
+    "country": "奧地利",
+    "city": "維也納＋地標"
   },
   "eu-bel-brussels": {
     "country": "比利時",
@@ -723,6 +843,10 @@
     "country": "法國",
     "city": "巴黎"
   },
+  "eu-fra-paris-lm": {
+    "country": "法國",
+    "city": "巴黎＋地標"
+  },
   "eu-fra-rennes": {
     "country": "法國",
     "city": "雷恩"
@@ -739,9 +863,17 @@
     "country": "英國",
     "city": "倫敦"
   },
+  "eu-gbr-london-lm": {
+    "country": "英國",
+    "city": "倫敦＋地標"
+  },
   "eu-ger-berlin": {
     "country": "德國",
     "city": "柏林"
+  },
+  "eu-ger-berlin-lm": {
+    "country": "德國",
+    "city": "柏林＋地標"
   },
   "eu-ger-bielefeld": {
     "country": "德國",
@@ -891,68 +1023,44 @@
     "country": "烏克蘭",
     "city": "基輔"
   },
+  "oc-aus-adelaide": {
+    "country": "澳洲",
+    "city": "阿德萊德"
+  },
+  "oc-aus-brisbane": {
+    "country": "澳洲",
+    "city": "布里斯本"
+  },
+  "oc-aus-canberra": {
+    "country": "澳洲",
+    "city": "坎培拉"
+  },
+  "oc-aus-gold-coast": {
+    "country": "澳洲",
+    "city": "黃金海岸"
+  },
+  "oc-aus-melbourne": {
+    "country": "澳洲",
+    "city": "墨爾本"
+  },
+  "oc-aus-newcastle": {
+    "country": "澳洲",
+    "city": "紐卡索"
+  },
+  "oc-aus-perth": {
+    "country": "澳洲",
+    "city": "伯斯"
+  },
   "oc-aus-sydney": {
     "country": "澳洲",
     "city": "雪梨"
   },
-  "as-jpn-tokyo-jr": {
-    "country": "日本",
-    "city": "東京＋山手"
+  "oc-nzl-auckland": {
+    "country": "紐西蘭",
+    "city": "奧克蘭"
   },
-  "as-jpn-osaka-jr": {
-    "country": "日本",
-    "city": "大阪＋環狀"
-  },
-  "am-usa-new-york-city-lm": {
-    "country": "美國",
-    "city": "紐約＋地標"
-  },
-  "as-chn-shanghai-lm": {
-    "country": "中國",
-    "city": "上海＋地標"
-  },
-  "as-jpn-tokyo-lm": {
-    "country": "日本",
-    "city": "東京＋地標"
-  },
-  "as-kor-seoul-lm": {
-    "country": "南韓",
-    "city": "首爾＋地標"
-  },
-  "as-twn-taipei-lm": {
-    "country": "台灣",
-    "city": "台北＋地標"
-  },
-  "eu-aut-vienna-lm": {
-    "country": "奧地利",
-    "city": "維也納＋地標"
-  },
-  "eu-fra-paris-lm": {
-    "country": "法國",
-    "city": "巴黎＋地標"
-  },
-  "eu-ger-berlin-lm": {
-    "country": "德國",
-    "city": "柏林＋地標"
-  },
-  "eu-gbr-london-lm": {
-    "country": "英國",
-    "city": "倫敦＋地標"
-  },
-  "as-sgp-singapore-lrt": {
-    "country": "新加坡",
-    "city": "新加坡＋LRT"
-  },
-  "as-kor-seoul-incheon": {
-    "country": "南韓",
-    "city": "首爾＋仁川"
-  },
-  "as-twn-taipei-rail": {
-    "country": "台灣",
-    "city": "台北＋台鐵＋高鐵"
-  },
-  "as-jpn-tokyo-rail": {
-    "country": "日本",
-    "city": "東京＋JR＋私鐵"
+  "oc-nzl-wellington": {
+    "country": "紐西蘭",
+    "city": "威靈頓"
   }
 }

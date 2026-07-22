@@ -122,8 +122,37 @@ OSM 自帶色全是近似色；route 與 master 兩層都覆寫（`NYC_TRUNK_COL
 如德國五城要含 S-Bahn（`route=train` 亦收，`isSbahnDe`＋`fetchSbahnDe`＋`NETWORK_CITY`
 operator pin）、雪梨要含 Sydney Trains／CityRail 市郊 T 線（`route=train`，
 `fetchSydneyTrains.mjs`＋`NETWORK_CITY` operator pin；站源用乾淨的 `railway=station train=yes`
-節點與 way 中心，非逐月台 stop_position）、台北要納入特定未通車線。這類例外與其實作全部
-集中在 [[metro-cities]]。
+節點與 way 中心，非逐月台 stop_position）、**大洋洲與非洲的「市郊鐵路／電車城市」**
+（`fetchOceania.mjs`／`fetchAfrica.mjs`＋`TRAM_RAIL_CITIES` 白名單，見下）、台北要納入
+特定未通車線。這類例外與其實作全部集中在 [[metro-cities]]。
+
+**大洋洲／非洲的市郊鐵路＋電車城市（使用者裁決 2026-07-23，依 urbanrail.net 的
+`au/oceania.htm`／`af/africa.htm`）**：這兩洲多數城市的都市軌道是 `route=train`（市郊鐵路）
+或 `route=tram`（電車），且**不在** wiki List of metro systems，原本兩道關卡都會擋掉——
+基準查詢不收 train/tram、`buildGeojson` 的「非基準純 LRT 一律剔除」把整城丟掉。三件事一起做：
+1. `scripts/fetchOceania.mjs`（`npm run metro:fetchoceania`）：墨爾本（Metro Trains 16 線＋
+   Yarra Trams 24 路線）、布里斯本、伯斯、阿德萊德（含電車）、奧克蘭、威靈頓。
+2. `scripts/fetchAfrica.mjs`（`npm run metro:fetchafrica`）：南非三大都會 Metrorail＋Gautrain、
+   達卡 TER、卡薩布蘭卡／拉巴特／亞歷山卓／阿爾及利亞七城電車。
+3. `buildGeojson`：`NETWORK_CITY` pin 城市（gap 的 network **不會**進 `geocodeSystems`，
+   不 pin 就落在行政區名如 North Canberra／Kirkos）＋`TRAM_RAIL_CITIES` 白名單豁免剔除；
+   `SETRAM`（阿爾及利亞七城共用 operator）、模里西斯（完全無標籤）、黃金海岸 G:link
+   （network 與溫哥華 TransLink 撞名）等綁不了 network 者走 `_overrides/`。
+坎培拉／紐卡索／黃金海岸／阿迪斯阿貝巴／阿布加／突尼斯／模里西斯是 `route=light_rail`，
+**本來就在基準查詢內**，只需 pin＋白名單，不必補抓。
+
+**gap 的 route_master（`scripts/fetchGapMasters.mjs`）**：分組第一順位是 route_master，但
+基準查詢只抓 subway|light_rail 的 master → 定向補抓的 train/tram 沒有 master 可用。此腳本以
+Overpass 的 `rel(br.r)` 反查母 relation、寫 `gap_masters_*.json`，build 端在載入
+`route_masters.json` 後一併載入（後載者勝）。沒有 master 又沒有 ref 的 route 由
+`assignRefsFromMasters()` 依「master 名 → 顏色對照 → 名稱基底」補 `ref`，否則上下行與區間車
+會各自成線（南非 Metrorail 的 route 完全沒有 ref：約堡 54 條 route 只有 17 個 master）。
+
+**way-only route 的停靠序合成（`scripts/gapStopsFromWays.mjs`）**：少數城市的 route relation
+只掛軌道 way、一個 stop 節點都沒有（阿德萊德 21 條全部、亞歷山卓 21 條合計只有 7 個節點成員），
+路線幾何＝有序 node 成員的管線會把它們當「沒有站的線」丟掉。抓取端改以 way 幾何接成折線、
+把乾淨站源投影回線上（垂距 ≤150 m）依里程排序，合成等價的 stop 成員寫進 `gap_geom_*`；
+下游完全不必特例。fetch 腳本會自動偵測「0 個 node 成員」的 relation 套用。
 
 **人工站序補正（`_overrides/member_appends.json`）**：wiki 已裁決通車、但 OSM 的
 route relation **上游根本還沒把新站加進成員**（新站節點只掛在 stop_area）時——定向

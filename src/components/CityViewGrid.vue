@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { openSkillDoc } from '../stores/skillHandle'
-import { patchHcGalleryFromCells } from '../stores/viewGeometry'
+import { patchHcGalleryFromCells, patchRwdGalleryFromCells } from '../stores/viewGeometry'
 import MIcon from './MIcon.vue'
 
 // One city's view card (Hill Climbing / RWD Maps 共用): a title header + a grid
@@ -65,9 +65,9 @@ async function load() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const json = await res.json()
     if (props.labelsForTilt) lab.value = props.labelsForTilt(json.tilt ?? 0)
-    // Straighten：用 straighten-cells（與點進去 D3Tab 同一份）覆寫 loop-* 縮圖，
-    // 避免畫廊舊預算跟互動真結果不一致。
-    if (props.dataDir === 'straighten' && props.entry?.file) {
+    // Straighten／RWD：用 straighten-cells（與點進去 D3Tab 同一份）覆寫縮圖，
+    // 避免 data/metro/{straighten,rwd-maps} 舊預算跟互動真結果不一致。
+    if ((props.dataDir === 'straighten' || props.dataDir === 'rwd-maps') && props.entry?.file) {
       try {
         const cellsByVariant = {}
         const shapeByVariant = {}
@@ -83,9 +83,9 @@ async function load() {
           const geoRes = await fetch(assetUrl(`data/metro/${props.entry.file}`), { cache: 'no-cache' })
           if (geoRes.ok) {
             const geo = await geoRes.json()
-            patchHcGalleryFromCells(geo, json, cellsByVariant, {
-              cityId: props.entry.id, shapeByVariant,
-            })
+            const patchOpts = { cityId: props.entry.id, shapeByVariant }
+            if (props.dataDir === 'straighten') patchHcGalleryFromCells(geo, json, cellsByVariant, patchOpts)
+            else patchRwdGalleryFromCells(geo, json, cellsByVariant, patchOpts)
           }
         }
       } catch { /* 無 cells／geo → 沿用預算縮圖 */ }

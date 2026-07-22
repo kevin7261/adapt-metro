@@ -111,6 +111,36 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
   Downs 直跳 Wonderland），節點有進 stations.json 但未進線——如需補齊走 `member_appends.json`
   （wiki 全線 12 站，audit 標 `Blue Line 10/12` warn）。
 
+## 大洋洲／非洲：市郊鐵路＋電車城市（使用者裁決 2026-07-23）
+
+依 urbanrail.net 的 `au/oceania.htm`、`af/africa.htm` 補齊兩洲覆蓋。使用者原話：
+「澳洲紐西蘭是 suburban rail 和 tram，除了 Sydney 外要重抓」、「模里西斯和一些非洲國家
+好像也有輕軌」；追問後裁決 **大洋洲＋非洲一起收、市郊鐵路＋電車都收**。
+通用機制（gap 補抓／gap master／way-only 停靠序合成／`TRAM_RAIL_CITIES` 白名單）見
+[[metro-osm-fetch]]，這裡只記逐城裁決：
+
+| 城市 | 模式 | 綁城方式 | 裁決重點 |
+|---|---|---|---|
+| 墨爾本 | train＋tram | `NETWORK_CITY` PTV | Metro Trains 16 線＋Yarra Trams 24 路線同一檔（1081 站，全庫最大）；Metro Tunnel 貫通運營的箭頭 ref（`WGS=>CBE`）不屬任何 master，補丁設 `ref=CBE` 併回 Cranbourne 線，否則該線與市中心斷開 |
+| 布里斯本 | train | `NETWORK_CITY` Queensland Rail | network `Translink` 與溫哥華 TransLink 撞名 → 用 operator；機場線兩方向 ref 相反（BDBR/BRBD）、卡布爾徹 CABR/BRCA/Caboolture 三寫法，補丁統一成官方線名 |
+| 伯斯 | train | `NETWORK_CITY` Transperth | `FSG` 皇家秀特別班不收；`AIR:P`／`MAN:W`／`YAN:W` 區間變體由 master 自動收斂 |
+| 阿德萊德 | train＋tram | `NETWORK_CITY` Adelaide Metro | **21 條 route 全部沒有 stop 成員**（只掛 way）→ 由 `gapStopsFromWays` 合成停靠序，否則整城只剩 3 條電車；GAWC/SALIS→GAW、OSBORN→OUTHA、NOAR→SEAFRD 補丁 |
+| 奧克蘭 | train | `NETWORK_CITY` 獨立 token `AT` | operator 有 Auckland One Rail 與 Transdev（跨國營運商不可當 key）；Te Huia（`AT;BUSIT`，Waikato 城際）不收 |
+| 威靈頓 | train | `NETWORK_CITY` Metlink | 含 Wairarapa Connection（urbanrail 列為威靈頓通勤線） |
+| 坎培拉／紐卡索 | light_rail | `NETWORK_CITY` | 本來就在基準查詢內，只差 pin＋白名單 |
+| 黃金海岸 | light_rail | `_overrides/australia-gold-coast.json` | G:link 的 network=Translink、operator=Keolis Downer（也營運墨爾本電車與紐卡索輕軌）都無法綁城 → relation id 直綁 |
+| 約翰尼斯堡（含普勒托利亞） | train | `_overrides`（fetchAfrica 自動產生） | Metrorail Gauteng 是**跨兩市的同一路網**、Gautrain 也直通 → 拆城會切斷路網，合成一個約堡檔；route 完全沒有 ref，靠 master＋顏色對照補 ref |
+| 開普敦／德班 | train | 同上 | Metrorail Western Cape／KwaZulu-Natal；Central/Northern 等線有多條分支變體，屬既定「分支＝獨立路線」行為 |
+| 達卡 | train | 同上 | TER（Train Express Régional） |
+| 卡薩布蘭卡／拉巴特 | tram | `NETWORK_CITY`＋override | Casa Tramway T1–T4／STRS L1–L2 |
+| 亞歷山卓 | tram | override | 21 條 route 幾乎沒有 stop 成員（合計 7 個）→ 同阿德萊德以 way 幾何合成；上游資料品質差，站數/線數僅供參考 |
+| 阿爾及爾＋奧蘭／君士坦丁／塞提夫／西迪貝勒阿巴斯／瓦爾格拉／莫斯塔加內姆 | tram | override（bbox 分城） | 七城電車 operator 全是 **SETRAM**（或完全無標籤），network/operator 無法分城 → 由 `fetchAfrica.mjs` 依 bbox 抓完後自動寫 relation id override；阿爾及爾的電車併回既有 metro 檔（T1 A／T1 R 兩方向補丁併成 T1） |
+| 阿迪斯阿貝巴／阿布加／突尼斯／模里西斯 | light_rail | pin／override | 本來就在基準查詢內，被「純 LRT 剔除」丟掉；模里西斯 Metro Express 四條 relation **完全無 network/operator/ref**、network 解析成 Unknown → `_overrides/mauritius-port-louis.json` 以 relation id 直綁 |
+
+**未收**：Sunshine Coast（urbanrail 列的輕軌未通車，只有 Translink 市郊線，已含在布里斯本檔）、
+阿比讓（僅建設中地鐵與 Sitarail 貨運）、安納巴／巴特納／哈科特港（urbanrail 標斜體＝
+建設中/計畫中）。
+
 ## 新增城市專屬規則時
 
 1. 若該城規則多，**新建 `metro-city-<城市>` skill**（description 寫明城市名＋觸發場景，

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { QUICK_CITIES, matchQuickSystem, orderQuickMetro } from '../lib/quickCities'
 import { continentRank } from '../stores/metroCatalog'
 import { getShapePresets } from '../stores/paper/shapePresets.js'
@@ -16,6 +16,21 @@ const props = defineProps({
   errorHint: { type: String, default: '' },        // 附註指令（如 npm run metro:views）
 })
 
+// 關掉畫廊 tab 再開／reload：還原目前分頁、排序、面板寬、捲動位置。
+const SHELL_LS = 'adaptMetro.galleryShell.v1'
+const TAB_IDS = new Set(['quick', 'stations', 'global', 'rings'])
+function readShellLs() {
+  try { return JSON.parse(localStorage.getItem(SHELL_LS) || 'null') } catch { return null }
+}
+function writeShellLs(partial) {
+  try {
+    const prev = readShellLs()
+    const base = prev && typeof prev === 'object' ? prev : {}
+    localStorage.setItem(SHELL_LS, JSON.stringify({ ...base, ...partial }))
+  } catch { /* quota / private */ }
+}
+const savedShell = readShellLs() || {}
+
 const catalog = ref(null)
 const error = ref(null)
 const bodyRef = ref(null)   // 卡片捲動容器——右側索引點城市時捲到對應卡片
@@ -29,15 +44,12 @@ onMounted(() => {
 function scrollToCity(id) {
   const el = bodyRef.value?.querySelector(`[data-city="${CSS.escape(String(id))}"]`)
   el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (id) writeShellLs({ scrollCity: id })
 }
 
-// 「依車站數排序」tab 照站數順序、不分組；其餘 tab 依洲別/國家分組（右側索引由
-// 共用元件 CityIndexList 呈現，分組/收合/sort icon 都在那裡）。
-const grouped = computed(() => tab.value !== 'stations')
-
 // 左（顯示圖層）與右（城市索引）兩塊面板都可左右拖拉調寬。
-const sideWidth = ref(220)
-const indexWidth = ref(184)
+const sideWidth = ref(Number.isFinite(savedShell.sideWidth) ? savedShell.sideWidth : 220)
+const indexWidth = ref(Number.isFinite(savedShell.indexWidth) ? savedShell.indexWidth : 184)
 function makeResize(widthRef, dir, min, otherRef) {
   return (e) => {
     e.preventDefault()
@@ -78,8 +90,51 @@ const TABS = [
   { id: 'global', label: '全球地鐵地圖' },
   { id: 'rings', label: '環狀成方城市' },
 ]
-const tab = ref(TABS[0].id)
-const stationSort = ref('desc')
+const tab = ref(TAB_IDS.has(savedShell.tab) ? savedShell.tab : TABS[0].id)
+const stationSort = ref(savedShell.stationSort === 'asc' ? 'asc' : 'desc')
+// 「依車站數排序」tab 照站數順序、不分組；其餘 tab 依洲別/國家分組。
+const grouped = computed(() => tab.value !== 'stations')
+
+watch([tab, stationSort, sideWidth, indexWidth], () => {
+  writeShellLs({
+    tab: tab.value,
+    stationSort: stationSort.value,
+    sideWidth: sideWidth.value,
+    indexWidth: indexWidth.value,
+  })
+})
+
+// 卡片清單就緒後還原捲動（優先上次點過的城市，否則 scrollTop）。
+let scrollRestored = false
+watch(catalog, async (list) => {
+  if (scrollRestored || !list?.length) return
+  scrollRestored = true
+  await nextTick()
+  const el = bodyRef.value
+  if (!el) return
+  const city = savedShell.scrollCity
+  if (city) {
+    const card = el.querySelector(`[data-city="${CSS.escape(String(city))}"]`)
+    if (card) { card.scrollIntoView({ block: 'start' }); return }
+  }
+  if (Number.isFinite(savedShell.scrollTop)) el.scrollTop = savedShell.scrollTop
+})
+
+let scrollTimer = null
+function onBodyScroll() {
+  const el = bodyRef.value
+  if (!el) return
+  clearTimeout(scrollTimer)
+  scrollTimer = setTimeout(() => writeShellLs({ scrollTop: el.scrollTop }), 200)
+}
+onMounted(() => {
+  bodyRef.value?.addEventListener('scroll', onBodyScroll, { passive: true })
+})
+onBeforeUnmount(() => {
+  clearTimeout(scrollTimer)
+  bodyRef.value?.removeEventListener('scroll', onBodyScroll)
+  if (bodyRef.value) writeShellLs({ scrollTop: bodyRef.value.scrollTop })
+})
 
 const tiles = computed(() => {
   const all = catalog.value ?? []

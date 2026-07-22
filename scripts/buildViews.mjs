@@ -35,7 +35,9 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 52 // 52: Straighten 畫廊 loop-* 優先畫 straighten-cells（與 D3Tab 一致）。
+const VIEWS_VERSION = 54 // 54: RWD 畫廊優先畫 straighten-cells＋正方格（與 D3Tab 一致）。
+                         // 53: Straighten 縮圖用正方格 letterbox（與 D3Tab Straighten 一致）。
+                         // 52: Straighten 畫廊 loop-* 優先畫 straighten-cells（與 D3Tab 一致）。
                          // 51: 直線縮減四方向＋H/V 變多就要移（endp→loop／RWD 重烤）。
                          // 49: RWD 形狀變體預算（frozenIds／shapeLock；square===true 才烤）。
                          // 48: 目錄改名對齊圖層（map-adjust/straighten/rwd-maps）＋base＝格網化後；全量重算。
@@ -222,7 +224,8 @@ async function main() {
 
     // RWD Maps views（含 LLM 對齊 compact/rwd，有 llmviews 才寫入）
     try {
-      const rwdFp = `${fp}:rwd-loop-v7:llm=${llmFp}:shape=${shapeFp}`
+      // cells 指紋進 rwdFp：straighten-cells 更新 → RWD 縮圖跟 D3Tab 真結果走。
+      const rwdFp = `${fp}:rwd-loop-v8:llm=${llmFp}:shape=${shapeFp}:cells=${cellsFp}`
       ;(await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, rwdFp, false, llmOpts, shapeFp)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {

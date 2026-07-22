@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 265,
   "wikipedia_system_count": 233,
-  "line_total": 2213,
-  "station_total": 19560,
+  "line_total": 2243,
+  "station_total": 19703,
   "systems": [
     {
       "file": "metro-maps/oceania/australia/oc-aus-melbourne.geojson",
@@ -2475,6 +2475,43 @@
       }
     },
     {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "continent": "africa",
+      "country": "Egypt",
+      "city": "Alexandria",
+      "osm_networks": [
+        "Alexandria Passenger Transportation Authority",
+        "Unknown"
+      ],
+      "operator": "Alexandria Passenger Transportation Authority",
+      "official_website": null,
+      "official_map": null,
+      "wikidata": null,
+      "line_count": 5,
+      "segment_count": 23,
+      "station_count": 61,
+      "audit": null
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
+      "continent": "oceania",
+      "country": "Australia",
+      "city": "Adelaide",
+      "osm_networks": [
+        "Adelaide Metro",
+        "Great Southern Rail",
+        "Unknown"
+      ],
+      "operator": "Adelaide Metro (Rail Commissioner)",
+      "official_website": "https://www.adelaidemetro.com.au/routes/ptdock",
+      "official_map": "https://en.wikipedia.org/wiki/Gawler_railway_line",
+      "wikidata": "Q4681753",
+      "line_count": 10,
+      "segment_count": 22,
+      "station_count": 123,
+      "audit": null
+    },
+    {
       "file": "metro-maps/europe/spain/eu-esp-madrid.geojson",
       "continent": "europe",
       "country": "Spain",
@@ -2928,92 +2965,10 @@
       "official_website": null,
       "official_map": "https://en.wikipedia.org/wiki/East–West_Line_(Singapore)",
       "wikidata": "Q40176",
-      "line_count": 13,
-      "segment_count": 19,
-      "station_count": 184,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/asia/singapore/as-sgp-singapore.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "8 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "146 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 146 站（wiki List 記 143，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "146/146 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "182 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "146/146 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "4 條線無 wiki 站數對照：MRT East-West Line、MRT East-West Line (Tanah Merah → Changi Airport)、MRT Circle Line (Marina Bay → HarbourFront)"
-        ],
-        "audited_at": "2026-07-11T15:22:16.810Z"
-      }
+      "line_count": 8,
+      "segment_count": 14,
+      "station_count": 146,
+      "audit": null
     },
     {
       "file": "metro-maps/oceania/australia/oc-aus-brisbane.geojson",
@@ -3033,10 +2988,10 @@
         "Unknown"
       ],
       "operator": "Queensland Rail",
-      "official_website": "https://jp.translink.com.au/plan-your-journey/timetables/train/t/caboolture-line",
+      "official_website": "https://jp.translink.com.au/plan-your-journey/timetables/train/t/sunshine-coast-line",
       "official_map": "https://en.wikipedia.org/wiki/Translink_(Queensland)",
       "wikidata": "Q7833625",
-      "line_count": 17,
+      "line_count": 14,
       "segment_count": 19,
       "station_count": 134,
       "audit": null
@@ -4315,113 +4270,6 @@
         "reasons": [],
         "warnings": [],
         "audited_at": "2026-07-11T15:22:16.864Z"
-      }
-    },
-    {
-      "file": "metro-maps/africa/algeria/af-alg-algiers.geojson",
-      "continent": "africa",
-      "country": "Algeria",
-      "city": "Algiers",
-      "osm_networks": [
-        "Algiers Metro",
-        "EMA",
-        "Ligne 1",
-        "Métro d'Alger",
-        "RATP El Djazaïr",
-        "RATP-DEV",
-        "SETRAM",
-        "Unknown",
-        "ترامواي الجزائر"
-      ],
-      "operator": "RATP El Djazaïr",
-      "official_website": null,
-      "official_map": "https://fr.wikipedia.org/wiki/Tramway_d'Alger",
-      "wikidata": "Q728045",
-      "line_count": 4,
-      "segment_count": 13,
-      "station_count": 61,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "system_exists",
-            "ok": true,
-            "detail": "matched OSM system systems/africa/algeria/af-alg-algiers.geojson",
-            "level": "error"
-          },
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "2 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "19 stations",
-            "level": "error"
-          },
-          {
-            "id": "station_count_info",
-            "ok": true,
-            "detail": "OSM 19 站（wiki List 記 19，計法含轉乘重複，僅參考）",
-            "level": "warn"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "19/19 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "21 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "19/19 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          },
-          {
-            "id": "line_wiki_coverage",
-            "ok": false,
-            "detail": "2 條線無 wiki 站數對照：Metro L1R、Metro L1R-2",
-            "level": "warn"
-          }
-        ],
-        "reasons": [],
-        "warnings": [
-          "2 條線無 wiki 站數對照：Metro L1R、Metro L1R-2"
-        ],
-        "audited_at": "2026-07-11T15:22:16.595Z"
       }
     },
     {
@@ -10034,25 +9882,6 @@
       }
     },
     {
-      "file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
-      "continent": "oceania",
-      "country": "Australia",
-      "city": "Adelaide",
-      "osm_networks": [
-        "Adelaide Metro",
-        "Great Southern Rail",
-        "Unknown"
-      ],
-      "operator": "Adelaide Metro (Torrens Connect)",
-      "official_website": null,
-      "official_map": "https://en.wikipedia.org/wiki/Glenelg_tram",
-      "wikidata": "Q115096643",
-      "line_count": 3,
-      "segment_count": 5,
-      "station_count": 32,
-      "audit": null
-    },
-    {
       "file": "metro-maps/africa/morocco/af-mar-rabat.geojson",
       "continent": "africa",
       "country": "Morocco",
@@ -10359,6 +10188,113 @@
           "4 條線無 wiki 站數對照：Métro D、Métro C、Métro B"
         ],
         "audited_at": "2026-07-11T15:22:16.673Z"
+      }
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-algiers.geojson",
+      "continent": "africa",
+      "country": "Algeria",
+      "city": "Algiers",
+      "osm_networks": [
+        "Algiers Metro",
+        "EMA",
+        "Ligne 1",
+        "Métro d'Alger",
+        "RATP El Djazaïr",
+        "RATP-DEV",
+        "SETRAM",
+        "Unknown",
+        "ترامواي الجزائر"
+      ],
+      "operator": "RATP El Djazaïr",
+      "official_website": null,
+      "official_map": "https://fr.wikipedia.org/wiki/Tramway_d'Alger",
+      "wikidata": "Q728045",
+      "line_count": 3,
+      "segment_count": 4,
+      "station_count": 56,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "system_exists",
+            "ok": true,
+            "detail": "matched OSM system systems/africa/algeria/af-alg-algiers.geojson",
+            "level": "error"
+          },
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "19 stations",
+            "level": "error"
+          },
+          {
+            "id": "station_count_info",
+            "ok": true,
+            "detail": "OSM 19 站（wiki List 記 19，計法含轉乘重複，僅參考）",
+            "level": "warn"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "19/19 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "21 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "19/19 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          },
+          {
+            "id": "line_wiki_coverage",
+            "ok": false,
+            "detail": "2 條線無 wiki 站數對照：Metro L1R、Metro L1R-2",
+            "level": "warn"
+          }
+        ],
+        "reasons": [],
+        "warnings": [
+          "2 條線無 wiki 站數對照：Metro L1R、Metro L1R-2"
+        ],
+        "audited_at": "2026-07-11T15:22:16.595Z"
       }
     },
     {
@@ -22921,24 +22857,6 @@
         ],
         "audited_at": "2026-07-11T15:22:16.757Z"
       }
-    },
-    {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "continent": "africa",
-      "country": "Egypt",
-      "city": "Alexandria",
-      "osm_networks": [
-        "Alexandria Passenger Transportation Authority",
-        "Unknown"
-      ],
-      "operator": "Alexandria Passenger Transportation Authority",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 1,
-      "segment_count": 1,
-      "station_count": 4,
-      "audit": null
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-constantine.geojson",
