@@ -146,18 +146,13 @@ function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
 // and BEFORE 縮減網格. A "line" is a maximal collinear chain of horizontal (or
 // vertical) segments stitched ACROSS intersection vertices — the connected
 // component over same-axis straight segments, so transfers, branches and
-// yellow crossings a line runs straight through move with it. Moves are
-// PERPENDICULAR ONLY (使用者規則：水平線只能上下移、垂直線只能左右移):
-// jumps onto the nearest occupied rows/columns (any distance; the input grid
-// may be sparse, ±2 would reach nothing) plus ±1/±2 steps. A shift is
-// accepted only when it STRICTLY shrinks the occupied column+row count,
-// does NOT reduce the network-wide H/V segment count (only boundary segments
-// change under a rigid shift, so their net delta must be ≥ 0 — 使用者規則:
-// 移動後不可以讓整個 network 的直線變少), and passes the SAME rigid-shift
-// hard rules as the optimizer's cluster moves (validShift: no new crossing/
-// occlusion, quadrant + edge order preserved) — the network structure is
-// untouched. Tie-breaks: bigger gain → bigger H/V gain on the boundary
-// segments → smaller displacement.
+// yellow crossings a line runs straight through move with it. Moves are the
+// four 1-cell unit shifts（使用者規則：直線可上下左右移，一次一格）——
+// movewise 下網格隨時緻密，逐格合併即可. A shift is accepted when
+// （使用者規則：移動後直線路段會變多就要移）boundary H/V 淨增 > 0，
+// 或嚴格縮小佔用欄列且 H/V 不減（gain > 0 ∧ hv ≥ 0）。H/V 不可變少。
+// Same rigid-shift hard rules as the optimizer (validShift). Tie-breaks:
+// bigger H/V gain → bigger grid gain.
 // straight-line components per axis (union-find over same-axis straight
 // segments), stitched across intersection vertices — shared by 直線縮減 and
 // 網格合併.
@@ -265,21 +260,19 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
       if (moved >= limit) break
       if (skip && skip.has(comp[0])) continue
       const inC = new Set(comp)
-      // perpendicular moves only（水平線只能上下移、垂直線只能左右移），且
-      // 一次只能移一格（使用者規則）——movewise 下網格隨時緻密，相鄰欄列必有
-      // 佔用，逐格合併即可，不需要遠跳。
-      const deltas = [-1, 1]
+      // 四方向各 ±1 格（使用者規則：直線可上下左右移；一次一格）——
+      // movewise 下網格隨時緻密，相鄰欄列必有佔用，逐格合併即可。
       const scored = []
-      for (const d of deltas) {
-        const [dc, dr] = horiz ? [0, d] : [d, 0]
-        const gain = gainOf(comp, dc, dr)
-        if (gain <= 0) continue // must strictly shrink the occupied cols+rows
+      for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue // 顏色點間不可拉超過 SPAN_CAP 格
         const hv = boundaryHvDelta(pos, segs, inC, dc, dr)
         if (hv < 0) continue // 整個 network 的直線（H/V 段）不可變少
+        const gain = gainOf(comp, dc, dr)
+        // 使用者規則：直線路段變多就要移；否則須嚴格縮網格（且 H/V 已 ≥ 0）
+        if (hv <= 0 && gain <= 0) continue
         scored.push({ dc, dr, gain, hv })
       }
-      scored.sort((a, b) => b.gain - a.gain || b.hv - a.hv
+      scored.sort((a, b) => b.hv - a.hv || b.gain - a.gain
         || a.dc - b.dc || a.dr - b.dr)
       for (const c of scored) {
         if (!M.validShift(comp, inC, c.dc, c.dr)) continue
@@ -710,11 +703,10 @@ export function stepChainNext(skeleton, st, opts = {}) {
 // 網格合併一遍 → 回到端點移動；某一輪三個都沒有改動才停止。輪數因此比階段
 // 固定點制多，上限放寬到 LOOP_ROUND_CAP。
 const LOOP_ROUND_CAP = 200
-// 成方護欄開啟時，網格合併／端點常在剛體約束下振盪，跑滿 200 輪會把大城
-// （北京／上海）預算拖到數十分鐘。護欄在時用較短上限；無進展（欄列＋H/V
-// 連續不變）提前停。
-// 成方護欄下每輪掃全網極慢（北京 ~15s/輪）且易振盪——預算／互動都只跑 1 輪。
-const LOOP_ROUND_CAP_FROZEN = 1
+// 成方護欄開啟時，網格合併／端點常在剛體約束下振盪；靠 LOOP_STALL_ROUNDS
+// （欄列＋H/V 連續不變）提前停，勿把上限砍成 1——否則循環遠未收斂，
+// 與逐步驗證（跑到三階段都不動）結果不一致（使用者回報 2026-07）。
+const LOOP_ROUND_CAP_FROZEN = 40
 const LOOP_STALL_ROUNDS = 2
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows

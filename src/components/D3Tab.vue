@@ -558,9 +558,9 @@ const POST_BUILD = { ...PAPER_BUILD }
 // - 端點移動（左選單第 4 部份，鏈的第 1 步）：在該鏈的結果之上做端點移動
 //   （原 tab 不變）。各鏈的拉直結果同時是該鏈直線縮減／縮減網格／RWD 底圖的輸入。
 // - 直線縮減（第 5 部份，鏈的第 2 步）：在該鏈「端點拉直後」的結果之上，把直線
-//   （跨相交點串接的共線段鏈）整條垂直於線平移（水平線只能上下移、垂直線只能
-//   左右移），讓「佔用的欄列」越少越好、network 結構不變、全網 H/V 段數不減
-//   （movewise：每個移動後即壓縮）；網格合併 tab 接在它之後。
+//   （跨相交點串接的共線段鏈）整條上下左右平移 ±1 格，讓「佔用的欄列」越少越好、
+//   network 結構不變、全網 H/V 段數不減（movewise：每個移動後即壓縮）；網格合併
+//   tab 接在它之後。
 // - 網格合併（第 6 部份，鏈的第 3 步）：①有色點只要入射段 ≤2 且同軸（左右兩段
 //   水平/上下兩段垂直；藍點單段必可）就沿線往中位點（黃色圓標位置）滑動；
 //   ②串接直線整條垂直於線往中位點移。H/V 與網格尺寸都不變。
@@ -652,6 +652,9 @@ async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, d
 }
 const hcBusy = ref(false)
 const busyText = ref('')
+// 開啟分頁只讀 straighten-cells；缺檔不現場重算。按工具列「重新計算」才 bake 全 flow。
+const forceBakeLayout = ref(false)
+const layoutPending = ref(false)
 const hcStats = ref(null)
 const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 stats
 // 各佈局實際算了多久（毫秒）——tab 名後面標注用。key：`hc`（爬山本體）、
@@ -1054,39 +1057,91 @@ function resetPerDataset(data) {
 // hccells 檔載入與結構驗證）→ 後處理／LLM 對齊 → movewise 三步鏈／循環／
 // 逐步驗證 → RWD 畫線，得到「這一幀要畫的座標」。回傳 { hcPos, hcBlue,
 // rwdLines, stepMoves }；計算途中被更新的 render 蓋過（seq 過期）回傳 null。
-// 背景預算：HC 算好後，把尚未入檔的下游佈局在閒置時算完並寫入 hccells——
+// 重活前先亮 overlay 再 yield，讓 Vue 畫出提示（否則主線程卡住＝畫面死、使用者不知道在算）。
+async function runBusy(text, seq, fn) {
+  hcBusy.value = true
+  busyText.value = text
+  await new Promise((r) => setTimeout(r, 32))
+  if (seq !== renderSeq) { hcBusy.value = false; return null }
+  try {
+    return fn()
+  } finally {
+    if (seq === renderSeq) hcBusy.value = false
+  }
+}
+
+// 背景預算：把尚未入檔的下游佈局算完並寫入 straighten-cells。
+// 畫廊預計算 ≠ 互動快取——首次開成方／下游仍可能現場算；算的時候一定顯示 overlay。
 // 檔已齊全則跳過。RWD 像素畫線看畫面大小、維持另算。切視圖即中止。
 let warmSeq = -1
-function warmChains(hcSk, hcAfter, cols, rows, shapeOn, guard, seq) {
+async function warmChains(hcSk, hcAfter, cols, rows, shapeOn, guard, seq) {
   if (warmSeq === seq) return
   warmSeq = seq
   const kinds = PAPER_KINDS.map((p) => p.kind).filter((k) => POST_BUILD[k])
   // 檔／記憶體已有全部 post＋loop → 不必再預熱（打開秒開）。
   if (kinds.every((k) => cachedPost[k] && cachedLoop[k])) return
-  const schedule = (f) => (typeof window !== 'undefined' && window.requestIdleCallback
-    ? window.requestIdleCallback(f, { timeout: 2000 }) : setTimeout(f, 120))
   const tasks = []
   for (const kind of kinds) {
-    tasks.push(() => { if (!cachedPost[kind]) { const t0 = performance.now(); cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, hcAfter, cols, rows); cachedPost[kind].stats.ms = Math.round(performance.now() - t0) } })
-    tasks.push(() => { const c = cachedPost[kind]; if (c && !cachedEndp[kind]) cachedEndp[kind] = movewiseStage('endp', hcSk, c.cellAfter, cols, rows) })
-    tasks.push(() => { const c = cachedEndp[kind]; if (c && !cachedLine[kind]) cachedLine[kind] = movewiseStage('line', hcSk, c.cellAfter, c.cols, c.rows) })
-    tasks.push(() => { const c = cachedLine[kind]; if (c && !cachedGather[kind]) cachedGather[kind] = movewiseStage('gather', hcSk, c.cellAfter, c.cols, c.rows) })
-    tasks.push(() => { const c = cachedPost[kind]; if (c && !cachedLoop[kind]) cachedLoop[kind] = straightenCompactLoop(hcSk, c.cellAfter, cols, rows) })
+    const zh = PAPER_ZH[kind] ?? kind
+    tasks.push({
+      label: `預算 ${zh}…`,
+      run: () => {
+        if (!cachedPost[kind]) {
+          const t0 = performance.now()
+          cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, hcAfter, cols, rows)
+          cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
+        }
+      },
+    })
+    tasks.push({
+      label: `預算 ${zh}・端點移動…`,
+      run: () => {
+        const c = cachedPost[kind]
+        if (c && !cachedEndp[kind]) cachedEndp[kind] = movewiseStage('endp', hcSk, c.cellAfter, cols, rows)
+      },
+    })
+    tasks.push({
+      label: `預算 ${zh}・直線縮減…`,
+      run: () => {
+        const c = cachedEndp[kind]
+        if (c && !cachedLine[kind]) cachedLine[kind] = movewiseStage('line', hcSk, c.cellAfter, c.cols, c.rows)
+      },
+    })
+    tasks.push({
+      label: `預算 ${zh}・網格合併…`,
+      run: () => {
+        const c = cachedLine[kind]
+        if (c && !cachedGather[kind]) cachedGather[kind] = movewiseStage('gather', hcSk, c.cellAfter, c.cols, c.rows)
+      },
+    })
+    tasks.push({
+      label: `預算 ${zh}・循環…`,
+      run: () => {
+        const c = cachedPost[kind]
+        if (c && !cachedLoop[kind]) cachedLoop[kind] = straightenCompactLoop(hcSk, c.cellAfter, cols, rows)
+      },
+    })
   }
-  let i = 0
-  const step = () => {
-    if (seq !== renderSeq) return
-    if (i >= tasks.length) { persistHcCells(shapeOn); syncCalcMs(); return }
+  for (let i = 0; i < tasks.length; i++) {
+    if (seq !== renderSeq) { hcBusy.value = false; return }
+    const t = tasks[i]
+    hcBusy.value = true
+    busyText.value = `${t.label}（${i + 1}/${tasks.length}）`
+    await new Promise((r) => setTimeout(r, 32))
+    if (seq !== renderSeq) { hcBusy.value = false; return }
     setFrozen(guard)
-    try { tasks[i]() } catch { /* 單項失敗不擋其餘預算 */ }
-    i++
-    schedule(step)
+    try { t.run() } catch { /* 單項失敗不擋其餘預算 */ }
   }
-  schedule(step)
+  if (seq === renderSeq) {
+    hcBusy.value = false
+    persistHcCells(shapeOn)
+    syncCalcMs()
+  }
 }
 
 async function computeHcLayout({ seq, w, h, grid }) {
   let hcPos = null, hcBlue = null, rwdLines = null, weighted = false, stepMoves = []
+  layoutPending.value = false
   shapeNoCompute.value = false // 預設；只有成方圖層下游且成方未算時才設 true（見下）
   // 跨距上限（預設 3）用「已套用」的值（appliedSpanCap）——滑桿改了但還沒按「重新
   // 計算」前，快取與新計算都維持舊上限，避免同畫面新舊混雜。
@@ -1168,8 +1223,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
     : null
   const wantHcKey = hcLsKey(shapeFeedsHc)
   if (cachedHcKey !== wantHcKey) {
+    hcBusy.value = true
+    busyText.value = shapeFeedsHc ? '載入成方佈局快取…' : '載入佈局快取…'
+    await new Promise((r) => setTimeout(r, 32))
+    if (seq !== renderSeq) { hcBusy.value = false; return null }
     const hit = await loadHcCache(hcPersistRef(shapeFeedsHc))
-    if (seq !== renderSeq) return null
+    if (seq !== renderSeq) { hcBusy.value = false; return null }
     if (hit) {
       cachedHC = hit.hc
       cachedPost = hit.posts
@@ -1190,6 +1249,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     }
     cachedHcKey = wantHcKey
     syncCalcMs()
+    hcBusy.value = false
   }
 
   // Shape-Guided 視圖（LLM 成方）：未算時畫格網化後＋overlay（不進下游）。
@@ -1252,6 +1312,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     cachedPost = {}
   }
   if (!cachedHC) {
+    // base（格網化後／成方）可即時組——便宜。重鏈只在「重新計算」或已有 cells 檔時用。
     const g = buildHcGraph(hcSk, hcInCells)
     cachedHC = {
       cellAfter: new Map([...hcInCells].map(([id, p]) => [id, [p[0], p[1]]])),
@@ -1262,33 +1323,36 @@ async function computeHcLayout({ seq, w, h, grid }) {
       },
     }
     if (shapeFeedsHc) cachedHC.stats.shapeFeed = shapeFeedSource.value
-    persistHcCells(shapeFeedsHc)
     syncCalcMs()
   }
   hcStats.value = cachedHC.stats
-  // 背景預算其餘直線演算法鏈（閒置時算好寫 hccells）→ 檔齊後打開秒開。
-  // base＝格網化後／成方（cachedHC.cellAfter）。
-  warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, shapeFeedsHc, squareGuard, seq)
   let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
+  // 缺檔且非「重新計算」→ 不現場 bake，提示按工具列按鈕。
+  const denyBake = () => {
+    if (forceBakeLayout.value) return false
+    layoutPending.value = true
+    return true
+  }
   // 直線演算法：以格網化後（／成方）為輸入，短距離移動（每 kind 快取一次）。
   if (postKind.value) {
     const kind = postKind.value
     if (!cachedPost[kind]) {
-      hcBusy.value = true
-      busyText.value = { stroke: '①筆畫法中…（筆畫串接 + 4 主方向投影，迭代到不動）',
+      if (denyBake()) return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
+      const t0 = performance.now()
+      await runBusy({
+        stroke: '①筆畫法中…（筆畫串接 + 4 主方向投影，迭代到不動）',
         rect: '②直角爬山中…（|sin 2θ| 短半徑再爬，迭代到不動）',
         milp: '③MILP規劃中…（3 候選方向精確指派 + 座標重建，迭代到不動）',
         force: '④力導向中…（磁力彈簧 40 輪 + 嚴格接受，迭代到不動）',
         lsq: '⑤最小平方中…（八方向化 Gauss–Seidel，迭代到不動）',
         octi: '⑥八向格網中…（ldeg 排序逐邊定案 + 嚴格接受，迭代到不動）',
         path: '⑦路徑簡化中…（C-directed 最少 link 刺穿，迭代到不動）',
-        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）' }[kind]
-      await new Promise((r) => setTimeout(r, 30))
-      if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
-      const t0 = performance.now()
-      cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, cachedHC.cellAfter, grid.cols, grid.rows)
-      cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
-      hcBusy.value = false
+        sat: '⑧SAT規劃中…（DPLL 分支定界方向指派，迭代到不動）',
+      }[kind], seq, () => {
+        cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, cachedHC.cellAfter, grid.cols, grid.rows)
+        cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
+      })
+      if (seq !== renderSeq) return null
       persistHcCells(shapeFeedsHc)
       syncCalcMs()
     }
@@ -1388,7 +1452,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
   {
     const endKind = endKindOf(mode.value) ?? lineKindOf(mode.value) ?? gatherKindOf(mode.value)
     if (endKind) {
-      if (!cachedEndp[endKind]) { cachedEndp[endKind] = movewiseStage('endp', hcSk, cells, nC, nR); cellsDirty = true }
+      if (!cachedEndp[endKind]) {
+        if (denyBake()) return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
+        await runBusy(`端點移動中…（${PAPER_ZH[endKind] ?? endKind}）`, seq, () => {
+          cachedEndp[endKind] = movewiseStage('endp', hcSk, cells, nC, nR)
+        })
+        if (seq !== renderSeq) return null
+        cellsDirty = true
+      }
       cells = cachedEndp[endKind].cellAfter
       nC = cachedEndp[endKind].cols
       nR = cachedEndp[endKind].rows
@@ -1403,7 +1474,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
   {
     const lineKind = lineKindOf(mode.value) ?? gatherKindOf(mode.value)
     if (lineKind) {
-      if (!cachedLine[lineKind]) { cachedLine[lineKind] = movewiseStage('line', hcSk, cells, nC, nR); cellsDirty = true }
+      if (!cachedLine[lineKind]) {
+        if (denyBake()) return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
+        await runBusy(`直線縮減中…（${PAPER_ZH[lineKind] ?? lineKind}）`, seq, () => {
+          cachedLine[lineKind] = movewiseStage('line', hcSk, cells, nC, nR)
+        })
+        if (seq !== renderSeq) return null
+        cellsDirty = true
+      }
       cells = cachedLine[lineKind].cellAfter
       nC = cachedLine[lineKind].cols
       nR = cachedLine[lineKind].rows
@@ -1415,7 +1493,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
   {
     const gatherKind = gatherKindOf(mode.value)
     if (gatherKind) {
-      if (!cachedGather[gatherKind]) { cachedGather[gatherKind] = movewiseStage('gather', hcSk, cells, nC, nR); cellsDirty = true }
+      if (!cachedGather[gatherKind]) {
+        if (denyBake()) return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
+        await runBusy(`網格合併中…（${PAPER_ZH[gatherKind] ?? gatherKind}）`, seq, () => {
+          cachedGather[gatherKind] = movewiseStage('gather', hcSk, cells, nC, nR)
+        })
+        if (seq !== renderSeq) return null
+        cellsDirty = true
+      }
       cells = cachedGather[gatherKind].cellAfter
       nC = cachedGather[gatherKind].cols
       nR = cachedGather[gatherKind].rows
@@ -1429,7 +1514,15 @@ async function computeHcLayout({ seq, w, h, grid }) {
     const loopKind = loopKindOf(mode.value)
       ?? (isRWD.value ? rwdCompactKey.value : null)
     if (loopKind) {
-      if (!cachedLoop[loopKind]) { cachedLoop[loopKind] = straightenCompactLoop(hcSk, cells, nC, nR); cellsDirty = true }
+      if (!cachedLoop[loopKind]) {
+        if (denyBake()) return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
+        const zh = PAPER_ZH[loopKind] ?? (loopKind === 'llm' ? 'LLM 對齊' : loopKind === 'hc' ? '基本' : loopKind)
+        await runBusy(`循環中…（${zh}・端點＋縮減＋合併到不動點）`, seq, () => {
+          cachedLoop[loopKind] = straightenCompactLoop(hcSk, cells, nC, nR)
+        })
+        if (seq !== renderSeq) return null
+        cellsDirty = true
+      }
       cells = cachedLoop[loopKind].cellAfter
       nC = cachedLoop[loopKind].cols
       nR = cachedLoop[loopKind].rows
@@ -1579,39 +1672,39 @@ async function computeHcLayout({ seq, w, h, grid }) {
       + (fWarp ? `|f${Math.round(fWarp.x)}_${Math.round(fWarp.y)}_${fWarp.s.toFixed(2)}` : '')
       + (frozenIds ? `|fz${frozenIds.size}` : '')
     if (!cachedRWD || cachedRWD.key !== sizeKey) {
-      if (!fastFrame) {
-        hcBusy.value = true
-        busyText.value = 'RWD 路網畫線中…（H/V/45° 候選折線）'
-        await new Promise((r) => setTimeout(r, 30))
-        if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
-      }
       const pxPos = new Map()
       for (const [id, p] of cells) {
         const [px, py] = cellPx(p)
         pxPos.set(id, fWarp ? [fWarp.fx(px), fWarp.fy(py)] : [px, py])
       }
-      cachedRWD = {
-        key: sizeKey,
-        // 非均勻格的半格 A* lattice 尚未做（見 skill）——權重／動畫／放大鏡不傳 lattice，衝突走
-        // 候選＋兜底；fast 幀（動畫/放大鏡）再略過多輪衝突消解換每幀夠快；均勻格照舊帶 lattice。
-        ...buildRwdMap(cachedSegs, pxPos, {
-          unit: Math.min(cw, ch),
-          dirs: rwdDirs.value, // 允許的線方向數 4/8/16
-          // 自動隱藏白點：站距 < 門檻才刪，逐級升高 weight 差門檻（見 rwdMap.js）。
-          hideStops: rwdHideStops.value,
-          minStopPx: rwdMinStopPx.value,
-          linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
-          // 形狀圖層成方：方形邊強制直線（與成方護欄 members 同一組 id）
-          ...(frozenIds ? { frozenIds } : {}),
-          ...(fastFrame ? { fast: true }
-            : (weighted || gridOn) ? {}
-              // 方形網格的 lattice 恰為正方（sx===sy）→ buildRwdMap 自動開 8 方向真 45° A*。
-              : squareMode
-                ? { lattice: { x0: sqx0, y0: sqy0, sx: u / 2, sy: u / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }
-                : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
-        }),
+      const bake = () => {
+        cachedRWD = {
+          key: sizeKey,
+          // 非均勻格的半格 A* lattice 尚未做（見 skill）——權重／動畫／放大鏡不傳 lattice，衝突走
+          // 候選＋兜底；fast 幀（動畫/放大鏡）再略過多輪衝突消解換每幀夠快；均勻格照舊帶 lattice。
+          ...buildRwdMap(cachedSegs, pxPos, {
+            unit: Math.min(cw, ch),
+            dirs: rwdDirs.value, // 允許的線方向數 4/8/16
+            // 自動隱藏白點：站距 < 門檻才刪，逐級升高 weight 差門檻（見 rwdMap.js）。
+            hideStops: rwdHideStops.value,
+            minStopPx: rwdMinStopPx.value,
+            linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
+            // 形狀圖層成方：方形邊強制直線（與成方護欄 members 同一組 id）
+            ...(frozenIds ? { frozenIds } : {}),
+            ...(fastFrame ? { fast: true }
+              : (weighted || gridOn) ? {}
+                // 方形網格的 lattice 恰為正方（sx===sy）→ buildRwdMap 自動開 8 方向真 45° A*。
+                : squareMode
+                  ? { lattice: { x0: sqx0, y0: sqy0, sx: u / 2, sy: u / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }
+                  : { lattice: { x0: 24, y0: 24, sx: cw / 2, sy: ch / 2, nx: nC * 2 + 1, ny: nR * 2 + 1 } }),
+          }),
+        }
       }
-      hcBusy.value = false
+      if (fastFrame) bake()
+      else {
+        await runBusy('RWD 路網畫線中…（H/V/45° 候選折線）', seq, bake)
+        if (seq !== renderSeq) return null
+      }
     }
     rwdStats.value = cachedRWD.stats
     hcPos = new Map(cachedRWD.posAfter)
@@ -1630,6 +1723,11 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   activeHcSk = hcSk
   activeFrozen = squareGuard // 成方護欄：逐步驗證按鈕在 render 外推進時據此重設
+  // 只有「重新計算」才把其餘鏈一次 bake 進 straighten-cells（開分頁不背景重算）。
+  if (forceBakeLayout.value) {
+    await warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, shapeFeedsHc, squareGuard, seq)
+    persistHcCells(shapeFeedsHc)
+  }
   // 不畫成方外框（guideBoxPx）——使用者不要超大灰白矩形。
   return {
     hcPos, hcBlue, rwdLines, stepMoves, guideBoxPx: null,
@@ -2111,10 +2209,8 @@ async function render() {
     if (!layout) return // superseded mid-compute — the newer render draws
     ;({ hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton, meshLines, guideBoxPx } = layout)
   }
-  // 成方圖層但成方尚未算（shapeNoCompute）：畫布已在上方清空，這裡直接收工、不畫任何
-  // 線／站——否則 hcPos=null 會落回底圖（格網／地理）座標，把「之前的路線」畫成殘跡。
-  // 只留 overlay「成方路線沒有算」提示（見 template 的 v-else-if="shapeNoCompute"）。
-  if (shapeNoCompute.value) {
+  // 成方圖層但成方尚未算／下游尚未 bake：畫布清空，只留 overlay（勿落回底圖殘跡）。
+  if (shapeNoCompute.value || layoutPending.value) {
     layerExport[layerId] = sceneToGeojson([], [], w, h, layer.value?.type ?? 'd3')
     applyStyle()
     if (zoomBehavior && !fisheyeActive()) select(svg).call(zoomBehavior.transform, zoomIdentity)
@@ -2438,6 +2534,46 @@ function recalcSpan() {
   render()
 }
 
+/** 工具列「注意路段 | 重新計算」：清 cells 後一次 bake 全下游 flow 並寫檔。開分頁不重算。 */
+async function recalcLayoutFlow() {
+  if (!needsHC.value) {
+    // Map Adjust：重算骨架／格網即可
+    if (cacheData) resetPerDataset(cacheData)
+    await render()
+    store.toast('已重新計算 Map Adjust')
+    return
+  }
+  const cityId = sourceLayer.value?.id
+  const variant = hcLayerVariantKey()
+  const shapelike = isShapeLayer.value
+  forceBakeLayout.value = true
+  layoutPending.value = false
+  calcMs.value = {}
+  cachedHC = null
+  cachedPost = {}
+  cachedLayout = {}
+  cachedEndp = {}
+  cachedLine = {}
+  cachedGather = {}
+  cachedLoop = {}
+  stepState = {}
+  stepHistory = {}
+  cachedRWD = null
+  cachedHcKey = null
+  if (cityId) {
+    await clearHcCache({ cityId, variant, shapelike })
+    if (shapelike) await clearHcCache({ cityId, variant, shapelike: false })
+  }
+  try {
+    await render()
+    store.toast(shapelike
+      ? '已重新計算成方下游（straighten-cells · shapelike）'
+      : '已重新計算下游並寫入 straighten-cells')
+  } finally {
+    forceBakeLayout.value = false
+  }
+}
+
 // Map Adjust 工具列「河流分隔曲折度」：
 //   · riverGraySinuosity       ＝草稿（輸入框，改了不重算）
 //   · riverGraySinuosityApplied ＝已套用（按確定才寫；Map Adjust／Straighten／RWD 共用
@@ -2681,6 +2817,7 @@ onBeforeUnmount(() => {
           @min-stop-px="setRwdMinStopPx"
           @recalc-span="recalcSpan"
           @recalc-river-gray="recalcRiverGray"
+          @recalc-layout="recalcLayoutFlow"
           @fit-view="fitView"
         />
         <div class="map-main">
@@ -2703,9 +2840,26 @@ onBeforeUnmount(() => {
             <g ref="gEl" />
           </svg>
           <div ref="tipEl" class="ma-tip" />
-          <div v-if="loading" class="ma-hint">載入中…</div>
+          <div v-if="loading" class="ma-hint">
+            <div class="llm-run-card">
+              <div class="llm-spinner" />
+              <div class="llm-run-title">載入中…</div>
+            </div>
+          </div>
           <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨ Shape-Guided / LLM 成方 view 跑出成方</span></div>
-          <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
+          <div v-else-if="layoutPending" class="ma-hint llm-hint">
+            <div class="llm-run-card">
+              <div class="llm-run-title">尚未預算下游佈局</div>
+              <div class="llm-run-desc">開分頁不會重算。請按上方工具列「注意路段」旁的<strong>重新計算</strong>，一次寫入 straighten-cells（直線演算法／循環／端點／縮減／合併）。</div>
+            </div>
+          </div>
+          <div v-else-if="hcBusy" class="ma-hint llm-hint">
+            <div class="llm-run-card">
+              <div class="llm-spinner" />
+              <div class="llm-run-title">{{ busyText }}</div>
+              <div class="llm-run-desc">正在寫入 straighten-cells；完成後再開分頁會秒開。</div>
+            </div>
+          </div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
           <!-- LLM 比較結果：本 RWD 視圖若是全部／原始／旋轉最佳，右上角標示 -->
           <div v-if="compareViewTags.length" class="ma-compare-badges">
@@ -2944,6 +3098,9 @@ onBeforeUnmount(() => {
   font-size: 13px;
   color: hsl(var(--muted-foreground));
   pointer-events: none;
+  /* 計算中蓋一層半透明底，避免以為當機 */
+  background: hsl(var(--background) / 0.55);
+  z-index: 5;
 }
 .ma-hint.error { color: hsl(var(--destructive)); }
 /* LLM 對齊: the hint hosts a real button (the default hint is click-through) */

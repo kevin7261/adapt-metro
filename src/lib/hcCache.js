@@ -14,7 +14,9 @@ import { getDataOverlay, setDataOverlay } from './dataOverlay'
 
 // 改了 skeleton／schematicGrid／hillClimb／movewise 演算法就 +1（舊檔自動失效）。
 // v2: 直線演算法／循環 base＝格網化後（不再吃 HC）
-export const HC_CELLS_ALGO = 'hccells-v2'
+// v3: 成方護欄下循環上限 1→40（舊 shapelike 循環未收斂）
+// v4: 直線縮減四方向＋H/V 變多就要移
+export const HC_CELLS_ALGO = 'hccells-v4'
 
 export function dataFingerprint(data) {
   let h = 5381

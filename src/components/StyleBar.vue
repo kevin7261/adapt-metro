@@ -32,7 +32,7 @@ const props = defineProps({
   centerAvailable: { type: Boolean, default: false },
   centerOn: { type: Boolean, default: false },
 })
-const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'frame', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'recalc-river-gray', 'fit-view', 'set-tracks', 'set-center', 'fisheye'])
+const emit = defineEmits(['show-weights', 'weight-mode', 'dir-count', 'frame', 'weight-random', 'weight-auto', 'hide-stops', 'min-stop-px', 'recalc-span', 'recalc-river-gray', 'recalc-layout', 'fit-view', 'set-tracks', 'set-center', 'fisheye'])
 const frameGroups = rwdFrameGroups()
 
 // 地圖底色的 8 個預設快選色（依明度深→淺排序）
@@ -113,6 +113,13 @@ const groups = computed(() => {
     //（showHighlight 未設＝開）→ toggle 帶 defaultOn。
     if (props.viewKind !== 'metro') {
       station.push({ id: 'highlight', icon: 'highlight', title: '注意路段', toggle: 'showHighlight', defaultOn: true })
+      // 注意路段 | 重新計算——只由按鈕觸發完整下游 bake（開啟分頁不重算）
+      station.push({ id: '_sep_recalc', sep: true })
+      station.push({
+        id: 'recalcLayout',
+        title: '重新計算（寫入 straighten-cells，含直線演算法／循環／端點／縮減／合併）',
+        action: 'recalc-layout',
+      })
     }
     g.push(station)
   }
@@ -179,8 +186,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
       <template v-for="(grp, gi) in groups" :key="gi">
         <div v-if="gi" class="sb-sep" />
         <template v-for="t in grp" :key="t.id">
+          <div v-if="t.sep" class="sb-sep" />
           <!-- 數字型尺寸（線寬／半徑）：文字標籤＋數字框，不用 icon -->
-          <label v-if="t.num" class="sb-inline" :title="t.title">
+          <label v-else-if="t.num" class="sb-inline" :title="t.title">
             <span class="sb-inline-label">{{ t.title }}</span>
             <input
               type="number"
@@ -191,6 +199,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
             />
             <span v-if="t.num.unit" class="sb-unit">{{ t.num.unit }}</span>
           </label>
+          <button
+            v-else-if="t.action === 'recalc-layout'"
+            class="sb-btn"
+            :title="t.title"
+            @click.stop="emit('recalc-layout')"
+          >重新計算</button>
           <!-- 其餘工具（切換的顯示站名、或彈窗的地圖底色/顏色…）：純文字按鈕 -->
           <button
             v-else

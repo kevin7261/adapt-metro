@@ -1,86 +1,29 @@
 {
-  "generated_at": "2026-07-23T04:12:00+08:00",
-  "note": "啟發式批次 _shapeSquareAll。僅 square===true 且 fourLine 才算成功；其餘＝未正確成方，不餵下游。",
-  "ok_count": 6,
-  "fail_count": 14,
+  "generated_at": "2026-07-23T12:00:00+08:00",
+  "note": "Fable 5 LLM 成方補跑後更新。僅 square===true 且 fourLine 才算成功；其餘＝未正確成方，不餵下游。原啟發式批次（_shapeSquareAll）14 個未過案例已全數由 LLM 成方（llmShape.mjs apply、全部 via=batch、crosses 0→0）補齊。勿重跑 _shapeSquareAll（會 reset 並覆寫 LLM 結果）。",
+  "ok_count": 20,
+  "fail_count": 0,
   "ok": [
     { "id": "as-chn-beijing.orig", "route": "2號線" },
     { "id": "as-chn-beijing.rot", "route": "2號線" },
+    { "id": "as-chn-shanghai.orig", "route": "4號線", "via": "llm-fable5" },
+    { "id": "as-chn-shanghai.rot", "route": "4號線", "via": "llm-fable5" },
+    { "id": "as-jpn-osaka-jr.orig", "route": "大阪環状線", "via": "llm-fable5" },
+    { "id": "as-jpn-osaka-jr.rot", "route": "大阪環状線", "via": "llm-fable5" },
+    { "id": "as-jpn-tokyo-jr.orig", "route": "山手線", "via": "llm-fable5" },
+    { "id": "as-jpn-tokyo-jr.rot", "route": "山手線", "via": "llm-fable5" },
+    { "id": "as-jpn-tokyo.orig", "route": "大江戶線環形路段", "via": "llm-fable5" },
+    { "id": "as-jpn-tokyo.rot", "route": "大江戶線環形路段", "via": "llm-fable5" },
+    { "id": "as-kor-seoul.orig", "route": "2號線循環線", "via": "llm-fable5" },
+    { "id": "as-kor-seoul.rot", "route": "2號線循環線", "via": "llm-fable5" },
     { "id": "as-sgp-singapore.orig", "route": "環狀線" },
+    { "id": "as-sgp-singapore.rot", "route": "環狀線", "via": "llm-fable5" },
     { "id": "as-twn-kaohsiung.orig", "route": "高雄環狀輕軌" },
     { "id": "as-twn-kaohsiung.rot", "route": "高雄環狀輕軌" },
-    { "id": "eu-ger-berlin.orig", "route": "環狀線 Ringbahn" }
+    { "id": "eu-ger-berlin.orig", "route": "環狀線 Ringbahn" },
+    { "id": "eu-ger-berlin.rot", "route": "環狀線 Ringbahn", "via": "llm-fable5" },
+    { "id": "eu-rus-moscow.orig", "route": "5號環線 Koltsevaya＋11號大環線 BKL", "via": "llm-fable5" },
+    { "id": "eu-rus-moscow.rot", "route": "5號環線 Koltsevaya＋11號大環線 BKL", "via": "llm-fable5" }
   ],
-  "fail": [
-    {
-      "id": "as-chn-shanghai.orig",
-      "routes": ["4號線"],
-      "why": "fourLine=false；ar=1.01 onEdge=0.95"
-    },
-    {
-      "id": "as-chn-shanghai.rot",
-      "routes": ["4號線"],
-      "why": "fourLine=false；ar=1.03 onEdge=1"
-    },
-    {
-      "id": "as-jpn-osaka-jr.orig",
-      "routes": ["大阪環状線"],
-      "why": "fourLine=false（外接像方但非四邊直線）"
-    },
-    {
-      "id": "as-jpn-osaka-jr.rot",
-      "routes": ["大阪環状線"],
-      "why": "fourLine=false（外接像方但非四邊直線）"
-    },
-    {
-      "id": "as-jpn-tokyo-jr.orig",
-      "routes": ["山手線"],
-      "why": "ar=1.14 onEdge=0.92 fourLine=false"
-    },
-    {
-      "id": "as-jpn-tokyo-jr.rot",
-      "routes": ["山手線"],
-      "why": "ar=1.14 onEdge=0.92 fourLine=false"
-    },
-    {
-      "id": "as-jpn-tokyo.orig",
-      "routes": ["大江戶線環形路段"],
-      "why": "fourLine=false（外接像方但非四邊直線）"
-    },
-    {
-      "id": "as-jpn-tokyo.rot",
-      "routes": ["大江戶線環形路段"],
-      "why": "fourLine=false（外接像方但非四邊直線）"
-    },
-    {
-      "id": "as-kor-seoul.orig",
-      "routes": ["2號線循環線"],
-      "why": "ar=1.02 onEdge=0.95 fourLine=false"
-    },
-    {
-      "id": "as-kor-seoul.rot",
-      "routes": ["2號線循環線"],
-      "why": "ar=1.02 onEdge=0.95 fourLine=false"
-    },
-    {
-      "id": "as-sgp-singapore.rot",
-      "routes": ["環狀線"],
-      "why": "fourLine=false（orig 成功、rot 失敗）"
-    },
-    {
-      "id": "eu-ger-berlin.rot",
-      "routes": ["環狀線 Ringbahn"],
-      "why": "ar=1.06 fourLine=false（orig 成功、rot 失敗）"
-    },
-    {
-      "id": "eu-rus-moscow.orig",
-      "routes": ["5號環線 Koltsevaya（未成方）", "11號大環線 BKL（環標記 square 但 fourLine=false）"],
-      "why": "多環未全過；整體 square=false"
-    },
-    {
-      "id": "eu-rus-moscow.rot",
-      "routes": ["5號環線 Koltsevaya（未成方）", "11號大環線 BKL（環標記 square 但 fourLine=false）"],
-      "why": "多環未全過；整體 square=false"
-    }
-  ]
+  "fail": []
 }

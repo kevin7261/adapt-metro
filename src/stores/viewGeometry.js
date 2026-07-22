@@ -528,16 +528,50 @@ export function computeCityRwdViews(geojson, opts = {}) {
     const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
     if (llmBase) bakeCompactRwd('llm', llmBase)
 
-    // 形狀變體的 RWD 縮圖暫不預算——成方方形佈局讓 buildRwdMap 的 A* 版面繞行極慢／
-    // 掛住（正方邊 + 綠折的格點分布不利路由）。Straighten 形狀縮圖照烤（computeCityHcViews）；
-    // RWD 形狀維持畫廊「成方路線沒有算」。要開需先解 buildRwdMap 對方形佈局的效能問題。
+    // 形狀變體：成方 cells 當 base → 各鏈 → 循環 → compact＋RWD。
+    // 必須傳 frozenIds（shapeLock）——否則 A* 會繞破方形邊、極慢。
+    const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
+    if (shp) {
+      const shSk = shp.greens.length ? applyShapeGreens(skeleton, shp.greens) : skeleton
+      const frozen = shapeFrozenSet(shSk, opts.cityId, shp.greens)
+      const shSegs = mergeParallelSegs(buildHcGraph(shSk, shp.cells).segs)
+      const shSnap = (id) => grid.posAfter.get(id) ?? null
+      setFrozen({ ringIds: [...frozen], members: frozen })
+      try {
+        const bakeShapeRwd = (kind, base) => {
+          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
+          const m = cellMapper(comp.cols, comp.rows)
+          const compPos = new Map()
+          for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
+          placeBlacks(shSk, compPos, shSnap)
+          views[`compact-${kind}-${variant}-shape`] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
+          const pxPos = new Map()
+          for (const [id, cell] of comp.cellAfter) pxPos.set(id, m.cellPx(cell))
+          const rwd = buildRwdMap(shSegs, pxPos, {
+            unit: Math.min(m.cw, m.ch),
+            lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
+            frozenIds: frozen,
+          })
+          views[`rwd-${kind}-${variant}-shape`] = drawRwd(shSk, stations, rwd, m.sep)
+        }
+        for (const kind of CHAIN_KINDS) {
+          const base = CHAIN_POST[kind]
+            ? iteratePost(CHAIN_POST[kind], shSk, shp.cells, grid.cols, grid.rows).cellAfter
+            : shp.cells
+          bakeShapeRwd(kind, base)
+        }
+      } finally { setFrozen(null) }
+    }
   }
   return { W, H, tilt, canRotate, views }
 }
 
-// The RWD gallery views: 每 variant（原始→旋轉）× 每鏈（縮減網格 | RWD 路網）含 LLM。
+// The RWD gallery views: 每 variant（原始→旋轉→形狀）× 每鏈（縮減網格 | RWD 路網）含 LLM。
 export const RWD_VIEW_ORDER = ['orig', 'rot'].flatMap((v) =>
-  [...CHAIN_KINDS, 'llm'].flatMap((k) => [`compact-${k}-${v}`, `rwd-${k}-${v}`]))
+  [...CHAIN_KINDS, 'llm'].flatMap((k) => [
+    `compact-${k}-${v}`, `rwd-${k}-${v}`,
+    `compact-${k}-${v}-shape`, `rwd-${k}-${v}-shape`,
+  ]))
 
 // View id → 中文 caption for the RWD gallery（旋轉 variant 標「旋轉 N°」）.
 export function rwdViewLabels(tilt) {

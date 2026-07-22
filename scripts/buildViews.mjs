@@ -35,7 +35,9 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 48 // 48: 目錄改名對齊圖層（map-adjust/straighten/rwd-maps）＋base＝格網化後；全量重算。
+const VIEWS_VERSION = 51 // 51: 直線縮減四方向＋H/V 變多就要移（endp→loop／RWD 重烤）。
+                         // 49: RWD 形狀變體預算（frozenIds／shapeLock；square===true 才烤）。
+                         // 48: 目錄改名對齊圖層（map-adjust/straighten/rwd-maps）＋base＝格網化後；全量重算。
                          // 47: 直線演算法／循環 base＝格網化後（不再吃 HC）。
                          // 45: 全球 views/hcviews/rwdviews 強制重算（與 LLM 成方無關；llmshapes 已清空）。
                          // 43: ⑨ Shape-Guided 對齊論文 Smooth（固定 Ωc 最近點＋硬投影；非弧長）。
@@ -133,7 +135,7 @@ async function main() {
   // 無 llmshapes 時的 shape 指紋——舊檔 _fp 尚無 `:shape=` 後綴時，若本城也無
   // 成方結果，視為同等（避免為了加 shape= 後綴而全量重算 240 城）。
   const EMPTY_SHAPE_FP = strHash(JSON.stringify({
-    o: null, r: null, og: 0, rg: 0, om: null, rm: null,
+    o: null, r: null, og: 0, rg: 0, om: null, rm: null, os: false, rs: false,
   }))
 
   // 一型一城：`_fp` 未變就沿用舊檔（讀回 meta 進 catalog）、否則重算並寫入 `_fp`。
@@ -208,6 +210,7 @@ async function main() {
       o: shapeByVariant.orig?.fingerprint ?? null, r: shapeByVariant.rot?.fingerprint ?? null,
       og: (shapeByVariant.orig?.greens ?? []).length, rg: (shapeByVariant.rot?.greens ?? []).length,
       om: shapeByVariant.orig?.moved ?? null, rm: shapeByVariant.rot?.moved ?? null,
+      os: shapeByVariant.orig?.square === true, rs: shapeByVariant.rot?.square === true,
     }))
     const llmOpts = { llmByVariant, shapeByVariant, cityId: id }
 
@@ -223,7 +226,7 @@ async function main() {
     try {
       // fp 加演算法版本後綴 + llm／shape 指紋：結果更新 → 該城縮圖重算。
       // 無成方的城可沿用舊 _fp（無 :shape=）；有 llmshapes 的城因 shapeFp 變而重算。
-      const hcFp = `${fp}:hc-loop-v4:llm=${llmFp}:shape=${shapeFp}`
+      const hcFp = `${fp}:hc-loop-v5:llm=${llmFp}:shape=${shapeFp}`
       ;(await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, hcFp, true, llmOpts, shapeFp)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {
@@ -232,7 +235,7 @@ async function main() {
 
     // RWD Maps views（含 LLM 對齊 compact/rwd，有 llmviews 才寫入）
     try {
-      const rwdFp = `${fp}:rwd-loop-v6:llm=${llmFp}:shape=${shapeFp}`
+      const rwdFp = `${fp}:rwd-loop-v7:llm=${llmFp}:shape=${shapeFp}`
       ;(await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, rwdFp, false, llmOpts, shapeFp)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {

@@ -449,7 +449,7 @@ STEP 5 的 local search 由「迭代到不動點」取代。多彎路由是 RWD 
       M('line', C.orange, '橘箭頭', '平移 ±1 格', 'validShift 通過才採納、全網 H/V 不減'),
     ],
     json: { code: `// 即時算（movewise，不另存）`, note: 'movewise 三步鏈第 2 步。' },
-    algorithm: `<p>跨相交點串接的整條直線垂直平移 ±1 格，<b>嚴格縮小網格</b>、全網 H/V 不減；validShift 硬規則（不壓點/不新增交叉/拓撲不變）＋跨距上限。</p>`,
+    algorithm: `<p>跨相交點串接的整條直線上下左右平移 ±1 格；<b>H/V 變多就要移</b>，或嚴格縮小網格且 H/V 不減；validShift 硬規則（不壓點/不新增交叉/拓撲不變）＋跨距上限。</p>`,
   },
   'grid-merge': {
     title: '網格合併', tag: '視圖', skills: ['route-grid-merge', 'route-movewise-loop'],
