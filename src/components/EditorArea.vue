@@ -1,8 +1,8 @@
 <script setup>
-import { onBeforeUnmount, watch } from 'vue'
+import { onBeforeUnmount } from 'vue'
 import { DockviewVue } from 'dockview-vue'
 import { useMapStore } from '../stores/mapStore'
-import { dockHandle, openLayerTab, reopenTabById } from '../stores/dockHandle'
+import { dockHandle, reopenTabById } from '../stores/dockHandle'
 import LayerTab from './LayerTab.vue'
 import D3Tab from './D3Tab.vue'
 import AllGallery from './AllGallery.vue'
@@ -35,37 +35,37 @@ function onReady(event) {
   event.api.onDidAddGroup(relaxAll)
   event.api.onDidLayoutChange(relaxAll)
 
-  // NOTE: "selected layer" is kept in sync with the active tab by each LayerTab
-  // via its per-panel onDidActiveChange — dockview 7's api.onDidActivePanelChange
-  // is mis-wired to group changes and won't fire on same-group tab switches.
-
   // Restore exactly the tabs that were open last time (layer tabs + the 視圖畫廊
-  // fixed tab), in their saved order. `openTabIds === null` = a session from
-  // before tab-persistence existed → fall back to opening every layer. An empty
-  // array means the user had all tabs closed — honour that (open nothing).
+  // fixed tab), in their saved order. Non-active tabs open as `inactive` so
+  // only the focused panel mounts MapLibre / D3 / gallery（否則一城鏈十幾個 tab
+  // 全用 renderer:always 會把啟動拖到十幾秒）。`openTabIds === null` = legacy
+  // → 只開選中那個，不掃全部圖層。空陣列＝上次全關 → 什麼都不開。
+  const focusId = store.activeTabId
+    || store.selectedLayerId
+    || store.layers[0]?.id
+    || null
   if (Array.isArray(store.openTabIds)) {
-    for (const id of store.openTabIds) reopenTabById(id, store.layers)
-  } else {
-    for (const l of store.layers) openLayerTab(l)
-    const sel = store.layers.find((l) => l.id === store.selectedLayerId) ?? store.layers[0]
-    if (sel) openLayerTab(sel)
+    for (const id of store.openTabIds) {
+      reopenTabById(id, store.layers, { inactive: id !== focusId })
+    }
+  } else if (focusId) {
+    reopenTabById(focusId, store.layers)
   }
-  // Focus the previously-active tab if it is open (openLayerTab already focuses
-  // the last legacy tab; dockview auto-activates the last-added panel otherwise).
-  const activePanel = store.activeTabId && event.api.getPanel(store.activeTabId)
+  const activePanel = focusId && event.api.getPanel(focusId)
   if (activePanel) activePanel.api.setActive()
 
   // Keep the persisted open-tab set / active tab in sync with the live dockview.
+  // dockview 的 onDidActivePanelChange 事件是 { panel, origin }（不是 panel 本身）；
+  // 同 group 內切 tab 有時不發此事件 → 各 tab 的 onDidActiveChange 才是準的
+  // （LayerTab／D3Tab／AllGallery 各自 setActiveTab）。
   const syncOpenTabs = () => store.setOpenTabs(event.api.panels.map((pnl) => pnl.id))
   event.api.onDidAddPanel(syncOpenTabs)
   event.api.onDidRemovePanel(syncOpenTabs)
-  event.api.onDidActivePanelChange((pnl) => store.setActiveTab(pnl?.id))
+  event.api.onDidActivePanelChange(({ panel }) => {
+    if (panel?.id) store.setActiveTab(panel.id)
+  })
   syncOpenTabs()
 }
-
-// Layer tabs update selectedLayerId on activation (incl. same-group switches,
-// which onDidActivePanelChange misses) — mirror that into activeTabId.
-watch(() => store.selectedLayerId, (id) => store.setActiveTab(id))
 
 onBeforeUnmount(() => { dockHandle.api = null })
 </script>

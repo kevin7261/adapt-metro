@@ -5,7 +5,7 @@ import CITY_ZH from './cityNamesZh.json'
 import { RWD_COMPACTS } from '../lib/rwdCompacts'
 import {
   metroDisplayName, variantLabel, variantRank, normalizeHcVariant,
-  hcVariantsForCity, migrateLayerNames, backfillCityChains,
+  variantIsShape, hcVariantsForCity, migrateLayerNames, backfillCityChains,
 } from './layerMigrations'
 
 let toastTimer = null
@@ -67,10 +67,11 @@ export const useMapStore = defineStore('map', {
       return state.layers.find((l) => l.id === state.selectedLayerId) ?? null
     },
     // Panel rows: one group per CITY (root raw-map layer). Each city's rows are
-    // ordered Raw Maps → Map Adjust → [Straighten 子群組] → [RWD Maps 子群組]；
-    // Straighten（原始／旋轉；規定表城市再加原始-形狀／旋轉-形狀）與 RWD Maps
-    // 收成可收合的子群組。每筆 row 是 { kind:'layer', layer } 或
-    // { kind:'group', id, label, collapsed, layers:[] }。
+    // ordered Raw Maps → Map Adjust → [Straighten 子群組] → [RWD Maps 子群組]。
+    // 規定表城市（有 orig-shape／rot-shape）時，Straighten／RWD 再拆「無形狀／
+    // 有形狀」二級子群組（與視圖畫廊一致）；其餘城市維持單層。每筆 row 是
+    // { kind:'layer', layer } 或 { kind:'group', id, label, collapsed, layers }
+    // 或 { kind:'group', …, subgroups:[{ id, label, collapsed, layers }] }。
     layerTree(state) {
       const byId = new Map(state.layers.map((l) => [l.id, l]))
       const rootOf = (l) => {
@@ -83,6 +84,19 @@ export const useMapStore = defineStore('map', {
         return cur
       }
       const rwdVariant = (rwd) => byId.get(rwd.sourceLayerId)?.variant ?? 'orig'
+      // 有形狀變體才拆二級；否則維持 layers 單層（無「有形狀」空殼）。
+      const stageGroup = (rootId, kind, label, layers, variantOf) => {
+        const id = `${rootId}:${kind}`
+        const plain = layers.filter((l) => !variantIsShape(variantOf(l)))
+        const shape = layers.filter((l) => variantIsShape(variantOf(l)))
+        const base = { kind: 'group', id, label, collapsed: state.cityCollapsed[id] ?? true }
+        if (!shape.length) return { ...base, layers }
+        const sg = (suffix, sgLabel, ls) => ({
+          id: `${id}-${suffix}`, label: sgLabel,
+          collapsed: state.cityCollapsed[`${id}-${suffix}`] ?? true, layers: ls,
+        })
+        return { ...base, subgroups: [sg('plain', '無形狀', plain), sg('shape', '有形狀', shape)] }
+      }
 
       const cities = new Map()
       for (const l of state.layers) {
@@ -105,14 +119,8 @@ export const useMapStore = defineStore('map', {
         if (c.metro) rows.push({ kind: 'layer', layer: c.metro })
         if (c.d3) rows.push({ kind: 'layer', layer: c.d3 })
         // 子群組預設收合（避免剛匯入把整組全攤開）。城市群組本身仍預設展開。
-        if (c.hc.length) {
-          const id = `${c.root.id}:straighten`
-          rows.push({ kind: 'group', id, label: 'Straighten', collapsed: state.cityCollapsed[id] ?? true, layers: c.hc })
-        }
-        if (c.rwd.length) {
-          const id = `${c.root.id}:rwd`
-          rows.push({ kind: 'group', id, label: 'RWD Maps', collapsed: state.cityCollapsed[id] ?? true, layers: c.rwd })
-        }
+        if (c.hc.length) rows.push(stageGroup(c.root.id, 'straighten', 'Straighten', c.hc, (l) => l.variant))
+        if (c.rwd.length) rows.push(stageGroup(c.root.id, 'rwd', 'RWD Maps', c.rwd, rwdVariant))
         out.push({ group: { id: c.root.id, label: c.root.name, collapsed: !!state.cityCollapsed[c.root.id] }, rows })
       }
       return out
@@ -148,9 +156,10 @@ export const useMapStore = defineStore('map', {
       if (id) this.activeTabId = id
     },
 
-    // 圈層城市群組／子群組收合（key = root layer id 或 `${root}:straighten|rwd`；
-    // 持久化於 groupCollapsed）。子群組預設收合、城市群組預設展開，兩者預設不同，
-    // 所以由呼叫端傳入「目前顯示的 collapsed 值」取反，才不會因不同預設而點一下沒反應。
+    // 圈層城市群組／子群組收合（key = root id、`${root}:straighten|rwd`、或
+    // `${root}:straighten|rwd-plain|shape`；持久化於 groupCollapsed）。
+    // 子群組預設收合、城市群組預設展開，兩者預設不同，所以由呼叫端傳入「目前
+    // 顯示的 collapsed 值」取反，才不會因不同預設而點一下沒反應。
     setCityCollapsed(id, collapsed) {
       this.cityCollapsed = { ...this.cityCollapsed, [id]: collapsed }
     },

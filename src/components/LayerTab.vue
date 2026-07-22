@@ -197,6 +197,7 @@ onMounted(() => {
     if (active) {
       mapHandle.map = map
       store.selectedLayerId = layerId
+      store.setActiveTab(layerId) // 同 group 切 tab 時 api 事件不可靠 → 自己記 activeTabId（持久化）
     } else if (mapHandle.map === map) {
       mapHandle.map = null
     }

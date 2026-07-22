@@ -18,8 +18,8 @@ const store = useMapStore()
 
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
-// 2026-07 圈層改版：群組＝城市。Raw Maps / Map Adjust 直接列出；Straighten
-// Straighten（原始／旋轉；規定表城市再加形狀）與 RWD Maps 收成可收合子群組。
+// 2026-07 圈層改版：群組＝城市。Raw Maps / Map Adjust 直接列出；Straighten／
+// RWD Maps 收成可收合子群組；規定表城市再拆「無形狀／有形狀」。
 // 鏈名統一取自 paperAlign 的 PAPER_ZH（帶論文圈號①〜⑧）＋ LLM 對齊。
 const RWD_COMPACT_ZH = { ...PAPER_ZH, llm: 'LLM 對齊', hc: '基本' }
 const rwdVariantZh = (l) =>
@@ -38,14 +38,25 @@ function rowLabel(l) {
   if (l.type === 'd3') return 'Map Adjust'
   return baseLabel(l)
 }
-// 城市群組的 rows（layer / group）攤平成一維：sub-group header 在前、其下的
-// 圖層列（depth 1）緊接（該子群組展開時才列出）。單一 v-for 即可渲染。
+function groupLayerCount(g) {
+  if (g.subgroups) return g.subgroups.reduce((n, sg) => n + sg.layers.length, 0)
+  return g.layers?.length ?? 0
+}
+// 城市群組的 rows 攤平成一維：sub header（可巢狀）＋展開的圖層列。
 function flatRows(item) {
   const out = []
   for (const row of item.rows) {
     if (row.kind === 'layer') { out.push({ t: 'layer', key: row.layer.id, layer: row.layer, depth: 0 }); continue }
-    out.push({ t: 'sub', key: row.id, sub: row, depth: 0 })
-    if (!row.collapsed) for (const l of row.layers) out.push({ t: 'layer', key: l.id, layer: l, depth: 1 })
+    out.push({ t: 'sub', key: row.id, sub: row, depth: 0, count: groupLayerCount(row) })
+    if (row.collapsed) continue
+    if (row.subgroups) {
+      for (const sg of row.subgroups) {
+        out.push({ t: 'sub', key: sg.id, sub: sg, depth: 1, count: sg.layers.length })
+        if (!sg.collapsed) for (const l of sg.layers) out.push({ t: 'layer', key: l.id, layer: l, depth: 2 })
+      }
+    } else {
+      for (const l of row.layers) out.push({ t: 'layer', key: l.id, layer: l, depth: 1 })
+    }
   }
   return out
 }
@@ -54,6 +65,7 @@ function layersOf(item) {
   const out = []
   for (const row of item.rows) {
     if (row.kind === 'layer') out.push(row.layer)
+    else if (row.subgroups) for (const sg of row.subgroups) out.push(...sg.layers)
     else out.push(...row.layers)
   }
   return out
@@ -167,6 +179,23 @@ function toggleLayerTab(layer) {
   }
   store.selectedLayerId = layer.id
   openLayerTab(layer)
+}
+
+// 城市標題眼睛：該城任一 tab 開著 → 全關；全關 → 全開（僅聚焦第一個，其餘 inactive）。
+function cityTabsOpen(item) {
+  return layersOf(item).some(isLayerTabOpen)
+}
+function toggleCityTabs(item) {
+  const layers = layersOf(item)
+  if (!layers.length) return
+  if (layers.some(isLayerTabOpen)) {
+    for (const l of layers) dockHandle.api?.getPanel(l.id)?.api.close()
+    if (layers.some((l) => l.id === store.selectedLayerId)) store.selectedLayerId = null
+    return
+  }
+  for (let i = 0; i < layers.length; i++) openLayerTab(layers[i], { inactive: i > 0 })
+  store.selectedLayerId = layers[0].id
+  dockHandle.api?.getPanel(layers[0].id)?.api.setActive()
 }
 
 // Overflow 選單動作（lookup table；template 傳常數字串）。
@@ -418,6 +447,14 @@ onBeforeUnmount(() => {
               <MIcon name="autorenew" :size="14" />
             </button>
             <button
+              class="btn-icon group-add"
+              :class="{ active: cityTabsOpen(item) }"
+              :title="cityTabsOpen(item) ? '關閉此城市全部圖層分頁' : '開啟此城市全部圖層分頁'"
+              @click.stop="toggleCityTabs(item)"
+            >
+              <MIcon :name="cityTabsOpen(item) ? 'visibility' : 'visibility_off'" :size="14" />
+            </button>
+            <button
               class="btn-icon group-add group-del"
               title="刪除此城市全部圖層"
               @click.stop="removeCityLayers(item)"
@@ -427,25 +464,26 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- 城市的管線列：Raw Maps / Map Adjust 直接列出；Straighten / RWD
-               Maps 為可收合子群組（flatRows 已攤平：sub header + 展開的圖層列） -->
+               Maps 為可收合子群組（規定表城市再拆無形狀／有形狀） -->
           <template v-if="!item.group.collapsed">
             <template v-for="row in flatRows(item)" :key="row.key">
-              <!-- 子群組標題（Straighten / RWD Maps）：可收合 -->
+              <!-- 子群組標題（Straighten / RWD／無形狀／有形狀）：可收合 -->
               <div
                 v-if="row.t === 'sub'"
                 class="subgroup-header"
+                :class="{ nested: row.depth > 0 }"
                 @click="store.setCityCollapsed(row.sub.id, !row.sub.collapsed)"
               >
                 <MIcon :name="row.sub.collapsed ? 'chevron_right' : 'expand_more'" :size="13" class="sub-chevron" />
                 <span class="subgroup-name">{{ row.sub.label }}</span>
-                <span class="subgroup-count">{{ row.sub.layers.length }}</span>
+                <span class="subgroup-count">{{ row.count }}</span>
               </div>
 
-              <!-- 圖層列（子群組內的 depth 1 縮排） -->
+              <!-- 圖層列（子群組內 depth≥1 縮排） -->
               <div
                 v-else
                 class="layer-row"
-                :class="{ selected: store.selectedLayerId === row.layer.id, nested: row.depth > 0 }"
+                :class="{ selected: store.selectedLayerId === row.layer.id, nested: row.depth > 0, deep: row.depth > 1 }"
                 @click="openLayer(row.layer)"
               >
                 <div class="layer-title">
@@ -669,7 +707,7 @@ onBeforeUnmount(() => {
 .group-add:hover, .group-add.active { color: hsl(var(--primary)); background: hsl(var(--primary) / 0.14); }
 .group-del:hover { color: hsl(var(--destructive)); background: hsl(var(--destructive) / 0.12); }
 
-/* 子群組標題（Straighten / RWD Maps）：可收合，縮排一層對齊子群組列 */
+/* 子群組標題（Straighten / RWD Maps／無形狀／有形狀）：可收合 */
 .subgroup-header {
   display: flex;
   align-items: center;
@@ -679,6 +717,7 @@ onBeforeUnmount(() => {
   cursor: pointer;
   user-select: none;
 }
+.subgroup-header.nested { padding-left: 18px; }
 .subgroup-header:hover { background: hsl(var(--accent)); }
 .sub-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
 .subgroup-name {
@@ -709,12 +748,13 @@ onBeforeUnmount(() => {
   background: hsl(var(--card) / 0.55);
   transition: background 0.08s ease, border-color 0.08s ease;
 }
-/* 子群組內的圖層列：縮排，左緣加一條線標示層級 */
+/* 子群組內的圖層列：縮排＋整圈細邊框（不要只加粗左邊） */
 .layer-row.nested {
   margin-left: 10px;
-  border-left: 2px solid hsl(var(--border));
+  border: 1px solid hsl(var(--border));
   background: transparent;
 }
+.layer-row.nested.deep { margin-left: 20px; }
 .layer-row:hover { background: hsl(var(--accent)); }
 /* Active layer = the layer shown in the active editor tab. */
 .layer-row.selected {

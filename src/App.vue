@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { useMapStore } from './stores/mapStore'
-import { schedulePersist, restoreLayerData } from './stores/persist'
+import { schedulePersist, flushPersist, restoreLayerData } from './stores/persist'
 import TopToolbar from './components/TopToolbar.vue'
 import LayerPanel from './components/LayerPanel.vue'
 import EditorArea from './components/EditorArea.vue'
@@ -46,8 +46,21 @@ function isTyping(e) {
   const t = e.target
   return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)
 }
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+// 重新整理／關分頁前把 openTabIds／activeTabId（含視圖畫廊）立刻寫進 localStorage，
+// 免得 debounce 300ms 來不及。
+function onLeave() { flushPersist(store) }
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  window.addEventListener('beforeunload', onLeave)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') onLeave()
+  })
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('beforeunload', onLeave)
+  onLeave()
+})
 </script>
 
 <template>

@@ -2084,6 +2084,15 @@ async function render() {
     if (!layout) return // superseded mid-compute — the newer render draws
     ;({ hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton, meshLines, guideBoxPx } = layout)
   }
+  // 成方圖層但成方尚未算（shapeNoCompute）：畫布已在上方清空，這裡直接收工、不畫任何
+  // 線／站——否則 hcPos=null 會落回底圖（格網／地理）座標，把「之前的路線」畫成殘跡。
+  // 只留 overlay「成方路線沒有算」提示（見 template 的 v-else-if="shapeNoCompute"）。
+  if (shapeNoCompute.value) {
+    layerExport[layerId] = sceneToGeojson([], [], w, h, layer.value?.type ?? 'd3')
+    applyStyle()
+    if (zoomBehavior && !fisheyeActive()) select(svg).call(zoomBehavior.transform, zoomIdentity)
+    return
+  }
   const skDraw = drawSkeleton || sk
   // 形狀圖層全鏈（⑨／直線演算法／循環／RWD Maps）：規定 ring＋綠折 → 灰白邊襯底。
   // RWD 圖層 isHC=false 但 isShapeLayer 仍為真（源頭 HC 是 orig-shape）→ 一併涵蓋。
@@ -2590,7 +2599,12 @@ onMounted(() => {
 
   // Active tab keeps the layer-list highlight in sync (same per-panel event as
   // LayerTab — dockview 7's api-level active-panel event is unreliable).
-  const setActive = (active) => { if (active) store.selectedLayerId = layerId }
+  // 同時寫 activeTabId，reload 才能還原「目前開著／聚焦」的 tab（含切到畫廊再切回）。
+  const setActive = (active) => {
+    if (!active) return
+    store.selectedLayerId = layerId
+    store.setActiveTab(layerId)
+  }
   disposables.push(panelApi.onDidActiveChange(({ isActive }) => setActive(isActive)))
   setActive(panelApi.isActive)
 

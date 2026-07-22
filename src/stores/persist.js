@@ -62,6 +62,13 @@ export function schedulePersist(store) {
   timer = setTimeout(() => savePersisted(store), 300)
 }
 
+/** 立刻寫入（beforeunload／頁面隱藏時用，避免 300ms debounce 來不及）。 */
+export function flushPersist(store) {
+  clearTimeout(timer)
+  timer = null
+  try { savePersisted(store) } catch { /* ignore */ }
+}
+
 // Re-seed layerData for file-imported D3 views before their tabs open.
 export function restoreLayerData() {
   const snap = loadPersisted()
