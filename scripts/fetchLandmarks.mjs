@@ -1,5 +1,5 @@
 // Fetch city landmark polygons (rivers / palace / park) as standalone GeoJSON
-// under data/metro/landmarks/ — a separate layer from the metro map geojson.
+// under data/metro/metro-landmarks/ — a separate layer from the metro map geojson.
 // Does NOT touch the metro pipeline; see .claude/skills/landmark-osm-fetch/SKILL.md.
 //
 // Usage: node scripts/fetchLandmarks.mjs [cityId ...] [--refresh]
@@ -11,7 +11,7 @@ import * as overpass from './overpass.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
-const SYSTEMS = join(ROOT, 'data', 'metro', 'systems')
+const SYSTEMS = join(ROOT, 'data', 'metro', 'metro-maps')
 const OUT = join(ROOT, 'data', 'metro', 'landmarks')
 
 // Per-city landmark spec.

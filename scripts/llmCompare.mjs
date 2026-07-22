@@ -20,7 +20,7 @@ import { PAPER_BUILD, PAPER_ZH, PAPER_KINDS } from '../src/stores/paperAlign.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
-const OUT = join(DATA, 'llmcompares')
+const OUT = join(DATA, 'rwd-compare')
 const POST = { ...PAPER_BUILD }
 const NAMES = { llm: 'LLM對齊', ...PAPER_ZH }
 const COMPACTS = [...PAPER_KINDS.map((p) => p.kind), 'llm']
@@ -37,7 +37,7 @@ if (cmd === 'reset') {
   process.exit(0)
 }
 
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const lines = geojson.features.filter((f) => f.geometry?.type !== 'Point')
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
@@ -64,7 +64,7 @@ async function candidatesFor(variant) {
     let base
     if (POST[compact]) base = iteratePost(POST[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
     else {
-      const f = join(DATA, 'llmviews', `${cityId}.${variant}.json`)
+      const f = join(DATA, 'straighten-llm', `${cityId}.${variant}.json`)
       if (!existsSync(f)) return null
       const j = JSON.parse(await readFile(f, 'utf8'))
       base = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))

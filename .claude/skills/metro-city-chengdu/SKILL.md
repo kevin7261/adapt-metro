@@ -5,7 +5,7 @@ description: 成都地鐵資料的城市專屬規則——18/10/17/2 號線 wiki
 
 # 成都城市專屬規則
 
-檔名 `systems/asia/china/as-chn-chengdu.geojson`。
+檔名 `metro-maps/asia/china/as-chn-chengdu.geojson`。
 
 ## 逐線 wiki 站數裁決（`wiki_adjudications.json`）
 

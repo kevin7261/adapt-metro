@@ -1,7 +1,7 @@
 // LLM 對齊 (第四種 H/V 後處理) 的 CLI — 由 Claude Code 依 skill
 // route-llm-align 驅動：export 印出目前佈局給 LLM 讀、LLM 提出 moves、
 // apply 把提案經與其他三種完全相同的硬規則 (applyLlmTargets) 套用並存檔，
-// 網頁端 (D3Tab 的「LLM 對齊」tab) 只載入 data/metro/llmviews/ 的結果。
+// 網頁端 (D3Tab 的「LLM 對齊」tab) 只載入 data/metro/straighten-llm/ 的結果。
 //
 //   node scripts/llmAlign.mjs export <cityId> <orig|rot>
 //   node scripts/llmAlign.mjs apply  <cityId> <orig|rot> <moves.json>
@@ -33,7 +33,7 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
-const OUT = join(DATA, 'llmviews')
+const OUT = join(DATA, 'straighten-llm')
 
 // `--prompt` 旗標＝「指定對齊」（依使用者一句話），寫到獨立的 .prompt.json，與
 // 「自動對齊」（純最大化 H/V，寫 .json）完全分開、互不覆蓋。旗標可放任意位置。
@@ -49,8 +49,10 @@ if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
 const outFile = join(OUT, `${cityId}.${variant}${isPrompt ? '.prompt' : ''}.json`)
 
 // ---- rebuild the deterministic chain (mirror of D3Tab / viewGeometry) ----
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
-const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
+const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
+const sys = (index.systems ?? []).find((s) => (s.file || '').split('/').pop()?.replace(/\.geojson$/, '') === cityId)
+if (!sys) { console.error(`index.json 找不到城市 ${cityId}`); process.exit(1) }
+const geojson = JSON.parse(await readFile(join(DATA, sys.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
 const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }

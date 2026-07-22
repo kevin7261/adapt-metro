@@ -364,7 +364,7 @@ const systemForMap = computed(() => layer.value ? {
                  詳細欄位與座標系統說明，對所有 metro 圖層常駐（可折疊）。 -->
             <div class="section-title">資料儲存方式</div>
             <details class="data-format">
-              <summary><b>GeoJSON</b>：原始地理資料（<code>systems/&lt;洲&gt;/&lt;國&gt;/&lt;洲2碼&gt;-&lt;IOC3碼&gt;-&lt;城&gt;.geojson</code>）</summary>
+              <summary><b>GeoJSON</b>：原始地理資料（<code>metro-maps/&lt;洲&gt;/&lt;國&gt;/&lt;洲2碼&gt;-&lt;IOC3碼&gt;-&lt;城&gt;.geojson</code>＝Metro Maps）</summary>
               <div class="df-body">
                 <p>
                   標準 <code>FeatureCollection</code>，另加一個非標準頂層 <code>metro_system</code>
@@ -429,11 +429,13 @@ const systemForMap = computed(() => layer.value ? {
                   值含 <code>lines</code>（每條 <code>{ d: SVG path 字串, color }</code>）與對應點資料。
                 </p>
                 <p>
-                  各後續演算法階段另存於平行資料夾：
-                  <code>hcviews/</code>（Straighten／爬山法）、
-                  <code>rwdviews/</code>（RWD 版面）、
-                  <code>llmviews/</code>（LLM 對齊）、
-                  <code>llmevals/</code>／<code>llmgrids/</code>（LLM 評價／互動）；
+                  各後續演算法階段資料夾名＝圖層名：
+                  <code>map-adjust/</code>（Map Adjust）、
+                  <code>straighten/</code>（Straighten 畫廊）、
+                  <code>rwd-maps/</code>（RWD Maps 畫廊）、
+                  <code>straighten-llm/</code>（LLM 對齊）、
+                  <code>straighten-shape/</code>（LLM 成方）、
+                  <code>straighten-cells/</code>（互動整數格）；
                   <code>index.json</code> 存全站系統清單與覆蓋率統計。
                 </p>
               </div>

@@ -60,9 +60,14 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 |---|---|
 | `metro_lines.geojson` | 全球所有**路段**（MultiLineString，重疊已去重，`routes` list 記行經路線） |
 | `metro_stations.geojson` | 全球所有地鐵**車站**（Point，共站已合併） |
-| `systems/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 每個城市/系統一個檔；**資料夾用全名**（洲：asia/europe/americas（北美南美合併）/africa/oceania，**不會有 unknown**——定位不到城市的雜訊不輸出；國家 slug 全名），**檔名用代碼**（洲 2 碼 as/eu/am/af/oc＋國家奧運 IOC 3 碼小寫，台灣 twn（ISO，使用者指定）、德國 ger…，對照表 `scripts/countryCodes.mjs`），例如 `systems/asia/taiwan/as-twn-taipei.geojson`；含該系統的路段+車站，並附系統中繼資料 |
-| `systems/…/{城}-{jr\|lm\|lrt}.geojson` | **additive／split 變體系統**（由獨立後處理腳本產出、buildGeojson 不刪）：`-jr`＝城市＋JR 環線（`buildJrCombined.mjs`）、`-lm`＝城市＋地標（`buildLandmarkCombined.mjs`）、`-lrt`＝新加坡＋LRT＋Sentosa Express（`buildSingaporeVariants.mjs`；同時把 base `as-sgp-singapore` 覆寫成純 MRT） |
-| `tracks/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 與 `systems/` 同路徑命名的**實際 OSM 軌道 way**（LineString）；僅供地圖底下的可選 25% 透明圖層，絕不取代站序 network |
+| `metro-maps/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.geojson` | 每個城市/系統一個檔；**資料夾用全名**（洲：asia/europe/americas（北美南美合併）/africa/oceania，**不會有 unknown**——定位不到城市的雜訊不輸出；國家 slug 全名），**檔名用代碼**（洲 2 碼 as/eu/am/af/oc＋國家奧運 IOC 3 碼小寫，台灣 twn（ISO，使用者指定）、德國 ger…，對照表 `scripts/countryCodes.mjs`），例如 `metro-maps/asia/taiwan/as-twn-taipei.geojson`；含該系統的路段+車站，並附系統中繼資料 |
+| `metro-maps/…/{城}-{jr\|lm\|lrt}.geojson` | **additive／split 變體系統**（由獨立後處理腳本產出、buildGeojson 不刪）：`-jr`＝城市＋JR 環線（`buildJrCombined.mjs`）、`-lm`＝城市＋地標（`buildLandmarkCombined.mjs`）、`-lrt`＝新加坡＋LRT＋Sentosa Express（`buildSingaporeVariants.mjs`；同時把 base `as-sgp-singapore` 覆寫成純 MRT） |
+| `metro-tracks/`、`metro-tracks-center/` | 與 metro-maps 同路徑的實際 OSM 軌道／中線 |
+| `map-adjust/<城>.json` | **Map Adjust** 畫廊 |
+| `straighten/<城>.json` | **Straighten** 畫廊 |
+| `rwd-maps/<城>.json` | **RWD Maps** 畫廊 |
+| `straighten-cells/`、`straighten-llm/`、`straighten-shape/` | Straighten 互動格／LLM 對齊／LLM 成方 |
+| `rwd-llmeval/`、`rwd-llmgrid/`、`rwd-compare/` | RWD LLM 評價／互動／比較 |
 | `index.json` | 所有系統清單、統計、以及 Wikipedia 有但 OSM 未比對到的系統（覆蓋率報告） |
 | `maps/{洲全名}/{國全名}/{洲2碼}-{IOC3碼}-{城}.{png\|svg}` | 各系統**官方路網示意圖圖片**（與 systems/ 同名不同副檔名），另有 `maps/maps_index.json` 記錄每張圖的出處與授權。由 `npm run metro:maps` 下載 |
 | `verify_report.json` / `.md` | 對照 Wikipedia/urbanrail 的**驗證報告**：不變式違規（`missing` 缺城市／`no_line` 車站無路線／`order` 站序可疑）＋站數落差待查清單，由 `npm run metro:verify` 產出，見 skill `metro-audit` |
@@ -100,7 +105,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 > 每站輸出**完全相同的欄位集**（缺值 null/false）——223 城的顯示表格全球一致。
 
-**系統中繼資料（每個 `systems/*.geojson` 的 `metro_system` 欄位）:**
+**系統中繼資料（每個 `metro-maps/*.geojson` 的 `metro_system` 欄位）:**
 `continent`, `country`, `city`, `osm_networks`（合併進此城市的 OSM network 清單）, `operator`,
 `official_website`, `official_map`, `wikidata`,
 `line_count`（route 數）, `segment_count`（路段 feature 數）, `station_count`,
@@ -113,7 +118,7 @@ npm run metro:verify   # 對照 Wikipedia/urbanrail 全量報告 -> verify_repor
 
 官方路網示意圖（schematic diagram）是圖片，**無法內嵌進 GeoJSON**，因此分兩種形式提供：
 
-1. **地理版的地圖**＝這些路線的站序示意線形與車站座標（在 `metro_lines.geojson` / `systems/**`，可直接畫在地圖上）；
+1. **地理版的地圖**＝這些路線的站序示意線形與車站座標（在 `metro_lines.geojson` / `metro-maps/**`，可直接畫在地圖上）；
    每個系統的 `metro_system.official_map` 另存該系統 Wikipedia 連結、`official_website` 存營運單位官網。
 2. **官方示意圖圖片本身**＝存在 `maps/{洲}/{國}/*.png|svg`，由 `npm run metro:maps` 從
    Wikimedia（Wikidata `P15` route map → Commons）下載，出處與**授權**記在 `maps/maps_index.json`。

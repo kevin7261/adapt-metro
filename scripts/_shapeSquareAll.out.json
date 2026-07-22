@@ -1,5 +1,89 @@
 [
   {
+    "city": "as-jpn-tokyo-jr",
+    "variant": "orig",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "山手線",
+        "square": false,
+        "q": {
+          "ar": 1.14,
+          "onEdge": 0.92,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-jpn-tokyo-jr",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "山手線",
+        "square": false,
+        "q": {
+          "ar": 1.14,
+          "onEdge": 0.92,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-sgp-singapore",
+    "variant": "orig",
+    "status": "ok",
+    "square": true,
+    "via": "greedy",
+    "crosses": "0→0"
+  },
+  {
+    "city": "as-sgp-singapore",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "環狀線",
+        "square": false,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-jpn-tokyo",
+    "variant": "orig",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "大江戶線環形路段",
+        "square": false,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
     "city": "as-jpn-tokyo",
     "variant": "rot",
     "status": "fail",
@@ -10,6 +94,246 @@
       {
         "route": "大江戶線環形路段",
         "square": false,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-twn-kaohsiung",
+    "variant": "orig",
+    "status": "ok",
+    "square": true,
+    "via": "greedy",
+    "crosses": "0→0"
+  },
+  {
+    "city": "as-twn-kaohsiung",
+    "variant": "rot",
+    "status": "ok",
+    "square": true,
+    "via": "greedy",
+    "crosses": "0→0"
+  },
+  {
+    "city": "as-jpn-osaka-jr",
+    "variant": "orig",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "大阪環状線",
+        "square": false,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-jpn-osaka-jr",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "大阪環状線",
+        "square": false,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-kor-seoul",
+    "variant": "orig",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "2號線循環線",
+        "square": false,
+        "q": {
+          "ar": 1.02,
+          "onEdge": 0.95,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-kor-seoul",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "2號線循環線",
+        "square": false,
+        "q": {
+          "ar": 1.02,
+          "onEdge": 0.95,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-chn-shanghai",
+    "variant": "orig",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "4號線",
+        "square": false,
+        "q": {
+          "ar": 1.01,
+          "onEdge": 0.95,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-chn-shanghai",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "4號線",
+        "square": false,
+        "q": {
+          "ar": 1.03,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "as-chn-beijing",
+    "variant": "orig",
+    "status": "ok",
+    "square": true,
+    "via": "greedy",
+    "crosses": "0→0"
+  },
+  {
+    "city": "as-chn-beijing",
+    "variant": "rot",
+    "status": "ok",
+    "square": true,
+    "via": "greedy",
+    "crosses": "0→0"
+  },
+  {
+    "city": "eu-ger-berlin",
+    "variant": "orig",
+    "status": "ok",
+    "square": true,
+    "via": "batch",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "環狀線 Ringbahn",
+        "square": true,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "eu-ger-berlin",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "環狀線 Ringbahn",
+        "square": false,
+        "q": {
+          "ar": 1.06,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "eu-rus-moscow",
+    "variant": "orig",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "5號環線 Koltsevaya",
+        "square": false,
+        "q": {
+          "ar": 1.02,
+          "onEdge": 1,
+          "sides": 4
+        }
+      },
+      {
+        "route": "11號大環線 BKL",
+        "square": true,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      }
+    ]
+  },
+  {
+    "city": "eu-rus-moscow",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "5號環線 Koltsevaya",
+        "square": false,
+        "q": {
+          "ar": 1,
+          "onEdge": 1,
+          "sides": 4
+        }
+      },
+      {
+        "route": "11號大環線 BKL",
+        "square": true,
         "q": {
           "ar": 1,
           "onEdge": 1,

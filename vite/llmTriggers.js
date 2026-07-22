@@ -13,14 +13,14 @@ export function llmAlignTrigger() {
       // job key 完全分開，互不覆蓋、互不影響。
       const kind = b.kind === 'prompt' ? 'prompt' : 'auto'
       const suffix = kind === 'prompt' ? '.prompt' : ''
-      const outFile = `data/metro/llmviews/${b.city}.${b.variant}${suffix}.json`
+      const outFile = `data/metro/straighten-llm/${b.city}.${b.variant}${suffix}.json`
       // base＝「LLM 對齊主視圖目前顯示的佈局」（hc/auto/prompt）。每次執行都以它為
       // 起點（使用者裁決「以目前顯示的為主」）——handler 在 spawn 前把顯示的那份檔
       // seed 進 outFile：base=auto/prompt → 複製該檔；base=hc → 清掉 outFile 從 HC 起。
       // base 就是本 kind 自己（顯示的正是自己）→ 不動、接著自己 refine。
       const base = ['auto', 'prompt', 'hc'].includes(b.base) ? b.base : 'hc'
-      const baseFile = base === 'auto' ? `data/metro/llmviews/${b.city}.${b.variant}.json`
-        : base === 'prompt' ? `data/metro/llmviews/${b.city}.${b.variant}.prompt.json` : null
+      const baseFile = base === 'auto' ? `data/metro/straighten-llm/${b.city}.${b.variant}.json`
+        : base === 'prompt' ? `data/metro/straighten-llm/${b.city}.${b.variant}.prompt.json` : null
       const seedFrom = (baseFile && baseFile !== outFile) ? baseFile : null
       const resetOut = base === 'hc'
       // Optional user steering: a free-text instruction typed in the panel that
@@ -55,8 +55,8 @@ export function llmShapeTrigger() {
     prefix: '/llm-shape',
     cmdEnv: 'LLM_SHAPE_CMD',
     clearFiles: (city) => [
-      `data/metro/llmshapes/${city}.orig.json`,
-      `data/metro/llmshapes/${city}.rot.json`,
+      `data/metro/straighten-shape/${city}.orig.json`,
+      `data/metro/straighten-shape/${city}.rot.json`,
     ],
     validate(b) {
       if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
@@ -65,7 +65,7 @@ export function llmShapeTrigger() {
       // 每次「開始 LLM 成方」都 resetOut——清舊檔再算；沒按就不算、不餵下游。
       return {
         key: `${b.city}.${b.variant}.shape`,
-        outFile: `data/metro/llmshapes/${b.city}.${b.variant}.json`,
+        outFile: `data/metro/straighten-shape/${b.city}.${b.variant}.json`,
         resetOut: true,
         prompt: `使用 route-llm-shape skill：幫城市 ${b.city}（變體 ${b.variant}）用 LLM 把規定路段收成`
           + '四邊直線正方（isFourLineSquare），是 Shape-Guided（⑨）的 LLM 版。'
@@ -91,7 +91,7 @@ export function llmGridTrigger() {
         : '把路網最密集的核心區域拉開（放大），外圍相對壓縮'
       return {
         key: `${b.city}.${b.variant}.${compact}`,
-        outFile: `data/metro/llmgrids/${b.city}.${b.variant}.${compact}.json`,
+        outFile: `data/metro/rwd-llmgrid/${b.city}.${b.variant}.${compact}.json`,
         userPrompt,
         prompt: `使用 route-llm-grid skill：幫城市 ${b.city}（變體 ${b.variant}，縮減 ${compact}）依使用者的一句話`
           + '推理路網網格每個 X 欄與 Y 列區間的顯示權重（export → 推理 → apply 存檔）。'
@@ -114,7 +114,7 @@ export function llmEvalTrigger() {
       const userPrompt = typeof b.userPrompt === 'string' ? b.userPrompt.trim().slice(0, 1000) : ''
       return {
         key: `${b.city}.${b.variant}.${compact}`,
-        outFile: `data/metro/llmevals/${b.city}.${b.variant}.${compact}.json`,
+        outFile: `data/metro/rwd-llmeval/${b.city}.${b.variant}.${compact}.json`,
         userPrompt,
         prompt: `使用 route-llm-eval skill：幫城市 ${b.city}（變體 ${b.variant}，縮減 ${compact}）產生或更新 LLM 評價`
           + '（export 讀佈局幾何 → 寫評價＋moves → apply 存檔）。評價不修改佈局；'
@@ -137,7 +137,7 @@ export function llmCompareTrigger() {
       if (!/^[\w-]+$/.test(b.city ?? '')) return null
       return {
         key: b.city,
-        outFile: `data/metro/llmcompares/${b.city}.json`,
+        outFile: `data/metro/rwd-compare/${b.city}.json`,
         prompt: `使用 route-llm-compare skill：一次比較城市 ${b.city} 的原始＋旋轉 RWD Maps 候選（最多 18 個：①筆畫法／②直角爬山／③MILP規劃／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT規劃／若存在則 LLM對齊 × 原始／旋轉）。先執行 llmCompare.mjs export，依方正、路線直、轉折少、畫面平衡及 forced/fallback 缺陷做判斷；summary／winnerReason／winnerOrigReason／winnerRotReason／每個候選的 strengths／weaknesses 一律用字串陣列條列（每點一句短話）；必須選出 winner（全體最佳）、winnerOrig（原始最佳）、winnerRot（旋轉最佳），id 形如 orig.rect／rot.milp。用 llmCompare.mjs apply 存檔，絕不修改任何候選佈局。`,
       }
     },

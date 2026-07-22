@@ -12,7 +12,8 @@ const inputEl = ref(null)
 
 const commands = [
   { group: 'Project', title: 'New Project…', icon: 'note_add', run: () => (store.ui.dialog = 'new-project') },
-  { group: 'Project', title: 'Save Project', icon: 'save', shortcut: '⌘S', run: () => store.fake('Save') },
+  { group: 'Project', title: 'Save Project', icon: 'save', shortcut: '⌘S', run: () => store.saveProject() },
+  { group: 'Project', title: 'Open Project…', icon: 'folder_open', shortcut: '⌘O', run: () => store.pickOpenProject() },
   { group: 'Project', title: 'Share Project…', icon: 'share', run: () => store.fake('Share') },
   { group: 'Add Data', title: 'Add Vector Layer…', icon: 'data_object', run: () => (store.ui.dialog = 'add-data') },
   { group: 'Add Data', title: 'Add WMS / WMTS…', icon: 'dns', run: () => (store.ui.dialog = 'add-data') },

@@ -7,7 +7,7 @@
   "station_total": 17230,
   "systems": [
     {
-      "file": "systems/americas/united-states/am-usa-new-york-city.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-new-york-city.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "New York City",
@@ -113,7 +113,7 @@
       }
     },
     {
-      "file": "systems/europe/united-kingdom/eu-gbr-london.geojson",
+      "file": "metro-maps/europe/united-kingdom/eu-gbr-london.geojson",
       "continent": "europe",
       "country": "United Kingdom",
       "city": "London",
@@ -235,7 +235,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-berlin.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-berlin.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Berlin",
@@ -341,7 +341,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-frankfurt.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-frankfurt.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Frankfurt",
@@ -437,7 +437,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-munich.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-munich.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Munich",
@@ -544,7 +544,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-tokyo.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-tokyo.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Tokyo",
@@ -702,7 +702,7 @@
       }
     },
     {
-      "file": "systems/europe/france/eu-fra-paris.geojson",
+      "file": "metro-maps/europe/france/eu-fra-paris.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Paris",
@@ -817,7 +817,7 @@
       }
     },
     {
-      "file": "systems/oceania/australia/oc-aus-sydney.geojson",
+      "file": "metro-maps/oceania/australia/oc-aus-sydney.geojson",
       "continent": "oceania",
       "country": "Australia",
       "city": "Sydney",
@@ -921,7 +921,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-dusseldorf.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-dusseldorf.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Dusseldorf",
@@ -1013,7 +1013,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-chongqing.geojson",
+      "file": "metro-maps/asia/china/as-chn-chongqing.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Chongqing",
@@ -1122,7 +1122,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shanghai.geojson",
+      "file": "metro-maps/asia/china/as-chn-shanghai.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Shanghai",
@@ -1236,7 +1236,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shenzhen.geojson",
+      "file": "metro-maps/asia/china/as-chn-shenzhen.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Shenzhen",
@@ -1348,7 +1348,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-seoul.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-seoul.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Seoul",
@@ -1485,7 +1485,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-beijing.geojson",
+      "file": "metro-maps/asia/china/as-chn-beijing.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Beijing",
@@ -1604,7 +1604,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-chicago.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-chicago.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Chicago",
@@ -1713,7 +1713,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-hong-kong.geojson",
+      "file": "metro-maps/asia/china/as-chn-hong-kong.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Hong Kong",
@@ -1824,7 +1824,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-chengdu.geojson",
+      "file": "metro-maps/asia/china/as-chn-chengdu.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Chengdu",
@@ -1934,7 +1934,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-guangzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-guangzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Guangzhou",
@@ -2050,7 +2050,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-nuremberg.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-nuremberg.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Nuremberg",
@@ -2160,7 +2160,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-hangzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-hangzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Hangzhou",
@@ -2283,7 +2283,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-hamburg.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-hamburg.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Hamburg",
@@ -2392,7 +2392,7 @@
       }
     },
     {
-      "file": "systems/europe/spain/eu-esp-madrid.geojson",
+      "file": "metro-maps/europe/spain/eu-esp-madrid.geojson",
       "continent": "europe",
       "country": "Spain",
       "city": "Madrid",
@@ -2496,7 +2496,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-hiroshima.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-hiroshima.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Hiroshima",
@@ -2590,7 +2590,7 @@
       }
     },
     {
-      "file": "systems/asia/taiwan/as-twn-taipei.geojson",
+      "file": "metro-maps/asia/taiwan/as-twn-taipei.geojson",
       "continent": "asia",
       "country": "Taiwan",
       "city": "Taipei",
@@ -2712,7 +2712,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-moscow.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-moscow.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Moscow",
@@ -2813,7 +2813,7 @@
       }
     },
     {
-      "file": "systems/asia/singapore/as-sgp-singapore.geojson",
+      "file": "metro-maps/asia/singapore/as-sgp-singapore.geojson",
       "continent": "asia",
       "country": "Singapore",
       "city": "Singapore",
@@ -2851,7 +2851,7 @@
       "audit": null
     },
     {
-      "file": "systems/europe/spain/eu-esp-barcelona.geojson",
+      "file": "metro-maps/europe/spain/eu-esp-barcelona.geojson",
       "continent": "europe",
       "country": "Spain",
       "city": "Barcelona",
@@ -2960,7 +2960,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-wuhan.geojson",
+      "file": "metro-maps/asia/china/as-chn-wuhan.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Wuhan",
@@ -3072,7 +3072,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-boston.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-boston.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Boston",
@@ -3180,7 +3180,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-tianjin.geojson",
+      "file": "metro-maps/asia/china/as-chn-tianjin.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Tianjin",
@@ -3288,7 +3288,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-nanjing.geojson",
+      "file": "metro-maps/asia/china/as-chn-nanjing.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Nanjing",
@@ -3397,7 +3397,7 @@
       }
     },
     {
-      "file": "systems/europe/sweden/eu-swe-stockholm.geojson",
+      "file": "metro-maps/europe/sweden/eu-swe-stockholm.geojson",
       "continent": "europe",
       "country": "Sweden",
       "city": "Stockholm",
@@ -3497,7 +3497,7 @@
       }
     },
     {
-      "file": "systems/europe/norway/eu-nor-oslo.geojson",
+      "file": "metro-maps/europe/norway/eu-nor-oslo.geojson",
       "continent": "europe",
       "country": "Norway",
       "city": "Oslo",
@@ -3597,7 +3597,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-zhengzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-zhengzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Zhengzhou",
@@ -3706,7 +3706,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-washington-d-c.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-washington-d-c.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Washington, D.C.",
@@ -3808,7 +3808,7 @@
       }
     },
     {
-      "file": "systems/europe/spain/eu-esp-xirivella.geojson",
+      "file": "metro-maps/europe/spain/eu-esp-xirivella.geojson",
       "continent": "europe",
       "country": "Spain",
       "city": "Xirivella",
@@ -3904,7 +3904,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-delhi.geojson",
+      "file": "metro-maps/asia/india/as-ind-delhi.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Delhi",
@@ -4012,7 +4012,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-los-angeles.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-los-angeles.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Los Angeles",
@@ -4109,7 +4109,7 @@
       }
     },
     {
-      "file": "systems/asia/turkey/as-tur-istanbul.geojson",
+      "file": "metro-maps/asia/turkey/as-tur-istanbul.geojson",
       "continent": "asia",
       "country": "Turkey",
       "city": "Istanbul",
@@ -4225,7 +4225,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-osaka.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-osaka.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Osaka",
@@ -4332,7 +4332,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-suzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-suzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Suzhou",
@@ -4442,7 +4442,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-san-francisco-bay-area.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-san-francisco-bay-area.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "San Francisco (Bay Area)",
@@ -4544,7 +4544,7 @@
       }
     },
     {
-      "file": "systems/americas/mexico/am-mex-mexico-city.geojson",
+      "file": "metro-maps/americas/mexico/am-mex-mexico-city.geojson",
       "continent": "north-america",
       "country": "Mexico",
       "city": "Mexico City",
@@ -4652,7 +4652,7 @@
       }
     },
     {
-      "file": "systems/americas/chile/am-chi-santiago.geojson",
+      "file": "metro-maps/americas/chile/am-chi-santiago.geojson",
       "continent": "south-america",
       "country": "Chile",
       "city": "Santiago",
@@ -4759,7 +4759,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-xi-an.geojson",
+      "file": "metro-maps/asia/china/as-chn-xi-an.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Xi'an",
@@ -4866,7 +4866,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-milan.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-milan.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Milan",
@@ -4969,7 +4969,7 @@
       }
     },
     {
-      "file": "systems/europe/netherlands/eu-ned-rotterdam.geojson",
+      "file": "metro-maps/europe/netherlands/eu-ned-rotterdam.geojson",
       "continent": "europe",
       "country": "Netherlands",
       "city": "Rotterdam",
@@ -5074,7 +5074,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-bielefeld.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-bielefeld.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Bielefeld",
@@ -5162,7 +5162,7 @@
       }
     },
     {
-      "file": "systems/europe/romania/eu-rou-bucharest.geojson",
+      "file": "metro-maps/europe/romania/eu-rou-bucharest.geojson",
       "continent": "europe",
       "country": "Romania",
       "city": "Bucharest",
@@ -5262,7 +5262,7 @@
       }
     },
     {
-      "file": "systems/americas/canada/am-can-vancouver.geojson",
+      "file": "metro-maps/americas/canada/am-can-vancouver.geojson",
       "continent": "north-america",
       "country": "Canada",
       "city": "Vancouver",
@@ -5362,7 +5362,7 @@
       }
     },
     {
-      "file": "systems/americas/venezuela/am-ven-caracas.geojson",
+      "file": "metro-maps/americas/venezuela/am-ven-caracas.geojson",
       "continent": "south-america",
       "country": "Venezuela",
       "city": "Caracas",
@@ -5467,7 +5467,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-hefei.geojson",
+      "file": "metro-maps/asia/china/as-chn-hefei.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Hefei",
@@ -5576,7 +5576,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-fuzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-fuzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Fuzhou",
@@ -5678,7 +5678,7 @@
       }
     },
     {
-      "file": "systems/europe/netherlands/eu-ned-amsterdam.geojson",
+      "file": "metro-maps/europe/netherlands/eu-ned-amsterdam.geojson",
       "continent": "europe",
       "country": "Netherlands",
       "city": "Amsterdam",
@@ -5775,7 +5775,7 @@
       }
     },
     {
-      "file": "systems/europe/belgium/eu-bel-brussels.geojson",
+      "file": "metro-maps/europe/belgium/eu-bel-brussels.geojson",
       "continent": "europe",
       "country": "Belgium",
       "city": "Brussels",
@@ -5867,7 +5867,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-philadelphia.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-philadelphia.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Philadelphia",
@@ -5971,7 +5971,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-sao-paulo.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-sao-paulo.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "São Paulo",
@@ -6089,7 +6089,7 @@
       }
     },
     {
-      "file": "systems/asia/iran/as-iri-tehran.geojson",
+      "file": "metro-maps/asia/iran/as-iri-tehran.geojson",
       "continent": "asia",
       "country": "Iran",
       "city": "Tehran",
@@ -6193,7 +6193,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-kunming.geojson",
+      "file": "metro-maps/asia/china/as-chn-kunming.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Kunming",
@@ -6302,7 +6302,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-changsha.geojson",
+      "file": "metro-maps/asia/china/as-chn-changsha.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Changsha",
@@ -6402,7 +6402,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-qingdao.geojson",
+      "file": "metro-maps/asia/china/as-chn-qingdao.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Qingdao",
@@ -6510,7 +6510,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-nanning.geojson",
+      "file": "metro-maps/asia/china/as-chn-nanning.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Nanning",
@@ -6612,7 +6612,7 @@
       }
     },
     {
-      "file": "systems/asia/qatar/as-qat-doha.geojson",
+      "file": "metro-maps/asia/qatar/as-qat-doha.geojson",
       "continent": "asia",
       "country": "Qatar",
       "city": "Doha",
@@ -6716,7 +6716,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-ningbo.geojson",
+      "file": "metro-maps/asia/china/as-chn-ningbo.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Ningbo",
@@ -6810,7 +6810,7 @@
       }
     },
     {
-      "file": "systems/europe/denmark/eu-den-copenhagen.geojson",
+      "file": "metro-maps/europe/denmark/eu-den-copenhagen.geojson",
       "continent": "europe",
       "country": "Denmark",
       "city": "Copenhagen",
@@ -6915,7 +6915,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-atlanta.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-atlanta.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Atlanta",
@@ -7016,7 +7016,7 @@
       }
     },
     {
-      "file": "systems/asia/azerbaijan/as-aze-baku.geojson",
+      "file": "metro-maps/asia/azerbaijan/as-aze-baku.geojson",
       "continent": "asia",
       "country": "Azerbaijan",
       "city": "Baku",
@@ -7117,7 +7117,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-dalian.geojson",
+      "file": "metro-maps/asia/china/as-chn-dalian.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Dalian",
@@ -7226,7 +7226,7 @@
       }
     },
     {
-      "file": "systems/asia/saudi-arabia/as-ksa-riyadh.geojson",
+      "file": "metro-maps/asia/saudi-arabia/as-ksa-riyadh.geojson",
       "continent": "asia",
       "country": "Saudi Arabia",
       "city": "Riyadh",
@@ -7320,7 +7320,7 @@
       }
     },
     {
-      "file": "systems/americas/canada/am-can-toronto.geojson",
+      "file": "metro-maps/americas/canada/am-can-toronto.geojson",
       "continent": "north-america",
       "country": "Canada",
       "city": "Toronto",
@@ -7415,7 +7415,7 @@
       }
     },
     {
-      "file": "systems/americas/argentina/am-arg-buenos-aires.geojson",
+      "file": "metro-maps/americas/argentina/am-arg-buenos-aires.geojson",
       "continent": "south-america",
       "country": "Argentina",
       "city": "Buenos Aires",
@@ -7521,7 +7521,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-saint-petersburg.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-saint-petersburg.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Saint Petersburg",
@@ -7622,7 +7622,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-nagoya.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-nagoya.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Nagoya",
@@ -7730,7 +7730,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-sapporo.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-sapporo.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Sapporo",
@@ -7822,7 +7822,7 @@
       }
     },
     {
-      "file": "systems/asia/malaysia/as-mas-kuala-lumpur.geojson",
+      "file": "metro-maps/asia/malaysia/as-mas-kuala-lumpur.geojson",
       "continent": "asia",
       "country": "Malaysia",
       "city": "Kuala Lumpur",
@@ -7942,7 +7942,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-yokohama.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-yokohama.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Yokohama",
@@ -8052,7 +8052,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-mumbai.geojson",
+      "file": "metro-maps/asia/india/as-ind-mumbai.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Mumbai",
@@ -8163,7 +8163,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shenyang.geojson",
+      "file": "metro-maps/asia/china/as-chn-shenyang.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Shenyang",
@@ -8271,7 +8271,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-jinan.geojson",
+      "file": "metro-maps/asia/china/as-chn-jinan.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Jinan",
@@ -8363,7 +8363,7 @@
       }
     },
     {
-      "file": "systems/europe/austria/eu-aut-vienna.geojson",
+      "file": "metro-maps/europe/austria/eu-aut-vienna.geojson",
       "continent": "europe",
       "country": "Austria",
       "city": "Vienna",
@@ -8455,7 +8455,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-rome.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-rome.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Rome",
@@ -8561,7 +8561,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-rio-de-janeiro.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-rio-de-janeiro.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Rio de Janeiro",
@@ -8664,7 +8664,7 @@
       }
     },
     {
-      "file": "systems/europe/bulgaria/eu-bul-sofia.geojson",
+      "file": "metro-maps/europe/bulgaria/eu-bul-sofia.geojson",
       "continent": "europe",
       "country": "Bulgaria",
       "city": "Sofia",
@@ -8764,7 +8764,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-recife.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-recife.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Recife",
@@ -8869,7 +8869,7 @@
       }
     },
     {
-      "file": "systems/africa/egypt/af-egy-cairo.geojson",
+      "file": "metro-maps/africa/egypt/af-egy-cairo.geojson",
       "continent": "africa",
       "country": "Egypt",
       "city": "Cairo",
@@ -8975,7 +8975,7 @@
       }
     },
     {
-      "file": "systems/asia/turkey/as-tur-ankara.geojson",
+      "file": "metro-maps/asia/turkey/as-tur-ankara.geojson",
       "continent": "asia",
       "country": "Turkey",
       "city": "Ankara",
@@ -9081,7 +9081,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-changchun.geojson",
+      "file": "metro-maps/asia/china/as-chn-changchun.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Changchun",
@@ -9175,7 +9175,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-wuxi.geojson",
+      "file": "metro-maps/asia/china/as-chn-wuxi.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Wuxi",
@@ -9276,7 +9276,7 @@
       }
     },
     {
-      "file": "systems/europe/spain/eu-esp-bilbao.geojson",
+      "file": "metro-maps/europe/spain/eu-esp-bilbao.geojson",
       "continent": "europe",
       "country": "Spain",
       "city": "Bilbao",
@@ -9379,7 +9379,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-kolkata.geojson",
+      "file": "metro-maps/asia/india/as-ind-kolkata.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Kolkata",
@@ -9488,7 +9488,7 @@
       }
     },
     {
-      "file": "systems/americas/bolivia/am-bol-cochabamba.geojson",
+      "file": "metro-maps/americas/bolivia/am-bol-cochabamba.geojson",
       "continent": "south-america",
       "country": "Bolivia",
       "city": "Cochabamba",
@@ -9505,7 +9505,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/china/as-chn-wenzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-wenzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Wenzhou",
@@ -9606,7 +9606,7 @@
       }
     },
     {
-      "file": "systems/americas/canada/am-can-montreal.geojson",
+      "file": "metro-maps/americas/canada/am-can-montreal.geojson",
       "continent": "north-america",
       "country": "Canada",
       "city": "Montreal",
@@ -9703,7 +9703,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-essen.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-essen.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Essen",
@@ -9793,7 +9793,7 @@
       }
     },
     {
-      "file": "systems/europe/france/eu-fra-lyon.geojson",
+      "file": "metro-maps/europe/france/eu-fra-lyon.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Lyon",
@@ -9895,7 +9895,7 @@
       }
     },
     {
-      "file": "systems/europe/portugal/eu-por-lisbon.geojson",
+      "file": "metro-maps/europe/portugal/eu-por-lisbon.geojson",
       "continent": "europe",
       "country": "Portugal",
       "city": "Lisbon",
@@ -9999,7 +9999,7 @@
       }
     },
     {
-      "file": "systems/asia/united-arab-emirates/as-uae-dubai.geojson",
+      "file": "metro-maps/asia/united-arab-emirates/as-uae-dubai.geojson",
       "continent": "asia",
       "country": "United Arab Emirates",
       "city": "Dubai",
@@ -10107,7 +10107,7 @@
       }
     },
     {
-      "file": "systems/asia/thailand/as-tha-bangkok.geojson",
+      "file": "metro-maps/asia/thailand/as-tha-bangkok.geojson",
       "continent": "asia",
       "country": "Thailand",
       "city": "Bangkok",
@@ -10221,7 +10221,7 @@
       }
     },
     {
-      "file": "systems/europe/hungary/eu-hun-budapest.geojson",
+      "file": "metro-maps/europe/hungary/eu-hun-budapest.geojson",
       "continent": "europe",
       "country": "Hungary",
       "city": "Budapest",
@@ -10326,7 +10326,7 @@
       }
     },
     {
-      "file": "systems/asia/uzbekistan/as-uzb-tashkent.geojson",
+      "file": "metro-maps/asia/uzbekistan/as-uzb-tashkent.geojson",
       "continent": "asia",
       "country": "Uzbekistan",
       "city": "Tashkent",
@@ -10427,7 +10427,7 @@
       }
     },
     {
-      "file": "systems/europe/finland/eu-fin-helsinki.geojson",
+      "file": "metro-maps/europe/finland/eu-fin-helsinki.geojson",
       "continent": "europe",
       "country": "Finland",
       "city": "Helsinki",
@@ -10530,7 +10530,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-nanchang.geojson",
+      "file": "metro-maps/asia/china/as-chn-nanchang.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Nanchang",
@@ -10639,7 +10639,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-xuzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-xuzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Xuzhou",
@@ -10732,7 +10732,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-chennai.geojson",
+      "file": "metro-maps/asia/india/as-ind-chennai.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Chennai",
@@ -10832,7 +10832,7 @@
       }
     },
     {
-      "file": "systems/asia/turkey/as-tur-bursa.geojson",
+      "file": "metro-maps/asia/turkey/as-tur-bursa.geojson",
       "continent": "asia",
       "country": "Turkey",
       "city": "Bursa",
@@ -10932,7 +10932,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-guiyang.geojson",
+      "file": "metro-maps/asia/china/as-chn-guiyang.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Guiyang",
@@ -11032,7 +11032,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-ahmedabad.geojson",
+      "file": "metro-maps/asia/india/as-ind-ahmedabad.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Ahmedabad",
@@ -11125,7 +11125,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shaoxing.geojson",
+      "file": "metro-maps/asia/china/as-chn-shaoxing.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Shaoxing",
@@ -11227,7 +11227,7 @@
       }
     },
     {
-      "file": "systems/americas/mexico/am-mex-guadalajara.geojson",
+      "file": "metro-maps/americas/mexico/am-mex-guadalajara.geojson",
       "continent": "north-america",
       "country": "Mexico",
       "city": "Guadalajara",
@@ -11328,7 +11328,7 @@
       }
     },
     {
-      "file": "systems/europe/czechia/eu-cze-prague.geojson",
+      "file": "metro-maps/europe/czechia/eu-cze-prague.geojson",
       "continent": "europe",
       "country": "Czechia",
       "city": "Prague",
@@ -11433,7 +11433,7 @@
       }
     },
     {
-      "file": "systems/europe/belarus/eu-blr-minsk.geojson",
+      "file": "metro-maps/europe/belarus/eu-blr-minsk.geojson",
       "continent": "europe",
       "country": "Belarus",
       "city": "Minsk",
@@ -11533,7 +11533,7 @@
       }
     },
     {
-      "file": "systems/asia/philippines/as-phi-manila.geojson",
+      "file": "metro-maps/asia/philippines/as-phi-manila.geojson",
       "continent": "asia",
       "country": "Philippines",
       "city": "Manila",
@@ -11634,7 +11634,7 @@
       }
     },
     {
-      "file": "systems/europe/ukraine/eu-ukr-kyiv.geojson",
+      "file": "metro-maps/europe/ukraine/eu-ukr-kyiv.geojson",
       "continent": "europe",
       "country": "Ukraine",
       "city": "Kyiv",
@@ -11728,7 +11728,7 @@
       }
     },
     {
-      "file": "systems/europe/france/eu-fra-toulouse.geojson",
+      "file": "metro-maps/europe/france/eu-fra-toulouse.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Toulouse",
@@ -11829,7 +11829,7 @@
       }
     },
     {
-      "file": "systems/africa/algeria/af-alg-algiers.geojson",
+      "file": "metro-maps/africa/algeria/af-alg-algiers.geojson",
       "continent": "africa",
       "country": "Algeria",
       "city": "Algiers",
@@ -11933,7 +11933,7 @@
       }
     },
     {
-      "file": "systems/europe/ukraine/eu-ukr-kharkiv.geojson",
+      "file": "metro-maps/europe/ukraine/eu-ukr-kharkiv.geojson",
       "continent": "europe",
       "country": "Ukraine",
       "city": "Kharkiv",
@@ -12026,7 +12026,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-naples.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-naples.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Naples",
@@ -12131,7 +12131,7 @@
       }
     },
     {
-      "file": "systems/europe/greece/eu-gre-athens.geojson",
+      "file": "metro-maps/europe/greece/eu-gre-athens.geojson",
       "continent": "europe",
       "country": "Greece",
       "city": "Athens",
@@ -12227,7 +12227,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-miami.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-miami.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Miami",
@@ -12326,7 +12326,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-bengaluru.geojson",
+      "file": "metro-maps/asia/india/as-ind-bengaluru.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Bengaluru",
@@ -12417,7 +12417,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-fukuoka.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-fukuoka.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Fukuoka",
@@ -12521,7 +12521,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-busan.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-busan.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Busan",
@@ -12627,7 +12627,7 @@
       }
     },
     {
-      "file": "systems/americas/mexico/am-mex-monterrey.geojson",
+      "file": "metro-maps/americas/mexico/am-mex-monterrey.geojson",
       "continent": "north-america",
       "country": "Mexico",
       "city": "Monterrey",
@@ -12735,7 +12735,7 @@
       }
     },
     {
-      "file": "systems/asia/taiwan/as-twn-kaohsiung.geojson",
+      "file": "metro-maps/asia/taiwan/as-twn-kaohsiung.geojson",
       "continent": "asia",
       "country": "Taiwan",
       "city": "Kaohsiung",
@@ -12838,7 +12838,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-hyderabad.geojson",
+      "file": "metro-maps/asia/india/as-ind-hyderabad.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Hyderabad",
@@ -12938,7 +12938,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-harbin.geojson",
+      "file": "metro-maps/asia/china/as-chn-harbin.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Harbin",
@@ -13038,7 +13038,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-shijiazhuang.geojson",
+      "file": "metro-maps/asia/china/as-chn-shijiazhuang.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Shijiazhuang",
@@ -13130,7 +13130,7 @@
       }
     },
     {
-      "file": "systems/americas/panama/am-pan-panama-city.geojson",
+      "file": "metro-maps/americas/panama/am-pan-panama-city.geojson",
       "continent": "north-america",
       "country": "Panama",
       "city": "Panama City",
@@ -13233,7 +13233,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-xiamen.geojson",
+      "file": "metro-maps/asia/china/as-chn-xiamen.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Xiamen",
@@ -13335,7 +13335,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-macau.geojson",
+      "file": "metro-maps/asia/china/as-chn-macau.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Macau",
@@ -13430,7 +13430,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-brasilia.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-brasilia.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Brasília",
@@ -13535,7 +13535,7 @@
       }
     },
     {
-      "file": "systems/europe/france/eu-fra-rennes.geojson",
+      "file": "metro-maps/europe/france/eu-fra-rennes.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Rennes",
@@ -13636,7 +13636,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-ratingen.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-ratingen.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Ratingen",
@@ -13729,7 +13729,7 @@
       }
     },
     {
-      "file": "systems/asia/georgia/as-geo-tbilisi.geojson",
+      "file": "metro-maps/asia/georgia/as-geo-tbilisi.geojson",
       "continent": "asia",
       "country": "Georgia",
       "city": "Tbilisi",
@@ -13829,7 +13829,7 @@
       }
     },
     {
-      "file": "systems/asia/iran/as-iri-mashhad.geojson",
+      "file": "metro-maps/asia/iran/as-iri-mashhad.geojson",
       "continent": "asia",
       "country": "Iran",
       "city": "Mashhad",
@@ -13930,7 +13930,7 @@
       }
     },
     {
-      "file": "systems/europe/france/eu-fra-lille.geojson",
+      "file": "metro-maps/europe/france/eu-fra-lille.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Lille",
@@ -14031,7 +14031,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-nizhny-novgorod.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-nizhny-novgorod.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Nizhny Novgorod",
@@ -14131,7 +14131,7 @@
       }
     },
     {
-      "file": "systems/asia/armenia/as-arm-yerevan.geojson",
+      "file": "metro-maps/asia/armenia/as-arm-yerevan.geojson",
       "continent": "asia",
       "country": "Armenia",
       "city": "Yerevan",
@@ -14231,7 +14231,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-kyoto.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-kyoto.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Kyoto",
@@ -14334,7 +14334,7 @@
       }
     },
     {
-      "file": "systems/asia/north-korea/as-prk-pyongyang.geojson",
+      "file": "metro-maps/asia/north-korea/as-prk-pyongyang.geojson",
       "continent": "asia",
       "country": "North Korea",
       "city": "Pyongyang",
@@ -14436,7 +14436,7 @@
       }
     },
     {
-      "file": "systems/americas/dominican-republic/am-dom-santo-domingo.geojson",
+      "file": "metro-maps/americas/dominican-republic/am-dom-santo-domingo.geojson",
       "continent": "north-america",
       "country": "Dominican Republic",
       "city": "Santo Domingo",
@@ -14542,7 +14542,7 @@
       }
     },
     {
-      "file": "systems/americas/peru/am-per-lima.geojson",
+      "file": "metro-maps/americas/peru/am-per-lima.geojson",
       "continent": "south-america",
       "country": "Peru",
       "city": "Lima",
@@ -14645,7 +14645,7 @@
       }
     },
     {
-      "file": "systems/americas/colombia/am-col-medellin.geojson",
+      "file": "metro-maps/americas/colombia/am-col-medellin.geojson",
       "continent": "south-america",
       "country": "Colombia",
       "city": "Medellín",
@@ -14746,7 +14746,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-kobe.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-kobe.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Kobe",
@@ -14845,7 +14845,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-novosibirsk.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-novosibirsk.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Novosibirsk",
@@ -14945,7 +14945,7 @@
       }
     },
     {
-      "file": "systems/europe/poland/eu-pol-warsaw.geojson",
+      "file": "metro-maps/europe/poland/eu-pol-warsaw.geojson",
       "continent": "europe",
       "country": "Poland",
       "city": "Warsaw",
@@ -15047,7 +15047,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-salvador.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-salvador.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Salvador",
@@ -15147,7 +15147,7 @@
       }
     },
     {
-      "file": "systems/asia/iran/as-iri-shiraz.geojson",
+      "file": "metro-maps/asia/iran/as-iri-shiraz.geojson",
       "continent": "asia",
       "country": "Iran",
       "city": "Shiraz",
@@ -15248,7 +15248,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-sendai.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-sendai.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Sendai",
@@ -15341,7 +15341,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-lanzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-lanzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Lanzhou",
@@ -15441,7 +15441,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-urumqi.geojson",
+      "file": "metro-maps/asia/china/as-chn-urumqi.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Ürümqi",
@@ -15541,7 +15541,7 @@
       }
     },
     {
-      "file": "systems/europe/france/eu-fra-marseille.geojson",
+      "file": "metro-maps/europe/france/eu-fra-marseille.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Marseille",
@@ -15641,7 +15641,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-dongguan.geojson",
+      "file": "metro-maps/asia/china/as-chn-dongguan.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Dongguan",
@@ -15735,7 +15735,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-incheon.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-incheon.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Incheon",
@@ -15841,7 +15841,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-daegu.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-daegu.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Daegu",
@@ -15937,7 +15937,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-nagpur.geojson",
+      "file": "metro-maps/asia/india/as-ind-nagpur.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Nagpur",
@@ -16030,7 +16030,7 @@
       }
     },
     {
-      "file": "systems/asia/vietnam/as-vie-hanoi.geojson",
+      "file": "metro-maps/asia/vietnam/as-vie-hanoi.geojson",
       "continent": "asia",
       "country": "Vietnam",
       "city": "Hanoi",
@@ -16122,7 +16122,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-changzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-changzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Changzhou",
@@ -16225,7 +16225,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-hohhot.geojson",
+      "file": "metro-maps/asia/china/as-chn-hohhot.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Hohhot",
@@ -16318,7 +16318,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-jinhua.geojson",
+      "file": "metro-maps/asia/china/as-chn-jinhua.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Jinhua",
@@ -16430,7 +16430,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-taiyuan.geojson",
+      "file": "metro-maps/asia/china/as-chn-taiyuan.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Taiyuan",
@@ -16532,7 +16532,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-luoyang.geojson",
+      "file": "metro-maps/asia/china/as-chn-luoyang.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Luoyang",
@@ -16635,7 +16635,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-foshan.geojson",
+      "file": "metro-maps/asia/china/as-chn-foshan.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Foshan",
@@ -16732,7 +16732,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-pune.geojson",
+      "file": "metro-maps/asia/india/as-ind-pune.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Pune",
@@ -16826,7 +16826,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-wuhu.geojson",
+      "file": "metro-maps/asia/china/as-chn-wuhu.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Wuhu",
@@ -16918,7 +16918,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-porto-alegre.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-porto-alegre.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Porto Alegre",
@@ -17019,7 +17019,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-nantong.geojson",
+      "file": "metro-maps/asia/china/as-chn-nantong.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Nantong",
@@ -17112,7 +17112,7 @@
       }
     },
     {
-      "file": "systems/europe/germany/eu-ger-bochum.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-bochum.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Bochum",
@@ -17202,7 +17202,7 @@
       }
     },
     {
-      "file": "systems/europe/switzerland/eu-sui-lausanne.geojson",
+      "file": "metro-maps/europe/switzerland/eu-sui-lausanne.geojson",
       "continent": "europe",
       "country": "Switzerland",
       "city": "Lausanne",
@@ -17302,7 +17302,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-samara.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-samara.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Samara",
@@ -17402,7 +17402,7 @@
       }
     },
     {
-      "file": "systems/europe/united-kingdom/eu-gbr-glasgow.geojson",
+      "file": "metro-maps/europe/united-kingdom/eu-gbr-glasgow.geojson",
       "continent": "europe",
       "country": "United Kingdom",
       "city": "Glasgow",
@@ -17503,7 +17503,7 @@
       }
     },
     {
-      "file": "systems/europe/spain/eu-esp-seville.geojson",
+      "file": "metro-maps/europe/spain/eu-esp-seville.geojson",
       "continent": "europe",
       "country": "Spain",
       "city": "Seville",
@@ -17593,7 +17593,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-turin.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-turin.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Turin",
@@ -17693,7 +17693,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-belo-horizonte.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-belo-horizonte.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Belo Horizonte",
@@ -17797,7 +17797,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-kazan.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-kazan.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Kazan",
@@ -17897,7 +17897,7 @@
       }
     },
     {
-      "file": "systems/europe/ukraine/eu-ukr-dnipro.geojson",
+      "file": "metro-maps/europe/ukraine/eu-ukr-dnipro.geojson",
       "continent": "europe",
       "country": "Ukraine",
       "city": "Dnipro",
@@ -17989,7 +17989,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-baltimore.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-baltimore.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Baltimore",
@@ -18093,7 +18093,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-saitama-prefecture.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-saitama-prefecture.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Saitama Prefecture",
@@ -18197,7 +18197,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-san-juan.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-san-juan.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "San Juan",
@@ -18288,7 +18288,7 @@
       }
     },
     {
-      "file": "systems/asia/turkey/as-tur-izmir.geojson",
+      "file": "metro-maps/asia/turkey/as-tur-izmir.geojson",
       "continent": "asia",
       "country": "Turkey",
       "city": "İzmir",
@@ -18384,7 +18384,7 @@
       }
     },
     {
-      "file": "systems/europe/austria/eu-aut-bezirk-landeck.geojson",
+      "file": "metro-maps/europe/austria/eu-aut-bezirk-landeck.geojson",
       "continent": "europe",
       "country": "Austria",
       "city": "Bezirk Landeck",
@@ -18465,7 +18465,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-brescia.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-brescia.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Brescia",
@@ -18557,7 +18557,7 @@
       }
     },
     {
-      "file": "systems/europe/russia/eu-rus-yekaterinburg.geojson",
+      "file": "metro-maps/europe/russia/eu-rus-yekaterinburg.geojson",
       "continent": "europe",
       "country": "Russia",
       "city": "Yekaterinburg",
@@ -18659,7 +18659,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-gurgaon.geojson",
+      "file": "metro-maps/asia/india/as-ind-gurgaon.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Gurgaon",
@@ -18758,7 +18758,7 @@
       }
     },
     {
-      "file": "systems/americas/brazil/am-bra-fortaleza.geojson",
+      "file": "metro-maps/americas/brazil/am-bra-fortaleza.geojson",
       "continent": "south-america",
       "country": "Brazil",
       "city": "Fortaleza",
@@ -18855,7 +18855,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-jaipur.geojson",
+      "file": "metro-maps/asia/india/as-ind-jaipur.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Jaipur",
@@ -18947,7 +18947,7 @@
       }
     },
     {
-      "file": "systems/asia/kazakhstan/as-kaz-almaty.geojson",
+      "file": "metro-maps/asia/kazakhstan/as-kaz-almaty.geojson",
       "continent": "asia",
       "country": "Kazakhstan",
       "city": "Almaty",
@@ -19047,7 +19047,7 @@
       }
     },
     {
-      "file": "systems/asia/iran/as-iri-isfahan.geojson",
+      "file": "metro-maps/asia/iran/as-iri-isfahan.geojson",
       "continent": "asia",
       "country": "Iran",
       "city": "Isfahan",
@@ -19147,7 +19147,7 @@
       }
     },
     {
-      "file": "systems/asia/iran/as-iri-karaj.geojson",
+      "file": "metro-maps/asia/iran/as-iri-karaj.geojson",
       "continent": "asia",
       "country": "Iran",
       "city": "Karaj",
@@ -19248,7 +19248,7 @@
       }
     },
     {
-      "file": "systems/europe/greece/eu-gre-thessaloniki.geojson",
+      "file": "metro-maps/europe/greece/eu-gre-thessaloniki.geojson",
       "continent": "europe",
       "country": "Greece",
       "city": "Thessaloniki",
@@ -19340,7 +19340,7 @@
       }
     },
     {
-      "file": "systems/asia/iran/as-iri-tabriz.geojson",
+      "file": "metro-maps/asia/iran/as-iri-tabriz.geojson",
       "continent": "asia",
       "country": "Iran",
       "city": "Tabriz",
@@ -19440,7 +19440,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-chiba-prefecture.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-chiba-prefecture.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Chiba Prefecture",
@@ -19532,7 +19532,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-catania.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-catania.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Catania",
@@ -19633,7 +19633,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-daejeon.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-daejeon.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Daejeon",
@@ -19734,7 +19734,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-cleveland.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-cleveland.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Cleveland",
@@ -19825,7 +19825,7 @@
       }
     },
     {
-      "file": "systems/americas/venezuela/am-ven-maracaibo.geojson",
+      "file": "metro-maps/americas/venezuela/am-ven-maracaibo.geojson",
       "continent": "south-america",
       "country": "Venezuela",
       "city": "Maracaibo",
@@ -19917,7 +19917,7 @@
       }
     },
     {
-      "file": "systems/americas/venezuela/am-ven-valencia.geojson",
+      "file": "metro-maps/americas/venezuela/am-ven-valencia.geojson",
       "continent": "south-america",
       "country": "Venezuela",
       "city": "Valencia",
@@ -20009,7 +20009,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-kochi.geojson",
+      "file": "metro-maps/asia/india/as-ind-kochi.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Kochi",
@@ -20100,7 +20100,7 @@
       }
     },
     {
-      "file": "systems/asia/turkey/as-tur-adana.geojson",
+      "file": "metro-maps/asia/turkey/as-tur-adana.geojson",
       "continent": "asia",
       "country": "Turkey",
       "city": "Adana",
@@ -20191,7 +20191,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-lucknow.geojson",
+      "file": "metro-maps/asia/india/as-ind-lucknow.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Lucknow",
@@ -20282,7 +20282,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-noida.geojson",
+      "file": "metro-maps/asia/india/as-ind-noida.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Noida",
@@ -20383,7 +20383,7 @@
       }
     },
     {
-      "file": "systems/asia/indonesia/as-ina-jakarta.geojson",
+      "file": "metro-maps/asia/indonesia/as-ina-jakarta.geojson",
       "continent": "asia",
       "country": "Indonesia",
       "city": "Jakarta",
@@ -20480,7 +20480,7 @@
       }
     },
     {
-      "file": "systems/asia/indonesia/as-ina-palembang.geojson",
+      "file": "metro-maps/asia/indonesia/as-ina-palembang.geojson",
       "continent": "asia",
       "country": "Indonesia",
       "city": "Palembang",
@@ -20571,7 +20571,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-gimpo.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-gimpo.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Gimpo",
@@ -20672,7 +20672,7 @@
       }
     },
     {
-      "file": "systems/americas/ecuador/am-ecu-quito.geojson",
+      "file": "metro-maps/americas/ecuador/am-ecu-quito.geojson",
       "continent": "south-america",
       "country": "Ecuador",
       "city": "Quito",
@@ -20773,7 +20773,7 @@
       }
     },
     {
-      "file": "systems/asia/taiwan/as-twn-taichung.geojson",
+      "file": "metro-maps/asia/taiwan/as-twn-taichung.geojson",
       "continent": "asia",
       "country": "Taiwan",
       "city": "Taichung",
@@ -20866,7 +20866,7 @@
       }
     },
     {
-      "file": "systems/asia/pakistan/as-pak-lahore.geojson",
+      "file": "metro-maps/asia/pakistan/as-pak-lahore.geojson",
       "continent": "asia",
       "country": "Pakistan",
       "city": "Lahore",
@@ -20959,7 +20959,7 @@
       }
     },
     {
-      "file": "systems/asia/vietnam/as-vie-ho-chi-minh-city.geojson",
+      "file": "metro-maps/asia/vietnam/as-vie-ho-chi-minh-city.geojson",
       "continent": "asia",
       "country": "Vietnam",
       "city": "Ho Chi Minh City",
@@ -21053,7 +21053,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-taizhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-taizhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Taizhou",
@@ -21153,7 +21153,7 @@
       }
     },
     {
-      "file": "systems/asia/south-korea/as-kor-gwangju.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-gwangju.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Gwangju",
@@ -21246,7 +21246,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-kanpur.geojson",
+      "file": "metro-maps/asia/india/as-ind-kanpur.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Kanpur",
@@ -21345,7 +21345,7 @@
       }
     },
     {
-      "file": "systems/asia/bangladesh/as-ban-dhaka.geojson",
+      "file": "metro-maps/asia/bangladesh/as-ban-dhaka.geojson",
       "continent": "asia",
       "country": "Bangladesh",
       "city": "Dhaka",
@@ -21446,7 +21446,7 @@
       }
     },
     {
-      "file": "systems/africa/nigeria/af-ngr-lagos.geojson",
+      "file": "metro-maps/africa/nigeria/af-ngr-lagos.geojson",
       "continent": "africa",
       "country": "Nigeria",
       "city": "Lagos",
@@ -21538,7 +21538,7 @@
       }
     },
     {
-      "file": "systems/asia/china/as-chn-chuzhou.geojson",
+      "file": "metro-maps/asia/china/as-chn-chuzhou.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Chuzhou",
@@ -21626,7 +21626,7 @@
       }
     },
     {
-      "file": "systems/americas/united-states/am-usa-honolulu.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-honolulu.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "Honolulu",
@@ -21727,7 +21727,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-agra.geojson",
+      "file": "metro-maps/asia/india/as-ind-agra.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Agra",
@@ -21826,7 +21826,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-navi-mumbai.geojson",
+      "file": "metro-maps/asia/india/as-ind-navi-mumbai.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Navi Mumbai",
@@ -21927,7 +21927,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-meerut.geojson",
+      "file": "metro-maps/asia/india/as-ind-meerut.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Meerut",
@@ -22019,7 +22019,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-indore.geojson",
+      "file": "metro-maps/asia/india/as-ind-indore.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Indore",
@@ -22112,7 +22112,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-patna.geojson",
+      "file": "metro-maps/asia/india/as-ind-patna.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Patna",
@@ -22212,7 +22212,7 @@
       }
     },
     {
-      "file": "systems/asia/india/as-ind-bhopal.geojson",
+      "file": "metro-maps/asia/india/as-ind-bhopal.geojson",
       "continent": "asia",
       "country": "India",
       "city": "Bhopal",
@@ -22312,7 +22312,7 @@
       }
     },
     {
-      "file": "systems/asia/kazakhstan/as-kaz-astana.geojson",
+      "file": "metro-maps/asia/kazakhstan/as-kaz-astana.geojson",
       "continent": "asia",
       "country": "Kazakhstan",
       "city": "Astana",
@@ -22412,7 +22412,7 @@
       }
     },
     {
-      "file": "systems/europe/italy/eu-ita-genoa.geojson",
+      "file": "metro-maps/europe/italy/eu-ita-genoa.geojson",
       "continent": "europe",
       "country": "Italy",
       "city": "Genoa",
@@ -22506,7 +22506,7 @@
       }
     },
     {
-      "file": "systems/asia/saudi-arabia/as-ksa-mecca.geojson",
+      "file": "metro-maps/asia/saudi-arabia/as-ksa-mecca.geojson",
       "continent": "asia",
       "country": "Saudi Arabia",
       "city": "Mecca",
@@ -22598,7 +22598,7 @@
       }
     },
     {
-      "file": "systems/asia/japan/as-jpn-tokyo-jr.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-tokyo-jr.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Tokyo + Yamanote",
@@ -22674,7 +22674,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/japan/as-jpn-osaka-jr.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-osaka-jr.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Osaka + Loop",
@@ -22708,7 +22708,7 @@
       "audit": null
     },
     {
-      "file": "systems/americas/united-states/am-usa-new-york-city-lm.geojson",
+      "file": "metro-maps/americas/united-states/am-usa-new-york-city-lm.geojson",
       "continent": "north-america",
       "country": "United States",
       "city": "New York City + Landmark",
@@ -22732,7 +22732,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/china/as-chn-shanghai-lm.geojson",
+      "file": "metro-maps/asia/china/as-chn-shanghai-lm.geojson",
       "continent": "asia",
       "country": "China",
       "city": "Shanghai + Landmark",
@@ -22757,7 +22757,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/japan/as-jpn-tokyo-lm.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-tokyo-lm.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Tokyo + Landmark",
@@ -22833,7 +22833,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/south-korea/as-kor-seoul-lm.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-seoul-lm.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Seoul + Landmark",
@@ -22881,7 +22881,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/taiwan/as-twn-taipei-lm.geojson",
+      "file": "metro-maps/asia/taiwan/as-twn-taipei-lm.geojson",
       "continent": "asia",
       "country": "Taiwan",
       "city": "Taipei + Landmark",
@@ -22910,7 +22910,7 @@
       "audit": null
     },
     {
-      "file": "systems/europe/austria/eu-aut-vienna-lm.geojson",
+      "file": "metro-maps/europe/austria/eu-aut-vienna-lm.geojson",
       "continent": "europe",
       "country": "Austria",
       "city": "Vienna + Landmark",
@@ -22928,7 +22928,7 @@
       "audit": null
     },
     {
-      "file": "systems/europe/france/eu-fra-paris-lm.geojson",
+      "file": "metro-maps/europe/france/eu-fra-paris-lm.geojson",
       "continent": "europe",
       "country": "France",
       "city": "Paris + Landmark",
@@ -22961,7 +22961,7 @@
       "audit": null
     },
     {
-      "file": "systems/europe/germany/eu-ger-berlin-lm.geojson",
+      "file": "metro-maps/europe/germany/eu-ger-berlin-lm.geojson",
       "continent": "europe",
       "country": "Germany",
       "city": "Berlin + Landmark",
@@ -22985,7 +22985,7 @@
       "audit": null
     },
     {
-      "file": "systems/europe/united-kingdom/eu-gbr-london-lm.geojson",
+      "file": "metro-maps/europe/united-kingdom/eu-gbr-london-lm.geojson",
       "continent": "europe",
       "country": "United Kingdom",
       "city": "London + Landmark",
@@ -23018,7 +23018,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/singapore/as-sgp-singapore-lrt.geojson",
+      "file": "metro-maps/asia/singapore/as-sgp-singapore-lrt.geojson",
       "continent": "asia",
       "country": "Singapore",
       "city": "Singapore + LRT",
@@ -23057,7 +23057,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/south-korea/as-kor-seoul-incheon.geojson",
+      "file": "metro-maps/asia/south-korea/as-kor-seoul-incheon.geojson",
       "continent": "asia",
       "country": "South Korea",
       "city": "Seoul + Incheon",
@@ -23107,7 +23107,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/taiwan/as-twn-taipei-rail.geojson",
+      "file": "metro-maps/asia/taiwan/as-twn-taipei-rail.geojson",
       "continent": "asia",
       "country": "Taiwan",
       "city": "Taipei + TRA + HSR",
@@ -23137,7 +23137,7 @@
       "audit": null
     },
     {
-      "file": "systems/asia/japan/as-jpn-tokyo-rail.geojson",
+      "file": "metro-maps/asia/japan/as-jpn-tokyo-rail.geojson",
       "continent": "asia",
       "country": "Japan",
       "city": "Tokyo + JR + Private",

@@ -35,6 +35,12 @@ function onKeydown(e) {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
     store.ui.commandPalette = !store.ui.commandPalette
+  } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && !isTyping(e)) {
+    e.preventDefault()
+    store.saveProject()
+  } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'o' && !isTyping(e)) {
+    e.preventDefault()
+    store.pickOpenProject()
   } else if (e.key === 'Escape') {
     store.ui.commandPalette = false
     store.ui.dialog = null

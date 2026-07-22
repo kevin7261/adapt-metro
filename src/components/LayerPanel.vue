@@ -253,13 +253,26 @@ async function exportLayer(layer) {
     }
     if (!data && layer.file) data = await fetchJson(layer.file)
     if (!data) throw new Error('沒有可匯出的資料')
-    // 只有捷運路網（檔案在 data/metro/systems/，含「城市＋地標」的 -lm 變體）
+    // 只有捷運路網（檔案在 data/metro/metro-maps/，含「城市＋地標」的 -lm 變體）
     // 存成 .geojson；其他一律 .json——highway（data/highway/）、railway
     // （data/railway/）雖然也走 type 'metro'，連同衍生的示意佈局視圖都算「其他」。
-    const isGeojson = /\/data\/metro\/systems\//.test(layer.file ?? '')
+    const isGeojson = /\/data\/metro\/(?:metro-maps|systems)\//.test(layer.file ?? '')
     const ext = isGeojson ? 'geojson' : 'json'
     const mime = isGeojson ? 'application/geo+json' : 'application/json'
-    const blob = new Blob([JSON.stringify(cleanForExport(data))], { type: mime })
+    // 衍生圖層另存時附上可回復的圖層描述（單層匯入可還原 type／variant／compact）
+    const payload = isGeojson
+      ? cleanForExport(data)
+      : {
+          kind: 'adapt-metro-layer',
+          version: 1,
+          layer: {
+            id: layer.id, type: layer.type, name: layer.name,
+            variant: layer.variant, compact: layer.compact,
+            sourceLayerId: layer.sourceLayerId, file: layer.file,
+          },
+          scene: cleanForExport(data),
+        }
+    const blob = new Blob([JSON.stringify(payload)], { type: mime })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url

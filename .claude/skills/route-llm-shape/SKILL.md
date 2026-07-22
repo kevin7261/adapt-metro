@@ -6,7 +6,7 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
 # LLM 成方 (route-llm-shape)
 
 ⑨ **Shape-Guided（[[route-shape-align]]）的 LLM 版**：由 LLM 讀整數格、提出移動，
-把規定路段收成**四邊直線正方**。結果存 `data/metro/llmshapes/`。
+把規定路段收成**四邊直線正方**。結果存 `data/metro/straighten-shape/`。
 只掛在 Straighten **原始-形狀／旋轉-形狀**（規定表城市才有此二層；原始／旋轉層沒有成方）。
 
 ## 與直線演算法的銜接（重要）
@@ -15,11 +15,11 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
 格網化後 →（按「開始 LLM 成方」跑完）→ 自動套用 → HC → 直線演算法／端點／循環…
 ```
 
-- **預設不成方**：僅有結果檔也不餵下游。只有按「開始 LLM 成方」跑完（onDone 套用）
-  或手動「執行調整」才餵。
+- **只有 `square===true` 才算跑出來、預設餵下游**（批次／CLI 同）。
+  `square===false`（近似方、`fourLine` 未過）＝沒跑出來，不餵；清單見
+  `data/metro/straighten-shape/_batch_fail.json`。
 - 跑完成功 → 自動套用＋清 `:shapelike` 快取＋`render` 重算後續全鏈。
-- 全球批次／CLI 產出的檔案不會寫 apply 旗標 → 網頁仍預設不成方。
-- **重新計算此城市全部圖層**：刪 `data/metro/llmshapes/<city>.{orig,rot}.json`、
+- **重新計算此城市全部圖層**：刪 `data/metro/straighten-shape/<city>.{orig,rot}.json`、
   清 HC 快取與套用旗標，再開 tab 全球重算。
 - 快取鍵加 `:shapelike`，與未套用分開存。
 - 不畫成方超大外框（guideBox）；成方邊用灰白邊襯底即可。
@@ -29,7 +29,7 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
 ② 吃成方後：
 - members（ring＋綠折＋成方路線骨架 cut）只准全體同一位移
 - 至少一端在 members、且目前為 H/V 的段，論文鏈／移動後仍須 H/V（不可拉斜成方邊）
-- 成對縮方見 [[route-grid-merge]]；佈局檔 `HC_CELLS_ALGO`（`data/metro/hccells/`）
+- 成對縮方見 [[route-grid-merge]]；佈局檔 `HC_CELLS_ALGO`（`data/metro/straighten-cells/`）
 
 **與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊也吃格網化後、目標是
 H/V。瀏覽器只載檔，不即時推論。
@@ -49,7 +49,7 @@ H/V。瀏覽器只載檔，不即時推論。
 scripts/llmShape.mjs export <cityId> <orig|rot>
   → 你讀 ring／suggest／square／rejected、決定 moves（scratchpad 寫 moves.json）
 scripts/llmShape.mjs apply <cityId> <orig|rot> <moves.json>
-  → 經拓撲鐵律逐步套用、存 data/metro/llmshapes/<cityId>.<variant>.json
+  → 經拓撲鐵律逐步套用、存 data/metro/straighten-shape/<cityId>.<variant>.json
   → 印出 square（是否成方）、crosses、rejected 清單 → 你據此再提下一輪 → 成方即停
 scripts/llmShape.mjs reset <cityId> <orig|rot>   # 想從頭來
 ```
@@ -179,7 +179,7 @@ scripts/llmShape.mjs reset <cityId> <orig|rot>   # 想從頭來
 
 ## 規則
 
-- **絕不手改** `data/metro/llmshapes/` 的檔案——一律經 `apply`（硬規則）。
+- **絕不手改** `data/metro/straighten-shape/` 的檔案——一律經 `apply`（硬規則）。
 - **成方是硬目標，而且幾乎總是做得到**：拓撲上環一定能變形成矩形而不改嵌入
   （同胚），所以「保 360° 環繞序」與「成方」**不衝突**——衝突只發生在「你只動了
   環站、沒把該連動的樞紐鄰域一起搬」。看到 `via=greedy／square:false／某點被

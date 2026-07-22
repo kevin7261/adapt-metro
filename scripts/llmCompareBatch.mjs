@@ -1,5 +1,5 @@
 // 全球 RWD Maps LLM 比較批次——每城一次選出全體／原始／旋轉最佳，
-// 寫入 data/metro/llmcompares/<city>.json（與 route-llm-compare / llmCompare.mjs
+// 寫入 data/metro/rwd-compare/<city>.json（與 route-llm-compare / llmCompare.mjs
 // apply 同格式）。評分＝skill 準則的可重現啟發式（forced/fallback 最重、再比
 // 直線率／轉折／平衡／共線）；已有結果且 fingerprint 相符則跳過。
 //
@@ -16,7 +16,7 @@ import { spawnSync } from 'node:child_process'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const DATA = join(ROOT, 'data', 'metro')
-const OUT = join(DATA, 'llmcompares')
+const OUT = join(DATA, 'rwd-compare')
 const MODEL = 'batch-metric'
 
 const args = process.argv.slice(2)
@@ -151,7 +151,7 @@ async function runOne(cityId) {
 }
 
 async function main() {
-  const viewFiles = (await readdir(join(DATA, 'views')))
+  const viewFiles = (await readdir(join(DATA, 'map-adjust')))
     .filter((f) => f.endsWith('.json') && f !== 'index.json')
     .map((f) => f.replace(/\.json$/, ''))
     .sort()

@@ -12,8 +12,8 @@
 //   · 皇居/公園面域仍是地標 overlay（不轉網路）；河流 LineString 地標**不再輸出**。
 // 這樣骨架/交叉/格網化/爬山（Straighten）/RWD 全部把河流當一般線處理——**零特例**。
 //
-// 來源：data/metro/landmarks/**（fetchLandmarks.mjs 產生，仍是地標資料的產地）。
-// 產出：data/metro/systems/**/{slug}-lm.geojson ＋ index.json ＋ cityNamesZh.json。
+// 來源：data/metro/metro-landmarks/**（fetchLandmarks.mjs 產生，仍是地標資料的產地）。
+// 產出：data/metro/metro-maps/**/{slug}-lm.geojson ＋ index.json ＋ cityNamesZh.json。
 //
 //   node scripts/buildLandmarkCombined.mjs
 //
@@ -138,7 +138,7 @@ const zh = JSON.parse(await readFile(zhPath, 'utf8'))
 const rels = await listLandmarks(join(METRO, 'landmarks'))
 for (const rel of rels) {
   const slug = basename(rel, '.geojson')
-  const basePath = join(METRO, 'systems', rel)
+  const basePath = join(METRO, 'metro-maps', rel)
   let base
   try { base = JSON.parse(await readFile(basePath, 'utf8')) }
   catch { console.log(`[skip] ${slug}: no base metro ${rel}`); continue }
@@ -167,11 +167,11 @@ for (const rel of rels) {
   }
 
   const outRel = rel.replace(/\.geojson$/, '-lm.geojson')
-  await writeFile(join(METRO, 'systems', outRel), JSON.stringify(combined))
+  await writeFile(join(METRO, 'metro-maps', outRel), JSON.stringify(combined))
   console.log(`wrote systems/${outRel}  (metro ${base.features.length} + river ${rv.segments.length}線/${rv.stations.length}點 + 面域 ${areaFeats.length})`)
 
   entries.push({
-    file: `systems/${outRel}`,
+    file: `metro-maps/${outRel}`,
     continent: m.continent, country: m.country, city: cityEn,
     osm_networks: m.osm_networks, operator: m.operator,
     official_website: m.official_website, official_map: m.official_map,

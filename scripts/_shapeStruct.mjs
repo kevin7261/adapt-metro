@@ -10,7 +10,7 @@ setSpanCap(3)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const cityId = process.argv[2] || 'as-jpn-tokyo-jr'
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')

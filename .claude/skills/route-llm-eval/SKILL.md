@@ -21,7 +21,7 @@ scripts/llmEval.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
   ← 印出佈局幾何（JSON）：全網統計＋逐線報告＋頂點鏈
   → 你閱讀後寫評價（scratchpad 寫 eval.json）
 scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
-  → 驗證（summary 必填、model 選填**預設 Fable 5**、score 夾 0–10）、存 data/metro/llmevals/<cityId>.<variant>.<compact>.json
+  → 驗證（summary 必填、model 選填**預設 Fable 5**、score 夾 0–10）、存 data/metro/rwd-llmeval/<cityId>.<variant>.<compact>.json
 ```
 
 - `cityId`／`variant`／`compact` 與 [[route-llm-grid]] 同義（結果檔名同三段）。
@@ -128,7 +128,7 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
 
 ## 規則
 
-- **絕不手改** `data/metro/llmevals/` 的檔案——一律經 `apply`（驗證）。
+- **絕不手改** `data/metro/rwd-llmeval/` 的檔案——一律經 `apply`（驗證）。
 - 想從頭來：`node scripts/llmEval.mjs reset <cityId> <variant> [compact]`。
 - 評的是**縮減網格的整數格佈局**（RWD 畫線的輸入）：H/V/D45 段畫成直線、
   other 段一定折彎——所以「把某段變成 H/V/45」就是「少一個彎」的同義詞。

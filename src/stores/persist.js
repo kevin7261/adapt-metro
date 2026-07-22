@@ -16,11 +16,15 @@ export function loadPersisted() {
   } catch { return null }
 }
 
-function buildSnapshot(store) {
+export function buildSnapshot(store) {
   const d3Data = {}
   for (const l of store.layers) {
     // file-imported D3 view: data lives only in layerData, not re-fetchable
     if (l.type === 'd3' && !l.sourceLayerId && !l.file && layerData[l.id]) {
+      d3Data[l.id] = layerData[l.id]
+    }
+    // 專案另存：所有已載入的 metro／衍生源也一併帶上（匯入可離線回復）
+    if (l.type === 'metro' && layerData[l.id]) {
       d3Data[l.id] = layerData[l.id]
     }
   }
@@ -30,6 +34,7 @@ function buildSnapshot(store) {
     selectedLayerId: store.selectedLayerId,
     openTabIds: store.openTabIds,
     activeTabId: store.activeTabId,
+    dockLayout: store.dockLayout,
     groupCollapsed: store.cityCollapsed,
     attributeTableOpen: store.ui.attributeTableOpen,
     layerPanelOpen: store.ui.layerPanelOpen,
@@ -39,6 +44,25 @@ function buildSnapshot(store) {
     accent: store.accent,
     d3Data,
   }
+}
+
+/** 專案匯入：覆寫 session 並重植 layerData */
+export function applySnapshot(store, snap) {
+  if (!snap) return
+  if (Array.isArray(snap.layers)) store.layers = snap.layers
+  store.selectedLayerId = snap.selectedLayerId ?? null
+  store.openTabIds = snap.openTabIds ?? []
+  store.activeTabId = snap.activeTabId ?? null
+  store.dockLayout = snap.dockLayout ?? null
+  store.cityCollapsed = snap.groupCollapsed ?? {}
+  store.ui.attributeTableOpen = snap.attributeTableOpen ?? {}
+  if (snap.layerPanelOpen != null) store.ui.layerPanelOpen = snap.layerPanelOpen
+  if (snap.layerPanelWidth != null) store.layerPanelWidth = snap.layerPanelWidth
+  if (snap.attributeTableHeight != null) store.attributeTableHeight = snap.attributeTableHeight
+  if (snap.dark != null) store.dark = snap.dark
+  if (snap.accent != null) store.accent = snap.accent
+  for (const [id, data] of Object.entries(snap.d3Data ?? {})) layerData[id] = data
+  savePersisted(store)
 }
 
 function write(snap) {

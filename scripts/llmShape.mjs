@@ -3,7 +3,7 @@
 // Octi，而由 LLM 提出「移哪些點」，這裡把提案經與演算法本體完全相同的拓撲鐵律
 // （topoSafeTowardTargets：每一步 makeMover.validMove ＝交叉不增／無撞格／環繞序
 // 不變）落地，目標是把「規定路段 W」收成四邊直線正方（isFourLineSquare）。
-// 網頁端（D3Tab 的「⑨LLM 成方」view）只載入 data/metro/llmshapes/ 的結果。
+// 網頁端（D3Tab 的「⑨LLM 成方」view）只載入 data/metro/straighten-shape/ 的結果。
 //
 //   node scripts/llmShape.mjs export <cityId> <orig|rot>
 //   node scripts/llmShape.mjs apply  <cityId> <orig|rot> <moves.json>
@@ -37,7 +37,7 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
-const OUT = join(DATA, 'llmshapes')
+const OUT = join(DATA, 'straighten-shape')
 
 const [cmd, cityId, variant = 'orig', movesPath] = process.argv.slice(2)
 if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
@@ -47,8 +47,10 @@ if (!cmd || !cityId || !['orig', 'rot'].includes(variant)) {
 const outFile = join(OUT, `${cityId}.${variant}.json`)
 
 // ---- rebuild the deterministic chain (mirror of D3Tab / viewGeometry / llmAlign) ----
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
-const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
+const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
+const sys = (index.systems ?? []).find((s) => (s.file || '').split('/').pop()?.replace(/\.geojson$/, '') === cityId)
+if (!sys) { console.error(`index.json 找不到城市 ${cityId}`); process.exit(1) }
+const geojson = JSON.parse(await readFile(join(DATA, sys.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
 const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }

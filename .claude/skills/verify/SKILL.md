@@ -42,6 +42,6 @@ MapLibre Raw Maps tab（磚圖底圖）載入時序不定，**不要拿來比像
 
 ## 陷阱
 
-- 佈局在 `data/metro/hccells/`（不再用 localStorage 存 network）；session 仍 localStorage——Playwright
+- 佈局在 `data/metro/straighten-cells/`（不再用 localStorage 存 network）；session 仍 localStorage——Playwright
   用全新 context 即乾淨；手動測試改了演算法要記得清。
 - 台北匯入後 HC 計算約數秒，busy 提示會蓋畫布，等它消失再截圖。

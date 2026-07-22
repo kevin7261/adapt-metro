@@ -503,7 +503,7 @@ STEP 5 的 local search 由「迭代到不動點」取代。多彎路由是 RWD 
 const execPure = (file, fn, skills, flow, cache = '') => `<ul class="exec-list">
 <li><b>怎麼觸發</b>：在 Map Adjust 左側樹狀點這個視圖 → <b>瀏覽器即時計算</b>，不跑任何 npm 指令、不連伺服器。</li>
 <li><b>用到什麼程式</b>：<code>${file}</code> 的 <code>${fn}</code>（純函式、不改輸入），由 <code>src/components/D3Tab.vue</code> 在 render 時呼叫${cache ? `；${cache}` : ''}。</li>
-<li><b>會抓什麼</b>：只讀「已載入的城市 GeoJSON」（先前 <code>fetch(assetUrl('data/metro/systems/…'))</code> 載進來的），<b>零 Overpass、零網路 API、零 token</b>。</li>
+<li><b>會抓什麼</b>：只讀「已載入的城市 GeoJSON」（先前 <code>fetch(assetUrl('data/metro/metro-maps/…'))</code> 載進來的），<b>零 Overpass、零網路 API、零 token</b>。</li>
 <li><b>會 call 什麼 skill</b>：${skills} — 這些是<b>演算法的文件依據</b>（給要改程式的人看的 SKILL.md），執行時<b>不會真的去呼叫</b>。</li>
 <li><b>執行流程</b>：${flow}</li>
 </ul>`
@@ -514,7 +514,7 @@ const EXECUTION = {
 <li><b>用到什麼程式</b>：<code>scripts/fetchMetro.mjs</code>（抓 OSM）→ <code>scripts/geocodeSystems.mjs</code>（反向地理編碼分城）→ <code>scripts/buildGeojson.mjs</code>（組檔、共站合併、共線去重）→ <code>scripts/buildViews.mjs</code>（畫廊縮圖）。抓取共用 <code>scripts/overpass.mjs</code>。</li>
 <li><b>會抓什麼</b>：<b>OpenStreetMap Overpass API</b>——主站 <code>overpass-api.de</code> ＋ <code>overpass.kumi.systems</code>／<code>maps.mail.ru</code>／<code>overpass.private.coffee</code> 三個鏡像輪替、失敗重試——抓 route relation／node／way。回應快取在 <code>data/metro/_cache/</code>（<code>geom_*.json</code> 等）避免重抓。</li>
 <li><b>會 call 什麼 skill</b>：<code>metro-osm-fetch</code>（取得管線）、<code>metro-audit</code>（逐城對照 Wikipedia／urbanrail 驗證，<code>npm run metro:audit</code>＝<code>auditLoop.mjs</code>）、<code>metro-cities</code>＋城市專屬 skill（台北/東京/紐約…的裁決）。這些是 Claude Code 模型抓取／修補時遵循的指示。</li>
-<li><b>執行流程</b>：Overpass 抓原始關係 → 依 route 站序連線、共站合併、共線去重（<code>route_count</code>）→ 反向地理編碼分城 → 輸出 <code>data/metro/systems/&lt;洲&gt;/&lt;國&gt;/&lt;城&gt;.geojson</code>；再由 <code>buildJrCombined</code>／<code>buildLandmarkCombined</code> 併入 JR 與地標（<code>-lm</code> 檔）。</li>
+<li><b>執行流程</b>：Overpass 抓原始關係 → 依 route 站序連線、共站合併、共線去重（<code>route_count</code>）→ 反向地理編碼分城 → 輸出 <code>data/metro/metro-maps/&lt;洲&gt;/&lt;國&gt;/&lt;城&gt;.geojson</code>；再由 <code>buildJrCombined</code>／<code>buildLandmarkCombined</code> 併入 JR 與地標（<code>-lm</code> 檔）。</li>
 </ul>`,
   highway: `<ul class="exec-list">
 <li><b>怎麼觸發</b>：離線——<code>npm run highway:fetch as-twn</code> → <code>highway:build as-twn</code>（或 <code>highway:all</code>）。</li>
@@ -540,7 +540,7 @@ const EXECUTION = {
   mapadjust: `<ul class="exec-list">
 <li><b>怎麼觸發</b>：在 dock 打開某城市的「Map Adjust」分頁——<b>前端即時</b>，不跑 npm、不連伺服器。</li>
 <li><b>用到什麼程式</b>：<code>src/components/D3Tab.vue</code> 用 <code>d3</code> 畫；點骨架化＝<code>src/stores/skeleton.js</code>、點格網化＝<code>src/stores/schematicGrid.js</code>（皆純函式）。</li>
-<li><b>會抓什麼</b>：只 <code>fetch(assetUrl('data/metro/systems/…'))</code> 讀城市 GeoJSON，<b>零網路 API、零 token</b>。</li>
+<li><b>會抓什麼</b>：只 <code>fetch(assetUrl('data/metro/metro-maps/…'))</code> 讀城市 GeoJSON，<b>零網路 API、零 token</b>。</li>
 <li><b>會 call 什麼 skill</b>：<code>route-skeleton-connect</code>、<code>route-skeleton-grid</code>（演算法文件依據）。</li>
 <li><b>執行流程</b>：讀城市檔 → d3 <code>geoPath</code> 畫線與站（原始）；切到骨架化/格網化才呼叫對應純函式重算、即時切換。</li>
 </ul>`,
@@ -553,10 +553,10 @@ const EXECUTION = {
     '彩色點排名吸附 → <code>cellOf</code> → <code>repairOcclusions</code> 消壓點/交叉 → <code>placeBlacks</code> 把黑點沿新邊拉直。'),
   hillclimb: execPure('src/stores/hillClimb.js', 'buildHillClimb(skeleton, cellOf, cols, rows)', '<code>route-hillclimb</code>',
     '以格網化後為輸入，多準則適應度＋4 條硬規則爬山（搜尋半徑 8 起逐輪冷卻），含超長邊與折彎群集移動。',
-    '結果存 <code>data/metro/hccells/&lt;city&gt;.&lt;variant&gt;[.shapelike].json</code>＋記憶體 <code>cachedHC</code>，fingerprint／algo 不符就作廢重算'),
+    '結果存 <code>data/metro/straighten-cells/&lt;city&gt;.&lt;variant&gt;[.shapelike].json</code>＋記憶體 <code>cachedHC</code>，fingerprint／algo 不符就作廢重算'),
   straighten: `<ul class="exec-list">
 <li><b>怎麼觸發</b>：論文①〜⑧的八條鏈（①筆畫法／②直角爬山／③MILP規劃／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT規劃）＝點視圖即時算；<b>LLM 對齊</b>＝按「開始 LLM 對齊」，由 <code>vite.config.js</code> 的外掛 spawn 一個 <b>headless <code>claude -p</code></b> session。</li>
-<li><b>用到什麼程式</b>：八條論文鏈＝<code>src/stores/paperAlign.js</code> 的 <code>PAPER_BUILD</code>（②直角爬山的本體 <code>buildRectPolish</code> 在 <code>hillClimb.js</code>；都是純函式、走 <code>iteratePost</code> 迭代到不動點）；LLM＝<code>vite.config.js</code> 收 <code>/llm-align/run</code> → 跑 <code>claude -p</code> 依 skill 提移動、寫 <code>data/metro/llmviews/&lt;city&gt;.&lt;variant&gt;.json</code>，網頁輪詢 <code>/llm-align/status</code>。</li>
+<li><b>用到什麼程式</b>：八條論文鏈＝<code>src/stores/paperAlign.js</code> 的 <code>PAPER_BUILD</code>（②直角爬山的本體 <code>buildRectPolish</code> 在 <code>hillClimb.js</code>；都是純函式、走 <code>iteratePost</code> 迭代到不動點）；LLM＝<code>vite.config.js</code> 收 <code>/llm-align/run</code> → 跑 <code>claude -p</code> 依 skill 提移動、寫 <code>data/metro/straighten-llm/&lt;city&gt;.&lt;variant&gt;.json</code>，網頁輪詢 <code>/llm-align/status</code>。</li>
 <li><b>會抓什麼</b>：即時算的鏈<b>零網路</b>；LLM 對齊會<b>啟動 Claude Code 模型</b>（headless、不用 API key），讀目前佈局的幾何脈絡、回傳短距離移動。</li>
 <li><b>會 call 什麼 skill</b>：<code>route-rect-polish</code>（②）＋其餘論文鏈各自的 <code>route-*-align</code>（即時鏈的文件依據）；<code>route-llm-align</code>（LLM 對齊，<b>真的被 headless session 讀取執行</b>）。</li>
 <li><b>執行流程</b>：都以「主視圖目前顯示的佈局」為起點 → 產生新 <code>cellAfter</code> → 過與其他相同的硬規則套用；LLM 版跑完不自動套用、按「執行調整」才套。</li>

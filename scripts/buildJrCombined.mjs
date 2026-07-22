@@ -24,7 +24,7 @@ const METRO = join(__dirname, '..', 'data', 'metro')
 const TARGETS = [
   {
     slug: 'as-jpn-tokyo-jr',
-    base: 'systems/asia/japan/as-jpn-tokyo.geojson',
+    base: 'metro-maps/asia/japan/as-jpn-tokyo.geojson',
     cityEn: 'Tokyo + Yamanote',
     cityZh: '東京＋山手',
     rel: 1972960, // JR山手線 (inner) — codes ascend, clean order
@@ -38,7 +38,7 @@ const TARGETS = [
   },
   {
     slug: 'as-jpn-osaka-jr',
-    base: 'systems/asia/japan/as-jpn-osaka.geojson',
+    base: 'metro-maps/asia/japan/as-jpn-osaka.geojson',
     cityEn: 'Osaka + Loop',
     cityZh: '大阪＋環狀',
     rel: 10073683, // JR大阪環状線 (内回り)
@@ -341,11 +341,11 @@ out body;`
   console.log(`  merged ${merged}, new ${added}; stations ${baseStations}→${totalStations}, segs ${totalSegs}, interchanges ${nInterchange}`)
   mergeLog.forEach((l) => console.log(l))
 
-  const outPath = join(METRO, 'systems/asia/japan', `${t.slug}.geojson`)
+  const outPath = join(METRO, 'metro-maps/asia/japan', `${t.slug}.geojson`)
   await writeFile(outPath, JSON.stringify(out))
   console.log(`  wrote ${outPath}`)
   return {
-    file: `systems/asia/japan/${t.slug}.geojson`,
+    file: `metro-maps/asia/japan/${t.slug}.geojson`,
     continent: m.continent, country: m.country, city: t.cityEn,
     osm_networks: out.metro_system.osm_networks, operator: m.operator,
     official_website: m.official_website, official_map: m.official_map,

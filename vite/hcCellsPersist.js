@@ -1,10 +1,10 @@
-// Persist Straighten／RWD 的整數格佈局到 data/metro/hccells/*.json（取代 localStorage）。
+// Persist Straighten／RWD 的整數格佈局到 data/metro/straighten-cells/*.json（取代 localStorage）。
 //   POST /hc-cells/save  { city, variant, shapelike?, payload }
 //   POST /hc-cells/clear { city } | { city, variant, shapelike? }
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const DIR = 'data/metro/hccells'
+const DIR = 'data/metro/straighten-cells'
 
 function safeCity(s) { return /^[\w-]+$/.test(s ?? '') ? s : null }
 function safeVariant(s) { return /^[\w.-]+$/.test(s ?? '') ? s : null }

@@ -13,7 +13,7 @@ import { continentCode, iocCode } from './countryCodes.mjs'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
 const CACHE = join(BASE, '_cache')
-const SYS_DIR = join(BASE, 'systems')
+const SYS_DIR = join(BASE, 'metro-maps')
 const OVERRIDES_DIR = join(BASE, '_overrides')
 
 // City-binding overrides: data/metro/_overrides/*.json, each
@@ -2480,7 +2480,7 @@ async function writeOutputs(lines, stations, cityGroups, wikiSystems) {
     const outPath = join(SYS_DIR, relPath)
     await mkdir(dirname(outPath), { recursive: true })
     await writeFile(outPath, JSON.stringify(fc(feats, { metro_system: systemMeta })))
-    index.push({ file: `systems/${relPath}`, ...systemMeta })
+    index.push({ file: `metro-maps/${relPath}`, ...systemMeta })
   }
 
   // stale-file cleanup：桶的命名/歸屬改變時，上一輪寫出的舊檔要刪掉

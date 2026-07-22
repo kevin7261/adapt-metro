@@ -1,5 +1,5 @@
 // 全球 LLM 自動對齊批次——為每個城市的原始／旋轉各算一次自動對齊，
-// 寫入 data/metro/llmviews/<city>.<variant>.json（與 route-llm-align /
+// 寫入 data/metro/straighten-llm/<city>.<variant>.json（與 route-llm-align /
 // llmAlign.mjs apply 同格式），讓 Straighten／RWD 畫廊的 LLM 對齊格不再空白。
 //
 // 策略＝skill route-llm-align 的短距 H/V／對角啟發式（非 headless Claude）：
@@ -26,7 +26,7 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
-const OUT = join(DATA, 'llmviews')
+const OUT = join(DATA, 'straighten-llm')
 const MODEL = 'batch-hvd' // 啟發式批次；有 headless Claude 結果檔時本腳本預設不覆寫
 const MAX_ROUNDS = 10
 const MAX_STEP = 3
@@ -139,8 +139,10 @@ function proposeMoves(segs, cells, cols, rows) {
 }
 
 async function loadCity(cityId, variant) {
-  const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
-  const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
+  const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
+  const sys = (index.systems ?? []).find((s) => (s.file || '').split('/').pop()?.replace(/\.geojson$/, '') === cityId)
+  if (!sys) throw new Error(`index.json 找不到城市 ${cityId}`)
+  const geojson = JSON.parse(await readFile(join(DATA, sys.file), 'utf8'))
   const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
   const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
   const fitFC = { type: 'FeatureCollection', features: lineFeats.length ? lineFeats : geojson.features }
@@ -254,9 +256,10 @@ async function runOne(cityId, variant) {
 }
 
 async function main() {
-  const viewFiles = (await readdir(join(DATA, 'views')))
-    .filter((f) => f.endsWith('.json') && f !== 'index.json')
-    .map((f) => f.replace(/\.json$/, ''))
+  const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
+  const viewFiles = (index.systems ?? [])
+    .map((s) => (s.file || '').split('/').pop()?.replace(/\.geojson$/, ''))
+    .filter(Boolean)
     .sort()
   const cities = onlyCity ? viewFiles.filter((c) => c === onlyCity) : viewFiles
   if (onlyCity && !cities.length) {

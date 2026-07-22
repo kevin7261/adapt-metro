@@ -551,7 +551,7 @@ async function main() {
     })
     if (!fc.features.length) { console.log(`  ${slug}: 0 features, skip`); continue }
     const cont = CONTINENT_DIR[raw.continent] || 'other'
-    const rel = `systems/${cont}/${countrySlug(raw.country)}/${slug}.geojson`
+    const rel = `metro-maps/${cont}/${countrySlug(raw.country)}/${slug}.geojson`
     await mkdir(dirname(join(HIGHWAY, rel)), { recursive: true })
     await writeFile(join(HIGHWAY, rel), JSON.stringify(fc))
     const m = fc.highway_system

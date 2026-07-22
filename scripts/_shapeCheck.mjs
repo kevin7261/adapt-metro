@@ -1,5 +1,5 @@
 // Fast oracle: mirror applyShapeLlmTargets batch gates against the CURRENT
-// persisted base (data/metro/llmshapes/<city>.<variant>.json) or grid-post.
+// persisted base (data/metro/straighten-shape/<city>.<variant>.json) or grid-post.
 // Reports crossings / cellClash / ptOverlap / badEdgeOrder with labels so a
 // candidate moves.json can be tuned to batch-clean BEFORE spending an apply.
 import { readFile } from 'node:fs/promises'
@@ -19,9 +19,9 @@ const DATA = join(__dirname, '..', 'data', 'metro')
 const cityId = process.argv[2] || 'as-jpn-tokyo-jr'
 const variant = process.argv[3] || 'orig'
 const candPath = process.argv[4]
-const outFile = join(DATA, 'llmshapes', `${cityId}.${variant}.json`)
+const outFile = join(DATA, 'straighten-shape', `${cityId}.${variant}.json`)
 
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')

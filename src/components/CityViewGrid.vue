@@ -11,7 +11,7 @@ import MIcon from './MIcon.vue'
 // 「旋轉 N°」）、欄數、按鈕文案。
 const props = defineProps({
   entry: { type: Object, required: true },
-  dataDir: { type: String, required: true },   // 'hcviews' | 'rwdviews'
+  dataDir: { type: String, required: true },   // 'straighten' | 'rwd-maps'
   order: { type: Array, required: true },      // view id 順序
   labels: { type: Object, default: null },     // 靜態標籤表（RWD）
   labelsForTilt: { type: Function, default: null }, // (tilt) => labels（HC）
@@ -66,9 +66,9 @@ async function load() {
     if (props.labelsForTilt) lab.value = props.labelsForTilt(json.tilt ?? 0)
     data.value = json
     state.value = 'done'
-    if (props.dataDir === 'rwdviews') {
+    if (props.dataDir === 'rwd-maps') {
       try {
-        const cr = await fetch(assetUrl(`data/metro/llmcompares/${props.entry.id}.json`), { cache: 'no-cache' })
+        const cr = await fetch(assetUrl(`data/metro/rwd-compare/${props.entry.id}.json`), { cache: 'no-cache' })
         if (cr.ok) {
           const cj = await cr.json()
           compare.value = {

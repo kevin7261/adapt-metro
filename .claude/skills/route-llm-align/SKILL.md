@@ -24,7 +24,7 @@ description: LLM 對齊（直線演算法第九條鏈——論文①〜⑧之外
 scripts/llmAlign.mjs export <cityId> <orig|rot> [--prompt]
   → 你讀 offSegs、決定 moves（scratchpad 寫 moves.json）
 scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json> [--prompt]
-  → 經硬規則套用、存 data/metro/llmviews/<cityId>.<variant>[.prompt].json
+  → 經硬規則套用、存 data/metro/straighten-llm/<cityId>.<variant>[.prompt].json
   → 印出新 HV、rejected 清單 → 你據此再提下一輪 → 收斂即停
 ```
 
@@ -72,7 +72,7 @@ base；**不吃 HC**）。**起點不是你的責任**——vite plugin 在 spaw
 ## 全球批次（最初結果、消畫廊空白）
 
 Straighten／RWD 畫廊的「原始／旋轉・LLM 對齊」縮圖依賴
-`data/metro/llmviews/<city>.{orig,rot}.json`。缺檔＝「尚未預算」。
+`data/metro/straighten-llm/<city>.{orig,rot}.json`。缺檔＝「尚未預算」。
 
 一次性為全球城市各算 orig＋rot（啟發式短距 H/V／對角，經同一套
 `applyLlmTargets` 硬規則；已有 fingerprint 相符的檔會跳過）：
@@ -120,7 +120,7 @@ node scripts/llmAlignBatch.mjs --force  # 全部重算
 
 ## 規則
 
-- **絕不手改** `data/metro/llmviews/` 的檔案——一律經 `apply`（硬規則）。
+- **絕不手改** `data/metro/straighten-llm/` 的檔案——一律經 `apply`（硬規則）。
 - 重跑（資料沒變、想再改善）直接繼續 apply 即可；想從頭來先
   `node scripts/llmAlign.mjs reset <cityId> <variant>`。
 - 與①〜⑧的比較基準相同：輸入都是格網化後的 cellOf；

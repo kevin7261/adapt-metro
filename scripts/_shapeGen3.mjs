@@ -13,7 +13,7 @@ setSpanCap(3)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
 const cityId = 'as-jpn-tokyo-jr', variant = 'orig'
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
@@ -27,7 +27,7 @@ const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
 const ids = [...grid.cellOf.keys()].sort()
 const idxOf = new Map(ids.map((id, i) => [id, i]))
 const idOf = (i) => ids[i]
-const outFile = join(DATA, 'llmshapes', `${cityId}.${variant}.json`)
+const outFile = join(DATA, 'straighten-shape', `${cityId}.${variant}.json`)
 let baseCells
 if (existsSync(outFile)) { const s = JSON.parse(await readFile(outFile, 'utf8')); baseCells = new Map(s.cellAfter.map(([id, c, r]) => [id, [c, r]])) }
 else baseCells = new Map([...grid.cellOf].map(([id, p]) => [id, [...p]]))

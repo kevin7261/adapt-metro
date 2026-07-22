@@ -5,7 +5,7 @@ import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
-// 爬山/後處理/循環結果存 data/metro/hccells/*.json（不用 localStorage），見 hcCache.js。
+// 爬山/後處理/循環結果存 data/metro/straighten-cells/*.json（不用 localStorage），見 hcCache.js。
 import {
   dataFingerprint, loadHcCache, saveHcCache, clearHcCache, purgeLegacyHcLocalStorage,
 } from '../lib/hcCache'
@@ -121,7 +121,7 @@ const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc-stroke' : 'original')
 // layout-* 也走 computeHcLayout（但只跑該演算法、不碰 HC／下游）。
 const hcMode = computed(() => needsHcLayout(mode.value))
 // 第四種後處理「LLM 對齊」不在瀏覽器計算：由 Claude Code 依 skill
-// route-llm-align 預先跑好、存在 data/metro/llmviews/<city>.<variant>.json，
+// route-llm-align 預先跑好、存在 data/metro/straighten-llm/<city>.<variant>.json，
 // 這裡只載入＋fingerprint 驗證。llmInfo 驅動按鈕上的「n輪 · 模型名」badge。
 const llmMode = computed(() => isHC.value && mode.value.startsWith('hc-llm'))
 // RWD 也能建立在「LLM 對齊縮減」之上（layer.compact === 'llm'）→ 同樣走載檔案路徑。
@@ -243,7 +243,7 @@ function togglePromptExec() {
 // ---- LLM 互動（RWD Maps「AI 改網格長寬」，skill route-llm-grid）----
 // 與 LLM 評價同一套離線模式：使用者的一句話 POST 給 /llm-grid/run（vite plugin
 // spawn headless Claude Code），模型推理每個 X 欄／Y 列區間的顯示權重、存到
-// data/metro/llmgrids/<city>.<variant>.<compact>.json，這裡只載入＋fingerprint
+// data/metro/rwd-llmgrid/<city>.<variant>.<compact>.json，這裡只載入＋fingerprint
 // 驗證。跟評價一樣**跑完不自動套用**：畫布照畫 RWD 路網、串流顯示在面板內，
 // 使用者按「執行調整」才用 intervalAxes 正規化進固定外框重畫（見 gridApplied）。
 const gridInfo = ref(null)     // { model } once loaded — 面板顯示
@@ -282,7 +282,7 @@ function toggleGridExec() {
 // ---- LLM 評價（RWD Maps「AI 評路網佈局」，skill route-llm-eval）----
 // 同一套離線模式，但**只評價、不修改**：按鈕 POST /llm-eval/run（vite plugin
 // spawn headless Claude Code），模型讀縮減網格佈局的幾何（逐線段方向、彎折數）
-// 寫評語存 data/metro/llmevals/<city>.<variant>.<compact>.json，這裡只載入＋
+// 寫評語存 data/metro/rwd-llmeval/<city>.<variant>.<compact>.json，這裡只載入＋
 // fingerprint 驗證，顯示在右側「LLM評價」tab——畫布完全不受影響。
 const evalStats = ref(null)   // the whole llmeval file（右側 LLM評價 面板）
 const evalMsg = ref(null)     // hint when the result is missing / stale
@@ -501,7 +501,7 @@ async function loadCompare() {
   const cid = sourceLayer.value?.id
   if (!cid) return
   try {
-    const res = await fetch(assetUrl(`data/metro/llmcompares/${cid}.json`), { cache: 'no-store' })
+    const res = await fetch(assetUrl(`data/metro/rwd-compare/${cid}.json`), { cache: 'no-store' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     compareRecord.value = await res.json()
     compareMsg.value = null
@@ -583,7 +583,7 @@ const postKind = computed(() =>
 const hcCompact = computed(() => mode.value.endsWith('compact') || isRWD.value)
 // RWD 路網: redraw the compact layout with strict H/V/45° legs (rwdMap.js).
 // 「LLM互動」（skill route-llm-grid）不是獨立視圖，而是同一個 RWD 路網上的一個
-// 切換：按「執行調整」才用 LLM 推理的區間權重（結果檔 data/metro/llmgrids/）重畫
+// 切換：按「執行調整」才用 LLM 推理的區間權重（結果檔 data/metro/rwd-llmgrid/）重畫
 // 欄寬列高、「恢復原佈局」切回——與「LLM評價」的執行調整 toggle 同一套 UX。
 const rwdMode = computed(() => mode.value === 'rwd')
 const rotated = computed(() =>
@@ -621,9 +621,13 @@ let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 // 對應 miss 訊息；成功回 onOk(j)。呼叫端自己處理 renderSeq 過期。
 async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, dims }) {
   try {
-    const res = await fetch(assetUrl(url))
-    const isJson = (res.headers.get('content-type') ?? '').includes('json')
-    const j = res.ok && isJson ? await res.json() : null
+    const { getDataOverlay } = await import('../lib/dataOverlay.js')
+    let j = getDataOverlay(url)
+    if (!j) {
+      const res = await fetch(assetUrl(url))
+      const isJson = (res.headers.get('content-type') ?? '').includes('json')
+      j = res.ok && isJson ? await res.json() : null
+    }
     if (!j) return { miss: missNone }
     const fp = j.fingerprint ?? {}
     // cachedHC 可能為 null（⑨ LLM 成方 view 不跑 HC、直接吃格網化後）——此時跳過
@@ -1095,7 +1099,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   const cityIdForShape = sourceLayer.value?.id ?? null
   const shapeCleared = !!hcLayer.value?.shapeFeedCleared
   if (shapeEnabled.value && cityIdForShape && !cachedShapeLlm && shapeLlmRun.value !== 'running') {
-    cachedShapeLlm = await fetchLlmResult(`data/metro/llmshapes/${cityIdForShape}.${hcVariant.value}.json`, {
+    cachedShapeLlm = await fetchLlmResult(`data/metro/straighten-shape/${cityIdForShape}.${hcVariant.value}.json`, {
       missNone: '尚未產生 LLM 成方——按「開始 LLM 成方」讓模型把規定路段收成方',
       missStale: 'LLM 成方結果與目前資料不符（資料已更新）——請重新產生',
       missErr: '無法載入 LLM 成方結果',
@@ -1120,10 +1124,15 @@ async function computeHcLayout({ seq, w, h, grid }) {
       shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
       shapeLlmMsg.value = null
       const sk = llmApplyKeys.value.shape
-      // 不成方餵下游：必須按「開始 LLM 成方」跑完（onDone 寫 apply=true），
-      // 或手動「執行調整」。僅有舊檔、尚未明示套用 → 不餵、不走 :shapelike 重算。
-      if (shapeCleared) shapeLlmApplied.value = false
-      else shapeLlmApplied.value = llmApplyHas(sk) ? llmApplyGet(sk) : false
+      // 只有 square===true 才算「成方跑出來」→ 批次／檔案預設餵下游。
+      // square===false（近似方、fourLine 未過）＝沒跑出來，不餵、下游顯示提示。
+      // 明示套用旗標優先；「重新計算」清掉後不成方。
+      const squared = cachedShapeLlm.stats?.square === true
+      if (shapeCleared || !squared) shapeLlmApplied.value = false
+      else shapeLlmApplied.value = llmApplyHas(sk) ? llmApplyGet(sk) : true
+      if (!squared) {
+        shapeLlmMsg.value = '成方未通過（非正確方形）——請重跑 ⑨ LLM 成方'
+      }
     } else {
       shapeLlmStats.value = null
       shapeLlmInfo.value = null
@@ -1299,7 +1308,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
       const cid = sourceLayer.value?.id
       cachedLlm = !cid
         ? { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
-        : await fetchLlmResult(`data/metro/llmviews/${cid}.${hcVariant.value}.json`, {
+        : await fetchLlmResult(`data/metro/straighten-llm/${cid}.${hcVariant.value}.json`, {
           missNone: `尚未產生 LLM 對齊——按「開始 LLM 對齊」讓模型移動座標`,
           missStale: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生',
           missErr: '無法載入 LLM 對齊結果',
@@ -1327,7 +1336,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
       const cid = sourceLayer.value?.id
       cachedPrompt = !cid
         ? { miss: '匯入資料不支援 LLM 對齊（沒有城市 id 可對應結果檔）' }
-        : await fetchLlmResult(`data/metro/llmviews/${cid}.${hcVariant.value}.prompt.json`, {
+        : await fetchLlmResult(`data/metro/straighten-llm/${cid}.${hcVariant.value}.prompt.json`, {
           missNone: '尚未產生指定對齊——在下面輸入一句話讓模型依指示對齊',
           missStale: '指定對齊結果與目前資料不符（資料已更新）——請重新產生',
           missErr: '無法載入指定對齊結果',
@@ -1468,7 +1477,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     const cid = sourceLayer.value?.id
     cachedEval = !cid
       ? { miss: '匯入資料不支援 LLM 評價（沒有城市 id 可對應結果檔）' }
-      : await fetchLlmResult(`data/metro/llmevals/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`, {
+      : await fetchLlmResult(`data/metro/rwd-llmeval/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`, {
         missNone: '尚未產生評價——按「開始 LLM 評價」讓模型評這個路網',
         missStale: 'LLM 評價與目前資料不符（資料已更新）——請重新產生',
         missErr: '無法載入 LLM 評價結果',
@@ -1503,7 +1512,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     const cid = sourceLayer.value?.id
     cachedGrid = !cid
       ? { miss: '匯入資料不支援 LLM 互動（沒有城市 id 可對應結果檔）' }
-      : await fetchLlmResult(`data/metro/llmgrids/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`, {
+      : await fetchLlmResult(`data/metro/rwd-llmgrid/${cid}.${hcVariant.value}.${rwdCompactKey.value}.json`, {
         missNone: '尚未產生 LLM 互動——輸入一句話（例：把市中心那幾欄拉開），讓模型推理每欄／列該佔多大',
         missStale: 'LLM 互動結果與目前資料不符（資料已更新）——請重新產生',
         missErr: '無法載入 LLM 互動結果',

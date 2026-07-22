@@ -1,6 +1,6 @@
 // Build per-system route CENTERLINES from the actual OSM track geometry.
 //
-// data/metro/tracks/<system>.geojson holds the individual OSM track ways — a
+// data/metro/metro-tracks/<system>.geojson holds the individual OSM track ways — a
 // route typically has two parallel strands (up/down direction) plus crossovers
 // and sidings. This derives ONE centreline per route: take the longest chained
 // strand as an ordering BACKBONE, then shift every backbone sample PERPENDICULAR
@@ -9,7 +9,7 @@
 // (the two directions chained into one at a terminus) collapse onto the shared
 // centreline (both traces land on the same line and overlap), instead of drawing
 // the two rails as one zig-zag. Output mirrors the tracks tree under
-// data/metro/tracks-center/<system>.geojson — an optional map underlay shown on
+// data/metro/metro-tracks-center/<system>.geojson — an optional map underlay shown on
 // top of (not replacing) the raw tracks. It never touches data/metro/systems.
 //
 // Prereq: `npm run metro:buildtracks` (produces data/metro/tracks). Run with

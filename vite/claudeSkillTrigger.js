@@ -77,7 +77,7 @@ export function claudeSkillTrigger(spec) {
         } else if (seedFrom) {
           const srcAbs = join(root, seedFrom)
           if (existsSync(srcAbs)) {
-            mkdirSync(join(root, 'data/metro/llmviews'), { recursive: true })
+            mkdirSync(join(root, 'data/metro/straighten-llm'), { recursive: true })
             cpSync(srcAbs, outAbs)
           } else if (existsSync(outAbs)) {
             rmSync(outAbs) // 顯示的那份還沒存檔 → 當作從 HC 起

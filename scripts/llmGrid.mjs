@@ -2,7 +2,7 @@
 // route-llm-grid 驅動：export 印出縮減網格的 X 欄／Y 列區間（含各欄列的站名
 // 脈絡）給 LLM 讀、LLM 依使用者的一句話推理每個區間的顯示權重、apply 驗證
 // （全區間、正數、外框由前端正規化）並存檔，網頁端（D3Tab 的「LLM調整」tab）
-// 只載入 data/metro/llmgrids/ 的結果。
+// 只載入 data/metro/rwd-llmgrid/ 的結果。
 //
 //   node scripts/llmGrid.mjs export <cityId> <orig|rot> [hc|stroke|rect|milp|force|lsq|octi|path|sat|llm]
 //   node scripts/llmGrid.mjs apply  <cityId> <orig|rot> [compact] <weights.json>
@@ -39,7 +39,7 @@ setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
-const OUT = join(DATA, 'llmgrids')
+const OUT = join(DATA, 'rwd-llmgrid')
 const COMPACTS = ['hc', ...PAPER_KINDS.map((p) => p.kind), 'llm']
 const POST_BUILD = { ...PAPER_BUILD }
 
@@ -64,7 +64,7 @@ if (cmd === 'reset') {
 }
 
 // ---- rebuild the deterministic chain (mirror of D3Tab / llmAlign.mjs) ----
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')
@@ -90,7 +90,7 @@ let baseCells
 if (POST_BUILD[compact]) {
   baseCells = iteratePost(POST_BUILD[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
 } else if (compact === 'llm') {
-  const f = join(DATA, 'llmviews', `${cityId}.${variant}.json`)
+  const f = join(DATA, 'straighten-llm', `${cityId}.${variant}.json`)
   if (!existsSync(f)) {
     console.error(`縮減來源是 LLM 對齊，但 ${f} 不存在——先跑 route-llm-align`)
     process.exit(1)

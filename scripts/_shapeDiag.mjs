@@ -16,10 +16,10 @@ import { shapeLlmContext } from '../src/stores/paper/shape.js'
 setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA = join(__dirname, '..', 'data', 'metro')
-const OUT = join(DATA, 'llmshapes')
+const OUT = join(DATA, 'straighten-shape')
 const [cityId, variant = 'orig', movesPath] = process.argv.slice(2)
 
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')

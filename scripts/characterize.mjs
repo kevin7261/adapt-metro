@@ -11,7 +11,7 @@ import {
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const geo = JSON.parse(readFileSync(
-  resolve(root, 'data/metro/systems/asia/taiwan/as-twn-taipei.geojson'), 'utf8'))
+  resolve(root, 'data/metro/metro-maps/asia/taiwan/as-twn-taipei.geojson'), 'utf8'))
 
 const views = computeCityViews(geo, { W: 200, H: 150 })
 const hc = computeCityHcViews(geo, { W: 200, H: 150 })

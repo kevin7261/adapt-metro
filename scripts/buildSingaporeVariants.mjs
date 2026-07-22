@@ -22,8 +22,8 @@ import { query } from './overpass.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const METRO = join(__dirname, '..', 'data', 'metro')
-const BASE_FILE = 'systems/asia/singapore/as-sgp-singapore.geojson'
-const LRT_FILE = 'systems/asia/singapore/as-sgp-singapore-lrt.geojson'
+const BASE_FILE = 'metro-maps/asia/singapore/as-sgp-singapore.geojson'
+const LRT_FILE = 'metro-maps/asia/singapore/as-sgp-singapore-lrt.geojson'
 
 // 純市區 LRT 線 ref（拆基底時剔除；+LRT 變體保留）。
 const LRT_REFS = new Set(['BPLRT', 'PGLRT', 'SKLRT'])

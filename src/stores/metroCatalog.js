@@ -55,7 +55,7 @@ export function loadSitesIndex() {
 
 // Official metro-map image index (data/metro/maps/maps_index.json, from
 // downloadMaps.mjs), keyed by '{continent}/{country}/{slug}' (= geojson `file`
-// minus the `systems/` prefix and `.geojson` suffix). Each value carries
+// minus the `metro-maps/` prefix and `.geojson` suffix). Each value carries
 // `map_file`（相對 data/metro 的圖檔路徑，無圖為 null）＋授權。視圖畫廊的
 // Metro Maps 區段用它在縮圖右邊那格顯示官方路線圖。
 let mapsIndexPromise = null
@@ -74,12 +74,12 @@ export function loadMapsIndex() {
 }
 
 // system entry（catalog / views index／圖層，含 `file`）→ maps_index 的鍵。
-// `file` 兩種形式都吃：catalog/views 的相對 `systems/…​.geojson`、圖層的
-// `/data/metro/systems/…​.geojson`（帶前綴）——一律抓 `systems/` 之後那段。
+// `file` 兩種形式都吃：catalog/views 的相對 `metro-maps/…​.geojson`、圖層的
+// `/data/metro/metro-maps/…​.geojson`（帶前綴）——一律抓 `metro-maps/` 之後那段。
 // `-lm`（Landmark 疊加）/`-jr`（JR 合併）/`-lrt`（新加坡＋LRT）/`-incheon`（首爾＋仁川）/
 // `-rail`（台北＋台鐵＋高鐵、東京＋JR＋私鐵）變體共用母城市的官方圖 → 去尾綴退回母城。
 export function mapsKeyFor(entry) {
-  const m = (entry?.file || '').match(/systems\/(.+)\.geojson$/)
+  const m = (entry?.file || '').match(/(?:metro-maps|systems)\/(.+)\.geojson$/)
   return m ? m[1] : null
 }
 export function mapsKeyBase(key) {

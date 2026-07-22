@@ -1,15 +1,16 @@
-// ---- 整數格佈局持久化（data/metro/hccells/*.json，不用 localStorage）----
+// ---- 整數格佈局持久化（data/metro/straighten-cells/*.json，不用 localStorage）----
 // 最貴的計算是直線演算法（iteratePost，base＝格網化後）＋循環（straightenCompactLoop）。
 // 輸出是純資料（cellAfter = Map<id,[c,r]>、stats），與畫布大小無關 → 寫進檔案，
 // 關 tab 再開／重新整理直接 fetch 載回、不重跑。
 //
-// 檔名：data/metro/hccells/<cityId>.<variant>[.shapelike].json
+// 檔名：data/metro/straighten-cells/<cityId>.<variant>[.shapelike].json
 //   variant 含形狀圖層（orig / rot / orig-shape / rot-shape）
 //   shapelike＝成方已餵下游的那份（與不成方管線分開）
 // 失效：檔內 fingerprint（資料指紋＋河流門檻）不符 → miss 重算；
 //       algo 版本不符（改了 skeleton/grid/hillClimb/movewise）→ miss。
 // 寫檔走 vite middleware POST /hc-cells/save（僅 dev）；讀檔走 /data/...（serveDataDir）。
 import { assetUrl } from './assetUrl'
+import { getDataOverlay, setDataOverlay } from './dataOverlay'
 
 // 改了 skeleton／schematicGrid／hillClimb／movewise 演算法就 +1（舊檔自動失效）。
 // v2: 直線演算法／循環 base＝格網化後（不再吃 HC）
@@ -29,7 +30,7 @@ export function hcCellsRelPath(cityId, variant, shapelike = false) {
   const city = String(cityId || '').replace(/[^\w-]/g, '')
   const v = String(variant || 'orig').replace(/[^\w.-]/g, '')
   if (!city || !v) return null
-  return `data/metro/hccells/${city}.${v}${shapelike ? '.shapelike' : ''}.json`
+  return `data/metro/straighten-cells/${city}.${v}${shapelike ? '.shapelike' : ''}.json`
 }
 
 const deCells = (arr) => new Map((arr ?? []).map(([id, c, r]) => [id, [c, r]]))
@@ -79,10 +80,13 @@ export async function loadHcCache({ cityId, variant, shapelike = false, fingerpr
   const rel = hcCellsRelPath(cityId, variant, shapelike)
   if (!rel || !fingerprint) return null
   try {
-    const res = await fetch(assetUrl(rel))
-    const isJson = (res.headers.get('content-type') ?? '').includes('json')
-    if (!res.ok || !isJson) return null
-    const e = await res.json()
+    let e = getDataOverlay(rel)
+    if (!e) {
+      const res = await fetch(assetUrl(rel))
+      const isJson = (res.headers.get('content-type') ?? '').includes('json')
+      if (!res.ok || !isJson) return null
+      e = await res.json()
+    }
     if (e.algo !== HC_CELLS_ALGO || e.fingerprint !== fingerprint || !e.hc?.cellAfter) return null
     return {
       hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats },
@@ -116,6 +120,8 @@ export async function saveHcCache(
     line: serStageMap(line),
     gather: serStageMap(gather),
   }
+  const rel = hcCellsRelPath(cityId, variant, shapelike)
+  if (rel) setDataOverlay(rel, payload)
   try {
     const res = await fetch('/hc-cells/save', {
       method: 'POST',

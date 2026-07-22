@@ -32,7 +32,7 @@ scripts/llmGrid.mjs export <cityId> <orig|rot> [hc|rect|align|ilp|llm]
   ← 印出欄列區間＋各欄列的站名脈絡（JSON）
   → 你依使用者的一句話推理 colW/rowW（scratchpad 寫 weights.json）
 scripts/llmGrid.mjs apply <cityId> <orig|rot> [compact] <weights.json>
-  → 驗證（全區間、正數、夾範圍）、存 data/metro/llmgrids/<cityId>.<variant>.<compact>.json
+  → 驗證（全區間、正數、夾範圍）、存 data/metro/rwd-llmgrid/<cityId>.<variant>.<compact>.json
 ```
 
 - `cityId` = geojson 檔名去副檔名（例 `as-twn-taipei`）；variant = 來源 HC
@@ -83,7 +83,7 @@ scripts/llmGrid.mjs apply <cityId> <orig|rot> [compact] <weights.json>
 
 ## 規則
 
-- **絕不手改** `data/metro/llmgrids/` 的檔案——一律經 `apply`（驗證＋夾範圍）。
+- **絕不手改** `data/metro/rwd-llmgrid/` 的檔案——一律經 `apply`（驗證＋夾範圍）。
 - 想從頭來：`node scripts/llmGrid.mjs reset <cityId> <variant> [compact]`。
 - 與流量權重（[[route-rwd-draw]]）共用「權重＝大小」原語與末端變形
   （intervalAxes 的正規化邏輯 = weightedAxes 的 axis 換算；重畫都走

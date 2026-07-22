@@ -18,7 +18,7 @@ for (const c of sk.crossings ?? []) projById.set(c.id, projection(c.coord))
 const grid = buildSchematicGrid(sk, projById, [24, 24, 1176, 776])
 const ids = [...grid.cellOf.keys()].sort()
 const idxOf = new Map(ids.map((id, i) => [id, i]))
-const head = JSON.parse(execSync(`git show HEAD:data/metro/llmshapes/${city}.orig.json`, { encoding: 'utf8' }))
+const head = JSON.parse(execSync(`git show HEAD:data/metro/straighten-shape/${city}.orig.json`, { encoding: 'utf8' }))
 const moves = {}
 for (const [id, c, r] of head.cellAfter) {
   if (String(id).startsWith('shape-g')) continue

@@ -5,7 +5,7 @@ description: 香港地鐵（港鐵 MTR）資料的城市專屬規則——觀塘
 
 # 香港（港鐵 MTR）城市專屬規則
 
-檔名 `systems/asia/china/as-chn-hong-kong.geojson`。
+檔名 `metro-maps/asia/china/as-chn-hong-kong.geojson`。
 
 ## 定向刷新（route 漏 stop 成員／殭屍節點）
 

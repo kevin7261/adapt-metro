@@ -18,7 +18,7 @@ export const useMapStore = defineStore('map', {
     return {
       dark: p?.dark ?? true,
       accent: p?.accent ?? 'blue',
-      projectName: 'adapt-metro.geolibre.json',
+      projectName: 'adapt-metro.project.json',
 
       ui: {
         layerPanelOpen: p?.layerPanelOpen ?? true,
@@ -43,6 +43,8 @@ export const useMapStore = defineStore('map', {
       openTabIds: p?.openTabIds ?? null,
       // Id of the active tab to focus on reload (layer id or 'all-gallery').
       activeTabId: p?.activeTabId ?? null,
+      // dockview 完整版面（疊 tab／左右分裂／比例）——api.toJSON()；缺則退回 openTabIds。
+      dockLayout: p?.dockLayout ?? null,
 
       // Properties of the last-clicked map feature, per layer id (null = nothing
       // selected). The map tab writes it on click; the Object tab reads it.
@@ -142,6 +144,34 @@ export const useMapStore = defineStore('map', {
     fake(name) {
       this.toast(`「${name}」為 UI 原型 — 功能尚未實作`)
     },
+    async saveProject() {
+      try {
+        const { downloadProject } = await import('../lib/projectIO.js')
+        const name = await downloadProject(this)
+        this.toast(`已另存 ${name}`)
+      } catch (err) {
+        this.toast(`另存失敗：${err.message}`)
+      }
+    },
+    async openProjectFile(file) {
+      try {
+        const { importProjectFile } = await import('../lib/projectIO.js')
+        const r = await importProjectFile(this, file)
+        this.toast(`已匯入專案（${r.cities} 城／${r.layers} 圖層）`)
+      } catch (err) {
+        this.toast(`匯入失敗：${err.message}`)
+      }
+    },
+    pickOpenProject() {
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = '.json,application/json'
+      input.onchange = () => {
+        const f = input.files?.[0]
+        if (f) this.openProjectFile(f)
+      }
+      input.click()
+    },
 
     // props = the clicked feature's properties object, or null to clear.
     setSelectedFeature(layerId, props) {
@@ -154,6 +184,9 @@ export const useMapStore = defineStore('map', {
     },
     setActiveTab(id) {
       if (id) this.activeTabId = id
+    },
+    setDockLayout(layout) {
+      this.dockLayout = layout
     },
 
     // 圈層城市群組／子群組收合（key = root id、`${root}:straighten|rwd`、或
@@ -217,7 +250,7 @@ export const useMapStore = defineStore('map', {
     // sys = an entry of data/metro/index.json `systems`
     // (file, continent, country, city, line_count, station_count, …)
     importMetroSystem(sys) {
-      // 'systems/asia/taiwan/asia-taiwan-taipei.geojson' → 'asia-taiwan-taipei'
+      // 'metro-maps/asia/taiwan/asia-taiwan-taipei.geojson' → 'asia-taiwan-taipei'
       const id = sys.file.split('/').pop().replace(/\.geojson$/, '')
       return this._importSystem(sys, {
         id,

@@ -1,14 +1,14 @@
 // Pre-compute the per-city view thumbnails the galleries render as SVG:
-//   • Map Adjust views   → data/metro/views/<id>.json
-//   • Straighten views   → data/metro/hcviews/<id>.json（含 LLM 對齊循環，若有 llmviews）
-//   • RWD Maps views     → data/metro/rwdviews/<id>.json（含 LLM compact/rwd）
+//   • Map Adjust views   → data/metro/map-adjust/<id>.json
+//   • Straighten views   → data/metro/straighten/<id>.json（含 LLM 對齊循環，若有 llmviews）
+//   • RWD Maps views     → data/metro/rwd-maps/<id>.json（含 LLM compact/rwd）
 // plus an index.json catalog in each dir.
 //
-//   in : data/metro/index.json + data/metro/systems/**/*.geojson
-//        + data/metro/llmviews/<id>.{orig,rot}.json（可選；有則預算 LLM 縮圖）
-//   out: data/metro/views/<id>.json
-//        data/metro/hcviews/<id>.json
-//        data/metro/rwdviews/<id>.json
+//   in : data/metro/index.json + data/metro/metro-maps/**/*.geojson
+//        + data/metro/straighten-llm/<id>.{orig,rot}.json（可選；有則預算 LLM 縮圖）
+//   out: data/metro/map-adjust/<id>.json
+//        data/metro/straighten/<id>.json
+//        data/metro/rwd-maps/<id>.json
 //        data/metro/{views,hcviews,rwdviews}/index.json
 //
 // The geometry is produced by src/stores/viewGeometry.js — the SAME pure
@@ -24,9 +24,9 @@ import { computeCityViews, computeCityHcViews, computeCityRwdViews, HC_VIEW_ORDE
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
-const OUT = join(BASE, 'views')
-const HC_OUT = join(BASE, 'hcviews')
-const RWD_OUT = join(BASE, 'rwdviews')
+const OUT = join(BASE, 'map-adjust')
+const HC_OUT = join(BASE, 'straighten')
+const RWD_OUT = join(BASE, 'rwd-maps')
 
 // Same id the gallery/layer derive from a system file: the basename sans ext.
 const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
@@ -35,7 +35,8 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 47 // 47: 直線演算法／循環 base＝格網化後（不再吃 HC）。
+const VIEWS_VERSION = 48 // 48: 目錄改名對齊圖層（map-adjust/straighten/rwd-maps）＋base＝格網化後；全量重算。
+                         // 47: 直線演算法／循環 base＝格網化後（不再吃 HC）。
                          // 45: 全球 views/hcviews/rwdviews 強制重算（與 LLM 成方無關；llmshapes 已清空）。
                          // 43: ⑨ Shape-Guided 對齊論文 Smooth（固定 Ωc 最近點＋硬投影；非弧長）。
                          // 41: ⑨ Shape-Guided 形狀庫只留方形（拿掉圓）。
@@ -170,18 +171,17 @@ async function main() {
 
   async function readLlm(id, variant) {
     try {
-      return JSON.parse(await readFile(join(BASE, 'llmviews', `${id}.${variant}.json`), 'utf8'))
+      return JSON.parse(await readFile(join(BASE, 'straighten-llm', `${id}.${variant}.json`), 'utf8'))
     } catch { return null }
   }
   async function readShape(id, variant) {
     try {
-      return JSON.parse(await readFile(join(BASE, 'llmshapes', `${id}.${variant}.json`), 'utf8'))
+      return JSON.parse(await readFile(join(BASE, 'straighten-shape', `${id}.${variant}.json`), 'utf8'))
     } catch { return null }
   }
 
   for (const sys of systems) {
     const id = idOf(sys.file)
-    process.stderr.write(`[bv] start ${id}\n`)
     let raw, geojson
     try {
       raw = await readFile(join(BASE, sys.file), 'utf8')
@@ -263,6 +263,7 @@ async function main() {
       for (const s of built) byId.set(s.id, s)
       systems = allSystems.map((sys) => byId.get(idOf(sys.file))).filter(Boolean)
     }
+    await mkdir(dir, { recursive: true })
     await writeFile(join(dir, 'index.json'), JSON.stringify({
       generated_from: 'scripts/buildViews.mjs',
       view_ids: viewIds,
@@ -275,9 +276,9 @@ async function main() {
   await mergeCatalog(HC_OUT, hcCatalog, HC_VIEW_ORDER)
   await mergeCatalog(RWD_OUT, rwdCatalog, RWD_VIEW_ORDER)
 
-  console.log(`views:   ${ok}/${systems.length} 城市 → data/metro/views/`)
-  console.log(`hcviews: ${hcOk}/${systems.length} 城市 → data/metro/hcviews/`)
-  console.log(`rwdviews: ${rwdOk}/${systems.length} 城市 → data/metro/rwdviews/`)
+  console.log(`views:   ${ok}/${systems.length} 城市 → data/metro/map-adjust/`)
+  console.log(`hcviews: ${hcOk}/${systems.length} 城市 → data/metro/straighten/`)
+  console.log(`rwdviews: ${rwdOk}/${systems.length} 城市 → data/metro/rwd-maps/`)
   console.log(`增量：重算 ${rebuilt} 檔、沿用 ${reused} 檔${pruned ? `、清除 ${pruned} 殘檔` : ''}（VIEWS_VERSION=${VIEWS_VERSION}）`)
   for (const f of failures) console.log(`  ✗ views   ${f.id} (${f.city}) — ${f.error}`)
   for (const f of hcFailures) console.log(`  ✗ hcviews ${f.id} (${f.city}) — ${f.error}`)

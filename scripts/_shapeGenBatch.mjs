@@ -21,9 +21,9 @@ const variant = process.argv[3]
 const outMoves = process.argv[4]
 const MODE = process.argv[5] || 'vcomp' // vcomp | shearR | ringedge
 const FAC = +(process.argv[6] ?? 0.75)
-const outFile = join(DATA, 'llmshapes', `${cityId}.${variant}.json`)
+const outFile = join(DATA, 'straighten-shape', `${cityId}.${variant}.json`)
 
-const meta = JSON.parse(await readFile(join(DATA, 'views', `${cityId}.json`), 'utf8'))
+const meta = JSON.parse(await readFile(join(DATA, 'map-adjust', `${cityId}.json`), 'utf8'))
 const geojson = JSON.parse(await readFile(join(DATA, meta.file), 'utf8'))
 const stations = geojson.features.filter((f) => f.geometry?.type === 'Point')
 const lineFeats = geojson.features.filter((f) => f.geometry && f.geometry.type !== 'Point')

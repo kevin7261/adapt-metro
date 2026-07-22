@@ -41,12 +41,12 @@ const TOKYO_RAIL_EXCLUDE = /一般鐵路|貨物|Link Line|品鶴線|武蔵野南
 const TARGETS = [
   {
     slug: 'as-kor-seoul-incheon',
-    base: 'systems/asia/south-korea/as-kor-seoul.geojson',
-    outDir: 'systems/asia/south-korea',
+    base: 'metro-maps/asia/south-korea/as-kor-seoul.geojson',
+    outDir: 'metro-maps/asia/south-korea',
     cityEn: 'Seoul + Incheon',
     cityZh: '首爾＋仁川',
     countryZh: '南韓',
-    mergeMetro: ['systems/asia/south-korea/as-kor-incheon.geojson'],
+    mergeMetro: ['metro-maps/asia/south-korea/as-kor-incheon.geojson'],
     osmLines: [{
       rel: 7919000, // AREX 일반열차（all-stop）서울역 → 인천공항2터미널（站序 Seoul→Airport）
       ref: 'A', name: '공항철도', nameLocal: '공항철도', nameEn: 'AREX (Airport Railroad)',
@@ -59,8 +59,8 @@ const TARGETS = [
   },
   {
     slug: 'as-twn-taipei-rail',
-    base: 'systems/asia/taiwan/as-twn-taipei.geojson',
-    outDir: 'systems/asia/taiwan',
+    base: 'metro-maps/asia/taiwan/as-twn-taipei.geojson',
+    outDir: 'metro-maps/asia/taiwan',
     cityEn: 'Taipei + TRA + HSR',
     cityZh: '台北＋台鐵＋高鐵',
     countryZh: '台灣',
@@ -69,12 +69,12 @@ const TARGETS = [
     // 路線中線管線靠這些 relation 對 OSM way（上下行各一；見 rw_as-twn.json）。
     railway: [
       {
-        file: 'systems/asia/taiwan/as-twn-rail.geojson',
+        file: 'metro-maps/asia/taiwan/as-twn-rail.geojson',
         select: { '縱貫線': ['中壢', '汐止'] },
         osmIdsByName: { '縱貫線': [5867233, 5867234] }, // 北上／南下
       },
       {
-        file: 'systems/asia/taiwan/as-twn-hsr.geojson',
+        file: 'metro-maps/asia/taiwan/as-twn-hsr.geojson',
         select: { '台灣高速鐵路': ['南港', '桃園'] },
         osmIdsByName: { '台灣高速鐵路': [4500369, 4500371] }, // 北向／南向
       },
@@ -84,16 +84,16 @@ const TARGETS = [
   },
   {
     slug: 'as-jpn-tokyo-rail',
-    base: 'systems/asia/japan/as-jpn-tokyo.geojson',
-    outDir: 'systems/asia/japan',
+    base: 'metro-maps/asia/japan/as-jpn-tokyo.geojson',
+    outDir: 'metro-maps/asia/japan',
     cityEn: 'Tokyo + JR + Private',
     cityZh: '東京＋JR＋私鐵',
     countryZh: '日本',
     // 排除無序大雜燴桶「一般鐵路」與貨物/連絡線（會把遠處不相連的站串成跨市假線）。
     // 不抓新幹線（使用者）——不納 as-jpn-hsr。
     railway: [
-      { file: 'systems/asia/japan/as-jpn-east-rail.geojson', bbox: TOKYO_BBOX, exclude: TOKYO_RAIL_EXCLUDE },
-      { file: 'systems/asia/japan/as-jpn-central-rail.geojson', bbox: TOKYO_BBOX, exclude: TOKYO_RAIL_EXCLUDE },
+      { file: 'metro-maps/asia/japan/as-jpn-east-rail.geojson', bbox: TOKYO_BBOX, exclude: TOKYO_RAIL_EXCLUDE },
+      { file: 'metro-maps/asia/japan/as-jpn-central-rail.geojson', bbox: TOKYO_BBOX, exclude: TOKYO_RAIL_EXCLUDE },
     ],
     // 主要私鐵（東急/京急/小田急/京王/西武/相鉄…）不在 railway 資料內，由
     // scripts/fetchTokyoPrivate.mjs（npm run metro:fetchtokyoprivate）另從 OSM 抓、寫此檔；

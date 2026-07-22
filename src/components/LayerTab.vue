@@ -263,8 +263,10 @@ async function addMetroLayers(fit) {
 /* ---- actual OSM track geometry underlay ---- */
 async function loadTrackLayer(systemFile) {
   if (trackGeojson) return
-  // Generated files mirror data/metro/systems beneath data/metro/tracks.
-  const trackFile = systemFile.replace('/data/metro/systems/', '/data/metro/tracks/')
+  // Generated files mirror data/metro/metro-maps beneath data/metro/metro-tracks.
+  const trackFile = systemFile
+    .replace('/data/metro/metro-maps/', '/data/metro/metro-tracks/')
+    .replace('/data/metro/systems/', '/data/metro/metro-tracks/')
   try {
     const res = await fetch(`${trackFile}${trackFile.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -309,8 +311,10 @@ function setTracks(on) {
 /* ---- route centreline underlay（同路線兩軌收成一條中線）---- */
 async function loadCenterLayer(systemFile) {
   if (centerGeojson) return
-  // Generated files mirror data/metro/systems beneath data/metro/tracks-center.
-  const centerFile = systemFile.replace('/data/metro/systems/', '/data/metro/tracks-center/')
+  // Generated files mirror data/metro/metro-maps beneath data/metro/metro-tracks-center.
+  const centerFile = systemFile
+    .replace('/data/metro/metro-maps/', '/data/metro/metro-tracks-center/')
+    .replace('/data/metro/systems/', '/data/metro/metro-tracks-center/')
   try {
     const res = await fetch(`${centerFile}${centerFile.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)

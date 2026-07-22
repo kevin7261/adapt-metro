@@ -10,10 +10,11 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
-const SKIP = new Set(['as-jpn-tokyo']) // 大江戶已算過
+// 規定表全城（與 shapePresets.js 同步）；--force 或指定城市時全部重算。
 const CITIES = [
   'as-jpn-tokyo-jr',
   'as-sgp-singapore',
+  'as-jpn-tokyo',
   'as-twn-kaohsiung',
   'as-jpn-osaka-jr',
   'as-kor-seoul',
@@ -24,8 +25,7 @@ const CITIES = [
 ]
 const only = process.argv[2]
 const onlyVariant = process.argv[3] // optional: orig|rot
-// 明確指定城市時略過 SKIP（例：補 as-jpn-tokyo rot）；全量批次仍跳過大江戶。
-const jobs = (only ? [only] : CITIES).filter((c) => only || !SKIP.has(c))
+const jobs = only ? [only] : CITIES
 
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 80e6, cwd: ROOT })

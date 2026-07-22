@@ -33,7 +33,7 @@ onMounted(() => {
 })
 
 async function load() {
-  const res = await fetch(assetUrl('data/metro/views/index.json'), { cache: 'no-cache' })
+  const res = await fetch(assetUrl('data/metro/map-adjust/index.json'), { cache: 'no-cache' })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return (await res.json()).systems ?? []
 }

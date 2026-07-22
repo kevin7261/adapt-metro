@@ -26,7 +26,7 @@ import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 import { NODE_COLOR, EDGE_HL, stationColor, strokesOf as strokesOfShared } from '../lib/metroDraw.js'
 
 // 離線可預算的鏈：hc ＋ 論文①〜⑧（PAPER_KINDS）。LLM 對齊另讀
-// data/metro/llmviews/<city>.<variant>.json（由 route-llm-align / llmAlignBatch
+// data/metro/straighten-llm/<city>.<variant>.json（由 route-llm-align / llmAlignBatch
 // 預算），有檔且 fingerprint 相符才寫進 loop-llm-*／rwd-llm-*；否則畫廊顯示
 // 「尚未預算」。HC 畫廊與 RWD 畫廊共用同一份清單與後處理映射。
 const CHAIN_KINDS = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
@@ -40,11 +40,12 @@ function llmCellsIfMatch(llmview, fingerprint) {
   return new Map(llmview.cellAfter.map(([id, c, r]) => [id, [c, r]]))
 }
 
-// llmshape 檔（LLM 成方結果）→ { cells, greens }；格網 cols/rows 相符才用（成方
-// fingerprint＝verts/segs/cols/rows，無 hvStart）。否則 null（畫廊「成方路線沒有算」）。
+// llmshape 檔（LLM 成方結果）→ { cells, greens }；必須 square===true 且格網
+// cols/rows 相符才用（成方 fingerprint＝verts/segs/cols/rows，無 hvStart）。
+// square===false＝未正確成方 → null（畫廊「成方路線沒有算」）。
 function shapeIfMatch(shape, grid) {
   const fp = shape?.fingerprint
-  if (!shape?.cellAfter || !fp) return null
+  if (!shape?.cellAfter || !fp || shape.square !== true) return null
   if (fp.cols !== grid.cols || fp.rows !== grid.rows) return null
   return {
     cells: new Map(shape.cellAfter.map(([id, c, r]) => [id, [c, r]])),

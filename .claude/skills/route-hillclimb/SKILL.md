@@ -166,7 +166,7 @@ badge、工具列顯示 迭代 n/20（達上限未收斂會標註）。共用機
    供 paperAlign.js 重用。
 3. **LLM 對齊**（第九種，詳見 [[route-llm-align]]）：由 Claude Code 的模型離線
    當最佳化器（export → 提案 → `applyLlmTargets` 經同一套硬規則套用 → 存
-   `data/metro/llmviews/`），網頁只載入；不迭代包裝（LLM 迴圈本身就是迭代）。
+   `data/metro/straighten-llm/`），網頁只載入；不迭代包裝（LLM 迴圈本身就是迭代）。
 
 （**已下架（2026-07）**：自創的軸對齊與整數規劃鏈——不對應任何 data/thesis
 論文，使用者裁決直線演算法只留與論文一一對應的 8 條＋LLM；實作已從
@@ -206,7 +206,7 @@ RWD 底圖與 llmGrid 也吃同一條鏈（`layer.compact` 選鏈）。
   （否則畫廊縮圖沿用舊圖）。
 - 格是排名制 → cellAfter 與視窗大小無關，D3Tab 只在 resize 重算像素映射並快取 cellAfter。
 - 頂點含黃色交叉點；退化段（a===b 的小環）跳過。
-- **跨 reload 持久化（D3Tab.vue → `data/metro/hccells/*.json`，不用 localStorage）**：
+- **跨 reload 持久化（D3Tab.vue → `data/metro/straighten-cells/*.json`，不用 localStorage）**：
   爬山＋後處理（iteratePost）＋循環（loop／endp／line／gather）寫進檔案
   （`src/lib/hcCache.js`，`HC_CELLS_ALGO`）。關 tab 再開／重新整理 fetch 載回、不重跑。
   檔內 `fingerprint`（資料＋河流門檻）不符 → miss 重算；改演算法就 bump `HC_CELLS_ALGO`。
@@ -220,6 +220,6 @@ RWD 底圖與 llmGrid 也吃同一條鏈（`layer.compact` 選鏈）。
 
 ## 爬山結果的 hccells 檔（2026-07：取代 localStorage）
 
-檔名 `data/metro/hccells/<city>.<variant>[.shapelike].json`。**資料指紋只看資料**——
+檔名 `data/metro/straighten-cells/<city>.<variant>[.shapelike].json`。**資料指紋只看資料**——
 資料沒變但**演算法變了**時 bump `HC_CELLS_ALGO`，否則舊檔佈局與新骨架對不上（倫敦
 Kilburn 案）。另有 use-time 結構驗證：`cellAfter` 必須涵蓋目前 `grid.cellOf` 所有節點。

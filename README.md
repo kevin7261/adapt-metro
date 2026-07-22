@@ -270,7 +270,7 @@ npm run metro:wikilines  # 逐線站數比對 → line_check_report.json
 
 # 選用的軌道底圖（與示意層分離，不影響演算法）：
 npm run metro:fetchtracks       # 抓每線 OSM 真實軌道 way 幾何 → _cache/
-npm run metro:buildtracks       # 組 data/metro/tracks/<id>.geojson（「軌道」疊加層）
+npm run metro:buildtracks       # 組 data/metro/metro-tracks/<id>.geojson（「軌道」疊加層）
 npm run metro:buildcenterlines  # 每線收成一條中心線 → tracks-center/（「路線中線」疊加層）
 ```
 
@@ -306,7 +306,7 @@ data/metro/
 └── _cache/                     # Overpass/Wikipedia/geocode 原始回應（可刪）
 ```
 
-### 每城 GeoJSON（`systems/**/*.geojson`）
+### 每城 GeoJSON（`metro-maps/**/*.geojson`）
 
 一份 `FeatureCollection`，頂層掛 `metro_system` 中繼資料，features 只有兩種：
 
@@ -375,7 +375,7 @@ osm_networks、operator、official_website、wikidata、線/段/站數）／
 
 ```jsonc
 {
-  "id": "as-twn-taipei", "file": "systems/…", "city": "Taipei", "cityZh": "台北", …,
+  "id": "as-twn-taipei", "file": "metro-maps/…", "city": "Taipei", "cityZh": "台北", …,
   "tilt": 11.3, "canRotate": true,          // 主軸角（rotated 變體用）
   "W": 200, "H": 150,                       // viewBox 尺寸
   "views": {                                 // 視圖 id → 可直接渲染的 SVG 資料
@@ -414,7 +414,7 @@ osm_networks、operator、official_website、wikidata、線/段/站數）／
 
 - `tracks/<id>.geojson`：`npm run metro:fetchtracks` ＋ `metro:buildtracks`——抓每條
   路線 OSM relation 的**真實軌道 way 幾何**（上下行雙股＋渡線），MapLibre 地圖的
-  「軌道」疊加層用；與 `systems/` 的站對站示意層完全分離、絕不影響下游演算法。
+  「軌道」疊加層用；與 `metro-maps/` 的站對站示意層完全分離、絕不影響下游演算法。
 - `tracks-center/<id>.geojson`：`metro:buildcenterlines`——每線收成**一條中心線**
   （最長股當骨幹、垂直方向朝軌道點雲中心修正，讓去回兩股疊回同一條線），
   「路線中線」疊加層用。

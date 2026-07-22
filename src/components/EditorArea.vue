@@ -2,7 +2,7 @@
 import { onBeforeUnmount } from 'vue'
 import { DockviewVue } from 'dockview-vue'
 import { useMapStore } from '../stores/mapStore'
-import { dockHandle, reopenTabById } from '../stores/dockHandle'
+import { dockHandle, reopenTabById, sanitizeDockLayout } from '../stores/dockHandle'
 import LayerTab from './LayerTab.vue'
 import D3Tab from './D3Tab.vue'
 import AllGallery from './AllGallery.vue'
@@ -33,38 +33,59 @@ function onReady(event) {
   }
   relaxAll()
   event.api.onDidAddGroup(relaxAll)
-  event.api.onDidLayoutChange(relaxAll)
 
-  // Restore exactly the tabs that were open last time (layer tabs + the 視圖畫廊
-  // fixed tab), in their saved order. Non-active tabs open as `inactive` so
-  // only the focused panel mounts MapLibre / D3 / gallery（否則一城鏈十幾個 tab
-  // 全用 renderer:always 會把啟動拖到十幾秒）。`openTabIds === null` = legacy
-  // → 只開選中那個，不掃全部圖層。空陣列＝上次全關 → 什麼都不開。
-  const focusId = store.activeTabId
-    || store.selectedLayerId
-    || store.layers[0]?.id
-    || null
-  if (Array.isArray(store.openTabIds)) {
-    for (const id of store.openTabIds) {
-      reopenTabById(id, store.layers, { inactive: id !== focusId })
+  // 還原版面：優先 dockview toJSON（保留疊 tab／左右分裂／比例）。
+  // 缺版面或有已刪圖層 → 退回 openTabIds，且後續 tab 用 beside 掛進同一 group
+  // （連續 inactive addPanel 若不指定 position，activeGroup 為空會每個 tab 另開一組）。
+  let restoredFromJson = false
+  const layout = sanitizeDockLayout(store.dockLayout, store.layers)
+  if (layout) {
+    try {
+      event.api.fromJSON(layout)
+      restoredFromJson = true
+    } catch {
+      try { event.api.clear() } catch { /* */ }
     }
-  } else if (focusId) {
-    reopenTabById(focusId, store.layers)
   }
-  const activePanel = focusId && event.api.getPanel(focusId)
-  if (activePanel) activePanel.api.setActive()
+  if (!restoredFromJson) {
+    const focusId = store.activeTabId
+      || store.selectedLayerId
+      || store.layers[0]?.id
+      || null
+    if (Array.isArray(store.openTabIds)) {
+      let beside = null
+      for (const id of store.openTabIds) {
+        reopenTabById(id, store.layers, {
+          inactive: id !== focusId,
+          beside,
+        })
+        if (!beside && event.api.getPanel(id)) beside = id
+      }
+    } else if (focusId) {
+      reopenTabById(focusId, store.layers)
+    }
+    const activePanel = focusId && event.api.getPanel(focusId)
+    if (activePanel) activePanel.api.setActive()
+  }
 
-  // Keep the persisted open-tab set / active tab in sync with the live dockview.
+  // Keep the persisted open-tab set / active tab / full dock layout in sync.
   // dockview 的 onDidActivePanelChange 事件是 { panel, origin }（不是 panel 本身）；
   // 同 group 內切 tab 有時不發此事件 → 各 tab 的 onDidActiveChange 才是準的
   // （LayerTab／D3Tab／AllGallery 各自 setActiveTab）。
   const syncOpenTabs = () => store.setOpenTabs(event.api.panels.map((pnl) => pnl.id))
+  const syncLayout = () => {
+    try { store.setDockLayout(event.api.toJSON()) } catch { /* empty / mid-teardown */ }
+    syncOpenTabs()
+  }
   event.api.onDidAddPanel(syncOpenTabs)
   event.api.onDidRemovePanel(syncOpenTabs)
   event.api.onDidActivePanelChange(({ panel }) => {
     if (panel?.id) store.setActiveTab(panel.id)
   })
-  syncOpenTabs()
+  // 拖曳分裂／合併／調比例都走 layout change（debounced persist 由 App $subscribe）。
+  event.api.onDidLayoutChange(syncLayout)
+  relaxAll()
+  syncLayout()
 }
 
 onBeforeUnmount(() => { dockHandle.api = null })

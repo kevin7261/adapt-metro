@@ -17,9 +17,9 @@ const emit = defineEmits(['pick'])
 
 const SECTIONS = {
   raw: { label: 'Metro Maps' },
-  adjust: { label: 'Map Adjust', dataDir: 'views', labelsForTilt: viewLabels },
-  straighten: { label: 'Straighten', dataDir: 'hcviews', labelsForTilt: hcViewLabels },
-  rwd: { label: 'RWD Maps', dataDir: 'rwdviews', labelsForTilt: rwdViewLabels },
+  adjust: { label: 'Map Adjust', dataDir: 'map-adjust', labelsForTilt: viewLabels },
+  straighten: { label: 'Straighten', dataDir: 'straighten', labelsForTilt: hcViewLabels },
+  rwd: { label: 'RWD Maps', dataDir: 'rwd-maps', labelsForTilt: rwdViewLabels },
 }
 // 四個區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排成一列，
 // 每個區段內的縮圖上下排（單欄垂直堆疊）——使用者指定的版面。
