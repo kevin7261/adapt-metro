@@ -2,9 +2,9 @@
   "summary": {
     "generated_against": "Wikipedia: List of metro systems (+ urbanrail.net reference)",
     "wikipedia_systems": 233,
-    "our_systems": 235,
-    "matched_ok": 203,
-    "flagged": 30,
+    "our_systems": 265,
+    "matched_ok": 202,
+    "flagged": 34,
     "invariant_violations": {
       "wiki_city_without_data": 2,
       "stations_without_line": 0,
@@ -12,18 +12,18 @@
       "systems_with_non_station_vertices": 0,
       "systems_with_broken_routes": 0
     },
-    "order_suspect_systems": 0,
+    "order_suspect_systems": 3,
     "by_severity": {
       "missing": 2,
       "no_line": 0,
       "vertex": 0,
       "broken": 0,
-      "order": 0,
+      "order": 3,
       "zero": 0,
       "low": 2,
-      "high": 26
+      "high": 27
     },
-    "extras": 22
+    "extras": 52
   },
   "flags": [
     {
@@ -51,6 +51,70 @@
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei"
     },
     {
+      "severity": "order",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "our_file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "our_stations": 61,
+      "our_lines": 5,
+      "suspect_lines": [
+        {
+          "name": "El Nasr 6",
+          "ratio": 2.4
+        },
+        {
+          "name": "Alexandria Passenger Transportation Authority",
+          "ratio": 1.76
+        }
+      ],
+      "note": "2 條線站序可疑（路徑長 > 1.6× MST）：El Nasr 6 2.4×、Alexandria Passenger Transportation Authority 1.76×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Alexandria"
+    },
+    {
+      "severity": "order",
+      "city": "Adelaide",
+      "country": "Australia",
+      "our_file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
+      "our_stations": 123,
+      "our_lines": 10,
+      "suspect_lines": [
+        {
+          "name": "Outer Harbor Line",
+          "ratio": 2.13
+        },
+        {
+          "name": "Flinders Line",
+          "ratio": 1.88
+        },
+        {
+          "name": "Train PTDOCK",
+          "ratio": 1.85
+        },
+        {
+          "name": "Train BEL",
+          "ratio": 1.67
+        }
+      ],
+      "note": "4 條線站序可疑（路徑長 > 1.6× MST）：Outer Harbor Line 2.13×、Flinders Line 1.88×、Train PTDOCK 1.85×、Train BEL 1.67×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Adelaide"
+    },
+    {
+      "severity": "order",
+      "city": "Wellington",
+      "country": "New Zealand",
+      "our_file": "metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson",
+      "our_stations": 31,
+      "our_lines": 4,
+      "suspect_lines": [
+        {
+          "name": "Kapiti line",
+          "ratio": 1.62
+        }
+      ],
+      "note": "1 條線站序可疑（路徑長 > 1.6× MST）：Kapiti line 1.62×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Wellington"
+    },
+    {
       "severity": "low",
       "city": "Lagos",
       "country": "Nigeria",
@@ -62,7 +126,7 @@
       "wiki_length_km": 13,
       "ratio": 0.38,
       "note": "站數偏少（5 vs wiki 13）",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos"
     },
@@ -78,7 +142,7 @@
       "wiki_length_km": 12.7,
       "ratio": 0.2,
       "note": "站數偏少（2 vs wiki 10）",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Samara_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Samara"
     },
@@ -94,7 +158,7 @@
       "wiki_length_km": 155.6,
       "ratio": 1.77,
       "note": "站數偏多（309 vs wiki 175），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Berlin_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin"
     },
@@ -110,7 +174,7 @@
       "wiki_length_km": 152.9,
       "ratio": 1.66,
       "note": "站數偏多（197 vs wiki 119），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Taipei_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Taipei"
     },
@@ -126,7 +190,7 @@
       "wiki_length_km": 109,
       "ratio": 2.04,
       "note": "站數偏多（202 vs wiki 99），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Toei_Subway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
     },
@@ -142,7 +206,7 @@
       "wiki_length_km": 95,
       "ratio": 2.45,
       "note": "站數偏多（235 vs wiki 96），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Munich_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Munich"
     },
@@ -158,7 +222,7 @@
       "wiki_length_km": 106,
       "ratio": 1.66,
       "note": "站數偏多（154 vs wiki 93），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Hamburg_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Hamburg"
     },
@@ -174,7 +238,7 @@
       "wiki_length_km": 70.05,
       "ratio": 1.63,
       "note": "站數偏多（104 vs wiki 64），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/BTS_Skytrain",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Bangkok"
     },
@@ -190,7 +254,7 @@
       "wiki_length_km": 63.9,
       "ratio": 2.31,
       "note": "站數偏多（120 vs wiki 52），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/MBTA_subway[Nb_92]",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Boston"
     },
@@ -206,7 +270,7 @@
       "wiki_length_km": 38.4,
       "ratio": 2.76,
       "note": "站數偏多（135 vs wiki 49），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Nuremberg_U-Bahn",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Nuremberg"
     },
@@ -222,7 +286,7 @@
       "wiki_length_km": 34,
       "ratio": 5.82,
       "note": "站數偏多（262 vs wiki 45），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Docklands_Light_Railway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20London"
     },
@@ -238,7 +302,7 @@
       "wiki_length_km": 45.5,
       "ratio": 1.87,
       "note": "站數偏多（71 vs wiki 38），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Kaohsiung_Rapid_Transit",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Kaohsiung"
     },
@@ -254,7 +318,7 @@
       "wiki_length_km": 46.5,
       "ratio": 1.93,
       "note": "站數偏多（54 vs wiki 28），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/SITEUR[Nb_65]",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Guadalajara"
     },
@@ -270,7 +334,7 @@
       "wiki_length_km": 64,
       "ratio": 2.96,
       "note": "站數偏多（68 vs wiki 23），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Réseau_express_métropolitain",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Montreal"
     },
@@ -286,7 +350,7 @@
       "wiki_length_km": 18.4,
       "ratio": 4.45,
       "note": "站數偏多（98 vs wiki 22），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Astram_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Hiroshima"
     },
@@ -302,7 +366,7 @@
       "wiki_length_km": 52,
       "ratio": 8.38,
       "note": "站數偏多（176 vs wiki 21），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Sydney_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Sydney"
     },
@@ -318,9 +382,25 @@
       "wiki_length_km": 22.5,
       "ratio": 21.14,
       "note": "站數偏多（444 vs wiki 21），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Staten_Island_Railway",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
+    },
+    {
+      "severity": "high",
+      "city": "Algiers",
+      "country": "Algeria",
+      "system": "Algiers Metro",
+      "our_file": "metro-maps/africa/algeria/af-alg-algiers.geojson",
+      "our_stations": 56,
+      "our_lines": 3,
+      "wiki_stations": 19,
+      "wiki_length_km": 18.5,
+      "ratio": 2.95,
+      "note": "站數偏多（56 vs wiki 19），可能混入輕軌",
+      "has_map": false,
+      "wiki_url": "https://en.wikipedia.org/wiki/Algiers_Metro",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Algiers"
     },
     {
       "severity": "high",
@@ -334,7 +414,7 @@
       "wiki_length_km": 34.31,
       "ratio": 5.79,
       "note": "站數偏多（110 vs wiki 19），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Metro_Rail[Nb_96]",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Los%20Angeles"
     },
@@ -350,7 +430,7 @@
       "wiki_length_km": 14.7,
       "ratio": 12.63,
       "note": "站數偏多（202 vs wiki 16），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Yurikamome",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
     },
@@ -366,7 +446,7 @@
       "wiki_length_km": 33.4,
       "ratio": 26.63,
       "note": "站數偏多（426 vs wiki 16），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Shinbundang_Line[Nb_62]_(Neo_Trans)",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Seoul"
     },
@@ -382,7 +462,7 @@
       "wiki_length_km": 10.6,
       "ratio": 3.21,
       "note": "站數偏多（45 vs wiki 14），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Kanazawa_Seaside_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
     },
@@ -398,7 +478,7 @@
       "wiki_length_km": 22.9,
       "ratio": 4.5,
       "note": "站數偏多（63 vs wiki 14），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/PATCO_Speedline",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Philadelphia"
     },
@@ -414,7 +494,7 @@
       "wiki_length_km": 9.7,
       "ratio": 15.54,
       "note": "站數偏多（202 vs wiki 13），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Nippori-Toneri_Liner",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
     },
@@ -430,7 +510,7 @@
       "wiki_length_km": 16.9,
       "ratio": 3.85,
       "note": "站數偏多（50 vs wiki 13），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Manila_Metro_Rail_Transit_System",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Manila"
     },
@@ -446,7 +526,7 @@
       "wiki_length_km": 22.2,
       "ratio": 34.15,
       "note": "站數偏多（444 vs wiki 13），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/PATH",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20York%20City"
     },
@@ -462,7 +542,7 @@
       "wiki_length_km": 12.2,
       "ratio": 25.25,
       "note": "站數偏多（202 vs wiki 8），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Rinkai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Tokyo"
     },
@@ -494,12 +574,19 @@
       "wiki_length_km": 4.1,
       "ratio": 7.5,
       "note": "站數偏多（45 vs wiki 6），可能混入輕軌",
-      "has_map": true,
+      "has_map": false,
       "wiki_url": "https://en.wikipedia.org/wiki/Minatomirai_Line",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Yokohama"
     }
   ],
   "extras": [
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-melbourne.geojson",
+      "city": "Melbourne",
+      "country": "Australia",
+      "station_count": 1081,
+      "line_count": 58
+    },
     {
       "file": "metro-maps/europe/germany/eu-ger-frankfurt.geojson",
       "city": "Frankfurt",
@@ -508,10 +595,52 @@
       "line_count": 21
     },
     {
+      "file": "metro-maps/africa/south-africa/af-rsa-johannesburg.geojson",
+      "city": "Johannesburg",
+      "country": "South Africa",
+      "station_count": 209,
+      "line_count": 30
+    },
+    {
       "file": "metro-maps/europe/germany/eu-ger-dusseldorf.geojson",
       "city": "Dusseldorf",
       "country": "Germany",
       "station_count": 136,
+      "line_count": 9
+    },
+    {
+      "file": "metro-maps/africa/south-africa/af-rsa-cape-town.geojson",
+      "city": "Cape Town",
+      "country": "South Africa",
+      "station_count": 109,
+      "line_count": 16
+    },
+    {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "station_count": 61,
+      "line_count": 5
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
+      "city": "Adelaide",
+      "country": "Australia",
+      "station_count": 123,
+      "line_count": 10
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-brisbane.geojson",
+      "city": "Brisbane",
+      "country": "Australia",
+      "station_count": 134,
+      "line_count": 14
+    },
+    {
+      "file": "metro-maps/africa/south-africa/af-rsa-durban.geojson",
+      "city": "Durban",
+      "country": "South Africa",
+      "station_count": 82,
       "line_count": 9
     },
     {
@@ -522,11 +651,46 @@
       "line_count": 6
     },
     {
+      "file": "metro-maps/oceania/australia/oc-aus-perth.geojson",
+      "city": "Perth",
+      "country": "Australia",
+      "station_count": 86,
+      "line_count": 8
+    },
+    {
       "file": "metro-maps/europe/germany/eu-ger-bielefeld.geojson",
       "city": "Bielefeld",
       "country": "Germany",
       "station_count": 59,
       "line_count": 4
+    },
+    {
+      "file": "metro-maps/africa/tunisia/af-tun-tunis.geojson",
+      "city": "Tunis",
+      "country": "Tunisia",
+      "station_count": 77,
+      "line_count": 6
+    },
+    {
+      "file": "metro-maps/oceania/new-zealand/oc-nzl-auckland.geojson",
+      "city": "Auckland",
+      "country": "New Zealand",
+      "station_count": 39,
+      "line_count": 4
+    },
+    {
+      "file": "metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson",
+      "city": "Wellington",
+      "country": "New Zealand",
+      "station_count": 31,
+      "line_count": 4
+    },
+    {
+      "file": "metro-maps/africa/ethiopia/af-eth-addis-ababa.geojson",
+      "city": "Addis Ababa",
+      "country": "Ethiopia",
+      "station_count": 39,
+      "line_count": 2
     },
     {
       "file": "metro-maps/americas/bolivia/am-bol-cochabamba.geojson",
@@ -536,6 +700,13 @@
       "line_count": 3
     },
     {
+      "file": "metro-maps/africa/morocco/af-mar-rabat.geojson",
+      "city": "Rabat",
+      "country": "Morocco",
+      "station_count": 43,
+      "line_count": 2
+    },
+    {
       "file": "metro-maps/europe/germany/eu-ger-essen.geojson",
       "city": "Essen",
       "country": "Germany",
@@ -543,10 +714,45 @@
       "line_count": 2
     },
     {
+      "file": "metro-maps/africa/morocco/af-mar-casablanca.geojson",
+      "city": "Casablanca",
+      "country": "Morocco",
+      "station_count": 106,
+      "line_count": 4
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-sidi-bel-abbes.geojson",
+      "city": "Sidi Bel Abbès",
+      "country": "Algeria",
+      "station_count": 23,
+      "line_count": 2
+    },
+    {
       "file": "metro-maps/europe/germany/eu-ger-ratingen.geojson",
       "city": "Ratingen",
       "country": "Germany",
       "station_count": 71,
+      "line_count": 2
+    },
+    {
+      "file": "metro-maps/africa/nigeria/af-ngr-abuja.geojson",
+      "city": "Abuja",
+      "country": "Nigeria",
+      "station_count": 12,
+      "line_count": 2
+    },
+    {
+      "file": "metro-maps/africa/mauritius/af-mri-port-louis.geojson",
+      "city": "Port Louis",
+      "country": "Mauritius",
+      "station_count": 21,
+      "line_count": 2
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
+      "city": "Mostaganem",
+      "country": "Algeria",
+      "station_count": 23,
       "line_count": 2
     },
     {
@@ -571,10 +777,66 @@
       "line_count": 1
     },
     {
+      "file": "metro-maps/oceania/australia/oc-aus-gold-coast.geojson",
+      "city": "Gold Coast",
+      "country": "Australia",
+      "station_count": 19,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-newcastle.geojson",
+      "city": "Newcastle",
+      "country": "Australia",
+      "station_count": 6,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-canberra.geojson",
+      "city": "Canberra",
+      "country": "Australia",
+      "station_count": 14,
+      "line_count": 1
+    },
+    {
       "file": "metro-maps/asia/china/as-chn-chuzhou.geojson",
       "city": "Chuzhou",
       "country": "China",
       "station_count": 10,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-constantine.geojson",
+      "city": "Constantine",
+      "country": "Algeria",
+      "station_count": 15,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/senegal/af-sen-dakar.geojson",
+      "city": "Dakar",
+      "country": "Senegal",
+      "station_count": 13,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-oran.geojson",
+      "city": "Oran",
+      "country": "Algeria",
+      "station_count": 32,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-ouargla.geojson",
+      "city": "Ouargla",
+      "country": "Algeria",
+      "station_count": 16,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-setif.geojson",
+      "city": "Sétif",
+      "country": "Algeria",
+      "station_count": 22,
       "line_count": 1
     },
     {
@@ -653,6 +915,34 @@
       "country": "United Kingdom",
       "station_count": 262,
       "line_count": 26
+    },
+    {
+      "file": "metro-maps/asia/singapore/as-sgp-singapore-lrt.geojson",
+      "city": "Singapore + LRT",
+      "country": "Singapore",
+      "station_count": 187,
+      "line_count": 14
+    },
+    {
+      "file": "metro-maps/asia/south-korea/as-kor-seoul-incheon.geojson",
+      "city": "Seoul + Incheon",
+      "country": "South Korea",
+      "station_count": 487,
+      "line_count": 26
+    },
+    {
+      "file": "metro-maps/asia/taiwan/as-twn-taipei-rail.geojson",
+      "city": "Taipei + TRA + HSR",
+      "country": "Taiwan",
+      "station_count": 206,
+      "line_count": 19
+    },
+    {
+      "file": "metro-maps/asia/japan/as-jpn-tokyo-rail.geojson",
+      "city": "Tokyo + JR + Private",
+      "country": "Japan",
+      "station_count": 583,
+      "line_count": 60
     }
   ]
 }

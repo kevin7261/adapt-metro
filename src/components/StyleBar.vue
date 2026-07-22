@@ -14,7 +14,7 @@ const props = defineProps({
   viewKind: { type: String, default: 'metro' }, // 'metro' | 'map-adjust' | 'hillclimb' | 'rwd'
   // 以下皆為 RWD Maps 版面控制（狀態都在 D3Tab，工具列只顯示＋emit 回去）：
   showWeights: { type: Boolean, default: true }, // 顯示權重數字
-  weightMode: { type: String, default: 'uniform' }, // 'uniform' | 'weight' | 'square'
+  weightMode: { type: String, default: 'uniform' }, // 'uniform'(版面網格) | 'square'(方形) | 'weight'(權重，僅 RWD)
   dirs: { type: Number, default: 8 }, // 允許的線方向數：4（只H/V）| 8（+45°）| 16（+22.5°）
   frame: { type: String, default: 'auto' }, // RWD 版面尺寸預設（目前／網頁／手機／IG）
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
@@ -271,15 +271,15 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           </select>
         </label>
         <div class="sb-sep" />
-        <!-- 版面模式：均勻網格／權重網格＝下拉選單 -->
-        <label class="sb-inline" title="版面模式">
+        <!-- 網格模式：版面網格／方形網格／權重網格 -->
+        <label class="sb-inline" title="網格模式：版面＝隨面板長寬比拉伸填滿；方形＝正方格 letterbox">
           <span class="sb-inline-label">網格</span>
           <select
             class="sb-inline-select"
             :value="['weight', 'square'].includes(weightMode) ? weightMode : 'uniform'"
             @change="emit('weight-mode', $event.target.value)"
           >
-            <option value="uniform">均勻網格</option>
+            <option value="uniform">版面網格</option>
             <option value="square">方形網格</option>
             <option value="weight">權重網格</option>
           </select>
@@ -328,16 +328,30 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         >放大鏡</button>
       </template>
 
-      <!-- 顏色點間最大跨距（只 Straighten）：改數字即重算（不必再按按鈕）。 -->
-      <label v-if="isHillclimb" class="sb-inline" title="線段最大跨距（格）">
-        <span class="sb-inline-label">線段最大跨距</span>
-        <input
-          type="number" class="sb-inline-num" min="1" step="1"
-          :value="layer.spanCap ?? 3"
-          @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3); emit('recalc-span')"
-        />
-        <span class="sb-unit">格</span>
-      </label>
+      <!-- Straighten：網格模式（版面／方形）＋線段最大跨距 -->
+      <template v-if="isHillclimb">
+        <label class="sb-inline" title="網格模式：版面＝隨面板長寬比拉伸填滿；方形＝正方格 letterbox">
+          <span class="sb-inline-label">網格</span>
+          <select
+            class="sb-inline-select"
+            :value="weightMode === 'square' ? 'square' : 'uniform'"
+            @change="emit('weight-mode', $event.target.value)"
+          >
+            <option value="uniform">版面網格</option>
+            <option value="square">方形網格</option>
+          </select>
+        </label>
+        <div class="sb-sep" />
+        <label class="sb-inline" title="線段最大跨距（格）">
+          <span class="sb-inline-label">線段最大跨距</span>
+          <input
+            type="number" class="sb-inline-num" min="1" step="1"
+            :value="layer.spanCap ?? 3"
+            @change="layer.spanCap = Math.max(1, Math.round(+$event.target.value) || 3); emit('recalc-span')"
+          />
+          <span class="sb-unit">格</span>
+        </label>
+      </template>
 
       <!-- 河流分隔曲折度（只 Map Adjust）：輸入改草稿，按「確定」才重算本城市骨架灰點。
            門檻＝粉紅／黃點等邊界之間子段弧長÷弦長；> 此值就在最中間放灰並遞迴細分。
@@ -483,7 +497,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 }
 .sb-btn:disabled { opacity: 0.4; cursor: default; }
 
-/* 二選一的 group button（均勻網格／權重比例）：兩顆併成一體、選中的高亮 */
+/* 二選一的 group button（版面網格／權重比例）：兩顆併成一體、選中的高亮 */
 .sb-group {
   display: inline-flex;
   height: 26px;

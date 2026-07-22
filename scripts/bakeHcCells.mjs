@@ -22,7 +22,7 @@ import { applyShapeGreens } from '../src/stores/paper/shape.js'
 import { getShapePresets } from '../src/stores/paper/shapePresets.js'
 // 不 import straightenCells.js（會拖進瀏覽器 assetUrl）；指紋／algo 常數在此對齊。
 // 寫入的是預計算結果（cellAfter），不是 network 快取。
-const HC_CELLS_ALGO = 'hccells-v4'
+const HC_CELLS_ALGO = 'hccells-v5'
 function dfp(data) {
   let h = 5381
   const add = (s) => { for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0 }

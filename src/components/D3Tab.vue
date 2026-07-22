@@ -733,13 +733,11 @@ const gatherStats = ref(null)    // 網格合併: { moved, segs, verts, iters, i
 const stepInfo = ref(null)       // 逐步驗證: { info, steps, round, done }（顯示在浮動面板）
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
-// ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
-// weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
-// 重跑 buildRwdMap。'uniform' = 均勻網格（預設，欄寬列高隨板面拉伸填滿）。
-// 'square' = 方形網格（格子強制正方，取 min(欄寬,列高) 為單位、置中 letterbox）。
-// 'weight' = 權重網格。全部隨機每按一次整表重抽。
-// 預設正方格——與視圖畫廊 RWD 縮圖同一套 cell→pixel（letterbox），避免斜線被拉歪。
-const rwdWeightMode = ref('square') // 'uniform' | 'square' | 'weight'
+// ---- 網格／權重版面（Straighten＋RWD 共用；RWD 另有權重網格）----
+// 'uniform' = 版面網格（預設：欄寬列高隨板面長寬比拉伸填滿）
+// 'square'  = 方形網格（格子正方、置中 letterbox）
+// 'weight'  = 權重網格（僅 RWD：weight → 非均勻欄寬列高 → 重跑 buildRwdMap）
+const rwdWeightMode = ref('uniform') // 'uniform' | 'square' | 'weight'
 const rwdDirs = ref(8)               // RWD 允許的線方向數：4（只H/V）| 8（+45°，預設）| 16（+22.5°）
 const rwdFrameId = ref('auto')       // 版面尺寸：目前面板／網頁／手機／IG（模擬 RWD）
 const rwdFrameInfo = computed(() => resolveRwdFrame(rwdFrameId.value, 0, 0))
@@ -793,12 +791,14 @@ function regenRwdWeights() {
   animateToWeights(randomWeights(cachedSegs))
 }
 function setRwdWeightMode(m) {
+  // Straighten 只有版面／方形；誤傳 weight 時當版面網格。
+  if (!isRWD.value && m === 'weight') m = 'uniform'
   if (rwdWeightMode.value === m) return
   if (m === 'weight') {
-    animateToWeights(rwdWeights.value.size ? rwdWeights.value : randomWeights(cachedSegs)) // 均勻→加權：動畫過去
+    animateToWeights(rwdWeights.value.size ? rwdWeights.value : randomWeights(cachedSegs)) // 版面→權重：動畫過去
     return
   }
-  rwdWeightMode.value = m // 回均勻／方形網格：瞬時（無動畫）
+  rwdWeightMode.value = m // 版面網格／方形網格：瞬時重畫
   cachedRWD = null
   render()
 }
@@ -971,23 +971,34 @@ async function sourceData() {
 // sequence number and bails after every await if a newer render has started.
 // 逐步驗證：「下一步」執行整個 movewise 階段、「下一小步」只做一個點/線
 // 的移動（limit=1），「上一步/上一小步」從復原堆疊回退，「重設」回到鏈的
-// 起點。stepState/stepHistory 不是 reactive——推進後靠 render() 重畫、
+// 起點；另有「自動執行」（每秒一小步）、「執行到底」（大步連跑到收斂）。
+// stepState/stepHistory 不是 reactive——推進後靠 render() 重畫、
 // stepInfo ref 更新面板（含 hist 長度驅動按鈕 disabled）。
-function stepNext(limit) {
+const stepAutoOn = ref(false)
+let stepAutoTimer = null
+function stepStopAuto() {
+  stepAutoOn.value = false
+  if (stepAutoTimer != null) { clearInterval(stepAutoTimer); stepAutoTimer = null }
+}
+function stepNext(limit, { keepAuto = false } = {}) {
+  if (!keepAuto) stepStopAuto()
   const kind = stepKindOf(mode.value)
   if (!kind || !stepState[kind] || !cachedSkeleton) return
   const prev = stepState[kind]
+  if (prev.done) { stepStopAuto(); return }
   setFrozen(activeFrozen) // 成方護欄：render 外推進，重設本鏈護欄再走 movewise
   const next = stepChainNext(activeHcSk || cachedSkeleton, prev, limit ? { limit } : {})
-  if (next === prev) return // 已完成——沒有新動作就不進堆疊
+  if (next === prev) { stepStopAuto(); return } // 已完成——沒有新動作就不進堆疊
   ;(stepHistory[kind] ??= []).push({ st: prev, kind: limit === 1 ? 'sub' : 'big' })
   if (stepHistory[kind].length > 400) stepHistory[kind].shift()
   stepState[kind] = next
+  if (next.done) stepStopAuto()
   render()
 }
 // 上一小步＝回退一個動作；上一步＝一路吞掉其後的小步、回退到上一個大步之前
 // （堆疊裡沒有大步時退回起點）。
 function stepPrev(sub) {
+  stepStopAuto()
   const kind = stepKindOf(mode.value)
   const hist = stepHistory[kind]
   if (!kind || !hist?.length) return
@@ -997,10 +1008,64 @@ function stepPrev(sub) {
   render()
 }
 function stepReset() {
+  stepStopAuto()
   const kind = stepKindOf(mode.value)
   if (!kind) return
   delete stepState[kind]
   delete stepHistory[kind]
+  render()
+}
+/** 自動執行：每秒一次下一小步；再按一次停止。 */
+function stepToggleAuto() {
+  if (stepAutoOn.value) { stepStopAuto(); return }
+  const kind = stepKindOf(mode.value)
+  if (!kind || !stepState[kind] || stepState[kind].done) return
+  stepAutoOn.value = true
+  stepNext(1, { keepAuto: true }) // 立刻先走一小步
+  stepAutoTimer = setInterval(() => {
+    if (!stepAutoOn.value) return
+    const k = stepKindOf(mode.value)
+    if (!k || !stepState[k] || stepState[k].done) { stepStopAuto(); return }
+    stepNext(1, { keepAuto: true })
+  }, 1000)
+}
+/** 執行到底：以大步連跑到收斂（與循環同判準）；復原堆疊只記起點一筆；結果寫入循環槽＋straighten-cells。 */
+function stepRunToEnd() {
+  stepStopAuto()
+  const kind = stepKindOf(mode.value)
+  if (!kind || !stepState[kind] || !cachedSkeleton || stepState[kind].done) return
+  const sk = activeHcSk || cachedSkeleton
+  setFrozen(activeFrozen)
+  const start = stepState[kind]
+  ;(stepHistory[kind] ??= []).push({ st: start, kind: 'big' })
+  if (stepHistory[kind].length > 400) stepHistory[kind].shift()
+  let cur = start
+  for (let guard = 0; guard < 10000 && !cur.done; guard++) {
+    const next = stepChainNext(sk, cur, {})
+    if (next === cur) break
+    cur = next
+  }
+  stepState[kind] = cur
+  // 視圖＝結果：跑到底＝循環收斂，同步 loop tab／RWD 底圖／預計算檔
+  if (cur.done) {
+    const g = buildHcGraph(sk, cur.cells)
+    cachedLoop[kind] = {
+      cellAfter: cur.cells,
+      cols: cur.cols,
+      rows: cur.rows,
+      stats: {
+        hvAfter: countHV(g.pos, g.segs),
+        segs: g.segs.length,
+        verts: g.pos.size,
+        rounds: cur.round,
+        converged: true,
+        cols: cur.cols,
+        rows: cur.rows,
+        fromStep: true,
+      },
+    }
+    persistHcCells(!!(isShapeLayer.value && shapeLlmApplied.value))
+  }
   render()
 }
 
@@ -1296,10 +1361,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
     if (layoutKind) {
       if (layoutKind === 'shape-llm') {
         const nC = grid.cols, nR = grid.rows
-        // 正方格 letterbox（與 Straighten 循環／畫廊一致）
-        const u = Math.min((w - 48) / nC, (h - 48) / nR)
-        const sx0 = 24 + (w - 48 - nC * u) / 2, sy0 = 24 + (h - 48 - nR * u) / 2
-        const cellPx = ([c, r]) => [sx0 + (c + 0.5) * u, sy0 + (r + 0.5) * u]
+        const aw = w - 48, ah = h - 48
+        // 跟工具列「網格」：版面網格拉伸／方形網格 letterbox
+        const sq = rwdWeightMode.value === 'square'
+        const u = sq ? Math.min(aw / nC, ah / nR) : null
+        const sx0 = sq ? 24 + (aw - nC * u) / 2 : 24
+        const sy0 = sq ? 24 + (ah - nR * u) / 2 : 24
+        const cw0 = sq ? u : aw / nC, ch0 = sq ? u : ah / nR
+        const cellPx = ([c, r]) => [sx0 + (c + 0.5) * cw0, sy0 + (r + 0.5) * ch0]
         const drawGrid = (cells, note, greens = null) => {
           layoutStats.value = note
           const drawSk = greens?.length ? applyShapeGreens(cachedSkeleton, greens) : cachedSkeleton
@@ -1307,8 +1376,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
           for (const [id, p] of cells) hcPos.set(id, cellPx(p))
           placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
           hcBlue = {
-            xs: Array.from({ length: nC + 1 }, (_, i) => sx0 + i * u),
-            ys: Array.from({ length: nR + 1 }, (_, i) => sy0 + i * u),
+            xs: Array.from({ length: nC + 1 }, (_, i) => sx0 + i * cw0),
+            ys: Array.from({ length: nR + 1 }, (_, i) => sy0 + i * ch0),
           }
           return {
             hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk,
@@ -1319,12 +1388,20 @@ async function computeHcLayout({ seq, w, h, grid }) {
           shapeLlmStats.value = null; shapeLlmInfo.value = null; shapeLlmMsg.value = null
           return drawGrid(grid.cellOf, { skipped: true, note: '不需計算', moved: 0 })
         }
-        if (cachedShapeLlm?.cells) {
-          const cells = shapeLlmApplied.value ? cachedShapeLlm.cells : grid.cellOf
-          const greens = shapeLlmApplied.value ? (cachedShapeLlm.stats.greens ?? null) : null
-          return drawGrid(cells, cachedShapeLlm.stats, greens)
+        // 有成方結果才畫成方；無檔不畫格網冒充（視圖＝結果檔）。
+        if (cachedShapeLlm?.cells && cachedShapeLlm.stats?.square === true) {
+          return drawGrid(
+            cachedShapeLlm.cells,
+            cachedShapeLlm.stats,
+            cachedShapeLlm.stats.greens ?? null,
+          )
         }
-        return drawGrid(grid.cellOf, { pending: true, note: '待執行', moved: 0 })
+        layoutPending.value = true
+        shapeLlmMsg.value = cachedShapeLlm?.miss
+          ?? (cachedShapeLlm?.stats && cachedShapeLlm.stats.square !== true
+            ? '成方未通過（非正確方形）——請重跑 ⑨ LLM 成方'
+            : '尚未產生 LLM 成方')
+        return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
       }
     }
   }
@@ -1399,22 +1476,25 @@ async function computeHcLayout({ seq, w, h, grid }) {
         cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
       })
       if (seq !== renderSeq) return null
-      persistHcCells(shapeFeedsHc)
+      // forceBake 時等 warmChains 一次寫完整檔；勿中途寫半套。
+      if (!forceBakeLayout.value) persistHcCells(shapeFeedsHc)
       syncCalcMs()
     }
     if (cachedPost[kind]) {
       postStats.value = cachedPost[kind].stats
       postIters.value = { ...postIters.value, [kind]: cachedPost[kind].stats.iters }
       cells = cachedPost[kind].cellAfter
+    } else if (!skipPost) {
+      // 需要 post 卻沒有結果 → 不畫
+      layoutPending.value = true
+      return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
     }
   }
   // 成方座標快照：後續 LLM 對齊／評價覆寫 cells 時釘回去（離線檔可能破方）。
   let frozenPin = shapeFeedsHc ? snapshotFrozen(cells, frozenIds) : null
 
-  // 「LLM 對齊」: 離線 llmviews——fingerprint 對齊格網化後（hvStart＝base 的 H/V）。
+  // 「LLM 對齊」: 離線 straighten-llm——視圖＝結果檔；無檔不畫 base 冒充。
   if (useLlm.value) {
-    // 唯讀載入對齊結果供面板顯示＋切換用（跟評價/互動一樣，跑的時候不阻擋畫圖：
-    // 沒有結果或未套用時就照畫對齊前的 base 佈局，不留白）。
     let justLlm = false
     if (!cachedLlm && llmRun.value !== 'running') {
       const cid = sourceLayer.value?.id
@@ -1425,23 +1505,21 @@ async function computeHcLayout({ seq, w, h, grid }) {
           missStale: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生',
           missErr: '無法載入 LLM 對齊結果',
           fpOk: (fp) => fp.cols === grid.cols && fp.rows === grid.rows
-            && fp.hvStart === cachedHC.stats.hvAfter, // hvAfter＝格網化後／成方的 H/V
+            && fp.hvStart === cachedHC.stats.hvAfter,
           onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
         })
-      if (seq !== renderSeq) return null // superseded during fetch
+      if (seq !== renderSeq) return null
       justLlm = true
     }
     if (cachedLlm?.cells) {
       llmStats.value = cachedLlm.stats
       llmInfo.value = { rounds: cachedLlm.stats.rounds, model: cachedLlm.stats.model }
-      // 首次載到結果時，從 localStorage 恢復上次「已套用」狀態（見 llmApplyKeys）。
       if (justLlm) llmApplied.value = llmApplyGet(llmApplyKeys.value.auto)
     } else {
       llmStats.value = null
       llmMsg.value = cachedLlm?.miss ?? null
       llmApplied.value = false
     }
-    // 「指定對齊」（.prompt.json）只在 LLM 對齊主視圖載入＋比較用，不餵下游。
     const onMainAlign = isHC.value && mode.value === 'hc-llm'
     let justPrompt = false
     if (onMainAlign && !cachedPrompt && promptRun.value !== 'running') {
@@ -1456,36 +1534,28 @@ async function computeHcLayout({ seq, w, h, grid }) {
             && fp.hvStart === cachedHC.stats.hvAfter,
           onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
         })
-      if (seq !== renderSeq) return null // superseded during fetch
+      if (seq !== renderSeq) return null
       justPrompt = true
     }
     if (onMainAlign) {
       if (cachedPrompt?.cells) {
         promptStats.value = cachedPrompt.stats
-        // 首次載到結果時恢復上次「已套用」狀態；與自動對齊互斥。
         if (justPrompt && llmApplyGet(llmApplyKeys.value.prompt)) { promptApplied.value = true; llmApplied.value = false }
       }
       else { promptStats.value = null; promptMsg.value = cachedPrompt?.miss ?? null; promptApplied.value = false }
     }
-    // 套用規則：
-    // - LLM 對齊主視圖（'hc-llm'）與其下游鏈（hc-llm-*）＝跟著「目前顯示的佈局」：
-    //   指定 > 自動 > base HC（互斥 toggle）。鏈以此為輸入，toggle 變就重算（見
-    //   toggleLlmExec/togglePromptExec 的 invalidateLlmDownstream）。
-    // - RWD 'llm' compact（另一個 layer、沒有 toggle）＝以「自動對齊」為基準。
-    // - 成方護欄：對齊檔若破方則釘回 frozenPin（循環三演算法本身可動、只禁破方）。
-    if (isRWD.value) {
-      if (cachedLlm?.cells) {
-        cells = new Map(cachedLlm.cells)
-        if (frozenPin) cells = pinFrozenCells(cells, frozenIds, frozenPin)
-      }
-    } else {
-      if (promptApplied.value && cachedPrompt?.cells) cells = cachedPrompt.cells
-      else if (llmApplied.value && cachedLlm?.cells) cells = cachedLlm.cells
-      if (frozenPin && (promptApplied.value || llmApplied.value)) {
-        cells = pinFrozenCells(cells, frozenIds, frozenPin)
-      }
-      // 否則維持 base HC（cells 未動）
+    // 顯示＝結果檔（指定／自動）；都沒有 → 不畫（勿回退格網化後冒充）。
+    const llmCells = (promptApplied.value && cachedPrompt?.cells)
+      ? cachedPrompt.cells
+      : (llmApplied.value && cachedLlm?.cells)
+        ? cachedLlm.cells
+        : (cachedLlm?.cells ?? cachedPrompt?.cells ?? null)
+    if (!llmCells) {
+      layoutPending.value = true
+      return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
     }
+    cells = new Map(llmCells)
+    if (frozenPin) cells = pinFrozenCells(cells, frozenIds, frozenPin)
   }
   // 鏈的後處理順序：端點移動 → 直線縮減 → 網格合併（循環 tab 另走
   // straightenCompactLoop）。三個階段都是 movewise（movewiseStage）——
@@ -1580,7 +1650,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
       if (shapeFeedsHc) frozenPin = snapshotFrozen(cells, frozenIds)
     }
   }
-  if (cellsDirty) persistHcCells(shapeFeedsHc)
+  // forceBake 時由 warmChains 結尾一次寫完整檔
+  if (cellsDirty && !forceBakeLayout.value) persistHcCells(shapeFeedsHc)
   // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
   // 推進 stepState 後重畫；見 stepKindOf）。
   {
@@ -1690,13 +1761,10 @@ async function computeHcLayout({ seq, w, h, grid }) {
   } else if (weighted) {
     axes = weightedAxes(cells, cachedSegs, rwdWeights.value, nC, nR, area)
   }
-  // 方形網格：格子強制正方、置中 letterbox。
-  // - RWD「square」權重模式：原本就正方
-  // - Straighten（非 RWD）：一律正方——與視圖畫廊 loop-* 縮圖同一套映射，
-  //   避免面板長寬比把同一組 cells 拉成與縮圖不同的形狀
-  const squareMode = isRWD.value
-    ? (!gridOn && !animing && !weighted && rwdWeightMode.value === 'square')
-    : !axes
+  // 方形網格：格子強制正方、置中 letterbox（Straighten／RWD 共用「網格」下拉）。
+  // 版面網格（預設）＝欄／列吃滿板面；權重／動畫／LLM 區間軸走 axes。
+  const squareMode = !axes && !gridOn && !animing && !weighted
+    && rwdWeightMode.value === 'square'
   const u = Math.min(cw, ch)
   const sqx0 = 24 + (w - 48 - nC * u) / 2, sqy0 = 24 + (h - 48 - nR * u) / 2
   const squareBlue = {
@@ -2845,6 +2913,7 @@ onBeforeUnmount(() => {
   llmRunner.stop()
   gridRunner.stop()
   evalRunner.stop()
+  stepStopAuto()
   if (rwdAutoTimer) clearInterval(rwdAutoTimer)
   if (rwdAnimRaf) cancelAnimationFrame(rwdAnimRaf)
   if (fisheyeRaf) cancelAnimationFrame(fisheyeRaf)
@@ -2914,8 +2983,8 @@ onBeforeUnmount(() => {
           <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨形狀計算 / LLM 成方 view 跑出成方</span></div>
           <div v-else-if="layoutPending" class="ma-hint llm-hint">
             <div class="llm-run-card">
-              <div class="llm-run-title">尚未預計算下游佈局</div>
-              <div class="llm-run-desc">開分頁只讀 <code>straighten-cells</code> JSON，不重算。請按右上<strong>重新計算</strong>寫入預計算結果（基本＋①〜⑧ 全下游）。</div>
+              <div class="llm-run-title">尚無預計算結果</div>
+              <div class="llm-run-desc">沒有結果檔就不畫。請按右上<strong>重新計算</strong>寫入 <code>straighten-cells</code>（視圖與檔案一致）。</div>
             </div>
           </div>
           <div v-else-if="hcBusy" class="ma-hint llm-hint">
@@ -2943,9 +3012,12 @@ onBeforeUnmount(() => {
             v-if="isHC && stepKindOf(mode)"
             :panel-layer="panelLayer"
             :step-info="stepInfo"
+            :auto-on="stepAutoOn"
             @prev="stepPrev"
             @next="stepNext"
             @reset="stepReset"
+            @auto="stepToggleAuto"
+            @run-end="stepRunToEnd"
           />
           </div>
         </div>

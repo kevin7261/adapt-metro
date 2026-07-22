@@ -341,7 +341,7 @@ export function viewLabels(tilt) {
  * 可選 HC 參考圖／各鏈循環＋可選 LLM）。每 variant：
  *   1) 格網化後 — Map Adjust grid-*-post；直線演算法的唯一 base。
  *   2) Hill Climbing — 僅畫廊參考圖（不餵下游）。
- *   3–N) 各鏈循環 — base＝格網化後 →（論文鏈先 iteratePost）→ straightenCompactLoop。
+ *   3–N) 各鏈循環 — 只讀 straighten-cells.loops（缺檔不畫）。
  *   LLM／形狀變體同：吃格網化後或成方 cells，不吃 HC。
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
@@ -349,8 +349,8 @@ export function computeCityHcViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
   const views = {}
   const stats = {}
-  // Straighten 縮圖（HC／loop）用正方格——與 D3Tab Straighten 一致。
-  const cellMapperSq = cellMapperFor(x0, y0, x1, y1, { square: true })
+  // 畫廊預設＝版面網格（隨縮圖 W×H 拉伸，對齊 D3Tab 預設）。
+  const cellMapperSq = cellMapperFor(x0, y0, x1, y1)
   for (const variant of ['orig', 'rot']) {
     const angle = variant === 'rot' && canRotate ? tilt : 0
     const projection = projFor(angle)
@@ -371,8 +371,8 @@ export function computeCityHcViews(geojson, opts = {}) {
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
     stats[`hc-${variant}`] = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
 
-    // 3–N) 各鏈循環 — **優先用 straighten-cells（與 D3Tab 同一份真結果）**；
-    // 缺檔才現場 iteratePost→straightenCompactLoop（離線預算／尚無 cells 時）。
+    // 3–N) 各鏈循環 — **只畫 straighten-cells 預計算結果**（與 D3Tab 同一份）。
+    // 缺檔不現場 bake——沒資料就不產出該視圖（視圖＝結果）。
     const cellsDoc = opts.cellsByVariant?.[variant]
     for (const kind of [...CHAIN_KINDS, 'llm']) {
       const key = `loop-${kind}-${variant}`
@@ -383,67 +383,25 @@ export function computeCityHcViews(geojson, opts = {}) {
         const compPos = cellsToPos(cellAfter, m.cellPx, skeleton, snap)
         views[key] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
         stats[key] = { cols: fromCells.cols, rows: fromCells.rows, fromCells: true }
-        continue
       }
-      if (kind === 'llm') {
-        // LLM：無 cells 時才試 llmviews→循環（舊路徑）。
-        const gGraph = buildHcGraph(skeleton, gridBase)
-        const fp = {
-          verts: gGraph.pos.size, segs: gGraph.segs.length,
-          cols: grid.cols, rows: grid.rows,
-          hvStart: countHV(gGraph.pos, gGraph.segs),
-        }
-        const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
-        if (!llmBase) continue
-        const comp = straightenCompactLoop(skeleton, llmBase, grid.cols, grid.rows)
-        const m = cellMapperSq(comp.cols, comp.rows)
-        const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
-        views[key] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-        stats[key] = { cols: comp.cols, rows: comp.rows }
-        continue
-      }
-      const t0 = Date.now()
-      const post = CHAIN_POST[kind]
-        ? iteratePost(CHAIN_POST[kind], skeleton, gridBase, grid.cols, grid.rows)
-        : null
-      const base = post ? post.cellAfter : gridBase
-      const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
-      const m = cellMapperSq(comp.cols, comp.rows)
-      const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
-      views[key] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
-      stats[key] = { cols: comp.cols, rows: comp.rows, ms: Date.now() - t0 }
     }
 
-    // 形狀變體：優先用 *.orig-shape.shapelike.json cells；否則成方→各鏈→循環。
+    // 形狀變體：只畫 shapelike straighten-cells；缺檔不現場 bake。
     const shapeCellsDoc = opts.cellsByVariant?.[`${variant}-shape`]
     const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
-    if (shapeCellsDoc?.loops || shp) {
+    if (shapeCellsDoc?.loops) {
       const shSk = (shp?.greens?.length) ? applyShapeGreens(skeleton, shp.greens) : skeleton
-      const frozen = shp ? shapeFrozenSet(shSk, opts.cityId, shp.greens) : null
-      if (frozen) setFrozen({ ringIds: [...frozen], members: frozen })
-      try {
-        for (const kind of [...CHAIN_KINDS, 'llm']) {
-          const key = `loop-${kind}-${variant}-shape`
-          const fromCells = shapeCellsDoc?.loops?.[kind]
-          if (fromCells?.cellAfter && fromCells.cols != null && fromCells.rows != null) {
-            const cellAfter = new Map(fromCells.cellAfter.map(([id, c, r]) => [id, [c, r]]))
-            const m = cellMapperSq(fromCells.cols, fromCells.rows)
-            const compPos = cellsToPos(cellAfter, m.cellPx, shSk, snap)
-            views[key] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
-            stats[key] = { cols: fromCells.cols, rows: fromCells.rows, fromCells: true }
-            continue
-          }
-          if (!shp || kind === 'llm') continue
-          const post = CHAIN_POST[kind]
-            ? iteratePost(CHAIN_POST[kind], shSk, shp.cells, grid.cols, grid.rows) : null
-          const base = post ? post.cellAfter : shp.cells
-          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
-          const m = cellMapperSq(comp.cols, comp.rows)
-          const compPos = cellsToPos(comp.cellAfter, m.cellPx, shSk, snap)
+      for (const kind of [...CHAIN_KINDS, 'llm']) {
+        const key = `loop-${kind}-${variant}-shape`
+        const fromCells = shapeCellsDoc.loops?.[kind]
+        if (fromCells?.cellAfter && fromCells.cols != null && fromCells.rows != null) {
+          const cellAfter = new Map(fromCells.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+          const m = cellMapperSq(fromCells.cols, fromCells.rows)
+          const compPos = cellsToPos(cellAfter, m.cellPx, shSk, snap)
           views[key] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
-          stats[key] = { cols: comp.cols, rows: comp.rows }
+          stats[key] = { cols: fromCells.cols, rows: fromCells.rows, fromCells: true }
         }
-      } finally { if (frozen) setFrozen(null) }
+      }
     }
   }
 
@@ -458,8 +416,8 @@ export function patchHcGalleryFromCells(geojson, galleryDoc, cellsByVariant, opt
   if (!geojson || !galleryDoc?.views || !cellsByVariant) return 0
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } =
     prepCity(geojson, { W: galleryDoc.W, H: galleryDoc.H, pad: opts.pad })
-  // 正方格（與 D3Tab Straighten 一致）——同一組 cells 不會因縮圖長寬比被拉歪。
-  const cellMapper = cellMapperFor(x0, y0, x1, y1, { square: true })
+  // 預設版面網格（隨縮圖 W×H 拉伸，對齊 D3Tab 預設）。
+  const cellMapper = cellMapperFor(x0, y0, x1, y1)
   let n = 0
   for (const [variantKey, cellsDoc] of Object.entries(cellsByVariant)) {
     if (!cellsDoc?.loops) continue
@@ -555,7 +513,7 @@ function drawRwd(skeleton, stations, rwd, sep) {
 }
 
 // 從循環結果（cellAfter＋cols/rows）畫 compact＋RWD 一對視圖。
-// 正方格 letterbox；形狀變體傳 frozenIds（shapeLock，同 D3Tab）。
+// 版面網格（隨 W×H 拉伸）；形狀變體傳 frozenIds（shapeLock，同 D3Tab）。
 function bakeRwdPair(views, {
   kind, variant, shapeSuffix, sk, stations, lineFeats, segs, snap,
   cellAfter, cols, rows, cellMapper, x0, y0, frozenIds = null,
@@ -587,12 +545,12 @@ function loopCellsFromDoc(cellsDoc, kind) {
 // Compute the RWD Maps gallery views for one city（原始＋旋轉 兩 variant）：
 // each variant × 縮減網格 sources（基本 hc ＋ 論文①〜⑧的八條鏈 ＋ 可選 LLM）
 // as both the compact grid AND its RWD 路網 redraw.
-// **優先用 straighten-cells 的 loops（與 D3Tab 同一份）**；缺檔才現場循環。
-// opts.cellsByVariant / llmByVariant / shapeByVariant / cityId。
+// **只畫 straighten-cells 的 loops**（與 D3Tab 同一份）；缺檔不現場循環。
+// opts.cellsByVariant / shapeByVariant / cityId。
 export function computeCityRwdViews(geojson, opts = {}) {
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } = prepCity(geojson, opts)
-  // 正方格——與 D3Tab Straighten／RWD square 一致，避免縮圖長寬比拉歪。
-  const cellMapper = cellMapperFor(x0, y0, x1, y1, { square: true })
+  // 預設版面網格（隨縮圖 W×H 拉伸，對齊 D3Tab 預設）。
+  const cellMapper = cellMapperFor(x0, y0, x1, y1)
   const views = {}
   for (const variant of ['orig', 'rot']) {
     const angle = variant === 'rot' && canRotate ? tilt : 0
@@ -604,83 +562,34 @@ export function computeCityRwdViews(geojson, opts = {}) {
     const segs = mergeParallelSegs(buildHcGraph(skeleton, gridBase).segs)
     const cellsDoc = opts.cellsByVariant?.[variant]
 
-    const bakeKind = (kind, base) => {
+    for (const kind of [...CHAIN_KINDS, 'llm']) {
       const fromCells = loopCellsFromDoc(cellsDoc, kind)
-      if (fromCells) {
-        bakeRwdPair(views, {
-          kind, variant, shapeSuffix: '', sk: skeleton, stations, lineFeats, segs, snap,
-          ...fromCells, cellMapper, x0, y0,
-        })
-        return
-      }
-      if (base == null) return
-      const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
+      if (!fromCells) continue
       bakeRwdPair(views, {
         kind, variant, shapeSuffix: '', sk: skeleton, stations, lineFeats, segs, snap,
-        cellAfter: comp.cellAfter, cols: comp.cols, rows: comp.rows, cellMapper, x0, y0,
+        ...fromCells, cellMapper, x0, y0,
       })
     }
 
-    for (const kind of CHAIN_KINDS) {
-      if (loopCellsFromDoc(cellsDoc, kind)) { bakeKind(kind, null); continue }
-      const base = CHAIN_POST[kind]
-        ? iteratePost(CHAIN_POST[kind], skeleton, gridBase, grid.cols, grid.rows).cellAfter
-        : gridBase
-      bakeKind(kind, base)
-    }
-
-    // LLM：有 cells.loops.llm 優先；否則 llmviews→循環。
-    {
-      const fromCells = loopCellsFromDoc(cellsDoc, 'llm')
-      if (fromCells) bakeKind('llm', null)
-      else {
-        const gGraph = buildHcGraph(skeleton, gridBase)
-        const fp = {
-          verts: gGraph.pos.size, segs: gGraph.segs.length,
-          cols: grid.cols, rows: grid.rows,
-          hvStart: countHV(gGraph.pos, gGraph.segs),
-        }
-        const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
-        if (llmBase) bakeKind('llm', llmBase)
-      }
-    }
-
-    // 形狀變體：優先 *.orig-shape.shapelike.json cells；否則成方→各鏈→循環。
-    // 必須傳 frozenIds（shapeLock）——否則 A* 會繞破方形邊、極慢。
+    // 形狀變體：只畫 shapelike cells。
     const shapeCellsDoc = opts.cellsByVariant?.[`${variant}-shape`]
     const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
-    if (shapeCellsDoc?.loops || shp) {
+    if (shapeCellsDoc?.loops) {
       const shSk = (shp?.greens?.length) ? applyShapeGreens(skeleton, shp.greens) : skeleton
-      const frozen = shp ? shapeFrozenSet(shSk, opts.cityId, shp.greens) : (
-        opts.cityId ? shapeFrozenSet(shSk, opts.cityId, opts.shapeByVariant?.[variant]?.greens ?? []) : new Set()
-      )
+      const frozen = opts.cityId
+        ? shapeFrozenSet(shSk, opts.cityId, shp?.greens ?? opts.shapeByVariant?.[variant]?.greens ?? [])
+        : new Set()
       const baseCells = shp?.cells ?? gridBase
       const shSegs = mergeParallelSegs(buildHcGraph(shSk, baseCells).segs)
       const shSnap = (id) => grid.posAfter.get(id) ?? null
-      setFrozen({ ringIds: [...frozen], members: frozen })
-      try {
-        for (const kind of [...CHAIN_KINDS, 'llm']) {
-          const fromCells = loopCellsFromDoc(shapeCellsDoc, kind)
-          if (fromCells) {
-            bakeRwdPair(views, {
-              kind, variant, shapeSuffix: '-shape', sk: shSk, stations, lineFeats,
-              segs: shSegs, snap: shSnap, ...fromCells, cellMapper, x0, y0, frozenIds: frozen,
-            })
-            continue
-          }
-          if (!shp || kind === 'llm') continue
-          const base = CHAIN_POST[kind]
-            ? iteratePost(CHAIN_POST[kind], shSk, shp.cells, grid.cols, grid.rows).cellAfter
-            : shp.cells
-          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
-          bakeRwdPair(views, {
-            kind, variant, shapeSuffix: '-shape', sk: shSk, stations, lineFeats,
-            segs: shSegs, snap: shSnap,
-            cellAfter: comp.cellAfter, cols: comp.cols, rows: comp.rows,
-            cellMapper, x0, y0, frozenIds: frozen,
-          })
-        }
-      } finally { setFrozen(null) }
+      for (const kind of [...CHAIN_KINDS, 'llm']) {
+        const fromCells = loopCellsFromDoc(shapeCellsDoc, kind)
+        if (!fromCells) continue
+        bakeRwdPair(views, {
+          kind, variant, shapeSuffix: '-shape', sk: shSk, stations, lineFeats,
+          segs: shSegs, snap: shSnap, ...fromCells, cellMapper, x0, y0, frozenIds: frozen,
+        })
+      }
     }
   }
   return { W, H, tilt, canRotate, views }
@@ -694,7 +603,8 @@ export function patchRwdGalleryFromCells(geojson, galleryDoc, cellsByVariant, op
   if (!geojson || !galleryDoc?.views || !cellsByVariant) return 0
   const { W, H, extArr, x0, y0, x1, y1, stations, lineFeats, tilt, canRotate, skeleton, projFor } =
     prepCity(geojson, { W: galleryDoc.W, H: galleryDoc.H, pad: opts.pad })
-  const cellMapper = cellMapperFor(x0, y0, x1, y1, { square: true })
+  // 預設版面網格（隨縮圖 W×H 拉伸，對齊 D3Tab 預設）。
+  const cellMapper = cellMapperFor(x0, y0, x1, y1)
   let n = 0
   for (const [variantKey, cellsDoc] of Object.entries(cellsByVariant)) {
     if (!cellsDoc?.loops) continue

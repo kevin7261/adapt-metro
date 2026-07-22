@@ -10,17 +10,32 @@ const STEP_STAGES = [
 defineProps({
   panelLayer: { type: Object, default: null },
   stepInfo: { type: Object, default: null },
+  autoOn: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['prev', 'next', 'reset'])
+const emit = defineEmits(['prev', 'next', 'reset', 'auto', 'run-end'])
 </script>
 
 <template>
   <div class="step-panel">
+    <!-- 順序：上一步 → 上一小步 → 下一小步 → 下一步 → 自動／到底 → 重設 -->
     <button class="step-btn back" :disabled="!panelLayer || !stepInfo?.hist" @click="emit('prev', false)"><MIcon name="arrow_back" :size="13" /> 上一步</button>
-    <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="emit('next')">下一步 <MIcon name="arrow_forward" :size="13" /></button>
     <button class="step-btn back sub" :disabled="!panelLayer || !stepInfo?.hist" @click="emit('prev', true)"><MIcon name="chevron_left" :size="13" /> 上一小步</button>
     <button class="step-btn sub" :disabled="!panelLayer || stepInfo?.done" @click="emit('next', 1)">下一小步 <MIcon name="chevron_right" :size="13" /></button>
+    <button class="step-btn" :disabled="!panelLayer || stepInfo?.done" @click="emit('next')">下一步 <MIcon name="arrow_forward" :size="13" /></button>
+    <button
+      class="step-btn ghost"
+      :class="{ active: autoOn }"
+      :disabled="!panelLayer || (!autoOn && stepInfo?.done)"
+      title="自動執行：每秒一次下一小步"
+      @click="emit('auto')"
+    >{{ autoOn ? '停止自動' : '自動執行' }}</button>
+    <button
+      class="step-btn ghost"
+      :disabled="!panelLayer || stepInfo?.done"
+      title="執行到底：直接跑到收斂結果"
+      @click="emit('run-end')"
+    >執行到底</button>
     <button class="step-btn ghost" :disabled="!panelLayer" @click="emit('reset')">重設</button>
     <span class="step-count" v-if="stepInfo">第 {{ stepInfo.steps }} 步</span>
     <!-- 這一步是哪一個工作：執行到的階段亮起 -->
@@ -52,6 +67,7 @@ const emit = defineEmits(['prev', 'next', 'reset'])
   font-size: 12px;
   z-index: 5;
   pointer-events: auto;
+  flex-wrap: wrap;
 }
 .step-btn {
   flex-shrink: 0;
@@ -86,6 +102,12 @@ const emit = defineEmits(['prev', 'next', 'reset'])
   color: hsl(var(--muted-foreground));
   font-weight: 500;
 }
+.step-btn.ghost.active {
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+  font-weight: 600;
+}
 .step-count {
   flex-shrink: 0;
   font-weight: 600;
@@ -97,6 +119,7 @@ const emit = defineEmits(['prev', 'next', 'reset'])
   text-overflow: ellipsis;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
+  flex: 1 1 120px;
 }
 .step-msg.done { color: hsl(142 70% 40%); font-weight: 600; }
 /* 階段 chips：這一步執行的工作亮起。 */

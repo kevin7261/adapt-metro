@@ -703,11 +703,10 @@ export function stepChainNext(skeleton, st, opts = {}) {
 // 網格合併一遍 → 回到端點移動；某一輪三個都沒有改動才停止。輪數因此比階段
 // 固定點制多，上限放寬到 LOOP_ROUND_CAP。
 const LOOP_ROUND_CAP = 200
-// 成方護欄開啟時，網格合併／端點常在剛體約束下振盪；靠 LOOP_STALL_ROUNDS
-// （欄列＋H/V 連續不變）提前停，勿把上限砍成 1——否則循環遠未收斂，
-// 與逐步驗證（跑到三階段都不動）結果不一致（使用者回報 2026-07）。
-const LOOP_ROUND_CAP_FROZEN = 40
-const LOOP_STALL_ROUNDS = 2
+// 成方護欄下輪數可較多（剛體約束常多輪才靜止）；仍以「三階段皆無移動」收斂，
+// 與逐步驗證（stepChainNext 跑到 ✔）同一判準——勿用「欄列＋H/V 不變」提前停
+// （會半途截斷，結果比逐步驗證差；使用者回報 2026-07）。
+const LOOP_ROUND_CAP_FROZEN = 200
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows
   let rounds = 0, moved = 0, lineMoved = 0, gatherMoved = 0
@@ -715,8 +714,6 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let converged = false
   const frozen = !!getFrozen()
   const roundCap = frozen ? LOOP_ROUND_CAP_FROZEN : LOOP_ROUND_CAP
-  let stall = 0
-  let prevSig = null
   while (rounds < roundCap) {
     const endp = movewiseSweep('endp', skeleton, cur, nC, nR)
     const line = movewiseSweep('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
@@ -730,12 +727,8 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     cur = gather.cellAfter
     nC = gather.cols
     nR = gather.rows
+    // 與逐步驗證相同：一輪三個演算法都沒改動才停（保險上限 roundCap）。
     if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
-    // 有移動但網格／平直度沒變 → 振盪，提早停（尤其成方護欄）。
-    const sig = `${nC}x${nR}:${last.hvAfter}`
-    if (sig === prevSig) {
-      if (++stall >= LOOP_STALL_ROUNDS) break
-    } else { stall = 0; prevSig = sig }
   }
   return {
     cellAfter: cur,

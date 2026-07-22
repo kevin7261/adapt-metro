@@ -14,7 +14,10 @@ import { getDataOverlay, setDataOverlay } from './dataOverlay'
 // v2: 直線演算法／循環 base＝格網化後（不再吃 HC）
 // v3: 成方護欄下循環上限 1→40
 // v4: 直線縮減四方向＋H/V 變多就要移
-export const HC_CELLS_ALGO = 'hccells-v4'
+// v5: 循環收斂＝三階段皆無移動（與逐步驗證同；去掉 stall 提前停）
+// 寫入用最新；讀取相容舊版（畫廊縮圖常對應已存在的 v4 檔，勿因 bump 整批空白）。
+export const HC_CELLS_ALGO = 'hccells-v5'
+export const HC_CELLS_ALGO_READ = new Set(['hccells-v4', 'hccells-v5'])
 
 export function dataFingerprint(data) {
   let h = 5381
@@ -87,7 +90,7 @@ export async function loadStraightenCells({ cityId, variant, shapelike = false, 
       if (!res.ok || !isJson) return null
       e = await res.json()
     }
-    if (e.algo !== HC_CELLS_ALGO || e.fingerprint !== fingerprint || !e.hc?.cellAfter) return null
+    if (!HC_CELLS_ALGO_READ.has(e.algo) || e.fingerprint !== fingerprint || !e.hc?.cellAfter) return null
     return {
       hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats },
       posts: deStageMap(e.posts),

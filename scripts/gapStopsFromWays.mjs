@@ -31,29 +31,45 @@ function segDist(p, a, b) {
   return { d: Math.hypot(p[0] - cx, p[1] - cy), t }
 }
 
-// 依成員順序把 way 幾何接成一條折線（端點相接就翻轉，接不上就直接續接）
-function chainWays(ways) {
-  const line = []
-  for (const w of ways) {
-    let pts = w.geometry
-    if (!pts?.length) continue
-    if (line.length) {
-      const tail = line[line.length - 1]
-      const near = (p, q) => Math.abs(p.lat - q.lat) < 1e-6 && Math.abs(p.lon - q.lon) < 1e-6
-      // 起點對不上、但終點對得上 → 這條 way 是反向的
-      if (!near(tail, pts[0]) && near(tail, pts[pts.length - 1])) pts = [...pts].reverse()
-    } else if (ways.length > 1 && ways[1]?.geometry?.length) {
-      // 第一條 way 的方向由與第二條的接點決定
-      const nxt = ways[1].geometry
-      const ends = [pts[0], pts[pts.length - 1]]
-      const d = (p, q) => Math.hypot(p.lat - q.lat, p.lon - q.lon)
-      const dHead = Math.min(d(ends[0], nxt[0]), d(ends[0], nxt[nxt.length - 1]))
-      const dTail = Math.min(d(ends[1], nxt[0]), d(ends[1], nxt[nxt.length - 1]))
-      if (dHead < dTail) pts = [...pts].reverse()
+// 把 way 幾何接成一條折線。**不能照成員順序串**——上游的 way 成員常不是地理連續的
+// （阿德萊德 Outer Harbor 線的成員順序會讓折線先跳到 Osborne 支線再折回市區，站序就
+// 變成「Peterhead → Osborne → Outer Harbor → Adelaide → …」）。改以端點建圖後貪婪走訪：
+// 從度數 1 的端點出發沿相接的 way 一路走，取覆蓋最長的一條路徑（分支的短枝略過）。
+function stitchWays(ways) {
+  const key = (p) => `${p.lat.toFixed(7)},${p.lon.toFixed(7)}`
+  const ends = ways.map((w) => [key(w.geometry[0]), key(w.geometry[w.geometry.length - 1])])
+  const adj = new Map()
+  ends.forEach(([a, b], i) => {
+    if (!adj.has(a)) adj.set(a, [])
+    if (!adj.has(b)) adj.set(b, [])
+    adj.get(a).push(i)
+    adj.get(b).push(i)
+  })
+  const walk = (startNode) => {
+    const used = new Array(ways.length).fill(false)
+    const pts = []
+    let node = startNode
+    for (;;) {
+      const next = (adj.get(node) ?? []).find((i) => !used[i])
+      if (next == null) break
+      used[next] = true
+      const [a, b] = ends[next]
+      const forward = a === node
+      const g = forward ? ways[next].geometry : [...ways[next].geometry].reverse()
+      for (const p of g) pts.push(p)
+      node = forward ? b : a
     }
-    for (const p of pts) line.push(p)
+    return pts
   }
-  return line
+  // 起點候選：度數 1 的端點（線的兩端）；全是環就從任一 way 的頭開始
+  const starts = [...adj.entries()].filter(([, v]) => v.length === 1).map(([k]) => k)
+  const cands = starts.length ? starts : (ends.length ? [ends[0][0]] : [])
+  let best = []
+  for (const s of cands) {
+    const pts = walk(s)
+    if (pts.length > best.length) best = pts
+  }
+  return best
 }
 
 /**
@@ -81,7 +97,7 @@ export async function synthStopsFromWays(routeIds, stations, maxM = 150) {
         .map((m) => ({ id: m.ref, geometry: wayGeom.get(m.ref) }))
         .filter((w) => w.geometry?.length)
       if (!ways.length) continue
-      const line = chainWays(ways)
+      const line = stitchWays(ways)
       if (line.length < 2) continue
       const proj = projector(line[0].lat)
       const pts = line.map((p) => proj([p.lon, p.lat]))
