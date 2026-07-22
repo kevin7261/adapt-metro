@@ -374,6 +374,58 @@ function hcLsKey(shapeOn) {
   // 用完整變體（含 -shape）當鍵，避免原始／原始-形狀互相載到對方的 HC 快取。
   return `${cachedFp}:${hcLayerVariantKey()}${shapeOn ? ':shapelike' : ''}`
 }
+/** ring／綠折的格子 bbox（整數欄列）。 */
+function shapeCellBBox(cells, idSet) {
+  if (!cells || !idSet?.size) return null
+  let minC = Infinity, maxC = -Infinity, minR = Infinity, maxR = -Infinity
+  for (const id of idSet) {
+    const p = cells.get(id)
+    if (!p) continue
+    minC = Math.min(minC, p[0]); maxC = Math.max(maxC, p[0])
+    minR = Math.min(minR, p[1]); maxR = Math.max(maxR, p[1])
+  }
+  if (!Number.isFinite(minC) || maxC < minC || maxR < minR) return null
+  return { minC, maxC, minR, maxR }
+}
+
+/** 成方灰白框：格子 bbox → 像素外框（貼齊格線；有 hcBlue 用實際格線）。 */
+function shapeGuideFromCells(cells, idSet, nC, nR, cw, ch, origin = 24, hcBlue = null) {
+  const box = shapeCellBBox(cells, idSet)
+  if (!box) return null
+  const { minC, maxC, minR, maxR } = box
+  const style = {
+    fill: 'rgba(248, 250, 252, 0.16)',
+    stroke: '#e5e7eb',
+    strokeWidth: 2.5,
+  }
+  if (hcBlue?.xs?.length && hcBlue?.ys?.length) {
+    const xs = hcBlue.xs, ys = hcBlue.ys
+    const edge = (arr, i, lo) => {
+      if (lo) {
+        if (i <= 0) return arr[0] - (arr[1] != null ? (arr[1] - arr[0]) / 2 : cw / 2)
+        return (arr[i - 1] + arr[i]) / 2
+      }
+      if (i >= arr.length - 1) {
+        const a = arr[arr.length - 1], b = arr[arr.length - 2]
+        return a + (b != null ? (a - b) / 2 : ch / 2)
+      }
+      return (arr[i] + arr[i + 1]) / 2
+    }
+    const x0 = edge(xs, minC, true), x1 = edge(xs, maxC, false)
+    const y0 = edge(ys, minR, true), y1 = edge(ys, maxR, false)
+    if (!(x1 > x0 && y1 > y0)) return null
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0, ...style }
+  }
+  if (!(cw > 0) || !(ch > 0)) return null
+  return {
+    x: origin + minC * cw,
+    y: origin + minR * ch,
+    w: (maxC - minC + 1) * cw,
+    h: (maxR - minR + 1) * ch,
+    ...style,
+  }
+}
+
 /** 把凍結頂點座標釘回 pinFrom（LLM 對齊／評價不得挪動成方） */
 function pinFrozenCells(cells, frozenIds, pinFrom) {
   if (!frozenIds?.size || !pinFrom || !cells) return cells
@@ -1221,7 +1273,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
         for (const [id, p] of cells) hcPos.set(id, cellPx(p))
         placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
         hcBlue = uniformBlue(nC, nR, cw, ch)
-        return { hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk }
+        const gIds = new Set([
+          ...(getShapePreset(cityId)?.stations ?? []),
+          ...shapeGreensOf(wrapped).map((g) => g.id),
+        ])
+        return {
+          hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk,
+          guideBoxPx: shapeGuideFromCells(cells, gIds, nC, nR, cw, ch),
+        }
       }
       if (layoutKind === 'shape-llm') {
         const nC = grid.cols, nR = grid.rows
@@ -1234,7 +1293,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
           for (const [id, p] of cells) hcPos.set(id, cellPx(p))
           placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
           hcBlue = uniformBlue(nC, nR, cw, ch)
-          return { hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk }
+          const gIds = new Set([
+            ...(getShapePreset(sourceLayer.value?.id)?.stations ?? []),
+            ...(greens ?? []).map((g) => g.id),
+          ])
+          return {
+            hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk,
+            guideBoxPx: shapeGuideFromCells(cells, gIds, nC, nR, cw, ch),
+          }
         }
         shapeAwaitExec.value = false
         if (!shapeEnabled.value) {
@@ -1651,8 +1717,15 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   activeHcSk = hcSk
   activeFrozen = squareGuard // 成方護欄：逐步驗證按鈕在 render 外推進時據此重設
+  // 成方灰白框（直線演算法／循環／RWD 全鏈都要看得見方形）
+  const guideIds = frozenIds ?? (shapeFeedsHc
+    ? new Set([...(getShapePreset(cityIdForShape)?.stations ?? []), ...shapeGreens.map((g) => g.id)])
+    : null)
+  const guideBoxPx = guideIds
+    ? shapeGuideFromCells(cells, guideIds, nC, nR, cw, ch, 24, hcBlue)
+    : null
   return {
-    hcPos, hcBlue, rwdLines, stepMoves,
+    hcPos, hcBlue, rwdLines, stepMoves, guideBoxPx,
     drawSkeleton: shapeFeedsHc && shapeGreens.length ? hcSk : null,
   }
 }
@@ -1710,11 +1783,16 @@ function buildDrawData({ grid, sk, path, P, projById, stations, lineFeats, hcPos
         const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + edgeInfo
         return strokesOf(e, ptsD(L.px), html)
       })
-      // Residual-conflict segments glow amber so leftover crossings explain
-      // themselves; otherwise the usual edge-class underlay.
-      highlightData = rwdLines
+      // 成方灰白襯底（規定方形邊）＋殘留衝突／邊分類襯底
+      const shapeHl = shapeRingIds
+        ? rwdLines
+          .filter((L) => shapeRingIds.has(L.seg.a) && shapeRingIds.has(L.seg.b))
+          .map((L) => ({ d: ptsD(L.px), color: '#e5e7eb' }))
+        : []
+      const otherHl = rwdLines
         .filter((L) => L.forced || EDGE_HL[L.seg.edge.cls])
         .map((L) => ({ d: ptsD(L.px), color: L.forced ? '#f59e0b' : EDGE_HL[L.seg.edge.cls] }))
+      highlightData = [...shapeHl, ...otherHl]
     } else if (!hcPos && !(grid && gridPost.value)) {
       // 節點仍在**地理座標**（純骨架 `skeleton`，或**格網化前** `grid-*-pre`——後者只是
       // 疊上目標格線、節點還沒搬）→ 線一律照原始 feature 幾何 `path(f)` 畫，**與原始
@@ -1824,13 +1902,15 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
         .attr('stroke', '#64748b').attr('stroke-width', 0.7).attr('stroke-opacity', 0.4)
     }
   }
-  // Delaunay／貼形：正方引導框（格心對格心）
+  // 成方灰白框（形狀圖層）／舊貼形橘框：填色＋描邊標出規定方形
   if (guideBoxPx && guideBoxPx.w > 0 && guideBoxPx.h > 0) {
     meshG.append('rect')
       .attr('x', guideBoxPx.x).attr('y', guideBoxPx.y)
       .attr('width', guideBoxPx.w).attr('height', guideBoxPx.h)
-      .attr('fill', 'none').attr('stroke', '#f97316')
-      .attr('stroke-width', 2.2).attr('stroke-opacity', 0.9)
+      .attr('fill', guideBoxPx.fill ?? 'none')
+      .attr('stroke', guideBoxPx.stroke ?? '#f97316')
+      .attr('stroke-width', guideBoxPx.strokeWidth ?? 2.2)
+      .attr('stroke-opacity', guideBoxPx.fill ? 0.95 : 0.9)
   }
 
   // Schematic gridding: blue lines run ON the ticks — i.e. THROUGH the cell
@@ -2134,18 +2214,16 @@ async function render() {
     ;({ hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton, meshLines, guideBoxPx } = layout)
   }
   const skDraw = drawSkeleton || sk
-  // 全部形狀圖層（layout-shape／-shape-llm／-shape-delaunay）：算出「規定路段（被成方
-  // 的線）」的節點集＝規定表 ring 站＋本輪綠折點 id，讓 buildDrawData 沿這些邊畫灰白襯底。
+  // 形狀圖層全鏈（⑨／直線演算法／循環／RWD）：規定 ring＋綠折 → 灰白邊襯底
   let shapeRingIds = null
-  const SHAPE_MODES = ['layout-shape', 'layout-shape-llm', 'layout-shape-delaunay']
-  if (isHC.value && SHAPE_MODES.includes(mode.value)) {
+  if (isHC.value && isShapeLayer.value) {
     const preset = getShapePreset(sourceLayer.value?.id)
     if (preset) {
       shapeRingIds = new Set(preset.stations)
-      const greens = mode.value === 'layout-shape-llm'
-        ? (cachedShapeLlm?.stats?.greens ?? [])
-        : (cachedLayout[mode.value === 'layout-shape-delaunay' ? 'shape-delaunay' : 'shape']?.greens
-          ?? cachedLayout[mode.value === 'layout-shape-delaunay' ? 'shape-delaunay' : 'shape']?.stats?.greens ?? [])
+      const greens = (shapeLlmApplied.value && cachedShapeLlm?.stats?.greens)
+        || cachedLayout.shape?.greens
+        || cachedLayout.shape?.stats?.greens
+        || []
       for (const g of greens) shapeRingIds.add(g.id)
     }
   }
