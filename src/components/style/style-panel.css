@@ -432,6 +432,7 @@
   color: hsl(var(--muted-foreground));
 }
 .info-row > span:not(.info-key), .info-row > a { min-width: 0; overflow-wrap: anywhere; }
+.info-muted { color: hsl(var(--muted-foreground) / 0.7); }
 .info-link {
   display: inline-flex;
   align-items: center;

@@ -338,6 +338,9 @@ const shapeLlmRunner = makeRun({
 const startShapeLlmRun = shapeLlmRunner.start
 // 「執行調整」：套用成方 → ②HC 重算並一路往下；「恢復」→ HC 改回吃格網化後。
 const shapeLlmApplied = ref(false)
+// 形狀圖層的下游視圖（直線演算法／循環／RWD）在「成方尚未算」時＝畫面寫「成方路線
+// 沒有算」、不跑一般管線（成方圖層專為成方而生）；由 computeHcLayout 設。
+const shapeNoCompute = ref(false)
 // 清掉 localStorage 裡本資料本變體的 :shapelike ②/後處理快取——成方內容一變（重跑
 // 成方）就得清，否則資料指紋沒變、下次 loadHcCache 會載回舊成方算出的 ②，「往後執行」
 // 全鏈不會跟著新方形重算。非成方（無 :shapelike 尾巴）的快取不受影響。
@@ -1029,8 +1032,42 @@ function resetPerDataset(data) {
 // localStorage 快取與結構驗證）→ 後處理／LLM 對齊 → movewise 三步鏈／循環／
 // 逐步驗證 → RWD 畫線，得到「這一幀要畫的座標」。回傳 { hcPos, hcBlue,
 // rwdLines, stepMoves }；計算途中被更新的 render 蓋過（seq 過期）回傳 null。
+// 背景預算：HC 算好後，把所有「與視窗無關」的下游佈局在瀏覽器閒置時逐一算好、存快取
+// ——之後打開就秒開、不用等執行（使用者：能先算的都先在背景算好，整個系統都這樣）。
+// 每條直線演算法鏈（①〜⑧）都算：直線演算法（post）→端點移動（endp）→直線縮減（line）
+// →網格合併（gather）→循環（loop）。**RWD Maps 的像素畫線要看畫面大小、維持另算**
+// （其輸入的整數格「循環」在此已預算）。切視圖（renderSeq 變）即中止、交給新 render。
+let warmSeq = -1
+function warmChains(hcSk, hcAfter, cols, rows, key, guard, seq) {
+  if (warmSeq === seq) return
+  warmSeq = seq
+  const schedule = (f) => (typeof window !== 'undefined' && window.requestIdleCallback
+    ? window.requestIdleCallback(f, { timeout: 400 }) : setTimeout(f, 60))
+  // 逐項任務（缺才算）：每條鏈的 post→endp→line→gather→loop，一次一個閒置時段。
+  const tasks = []
+  for (const kind of PAPER_KINDS.map((p) => p.kind)) {
+    if (!POST_BUILD[kind]) continue
+    tasks.push(() => { if (!cachedPost[kind]) { const t0 = performance.now(); cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, hcAfter, cols, rows); cachedPost[kind].stats.ms = Math.round(performance.now() - t0) } })
+    tasks.push(() => { const c = cachedPost[kind]; if (c && !cachedEndp[kind]) cachedEndp[kind] = movewiseStage('endp', hcSk, c.cellAfter, cols, rows) })
+    tasks.push(() => { const c = cachedEndp[kind]; if (c && !cachedLine[kind]) cachedLine[kind] = movewiseStage('line', hcSk, c.cellAfter, c.cols, c.rows) })
+    tasks.push(() => { const c = cachedLine[kind]; if (c && !cachedGather[kind]) cachedGather[kind] = movewiseStage('gather', hcSk, c.cellAfter, c.cols, c.rows) })
+    tasks.push(() => { const c = cachedPost[kind]; if (c && !cachedLoop[kind]) cachedLoop[kind] = straightenCompactLoop(hcSk, c.cellAfter, cols, rows) })
+  }
+  let i = 0
+  const step = () => {
+    if (seq !== renderSeq) return // 切了視圖 → 中止，狀態交給新 render
+    if (i >= tasks.length) { saveHcCache(key, cachedHC, cachedPost, cachedLayout); syncCalcMs(); return }
+    setFrozen(guard) // 與該視圖同一套凍結（成方護欄／null）
+    try { tasks[i]() } catch { /* 單項失敗不擋其餘預算 */ }
+    i++
+    schedule(step)
+  }
+  schedule(step)
+}
+
 async function computeHcLayout({ seq, w, h, grid }) {
   let hcPos = null, hcBlue = null, rwdLines = null, weighted = false, stepMoves = []
+  shapeNoCompute.value = false // 預設；只有成方圖層下游且成方未算時才設 true（見下）
   // 跨距上限（預設 3）用「已套用」的值（appliedSpanCap）——滑桿改了但還沒按「重新
   // 計算」前，快取與新計算都維持舊上限，避免同畫面新舊混雜。
   if (appliedSpanCap.value == null) appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
@@ -1160,6 +1197,16 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   layoutStats.value = null
 
+  // 成方圖層的下游（HC／直線演算法／循環／RWD）：成方尚未算（未套用）時不跑一般管線，
+  // 畫面寫「成方路線沒有算」——這個圖層專為成方而生，要先到 ⑨ 成方 view 跑出成方。
+  // （layout-shape* 的成方 view 已於上方 return，不受影響。）
+  if (isShapeLayer.value && !shapeFeedsHc) {
+    shapeNoCompute.value = true
+    hcBusy.value = false
+    return { hcPos: null, hcBlue: null, rwdLines: null, stepMoves: [] }
+  }
+  shapeNoCompute.value = false
+
   // 成方護欄：此處起才是「HC → 直線演算法 → movewise → RWD」真下游。
   // Shape 比較視圖已於上方 return。非成方 squareGuard＝null。
   setFrozen(squareGuard)
@@ -1192,6 +1239,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
     syncCalcMs()
   }
   hcStats.value = cachedHC.stats
+  // 背景預算其餘直線演算法鏈（閒置時算好存快取）→ 打開就秒開、不用等。
+  warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, wantHcKey, squareGuard, seq)
   let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
   // H/V-maximising post-pass tabs: same grid, short-distance vertex moves on
   // top of the hill-climbing result (each kind cached once per dataset).
@@ -2036,9 +2085,10 @@ async function render() {
     ;({ hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton, meshLines, guideBoxPx } = layout)
   }
   const skDraw = drawSkeleton || sk
-  // 形狀圖層全鏈（⑨／直線演算法／循環／RWD）：規定 ring＋綠折 → 灰白邊襯底
+  // 形狀圖層全鏈（⑨／直線演算法／循環／RWD Maps）：規定 ring＋綠折 → 灰白邊襯底。
+  // RWD 圖層 isHC=false 但 isShapeLayer 仍為真（源頭 HC 是 orig-shape）→ 一併涵蓋。
   let shapeRingIds = null
-  if (isHC.value && isShapeLayer.value) {
+  if ((isHC.value || isRWD.value) && isShapeLayer.value) {
     const presets = getShapePresets(sourceLayer.value?.id) // 一城多環 → 全部環都襯底
     if (presets?.length) {
       shapeRingIds = new Set()
@@ -2613,6 +2663,7 @@ onBeforeUnmount(() => {
           </svg>
           <div ref="tipEl" class="ma-tip" />
           <div v-if="loading" class="ma-hint">載入中…</div>
+          <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨ Shape-Guided / LLM 成方 view 跑出成方</span></div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
           <!-- LLM 比較結果：本 RWD 視圖若是全部／原始／旋轉最佳，右上角標示 -->
