@@ -12,7 +12,7 @@ export const HC_MODE_RE = new RegExp(
 // 初步直線化①〜⑧比較已下架——直線演算法直接吃 HC（可選成方輸入）。
 // shape-llm 必須排在 shape 之前（較長 kind 優先匹配）。
 export const LAYOUT_KINDS = []
-export const LAYOUT_KIND_IDS = ['shape-llm', 'shape']
+export const LAYOUT_KIND_IDS = ['shape-llm']
 export const LAYOUT_MODE_RE = new RegExp(`^layout-(${LAYOUT_KIND_IDS.join('|')})$`)
 
 export const layoutKindOf = (m) => {

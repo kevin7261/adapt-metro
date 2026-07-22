@@ -54,13 +54,19 @@ export function llmShapeTrigger() {
     name: 'llm-shape-trigger',
     prefix: '/llm-shape',
     cmdEnv: 'LLM_SHAPE_CMD',
+    clearFiles: (city) => [
+      `data/metro/llmshapes/${city}.orig.json`,
+      `data/metro/llmshapes/${city}.rot.json`,
+    ],
     validate(b) {
       if (!/^[\w-]+$/.test(b.city ?? '') || !['orig', 'rot'].includes(b.variant)) return null
       // ⑨ LLM 成方＝Shape-Guided 的 LLM 版：只自動（無指定模式），寫獨立結果檔。
       // 只對規定表三城有意義（山手／新加坡環狀／大江戶環形段）；他城 export 回 null。
+      // 每次「開始 LLM 成方」都 resetOut——清舊檔再算；沒按就不算、不餵下游。
       return {
         key: `${b.city}.${b.variant}.shape`,
         outFile: `data/metro/llmshapes/${b.city}.${b.variant}.json`,
+        resetOut: true,
         prompt: `使用 route-llm-shape skill：幫城市 ${b.city}（變體 ${b.variant}）用 LLM 把規定路段收成`
           + '四邊直線正方（isFourLineSquare），是 Shape-Guided（⑨）的 LLM 版。'
           + '反覆 export → 分析環站與正方目標 → apply（提案經拓撲鐵律逐步套用）迭代到成方或收斂'

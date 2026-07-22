@@ -275,9 +275,8 @@ function removeAllLayers() {
 }
 
 // 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 localStorage 的
-// 佈局快取**，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust /
-// Straighten / RWD 會整條鏈重新計算。成方（格網→貼形／LLM 成方）一併清空，
-// 必須再開 Shape-Guided tab 手動重算後才會再餵下游。
+// 佈局快取**，刪掉 LLM 成方結果檔，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、
+// Map Adjust / Straighten / RWD 會整條鏈重新計算。無 LLM 成方＝不成方餵下游。
 async function recomputeCity(item) {
   const all = layersOf(item)
   if (!all.length) return
@@ -285,17 +284,32 @@ async function recomputeCity(item) {
     const data = layerData[l.id]
     if (data?.features) clearHcCache(dataFingerprint(data))
   }
-  // 成方套用清空：形狀圖層的 shape|city|orig|rot 釘成 false，並標
-  // shapeFeedCleared——重開 tab 後不會自動把舊 llmshapes 餵進直線演算法。
+  // 收集都會區 metro id → 刪 llmshapes（orig/rot）；下游 :shapelike 已隨 clearHcCache 清掉
+  const metroIds = new Set()
   for (const l of all) {
-    if (l.type !== 'hillclimb') continue
-    const d3 = store.layers.find((s) => s.id === l.sourceLayerId)
-    const metroId = d3?.sourceLayerId
-    if (metroId && String(l.variant).includes('shape')) {
-      const base = String(l.variant).includes('rot') ? 'rot' : 'orig'
-      llmApplySet(`shape|${metroId}|${base}`, false)
-      l.shapeFeedCleared = true
+    if (l.type === 'hillclimb') {
+      const d3 = store.layers.find((s) => s.id === l.sourceLayerId)
+      const metroId = d3?.sourceLayerId
+      if (metroId) metroIds.add(metroId)
+      if (metroId && String(l.variant).includes('shape')) {
+        const base = String(l.variant).includes('rot') ? 'rot' : 'orig'
+        llmApplySet(`shape|${metroId}|${base}`, false)
+        l.shapeFeedCleared = true
+      }
+    } else if (l.type === 'd3' && l.sourceLayerId) {
+      metroIds.add(l.sourceLayerId)
+    } else if (l.type === 'metro' && l.id) {
+      metroIds.add(l.id)
     }
+  }
+  for (const city of metroIds) {
+    try {
+      await fetch('/llm-shape/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city }),
+      })
+    } catch { /* 無 vite／離線 → 略過檔案刪除，套用旗標已清 */ }
   }
   for (const l of all) {
     dockHandle.api?.getPanel(l.id)?.api.close()
@@ -304,7 +318,7 @@ async function recomputeCity(item) {
   }
   await nextTick()
   for (const l of all) openLayerTab(l)
-  store.toast(`重新計算「${item.group.label}」的 ${all.length} 個圖層…`)
+  store.toast(`重新計算「${item.group.label}」的 ${all.length} 個圖層…（已刪 LLM 成方）`)
 }
 
 /* ---- resize ---- */

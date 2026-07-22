@@ -31,6 +31,26 @@ export function claudeSkillTrigger(spec) {
         : { running: false, exit: null, tail: '', text: '' }))
       return
     }
+    // 清掉結果檔（不跑 LLM）——「重新計算此城市全部圖層」刪 llmshapes 用
+    if (p === `${spec.prefix}/clear` && req.method === 'POST') {
+      const body = await readBody(req)
+      const city = body?.city
+      if (!/^[\w-]+$/.test(city ?? '') || typeof spec.clearFiles !== 'function') {
+        res.statusCode = 400
+        res.end(JSON.stringify({ error: 'bad params' }))
+        return
+      }
+      const files = spec.clearFiles(city) ?? []
+      let n = 0
+      for (const f of files) {
+        try {
+          const abs = join(root, f)
+          if (existsSync(abs)) { rmSync(abs); n++ }
+        } catch { /* best-effort */ }
+      }
+      res.end(JSON.stringify({ cleared: n, files }))
+      return
+    }
     if (p === `${spec.prefix}/run` && req.method === 'POST') {
       const body = await readBody(req)
       const v = body ? spec.validate(body) : null

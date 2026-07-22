@@ -20,7 +20,7 @@ import {
 } from '../stores/hillClimb'
 import {
   PAPER_KINDS, PAPER_BUILD, PAPER_ZH,
-  buildShapeAlign, applyShapeGreens,
+  applyShapeGreens,
 } from '../stores/paperAlign'
 import { getShapePreset } from '../stores/paper/shapePresets.js'
 import {
@@ -300,8 +300,8 @@ const evalRunner = makeRun({
 const startEvalRun = evalRunner.start
 // ---- ⑨ LLM 成方（route-llm-shape）：Shape-Guided 的 LLM 版 ----
 // 與演算法本體同輸入（格網化後）、同硬規則；「移哪些點」交給 LLM。離線存檔。
-// **有結果且「執行調整」開啟時 → ② Hill Climbing 及其下游一律以成方佈局為輸入
-// 繼續算**（格網→LLM成方→HC→直線演算法／端點…）。首次有結果預設開啟套用。
+// **預設不成方餵下游**。只有按「開始 LLM 成方」跑完（onDone 套用）或手動
+// 「執行調整」才餵：成方→HC→直線演算法／端點…。僅有結果檔不算套用。
 const shapeLlmInfo = ref(null)   // { rounds, model } — 選單 badge
 const shapeLlmStats = ref(null)  // the whole llmshape file（右側面板）
 const shapeLlmMsg = ref(null)    // hint when result missing / stale
@@ -331,6 +331,7 @@ const shapeLlmRunner = makeRun({
       if (hcLayer.value) hcLayer.value.shapeFeedCleared = false
       shapeLlmApplied.value = true
       llmApplySet(llmApplyKeys.value.shape, true)
+      // render() 由 makeHeadlessRun 接著呼叫 → HC／直線演算法／循環一併重算
     }
   },
 })
@@ -678,77 +679,6 @@ function syncCalcMs() {
 }
 
 /** Shape-Guided 單次結果（不走 iteratePost 多輪） */
-function wrapShapeResult(res, t0) {
-  const greens = res.greens ?? res.stats?.greens ?? []
-  return {
-    cellAfter: res.cellAfter,
-    greens,
-    stats: {
-      ...res.stats,
-      greens,
-      ms: Math.round(performance.now() - t0),
-      iters: 1,
-      iterCap: 1,
-      converged: true,
-    },
-  }
-}
-
-function shapeGreensOf(wrapped) {
-  return wrapped?.greens ?? wrapped?.stats?.greens ?? []
-}
-
-function shapeDrawSkeleton(wrapped) {
-  const greens = shapeGreensOf(wrapped)
-  if (!greens.length || !cachedSkeleton) return cachedSkeleton
-  return applyShapeGreens(cachedSkeleton, greens)
-}
-
-async function runShapeNow({ force = false } = {}) {
-  if (!shapeEnabled.value || shapeRunning.value) return
-  const ctx = shapeRunCtx
-  if (!ctx || !cachedSkeleton) return
-  if (force) delete cachedLayout.shape
-  shapeRunning.value = true
-  shapeAwaitExec.value = false
-  shapeLog.value = []
-  hcBusy.value = true
-  busyText.value = 'Shape-Guided 執行中…'
-  const onProgress = (msg) => {
-    shapeLog.value = [...shapeLog.value.slice(-80), msg]
-    busyText.value = msg
-  }
-  const tick = () => new Promise((r) => setTimeout(r, 0))
-  const t0 = performance.now()
-  try {
-    const res = await buildShapeAlign(
-      cachedSkeleton, ctx.cells, ctx.cols, ctx.rows,
-      { cityId: ctx.cityId, onProgress, tick })
-    const wrapped = wrapShapeResult(res, t0)
-    cachedLayout.shape = wrapped
-    // 成方成功 → 自動餵直線演算法（與 LLM 成方 onDone 同契約）；方形頂點下游凍結。
-    if (hcLayer.value) hcLayer.value.shapeFeedCleared = false
-    if (wrapped.stats?.square && wrapped.cellAfter && !wrapped.stats?.skipped) {
-      shapeLlmApplied.value = false
-      llmApplySet(llmApplyKeys.value.shape, false)
-      invalidateShapeHcPipeline()
-    }
-    saveHcCache(hcLsKey(false), cachedHC, cachedPost, cachedLayout)
-    syncCalcMs()
-  } catch (e) {
-    shapeLog.value = [...shapeLog.value, `錯誤：${e?.message || e}`]
-    console.error('[shape]', e)
-  } finally {
-    shapeRunning.value = false
-    hcBusy.value = false
-    busyText.value = ''
-    render()
-  }
-}
-
-function rerunShapeNow() {
-  return runShapeNow({ force: true })
-}
 // 「88ms」/「1.2s」；沒算過回空字串（tab 名就不帶標注）。
 const msText = (ms) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
 const msBadge = (key) => {
@@ -888,18 +818,13 @@ const VIEW_TABS = computed(() => {
   if (isHC.value) {
     // 左選單：原始／（形狀圖層才有）Shape-Guided／直線演算法／…
     // 原始／旋轉圖層＝不成方管線；原始-形狀／旋轉-形狀才有 ⑨。
-    const feedBadge = shapeFeedSource.value === 'llm' ? '←LLM成方'
-      : shapeFeedSource.value === 'algo' ? '←格網貼形' : ''
+    const feedBadge = shapeFeedSource.value === 'llm' ? '←LLM成方' : ''
     const shapeTabs = isShapeLayer.value ? [
       {
         header: shapeRouteName.value
           ? `⑨Shape-Guided ${shapeRouteName.value}`
           : '⑨Shape-Guided',
         doc: 'shape-guided',
-      },
-      {
-        id: 'layout-shape',
-        label: `格網→貼形（往後執行）${msBadge('layout-shape')}${shapeFeedSource.value === 'algo' ? ' · 已餵' : ''}`,
       },
       {
         id: 'layout-shape-llm',
@@ -1169,14 +1094,10 @@ async function computeHcLayout({ seq, w, h, grid }) {
       shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
       shapeLlmMsg.value = null
       const sk = llmApplyKeys.value.shape
-      if (shapeCleared) {
-        shapeLlmApplied.value = false
-      } else if (!llmApplyHas(sk)) {
-        shapeLlmApplied.value = true
-        llmApplySet(sk, true)
-      } else {
-        shapeLlmApplied.value = llmApplyGet(sk)
-      }
+      // 不成方餵下游：必須按「開始 LLM 成方」跑完（onDone 寫 apply=true），
+      // 或手動「執行調整」。僅有舊檔、尚未明示套用 → 不餵、不走 :shapelike 重算。
+      if (shapeCleared) shapeLlmApplied.value = false
+      else shapeLlmApplied.value = llmApplyHas(sk) ? llmApplyGet(sk) : false
     } else {
       shapeLlmStats.value = null
       shapeLlmInfo.value = null
@@ -1188,20 +1109,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
     shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
   }
 
-  // 成方餵 HC：LLM（執行調整）優先；否則格網→貼形成方結果。無成方＝舊管線。
-  const algoWrapped = (!shapeCleared && cachedLayout.shape
-    && cachedLayout.shape.cellAfter
-    && !cachedLayout.shape.stats?.skipped
-    && cachedLayout.shape.stats?.square)
-    ? cachedLayout.shape : null
+  // 成方餵 HC：LLM 成方（執行調整）；無成方＝舊管線。
   const llmFeeds = !!(shapeEnabled.value && !shapeCleared && shapeLlmApplied.value && cachedShapeLlm?.cells)
-  const algoFeeds = !!(shapeEnabled.value && !llmFeeds && algoWrapped)
-  const shapeFeedsHc = llmFeeds || algoFeeds
-  shapeFeedSource.value = llmFeeds ? 'llm' : algoFeeds ? 'algo' : null
-  const shapeFeedCells = llmFeeds ? cachedShapeLlm.cells : algoFeeds ? algoWrapped.cellAfter : null
-  const shapeGreens = llmFeeds
-    ? (cachedShapeLlm.stats?.greens ?? [])
-    : algoFeeds ? shapeGreensOf(algoWrapped) : []
+  const shapeFeedsHc = llmFeeds
+  shapeFeedSource.value = llmFeeds ? 'llm' : null
+  const shapeFeedCells = llmFeeds ? cachedShapeLlm.cells : null
+  const shapeGreens = llmFeeds ? (cachedShapeLlm.stats?.greens ?? []) : []
   const hcSk = shapeGreens.length ? applyShapeGreens(cachedSkeleton, shapeGreens) : cachedSkeleton
   const hcInCells = shapeFeedsHc ? shapeFeedCells : grid.cellOf
   // 成方護欄：ring＋綠折＋成方路線上所有 cut；members 剛體平移＋H/V 邊鎖定。
@@ -1225,7 +1138,6 @@ async function computeHcLayout({ seq, w, h, grid }) {
       cachedHC = hit.hc
       cachedPost = hit.posts
       if (!shapeFeedsHc) cachedLayout = hit.layouts ?? cachedLayout
-      else if (hit.layouts?.shape && !cachedLayout.shape) cachedLayout.shape = hit.layouts.shape
     } else {
       cachedHC = null
       cachedPost = {}
@@ -1240,64 +1152,10 @@ async function computeHcLayout({ seq, w, h, grid }) {
     syncCalcMs()
   }
 
-  // Shape-Guided 視圖：按「執行」才算；未算時畫格網化後＋overlay（不進下游）。
+  // Shape-Guided 視圖（LLM 成方）：未算時畫格網化後＋overlay（不進下游）。
   {
     const layoutKind = layoutKindOf(mode.value)
     if (layoutKind) {
-      if (layoutKind === 'shape') {
-        const drawPending = () => {
-          const cells = grid.cellOf
-          const nC = grid.cols, nR = grid.rows
-          const cw = (w - 48) / nC, ch = (h - 48) / nR
-          const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
-          hcPos = new Map()
-          for (const [id, p] of cells) hcPos.set(id, cellPx(p))
-          placeBlacks(cachedSkeleton, hcPos, (id) => grid.posAfter.get(id) ?? null)
-          hcBlue = uniformBlue(nC, nR, cw, ch)
-          return { hcPos, hcBlue, rwdLines, stepMoves }
-        }
-        if (!shapeEnabled.value) {
-          layoutStats.value = { skipped: true, note: '不需計算', moved: 0 }
-          syncCalcMs()
-          shapeAwaitExec.value = false
-          shapeRunCtx = null
-          return drawPending()
-        }
-        const cityId = sourceLayer.value?.id ?? null
-        if (!cachedLayout.shape) {
-          shapeAwaitExec.value = !shapeRunning.value
-          shapeRunCtx = {
-            cells: new Map([...grid.cellOf].map(([id, p]) => [id, [...p]])),
-            cols: grid.cols, rows: grid.rows, cityId,
-          }
-          layoutStats.value = { pending: true, note: '待執行', moved: 0 }
-          return drawPending()
-        }
-        shapeAwaitExec.value = false
-        shapeRunCtx = {
-          cells: new Map([...grid.cellOf].map(([id, p]) => [id, [...p]])),
-          cols: grid.cols, rows: grid.rows, cityId,
-        }
-        const wrapped = cachedLayout.shape
-        layoutStats.value = wrapped.stats
-        const cells = wrapped.cellAfter
-        const drawSk = shapeDrawSkeleton(wrapped)
-        const nC = grid.cols, nR = grid.rows
-        const cw = (w - 48) / nC, ch = (h - 48) / nR
-        const cellPx = ([c, r]) => [24 + (c + 0.5) * cw, 24 + (r + 0.5) * ch]
-        hcPos = new Map()
-        for (const [id, p] of cells) hcPos.set(id, cellPx(p))
-        placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
-        hcBlue = uniformBlue(nC, nR, cw, ch)
-        const gIds = new Set([
-          ...(getShapePreset(cityId)?.stations ?? []),
-          ...shapeGreensOf(wrapped).map((g) => g.id),
-        ])
-        return {
-          hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk,
-          guideBoxPx: shapeGuideFromCells(cells, gIds, nC, nR, cw, ch),
-        }
-      }
       if (layoutKind === 'shape-llm') {
         const nC = grid.cols, nR = grid.rows
         const cw = (w - 48) / nC, ch = (h - 48) / nR
@@ -1309,16 +1167,11 @@ async function computeHcLayout({ seq, w, h, grid }) {
           for (const [id, p] of cells) hcPos.set(id, cellPx(p))
           placeBlacks(drawSk, hcPos, (id) => grid.posAfter.get(id) ?? null)
           hcBlue = uniformBlue(nC, nR, cw, ch)
-          const gIds = new Set([
-            ...(getShapePreset(sourceLayer.value?.id)?.stations ?? []),
-            ...(greens ?? []).map((g) => g.id),
-          ])
           return {
             hcPos, hcBlue, rwdLines, stepMoves, drawSkeleton: drawSk,
-            guideBoxPx: shapeGuideFromCells(cells, gIds, nC, nR, cw, ch),
+            guideBoxPx: null,
           }
         }
-        shapeAwaitExec.value = false
         if (!shapeEnabled.value) {
           shapeLlmStats.value = null; shapeLlmInfo.value = null; shapeLlmMsg.value = null
           return drawGrid(grid.cellOf, { skipped: true, note: '不需計算', moved: 0 })
@@ -1733,16 +1586,9 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   activeHcSk = hcSk
   activeFrozen = squareGuard // 成方護欄：逐步驗證按鈕在 render 外推進時據此重設
-  // 灰白框只用規定 ring＋綠折（真正成方那一圈）——不可用 expandShapeMembers
-  // 後的 frozenIds，否則共廊／支線 cut 會把外框撐成超大矩形。
-  const guideIds = shapeFeedsHc
-    ? new Set([...shapeRingIds, ...shapeGreens.map((g) => g.id)])
-    : null
-  const guideBoxPx = guideIds
-    ? shapeGuideFromCells(cells, guideIds, nC, nR, cw, ch, 24, hcBlue)
-    : null
+  // 不畫成方外框（guideBoxPx）——使用者不要超大灰白矩形。
   return {
-    hcPos, hcBlue, rwdLines, stepMoves, guideBoxPx,
+    hcPos, hcBlue, rwdLines, stepMoves, guideBoxPx: null,
     drawSkeleton: shapeFeedsHc && shapeGreens.length ? hcSk : null,
   }
 }
@@ -1919,16 +1765,7 @@ function drawScene({ sel, w, h, grid, sk, P, hcBlue, rwdLines, stepMoves, statio
         .attr('stroke', '#64748b').attr('stroke-width', 0.7).attr('stroke-opacity', 0.4)
     }
   }
-  // 成方灰白框（形狀圖層）／舊貼形橘框：填色＋描邊標出規定方形
-  if (guideBoxPx && guideBoxPx.w > 0 && guideBoxPx.h > 0) {
-    meshG.append('rect')
-      .attr('x', guideBoxPx.x).attr('y', guideBoxPx.y)
-      .attr('width', guideBoxPx.w).attr('height', guideBoxPx.h)
-      .attr('fill', guideBoxPx.fill ?? 'none')
-      .attr('stroke', guideBoxPx.stroke ?? '#f97316')
-      .attr('stroke-width', guideBoxPx.strokeWidth ?? 2.2)
-      .attr('stroke-opacity', guideBoxPx.fill ? 0.95 : 0.9)
-  }
+  // 成方外框（guideBoxPx）已停用——使用者不要超大灰白矩形；成方邊改靠灰白邊襯底標示。
 
   // Schematic gridding: blue lines run ON the ticks — i.e. THROUGH the cell
   // centres (cx/cy), which is where every network node sits (使用者規則：格線在

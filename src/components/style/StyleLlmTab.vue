@@ -600,8 +600,10 @@ watch(() => props.shapeText, () => {
             <p class="weight-hint">
               讓模型把**規定路段**（山手線／新加坡環狀線／大江戶線環形段）收成
               **四邊直線正方**。這是 ⑨ Shape-Guided 的 LLM 版：輸入同樣是「格網化後」、
-              每一步移動都經拓撲鐵律把關。有結果且按「執行調整」後，
-              **② Hill Climbing 會抓成方佈局當輸入，直線演算法／端點移動等一路往下算**。
+              每一步移動都經拓撲鐵律把關。<b>預設不成方餵下游</b>——只有按
+              「開始 LLM 成方」跑完（或手動「執行調整」）後，
+              **② Hill Climbing 才會抓成方佈局當輸入，直線演算法／端點移動等一路往下算**。
+              僅有結果檔、尚未按開始／執行調整 → 走一般不成方管線。
             </p>
             <template v-if="shapeCanRun">
               <label class="llm-model-pick">
@@ -669,7 +671,7 @@ watch(() => props.shapeText, () => {
 
               <h4 class="llm-h">套用到 ② Hill Climbing（往下執行）</h4>
               <button class="llm-run-btn" @click="emit('toggle-shape-exec')">{{ shapeApplied ? '恢復原佈局' : '執行調整' }}</button>
-              <p class="llm-run-hint">「執行調整」＝成方佈局餵給 ②HC 並重算下游全鏈；「恢復原佈局」＝HC 改回吃格網化後。首次有結果預設開啟。</p>
+              <p class="llm-run-hint">「執行調整」＝成方佈局餵給 ②HC 並重算下游全鏈；「恢復原佈局」＝HC 改回吃格網化後。預設不成方——需按「開始 LLM 成方」跑完，或手動按此鈕才餵。</p>
             </template>
             <p v-else-if="!shapeRunning" class="llm-note">{{ shapeMsg ?? '尚未產生 LLM 成方——按上面的按鈕執行。' }}</p>
 

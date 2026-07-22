@@ -12,17 +12,17 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
 ## 與直線演算法的銜接（重要）
 
 ```
-格網化後 →（有 llmshape 且執行調整）→ HC → 直線演算法／端點／循環…
+格網化後 →（按「開始 LLM 成方」跑完）→ 自動套用 → HC → 直線演算法／端點／循環…
 ```
 
-- 首次有合法結果：**預設開啟執行調整**，HC 自動以成方佈局（含綠折）為輸入重算。
-- 「恢復原佈局」→ HC 改回吃格網化後（若格網→貼形也成方則改餵貼形）。
-- **重新計算圖層**：清空成方套用（`shapeFeedCleared` + apply=false），需開 ⑨ tab 重算／再套用。
+- **預設不成方**：僅有結果檔也不餵下游。只有按「開始 LLM 成方」跑完（onDone 套用）
+  或手動「執行調整」才餵。
+- 跑完成功 → 自動套用＋清 `:shapelike` 快取＋`render` 重算後續全鏈。
+- 全球批次／CLI 產出的檔案不會寫 apply 旗標 → 網頁仍預設不成方。
+- **重新計算此城市全部圖層**：刪 `data/metro/llmshapes/<city>.{orig,rot}.json`、
+  清 HC 快取與套用旗標，再開 tab 全球重算。
 - 快取鍵加 `:shapelike`，與未套用分開存。
-- **成方算完 → 往後執行全鏈都要重算**：重跑成方時（onStart／onDone）除了清記憶體
-  快取（`invalidateShapeHcPipeline`），還要 `purgeShapeLikeCache()` 清掉 localStorage
-  的 `:shapelike` HC/後處理快取——否則資料指紋沒變，`loadHcCache` 會載回**上一輪成方**
-  算出的舊 HC，直線演算法〜RWD 全鏈不會跟著新方形重算。
+- 不畫成方超大外框（guideBox）；成方邊用灰白邊襯底即可。
 
 ### 成方護欄：剛體＋H/V 邊鎖定（重要）
 
