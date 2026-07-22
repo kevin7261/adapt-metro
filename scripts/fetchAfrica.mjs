@@ -17,7 +17,8 @@
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import * as overpass from './overpass.mjs'
-import { fetchMastersFor } from './fetchGapMasters.mjs'
+import { fetchMastersFor, assignRefsFromMasters } from './fetchGapMasters.mjs'
+import { synthStopsFromWays } from './gapStopsFromWays.mjs'
 
 const OVERRIDES = join(overpass.CACHE, '..', '_overrides')
 const LIFE = '["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]'
@@ -70,6 +71,7 @@ const only = process.argv.slice(2)
 for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
   const { key, city, country, bbox, keep, mode = 'tram', stations: stMode = 'members' } = task
   const routes = [], geoms = [], stations = []
+  const geomByRel = new Map()
   const q = `[out:json][timeout:180];relation["type"="route"]["route"="${mode}"]${LIFE}${bbox}->.r;` +
     '.r out body;node(r.r);out body;'
   const d = await overpass.query(q, { timeout: 180000, maxAttempts: 6 })
@@ -82,7 +84,9 @@ for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
     if (!keep(t)) { skipped++; continue }
     routes.push({ type: 'relation', id: e.id, tags: t })
     const members = (e.members ?? []).filter((m) => m.type === 'node')
-    geoms.push({ type: 'relation', id: e.id, tags: t, members })
+    const gr = { type: 'relation', id: e.id, tags: t, members }
+    geoms.push(gr)
+    geomByRel.set(e.id, gr)
     for (const m of members) needed.add(m.ref)
   }
   const seenNode = new Set()
@@ -133,12 +137,25 @@ for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
     }
   }
 
-  await writeFile(join(overpass.CACHE, `gap_routes_${key}.json`), JSON.stringify({ elements: routes }))
-  await writeFile(join(overpass.CACHE, `gap_geom_${key}.json`), JSON.stringify({ elements: geoms }))
-  await writeFile(join(overpass.CACHE, `gap_stations_${key}.json`), JSON.stringify({ elements: stations }))
+  // 只掛 way、沒有 stop 節點的 relation（亞歷山卓 21 條電車 route 合計只有 7 個 node
+  // 成員）：由 way 幾何把站點投影回線上合成停靠序，否則整城只剩零星幾站
+  // （見 gapStopsFromWays.mjs）。
+  const noStops = routes.map((r) => r.id).filter((id) => !geomByRel.get(id)?.members?.length)
+  let synthN = 0
+  if (noStops.length) {
+    const synth = await synthStopsFromWays(noStops, stations)
+    for (const [rid, members] of synth) { geomByRel.get(rid).members = members; synthN++ }
+  }
 
   // route_master：分組第一順位（南非 Metrorail 的 route 沒有 ref，只有 master 分得出線）
   const masters = await fetchMastersFor(routes.map((r) => r.id), key)
+  // 沒有 ref 的 route 依 master／顏色／名稱基底補 ref，讓上下行與區間車收斂成一條線
+  // （必須在寫檔前——tags 物件同時被 routes 與 geoms 參照）
+  const refAdded = assignRefsFromMasters(routes, masters)
+
+  await writeFile(join(overpass.CACHE, `gap_routes_${key}.json`), JSON.stringify({ elements: routes }))
+  await writeFile(join(overpass.CACHE, `gap_geom_${key}.json`), JSON.stringify({ elements: geoms }))
+  await writeFile(join(overpass.CACHE, `gap_stations_${key}.json`), JSON.stringify({ elements: stations }))
 
   // 城市綁定 override（自動產生）：這些系統的 network/operator 不足以分辨城市
   if (routes.length) {
@@ -155,5 +172,7 @@ for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
     }, null, 2)}\n`)
   }
   console.log(`${key}: ${routes.length} ${mode} relations (${skipped} skipped), ` +
-    `${stations.length} stops, ${masters.length} masters`)
+    `${stations.length} stops, ${masters.length} masters` +
+    (refAdded ? `, ${refAdded} refs 補齊` : '') +
+    (synthN ? `, ${synthN}/${noStops.length} way-only relations 合成停靠序` : ''))
 }

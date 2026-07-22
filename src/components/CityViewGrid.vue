@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { openSkillDoc } from '../stores/skillHandle'
+import { patchHcGalleryFromCells } from '../stores/viewGeometry'
 import MIcon from './MIcon.vue'
 
 // One city's view card (Hill Climbing / RWD Maps 共用): a title header + a grid
@@ -64,6 +65,31 @@ async function load() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const json = await res.json()
     if (props.labelsForTilt) lab.value = props.labelsForTilt(json.tilt ?? 0)
+    // Straighten：用 straighten-cells（與點進去 D3Tab 同一份）覆寫 loop-* 縮圖，
+    // 避免畫廊舊預算跟互動真結果不一致。
+    if (props.dataDir === 'straighten' && props.entry?.file) {
+      try {
+        const cellsByVariant = {}
+        const shapeByVariant = {}
+        await Promise.all(['orig', 'rot'].flatMap((v) => [
+          fetch(assetUrl(`data/metro/straighten-cells/${props.entry.id}.${v}.json`), { cache: 'no-cache' })
+            .then(async (r) => { if (r.ok) cellsByVariant[v] = await r.json() }).catch(() => {}),
+          fetch(assetUrl(`data/metro/straighten-cells/${props.entry.id}.${v}-shape.shapelike.json`), { cache: 'no-cache' })
+            .then(async (r) => { if (r.ok) cellsByVariant[`${v}-shape`] = await r.json() }).catch(() => {}),
+          fetch(assetUrl(`data/metro/straighten-shape/${props.entry.id}.${v}.json`), { cache: 'no-cache' })
+            .then(async (r) => { if (r.ok) shapeByVariant[v] = await r.json() }).catch(() => {}),
+        ]))
+        if (Object.keys(cellsByVariant).length) {
+          const geoRes = await fetch(assetUrl(`data/metro/${props.entry.file}`), { cache: 'no-cache' })
+          if (geoRes.ok) {
+            const geo = await geoRes.json()
+            patchHcGalleryFromCells(geo, json, cellsByVariant, {
+              cityId: props.entry.id, shapeByVariant,
+            })
+          }
+        }
+      } catch { /* 無 cells／geo → 沿用預算縮圖 */ }
+    }
     data.value = json
     state.value = 'done'
     if (props.dataDir === 'rwd-maps') {

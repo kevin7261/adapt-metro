@@ -5,6 +5,7 @@ import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
 import { rwdCellCompact, rwdCellVariant, loopCellCompact } from '../stores/viewGeometry'
 import { PAPER_KINDS } from '../stores/paperAlign'
+import { setPendingViewMode } from '../lib/pendingViewMode'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
 import MIcon from './MIcon.vue'
@@ -42,14 +43,19 @@ async function load() {
 // straighten/rwd）、view（代表縮圖 id）、icon（與圈層面板同款圖示）。
 // 「基本」（hc 源）僅作 fallback，不列入畫廊——使用者裁決移除「原始・基本」「旋轉・基本」。
 // Straighten 與 RWD Maps 共用同一組 9 條循環鏈（論文①〜⑧＋LLM 對齊，鏈名取自
-// paperAlign 的 PAPER_KINDS）：Straighten 列每鏈的「循環結果」縮圖（loop-*），
-// RWD 列其 RWD 路網重繪（rwd-*）。LLM 對齊循環由 llmviews＋buildViews 離線預算。
+// paperAlign 的 PAPER_KINDS）：Straighten 列每鏈的「循環後」縮圖（loop-*＝
+// 直線演算法→循環到不動點），RWD 列其 RWD 路網重繪（rwd-*）。
+// LLM 對齊循環由 llmviews＋buildViews 離線預算。
 const CHAINS = [
   ...PAPER_KINDS.map(({ kind, zh }) => [kind, zh]),
   ['llm', 'LLM 對齊'],
 ]
 const stRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
-  key: `st-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'straighten', view: `loop-${c}-${variant}`, icon: 'terrain',
+  key: `st-${variant}-${c}`,
+  label: `${vLabel}・${zh}循環後`,
+  kind: 'straighten',
+  view: `loop-${c}-${variant}`, // 循環後（非直線演算法當下）
+  icon: 'terrain',
 }))
 const rwdRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
   key: `rwd-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'rwd', view: `rwd-${c}-${variant}`, icon: 'route',
@@ -186,6 +192,10 @@ function pick(kind, entry, viewId) {
   const { metro, d3, hc, rwd } = store.importCityChain(entry, { variant, compact })
   const target = { raw: metro, adjust: d3, straighten: hc, rwd }[kind] ?? metro
   if (!target) { store.toast('無法建立視圖'); return }
+  // Straighten 縮圖＝循環後 → 開 tab 時切到對應「…循環」視圖（與縮圖一致）。
+  if (kind === 'straighten' && compact) {
+    setPendingViewMode(target.id, compact === 'llm' ? 'hc-llm-loop' : `hc-${compact}-loop`)
+  }
   openLayerTab(target)
   store.toast(`已匯入 ${entry.cityZh ?? entry.city}`)
 }

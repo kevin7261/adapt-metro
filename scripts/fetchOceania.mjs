@@ -19,6 +19,7 @@ import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import * as overpass from './overpass.mjs'
 import { fetchMastersFor } from './fetchGapMasters.mjs'
+import { synthStopsFromWays } from './gapStopsFromWays.mjs'
 
 // 與基準查詢同一組 lifecycle 護欄：未通車/廢線不得進資料
 const LIFE = '["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]'
@@ -66,10 +67,13 @@ const TASKS = [
     keep: (t) => /^Metlink$/i.test(net(t)) },
 ]
 
-for (const task of TASKS) {
+// 可只跑指定城市：node scripts/fetchOceania.mjs adelaide
+const only = process.argv.slice(2)
+for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
   const { key, mode, bbox, stations: stMode, keep } = task
   const routes = [], geoms = [], stations = []
   const seenNode = new Set()
+  const geomByRel = new Map()
 
   // 1) route relations ＋ 全部成員節點
   const q1 = `[out:json][timeout:180];relation["type"="route"]["route"="${mode}"]${LIFE}${bbox}->.r;` +
@@ -83,7 +87,9 @@ for (const task of TASKS) {
     if (!keep(t)) { skipped++; continue }
     routes.push({ type: 'relation', id: e.id, tags: t })
     const members = (e.members ?? []).filter((m) => m.type === 'node')
-    geoms.push({ type: 'relation', id: e.id, tags: t, members })
+    const gr = { type: 'relation', id: e.id, tags: t, members }
+    geoms.push(gr)
+    geomByRel.set(e.id, gr)
     for (const m of members) needed.add(m.ref)
   }
   for (const e of d1.elements ?? []) {
@@ -118,6 +124,19 @@ for (const task of TASKS) {
     }
   }
 
+  // 只掛 way、沒有任何 stop 節點的 relation（阿德萊德 Adelaide Metro 全部 21 條）：
+  // 由 way 幾何把上面抓到的站點投影回線上、依里程排序合成停靠序，否則整組會變成
+  // 「沒有站的線」被丟掉（見 gapStopsFromWays.mjs）。
+  const noStops = routes.map((r) => r.id).filter((id) => !geomByRel.get(id)?.members?.length)
+  let synthN = 0
+  if (noStops.length) {
+    const synth = await synthStopsFromWays(noStops, stations)
+    for (const [rid, members] of synth) {
+      geomByRel.get(rid).members = members
+      synthN++
+    }
+  }
+
   await writeFile(join(overpass.CACHE, `gap_routes_${key}.json`), JSON.stringify({ elements: routes }))
   await writeFile(join(overpass.CACHE, `gap_geom_${key}.json`), JSON.stringify({ elements: geoms }))
   await writeFile(join(overpass.CACHE, `gap_stations_${key}.json`), JSON.stringify({ elements: stations }))
@@ -125,5 +144,7 @@ for (const task of TASKS) {
   const masters = await fetchMastersFor(routes.map((r) => r.id), key)
   const refs = [...new Set(routes.map((r) => r.tags.ref ?? '(no ref)'))].sort()
   console.log(`${key}: ${routes.length} ${mode} relations (${skipped} skipped), ` +
-    `${stations.length} stations, ${masters.length} masters -> gap_*_${key}.json\n  refs: ${refs.join(', ')}`)
+    `${stations.length} stations, ${masters.length} masters` +
+    (synthN ? `, ${synthN}/${noStops.length} way-only relations 合成停靠序` : '') +
+    ` -> gap_*_${key}.json\n  refs: ${refs.join(', ')}`)
 }

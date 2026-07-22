@@ -147,7 +147,29 @@ onBeforeUnmount(() => {
     <!-- Skills：所有 skill 的總覽 modal -->
     <button class="btn-ghost skills-link" @click="store.ui.dialog = 'skills'">Skills</button>
 
-    <!-- 重新計算：清空全城衍生 JSON 後重算（畫廊＋cells；可選 LLM 成方） -->
+    <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
+
+    <div ref="infoWrap" class="skills-wrap info-wrap">
+      <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
+        相關連結
+      </button>
+      <div v-if="infoOpen" class="menu-pop info-menu">
+        <div class="menu-label">相關連結</div>
+        <a
+          v-for="link in relatedLinks"
+          :key="link.href"
+          class="menu-item"
+          :href="link.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click="infoOpen = false"
+        >
+          <MIcon name="open_in_new" :size="14" /> {{ link.label }}
+        </a>
+      </div>
+    </div>
+
+    <!-- 右上：重新計算全部城市（畫廊＋cells；可選 LLM 成方）——與各圖層 StyleBar 右上「重新計算」對齊 -->
     <div ref="recomputeWrap" class="skills-wrap recompute-wrap">
       <button
         class="btn-ghost"
@@ -174,28 +196,6 @@ onBeforeUnmount(() => {
             <span class="mi-hint">{{ opt.hint }}</span>
           </span>
         </button>
-      </div>
-    </div>
-
-    <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
-
-    <div ref="infoWrap" class="skills-wrap info-wrap">
-      <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
-        相關連結
-      </button>
-      <div v-if="infoOpen" class="menu-pop info-menu">
-        <div class="menu-label">相關連結</div>
-        <a
-          v-for="link in relatedLinks"
-          :key="link.href"
-          class="menu-item"
-          :href="link.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          @click="infoOpen = false"
-        >
-          <MIcon name="open_in_new" :size="14" /> {{ link.label }}
-        </a>
       </div>
     </div>
   </header>
@@ -255,7 +255,7 @@ onBeforeUnmount(() => {
 .skills-wrap { position: relative; }
 .info-menu { top: 36px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
-.recompute-menu { top: 36px; left: 0; min-width: 300px; }
+.recompute-menu { top: 36px; right: 0; left: auto; min-width: 300px; }
 .mi-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .mi-hint { font-size: 10.5px; color: hsl(var(--muted-foreground)); font-weight: 400; }
 .spin { animation: tb-spin 0.9s linear infinite; }

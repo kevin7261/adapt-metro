@@ -209,6 +209,38 @@ onMounted(() => {
   disposables.push(panelApi.onDidDimensionsChange(() => map?.resize()))
 })
 
+/** 工具列右上「重新計算」：破快取重載本圖 GeoJSON／軌道／中線／地標。 */
+async function recalcMetroLayout() {
+  const l = layer.value
+  if (!l || l.type !== 'metro' || !map) return
+  loading.value = true
+  loadError.value = null
+  delete layerData[l.id]
+  trackGeojson = null
+  centerGeojson = null
+  landmarkGeojson = null
+  landmarkAvailable.value = false
+  tracksAvailable.value = false
+  centerAvailable.value = false
+  // 先清圖層／來源，再走 addMetroLayers 重抓
+  const layerIds = [
+    ...ALL_LINE_LAYER_IDS,
+    ...HOVER_LAYER_IDS,
+    'metro-stations', 'metro-stations-hover', 'metro-labels',
+    'metro-tracks', 'metro-tracks-center',
+    'lm-fill', 'lm-outline', 'lm-centerline',
+    'lm-fill-hover', 'lm-outline-hover', 'lm-centerline-hover',
+  ]
+  for (const id of layerIds) {
+    if (map.getLayer(id)) map.removeLayer(id)
+  }
+  for (const id of ['metro', 'metro-tracks', 'metro-tracks-center', 'lm-landmarks']) {
+    if (map.getSource(id)) map.removeSource(id)
+  }
+  await addMetroLayers(true)
+  store.toast('已重新載入 Metro Maps')
+}
+
 async function addMetroLayers(fit) {
   const l = layer.value
   if (!l || l.type !== 'metro') { loading.value = false; return }
@@ -767,6 +799,7 @@ onBeforeUnmount(() => {
         :center-on="centerOn"
         @set-tracks="setTracks"
         @set-center="setCenter"
+        @recalc-layout="recalcMetroLayout"
       />
       <div class="tab-map">
         <div ref="container" class="map-container" />

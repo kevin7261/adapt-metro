@@ -20,7 +20,8 @@ import {
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
 import { applyShapeGreens } from '../src/stores/paper/shape.js'
 import { getShapePresets } from '../src/stores/paper/shapePresets.js'
-// 不 import hcCache.js（會拖進瀏覽器 assetUrl）；指紋／algo 常數在此對齊。
+// 不 import straightenCells.js（會拖進瀏覽器 assetUrl）；指紋／algo 常數在此對齊。
+// 寫入的是預計算結果（cellAfter），不是 network 快取。
 const HC_CELLS_ALGO = 'hccells-v4'
 function dfp(data) {
   let h = 5381

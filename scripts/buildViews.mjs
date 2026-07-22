@@ -35,46 +35,10 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 51 // 51: 直線縮減四方向＋H/V 變多就要移（endp→loop／RWD 重烤）。
+const VIEWS_VERSION = 52 // 52: Straighten 畫廊 loop-* 優先畫 straighten-cells（與 D3Tab 一致）。
+                         // 51: 直線縮減四方向＋H/V 變多就要移（endp→loop／RWD 重烤）。
                          // 49: RWD 形狀變體預算（frozenIds／shapeLock；square===true 才烤）。
                          // 48: 目錄改名對齊圖層（map-adjust/straighten/rwd-maps）＋base＝格網化後；全量重算。
-                         // 47: 直線演算法／循環 base＝格網化後（不再吃 HC）。
-                         // 45: 全球 views/hcviews/rwdviews 強制重算（與 LLM 成方無關；llmshapes 已清空）。
-                         // 43: ⑨ Shape-Guided 對齊論文 Smooth（固定 Ωc 最近點＋硬投影；非弧長）。
-                         // 41: ⑨ Shape-Guided 形狀庫只留方形（拿掉圓）。
-                         // 40: ⑨ Shape-Guided 形狀庫收成圓／方兩種（拿掉愛心／體育場）。
-                         // 39: 新增論文⑨ Shape-Guided（kind shape）——自動選路＋
-                         //     內建形狀（圓/愛心/體育場/方）、不適合略過；HC/RWD
-                         //     畫廊每 variant +2 視圖（loop-shape / compact+rwd-shape）。
-                         // 38: 論文忠實度校正（使用者：初步直線化與直線演算法一律照
-                         //     data/thesis 的論文說明，不自創）——②冷卻改論文表 4
-                         //     （R 8→1、最多 5 輪、總適應度收斂）＋§6.2 折彎群集；
-                         //     ①具名筆畫優先＋4 主方向 H/V 先試斜線備援＋論文錨點規則；
-                         //     ③⑧ 段長下限＝H3 最短邊長 hops；④改論文原力式＋PrEd
-                         //     8 區域上限；⑥改論文成本常數（c_45/c_90/c_135/c_h/c_m）
-                         //     ＋dangling 排程；⑦補最大彎角 90°/最小 link 長/ε 由資料定。
-                         // 37: 使用者要求全球全部重算（鏈名帶論文圈號①〜⑧定案後的
-                         //     全量基準版；演算法與 36 相同）。
-                         // 36: 直線鏈改為與論文一一對應的 9 條（①〜⑧＋LLM）——
-                         //     移除自創的 align/ilp 鏈，rect 併入論文②；HC 畫廊
-                         //     13→11 視圖/variant、RWD 畫廊 22→18 視圖/variant，全城重算。
-                         // 35: 新增七條論文直線鏈（stroke/milp/sat/force/lsq/octi/path，
-                         //     src/stores/paperAlign.js）——HC 畫廊 6→13 視圖/variant、
-                         //     RWD 畫廊 8→22 視圖/variant，全城重算。
-                         // 34: RWD 畫線器 deskew-v18——「能 45 就不用 22.5」補強：joint 重算
-                         //     依 (skew, 折數) 取捨＋收尾 deskewPass 把走廊空出後的 22.5 段
-                         //     升回 45 級（全 234 城 22.5 腿 341→316、cross/forced 不變）。
-                         // 33: RWD 畫線器 joint-cross-v17——交叉對聯合重算改直接偵測真交叉
-                         //     （與 forced 旗標脫鉤）＋成對 rip＋A* 升級（含解鎖直線讓路）。
-                         //     全 234 城交叉對 139→112、forced 164→132、折數僅 +0.1%。
-                         // 32: RWD 畫線器 skew-mix-v16——16 方向補 45＋22.5 混合／雙折 22.5
-                         //     候選家族、A* 樓梯→45 後處理（destairPass）、pickBest 補
-                         //     路徑總長最弱 tie-break（全 234 城 forced 208→164、樓梯 26→8）。
-                         // 31: 河流全點保留（-lm 檔）＋骨架河流粉紅改絕對 0.2km 容差（巴黎長弦案）。
-                         // 30: 格網化吸附後修復（repairOcclusions，大邱重疊案——排名吸附不再產出
-                         //     壓點/交叉/共線重疊）＋ validShift ③′ 變形段檢查＋compactGridSafe。
-                         // 29: 移除深色線 halo（使用者 2026-07-17：知道黑線在深背景看不見即可，
-                         // 不要描邊改回去）——v28 檔內含 halo 線條需全量重算掉
 const strHash = (s) => {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0
@@ -181,6 +145,14 @@ async function main() {
       return JSON.parse(await readFile(join(BASE, 'straighten-shape', `${id}.${variant}.json`), 'utf8'))
     } catch { return null }
   }
+  // straighten-cells（與 D3Tab「重新計算」同一份）——有則畫廊 loop-* 直接畫它，
+  // 保證縮圖＝點進去看到的真結果。
+  async function readCells(id, variant, shapelike = false) {
+    const name = `${id}.${variant}${shapelike ? '.shapelike' : ''}.json`
+    try {
+      return JSON.parse(await readFile(join(BASE, 'straighten-cells', name), 'utf8'))
+    } catch { return null }
+  }
 
   for (const sys of systems) {
     const id = idOf(sys.file)
@@ -212,7 +184,23 @@ async function main() {
       om: shapeByVariant.orig?.moved ?? null, rm: shapeByVariant.rot?.moved ?? null,
       os: shapeByVariant.orig?.square === true, rs: shapeByVariant.rot?.square === true,
     }))
-    const llmOpts = { llmByVariant, shapeByVariant, cityId: id }
+    const cellsByVariant = {
+      orig: await readCells(id, 'orig'),
+      rot: await readCells(id, 'rot'),
+      'orig-shape': await readCells(id, 'orig-shape', true),
+      'rot-shape': await readCells(id, 'rot-shape', true),
+    }
+    const cellsFp = strHash(JSON.stringify({
+      o: cellsByVariant.orig?.fingerprint ?? null,
+      r: cellsByVariant.rot?.fingerprint ?? null,
+      os: cellsByVariant['orig-shape']?.fingerprint ?? null,
+      rs: cellsByVariant['rot-shape']?.fingerprint ?? null,
+      oAlgo: cellsByVariant.orig?.algo ?? null,
+      // loop 尺寸一變（演算法改）就重烤縮圖
+      oLoop: Object.fromEntries(Object.entries(cellsByVariant.orig?.loops ?? {}).map(([k, L]) => [k, [L?.cols, L?.rows]])),
+      rLoop: Object.fromEntries(Object.entries(cellsByVariant.rot?.loops ?? {}).map(([k, L]) => [k, [L?.cols, L?.rows]])),
+    }))
+    const llmOpts = { llmByVariant, shapeByVariant, cellsByVariant, cityId: id }
 
     // 8 Map Adjust views
     try {
@@ -224,9 +212,8 @@ async function main() {
 
     // Hill Climbing／Straighten 畫廊（含 LLM 對齊循環，有 llmviews 才寫入）
     try {
-      // fp 加演算法版本後綴 + llm／shape 指紋：結果更新 → 該城縮圖重算。
-      // 無成方的城可沿用舊 _fp（無 :shape=）；有 llmshapes 的城因 shapeFp 變而重算。
-      const hcFp = `${fp}:hc-loop-v5:llm=${llmFp}:shape=${shapeFp}`
+      // fp 加演算法版本後綴 + llm／shape／cells 指紋：cells 更新 → 縮圖跟真結果走。
+      const hcFp = `${fp}:hc-loop-v6:llm=${llmFp}:shape=${shapeFp}:cells=${cellsFp}`
       ;(await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, hcFp, true, llmOpts, shapeFp)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {

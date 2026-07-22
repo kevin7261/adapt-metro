@@ -70,6 +70,11 @@ const isRwd = computed(() => props.viewKind === 'rwd')
 const isHillclimb = computed(() => props.viewKind === 'hillclimb')
 const isMapAdjust = computed(() => props.viewKind === 'map-adjust')
 const hasRow2 = computed(() => isRwd.value || isHillclimb.value || isMapAdjust.value)
+const recalcTitle = computed(() => {
+  if (isMetroView.value) return '重新載入本圖 Metro GeoJSON／軌道／中線'
+  if (isMapAdjust.value) return '重新計算骨架／格網，並清除下游預計算結果（straighten-cells）'
+  return '重算全下游並寫入預計算 JSON（straighten-cells，只含格座標；基本＋①〜⑧）'
+})
 
 // 河流分隔曲折度草稿 vs 已套用——不同才亮「確定」。
 // 草稿＝layer.riverGraySinuosity；已套用＝riverGrayApplied（來自 D3Tab 的 applied 快照，
@@ -113,13 +118,6 @@ const groups = computed(() => {
     //（showHighlight 未設＝開）→ toggle 帶 defaultOn。
     if (props.viewKind !== 'metro') {
       station.push({ id: 'highlight', icon: 'highlight', title: '注意路段', toggle: 'showHighlight', defaultOn: true })
-      // 注意路段 | 重新計算——只由按鈕觸發完整下游 bake（開啟分頁不重算）
-      station.push({ id: '_sep_recalc', sep: true })
-      station.push({
-        id: 'recalcLayout',
-        title: '重新計算（寫入 straighten-cells，含直線演算法／循環／端點／縮減／合併）',
-        action: 'recalc-layout',
-      })
     }
     g.push(station)
   }
@@ -199,12 +197,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
             />
             <span v-if="t.num.unit" class="sb-unit">{{ t.num.unit }}</span>
           </label>
-          <button
-            v-else-if="t.action === 'recalc-layout'"
-            class="sb-btn"
-            :title="t.title"
-            @click.stop="emit('recalc-layout')"
-          >重新計算</button>
           <!-- 其餘工具（切換的顯示站名、或彈窗的地圖底色/顏色…）：純文字按鈕 -->
           <button
             v-else
@@ -225,9 +217,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           @click="emit('set-tracks', !tracksOn)"
         >實際路線</button>
       </template>
-      <!-- 路線中線：同路線上下行兩軌收成一條，疊在原軌道之上、可獨立切換。 -->
+      <!-- 路線中線：同路線上下行兩軌收成一條，疊在原軌道之上、可獨立切換（與實際路線之間不加 |）。 -->
       <template v-if="centerAvailable">
-        <div class="sb-sep" />
         <button
           class="sb-btn"
           :class="{ active: centerOn }"
@@ -235,6 +226,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           @click="emit('set-center', !centerOn)"
         >路線中線</button>
       </template>
+      <!-- 右上：各圖層共用「重新計算」（Metro／Map Adjust／Straighten／RWD） -->
+      <button
+        class="sb-btn sb-recalc"
+        :title="recalcTitle"
+        @click.stop="emit('recalc-layout')"
+      >重新計算</button>
     </div>
 
     <!-- 第 2 排：RWD 版面控制／Straighten 的線段最大跨距。權重 tab、設定 tab 都已
@@ -441,6 +438,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   align-items: center;
   flex-wrap: wrap; /* 放不下就換行不裁切 */
   gap: 3px;
+}
+/* 第 1 排右上：各圖層統一的「重新計算」 */
+.sb-recalc {
+  margin-left: auto;
 }
 /* 第 2 排（RWD）與第 1 排間的分隔線 */
 .sb-row-2 {

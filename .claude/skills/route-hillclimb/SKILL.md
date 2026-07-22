@@ -208,8 +208,8 @@ RWD 底圖與 llmGrid 也吃同一條鏈（`layer.compact` 選鏈）。
 - 頂點含黃色交叉點；退化段（a===b 的小環）跳過。
 - **跨 reload 持久化（D3Tab.vue → `data/metro/straighten-cells/*.json`，不用 localStorage）**：
   爬山＋後處理（iteratePost）＋循環（loop／endp／line／gather）寫進檔案
-  （`src/lib/hcCache.js`，`HC_CELLS_ALGO`）。關 tab 再開／重新整理 fetch 載回、不重跑。
-  檔內 `fingerprint`（資料＋河流門檻）不符 → miss 重算；改演算法就 bump `HC_CELLS_ALGO`。
+  （`src/lib/straightenCells.js`，`HC_CELLS_ALGO`）。預計算結果 JSON（只含 cellAfter，
+  不存 network）。關 tab 再開 fetch 載回；缺檔不現場重算。改演算法 bump `HC_CELLS_ALGO`。
   **未入檔**：buildConnectSkeleton（較便宜）與 RWD 像素佈線（`buildRwdMap`，尺寸相依）。
   「重新計算此城市全部圖層」刪該城全部 hccells。
 

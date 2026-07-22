@@ -37,6 +37,55 @@ export async function fetchMastersFor(routeIds, key) {
   return masters
 }
 
+// 方向/區間變體收斂用的 ref 補齊（就地改寫 routes 的 tags.ref）。
+//
+// buildGeojson 先以 route_master 分組，再以「network＋ref」（無 ref 時用名稱基底）
+// 把群組合併一次。南非 PRASA Metrorail 的 route **既沒有 ref、也只有部分掛在 master
+// 底下**：約堡 54 條 route 只有 17 個 master，落單的那些以終點站命名（"George Goch"、
+// "Faraday"、"Westgate"…其實都是綠線的區間車），名稱全不同 → 一條線被拆成 30 條。
+//
+// 補齊順序（只補「原本沒有 ref」的 route，不覆蓋上游既有 ref）：
+//   1. 所屬 master 的 ref／名稱（去掉 "Metrorail " 前綴）——最權威
+//   2. 顏色對照：Metrorail 的線本來就以顏色命名，用步驟 1 已定案的「顏色→線名」表
+//      把落單 route 收回同一條線
+//   3. 名稱基底：冒號／箭頭前的部分（"Central Line: Cape Town -> Bellville" →
+//      "Central Line"、"Tramway de Sidi Bel Abbès ←" → "Tramway de Sidi Bel Abbès"）
+export function assignRefsFromMasters(routes, masters) {
+  const refOfRoute = new Map()
+  for (const m of masters ?? []) {
+    const ref = String(m.tags?.ref || m.tags?.name || '').replace(/^Metrorail\s+/i, '').trim()
+    if (!ref) continue
+    for (const mem of m.members ?? []) refOfRoute.set(mem.ref, ref)
+  }
+  const nameBase = (t) => String(t.name ?? '')
+    .split(/\s*(?::|->|=>|→|⇒|⟶)\s*/)[0]
+    .replace(/[←→⟷↔]/g, '').replace(/\s*\(.*$/, '').trim()
+  let n = 0
+  // 1) master
+  for (const r of routes) {
+    const ref = refOfRoute.get(r.id)
+    if (ref && !r.tags.ref) { r.tags.ref = ref; n++ }
+  }
+  // 2) 顏色 → 線名（只用已有 ref 的 route 建表）
+  const colourRef = new Map()
+  for (const r of routes) {
+    const c = String(r.tags.colour ?? '').toLowerCase()
+    if (c && r.tags.ref && !colourRef.has(c)) colourRef.set(c, r.tags.ref)
+  }
+  for (const r of routes) {
+    if (r.tags.ref) continue
+    const hit = colourRef.get(String(r.tags.colour ?? '').toLowerCase())
+    if (hit) { r.tags.ref = hit; n++ }
+  }
+  // 3) 名稱基底
+  for (const r of routes) {
+    if (r.tags.ref) continue
+    const base = nameBase(r.tags)
+    if (base) { r.tags.ref = base; n++ }
+  }
+  return n
+}
+
 // 直接執行（非 import）時：對現有的 gap_routes_*.json 逐檔補 master
 if (import.meta.url === `file://${process.argv[1]}`) {
   const only = process.argv.slice(2)

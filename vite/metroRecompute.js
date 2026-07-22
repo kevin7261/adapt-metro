@@ -223,20 +223,21 @@ export function metroRecompute() {
       }
       job.cleared = cleared
 
-      await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews 畫廊縮圖')
+      // 先 bake cells（D3Tab 真結果），再 buildViews（畫廊優先畫 cells）——順序不能反。
       await runCmd('node', ['scripts/bakeHcCells.mjs', '--force'], 'bakeHcCells 一般路網')
 
       if (mode === 'no-shape') {
+        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews 畫廊縮圖')
         // 把舊的成方縮圖蓋回，避免 buildViews 用現有成方檔重算出新的形狀視圖
         cleared.shapeViewsKept = restoreShapeViews(root, shapeSnap)
         append(`已還原 ${cleared.shapeViewsKept} 個畫廊檔的成方縮圖（內容未改）`)
       } else if (mode === 'dataflow') {
-        // 沿用既有成方 → 重算有形狀資料流
         await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force'], 'bakeHcCells 有形狀資料流')
+        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews 畫廊縮圖')
       } else if (mode === 'all') {
         await runLlmShapes()
-        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews（含新成方）')
         await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force'], 'bakeHcCells 有形狀資料流')
+        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews（含新成方）')
       }
 
       job.step = 'done'

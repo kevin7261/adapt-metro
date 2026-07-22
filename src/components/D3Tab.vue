@@ -5,10 +5,10 @@ import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
-// 爬山/後處理/循環結果存 data/metro/straighten-cells/*.json（不用 localStorage），見 hcCache.js。
+// 下游佈局預計算結果：data/metro/straighten-cells/*.json（只存 cellAfter，不存 network）。
 import {
-  dataFingerprint, loadHcCache, saveHcCache, clearHcCache, purgeLegacyHcLocalStorage,
-} from '../lib/hcCache'
+  dataFingerprint, loadStraightenCells, saveStraightenCells, clearStraightenCells, purgeLegacyHcLocalStorage,
+} from '../lib/straightenCells'
 import { makeHeadlessRun } from '../lib/headlessRun'
 import { resolveRwdFrame } from '../lib/rwdFrames'
 import { layerData, layerExport, localizeStationNames } from '../stores/layerData'
@@ -29,6 +29,7 @@ import {
   PAPER_KIND_IDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
   loopKindOf, stepKindOf, postKindOf, needsHcLayout,
 } from '../lib/hcMode'
+import { takePendingViewMode, onPendingViewMode } from '../lib/pendingViewMode'
 import { variantLabel, variantBase, variantIsShape } from '../stores/layerMigrations'
 import { LLM_MODEL_OPTIONS } from '../lib/llmModels'
 import { llmApplyGet, llmApplyHas, llmApplySet } from '../lib/llmApplyPersist'
@@ -114,8 +115,12 @@ const tilt = ref(0)
 // (論文①〜⑧＋LLM 對齊), then per chain the 4-step tail 端點移動
 // ('*-end') → 直線縮減 ('*-line') → 網格合併 ('*-gather') → 縮減網格
 // ('*-compact') plus the '*-loop' cycle tabs — rotation comes from its variant.
-// Straighten 預設進直線演算法①（不再經過「初步直線化」比較區）。
-const mode = ref(isRWD.value ? 'rwd' : isHC.value ? 'hc-stroke' : 'original')
+// Straighten 預設進直線演算法①；視圖畫廊點「循環後」縮圖時由 pendingViewMode
+// 覆寫成 hc-<kind>-loop（與縮圖一致）。
+const mode = ref(
+  isRWD.value ? 'rwd'
+    : isHC.value ? (takePendingViewMode(layerId) || 'hc-stroke')
+      : 'original')
 // ---- HC mode 解析（lib/hcMode.js）----
 // Modes that need the hill-climbing result ('rwd' builds on its 縮減網格).
 // layout-* 也走 computeHcLayout（但只跑該演算法、不碰 HC／下游）。
@@ -345,7 +350,7 @@ const shapeNoCompute = ref(false)
 // 清掉本城本變體的 shapelike hccells 檔——成方內容一變就得清，否則會載回舊成方算出的佈局。
 function purgeShapeLikeCache() {
   const cityId = sourceLayer.value?.id
-  if (cityId) clearHcCache({ cityId, variant: hcLayerVariantKey(), shapelike: true })
+  if (cityId) clearStraightenCells({ cityId, variant: hcLayerVariantKey(), shapelike: true })
 }
 function hcLayerVariantKey() {
   return hcLayer.value?.variant ?? hcVariant.value
@@ -361,7 +366,7 @@ function hcPersistRef(shapeOn) {
 function persistHcCells(shapeOn) {
   const ref = hcPersistRef(shapeOn)
   if (!ref.cityId || !cachedHC) return
-  saveHcCache(ref, {
+  saveStraightenCells(ref, {
     hc: cachedHC,
     posts: cachedPost,
     layouts: cachedLayout,
@@ -652,7 +657,7 @@ async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, d
 }
 const hcBusy = ref(false)
 const busyText = ref('')
-// 開啟分頁只讀 straighten-cells；缺檔不現場重算。按工具列「重新計算」才 bake 全 flow。
+// 開啟分頁只讀預計算 JSON（straighten-cells）；缺檔不現場重算。按「重新計算」才寫檔。
 const forceBakeLayout = ref(false)
 const layoutPending = ref(false)
 const hcStats = ref(null)
@@ -1070,55 +1075,73 @@ async function runBusy(text, seq, fn) {
   }
 }
 
-// 背景預算：把尚未入檔的下游佈局算完並寫入 straighten-cells。
-// 畫廊預計算 ≠ 互動快取——首次開成方／下游仍可能現場算；算的時候一定顯示 overlay。
-// 檔已齊全則跳過。RWD 像素畫線看畫面大小、維持另算。切視圖即中止。
+// 「重新計算」預算：與 bakeHcCells 同內容——基本 hc＋①〜⑧ 的
+// post／endp／line／gather／loop 全鏈重算並寫入 straighten-cells。
+// force=true 時一律重算（不略過已有快取）。RWD 像素畫線另算。切視圖即中止。
 let warmSeq = -1
-async function warmChains(hcSk, hcAfter, cols, rows, shapeOn, guard, seq) {
-  if (warmSeq === seq) return
+async function warmChains(hcSk, hcAfter, cols, rows, shapeOn, guard, seq, { force = false } = {}) {
+  if (!force && warmSeq === seq) return
   warmSeq = seq
-  const kinds = PAPER_KINDS.map((p) => p.kind).filter((k) => POST_BUILD[k])
-  // 檔／記憶體已有全部 post＋loop → 不必再預熱（打開秒開）。
-  if (kinds.every((k) => cachedPost[k] && cachedLoop[k])) return
+  // 基本（格網化後／成方，無論文後處理）＋①〜⑧
+  const kinds = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
+  const complete = (k) =>
+    (k === 'hc' || cachedPost[k]) && cachedEndp[k] && cachedLine[k] && cachedGather[k] && cachedLoop[k]
+  if (!force && kinds.every(complete)) return
+  if (force) {
+    cachedPost = {}
+    cachedEndp = {}
+    cachedLine = {}
+    cachedGather = {}
+    cachedLoop = {}
+  }
   const tasks = []
   for (const kind of kinds) {
-    const zh = PAPER_ZH[kind] ?? kind
-    tasks.push({
-      label: `預算 ${zh}…`,
-      run: () => {
-        if (!cachedPost[kind]) {
+    const zh = PAPER_ZH[kind] ?? (kind === 'hc' ? '基本' : kind)
+    if (kind !== 'hc' && POST_BUILD[kind]) {
+      tasks.push({
+        label: `重算 ${zh}…`,
+        run: () => {
+          if (!force && cachedPost[kind]) return
           const t0 = performance.now()
           cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, hcAfter, cols, rows)
           cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
-        }
+        },
+      })
+    }
+    tasks.push({
+      label: `重算 ${zh}・端點移動…`,
+      run: () => {
+        if (!force && cachedEndp[kind]) return
+        const base = kind === 'hc' ? hcAfter : cachedPost[kind]?.cellAfter
+        if (!base) return
+        cachedEndp[kind] = movewiseStage('endp', hcSk, base, cols, rows)
       },
     })
     tasks.push({
-      label: `預算 ${zh}・端點移動…`,
+      label: `重算 ${zh}・直線縮減…`,
       run: () => {
-        const c = cachedPost[kind]
-        if (c && !cachedEndp[kind]) cachedEndp[kind] = movewiseStage('endp', hcSk, c.cellAfter, cols, rows)
-      },
-    })
-    tasks.push({
-      label: `預算 ${zh}・直線縮減…`,
-      run: () => {
+        if (!force && cachedLine[kind]) return
         const c = cachedEndp[kind]
-        if (c && !cachedLine[kind]) cachedLine[kind] = movewiseStage('line', hcSk, c.cellAfter, c.cols, c.rows)
+        if (!c) return
+        cachedLine[kind] = movewiseStage('line', hcSk, c.cellAfter, c.cols, c.rows)
       },
     })
     tasks.push({
-      label: `預算 ${zh}・網格合併…`,
+      label: `重算 ${zh}・網格合併…`,
       run: () => {
+        if (!force && cachedGather[kind]) return
         const c = cachedLine[kind]
-        if (c && !cachedGather[kind]) cachedGather[kind] = movewiseStage('gather', hcSk, c.cellAfter, c.cols, c.rows)
+        if (!c) return
+        cachedGather[kind] = movewiseStage('gather', hcSk, c.cellAfter, c.cols, c.rows)
       },
     })
     tasks.push({
-      label: `預算 ${zh}・循環…`,
+      label: `重算 ${zh}・循環…`,
       run: () => {
-        const c = cachedPost[kind]
-        if (c && !cachedLoop[kind]) cachedLoop[kind] = straightenCompactLoop(hcSk, c.cellAfter, cols, rows)
+        if (!force && cachedLoop[kind]) return
+        const base = kind === 'hc' ? hcAfter : cachedPost[kind]?.cellAfter
+        if (!base) return
+        cachedLoop[kind] = straightenCompactLoop(hcSk, base, cols, rows)
       },
     })
   }
@@ -1130,7 +1153,7 @@ async function warmChains(hcSk, hcAfter, cols, rows, shapeOn, guard, seq) {
     await new Promise((r) => setTimeout(r, 32))
     if (seq !== renderSeq) { hcBusy.value = false; return }
     setFrozen(guard)
-    try { t.run() } catch { /* 單項失敗不擋其餘預算 */ }
+    try { t.run() } catch { /* 單項失敗不擋其餘 */ }
   }
   if (seq === renderSeq) {
     hcBusy.value = false
@@ -1224,10 +1247,10 @@ async function computeHcLayout({ seq, w, h, grid }) {
   const wantHcKey = hcLsKey(shapeFeedsHc)
   if (cachedHcKey !== wantHcKey) {
     hcBusy.value = true
-    busyText.value = shapeFeedsHc ? '載入成方佈局快取…' : '載入佈局快取…'
+    busyText.value = shapeFeedsHc ? '載入成方預計算結果…' : '載入預計算結果…'
     await new Promise((r) => setTimeout(r, 32))
     if (seq !== renderSeq) { hcBusy.value = false; return null }
-    const hit = await loadHcCache(hcPersistRef(shapeFeedsHc))
+    const hit = await loadStraightenCells(hcPersistRef(shapeFeedsHc))
     if (seq !== renderSeq) { hcBusy.value = false; return null }
     if (hit) {
       cachedHC = hit.hc
@@ -1723,9 +1746,9 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   activeHcSk = hcSk
   activeFrozen = squareGuard // 成方護欄：逐步驗證按鈕在 render 外推進時據此重設
-  // 只有「重新計算」才把其餘鏈一次 bake 進 straighten-cells（開分頁不背景重算）。
+  // 只有「重新計算」才把全下游鏈一次 bake 進 straighten-cells（開分頁不背景重算）。
   if (forceBakeLayout.value) {
-    await warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, shapeFeedsHc, squareGuard, seq)
+    await warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, shapeFeedsHc, squareGuard, seq, { force: true })
     persistHcCells(shapeFeedsHc)
   }
   // 不畫成方外框（guideBoxPx）——使用者不要超大灰白矩形。
@@ -2534,13 +2557,15 @@ function recalcSpan() {
   render()
 }
 
-/** 工具列「注意路段 | 重新計算」：清 cells 後一次 bake 全下游 flow 並寫檔。開分頁不重算。 */
+/** 工具列右上「重新計算」：清 cells 後強制重算全下游（基本＋①〜⑧ 的 post／endp／line／gather／loop）並寫檔。開分頁不重算。 */
 async function recalcLayoutFlow() {
   if (!needsHC.value) {
-    // Map Adjust：重算骨架／格網即可
+    // Map Adjust：重算骨架／格網，並清掉該城全部 straighten-cells（下游失效，需到 Straighten／RWD 再按重新計算 bake）
     if (cacheData) resetPerDataset(cacheData)
+    const cityId = sourceLayer.value?.id
+    if (cityId) await clearStraightenCells({ cityId })
     await render()
-    store.toast('已重新計算 Map Adjust')
+    store.toast('已重新計算 Map Adjust（下游 straighten-cells 已清除）')
     return
   }
   const cityId = sourceLayer.value?.id
@@ -2561,14 +2586,14 @@ async function recalcLayoutFlow() {
   cachedRWD = null
   cachedHcKey = null
   if (cityId) {
-    await clearHcCache({ cityId, variant, shapelike })
-    if (shapelike) await clearHcCache({ cityId, variant, shapelike: false })
+    await clearStraightenCells({ cityId, variant, shapelike })
+    if (shapelike) await clearStraightenCells({ cityId, variant, shapelike: false })
   }
   try {
     await render()
     store.toast(shapelike
-      ? '已重新計算成方下游（straighten-cells · shapelike）'
-      : '已重新計算下游並寫入 straighten-cells')
+      ? '已重算成方全下游（基本＋①〜⑧ → straighten-cells）'
+      : '已重算全下游（基本＋①〜⑧ → straighten-cells）')
   } finally {
     forceBakeLayout.value = false
   }
@@ -2739,6 +2764,16 @@ function onFisheyeLeave() {
 }
 
 onMounted(() => {
+  // 視圖畫廊再點同一 Straighten 層：切到對應循環後 mode（與 loop-* 縮圖一致）。
+  const offPending = onPendingViewMode((id, m) => {
+    if (id !== layerId || !m || !isHC.value) return
+    takePendingViewMode(layerId)
+    if (mode.value === m) return
+    mode.value = m
+    render()
+  })
+  disposables.push({ dispose: offPending })
+
   // d3-zoom drives the inner <g> transform (wheel zoom + drag pan).
   zoomBehavior = zoom()
     .scaleExtent([0.5, 20])
@@ -2849,15 +2884,15 @@ onBeforeUnmount(() => {
           <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨形狀計算 / LLM 成方 view 跑出成方</span></div>
           <div v-else-if="layoutPending" class="ma-hint llm-hint">
             <div class="llm-run-card">
-              <div class="llm-run-title">尚未預算下游佈局</div>
-              <div class="llm-run-desc">開分頁不會重算。請按上方工具列「注意路段」旁的<strong>重新計算</strong>，一次寫入 straighten-cells（直線演算法／循環／端點／縮減／合併）。</div>
+              <div class="llm-run-title">尚未預計算下游佈局</div>
+              <div class="llm-run-desc">開分頁只讀 <code>straighten-cells</code> JSON，不重算。請按右上<strong>重新計算</strong>寫入預計算結果（基本＋①〜⑧ 全下游）。</div>
             </div>
           </div>
           <div v-else-if="hcBusy" class="ma-hint llm-hint">
             <div class="llm-run-card">
               <div class="llm-spinner" />
               <div class="llm-run-title">{{ busyText }}</div>
-              <div class="llm-run-desc">正在寫入 straighten-cells；完成後再開分頁會秒開。</div>
+              <div class="llm-run-desc">正在寫入預計算結果（straighten-cells，只含格座標）；完成後再開分頁秒開。</div>
             </div>
           </div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>

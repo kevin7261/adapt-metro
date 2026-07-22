@@ -1,20 +1,18 @@
-// ---- 整數格佈局持久化（data/metro/straighten-cells/*.json，不用 localStorage）----
-// 最貴的計算是直線演算法（iteratePost，base＝格網化後）＋循環（straightenCompactLoop）。
-// 輸出是純資料（cellAfter = Map<id,[c,r]>、stats），與畫布大小無關 → 寫進檔案，
-// 關 tab 再開／重新整理直接 fetch 載回、不重跑。
+// ---- 下游佈局預計算結果（data/metro/straighten-cells/*.json）----
+// 不是快取、不存 network／骨架：只存各節點整數格座標 cellAfter＋stats。
+// 開分頁只讀檔；缺檔不現場重算。按「重新計算」或 CLI bakeHcCells 才寫檔。
 //
 // 檔名：data/metro/straighten-cells/<cityId>.<variant>[.shapelike].json
-//   variant 含形狀圖層（orig / rot / orig-shape / rot-shape）
-//   shapelike＝成方已餵下游的那份（與不成方管線分開）
-// 失效：檔內 fingerprint（資料指紋＋河流門檻）不符 → miss 重算；
-//       algo 版本不符（改了 skeleton/grid/hillClimb/movewise）→ miss。
-// 寫檔走 vite middleware POST /hc-cells/save（僅 dev）；讀檔走 /data/...（serveDataDir）。
+//   variant＝orig / rot / orig-shape / rot-shape
+//   shapelike＝成方已餵下游的那份
+// 失效：fingerprint（資料＋河流門檻）或 algo 不符 → 視為無結果。
+// 寫檔：vite POST /hc-cells/save（僅 dev）；讀檔：/data/... 。
 import { assetUrl } from './assetUrl'
 import { getDataOverlay, setDataOverlay } from './dataOverlay'
 
 // 改了 skeleton／schematicGrid／hillClimb／movewise 演算法就 +1（舊檔自動失效）。
 // v2: 直線演算法／循環 base＝格網化後（不再吃 HC）
-// v3: 成方護欄下循環上限 1→40（舊 shapelike 循環未收斂）
+// v3: 成方護欄下循環上限 1→40
 // v4: 直線縮減四方向＋H/V 變多就要移
 export const HC_CELLS_ALGO = 'hccells-v4'
 
@@ -65,7 +63,7 @@ function serStageMap(obj) {
   return out
 }
 
-// 清掉舊的 localStorage 爬山快取（曾把整份 network 塞進 LS，太大）——啟動時呼叫一次。
+/** 清掉舊的 localStorage（曾誤存整份 network）；啟動時呼叫一次。 */
 export function purgeLegacyHcLocalStorage() {
   try {
     const drop = []
@@ -77,8 +75,8 @@ export function purgeLegacyHcLocalStorage() {
   } catch { /* private mode */ }
 }
 
-/** @returns {Promise<null | { hc, posts, layouts, loops, endp, line, gather }>} */
-export async function loadHcCache({ cityId, variant, shapelike = false, fingerprint }) {
+/** 讀預計算結果。無檔／algo／fingerprint 不符 → null（開分頁不重算）。 */
+export async function loadStraightenCells({ cityId, variant, shapelike = false, fingerprint }) {
   const rel = hcCellsRelPath(cityId, variant, shapelike)
   if (!rel || !fingerprint) return null
   try {
@@ -102,8 +100,8 @@ export async function loadHcCache({ cityId, variant, shapelike = false, fingerpr
   } catch { return null }
 }
 
-/** 寫入 data/metro/hccells（dev server）；靜態部署無寫檔 API 時靜默略過。 */
-export async function saveHcCache(
+/** 寫入預計算結果（只含 cellAfter／stats，不含 network）。 */
+export async function saveStraightenCells(
   { cityId, variant, shapelike = false, fingerprint },
   { hc, posts, layouts, loops, endp, line, gather },
 ) {
@@ -134,8 +132,8 @@ export async function saveHcCache(
   } catch { return false }
 }
 
-/** 刪 hccells 檔。city only → 該城全部變體；有 variant → 單檔（可加 shapelike）。 */
-export async function clearHcCache({ cityId, variant = null, shapelike = false } = {}) {
+/** 刪預計算結果檔。city only → 該城全部變體；有 variant → 單檔。 */
+export async function clearStraightenCells({ cityId, variant = null, shapelike = false } = {}) {
   if (!cityId) return 0
   try {
     const body = variant != null
@@ -151,3 +149,8 @@ export async function clearHcCache({ cityId, variant = null, shapelike = false }
     return j.cleared ?? 0
   } catch { return 0 }
 }
+
+// 舊名相容（勿再新增引用）
+export const loadHcCache = loadStraightenCells
+export const saveHcCache = saveStraightenCells
+export const clearHcCache = clearStraightenCells

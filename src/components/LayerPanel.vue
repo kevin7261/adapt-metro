@@ -10,7 +10,7 @@ import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
 import { PAPER_ZH } from '../stores/paperAlign'
 import { variantLabel } from '../stores/layerMigrations'
-import { clearHcCache } from '../lib/hcCache'
+import { clearStraightenCells } from '../lib/straightenCells'
 import { llmApplySet } from '../lib/llmApplyPersist'
 import MIcon from './MIcon.vue'
 
@@ -325,13 +325,13 @@ function removeAllLayers() {
   store.toast(`已刪除全部 ${all.length} 個圖層`)
 }
 
-// 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 hccells 佈局檔**，
-// 刪掉 LLM 成方結果檔，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、
-// Map Adjust / Straighten / RWD 會整條鏈重新計算。無 LLM 成方＝不成方餵下游。
+// 重新計算整個城市：關掉該城市所有分頁、清掉 GeoJSON **與 straighten-cells 預計算結果**，
+// 刪掉 LLM 成方結果檔，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔；
+// Straighten／RWD 需再按「重新計算」寫預計算結果。無 LLM 成方＝不成方餵下游。
 async function recomputeCity(item) {
   const all = layersOf(item)
   if (!all.length) return
-  // 收集都會區 metro id → 刪 hccells（全部變體）＋ llmshapes（orig/rot）
+  // 收集都會區 metro id → 刪 straighten-cells（全部變體）＋ llmshapes（orig/rot）
   const metroIds = new Set()
   for (const l of all) {
     if (l.type === 'hillclimb') {
@@ -350,7 +350,7 @@ async function recomputeCity(item) {
     }
   }
   for (const city of metroIds) {
-    await clearHcCache({ cityId: city })
+    await clearStraightenCells({ cityId: city })
     try {
       await fetch('/llm-shape/clear', {
         method: 'POST',
@@ -496,8 +496,9 @@ onBeforeUnmount(() => {
                 <MIcon :name="row.sub.collapsed ? 'chevron_right' : 'expand_more'" :size="13" class="sub-chevron" />
                 <span class="subgroup-name">{{ row.sub.label }}</span>
                 <span class="subgroup-count">{{ row.count }}</span>
+                <!-- 眼睛：Straighten／RWD 與其二級「無形狀／有形狀」都有，整組開／關 tab -->
                 <button
-                  class="btn-icon group-add"
+                  class="btn-icon group-add sub-eye"
                   :class="{ active: subTabsOpen(row.sub) }"
                   :title="subTabsOpen(row.sub) ? `關閉「${row.sub.label}」全部圖層分頁` : `開啟「${row.sub.label}」全部圖層分頁`"
                   @click.stop="toggleSubTabs(row.sub)"
@@ -749,6 +750,7 @@ onBeforeUnmount(() => {
 .sub-chevron { color: hsl(var(--muted-foreground)); flex-shrink: 0; }
 .subgroup-name {
   flex: 1;
+  min-width: 0;
   font-size: 11.5px;
   font-weight: 550;
   color: hsl(var(--muted-foreground));
@@ -757,11 +759,14 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 .subgroup-count {
+  flex-shrink: 0;
   font-size: 10.5px;
   color: hsl(var(--muted-foreground) / 0.8);
   font-variant-numeric: tabular-nums;
   padding: 0 4px;
 }
+/* 眼睛固定右緣，窄面板也不被名稱／數量擠掉（無形狀／有形狀同款） */
+.sub-eye { flex-shrink: 0; }
 
 .layer-row {
   position: relative;
