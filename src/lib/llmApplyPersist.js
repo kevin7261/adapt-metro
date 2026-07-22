@@ -1,13 +1,22 @@
 // LLM「執行調整」toggle 跨 reload 記憶（只存布林，結果本身仍從結果檔重載）。
 const LLM_APPLY_LS = 'adaptMetro.llmApplied.v1'
 
+function llmApplyRead() {
+  try { return JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}') } catch { return {} }
+}
+
+/** 是否曾寫過此鍵（用來區分「預設未寫」與「使用者明確關」） */
+export function llmApplyHas(key) {
+  try { return Object.prototype.hasOwnProperty.call(llmApplyRead(), key) } catch { return false }
+}
+
 export function llmApplyGet(key) {
-  try { return !!JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}')[key] } catch { return false }
+  try { return !!llmApplyRead()[key] } catch { return false }
 }
 
 export function llmApplySet(key, on) {
   try {
-    const s = JSON.parse(localStorage.getItem(LLM_APPLY_LS) || '{}')
+    const s = llmApplyRead()
     if (on) s[key] = true; else delete s[key]
     localStorage.setItem(LLM_APPLY_LS, JSON.stringify(s))
   } catch { /* localStorage 不可用 → 退回「不記憶」 */ }

@@ -594,16 +594,14 @@ watch(() => props.shapeText, () => {
         </template>
 
         <!-- ============ ⑨ LLM 成方（skill route-llm-shape）：Shape-Guided 的 LLM 版 ====
-             同輸入（格網化後）、同硬規則（拓撲鐵律），但「移哪些點」由 LLM 決定。
-             離線算好、網頁只載入；僅比較（此 view 本身即成方結果，不需執行調整 toggle）。 -->
+             有結果且「執行調整」→ ② Hill Climbing 以此為輸入一路往下算。 -->
         <template v-if="kind === 'shape-llm'">
           <div class="weight-panel">
             <p class="weight-hint">
               讓模型把**規定路段**（山手線／新加坡環狀線／大江戶線環形段）收成
               **四邊直線正方**。這是 ⑨ Shape-Guided 的 LLM 版：輸入同樣是「格網化後」、
-              每一步移動都經**與演算法本體完全相同的拓撲鐵律**（交叉不增／無撞格／
-              環繞序不變）把關——模型只決定移哪些點，弄不壞佈局。跑完直接畫在左邊
-              「LLM 成方」視圖（不需要執行調整）。
+              每一步移動都經拓撲鐵律把關。有結果且按「執行調整」後，
+              **② Hill Climbing 會抓成方佈局當輸入，直線演算法／端點移動等一路往下算**。
             </p>
             <template v-if="shapeCanRun">
               <label class="llm-model-pick">
@@ -669,11 +667,9 @@ watch(() => props.shapeText, () => {
                 <pre class="llm-pre">{{ shapeRecord.finalOutput }}</pre>
               </template>
 
-              <!-- 執行調整：跟自動對齊同一套——跑完不自動套用，這顆只切換 LLM 成方
-                   視圖顯示成方後座標 ⇄ 成方前（格網化後），可來回比較，不再跑 LLM。 -->
-              <h4 class="llm-h">套用到 LLM 成方視圖</h4>
+              <h4 class="llm-h">套用到 ② Hill Climbing（往下執行）</h4>
               <button class="llm-run-btn" @click="emit('toggle-shape-exec')">{{ shapeApplied ? '恢復原佈局' : '執行調整' }}</button>
-              <p class="llm-run-hint">切換顯示（不跑 LLM、即時）——「執行調整」用成方後的座標重畫「LLM 成方」視圖，「恢復原佈局」切回成方前的格網化後，可來回比較成方前後。</p>
+              <p class="llm-run-hint">「執行調整」＝成方佈局餵給 ②HC 並重算下游全鏈；「恢復原佈局」＝HC 改回吃格網化後。首次有結果預設開啟。</p>
             </template>
             <p v-else-if="!shapeRunning" class="llm-note">{{ shapeMsg ?? '尚未產生 LLM 成方——按上面的按鈕執行。' }}</p>
 

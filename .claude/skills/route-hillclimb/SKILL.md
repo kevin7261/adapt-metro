@@ -18,10 +18,13 @@ Multicriteria Optimization*, IEEE TVCG 17(1)。完整演算法說明見
 
 ```
 Map Adjust（d3 圖層）的 格網化後（每城市 2 個：原始 orig / 旋轉 rot）
-  → buildSchematicGrid(...).cellOf（彩色切點的整數格）
+  →（可選）⑨ LLM 成方已「執行調整」→ 以 llmshapes 座標（含綠折）取代 cellOf
   → buildHillClimb：頂點 = 切點、邊 = 切點間直線小段（共走廊多路線仍 1 段＋routes metadata）
   → cellAfter（新整數格）→ D3Tab 用同一套等寬格心換回像素 → placeBlacks 放回黑點
+  → 直線演算法／端點移動…一路往下（輸入＝HC，故會跟著成方走）
 ```
+
+有 [[route-llm-shape]] 結果且套用時，② 標籤顯示「←LLM成方」；詳見該 skill。
 
 - 新圖層由 Layers 面板 Hill Climbing group 的 **+** 建立：選一個 Map Adjust 圖層＋
   變體（原始/旋轉格網化後），存在 `layer.sourceLayerId`（d3 圖層 id）＋ `layer.variant`。

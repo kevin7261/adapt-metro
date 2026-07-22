@@ -101,11 +101,23 @@ function cyclicEqual(a, b) {
   return true
 }
 
+// 凍結頂點集（固定方形）：② HC 吃 LLM 成方（[[route-llm-shape]]）時，成方路段
+// （規定 ring ＋綠折控制點）的頂點一律不得移動——爬山主迴圈、群集移動、後處理
+// 論文鏈、movewise 三步鏈、每步後的縮減網格全都經 makeMover 這個唯一關口，只要
+// 在此擋掉凍結頂點的單點移動與含凍結頂點的群集平移，「固定方形不改變」就貫穿整條
+// 下游。模組級全域＋setFrozen（比照 movewise 的 SPAN_CAP）；makeMover 於建構時
+// 擷取當下值，故 D3Tab 只要在跑 ② 之前設好、非成方輸入時清成 null 即可。
+let FROZEN = null
+export function setFrozen(ids) {
+  FROZEN = ids && ids.size ? ids : null
+}
+
 // Movement machinery shared by the optimizer and the post-passes（②直角爬山
 // 與 paperAlign.js 的其他論文鏈；retired 的軸對齊/整數規劃亦同）: neighbourhood lookups,
 // the §5 hard rules and the mutating move primitive. Closes over the LIVE
 // `pos`; cellOwner mirrors it.
 export function makeMover(pos, segs, inc, cols, rows) {
+  const frozen = FROZEN // 固定方形：擷取當下凍結集，本 mover 一律不動這些頂點
   const other = (s, u) => (s.a === u ? s.b : s.a)
   const nbrsOf = (v) => {
     const out = new Set()
@@ -132,6 +144,8 @@ export function makeMover(pos, segs, inc, cols, rows) {
 
   // All hard rules for moving single vertex v to P (does not mutate `pos`).
   function validMove(v, P) {
+    // 固定方形：成方路段的頂點凍結、絕不移動（[[route-llm-shape]] 餵 ② 時）
+    if (frozen && frozen.has(v)) return false
     const [c, r] = P
     // ① bounding area + one vertex per cell
     if (c < 0 || r < 0 || c >= cols || r >= rows) return false
@@ -190,6 +204,8 @@ export function makeMover(pos, segs, inc, cols, rows) {
   // fixed, so hard rules only apply across the moving/static boundary.
   // (Shared by the optimizer's cluster moves and the 直線縮減 post-pass.)
   function validShift(comp, inC, dc, dr) {
+    // 固定方形：群集含任一凍結頂點就整組不得平移（成方保持原位）
+    if (frozen) { for (const w of comp) if (frozen.has(w)) return false }
     for (const w of comp) {
       const [c, r] = pos.get(w)
       const nc = c + dc, nr = r + dr

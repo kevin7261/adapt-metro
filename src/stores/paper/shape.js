@@ -167,6 +167,31 @@ const onCellSeg = (p, a, b) =>
   && Math.min(a[0], b[0]) <= p[0] && p[0] <= Math.max(a[0], b[0])
   && Math.min(a[1], b[1]) <= p[1] && p[1] <= Math.max(a[1], b[1])
 
+/**
+ * 依「原始邊」分組的交叉對集合——比對「哪兩條線互相穿越」而非只數交叉「數量」。
+ * 這才擋得住「站的相對內外側翻面」（例：棕線本在黃線外、移動後跑到黃線內）——
+ * 這種翻面會讓某兩條線新交叉，即使總交叉數沒變也不合法。綠折點屬其母邊（keyOf 回傳
+ * 母邊鍵），同母邊的碎段互相不算。回傳 Set of `kA#kB`（kA<kB）。
+ */
+function edgeCrossKeySet(posMap, segs, keyOf) {
+  const set = new Set()
+  for (let i = 0; i < segs.length; i++) {
+    const si = segs[i]
+    const A = posMap.get(si.a), B = posMap.get(si.b)
+    if (!A || !B) continue
+    for (let j = i + 1; j < segs.length; j++) {
+      const sj = segs[j]
+      if (si.a === sj.a || si.a === sj.b || si.b === sj.a || si.b === sj.b) continue
+      const ki = keyOf(i), kj = keyOf(j)
+      if (ki === kj) continue // 同一條原始邊的碎段（綠折）互穿不算
+      const C = posMap.get(sj.a), D = posMap.get(sj.b)
+      if (!C || !D) continue
+      if (segIntersect(A, B, C, D)) set.add(ki < kj ? `${ki}#${kj}` : `${kj}#${ki}`)
+    }
+  }
+  return set
+}
+
 /** 不共端點的真交叉數（不含共線重疊——吸附後共線觸碰易誤報；點壓線另由 hasPointOverlap 抓） */
 function improperCrossCount(posMap, segs) {
   let n = 0
@@ -2341,7 +2366,7 @@ export async function buildShapeAlign(skeleton, cells, cols, rows, opts = {}) {
  *   1) shapeLlmContext：export 給 LLM 讀——規定路段 W 的環站、建議的正方目標格、
  *      目前是否已成四邊方、輸入交叉數。
  *   2) applyShapeLlmTargets：apply——把 LLM 提的目標格（＋可選綠折點）落地，再以
- *      論文 D1（交叉不增／無撞格）把關；不成方或破平面則退回。
+ *      論文 D1（交叉不增／無撞格／每個點連線的 360° 環繞序不變）把關；破則退回。
  * 成方判準沿用 isFourLineSquare（四邊直線正方；可經綠折點走 L 形角）。LLM 可在相鄰
  * 環站之間插入綠點當四角轉折——環站只要滑到邊上（小移動）、不必被拉到角上（大移動），
  * network 改變最小（跟演算法本體 applyShapeGreens/splitSegAt 同一套）。
@@ -2392,7 +2417,7 @@ export function shapeLlmContext(skeleton, cells, cols, rows, cityId) {
  * 綠折點凍結在角/彎不動。跟演算本體「W 鎖方後再跑一輪只動其餘站」同精神，讓 network
  * 形狀與原圖差異最小。回傳 { pos, settled }（settled＝實際被拉回的站數）。
  */
-function settleTowardOriginal(layout, original, segs, cols, rows, cutIds, cross0, maxPasses = 40) {
+function settleTowardOriginal(layout, original, segs, cols, rows, cutIds, gate, maxPasses = 40) {
   const pos = new Map([...layout].map(([id, p]) => [id, [...p]]))
   const ringSet = new Set(cutIds)
   let settled = 0
@@ -2422,10 +2447,9 @@ function settleTowardOriginal(layout, original, segs, cols, rows, cutIds, cross0
         const dnew = Math.hypot(cand[0] - orig[0], cand[1] - orig[1])
         if (dnew >= d0) continue
         pos.set(id, cand)
-        const okD1 = !hasPointOverlap(pos, segs) && topoPlanarOk(pos, segs, cross0)
-        // 環站額外守成方（沿方邊滑、或經綠折點的 L 形微調——都不破四邊直線正方）
+        // 完整 D1 鐵律（無壓線＋不新增互穿＋360° 環繞序）＋環站額外守成方
         const okSquare = !ringSet.has(id) || isFourLineSquare(cutIds, pos, segs)
-        if (okD1 && okSquare) {
+        if (gate(pos) && okSquare) {
           taken.delete(ckey(cur[0], cur[1]))
           taken.add(ckey(cand[0], cand[1]))
           moved++
@@ -2464,9 +2488,13 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   // 讓正方的四個角是綠折點——環站只要滑到邊上（小移動），不必被拉到角上（大移動），
   // network 改變最小。綠點不進 targets（凍結在角格）；成方判準 isFourLineSquare 吃
   // segs、會走綠折點的 L 形連線，所以四角綠折仍算「四邊直線正方」。──
+  const ekey = (a, b) => (String(a) < String(b) ? `${a}|${b}` : `${b}|${a}`)
   let pos = clone(pos0)
   let segs = cloneSegs(segs0)
   let inc = rebuildInc(segs)
+  // pkey[i]＝segs[i] 所屬的原始邊鍵（綠折切開後兩半共用母鍵）——供 edgeCrossKeySet
+  // 把「哪兩條線互穿」比對到原始邊層級（擋內外側翻面）。
+  const pkey = segs.map((s) => ekey(s.a, s.b))
   const greens = []
   let gi = 0
   const cl = (c, lim) => Math.max(0, Math.min(lim - 1, c))
@@ -2477,10 +2505,28 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
     const si = segs.findIndex((s) => (s.a === a && s.b === b) || (s.a === b && s.b === a))
     if (si < 0) continue // a、b 之間沒有直接段——略過（回報在 greensRejected）
     const gid = `shape-g${gi++}`
+    const parent = pkey[si] // 兩半都掛母邊鍵
     inc = splitSegAt(segs, pos, si, gid, [cl(spec.c, cols), cl(spec.r, rows)])
+    pkey.push(parent) // splitSegAt 把 gid-b 推到尾端，繼承母鍵；segs[si]（a-gid）保留 pkey[si]
     greens.push({ id: gid, c: cl(spec.c, cols), r: cl(spec.r, rows), a, b })
   }
   const geo = clone(pos) // 含綠點（在角格）的基準
+
+  // 論文 D1 鐵律（LLM 成方完整版）＝三條缺一不可：
+  //   ① 無撞格／無點壓線（hasPointOverlap）
+  //   ② **不新增任何兩條線的互穿**（edgeCrossKeySet 比原始邊層級——擋站的相對內外
+  //      側翻面，例：棕線由黃線外翻進黃線內；比只數交叉數量強）
+  //   ③ 每個點連線的 360° 環繞序不變（edgeOrdersMatch，略過綠折比對真鄰居）
+  const baseKeyArr = segs0.map((s) => ekey(s.a, s.b))
+  const baseCross = edgeCrossKeySet(geo0, segs0, (i) => baseKeyArr[i])
+  const hasNewCross = (layout) => {
+    const cur = edgeCrossKeySet(layout, segs, (i) => pkey[i])
+    for (const k of cur) if (!baseCross.has(k)) return true
+    return false
+  }
+  const gate = (layout) => !hasPointOverlap(layout, segs)
+    && !hasNewCross(layout)
+    && edgeOrdersMatch(geo, layout, segs, inc, isShapeGreenId)
 
   const targets = new Map()
   for (const [id, t] of targetEntries) {
@@ -2509,7 +2555,7 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
       const trial = clone(geo)
       for (const [id, t] of targets) trial.set(id, t)
       resolveCellClashes(trial, frozen, cols, rows) // 被壓到的非凍結站→最近空格（自由讓開）
-      if (!hasPointOverlap(trial, segs) && topoPlanarOk(trial, segs, cross0)) {
+      if (gate(trial)) {
         chosen = trial
         via = 'batch'
       }
@@ -2518,15 +2564,14 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   // 策略 B（退回）：逐點貪心朝目標移動——A 不過關時至少安全推進
   if (!chosen) chosen = topoSafeTowardTargets(geo, targets, segs, inc, cols, rows, pathSet)
 
-  // 保險：再驗論文 D1；不符則整批退回（連綠點一起退回到未插綠的輸入）
-  const ironOk = topoPlanarOk(chosen, segs, cross0)
+  // 保險：再驗完整 D1（無壓線＋不新增互穿＋360° 環繞序）；不符則整批退回（連綠點退回）
+  const ironOk = gate(chosen)
   const reverted = !ironOk
   // 收方後回歸：正方（環站＋綠折）鎖住，其餘被推開的站拉回原相對位置（不破 D1），
-  // 讓 network 形狀與原圖差異最小。geo0＝未插綠的輸入位置＝回歸目標。
+  // 讓 network 形狀與原圖差異最小。geo＝回歸目標＋環繞序基準；gate＝同一套鐵律。
   let settled = 0
   if (!reverted) {
-    // 環站可沿方邊/經綠折點微調回歸（守成方）；其餘站自由回歸（守 D1）；綠折點凍結。
-    const s = settleTowardOriginal(chosen, geo0, segs, cols, rows, cutIds, cross0)
+    const s = settleTowardOriginal(chosen, geo, segs, cols, rows, cutIds, gate)
     chosen = s.pos
     settled = s.settled
   }
