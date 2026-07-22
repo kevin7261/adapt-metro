@@ -19,12 +19,21 @@ Multicriteria Optimization*, IEEE TVCG 17(1)。完整演算法說明見
 ```
 Map Adjust（d3 圖層）的 格網化後（每城市 2 個：原始 orig / 旋轉 rot）
   →（可選）⑨ LLM 成方已「執行調整」→ 以 llmshapes 座標（含綠折）取代 cellOf
+     ＋凍結成方頂點（規定 ring 站＋綠折）＝固定方形，下游全鏈都不改它
   → buildHillClimb：頂點 = 切點、邊 = 切點間直線小段（共走廊多路線仍 1 段＋routes metadata）
   → cellAfter（新整數格）→ D3Tab 用同一套等寬格心換回像素 → placeBlacks 放回黑點
   → 直線演算法／端點移動…一路往下（輸入＝HC，故會跟著成方走）
 ```
 
 有 [[route-llm-shape]] 結果且套用時，② 標籤顯示「←LLM成方」；詳見該 skill。
+
+**固定方形（② 吃 LLM 成方時）**：成方路段的頂點一律凍結、下游全鏈（爬山＋①〜⑧＋
+端點/直線/合併/循環/逐步/RWD）都不改變這個方形。機構＝模組級 `FROZEN`＋`setFrozen(set)`
+（比照 movewise `SPAN_CAP`），`makeMover` 建構時擷取：`validMove` 擋凍結頂點單點移動、
+`validShift` 擋含凍結頂點的群集平移——所有下游都經 `makeMover` 唯一關口故一次生效。
+凍結集＝規定表 `stations`＋本輪 `greens` id；`D3Tab.computeHcLayout` 只在真下游
+`setFrozen(frozenIds)`（layout-* 比較視圖已先 return、不凍結），非成方輸入為 null。
+詳見 [[route-llm-shape]]。
 
 - 新圖層由 Layers 面板 Hill Climbing group 的 **+** 建立：選一個 Map Adjust 圖層＋
   變體（原始/旋轉格網化後），存在 `layer.sourceLayerId`（d3 圖層 id）＋ `layer.variant`。

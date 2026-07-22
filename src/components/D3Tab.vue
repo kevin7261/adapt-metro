@@ -6,7 +6,7 @@ import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
 // 爬山/後處理結果的 localStorage 持久快取（指紋失效＋LRU），見 hcCache.js 檔頭說明。
-import { dataFingerprint, loadHcCache, saveHcCache } from '../lib/hcCache'
+import { dataFingerprint, loadHcCache, saveHcCache, clearHcCache } from '../lib/hcCache'
 import { makeHeadlessRun } from '../lib/headlessRun'
 import { resolveRwdFrame } from '../lib/rwdFrames'
 import { layerData, layerExport, localizeStationNames } from '../stores/layerData'
@@ -314,13 +314,25 @@ const shapeLlmRunner = makeRun({
   onStart: () => {
     cachedShapeLlm = null; shapeLlmStats.value = null; shapeLlmMsg.value = null; shapeLlmInfo.value = null
     shapeLlmApplied.value = false; llmApplySet(llmApplyKeys.value.shape, false)
-    invalidateShapeHcPipeline()
+    invalidateShapeHcPipeline(); purgeShapeLikeCache()
   },
-  onDone: () => { cachedShapeLlm = null; invalidateShapeHcPipeline() },
+  // 跑完成功 → 自動套用成方（跑完就看得到方形，不用手動按執行調整）；失敗不動。
+  // 成方內容變了 → 連 localStorage 的 :shapelike ②/後處理快取一起清（見下），否則
+  // 資料指紋沒變、loadHcCache 會載回上一輪成方算的舊 ②，往後全鏈不會跟著新方形重算。
+  onDone: (ok) => {
+    cachedShapeLlm = null; invalidateShapeHcPipeline(); purgeShapeLikeCache()
+    if (ok !== false) { shapeLlmApplied.value = true; llmApplySet(llmApplyKeys.value.shape, true) }
+  },
 })
 const startShapeLlmRun = shapeLlmRunner.start
 // 「執行調整」：套用成方 → ②HC 重算並一路往下；「恢復」→ HC 改回吃格網化後。
 const shapeLlmApplied = ref(false)
+// 清掉 localStorage 裡本資料本變體的 :shapelike ②/後處理快取——成方內容一變（重跑
+// 成方）就得清，否則資料指紋沒變、下次 loadHcCache 會載回舊成方算出的 ②，「往後執行」
+// 全鏈不會跟著新方形重算。非成方（無 :shapelike 尾巴）的快取不受影響。
+function purgeShapeLikeCache() {
+  if (cachedFp) clearHcCache(`${cachedFp}:${hcVariant.value}:shapelike`)
+}
 function invalidateShapeHcPipeline() {
   cachedHC = null
   cachedPost = {}
@@ -483,16 +495,19 @@ async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, d
     const j = res.ok && isJson ? await res.json() : null
     if (!j) return { miss: missNone }
     const fp = j.fingerprint ?? {}
-    const vOk = fp.verts === cachedHC.stats.verts
-    const sOk = fp.segs === cachedHC.stats.segs
+    // cachedHC 可能為 null（⑨ LLM 成方 view 不跑 HC、直接吃格網化後）——此時跳過
+    // verts/segs 比對（成方的節點集合驗證另由呼叫端的守門負責），只驗 fpOk（cols/rows）。
+    const vOk = !cachedHC?.stats || fp.verts === cachedHC.stats.verts
+    const sOk = !cachedHC?.stats || fp.segs === cachedHC.stats.segs
     const extraOk = fpOk(fp)
     if (!vOk || !sOk || !extraOk) {
       // 診斷：印出「結果檔存的指紋 vs 網頁此刻實算」哪一欄對不上（stale 定位用）。
       const webCR = dims ? `${dims[0]}×${dims[1]}` : '?'
-      const diag = `檔 v${fp.verts}/s${fp.segs}/${fp.cols}×${fp.rows}｜網頁 v${cachedHC.stats.verts}/s${cachedHC.stats.segs}/${webCR}｜不符：${[!vOk && 'verts', !sOk && 'segs', !extraOk && 'cols/rows'].filter(Boolean).join('、')}`
+      const webV = cachedHC?.stats?.verts ?? '?', webS = cachedHC?.stats?.segs ?? '?'
+      const diag = `檔 v${fp.verts}/s${fp.segs}/${fp.cols}×${fp.rows}｜網頁 v${webV}/s${webS}/${webCR}｜不符：${[!vOk && 'verts', !sOk && 'segs', !extraOk && 'cols/rows'].filter(Boolean).join('、')}`
       console.warn('[llm-stale]', url, {
         fileFingerprint: fp,
-        webVerts: cachedHC.stats.verts, webSegs: cachedHC.stats.segs, webDims: dims,
+        webVerts: webV, webSegs: webS, webDims: dims,
         vertsMatch: vOk, segsMatch: sOk, colsRowsMatch: extraOk,
       })
       return { miss: `${missStale}\n[診斷] ${diag}` }
@@ -1054,6 +1069,20 @@ async function computeHcLayout({ seq, w, h, grid }) {
       onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
     })
     if (seq !== renderSeq) return null
+    // 節點集合守門：cols/rows 相同但骨架變了（verts/segs 變）時，cellAfter 的站 id
+    // 會對不上目前資料 → 視為過期，要求重新產生（避免載入舊結果畫成破圖）。
+    if (cachedShapeLlm?.cells) {
+      const baseIds = new Set(grid.cellOf.keys())
+      let real = 0, stale = false
+      for (const id of cachedShapeLlm.cells.keys()) {
+        if (String(id).startsWith('shape-g')) continue
+        real++
+        if (!baseIds.has(id)) { stale = true; break }
+      }
+      if (stale || real !== baseIds.size) {
+        cachedShapeLlm = { miss: 'LLM 成方結果與目前資料不符（資料已更新）——請重新產生' }
+      }
+    }
     if (cachedShapeLlm?.cells) {
       shapeLlmStats.value = cachedShapeLlm.stats
       shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
@@ -1082,6 +1111,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
   const shapeGreens = shapeFeedsHc ? (cachedShapeLlm.stats?.greens ?? []) : []
   const hcSk = shapeGreens.length ? applyShapeGreens(cachedSkeleton, shapeGreens) : cachedSkeleton
   const hcInCells = shapeFeedsHc ? cachedShapeLlm.cells : grid.cellOf
+  // 凍結集（固定方形）：② 吃 LLM 成方時，規定 ring 站＋綠折點的 id 一律不動，讓下游
+  // 全鏈都不改變成方的方形；非成方輸入為 null（＝不凍結，行為同以往）。
+  const frozenIds = shapeFeedsHc
+    ? new Set([
+        ...(getShapePreset(cityIdForShape)?.stations ?? []),
+        ...shapeGreens.map((g) => g.id),
+      ])
+    : null
   const wantHcKey = hcLsKey(shapeFeedsHc)
   if (cachedHcKey !== wantHcKey) {
     const hit = loadHcCache(wantHcKey)
