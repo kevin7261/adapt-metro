@@ -34,8 +34,6 @@ const DEFAULT_W = {
 
 /* ---- exact integer geometry ---- */
 import { sharesRoute, isHV, isHVD } from './netUtil.js'
-import { isFourLineSquare } from './paper/shapeSquare.js'
-
 const ckey = (c, r) => `${c},${r}`
 
 // union-find（兩段式路徑壓縮）——clusterComponents / lineComponents 共用。
@@ -103,10 +101,9 @@ function cyclicEqual(a, b) {
 }
 
 // 成方護欄（[[route-shape-align]]／[[route-llm-shape]]）：形狀圖層吃成方後，
-// 規定 ring＋綠折「可以移動／調整」，但移動後必須仍是四邊直線正方
-// （isFourLineSquare）。硬凍結已改成此軟護欄——循環三演算法／HC／論文鏈／
-// compactGridSafe 全經 makeMover，只要破方就 veto。
-// 模組級＋setFrozen（比照 SPAN_CAP）；makeMover 建構時擷取。
+// 規定 ring＋綠折在 HC 圖上的頂點「只准剛體平移」（全體同一 (dc,dr)），
+// 禁止單點／單邊變形——否則論文鏈／端點移動會把方啃掉。半平面合併若整塊
+// 帶著方形走仍可過（網格合併不致被誤殺）。模組級＋setFrozen（比照 SPAN_CAP）。
 // setFrozen(null | { ringIds: string[], members: Set<string> })
 let SQUARE_GUARD = null
 export function setFrozen(guard) {
@@ -131,20 +128,40 @@ export function setFrozen(guard) {
 // the §5 hard rules and the mutating move primitive. Closes over the LIVE
 // `pos`; cellOwner mirrors it.
 export function makeMover(pos, segs, inc, cols, rows) {
-  const squareGuard = SQUARE_GUARD // 成方護欄：擷取當下；破方的移動一律 veto
+  const squareGuard = SQUARE_GUARD // 成方護欄：擷取當下；非剛體動方 → veto
   const other = (s, u) => (s.a === u ? s.b : s.a)
-  /** 覆寫若干頂點座標後，成方是否仍成立（不動 members → 直接過） */
+  /**
+   * 成方 members（HC 圖上有的）只准「全體同一位移」。
+   * - 都不動 → 過
+   * - 都移同一 (dc,dr) → 過（半平面帶整塊方走；形狀不變）
+   * - 只動一部分或位移不一致 → 否（單點／單邊會破方）
+   * 規定表黑點直通站不在 pos → 不列入（避免缺點誤判）。
+   */
   function squareOk(overrides) {
     if (!squareGuard) return true
-    let touches = false
-    for (const id of overrides.keys()) {
-      if (squareGuard.members.has(id)) { touches = true; break }
+    const ids = []
+    for (const id of squareGuard.members) {
+      if (pos.has(id)) ids.push(id)
     }
-    if (!touches) return true
-    const view = {
-      get: (id) => (overrides.has(id) ? overrides.get(id) : pos.get(id)),
+    if (!ids.length) return true
+    let dc = null, dr = null
+    let any = false
+    for (const id of ids) {
+      const cur = pos.get(id)
+      const next = overrides.has(id) ? overrides.get(id) : cur
+      const d0 = next[0] - cur[0], d1 = next[1] - cur[1]
+      if (d0 === 0 && d1 === 0) continue
+      any = true
+      if (dc === null) { dc = d0; dr = d1 }
+      else if (dc !== d0 || dr !== d1) return false
     }
-    return isFourLineSquare(squareGuard.ringIds, view, segs)
+    if (!any) return true
+    for (const id of ids) {
+      const cur = pos.get(id)
+      const next = overrides.has(id) ? overrides.get(id) : cur
+      if (next[0] - cur[0] !== dc || next[1] - cur[1] !== dr) return false
+    }
+    return true
   }
   const nbrsOf = (v) => {
     const out = new Set()
@@ -215,7 +232,7 @@ export function makeMover(pos, segs, inc, cols, rows) {
       if (inc.get(u).length < 3) continue // ≤2 edges: order is always preserved
       if (!cyclicEqual(orderKey(u, atCur), orderKey(u, atNew))) return false
     }
-    // ⑤ 成方護欄：動到 ring／綠折時，移動後仍須四邊直線正方
+    // ⑤ 成方護欄：方上頂點禁單點移動（只准全體剛體平移，見 squareOk）
     if (!squareOk(new Map([[v, P]]))) return false
     return true
   }
@@ -309,16 +326,15 @@ export function makeMover(pos, segs, inc, cols, rows) {
         }
       }
     }
-    // 成方護欄：群集平移若動到 ring／綠折，平移後仍須四邊直線正方
-    // （整塊剛體平移方形通常仍成立；只動一邊則會被否決）
+    // 成方護欄：半平面／群集若動到方上頂點，必須全體同一位移（剛體）
     if (squareGuard) {
       const overrides = new Map()
       for (const w of comp) {
-        if (!squareGuard.members.has(w)) continue
+        if (!squareGuard.members.has(w) || !pos.has(w)) continue
         const [c, r] = pos.get(w)
         overrides.set(w, [c + dc, r + dr])
       }
-      if (overrides.size && !squareOk(overrides)) return false
+      if (!squareOk(overrides)) return false
     }
     return true
   }

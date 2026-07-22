@@ -24,20 +24,17 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
   的 `:shapelike` HC/後處理快取——否則資料指紋沒變，`loadHcCache` 會載回**上一輪成方**
   算出的舊 HC，直線演算法〜RWD 全鏈不會跟著新方形重算。
 
-### 成方護欄：可動、不可破方（重要）
+### 成方護欄：只准剛體平移（重要）
 
-② 一旦吃成方佈局，環站＋綠折**可以**被下游移動／調整（含循環三演算法），但移動後必須
-仍是四邊直線正方——破方的候選一律 veto。
+② 一旦吃成方佈局，HC 圖上的環站＋綠折**禁止單點／單邊變形**——只允許全體同一
+`(dc,dr)` 平移（半平面合併整塊帶走可以；端點移動啃角不行）。
 
-- **members** ＝規定表 `stations`（ring 序）＋本輪 `greens` 控制點 id。
-- **機構**：`hillClimb.js` 模組級 `SQUARE_GUARD`＋`setFrozen({ ringIds, members })`
-  （比照 movewise `SPAN_CAP`），`makeMover` 擷取後在 `validMove`／`validShift` 用
-  `isFourLineSquare`（`shapeSquare.js`）驗方。
-- **接線**（`D3Tab.vue`）：`computeHcLayout` 頂端 `setFrozen(null)`；真下游才
-  `setFrozen(squareGuard)`。逐步驗證靠 `activeFrozen` 重設。
-- 非成方輸入（未套用／恢復）＝ null，行為同以往。
-- 離線 LLM 對齊／評價覆寫仍釘回成方座標（那些檔未走護欄）。
-- **快取**：`HC_LS_KEY` v61（軟護欄）——舊硬凍結佈局不載回。
+- **members** ＝規定表 `stations`＋本輪 `greens`（只計 HC `pos` 內頂點）。
+- **機構**：`hillClimb.js` `SQUARE_GUARD`＋`setFrozen({ ringIds, members })`，
+  `makeMover.squareOk` 查位移一致性。
+- **接線**：`D3Tab` 真下游 `setFrozen(squareGuard)`；逐步驗證靠 `activeFrozen`。
+- 離線 LLM 對齊／評價覆寫仍釘回成方座標。
+- **快取**：`HC_LS_KEY` v63。
 
 **與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊吃 HC、目標是
 H/V。瀏覽器只載檔，不即時推論。

@@ -33,7 +33,7 @@ description: Shape-Guided（Batik et al. 2022 精神）——只掛在 Straighte
 
 - **原始／旋轉**：永不餵成方、無成方護欄。
 - **形狀圖層＋成方**：HC／直線演算法／循環／RWD 吃成方；ring＋綠折經 `setFrozen({ ringIds, members })`
-  成方軟護欄（可移動／調整，破方才 veto）；RWD 對成方 H/V 邊 `shapeLock` 強制直線。
+  只准剛體平移（禁單點／單邊啃方）；RWD 對成方 H/V 邊 `shapeLock` 強制直線。
 - **重新計算圖層**：清空形狀圖層的成方套用，需再開 ⑨ tab 重算。
 
 ## 格網→貼形
