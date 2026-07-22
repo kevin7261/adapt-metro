@@ -7,21 +7,23 @@ import CityViewGrid from './CityViewGrid.vue'
 // 視圖畫廊的一張城市卡：城市標題列＋（勾選的）各種地圖區段——Raw Maps 縮圖
 // （GalleryTile bare）與 Map Adjust / Straighten / RWD Maps 預算視圖
 // （CityViewGrid bare、無標題列；order＝該類「勾選的」視圖清單，逐一開關）。
+// Straighten／RWD 再拆「無形狀／有形狀」子群組欄（與左側清單、圈層面板一致）。
 // 點任何一格都 emit('pick', kind, entry, viewId) 交給 AllGallery 建整組管線
 // 圖層並開對應 tab。
 const props = defineProps({
   entry: { type: Object, required: true },     // views/index.json 的一筆 system
-  sections: { type: Array, required: true },   // [{ id: raw|adjust|straighten|rwd, order: [viewId…] }]
+  // [{ id, kind: raw|adjust|straighten|rwd, label, subLabel?, order: [viewId…] }]
+  sections: { type: Array, required: true },
 })
 const emit = defineEmits(['pick'])
 
-const SECTIONS = {
-  raw: { label: 'Metro Maps' },
-  adjust: { label: 'Map Adjust', dataDir: 'map-adjust', labelsForTilt: viewLabels },
-  straighten: { label: 'Straighten', dataDir: 'straighten', labelsForTilt: hcViewLabels },
-  rwd: { label: 'RWD Maps', dataDir: 'rwd-maps', labelsForTilt: rwdViewLabels },
+const KIND_META = {
+  raw: {},
+  adjust: { dataDir: 'map-adjust', labelsForTilt: viewLabels },
+  straighten: { dataDir: 'straighten', labelsForTilt: hcViewLabels },
+  rwd: { dataDir: 'rwd-maps', labelsForTilt: rwdViewLabels },
 }
-// 四個區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排成一列，
+// 區段橫向並排；Straighten／RWD 的無形狀／有形狀各佔一欄。
 // 每個區段內的縮圖上下排（單欄垂直堆疊）——使用者指定的版面。
 const COLS = 1
 </script>
@@ -42,9 +44,12 @@ const COLS = 1
 
     <div v-if="sections.length" class="sec-row">
       <div v-for="sec in sections" :key="sec.id" class="sec-col">
-        <div class="sec-label">{{ SECTIONS[sec.id].label }}</div>
+        <div class="sec-label">
+          <span>{{ sec.label }}</span>
+          <span v-if="sec.subLabel" class="sec-sub">{{ sec.subLabel }}</span>
+        </div>
         <!-- Raw：OSM路網縮圖／官方路線圖（依左側清單勾選，上下排） -->
-        <div v-if="sec.id === 'raw'" class="raw-grid">
+        <div v-if="sec.kind === 'raw'" class="raw-grid">
           <GalleryTile
             v-if="sec.order.includes('thumb')"
             :system="entry"
@@ -57,15 +62,15 @@ const COLS = 1
         <CityViewGrid
           v-else
           :entry="entry"
-          :data-dir="SECTIONS[sec.id].dataDir"
+          :data-dir="KIND_META[sec.kind].dataDir"
           :order="sec.order"
-          :labels-for-tilt="SECTIONS[sec.id].labelsForTilt"
+          :labels-for-tilt="KIND_META[sec.kind].labelsForTilt"
           :columns="COLS"
           :max-rows="3"
-          :cta-label="SECTIONS[sec.id].label"
+          :cta-label="sec.label"
           :head="false"
           bare
-          @pick="(e, viewId) => emit('pick', sec.id, e, viewId)"
+          @pick="(e, viewId) => emit('pick', sec.kind, e, viewId)"
         />
       </div>
     </div>
@@ -102,9 +107,9 @@ const COLS = 1
 .ah-en { font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ah-stats { margin-left: auto; font-size: 10.5px; color: hsl(var(--muted-foreground) / 0.85); white-space: nowrap; }
 
-/* 四區段（Metro Maps｜Map Adjust｜Straighten｜RWD Maps）橫向並排，各區段內縮圖
-   從上往下排、最多 4 個換行往右加欄。城市視圖太寬時，水平捲動只發生在「這張卡片
-   內部」——頁面本身不出現水平捲軸。 */
+/* 區段（Metro Maps｜Map Adjust｜Straighten 無/有形狀｜RWD 無/有形狀）橫向並排，
+   各區段內縮圖從上往下排、最多 3 個換行往右加欄。城市視圖太寬時，水平捲動只
+   發生在「這張卡片內部」——頁面本身不出現水平捲軸。 */
 .sec-row { display: flex; align-items: flex-start; overflow-x: auto; }
 .sec-col {
   flex: 0 0 auto;
@@ -112,8 +117,11 @@ const COLS = 1
   flex-direction: column;
 }
 .sec-col:not(:first-child) { border-left: 1px solid hsl(var(--border)); }
-/* 區段標籤：Raw Maps / Map Adjust / Straighten / RWD Maps */
+/* 區段標籤：主名＋可選子群組（無形狀／有形狀） */
 .sec-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   padding: 4px 12px;
   font-size: 10.5px;
   font-weight: 700;
@@ -122,6 +130,13 @@ const COLS = 1
   color: hsl(var(--muted-foreground));
   background: hsl(var(--muted) / 0.2);
   border-bottom: 1px solid hsl(var(--border));
+  white-space: nowrap;
+}
+.sec-sub {
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: hsl(var(--muted-foreground) / 0.85);
 }
 /* Raw 縮圖網格：與 CityViewGrid 的 .sgrid 一致——從上往下排、最多 3 個換行（往右加欄） */
 .raw-grid {

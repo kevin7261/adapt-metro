@@ -18,6 +18,7 @@
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import * as overpass from './overpass.mjs'
+import { fetchMastersFor } from './fetchGapMasters.mjs'
 
 // 與基準查詢同一組 lifecycle 護欄：未通車/廢線不得進資料
 const LIFE = '["state"!~"^(proposed|construction)$"][!"construction"][!"proposed"][!"disused"][!"abandoned"]'
@@ -120,7 +121,9 @@ for (const task of TASKS) {
   await writeFile(join(overpass.CACHE, `gap_routes_${key}.json`), JSON.stringify({ elements: routes }))
   await writeFile(join(overpass.CACHE, `gap_geom_${key}.json`), JSON.stringify({ elements: geoms }))
   await writeFile(join(overpass.CACHE, `gap_stations_${key}.json`), JSON.stringify({ elements: stations }))
+  // route_master：分組的第一順位（墨爾本 Metro Tunnel 的箭頭 ref 靠 master 收回幹線）
+  const masters = await fetchMastersFor(routes.map((r) => r.id), key)
   const refs = [...new Set(routes.map((r) => r.tags.ref ?? '(no ref)'))].sort()
   console.log(`${key}: ${routes.length} ${mode} relations (${skipped} skipped), ` +
-    `${stations.length} stations -> gap_*_${key}.json\n  refs: ${refs.join(', ')}`)
+    `${stations.length} stations, ${masters.length} masters -> gap_*_${key}.json\n  refs: ${refs.join(', ')}`)
 }

@@ -1,0 +1,25 @@
+{
+  "city": "Durban",
+  "country": "South Africa",
+  "continent": "africa",
+  "osm_route_ids": [
+    1112787,
+    1959553,
+    1967061,
+    1994511,
+    1994512,
+    1994534,
+    1994637,
+    1994718,
+    1994719,
+    10646253,
+    10646656,
+    10646659,
+    10646660,
+    10646662,
+    10646664,
+    10646665
+  ],
+  "source": "https://www.urbanrail.net/af/africa.htm",
+  "note": "Durban（route=train）——由 scripts/fetchAfrica.mjs 自動產生。operator（SETRAM／RATP Dev／Transdev／Metrorail…）跨城通用或完全無標籤，無法以 network 綁城，故以 relation id 直綁；override 同時豁免 buildGeojson 的「純 LRT 剔除」規則。重跑 fetchAfrica.mjs 會依最新 OSM 覆寫本檔。"
+}

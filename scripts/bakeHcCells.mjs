@@ -39,6 +39,7 @@ const DATA = join(__dirname, '..', 'data', 'metro')
 const OUT = join(DATA, 'straighten-cells')
 const args = process.argv.slice(2)
 const shapeOnly = args.includes('--shape')
+const force = args.includes('--force')
 const only = args.filter((a) => !a.startsWith('--'))
 
 const serCells = (m) => [...m.entries()].map(([id, [c, r]]) => [id, c, r])
@@ -92,16 +93,34 @@ async function loadCity(cityId, variant) {
   return { geojson, skeleton, grid, fingerprint, tilt }
 }
 
-async function bakeOne(cityId, variant, { shapelike = false } = {}) {
+async function bakeOne(cityId, variant, { shapelike = false, force = false } = {}) {
   const { skeleton: sk0, grid, fingerprint } = await loadCity(cityId, variant.replace(/-shape$/, ''))
   let skeleton = sk0
   let baseCells = grid.cellOf
   let greens = []
   let frozen = null
-  const vKey = variant.includes('shape') ? variant : (shapelike ? `${variant}-shape` : variant)
-  // 檔名用 hc 圖層 variant（orig-shape）＋ shapelike 旗標
-  const fileVariant = variant.includes('-shape') ? variant : variant
   const useShape = shapelike || variant.includes('-shape')
+  // D3Tab：shape 層 variant=orig-shape，shapelike=true → file orig-shape.shapelike.json
+  const diskVariant = useShape
+    ? (variant.endsWith('-shape') ? variant : `${variant.replace(/-shape$/, '')}-shape`)
+    : variant
+  const diskName = `${cityId}.${diskVariant}${useShape ? '.shapelike' : ''}.json`
+  const diskPath = join(OUT, diskName)
+  if (!force && existsSync(diskPath)) {
+    try {
+      const prev = JSON.parse(await readFile(diskPath, 'utf8'))
+      const need = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
+      const hasFlow = need.every((k) =>
+        (k === 'hc' || prev.posts?.[k]?.cellAfter) &&
+        prev.loops?.[k]?.cellAfter &&
+        prev.endp?.[k]?.cellAfter &&
+        prev.line?.[k]?.cellAfter &&
+        prev.gather?.[k]?.cellAfter)
+      if (prev.algo === HC_CELLS_ALGO && prev.fingerprint === fingerprint && prev.hc?.cellAfter && hasFlow) {
+        return { skip: true, reason: 'fresh', file: diskName }
+      }
+    } catch { /* 重算 */ }
+  }
   if (useShape) {
     const base = variant.replace(/-shape$/, '') || 'orig'
     const shapePath = join(DATA, 'straighten-shape', `${cityId}.${base}.json`)
@@ -121,6 +140,7 @@ async function bakeOne(cityId, variant, { shapelike = false } = {}) {
     setFrozen(null)
   }
 
+  process.stdout.write(`… ${diskName}\n`)
   const g = buildHcGraph(skeleton, baseCells)
   const hc = {
     cellAfter: new Map([...baseCells].map(([id, p]) => [id, [p[0], p[1]]])),
@@ -134,6 +154,7 @@ async function bakeOne(cityId, variant, { shapelike = false } = {}) {
   const posts = {}, endp = {}, line = {}, gather = {}, loops = {}
   const kinds = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
   for (const kind of kinds) {
+    const t0 = Date.now()
     const post = PAPER_BUILD[kind]
       ? iteratePost(PAPER_BUILD[kind], skeleton, hc.cellAfter, grid.cols, grid.rows)
       : null
@@ -146,18 +167,10 @@ async function bakeOne(cityId, variant, { shapelike = false } = {}) {
     const ga = movewiseStage('gather', skeleton, l.cellAfter, l.cols, l.rows)
     gather[kind] = ga
     loops[kind] = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
+    process.stdout.write(`  ${kind} ${((Date.now() - t0) / 1000).toFixed(1)}s\n`)
   }
   setFrozen(null)
 
-  const outVariant = useShape
-    ? (variant.includes('-shape') ? variant : `${variant}-shape`)
-    : variant
-  const name = `${cityId}.${outVariant}${useShape ? '.shapelike' : ''}.json`
-  // D3Tab：shape 層 variant=orig-shape，shapelike=true → file orig-shape.shapelike.json
-  const diskVariant = useShape
-    ? (variant.endsWith('-shape') ? variant : `${variant.replace(/-shape$/, '')}-shape`)
-    : variant
-  const diskName = `${cityId}.${diskVariant}${useShape ? '.shapelike' : ''}.json`
   const payload = {
     algo: HC_CELLS_ALGO,
     fingerprint,
@@ -173,7 +186,7 @@ async function bakeOne(cityId, variant, { shapelike = false } = {}) {
     gather: serStageMap(gather),
   }
   await mkdir(OUT, { recursive: true })
-  await writeFile(join(OUT, diskName), JSON.stringify(payload))
+  await writeFile(diskPath, JSON.stringify(payload))
   return { skip: false, file: diskName, kinds: kinds.length }
 }
 
@@ -198,8 +211,8 @@ async function main() {
     const t0 = Date.now()
     for (const [c, v] of withShape) {
       try {
-        const r = await bakeOne(c, v, { shapelike: true })
-        if (r.skip) { skip++; console.log(`· ${c}.${v} skip ${r.reason}`); continue }
+        const r = await bakeOne(c, v, { shapelike: true, force })
+        if (r.skip) { skip++; console.log(`· ${r.file ?? `${c}.${v}`} skip ${r.reason}`); continue }
         ok++
         console.log(`✓ ${r.file}`)
       } catch (e) {
@@ -211,13 +224,13 @@ async function main() {
   }
 
   console.log(`bake ${cities.length} 城 × orig/rot`)
-  let ok = 0
+  let ok = 0, skip = 0
   const t0 = Date.now()
   for (const c of cities) {
     for (const v of ['orig', 'rot']) {
       try {
-        const r = await bakeOne(c, v, { shapelike: false })
-        if (r.skip) continue
+        const r = await bakeOne(c, v, { shapelike: false, force })
+        if (r.skip) { skip++; console.log(`· ${r.file ?? `${c}.${v}`} skip ${r.reason}`); continue }
         ok++
         console.log(`✓ ${r.file}`)
       } catch (e) {
@@ -225,7 +238,7 @@ async function main() {
       }
     }
   }
-  console.log(`完成 ${ok}（${((Date.now() - t0) / 1000).toFixed(1)}s）`)
+  console.log(`完成 ${ok}、跳過 ${skip}（${((Date.now() - t0) / 1000).toFixed(1)}s）`)
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })

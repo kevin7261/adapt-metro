@@ -93,13 +93,14 @@ const tiles = computed(() => {
     return [...all].sort((a, b) => ((a.station_count ?? 0) - (b.station_count ?? 0)) * dir)
   }
   if (tab.value === 'rings') {
-    // 只列「有規定環狀路段要成方」的城市（規定表 shapePresets）——依洲別/國家/城市排序。
-    return all
-      .filter((s) => (getShapePresets(s.id)?.length ?? 0) > 0)
-      .sort((a, b) =>
-        continentRank(a.continent) - continentRank(b.continent)
-        || String(a.country).localeCompare(String(b.country))
-        || String(a.city).localeCompare(String(b.city)))
+    // 只列「有規定環狀路段要成方」的城市（規定表 shapePresets）——排序跟快速選擇
+    // 同一套（orderQuickMetro：洲別 → 國家首次出現序 → 國內站數多到少；變體跟 base）。
+    // 先用 QUICK_CITIES 命中順序當輸入，國家首次出現序才會跟快速選擇一致。
+    const withRings = all.filter((s) => (getShapePresets(s.id)?.length ?? 0) > 0)
+    const fromQuick = QUICK_CITIES.map((q) => matchQuickSystem(withRings, q.en)).filter(Boolean)
+    const seen = new Set(fromQuick.map((s) => s.id))
+    const rest = withRings.filter((s) => !seen.has(s.id))
+    return orderQuickMetro([...fromQuick, ...rest], continentRank)
   }
   // global: 依洲別「固定順序」（亞洲→歐洲→北美→南美→非洲→大洋洲，continentRank）分組，
   // 再國家→城市——與加入 modal／其他 tab 的 list 一致（原本用 localeCompare 會變字母序＝

@@ -1,29 +1,109 @@
 {
-  "generated_at": "2026-07-23T12:00:00+08:00",
-  "note": "Fable 5 LLM 成方補跑後更新。僅 square===true 且 fourLine 才算成功；其餘＝未正確成方，不餵下游。原啟發式批次（_shapeSquareAll）14 個未過案例已全數由 LLM 成方（llmShape.mjs apply、全部 via=batch、crosses 0→0）補齊。勿重跑 _shapeSquareAll（會 reset 並覆寫 LLM 結果）。",
+  "generated_at": "2026-07-23T14:00:00+08:00",
+  "note": "全部 20 案皆 Fable 5 LLM 成方（llmShape.mjs apply、全部 via=batch、crosses 0→0、square=true/fourLine=true）。原啟發式 6 案已 reset 後由 LLM 重跑。僅 square===true 且 fourLine 才算成功；其餘＝未正確成方，不餵下游。勿重跑 _shapeSquareAll（會 reset 並覆寫 LLM 結果）。",
   "ok_count": 20,
   "fail_count": 0,
   "ok": [
-    { "id": "as-chn-beijing.orig", "route": "2號線" },
-    { "id": "as-chn-beijing.rot", "route": "2號線" },
-    { "id": "as-chn-shanghai.orig", "route": "4號線", "via": "llm-fable5" },
-    { "id": "as-chn-shanghai.rot", "route": "4號線", "via": "llm-fable5" },
-    { "id": "as-jpn-osaka-jr.orig", "route": "大阪環状線", "via": "llm-fable5" },
-    { "id": "as-jpn-osaka-jr.rot", "route": "大阪環状線", "via": "llm-fable5" },
-    { "id": "as-jpn-tokyo-jr.orig", "route": "山手線", "via": "llm-fable5" },
-    { "id": "as-jpn-tokyo-jr.rot", "route": "山手線", "via": "llm-fable5" },
-    { "id": "as-jpn-tokyo.orig", "route": "大江戶線環形路段", "via": "llm-fable5" },
-    { "id": "as-jpn-tokyo.rot", "route": "大江戶線環形路段", "via": "llm-fable5" },
-    { "id": "as-kor-seoul.orig", "route": "2號線循環線", "via": "llm-fable5" },
-    { "id": "as-kor-seoul.rot", "route": "2號線循環線", "via": "llm-fable5" },
-    { "id": "as-sgp-singapore.orig", "route": "環狀線" },
-    { "id": "as-sgp-singapore.rot", "route": "環狀線", "via": "llm-fable5" },
-    { "id": "as-twn-kaohsiung.orig", "route": "高雄環狀輕軌" },
-    { "id": "as-twn-kaohsiung.rot", "route": "高雄環狀輕軌" },
-    { "id": "eu-ger-berlin.orig", "route": "環狀線 Ringbahn" },
-    { "id": "eu-ger-berlin.rot", "route": "環狀線 Ringbahn", "via": "llm-fable5" },
-    { "id": "eu-rus-moscow.orig", "route": "5號環線 Koltsevaya＋11號大環線 BKL", "via": "llm-fable5" },
-    { "id": "eu-rus-moscow.rot", "route": "5號環線 Koltsevaya＋11號大環線 BKL", "via": "llm-fable5" }
+    {
+      "id": "as-chn-beijing.orig",
+      "route": "2號線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-chn-beijing.rot",
+      "route": "2號線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-chn-shanghai.orig",
+      "route": "4號線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-chn-shanghai.rot",
+      "route": "4號線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-jpn-osaka-jr.orig",
+      "route": "大阪環状線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-jpn-osaka-jr.rot",
+      "route": "大阪環状線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-jpn-tokyo-jr.orig",
+      "route": "山手線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-jpn-tokyo-jr.rot",
+      "route": "山手線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-jpn-tokyo.orig",
+      "route": "大江戶線環形路段",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-jpn-tokyo.rot",
+      "route": "大江戶線環形路段",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-kor-seoul.orig",
+      "route": "2號線循環線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-kor-seoul.rot",
+      "route": "2號線循環線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-sgp-singapore.orig",
+      "route": "環狀線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-sgp-singapore.rot",
+      "route": "環狀線",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-twn-kaohsiung.orig",
+      "route": "高雄環狀輕軌",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "as-twn-kaohsiung.rot",
+      "route": "高雄環狀輕軌",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "eu-ger-berlin.orig",
+      "route": "環狀線 Ringbahn",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "eu-ger-berlin.rot",
+      "route": "環狀線 Ringbahn",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "eu-rus-moscow.orig",
+      "route": "5號環線 Koltsevaya＋11號大環線 BKL",
+      "via": "llm-fable5"
+    },
+    {
+      "id": "eu-rus-moscow.rot",
+      "route": "5號環線 Koltsevaya＋11號大環線 BKL",
+      "via": "llm-fable5"
+    }
   ],
   "fail": []
 }

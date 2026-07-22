@@ -148,15 +148,30 @@ function toggleGroup(node) {
   shown.value = s
 }
 
-// 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
+// 卡片要畫的區段：跟左側清單同一棵樹——Metro Maps／Map Adjust 各一欄；
+// Straighten／RWD 再拆「無形狀／有形狀」兩欄（只列有勾選的）。
 const sections = computed(() => {
-  const byKind = new Map()
-  for (const l of ALL) {
-    if (!shown.value.has(l.key)) continue
-    if (!byKind.has(l.kind)) byKind.set(l.kind, [])
-    byKind.get(l.kind).push(l.view)
+  const out = []
+  for (const node of SIDE) {
+    if (node.subgroups) {
+      for (const sg of node.subgroups) {
+        const order = sg.layers.filter((l) => shown.value.has(l.key)).map((l) => l.view)
+        if (!order.length) continue
+        out.push({
+          id: sg.id,
+          kind: node.id, // pick() 用：straighten | rwd
+          label: node.label,
+          subLabel: sg.label, // 無形狀／有形狀
+          order,
+        })
+      }
+      continue
+    }
+    const order = (node.layers ?? []).filter((l) => shown.value.has(l.key)).map((l) => l.view)
+    if (!order.length) continue
+    out.push({ id: node.id, kind: node.id, label: node.label, order })
   }
-  return [...byKind.entries()].map(([id, order]) => ({ id, order }))
+  return out
 })
 
 // 點卡片標題或任何一格：匯入整組管線圖層，變體由點到的 cell 決定

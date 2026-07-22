@@ -49,6 +49,8 @@ const IOC = {
   cuba: 'CUB', jamaica: 'JAM', bolivia: 'BOL', paraguay: 'PAR',
   costarica: 'CRC', guatemala: 'GUA', elsalvador: 'ESA', honduras: 'HON',
   nicaragua: 'NCA', newzealand: 'NZL', isleofman: 'IOM',
+  // 使用者 2026-07-23 依 urbanrail.net 非洲頁補收的輕軌／電車／市郊鐵路國家
+  mauritius: 'MRI', senegal: 'SEN', ivorycoast: 'CIV', cotedivoire: 'CIV',
 }
 
 const normName = (s) => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')

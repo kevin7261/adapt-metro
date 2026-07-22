@@ -83,7 +83,7 @@ function toggleNavSection(s) {
           role="tab"
           :aria-selected="mode === t.id"
           :disabled="!panelLayer || (t.rot && !canRotate) || !!t.disabled"
-          :title="t.disabled ? '此城市未規定 Shape-Guided（不需計算）' : (t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : '')"
+          :title="t.disabled ? '此城市未規定形狀計算（不需計算）' : (t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : '')"
           @click="emit('update:mode', t.id)"
         >{{ t.label }}</button>
       </div>

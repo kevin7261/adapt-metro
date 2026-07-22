@@ -824,14 +824,14 @@ const VIEW_TABS = computed(() => {
     ]
   }
   if (isHC.value) {
-    // 左選單：原始／（形狀圖層才有）Shape-Guided／直線演算法／…
+    // 左選單：原始／（形狀圖層才有）形狀計算／直線演算法／…
     // 原始／旋轉圖層＝不成方管線；原始-形狀／旋轉-形狀才有 ⑨。
     const feedBadge = shapeFeedSource.value === 'llm' ? '←LLM成方' : ''
     const shapeTabs = isShapeLayer.value ? [
       {
         header: shapeRouteName.value
-          ? `⑨Shape-Guided ${shapeRouteName.value}`
-          : '⑨Shape-Guided',
+          ? `⑨形狀計算 ${shapeRouteName.value}`
+          : '⑨形狀計算',
         doc: 'shape-guided',
       },
       {
@@ -2846,7 +2846,7 @@ onBeforeUnmount(() => {
               <div class="llm-run-title">載入中…</div>
             </div>
           </div>
-          <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨ Shape-Guided / LLM 成方 view 跑出成方</span></div>
+          <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨形狀計算 / LLM 成方 view 跑出成方</span></div>
           <div v-else-if="layoutPending" class="ma-hint llm-hint">
             <div class="llm-run-card">
               <div class="llm-run-title">尚未預算下游佈局</div>

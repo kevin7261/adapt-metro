@@ -44,7 +44,7 @@ const isMetro = computed(() => layer.value?.type === 'metro' || layer.value?.met
 const isHighway = computed(() => layer.value?.highway === true)
 
 const meta = computed(() => layerData[layer.value.id]?.metro_system ?? null)
-// ⑨ Shape-Guided 環形成方：這城市在規定表（shapePresets）有沒有設定要收成方的環形路段
+// ⑨形狀計算環形成方：這城市在規定表（shapePresets）有沒有設定要收成方的環形路段
 const shapePreset = computed(() => getShapePreset(layer.value?.id))
 const metroLines = computed(() => {
   const d = layerData[layer.value.id]
@@ -149,7 +149,7 @@ const systemForMap = computed(() => layer.value ? {
               <!-- ⑨ 環形成方：規定表有設定就顯示該環形路線名，沒有就說「沒有」 -->
               <div v-if="!isHighway" class="info-row">
                 <span class="info-key">環形成方</span>
-                <span v-if="shapePreset">{{ shapePreset.label }}（收成方形，⑨ Shape-Guided）</span>
+                <span v-if="shapePreset">{{ shapePreset.label }}（收成方形，⑨形狀計算）</span>
                 <span v-else class="info-muted">沒有</span>
               </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">

@@ -70,6 +70,11 @@ function layersOf(item) {
   }
   return out
 }
+// 子群組（Straighten／RWD／無形狀／有形狀）底下的圖層——眼睛整組開關用。
+function subLayers(sub) {
+  if (sub?.subgroups) return sub.subgroups.flatMap((sg) => sg.layers)
+  return sub?.layers ?? []
+}
 
 // Skills surfaced PER LAYER ROW（attribute table 按鈕左邊）：只列「這個圖層的
 // 計算實際用到」的 skill——metro 圖層＝metro 管線＋只有自己城市的規則（＋地標
@@ -181,12 +186,14 @@ function toggleLayerTab(layer) {
   openLayerTab(layer)
 }
 
-// 城市標題眼睛：該城任一 tab 開著 → 全關；全關 → 全開（僅聚焦第一個，其餘 inactive）。
+// 城市／子群組眼睛：任一 tab 開著 → 全關；全關 → 全開（僅聚焦第一個，其餘 inactive）。
 function cityTabsOpen(item) {
   return layersOf(item).some(isLayerTabOpen)
 }
-function toggleCityTabs(item) {
-  const layers = layersOf(item)
+function subTabsOpen(sub) {
+  return subLayers(sub).some(isLayerTabOpen)
+}
+function toggleTabs(layers) {
   if (!layers.length) return
   if (layers.some(isLayerTabOpen)) {
     for (const l of layers) dockHandle.api?.getPanel(l.id)?.api.close()
@@ -197,6 +204,8 @@ function toggleCityTabs(item) {
   store.selectedLayerId = layers[0].id
   dockHandle.api?.getPanel(layers[0].id)?.api.setActive()
 }
+function toggleCityTabs(item) { toggleTabs(layersOf(item)) }
+function toggleSubTabs(sub) { toggleTabs(subLayers(sub)) }
 
 // Overflow 選單動作（lookup table；template 傳常數字串）。
 const OVERFLOW_ACTIONS = {
@@ -477,7 +486,7 @@ onBeforeUnmount(() => {
                Maps 為可收合子群組（規定表城市再拆無形狀／有形狀） -->
           <template v-if="!item.group.collapsed">
             <template v-for="row in flatRows(item)" :key="row.key">
-              <!-- 子群組標題（Straighten / RWD／無形狀／有形狀）：可收合 -->
+              <!-- 子群組標題（Straighten / RWD／無形狀／有形狀）：可收合＋眼睛整組開關 -->
               <div
                 v-if="row.t === 'sub'"
                 class="subgroup-header"
@@ -487,6 +496,14 @@ onBeforeUnmount(() => {
                 <MIcon :name="row.sub.collapsed ? 'chevron_right' : 'expand_more'" :size="13" class="sub-chevron" />
                 <span class="subgroup-name">{{ row.sub.label }}</span>
                 <span class="subgroup-count">{{ row.count }}</span>
+                <button
+                  class="btn-icon group-add"
+                  :class="{ active: subTabsOpen(row.sub) }"
+                  :title="subTabsOpen(row.sub) ? `關閉「${row.sub.label}」全部圖層分頁` : `開啟「${row.sub.label}」全部圖層分頁`"
+                  @click.stop="toggleSubTabs(row.sub)"
+                >
+                  <MIcon :name="subTabsOpen(row.sub) ? 'visibility' : 'visibility_off'" :size="14" />
+                </button>
               </div>
 
               <!-- 圖層列（子群組內 depth≥1 縮排） -->

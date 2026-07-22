@@ -365,11 +365,20 @@ async function build() {
 
   const mastersRaw = await readJSON('route_masters.json')
   const masterOf = new Map(), masterTags = new Map()
-  for (const e of mastersRaw.elements) {
-    if (e.type !== 'relation') continue
-    masterTags.set(e.id, e.tags || {})
-    for (const m of e.members || []) if (m.type === 'relation') masterOf.set(m.ref, e.id)
+  const addMasters = (elements) => {
+    for (const e of elements || []) {
+      if (e.type !== 'relation') continue
+      masterTags.set(e.id, e.tags || {})
+      for (const m of e.members || []) if (m.type === 'relation') masterOf.set(m.ref, e.id)
+    }
   }
+  addMasters(mastersRaw.elements)
+  // gap masters（scripts/fetchGapMasters.mjs）：基準查詢只抓 subway|light_rail 的
+  // route_master，route=train／tram 的定向補抓要靠這批才分得出線——南非 Metrorail 的
+  // route relation 沒有 ref（無 master 就一個方向一條線）、墨爾本 Metro Tunnel 貫通
+  // 運營的 relation 用「EPH => SUY」箭頭 ref（靠 master 收回 Pakenham／Cranbourne 線）。
+  for (const f of cacheFiles.filter((n) => /^gap_masters_.+\.json$/.test(n)))
+    addMasters(JSON.parse(await readFile(join(CACHE, f), 'utf8')).elements)
   // route_tag_patches whose target is a route_master (master colour/ref overrides
   // the variant tags, so patching only the route relations wasn't enough——Bursaray
   // B2 master r7869622 carries colour=black). Apply to masterTags now.
@@ -743,6 +752,41 @@ async function build() {
     // 西南，重心會把同城的 Astram Line 拖出廣島桶。
     [/広島電鉄|廣島電鉄|hiroden|hiroshima electric railway/i,
       { city: 'Hiroshima', country: 'Japan', continent: 'asia' }],
+    // ── 大洋洲：澳洲／紐西蘭（使用者 2026-07-23，依 urbanrail.net/au/oceania.htm
+    // 「澳洲紐西蘭是 suburban rail 和 tram，除了 Sydney 外要重抓」＋「市郊鐵路＋電車都收」）。
+    // 這些城市不在 wiki List of metro systems，geocode 只會給行政區名（North Canberra、
+    // Newcastle-Maitland、District of Gungahlin…），且 route=train/tram 由 fetchOceania.mjs
+    // 寫進 gap_* 快取——gap 的 network 從不進 geocodeSystems（只讀 stations/geom_*），
+    // 故一律 pin。route=light_rail 的坎培拉/紐卡索本來就在基準查詢內，同樣 pin 城市名。
+    [/PTV - Metropolitan Train|PTV - Metropolitan Tram|Metro Trains Melbourne|Yarra Trams/i,
+      { city: 'Melbourne', country: 'Australia', continent: 'oceania' }],
+    // 布里斯本 Translink 市郊線的 operator＝Queensland Rail（network "Translink" 與
+    // 加拿大溫哥華 TransLink 撞名，不能用 network 當 key）。黃金海岸 G:link 的
+    // network 也是 Translink、operator 是 Keolis Downer（跨城通用），改用
+    // _overrides/australia-gold-coast.json 以 relation id 綁定。
+    [/Queensland Rail/i, { city: 'Brisbane', country: 'Australia', continent: 'oceania' }],
+    [/Transperth/i, { city: 'Perth', country: 'Australia', continent: 'oceania' }],
+    [/Adelaide Metro/i, { city: 'Adelaide', country: 'Australia', continent: 'oceania' }],
+    [/Canberra Metro/i, { city: 'Canberra', country: 'Australia', continent: 'oceania' }],
+    [/Newcastle Transport/i, { city: 'Newcastle', country: 'Australia', continent: 'oceania' }],
+    // 奧克蘭：network=AT（Auckland Transport），operator 有 Auckland One Rail 與
+    // Transdev 兩種（Transdev 是跨國營運商、不可當 key），故以獨立 token "AT" 比對——
+    // 全球快取內沒有其他 network/operator 以 AT 單獨成詞。
+    [/(^|[\s;])AT([\s;]|$)/, { city: 'Auckland', country: 'New Zealand', continent: 'oceania' }],
+    [/Metlink/i, { city: 'Wellington', country: 'New Zealand', continent: 'oceania' }],
+    // ── 非洲（使用者 2026-07-23「模里西斯和一些非洲國家好像也有輕軌」，依
+    // urbanrail.net/af/africa.htm）：輕軌／電車城市。tram 由 fetchAfrica.mjs 補抓，
+    // light_rail（阿迪斯阿貝巴／阿布加／突尼斯）本來就在基準查詢內但 geocode 只給
+    // 行政區名（Kirkos、Gwarinpa…），一律 pin。SETRAM（阿爾及利亞七城共用 operator）
+    // 與模里西斯（完全無 network/operator 標籤）無法用 network 分辨，走 _overrides。
+    [/Addis Ababa Light Rail/i, { city: 'Addis Ababa', country: 'Ethiopia', continent: 'africa' }],
+    [/Abuja Rail Mass Transit/i, { city: 'Abuja', country: 'Nigeria', continent: 'africa' }],
+    [/المترو الخفيف لمدينة تونس|نقل تونس|شركة النقل بتونس|(^|[\s;])TGM([\s;]|$)/,
+      { city: 'Tunis', country: 'Tunisia', continent: 'africa' }],
+    [/Casa Tram/i, { city: 'Casablanca', country: 'Morocco', continent: 'africa' }],
+    [/(^|[\s;])STRS([\s;]|$)|Rabat-Salé Tram/i,
+      { city: 'Rabat', country: 'Morocco', continent: 'africa' }],
+    [/Alexandria Passenger Transport/i, { city: 'Alexandria', country: 'Egypt', continent: 'africa' }],
   ]
   // Resolve each network to a city bucket; networks sharing a city merge into
   // one file. Naming (metro-osm-fetch skill): DIRECTORIES use full names
@@ -1394,6 +1438,21 @@ async function build() {
   //   補抓）算 LRT，會被範圍規則剔掉（Astram 已獨力達成 wiki 覆蓋率，仲裁不會放行）。
   //   故與波士頓綠線／LA 輕軌同待遇，白名單放行。見 metro-city-hiroshima。
   const LRT_ADDON_CITIES = new Set(['taipei', 'newtaipei', 'kaohsiung', 'singapore', 'osaka', 'boston', 'losangeles', 'guadalajara', 'hiroshima'])
+  // 大洋洲／非洲的「輕軌・電車城市」（使用者 2026-07-23，依 urbanrail.net 的
+  // oceania.htm／africa.htm 兩頁）：這些城市的都市軌道全部或部分是 tram/light_rail，
+  // 且**不在** wiki List of metro systems（沒有 wikiRow）——會被「非基準、純 LRT 一律
+  // 剔除」整城丟掉；墨爾本/阿德萊德則是有市郊鐵路（route=train，不算 LRT）而電車被剔。
+  // 使用者裁決「市郊鐵路＋電車都收」，故整城放行。
+  //（阿爾及利亞 SETRAM 七城與模里西斯的 relation 走 _overrides 綁城，override 本身
+  //  即豁免此規則，這裡列出只是文件性的；黃金海岸 G:link 同理。）
+  const TRAM_RAIL_CITIES = new Set([
+    // 大洋洲
+    'melbourne', 'adelaide', 'canberra', 'newcastle', 'goldcoast',
+    // 非洲
+    'addisababa', 'abuja', 'tunis', 'casablanca', 'rabat', 'alexandria',
+    'portlouis', 'algiers', 'oran', 'constantine', 'setif', 'sidibelabbes',
+    'ouargla', 'mostaganem',
+  ])
   // 德國例外（使用者指定）：U-Bahn＋S-Bahn 都要。柏林/漢堡的 S-Bahn 在 OSM 標
   // route=light_rail（慕尼黑/法蘭克福等標 route=train，由 fetchSbahnDe.mjs 補抓），
   // 不得被 LRT 範圍規則剔除——以 ref=S 開頭或 operator 含 S-Bahn 辨識。
@@ -1414,6 +1473,7 @@ async function build() {
     const hasSubway = grp.lines.some((f) => !lrtFlags.get(f))
     const wikiRow = wikiRowOf(grp.info)
     let allowed = LRT_ADDON_CITIES.has(normCity(grp.info.city)) ||
+      TRAM_RAIL_CITIES.has(normCity(grp.info.city)) ||
       (!!wikiRow && !hasSubway)
     // Wikipedia 站數當仲裁者：基準城市若剔除 LRT 會跌破 0.6 覆蓋比值，代表
     // wiki 把這些 LRT 線算進該城 metro（仁川2號線、吉隆坡/馬尼拉 LRT）→ 保留。
