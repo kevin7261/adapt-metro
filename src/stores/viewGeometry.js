@@ -383,6 +383,9 @@ export function hcViewLabels(tilt) {
   for (const kind of [...CHAIN_KINDS, 'llm']) {
     out[`loop-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環`
     out[`loop-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環`
+    // 形狀變體（原始-形狀／旋轉-形狀）——每條鏈都有形狀版（缺檔顯示「尚未預算」）。
+    out[`loop-${kind}-orig-shape`] = `原始-形狀 · ${CHAIN_ZH[kind]}循環`
+    out[`loop-${kind}-rot-shape`] = `${rot}-形狀 · ${CHAIN_ZH[kind]}循環`
   }
   return out
 }
@@ -390,7 +393,7 @@ export function hcViewLabels(tilt) {
 // The loop chain a Straighten gallery cell maps to （PAPER_KINDS 之一或 'llm'）；
 // 剝掉 loop- 前綴與 -orig/-rot variant 後綴（同 rwdCellCompact 對 compact-/rwd-）。
 export const loopCellCompact = (viewId) =>
-  (viewId ?? '').replace(/^loop-/, '').replace(/-(orig|rot)$/, '') || 'rect'
+  (viewId ?? '').replace(/^loop-/, '').replace(/-(orig|rot)(-shape)?$/, '') || 'rect'
 
 // ---- RWD Maps gallery: 4 縮減網格變體 × (縮減網格 | RWD 路網) = 8 views ----
 // The polyline `pts` (pixel) of one routed segment → an SVG path string.
@@ -497,12 +500,22 @@ export function rwdViewLabels(tilt) {
     out[`rwd-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環 · RWD 路網`
     out[`compact-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環縮減網格`
     out[`rwd-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環 · RWD 路網`
+    // 形狀變體（原始-形狀／旋轉-形狀）——每條鏈都有形狀版（缺檔顯示「尚未預算」）。
+    out[`compact-${kind}-orig-shape`] = `原始-形狀 · ${CHAIN_ZH[kind]}循環縮減網格`
+    out[`rwd-${kind}-orig-shape`] = `原始-形狀 · ${CHAIN_ZH[kind]}循環 · RWD 路網`
+    out[`compact-${kind}-rot-shape`] = `${rot}-形狀 · ${CHAIN_ZH[kind]}循環縮減網格`
+    out[`rwd-${kind}-rot-shape`] = `${rot}-形狀 · ${CHAIN_ZH[kind]}循環 · RWD 路網`
   }
   return out
 }
 // The compact source a gallery cell maps to （'hc' 或 PAPER_KINDS 之一）；剝掉
-// compact-/rwd- 前綴與 -orig/-rot variant 後綴。
+// compact-/rwd- 前綴與 -orig/-rot(-shape) variant 後綴。
 export const rwdCellCompact = (viewId) =>
-  (viewId ?? '').replace(/^(compact|rwd)-/, '').replace(/-(orig|rot)$/, '') || 'hc'
-// The variant a gallery cell maps to ('orig'|'rot').
-export const rwdCellVariant = (viewId) => (/-rot$/.test(viewId ?? '') ? 'rot' : 'orig')
+  (viewId ?? '').replace(/^(compact|rwd)-/, '').replace(/-(orig|rot)(-shape)?$/, '') || 'hc'
+// The variant a gallery cell maps to ('orig'|'rot'|'orig-shape'|'rot-shape').
+export const rwdCellVariant = (viewId) => {
+  const v = viewId ?? ''
+  if (/-orig-shape$/.test(v)) return 'orig-shape'
+  if (/-rot-shape$/.test(v)) return 'rot-shape'
+  return /-rot$/.test(v) ? 'rot' : 'orig'
+}

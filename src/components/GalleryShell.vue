@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { QUICK_CITIES, matchQuickSystem, orderQuickMetro } from '../lib/quickCities'
 import { continentRank } from '../stores/metroCatalog'
+import { getShapePresets } from '../stores/paper/shapePresets.js'
 import CityIndexList from './CityIndexList.vue'
 
 // 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）的共用外殼：
@@ -75,6 +76,7 @@ const TABS = [
   { id: 'quick', label: '快速選擇' },
   { id: 'stations', label: '依車站數排序' },
   { id: 'global', label: '全球地鐵地圖' },
+  { id: 'rings', label: '環狀成方城市' },
 ]
 const tab = ref(TABS[0].id)
 const stationSort = ref('desc')
@@ -89,6 +91,15 @@ const tiles = computed(() => {
   if (tab.value === 'stations') {
     const dir = stationSort.value === 'asc' ? 1 : -1
     return [...all].sort((a, b) => ((a.station_count ?? 0) - (b.station_count ?? 0)) * dir)
+  }
+  if (tab.value === 'rings') {
+    // 只列「有規定環狀路段要成方」的城市（規定表 shapePresets）——依洲別/國家/城市排序。
+    return all
+      .filter((s) => (getShapePresets(s.id)?.length ?? 0) > 0)
+      .sort((a, b) =>
+        continentRank(a.continent) - continentRank(b.continent)
+        || String(a.country).localeCompare(String(b.country))
+        || String(a.city).localeCompare(String(b.city)))
   }
   // global: 依洲別「固定順序」（亞洲→歐洲→北美→南美→非洲→大洋洲，continentRank）分組，
   // 再國家→城市——與加入 modal／其他 tab 的 list 一致（原本用 localeCompare 會變字母序＝

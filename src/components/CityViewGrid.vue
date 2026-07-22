@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
+import { openSkillDoc } from '../stores/skillHandle'
 import MIcon from './MIcon.vue'
 
 // One city's view card (Hill Climbing / RWD Maps 共用): a title header + a grid
@@ -157,9 +158,19 @@ onBeforeUnmount(() => observer?.disconnect())
               class="dot"
             />
           </svg>
-          <div v-if="isLlmView(id)" class="vc-ai" title="LLM 對齊（AI 產生）">
+          <!-- 巢狀在 view-cell(button) 內 → 用 span＋@click.stop 當按鈕，
+               點了開 LLM 對齊使用的 skill（route-llm-align） -->
+          <span
+            v-if="isLlmView(id)"
+            class="vc-ai"
+            role="button"
+            tabindex="0"
+            title="LLM 對齊使用的 skill：route-llm-align（點開說明）"
+            @click.stop="openSkillDoc('route-llm-align')"
+            @keydown.enter.stop="openSkillDoc('route-llm-align')"
+          >
             <MIcon name="auto_awesome" :size="12" />
-          </div>
+          </span>
           <div v-if="compareTags(id).length" class="vc-badges">
             <span
               v-for="t in compareTags(id)"
@@ -232,6 +243,26 @@ onBeforeUnmount(() => observer?.disconnect())
 }
 /* 填滿固定框、preserveAspectRatio="xMidYMid meet" 保持長寬比 letterbox */
 .vc-canvas svg { width: 100%; height: 100%; overflow: visible; }
+/* LLM 對齊循環：左上角白色 AI 圖示按鈕（無底色，點開 route-llm-align skill） */
+.vc-ai {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px;
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  /* 白圖示在淺色縮圖上也看得見：加深色描邊陰影 */
+  text-shadow: 0 0 2px rgb(0 0 0 / 0.55), 0 1px 1px rgb(0 0 0 / 0.4);
+  transition: transform 0.1s ease, opacity 0.1s ease;
+  opacity: 0.92;
+}
+.vc-ai:hover { opacity: 1; transform: scale(1.15); }
+.vc-ai:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 3px; }
 .vc-badges {
   position: absolute;
   top: 4px;
@@ -244,7 +275,10 @@ onBeforeUnmount(() => observer?.disconnect())
   pointer-events: none;
 }
 .vc-badge {
-  padding: 1px 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px 1px 3px;
   border-radius: 3px;
   font-size: 9px;
   font-weight: 700;

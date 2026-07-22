@@ -63,9 +63,17 @@ const SIDE = [
     { key: 'adjust-orig', label: '原始・格網化後', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
     { key: 'adjust-rot', label: '旋轉・格網化後', kind: 'adjust', view: 'grid-rot-post', icon: 'polyline' },
   ] },
-  // 畫廊縮圖只有 orig/rot（離線 hcviews／rwdviews）；形狀圖層在圈層面板匯入後出現。
-  { t: 'group', id: 'straighten', label: 'Straighten', layers: [...stRows('orig', '原始'), ...stRows('rot', '旋轉')] },
-  { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉')] },
+  // Straighten／RWD Maps：四個變體（原始／旋轉／原始-形狀／旋轉-形狀）各列全部 9 條鏈。
+  // 形狀變體會餵整條直線演算法管線，故每條鏈都有形狀版；縮圖由 buildViews 預算，
+  // 缺檔（含形狀變體，只有規定表城市有）顯示「尚未預算」。
+  { t: 'group', id: 'straighten', label: 'Straighten', layers: [
+    ...stRows('orig', '原始'), ...stRows('rot', '旋轉'),
+    ...stRows('orig-shape', '原始-形狀'), ...stRows('rot-shape', '旋轉-形狀'),
+  ] },
+  { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [
+    ...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉'),
+    ...rwdRows('orig-shape', '原始-形狀'), ...rwdRows('rot-shape', '旋轉-形狀'),
+  ] },
 ]
 // 攤平成全部圖層（sections 計算與全選用）。
 const ALL = SIDE.flatMap((n) => (n.t === 'layer' ? [n] : n.layers))
