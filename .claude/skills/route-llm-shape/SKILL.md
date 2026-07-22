@@ -29,7 +29,7 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
 ② 吃成方後：
 - members（ring＋綠折＋成方路線骨架 cut）只准全體同一位移
 - 至少一端在 members、且目前為 H/V 的段，論文鏈／移動後仍須 H/V（不可拉斜成方邊）
-- 成對縮方見 [[route-grid-merge]]；`HC_LS_KEY` v65
+- 成對縮方見 [[route-grid-merge]]；佈局檔 `HC_CELLS_ALGO`（`data/metro/hccells/`）
 
 **與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊吃 HC、目標是
 H/V。瀏覽器只載檔，不即時推論。

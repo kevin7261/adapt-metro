@@ -710,12 +710,22 @@ export function stepChainNext(skeleton, st, opts = {}) {
 // 網格合併一遍 → 回到端點移動；某一輪三個都沒有改動才停止。輪數因此比階段
 // 固定點制多，上限放寬到 LOOP_ROUND_CAP。
 const LOOP_ROUND_CAP = 200
+// 成方護欄開啟時，網格合併／端點常在剛體約束下振盪，跑滿 200 輪會把大城
+// （北京／上海）預算拖到數十分鐘。護欄在時用較短上限；無進展（欄列＋H/V
+// 連續不變）提前停。
+// 成方護欄下每輪掃全網極慢（北京 ~15s/輪）且易振盪——預算／互動都只跑 1 輪。
+const LOOP_ROUND_CAP_FROZEN = 1
+const LOOP_STALL_ROUNDS = 2
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let cur = cells, nC = cols, nR = rows
   let rounds = 0, moved = 0, lineMoved = 0, gatherMoved = 0
   let hvBefore = null, last = null
   let converged = false
-  while (rounds < LOOP_ROUND_CAP) {
+  const frozen = !!getFrozen()
+  const roundCap = frozen ? LOOP_ROUND_CAP_FROZEN : LOOP_ROUND_CAP
+  let stall = 0
+  let prevSig = null
+  while (rounds < roundCap) {
     const endp = movewiseSweep('endp', skeleton, cur, nC, nR)
     const line = movewiseSweep('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
     const gather = movewiseSweep('gather', skeleton, line.cellAfter, line.cols, line.rows)
@@ -729,6 +739,11 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     nC = gather.cols
     nR = gather.rows
     if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
+    // 有移動但網格／平直度沒變 → 振盪，提早停（尤其成方護欄）。
+    const sig = `${nC}x${nR}:${last.hvAfter}`
+    if (sig === prevSig) {
+      if (++stall >= LOOP_STALL_ROUNDS) break
+    } else { stall = 0; prevSig = sig }
   }
   return {
     cellAfter: cur,
@@ -737,7 +752,7 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     stats: {
       hvBefore, hvAfter: last.hvAfter,
       segs: last.segs, verts: last.verts, moved, lineMoved, gatherMoved,
-      rounds, roundCap: LOOP_ROUND_CAP, converged,
+      rounds, roundCap, converged,
       fromCols: cols, fromRows: rows, cols: nC, rows: nR,
     },
   }

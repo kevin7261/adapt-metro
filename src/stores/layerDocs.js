@@ -374,10 +374,12 @@ buildConnectSkeleton(geojson) → {
       M('line', C.blue, 'H/V/45° 線', '最佳化後的路線', '節點移動後的線'),
       M('dot', C.nRed, '彩色節點', '各角色（同骨架）', '<code>cellAfter=[id,c,r]</code>（<code>stats.hvAfter</code>=正交段數）'),
     ],
-    json: { code: `// hcviews/<city>.json ＋ localStorage 快取
-{ "id":"…", "views": { … "lines":[{d,color}] },
-  "hc": { "cellAfter": [[id,c,r], …], "stats": { "hvAfter": 49 } } }`,
-      note: 'cellAfter＝每節點整數格；改演算法要 bump 快取版本。' },
+    json: { code: `// 畫廊縮圖 hcviews/<city>.json；互動佈局 hccells/<city>.<variant>.json
+{ "algo":"hccells-v1", "fingerprint":"…",
+  "hc": { "cellAfter": [[id,c,r], …], "stats": {…} },
+  "posts": { "rect": { "cellAfter":[…], "stats":{…} }, … },
+  "loops": { "rect": { "cellAfter":[…], "cols":n, "rows":n, "stats":{…} }, … } }`,
+      note: 'cellAfter＝每節點整數格；改演算法 bump HC_CELLS_ALGO。' },
     algorithm: `<p>Straighten 圖層為 <b>原始-形狀／旋轉-形狀</b>。左選單直接進 <b>直線演算法</b>（已無「初步直線化」比較區）；爬山在背後當輸入。規定表城市可在 ⑨ Shape-Guided 跑格網→貼形／LLM 成方——<b>有成方則餵下游並凍結方形</b>；無成方＝舊管線。按「重新計算圖層」會清空成方，需再開 ⑨ tab 重算。</p>
 <p><b>爬山（Stott et al. 2011，Algorithm 1）</b>：逐頂點掃描半徑 R 矩形內格點，取加權多準則適應度最低且通過硬規則者；R 從 <b>8</b> 起每輪 −1（最低 1）、最多 <b>5 輪</b>。</p>
 <ul><li><b>5 項準則</b>：角解析度 30000／邊長 50／平衡邊長 45／線條平直 220／八方向 9250。</li><li><b>4 條硬規則</b>：邊界、相對位置、無遮蔽、邊環繞順序。</li></ul>`,
@@ -551,7 +553,7 @@ const EXECUTION = {
     '彩色點排名吸附 → <code>cellOf</code> → <code>repairOcclusions</code> 消壓點/交叉 → <code>placeBlacks</code> 把黑點沿新邊拉直。'),
   hillclimb: execPure('src/stores/hillClimb.js', 'buildHillClimb(skeleton, cellOf, cols, rows)', '<code>route-hillclimb</code>',
     '以格網化後為輸入，多準則適應度＋4 條硬規則爬山（搜尋半徑 8 起逐輪冷卻），含超長邊與折彎群集移動。',
-    '結果快取在 <code>localStorage</code>（鍵 <code>d3tab-hc-cache-v7</code>）＋記憶體 <code>cachedHC</code>，資料指紋/界內驗證不符就作廢重算'),
+    '結果存 <code>data/metro/hccells/&lt;city&gt;.&lt;variant&gt;[.shapelike].json</code>＋記憶體 <code>cachedHC</code>，fingerprint／algo 不符就作廢重算'),
   straighten: `<ul class="exec-list">
 <li><b>怎麼觸發</b>：論文①〜⑧的八條鏈（①筆畫法／②直角爬山／③MILP規劃／④力導向／⑤最小平方／⑥八向格網／⑦路徑簡化／⑧SAT規劃）＝點視圖即時算；<b>LLM 對齊</b>＝按「開始 LLM 對齊」，由 <code>vite.config.js</code> 的外掛 spawn 一個 <b>headless <code>claude -p</code></b> session。</li>
 <li><b>用到什麼程式</b>：八條論文鏈＝<code>src/stores/paperAlign.js</code> 的 <code>PAPER_BUILD</code>（②直角爬山的本體 <code>buildRectPolish</code> 在 <code>hillClimb.js</code>；都是純函式、走 <code>iteratePost</code> 迭代到不動點）；LLM＝<code>vite.config.js</code> 收 <code>/llm-align/run</code> → 跑 <code>claude -p</code> 依 skill 提移動、寫 <code>data/metro/llmviews/&lt;city&gt;.&lt;variant&gt;.json</code>，網頁輪詢 <code>/llm-align/status</code>。</li>

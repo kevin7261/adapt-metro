@@ -534,34 +534,9 @@ export function computeCityRwdViews(geojson, opts = {}) {
     const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
     if (llmBase) bakeCompactRwd('llm', llmBase)
 
-    // 形狀變體：讀 opts.shapeByVariant[variant]（llmshapes），成方佈局套綠折骨架、凍結
-    // 方形，跑 HC → 各鏈 → 循環 → compact/rwd-<kind>-<variant>-shape。
-    const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
-    if (shp) {
-      const shSk = shp.greens.length ? applyShapeGreens(skeleton, shp.greens) : skeleton
-      const frozen = shapeFrozenSet(shSk, opts.cityId, shp.greens)
-      setFrozen({ ringIds: [...frozen], members: frozen })
-      try {
-        const shSegs = mergeParallelSegs(buildHcGraph(shSk, shp.cells).segs)
-        const shHc = buildHillClimb(shSk, shp.cells, grid.cols, grid.rows)
-        for (const kind of CHAIN_KINDS) {
-          const base = CHAIN_POST[kind]
-            ? iteratePost(CHAIN_POST[kind], shSk, shHc.cellAfter, grid.cols, grid.rows).cellAfter
-            : shHc.cellAfter
-          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
-          const m = cellMapper(comp.cols, comp.rows)
-          const compPos = new Map()
-          for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
-          placeBlacks(shSk, compPos, snap)
-          views[`compact-${kind}-${variant}-shape`] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
-          const rwd = buildRwdMap(shSegs, compPos, {
-            unit: Math.min(m.cw, m.ch),
-            lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
-          })
-          views[`rwd-${kind}-${variant}-shape`] = drawRwd(shSk, stations, rwd, m.sep)
-        }
-      } finally { setFrozen(null) }
-    }
+    // 形狀變體的 RWD 縮圖暫不預算——成方方形佈局讓 buildRwdMap 的 A* 版面繞行極慢／
+    // 掛住（正方邊 + 綠折的格點分布不利路由）。Straighten 形狀縮圖照烤（computeCityHcViews）；
+    // RWD 形狀維持畫廊「成方路線沒有算」。要開需先解 buildRwdMap 對方形佈局的效能問題。
   }
   return { W, H, tilt, canRotate, views }
 }

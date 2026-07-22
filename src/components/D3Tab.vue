@@ -5,8 +5,10 @@ import { select, pointer } from 'd3-selection'
 import { zoom, zoomIdentity } from 'd3-zoom'
 import { useMapStore } from '../stores/mapStore'
 import { assetUrl } from '../lib/assetUrl'
-// 爬山/後處理結果的 localStorage 持久快取（指紋失效＋LRU），見 hcCache.js 檔頭說明。
-import { dataFingerprint, loadHcCache, saveHcCache, clearHcCache } from '../lib/hcCache'
+// 爬山/後處理/循環結果存 data/metro/hccells/*.json（不用 localStorage），見 hcCache.js。
+import {
+  dataFingerprint, loadHcCache, saveHcCache, clearHcCache, purgeLegacyHcLocalStorage,
+} from '../lib/hcCache'
 import { makeHeadlessRun } from '../lib/headlessRun'
 import { resolveRwdFrame } from '../lib/rwdFrames'
 import { layerData, layerExport, localizeStationNames } from '../stores/layerData'
@@ -310,7 +312,7 @@ const shapeLlmRunTail = ref('')
 const shapeLlmRunText = ref('')
 const shapeLlmLogEl = ref(null)
 let cachedShapeLlm = null        // fetched: { cells, stats } or { miss }
-let cachedHcKey = null           // 目前記憶體 HC 對應的 localStorage 鍵（含 :shapelike）
+let cachedHcKey = null           // 目前記憶體 HC 對應的鍵（含 :shapelike；檔在 hccells/）
 const shapeLlmRunner = makeRun({
   base: '/llm-shape',
   params: () => ({ variant: hcVariant.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
@@ -323,8 +325,7 @@ const shapeLlmRunner = makeRun({
     invalidateShapeHcPipeline(); purgeShapeLikeCache()
   },
   // 跑完成功 → 自動套用成方（跑完就看得到方形，不用手動按執行調整）；失敗不動。
-  // 成方內容變了 → 連 localStorage 的 :shapelike HC/後處理快取一起清（見下），否則
-  // 資料指紋沒變、loadHcCache 會載回上一輪成方算的舊 HC，往後全鏈不會跟著新方形重算。
+  // 成方內容變了 → 連 hccells 的 shapelike 檔一起清（見下），否則會載回舊成方算出的佈局。
   onDone: (ok) => {
     cachedShapeLlm = null; invalidateShapeHcPipeline(); purgeShapeLikeCache()
     if (ok !== false) {
@@ -341,15 +342,34 @@ const shapeLlmApplied = ref(false)
 // 形狀圖層的下游視圖（直線演算法／循環／RWD）在「成方尚未算」時＝畫面寫「成方路線
 // 沒有算」、不跑一般管線（成方圖層專為成方而生）；由 computeHcLayout 設。
 const shapeNoCompute = ref(false)
-// 清掉 localStorage 裡本資料本變體的 :shapelike ②/後處理快取——成方內容一變（重跑
-// 成方）就得清，否則資料指紋沒變、下次 loadHcCache 會載回舊成方算出的 ②，「往後執行」
-// 全鏈不會跟著新方形重算。非成方（無 :shapelike 尾巴）的快取不受影響。
+// 清掉本城本變體的 shapelike hccells 檔——成方內容一變就得清，否則會載回舊成方算出的佈局。
 function purgeShapeLikeCache() {
-  // 形狀圖層快取鍵含 :shape 段（與原始／旋轉分開）
-  if (cachedFp) clearHcCache(`${cachedFp}:${hcLayerVariantKey()}:shapelike`)
+  const cityId = sourceLayer.value?.id
+  if (cityId) clearHcCache({ cityId, variant: hcLayerVariantKey(), shapelike: true })
 }
 function hcLayerVariantKey() {
   return hcLayer.value?.variant ?? hcVariant.value
+}
+function hcPersistRef(shapeOn) {
+  return {
+    cityId: sourceLayer.value?.id,
+    variant: hcLayerVariantKey(),
+    shapelike: !!shapeOn,
+    fingerprint: cachedFp,
+  }
+}
+function persistHcCells(shapeOn) {
+  const ref = hcPersistRef(shapeOn)
+  if (!ref.cityId || !cachedHC) return
+  saveHcCache(ref, {
+    hc: cachedHC,
+    posts: cachedPost,
+    layouts: cachedLayout,
+    loops: cachedLoop,
+    endp: cachedEndp,
+    line: cachedLine,
+    gather: cachedGather,
+  })
 }
 function invalidateShapeHcPipeline() {
   cachedHC = null
@@ -375,8 +395,9 @@ function toggleShapeLlmExec() {
   render()
 }
 function hcLsKey(shapeOn) {
-  // 用完整變體（含 -shape）當鍵，避免原始／原始-形狀互相載到對方的 HC 快取。
-  return `${cachedFp}:${hcLayerVariantKey()}${shapeOn ? ':shapelike' : ''}`
+  // 記憶體鍵：指紋＋完整變體（含 -shape）＋是否成方餵下游——避免互相載到對方的佈局。
+  const v = hcLayerVariantKey()
+  return `${cachedFp}:${v}${shapeOn ? ':shapelike' : ''}`
 }
 /** 成方 members：規定 ring＋綠折＋該路線骨架邊上所有 cut（含共廊轉乘／交叉），
  * 避免論文鏈只動「不在規定表」的共廊點把成方 H/V 邊拉斜。 */
@@ -582,7 +603,7 @@ let activeFrozen = null // 目前 HC 鏈的成方護欄；逐步驗證按鈕在 
 let cachedHC = null
 let cachedPost = {}    // 論文鏈後處理結果, keyed by kind (PAPER_KIND_IDS)
 let cachedLayout = {}  // Hill Climbing 區「格網→論文鏈」比較結果, keyed by LAYOUT_KIND_IDS
-let cachedFp = null    // 本資料的內容指紋（localStorage 快取鍵用）
+let cachedFp = null    // 本資料的內容指紋（hccells 檔內 fingerprint）
 // 河流分隔曲折度「已套用」值（Map Adjust 工具列輸入是草稿；按確定才寫這裡並重算骨架）
 const appliedRiverGraySinuosity = ref(null)
 
@@ -965,7 +986,7 @@ function uniformBlue(nC, nR, cw, ch) {
 }
 
 // 換了一份資料（載入新城市/匯入檔）：重算 tilt 與 connect 骨架、作廢所有衍生
-// 快取與統計 ref、重建 hover 索引，並試著從 localStorage 載回這份資料的爬山結果。
+// 快取與統計 ref、重建 hover 索引。佈局由 computeHcLayout 從 hccells 檔載回。
 function resetPerDataset(data) {
   cacheData = data
   tilt.value = computeOrientation(data).tilt
@@ -1019,34 +1040,29 @@ function resetPerDataset(data) {
   stepInfo.value = null
   loopStats.value = null
   rwdStats.value = null
-  // 跨 reload 快取：先算內容指紋，試著從 localStorage 載回本資料的 HC / 後處理 cells，
-  // 命中就免跑爬山（資料變 → 指紋變 → 不命中 → 下面重算並覆寫）。
   tipIdx = buildPopupIndex(data) // hover 索引（refColor/segs/站點）——per dataset 一次
   cachedFp = `${dataFingerprint(data)}:rg${th}`
-  const hit = loadHcCache(`${cachedFp}:${hcLayerVariantKey()}`)
-  if (hit) { cachedHC = hit.hc; cachedPost = hit.posts; cachedLayout = hit.layouts ?? {} }
+  purgeLegacyHcLocalStorage()
   syncCalcMs()
 }
 
 // 爬山鏈的佈局計算（render 的第 2 段）：在 grid 之上跑 Hill Climbing（含
-// localStorage 快取與結構驗證）→ 後處理／LLM 對齊 → movewise 三步鏈／循環／
+// hccells 檔載入與結構驗證）→ 後處理／LLM 對齊 → movewise 三步鏈／循環／
 // 逐步驗證 → RWD 畫線，得到「這一幀要畫的座標」。回傳 { hcPos, hcBlue,
 // rwdLines, stepMoves }；計算途中被更新的 render 蓋過（seq 過期）回傳 null。
-// 背景預算：HC 算好後，把所有「與視窗無關」的下游佈局在瀏覽器閒置時逐一算好、存快取
-// ——之後打開就秒開、不用等執行（使用者：能先算的都先在背景算好，整個系統都這樣）。
-// 每條直線演算法鏈（①〜⑧）都算：直線演算法（post）→端點移動（endp）→直線縮減（line）
-// →網格合併（gather）→循環（loop）。**RWD Maps 的像素畫線要看畫面大小、維持另算**
-// （其輸入的整數格「循環」在此已預算）。切視圖（renderSeq 變）即中止、交給新 render。
+// 背景預算：HC 算好後，把尚未入檔的下游佈局在閒置時算完並寫入 hccells——
+// 檔已齊全則跳過。RWD 像素畫線看畫面大小、維持另算。切視圖即中止。
 let warmSeq = -1
-function warmChains(hcSk, hcAfter, cols, rows, key, guard, seq) {
+function warmChains(hcSk, hcAfter, cols, rows, shapeOn, guard, seq) {
   if (warmSeq === seq) return
   warmSeq = seq
+  const kinds = PAPER_KINDS.map((p) => p.kind).filter((k) => POST_BUILD[k])
+  // 檔／記憶體已有全部 post＋loop → 不必再預熱（打開秒開）。
+  if (kinds.every((k) => cachedPost[k] && cachedLoop[k])) return
   const schedule = (f) => (typeof window !== 'undefined' && window.requestIdleCallback
-    ? window.requestIdleCallback(f, { timeout: 400 }) : setTimeout(f, 60))
-  // 逐項任務（缺才算）：每條鏈的 post→endp→line→gather→loop，一次一個閒置時段。
+    ? window.requestIdleCallback(f, { timeout: 2000 }) : setTimeout(f, 120))
   const tasks = []
-  for (const kind of PAPER_KINDS.map((p) => p.kind)) {
-    if (!POST_BUILD[kind]) continue
+  for (const kind of kinds) {
     tasks.push(() => { if (!cachedPost[kind]) { const t0 = performance.now(); cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, hcAfter, cols, rows); cachedPost[kind].stats.ms = Math.round(performance.now() - t0) } })
     tasks.push(() => { const c = cachedPost[kind]; if (c && !cachedEndp[kind]) cachedEndp[kind] = movewiseStage('endp', hcSk, c.cellAfter, cols, rows) })
     tasks.push(() => { const c = cachedEndp[kind]; if (c && !cachedLine[kind]) cachedLine[kind] = movewiseStage('line', hcSk, c.cellAfter, c.cols, c.rows) })
@@ -1055,9 +1071,9 @@ function warmChains(hcSk, hcAfter, cols, rows, key, guard, seq) {
   }
   let i = 0
   const step = () => {
-    if (seq !== renderSeq) return // 切了視圖 → 中止，狀態交給新 render
-    if (i >= tasks.length) { saveHcCache(key, cachedHC, cachedPost, cachedLayout); syncCalcMs(); return }
-    setFrozen(guard) // 與該視圖同一套凍結（成方護欄／null）
+    if (seq !== renderSeq) return
+    if (i >= tasks.length) { persistHcCells(shapeOn); syncCalcMs(); return }
+    setFrozen(guard)
     try { tasks[i]() } catch { /* 單項失敗不擋其餘預算 */ }
     i++
     schedule(step)
@@ -1143,10 +1159,15 @@ async function computeHcLayout({ seq, w, h, grid }) {
     : null
   const wantHcKey = hcLsKey(shapeFeedsHc)
   if (cachedHcKey !== wantHcKey) {
-    const hit = loadHcCache(wantHcKey)
+    const hit = await loadHcCache(hcPersistRef(shapeFeedsHc))
+    if (seq !== renderSeq) return null
     if (hit) {
       cachedHC = hit.hc
       cachedPost = hit.posts
+      cachedLoop = hit.loops ?? {}
+      cachedEndp = hit.endp ?? {}
+      cachedLine = hit.line ?? {}
+      cachedGather = hit.gather ?? {}
       if (!shapeFeedsHc) cachedLayout = hit.layouts ?? cachedLayout
     } else {
       cachedHC = null
@@ -1235,12 +1256,12 @@ async function computeHcLayout({ seq, w, h, grid }) {
     cachedHC.stats.ms = Math.round(performance.now() - t0)
     if (shapeFeedsHc) cachedHC.stats.shapeFeed = shapeFeedSource.value
     hcBusy.value = false
-    saveHcCache(wantHcKey, cachedHC, cachedPost, cachedLayout)
+    persistHcCells(shapeFeedsHc)
     syncCalcMs()
   }
   hcStats.value = cachedHC.stats
-  // 背景預算其餘直線演算法鏈（閒置時算好存快取）→ 打開就秒開、不用等。
-  warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, wantHcKey, squareGuard, seq)
+  // 背景預算其餘直線演算法鏈（閒置時算好寫 hccells）→ 檔齊後打開秒開。
+  warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, shapeFeedsHc, squareGuard, seq)
   let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
   // H/V-maximising post-pass tabs: same grid, short-distance vertex moves on
   // top of the hill-climbing result (each kind cached once per dataset).
@@ -1262,7 +1283,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
       cachedPost[kind] = iteratePost(POST_BUILD[kind], hcSk, cachedHC.cellAfter, grid.cols, grid.rows)
       cachedPost[kind].stats.ms = Math.round(performance.now() - t0)
       hcBusy.value = false
-      saveHcCache(wantHcKey, cachedHC, cachedPost, cachedLayout)
+      persistHcCells(shapeFeedsHc)
       syncCalcMs()
     }
     postStats.value = cachedPost[kind].stats
@@ -1359,10 +1380,11 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // 直線縮減/網格合併。
   // RWD 不走下面 ①〜③ 的單趟鏈——改建立在「循環」（straightenCompactLoop）
   // 的結果上（使用者 2026-07 裁決），見下方 loop 區塊的 isRWD fallback。
+  let cellsDirty = false
   {
     const endKind = endKindOf(mode.value) ?? lineKindOf(mode.value) ?? gatherKindOf(mode.value)
     if (endKind) {
-      if (!cachedEndp[endKind]) cachedEndp[endKind] = movewiseStage('endp', hcSk, cells, nC, nR)
+      if (!cachedEndp[endKind]) { cachedEndp[endKind] = movewiseStage('endp', hcSk, cells, nC, nR); cellsDirty = true }
       cells = cachedEndp[endKind].cellAfter
       nC = cachedEndp[endKind].cols
       nR = cachedEndp[endKind].rows
@@ -1377,7 +1399,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   {
     const lineKind = lineKindOf(mode.value) ?? gatherKindOf(mode.value)
     if (lineKind) {
-      if (!cachedLine[lineKind]) cachedLine[lineKind] = movewiseStage('line', hcSk, cells, nC, nR)
+      if (!cachedLine[lineKind]) { cachedLine[lineKind] = movewiseStage('line', hcSk, cells, nC, nR); cellsDirty = true }
       cells = cachedLine[lineKind].cellAfter
       nC = cachedLine[lineKind].cols
       nR = cachedLine[lineKind].rows
@@ -1389,7 +1411,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   {
     const gatherKind = gatherKindOf(mode.value)
     if (gatherKind) {
-      if (!cachedGather[gatherKind]) cachedGather[gatherKind] = movewiseStage('gather', hcSk, cells, nC, nR)
+      if (!cachedGather[gatherKind]) { cachedGather[gatherKind] = movewiseStage('gather', hcSk, cells, nC, nR); cellsDirty = true }
       cells = cachedGather[gatherKind].cellAfter
       nC = cachedGather[gatherKind].cols
       nR = cachedGather[gatherKind].rows
@@ -1403,7 +1425,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
     const loopKind = loopKindOf(mode.value)
       ?? (isRWD.value ? rwdCompactKey.value : null)
     if (loopKind) {
-      if (!cachedLoop[loopKind]) cachedLoop[loopKind] = straightenCompactLoop(hcSk, cells, nC, nR)
+      if (!cachedLoop[loopKind]) { cachedLoop[loopKind] = straightenCompactLoop(hcSk, cells, nC, nR); cellsDirty = true }
       cells = cachedLoop[loopKind].cellAfter
       nC = cachedLoop[loopKind].cols
       nR = cachedLoop[loopKind].rows
@@ -1413,6 +1435,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
       if (shapeFeedsHc) frozenPin = snapshotFrozen(cells, frozenIds)
     }
   }
+  if (cellsDirty) persistHcCells(shapeFeedsHc)
   // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
   // 推進 stepState 後重畫；見 stepKindOf）。
   {

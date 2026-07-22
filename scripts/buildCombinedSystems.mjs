@@ -65,9 +65,19 @@ const TARGETS = [
     cityZh: '台北＋台鐵＋高鐵',
     countryZh: '台灣',
     // 端點精確控制（使用者）：台鐵縱貫線只畫 中壢↔汐止、高鐵只畫 南港↔桃園。
+    // osmIds：railway geojson 沒帶 osm_route_ids（track-based 建檔），實際路線／
+    // 路線中線管線靠這些 relation 對 OSM way（上下行各一；見 rw_as-twn.json）。
     railway: [
-      { file: 'systems/asia/taiwan/as-twn-rail.geojson', select: { '縱貫線': ['中壢', '汐止'] } },
-      { file: 'systems/asia/taiwan/as-twn-hsr.geojson', select: { '台灣高速鐵路': ['南港', '桃園'] } },
+      {
+        file: 'systems/asia/taiwan/as-twn-rail.geojson',
+        select: { '縱貫線': ['中壢', '汐止'] },
+        osmIdsByName: { '縱貫線': [5867233, 5867234] }, // 北上／南下
+      },
+      {
+        file: 'systems/asia/taiwan/as-twn-hsr.geojson',
+        select: { '台灣高速鐵路': ['南港', '桃園'] },
+        osmIdsByName: { '台灣高速鐵路': [4500369, 4500371] }, // 北向／南向
+      },
     ],
     // 高鐵 板橋↔南港 與台鐵共線、中間台鐵站（萬華/松山）標 pass（使用者）
     passThrough: true,
@@ -421,7 +431,15 @@ async function build(t) {
   }
   for (const rw of t.railway || []) {
     const src = JSON.parse(await readFile(join(RAILWAY, rw.file), 'utf8'))
-    addLines.push(...extractLinesFromGeojson(src, { bbox: rw.bbox, exclude: rw.exclude, select: rw.select }))
+    const lines = extractLinesFromGeojson(src, { bbox: rw.bbox, exclude: rw.exclude, select: rw.select })
+    // railway 源檔無 osm_route_ids → 用設定檔的 osmIdsByName 補上（實際路線／中線用）
+    if (rw.osmIdsByName) {
+      for (const line of lines) {
+        const ids = rw.osmIdsByName[line.name] || rw.osmIdsByName[line.ref]
+        if (ids?.length && !(line.osmIds || []).length) line.osmIds = ids
+      }
+    }
+    addLines.push(...lines)
   }
   for (const spec of t.osmLines || []) addLines.push(await extractLineFromOsm(spec))
   if (t.extraLinesFile) {

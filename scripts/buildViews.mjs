@@ -84,18 +84,24 @@ const CITY_ZH = JSON.parse(await readFile(join(__dirname, '..', 'src', 'stores',
 
 async function main() {
   const index = JSON.parse(await readFile(join(BASE, 'index.json'), 'utf8'))
-  const systems = index.systems ?? []
+  const allSystems = index.systems ?? []
+  // 可選：node scripts/buildViews.mjs [cityId…] 只重算指定城（例成方城）。
+  const only = new Set(process.argv.slice(2).filter((a) => !a.startsWith('-')))
+  const systems = allSystems.filter((sys) => !only.size || only.has(idOf(sys.file)))
   if (!systems.length) {
-    console.error('index.json 沒有 systems[]，請先跑 npm run metro:build')
+    console.error(only.size
+      ? `找不到指定城市：${[...only].join(', ')}`
+      : 'index.json 沒有 systems[]，請先跑 npm run metro:build')
     process.exit(1)
   }
+  if (only.size) console.log(`只重算 ${systems.length} 城：${systems.map((s) => idOf(s.file)).join(', ')}`)
 
   // 增量：不清空目錄（保留 _fp 未變、可沿用的舊檔）；只確保目錄存在。
-  // 已移除的城市留下的殘檔在最後依 currentIds 清掉。
+  // 已移除的城市留下的殘檔在最後依 currentIds 清掉（全量 catalog，非 only 子集）。
   await mkdir(OUT, { recursive: true })
   await mkdir(HC_OUT, { recursive: true })
   await mkdir(RWD_OUT, { recursive: true })
-  const currentIds = new Set(systems.map((sys) => idOf(sys.file)))
+  const currentIds = new Set(allSystems.map((sys) => idOf(sys.file)))
 
   const catalog = []
   const hcCatalog = []
@@ -123,14 +129,24 @@ async function main() {
     canRotate: r.canRotate,
   })
 
+  // 無 llmshapes 時的 shape 指紋——舊檔 _fp 尚無 `:shape=` 後綴時，若本城也無
+  // 成方結果，視為同等（避免為了加 shape= 後綴而全量重算 240 城）。
+  const EMPTY_SHAPE_FP = strHash(JSON.stringify({
+    o: null, r: null, og: 0, rg: 0, om: null, rm: null,
+  }))
+
   // 一型一城：`_fp` 未變就沿用舊檔（讀回 meta 進 catalog）、否則重算並寫入 `_fp`。
   // 回傳 'reused' | 'built'；丟出例外交給呼叫端記 failure。
   // computeOpts 傳給 computeFn（例：llmByVariant 讓 HC/RWD 預算 LLM 對齊縮圖）。
-  async function buildOrReuse(dir, computeFn, cat, sys, id, geojson, fp, withStats, computeOpts) {
+  async function buildOrReuse(dir, computeFn, cat, sys, id, geojson, fp, withStats, computeOpts, shapeFp = null) {
     const outPath = join(dir, `${id}.json`)
     try {
       const existing = JSON.parse(await readFile(outPath, 'utf8'))
-      if (existing._fp === fp) {
+      const legacyOk = shapeFp === EMPTY_SHAPE_FP
+        && typeof existing._fp === 'string'
+        && !existing._fp.includes(':shape=')
+        && fp === `${existing._fp}:shape=${shapeFp}`
+      if (existing._fp === fp || legacyOk) {
         cat.push({
           id, file: sys.file, city: sys.city, country: sys.country,
           cityZh: CITY_ZH[id]?.city ?? sys.city, countryZh: CITY_ZH[id]?.country ?? sys.country,
@@ -165,6 +181,7 @@ async function main() {
 
   for (const sys of systems) {
     const id = idOf(sys.file)
+    process.stderr.write(`[bv] start ${id}\n`)
     let raw, geojson
     try {
       raw = await readFile(join(BASE, sys.file), 'utf8')
@@ -204,8 +221,10 @@ async function main() {
 
     // Hill Climbing／Straighten 畫廊（含 LLM 對齊循環，有 llmviews 才寫入）
     try {
-      // fp 加演算法版本後綴 + llm 指紋：llmviews 更新 → 該城 HC 縮圖重算。
-      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v4:llm=${llmFp}:shape=${shapeFp}`, true, llmOpts)) === 'reused' ? reused++ : rebuilt++
+      // fp 加演算法版本後綴 + llm／shape 指紋：結果更新 → 該城縮圖重算。
+      // 無成方的城可沿用舊 _fp（無 :shape=）；有 llmshapes 的城因 shapeFp 變而重算。
+      const hcFp = `${fp}:hc-loop-v4:llm=${llmFp}:shape=${shapeFp}`
+      ;(await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, hcFp, true, llmOpts, shapeFp)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {
       hcFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
@@ -213,44 +232,48 @@ async function main() {
 
     // RWD Maps views（含 LLM 對齊 compact/rwd，有 llmviews 才寫入）
     try {
-      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v6:llm=${llmFp}:shape=${shapeFp}`, false, llmOpts)) === 'reused' ? reused++ : rebuilt++
+      const rwdFp = `${fp}:rwd-loop-v6:llm=${llmFp}:shape=${shapeFp}`
+      ;(await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, rwdFp, false, llmOpts, shapeFp)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {
       rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
     }
   }
 
-  // 清掉已移除城市的殘檔（currentIds 之外的 <id>.json）。
+  // 清掉已移除城市的殘檔（currentIds 之外的 <id>.json）。只重算子集時不剪枝。
   let pruned = 0
-  for (const dir of [OUT, HC_OUT, RWD_OUT]) {
-    let names
-    try { names = await readdir(dir) } catch { continue }
-    for (const n of names) {
-      if (n === 'index.json' || !n.endsWith('.json')) continue
-      if (!currentIds.has(n.replace(/\.json$/, ''))) { await rm(join(dir, n), { force: true }); pruned++ }
+  if (!only.size) {
+    for (const dir of [OUT, HC_OUT, RWD_OUT]) {
+      let names
+      try { names = await readdir(dir) } catch { continue }
+      for (const n of names) {
+        if (n === 'index.json' || !n.endsWith('.json')) continue
+        if (!currentIds.has(n.replace(/\.json$/, ''))) { await rm(join(dir, n), { force: true }); pruned++ }
+      }
     }
   }
 
-  // Keep catalogs in index.json order (already sorted upstream).
-  await writeFile(join(OUT, 'index.json'), JSON.stringify({
-    generated_from: 'scripts/buildViews.mjs',
-    view_ids: ['original', 'rotated', 'skeleton', 'rotated-skeleton',
-      'grid-orig-pre', 'grid-orig-post', 'grid-rot-pre', 'grid-rot-post'],
-    system_count: catalog.length,
-    systems: catalog,
-  }))
-  await writeFile(join(HC_OUT, 'index.json'), JSON.stringify({
-    generated_from: 'scripts/buildViews.mjs',
-    view_ids: HC_VIEW_ORDER,
-    system_count: hcCatalog.length,
-    systems: hcCatalog,
-  }))
-  await writeFile(join(RWD_OUT, 'index.json'), JSON.stringify({
-    generated_from: 'scripts/buildViews.mjs',
-    view_ids: RWD_VIEW_ORDER,
-    system_count: rwdCatalog.length,
-    systems: rwdCatalog,
-  }))
+  // 全量：catalog 即全部；子集：與既有 index 合併（只覆寫重算的城）。
+  async function mergeCatalog(dir, built, viewIds) {
+    let systems = built
+    if (only.size) {
+      let prev = []
+      try { prev = JSON.parse(await readFile(join(dir, 'index.json'), 'utf8')).systems ?? [] } catch { /* */ }
+      const byId = new Map(prev.map((s) => [s.id, s]))
+      for (const s of built) byId.set(s.id, s)
+      systems = allSystems.map((sys) => byId.get(idOf(sys.file))).filter(Boolean)
+    }
+    await writeFile(join(dir, 'index.json'), JSON.stringify({
+      generated_from: 'scripts/buildViews.mjs',
+      view_ids: viewIds,
+      system_count: systems.length,
+      systems,
+    }))
+  }
+  await mergeCatalog(OUT, catalog, ['original', 'rotated', 'skeleton', 'rotated-skeleton',
+    'grid-orig-pre', 'grid-orig-post', 'grid-rot-pre', 'grid-rot-post'])
+  await mergeCatalog(HC_OUT, hcCatalog, HC_VIEW_ORDER)
+  await mergeCatalog(RWD_OUT, rwdCatalog, RWD_VIEW_ORDER)
 
   console.log(`views:   ${ok}/${systems.length} 城市 → data/metro/views/`)
   console.log(`hcviews: ${hcOk}/${systems.length} 城市 → data/metro/hcviews/`)

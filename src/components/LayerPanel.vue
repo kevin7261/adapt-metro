@@ -10,7 +10,7 @@ import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
 import { PAPER_ZH } from '../stores/paperAlign'
 import { variantLabel } from '../stores/layerMigrations'
-import { clearHcCache, dataFingerprint } from '../lib/hcCache'
+import { clearHcCache } from '../lib/hcCache'
 import { llmApplySet } from '../lib/llmApplyPersist'
 import MIcon from './MIcon.vue'
 
@@ -303,17 +303,13 @@ function removeAllLayers() {
   store.toast(`已刪除全部 ${all.length} 個圖層`)
 }
 
-// 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 localStorage 的
-// 佈局快取**，刪掉 LLM 成方結果檔，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、
+// 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 hccells 佈局檔**，
+// 刪掉 LLM 成方結果檔，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、
 // Map Adjust / Straighten / RWD 會整條鏈重新計算。無 LLM 成方＝不成方餵下游。
 async function recomputeCity(item) {
   const all = layersOf(item)
   if (!all.length) return
-  for (const l of all) { // 先用來源 GeoJSON 的指紋清掉該城市的持久佈局快取
-    const data = layerData[l.id]
-    if (data?.features) clearHcCache(dataFingerprint(data))
-  }
-  // 收集都會區 metro id → 刪 llmshapes（orig/rot）；下游 :shapelike 已隨 clearHcCache 清掉
+  // 收集都會區 metro id → 刪 hccells（全部變體）＋ llmshapes（orig/rot）
   const metroIds = new Set()
   for (const l of all) {
     if (l.type === 'hillclimb') {
@@ -332,6 +328,7 @@ async function recomputeCity(item) {
     }
   }
   for (const city of metroIds) {
+    await clearHcCache({ cityId: city })
     try {
       await fetch('/llm-shape/clear', {
         method: 'POST',

@@ -24,7 +24,8 @@ const CITIES = [
 ]
 const only = process.argv[2]
 const onlyVariant = process.argv[3] // optional: orig|rot
-const jobs = (only ? [only] : CITIES).filter((c) => !SKIP.has(c))
+// 明確指定城市時略過 SKIP（例：補 as-jpn-tokyo rot）；全量批次仍跳過大江戶。
+const jobs = (only ? [only] : CITIES).filter((c) => only || !SKIP.has(c))
 
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 80e6, cwd: ROOT })

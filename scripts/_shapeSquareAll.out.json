@@ -1,6 +1,6 @@
 [
   {
-    "city": "as-kor-seoul",
+    "city": "as-jpn-tokyo",
     "variant": "rot",
     "status": "fail",
     "square": false,
@@ -8,11 +8,11 @@
     "crosses": "0→0",
     "rings": [
       {
-        "route": "2號線循環線",
+        "route": "大江戶線環形路段",
         "square": false,
         "q": {
-          "ar": 1.02,
-          "onEdge": 0.95,
+          "ar": 1,
+          "onEdge": 1,
           "sides": 4
         }
       }

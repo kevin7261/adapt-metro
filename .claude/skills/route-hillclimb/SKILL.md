@@ -212,27 +212,20 @@ RWD 底圖與 llmGrid 也吃同一條鏈（`layer.compact` 選鏈）。
   （否則畫廊縮圖沿用舊圖）。
 - 格是排名制 → cellAfter 與視窗大小無關，D3Tab 只在 resize 重算像素映射並快取 cellAfter。
 - 頂點含黃色交叉點；退化段（a===b 的小環）跳過。
-- **跨 reload 持久快取（D3Tab.vue，localStorage `d3tab-hc-cache-v1`）**：爬山＋後處理
-  （iteratePost）是最貴的計算，其輸出（cellAfter/stats，純資料、無畫布相依）依「資料
-  內容指紋＋變體」存進 localStorage——關 tab 再開／新建同視圖／重新整理都直接載回、
-  不重跑爬山（LLM 對齊視圖本來只為做指紋比對而跑爬山，載回快取後也免重算）。資料一變
-  指紋就變 → 自動 miss 重算覆寫，永不載到舊佈局；quota／無痕模式 try/catch 靜默退回
-  現算；LRU 上限 12 個佈局。**未涵蓋**：buildConnectSkeleton（識別耦合，仍重算，較便宜）
-  與 RWD 佈線（buildRwdMap，像素相依）。
+- **跨 reload 持久化（D3Tab.vue → `data/metro/hccells/*.json`，不用 localStorage）**：
+  爬山＋後處理（iteratePost）＋循環（loop／endp／line／gather）寫進檔案
+  （`src/lib/hcCache.js`，`HC_CELLS_ALGO`）。關 tab 再開／重新整理 fetch 載回、不重跑。
+  檔內 `fingerprint`（資料＋河流門檻）不符 → miss 重算；改演算法就 bump `HC_CELLS_ALGO`。
+  **未入檔**：buildConnectSkeleton（較便宜）與 RWD 像素佈線（`buildRwdMap`，尺寸相依）。
+  「重新計算此城市全部圖層」刪該城全部 hccells。
 
 ## 修改此轉換時
 
 準則/硬規則/群集規則變動，**同步更新本 SKILL.md 與 `src/stores/hillClimb.js`**；
 輸入契約變動（cellOf 等）同步 [[route-skeleton-grid]]。
 
-## 爬山結果的 localStorage 快取（HC_LS_KEY，2026-07-17 Kilburn 案）
+## 爬山結果的 hccells 檔（2026-07：取代 localStorage）
 
-D3Tab 把爬山＋後處理結果存 localStorage（鍵＝`HC_LS_KEY` store × `資料指紋:variant`）。
-**資料指紋只看資料**——資料沒變但**演算法變了**（骨架建圖、格網、爬山任一）時，舊快取的
-佈局與新骨架結構對不上：節點缺格子 → RWD/HC **整段線消失、站點退回舊座標懸空**（倫敦
-Kilburn／Jubilee×Met 走廊案）。且 localStorage 不隨 dev server 重啟或硬重載清除、殘留跨天，
-極難用「重新整理」排除。兩道防線（`D3Tab.vue`）：
-1. **改了 `skeleton.js`／`schematicGrid.js`／`hillClimb.js` 的演算法就把 `HC_LS_KEY` 版本 +1**
-   （v3＝骨架建圖含 pass）。
-2. **use-time 結構驗證**：快取的 `cellAfter` 必須涵蓋目前 `grid.cellOf` 的所有節點，否則作廢
-   重算——就算忘了 +1 也不會再出現殘缺畫面。
+檔名 `data/metro/hccells/<city>.<variant>[.shapelike].json`。**資料指紋只看資料**——
+資料沒變但**演算法變了**時 bump `HC_CELLS_ALGO`，否則舊檔佈局與新骨架對不上（倫敦
+Kilburn 案）。另有 use-time 結構驗證：`cellAfter` 必須涵蓋目前 `grid.cellOf` 所有節點。

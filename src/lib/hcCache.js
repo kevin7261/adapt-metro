@@ -1,18 +1,18 @@
-// ---- 跨 reload 持久快取（localStorage）----
-// 最貴的計算是爬山（buildHillClimb）＋後處理（iteratePost）。它們的輸出是純資料
-// （cellAfter = Map<id,[c,r]>、stats = 數字），與畫布大小無關（rank-based），且對
-// 一份資料＋變體是確定的 → 存下來、關 tab 再開或重新整理都直接載回、不重跑。
-// 失效靠「資料內容指紋」：站/線一變指紋就變 → 自動 cache miss 重算，永不載到舊的。
-// LLM 對齊視圖只為了做指紋比對而跑爬山，載回快取後連它也免重算。
-// **快取鍵必須含演算法版本**：鍵的另一半是「資料指紋」（dataFingerprint 只看資料），
-// 資料沒變但**演算法變了**（如骨架建圖改含 pass）時，舊快取的佈局與新骨架結構對不上——
-// 節點缺格子 → RWD/HC 整段線消失、站點退回舊座標懸空（倫敦 Kilburn 案，2026-07-17）。
-// 且 localStorage 不隨 dev server 重啟/硬重載清除，殘留跨天。**改了 skeleton/schematicGrid/
-// hillClimb 的演算法就把版本 +1**；另有 use-time 結構驗證兜底（見 D3Tab 的 cachedHC 使用處）。
-const HC_LS_KEY = 'd3tab-hc-cache-v65' // v65: 成方 H/V 邊鎖定＋members 扩成方路線 cut；v64: 成對縮方；v63: 剛體
-const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
+// ---- 整數格佈局持久化（data/metro/hccells/*.json，不用 localStorage）----
+// 最貴的計算是爬山（buildHillClimb）＋後處理（iteratePost）＋循環（straightenCompactLoop）。
+// 輸出是純資料（cellAfter = Map<id,[c,r]>、stats），與畫布大小無關 → 寫進檔案，
+// 關 tab 再開／重新整理直接 fetch 載回、不重跑。
+//
+// 檔名：data/metro/hccells/<cityId>.<variant>[.shapelike].json
+//   variant 含形狀圖層（orig / rot / orig-shape / rot-shape）
+//   shapelike＝成方已餵下游的那份（與不成方管線分開）
+// 失效：檔內 fingerprint（資料指紋＋河流門檻）不符 → miss 重算；
+//       algo 版本不符（改了 skeleton/grid/hillClimb/movewise）→ miss。
+// 寫檔走 vite middleware POST /hc-cells/save（僅 dev）；讀檔走 /data/...（serveDataDir）。
+import { assetUrl } from './assetUrl'
 
-let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）
+// 改了 skeleton／schematicGrid／hillClimb／movewise 演算法就 +1（舊檔自動失效）。
+export const HC_CELLS_ALGO = 'hccells-v1'
 
 export function dataFingerprint(data) {
   let h = 5381
@@ -24,58 +24,121 @@ export function dataFingerprint(data) {
   return (h >>> 0).toString(36)
 }
 
-function hcLsRead() { try { return JSON.parse(localStorage.getItem(HC_LS_KEY) || '{}') } catch { return {} } }
-function hcLsWrite(o) { try { localStorage.setItem(HC_LS_KEY, JSON.stringify(o)) } catch { /* quota / private mode → 靜默跳過 */ } }
-const deCells = (arr) => new Map(arr.map(([id, c, r]) => [id, [c, r]]))
+export function hcCellsRelPath(cityId, variant, shapelike = false) {
+  const city = String(cityId || '').replace(/[^\w-]/g, '')
+  const v = String(variant || 'orig').replace(/[^\w.-]/g, '')
+  if (!city || !v) return null
+  return `data/metro/hccells/${city}.${v}${shapelike ? '.shapelike' : ''}.json`
+}
+
+const deCells = (arr) => new Map((arr ?? []).map(([id, c, r]) => [id, [c, r]]))
 const serCells = (m) => [...m.entries()].map(([id, [c, r]]) => [id, c, r])
 
-const deMap = (obj) => {
+function deStageMap(obj) {
   const out = {}
-  for (const k of Object.keys(obj ?? {})) out[k] = { cellAfter: deCells(obj[k].cellAfter), stats: obj[k].stats }
+  for (const k of Object.keys(obj ?? {})) {
+    const e = obj[k]
+    if (!e?.cellAfter) continue
+    out[k] = {
+      cellAfter: deCells(e.cellAfter),
+      stats: e.stats,
+      ...(e.cols != null ? { cols: e.cols, rows: e.rows } : {}),
+    }
+  }
   return out
 }
-const serMap = (obj) => {
+function serStageMap(obj) {
   const out = {}
-  for (const k of Object.keys(obj ?? {})) if (obj[k]) out[k] = { cellAfter: serCells(obj[k].cellAfter), stats: obj[k].stats }
+  for (const k of Object.keys(obj ?? {})) {
+    const e = obj[k]
+    if (!e?.cellAfter) continue
+    out[k] = {
+      cellAfter: serCells(e.cellAfter),
+      stats: e.stats,
+      ...(e.cols != null ? { cols: e.cols, rows: e.rows } : {}),
+    }
+  }
   return out
 }
 
-export function loadHcCache(key) {
+// 清掉舊的 localStorage 爬山快取（曾把整份 network 塞進 LS，太大）——啟動時呼叫一次。
+export function purgeLegacyHcLocalStorage() {
   try {
-    const e = hcLsRead()[key]; if (!e) return null
+    const drop = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && /^d3tab-hc-cache/.test(k)) drop.push(k)
+    }
+    for (const k of drop) localStorage.removeItem(k)
+  } catch { /* private mode */ }
+}
+
+/** @returns {Promise<null | { hc, posts, layouts, loops, endp, line, gather }>} */
+export async function loadHcCache({ cityId, variant, shapelike = false, fingerprint }) {
+  const rel = hcCellsRelPath(cityId, variant, shapelike)
+  if (!rel || !fingerprint) return null
+  try {
+    const res = await fetch(assetUrl(rel))
+    const isJson = (res.headers.get('content-type') ?? '').includes('json')
+    if (!res.ok || !isJson) return null
+    const e = await res.json()
+    if (e.algo !== HC_CELLS_ALGO || e.fingerprint !== fingerprint || !e.hc?.cellAfter) return null
     return {
       hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats },
-      posts: deMap(e.posts),
-      layouts: deMap(e.layouts), // Shape-Guided（layout-shape）等非論文鏈佈局
+      posts: deStageMap(e.posts),
+      layouts: deStageMap(e.layouts),
+      loops: deStageMap(e.loops),
+      endp: deStageMap(e.endp),
+      line: deStageMap(e.line),
+      gather: deStageMap(e.gather),
     }
   } catch { return null }
 }
 
-// 清掉某份資料（指紋 fp）的全部快取（原始/旋轉變體都清）——「重新計算此城市全部
-// 圖層」按鈕用：清完 ② 與 ①〜⑧ 都會重算，回到剛匯入的狀態。
-export function clearHcCache(fpPrefix) {
-  if (!fpPrefix) return 0
-  const o = hcLsRead()
-  let n = 0
-  for (const k of Object.keys(o)) if (k.startsWith(fpPrefix)) { delete o[k]; n++ }
-  if (n) hcLsWrite(o)
-  return n
+/** 寫入 data/metro/hccells（dev server）；靜態部署無寫檔 API 時靜默略過。 */
+export async function saveHcCache(
+  { cityId, variant, shapelike = false, fingerprint },
+  { hc, posts, layouts, loops, endp, line, gather },
+) {
+  if (!cityId || !variant || !fingerprint || !hc?.cellAfter) return false
+  const payload = {
+    algo: HC_CELLS_ALGO,
+    fingerprint,
+    cityId,
+    variant,
+    shapelike: !!shapelike,
+    hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats },
+    posts: serStageMap(posts),
+    layouts: serStageMap(layouts),
+    loops: serStageMap(loops),
+    endp: serStageMap(endp),
+    line: serStageMap(line),
+    gather: serStageMap(gather),
+  }
+  try {
+    const res = await fetch('/hc-cells/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city: cityId, variant, shapelike: !!shapelike, payload }),
+    })
+    return res.ok
+  } catch { return false }
 }
 
-export function saveHcCache(key, hc, posts, layouts) {
-  if (!key || !hc) return
-  const o = hcLsRead()
-  const pj = serMap(posts)
-  o[key] = {
-    t: hcLruClock++,
-    hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats },
-    posts: pj,
-    layouts: serMap(layouts),
-  }
-  const keys = Object.keys(o)
-  if (keys.length > HC_LS_MAX) {
-    keys.sort((a, b) => (o[a].t ?? 0) - (o[b].t ?? 0))
-    for (const k of keys.slice(0, keys.length - HC_LS_MAX)) delete o[k]
-  }
-  hcLsWrite(o)
+/** 刪 hccells 檔。city only → 該城全部變體；有 variant → 單檔（可加 shapelike）。 */
+export async function clearHcCache({ cityId, variant = null, shapelike = false } = {}) {
+  if (!cityId) return 0
+  try {
+    const body = variant != null
+      ? { city: cityId, variant, shapelike: !!shapelike }
+      : { city: cityId }
+    const res = await fetch('/hc-cells/clear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) return 0
+    const j = await res.json()
+    return j.cleared ?? 0
+  } catch { return 0 }
 }
