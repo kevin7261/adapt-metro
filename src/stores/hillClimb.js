@@ -82,6 +82,17 @@ export function countHV(pos, segs) {
   for (const s of segs) if (isHV(pos.get(s.a), pos.get(s.b))) n++
   return n
 }
+
+/** 直線演算法／LLM 對齊的輸入指紋（base＝Map Adjust 格網化後，不再吃 HC）。 */
+export function gridLayoutFingerprint(skeleton, cells, cols, rows) {
+  const { pos, segs } = buildHcGraph(skeleton, cells)
+  return {
+    verts: pos.size,
+    segs: segs.length,
+    cols, rows,
+    hvStart: countHV(pos, segs),
+  }
+}
 // 「H/V 或格對角 45°」對齊段數——LLM 對齊（applyLlmTargets）與 paperAlign.js 的
 // 七條論文鏈（八方向系演算法）用它當接受準則，讓對角走向對到 45° 對角而非硬拉成
 // H/V 樓梯（使用者規則）。rect/align/ilp 三個後處理仍用 countHV（純 H/V 最大化）。

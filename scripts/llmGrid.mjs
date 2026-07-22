@@ -27,7 +27,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, iteratePost,
+  buildHcGraph, iteratePost,
   straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
@@ -83,16 +83,12 @@ for (const c of skeleton.crossings ?? []) {
   if (p) projById.set(c.id, p)
 }
 const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
-const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+const gridBase = grid.cellOf
 
-// The RWD view compacts the layout its layer.compact picks — the HC result,
-// a paper post-pass (PAPER_KINDS ①〜⑧), or the offline LLM 對齊 (llmviews
-// file) — then, same as D3Tab, EVERY chain runs the 端點移動+直線縮減+
-// 網格合併+縮減網格 **循環到不動點**（straightenCompactLoop——使用者 2026-07
-// 裁決 RWD 建立在循環結果上，fingerprint 的 cols/rows 必須跟 D3Tab 一致）。
+// RWD compact base＝格網化後 → 論文鏈（或 llmviews）→ 循環到不動點（不再吃 HC）。
 let baseCells
 if (POST_BUILD[compact]) {
-  baseCells = iteratePost(POST_BUILD[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+  baseCells = iteratePost(POST_BUILD[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
 } else if (compact === 'llm') {
   const f = join(DATA, 'llmviews', `${cityId}.${variant}.json`)
   if (!existsSync(f)) {
@@ -102,14 +98,14 @@ if (POST_BUILD[compact]) {
   const j = JSON.parse(await readFile(f, 'utf8'))
   baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
 } else {
-  baseCells = hc.cellAfter
+  baseCells = gridBase
 }
 const comp = straightenCompactLoop(skeleton, baseCells, grid.cols, grid.rows)
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows
 
-// D3Tab loads the result only when it matches the SAME dataset + layout dims.
-const fingerprint = { verts: hc.stats.verts, segs: hc.stats.segs, cols: nC, rows: nR, compact }
+const g0 = buildHcGraph(skeleton, gridBase)
+const fingerprint = { verts: g0.pos.size, segs: g0.segs.length, cols: nC, rows: nR, compact }
 
 let saved = null
 if (existsSync(outFile)) {

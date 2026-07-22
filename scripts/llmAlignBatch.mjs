@@ -19,7 +19,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, buildHcGraph, applyLlmTargets, setSpanCap, countHVD,
+  buildHcGraph, applyLlmTargets, setSpanCap, countHVD, gridLayoutFingerprint,
 } from '../src/stores/hillClimb.js'
 
 setSpanCap(+(process.env.LLM_SPAN_CAP ?? 3) || 3)
@@ -158,17 +158,13 @@ async function loadCity(cityId, variant) {
     if (p) projById.set(c.id, p)
   }
   const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
-  const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
-  const fingerprint = {
-    verts: hc.stats.verts, segs: hc.stats.segs,
-    cols: grid.cols, rows: grid.rows, hvStart: hc.stats.hvAfter,
-  }
-  return { skeleton, grid, hc, fingerprint }
+  const fingerprint = gridLayoutFingerprint(skeleton, grid.cellOf, grid.cols, grid.rows)
+  return { skeleton, grid, fingerprint }
 }
 
 async function runOne(cityId, variant) {
   const outFile = join(OUT, `${cityId}.${variant}.json`)
-  const { skeleton, grid, hc, fingerprint } = await loadCity(cityId, variant)
+  const { skeleton, grid, fingerprint } = await loadCity(cityId, variant)
 
   if (!force && existsSync(outFile)) {
     try {
@@ -179,7 +175,8 @@ async function runOne(cityId, variant) {
     } catch { /* stale / corrupt → rebuild */ }
   }
 
-  let cells = new Map([...hc.cellAfter].map(([id, p]) => [id, [p[0], p[1]]]))
+  // base＝格網化後
+  let cells = new Map([...grid.cellOf].map(([id, p]) => [id, [p[0], p[1]]]))
   const { segs } = buildHcGraph(skeleton, cells)
   const transcript = []
   let rounds = 0
@@ -209,17 +206,17 @@ async function runOne(cityId, variant) {
   if (rounds === 0) {
     transcript.push({
       round: null,
-      note: 'batch：HC 已無未對齊段（或無可採短距移動）——存 HC 佈局作最初結果',
+      note: 'batch：格網化後已無未對齊段（或無可採短距移動）——存格網化後作最初結果',
       proposed: 0,
       hv: `${fingerprint.hvStart} → ${fingerprint.hvStart}`,
       rejected: 0,
     })
   }
 
-  let movedVsHC = 0
+  let movedVsBase = 0
   for (const [id, p] of cells) {
-    const q = hc.cellAfter.get(id)
-    if (q && (q[0] !== p[0] || q[1] !== p[1])) movedVsHC++
+    const q = grid.cellOf.get(id)
+    if (q && (q[0] !== p[0] || q[1] !== p[1])) movedVsBase++
   }
   const { segs: finalSegs } = buildHcGraph(skeleton, cells)
   const hvAfter = (() => {
@@ -244,7 +241,7 @@ async function runOne(cityId, variant) {
     hvdBefore: hvd0,
     hvdAfter,
     segs: finalSegs.length,
-    moved: movedVsHC,
+    moved: movedVsBase,
     cellAfter: [...cells].map(([id, [c, r]]) => [id, c, r]),
   }))
   return {
@@ -252,7 +249,7 @@ async function runOne(cityId, variant) {
     rounds,
     hv: `${fingerprint.hvStart}→${hvAfter}`,
     hvd: `${hvd0}→${hvdAfter}`,
-    moved: movedVsHC,
+    moved: movedVsBase,
   }
 }
 

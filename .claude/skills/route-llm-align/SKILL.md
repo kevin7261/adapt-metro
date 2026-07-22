@@ -28,10 +28,11 @@ scripts/llmAlign.mjs apply <cityId> <orig|rot> <moves.json> [--prompt]
   → 印出新 HV、rejected 清單 → 你據此再提下一輪 → 收斂即停
 ```
 
-export 一律以「目前 outFile 內容」為起點（沒有內容才用 base HC）。**起點不是你的
-責任**——vite plugin 在 spawn 你之前，已把「主視圖目前顯示的佈局」seed 進 outFile
-（顯示自動→複製 .json、顯示指定→複製 .prompt.json、顯示原佈局→清空從 HC 起）。
-你只要正常 export→apply 迭代，**不要自己重設起點、也別去讀別的檔**。
+export 一律以「目前 outFile 內容」為起點（沒有內容才用 **格網化後**，與①〜⑧同
+base；**不吃 HC**）。**起點不是你的責任**——vite plugin 在 spawn 你之前，已把
+「主視圖目前顯示的佈局」seed 進 outFile（顯示自動→複製 .json、顯示指定→複製
+.prompt.json、顯示原佈局→清空從格網化後起）。你只要正常 export→apply 迭代，
+**不要自己重設起點、也別去讀別的檔**。
 
 **兩種對齊（結果檔完全獨立、互不覆蓋）**——網頁分成兩個 tab：
 - **自動對齊**（`LLM自動對齊` tab）：不加 `--prompt`，寫 `<cityId>.<variant>.json`。
@@ -41,9 +42,8 @@ export 一律以「目前 outFile 內容」為起點（沒有內容才用 base H
   主視圖比較用。
 - **起點＝目前顯示的佈局**：兩種對齊都以「LLM 對齊主視圖目前顯示的佈局」為起點。
   這由 vite plugin 在 spawn 前 seed 進 outFile（顯示自動→複製 .json、顯示指定→複製
-  .prompt.json、顯示原佈局→清空從 HC）——你只要正常 export→apply，起點已備好。
-  例：畫面正顯示自動對齊 → 跑指定對齊時 outFile 已是自動結果 → 你從它往下做。
-- **下游跟著顯示走**：主視圖顯示哪一份（base HC／自動／指定，由「執行調整」toggle
+  .prompt.json、顯示原佈局→清空從格網化後）——你只要正常 export→apply，起點已備好。
+- **下游跟著顯示走**：主視圖顯示哪一份（格網化後／自動／指定，由「執行調整」toggle
   決定），下游的「LLM對齊端點移動…」等鏈就以它為輸入、顯示一變就重算（前端負責）；
   RWD 'llm' 版面固定以自動對齊為基準。
 - 觸發時照 vite plugin 的 prompt 指明的旗標做，**絕不把指定對齊寫進 `.json`、也不要
@@ -60,10 +60,10 @@ export 一律以「目前 outFile 內容」為起點（沒有內容才用 base H
 - **跑完不自動套用**：執行時畫布照畫（不留白），回傳文字即時串流在面板內
   （`claude -p --output-format stream-json --verbose` → plugin 解析 → status 的
   `text`）。跑完載入結果但**不套用**——按「執行調整」才用對齊後座標重畫「LLM 對齊」
-  主視圖、「恢復原佈局」切回對齊前的 Hill Climbing 佈局。自動與指定兩個 toggle
+  主視圖、「恢復原佈局」切回對齊前的格網化後佈局。自動與指定兩個 toggle
   **互斥**（同一個主視圖只能顯示一種）。**重新跑會先清掉舊的串流與結果**。
 - **下游跟著顯示走**：各鏈（hc-llm-*）以「主視圖目前顯示的佈局」為輸入——顯示自動
-  就用自動、顯示指定就用指定、都沒套用就用 base HC，toggle 一變就重算。RWD 'llm'
+  就用自動、顯示指定就用指定、都沒套用就用格網化後，toggle 一變就重算。RWD 'llm'
   版面（另一個 layer、沒有 toggle）固定以**自動對齊**為基準。
 - POST `/llm-align/run`（vite dev plugin `llmAlignTrigger`）帶 `kind`（auto/prompt）
   決定寫哪個檔；指定對齊另帶 `userPrompt`。輪詢 `/llm-align/status`。GH Pages 沒有
@@ -123,7 +123,7 @@ node scripts/llmAlignBatch.mjs --force  # 全部重算
 - **絕不手改** `data/metro/llmviews/` 的檔案——一律經 `apply`（硬規則）。
 - 重跑（資料沒變、想再改善）直接繼續 apply 即可；想從頭來先
   `node scripts/llmAlign.mjs reset <cityId> <variant>`。
-- 與其他三種的比較基準相同：輸入都是 Hill Climbing 的 cellAfter；
+- 與①〜⑧的比較基準相同：輸入都是格網化後的 cellOf；
   縮減 tab 用同一個 compactGrid。
 - 改了 [[route-hillclimb]] 的硬規則或 applyTargets 行為，本 skill 的結果檔
   可能全部要重產（fingerprint 擋不住規則變動——必要時全城 reset 重跑）。

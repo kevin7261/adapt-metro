@@ -16,7 +16,7 @@ import { computeOrientation } from './orientation.js'
 import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
-  buildHillClimb, buildHcGraph, iteratePost,
+  buildHillClimb, buildHcGraph, iteratePost, countHV,
   straightenCompactLoop, setFrozen,
 } from './hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from './paperAlign.js'
@@ -31,7 +31,7 @@ import { NODE_COLOR, EDGE_HL, stationColor, strokesOf as strokesOfShared } from 
 // 「尚未預算」。HC 畫廊與 RWD 畫廊共用同一份清單與後處理映射。
 const CHAIN_KINDS = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
 const CHAIN_POST = { hc: null, ...PAPER_BUILD }
-const CHAIN_ZH = { hc: 'Hill Climbing', llm: 'LLM 對齊', ...PAPER_ZH }
+const CHAIN_ZH = { hc: '基本', llm: 'LLM 對齊', ...PAPER_ZH }
 
 // llmview 檔 → 可用的 cell Map（fingerprint 必須與目前 HC 一致，否則當缺檔）。
 function llmCellsIfMatch(llmview, fingerprint) {
@@ -320,19 +320,12 @@ export function viewLabels(tilt) {
 }
 
 /**
- * Compute the Straighten（Hill Climbing）視圖畫廊 views for one city（使用者
- * 2026-07：原始＋旋轉 兩個 variant × 每 variant 格網化後／HC／論文鏈循環＋
- * 可選 LLM 對齊循環）。每 variant：
- *   1) 格網化後 — hillclimbing 的輸入佈局（= Map Adjust 的 grid-*-post）。
- *   2) Hill Climbing — 整數格多準則最佳化後。
- *   3–11) 各鏈循環結果 — 每條鏈（基本 hc ＋ 論文①〜⑧的八條鏈 CHAIN_KINDS）
- *        以 hc 結果為基底，先跑該鏈的後處理（迭代到不動點；hc 不做），再
- *        straightenCompactLoop（端點移動＋直線縮減＋網格合併循環到不動點，
- *        同 RWD 畫廊的 compact-{kind}）。
- *   12) LLM 對齊循環 — opts.llmByVariant[variant] 有相符 fingerprint 的
- *        llmviews 時才寫 loop-llm-*（否則畫廊「尚未預算」）。
- * 旋轉 variant 用 canRotate ? tilt : 0 的投影（不可旋轉城市＝與原始相同）；
- * 黑點沿新段用 placeBlacks 放回（cellsToPos 內含）。
+ * Compute the Straighten 視圖畫廊 views for one city（原始＋旋轉 × 格網化後／
+ * 可選 HC 參考圖／各鏈循環＋可選 LLM）。每 variant：
+ *   1) 格網化後 — Map Adjust grid-*-post；直線演算法的唯一 base。
+ *   2) Hill Climbing — 僅畫廊參考圖（不餵下游）。
+ *   3–N) 各鏈循環 — base＝格網化後 →（論文鏈先 iteratePost）→ straightenCompactLoop。
+ *   LLM／形狀變體同：吃格網化後或成方 cells，不吃 HC。
  * @returns {{ W, H, tilt, canRotate, views, stats }}
  */
 export function computeCityHcViews(geojson, opts = {}) {
@@ -347,26 +340,27 @@ export function computeCityHcViews(geojson, opts = {}) {
     const projById = projByIdFor(projection, stations, skeleton)
     const grid = buildSchematicGrid(skeleton, projById, extArr)
     const snap = (id) => grid.posAfter.get(id) ?? null
+    const gridBase = grid.cellOf
 
-    // 1) 格網化後 — the hillclimbing input（= Map Adjust's grid-*-post）.
+    // 1) 格網化後 — 直線演算法 base（= Map Adjust's grid-*-post）.
     const postPos = new Map(projById)
     for (const [id, p] of grid.posAfter) postPos.set(id, p)
     views[`grid-post-${variant}`] = drawFromPos(skeleton, stations, lineFeats, postPos, grid.blueAfter)
 
-    // 2) Hill Climbing — optimize the integer cells, map to pixel cell-centres.
-    const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+    // 2) Hill Climbing — 畫廊參考圖 only（不餵①〜⑧／LLM／循環）。
+    const hc = buildHillClimb(skeleton, gridBase, grid.cols, grid.rows)
     const m1 = cellMapper(grid.cols, grid.rows)
     const hcPos = cellsToPos(hc.cellAfter, m1.cellPx, skeleton, snap)
     views[`hc-${variant}`] = drawFromPos(skeleton, stations, lineFeats, hcPos, m1.sep)
     stats[`hc-${variant}`] = { before: +(hc.stats?.before ?? 0).toFixed(1), after: +(hc.stats?.after ?? 0).toFixed(1) }
 
-    // 3–N) 各鏈循環結果 — 每鏈 → 後處理（不動點）→ straightenCompactLoop（不動點）.
+    // 3–N) 各鏈循環 — base＝格網化後（kind=hc 不做後處理，其餘 iteratePost）。
     for (const kind of CHAIN_KINDS) {
       const t0 = Date.now()
       const post = CHAIN_POST[kind]
-        ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows)
+        ? iteratePost(CHAIN_POST[kind], skeleton, gridBase, grid.cols, grid.rows)
         : null
-      const base = post ? post.cellAfter : hc.cellAfter
+      const base = post ? post.cellAfter : gridBase
       const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
       const m = cellMapper(comp.cols, comp.rows)
       const compPos = cellsToPos(comp.cellAfter, m.cellPx, skeleton, snap)
@@ -375,11 +369,12 @@ export function computeCityHcViews(geojson, opts = {}) {
       stats[`loop-${kind}-${variant}`] = st
     }
 
-    // LLM 對齊循環：讀 opts.llmByVariant[variant]（llmviews 檔），fingerprint
-    // 相符才預算；缺檔／過期 → 不寫入，畫廊顯示「尚未預算」。
+    // LLM 對齊循環：fingerprint 對齊格網化後（hvStart＝grid 的 H/V）。
+    const gGraph = buildHcGraph(skeleton, gridBase)
     const fp = {
-      verts: hc.stats.verts, segs: hc.stats.segs,
-      cols: grid.cols, rows: grid.rows, hvStart: hc.stats.hvAfter,
+      verts: gGraph.pos.size, segs: gGraph.segs.length,
+      cols: grid.cols, rows: grid.rows,
+      hvStart: countHV(gGraph.pos, gGraph.segs),
     }
     const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
     if (llmBase) {
@@ -390,19 +385,17 @@ export function computeCityHcViews(geojson, opts = {}) {
       stats[`loop-llm-${variant}`] = { cols: comp.cols, rows: comp.rows }
     }
 
-    // 形狀變體循環：讀 opts.shapeByVariant[variant]（llmshapes），格網相符才預算——
-    // 成方佈局套綠折骨架、凍結方形，跑 HC → 各鏈 → 循環 → loop-<kind>-<variant>-shape。
+    // 形狀變體：成方 cells 當 base（不跑 HC）→ 各鏈 → 循環。
     const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
     if (shp) {
       const shSk = shp.greens.length ? applyShapeGreens(skeleton, shp.greens) : skeleton
       const frozen = shapeFrozenSet(shSk, opts.cityId, shp.greens)
       setFrozen({ ringIds: [...frozen], members: frozen })
       try {
-        const shHc = buildHillClimb(shSk, shp.cells, grid.cols, grid.rows)
         for (const kind of CHAIN_KINDS) {
           const post = CHAIN_POST[kind]
-            ? iteratePost(CHAIN_POST[kind], shSk, shHc.cellAfter, grid.cols, grid.rows) : null
-          const base = post ? post.cellAfter : shHc.cellAfter
+            ? iteratePost(CHAIN_POST[kind], shSk, shp.cells, grid.cols, grid.rows) : null
+          const base = post ? post.cellAfter : shp.cells
           const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
           const m = cellMapper(comp.cols, comp.rows)
           const compPos = cellsToPos(comp.cellAfter, m.cellPx, shSk, snap)
@@ -496,10 +489,10 @@ export function computeCityRwdViews(geojson, opts = {}) {
     const projById = projByIdFor(projection, stations, skeleton)
     const grid = buildSchematicGrid(skeleton, projById, extArr)
     const snap = (id) => grid.posAfter.get(id) ?? null
-    const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+    const gridBase = grid.cellOf
     // Topology segments (from the original grid cellOf), parallel/same-track merged
     // — positions come from each compact layout below.
-    const segs = mergeParallelSegs(buildHcGraph(skeleton, grid.cellOf).segs)
+    const segs = mergeParallelSegs(buildHcGraph(skeleton, gridBase).segs)
     const bakeCompactRwd = (kind, base) => {
       const comp = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
       const m = cellMapper(comp.cols, comp.rows)
@@ -517,19 +510,19 @@ export function computeCityRwdViews(geojson, opts = {}) {
     }
 
     for (const kind of CHAIN_KINDS) {
-      // 每條鏈（同 D3Tab 的 RWD）：該鏈結果 → 端點移動＋直線縮減＋網格合併＋縮減網格
-      // **循環到不動點**（straightenCompactLoop——使用者 2026-07 裁決 RWD 要選
-      // 端+直+中+縮 循環的那個結果，不是單趟鏈）。
+      // base＝格網化後（同 D3Tab）；論文鏈先 iteratePost，再循環到不動點。
       const base = CHAIN_POST[kind]
-        ? iteratePost(CHAIN_POST[kind], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
-        : hc.cellAfter
+        ? iteratePost(CHAIN_POST[kind], skeleton, gridBase, grid.cols, grid.rows).cellAfter
+        : gridBase
       bakeCompactRwd(kind, base)
     }
 
-    // LLM 對齊：同 HC 畫廊——有相符的 llmviews 才預算 compact-llm / rwd-llm。
+    // LLM 對齊：fingerprint 對齊格網化後。
+    const gGraph = buildHcGraph(skeleton, gridBase)
     const fp = {
-      verts: hc.stats.verts, segs: hc.stats.segs,
-      cols: grid.cols, rows: grid.rows, hvStart: hc.stats.hvAfter,
+      verts: gGraph.pos.size, segs: gGraph.segs.length,
+      cols: grid.cols, rows: grid.rows,
+      hvStart: countHV(gGraph.pos, gGraph.segs),
     }
     const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
     if (llmBase) bakeCompactRwd('llm', llmBase)

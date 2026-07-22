@@ -1,6 +1,6 @@
 ---
 name: route-llm-shape
-description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten 原始-形狀／旋轉-形狀。把規定路段收成四邊直線正方，存 data/metro/llmshapes。有結果且「執行調整」時餵 HC→直線演算法；下游可動方形頂點但不得破方。輸入＝格網化後；規定表三城。當使用者要求跑/重跑 LLM 成方、餵下游、或問尚未產生時使用。見 [[route-shape-align]]／[[route-hillclimb]]。
+description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten 原始-形狀／旋轉-形狀。把規定路段收成四邊直線正方，存 data/metro/llmshapes。有結果且「執行調整」時餵形狀格→直線演算法；下游可動方形頂點但不得破方。輸入＝格網化後；規定表三城。當使用者要求跑/重跑 LLM 成方、餵下游、或問尚未產生時使用。見 [[route-shape-align]]／[[route-hillclimb]]。
 ---
 
 # LLM 成方 (route-llm-shape)
@@ -31,7 +31,7 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
 - 至少一端在 members、且目前為 H/V 的段，論文鏈／移動後仍須 H/V（不可拉斜成方邊）
 - 成對縮方見 [[route-grid-merge]]；佈局檔 `HC_CELLS_ALGO`（`data/metro/hccells/`）
 
-**與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊吃 HC、目標是
+**與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊也吃格網化後、目標是
 H/V。瀏覽器只載檔，不即時推論。
 
 ## 只對規定表三城
@@ -189,7 +189,7 @@ scripts/llmShape.mjs reset <cityId> <orig|rot>   # 想從頭來
   可能。真的要回報未完成，必須先證明你已試過「整組搬樞紐鄰域＋插綠折＋整體平移方框
   讓出空間」都仍被擋，並具體寫出是哪個點、哪條鐵律、缺多少空間。
 - 網頁端：僅形狀圖層左選單 ⑨「格網→貼形／LLM 成方（往後執行）」；原始／旋轉圖層
-  無此區。有結果且執行調整 → 餵 HC／直線演算法。**重新跑會先清掉舊串流與結果**。
+  無此區。有結果且執行調整 → 餵形狀格／直線演算法。**重新跑會先清掉舊串流與結果**。
 - POST `/llm-shape/run`（vite dev plugin `llmShapeTrigger`）觸發、輪詢
   `/llm-shape/status`。GH Pages 沒有 dev server → 按鈕回報需本機 `npm run dev`。
   測試替身：`LLM_SHAPE_CMD`。跨距上限經 `LLM_SPAN_CAP` env 傳入（與網頁一致）。

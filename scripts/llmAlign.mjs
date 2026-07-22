@@ -24,7 +24,7 @@ import { geoMercator } from 'd3-geo'
 import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
-import { buildHillClimb, buildHcGraph, applyLlmTargets, setSpanCap } from '../src/stores/hillClimb.js'
+import { buildHcGraph, applyLlmTargets, setSpanCap, gridLayoutFingerprint } from '../src/stores/hillClimb.js'
 
 // 跨距上限（SPAN_CAP）：與網頁一致——vite plugin 觸發的 headless run 經
 // LLM_SPAN_CAP env 傳入網頁「已套用」的最大跨距；手動 CLI 跑（無 env）＝預設 3。
@@ -68,13 +68,10 @@ for (const c of skeleton.crossings ?? []) {
   if (p) projById.set(c.id, p)
 }
 const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
-const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
-const fingerprint = {
-  verts: hc.stats.verts, segs: hc.stats.segs,
-  cols: grid.cols, rows: grid.rows, hvStart: hc.stats.hvAfter,
-}
+// base＝Map Adjust 格網化後（與①〜⑧相同；不再吃 HC）
+const fingerprint = gridLayoutFingerprint(skeleton, grid.cellOf, grid.cols, grid.rows)
 
-// Current working layout = saved LLM state (if it matches this dataset) or HC.
+// Current working layout = saved LLM state (if it matches) or 格網化後.
 let saved = null
 if (existsSync(outFile)) {
   saved = JSON.parse(await readFile(outFile, 'utf8'))
@@ -85,7 +82,7 @@ if (existsSync(outFile)) {
 }
 const baseCells = saved
   ? new Map(saved.cellAfter.map(([id, c, r]) => [id, [c, r]]))
-  : hc.cellAfter
+  : grid.cellOf
 
 // Stable vertex indexing: sorted ids (same order every run).
 const ids = [...baseCells.keys()].sort()
@@ -150,10 +147,10 @@ if (cmd === 'export') {
   const rejected = targetEntries
     .filter(([id, t]) => id && (res.cellAfter.get(id)[0] !== t[0] || res.cellAfter.get(id)[1] !== t[1]))
     .map(([id, t]) => ({ i: idxOf.get(id), want: t, got: res.cellAfter.get(id) }))
-  let movedVsHC = 0
+  let movedVsBase = 0
   for (const [id, p] of res.cellAfter) {
-    const q = hc.cellAfter.get(id)
-    if (q && (q[0] !== p[0] || q[1] !== p[1])) movedVsHC++
+    const q = grid.cellOf.get(id)
+    if (q && (q[0] !== p[0] || q[1] !== p[1])) movedVsBase++
   }
   // A note-only apply (no moves) documents the session without counting a round.
   const rounds = (saved?.rounds ?? 0) + (noteOnly ? 0 : 1)
@@ -174,14 +171,14 @@ if (cmd === 'export') {
     finalOutput: saved?.finalOutput, // trigger plugin's merge survives re-applies
     transcript,
     hvBefore: fingerprint.hvStart, hvAfter: res.stats.hvAfter,
-    segs: segs.length, moved: movedVsHC,
+    segs: segs.length, moved: movedVsBase,
     cellAfter: [...res.cellAfter].map(([id, [c, r]]) => [id, c, r]),
   }))
   console.log(JSON.stringify({
     round: rounds,
     hv: `${res.stats.hvBefore} -> ${res.stats.hvAfter} / ${segs.length}`,
-    hvFromHC: fingerprint.hvStart,
-    reverted: res.stats.reverted, movedThisRound: res.stats.moved, movedVsHC,
+    hvFromGrid: fingerprint.hvStart,
+    reverted: res.stats.reverted, movedThisRound: res.stats.moved, movedVsBase,
     rejected,
   }, null, 1))
 } else if (cmd === 'reset') {

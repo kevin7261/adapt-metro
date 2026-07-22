@@ -16,7 +16,7 @@ import { computeOrientation } from '../stores/orientation'
 import { buildConnectSkeleton, DEFAULT_RIVER_GRAY_SINUOSITY } from '../stores/skeleton'
 import { buildSchematicGrid, placeBlacks } from '../stores/schematicGrid'
 import {
-  buildHillClimb, buildHcGraph, iteratePost, POST_ITER_CAP,
+  buildHcGraph, iteratePost, POST_ITER_CAP, countHV,
   straightenCompactLoop, movewiseStage,
   stepChainInit, stepChainNext, setSpanCap, setFrozen,
 } from '../stores/hillClimb'
@@ -198,7 +198,7 @@ const promptRunner = makeRun({
 })
 const startPromptRun = promptRunner.start
 // ---- 執行 LLM 對齊結果（不用 LLM）----
-// 「執行調整」切換「LLM 對齊」主視圖（mode 'hc-llm'）顯示的佈局：base HC ⇄ 自動
+  // 「執行調整」切換「LLM 對齊」主視圖（mode 'hc-llm'）顯示的佈局：格網化後 ⇄ 自動
 // ⇄ 指定（自動與指定互斥）。**下游的鏈（hc-llm-*）跟著目前顯示的佈局走**——所以
 // toggle 一變就作廢 'llm' 鏈快取、讓它們以新的顯示佈局重算（使用者裁決）。
 // RWD 'llm' compact 是另一個 layer、沒有 toggle，維持用「自動對齊」當基準。
@@ -337,7 +337,7 @@ const shapeLlmRunner = makeRun({
   },
 })
 const startShapeLlmRun = shapeLlmRunner.start
-// 「執行調整」：套用成方 → ②HC 重算並一路往下；「恢復」→ HC 改回吃格網化後。
+// 「執行調整」：套用成方 → 直線演算法／循環以成方為 base 重算；「恢復」→ base 改回格網化後。
 const shapeLlmApplied = ref(false)
 // 形狀圖層的下游視圖（直線演算法／循環／RWD）在「成方尚未算」時＝畫面寫「成方路線
 // 沒有算」、不跑一般管線（成方圖層專為成方而生）；由 computeHcLayout 設。
@@ -1232,10 +1232,8 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // Shape 比較視圖已於上方 return。非成方 squareGuard＝null。
   setFrozen(squareGuard)
 
-  // 兜底結構驗證：快取的爬山結果必須（a）涵蓋目前輸入的所有節點、且（b）每個格子都落在
-  // 目前格網範圍 [0,cols)×[0,rows) 內。演算法/分類改版後，同一份資料的舊快取可能：節點集
-  // 對不上（缺格子＝RWD/HC 線消失、站懸空），或座標空間變大（如河流分類改變使 cols/rows
-  // 縮小，但舊快取的格子仍在較大空間 → 畫在新的較小格網上會**超出網格**）。任一不符即作廢重算。
+  // 鏈的 base＝Map Adjust 格網化後（或成方）——不再跑／不再吃 HC。
+  // 快取槽 cachedHC 現存這份 base（欄名沿用，內容是 grid/shape cells）。
   const cacheStale = cachedHC && (
     ![...hcInCells.keys()].every((id) => cachedHC.cellAfter.has(id))
     || [...cachedHC.cellAfter.values()].some(([c, r]) => c < 0 || r < 0 || c >= grid.cols || r >= grid.rows)
@@ -1245,26 +1243,25 @@ async function computeHcLayout({ seq, w, h, grid }) {
     cachedPost = {}
   }
   if (!cachedHC) {
-    hcBusy.value = true
-    busyText.value = shapeFeedsHc
-      ? `爬山最佳化中…（輸入＝${shapeFeedSource.value === 'algo' ? '格網貼形' : 'LLM 成方'}）`
-      : '爬山最佳化中…（多準則適應度 + 硬規則掃描）'
-    await new Promise((r) => setTimeout(r, 30)) // let the busy hint paint first
-    if (seq !== renderSeq) { hcBusy.value = false; return null } // superseded
-    const t0 = performance.now()
-    cachedHC = buildHillClimb(hcSk, hcInCells, grid.cols, grid.rows)
-    cachedHC.stats.ms = Math.round(performance.now() - t0)
+    const g = buildHcGraph(hcSk, hcInCells)
+    cachedHC = {
+      cellAfter: new Map([...hcInCells].map(([id, p]) => [id, [p[0], p[1]]])),
+      stats: {
+        verts: g.pos.size, segs: g.segs.length,
+        hvAfter: countHV(g.pos, g.segs), ms: 0,
+        base: shapeFeedsHc ? 'shape' : 'grid',
+      },
+    }
     if (shapeFeedsHc) cachedHC.stats.shapeFeed = shapeFeedSource.value
-    hcBusy.value = false
     persistHcCells(shapeFeedsHc)
     syncCalcMs()
   }
   hcStats.value = cachedHC.stats
   // 背景預算其餘直線演算法鏈（閒置時算好寫 hccells）→ 檔齊後打開秒開。
+  // base＝格網化後／成方（cachedHC.cellAfter）。
   warmChains(hcSk, cachedHC.cellAfter, grid.cols, grid.rows, shapeFeedsHc, squareGuard, seq)
   let cells = cachedHC.cellAfter, nC = grid.cols, nR = grid.rows
-  // H/V-maximising post-pass tabs: same grid, short-distance vertex moves on
-  // top of the hill-climbing result (each kind cached once per dataset).
+  // 直線演算法：以格網化後（／成方）為輸入，短距離移動（每 kind 快取一次）。
   if (postKind.value) {
     const kind = postKind.value
     if (!cachedPost[kind]) {
@@ -1293,9 +1290,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   // 成方座標快照：後續 LLM 對齊／評價覆寫 cells 時釘回去（離線檔可能破方）。
   let frozenPin = shapeFeedsHc ? snapshotFrozen(cells, frozenIds) : null
 
-  // 第四種「LLM 對齊」: precomputed offline (skill route-llm-align) — fetch
-  // the llmview for this city+variant and verify it matches THIS dataset's
-  // HC result (fingerprint), otherwise explain how to (re)generate it.
+  // 「LLM 對齊」: 離線 llmviews——fingerprint 對齊格網化後（hvStart＝base 的 H/V）。
   if (useLlm.value) {
     // 唯讀載入對齊結果供面板顯示＋切換用（跟評價/互動一樣，跑的時候不阻擋畫圖：
     // 沒有結果或未套用時就照畫對齊前的 base 佈局，不留白）。
@@ -1309,7 +1304,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
           missStale: 'LLM 對齊結果與目前資料不符（資料已更新）——請重新產生',
           missErr: '無法載入 LLM 對齊結果',
           fpOk: (fp) => fp.cols === grid.cols && fp.rows === grid.rows
-            && fp.hvStart === cachedHC.stats.hvAfter,
+            && fp.hvStart === cachedHC.stats.hvAfter, // hvAfter＝格網化後／成方的 H/V
           onOk: (j) => ({ cells: new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]])), stats: j }),
         })
       if (seq !== renderSeq) return null // superseded during fetch
@@ -2416,7 +2411,7 @@ watch(() => panelLayer.value?.id, () => {
 function recalcSpan() {
   appliedSpanCap.value = panelLayer.value?.spanCap ?? 3
   calcMs.value = {}
-  // 跨距上限只約束爬山（setSpanCap → buildHillClimb），所以它與其後處理必須一併作廢，
+  // 跨距上限約束直線演算法／movewise（setSpanCap），所以鏈結果必須一併作廢，
   // 否則 render() 的 `if (!cachedHC)` 會沿用舊上限的佈局，下游重算也只是換湯不換藥。
   cachedHC = null
   cachedPost = {}

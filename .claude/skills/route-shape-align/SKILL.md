@@ -31,11 +31,11 @@ description: Shape-Guided（Batik et al. 2022 精神）——只掛在 Straighte
 ```
 格網化後
   →（僅形狀圖層）⑨ LLM 成方
-  → HC（背後算）→ 直線演算法①〜⑧＋LLM 對齊 → …
+  → 直線演算法①〜⑧＋LLM 對齊（輸入＝成方，不吃 HC）→ …
 ```
 
 - **原始／旋轉**：永不餵成方、無成方護欄。
-- **形狀圖層＋成方**：HC／直線演算法／循環／RWD 吃成方；ring＋綠折經 `setFrozen({ ringIds, members })`
+- **形狀圖層＋成方**：直線演算法／循環／RWD 吃成方；ring＋綠折經 `setFrozen({ ringIds, members })`
   只准剛體平移（禁單點／單邊啃方）；RWD 對成方 H/V 邊 `shapeLock` 強制直線。
   成方邊用**灰白邊襯底**標出（不畫超大外框 `guideBoxPx`）。
 - **重新計算圖層**：清空形狀圖層的成方套用，需再開 ⑨ tab 重算。

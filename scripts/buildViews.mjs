@@ -35,7 +35,7 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 46 // 46: LLM 自動對齊全量重算後重編畫廊（hc/rwd 的 loop-llm／rwd-llm）。
+const VIEWS_VERSION = 47 // 47: 直線演算法／循環 base＝格網化後（不再吃 HC）。
                          // 45: 全球 views/hcviews/rwdviews 強制重算（與 LLM 成方無關；llmshapes 已清空）。
                          // 43: ⑨ Shape-Guided 對齊論文 Smooth（固定 Ωc 最近點＋硬投影；非弧長）。
                          // 41: ⑨ Shape-Guided 形狀庫只留方形（拿掉圓）。

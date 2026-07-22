@@ -1,5 +1,5 @@
 // ---- 整數格佈局持久化（data/metro/hccells/*.json，不用 localStorage）----
-// 最貴的計算是爬山（buildHillClimb）＋後處理（iteratePost）＋循環（straightenCompactLoop）。
+// 最貴的計算是直線演算法（iteratePost，base＝格網化後）＋循環（straightenCompactLoop）。
 // 輸出是純資料（cellAfter = Map<id,[c,r]>、stats），與畫布大小無關 → 寫進檔案，
 // 關 tab 再開／重新整理直接 fetch 載回、不重跑。
 //
@@ -12,7 +12,8 @@
 import { assetUrl } from './assetUrl'
 
 // 改了 skeleton／schematicGrid／hillClimb／movewise 演算法就 +1（舊檔自動失效）。
-export const HC_CELLS_ALGO = 'hccells-v1'
+// v2: 直線演算法／循環 base＝格網化後（不再吃 HC）
+export const HC_CELLS_ALGO = 'hccells-v2'
 
 export function dataFingerprint(data) {
   let h = 5381

@@ -30,7 +30,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, buildHcGraph, iteratePost, applyLlmTargets,
+  buildHcGraph, iteratePost, applyLlmTargets,
   straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
@@ -85,13 +85,13 @@ for (const c of skeleton.crossings ?? []) {
   if (p) projById.set(c.id, p)
 }
 const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
-const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+const gridBase = grid.cellOf
 
-// Same base-layout selection as the RWD view (llmGrid.mjs): the layer's
-// compact chain, then the 端點移動+直線縮減+網格合併 loop to its fixed point.
+// Same base-layout selection as the RWD view (llmGrid.mjs): 格網化後 → 論文鏈
+// → 循環到不動點（不再吃 HC）。
 let baseCells
 if (POST_BUILD[compact]) {
-  baseCells = iteratePost(POST_BUILD[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+  baseCells = iteratePost(POST_BUILD[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
 } else if (compact === 'llm') {
   const f = join(DATA, 'llmviews', `${cityId}.${variant}.json`)
   if (!existsSync(f)) {
@@ -101,13 +101,14 @@ if (POST_BUILD[compact]) {
   const j = JSON.parse(await readFile(f, 'utf8'))
   baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
 } else {
-  baseCells = hc.cellAfter
+  baseCells = gridBase
 }
 const comp = straightenCompactLoop(skeleton, baseCells, grid.cols, grid.rows)
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows
 
-const fingerprint = { verts: hc.stats.verts, segs: hc.stats.segs, cols: nC, rows: nR, compact }
+const g0 = buildHcGraph(skeleton, gridBase)
+const fingerprint = { verts: g0.pos.size, segs: g0.segs.length, cols: nC, rows: nR, compact }
 
 let saved = null
 if (existsSync(outFile)) {

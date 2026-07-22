@@ -13,7 +13,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import {
-  buildHillClimb, buildHcGraph, iteratePost, straightenCompactLoop,
+  buildHcGraph, iteratePost, straightenCompactLoop,
 } from '../src/stores/hillClimb.js'
 import { buildRwdMap, mergeParallelSegs } from '../src/stores/rwdMap.js'
 import { PAPER_BUILD, PAPER_ZH, PAPER_KINDS } from '../src/stores/paperAlign.js'
@@ -58,11 +58,11 @@ async function candidatesFor(variant) {
     if (p) projected.set(c.id, p)
   }
   const grid = buildSchematicGrid(skeleton, projected, [24, 24, 1176, 776])
-  const hc = buildHillClimb(skeleton, grid.cellOf, grid.cols, grid.rows)
+  const gridBase = grid.cellOf
 
   async function one(compact) {
     let base
-    if (POST[compact]) base = iteratePost(POST[compact], skeleton, hc.cellAfter, grid.cols, grid.rows).cellAfter
+    if (POST[compact]) base = iteratePost(POST[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
     else {
       const f = join(DATA, 'llmviews', `${cityId}.${variant}.json`)
       if (!existsSync(f)) return null
