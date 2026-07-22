@@ -1,7 +1,7 @@
 // movewise 三步鏈＋循環＋逐步驗證——自 hillClimb.js 抽出，公開契約不變。
 import {
   buildHcGraph, makeMover, countHV,
-  makeUnionFind, compactGridSafe, POST_ITER_CAP,
+  makeUnionFind, compactGridSafe,
   setFrozen, getFrozen,
 } from './hillClimb.js'
 import { sharesRoute, isHV } from './netUtil.js'
@@ -430,6 +430,10 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
   return movewiseCore(stage, skeleton, cells, cols, rows, null)
 }
 
+// 網格合併掃到不動點的保險上限——不可共用 POST_ITER_CAP（=20，論文鏈用）。
+// 成方圖層幾乎全靠「成對縮方」，東京山手一圈就需要數十次；用 20 會半途截斷
+// （實測 rot-shape：20 次停在 62×64，跑滿可到 21×20 且方仍在；使用者回報 2026-07）。
+const MERGE_ITER_CAP = 5000
 // 網格合併的 stage 驅動：single=true 只掃一遍（循環用）、否則掃到沒有可合併
 // （網格合併 tab 用）。成方時另跑「成對縮方」（單軸切開會破方，成對縮仍保正方）。
 function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
@@ -440,7 +444,7 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
   const hvBefore = countHV(g0.pos, g0.segs)
   const verts = g0.pos.size, segsN = g0.segs.length
   let mergedRows = 0, mergedCols = 0, pairMerges = 0, guardN = 0
-  while (guardN++ < POST_ITER_CAP) {
+  while (guardN++ < MERGE_ITER_CAP) {
     const r = gridMergeSweep(skeleton, cur, nC, nR)
     mergedRows += r.mergedRows
     mergedCols += r.mergedCols
@@ -450,7 +454,7 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
     if (!r.merged || opts.single) break
   }
   let pairGuard = 0
-  while (getFrozen() && pairGuard++ < POST_ITER_CAP) {
+  while (getFrozen() && pairGuard++ < MERGE_ITER_CAP) {
     const p = squarePairShrinkOnce(skeleton, cur, nC, nR)
     if (!p) break
     cur = p.cellAfter
