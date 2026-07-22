@@ -157,6 +157,11 @@ async function main() {
       return JSON.parse(await readFile(join(BASE, 'llmviews', `${id}.${variant}.json`), 'utf8'))
     } catch { return null }
   }
+  async function readShape(id, variant) {
+    try {
+      return JSON.parse(await readFile(join(BASE, 'llmshapes', `${id}.${variant}.json`), 'utf8'))
+    } catch { return null }
+  }
 
   for (const sys of systems) {
     const id = idOf(sys.file)
@@ -180,7 +185,14 @@ async function main() {
       oMv: llmByVariant.orig?.moved ?? null,
       rMv: llmByVariant.rot?.moved ?? null,
     }))
-    const llmOpts = { llmByVariant }
+    // LLM 成方結果（llmshapes）→ 畫廊形狀變體縮圖（loop-*-shape／rwd-*-shape）。
+    const shapeByVariant = { orig: await readShape(id, 'orig'), rot: await readShape(id, 'rot') }
+    const shapeFp = strHash(JSON.stringify({
+      o: shapeByVariant.orig?.fingerprint ?? null, r: shapeByVariant.rot?.fingerprint ?? null,
+      og: (shapeByVariant.orig?.greens ?? []).length, rg: (shapeByVariant.rot?.greens ?? []).length,
+      om: shapeByVariant.orig?.moved ?? null, rm: shapeByVariant.rot?.moved ?? null,
+    }))
+    const llmOpts = { llmByVariant, shapeByVariant, cityId: id }
 
     // 8 Map Adjust views
     try {
@@ -193,7 +205,7 @@ async function main() {
     // Hill Climbing／Straighten 畫廊（含 LLM 對齊循環，有 llmviews 才寫入）
     try {
       // fp 加演算法版本後綴 + llm 指紋：llmviews 更新 → 該城 HC 縮圖重算。
-      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v4:llm=${llmFp}`, true, llmOpts)) === 'reused' ? reused++ : rebuilt++
+      (await buildOrReuse(HC_OUT, computeCityHcViews, hcCatalog, sys, id, geojson, `${fp}:hc-loop-v4:llm=${llmFp}:shape=${shapeFp}`, true, llmOpts)) === 'reused' ? reused++ : rebuilt++
       hcOk++
     } catch (err) {
       hcFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })
@@ -201,7 +213,7 @@ async function main() {
 
     // RWD Maps views（含 LLM 對齊 compact/rwd，有 llmviews 才寫入）
     try {
-      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v6:llm=${llmFp}`, false, llmOpts)) === 'reused' ? reused++ : rebuilt++
+      (await buildOrReuse(RWD_OUT, computeCityRwdViews, rwdCatalog, sys, id, geojson, `${fp}:rwd-loop-v6:llm=${llmFp}:shape=${shapeFp}`, false, llmOpts)) === 'reused' ? reused++ : rebuilt++
       rwdOk++
     } catch (err) {
       rwdFailures.push({ id, city: sys.city, error: String(err?.message ?? err) })

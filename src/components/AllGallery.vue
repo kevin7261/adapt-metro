@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
 import { assetUrl } from '../lib/assetUrl'
@@ -17,6 +17,7 @@ import MIcon from './MIcon.vue'
 // buildViews 預算進 hcviews/rwdviews，缺檔才顯示「尚未預算」）。預設只顯示
 // Metro Maps（不含 RWD Maps）。點任何一格都匯入該城市
 // 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
+// Straighten／RWD 再依「無形狀／有形狀」分子群組；勾選狀態存 localStorage。
 const store = useMapStore()
 
 // 這是無圖層的固定 tab——圖層 tab 靠 selectedLayerId 記錄 active tab，畫廊得自己
@@ -53,7 +54,7 @@ const stRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
 const rwdRows = (variant, vLabel) => CHAINS.map(([c, zh]) => ({
   key: `rwd-${variant}-${c}`, label: `${vLabel}・${zh}`, kind: 'rwd', view: `rwd-${c}-${variant}`, icon: 'route',
 }))
-// 左側清單樹（＝圈層面板結構）：直接列的圖層 + 可收合子群組。
+// 左側清單樹：頂層群組可再含「無形狀／有形狀」子群組（Straighten／RWD）。
 const SIDE = [
   { t: 'group', id: 'raw', label: 'Metro Maps', layers: [
     { key: 'raw-osm', label: 'OSM路網', kind: 'raw', view: 'thumb', icon: 'train' },
@@ -63,25 +64,67 @@ const SIDE = [
     { key: 'adjust-orig', label: '原始・格網化後', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
     { key: 'adjust-rot', label: '旋轉・格網化後', kind: 'adjust', view: 'grid-rot-post', icon: 'polyline' },
   ] },
-  // Straighten／RWD Maps：四個變體（原始／旋轉／原始-形狀／旋轉-形狀）各列全部 9 條鏈。
-  // 形狀變體會餵整條直線演算法管線，故每條鏈都有形狀版；縮圖由 buildViews 預算，
-  // 缺檔（含形狀變體，只有規定表城市有）顯示「尚未預算」。
-  { t: 'group', id: 'straighten', label: 'Straighten', layers: [
-    ...stRows('orig', '原始'), ...stRows('rot', '旋轉'),
-    ...stRows('orig-shape', '原始-形狀'), ...stRows('rot-shape', '旋轉-形狀'),
+  // 無形狀＝原始／旋轉；有形狀＝原始-形狀／旋轉-形狀（餵 LLM 成方後的整條鏈）。
+  // 縮圖由 buildViews 預算；形狀變體缺檔（非規定表城市）顯示「尚未預算」。
+  { t: 'group', id: 'straighten', label: 'Straighten', subgroups: [
+    { id: 'straighten-plain', label: '無形狀', layers: [
+      ...stRows('orig', '原始'), ...stRows('rot', '旋轉'),
+    ] },
+    { id: 'straighten-shape', label: '有形狀', layers: [
+      ...stRows('orig-shape', '原始-形狀'), ...stRows('rot-shape', '旋轉-形狀'),
+    ] },
   ] },
-  { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [
-    ...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉'),
-    ...rwdRows('orig-shape', '原始-形狀'), ...rwdRows('rot-shape', '旋轉-形狀'),
+  { t: 'group', id: 'rwd', label: 'RWD Maps', subgroups: [
+    { id: 'rwd-plain', label: '無形狀', layers: [
+      ...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉'),
+    ] },
+    { id: 'rwd-shape', label: '有形狀', layers: [
+      ...rwdRows('orig-shape', '原始-形狀'), ...rwdRows('rot-shape', '旋轉-形狀'),
+    ] },
   ] },
 ]
-// 攤平成全部圖層（sections 計算與全選用）。
-const ALL = SIDE.flatMap((n) => (n.t === 'layer' ? [n] : n.layers))
+/** 頂層／子群組底下的圖層列（全選、sections、持久化過濾用）。 */
+function nodeLayers(n) {
+  if (n.t === 'layer') return [n]
+  if (n.subgroups) return n.subgroups.flatMap((sg) => sg.layers)
+  return n.layers ?? []
+}
+const ALL = SIDE.flatMap(nodeLayers)
+const ALL_KEYS = new Set(ALL.map((l) => l.key))
 
-// 已勾選的圖層。預設：只勾 Raw Maps（Metro Maps）；RWD／Adjust／Straighten 需手動勾。
-const shown = ref(new Set([
-  ...ALL.filter((l) => l.kind === 'raw').map((l) => l.key),
-]))
+// 勾選＋收合跨 reload（localStorage）。鍵變了（未知 key）會濾掉；缺省＝只勾 Metro Maps。
+const LS_KEY = 'adaptMetro.galleryLayers.v2'
+const DEFAULT_COLLAPSED = {
+  raw: true, adjust: true, straighten: true, rwd: true,
+  'straighten-plain': true, 'straighten-shape': true,
+  'rwd-plain': true, 'rwd-shape': true,
+}
+function defaultShown() {
+  return new Set(ALL.filter((l) => l.kind === 'raw').map((l) => l.key))
+}
+function readLs() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null') } catch { return null }
+}
+function writeLs(payload) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(payload)) } catch { /* quota / private */ }
+}
+function loadShown() {
+  const raw = readLs()
+  if (!raw?.shown || !Array.isArray(raw.shown)) return defaultShown()
+  const next = raw.shown.filter((k) => ALL_KEYS.has(k))
+  return next.length ? new Set(next) : defaultShown()
+}
+function loadCollapsed() {
+  const raw = readLs()?.collapsed
+  return { ...DEFAULT_COLLAPSED, ...(raw && typeof raw === 'object' ? raw : {}) }
+}
+
+const shown = ref(loadShown())
+const collapsed = reactive(loadCollapsed())
+watch([shown, collapsed], () => {
+  writeLs({ shown: [...shown.value], collapsed: { ...collapsed } })
+}, { deep: true })
+
 const isOn = (key) => shown.value.has(key)
 function toggle(key) {
   const s = new Set(shown.value)
@@ -93,17 +136,17 @@ const allOn = computed(() => ALL.every((l) => shown.value.has(l.key)))
 function toggleAll() {
   shown.value = allOn.value ? new Set() : new Set(ALL.map((l) => l.key))
 }
-// 子群組整組開關（tri-state：全開才勾）。
-const groupAllOn = (node) => node.layers.every((l) => shown.value.has(l.key))
-const groupSomeOn = (node) => node.layers.some((l) => shown.value.has(l.key))
+// 群組／子群組整組開關（tri-state：全開才勾）。頂層有 subgroups 時涵蓋其全部圖層。
+const layersOf = (node) => node.layers ?? nodeLayers(node)
+const groupAllOn = (node) => layersOf(node).every((l) => shown.value.has(l.key))
+const groupSomeOn = (node) => layersOf(node).some((l) => shown.value.has(l.key))
 function toggleGroup(node) {
+  const layers = layersOf(node)
   const on = groupSomeOn(node)
   const s = new Set(shown.value)
-  for (const l of node.layers) { if (on) s.delete(l.key); else s.add(l.key) }
+  for (const l of layers) { if (on) s.delete(l.key); else s.add(l.key) }
   shown.value = s
 }
-// 子群組收合（清單內，本地狀態；預設全部縮起）。
-const collapsed = reactive({ raw: true, adjust: true, straighten: true, rwd: true })
 
 // 卡片要畫的區段：把勾選的圖層依 kind 併起（同 kind 的代表 view 收成 order）。
 const sections = computed(() => {
@@ -151,7 +194,7 @@ function pick(kind, entry, viewId) {
           <MIcon :name="node.icon" :size="13" class="side-icon" />
           <span class="side-name">{{ node.label }}</span>
         </label>
-        <!-- 可收合子群組（Straighten / RWD Maps） -->
+        <!-- 可收合頂層群組（Metro Maps / Map Adjust / Straighten / RWD Maps） -->
         <template v-else>
           <div class="side-sub">
             <button class="side-chev" @click="collapsed[node.id] = !collapsed[node.id]">
@@ -165,19 +208,53 @@ function pick(kind, entry, viewId) {
               @change="toggleGroup(node)"
             />
             <span class="side-sub-name" @click="collapsed[node.id] = !collapsed[node.id]">{{ node.label }}</span>
-            <span class="side-sub-count">{{ node.layers.length }}</span>
+            <span class="side-sub-count">{{ layersOf(node).length }}</span>
           </div>
           <template v-if="!collapsed[node.id]">
-            <label
-              v-for="l in node.layers"
-              :key="l.key"
-              class="side-row nested"
-              :class="{ on: isOn(l.key) }"
-            >
-              <input type="checkbox" :checked="isOn(l.key)" @change="toggle(l.key)" />
-              <MIcon :name="l.icon" :size="13" class="side-icon" />
-              <span class="side-name">{{ l.label }}</span>
-            </label>
+            <!-- Straighten／RWD：再分「無形狀／有形狀」 -->
+            <template v-if="node.subgroups">
+              <template v-for="sg in node.subgroups" :key="sg.id">
+                <div class="side-sub nested-sub">
+                  <button class="side-chev" @click="collapsed[sg.id] = !collapsed[sg.id]">
+                    <MIcon :name="collapsed[sg.id] ? 'chevron_right' : 'expand_more'" :size="14" />
+                  </button>
+                  <input
+                    type="checkbox"
+                    class="side-sub-check"
+                    :checked="groupAllOn(sg)"
+                    :indeterminate.prop="groupSomeOn(sg) && !groupAllOn(sg)"
+                    @change="toggleGroup(sg)"
+                  />
+                  <span class="side-sub-name" @click="collapsed[sg.id] = !collapsed[sg.id]">{{ sg.label }}</span>
+                  <span class="side-sub-count">{{ sg.layers.length }}</span>
+                </div>
+                <template v-if="!collapsed[sg.id]">
+                  <label
+                    v-for="l in sg.layers"
+                    :key="l.key"
+                    class="side-row nested deep"
+                    :class="{ on: isOn(l.key) }"
+                  >
+                    <input type="checkbox" :checked="isOn(l.key)" @change="toggle(l.key)" />
+                    <MIcon :name="l.icon" :size="13" class="side-icon" />
+                    <span class="side-name">{{ l.label }}</span>
+                  </label>
+                </template>
+              </template>
+            </template>
+            <!-- Metro Maps／Map Adjust：直接列圖層 -->
+            <template v-else>
+              <label
+                v-for="l in node.layers"
+                :key="l.key"
+                class="side-row nested"
+                :class="{ on: isOn(l.key) }"
+              >
+                <input type="checkbox" :checked="isOn(l.key)" @change="toggle(l.key)" />
+                <MIcon :name="l.icon" :size="13" class="side-icon" />
+                <span class="side-name">{{ l.label }}</span>
+              </label>
+            </template>
           </template>
         </template>
       </template>
@@ -229,6 +306,7 @@ function pick(kind, entry, viewId) {
 .side-row:hover { background: hsl(var(--accent) / 0.6); }
 .side-row.on { color: hsl(var(--primary)); }
 .side-row.nested { margin-left: 14px; border-left: 2px solid hsl(var(--border)); padding-left: 8px; }
+.side-row.nested.deep { margin-left: 28px; }
 .side-icon { flex-shrink: 0; color: hsl(var(--muted-foreground)); }
 .side-row.on .side-icon { color: hsl(var(--primary)); }
 .side-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -236,6 +314,7 @@ function pick(kind, entry, viewId) {
 
 /* 子群組標題（可收合 + 整組開關） */
 .side-sub { display: flex; align-items: center; gap: 4px; padding: 4px 6px; }
+.side-sub.nested-sub { margin-left: 14px; border-left: 2px solid hsl(var(--border)); padding-left: 8px; }
 .side-chev {
   display: inline-flex;
   color: hsl(var(--muted-foreground));

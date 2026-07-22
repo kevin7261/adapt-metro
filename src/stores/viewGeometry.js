@@ -17,9 +17,11 @@ import { buildConnectSkeleton } from './skeleton.js'
 import { buildSchematicGrid, placeBlacks } from './schematicGrid.js'
 import {
   buildHillClimb, buildHcGraph, iteratePost,
-  straightenCompactLoop,
+  straightenCompactLoop, setFrozen,
 } from './hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD, PAPER_ZH } from './paperAlign.js'
+import { applyShapeGreens } from './paper/shape.js'
+import { getShapePresets } from './paper/shapePresets.js'
 import { buildRwdMap, mergeParallelSegs } from './rwdMap.js'
 import { NODE_COLOR, EDGE_HL, stationColor, strokesOf as strokesOfShared } from '../lib/metroDraw.js'
 
@@ -36,6 +38,32 @@ function llmCellsIfMatch(llmview, fingerprint) {
   if (!llmview?.cellAfter || !llmview.fingerprint) return null
   if (JSON.stringify(llmview.fingerprint) !== JSON.stringify(fingerprint)) return null
   return new Map(llmview.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+}
+
+// llmshape 檔（LLM 成方結果）→ { cells, greens }；格網 cols/rows 相符才用（成方
+// fingerprint＝verts/segs/cols/rows，無 hvStart）。否則 null（畫廊「成方路線沒有算」）。
+function shapeIfMatch(shape, grid) {
+  const fp = shape?.fingerprint
+  if (!shape?.cellAfter || !fp) return null
+  if (fp.cols !== grid.cols || fp.rows !== grid.rows) return null
+  return {
+    cells: new Map(shape.cellAfter.map(([id, c, r]) => [id, [c, r]])),
+    greens: shape.greens ?? [],
+  }
+}
+
+// 成方凍結集：規定 ring 站＋各環路線邊上所有站＋綠折點（比照 D3Tab expandShapeMembers）。
+function shapeFrozenSet(skeleton, cityId, greens) {
+  const out = new Set((greens ?? []).map((g) => g.id))
+  for (const p of (getShapePresets(cityId) ?? [])) {
+    for (const id of (p.stations ?? [])) out.add(id)
+    if (p.routeId && skeleton.edges) {
+      for (const e of skeleton.edges) {
+        if (e.routes?.has(p.routeId)) for (const id of e.path) out.add(id)
+      }
+    }
+  }
+  return out
 }
 
 // Single colour → solid; overlap (≥2 DISTINCT colours) → interleaved dashes.
@@ -361,6 +389,28 @@ export function computeCityHcViews(geojson, opts = {}) {
       views[`loop-llm-${variant}`] = drawFromPos(skeleton, stations, lineFeats, compPos, m.sep)
       stats[`loop-llm-${variant}`] = { cols: comp.cols, rows: comp.rows }
     }
+
+    // 形狀變體循環：讀 opts.shapeByVariant[variant]（llmshapes），格網相符才預算——
+    // 成方佈局套綠折骨架、凍結方形，跑 HC → 各鏈 → 循環 → loop-<kind>-<variant>-shape。
+    const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
+    if (shp) {
+      const shSk = shp.greens.length ? applyShapeGreens(skeleton, shp.greens) : skeleton
+      const frozen = shapeFrozenSet(shSk, opts.cityId, shp.greens)
+      setFrozen({ ringIds: [...frozen], members: frozen })
+      try {
+        const shHc = buildHillClimb(shSk, shp.cells, grid.cols, grid.rows)
+        for (const kind of CHAIN_KINDS) {
+          const post = CHAIN_POST[kind]
+            ? iteratePost(CHAIN_POST[kind], shSk, shHc.cellAfter, grid.cols, grid.rows) : null
+          const base = post ? post.cellAfter : shHc.cellAfter
+          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
+          const m = cellMapper(comp.cols, comp.rows)
+          const compPos = cellsToPos(comp.cellAfter, m.cellPx, shSk, snap)
+          views[`loop-${kind}-${variant}-shape`] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
+          stats[`loop-${kind}-${variant}-shape`] = { cols: comp.cols, rows: comp.rows }
+        }
+      } finally { setFrozen(null) }
+    }
   }
 
   return { W, H, tilt, canRotate, views, stats }
@@ -483,6 +533,35 @@ export function computeCityRwdViews(geojson, opts = {}) {
     }
     const llmBase = llmCellsIfMatch(opts.llmByVariant?.[variant], fp)
     if (llmBase) bakeCompactRwd('llm', llmBase)
+
+    // 形狀變體：讀 opts.shapeByVariant[variant]（llmshapes），成方佈局套綠折骨架、凍結
+    // 方形，跑 HC → 各鏈 → 循環 → compact/rwd-<kind>-<variant>-shape。
+    const shp = opts.cityId ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
+    if (shp) {
+      const shSk = shp.greens.length ? applyShapeGreens(skeleton, shp.greens) : skeleton
+      const frozen = shapeFrozenSet(shSk, opts.cityId, shp.greens)
+      setFrozen({ ringIds: [...frozen], members: frozen })
+      try {
+        const shSegs = mergeParallelSegs(buildHcGraph(shSk, shp.cells).segs)
+        const shHc = buildHillClimb(shSk, shp.cells, grid.cols, grid.rows)
+        for (const kind of CHAIN_KINDS) {
+          const base = CHAIN_POST[kind]
+            ? iteratePost(CHAIN_POST[kind], shSk, shHc.cellAfter, grid.cols, grid.rows).cellAfter
+            : shHc.cellAfter
+          const comp = straightenCompactLoop(shSk, base, grid.cols, grid.rows)
+          const m = cellMapper(comp.cols, comp.rows)
+          const compPos = new Map()
+          for (const [id, cell] of comp.cellAfter) compPos.set(id, m.cellPx(cell))
+          placeBlacks(shSk, compPos, snap)
+          views[`compact-${kind}-${variant}-shape`] = drawFromPos(shSk, stations, lineFeats, compPos, m.sep)
+          const rwd = buildRwdMap(shSegs, compPos, {
+            unit: Math.min(m.cw, m.ch),
+            lattice: { x0, y0, sx: m.cw / 2, sy: m.ch / 2, nx: comp.cols * 2 + 1, ny: comp.rows * 2 + 1 },
+          })
+          views[`rwd-${kind}-${variant}-shape`] = drawRwd(shSk, stations, rwd, m.sep)
+        }
+      } finally { setFrozen(null) }
+    }
   }
   return { W, H, tilt, canRotate, views }
 }

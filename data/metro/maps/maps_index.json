@@ -45,9 +45,9 @@
   "wikidata": null,
   "map_file": "maps/asia/japan/as-jpn-tokyo.png",
   "commons_file": null,
-  "source_url": "https://www.tokyometro.jp/tst/assets/pdf/train-route--ja.pdf",
+  "source_url": "https://www.tokyometro.jp/tcn/subwaymap/index.html",
   "license": "Official operator map (© Tokyo Metro; thesis use)",
-  "artist": "公式 東京メトロ＋都営地下鉄 路線図（日本語版, 2024.4）"
+  "artist": "公式 東京メトロ＋都営地下鉄 地鐵路線圖（繁体中文版, 2023.05）"
  },
  "europe/germany/eu-ger-munich": {
   "city": "Munich",
@@ -2318,7 +2318,7 @@
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "artist": "أبو تائب"
  },
- "_rev": 1784664789720,
+ "_rev": 1784724361656,
  "americas/bolivia/am-bol-cochabamba": {
   "city": "Cochabamba",
   "country": "Bolivia",

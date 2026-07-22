@@ -1,0 +1,21 @@
+[
+  {
+    "city": "as-kor-seoul",
+    "variant": "rot",
+    "status": "fail",
+    "square": false,
+    "via": "greedy",
+    "crosses": "0→0",
+    "rings": [
+      {
+        "route": "2號線循環線",
+        "square": false,
+        "q": {
+          "ar": 1.02,
+          "onEdge": 0.95,
+          "sides": 4
+        }
+      }
+    ]
+  }
+]

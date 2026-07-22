@@ -657,8 +657,10 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   const greens = []
   let gi = 0
   const cl = (c, lim) => Math.max(0, Math.min(lim - 1, c))
+  // 每環至多 4 個角綠折（莫斯科兩環 → 上限 8）
+  const greenCap = Math.max(4, picks.length * 4)
   for (const spec of (greenSpecs ?? [])) {
-    if (greens.length >= 4) break // 方形至多 4 個角綠折
+    if (greens.length >= greenCap) break
     const a = spec.a, b = spec.b
     if (!Number.isInteger(spec.c) || !Number.isInteger(spec.r)) continue
     const si = segs.findIndex((s) => (s.a === a && s.b === b) || (s.a === b && s.b === a))
