@@ -37,6 +37,8 @@ const lab = ref(props.labelsForTilt ? props.labelsForTilt(props.entry.tilt ?? 0)
 const compare = ref(null)       // { winner, winnerOrig, winnerRot } | null
 let observer = null
 
+// LLM 對齊循環的視圖（loop-llm-* / rwd-llm-*）→ 左上角標 AI icon
+const isLlmView = (id) => /-llm-(orig|rot)$/.test(id ?? '')
 // rwd-rect-orig → orig.rect（與 llmcompares 候選 id 對齊）
 function compareIdOf(viewId) {
   const m = /^rwd-([a-z]+)-(orig|rot)$/.exec(viewId ?? '')
@@ -155,13 +157,16 @@ onBeforeUnmount(() => observer?.disconnect())
               class="dot"
             />
           </svg>
+          <div v-if="isLlmView(id)" class="vc-ai" title="LLM 對齊（AI 產生）">
+            <MIcon name="auto_awesome" :size="12" />
+          </div>
           <div v-if="compareTags(id).length" class="vc-badges">
             <span
               v-for="t in compareTags(id)"
               :key="t.kind"
               class="vc-badge"
               :class="'vc-badge--' + t.kind"
-            >{{ t.label }}</span>
+            ><MIcon name="auto_awesome" :size="10" /><span>{{ t.label }}</span></span>
           </div>
           <span v-if="state === 'error'" class="vc-msg">載入失敗</span>
           <span v-else-if="data && !data.views[id]" class="vc-msg">尚未預算</span>

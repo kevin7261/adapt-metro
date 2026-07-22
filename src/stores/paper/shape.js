@@ -1,17 +1,15 @@
-// Shape-Guided（Batik et al. 2022 精神）——§4/§5 暖身＋§6 徑向成方（密網實用主路徑）。
-// §4 規定路段 W → §5 平滑／混合 LS（平面性守門）
-// → §6 徑向／RBF 整網成方＋釘四邊＋清交叉（Octi 僅 opts.tryOcti 可選加強）。
-// 掛在「⑨Shape-Guided／layout-shape」；要不要算看 shapePresets（未規定＝不跑）。
+// Shape-Guided（Batik et al. 2022 精神）——⑨ LLM 成方（route-llm-shape）的支援機構。
+// 演算法本體 buildShapeAlign（格網→貼形 layout-shape）已移除（2026-07，使用者裁決）；
+// 此檔現只保留 LLM 成方需要的：規定路段選路／對齊（pickRouteAndAlign）、成方判準與
+// 品質（squareQuality／wSquareBox／fourSideTargets）、綠折套用（applyShapeGreens）、
+// LLM 脈絡與套用（shapeLlmContext／applyShapeLlmTargets）＋共用拓撲/幾何工具。
+// 要不要算看 shapePresets（未規定＝不跑）。
 import {
-  buildHcGraph, countHV, countHVD, makeMover,
+  buildHcGraph, makeMover,
 } from '../hillClimb.js'
 import {
-  emptyResult, sectorOf, SECTOR_VEC, TWO_PI,
-} from './_shared.js'
-import {
-  SHAPE_SQUARE, getShapePreset,
+  SHAPE_SQUARE, getShapePreset, getShapePresets,
 } from './shapePresets.js'
-import { runShapeOctiGrid } from './shapeOcti.js'
 import { isShapeGreenId, isFourLineSquare } from './shapeSquare.js'
 
 export { isFourLineSquare }
@@ -483,13 +481,8 @@ function extractRouteStations(rt, pos, segment) {
   return ids
 }
 
-function pickRouteAndAlign(skeleton, pos, cityId) {
-  const preset = getShapePreset(cityId)
-  if (!preset) return null
-  const routes = skeleton.routes
-  if (!routes?.size) return null
-
-  const list = [...routes.values()].filter((rt) => !String(rt.id).startsWith('river:'))
+/** 單一規定路段 → pick（找路線、解析環站、對齊引導方）；解析不到回 null。 */
+function pickOneRing(list, preset, pos) {
   const matched = list.find((r) => r.id === preset.routeId)
     ?? list.find((r) => preset.nameRe.test(r.name ?? '')
       && (preset.segment !== 'full' || r.stations?.[0] === r.stations?.[r.stations.length - 1]
@@ -497,8 +490,8 @@ function pickRouteAndAlign(skeleton, pos, cityId) {
     ?? list.find((r) => preset.nameRe.test(r.name ?? ''))
 
   // 規定表站序完整存在才直接用；缺站（骨架 x* 重編）→ 從同名路線依 segment 解析
-  let cutIds = dedupeAdj(preset.stations.filter((id) => pos.has(id)))
-  const presetComplete = cutIds.length === dedupeAdj(preset.stations).length && cutIds.length >= MIN_CUTS
+  let cutIds = dedupeAdj((preset.stations ?? []).filter((id) => pos.has(id)))
+  const presetComplete = cutIds.length === dedupeAdj(preset.stations ?? []).length && cutIds.length >= MIN_CUTS
   if (!presetComplete) {
     if (!matched) return null
     cutIds = extractRouteStations(matched, pos, preset.segment)
@@ -518,40 +511,59 @@ function pickRouteAndAlign(skeleton, pos, cityId) {
   }
 }
 
+/** 一城全部規定環（多環）→ pick 陣列（解析不到的環略過）。 */
+function pickAllRings(skeleton, pos, cityId) {
+  const presets = getShapePresets(cityId)
+  if (!presets?.length || !skeleton.routes?.size) return []
+  const list = [...skeleton.routes.values()].filter((rt) => !String(rt.id).startsWith('river:'))
+  return presets.map((p) => pickOneRing(list, p, pos)).filter(Boolean)
+}
+
+/** 向後相容：只取第一環（單環城市即唯一環）。 */
+function pickRouteAndAlign(skeleton, pos, cityId) {
+  const preset = getShapePreset(cityId)
+  if (!preset || !skeleton.routes?.size) return null
+  const list = [...skeleton.routes.values()].filter((rt) => !String(rt.id).startsWith('river:'))
+  return pickOneRing(list, preset, pos)
+}
+
 export function shapeLlmContext(skeleton, cells, cols, rows, cityId) {
   const { pos, segs } = buildHcGraph(skeleton, cells)
   if (!pos.size || !segs.length) return null
-  const pick = pickRouteAndAlign(skeleton, pos, cityId)
-  if (!pick) return null
-  const { cutIds } = pick
+  const picks = pickAllRings(skeleton, pos, cityId) // 一城多環
+  if (!picks.length) return null
   const cross0 = improperCrossCount(pos, segs)
-  const box = wSquareBox(pos, cutIds, cols, rows)
-  const ft = box ? fourSideTargets(cutIds, box, true) : null
-  const q = squareQuality(cutIds, pos)
-  const square = isFourLineSquare(cutIds, pos, segs)
-  const ring = []
-  const seen = new Set()
-  for (const id of cutIds) {
-    if (seen.has(id)) continue
-    seen.add(id)
-    ring.push(id)
-  }
   // 邊表（連通性）——讓 LLM 能把「整條線／整個分支」當一組一起搬（整組移動）。
   const edges = segs.map((s) => [s.a, s.b])
+  const dedupe = (ids) => {
+    const out = []
+    const seen = new Set()
+    for (const id of ids) { if (!seen.has(id)) { seen.add(id); out.push(id) } }
+    return out
+  }
+  const rings = picks.map((pick) => {
+    const { cutIds } = pick
+    const box = wSquareBox(pos, cutIds, cols, rows)
+    const ft = box ? fourSideTargets(cutIds, box, true) : null
+    const q = squareQuality(cutIds, pos)
+    return {
+      routeName: pick.routeName,
+      routeId: pick.routeId,
+      cutIds: dedupe(cutIds),
+      box: box ? { minX: box.minX, minY: box.minY, maxX: box.maxX, maxY: box.maxY, side: box.side } : null,
+      targets: ft?.targets ?? null,
+      square: isFourLineSquare(cutIds, pos, segs),
+      quality: {
+        ar: Number.isFinite(q.ar) ? +q.ar.toFixed(2) : null,
+        onEdge: +(q.onEdge ?? 0).toFixed(2),
+        sides: q.sides ?? 0,
+      },
+    }
+  })
   return {
-    routeName: pick.routeName,
-    routeId: pick.routeId,
-    cutIds: ring,
-    edges,
-    box: box ? { minX: box.minX, minY: box.minY, maxX: box.maxX, maxY: box.maxY, side: box.side } : null,
-    targets: ft?.targets ?? null,
-    cross0,
-    square,
-    quality: {
-      ar: Number.isFinite(q.ar) ? +q.ar.toFixed(2) : null,
-      onEdge: +(q.onEdge ?? 0).toFixed(2),
-      sides: q.sides ?? 0,
-    },
+    rings, edges, cross0,
+    routeName: rings.map((r) => r.routeName).join('＋'),
+    allSquare: rings.every((r) => r.square),
   }
 }
 
@@ -562,9 +574,9 @@ export function shapeLlmContext(skeleton, cells, cols, rows, cityId) {
  * 綠折點凍結在角/彎不動。跟演算本體「W 鎖方後再跑一輪只動其餘站」同精神，讓 network
  * 形狀與原圖差異最小。回傳 { pos, settled }（settled＝實際被拉回的站數）。
  */
-function settleTowardOriginal(layout, original, segs, cols, rows, cutIds, gate, maxPasses = 40) {
+function settleTowardOriginal(layout, original, segs, cols, rows, cutIdsList, gate, maxPasses = 40) {
   const pos = new Map([...layout].map(([id, p]) => [id, [...p]]))
-  const ringSet = new Set(cutIds)
+  const ringSet = new Set(cutIdsList.flat())
   let settled = 0
   const occ = () => {
     const s = new Set()
@@ -592,8 +604,8 @@ function settleTowardOriginal(layout, original, segs, cols, rows, cutIds, gate, 
         const dnew = Math.hypot(cand[0] - orig[0], cand[1] - orig[1])
         if (dnew >= d0) continue
         pos.set(id, cand)
-        // 完整 D1 鐵律（無壓線＋不新增互穿＋360° 環繞序）＋環站額外守成方
-        const okSquare = !ringSet.has(id) || isFourLineSquare(cutIds, pos, segs)
+        // 完整 D1 鐵律（無壓線＋不新增互穿＋360° 環繞序）＋環站額外守成方（每一環都要守）
+        const okSquare = !ringSet.has(id) || cutIdsList.every((ci) => isFourLineSquare(ci, pos, segs))
         if (gate(pos) && okSquare) {
           taken.delete(ckey(cur[0], cur[1]))
           taken.add(ckey(cand[0], cand[1]))
@@ -622,10 +634,12 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   if (!pos0.size || !segs0.length) {
     return { cellAfter: pos0, stats: { segs: 0, verts: pos0.size, moved: 0, square: false, reverted: false, rejected: [], greens: [] } }
   }
-  const pick = pickRouteAndAlign(skeleton, pos0, cityId)
-  const cutIds = pick ? pick.cutIds : []
+  const picks = pickAllRings(skeleton, pos0, cityId) // 一城多環（如莫斯科 2 環）
+  const cutIdsList = picks.map((p) => p.cutIds)
+  const allCutIds = cutIdsList.flat()
   const cross0 = improperCrossCount(pos0, segs0) // 論文 D1 基準（未插綠點）
-  const squareBefore = cutIds.length ? isFourLineSquare(cutIds, pos0, segs0) : false
+  const squareBefore = cutIdsList.length
+    ? cutIdsList.every((ci) => isFourLineSquare(ci, pos0, segs0)) : false
   const clone = (m) => new Map([...m].map(([id, p]) => [id, [...p]]))
   const geo0 = clone(pos0) // 未插綠點的輸入佈局（退回基準）
 
@@ -680,7 +694,7 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
     targets.set(id, [cl(t[0], cols), cl(t[1], rows)])
   }
 
-  const pathSet = new Set(cutIds)
+  const pathSet = new Set(allCutIds)
   const frozen = new Set([...targets.keys(), ...greens.map((g) => g.id)])
 
   // 策略 A（原子整批）：目標格「一次到位」（不經逐點中間態），被壓到的非目標站推離，
@@ -716,7 +730,7 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   // 讓 network 形狀與原圖差異最小。geo＝回歸目標＋環繞序基準；gate＝同一套鐵律。
   let settled = 0
   if (!reverted) {
-    const s = settleTowardOriginal(chosen, geo, segs, cols, rows, cutIds, gate)
+    const s = settleTowardOriginal(chosen, geo, segs, cols, rows, cutIdsList, gate)
     chosen = s.pos
     settled = s.settled
   }
@@ -726,8 +740,16 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
   if (reverted) via = 'reverted'
 
   const cross1 = improperCrossCount(finalPos, finalSegs)
-  const square = cutIds.length ? isFourLineSquare(cutIds, finalPos, finalSegs) : false
-  const q = cutIds.length ? squareQuality(cutIds, finalPos) : { ar: Infinity, onEdge: 0, sides: 0 }
+  // 每一環都要成方才算 square；per-ring 明細供回報。品質取「最差環」（ar 最大）。
+  const ringResults = picks.map((pk) => ({
+    route: pk.routeName,
+    square: isFourLineSquare(pk.cutIds, finalPos, finalSegs),
+    q: squareQuality(pk.cutIds, finalPos),
+  }))
+  const square = ringResults.length ? ringResults.every((r) => r.square) : false
+  const q = ringResults.length
+    ? ringResults.reduce((w, r) => (r.q.ar > (w?.ar ?? -1) ? r.q : w), null)
+    : { ar: Infinity, onEdge: 0, sides: 0 }
   const rejected = [...targets]
     .filter(([id, t]) => {
       const p = finalPos.get(id)
@@ -745,7 +767,8 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
     cellAfter: finalPos,
     greens: finalGreens.map((g) => ({ id: g.id, c: g.c, r: g.r, a: g.a, b: g.b })),
     stats: {
-      route: pick?.routeName ?? null,
+      route: picks.map((p) => p.routeName).join('＋') || null,
+      rings: ringResults.map((r) => ({ route: r.route, square: r.square })),
       segs: finalSegs.length, verts: pos0.size, moved, via,
       cross0, cross1, crosses: `${cross0}→${cross1}`,
       squareBefore, square,
@@ -765,4 +788,4 @@ export function applyShapeLlmTargets(skeleton, cells, cols, rows, targetEntries,
 }
 
 export { SHAPE_ZH }
-export { SHAPE_SQUARE, SHAPE_PRESETS, getShapePreset, shapePresetKey } from './shapePresets.js'
+export { SHAPE_SQUARE, SHAPE_PRESETS, getShapePreset, getShapePresets, shapePresetKey } from './shapePresets.js'

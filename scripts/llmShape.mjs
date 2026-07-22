@@ -101,15 +101,13 @@ if (cmd === 'export') {
     const [c, r] = baseCells.get(id)
     return { i, c, r }
   })
-  // 環站（W）依站序；ring[k] 相鄰 ring[k+1]（末尾接回首站＝閉合環）。
-  const ring = ctx.cutIds.map((id) => ({ i: idxOf.get(id), c: baseCells.get(id)[0], r: baseCells.get(id)[1] }))
-  // 建議的正方目標格（把 W 均分到四邊，底→右→頂→左）——LLM 可照抄或自行微調。
-  const suggest = {}
-  if (ctx.targets) {
-    for (const [id, t] of ctx.targets) {
-      if (idxOf.has(id)) suggest[idxOf.get(id)] = t
-    }
-  }
+  // 一城多環：每一環各給 ring 站序＋建議正方目標＋是否已成方（LLM 每一環都要收方）。
+  const rings = ctx.rings.map((r) => {
+    const ring = r.cutIds.map((id) => ({ i: idxOf.get(id), c: baseCells.get(id)[0], r: baseCells.get(id)[1] }))
+    const suggest = {}
+    if (r.targets) for (const [id, t] of r.targets) if (idxOf.has(id)) suggest[idxOf.get(id)] = t
+    return { route: r.routeName, square: r.square, quality: r.quality, box: r.box, ring, suggest }
+  })
   // 邊表（連通性，索引對）——讓 LLM 把整條線／整個分支當一組一起搬（整組移動）。
   const edges = ctx.edges
     .filter(([a, b]) => idxOf.has(a) && idxOf.has(b))
@@ -117,10 +115,9 @@ if (cmd === 'export') {
   console.log(JSON.stringify({
     city: cityId, variant, cols: grid.cols, rows: grid.rows,
     rounds: saved?.rounds ?? 0, model: saved?.model ?? null,
-    route: ctx.routeName, cross0: ctx.cross0,
-    square: ctx.square, quality: ctx.quality,
-    box: ctx.box, segsTotal: fingerprint.segs,
-    ring, suggest, edges, verts,
+    route: ctx.routeName, cross0: ctx.cross0, allSquare: ctx.allSquare,
+    segsTotal: fingerprint.segs,
+    rings, edges, verts,
   }))
 } else if (cmd === 'apply') {
   if (!movesPath) { console.error('apply 需要 moves.json 路徑'); process.exit(1) }
@@ -160,6 +157,7 @@ if (cmd === 'export') {
     prompt: saved?.prompt ?? spec.prompt ?? null,
     finalOutput: saved?.finalOutput,
     route: res.stats.route ?? saved?.route ?? null,
+    rings: res.stats.rings ?? null,
     transcript,
     square: res.stats.square, quality: res.stats.quality,
     via: res.stats.via, crosses: res.stats.crosses,
@@ -170,7 +168,7 @@ if (cmd === 'export') {
   }))
   console.log(JSON.stringify({
     round: rounds,
-    square: res.stats.square, via: res.stats.via, crosses: res.stats.crosses,
+    square: res.stats.square, rings: res.stats.rings, via: res.stats.via, crosses: res.stats.crosses,
     greens: res.stats.greenCount, settled: res.stats.settled, quality: res.stats.quality,
     reverted: res.stats.reverted, movedThisRound: res.stats.moved, movedVsBase,
     rejected,

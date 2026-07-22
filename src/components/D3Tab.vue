@@ -22,7 +22,7 @@ import {
   PAPER_KINDS, PAPER_BUILD, PAPER_ZH,
   applyShapeGreens,
 } from '../stores/paperAlign'
-import { getShapePreset } from '../stores/paper/shapePresets.js'
+import { getShapePreset, getShapePresets } from '../stores/paper/shapePresets.js'
 import {
   PAPER_KIND_IDS, layoutKindOf, endKindOf, lineKindOf, gatherKindOf,
   loopKindOf, stepKindOf, postKindOf, needsHcLayout,
@@ -626,20 +626,15 @@ const hcBusy = ref(false)
 const busyText = ref('')
 const hcStats = ref(null)
 const layoutStats = ref(null)    // Hill Climbing 區 layout-* 比較視圖的 stats
-// Shape-Guided：按「執行」才算；過程 log 顯示在畫布 overlay
-const shapeRunning = ref(false)
-const shapeLog = ref([])
-const shapeAwaitExec = ref(false) // 目前在 Shape tab 且尚無結果 → 顯示執行鈕
-let shapeRunCtx = null // { cells, cols, rows, cityId }（僅 layout-shape）
 // 各佈局實際算了多久（毫秒）——tab 名後面標注用。key：`hc`（爬山本體）、
-// `layout-shape`／`layout-shape-llm`、`post-<kind>`（直線演算法鏈）。
+// `layout-shape-llm`、`post-<kind>`（直線演算法鏈）。
 // 值跟著快取走：算過就一直是那個數字，按「重新計算此城市全部圖層」清掉才重算。
 const calcMs = ref({})
-const calcNotes = ref({}) // 論文鏈等：時間後加註；Shape-Guided 略過／錯誤 → 不顯示 ms
+const calcNotes = ref({}) // 論文鏈等：時間後加註；LLM 成方略過／錯誤 → 不顯示 ms
 const shapeRouteName = ref(null) // 規定路線名（例：山手線）；有算過才顯示
 const shapeNoNeed = ref(false)   // 規定外 → 整組 disable、不計算
 const shapeFailLabel = ref(null) // '不需計算' | null
-const shapeFeedSource = ref(null) // 'llm' | 'algo' | null——目前餵下游的成方來源
+const shapeFeedSource = ref(null) // 'llm' | null——目前餵下游的成方來源
 /** 形狀圖層＋規定表有此城 → 開 Shape-Guided；原始／旋轉圖層永不開 */
 const shapeEnabled = computed(() =>
   isShapeLayer.value && !!getShapePreset(sourceLayer.value?.id))
@@ -650,27 +645,20 @@ function syncCalcMs() {
   for (const k of Object.keys(cachedLayout)) {
     const st = cachedLayout[k]?.stats
     if (!st) continue
-    if (k === 'shape' && (st.skipped || st.note === '不需計算' || st.pending)) {
-      notes[`layout-${k}`] = st.pending ? '待執行' : '不需計算'
-      continue
-    }
     if (st.ms != null) out[`layout-${k}`] = st.ms
-    if (st.note && k !== 'shape') notes[`layout-${k}`] = st.note
+    if (st.note) notes[`layout-${k}`] = st.note
   }
   for (const k of Object.keys(cachedPost)) {
     if (cachedPost[k]?.stats?.ms != null) out[`post-${k}`] = cachedPost[k].stats.ms
     if (cachedPost[k]?.stats?.note) notes[`post-${k}`] = cachedPost[k].stats.note
   }
-  const shapeSt = cachedLayout.shape?.stats
-  const shapeRoute = shapeSt?.route ?? null
-  // 規定外：選單一進來就標「不需計算」、不依賴先算過
+  // 規定路線名（例：山手線）取自規定表；規定外整組不需計算
   if (!shapeEnabled.value) {
-    notes['layout-shape'] = '不需計算'
     shapeRouteName.value = null
     shapeNoNeed.value = true
     shapeFailLabel.value = '不需計算'
   } else {
-    shapeRouteName.value = shapeRoute
+    shapeRouteName.value = getShapePreset(sourceLayer.value?.id)?.label ?? null
     shapeNoNeed.value = false
     shapeFailLabel.value = null
   }
@@ -678,7 +666,6 @@ function syncCalcMs() {
   calcNotes.value = notes
 }
 
-/** Shape-Guided 單次結果（不走 iteratePost 多輪） */
 // 「88ms」/「1.2s」；沒算過回空字串（tab 名就不帶標注）。
 const msText = (ms) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
 const msBadge = (key) => {
@@ -695,16 +682,6 @@ const lineStats = ref(null)      // 直線縮減: { hvBefore, hvAfter, segs, mov
 const gatherStats = ref(null)    // 網格合併: { moved, segs, verts, iters, iterCap, converged }
 const stepInfo = ref(null)       // 逐步驗證: { info, steps, round, done }（顯示在浮動面板）
 const loopStats = ref(null)      // 循環: { hvBefore, hvAfter, segs, moved, lineMoved, rounds, fromCols, ..., converged }
-/** 已有結果時顯示「重新計算」（cached* 非 reactive，靠 stats） */
-const shapeCanRerun = computed(() => {
-  if (!shapeEnabled.value || shapeRunning.value || shapeAwaitExec.value) return false
-  if (layoutKindOf(mode.value) === 'shape') {
-    const s = layoutStats.value
-    return !!(s && !s.pending && !s.skipped)
-  }
-  return false
-})
-const shapeLogText = computed(() => shapeLog.value.join('\n'))
 const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // ---- 權重驅動版面簡化（RWD Maps 左側「權重」tab，論文 §九）----
 // weight 掛在 cut-to-cut 段上；'weight' 模式時 weight → 非均勻欄寬列高 → 在新像素座標
@@ -1025,10 +1002,6 @@ function resetPerDataset(data) {
   shapeRouteName.value = null
   shapeNoNeed.value = false
   shapeFailLabel.value = null
-  shapeRunning.value = false
-  shapeLog.value = []
-  shapeAwaitExec.value = false
-  shapeRunCtx = null
   postIters.value = {}
   llmInfo.value = null
   llmStats.value = null
@@ -1064,7 +1037,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
   setSpanCap(appliedSpanCap.value)
   setFrozen(null) // 成方護欄：預設關；只有形狀圖層真下游吃成方才設（見下）
 
-  // ⑨ 成方：LLM 成方檔先載入；格網→貼形結果在 cachedLayout.shape（手動執行後）。
+  // ⑨ 成方：LLM 成方檔先載入。
   // 「重新計算圖層」會清快取＋shapeFeedCleared／套用=false → 不成方管線，需開 tab 重算。
   const cityIdForShape = sourceLayer.value?.id ?? null
   const shapeCleared = !!hcLayer.value?.shapeFeedCleared
@@ -1119,14 +1092,14 @@ async function computeHcLayout({ seq, w, h, grid }) {
   const hcInCells = shapeFeedsHc ? shapeFeedCells : grid.cellOf
   // 成方護欄：ring＋綠折＋成方路線上所有 cut；members 剛體平移＋H/V 邊鎖定。
   // frozenIds＝members（RWD shapeLock／LLM 釘回）；setFrozen 另帶 ringIds 序。
-  const shapePreset = shapeFeedsHc ? getShapePreset(cityIdForShape) : null
-  const shapeRingIds = shapePreset?.stations ?? []
-  const frozenIds = shapeFeedsHc
-    ? expandShapeMembers(
-      hcSk,
-      shapePreset,
-      [...shapeRingIds, ...shapeGreens.map((g) => g.id)],
-    )
+  // 一城多環（如莫斯科 2 環）：ring 站集＝全部環的 stations 聯集；frozen members 逐環
+  // expandShapeMembers 累積聯集（每環各把自己路線的邊上站都納入護欄）。
+  const shapePresets = shapeFeedsHc ? (getShapePresets(cityIdForShape) ?? []) : []
+  const shapeRingIds = shapePresets.flatMap((p) => p.stations ?? [])
+  const frozenIds = shapeFeedsHc && shapePresets.length
+    ? shapePresets.reduce(
+      (acc, p) => expandShapeMembers(hcSk, p, acc),
+      new Set([...shapeRingIds, ...shapeGreens.map((g) => g.id)]))
     : null
   const squareGuard = frozenIds
     ? { ringIds: shapeRingIds, members: frozenIds }
@@ -1390,11 +1363,6 @@ async function computeHcLayout({ seq, w, h, grid }) {
       // 循環＋縮減後座標已 remap——更新成方快照供評價套用時釘回
       if (shapeFeedsHc) frozenPin = snapshotFrozen(cells, frozenIds)
     }
-  }
-  // shape 在上方 early-return 已處理；其餘 mode 關掉待執行態
-  {
-    const lk = layoutKindOf(mode.value)
-    if (lk !== 'shape') shapeAwaitExec.value = false
   }
   // 逐步驗證 tabs: 顯示逐步執行的當前佈局（按「下一步」由 stepNext
   // 推進 stepState 後重畫；見 stepKindOf）。
@@ -2071,13 +2039,11 @@ async function render() {
   // 形狀圖層全鏈（⑨／直線演算法／循環／RWD）：規定 ring＋綠折 → 灰白邊襯底
   let shapeRingIds = null
   if (isHC.value && isShapeLayer.value) {
-    const preset = getShapePreset(sourceLayer.value?.id)
-    if (preset) {
-      shapeRingIds = new Set(preset.stations)
-      const greens = (shapeLlmApplied.value && cachedShapeLlm?.stats?.greens)
-        || cachedLayout.shape?.greens
-        || cachedLayout.shape?.stats?.greens
-        || []
+    const presets = getShapePresets(sourceLayer.value?.id) // 一城多環 → 全部環都襯底
+    if (presets?.length) {
+      shapeRingIds = new Set()
+      for (const p of presets) for (const id of (p.stations ?? [])) shapeRingIds.add(id)
+      const greens = (shapeLlmApplied.value && cachedShapeLlm?.stats?.greens) || []
       for (const g of greens) shapeRingIds.add(g.id)
     }
   }
@@ -2199,23 +2165,6 @@ const layoutStatus = computed(() => {
     const lk = layoutKindOf(m)
     if (isHC.value && lk && layoutStats.value) {
       const s = layoutStats.value
-      if (lk === 'shape') {
-        if (s.skipped || s.note === '不需計算') {
-          return { text: 'Shape-Guided 不需計算', llmRerun: false }
-        }
-        if (s.pending) {
-          return { text: 'Shape-Guided 待執行（按執行開始算）', llmRerun: false }
-        }
-        return {
-          text: `Shape-Guided${s.route ? ` ${s.route}` : ''} · 移動 ${s.moved} 站`
-            + (s.quality?.square || s.quality?.fourLine ? ' · 已成方' : '')
-            + (s.greenCount ? ` · 綠控 ${s.greenCount}` : '')
-            + (s.rulesOk === false ? ' · 規則未過' : '')
-            + (s.crosses ? ` · 交叉 ${s.crosses}` : '')
-            + (s.via ? ` · ${s.via}` : ''),
-          llmRerun: false,
-        }
-      }
       let t = `水平垂直 ${s.hvBefore} → ${s.hvAfter}／${s.segs} 段 · 迭代 ${s.iters}/${s.iterCap}`
         + (s.converged ? '' : '（達上限未收斂）')
         + ` · 移動 ${s.moved} 站`
@@ -2350,18 +2299,19 @@ const dataSourceText = computed(() => {
 watch(() => layer.value?.sourceLayerId, () => { cacheData = null; render() })
 watch(mode, render)
 // 舊版「循環後 Shape-Guided」／「初步直線化 hc」mode → 退回直線演算法①
+// （已移除的 layout-shape／layout-shape-delaunay 若殘留在存檔也一併退回）
 watch(mode, (m) => {
-  if (/^hc-.+-shape$/.test(m) || m === 'hc' || m === 'layout-shape-delaunay'
+  if (/^hc-.+-shape$/.test(m) || m === 'hc'
+    || m === 'layout-shape' || m === 'layout-shape-delaunay'
     || /^layout-(stroke|milp|force|lsq|octi|path|sat)$/.test(m)) {
     mode.value = 'hc-stroke'
   }
 }, { immediate: true })
-// 非形狀圖層／規定外：清掉 Shape tab；若仍停在相關 mode → 退回直線演算法①
+// 非形狀圖層／規定外：若仍停在相關 mode → 退回直線演算法①
 watch([shapeEnabled, isShapeLayer, () => sourceLayer.value?.id], () => {
   syncCalcMs()
   if (shapeEnabled.value) return
-  if (cachedLayout.shape) delete cachedLayout.shape
-  if (mode.value === 'layout-shape' || mode.value === 'layout-shape-llm') mode.value = 'hc-stroke'
+  if (mode.value === 'layout-shape-llm') mode.value = 'hc-stroke'
 })
 // 樣式 tab 的「顏色點間最大跨距」：滑桿只改 layer.spanCap，不自動重算——
 // 快取沿用 appliedSpanCap（上次套用的值），按「重新計算」才作廢重算。
@@ -2663,28 +2613,6 @@ onBeforeUnmount(() => {
           </svg>
           <div ref="tipEl" class="ma-tip" />
           <div v-if="loading" class="ma-hint">載入中…</div>
-          <div v-else-if="shapeRunning" class="ma-hint llm-hint">
-            <div class="llm-run-card">
-              <div class="llm-spinner" />
-              <div class="llm-run-title">Shape-Guided 計算中</div>
-              <div class="llm-run-desc">{{ busyText }}</div>
-              <div class="llm-run-label">過程</div>
-              <pre class="llm-run-log">{{ shapeLogText }}</pre>
-            </div>
-          </div>
-          <div v-else-if="shapeAwaitExec" class="ma-hint llm-hint">
-            <div class="llm-run-card">
-              <div class="llm-run-title">Shape-Guided</div>
-              <div class="llm-run-desc">
-                規定路段嵌成正方形（四邊 H/V），且不可改變拓撲。
-                成方後會餵直線演算法並凍結方形；底圖為輸入佈局，按執行才開始計算。
-              </div>
-              <button type="button" class="llm-run-btn" @click="runShapeNow()">執行</button>
-            </div>
-          </div>
-          <div v-else-if="shapeCanRerun" class="shape-rerun-dock">
-            <button type="button" class="llm-run-btn shape-rerun-btn" @click="rerunShapeNow">重新計算</button>
-          </div>
           <div v-else-if="hcBusy" class="ma-hint">{{ busyText }}</div>
           <div v-else-if="loadError" class="ma-hint error">{{ loadError }}</div>
           <!-- LLM 比較結果：本 RWD 視圖若是全部／原始／旋轉最佳，右上角標示 -->
@@ -2988,21 +2916,6 @@ onBeforeUnmount(() => {
   background: hsl(var(--primary) / 0.12);
 }
 .llm-run-btn:hover:not(:disabled) { background: hsl(var(--primary) / 0.22); }
-.shape-rerun-dock {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  z-index: 4;
-  pointer-events: auto;
-}
-.shape-rerun-btn {
-  width: auto;
-  min-width: 96px;
-  margin-top: 0;
-  padding: 0 14px;
-  background: hsl(var(--card) / 0.95);
-  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
-}
 .llm-box {
   display: flex;
   flex-direction: column;

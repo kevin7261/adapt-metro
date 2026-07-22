@@ -64,12 +64,18 @@ scripts/llmShape.mjs reset <cityId> <orig|rot>   # 想從頭來
 ## 執行迴圈（你要做的事）
 
 1. `node scripts/llmShape.mjs export <cityId> <variant>`。輸出：
-   - `route`（規定路線名）、`cols/rows`、`cross0`（輸入交叉數）、`square`（目前是否
-     已成四邊方）、`quality`（ar／onEdge／sides）、`box`（W 目前外接正方框）。
-   - `ring`：規定路段環站，`[{i,c,r},…]`，**依站序**——`ring[k]` 相鄰 `ring[k+1]`，
-     末尾接回首站（閉合環）。`i` = 穩定索引（依 id 排序）。
-   - `suggest`：把 ring 均分到四邊（底→右→頂→左）的**建議正方目標格**，`{ "<i>":
-     [col,row] }`。可照抄、也可自行微調。
+   - `route`（全部環的名稱以＋串接）、`cols/rows`、`cross0`（輸入交叉數）、
+     `allSquare`（**每一環都成方才 true**）。
+   - **`rings`：一城多環的陣列**（莫斯科有 2 環、其餘城市 1 環）。**每一環都要收成
+     方**。每個 ring 物件：
+     - `route`（該環路線名）、`square`（該環目前是否成方）、`quality`、`box`（該環
+       外接正方框）。
+     - `ring`：該環的環站 `[{i,c,r},…]`，**依站序**（`ring[k]` 相鄰 `ring[k+1]`，末尾
+       接回首站＝閉合環）。`i` = 穩定索引（依 id 排序，全城共用一套索引）。
+     - `suggest`：把該環均分到四邊的**建議正方目標格** `{ "<i>": [col,row] }`。
+   - **多環一起提**：所有環的 moves 寫進**同一個** moves.json（共用一套 verts 索引）；
+     apply 是整個佈局一次套用、逐環驗方（回報 `rings[].square` 與 `allSquare`）。多環
+     之間也不得互穿（同一套鐵律）——把兩環的目標與擋路點都納進同一批（via=batch）。
    - `verts`：全部頂點 `[{i,c,r},…]`——**任何點都可移**（不限環站），必要時把擋路
      的非環站先讓開，替方框騰出空間（演算法本體也是整網一起動）。
    - `edges`：邊表 `[[i,j],…]`（索引對，連通性）——**用它把「整條線／整個分支」

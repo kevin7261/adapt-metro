@@ -1,6 +1,6 @@
 ---
 name: route-shape-align
-description: Shape-Guided（Batik et al. 2022 精神）——只掛在 Straighten 形狀圖層（原始-形狀／旋轉-形狀；規定表城市才有，目前東京／新加坡）。規定路段成「四條直線邊」正方；成方後餵直線演算法，下游可動方形頂點但不得破方。當使用者要求修改 Shape-Guided、問為何交叉／不成方、或問形狀圖層行為時使用。
+description: Shape-Guided（Batik et al. 2022 精神）——只掛在 Straighten 形狀圖層（原始-形狀／旋轉-形狀；規定表城市才有，目前東京／新加坡）。規定路段成「四條直線邊」正方，只留 LLM 成方一種入口；成方後餵直線演算法，下游可動方形頂點但不得破方。當使用者要求修改 Shape-Guided、問為何交叉／不成方、或問形狀圖層行為時使用。
 ---
 
 # Shape-Guided (route-shape-align)
@@ -18,16 +18,19 @@ description: Shape-Guided（Batik et al. 2022 精神）——只掛在 Straighte
 
 | mode | 說明 |
 |---|---|
-| `layout-shape` | 格網→貼形；**成方後往後執行** |
 | `layout-shape-llm` | LLM 成方（見 [[route-llm-shape]]） |
 
-已刪除：`layout-shape-delaunay`。
+**已刪除（2026-07，使用者裁決「已用不到」）**：演算法本體 `layout-shape`（格網→貼形，
+`buildShapeAlign`＋§4/§5/§6 徑向成方＋`runRadialSquareGrid`／`ensurePaperDelivery`／
+`shapeOcti.js` 全套）與更早的 `layout-shape-delaunay`。`shape.js` 現只留 LLM 成方支援
+機構（`shapeLlmContext`／`applyShapeLlmTargets`／`applyShapeGreens`＋選路／成方判準／
+共用幾何）。**⑨ 唯一入口＝LLM 成方**。
 
 ## 與直線演算法的銜接
 
 ```
 格網化後
-  →（僅形狀圖層）⑨ 成方
+  →（僅形狀圖層）⑨ LLM 成方
   → HC（背後算）→ 直線演算法①〜⑧＋LLM 對齊 → …
 ```
 
@@ -37,12 +40,4 @@ description: Shape-Guided（Batik et al. 2022 精神）——只掛在 Straighte
   成方邊用**灰白邊襯底**標出（不畫超大外框 `guideBoxPx`）。
 - **重新計算圖層**：清空形狀圖層的成方套用，需再開 ⑨ tab 重算。
 
-## 格網→貼形
-
-1. **§4 選路**：`shapePresets` 規定 W  
-2. **§5 變形**：平滑／混合 LS；`cross > cross0` → 退回上一輪  
-3. **§6**：`runRadialSquareGrid`  
-4. **必交**：`ensurePaperDelivery`  
-5. `stats.square` → 自動餵直線演算法  
-
-**手動執行**：按「執行」才跑。`HC_LS_KEY` v61+（成方軟護欄）。
+成方判準／護欄機制見 [[route-llm-shape]]（唯一入口）與 [[route-hillclimb]]（`setFrozen` 護欄）。
