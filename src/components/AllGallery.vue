@@ -63,6 +63,7 @@ const SIDE = [
     { key: 'adjust-orig', label: '原始・格網化後', kind: 'adjust', view: 'grid-orig-post', icon: 'polyline' },
     { key: 'adjust-rot', label: '旋轉・格網化後', kind: 'adjust', view: 'grid-rot-post', icon: 'polyline' },
   ] },
+  // 畫廊縮圖只有 orig/rot（離線 hcviews／rwdviews）；形狀圖層在圈層面板匯入後出現。
   { t: 'group', id: 'straighten', label: 'Straighten', layers: [...stRows('orig', '原始'), ...stRows('rot', '旋轉')] },
   { t: 'group', id: 'rwd', label: 'RWD Maps', layers: [...rwdRows('orig', '原始'), ...rwdRows('rot', '旋轉')] },
 ]

@@ -8,14 +8,11 @@ export const PAPER_KIND_IDS = PAPER_KINDS.map((p) => p.kind)
 export const HC_MODE_RE = new RegExp(
   `^hc-(llm|${PAPER_KIND_IDS.join('|')})(?:-(end|line|gather|loop|step))?$`)
 
-// 「Hill Climbing」區的主佈局比較（不含 rect——② 就是爬山本體）。
-// shape＝⑨ Shape-Guided（僅比較；不進 PAPER_KINDS／下游鏈）。
-export const LAYOUT_KINDS = PAPER_KINDS.filter((p) => p.kind !== 'rect')
-// shape-llm／shape-delaunay 必須排在 shape 之前（較長 kind 優先匹配）。
-export const LAYOUT_KIND_IDS = [
-  ...LAYOUT_KINDS.map((p) => p.kind),
-  'shape-llm', 'shape-delaunay', 'shape',
-]
+// ⑨ Shape-Guided 視圖（掛在 Straighten 形狀圖層；不進 PAPER_KINDS）。
+// 初步直線化①〜⑧比較已下架——直線演算法直接吃 HC（可選成方輸入）。
+// shape-llm 必須排在 shape 之前（較長 kind 優先匹配）。
+export const LAYOUT_KINDS = []
+export const LAYOUT_KIND_IDS = ['shape-llm', 'shape']
 export const LAYOUT_MODE_RE = new RegExp(`^layout-(${LAYOUT_KIND_IDS.join('|')})$`)
 
 export const layoutKindOf = (m) => {

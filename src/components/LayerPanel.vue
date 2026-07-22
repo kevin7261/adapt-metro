@@ -9,7 +9,9 @@ import { openLayerDoc } from '../stores/layerDocHandle'
 import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
 import { PAPER_ZH } from '../stores/paperAlign'
+import { variantLabel } from '../stores/layerMigrations'
 import { clearHcCache, dataFingerprint } from '../lib/hcCache'
+import { llmApplySet } from '../lib/llmApplyPersist'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -17,26 +19,21 @@ const store = useMapStore()
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
 // 2026-07 圈層改版：群組＝城市。Raw Maps / Map Adjust 直接列出；Straighten
-// （原始/旋轉）與 RWD Maps（原始/旋轉 × 9 鏈＝18 層）收成可收合的子群組。
+// Straighten（原始／旋轉；規定表城市再加形狀）與 RWD Maps 收成可收合子群組。
 // 鏈名統一取自 paperAlign 的 PAPER_ZH（帶論文圈號①〜⑧）＋ LLM 對齊。
 const RWD_COMPACT_ZH = { ...PAPER_ZH, llm: 'LLM 對齊', hc: '基本' }
 const rwdVariantZh = (l) =>
-  (store.layers.find((s) => s.id === l.sourceLayerId)?.variant === 'rot' ? '旋轉' : '原始')
-// 基底原始圖層名（metro→Metro Maps、railway→Railways、highway→Highways）。
+  variantLabel(store.layers.find((s) => s.id === l.sourceLayerId)?.variant)
 const baseLabel = (l) => (l.railway ? 'Railways' : l.highway ? 'Highways' : 'Metro Maps')
-// Metro Maps 基底層（地鐵、非鐵路／高速公路）——整城的錨點，不給單獨刪除。
 const isMetroMaps = (l) => l.type === 'metro' && !l.railway && !l.highway
-// 完整階段名（toast 用）：含子群組前綴＋變體。
 function stageLabel(l) {
   if (l.type === 'd3') return 'Map Adjust'
-  if (l.type === 'hillclimb') return `Straighten（${l.variant === 'rot' ? '旋轉' : '原始'}）`
+  if (l.type === 'hillclimb') return `Straighten（${variantLabel(l.variant)}）`
   if (l.type === 'rwd') return `RWD Maps（${rwdVariantZh(l)}・${RWD_COMPACT_ZH[l.compact ?? 'hc']}）`
   return baseLabel(l)
 }
-// 圈層列顯示名：子群組內的列不重複群組名（Straighten 列＝原始/旋轉；RWD 列＝
-// 變體・鏈）；基底／Map Adjust 用階段全名。
 function rowLabel(l) {
-  if (l.type === 'hillclimb') return l.variant === 'rot' ? '旋轉' : '原始'
+  if (l.type === 'hillclimb') return variantLabel(l.variant)
   if (l.type === 'rwd') return `${rwdVariantZh(l)}・${RWD_COMPACT_ZH[l.compact ?? 'hc']}`
   if (l.type === 'd3') return 'Map Adjust'
   return baseLabel(l)
@@ -69,9 +66,9 @@ function layersOf(item) {
 const STAGE_SKILLS = {
   d3: ['route-skeleton-connect', 'route-skeleton-grid'],
   hillclimb: ['route-skeleton-grid', 'route-hillclimb', 'route-paper-align',
-    'route-rect-polish', 'route-llm-align', 'route-endpoint-move',
-    'route-line-compact', 'route-grid-merge', 'route-span-cap', 'route-movewise-loop',
-    'route-step-verify'],
+    'route-rect-polish', 'route-llm-align', 'route-shape-align', 'route-llm-shape',
+    'route-endpoint-move', 'route-line-compact', 'route-grid-merge', 'route-span-cap',
+    'route-movewise-loop', 'route-step-verify'],
   rwd: ['route-movewise-loop', 'route-rwd-draw', 'route-llm-grid', 'route-llm-eval', 'route-llm-compare'],
 }
 // 城市專屬規則：只有圖層 id 對得上的那個城市 skill 才顯示（tokyo 涵蓋全日本、
@@ -279,14 +276,26 @@ function removeAllLayers() {
 
 // 重新計算整個城市：關掉該城市所有分頁、清掉快取的 GeoJSON **與 localStorage 的
 // 佈局快取**，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔、Map Adjust /
-// Straighten / RWD 會整條鏈重新計算（初步直線化②與 ①〜⑧ 的比較佈局平常算過就
-// 一直沿用，只有這顆按鈕會讓它們重算）。
+// Straighten / RWD 會整條鏈重新計算。成方（格網→貼形／LLM 成方）一併清空，
+// 必須再開 Shape-Guided tab 手動重算後才會再餵下游。
 async function recomputeCity(item) {
   const all = layersOf(item)
   if (!all.length) return
   for (const l of all) { // 先用來源 GeoJSON 的指紋清掉該城市的持久佈局快取
     const data = layerData[l.id]
     if (data?.features) clearHcCache(dataFingerprint(data))
+  }
+  // 成方套用清空：形狀圖層的 shape|city|orig|rot 釘成 false，並標
+  // shapeFeedCleared——重開 tab 後不會自動把舊 llmshapes 餵進直線演算法。
+  for (const l of all) {
+    if (l.type !== 'hillclimb') continue
+    const d3 = store.layers.find((s) => s.id === l.sourceLayerId)
+    const metroId = d3?.sourceLayerId
+    if (metroId && String(l.variant).includes('shape')) {
+      const base = String(l.variant).includes('rot') ? 'rot' : 'orig'
+      llmApplySet(`shape|${metroId}|${base}`, false)
+      l.shapeFeedCleared = true
+    }
   }
   for (const l of all) {
     dockHandle.api?.getPanel(l.id)?.api.close()

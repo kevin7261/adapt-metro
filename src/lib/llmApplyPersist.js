@@ -17,7 +17,9 @@ export function llmApplyGet(key) {
 export function llmApplySet(key, on) {
   try {
     const s = llmApplyRead()
-    if (on) s[key] = true; else delete s[key]
+    // 一律寫入 true/false（不再 delete）——「重新計算圖層」可把成方套用釘成
+    // false，重整後才不會被「首次有結果預設套用」再度打開。
+    s[key] = !!on
     localStorage.setItem(LLM_APPLY_LS, JSON.stringify(s))
   } catch { /* localStorage 不可用 → 退回「不記憶」 */ }
 }

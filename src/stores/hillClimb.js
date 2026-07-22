@@ -34,6 +34,7 @@ const DEFAULT_W = {
 
 /* ---- exact integer geometry ---- */
 import { sharesRoute, isHV, isHVD } from './netUtil.js'
+import { isFourLineSquare } from './paper/shapeSquare.js'
 
 const ckey = (c, r) => `${c},${r}`
 
@@ -101,15 +102,28 @@ function cyclicEqual(a, b) {
   return true
 }
 
-// 凍結頂點集（固定方形）：② HC 吃 LLM 成方（[[route-llm-shape]]）時，成方路段
-// （規定 ring ＋綠折控制點）的頂點一律不得移動——爬山主迴圈、群集移動、後處理
-// 論文鏈、movewise 三步鏈、每步後的縮減網格全都經 makeMover 這個唯一關口，只要
-// 在此擋掉凍結頂點的單點移動與含凍結頂點的群集平移，「固定方形不改變」就貫穿整條
-// 下游。模組級全域＋setFrozen（比照 movewise 的 SPAN_CAP）；makeMover 於建構時
-// 擷取當下值，故 D3Tab 只要在跑 ② 之前設好、非成方輸入時清成 null 即可。
-let FROZEN = null
-export function setFrozen(ids) {
-  FROZEN = ids && ids.size ? ids : null
+// 成方護欄（[[route-shape-align]]／[[route-llm-shape]]）：形狀圖層吃成方後，
+// 規定 ring＋綠折「可以移動／調整」，但移動後必須仍是四邊直線正方
+// （isFourLineSquare）。硬凍結已改成此軟護欄——循環三演算法／HC／論文鏈／
+// compactGridSafe 全經 makeMover，只要破方就 veto。
+// 模組級＋setFrozen（比照 SPAN_CAP）；makeMover 建構時擷取。
+// setFrozen(null | { ringIds: string[], members: Set<string> })
+let SQUARE_GUARD = null
+export function setFrozen(guard) {
+  if (!guard) { SQUARE_GUARD = null; return }
+  if (guard instanceof Set) {
+    // 舊呼叫：只有 id 集 → 當 members；ring 用非綠點（順序可能不穩，盡量改傳物件）
+    SQUARE_GUARD = {
+      ringIds: [...guard].filter((id) => !String(id).startsWith('shape-g')),
+      members: guard,
+    }
+    return
+  }
+  const ringIds = Array.isArray(guard.ringIds) ? guard.ringIds : []
+  const members = guard.members instanceof Set
+    ? guard.members
+    : new Set(guard.members ?? ringIds)
+  SQUARE_GUARD = ringIds.length && members.size ? { ringIds, members } : null
 }
 
 // Movement machinery shared by the optimizer and the post-passes（②直角爬山
@@ -117,8 +131,21 @@ export function setFrozen(ids) {
 // the §5 hard rules and the mutating move primitive. Closes over the LIVE
 // `pos`; cellOwner mirrors it.
 export function makeMover(pos, segs, inc, cols, rows) {
-  const frozen = FROZEN // 固定方形：擷取當下凍結集，本 mover 一律不動這些頂點
+  const squareGuard = SQUARE_GUARD // 成方護欄：擷取當下；破方的移動一律 veto
   const other = (s, u) => (s.a === u ? s.b : s.a)
+  /** 覆寫若干頂點座標後，成方是否仍成立（不動 members → 直接過） */
+  function squareOk(overrides) {
+    if (!squareGuard) return true
+    let touches = false
+    for (const id of overrides.keys()) {
+      if (squareGuard.members.has(id)) { touches = true; break }
+    }
+    if (!touches) return true
+    const view = {
+      get: (id) => (overrides.has(id) ? overrides.get(id) : pos.get(id)),
+    }
+    return isFourLineSquare(squareGuard.ringIds, view, segs)
+  }
   const nbrsOf = (v) => {
     const out = new Set()
     for (const si of inc.get(v)) out.add(other(segs[si], v))
@@ -144,8 +171,6 @@ export function makeMover(pos, segs, inc, cols, rows) {
 
   // All hard rules for moving single vertex v to P (does not mutate `pos`).
   function validMove(v, P) {
-    // 固定方形：成方路段的頂點凍結、絕不移動（[[route-llm-shape]] 餵 ② 時）
-    if (frozen && frozen.has(v)) return false
     const [c, r] = P
     // ① bounding area + one vertex per cell
     if (c < 0 || r < 0 || c >= cols || r >= rows) return false
@@ -190,6 +215,8 @@ export function makeMover(pos, segs, inc, cols, rows) {
       if (inc.get(u).length < 3) continue // ≤2 edges: order is always preserved
       if (!cyclicEqual(orderKey(u, atCur), orderKey(u, atNew))) return false
     }
+    // ⑤ 成方護欄：動到 ring／綠折時，移動後仍須四邊直線正方
+    if (!squareOk(new Map([[v, P]]))) return false
     return true
   }
 
@@ -204,8 +231,6 @@ export function makeMover(pos, segs, inc, cols, rows) {
   // fixed, so hard rules only apply across the moving/static boundary.
   // (Shared by the optimizer's cluster moves and the 直線縮減 post-pass.)
   function validShift(comp, inC, dc, dr) {
-    // 固定方形：群集含任一凍結頂點就整組不得平移（成方保持原位）
-    if (frozen) { for (const w of comp) if (frozen.has(w)) return false }
     for (const w of comp) {
       const [c, r] = pos.get(w)
       const nc = c + dc, nr = r + dr
@@ -283,6 +308,17 @@ export function makeMover(pos, segs, inc, cols, rows) {
           if (!cyclicEqual(orderKey(x, (id) => pos.get(id)), orderKey(x, at))) return false
         }
       }
+    }
+    // 成方護欄：群集平移若動到 ring／綠折，平移後仍須四邊直線正方
+    // （整塊剛體平移方形通常仍成立；只動一邊則會被否決）
+    if (squareGuard) {
+      const overrides = new Map()
+      for (const w of comp) {
+        if (!squareGuard.members.has(w)) continue
+        const [c, r] = pos.get(w)
+        overrides.set(w, [c + dc, r + dr])
+      }
+      if (overrides.size && !squareOk(overrides)) return false
     }
     return true
   }

@@ -1,6 +1,7 @@
 // Session／圖層名稱 migration（純函式）——從 mapStore 抽出，方便單獨閱讀與測試。
 import CITY_ZH from './cityNamesZh.json'
 import { RWD_COMPACTS } from '../lib/rwdCompacts.js'
+import { getShapePreset } from './paper/shapePresets.js'
 
 // Display name for a metro system = Chinese 城市・國名 (from cityNamesZh.json,
 // keyed by the geojson file stem; 中點分隔，與 Info tab 城市標題一致)。
@@ -15,13 +16,36 @@ export function metroDisplayName(id) {
   return id
 }
 
-export const variantLabel = (v) => (v === 'rot' ? '旋轉' : '原始')
+// Straighten 變體：原始／旋轉一定有；原始-形狀／旋轉-形狀只在規定表城市才建。
+export const HC_VARIANTS_BASE = ['orig', 'rot']
+export const HC_VARIANTS_SHAPE = ['orig-shape', 'rot-shape']
+export const HC_VARIANT_ORDER = ['orig', 'rot', 'orig-shape', 'rot-shape']
+
+/** 格網方向：orig|rot（形狀圖層也對應同一方向） */
+export const variantBase = (v) => (String(v ?? '').includes('rot') ? 'rot' : 'orig')
+/** 是否為形狀圖層（可跑 Shape-Guided／成方餵下游） */
+export const variantIsShape = (v) => String(v ?? '').includes('shape')
+/** 正規化／白名單；未知值退回 orig */
+export function normalizeHcVariant(v) {
+  const s = String(v ?? '')
+  if (HC_VARIANT_ORDER.includes(s)) return s
+  if (s === 'rot') return 'rot'
+  return 'orig'
+}
+export const variantLabel = (v) => {
+  const base = variantBase(v) === 'rot' ? '旋轉' : '原始'
+  return variantIsShape(v) ? `${base}-形狀` : base
+}
+export const variantRank = (v) => {
+  const i = HC_VARIANT_ORDER.indexOf(normalizeHcVariant(v))
+  return i < 0 ? 99 : i
+}
 
 // Recover the metro geojson stem from a legacy prefixed name
 // ("rwd-hc-d3-am-mex-mexico-city-orig" → "am-mex-mexico-city").
 function legacyMetroId(name) {
   if (typeof name !== 'string') return null
-  const stem = name.replace(/^(rwd-)?(hc-)?(d3-)?/, '').replace(/-(orig|rot)$/, '')
+  const stem = name.replace(/^(rwd-)?(hc-)?(d3-)?/, '').replace(/-(orig|rot)(-shape)?$/, '')
   return CITY_ZH[stem] ? stem : null
 }
 
@@ -54,7 +78,15 @@ export function migrateLayerNames(layers) {
   return layers
 }
 
-// 補齊 Straighten ×2 ＋ RWD ×18；沒建過 Map Adjust 的城市不強加。Idempotent。
+/** 該城 Straighten 應有的變體清單（原始／旋轉 ± 形狀） */
+export function hcVariantsForCity(metroId) {
+  const vs = [...HC_VARIANTS_BASE]
+  if (getShapePreset(metroId)) vs.push(...HC_VARIANTS_SHAPE)
+  return vs
+}
+
+// 補齊 Straighten（原始／旋轉；規定表城市再加形狀）＋對應 RWD。
+// 沒建過 Map Adjust 的城市不強加。Idempotent。
 export function backfillCityChains(layers) {
   const nextId = (prefix) => {
     let n = 1
@@ -66,7 +98,7 @@ export function backfillCityChains(layers) {
     const d3 = layers.find((l) => l.type === 'd3' && l.sourceLayerId === metro.id)
     if (!d3) continue
     const hcOf = {}
-    for (const v of ['orig', 'rot']) {
+    for (const v of hcVariantsForCity(metro.id)) {
       let hc = layers.find((l) => l.type === 'hillclimb' && l.sourceLayerId === d3.id && l.variant === v)
       if (!hc) {
         hc = {
@@ -77,7 +109,7 @@ export function backfillCityChains(layers) {
       }
       hcOf[v] = hc
     }
-    for (const v of ['orig', 'rot']) for (const c of RWD_COMPACTS) {
+    for (const v of Object.keys(hcOf)) for (const c of RWD_COMPACTS) {
       if (!layers.some((l) => l.type === 'rwd' && l.sourceLayerId === hcOf[v].id && l.compact === c)) {
         layers.push({
           id: nextId('rwd-view'), name: hcOf[v].name, type: 'rwd',

@@ -1,41 +1,43 @@
 ---
 name: route-llm-shape
-description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——把規定路段收成四邊直線正方，存 data/metro/llmshapes。有結果且「執行調整」時，② Hill Climbing 以此為輸入一路往下算。輸入＝格網化後；規定表三城。當使用者要求跑/重跑 LLM 成方、餵 HC、或問尚未產生時使用。見 [[route-shape-align]]／[[route-hillclimb]]。
+description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten 原始-形狀／旋轉-形狀。把規定路段收成四邊直線正方，存 data/metro/llmshapes。有結果且「執行調整」時餵 HC→直線演算法；下游可動方形頂點但不得破方。輸入＝格網化後；規定表三城。當使用者要求跑/重跑 LLM 成方、餵下游、或問尚未產生時使用。見 [[route-shape-align]]／[[route-hillclimb]]。
 ---
 
 # LLM 成方 (route-llm-shape)
 
 ⑨ **Shape-Guided（[[route-shape-align]]）的 LLM 版**：由 LLM 讀整數格、提出移動，
 把規定路段收成**四邊直線正方**。結果存 `data/metro/llmshapes/`。
+只掛在 Straighten **原始-形狀／旋轉-形狀**（規定表城市才有此二層；原始／旋轉層沒有成方）。
 
-## 與 ② Hill Climbing 的銜接（重要）
+## 與直線演算法的銜接（重要）
 
 ```
-格網化後 →（有 llmshape 且執行調整）→ ② HC → 直線演算法／端點／循環…
+格網化後 →（有 llmshape 且執行調整）→ HC → 直線演算法／端點／循環…
 ```
 
-- 首次有合法結果：**預設開啟執行調整**，② 自動以成方佈局（含綠折）為輸入重算。
-- 「恢復原佈局」→ ② 改回吃格網化後。
+- 首次有合法結果：**預設開啟執行調整**，HC 自動以成方佈局（含綠折）為輸入重算。
+- 「恢復原佈局」→ HC 改回吃格網化後（若格網→貼形也成方則改餵貼形）。
+- **重新計算圖層**：清空成方套用（`shapeFeedCleared` + apply=false），需開 ⑨ tab 重算／再套用。
 - 快取鍵加 `:shapelike`，與未套用分開存。
 - **成方算完 → 往後執行全鏈都要重算**：重跑成方時（onStart／onDone）除了清記憶體
   快取（`invalidateShapeHcPipeline`），還要 `purgeShapeLikeCache()` 清掉 localStorage
-  的 `:shapelike` ②/後處理快取——否則資料指紋沒變，`loadHcCache` 會載回**上一輪成方**
-  算出的舊 ②，②〜RWD 全鏈不會跟著新方形重算。
+  的 `:shapelike` HC/後處理快取——否則資料指紋沒變，`loadHcCache` 會載回**上一輪成方**
+  算出的舊 HC，直線演算法〜RWD 全鏈不會跟著新方形重算。
 
-### 固定方形：成方頂點凍結（重要）
+### 成方護欄：可動、不可破方（重要）
 
-② 一旦吃成方佈局，**這個成方路段就固定、下游全鏈都不再改變它的方形**——爬山、
-①〜⑧論文鏈、端點移動／直線縮減／網格合併／循環／逐步驗證、RWD 一律不動成方頂點。
+② 一旦吃成方佈局，環站＋綠折**可以**被下游移動／調整（含循環三演算法），但移動後必須
+仍是四邊直線正方——破方的候選一律 veto。
 
-- **凍結集** ＝規定表 `stations`（規定 ring 站）＋本輪 `greens` 的控制點 id。
-- **機構**：`hillClimb.js` 模組級全域 `FROZEN`＋`setFrozen(set)`（比照 movewise 的
-  `SPAN_CAP`），`makeMover` 建構時擷取。`validMove` 擋凍結頂點的單點移動、`validShift`
-  擋含凍結頂點的群集平移——所有下游都經 `makeMover` 這唯一關口，故一次生效。
-- **接線**（`D3Tab.vue`）：`computeHcLayout` 頂端預設 `setFrozen(null)`；只有「② 吃
-  LLM 成方」的真下游（layout-* 比較視圖已先 return、不受影響）才 `setFrozen(frozenIds)`。
-  逐步驗證按鈕在 render 外推進，靠 `activeFrozen` 重設。
-- 非成方輸入（未套用／恢復原佈局）frozenIds 為 null ＝不凍結，行為完全同以往。
-- **快取**：改此行為時 `HC_LS_KEY` 已 +1（v53 凍結）——舊 `:shapelike` 佈局不會載回。
+- **members** ＝規定表 `stations`（ring 序）＋本輪 `greens` 控制點 id。
+- **機構**：`hillClimb.js` 模組級 `SQUARE_GUARD`＋`setFrozen({ ringIds, members })`
+  （比照 movewise `SPAN_CAP`），`makeMover` 擷取後在 `validMove`／`validShift` 用
+  `isFourLineSquare`（`shapeSquare.js`）驗方。
+- **接線**（`D3Tab.vue`）：`computeHcLayout` 頂端 `setFrozen(null)`；真下游才
+  `setFrozen(squareGuard)`。逐步驗證靠 `activeFrozen` 重設。
+- 非成方輸入（未套用／恢復）＝ null，行為同以往。
+- 離線 LLM 對齊／評價覆寫仍釘回成方座標（那些檔未走護欄）。
+- **快取**：`HC_LS_KEY` v61（軟護欄）——舊硬凍結佈局不載回。
 
 **與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊吃 HC、目標是
 H/V。瀏覽器只載檔，不即時推論。
@@ -188,10 +190,8 @@ scripts/llmShape.mjs reset <cityId> <orig|rot>   # 想從頭來
 - **不要輕易說「此城無法成方」**：那幾乎總是搜尋不夠、整組範圍不夠大，不是真的不
   可能。真的要回報未完成，必須先證明你已試過「整組搬樞紐鄰域＋插綠折＋整體平移方框
   讓出空間」都仍被擋，並具體寫出是哪個點、哪條鐵律、缺多少空間。
-- 網頁端：直線化左選單 ⑨ 區「格網→貼形（僅比較）」（演算法本體）之下多一個
-  「LLM 成方（僅比較）」view；右側面板多一個「LLM成方」tab（模型下拉＋執行鈕＋
-  即時串流＋逐輪結果）。**跑完直接顯示**（此 view 本身即成方結果，不像對齊需要
-  「執行調整」toggle）。**重新跑會先清掉舊的串流與結果**。
+- 網頁端：僅形狀圖層左選單 ⑨「格網→貼形／LLM 成方（往後執行）」；原始／旋轉圖層
+  無此區。有結果且執行調整 → 餵 HC／直線演算法。**重新跑會先清掉舊串流與結果**。
 - POST `/llm-shape/run`（vite dev plugin `llmShapeTrigger`）觸發、輪詢
   `/llm-shape/status`。GH Pages 沒有 dev server → 按鈕回報需本機 `npm run dev`。
   測試替身：`LLM_SHAPE_CMD`。跨距上限經 `LLM_SPAN_CAP` env 傳入（與網頁一致）。

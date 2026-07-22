@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-20-deskew-v18'
+export const RWD_ROUTER_REV = '2026-07-22-shape-freeze-v19'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -691,12 +691,15 @@ export function mergeParallelSegs(segs) {
 // opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
+// opts.frozenIds = Set<id>：成方護欄 members——兩端皆在集內且目前為 H/V 的段強制直線、
+// 不繞行／不 A*（方形邊永遠保持方形）。
 export function buildRwdMap(segs, pos, opts = {}) {
   // 負或 0 的 unit（暫態面板尺寸算出的負 cell 寬）會讓 minGap ≤ 0 → legsHug 永遠
   // false，貼線／共線防護整個失效。取絕對值兜底，routing 幾何仍成立。
   const unit = Math.abs(opts.unit ?? 12) || 12
   const dirsN = opts.dirs ?? 8 // 允許的線方向數 4/8/16（見 candidates）
   const minGap = opts.minGap ?? unit * 0.35
+  const frozenIds = opts.frozenIds instanceof Set && opts.frozenIds.size ? opts.frozenIds : null
   const nodes = [...pos.entries()] // [id, [x,y]] — foreign-node test
   // Node-position lookup (0.5px buckets) — legsCross may only exempt
   // endpoint-to-endpoint contact when it happens AT one of these.
@@ -741,9 +744,13 @@ export function buildRwdMap(segs, pos, opts = {}) {
         // routing must first prove every H/V/45° candidate conflicts.
         (d !== 'E+' && d !== 'E-' && d !== 'F+' && d !== 'F-') &&
         (dirsN >= 8 || (d !== 'D+' && d !== 'D-'))
-      return { s, i, len: dist(S, T), straight }
+      // 成方邊：兩端凍結＋目前 H/V → 強制直線（保持方形四邊）
+      const shapeLock = !!(frozenIds && frozenIds.has(s.a) && frozenIds.has(s.b)
+        && (d === 'H' || d === 'V'))
+      return { s, i, len: dist(S, T), straight, shapeLock }
     })
-    .sort((p, q) => Number(q.straight) - Number(p.straight) || q.len - p.len || p.i - q.i)
+    .sort((p, q) => Number(q.shapeLock) - Number(p.shapeLock)
+      || Number(q.straight) - Number(p.straight) || q.len - p.len || p.i - q.i)
 
   /* ---- 節點旋轉系統（使用者鐵律）：點接的線的 360° 環狀順序不可變。
      參考序＝縮減網格輸入的弦方向（pos 直連角）。畫出的折線在節點的「出線方向」
@@ -1452,13 +1459,25 @@ export function buildRwdMap(segs, pos, opts = {}) {
     // corridor merely because that line happened to be trapped in the prior
     // attempt.
     const ordered = [
-      ...order.filter((o) => o.straight && priority.has(o.s)),
-      ...order.filter((o) => o.straight && !priority.has(o.s)),
-      ...order.filter((o) => !o.straight && priority.has(o.s)),
-      ...order.filter((o) => !o.straight && !priority.has(o.s)),
+      ...order.filter((o) => o.shapeLock),
+      ...order.filter((o) => !o.shapeLock && o.straight && priority.has(o.s)),
+      ...order.filter((o) => !o.shapeLock && o.straight && !priority.has(o.s)),
+      ...order.filter((o) => !o.shapeLock && !o.straight && priority.has(o.s)),
+      ...order.filter((o) => !o.shapeLock && !o.straight && !priority.has(o.s)),
     ]
-    for (const { s, straight } of ordered) {
+    for (const { s, straight, shapeLock } of ordered) {
       const S = pos.get(s.a), T = pos.get(s.b)
+      // 成方邊：永遠畫 S→T 直線並鎖定——不得繞行／A*／重掃改彎（保持方形）。
+      if (shapeLock) {
+        const pts = [S, T]
+        const placed = placedOf(-1)
+        const n = conflictCount(pts, s, placed, false, true)
+        pushLine({
+          seg: s, pts, bends: 0, fallback: false, forced: n > 0,
+          lockedStraight: true, shapeLock: true, legs: legsOfPts(pts),
+        })
+        continue
+      }
       const cands = candidates(S, T, unit, dirsN)
       const placed = placedOf(-1)
       // 簡單優先序（使用者規則）：①衝突最少 → ②45 優於 22.5 → ③折數最少（盡量直線）
