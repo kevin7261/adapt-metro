@@ -2,8 +2,10 @@
 import {
   buildHcGraph, makeMover, countHV,
   makeUnionFind, compactGridSafe, POST_ITER_CAP,
+  setFrozen, getFrozen,
 } from './hillClimb.js'
 import { sharesRoute, isHV } from './netUtil.js'
+import { isFourLineSquare } from './paper/shapeSquare.js'
 
 // Hill Climbing端點移動 — step 2 of the hc chain (HC → 端點移動 → 縮減網格;
 // the hc 縮減網格 and the RWD base compact THIS output, while the other
@@ -357,6 +359,62 @@ function gridMergeSweep(skeleton, cells, cols, rows, opts = {}) {
   return { cellAfter: pos, cols: nC, rows: nR, merged: mergedRows + mergedCols, mergedRows, mergedCols, cursor, movedIds: [], desc }
 }
 
+/**
+ * 成方成對縮格：剛體護欄會擋「切開方形」的單軸合併（否則寬高一變就破方）。
+ * 同時併一欄＋一列（各縮 1），再驗 isFourLineSquare——方仍是方，但能繼續壓縮。
+ */
+function squarePairShrinkOnce(skeleton, cells, cols, rows) {
+  const guard = getFrozen()
+  if (!guard?.members?.size || !guard.ringIds?.length) return null
+  const { pos } = buildHcGraph(skeleton, cells)
+  if (!pos.size) return null
+  let minC = Infinity, maxC = -Infinity, minR = Infinity, maxR = -Infinity
+  for (const id of guard.members) {
+    const p = pos.get(id)
+    if (!p) continue
+    minC = Math.min(minC, p[0]); maxC = Math.max(maxC, p[0])
+    minR = Math.min(minR, p[1]); maxR = Math.max(maxR, p[1])
+  }
+  if (!(maxC > minC && maxR > minR)) return null
+
+  const saved = guard
+  setFrozen(null) // 試算單軸時關護欄；成對後用 isFourLineSquare 驗方
+  try {
+    for (let c = minC; c < maxC; c++) {
+      for (let r = minR; r < maxR; r++) {
+        const trialCells = new Map([...cells].map(([id, p]) => [id, [...p]]))
+        for (const [id, p] of pos) {
+          if (!trialCells.has(id)) trialCells.set(id, [...p])
+        }
+        const g = buildHcGraph(skeleton, trialCells)
+        for (const [id, p] of trialCells) {
+          if (!g.pos.has(id)) { g.pos.set(id, [...p]); g.inc.set(id, []) }
+        }
+        const M = makeMover(g.pos, g.segs, g.inc, cols, rows)
+        const compC = []
+        for (const [id, pnt] of g.pos) if (pnt[0] > c) compC.push(id)
+        if (!compC.length || !M.validShift(compC, new Set(compC), -1, 0)) continue
+        M.applyShift(compC, [-1, 0])
+        const compR = []
+        for (const [id, pnt] of g.pos) if (pnt[1] > r) compR.push(id)
+        if (!compR.length || !M.validShift(compR, new Set(compR), 0, -1)) continue
+        M.applyShift(compR, [0, -1])
+        const ring = saved.ringIds.filter((id) => g.pos.has(id))
+        if (ring.length < 4 || !isFourLineSquare(ring, g.pos, g.segs)) continue
+        const out = new Map()
+        for (const id of cells.keys()) {
+          const p = g.pos.get(id)
+          if (p) out.set(id, [p[0], p[1]])
+        }
+        return { cellAfter: out, cols: cols - 1, rows: rows - 1 }
+      }
+    }
+  } finally {
+    setFrozen(saved)
+  }
+  return null
+}
+
 /* ==================== 逐移動壓縮（movewise） ====================
    使用者規則：取消獨立的縮減網格步驟——端點移動/直線縮減/網格合併的
    **每一個小步驟（單一移動）完成後就做縮減網格**。實作＝以 limit=1 反覆呼叫
@@ -380,8 +438,7 @@ export function movewiseStage(stage, skeleton, cells, cols, rows) {
 }
 
 // 網格合併的 stage 驅動：single=true 只掃一遍（循環用）、否則掃到沒有可合併
-// （網格合併 tab 用）。回傳形狀與其他階段一致（moved=合併次數；另附
-// mergedRows/mergedCols）。
+// （網格合併 tab 用）。成方時另跑「成對縮方」（單軸切開會破方，成對縮仍保正方）。
 function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
   let comp = compactGridSafe(skeleton, cells, cols, rows)
   let cur = comp.cellAfter, nC = comp.cols, nR = comp.rows
@@ -389,8 +446,8 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
   const g0 = buildHcGraph(skeleton, cur)
   const hvBefore = countHV(g0.pos, g0.segs)
   const verts = g0.pos.size, segsN = g0.segs.length
-  let mergedRows = 0, mergedCols = 0, guard = 0
-  while (guard++ < POST_ITER_CAP) {
+  let mergedRows = 0, mergedCols = 0, pairMerges = 0, guardN = 0
+  while (guardN++ < POST_ITER_CAP) {
     const r = gridMergeSweep(skeleton, cur, nC, nR)
     mergedRows += r.mergedRows
     mergedCols += r.mergedCols
@@ -399,6 +456,22 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
     nR = r.rows
     if (!r.merged || opts.single) break
   }
+  let pairGuard = 0
+  while (getFrozen() && pairGuard++ < POST_ITER_CAP) {
+    const p = squarePairShrinkOnce(skeleton, cur, nC, nR)
+    if (!p) break
+    cur = p.cellAfter
+    nC = p.cols
+    nR = p.rows
+    pairMerges++
+    mergedRows++
+    mergedCols++
+    const dens = compactGridSafe(skeleton, cur, nC, nR)
+    cur = dens.cellAfter
+    nC = dens.cols
+    nR = dens.rows
+    if (opts.single) break
+  }
   const g1 = buildHcGraph(skeleton, cur)
   return {
     cellAfter: cur,
@@ -406,9 +479,9 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
     rows: nR,
     stats: {
       hvBefore, hvAfter: countHV(g1.pos, g1.segs), segs: segsN, verts,
-      moved: mergedRows + mergedCols, mergedRows, mergedCols,
-      movedPts: mergedRows, movedLines: mergedCols, // 舊欄位相容（列/欄）
-      converged: guard <= POST_ITER_CAP,
+      moved: mergedRows + mergedCols, mergedRows, mergedCols, pairMerges,
+      movedPts: mergedRows, movedLines: mergedCols,
+      converged: true,
       fromCols, fromRows, cols: nC, rows: nR,
     },
   }
@@ -545,8 +618,20 @@ export function stepChainNext(skeleton, st, opts = {}) {
     if (stage === 'gather') {
       // 網格合併：小步＝合併下一個可合併的邊界（cursor 延續這一遍）；
       // 大步＝把這一遍剩下的邊界全掃完。半平面合併自帶壓縮。
-      const r = gridMergeSweep(skeleton, cells, cols, rows,
+      // 成方：單軸掃不動時改試成對縮方（保正方）。
+      let r = gridMergeSweep(skeleton, cells, cols, rows,
         { limit: limit === 1 ? 1 : Infinity, cursor: mergeCursor ?? undefined })
+      if (!r.merged && getFrozen() && (mergeCursor == null || mergeCursor.phase === 'done')) {
+        const p = squarePairShrinkOnce(skeleton, cells, cols, rows)
+        if (p) {
+          const dens = compactGridSafe(skeleton, p.cellAfter, p.cols, p.rows)
+          r = {
+            cellAfter: dens.cellAfter, cols: dens.cols, rows: dens.rows,
+            merged: 2, mergedRows: 1, mergedCols: 1, cursor: { phase: 'done', idx: 0 },
+            movedIds: [], desc: ['成對縮方'],
+          }
+        }
+      }
       if (r.merged) {
         roundMoves += r.merged
         const isSub = limit === 1

@@ -374,6 +374,19 @@ function hcLsKey(shapeOn) {
   // 用完整變體（含 -shape）當鍵，避免原始／原始-形狀互相載到對方的 HC 快取。
   return `${cachedFp}:${hcLayerVariantKey()}${shapeOn ? ':shapelike' : ''}`
 }
+/** 成方 members：規定 ring＋綠折＋該路線骨架邊上所有 cut（含共廊轉乘／交叉），
+ * 避免論文鏈只動「不在規定表」的共廊點把成方 H/V 邊拉斜。 */
+function expandShapeMembers(skeleton, preset, baseIds) {
+  const out = new Set(baseIds)
+  if (!skeleton?.edges || !preset?.routeId) return out
+  const rid = preset.routeId
+  for (const e of skeleton.edges) {
+    if (!e.routes?.has(rid)) continue
+    for (const id of e.path) out.add(id)
+  }
+  return out
+}
+
 /** ring／綠折的格子 bbox（整數欄列）。 */
 function shapeCellBBox(cells, idSet) {
   if (!cells || !idSet?.size) return null
@@ -1191,13 +1204,16 @@ async function computeHcLayout({ seq, w, h, grid }) {
     : algoFeeds ? shapeGreensOf(algoWrapped) : []
   const hcSk = shapeGreens.length ? applyShapeGreens(cachedSkeleton, shapeGreens) : cachedSkeleton
   const hcInCells = shapeFeedsHc ? shapeFeedCells : grid.cellOf
-  // 成方護欄：吃成方時規定 ring＋綠折可動，但移動後仍須四邊直線正方。
+  // 成方護欄：ring＋綠折＋成方路線上所有 cut；members 剛體平移＋H/V 邊鎖定。
   // frozenIds＝members（RWD shapeLock／LLM 釘回）；setFrozen 另帶 ringIds 序。
-  const shapeRingIds = shapeFeedsHc
-    ? (getShapePreset(cityIdForShape)?.stations ?? [])
-    : []
+  const shapePreset = shapeFeedsHc ? getShapePreset(cityIdForShape) : null
+  const shapeRingIds = shapePreset?.stations ?? []
   const frozenIds = shapeFeedsHc
-    ? new Set([...shapeRingIds, ...shapeGreens.map((g) => g.id)])
+    ? expandShapeMembers(
+      hcSk,
+      shapePreset,
+      [...shapeRingIds, ...shapeGreens.map((g) => g.id)],
+    )
     : null
   const squareGuard = frozenIds
     ? { ringIds: shapeRingIds, members: frozenIds }
@@ -1717,10 +1733,11 @@ async function computeHcLayout({ seq, w, h, grid }) {
   }
   activeHcSk = hcSk
   activeFrozen = squareGuard // 成方護欄：逐步驗證按鈕在 render 外推進時據此重設
-  // 成方灰白框（直線演算法／循環／RWD 全鏈都要看得見方形）
-  const guideIds = frozenIds ?? (shapeFeedsHc
-    ? new Set([...(getShapePreset(cityIdForShape)?.stations ?? []), ...shapeGreens.map((g) => g.id)])
-    : null)
+  // 灰白框只用規定 ring＋綠折（真正成方那一圈）——不可用 expandShapeMembers
+  // 後的 frozenIds，否則共廊／支線 cut 會把外框撐成超大矩形。
+  const guideIds = shapeFeedsHc
+    ? new Set([...shapeRingIds, ...shapeGreens.map((g) => g.id)])
+    : null
   const guideBoxPx = guideIds
     ? shapeGuideFromCells(cells, guideIds, nC, nR, cw, ch, 24, hcBlue)
     : null
@@ -2386,7 +2403,9 @@ const layoutStatus = computed(() => {
   if (isHC.value && gatherKindOf(m) && gatherStats.value) {
     const s = gatherStats.value
     return {
-      text: `網格合併 ${s.mergedRows} 列 · ${s.mergedCols} 欄 · 網格 ${s.fromCols}×${s.fromRows} → ${s.cols}×${s.rows}`
+      text: `網格合併 ${s.mergedRows} 列 · ${s.mergedCols} 欄`
+        + (s.pairMerges ? `（成對縮方 ${s.pairMerges}）` : '')
+        + ` · 網格 ${s.fromCols}×${s.fromRows} → ${s.cols}×${s.rows}`
         + (s.converged ? '' : '（達上限未收斂）'),
       llmRerun: false,
     }

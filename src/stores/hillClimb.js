@@ -122,6 +122,7 @@ export function setFrozen(guard) {
     : new Set(guard.members ?? ringIds)
   SQUARE_GUARD = ringIds.length && members.size ? { ringIds, members } : null
 }
+export function getFrozen() { return SQUARE_GUARD }
 
 // Movement machinery shared by the optimizer and the post-passes（②直角爬山
 // 與 paperAlign.js 的其他論文鏈；retired 的軸對齊/整數規劃亦同）: neighbourhood lookups,
@@ -131,35 +132,48 @@ export function makeMover(pos, segs, inc, cols, rows) {
   const squareGuard = SQUARE_GUARD // 成方護欄：擷取當下；非剛體動方 → veto
   const other = (s, u) => (s.a === u ? s.b : s.a)
   /**
-   * 成方 members（HC 圖上有的）只准「全體同一位移」。
-   * - 都不動 → 過
-   * - 都移同一 (dc,dr) → 過（半平面帶整塊方走；形狀不變）
-   * - 只動一部分或位移不一致 → 否（單點／單邊會破方）
-   * 規定表黑點直通站不在 pos → 不列入（避免缺點誤判）。
+   * 成方護欄：
+   * 1) members（HC 圖上有的）只准全體同一位移（剛體）——禁單點／單邊啃方
+   * 2) 成方 H/V 邊鎖定——段至少一端在 members、且目前為 H/V 時，覆寫後仍須 H/V
+   *    （論文鏈常動「共廊但不在規定表」的 cut，會把成方邊拉成斜線／階梯）
    */
   function squareOk(overrides) {
     if (!squareGuard) return true
+    const at = (id) => (overrides.has(id) ? overrides.get(id) : pos.get(id))
     const ids = []
     for (const id of squareGuard.members) {
       if (pos.has(id)) ids.push(id)
     }
-    if (!ids.length) return true
-    let dc = null, dr = null
-    let any = false
-    for (const id of ids) {
-      const cur = pos.get(id)
-      const next = overrides.has(id) ? overrides.get(id) : cur
-      const d0 = next[0] - cur[0], d1 = next[1] - cur[1]
-      if (d0 === 0 && d1 === 0) continue
-      any = true
-      if (dc === null) { dc = d0; dr = d1 }
-      else if (dc !== d0 || dr !== d1) return false
+    if (ids.length) {
+      let dc = null, dr = null
+      let any = false
+      for (const id of ids) {
+        const cur = pos.get(id)
+        const next = at(id)
+        const d0 = next[0] - cur[0], d1 = next[1] - cur[1]
+        if (d0 === 0 && d1 === 0) continue
+        any = true
+        if (dc === null) { dc = d0; dr = d1 }
+        else if (dc !== d0 || dr !== d1) return false
+      }
+      if (any) {
+        for (const id of ids) {
+          const cur = pos.get(id)
+          const next = at(id)
+          if (next[0] - cur[0] !== dc || next[1] - cur[1] !== dr) return false
+        }
+      }
     }
-    if (!any) return true
-    for (const id of ids) {
-      const cur = pos.get(id)
-      const next = overrides.has(id) ? overrides.get(id) : cur
-      if (next[0] - cur[0] !== dc || next[1] - cur[1] !== dr) return false
+    // 成方路線直線鎖定（H/V 邊不可被論文鏈／端點移動拉斜）
+    for (let si = 0; si < segs.length; si++) {
+      const s = segs[si]
+      if (!squareGuard.members.has(s.a) && !squareGuard.members.has(s.b)) continue
+      const A0 = pos.get(s.a), B0 = pos.get(s.b)
+      if (!A0 || !B0) continue
+      if (A0[0] !== B0[0] && A0[1] !== B0[1]) continue // 原本就非 H/V
+      const A1 = at(s.a), B1 = at(s.b)
+      if (!A1 || !B1) return false
+      if (A1[0] !== B1[0] && A1[1] !== B1[1]) return false
     }
     return true
   }

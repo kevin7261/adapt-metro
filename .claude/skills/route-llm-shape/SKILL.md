@@ -24,17 +24,12 @@ description: LLM 成方（⑨ Shape-Guided 的 LLM 版）——掛在 Straighten
   的 `:shapelike` HC/後處理快取——否則資料指紋沒變，`loadHcCache` 會載回**上一輪成方**
   算出的舊 HC，直線演算法〜RWD 全鏈不會跟著新方形重算。
 
-### 成方護欄：只准剛體平移（重要）
+### 成方護欄：剛體＋H/V 邊鎖定（重要）
 
-② 一旦吃成方佈局，HC 圖上的環站＋綠折**禁止單點／單邊變形**——只允許全體同一
-`(dc,dr)` 平移（半平面合併整塊帶走可以；端點移動啃角不行）。
-
-- **members** ＝規定表 `stations`＋本輪 `greens`（只計 HC `pos` 內頂點）。
-- **機構**：`hillClimb.js` `SQUARE_GUARD`＋`setFrozen({ ringIds, members })`，
-  `makeMover.squareOk` 查位移一致性。
-- **接線**：`D3Tab` 真下游 `setFrozen(squareGuard)`；逐步驗證靠 `activeFrozen`。
-- 離線 LLM 對齊／評價覆寫仍釘回成方座標。
-- **快取**：`HC_LS_KEY` v63。
+② 吃成方後：
+- members（ring＋綠折＋成方路線骨架 cut）只准全體同一位移
+- 至少一端在 members、且目前為 H/V 的段，論文鏈／移動後仍須 H/V（不可拉斜成方邊）
+- 成對縮方見 [[route-grid-merge]]；`HC_LS_KEY` v65
 
 **與 route-llm-align 的差別**：成方吃「格網化後」、目標是成方；對齊吃 HC、目標是
 H/V。瀏覽器只載檔，不即時推論。

@@ -9,7 +9,7 @@
 // 節點缺格子 → RWD/HC 整段線消失、站點退回舊座標懸空（倫敦 Kilburn 案，2026-07-17）。
 // 且 localStorage 不隨 dev server 重啟/硬重載清除，殘留跨天。**改了 skeleton/schematicGrid/
 // hillClimb 的演算法就把版本 +1**；另有 use-time 結構驗證兜底（見 D3Tab 的 cachedHC 使用處）。
-const HC_LS_KEY = 'd3tab-hc-cache-v63' // v63: 成方 members 只准剛體平移；v62: ring 缺點誤殺；v61: 軟護欄；v53: 凍結
+const HC_LS_KEY = 'd3tab-hc-cache-v65' // v65: 成方 H/V 邊鎖定＋members 扩成方路線 cut；v64: 成對縮方；v63: 剛體
 const HC_LS_MAX = 12 // 最多保留幾個 (資料,變體) 佈局；超過刪最久沒用的
 
 let hcLruClock = Date.now() // 單調遞增的 LRU 時戳（避免 Date.now 在同毫秒重複）

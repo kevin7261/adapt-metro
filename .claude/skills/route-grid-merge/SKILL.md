@@ -19,6 +19,8 @@ single=true 只掃一遍給循環用、否則掃到沒有可合併給 tab 用）
 - 合法性走 validShift **同一套硬規則**（與 [[route-endpoint-move]]／
   [[route-line-compact]] 同判準）：不壓點（點重疊）、不新增交叉、不產生
   路線重疊、象限與邊環繞序不變＝**拓撲不變**。
+- **成方成對縮格**（形狀圖層）：單軸切開方形會破方被護欄擋；改同時併一欄＋
+  一列並驗 `isFourLineSquare`，方仍是方但可繼續壓縮（`squarePairShrinkOnce`）。
 - 附帶性質（自動成立、不需另檢）：邊界段跨距只縮不增；H/V 段只增不減
   （水平/垂直段不受影響、dy=1 斜段合併後變水平、dy=1 垂直段因兩端撞格被
   validShift 擋下）。
