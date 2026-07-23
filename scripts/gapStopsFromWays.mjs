@@ -59,17 +59,42 @@ function stitchWays(ways) {
       for (const p of g) pts.push(p)
       node = forward ? b : a
     }
-    return pts
+    return { pts, used }
   }
   // 起點候選：度數 1 的端點（線的兩端）；全是環就從任一 way 的頭開始
   const starts = [...adj.entries()].filter(([, v]) => v.length === 1).map(([k]) => k)
   const cands = starts.length ? starts : (ends.length ? [ends[0][0]] : [])
-  let best = []
+  let best = { pts: [], used: null }
   for (const s of cands) {
-    const pts = walk(s)
-    if (pts.length > best.length) best = pts
+    const r = walk(s)
+    if (r.pts.length > best.pts.length) best = r
   }
-  return best
+  if (!best.pts.length) return []
+  // 貪婪走訪會在岔道／複線分歧處停住，剩下的 way 常是同一條線的後半段（威靈頓
+  // Kapiti 線就斷在 Pukerua Bay）。把還沒用到的 way 依「與目前鏈尾最近」逐段接上，
+  // 直到接不動為止——只補接得起來的（>2 km 視為不同段，不接）。
+  const remaining = ways.map((w, i) => i).filter((i) => !best.used[i])
+  const dKm = (a, b) => {
+    const dx = (a.lon - b.lon) * Math.cos(((a.lat + b.lat) / 2) * Math.PI / 180)
+    return Math.sqrt(dx * dx + (a.lat - b.lat) ** 2) * 111
+  }
+  let guard = remaining.length + 2
+  while (remaining.length && guard-- > 0) {
+    const tail = best.pts[best.pts.length - 1]
+    let pick = null
+    for (const i of remaining) {
+      const g = ways[i].geometry
+      for (const [end, rev] of [[g[0], false], [g[g.length - 1], true]]) {
+        const d = dKm(tail, end)
+        if (!pick || d < pick.d) pick = { i, rev, d }
+      }
+    }
+    if (!pick || pick.d > 2) break
+    const g = pick.rev ? [...ways[pick.i].geometry].reverse() : ways[pick.i].geometry
+    for (const pt of g) best.pts.push(pt)
+    remaining.splice(remaining.indexOf(pick.i), 1)
+  }
+  return best.pts
 }
 
 /**
@@ -79,8 +104,13 @@ function stitchWays(ways) {
  * @param {number} maxM 站點到線的最大垂距（公尺）
  * @returns {Map<number, {type:'node',ref:number,role:'stop'}[]>} relation id → 合成成員序
  */
-export async function synthStopsFromWays(routeIds, stations, maxM = 150) {
+const JUNK_STATION = /miniature|museum|heritage|tourist|模型|觀光/i
+export async function synthStopsFromWays(routeIds, stationsIn, maxM = 150) {
   const out = new Map()
+  // 投影是「幾何就近」，會把貼著路線的非本線站點也吸進來（威靈頓 Kapiti 線旁的
+  // Aotea Lagoon Miniature Railway）——先濾掉迷你／博物館／觀光鐵道。
+  const stations = stationsIn.filter((s) =>
+    !JUNK_STATION.test(`${s.tags?.name ?? ''} ${s.tags?.station ?? ''} ${s.tags?.operator ?? ''}`))
   if (!routeIds.length || !stations.length) return out
   for (let i = 0; i < routeIds.length; i += 60) {
     const chunk = routeIds.slice(i, i + 60)

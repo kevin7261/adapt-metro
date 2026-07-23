@@ -67,15 +67,19 @@ const TASKS = [
   // Waikato 區域城際）不是市郊鐵路，排除
   { key: 'auckland', mode: 'train', bbox: '(-37.3,174.4,-36.5,175.2)', stations: 'rail',
     keep: (t) => /^AT$/.test(net(t)) },
-  // 威靈頓 Metlink 5 線（含 Wairarapa Connection，urbanrail 列為威靈頓通勤線）
+  // 威靈頓 Metlink 5 線（含 Wairarapa Connection，urbanrail 列為威靈頓通勤線）。
+  // KPL（Kapiti 線）的 22 個成員是月台 stop_position、對不上乾淨站源，snap 後站序錯亂
+  // 且只到 Paremata（Tawa 被排到最後、Waikanae 段整段掉了，metro:verify 標 order 可疑）
+  // → forceSynth 指定改用 way 幾何重建停靠序（見 gapStopsFromWays.mjs）。
   { key: 'wellington', mode: 'train', bbox: '(-41.5,174.6,-40.7,175.9)', stations: 'rail',
-    keep: (t) => /^Metlink$/i.test(net(t)) },
+    keep: (t) => /^Metlink$/i.test(net(t)),
+    forceSynth: (t) => /^KPL$/.test(t.ref ?? '') },
 ]
 
 // 可只跑指定城市：node scripts/fetchOceania.mjs adelaide
 const only = process.argv.slice(2)
 for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
-  const { key, mode, bbox, stations: stMode, keep } = task
+  const { key, mode, bbox, stations: stMode, keep, forceSynth } = task
   const routes = [], geoms = [], stations = []
   const seenNode = new Set()
   const geomByRel = new Map()
@@ -132,7 +136,9 @@ for (const task of TASKS.filter((t) => !only.length || only.includes(t.key))) {
   // 只掛 way、沒有任何 stop 節點的 relation（阿德萊德 Adelaide Metro 全部 21 條）：
   // 由 way 幾何把上面抓到的站點投影回線上、依里程排序合成停靠序，否則整組會變成
   // 「沒有站的線」被丟掉（見 gapStopsFromWays.mjs）。
-  const noStops = routes.map((r) => r.id).filter((id) => !geomByRel.get(id)?.members?.length)
+  const noStops = routes
+    .filter((r) => !geomByRel.get(r.id)?.members?.length || forceSynth?.(r.tags))
+    .map((r) => r.id)
   let synthN = 0
   if (noStops.length) {
     const synth = await synthStopsFromWays(noStops, stations)

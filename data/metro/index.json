@@ -4,7 +4,7 @@
   "system_count": 266,
   "wikipedia_system_count": 233,
   "line_total": 2114,
-  "station_total": 19625,
+  "station_total": 19629,
   "systems": [
     {
       "file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
@@ -8604,7 +8604,7 @@
       "wikidata": "Q16926970",
       "line_count": 4,
       "segment_count": 6,
-      "station_count": 31,
+      "station_count": 35,
       "audit": null
     },
     {
