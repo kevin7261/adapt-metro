@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 266,
   "wikipedia_system_count": 233,
-  "line_total": 2120,
-  "station_total": 19643,
+  "line_total": 2115,
+  "station_total": 19636,
   "systems": [
     {
       "file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
@@ -27,11 +27,14 @@
       "official_map": "https://en.wikipedia.org/wiki/Public_Transport_Victoria",
       "wikidata": "Q7257648",
       "line_count": 24,
-      "segment_count": 101,
-      "station_count": 797,
+      "segment_count": 97,
+      "station_count": 798,
       "audit": {
         "strategies_tried": [],
         "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T18:21:27.422Z",
         "checks": [
           {
             "id": "has_lines",
@@ -42,19 +45,19 @@
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "822 stations",
+            "detail": "798 stations",
             "level": "error"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "822/822 站皆有所屬路線",
+            "detail": "798/798 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "946 個折點/端點皆為車站",
+            "detail": "944 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -72,7 +75,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "822/822 站皆有名稱",
+            "detail": "798/798 站皆有名稱",
             "level": "error"
           },
           {
@@ -87,10 +90,7 @@
             "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
             "level": "error"
           }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-23T12:24:35.840Z"
+        ]
       }
     },
     {
@@ -4040,7 +4040,7 @@
         "passed": true,
         "reasons": [],
         "warnings": [],
-        "audited_at": "2026-07-23T12:26:25.724Z",
+        "audited_at": "2026-07-23T18:21:27.426Z",
         "checks": [
           {
             "id": "has_lines",
@@ -9227,6 +9227,9 @@
       "audit": {
         "strategies_tried": [],
         "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T18:21:27.429Z",
         "checks": [
           {
             "id": "has_lines",
@@ -9282,10 +9285,7 @@
             "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
             "level": "error"
           }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-23T12:24:35.875Z"
+        ]
       }
     },
     {
@@ -18397,86 +18397,6 @@
       }
     },
     {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "continent": "africa",
-      "country": "Egypt",
-      "city": "Alexandria",
-      "osm_networks": [
-        "Alexandria Passenger Transportation Authority",
-        "Unknown"
-      ],
-      "operator": "Alexandria Passenger Transportation Authority",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 1,
-      "segment_count": 2,
-      "station_count": 55,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "1 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "37 stations",
-            "level": "error"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "37/37 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "37 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "37/37 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-23T12:24:35.908Z"
-      }
-    },
-    {
       "file": "metro-maps/asia/china/as-chn-wuhu.geojson",
       "continent": "asia",
       "country": "China",
@@ -18582,35 +18502,38 @@
       "official_website": null,
       "official_map": null,
       "wikidata": "Q116860169",
-      "line_count": 1,
+      "line_count": 2,
       "segment_count": 2,
       "station_count": 23,
       "audit": {
         "strategies_tried": [],
         "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T18:21:27.431Z",
         "checks": [
           {
             "id": "has_lines",
             "ok": true,
-            "detail": "1 lines",
+            "detail": "2 lines",
             "level": "error"
           },
           {
             "id": "has_stations",
             "ok": true,
-            "detail": "20 stations",
+            "detail": "23 stations",
             "level": "error"
           },
           {
             "id": "stations_have_lines",
             "ok": true,
-            "detail": "20/20 站皆有所屬路線",
+            "detail": "23/23 站皆有所屬路線",
             "level": "error"
           },
           {
             "id": "line_geometry_stations",
             "ok": true,
-            "detail": "20 個折點/端點皆為車站",
+            "detail": "24 個折點/端點皆為車站",
             "level": "error"
           },
           {
@@ -18628,7 +18551,7 @@
           {
             "id": "stations_named",
             "ok": true,
-            "detail": "20/20 站皆有名稱",
+            "detail": "23/23 站皆有名稱",
             "level": "error"
           },
           {
@@ -18643,10 +18566,7 @@
             "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
             "level": "error"
           }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-23T12:24:35.917Z"
+        ]
       }
     },
     {
@@ -24381,6 +24301,86 @@
           "1 條線無 wiki 站數對照：Astana LRT: Nurly Zhol → Airport"
         ],
         "audited_at": "2026-07-11T15:22:16.757Z"
+      }
+    },
+    {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "continent": "africa",
+      "country": "Egypt",
+      "city": "Alexandria",
+      "osm_networks": [
+        "Alexandria Passenger Transportation Authority",
+        "Unknown"
+      ],
+      "operator": "Alexandria Passenger Transportation Authority",
+      "official_website": null,
+      "official_map": null,
+      "wikidata": null,
+      "line_count": 1,
+      "segment_count": 1,
+      "station_count": 47,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T18:21:27.433Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "47 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "47/47 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "54 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "47/47 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
       }
     },
     {

@@ -381,6 +381,13 @@
         "colour": "#0363ff"
       },
       "note": "阿爾及爾電車反向 route（ref=T1 R）：同上；colour 統一成與去程相同的官方藍（OSM 上兩向色碼不同 #6633FF/#0363ff）。"
+    },
+    {
+      "relation": 15540826,
+      "set": {
+        "ref": "2"
+      },
+      "note": "莫斯塔加內姆電車 Ligne 2 的 route_master（r15540826）在 OSM 被誤標 ref=1，與 Ligne 1 的 master（r15540825）同 ref＋同 operator(SETRAM) → 被「network＋ref」合併成同一條線，兩段互不相連（verify broken_routes：Ligne 1 斷成 2 段）。改回官方 ref=2。上游修正後可移除。"
     }
   ]
 }

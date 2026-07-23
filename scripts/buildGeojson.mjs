@@ -973,18 +973,25 @@ async function build() {
               if (mainCells.has(`${cx + dx}:${cy + dy}`)) return true
             return false
           }
+          // 接軌站必須是主線「真的停靠的同一個節點」（ref 相同），不能只是幾何鄰近
+          // ——否則車廠／區間支的接點是另一個近旁站，畫出來的支段與主鏈不共用頂點、
+          // 路段聯集斷成兩塊（verify broken_routes：墨爾本 Tram 64/72/5）。找不到共用
+          // 節點的支（純車廠短枝）整段丟棄，維持「一條連續電車線」。
+          const mainRefs = new Set(mainW.rows.map((r) => r.ref))
           for (const w of keptAll.slice(1)) {
             const onMain = w.rows.map(nearMain)
             if (!onMain.some(Boolean) || onMain.every(Boolean)) continue // 全離／全重疊
-            // 找連續 fresh 段，向前多收一個接軌站
+            // 找連續 fresh 段，向前收到第一個「主線同一節點」的接軌站
             let i = 0
             while (i < w.rows.length) {
               while (i < w.rows.length && onMain[i]) i++
               if (i >= w.rows.length) break
-              const start = i > 0 ? i - 1 : i
+              let start = i
+              while (start > 0 && !mainRefs.has(w.rows[start].ref)) start--
               while (i < w.rows.length && !onMain[i]) i++
               const spur = w.rows.slice(start, i)
-              if (spur.length >= 2) kept.push(spur)
+              // 需含 ≥2 站且首站是主線共用節點，才接得回主鏈
+              if (spur.length >= 2 && mainRefs.has(spur[0].ref)) kept.push(spur)
             }
           }
           return [{ kept, gU: { key: g.key, rids: g.rids }, tU: null }]

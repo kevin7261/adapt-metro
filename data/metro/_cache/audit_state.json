@@ -18288,6 +18288,9 @@
   "Melbourne Tram|Australia": {
     "strategies_tried": [],
     "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T18:21:27.422Z",
     "checks": [
       {
         "id": "has_lines",
@@ -18298,19 +18301,19 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "822 stations",
+        "detail": "798 stations",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "822/822 站皆有所屬路線",
+        "detail": "798/798 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "946 個折點/端點皆為車站",
+        "detail": "944 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -18328,7 +18331,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "822/822 站皆有名稱",
+        "detail": "798/798 站皆有名稱",
         "level": "error"
       },
       {
@@ -18343,10 +18346,7 @@
         "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
         "level": "error"
       }
-    ],
-    "reasons": [],
-    "warnings": [],
-    "audited_at": "2026-07-23T12:24:35.840Z"
+    ]
   },
   "Johannesburg|South Africa": {
     "strategies_tried": [],
@@ -18605,7 +18605,7 @@
     "passed": true,
     "reasons": [],
     "warnings": [],
-    "audited_at": "2026-07-23T12:26:25.724Z",
+    "audited_at": "2026-07-23T18:21:27.426Z",
     "checks": [
       {
         "id": "has_lines",
@@ -18918,6 +18918,9 @@
   "Wellington|New Zealand": {
     "strategies_tried": [],
     "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T18:21:27.429Z",
     "checks": [
       {
         "id": "has_lines",
@@ -18973,10 +18976,7 @@
         "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
         "level": "error"
       }
-    ],
-    "reasons": [],
-    "warnings": [],
-    "audited_at": "2026-07-23T12:24:35.875Z"
+    ]
   },
   "Addis Ababa|Ethiopia": {
     "strategies_tried": [],
@@ -19611,6 +19611,9 @@
   "Alexandria|Egypt": {
     "strategies_tried": [],
     "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T18:21:27.433Z",
     "checks": [
       {
         "id": "has_lines",
@@ -19621,19 +19624,19 @@
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "37 stations",
+        "detail": "47 stations",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "37/37 站皆有所屬路線",
+        "detail": "47/47 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "37 個折點/端點皆為車站",
+        "detail": "54 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -19651,7 +19654,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "37/37 站皆有名稱",
+        "detail": "47/47 站皆有名稱",
         "level": "error"
       },
       {
@@ -19666,10 +19669,7 @@
         "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
         "level": "error"
       }
-    ],
-    "reasons": [],
-    "warnings": [],
-    "audited_at": "2026-07-23T12:24:35.908Z"
+    ]
   },
   "Constantine|Algeria": {
     "strategies_tried": [],
@@ -19800,29 +19800,32 @@
   "Mostaganem|Algeria": {
     "strategies_tried": [],
     "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T18:21:27.431Z",
     "checks": [
       {
         "id": "has_lines",
         "ok": true,
-        "detail": "1 lines",
+        "detail": "2 lines",
         "level": "error"
       },
       {
         "id": "has_stations",
         "ok": true,
-        "detail": "20 stations",
+        "detail": "23 stations",
         "level": "error"
       },
       {
         "id": "stations_have_lines",
         "ok": true,
-        "detail": "20/20 站皆有所屬路線",
+        "detail": "23/23 站皆有所屬路線",
         "level": "error"
       },
       {
         "id": "line_geometry_stations",
         "ok": true,
-        "detail": "20 個折點/端點皆為車站",
+        "detail": "24 個折點/端點皆為車站",
         "level": "error"
       },
       {
@@ -19840,7 +19843,7 @@
       {
         "id": "stations_named",
         "ok": true,
-        "detail": "20/20 站皆有名稱",
+        "detail": "23/23 站皆有名稱",
         "level": "error"
       },
       {
@@ -19855,10 +19858,7 @@
         "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
         "level": "error"
       }
-    ],
-    "reasons": [],
-    "warnings": [],
-    "audited_at": "2026-07-23T12:24:35.917Z"
+    ]
   },
   "Oran|Algeria": {
     "strategies_tried": [],
@@ -20812,7 +20812,7 @@
       "28 站的 interchange 標記與網絡圖度數不符：Yeongdeungpo、Macheon、Buramsan、Banghwa"
     ],
     "warnings": [],
-    "audited_at": "2026-07-23T12:26:25.792Z",
+    "audited_at": "2026-07-23T18:21:27.439Z",
     "checks": [
       {
         "id": "has_lines",
@@ -20877,7 +20877,7 @@
       "10 站的 interchange 標記與網絡圖度數不符：濱海沙崙、崁頂、高鐵桃園站、南港"
     ],
     "warnings": [],
-    "audited_at": "2026-07-23T12:26:25.796Z",
+    "audited_at": "2026-07-23T18:21:27.445Z",
     "checks": [
       {
         "id": "has_lines",
