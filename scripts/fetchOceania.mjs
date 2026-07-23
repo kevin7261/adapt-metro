@@ -42,9 +42,13 @@ const MELB_TRUNK = new Set([
 //   基準站源查詢撈不到，見 fetchHiroden）。
 const TASKS = [
   // ── 澳洲 ──────────────────────────────────────────────────────────────
+  // Cross City（Williamstown⇄Sandringham 貫通班）與 City Circle（空車／Loop 運轉）
+  // 不是官方幹線圖上的獨立線——若收進來會污染 SHM／WIL 站序（Sandringham 被接到
+  // Williamstown）。官方圖見 Transport Victoria victorian-train-network-map.pdf。
   { key: 'melbourne', mode: 'train', bbox: '(-38.5,144.3,-37.4,145.8)', stations: 'rail',
     keep: (t) => /^PTV - Metropolitan Trains$/i.test(net(t)) &&
-      (/^[A-Z]{3}$/.test(t.ref ?? '') || MELB_TRUNK.has(t.ref ?? '')) },
+      (/^[A-Z]{3}$/.test(t.ref ?? '') || MELB_TRUNK.has(t.ref ?? '')) &&
+      !/cross\s*city|city\s*circle/i.test(t.name ?? '') },
   // 墨爾本電車（Yarra Trams，24 條路線 ~1700 停留場）：使用者裁決 2026-07-23
   // 「墨爾本分 Metro Trains 和 tram」——照抓，但 buildGeojson 之後由
   // scripts/buildMelbourneVariants.mjs 拆成兩個系統檔（比照新加坡 MRT／MRT+LRT）：

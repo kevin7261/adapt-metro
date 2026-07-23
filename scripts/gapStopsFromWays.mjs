@@ -81,17 +81,35 @@ function stitchWays(ways) {
   let guard = remaining.length + 2
   while (remaining.length && guard-- > 0) {
     const tail = best.pts[best.pts.length - 1]
+    const head = best.pts[0]
     let pick = null
     for (const i of remaining) {
       const g = ways[i].geometry
       for (const [end, rev] of [[g[0], false], [g[g.length - 1], true]]) {
-        const d = dKm(tail, end)
-        if (!pick || d < pick.d) pick = { i, rev, d }
+        // 接在鏈尾或鏈頭都可以——只接尾端會把「市中心那一段」錯接到郊區端之後
+        // （威靈頓 Kapiti 線曾變成 …Pukerua Bay → Kenepuru → Wellington）
+        for (const at of ['tail', 'head']) {
+          const d = dKm(at === 'tail' ? tail : head, end)
+          if (!pick || d < pick.d) pick = { i, rev, d, at }
+        }
       }
     }
     if (!pick || pick.d > 2) break
+    // 複線／對向軌的 way 會與既有鏈平行重疊，接上去會讓同一站被走第二次
+    // （威靈頓 Kapiti 線尾端冒出 Kenepuru → Redwood）。中點離既有鏈 <120 m 視為
+    // 重疊軌（同一條線的對向軌約 5–20 m），丟棄不接；門檻放太大會把「市中心那一段」
+    // 也當成重疊丟掉（威靈頓 Kapiti 線的 Wellington–Takapu Road 段）。
+    {
+      const g0 = ways[pick.i].geometry
+      const mid = g0[Math.floor(g0.length / 2)]
+      let near = Infinity
+      for (let k = 0; k < best.pts.length; k += Math.max(1, Math.floor(best.pts.length / 400)))
+        near = Math.min(near, dKm(mid, best.pts[k]))
+      if (near < 0.12) { remaining.splice(remaining.indexOf(pick.i), 1); continue }
+    }
     const g = pick.rev ? [...ways[pick.i].geometry].reverse() : ways[pick.i].geometry
-    for (const pt of g) best.pts.push(pt)
+    if (pick.at === 'tail') for (const pt of g) best.pts.push(pt)
+    else best.pts.unshift(...[...g].reverse())
     remaining.splice(remaining.indexOf(pick.i), 1)
   }
   return best.pts
@@ -145,8 +163,18 @@ export async function synthStopsFromWays(routeIds, stationsIn, maxM = 150) {
           const at = acc[k - 1] + t * (acc[k] - acc[k - 1])
           if (!best || dist < best.d) best = { d: dist, at }
         }
-        if (best) hits.push({ id: s.id, at: best.at })
+        if (best) hits.push({ id: s.id, at: best.at, d: best.d, name: s.tags?.name ?? `n${s.id}` })
       }
+      // 同名站只留投影距離最近的一個——複線/月台各自是獨立 station 節點時，同一站
+      // 會在兩條平行軌上各投影一次，序列尾端就冒出「…Pukerua Bay → Kenepuru →
+      // Redwood」這種重複（buildGeojson 的同名合併是在站層，救不了 route 的停靠序）。
+      const bestByName = new Map()
+      for (const h of hits) {
+        const prev = bestByName.get(h.name)
+        if (!prev || h.d < prev.d) bestByName.set(h.name, h)
+      }
+      hits.length = 0
+      hits.push(...bestByName.values())
       hits.sort((a, b) => a.at - b.at)
       if (hits.length >= 2)
         out.set(rel.id, hits.map((h) => ({ type: 'node', ref: h.id, role: 'stop' })))

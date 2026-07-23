@@ -7,7 +7,7 @@
 | Wikipedia 系統數 | 233 |
 | 本資料系統數 | 266 |
 | 站數相符 (ok) | 202 |
-| 標記待查 | 32（missing 2／no_line 0／order 1／zero 0／low 2／high 27） |
+| 標記待查 | 31（missing 2／no_line 0／order 0／zero 0／low 2／high 27） |
 | 額外（不在 wiki 清單） | 53 |
 
 ## 不變式（invariants，違反＝資料一定有錯，必須驗證修正）
@@ -15,7 +15,7 @@
 1. **wiki 有列的城市不可能沒資料**：違反數 **2**（severity `missing`）
 2. **車站不可能沒有路線**：**0** 個系統、共 **0** 站的 `lines` 為空（severity `no_line`）
 3. **線必有站、折點/端點必為車站**（幾何＝車站點依站序連線）：違反系統數 **0**（severity `vertex`）
-4. **站序必須正確**：**1** 個系統有站序可疑的線（severity `order`）——一律以該線 **Wikipedia 條目**的車站列表與 **urbanrail.net** 的線路站序人工確認
+4. **站序必須正確**：**0** 個系統有站序可疑的線（severity `order`）——一律以該線 **Wikipedia 條目**的車站列表與 **urbanrail.net** 的線路站序人工確認
 
 ## 待查系統（fetch⇄verify 迴圈的回饋清單）
 
@@ -23,7 +23,6 @@
 |---|---|---|---|---|---|---|---|
 | missing | Taoyuan | Taiwan | — | 22 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Taoyuan_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taoyuan) |
 | missing | New Taipei | Taiwan | — | 12 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/New_Taipei_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei) |
-| order | Wellington | New Zealand | 31 | — | — | 1 條線站序可疑（路徑長 > 1.6× MST）：Kapiti line 1.62×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Wellington) |
 | low | Lagos | Nigeria | 5 | 13 | 0.38 | 站數偏少（5 vs wiki 13） | [wiki](https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos) |
 | low | Samara | Russia | 2 | 10 | 0.2 | 站數偏少（2 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
 | high | Berlin | Germany | 309 | 175 | 1.77 | 站數偏多（309 vs wiki 175），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Berlin_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin) |
@@ -67,14 +66,14 @@
 | metro-maps/europe/germany/eu-ger-dusseldorf.geojson | Dusseldorf | Germany | 136 | 9 |
 | metro-maps/africa/south-africa/af-rsa-cape-town.geojson | Cape Town | South Africa | 109 | 16 |
 | metro-maps/oceania/australia/oc-aus-brisbane.geojson | Brisbane | Australia | 134 | 14 |
-| metro-maps/oceania/australia/oc-aus-adelaide.geojson | Adelaide | Australia | 123 | 10 |
+| metro-maps/oceania/australia/oc-aus-adelaide.geojson | Adelaide | Australia | 123 | 11 |
 | metro-maps/africa/south-africa/af-rsa-durban.geojson | Durban | South Africa | 82 | 9 |
 | metro-maps/europe/spain/eu-esp-xirivella.geojson | Xirivella | Spain | 96 | 6 |
 | metro-maps/oceania/australia/oc-aus-perth.geojson | Perth | Australia | 86 | 8 |
 | metro-maps/europe/germany/eu-ger-bielefeld.geojson | Bielefeld | Germany | 59 | 4 |
 | metro-maps/africa/tunisia/af-tun-tunis.geojson | Tunis | Tunisia | 77 | 6 |
 | metro-maps/oceania/new-zealand/oc-nzl-auckland.geojson | Auckland | New Zealand | 39 | 4 |
-| metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson | Wellington | New Zealand | 31 | 4 |
+| metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson | Wellington | New Zealand | 34 | 4 |
 | metro-maps/africa/ethiopia/af-eth-addis-ababa.geojson | Addis Ababa | Ethiopia | 39 | 2 |
 | metro-maps/americas/bolivia/am-bol-cochabamba.geojson | Cochabamba | Bolivia | 32 | 3 |
 | metro-maps/africa/morocco/af-mar-rabat.geojson | Rabat | Morocco | 43 | 2 |
@@ -91,7 +90,7 @@
 | metro-maps/oceania/australia/oc-aus-newcastle.geojson | Newcastle | Australia | 6 | 1 |
 | metro-maps/oceania/australia/oc-aus-canberra.geojson | Canberra | Australia | 14 | 1 |
 | metro-maps/asia/china/as-chn-chuzhou.geojson | Chuzhou | China | 10 | 1 |
-| metro-maps/africa/egypt/af-egy-alexandria.geojson | Alexandria | Egypt | 18 | 1 |
+| metro-maps/africa/egypt/af-egy-alexandria.geojson | Alexandria | Egypt | 37 | 1 |
 | metro-maps/africa/algeria/af-alg-constantine.geojson | Constantine | Algeria | 15 | 1 |
 | metro-maps/africa/senegal/af-sen-dakar.geojson | Dakar | Senegal | 13 | 1 |
 | metro-maps/africa/algeria/af-alg-mostaganem.geojson | Mostaganem | Algeria | 20 | 1 |

@@ -4,7 +4,7 @@
   "system_count": 266,
   "wikipedia_system_count": 233,
   "line_total": 2114,
-  "station_total": 19629,
+  "station_total": 19647,
   "systems": [
     {
       "file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
@@ -29,7 +29,69 @@
       "line_count": 24,
       "segment_count": 97,
       "station_count": 822,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "24 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "822 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "822/822 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "946 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "822/822 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.840Z"
+      }
     },
     {
       "file": "metro-maps/americas/united-states/am-usa-new-york-city.geojson",
@@ -745,7 +807,69 @@
       "line_count": 30,
       "segment_count": 48,
       "station_count": 209,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.710Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "30 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "209 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "209/209 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "260 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "209/209 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/europe/france/eu-fra-paris.geojson",
@@ -899,7 +1023,69 @@
       "line_count": 24,
       "segment_count": 38,
       "station_count": 227,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.715Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "24 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "227 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "227/227 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "269 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "227/227 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/oceania/australia/oc-aus-sydney.geojson",
@@ -2037,7 +2223,69 @@
       "line_count": 16,
       "segment_count": 28,
       "station_count": 109,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.718Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "16 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "109 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "109/109 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "143 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "109/109 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/asia/china/as-chn-guangzhou.geojson",
@@ -3061,7 +3309,69 @@
       "line_count": 14,
       "segment_count": 19,
       "station_count": 134,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.721Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "14 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "134 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "134/134 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "152 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "134/134 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/europe/spain/eu-esp-barcelona.geojson",
@@ -3723,10 +4033,72 @@
       "official_website": "https://www.adelaidemetro.com.au/routes/ptdock",
       "official_map": "https://en.wikipedia.org/wiki/Gawler_railway_line",
       "wikidata": "Q4681753",
-      "line_count": 10,
+      "line_count": 11,
       "segment_count": 16,
       "station_count": 123,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.724Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "11 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "123 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "123/123 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "137 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "123/123 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/africa/south-africa/af-rsa-durban.geojson",
@@ -3744,7 +4116,69 @@
       "line_count": 9,
       "segment_count": 16,
       "station_count": 82,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.726Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "9 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "82 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "82/82 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "99 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "82/82 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/europe/norway/eu-nor-oslo.geojson",
@@ -4710,7 +5144,69 @@
       "line_count": 8,
       "segment_count": 13,
       "station_count": 86,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "8 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "86 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "86/86 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "98 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "86/86 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.866Z"
+      }
     },
     {
       "file": "metro-maps/americas/united-states/am-usa-san-francisco-bay-area.geojson",
@@ -5653,7 +6149,69 @@
       "line_count": 6,
       "segment_count": 9,
       "station_count": 77,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "6 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "77 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "77/77 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "84 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "77/77 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.870Z"
+      }
     },
     {
       "file": "metro-maps/americas/venezuela/am-ven-caracas.geojson",
@@ -5992,7 +6550,69 @@
       "line_count": 4,
       "segment_count": 9,
       "station_count": 39,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "4 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "39 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "39/39 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "48 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "39/39 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.873Z"
+      }
     },
     {
       "file": "metro-maps/europe/netherlands/eu-ned-amsterdam.geojson",
@@ -8604,8 +9224,70 @@
       "wikidata": "Q16926970",
       "line_count": 4,
       "segment_count": 6,
-      "station_count": 35,
-      "audit": null
+      "station_count": 34,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "4 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "34 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "34/34 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "38 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "34/34 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.875Z"
+      }
     },
     {
       "file": "metro-maps/asia/china/as-chn-jinan.geojson",
@@ -9632,7 +10314,69 @@
       "line_count": 2,
       "segment_count": 5,
       "station_count": 39,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "39 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "39/39 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "43 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "39/39 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.878Z"
+      }
     },
     {
       "file": "metro-maps/europe/spain/eu-esp-bilbao.geojson",
@@ -9861,7 +10605,69 @@
       "line_count": 3,
       "segment_count": 5,
       "station_count": 32,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "3 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "32 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "32/32 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "36 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "32/32 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.881Z"
+      }
     },
     {
       "file": "metro-maps/asia/china/as-chn-wenzhou.geojson",
@@ -9982,7 +10788,69 @@
       "line_count": 2,
       "segment_count": 5,
       "station_count": 43,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "43 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "43/43 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "47 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "43/43 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.884Z"
+      }
     },
     {
       "file": "metro-maps/americas/canada/am-can-montreal.geojson",
@@ -11729,7 +12597,69 @@
       "line_count": 4,
       "segment_count": 4,
       "station_count": 106,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.729Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "4 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "106 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "106/106 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "107 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "106/106 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-sidi-bel-abbes.geojson",
@@ -11748,7 +12678,69 @@
       "line_count": 2,
       "segment_count": 4,
       "station_count": 23,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.731Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "23 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "23/23 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "27 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "23/23 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/americas/mexico/am-mex-guadalajara.geojson",
@@ -16370,7 +17362,69 @@
       "line_count": 2,
       "segment_count": 2,
       "station_count": 12,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "12 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "12/12 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "13 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "12/12 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.892Z"
+      }
     },
     {
       "file": "metro-maps/asia/india/as-ind-nagpur.geojson",
@@ -16772,7 +17826,69 @@
       "line_count": 2,
       "segment_count": 2,
       "station_count": 21,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:26:25.734Z",
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "2 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "21 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "21/21 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "22 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "21/21 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ]
+      }
     },
     {
       "file": "metro-maps/asia/china/as-chn-jinhua.geojson",
@@ -19909,7 +21025,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 19,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "19 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "19/19 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "19 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "19/19 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.900Z"
+      }
     },
     {
       "file": "metro-maps/asia/japan/as-jpn-chiba-prefecture.geojson",
@@ -20872,7 +22050,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 6,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "6 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "6/6 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "6 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "6/6 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.903Z"
+      }
     },
     {
       "file": "metro-maps/asia/indonesia/as-ina-jakarta.geojson",
@@ -21280,7 +22520,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 14,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "14 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "14/14 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "14 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "14/14 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.905Z"
+      }
     },
     {
       "file": "metro-maps/asia/taiwan/as-twn-taichung.geojson",
@@ -22936,8 +24238,70 @@
       "wikidata": null,
       "line_count": 1,
       "segment_count": 1,
-      "station_count": 18,
-      "audit": null
+      "station_count": 37,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "37 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "37/37 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "37 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "37/37 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.908Z"
+      }
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-constantine.geojson",
@@ -22955,7 +24319,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 15,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "15 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "15/15 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "15 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "15/15 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.910Z"
+      }
     },
     {
       "file": "metro-maps/africa/senegal/af-sen-dakar.geojson",
@@ -22975,7 +24401,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 13,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "13 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "13/13 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "13 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "13/13 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.914Z"
+      }
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
@@ -22994,7 +24482,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 20,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "20 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "20/20 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "20 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "20/20 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.917Z"
+      }
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-oran.geojson",
@@ -23011,7 +24561,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 32,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "32 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "32/32 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "32 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "32/32 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.920Z"
+      }
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-ouargla.geojson",
@@ -23028,7 +24640,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 16,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "16 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "16/16 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "16 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "16/16 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.923Z"
+      }
     },
     {
       "file": "metro-maps/africa/algeria/af-alg-setif.geojson",
@@ -23047,7 +24721,69 @@
       "line_count": 1,
       "segment_count": 1,
       "station_count": 22,
-      "audit": null
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "22 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "22/22 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "22 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "22/22 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.925Z"
+      }
     },
     {
       "file": "metro-maps/europe/italy/eu-ita-genoa.geojson",

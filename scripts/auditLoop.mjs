@@ -294,12 +294,24 @@ async function audit(city, country, wikiRow) {
     // 與 buildGeojson.mjs 的 isIx 同式（該處為權威，改一處必同步）。同路線共軌
     // 重疊段中間站 degree=2、非端點 不算；濱海沙崙／七張分歧 degree=3 算。
     {
+      // 與 buildGeojson.mjs 的 isIx **完全同式**（該處為權威）：
+      //   ①非紐約：`相異 route_color ≥2` ＋（degree>2／端點站停靠≥2 線／端點站被 pass
+      //     穿過且 degree≥2）。相異色條件是使用者 2026-07-17 的裁決（同幹線多服務不是
+      //     轉乘），舊版 audit 沒跟上，才會把墨爾本 Sandringham（SHM＋Cross City 同粉紅、
+      //     單色端點）這類站當成「標記不符」誤報。
+      //   ②紐約：純看畫線拓撲度數 deg≥3（2026-07-17 視覺裁決）。
+      const isNycCity = /new york city/i.test(city)
       const bad = pts.filter((f) => {
         const p = f.properties
         const deg = p.station_degree ?? (p.lines?.length ?? 0)
-        const hasPass = (p.routes ?? []).some((r) => r?.pass)
-        const expect = deg > 2 || (p.is_terminus && (p.lines?.length ?? 0) >= 2)
-          || (p.is_terminus && hasPass && deg >= 2)
+        if (isNycCity) return (deg >= 3) !== !!p.is_interchange
+        const routes = p.routes ?? []
+        const colors = new Set(routes.map((r) => r?.route_color).filter(Boolean))
+        const disp = routes.filter((r) => !r?.pass)
+        const passN = routes.filter((r) => r?.pass).length
+        const expect = colors.size >= 2 && (deg > 2
+          || (p.is_terminus && disp.length >= 2)
+          || (p.is_terminus && passN >= 1 && deg >= 2))
         return expect !== !!p.is_interchange
       })
       push('interchange_rule', bad.length === 0,

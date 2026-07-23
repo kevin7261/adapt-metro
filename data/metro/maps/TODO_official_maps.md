@@ -15,8 +15,8 @@
 > - **奧克蘭**：Auckland Transport「New Train Network — City Rail Link 2026」（at.govt.nz）
 > - **威靈頓**：Metlink「Wellington Regional Rail Network」（metlink.org.nz）
 > - **伯斯**：Transperth System Map 2025-10（含 Ellenbrook／Airport／Byford）
-> - **墨爾本**：Transport Victoria「Victorian train network」2026-02-01 生效
-> - **墨爾本電車**：PTV「Melbourne tram network」24 路線（官網現行版被 WAF 擋，取 Wayback 的官方 PDF）
+> - **墨爾本**：Transport Victoria「Victorian train network」（sitecorecloud 官方 PDF，含共站）
+> - **墨爾本電車**：Transport Victoria「Melbourne tram network」24 路線（sitecorecloud 官方 PDF，含共站；不再依賴 Wayback）
 > - **紐卡索**：Newcastle Transport 官方輕軌線路圖（6 站）
 > - **路易港（模里西斯）**：Metro Express 官方全網圖（半地理，policy 第 2 條允許）
 >

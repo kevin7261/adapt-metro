@@ -2318,7 +2318,7 @@
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "artist": "أبو تائب"
  },
- "_rev": 1784797958304,
+ "_rev": 1784809621394,
  "americas/bolivia/am-bol-cochabamba": {
   "city": "Cochabamba",
   "country": "Bolivia",
@@ -2364,8 +2364,8 @@
   "city": "Melbourne",
   "country": "Australia",
   "map_file": "maps/oceania/australia/oc-aus-melbourne.png",
-  "source_url": "https://www.ptv.vic.gov.au/assets/PDFs/Maps/Network-maps/PTV-Metro-Train-Network-Map.pdf",
-  "note": "Transport Victoria 官方「Victorian train network」（2026-02-01 生效；含區域線，都會線為本資料集範圍）",
+  "source_url": "https://edge.sitecorecloud.io/stategovernc45d-cftw-production-c9ca/media/Project/TransportWebsite/Forms/victorian-train-network-map.pdf",
+  "note": "Transport Victoria 官方「Victorian train network」全網圖（都會 Metro Trains 為本資料集範圍；含共站示意）",
   "wikidata": null,
   "commons_file": null,
   "license": "Official operator map (© operator; thesis use)"
@@ -2384,8 +2384,8 @@
   "city": "Melbourne Tram",
   "country": "Australia",
   "map_file": "maps/oceania/australia/oc-aus-melbourne-tram.png",
-  "source_url": "https://www.ptv.vic.gov.au/assets/PDFs/Maps/Network-maps/417bb4810a/PTV_Tram-Network-Map_2017.pdf",
-  "note": "PTV 官方「Melbourne tram network」全網示意圖（24 條路線；PTV 官網現行版被 WAF 擋，取 Wayback 存檔的官方 PDF）",
+  "source_url": "https://edge.sitecorecloud.io/stategovernc45d-cftw-production-c9ca/media/Project/TransportWebsite/TransportWebsite/News-and-resources/Maps/tram/Melbourne-tram-network-map.pdf",
+  "note": "Transport Victoria 官方「Melbourne tram network」全網示意圖（24 條路線；含共站示意；edge.sitecorecloud.io 直連 PDF）",
   "wikidata": null,
   "commons_file": null,
   "license": "Official operator map (© operator; thesis use)"

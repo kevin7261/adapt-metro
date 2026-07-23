@@ -18284,5 +18284,2718 @@
       "4 條線無 wiki 站數對照：MTR Tseung Kwan O Line、MTR East Rail Line、MTR East Rail Line"
     ],
     "audited_at": "2026-07-16T10:10:45.288Z"
+  },
+  "Melbourne Tram|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "24 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "822 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "822/822 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "946 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "822/822 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.840Z"
+  },
+  "Johannesburg|South Africa": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.710Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "30 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "209 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "209/209 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "260 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "209/209 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Melbourne|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.715Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "24 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "227 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "227/227 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "269 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "227/227 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Cape Town|South Africa": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.718Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "16 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "109 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "109/109 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "143 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "109/109 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Brisbane|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.721Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "14 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "134 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "134/134 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "152 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "134/134 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Adelaide|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.724Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "11 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "123 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "123/123 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "137 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "123/123 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Durban|South Africa": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.726Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "9 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "82 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "82/82 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "99 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "82/82 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Perth|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "8 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "86 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "86/86 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "98 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "86/86 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.866Z"
+  },
+  "Tunis|Tunisia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "6 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "77 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "77/77 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "84 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "77/77 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.870Z"
+  },
+  "Auckland|New Zealand": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "39 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "39/39 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "48 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "39/39 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.873Z"
+  },
+  "Wellington|New Zealand": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "34 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "34/34 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "38 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "34/34 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.875Z"
+  },
+  "Addis Ababa|Ethiopia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "39 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "39/39 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "43 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "39/39 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.878Z"
+  },
+  "Cochabamba|Bolivia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "3 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "32 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "32/32 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "36 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "32/32 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.881Z"
+  },
+  "Rabat|Morocco": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "43 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "43/43 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "47 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "43/43 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.884Z"
+  },
+  "Casablanca|Morocco": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.729Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "4 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "106 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "106/106 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "107 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "106/106 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Sidi Bel Abbès|Algeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.731Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "23 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "23/23 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "27 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "23/23 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Abuja|Nigeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "12 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "12/12 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "13 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "12/12 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.892Z"
+  },
+  "Port Louis|Mauritius": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.734Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "2 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "21 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "21/21 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "22 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "21/21 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Gold Coast|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "19 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "19/19 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "19 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "19/19 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.900Z"
+  },
+  "Newcastle|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "6 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "6/6 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "6 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "6/6 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.903Z"
+  },
+  "Canberra|Australia": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "14 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "14/14 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "14 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "14/14 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.905Z"
+  },
+  "Alexandria|Egypt": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "37 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "37/37 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "37 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "37/37 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.908Z"
+  },
+  "Constantine|Algeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "15 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "15/15 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "15 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "15/15 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.910Z"
+  },
+  "Dakar|Senegal": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "13 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "13/13 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "13 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "13/13 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.914Z"
+  },
+  "Mostaganem|Algeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "20 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "20/20 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "20 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "20/20 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.917Z"
+  },
+  "Oran|Algeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "32 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "32/32 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "32 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "32/32 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.920Z"
+  },
+  "Ouargla|Algeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "16 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "16/16 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "16 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "16/16 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.923Z"
+  },
+  "Sétif|Algeria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "1 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "22 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "22/22 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "22 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "22/22 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.925Z"
+  },
+  "Tokyo + Yamanote|Japan": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "15 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "214 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "214/214 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "334 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "214/214 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.930Z"
+  },
+  "Osaka + Loop|Japan": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "11 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "132 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "132/132 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "167 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "132/132 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.934Z"
+  },
+  "New York City + Landmark|United States": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.740Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "11 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "444 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "444/444 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "570 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "444/444 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Shanghai + Landmark|China": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.746Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "21 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "407 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "506/506 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "618 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "506/506 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Tokyo + Landmark|Japan": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.750Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "14 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "202 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "202/202 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "303 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "202/202 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Seoul + Landmark|South Korea": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.755Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "23 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "426 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "522/522 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "605 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "522/522 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Taipei + Landmark|Taiwan": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.760Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "17 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "197 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "590/590 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "626 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "590/590 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Vienna + Landmark|Austria": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "5 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "99 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "117/117 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "128 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "117/117 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:35.969Z"
+  },
+  "Paris + Landmark|France": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.768Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "20 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "321 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "609/609 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "716 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "609/609 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Berlin + Landmark|Germany": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.775Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "27 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "309 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "986/986 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "1099 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "986/986 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "London + Landmark|United Kingdom": {
+    "strategies_tried": [],
+    "passed": true,
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.786Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "26 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "262 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "1885/1885 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "1988 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "1885/1885 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Singapore + LRT|Singapore": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "14 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "187 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "187/187 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "235 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "187/187 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:36.000Z"
+  },
+  "Seoul + Incheon|South Korea": {
+    "strategies_tried": [],
+    "passed": false,
+    "reasons": [
+      "28 站的 interchange 標記與網絡圖度數不符：Yeongdeungpo、Macheon、Buramsan、Banghwa"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.792Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "26 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "487 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "487/487 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "649 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": false,
+        "detail": "28 站的 interchange 標記與網絡圖度數不符：Yeongdeungpo、Macheon、Buramsan、Banghwa",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "487/487 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Taipei + TRA + HSR|Taiwan": {
+    "strategies_tried": [],
+    "passed": false,
+    "reasons": [
+      "10 站的 interchange 標記與網絡圖度數不符：濱海沙崙、崁頂、高鐵桃園站、南港"
+    ],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:26:25.796Z",
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "19 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "206 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "206/206 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "262 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": false,
+        "detail": "10 站的 interchange 標記與網絡圖度數不符：濱海沙崙、崁頂、高鐵桃園站、南港",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "206/206 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ]
+  },
+  "Tokyo + JR + Private|Japan": {
+    "strategies_tried": [],
+    "passed": true,
+    "checks": [
+      {
+        "id": "has_lines",
+        "ok": true,
+        "detail": "60 lines",
+        "level": "error"
+      },
+      {
+        "id": "has_stations",
+        "ok": true,
+        "detail": "583 stations",
+        "level": "error"
+      },
+      {
+        "id": "stations_have_lines",
+        "ok": true,
+        "detail": "583/583 站皆有所屬路線",
+        "level": "error"
+      },
+      {
+        "id": "line_geometry_stations",
+        "ok": true,
+        "detail": "1235 個折點/端點皆為車站",
+        "level": "error"
+      },
+      {
+        "id": "route_stations_match_geometry",
+        "ok": true,
+        "detail": "各線車站列表與圖面一致",
+        "level": "error"
+      },
+      {
+        "id": "interchange_rule",
+        "ok": true,
+        "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+        "level": "error"
+      },
+      {
+        "id": "stations_named",
+        "ok": true,
+        "detail": "583/583 站皆有名稱",
+        "level": "error"
+      },
+      {
+        "id": "station_order",
+        "ok": true,
+        "detail": "所有線路站序合理",
+        "level": "warn"
+      },
+      {
+        "id": "line_wiki_stations",
+        "ok": true,
+        "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+        "level": "error"
+      }
+    ],
+    "reasons": [],
+    "warnings": [],
+    "audited_at": "2026-07-23T12:24:36.018Z"
   }
 }

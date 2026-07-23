@@ -4,7 +4,7 @@
     "wikipedia_systems": 233,
     "our_systems": 266,
     "matched_ok": 202,
-    "flagged": 32,
+    "flagged": 31,
     "invariant_violations": {
       "wiki_city_without_data": 2,
       "stations_without_line": 0,
@@ -12,13 +12,13 @@
       "systems_with_non_station_vertices": 0,
       "systems_with_broken_routes": 0
     },
-    "order_suspect_systems": 1,
+    "order_suspect_systems": 0,
     "by_severity": {
       "missing": 2,
       "no_line": 0,
       "vertex": 0,
       "broken": 0,
-      "order": 1,
+      "order": 0,
       "zero": 0,
       "low": 2,
       "high": 27
@@ -49,22 +49,6 @@
       "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
       "wiki_url": "https://en.wikipedia.org/wiki/New_Taipei_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei"
-    },
-    {
-      "severity": "order",
-      "city": "Wellington",
-      "country": "New Zealand",
-      "our_file": "metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson",
-      "our_stations": 31,
-      "our_lines": 4,
-      "suspect_lines": [
-        {
-          "name": "Kapiti line",
-          "ratio": 1.62
-        }
-      ],
-      "note": "1 條線站序可疑（路徑長 > 1.6× MST）：Kapiti line 1.62×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Wellington"
     },
     {
       "severity": "low",
@@ -586,7 +570,7 @@
       "city": "Adelaide",
       "country": "Australia",
       "station_count": 123,
-      "line_count": 10
+      "line_count": 11
     },
     {
       "file": "metro-maps/africa/south-africa/af-rsa-durban.geojson",
@@ -634,7 +618,7 @@
       "file": "metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson",
       "city": "Wellington",
       "country": "New Zealand",
-      "station_count": 31,
+      "station_count": 34,
       "line_count": 4
     },
     {
@@ -753,7 +737,7 @@
       "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
       "city": "Alexandria",
       "country": "Egypt",
-      "station_count": 18,
+      "station_count": 37,
       "line_count": 1
     },
     {
