@@ -438,18 +438,18 @@ STEP 5 的 local search 由「迭代到不動點」取代。多彎路由是 RWD 
       M('dot', C.nRed, '彩色點', '被移動的節點', '受跨距上限 <code>SPAN_CAP</code>（預設 3）約束'),
     ],
     json: { code: `// 即時算（movewise，不另存）`, note: 'movewise 三步鏈第 1 步；移動後立即縮減網格。' },
-    algorithm: `<p>每個非白點一次移 <b>1 格</b>，讓入射段 H/V 淨增、或直線變長且斜線變短、或藍點收線；bendsPaid 護欄＋跨距上限擋不良移動。</p>`,
+    algorithm: `<p>每個非白點一次移 <b>1 格</b>（八方向含 45°）；<b>H/V 變多優先</b>，否則挑路線縮最短者；bendsPaid 護欄＋跨距上限擋不良移動。</p>`,
   },
   'line-compact': {
     title: '直線縮減', tag: '視圖', skills: ['route-line-compact', 'route-movewise-loop'],
-    svg: dLineCompact, caption: '整條線平移一格 → 網格變小、線更集中。',
+    svg: dLineCompact, caption: '整條線平移一格 → 直線變多或路線變短。',
     mapping: [
       M('dash', '#94a3b8', '灰虛線', '移動前', '前一列座標'),
       M('line', C.blue, '整條藍線', '跨相交點串接的整條直線', '當一個單位平移'),
-      M('line', C.orange, '橘箭頭', '平移 ±1 格', 'validShift 通過才採納、全網 H/V 不減'),
+      M('line', C.orange, '橘箭頭', '平移 ±1 格（含 45°）', 'validShift 通過才採納、全網 H/V 不減'),
     ],
     json: { code: `// 即時算（movewise，不另存）`, note: 'movewise 三步鏈第 2 步。' },
-    algorithm: `<p>跨相交點串接的整條直線上下左右平移 ±1 格；<b>H/V 變多就要移</b>，或嚴格縮小網格且 H/V 不減；validShift 硬規則（不壓點/不新增交叉/拓撲不變）＋跨距上限。</p>`,
+    algorithm: `<p>跨相交點串接的整條直線八方向平移 ±1 格（含 45°）；<b>H/V 變多優先</b>，否則挑邊界段縮最短者；validShift 硬規則＋跨距上限。</p>`,
   },
   'grid-merge': {
     title: '網格合併', tag: '視圖', skills: ['route-grid-merge', 'route-movewise-loop'],

@@ -7,28 +7,16 @@ import {
 import { sharesRoute, isHV } from './netUtil.js'
 import { isFourLineSquare } from './paper/shapeSquare.js'
 
-// Hill Climbing端點移動 — step 2 of the hc chain (HC → 端點移動 → 縮減網格;
-// the hc 縮減網格 and the RWD base compact THIS output, while the other
-// post-passes still branch off the raw HC result): EVERY coloured vertex
-// (每個非白點 — endpoints, transfers, branches, crossings; white/black through
-// stations are not vertices at all) may move so more of its incident segments
-// become horizontal or vertical. Candidates = aligning one axis with each
-// neighbour; a candidate is taken only when its NET H/V delta over the
-// vertex's own segments is positive, so the global H/V count strictly grows
-// (segments not incident to v are untouched — no revert needed). Each move is
-// capped at ONE cell (使用者規則：移動不可超過 1 格)——遠處的對齊靠 movewise
-// 的逐移動壓縮把距離拉近後、在後續移動慢慢完成. H/V 數不變的移動若能讓
-// 「直線變長且斜線變短」也採納（使用者規則——典型是直線接斜線的轉折點，
-// 沿直線方向推一格；兩者都要嚴格改善才動）. A currently
-// straight (H/V) segment may only be BENT when the same move straightens a
-// SAME-ROUTE segment in exchange (使用者規則：除非同名路線有拉直，否則不可
-// 讓直線路段變少) — a net-positive move that sacrifices route X's straight
-// leg to straighten route Y's is rejected. Each move still goes through the
-// SAME §5 hard rules as the optimizer (makeMover): no new crossing, no
-// landing on another segment or vertex, quadrant + edge-order preserved.
-// Tie-breaks: bigger delta → continues a same-route H/V segment past the
-// neighbour → smaller displacement. Runs under iteratePost — a move can
-// unblock another vertex's move in the next iteration.
+// 八方向 1 格（上下左右＋ 45° 對角；使用者規則：一次一格，含對角）
+const DIRS8 = [
+  [1, 0], [-1, 0], [0, 1], [0, -1],
+  [1, 1], [1, -1], [-1, 1], [-1, -1],
+]
+
+// 端點移動：每個非白點一次移 1 格（八方向）。採納優先序（使用者規則）：
+//   1. 移動後入射段 H/V 直線變多（淨增 > 0）——優先挑淨增最大者
+//   2. 若皆無，但移動後入射段總長變短——挑縮最短者
+// H/V 不可變少；bendsPaid／SPAN_CAP／validMove 硬規則同前。
 function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
   const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
   const skip = opts.skip // 一遍掃描（movewiseSweep）中本輪已動過的點——跳過
@@ -50,23 +38,16 @@ function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
     const otherPos = (s) => pos.get(s.a === v ? s.b : s.a)
     const hvAt = (P) => vsegs.reduce((n, s) => n + (isHV(P, otherPos(s)) ? 1 : 0), 0)
     const cur = hvAt(pv)
-    // Candidates: the four 1-cell unit moves — under the 1-cell cap
-    // （使用者規則：端點移動每次移動不可超過 1 格，由此構造保證）, every
-    // useful snap-onto-a-neighbour's-row/col candidate IS one of these, and
-    // they additionally cover the length-improving moves (直線變長、斜線變短).
-    const cand = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [pv[0] + dc, pv[1] + dr])
-    // 使用者規則的長度準則：v 入射段的（直線總長, 斜線總長）
-    const lenOf = (P) => {
-      let straight = 0, diag = 0
+    const cand = DIRS8.map(([dc, dr]) => [pv[0] + dc, pv[1] + dr])
+    const lenTotal = (P) => {
+      let L = 0
       for (const s of vsegs) {
         const pu = otherPos(s)
-        const L = Math.hypot(P[0] - pu[0], P[1] - pu[1])
-        if (isHV(P, pu)) straight += L
-        else diag += L
+        L += Math.hypot(P[0] - pu[0], P[1] - pu[1])
       }
-      return [straight, diag]
+      return L
     }
-    const [len0S, len0D] = lenOf(pv)
+    const len0 = lenTotal(pv)
     // Tie-break: does an aligned segment continue straight into a same-route
     // H/V segment on the far side of its neighbour?
     const contScore = (P) => {
@@ -102,29 +83,15 @@ function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
       // 使用者規則：不得讓任一入射段的兩個顏色點橫跨超過 SPAN_CAP 格
       if (!vsegs.every((sg) => spanOk(pv, otherPos(sg), P, otherPos(sg)))) continue
       const delta = hvAt(P) - cur
-      let lenScore = 0
-      if (delta > 0) {
-        if (!bendsPaid(P)) continue
-      } else if (delta === 0) {
-        // 使用者規則（二擇一）：H/V 數不變，但這一步能——
-        // (a) 讓「直線變長且斜線變短」（典型：直線接斜線的轉折點沿直線方向
-        //     推一格；兩者都要嚴格改善），或
-        // (b) v 是藍點（單一入射段）且「線變短」（把端點往鄰居收）。
-        // 收斂：每步讓 (−H/V 數, 斜線長, 總長) 字典序嚴格下降——(a) 斜線長
-        // 嚴格降、(b) 斜線長不增且總長嚴格降。
-        const [s1, d1] = lenOf(P)
-        const bendGain = s1 > len0S + 1e-9 && d1 < len0D - 1e-9
-        const blueShorten = vsegs.length === 1 && s1 + d1 < len0S + len0D - 1e-9
-        if (!bendGain && !blueShorten) continue
-        if (!bendsPaid(P)) continue
-        lenScore = bendGain ? (s1 - len0S) + (len0D - d1) : (len0S + len0D) - (s1 + d1)
-      } else {
-        continue // H/V 數不可變少
-      }
-      scored.push({ P, delta, cont: contScore(P), lenScore })
+      if (delta < 0) continue // H/V 數不可變少
+      if (!bendsPaid(P)) continue
+      const shorten = len0 - lenTotal(P) // >0＝路線變短
+      // 優先：直線變多；否則：路線變短（都沒有則不進候選）
+      if (delta <= 0 && shorten <= 1e-9) continue
+      scored.push({ P, delta, shorten, cont: contScore(P) })
     }
-    scored.sort((a, b) => b.delta - a.delta || b.cont - a.cont
-      || b.lenScore - a.lenScore
+    // 直線淨增優先 → 縮最短者 → 接直延續 → 座標決定序
+    scored.sort((a, b) => b.delta - a.delta || b.shorten - a.shorten || b.cont - a.cont
       || a.P[0] - b.P[0] || a.P[1] - b.P[1])
     for (const c of scored) {
       if (!M.validMove(v, c.P)) continue
@@ -140,19 +107,9 @@ function buildEndpointStraighten(skeleton, cells, cols, rows, opts = {}) {
   }
 }
 
-// 直線縮減 one sweep: move whole straight LINES so FEWER distinct columns +
-// rows are occupied (= how small the later 縮減網格 can compact to) — the
-// grid DIMENSIONS are untouched; in the chain this pass runs AFTER 端點移動
-// and BEFORE 縮減網格. A "line" is a maximal collinear chain of horizontal (or
-// vertical) segments stitched ACROSS intersection vertices — the connected
-// component over same-axis straight segments, so transfers, branches and
-// yellow crossings a line runs straight through move with it. Moves are the
-// four 1-cell unit shifts（使用者規則：直線可上下左右移，一次一格）——
-// movewise 下網格隨時緻密，逐格合併即可. A shift is accepted when
-// （使用者規則：移動後直線路段會變多就要移）boundary H/V 淨增 > 0，
-// 或嚴格縮小佔用欄列且 H/V 不減（gain > 0 ∧ hv ≥ 0）。H/V 不可變少。
-// Same rigid-shift hard rules as the optimizer (validShift). Tie-breaks:
-// bigger H/V gain → bigger grid gain.
+// 直線縮減：跨相交點串接的 H/V 直線整條剛體平移 1 格（八方向，含 45°）。
+// 採納優先序（使用者規則）：① 邊界段 H/V 淨增 > 0；② 若皆無，邊界段總長
+// 變短——挑縮最短者。H/V 不可變少；SPAN_CAP／validShift 硬規則同前。
 // straight-line components per axis (union-find over same-axis straight
 // segments), stitched across intersection vertices — shared by 直線縮減 and
 // 網格合併.
@@ -218,6 +175,20 @@ function boundaryHvDelta(pos, segs, inC, dc, dr) {
   return d
 }
 
+// 邊界段總長變化（剛體平移）；shorten = −delta > 0 表示路線變短
+function boundaryLenDelta(pos, segs, inC, dc, dr) {
+  let d = 0
+  for (const s of segs) {
+    const ma = inC.has(s.a), mb = inC.has(s.b)
+    if (ma === mb) continue
+    const A = pos.get(s.a), B = pos.get(s.b)
+    const A2 = ma ? [A[0] + dc, A[1] + dr] : A
+    const B2 = mb ? [B[0] + dc, B[1] + dr] : B
+    d += Math.hypot(A2[0] - B2[0], A2[1] - B2[1]) - Math.hypot(A[0] - B[0], A[1] - B[1])
+  }
+  return d
+}
+
 function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
   const limit = opts.limit ?? Infinity // 逐步驗證 子步驟：最多接受 limit 個移動
   const skip = opts.skip // 一遍掃描中本輪已動過的線（以最小成員 id 識別）——跳過
@@ -228,7 +199,7 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
   const M = makeMover(pos, segs, inc, cols, rows)
   const hvBefore = countHV(pos, segs)
 
-  // occupied-coordinate counts per axis; distinct cols+rows = compacted size
+  // occupied-coordinate counts per axis（stats 用）
   const count = [new Map(), new Map()]
   const recount = () => {
     for (const ax of [0, 1]) {
@@ -237,22 +208,6 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
     }
   }
   recount()
-  const axisDistinctAfter = (memAt, ax, d) => {
-    const occ = new Set()
-    for (const [x, n] of count[ax]) if (n - (memAt.get(x) ?? 0) > 0) occ.add(x)
-    for (const x of memAt.keys()) occ.add(x + d)
-    return occ.size
-  }
-  const gainOf = (mems, dc, dr) => {
-    let gain = 0
-    for (const [ax, d] of [[0, dc], [1, dr]]) {
-      if (!d) continue
-      const memAt = new Map()
-      for (const w of mems) { const x = pos.get(w)[ax]; memAt.set(x, (memAt.get(x) ?? 0) + 1) }
-      gain += count[ax].size - axisDistinctAfter(memAt, ax, d)
-    }
-    return gain
-  }
   const occBefore = [count[0].size, count[1].size]
   let moved = 0
   for (const horiz of [true, false]) {
@@ -260,19 +215,18 @@ function lineCompactPass(skeleton, cells, cols, rows, opts = {}) {
       if (moved >= limit) break
       if (skip && skip.has(comp[0])) continue
       const inC = new Set(comp)
-      // 四方向各 ±1 格（使用者規則：直線可上下左右移；一次一格）——
-      // movewise 下網格隨時緻密，相鄰欄列必有佔用，逐格合併即可。
+      // 八方向各 ±1 格（含 45°；使用者規則：一次一格）
       const scored = []
-      for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue // 顏色點間不可拉超過 SPAN_CAP 格
+      for (const [dc, dr] of DIRS8) {
+        if (!boundarySpanOk(pos, segs, inC, dc, dr)) continue
         const hv = boundaryHvDelta(pos, segs, inC, dc, dr)
         if (hv < 0) continue // 整個 network 的直線（H/V 段）不可變少
-        const gain = gainOf(comp, dc, dr)
-        // 使用者規則：直線路段變多就要移；否則須嚴格縮網格（且 H/V 已 ≥ 0）
-        if (hv <= 0 && gain <= 0) continue
-        scored.push({ dc, dr, gain, hv })
+        const shorten = -boundaryLenDelta(pos, segs, inC, dc, dr)
+        // 優先：直線變多；否則：路線變短
+        if (hv <= 0 && shorten <= 1e-9) continue
+        scored.push({ dc, dr, hv, shorten })
       }
-      scored.sort((a, b) => b.hv - a.hv || b.gain - a.gain
+      scored.sort((a, b) => b.hv - a.hv || b.shorten - a.shorten
         || a.dc - b.dc || a.dr - b.dr)
       for (const c of scored) {
         if (!M.validShift(comp, inC, c.dc, c.dr)) continue
