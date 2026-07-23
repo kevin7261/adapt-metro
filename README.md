@@ -356,15 +356,15 @@ data/metro/
 | `routes[].stations` | 該線的**完整行經序** `{station_id, station_name, code?, pass?}`——pass 站就地標記、依官方站碼正規化方向（A1 在前）；下游拓撲取非 pass 項建圖 |
 | `route_count` / `route_refs` / `route_colors` | 共線摘要（交錯色線繪製用；**無單數 `route_color`**——路段可多線） |
 
-> 每站輸出**完全相同的欄位集**（21 鍵，缺值 null/false）——265 城的物件面板/hover 表格全球一致。
+> 每站輸出**完全相同的欄位集**（21 鍵，缺值 null/false）——266 城的物件面板/hover 表格全球一致。
 
 **共站＝可轉乘**：OSM `stop_area` ∪ 同名 ≤800 m ∪ 人工裁決 `_overrides/interchanges.json`
 （**非**「同名就共站」；紐約同名不相通的站按 STRICT 規則不併）。合併站座標取平均、lines 取聯集。
 
 ### 總索引（`index.json`）
 
-`generated_from`／`baseline`／`system_count`（265）／`wikipedia_system_count`（233）／
-`line_total`（2243）／`station_total`（19703）／`systems[]`（每系統：file、洲國城、
+`generated_from`／`baseline`／`system_count`（266）／`wikipedia_system_count`（233）／
+`line_total`（2114）／`station_total`（19625）／`systems[]`（每系統：file、洲國城、
 osm_networks、operator、official_website、wikidata、線/段/站數）／
 `wikipedia_cities_without_match`（Wikipedia 有但未比對到的系統，覆蓋率報告）。
 
