@@ -2,8 +2,8 @@
 // 寫入 data/metro/straighten-llm/<city>.<variant>.json（與 route-llm-align /
 // llmAlign.mjs apply 同格式），讓 Straighten／RWD 畫廊的 LLM 對齊格不再空白。
 //
-// 策略＝skill route-llm-align 的短距 H/V／對角啟發式（非 headless Claude）：
-// 讀 offSegs → 提 ±1～3 格移動 → applyLlmTargets（同硬規則＋countHVD）→
+// 策略＝skill route-llm-align 的短距啟發式（非 headless Claude）：能 H/V 優先、
+// 45° 次之；提 ±1～3 格移動 → applyLlmTargets（同硬規則＋scoreAlign）→
 // 收斂或上限 10 輪。已有結果檔且 fingerprint 相符則跳過（加 --force 重算）。
 //
 //   node scripts/llmAlignBatch.mjs              # 缺檔才算
@@ -37,32 +37,37 @@ const limitIdx = args.indexOf('--limit')
 const limit = limitIdx >= 0 ? Math.max(1, +args[limitIdx + 1] || 0) : 0
 const onlyCity = args.find((a) => !a.startsWith('--') && a !== String(limit || ''))
 
-function isHVD(A, B) {
-  const dc = Math.abs(A[0] - B[0]), dr = Math.abs(A[1] - B[1])
-  return (dc === 0) !== (dr === 0) || (dc === dr && dc !== 0)
+function isHV(A, B) {
+  return (A[0] === B[0]) !== (A[1] === B[1])
 }
 
-// 依 skill：對角走向 → 對角；偏水平 → H；偏垂直 → V。回傳把 b 對齊到 a 的目標座標
-// （絕對格座標），距離超過 MAX_STEP 則沿該方向只走 MAX_STEP。
+// 回傳把 b 對齊到 a 的目標座標。優先序（使用者裁決）：①能 H/V 就 H/V（平手偏垂直）
+// ②否則近對角 → 45° ③偏軸 → H/V。距離超過 MAX_STEP 則沿該方向只走 MAX_STEP。
 function alignTarget(A, B) {
   const dx = B[0] - A[0], dy = B[1] - A[1]
   const adx = Math.abs(dx), ady = Math.abs(dy)
   if (adx === 0 && ady === 0) return null
+  if (isHV(A, B)) return null // 已 H/V
   let tc = B[0], tr = B[1]
-  if (adx === ady) return null // 已對角
-  if (Math.abs(adx - ady) <= Math.max(1, Math.floor(Math.min(adx, ady) * 0.35))) {
-    // 近對角：把較長軸縮到 min，成 |dc|===|dr|
+  const canV = adx > 0 && adx <= MAX_STEP // 對齊 col → 垂直
+  const canH = ady > 0 && ady <= MAX_STEP // 對齊 row → 水平
+  if (canV || canH) {
+    if (canV && canH) {
+      if (adx < ady) tc = A[0]
+      else if (ady < adx) tr = A[1]
+      else tc = A[0] // 等距：優先垂直
+    } else if (canV) tc = A[0]
+    else tr = A[1]
+  } else if (Math.abs(adx - ady) <= Math.max(1, Math.floor(Math.min(adx, ady) * 0.35))) {
+    // 近對角且無法一步成 H/V → 收成 45°
     const t = Math.min(adx, ady)
     tc = A[0] + Math.sign(dx || 1) * t
     tr = A[1] + Math.sign(dy || 1) * t
   } else if (ady < adx) {
-    // 偏水平 → 對齊 row
     tr = A[1]
   } else {
-    // 偏垂直 → 對齊 col
     tc = A[0]
   }
-  // 短距上限：朝目標方向最多 MAX_STEP
   let dc = tc - B[0], dr = tr - B[1]
   if (Math.abs(dc) > MAX_STEP) dc = Math.sign(dc) * MAX_STEP
   if (Math.abs(dr) > MAX_STEP) dr = Math.sign(dr) * MAX_STEP
@@ -72,11 +77,10 @@ function alignTarget(A, B) {
   return [tc, tr]
 }
 
-// 已對齊段的鎖：V 鎖 col、H 鎖 row、D 鎖對角分量——被鎖軸的頂點不當「自由端」。
+// 已 H/V 段的鎖：V 鎖 col、H 鎖 row。45° 不鎖——允許再升格成 H/V。
 function buildLocks(segs, cells) {
   const lockCol = new Set()
   const lockRow = new Set()
-  const lockDiag = new Set() // id → 'sum' | 'diff'（僅標記被對角鎖，提案時避開）
   for (const s of segs) {
     const A = cells.get(s.a), B = cells.get(s.b)
     if (!A || !B) continue
@@ -84,12 +88,9 @@ function buildLocks(segs, cells) {
     if ((A[0] === B[0]) !== (A[1] === B[1])) {
       if (dc === 0) { lockCol.add(s.a); lockCol.add(s.b) }
       else { lockRow.add(s.a); lockRow.add(s.b) }
-    } else if (Math.abs(dc) === Math.abs(dr) && dc !== 0) {
-      lockDiag.add(s.a)
-      lockDiag.add(s.b)
     }
   }
-  return { lockCol, lockRow, lockDiag }
+  return { lockCol, lockRow }
 }
 
 function proposeMoves(segs, cells, cols, rows) {
@@ -104,26 +105,23 @@ function proposeMoves(segs, cells, cols, rows) {
     const key = `${c},${r}`
     const cur = cells.get(id)
     if (cur[0] === c && cur[1] === r) return false
-    // 撞格（含本輪已提案）
     if (occupied.has(key) && !(cur[0] === c && cur[1] === r)) return false
     if (locks.lockCol.has(id) && c !== cur[0]) return false
     if (locks.lockRow.has(id) && r !== cur[1]) return false
-    if (locks.lockDiag.has(id)) return false
     occupied.delete(`${cur[0]},${cur[1]}`)
     occupied.add(key)
     moves.set(id, [c, r])
     return true
   }
 
-  // 優先處理「幾乎對齊」的短 offSeg（移動成本低、收益穩）
+  // 非 H/V 段都進場（含已是 45°——優先升格成 H/V）；短移動優先
   const off = []
   for (const s of segs) {
     const A = cells.get(s.a), B = cells.get(s.b)
-    if (!isHVD(A, B)) {
-      const cost = Math.min(Math.abs(A[0] - B[0]), Math.abs(A[1] - B[1]))
-        + Math.abs(Math.abs(A[0] - B[0]) - Math.abs(A[1] - B[1]))
-      off.push({ s, cost })
-    }
+    if (isHV(A, B)) continue
+    const adx = Math.abs(A[0] - B[0]), ady = Math.abs(A[1] - B[1])
+    const cost = Math.min(adx, ady) + Math.abs(adx - ady)
+    off.push({ s, cost })
   }
   off.sort((a, b) => a.cost - b.cost)
 
@@ -131,7 +129,6 @@ function proposeMoves(segs, cells, cols, rows) {
     if (moves.has(s.a) || moves.has(s.b)) continue
     const A = moves.get(s.a) ?? cells.get(s.a)
     const B = moves.get(s.b) ?? cells.get(s.b)
-    // 試搬 b 對齊 a，再試搬 a 對齊 b
     if (trySet(s.b, alignTarget(A, B))) continue
     if (trySet(s.a, alignTarget(B, A))) continue
   }

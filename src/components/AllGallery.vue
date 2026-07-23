@@ -6,6 +6,8 @@ import { rwdCellCompact, rwdCellVariant, loopCellCompact } from '../stores/viewG
 import { PAPER_KINDS } from '../stores/paperAlign'
 import { loadMetroCatalog } from '../stores/metroCatalog'
 import { setPendingViewMode } from '../lib/pendingViewMode'
+import { llmApplySet } from '../lib/llmApplyPersist'
+import { variantBase } from '../stores/layerMigrations'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
 import MIcon from './MIcon.vue'
@@ -192,9 +194,13 @@ function pick(kind, entry, viewId) {
   const { metro, d3, hc, rwd } = store.importCityChain(entry, { variant, compact })
   const target = { raw: metro, adjust: d3, straighten: hc, rwd }[kind] ?? metro
   if (!target) { store.toast('無法建立視圖'); return }
-  // 畫廊形狀縮圖＝已成方可餵；若舊層曾「清成方餵入」會與縮圖不同步——重置以對齊。
+  // 畫廊形狀縮圖＝磁碟已成方（square＋cells）；D3 還看 shapeFeedCleared 與
+  // localStorage「成方套用」。若曾「重新計算／恢復」釘成 false，會出現縮圖有、
+  // 點進去卻「成方路線沒有算」——從畫廊點入時兩者一併重置，與縮圖對齊。
   if ((kind === 'straighten' || kind === 'rwd') && /-shape$/.test(variant) && hc) {
     hc.shapeFeedCleared = false
+    const metroId = entry.id
+    if (metroId) llmApplySet(`shape|${metroId}|${variantBase(variant)}`, true)
   }
   // 開 tab 時切到與縮圖一致的視圖，並寫入 layer.viewMode（關掉再開仍停在此）。
   let openMode = null

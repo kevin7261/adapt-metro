@@ -93,13 +93,18 @@ export function gridLayoutFingerprint(skeleton, cells, cols, rows) {
     hvStart: countHV(pos, segs),
   }
 }
-// 「H/V 或格對角 45°」對齊段數——LLM 對齊（applyLlmTargets）與 paperAlign.js 的
-// 七條論文鏈（八方向系演算法）用它當接受準則，讓對角走向對到 45° 對角而非硬拉成
-// H/V 樓梯（使用者規則）。rect/align/ilp 三個後處理仍用 countHV（純 H/V 最大化）。
+// 「H/V 或格對角 45°」對齊段數（扁平計數；比較優先序請用 scoreAlign）。
 export function countHVD(pos, segs) {
   let n = 0
   for (const s of segs) if (isHVD(pos.get(s.a), pos.get(s.b))) n++
   return n
+}
+
+// 對齊分數（使用者裁決 2026-07）：**能 H/V 就優先 H/V，45° 次之**。
+// 字典序＝HV 主鍵、HVD 次鍵（乘數 > 可能段數，HV+1 永遠贏過任何純 45° 增益）。
+// LLM 對齊／論文①〜⑧（除②直角爬山本體）的 applyTargets 接受準則用此函式。
+export function scoreAlign(pos, segs) {
+  return countHV(pos, segs) * 1_000_000 + countHVD(pos, segs)
 }
 
 function cyclicEqual(a, b) {
@@ -757,9 +762,8 @@ export function buildHillClimb(skeleton, cellOf, cols, rows, opts = {}) {
 // targets assume simultaneous moves, so a partially applied solution can break
 // more alignments than it lands — if the net H/V count got worse, the whole
 // application is rolled back and the input layout kept.
-// `count` = 對齊分數函式（預設 countHV＝純水平垂直；LLM 對齊與 paperAlign.js 傳
-// countHVD＝含格對角 45°，讓對角走向對到斜線而非硬拉成 H/V 樓梯）。淨對齊分數
-// 變差就整批退回。
+// `count` = 對齊分數函式（預設 countHV＝純水平垂直；LLM／論文鏈傳 scoreAlign＝
+// HV 優先、45° 次之）。淨對齊分數變差就整批退回。
 export function applyTargets(pos, M, targets, segs, maxPasses = 6, count = countHV) {
   const start = new Map([...pos].map(([id, p]) => [id, [p[0], p[1]]]))
   const hv0 = count(pos, segs)
@@ -875,8 +879,8 @@ export function applyLlmTargets(skeleton, cells, cols, rows, targetEntries) {
     if (!Array.isArray(t) || !Number.isInteger(t[0]) || !Number.isInteger(t[1])) continue
     targets.set(id, [t[0], t[1]])
   }
-  // LLM 對齊的接受準則＝H/V/對角 45°（countHVD），讓對角走向對到斜線而非 H/V 樓梯。
-  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs, 6, countHVD)
+  // LLM 對齊接受準則＝scoreAlign（HV 優先、45° 次之）——能垂直/水平就不要停在斜線。
+  const { moved, passes, reverted } = applyTargets(pos, M, targets, segs, 6, scoreAlign)
   return {
     cellAfter: pos,
     stats: {

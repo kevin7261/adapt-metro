@@ -20,9 +20,8 @@ export const sharesRoute = (r1, r2) => {
 export const isHV = (A, B) => (A[0] === B[0]) !== (A[1] === B[1])
 
 /** 段 AB 是否已對齊「H/V 或格對角 45°」：水平/垂直，或 |dc|===|dr|（非零，格座標
- *  對角）。LLM 對齊用它取代 isHV，讓對角走向的段對到 45° 對角而非硬拉成 H/V 樓梯
- *  （使用者規則：對角用 45°、不要直角樓梯）。注意這是「格座標」45°；版面非正方時
- *  RWD 會把它畫成 45°＋軸向的斜線（見 route-rwd-draw），仍避免直角樓梯。 */
+ *  對角）。注意這是「格座標」45°；版面非正方時 RWD 會把它畫成 45°＋軸向的斜線。
+ *  接受準則見 hillClimb.scoreAlign——**能 H/V 就優先 H/V，45° 次之**。 */
 export const isHVD = (A, B) => {
   const dc = Math.abs(A[0] - B[0]), dr = Math.abs(A[1] - B[1])
   return (dc === 0) !== (dr === 0) || (dc === dr && dc !== 0)

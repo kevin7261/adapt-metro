@@ -98,7 +98,7 @@ const hvOf = (cells) => {
   }
   return n
 }
-// 「H/V 或格對角 45°」對齊段數——LLM 對齊的實際目標（見 applyLlmTargets/countHVD）。
+// HVD 段數（次鍵）；真正接受準則見 applyLlmTargets／scoreAlign（HV 優先）。
 const hvdOf = (cells) => {
   let n = 0
   for (const s of segs) {
@@ -114,12 +114,10 @@ if (cmd === 'export') {
     const [c, r] = baseCells.get(id)
     return { i, c, r }
   })
-  // offSegs = what to fix; alignedSegs = what NOT to break (a move that unaligns
-  // one of these costs exactly what a new alignment gains). 對齊＝H/V **或格對角
-  // 45°**（使用者規則：對角走向對到斜線、不要硬拉成 H/V 樓梯）——|dx|===|dy| 的段
-  // 已是對角、算已對齊、不進 offSegs（不要去拉直它）。
+  // offSegs＝要修；hvSegs＝已 H/V、不要弄斷。45° 進 offSegs（可升格成 H/V；
+  // 使用者裁決：能 H/V 優先、45° 次之）。
   const offSegs = []
-  const hvSegs = []   // 已對齊段（含對角）——沿用欄名，dir 增加 'D'
+  const hvSegs = []
   for (const s of segs) {
     const A = baseCells.get(s.a), B = baseCells.get(s.b)
     const dx = B[0] - A[0], dy = B[1] - A[1]
@@ -127,10 +125,11 @@ if (cmd === 'export') {
     const isDiag = Math.abs(dx) === Math.abs(dy) && dx !== 0
     if (isHValigned) {
       hvSegs.push({ a: idxOf.get(s.a), b: idxOf.get(s.b), dir: dx === 0 ? 'V' : 'H' })
-    } else if (isDiag) {
-      hvSegs.push({ a: idxOf.get(s.a), b: idxOf.get(s.b), dir: 'D' }) // 格對角 45°＝已對齊
     } else {
-      offSegs.push({ a: idxOf.get(s.a), b: idxOf.get(s.b), dx, dy })
+      offSegs.push({
+        a: idxOf.get(s.a), b: idxOf.get(s.b), dx, dy,
+        ...(isDiag ? { diag: true } : {}),
+      })
     }
   }
   console.log(JSON.stringify({

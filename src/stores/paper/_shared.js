@@ -1,8 +1,8 @@
 // 論文直線鏈共用機構
 import {
-  buildHcGraph, makeMover, applyTargets, countHV, countHVD, buildRectPolish,
+  buildHcGraph, makeMover, applyTargets, countHV, countHVD, scoreAlign, buildRectPolish,
 } from '../hillClimb.js'
-import { sharesRoute, isHVD } from '../netUtil.js'
+import { sharesRoute, isHV, isHVD } from '../netUtil.js'
 
 export const TWO_PI = 2 * Math.PI
 export const WINDOW = 2 // 目標離目前位置的 Chebyshev 上限（短距離後處理）
@@ -29,12 +29,12 @@ export function clampTargets(pos, targets, cols, rows) {
   return clamped
 }
 
-// targets 收尾（單批鏈共用）：夾 WINDOW → applyTargets(countHVD) → stats。
+// targets 收尾（單批鏈共用）：夾 WINDOW → applyTargets(scoreAlign) → stats。
 export function finishPass(pos, M, segs, targets, cols, rows, extra = {}) {
   const hvBefore = countHV(pos, segs)
   const hvdBefore = countHVD(pos, segs)
   const clamped = clampTargets(pos, targets, cols, rows)
-  const { moved, passes, reverted } = applyTargets(pos, M, clamped, segs, 6, countHVD)
+  const { moved, passes, reverted } = applyTargets(pos, M, clamped, segs, 6, scoreAlign)
   return {
     cellAfter: pos,
     stats: {
@@ -47,11 +47,11 @@ export function finishPass(pos, M, segs, targets, cols, rows, extra = {}) {
   }
 }
 
-// 逐批（逐筆畫/逐路線/逐頂點）漸進套用器：每批各自過 applyTargets（淨 HVD 變差
-// 該批獨立退回——對應論文的 progressive 排程：先處理的定案、壞的局部提案不拖垮
+// 逐批（逐筆畫/逐路線/逐頂點）漸進套用器：每批各自過 applyTargets（淨 scoreAlign
+// 變差該批獨立退回——對應論文的 progressive 排程：先處理的定案、壞的局部提案不拖垮
 // 整體）。批可以給**多個候選**（Map[]，依序試到第一個被接受為止——①筆畫法的
 // 「4 主方向優先、壅擠時退而求其次用 ±45°」，論文 §4.3/§9.9）。
-// opts.strict：批要**嚴格**改善 HVD 才收（單頂點批用——中性移動會讓 iteratePost
+// opts.strict：批要**嚴格**改善 scoreAlign 才收（單頂點批用——中性移動會讓 iteratePost
 // 永不收斂地漂移；嚴格遞增以段數為上界保證終止）。
 // 一批套完才算下一批的幾何（漸進式：後面的筆畫/路線看到的是已定案的位置）。
 export function makeApplier(pos, M, segs, cols, rows, opts = {}) {
@@ -64,11 +64,11 @@ export function makeApplier(pos, M, segs, cols, rows, opts = {}) {
     const clamped = clampTargets(pos, targets, cols, rows)
     if (!clamped.size) return false
     proposed += clamped.size
-    const cnt0 = countHVD(pos, segs)
+    const cnt0 = scoreAlign(pos, segs)
     const orig = new Map([...clamped.keys()].map((id) => [id, [...pos.get(id)]]))
-    const r = applyTargets(pos, M, clamped, segs, 6, countHVD)
+    const r = applyTargets(pos, M, clamped, segs, 6, scoreAlign)
     if (!r.moved) return false
-    if (opts.strict && countHVD(pos, segs) <= cnt0) {
+    if (opts.strict && scoreAlign(pos, segs) <= cnt0) {
       // 中性（或被部份擋掉後無淨益）的批 → 回退（一一放回原格是安全的）。
       for (const [id, p] of orig) {
         const cur = pos.get(id)
@@ -113,8 +113,8 @@ export function finishBatches(pos, M, segs, batches, cols, rows, extra = {}, opt
 }
 
 // 連續解的「對齊感知」量化（力導向/最小平方用）：頂點依 id 序逐一吸到連續位置
-// 四周的整數格，取「入射段與鄰居（已量化者用其量化格）HVD 對齊數」最高、平手取
-// 離連續位置近者——單純四捨五入會把連續空間的準確 45°/軸向毀掉。
+// 四周的整數格，取「入射段對齊分」最高（HV=2、45°=1）、平手取離連續位置近者——
+// 能吸成 H/V 就不停在 45°。
 export function snapAligned(P, pos, segs, inc) {
   const t = new Map()
   const ids = [...P.keys()].sort()
@@ -129,7 +129,8 @@ export function snapAligned(P, pos, segs, inc) {
         const s = segs[si]
         const o = s.a === id ? s.b : s.a
         const q = t.get(o) ?? [Math.round(P.get(o)[0]), Math.round(P.get(o)[1])]
-        if (isHVD(cand, q)) sc++
+        if (isHV(cand, q)) sc += 2
+        else if (isHVD(cand, q)) sc += 1
       }
       const d = Math.hypot(cand[0] - p[0], cand[1] - p[1])
       if (sc > bs || (sc === bs && d < bd - 1e-12)) { best = cand; bs = sc; bd = d }

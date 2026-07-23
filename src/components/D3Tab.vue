@@ -1277,29 +1277,27 @@ async function computeHcLayout({ seq, w, h, grid }) {
         cachedShapeLlm = { miss: 'LLM 成方結果與目前資料不符（資料已更新）——請重新產生' }
       }
     }
-    if (cachedShapeLlm?.cells) {
-      shapeLlmStats.value = cachedShapeLlm.stats
-      shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
-      shapeLlmMsg.value = null
-      const sk = llmApplyKeys.value.shape
-      // 只有 square===true 才算「成方跑出來」→ 批次／檔案預設餵下游。
-      // square===false（近似方、fourLine 未過）＝沒跑出來，不餵、下游顯示提示。
-      // 明示套用旗標優先；「重新計算」清掉後不成方。
-      const squared = cachedShapeLlm.stats?.square === true
-      if (shapeCleared || !squared) shapeLlmApplied.value = false
-      else shapeLlmApplied.value = llmApplyHas(sk) ? llmApplyGet(sk) : true
-      if (!squared) {
-        shapeLlmMsg.value = '成方未通過（非正確方形）——請重跑 ⑨ LLM 成方'
-      }
-    } else {
-      shapeLlmStats.value = null
-      shapeLlmInfo.value = null
-      shapeLlmMsg.value = cachedShapeLlm?.miss ?? null
-      shapeLlmApplied.value = false
-    }
-  } else if (cachedShapeLlm?.cells) {
+  }
+  // 每次進 compute 都同步套用旗標（含記憶體已有 cachedShapeLlm 的情況）。
+  // 否則畫廊已 llmApplySet(true)、但 ref 仍停在 false → 縮圖有、畫面「沒有算」。
+  if (cachedShapeLlm?.cells) {
     shapeLlmStats.value = cachedShapeLlm.stats
     shapeLlmInfo.value = { rounds: cachedShapeLlm.stats.rounds, model: cachedShapeLlm.stats.model }
+    shapeLlmMsg.value = null
+    const sk = llmApplyKeys.value.shape
+    // 只有 square===true 才算「成方跑出來」→ 無 LS 鍵時預設餵下游。
+    // square===false＝沒跑出來，不餵。「重新計算」會寫 LS=false＋shapeFeedCleared。
+    const squared = cachedShapeLlm.stats?.square === true
+    if (shapeCleared || !squared) shapeLlmApplied.value = false
+    else shapeLlmApplied.value = llmApplyHas(sk) ? llmApplyGet(sk) : true
+    if (!squared) {
+      shapeLlmMsg.value = '成方未通過（非正確方形）——請重跑 ⑨ LLM 成方'
+    }
+  } else if (shapeEnabled.value) {
+    shapeLlmStats.value = null
+    shapeLlmInfo.value = null
+    shapeLlmMsg.value = cachedShapeLlm?.miss ?? null
+    shapeLlmApplied.value = false
   }
 
   // 成方餵 HC：LLM 成方（執行調整）；無成方＝舊管線。

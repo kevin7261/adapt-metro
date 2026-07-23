@@ -160,11 +160,11 @@ badge、工具列顯示 迭代 n/20（達上限未收斂會標註）。共用機
    權重 ×3；冷卻/輪數/準則/硬規則/群集移動全同論文本體。
 2. **其餘論文鏈 ①③④⑤⑥⑦⑧**（詳見 [[route-paper-align]] 與各自 skill）：
    `src/stores/paperAlign.js`，同契約、同 `iteratePost` 包裝；接受準則用
-   `countHVD`——八方向系演算法，45° 不算退步。
-   `countHV/countHVD/makeMover/applyTargets` 因此由 hillClimb.js **export**
+   `scoreAlign`（HV 優先、45° 次之）。
+   `countHV/countHVD/scoreAlign/makeMover/applyTargets` 由 hillClimb.js **export**
    供 paperAlign.js 重用。
 3. **LLM 對齊**（第九種，詳見 [[route-llm-align]]）：由 Claude Code 的模型離線
-   當最佳化器（export → 提案 → `applyLlmTargets` 經同一套硬規則套用 → 存
+   當最佳化器（export → 提案 → `applyLlmTargets` 經同一套硬規則＋`scoreAlign` 套用 → 存
    `data/metro/straighten-llm/`），網頁只載入；不迭代包裝（LLM 迴圈本身就是迭代）。
 
 （**已下架（2026-07）**：自創的軸對齊與整數規劃鏈——不對應任何 data/thesis

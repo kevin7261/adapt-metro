@@ -18,8 +18,8 @@ import { getDataOverlay, setDataOverlay } from './dataOverlay.js'
 // v7: 形狀層網格合併擋格挪開＋合併⇄成對交替＋緻密 retry
 // v8: 端點移動／直線縮減八方向（含 45°）＋直線優先／否則最短
 // 寫入用最新；讀取相容舊版（畫廊縮圖常對應已存在的檔，勿因 bump 整批空白）。
-export const HC_CELLS_ALGO = 'hccells-v8'
-export const HC_CELLS_ALGO_READ = new Set(['hccells-v7', 'hccells-v8'])
+export const HC_CELLS_ALGO = 'hccells-v9'
+export const HC_CELLS_ALGO_READ = new Set(['hccells-v8', 'hccells-v9'])
 
 export function dataFingerprint(data) {
   let h = 5381
