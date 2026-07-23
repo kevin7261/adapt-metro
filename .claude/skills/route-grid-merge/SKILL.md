@@ -32,8 +32,12 @@ single=true 只掃一遍給逐步小步用、否則掃到沒有可合併——ta
   （含非 members）。若只寫 members，H/V 邊鎖會把一起動的非 member 當成靜止，
   誤擋空列／空欄壓縮（2026-07）。
 - **緻密 audit**：`auditGridDensity`——整列／整欄不應沒有任何顏色點；循環
-  stats 帶 `dense`／`emptyRows`／`emptyCols`。成對仍因凍結擋格做不了時 audit
-  會標出殘留空帶。
+  stats 帶 `dense`／`emptyRows`／`emptyCols`。循環收斂後若成方仍有空帶，再
+  強制 `gather` 數輪（`straightenCompactLoop` 尾段）。
+- **空帶填滿**（`fillEmptyBandsOnce`）：成對縮消不掉的空列／空欄（單軸會破方、
+  又沒有可併的另一軸），把來源列／欄 ≥2 點的非凍結點 `validMove` 進空帶——
+  尺寸不變、方仍在、dense。舊 `hccells-v6` 形狀檔常留空列——需 `hccells-v7`
+  重 bake（`metro:hccells:shape --force`）。
 - 附帶性質（自動成立、不需另檢）：邊界段跨距只縮不增；H/V 段只增不減
   （水平/垂直段不受影響、dy=1 斜段合併後變水平、dy=1 垂直段因兩端撞格被
   validShift 擋下）。

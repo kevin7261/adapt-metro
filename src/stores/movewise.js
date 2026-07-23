@@ -490,6 +490,61 @@ function squarePairShrinkOnce(skeleton, cells, cols, rows) {
   return null
 }
 
+/**
+ * 空帶填滿：成對縮／半平面消不掉的空列／空欄（東京 stroke 常卡 1 空列），
+ * 把「來源列／欄有 ≥2 點」的非凍結點 validMove 進空帶——網格尺寸不變、
+ * 方仍是方、audit dense。消不掉就填滿，使用者規則：不可留無顏色點的欄列。
+ */
+function fillEmptyBandsOnce(skeleton, cells, cols, rows) {
+  const dens0 = auditGridDensity(cells, cols, rows)
+  if (dens0.dense) return null
+  const guard = getFrozen()
+  const frozenMembers = guard?.members ?? null
+  const { pos, segs, inc } = buildHcGraph(skeleton, cells)
+  for (const [id, cell] of cells) {
+    if (!pos.has(id)) { pos.set(id, [cell[0], cell[1]]); inc.set(id, []) }
+  }
+  const M = makeMover(pos, segs, inc, cols, rows)
+  let filled = 0
+  const tryFill = (axis, emptyIdx) => {
+    // axis 0＝空欄（改 x）；1＝空列（改 y）
+    const countAt = (v) => {
+      let n = 0
+      for (const p of pos.values()) if (p[axis] === v) n++
+      return n
+    }
+    for (const [id, p] of pos) {
+      if (frozenMembers?.has(id)) continue
+      const src = p[axis]
+      if (src === emptyIdx) continue
+      if (countAt(src) < 2) continue
+      const P = axis === 0 ? [emptyIdx, p[1]] : [p[0], emptyIdx]
+      if (P[0] < 0 || P[1] < 0 || P[0] >= cols || P[1] >= rows) continue
+      if (!M.validMove(id, P)) continue
+      M.applyMove(id, P)
+      filled++
+      return true
+    }
+    return false
+  }
+  // 多輪：填一格可能露出下一條可填
+  for (let guardN = 0; guardN < 64; guardN++) {
+    const dens = auditGridDensity(pos, cols, rows)
+    if (dens.dense) break
+    let did = false
+    for (const r of dens.emptyRows) if (tryFill(1, r)) { did = true; break }
+    if (!did) for (const c of dens.emptyCols) if (tryFill(0, c)) { did = true; break }
+    if (!did) break
+  }
+  if (!filled) return null
+  const out = new Map()
+  for (const id of cells.keys()) {
+    const p = pos.get(id)
+    if (p) out.set(id, [p[0], p[1]])
+  }
+  return { cellAfter: out, cols, rows, filled }
+}
+
 /* ==================== 逐移動壓縮（movewise） ====================
    使用者規則：取消獨立的縮減網格步驟——端點移動/直線縮減/網格合併的
    **每一個小步驟（單一移動）完成後就做縮減網格**。實作＝以 limit=1 反覆呼叫
@@ -605,6 +660,22 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
         nR = d2.rows
       }
       if (!endp.moved && !line.moved && !paired) break
+    }
+    // 成對仍消不掉的空帶：非凍結點填進空列／空欄（保方＋dense）
+    while (true) {
+      const f = fillEmptyBandsOnce(skeleton, cur, nC, nR)
+      if (!f) break
+      cur = f.cellAfter
+      nC = f.cols
+      nR = f.rows
+    }
+  }
+  // 非成方：compactGridSafe 後若仍有空帶（硬規則擋），同樣嘗試填滿
+  if (!opts.single && !getFrozen()) {
+    while (true) {
+      const f = fillEmptyBandsOnce(skeleton, cur, nC, nR)
+      if (!f) break
+      cur = f.cellAfter
     }
   }
   const g1 = buildHcGraph(skeleton, cur)
@@ -881,11 +952,33 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     // 與逐步驗證相同：一輪三個演算法都沒改動才停（保險上限 roundCap）。
     if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
   }
-  // 收斂後再壓一次：成方護欄 overrides 修正後，先前誤留的空列／空欄可清掉
-  const dens = compactGridSafe(skeleton, cur, nC, nR)
-  cur = dens.cellAfter
-  nC = dens.cols
-  nR = dens.rows
+  // 收斂後再壓＋必要時再 gather：成方內部空列單軸會破方，需成對縮才消得掉；
+  // 舊 bake 常停在「方還在、但空列仍在」——這裡強制再收一次緻密。
+  {
+    const dens = compactGridSafe(skeleton, cur, nC, nR)
+    cur = dens.cellAfter
+    nC = dens.cols
+    nR = dens.rows
+  }
+  if (frozen) {
+    for (let i = 0; i < 8; i++) {
+      const density = auditGridDensity(cur, nC, nR)
+      if (density.dense) break
+      const ga = movewiseStage('gather', skeleton, cur, nC, nR)
+      const progressed = ga.cols !== nC || ga.rows !== nR
+        || !!(ga.stats?.moved || ga.stats?.pairMerges)
+      cur = ga.cellAfter
+      nC = ga.cols
+      nR = ga.rows
+      gatherMoved += ga.stats?.moved ?? 0
+      last = ga.stats
+      if (!progressed) {
+        const f = fillEmptyBandsOnce(skeleton, cur, nC, nR)
+        if (!f) break
+        cur = f.cellAfter
+      }
+    }
+  }
   const density = auditGridDensity(cur, nC, nR)
   return {
     cellAfter: cur,
