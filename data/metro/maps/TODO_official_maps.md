@@ -9,7 +9,29 @@
 5. 圖一律**下載存成本地檔**（`data/metro/maps/**.png`），不用外連 URL。PDF/SVG 用 macOS `qlmanage -t -s 2400 -o <dir> <file>` 轉 png（PDF 只轉第 1 頁，多頁文件內頁抓不到）；jpg/gif/webp 用 `sips -s format png`。
 6. 覆蓋同路徑圖檔後，記得 bump `maps_index.json` 頂層 `_rev`（時間戳）——前端用它做 `?v=` 破除瀏覽器快取，不然使用者會一直看到舊圖。
 
-## 現況（2026-07-21 更新）
+## 現況（2026-07-23 更新）
+> ### 2026-07-23 大洋洲／非洲新城補圖（＋7 官方圖）
+> 使用者裁決「只做新城 23 個，86 張社群圖維持現狀」。本輪拿到 7 張真正官方圖：
+> - **奧克蘭**：Auckland Transport「New Train Network — City Rail Link 2026」（at.govt.nz）
+> - **威靈頓**：Metlink「Wellington Regional Rail Network」（metlink.org.nz）
+> - **伯斯**：Transperth System Map 2025-10（含 Ellenbrook／Airport／Byford）
+> - **墨爾本**：Transport Victoria「Victorian train network」2026-02-01 生效
+> - **墨爾本電車**：PTV「Melbourne tram network」24 路線（官網現行版被 WAF 擋，取 Wayback 的官方 PDF）
+> - **紐卡索**：Newcastle Transport 官方輕軌線路圖（6 站）
+> - **路易港（模里西斯）**：Metro Express 官方全網圖（半地理，policy 第 2 條允許）
+>
+> **依政策退掉的（不是沒找到，是不合規）**：
+> - 布里斯本：Queensland Rail SEQ Network Map 是**黑底圖**（政策 3）→ 仍留白，待抓 Translink 淺底新版
+>   （translink.com.au 的圖放在 widen.net CDN 的 JS 頁，curl 抓不到資產 URL）。
+> - 坎培拉：Transport Canberra Network Map 是**公車＋輕軌的地理圖**（政策 3）→ 留白。
+> - 奧蘭／君士坦丁／阿爾及爾（SETRAM）：官網 `nos-reseaux/*` 的「map」是 **Google 地圖式地理疊圖**
+>   （政策 3）→ 留白，與先前阿爾及爾的裁決一致。
+>
+> **本輪未解、仍留白的新城（16）**：布里斯本、阿德萊德（官網 403 WAF）、黃金海岸（widen CDN）、
+> 坎培拉、約翰尼斯堡、開普敦、德班、達卡、突尼斯、卡薩布蘭卡、拉巴特、阿迪斯阿貝巴、阿布加、
+> 亞歷山卓、塞提夫／西迪貝勒阿巴斯／瓦爾格拉／莫斯塔加內姆（SETRAM 同上）。
+
+## 前一輪現況（2026-07-21）
 
 - ✅ 官方營運商圖：**118**
 - 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：85

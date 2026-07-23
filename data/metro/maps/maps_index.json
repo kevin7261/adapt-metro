@@ -2318,7 +2318,7 @@
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "artist": "أبو تائب"
  },
- "_rev": 1784787037317,
+ "_rev": 1784797958304,
  "americas/bolivia/am-bol-cochabamba": {
   "city": "Cochabamba",
   "country": "Bolivia",
@@ -2366,6 +2366,26 @@
   "map_file": "maps/oceania/australia/oc-aus-melbourne.png",
   "source_url": "https://www.ptv.vic.gov.au/assets/PDFs/Maps/Network-maps/PTV-Metro-Train-Network-Map.pdf",
   "note": "Transport Victoria 官方「Victorian train network」（2026-02-01 生效；含區域線，都會線為本資料集範圍）",
+  "wikidata": null,
+  "commons_file": null,
+  "license": "Official operator map (© operator; thesis use)"
+ },
+ "oceania/australia/oc-aus-newcastle": {
+  "city": "Newcastle",
+  "country": "Australia",
+  "map_file": "maps/oceania/australia/oc-aus-newcastle.png",
+  "source_url": "https://newcastletransport.info/wp-content/uploads/2019/11/MAP-SIMPLE-Newcastle-Light-Rail.pdf",
+  "note": "Newcastle Transport 官方輕軌線路圖（6 站：Newcastle Beach…Newcastle Interchange）",
+  "wikidata": null,
+  "commons_file": null,
+  "license": "Official operator map (© operator; thesis use)"
+ },
+ "oceania/australia/oc-aus-melbourne-tram": {
+  "city": "Melbourne Tram",
+  "country": "Australia",
+  "map_file": "maps/oceania/australia/oc-aus-melbourne-tram.png",
+  "source_url": "https://www.ptv.vic.gov.au/assets/PDFs/Maps/Network-maps/417bb4810a/PTV_Tram-Network-Map_2017.pdf",
+  "note": "PTV 官方「Melbourne tram network」全網示意圖（24 條路線；PTV 官網現行版被 WAF 擋，取 Wayback 存檔的官方 PDF）",
   "wikidata": null,
   "commons_file": null,
   "license": "Official operator map (© operator; thesis use)"

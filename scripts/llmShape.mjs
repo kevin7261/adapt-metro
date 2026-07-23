@@ -29,7 +29,7 @@ import { computeOrientation } from '../src/stores/orientation.js'
 import { buildConnectSkeleton } from '../src/stores/skeleton.js'
 import { buildSchematicGrid } from '../src/stores/schematicGrid.js'
 import { buildHcGraph, setSpanCap } from '../src/stores/hillClimb.js'
-import { shapeLlmContext, applyShapeLlmTargets } from '../src/stores/paper/shape.js'
+import { shapeLlmContext, applyShapeLlmTargets, applyShapeGreens } from '../src/stores/paper/shape.js'
 
 // 跨距上限（SPAN_CAP）：與 LLM 對齊一致——vite plugin 觸發的 headless run 經
 // LLM_SPAN_CAP env 傳入網頁「已套用」的最大跨距；手動 CLI 跑（無 env）＝預設 3。
@@ -88,13 +88,18 @@ if (existsSync(outFile)) {
 const baseCells = saved
   ? new Map(saved.cellAfter.map(([id, c, r]) => [id, [c, r]]))
   : new Map([...gridCells].map(([id, p]) => [id, [...p]]))
+// 成方結果常含綠折點——驗方／export 必須套進骨架，否則 allSquare 誤判 false
+// （D3Tab 載入時也會 applyShapeGreens；CLI 先前漏做）。
+const workSkeleton = (saved?.greens?.length)
+  ? applyShapeGreens(skeleton, saved.greens)
+  : skeleton
 
 // Stable vertex indexing: sorted ids (same order every run).
 const ids = [...baseCells.keys()].sort()
 const idxOf = new Map(ids.map((id, i) => [id, i]))
 
 if (cmd === 'export') {
-  const ctx = shapeLlmContext(skeleton, baseCells, grid.cols, grid.rows, cityId)
+  const ctx = shapeLlmContext(workSkeleton, baseCells, grid.cols, grid.rows, cityId)
   if (!ctx) {
     console.log(JSON.stringify({ city: cityId, variant, skipped: true, note: '此城非規定表——不需計算' }))
     process.exit(0)
@@ -132,7 +137,7 @@ if (cmd === 'export') {
   const greenSpecs = (spec.greens ?? [])
     .filter((g) => g && ids[+g.a] && ids[+g.b] && Array.isArray(g.cell))
     .map((g) => ({ a: ids[+g.a], b: ids[+g.b], c: g.cell[0], r: g.cell[1] }))
-  const res = applyShapeLlmTargets(skeleton, baseCells, grid.cols, grid.rows, targetEntries, cityId, greenSpecs)
+  const res = applyShapeLlmTargets(workSkeleton, baseCells, grid.cols, grid.rows, targetEntries, cityId, greenSpecs)
   const rejected = res.stats.rejected.map((x) => ({ i: idxOf.get(x.id), want: x.want, got: x.got }))
   let movedVsBase = 0
   for (const [id, p] of res.cellAfter) {

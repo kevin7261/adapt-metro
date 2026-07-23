@@ -60,6 +60,9 @@ scripts/llmShape.mjs reset <cityId> <orig|rot>   # 想從頭來
   資料不符」，`reset` 後重跑即可。
 - 起點＝目前 outFile（若符合本資料）或格網化後。重跑（想再改善）直接繼續 apply；
   想從頭先 `reset`。
+- **export／apply 會套用結果檔的 `greens`**（`applyShapeGreens`）再驗方——否則有綠折
+  的成方會被誤判 `allSquare:false`。全量啟發式 `_shapeSquareAll.mjs` 會 `reset` 覆寫
+  LLM 結果，**勿在已有 Fable／Opus 成方時全量重跑**；只對 fingerprint 過期的城重算。
 
 ## 執行迴圈（你要做的事）
 

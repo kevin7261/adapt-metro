@@ -1,109 +1,29 @@
 {
-  "generated_at": "2026-07-23T14:00:00+08:00",
-  "note": "全部 20 案皆 Fable 5 LLM 成方（llmShape.mjs apply、全部 via=batch、crosses 0→0、square=true/fourLine=true）。原啟發式 6 案已 reset 後由 LLM 重跑。僅 square===true 且 fourLine 才算成功；其餘＝未正確成方，不餵下游。勿重跑 _shapeSquareAll（會 reset 並覆寫 LLM 結果）。",
+  "generated_at": "2026-07-23T14:45:00+08:00",
+  "note": "規定表 10 城 × orig/rot＝20 案皆 square===true（export 含綠折驗方）。新加坡 fingerprint 過期後：orig＝啟發式 Composer、rot＝Opus 4.8 headless（via=batch）。其餘恢復／沿用先前 Fable 5。勿重跑 _shapeSquareAll 全量（會 reset 覆寫）。僅 square===true 才餵下游。",
   "ok_count": 20,
   "fail_count": 0,
   "ok": [
-    {
-      "id": "as-chn-beijing.orig",
-      "route": "2號線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-chn-beijing.rot",
-      "route": "2號線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-chn-shanghai.orig",
-      "route": "4號線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-chn-shanghai.rot",
-      "route": "4號線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-jpn-osaka-jr.orig",
-      "route": "大阪環状線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-jpn-osaka-jr.rot",
-      "route": "大阪環状線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-jpn-tokyo-jr.orig",
-      "route": "山手線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-jpn-tokyo-jr.rot",
-      "route": "山手線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-jpn-tokyo.orig",
-      "route": "大江戶線環形路段",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-jpn-tokyo.rot",
-      "route": "大江戶線環形路段",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-kor-seoul.orig",
-      "route": "2號線循環線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-kor-seoul.rot",
-      "route": "2號線循環線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-sgp-singapore.orig",
-      "route": "環狀線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-sgp-singapore.rot",
-      "route": "環狀線",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-twn-kaohsiung.orig",
-      "route": "高雄環狀輕軌",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "as-twn-kaohsiung.rot",
-      "route": "高雄環狀輕軌",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "eu-ger-berlin.orig",
-      "route": "環狀線 Ringbahn",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "eu-ger-berlin.rot",
-      "route": "環狀線 Ringbahn",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "eu-rus-moscow.orig",
-      "route": "5號環線 Koltsevaya＋11號大環線 BKL",
-      "via": "llm-fable5"
-    },
-    {
-      "id": "eu-rus-moscow.rot",
-      "route": "5號環線 Koltsevaya＋11號大環線 BKL",
-      "via": "llm-fable5"
-    }
+    { "id": "as-chn-beijing.orig", "route": "2號線", "via": "fable5" },
+    { "id": "as-chn-beijing.rot", "route": "2號線", "via": "fable5" },
+    { "id": "as-chn-shanghai.orig", "route": "4號線", "via": "fable5" },
+    { "id": "as-chn-shanghai.rot", "route": "4號線", "via": "fable5" },
+    { "id": "as-jpn-osaka-jr.orig", "route": "大阪環状線", "via": "fable5" },
+    { "id": "as-jpn-osaka-jr.rot", "route": "大阪環状線", "via": "fable5" },
+    { "id": "as-jpn-tokyo-jr.orig", "route": "山手線", "via": "fable5" },
+    { "id": "as-jpn-tokyo-jr.rot", "route": "山手線", "via": "fable5" },
+    { "id": "as-jpn-tokyo.orig", "route": "大江戶線環形路段", "via": "fable5" },
+    { "id": "as-jpn-tokyo.rot", "route": "大江戶線環形路段", "via": "fable5" },
+    { "id": "as-kor-seoul.orig", "route": "2號線循環線", "via": "fable5" },
+    { "id": "as-kor-seoul.rot", "route": "2號線循環線", "via": "fable5" },
+    { "id": "as-sgp-singapore.orig", "route": "環狀線", "via": "composer-heuristic" },
+    { "id": "as-sgp-singapore.rot", "route": "環狀線", "via": "opus-4.8" },
+    { "id": "as-twn-kaohsiung.orig", "route": "高雄環狀輕軌", "via": "fable5" },
+    { "id": "as-twn-kaohsiung.rot", "route": "高雄環狀輕軌", "via": "fable5" },
+    { "id": "eu-ger-berlin.orig", "route": "環狀線 Ringbahn", "via": "fable5" },
+    { "id": "eu-ger-berlin.rot", "route": "環狀線 Ringbahn", "via": "fable5" },
+    { "id": "eu-rus-moscow.orig", "route": "5號環線 Koltsevaya＋11號大環線 BKL", "via": "fable5" },
+    { "id": "eu-rus-moscow.rot", "route": "5號環線 Koltsevaya＋11號大環線 BKL", "via": "fable5" }
   ],
   "fail": []
 }
