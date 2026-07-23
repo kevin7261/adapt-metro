@@ -2,6 +2,9 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { clearDataOverlay } from '../lib/dataOverlay'
+import {
+  showRecomputeOverlay, updateRecomputeOverlay, hideRecomputeOverlay,
+} from '../stores/recomputeOverlay'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -80,6 +83,7 @@ async function startRecompute(mode) {
   recomputeStep.value = '啟動中…'
   recomputePhase.value = '啟動'
   recomputeProgress.value = null
+  showRecomputeOverlay({ title: `重新計算：${opt.label}`, mode: 'all' })
   store.toast(`重新計算：${opt.label}…`)
   try {
     const res = await fetch('/metro-recompute/run', {
@@ -88,11 +92,15 @@ async function startRecompute(mode) {
       body: JSON.stringify({ mode }),
     })
     if (res.status === 404 || res.status === 405) {
-      throw new Error('僅開發伺服器可用（npm run dev）')
+      throw new Error('僅開發伺服器可用（npm run serve）')
     }
     if (res.status === 409) {
+      hideRecomputeOverlay()
+      recomputeBusy.value = false
       store.toast('已有重新計算在進行中')
-    } else if (!res.ok) {
+      return
+    }
+    if (!res.ok) {
       const j = await res.json().catch(() => ({}))
       throw new Error(j.error || `HTTP ${res.status}`)
     }
@@ -108,6 +116,8 @@ async function startRecompute(mode) {
     recomputeStep.value = ''
     recomputePhase.value = ''
     recomputeProgress.value = null
+    updateRecomputeOverlay({ error: err.message || String(err), step: err.message || String(err) })
+    setTimeout(() => hideRecomputeOverlay(), 1600)
     store.toast(`重新計算失敗：${err.message || err}`)
   }
 }
@@ -140,6 +150,12 @@ async function pollRecompute() {
     recomputePhase.value = j.phase || ''
     recomputeProgress.value = j.progress ?? null
     recomputePaused.value = !!j.paused
+    updateRecomputeOverlay({
+      step: j.step || '進行中…',
+      phase: j.phase || '',
+      progress: j.progress ?? null,
+      paused: !!j.paused,
+    })
     if (j.running) {
       recomputeBusy.value = true
       return
@@ -156,9 +172,15 @@ async function pollRecompute() {
     clearDataOverlay('data/metro/')
     store.metroDataEpoch++
     if (j.exit === 0) {
+      updateRecomputeOverlay({ step: '完成', phase: 'done' })
+      setTimeout(() => hideRecomputeOverlay(), 500)
       store.toast('重新計算完成')
     } else if (j.exit != null) {
+      updateRecomputeOverlay({ error: j.error || '未知錯誤', step: j.error || '失敗' })
+      setTimeout(() => hideRecomputeOverlay(), 1600)
       store.toast(`重新計算失敗：${j.error || '未知錯誤'}（見 terminal）`)
+    } else {
+      hideRecomputeOverlay()
     }
     recomputeStep.value = ''
     recomputePhase.value = ''
@@ -171,6 +193,8 @@ async function pollRecompute() {
     recomputeStep.value = ''
     recomputePhase.value = ''
     recomputeProgress.value = null
+    updateRecomputeOverlay({ error: err.message || String(err), step: err.message || String(err) })
+    setTimeout(() => hideRecomputeOverlay(), 1600)
     store.toast(`重新計算狀態讀取失敗：${err.message || err}`)
   }
 }

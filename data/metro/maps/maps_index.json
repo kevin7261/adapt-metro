@@ -2318,7 +2318,7 @@
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "artist": "أبو تائب"
  },
- "_rev": 1784724361656,
+ "_rev": 1784787037317,
  "americas/bolivia/am-bol-cochabamba": {
   "city": "Cochabamba",
   "country": "Bolivia",
@@ -2329,5 +2329,45 @@
   "license": null,
   "artist": null,
   "note": "standalone system missing from index (built after last downloadMaps run); no operator-official schematic yet — blank per policy 2026-07"
+ },
+ "oceania/new-zealand/oc-nzl-auckland": {
+  "city": "Auckland",
+  "country": "New Zealand",
+  "map_file": "maps/oceania/new-zealand/oc-nzl-auckland.png",
+  "source_url": "https://at.govt.nz/media/qbknmuld/auckland-transport-city-rail-link-new-network-map-2026.pdf",
+  "note": "Auckland Transport 官方「New Train Network — City Rail Link 2026」示意圖（淺底、全網）",
+  "wikidata": null,
+  "commons_file": null,
+  "license": "Official operator map (© operator; thesis use)"
+ },
+ "oceania/new-zealand/oc-nzl-wellington": {
+  "city": "Wellington",
+  "country": "New Zealand",
+  "map_file": "maps/oceania/new-zealand/oc-nzl-wellington.png",
+  "source_url": "https://www.metlink.org.nz/assets/Network-maps/RegionalRailNetwork.pdf",
+  "note": "Metlink 官方「Wellington Regional Rail Network」示意圖（JVL/KPL/HVL/MEL/WRL 五線）",
+  "wikidata": null,
+  "commons_file": null,
+  "license": "Official operator map (© operator; thesis use)"
+ },
+ "oceania/australia/oc-aus-perth": {
+  "city": "Perth",
+  "country": "Australia",
+  "map_file": "maps/oceania/australia/oc-aus-perth.png",
+  "source_url": "https://www.transperth.wa.gov.au/Portals/0/SYSTEM%20MAP%20OCTOBER%202025.pdf",
+  "note": "Transperth 官方 System Map（2025-10，含 Ellenbrook/Airport/Byford 延伸）",
+  "wikidata": null,
+  "commons_file": null,
+  "license": "Official operator map (© operator; thesis use)"
+ },
+ "oceania/australia/oc-aus-melbourne": {
+  "city": "Melbourne",
+  "country": "Australia",
+  "map_file": "maps/oceania/australia/oc-aus-melbourne.png",
+  "source_url": "https://www.ptv.vic.gov.au/assets/PDFs/Maps/Network-maps/PTV-Metro-Train-Network-Map.pdf",
+  "note": "Transport Victoria 官方「Victorian train network」（2026-02-01 生效；含區域線，都會線為本資料集範圍）",
+  "wikidata": null,
+  "commons_file": null,
+  "license": "Official operator map (© operator; thesis use)"
  }
 }

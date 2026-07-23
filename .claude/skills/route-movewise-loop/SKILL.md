@@ -23,16 +23,18 @@ validShift 同一套硬規則（含變形段檢查，見 [[route-hillclimb]] ③
 循環與 [[route-step-verify]] 的「下一步」＝該演算法**跑到自己的不動點**
 （`movewiseStage`：元素可重複動；網格合併掃到沒有可合併＋成對縮方）。
 **算到不能動才換下一階段／下一輪**（2026-07 使用者裁決；勿只掃一遍就換）。
+單獨的三個 stage tab 也走 `movewiseStage`。
 
-`movewiseSweep`（一遍掃描、每個元素本遍最多動一次）只給逐步「下一小步」
-延續同一遍用；單獨的三個 stage tab 也走 `movewiseStage`。
+逐步「下一小步」端點／直線＝與 Stage 相同的「下一個可動」（不走 visited
+掃過），以免小步連跑與循環最終結果分叉。
 
 ## 循環（straightenCompactLoop）
 
 每輪＝**端點移動至不動點 → 直線縮減至不動點 → 網格合併至不動點 → 下一輪**；
 某一輪**三個演算法都沒有改動**才停止（與 [[route-step-verify]] 相同判準；
-上限 LOOP_ROUND_CAP=200）。勿用「欄列＋H/V 不變」提前停。
-收斂：端點移動 (−H/V, 斜線長, 總長) 字典序遞減、直線縮減與網格合併嚴格縮小網格。
+上限 LOOP_ROUND_CAP=200）。起點先 `compactGridSafe`。
+收斂後雙方共用 **`loopPostConverge`**（再壓＋成方緻密／填空帶）——逐步
+done／執行到底必須走同一收尾，**最終座標與循環一模一樣**。
 
 ## 下游
 

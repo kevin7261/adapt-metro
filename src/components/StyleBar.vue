@@ -18,7 +18,7 @@ const props = defineProps({
   dirs: { type: Number, default: 8 }, // 允許的線方向數：4（只H/V）| 8（+45°）| 16（+22.5°）
   frame: { type: String, default: 'auto' }, // RWD 版面尺寸預設（目前／網頁／手機／IG）
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
-  hideStops: { type: Boolean, default: false }, // 自動隱藏白點
+  hideStops: { type: Boolean, default: false }, // 白點縮減（true＝隱藏過密直通白點）
   minStopPx: { type: Number, default: 5 }, // 最小站距（pt）
   stopStat: { type: Object, default: null }, // 即時診斷：{ high, wide, hidden, canvas }
   spanApplied: { type: Number, default: null }, // 顏色點間最大跨距「已套用」值（只 Straighten）
@@ -71,9 +71,9 @@ const isHillclimb = computed(() => props.viewKind === 'hillclimb')
 const isMapAdjust = computed(() => props.viewKind === 'map-adjust')
 const hasRow2 = computed(() => isRwd.value || isHillclimb.value || isMapAdjust.value)
 const recalcTitle = computed(() => {
-  if (isMetroView.value) return '重新載入本圖 Metro GeoJSON／軌道／中線'
-  if (isMapAdjust.value) return '重新計算骨架／格網，並清除下游預計算結果（straighten-cells）'
-  return '重算全下游並寫入預計算 JSON（straighten-cells，只含格座標；基本＋①〜⑧）'
+  if (isMetroView.value) return '重新載入本圖，並重算後續資料流（Map Adjust／Straighten cells／畫廊）'
+  if (isMapAdjust.value) return '重新計算骨架／格網，並重算後續資料流（straighten-cells＋畫廊）'
+  return '重算全下游並寫入預計算 JSON（straighten-cells；基本＋①〜⑧ → 循環）'
 })
 
 // 河流分隔曲折度草稿 vs 已套用——不同才亮「確定」。
@@ -293,13 +293,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         >權重</button>
 
         <div class="sb-sep" />
-        <!-- 車站白點（直通站圓點）：亮起＝顯示，暗＝依最小站距自動隱藏。 -->
+        <!-- 白點縮減：亮起＝依最小站距隱藏過密直通白點；暗＝全部顯示。 -->
         <button
           class="sb-btn"
-          :class="{ active: !hideStops }"
-          title="車站白點（直通站圓點）：亮起＝顯示，暗＝依最小站距自動隱藏"
+          :class="{ active: hideStops }"
+          title="白點縮減：亮起＝依最小站距隱藏過密直通白點；暗＝全部顯示"
           @click="emit('hide-stops', !hideStops)"
-        >車站白點</button>
+        >白點縮減</button>
         <label class="sb-inline" title="最小站距（pt）">
           <span class="sb-inline-label">最小站距</span>
           <input

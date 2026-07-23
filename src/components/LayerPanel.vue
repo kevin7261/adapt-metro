@@ -10,8 +10,9 @@ import { docKeyForLayer } from '../stores/layerDocs'
 import { assetUrl } from '../lib/assetUrl'
 import { PAPER_ZH } from '../stores/paperAlign'
 import { variantLabel } from '../stores/layerMigrations'
-import { clearStraightenCells } from '../lib/straightenCells'
 import { llmApplySet } from '../lib/llmApplyPersist'
+import { recomputeCityFlow } from '../lib/recomputeCityFlow'
+import { clearDataOverlay } from '../lib/dataOverlay'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -325,13 +326,10 @@ function removeAllLayers() {
   store.toast(`已刪除全部 ${all.length} 個圖層`)
 }
 
-// 重新計算整個城市：關掉該城市所有分頁、清掉 GeoJSON **與 straighten-cells 預計算結果**，
-// 刪掉 LLM 成方結果檔，再重開——tab 重新 mount 時 Raw Maps 會重新抓檔；
-// Straighten／RWD 需再按「重新計算」寫預計算結果。無 LLM 成方＝不成方餵下游。
+// 重新計算整個城市：清成方／分頁後，從 Metro 起重算後續資料流（cells＋畫廊），再重開分頁。
 async function recomputeCity(item) {
   const all = layersOf(item)
   if (!all.length) return
-  // 收集都會區 metro id → 刪 straighten-cells（全部變體）＋ llmshapes（orig/rot）
   const metroIds = new Set()
   for (const l of all) {
     if (l.type === 'hillclimb') {
@@ -345,28 +343,36 @@ async function recomputeCity(item) {
       }
     } else if (l.type === 'd3' && l.sourceLayerId) {
       metroIds.add(l.sourceLayerId)
-    } else if (l.type === 'metro' && l.id) {
+    } else if (l.type === 'metro' && l.id && !l.railway && !l.highway) {
       metroIds.add(l.id)
     }
   }
   for (const city of metroIds) {
-    await clearStraightenCells({ cityId: city })
     try {
       await fetch('/llm-shape/clear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ city }),
       })
-    } catch { /* 無 vite／離線 → 略過檔案刪除，套用旗標已清 */ }
+    } catch { /* 無 vite／離線 → 略過 */ }
   }
   for (const l of all) {
     dockHandle.api?.getPanel(l.id)?.api.close()
     delete layerData[l.id]
     delete layerExport[l.id]
   }
+  // 逐城跑後續資料流（清 cells → bake → 畫廊），再開分頁讀新結果
+  for (const city of metroIds) {
+    const r = await recomputeCityFlow(city, {
+      title: `重新計算 ${city}（城市全下游）`,
+    })
+    if (!r.ok) store.toast(`${city} 下游重算失敗：${r.error}`)
+  }
+  clearDataOverlay('data/metro/')
+  store.metroDataEpoch++
   await nextTick()
   for (const l of all) openLayerTab(l)
-  store.toast(`重新計算「${item.group.label}」的 ${all.length} 個圖層…（已刪 LLM 成方）`)
+  store.toast(`已重算「${item.group.label}」${all.length} 個圖層與後續資料流`)
 }
 
 /* ---- resize ---- */

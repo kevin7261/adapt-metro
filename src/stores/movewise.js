@@ -694,13 +694,53 @@ function movewiseCore(stage, skeleton, cells, cols, rows, visited) {
 }
 
 /* ==================== 逐步驗證（逐步執行） ====================
-   讓使用者一鍵一步看鏈怎麼收斂：每一步 = 目前階段的**一個單掃描**（或
-   limit=1 的單一移動），順序 端點移動 → 直線縮減 → 網格合併；**每一步完成後
-   立即縮減網格**（使用者規則：取消獨立的縮減網格階段，改成每步後都壓），
-   所以畫面上的網格永遠是緻密的。某階段掃不動就自動換下一階段（同一鍵內
-   跳過空階段），一輪三階段都沒動靜＝完成。
-   狀態是純資料（cells/cols/rows/stage/round/steps/info），呼叫端自己保存。 */
+   與循環（straightenCompactLoop）共用同一條收斂路徑——大步＝movewiseStage
+   至不動點；小步＝與 Stage 相同的「下一個可動」（端點/直線不走 visited 掃過，
+   以免順序與循環分叉）。收斂完成時套同一套 loopPostConverge，保證結果一致。 */
 const STEP_STAGE_LABEL = { endp: '端點移動', line: '直線縮減', gather: '網格合併' }
+
+// 收斂後緻密收尾（成方空列／填空帶）——循環與逐步 done 共用，缺一則結果分叉。
+function loopPostConverge(skeleton, cur, nC, nR) {
+  {
+    const dens = compactGridSafe(skeleton, cur, nC, nR)
+    cur = dens.cellAfter
+    nC = dens.cols
+    nR = dens.rows
+  }
+  let gatherMoved = 0
+  let lastStats = null
+  if (getFrozen()) {
+    for (let i = 0; i < 8; i++) {
+      const density = auditGridDensity(cur, nC, nR)
+      if (density.dense) break
+      const ga = movewiseStage('gather', skeleton, cur, nC, nR)
+      const progressed = ga.cols !== nC || ga.rows !== nR
+        || !!(ga.stats?.moved || ga.stats?.pairMerges)
+      cur = ga.cellAfter
+      nC = ga.cols
+      nR = ga.rows
+      gatherMoved += ga.stats?.moved ?? 0
+      lastStats = ga.stats
+      if (!progressed) {
+        const f = fillEmptyBandsOnce(skeleton, cur, nC, nR)
+        if (!f) break
+        cur = f.cellAfter
+      }
+    }
+  }
+  const density = auditGridDensity(cur, nC, nR)
+  return { cellAfter: cur, cols: nC, rows: nR, gatherMoved, lastStats, density }
+}
+
+function cellsChanged(a, b) {
+  if (a.size !== b.size) return true
+  for (const [id, p] of a) {
+    const q = b.get(id)
+    if (!q || q[0] !== p[0] || q[1] !== p[1]) return true
+  }
+  return false
+}
+
 export function stepChainInit(skeleton, cells, cols, rows) {
   const comp = compactGridSafe(skeleton, cells, cols, rows) // 每步後都壓 → 起點也先壓
   return {
@@ -709,7 +749,7 @@ export function stepChainInit(skeleton, cells, cols, rows) {
     lastStage: null, // 這一步執行的工作（endp/line/gather）——顯示在面板的階段 chips
     movedIds: [], // 這一步移動的點/線成員 id——畫布上以橘圈標示
     moves: [], // 這一步的前後比對 [{ id, from:[c,r], to:[c,r] }]（縮減後 rank 空間，可為半格）
-    sweepVisited: [], // 目前這一遍掃描中已動過的元素 key（小步跨點擊延續同一遍）
+    sweepVisited: [], // 保留欄位（相容舊 state）；小步已改與 Stage 同序，不再用
     mergeCursor: null, // 網格合併這一遍掃到哪個邊界（{phase:'row'|'col', idx}；小步延續用）
     info: '按「下一步」開始——每步＝目前演算法跑到不能動，再換下一個：端點移動 → 直線縮減 → 網格合併 → 下一輪；三個都沒改動就停止',
   }
@@ -719,7 +759,6 @@ export function stepChainNext(skeleton, st, opts = {}) {
   const limit = opts.limit ?? Infinity // limit=1 ＝「下一小步」：只做一個點/線的移動
   const subTag = limit === 1 ? '（小步）' : ''
   let { cells, cols, rows, stage, round, steps, roundMoves } = st
-  let sweepVisited = st.sweepVisited ?? []
   let mergeCursor = st.mergeCursor ?? null
   // 前後比對：這一步每個移動元素的 from→to 格座標（移動當下、縮減前的座標）
   const movesOf = (prev, next, ids) => {
@@ -761,13 +800,22 @@ export function stepChainNext(skeleton, st, opts = {}) {
     return {
       cells: comp.cellAfter, cols: comp.cols, rows: comp.rows,
       stage, round, steps: steps + 1, roundMoves, done: false, lastStage: stage,
-      movedIds: ids, moves, sweepVisited, mergeCursor,
+      movedIds: ids, moves, sweepVisited: [], mergeCursor,
       info: infoBase + (shrunk ? `｜縮減網格 ${cols}×${rows} → ${comp.cols}×${comp.rows}` : ''),
     }
   }
-  // 「下一步」＝目前演算法**跑到不動點**（movewiseStage）再換下一個——使用者規則
-  // （2026-07）：算到不能動才到下一階段／下一輪。小步仍逐移動，但同一階段要
-  // 連做多遍直到一整遍都動不了才換。
+  // 收斂完成——套與循環相同的 postConverge，結果才保證一致
+  const markDone = (base, info) => {
+    const post = loopPostConverge(skeleton, base.cells, base.cols, base.rows)
+    return {
+      cells: post.cellAfter, cols: post.cols, rows: post.rows,
+      stage: base.stage, round: base.round, steps: base.steps, roundMoves: 0,
+      done: true, lastStage: null, movedIds: [], moves: [],
+      sweepVisited: [], mergeCursor: null, info,
+    }
+  }
+  // 「下一步」＝目前演算法**跑到不動點**（movewiseStage）再換下一個。
+  // 小步＝與 Stage 相同的下一個可動（不走 visited 掃過，避免與循環分叉）。
   const NEXT_STAGE = { endp: 'line', line: 'gather', gather: 'endp' }
   const STAGE_INFO = {
     endp: (t) => `移動 ${t.moved} 點（水平垂直 ${t.hvBefore} → ${t.hvAfter}／${t.segs} 段）`,
@@ -790,12 +838,12 @@ export function stepChainNext(skeleton, st, opts = {}) {
           }
         }
         if (!roundMoves) {
-          return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info: `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動` }
+          return markDone({ cells, cols, rows, stage, round, steps },
+            `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動`)
         }
         round += 1
         roundMoves = 0
         stage = 'endp'
-        sweepVisited = []
         mergeCursor = null
         continue
       }
@@ -817,40 +865,49 @@ export function stepChainNext(skeleton, st, opts = {}) {
         roundMoves += r.merged
         const info = `第 ${round} 輪 · ${STEP_STAGE_LABEL.gather}${subTag}：合併 ${r.desc[0]}｜網格 ${cols}×${rows} → ${r.cols}×${r.rows}`
         if (r.cursor.phase !== 'done') {
-          return { cells: r.cellAfter, cols: r.cols, rows: r.rows, stage, round, steps: steps + 1, roundMoves, done: false, lastStage: 'gather', movedIds: [], moves: [], sweepVisited, mergeCursor: r.cursor, info }
+          return { cells: r.cellAfter, cols: r.cols, rows: r.rows, stage, round, steps: steps + 1, roundMoves, done: false, lastStage: 'gather', movedIds: [], moves: [], sweepVisited: [], mergeCursor: r.cursor, info }
         }
-        // 這一遍掃完但仍有合併 → 再開一遍（同一階段算到不能動）
         return { cells: r.cellAfter, cols: r.cols, rows: r.rows, stage: 'gather', round, steps: steps + 1, roundMoves, done: false, lastStage: 'gather', movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info }
       }
-      // 這一遍沒有可合併 → 一輪結束
+      // 單步合併已盡——補跑 movewiseStage('gather') 收尾（填空帶／成對緻密），
+      // 與大步／循環的 gather 不動點對齊，避免小步路徑少做後半段。
+      {
+        const sw = movewiseStage('gather', skeleton, cells, cols, rows)
+        if (sw.stats.moved || sw.cols !== cols || sw.rows !== rows
+          || cellsChanged(sw.cellAfter, cells)) {
+          roundMoves += Math.max(1, sw.stats.moved)
+          const gridTag = sw.stats.fromCols !== sw.cols || sw.stats.fromRows !== sw.rows
+            ? `｜網格 ${sw.stats.fromCols}×${sw.stats.fromRows} → ${sw.cols}×${sw.rows}` : ''
+          return {
+            cells: sw.cellAfter, cols: sw.cols, rows: sw.rows,
+            stage: 'endp', round: round + 1, steps: steps + 1, roundMoves: 0, done: false,
+            lastStage: 'gather', movedIds: [], moves: [], sweepVisited: [], mergeCursor: null,
+            info: `第 ${round} 輪 · ${STEP_STAGE_LABEL.gather}${subTag}收尾：${STAGE_INFO.gather(sw.stats)}${gridTag}`,
+          }
+        }
+      }
       if (!roundMoves) {
-        return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info: `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動` }
+        return markDone({ cells, cols, rows, stage, round, steps },
+          `✔ 收斂完成——共 ${steps} 步、第 ${round} 輪三個演算法都沒有改動`)
       }
       round += 1
       roundMoves = 0
       stage = 'endp'
-      sweepVisited = []
       mergeCursor = null
       continue
     }
     if (limit === 1) {
-      // 小步：這一遍中的下一個單一移動；遍完且本遍有動過 → 清空 visited 再開一遍
-      // （同一階段算到不能動）；一整遍都動不了才換階段
-      const r = MOVEWISE_PASS[stage](skeleton, cells, cols, rows, new Set(sweepVisited))
+      // 小步＝與 movewiseStage 相同：每次取目前第一個可動（不 skip），動完壓縮再取。
+      // 動不了＝此階段不動點 → 換下一階段（結果與大步／循環一致）。
+      const r = MOVEWISE_PASS[stage](skeleton, cells, cols, rows, undefined)
       if (r.moved) {
         roundMoves += r.moved
-        sweepVisited = [...sweepVisited, r.key]
         const mv = movesOf(cells, r.cellAfter, r.ids)
         const what = stage === 'endp' ? '移動 1 點' : '移動 1 線'
         return finalize(r.cellAfter, r.ids,
           `第 ${round} 輪 · ${STEP_STAGE_LABEL[stage]}${subTag}：${what}${coordTag(mv)}`)
       }
-      if (sweepVisited.length > 0) {
-        sweepVisited = []
-        mergeCursor = null
-        continue // 新的一遍，仍留在本階段
-      }
-      // 一整遍都動不了 → 換下一個演算法
+      // 動不了 → 換下一個演算法
     } else {
       // 大步：目前演算法跑到不動點，再換下一個
       const sw = movewiseStage(stage, skeleton, cells, cols, rows)
@@ -872,21 +929,28 @@ export function stepChainNext(skeleton, st, opts = {}) {
     }
     // 推進：換下一個演算法（gather 的一輪結束邏輯在上面的特例處理）
     stage = NEXT_STAGE[stage]
-    sweepVisited = []
     mergeCursor = null
   }
-  return { cells, cols, rows, stage, round, steps, roundMoves, done: true, lastStage: null, movedIds: [], moves: [], sweepVisited: [], mergeCursor: null, info: `✔ 收斂完成——共 ${steps} 步、${round} 輪` }
+  return markDone({ cells, cols, rows, stage, round, steps },
+    `✔ 收斂完成——共 ${steps} 步、${round} 輪`)
 }
 
-// 端點移動+直線縮減+網格合併循環：每輪三個階段**各自跑到不動點**再換下一個；
-// 每一個移動後立即縮減網格。某一輪三個都沒改動才停。
-// 使用者規則（2026-07）：算到不能動才到下一階段／下一輪（勿只掃一遍就換）。
+// 端點移動+直線縮減+網格合併循環：每輪三個階段各自 movewiseStage 至不動點；
+// 收斂判準與逐步大步相同；收尾走共用的 loopPostConverge（與逐步 done 一致）。
 const LOOP_ROUND_CAP = 200
 const LOOP_ROUND_CAP_FROZEN = 200
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
+  const fromCols = cols, fromRows = rows
+  // 與 stepChainInit 相同：起點先壓，避免循環／逐步起點分叉
+  {
+    const dens0 = compactGridSafe(skeleton, cells, cols, rows)
+    cells = dens0.cellAfter
+    cols = dens0.cols
+    rows = dens0.rows
+  }
   let cur = cells, nC = cols, nR = rows
   let rounds = 0, moved = 0, lineMoved = 0, gatherMoved = 0
-  let hvBefore = null, last = null
+  let hvBefore = null
   let converged = false
   const frozen = !!getFrozen()
   const roundCap = frozen ? LOOP_ROUND_CAP_FROZEN : LOOP_ROUND_CAP
@@ -896,54 +960,32 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     const gather = movewiseStage('gather', skeleton, line.cellAfter, line.cols, line.rows)
     rounds++
     hvBefore ??= endp.stats.hvBefore
-    last = gather.stats
     moved += endp.stats.moved
     lineMoved += line.stats.moved
     gatherMoved += gather.stats.moved
     cur = gather.cellAfter
     nC = gather.cols
     nR = gather.rows
-    // 與逐步驗證相同：一輪三個演算法都沒改動才停（保險上限 roundCap）。
+    // 與逐步驗證相同：一輪三個演算法都沒改動才停
     if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
   }
-  // 收斂後再壓＋必要時再 gather：成方內部空列單軸會破方，需成對縮才消得掉；
-  // 舊 bake 常停在「方還在、但空列仍在」——這裡強制再收一次緻密。
-  {
-    const dens = compactGridSafe(skeleton, cur, nC, nR)
-    cur = dens.cellAfter
-    nC = dens.cols
-    nR = dens.rows
-  }
-  if (frozen) {
-    for (let i = 0; i < 8; i++) {
-      const density = auditGridDensity(cur, nC, nR)
-      if (density.dense) break
-      const ga = movewiseStage('gather', skeleton, cur, nC, nR)
-      const progressed = ga.cols !== nC || ga.rows !== nR
-        || !!(ga.stats?.moved || ga.stats?.pairMerges)
-      cur = ga.cellAfter
-      nC = ga.cols
-      nR = ga.rows
-      gatherMoved += ga.stats?.moved ?? 0
-      last = ga.stats
-      if (!progressed) {
-        const f = fillEmptyBandsOnce(skeleton, cur, nC, nR)
-        if (!f) break
-        cur = f.cellAfter
-      }
-    }
-  }
-  const density = auditGridDensity(cur, nC, nR)
+  const post = loopPostConverge(skeleton, cur, nC, nR)
+  cur = post.cellAfter
+  nC = post.cols
+  nR = post.rows
+  gatherMoved += post.gatherMoved
+  const g1 = buildHcGraph(skeleton, cur)
   return {
     cellAfter: cur,
     cols: nC,
     rows: nR,
     stats: {
-      hvBefore, hvAfter: last.hvAfter,
-      segs: last.segs, verts: last.verts, moved, lineMoved, gatherMoved,
+      hvBefore, hvAfter: countHV(g1.pos, g1.segs),
+      segs: g1.segs.length, verts: g1.pos.size,
+      moved, lineMoved, gatherMoved,
       rounds, roundCap, converged,
-      fromCols: cols, fromRows: rows, cols: nC, rows: nR,
-      ...density,
+      fromCols, fromRows, cols: nC, rows: nR,
+      ...post.density,
     },
   }
 }

@@ -339,7 +339,7 @@ const systemForMap = computed(() => layer.value ? {
               <p class="weight-hint">
                 版面簡化不改拓撲：用各欄／列最忙路段的流量（weight）決定該欄多寬、該列多高
                 ——主走廊變寬、次要區壓窄，外框固定，路線在新像素座標重畫成 H/V/45°。
-                模式切換、顯示權重數字、隨機權重、自動隱藏白點與最小站距等控制，都在地圖
+                模式切換、顯示權重數字、隨機權重、白點縮減與最小站距等控制，都在地圖
                 上方工具列的第 2 排。
               </p>
               <p class="weight-hint">
@@ -348,7 +348,7 @@ const systemForMap = computed(() => layer.value ? {
                 整表重抽一次，network 點跟著新版面變形（自動切到權重模式）。
               </p>
               <p class="weight-hint">
-                自動隱藏白點：由最擠的路段決定一個全域 weight 差 cutoff T（升高 T 直到最擠段
+                白點縮減：由最擠的路段決定一個全域 weight 差 cutoff T（升高 T 直到最擠段
                 均分後站距 ≥「最小站距」），然後全圖任何白點（直通站）只要左右兩段 weight 差
                 ≤ T 就一律隱藏（相鄰標籤合併取 max）。彩色錨點（紅／藍／黃）不會被藏。
               </p>

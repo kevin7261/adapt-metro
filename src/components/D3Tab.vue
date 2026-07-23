@@ -1820,7 +1820,9 @@ async function computeHcLayout({ seq, w, h, grid }) {
           }),
         }
       }
-      if (fastFrame) bake()
+      // 權重改變／動畫／放大鏡：不蓋「RWD 路網畫線中」overlay（畫面跟著動即可）。
+      // 版面／方形首次完整 bake 才用 busy 提示。
+      if (fastFrame || weighted) bake()
       else {
         await runBusy('RWD 路網畫線中…（H/V/45° 候選折線）', seq, bake)
         if (seq !== renderSeq) return null
@@ -1908,12 +1910,17 @@ function buildDrawData({ grid, sk, path, P, projById, stations, lineFeats, hcPos
         const html = (routes ? `${routes}<hr class="tip-sep"/>` : '') + edgeInfo
         return strokesOf(e, ptsD(L.px), html)
       })
-      // 成方灰白襯底（規定方形邊）＋殘留衝突／邊分類襯底
-      const shapeHl = shapeRingIds
+      // 成方灰白襯底：與 RWD shapeLock 同一判準（L.shapeLock），確保 highlight 的線＝不可改的邊。
+      // fallback：尚未帶 shapeLock 旗標時用 ring 兩端（舊行為）。
+      const shapeHl = rwdLines.some((L) => L.shapeLock)
         ? rwdLines
-          .filter((L) => shapeRingIds.has(L.seg.a) && shapeRingIds.has(L.seg.b))
+          .filter((L) => L.shapeLock)
           .map((L) => ({ d: ptsD(L.px), color: '#e5e7eb' }))
-        : []
+        : shapeRingIds
+          ? rwdLines
+            .filter((L) => shapeRingIds.has(L.seg.a) && shapeRingIds.has(L.seg.b))
+            .map((L) => ({ d: ptsD(L.px), color: '#e5e7eb' }))
+          : []
       const otherHl = rwdLines
         .filter((L) => L.forced || EDGE_HL[L.seg.edge.cls])
         .map((L) => ({ d: ptsD(L.px), color: L.forced ? '#f59e0b' : EDGE_HL[L.seg.edge.cls] }))
@@ -2654,15 +2661,37 @@ function recalcSpan() {
   render()
 }
 
-/** 工具列右上「重新計算」：清 cells 後強制重算全下游（基本＋①〜⑧ 的 post／endp／line／gather／loop）並寫檔。開分頁不重算。 */
+/** 工具列右上「重新計算」：從目前圖層起的後續資料流整段重算並寫檔。 */
 async function recalcLayoutFlow() {
   if (!needsHC.value) {
-    // Map Adjust：重算骨架／格網，並清掉該城全部 straighten-cells（下游失效，需到 Straighten／RWD 再按重新計算 bake）
+    // Map Adjust：重算骨架／格網，並重算後續 cells＋畫廊（不只清檔）
     if (cacheData) resetPerDataset(cacheData)
     const cityId = sourceLayer.value?.id
-    if (cityId) await clearStraightenCells({ cityId })
     await render()
-    store.toast('已重新計算 Map Adjust（下游 straighten-cells 已清除）')
+    if (!cityId) {
+      store.toast('已重新計算 Map Adjust')
+      return
+    }
+    const { recomputeCityFlow } = await import('../lib/recomputeCityFlow.js')
+    const { clearDataOverlay } = await import('../lib/dataOverlay.js')
+    const r = await recomputeCityFlow(cityId, {
+      title: `重新計算 ${cityId}（Map Adjust → 下游）`,
+    })
+    clearDataOverlay('data/metro/')
+    store.metroDataEpoch++
+    cachedHC = null
+    cachedPost = {}
+    cachedEndp = {}
+    cachedLine = {}
+    cachedGather = {}
+    cachedLoop = {}
+    stepState = {}
+    stepHistory = {}
+    cachedRWD = null
+    cachedHcKey = null
+    await render()
+    if (r.ok) store.toast(`已重算 Map Adjust 與後續資料流（${cityId}）`)
+    else store.toast(`Map Adjust 已重算；下游失敗：${r.error}`)
     return
   }
   const cityId = sourceLayer.value?.id

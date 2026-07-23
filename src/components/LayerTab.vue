@@ -14,6 +14,8 @@ import StyleBar from './StyleBar.vue'
 import StatusBar from './StatusBar.vue'
 import AttributeTable from './AttributeTable.vue'
 import MIcon from './MIcon.vue'
+import { recomputeCityFlow } from '../lib/recomputeCityFlow'
+import { clearDataOverlay } from '../lib/dataOverlay'
 
 // Dockview panel props: { params: { layerId }, api, containerApi }
 const props = defineProps({ params: { type: Object, required: true } })
@@ -209,7 +211,7 @@ onMounted(() => {
   disposables.push(panelApi.onDidDimensionsChange(() => map?.resize()))
 })
 
-/** 工具列右上「重新計算」：破快取重載本圖 GeoJSON／軌道／中線／地標。 */
+/** 工具列右上「重新計算」：重載本圖＋從 Metro 起的後續資料流（cells／畫廊）。 */
 async function recalcMetroLayout() {
   const l = layer.value
   if (!l || l.type !== 'metro' || !map) return
@@ -238,7 +240,18 @@ async function recalcMetroLayout() {
     if (map.getSource(id)) map.removeSource(id)
   }
   await addMetroLayers(true)
-  store.toast('已重新載入 Metro Maps')
+  // 後續資料流：Map Adjust／Straighten cells／RWD 畫廊（從本城起整段重算）
+  if (l.railway || l.highway) {
+    store.toast('已重新載入本圖')
+    return
+  }
+  const r = await recomputeCityFlow(l.id, {
+    title: `重新計算 ${l.id}（Metro → 下游）`,
+  })
+  clearDataOverlay('data/metro/')
+  store.metroDataEpoch++
+  if (r.ok) store.toast(`已重算 Metro Maps 與後續資料流（${l.id}）`)
+  else store.toast(`地圖已重載；下游重算失敗：${r.error}`)
 }
 
 async function addMetroLayers(fit) {

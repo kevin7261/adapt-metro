@@ -5,10 +5,9 @@ description: 逐步驗證（原 Step by Step）——按「下一步」＝目前
 
 # 逐步驗證 (route-step-verify)
 
-實作：`src/stores/hillClimb.js` 的 `stepChainInit(skeleton, cells, cols, rows)`/
-`stepChainNext(skeleton, state, {limit})`（純資料 state、不變異輸入；每步後的
-壓縮走 compactGridSafe 硬規則把關，見 [[route-movewise-loop]]）＋ D3Tab 的浮動
-面板（step-panel）。
+實作：`src/stores/movewise.js` 的 `stepChainInit`／`stepChainNext`（純資料
+state；每步後 compactGridSafe；**done 時套與循環相同的 `loopPostConverge`**）
+＋ D3Tab 的浮動面板（step-panel）。
 
 ## 操作
 
@@ -16,29 +15,29 @@ description: 逐步驗證（原 Step by Step）——按「下一步」＝目前
 
 - **下一步**＝目前演算法**跑到不動點**（`movewiseStage`），再換下一個演算法
   （掃不動也換、同一鍵內自動跳過空階段）。與循環同一語意：算到不能動才換。
-- **下一小步**＝**下一個單一移動**（limit=1；端點移動/直線縮減用 sweepVisited、
-  網格合併用 mergeCursor）。同一階段連做多遍：一遍掃完若本遍有動過就清空
-  visited／cursor 再開一遍，直到一整遍都動不了才換階段。訊息附座標（單點
-  (c,r)→(c,r)、線位移向量＋成員數、合併 row r｜r+1）。
-- **上一小步**＝回退一個動作；**上一步**＝一路吞掉其後的小步、回退到上一個
-  大步之前（D3Tab stepHistory[鏈] 快照堆疊、上限 400 筆——state 純資料所以
-  pop 即還原）。
-- **自動執行**＝每秒一次下一小步（再按＝停止；收斂／手動步／重設亦停）。
-- **執行到底**＝大步連跑到收斂（與循環同判準）；復原堆疊只記起點一筆。
+- **下一小步**＝**下一個單一移動**，語意與 `movewiseStage` 相同（端點／直線
+  每次取目前第一個可動、**不**用 visited 掃過——避免與循環分叉）；網格合併
+  用 mergeCursor 逐邊界，單步盡頭再跑一次完整 `movewiseStage('gather')`
+  收尾（成對縮方／填空帶）。訊息附座標。
+- **上一小步**／**上一步**＝復原堆疊（上限 400）。
+- **自動執行**＝每秒一次下一小步。
+- **執行到底**＝大步連跑到收斂（與循環同判準＋同 postConverge）；結果寫入
+  循環槽。
 - **重設**＝回鏈的起點（起點也先壓縮）。
-- 一輪＝三個演算法各自至不動點；**一輪全沒改動＝「✔ 收斂完成」**、前進鍵停用。
+- 一輪＝三個演算法各自至不動點；**一輪全沒改動＝「✔ 收斂完成」**（並套
+  `loopPostConverge`）。
 
 ## 顯示
 
-- 三階段 chips（端點移動→直線縮減→網格合併）——剛執行的亮起（lastStage）。
-- **前後比對**（小步）：moves = [{id, from, to}]（縮減後 rank 空間；被壓掉的
-  欄/列 → -0.5 半格、像素內插）——舊位置虛線空心圈、虛線軌跡、新位置橘色
-  實圈；大步與網格合併不畫（合併動的是整個半平面）。
+- 三階段 chips；小步前後比對橘圈（縮減後 rank 空間）。
 - state = { cells, cols, rows, stage, round, steps, roundMoves, done,
   lastStage, movedIds, moves, sweepVisited, mergeCursor, info }。
 
-## 一致性
+## 一致性（硬保證）
 
-全用大步跑到收斂＝循環 tab 的結果（二者皆以「一輪三階段都沒移動」停；
-每階段皆 `movewiseStage` 至不動點）。大小步可混按。
-逐步是純顯示視圖，不餵下游。
+- 循環＝`movewiseStage` 三階段輪替＋`loopPostConverge`。
+- 逐步大步／執行到底＝同一套 `movewiseStage`＋done 時同一套
+  `loopPostConverge`。
+- 逐步小步連跑到 done＝同一不動點語意＋同一 postConverge → **最終座標與
+  循環一模一樣**。
+- 起點雙方都先 `compactGridSafe`。

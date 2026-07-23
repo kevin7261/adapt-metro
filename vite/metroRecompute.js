@@ -1,5 +1,6 @@
-// 全城「重新計算」——清空 cells（可選成方）後重跑 bakeHcCells／buildViews（可選 LLM 成方）。
+// 全城／單城「重新計算」——清空 cells（可選成方）後重跑 bakeHcCells／buildViews（可選 LLM 成方）。
 //   POST /metro-recompute/run   { mode: 'all' | 'no-shape' | 'dataflow' }
+//   POST /metro-recompute/city  { city }  — 單城後續資料流（Metro／Map Adjust「重新計算」）
 //   GET  /metro-recompute/status
 //
 // mode:
@@ -47,6 +48,19 @@ function clearJsonDir(abs, { keepIndex = false, skipFile = null } = {}) {
     if (keepIndex && name === 'index.json') continue
     if (name.startsWith('_')) continue
     if (skipFile && skipFile(name)) continue
+    try { rmSync(join(abs, name)); n++ } catch { /* best-effort */ }
+  }
+  return n
+}
+
+/** 只清單一城市的 straighten-cells（含 shape／shapelike） */
+function clearCityCells(root, cityId) {
+  const abs = join(root, CELLS_DIR)
+  if (!existsSync(abs) || !cityId) return 0
+  const pref = `${cityId}.`
+  let n = 0
+  for (const name of readdirSync(abs)) {
+    if (!name.endsWith('.json') || !name.startsWith(pref)) continue
     try { rmSync(join(abs, name)); n++ } catch { /* best-effort */ }
   }
   return n
@@ -252,6 +266,35 @@ export function metroRecompute() {
     }
   }
 
+  /** 單城後續資料流：清該城 cells → bakeHcCells → bake shape → buildViews */
+  const startCityJob = async (cityId) => {
+    clearPauseFile()
+    job = {
+      running: true, paused: false, mode: 'city', step: `清空 ${cityId}…`, phase: 'clear',
+      progress: null, log: [], exit: null, error: null, cleared: null, city: cityId,
+    }
+    try {
+      const n = clearCityCells(root, cityId)
+      job.cleared = { cells: n }
+      append(`已清空 ${cityId} cells ${n}`)
+      await runCmd('node', ['scripts/bakeHcCells.mjs', '--force', cityId], `${cityId} 一般路網`)
+      await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force', cityId], `${cityId} 有形狀資料流`)
+      await runCmd('node', ['scripts/buildViews.mjs', cityId], `${cityId} 畫廊縮圖`)
+      job.step = '完成'
+      job.phase = 'done'
+      job.progress = null
+      job.exit = 0
+      append(`✓ ${cityId} 資料流完成`)
+    } catch (err) {
+      job.error = String(err?.message ?? err)
+      job.exit = 1
+      append(`✗ ${job.error}`)
+    } finally {
+      clearPauseFile()
+      job.running = false
+    }
+  }
+
   const startJob = async (mode) => {
     clearPauseFile()
     job = {
@@ -372,6 +415,27 @@ export function metroRecompute() {
       startJob(mode)
       res.statusCode = 202
       res.end(JSON.stringify({ ok: true, mode, message: 'started' }))
+      return
+    }
+
+    // 單城：從目前位置起的後續資料流（cells → 可選 shape cells → 畫廊 views）
+    // POST { city: 'as-twn-taipei' }
+    if (p === '/metro-recompute/city' && req.method === 'POST') {
+      if (job.running) {
+        res.statusCode = 409
+        res.end(JSON.stringify({ error: 'already running', step: job.step }))
+        return
+      }
+      const body = await readBody(req)
+      const city = String(body?.city || '').replace(/[^\w-]/g, '')
+      if (!city) {
+        res.statusCode = 400
+        res.end(JSON.stringify({ error: 'city required' }))
+        return
+      }
+      startCityJob(city)
+      res.statusCode = 202
+      res.end(JSON.stringify({ ok: true, city, message: 'started' }))
       return
     }
 

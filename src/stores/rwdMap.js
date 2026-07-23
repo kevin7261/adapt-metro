@@ -691,8 +691,8 @@ export function mergeParallelSegs(segs) {
 // opts.unit = detour offset in pixels; opts.minGap = parallel-hug veto (px);
 // opts.lattice = { x0, y0, sx, sy, nx, ny } half-cell routing lattice for the
 // A* fallback (node centres sit on odd indices).
-// opts.frozenIds = Set<id>：成方護欄 members——兩端皆在集內且目前為 H/V 的段強制直線、
-// 不繞行／不 A*（方形邊永遠保持方形）。
+// opts.frozenIds = Set<id>：成方護欄 members——兩端皆在集內的段（灰白 highlight 成方邊）
+// 強制 S→T 直線鎖定；絕對不可繞行／A*／成對 rip 改彎（比一般 lockedStraight 更高）。
 export function buildRwdMap(segs, pos, opts = {}) {
   // 負或 0 的 unit（暫態面板尺寸算出的負 cell 寬）會讓 minGap ≤ 0 → legsHug 永遠
   // false，貼線／共線防護整個失效。取絕對值兜底，routing 幾何仍成立。
@@ -744,9 +744,9 @@ export function buildRwdMap(segs, pos, opts = {}) {
         // routing must first prove every H/V/45° candidate conflicts.
         (d !== 'E+' && d !== 'E-' && d !== 'F+' && d !== 'F-') &&
         (dirsN >= 8 || (d !== 'D+' && d !== 'D-'))
-      // 成方邊：兩端凍結＋目前 H/V → 強制直線（保持方形四邊）
-      const shapeLock = !!(frozenIds && frozenIds.has(s.a) && frozenIds.has(s.b)
-        && (d === 'H' || d === 'V'))
+      // 成方邊（灰白 highlight）：兩端皆為 frozen members → 強制 S→T。
+      // 不要求像素 H/V——非正方格時成方邊在畫面上是矩形邊，仍不可改彎。
+      const shapeLock = !!(frozenIds && frozenIds.has(s.a) && frozenIds.has(s.b))
       return { s, i, len: dist(S, T), straight, shapeLock }
     })
     .sort((p, q) => Number(q.shapeLock) - Number(p.shapeLock)
@@ -1359,10 +1359,23 @@ export function buildRwdMap(segs, pos, opts = {}) {
   // 「兩條線到底有沒有不交叉畫法」的實質驗證。
   // 交叉是最高級錯誤：對方若是鎖定直線也**解鎖讓路**（殘留交叉比彎線更糟）——
   // 但直線自己不當 F（不主動 A* 繞遠），只在當 W 時被動繞；繞完仍是乾淨直線才保留鎖。
+  // **例外：成方邊（shapeLock／灰白 highlight）絕對不可改**——不可當 F、也不可當被
+  // 拆的 W；只准對方繞過固定的成方邊。
   function jointRipPair(i, j) {
     const tryOrder = (fi, si) => {
       const F = lines[fi], W = lines[si]
-      if (F.lockedStraight) return false // 直線不主動繞，只能當被讓路的 W
+      if (F.shapeLock) return false // 成方邊永不主動繞
+      if (F.lockedStraight) return false // 一般鎖定直線不主動繞，只能當被讓路的 W
+      // 成方邊當 W：腿不動、只讓 F 繞過（比一般 lockedStraight 更硬）。
+      if (W.shapeLock) {
+        const save = snapLine(F)
+        const undo = () => Object.assign(F, save)
+        const r = routeLattice(pos.get(F.seg.a), pos.get(F.seg.b), F.seg, placedOf(fi))
+        if (!r || orderViolation(F.seg, r)) { undo(); return false }
+        if (conflictCount(r, F.seg, placedOf(fi)) !== 0) { undo(); return false }
+        F.pts = r; F.legs = legsOfPts(r); F.bends = r.length - 2; F.routed = true; F.forced = false
+        return true
+      }
       const saves = [snapLine(F), snapLine(W)]
       const wasLocked = W.lockedStraight
       const undo = () => {
@@ -1467,7 +1480,7 @@ export function buildRwdMap(segs, pos, opts = {}) {
     ]
     for (const { s, straight, shapeLock } of ordered) {
       const S = pos.get(s.a), T = pos.get(s.b)
-      // 成方邊：永遠畫 S→T 直線並鎖定——不得繞行／A*／重掃改彎（保持方形）。
+      // 成方邊：永遠畫 S→T 直線並鎖定——不得繞行／A*／重掃／成對 rip 改彎。
       if (shapeLock) {
         const pts = [S, T]
         const placed = placedOf(-1)

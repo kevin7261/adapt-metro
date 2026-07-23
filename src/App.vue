@@ -9,6 +9,7 @@ import CommandPalette from './components/CommandPalette.vue'
 import DialogHost from './components/DialogHost.vue'
 import SkillViewer from './components/SkillViewer.vue'
 import LayerDocViewer from './components/LayerDocViewer.vue'
+import RecomputeOverlay from './components/RecomputeOverlay.vue'
 
 const store = useMapStore()
 
@@ -83,6 +84,7 @@ onBeforeUnmount(() => {
     <DialogHost />
     <SkillViewer />
     <LayerDocViewer />
+    <RecomputeOverlay />
 
     <Transition name="toast">
       <div v-if="store.ui.toast" class="toast">{{ store.ui.toast }}</div>
