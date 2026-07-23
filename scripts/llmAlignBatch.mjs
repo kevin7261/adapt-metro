@@ -183,6 +183,7 @@ async function runOne(cityId, variant) {
   const transcript = []
   let rounds = 0
   const hvd0 = countHVD(cells, segs)
+  const t0 = performance.now()
 
   for (let r = 0; r < MAX_ROUNDS; r++) {
     const { segs: liveSegs } = buildHcGraph(skeleton, cells)
@@ -231,12 +232,14 @@ async function runOne(cityId, variant) {
   })()
   const hvdAfter = countHVD(cells, finalSegs)
 
+  const elapsedMs = Math.max(1, Math.round(performance.now() - t0))
   await mkdir(OUT, { recursive: true })
   await writeFile(outFile, JSON.stringify({
     fingerprint,
     model: MODEL,
     rounds,
-    prompt: '全球批次自動對齊（scripts/llmAlignBatch.mjs）——原始／旋轉各算一次最初結果',
+    elapsedMs, // 面板「執行時間」讀這個（與 claudeSkillTrigger 同源欄位）
+    prompt: '全球批次啟發式自動對齊（scripts/llmAlignBatch.mjs／batch-hvd）——非 headless Claude；原始／旋轉各算一次最初結果',
     transcript,
     hvBefore: fingerprint.hvStart,
     hvAfter,
@@ -249,6 +252,7 @@ async function runOne(cityId, variant) {
   return {
     skip: false,
     rounds,
+    elapsedMs,
     hv: `${fingerprint.hvStart}→${hvAfter}`,
     hvd: `${hvd0}→${hvdAfter}`,
     moved: movedVsBase,
@@ -283,7 +287,7 @@ async function main() {
         continue
       }
       done++
-      console.log(`✓ ${c}.${v}  rounds=${r.rounds}  hv ${r.hv}  hvd ${r.hvd}  moved=${r.moved}`)
+      console.log(`✓ ${c}.${v}  rounds=${r.rounds}  ${r.elapsedMs}ms  hv ${r.hv}  hvd ${r.hvd}  moved=${r.moved}`)
     } catch (err) {
       failed++
       console.error(`✗ ${c}.${v}  ${err?.message ?? err}`)

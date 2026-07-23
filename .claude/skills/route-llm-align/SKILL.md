@@ -74,8 +74,11 @@ base；**不吃 HC**）。**起點不是你的責任**——vite plugin 在 spaw
 Straighten／RWD 畫廊的「原始／旋轉・LLM 對齊」縮圖依賴
 `data/metro/straighten-llm/<city>.{orig,rot}.json`。缺檔＝「尚未預算」。
 
-一次性為全球城市各算 orig＋rot（啟發式短距 H/V／對角，經同一套
-`applyLlmTargets` 硬規則；已有 fingerprint 相符的檔會跳過）：
+一次性為全球城市各算 orig＋rot（**啟發式**短距 H/V／對角，`model: batch-hvd`，
+經同一套 `applyLlmTargets` 硬規則；**不是**網頁「開始 LLM 自動對齊」的 headless
+Claude）。已有 fingerprint 相符的檔會跳過。結果含 `elapsedMs`（面板執行時間）。
+**不含**形狀變體（`orig-shape`／`rot-shape`／成方後 base）——形狀層要另用網頁按鈕
+或擴充批次。
 
 ```
 node scripts/llmAlignBatch.mjs          # 缺檔才算

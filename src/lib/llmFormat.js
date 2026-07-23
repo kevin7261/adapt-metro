@@ -1,7 +1,8 @@
 // 執行時間（vite plugin 於 spawn→close 量到、寫進結果檔的 elapsedMs）→ 顯示字串：
-// <60 秒顯示秒、否則「分 秒」。沒有值就回 null。
+// <1 秒顯示 ms（啟發式 batch 常只有數毫秒）；<60 秒顯示秒、否則「分 秒」。沒有值就回 null。
 export function fmtElapsed(ms) {
-  if (!ms || ms < 0) return null
+  if (ms == null || ms < 0 || !Number.isFinite(ms)) return null
+  if (ms < 1000) return `${Math.max(1, Math.round(ms))} ms`
   const s = Math.round(ms / 1000)
   return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${s % 60} 秒`
 }
