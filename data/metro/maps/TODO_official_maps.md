@@ -27,6 +27,18 @@
 > - 奧蘭／君士坦丁／阿爾及爾（SETRAM）：官網 `nos-reseaux/*` 的「map」是 **Google 地圖式地理疊圖**
 >   （政策 3）→ 留白，與先前阿爾及爾的裁決一致。
 >
+> ### 2026-07-23（續）：阿德萊德＋路易港補進，新城官方圖累計 9 張
+> - **阿德萊德**：Adelaide Metro 官方「Adelaide rail network map」2024-08-25（官網 403 WAF
+>   → 走 Wayback 的官方 PDF；含 7 條鐵路與電車 inset，與我方資料一致）。
+> - **路易港**：Metro Express 官方全網圖（先前只存了 PNG、漏寫 index，本輪補齊）。
+> - **布里斯本**：Translink 淺底 SEQ 圖（`260302-seq-network-map`）在 widen.net 的 JS 檢視器內，
+>   `/content/...`、`embed.widencdn.net/...`、Wayback 三路都拿不到原檔 → 仍留白。
+> - **黃金海岸／坎培拉**：ridetheg.com.au 的 stylised route map 是 JS 元件（無靜態圖檔）、
+>   ACT 官方只有地理式公車圖 → 仍留白。
+> - **非洲 12 城**（約堡／開普敦／德班／突尼斯／卡薩布蘭卡／拉巴特／阿迪斯阿貝巴／阿布加／
+>   亞歷山卓／達卡＋SETRAM 四城）：官網為 SPA 或只提供地理疊圖，本輪掃過 casatramway.ma、
+>   casatransport.ma、gautrain.co.za、senter.sn、setram.dz 皆無靜態示意圖 → 仍留白。
+
 > **本輪未解、仍留白的新城（16）**：布里斯本、阿德萊德（官網 403 WAF）、黃金海岸（widen CDN）、
 > 坎培拉、約翰尼斯堡、開普敦、德班、達卡、突尼斯、卡薩布蘭卡、拉巴特、阿迪斯阿貝巴、阿布加、
 > 亞歷山卓、塞提夫／西迪貝勒阿巴斯／瓦爾格拉／莫斯塔加內姆（SETRAM 同上）。

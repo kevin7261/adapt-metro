@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 266,
   "wikipedia_system_count": 233,
-  "line_total": 2114,
-  "station_total": 19647,
+  "line_total": 2120,
+  "station_total": 19643,
   "systems": [
     {
       "file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
@@ -27,8 +27,8 @@
       "official_map": "https://en.wikipedia.org/wiki/Public_Transport_Victoria",
       "wikidata": "Q7257648",
       "line_count": 24,
-      "segment_count": 97,
-      "station_count": 822,
+      "segment_count": 101,
+      "station_count": 797,
       "audit": {
         "strategies_tried": [],
         "passed": true,
@@ -1003,7 +1003,6 @@
         "PTV - Metropolitan Trams",
         "PTV - Regional Trains",
         "PTV – Metropolitan Trains",
-        "PTV – Metropolitan Trams",
         "PTV;NSW TrainLink",
         "PTV;NSW TrainLink;Great Southern Rail",
         "Public Transport Victoria - Metro",
@@ -1020,7 +1019,7 @@
       "official_website": "https://ptv.vic.gov.au/route/4",
       "official_map": "https://en.wikipedia.org/wiki/Public_Transport_Victoria",
       "wikidata": "Q7257648",
-      "line_count": 24,
+      "line_count": 22,
       "segment_count": 38,
       "station_count": 227,
       "audit": {
@@ -18398,6 +18397,86 @@
       }
     },
     {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "continent": "africa",
+      "country": "Egypt",
+      "city": "Alexandria",
+      "osm_networks": [
+        "Alexandria Passenger Transportation Authority",
+        "Unknown"
+      ],
+      "operator": "Alexandria Passenger Transportation Authority",
+      "official_website": null,
+      "official_map": null,
+      "wikidata": null,
+      "line_count": 1,
+      "segment_count": 2,
+      "station_count": 55,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "37 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "37/37 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "37 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "37/37 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.908Z"
+      }
+    },
+    {
       "file": "metro-maps/asia/china/as-chn-wuhu.geojson",
       "continent": "asia",
       "country": "China",
@@ -18487,6 +18566,87 @@
         "reasons": [],
         "warnings": [],
         "audited_at": "2026-07-11T15:22:16.659Z"
+      }
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
+      "continent": "africa",
+      "country": "Algeria",
+      "city": "Mostaganem",
+      "osm_networks": [
+        "SETRAM",
+        "tramway de Mostaganem",
+        "شركة استغلال الترامواي"
+      ],
+      "operator": "SETRAM",
+      "official_website": null,
+      "official_map": null,
+      "wikidata": "Q116860169",
+      "line_count": 1,
+      "segment_count": 2,
+      "station_count": 23,
+      "audit": {
+        "strategies_tried": [],
+        "passed": true,
+        "checks": [
+          {
+            "id": "has_lines",
+            "ok": true,
+            "detail": "1 lines",
+            "level": "error"
+          },
+          {
+            "id": "has_stations",
+            "ok": true,
+            "detail": "20 stations",
+            "level": "error"
+          },
+          {
+            "id": "stations_have_lines",
+            "ok": true,
+            "detail": "20/20 站皆有所屬路線",
+            "level": "error"
+          },
+          {
+            "id": "line_geometry_stations",
+            "ok": true,
+            "detail": "20 個折點/端點皆為車站",
+            "level": "error"
+          },
+          {
+            "id": "route_stations_match_geometry",
+            "ok": true,
+            "detail": "各線車站列表與圖面一致",
+            "level": "error"
+          },
+          {
+            "id": "interchange_rule",
+            "ok": true,
+            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
+            "level": "error"
+          },
+          {
+            "id": "stations_named",
+            "ok": true,
+            "detail": "20/20 站皆有名稱",
+            "level": "error"
+          },
+          {
+            "id": "station_order",
+            "ok": true,
+            "detail": "所有線路站序合理",
+            "level": "warn"
+          },
+          {
+            "id": "line_wiki_stations",
+            "ok": true,
+            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
+            "level": "error"
+          }
+        ],
+        "reasons": [],
+        "warnings": [],
+        "audited_at": "2026-07-23T12:24:35.917Z"
       }
     },
     {
@@ -24224,86 +24384,6 @@
       }
     },
     {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "continent": "africa",
-      "country": "Egypt",
-      "city": "Alexandria",
-      "osm_networks": [
-        "Alexandria Passenger Transportation Authority",
-        "Unknown"
-      ],
-      "operator": "Alexandria Passenger Transportation Authority",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 1,
-      "segment_count": 1,
-      "station_count": 37,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "1 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "37 stations",
-            "level": "error"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "37/37 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "37 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "37/37 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-23T12:24:35.908Z"
-      }
-    },
-    {
       "file": "metro-maps/africa/algeria/af-alg-constantine.geojson",
       "continent": "africa",
       "country": "Algeria",
@@ -24463,87 +24543,6 @@
         "reasons": [],
         "warnings": [],
         "audited_at": "2026-07-23T12:24:35.914Z"
-      }
-    },
-    {
-      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
-      "continent": "africa",
-      "country": "Algeria",
-      "city": "Mostaganem",
-      "osm_networks": [
-        "SETRAM",
-        "tramway de Mostaganem",
-        "شركة استغلال الترامواي"
-      ],
-      "operator": "SETRAM",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": "Q116860169",
-      "line_count": 1,
-      "segment_count": 1,
-      "station_count": 20,
-      "audit": {
-        "strategies_tried": [],
-        "passed": true,
-        "checks": [
-          {
-            "id": "has_lines",
-            "ok": true,
-            "detail": "1 lines",
-            "level": "error"
-          },
-          {
-            "id": "has_stations",
-            "ok": true,
-            "detail": "20 stations",
-            "level": "error"
-          },
-          {
-            "id": "stations_have_lines",
-            "ok": true,
-            "detail": "20/20 站皆有所屬路線",
-            "level": "error"
-          },
-          {
-            "id": "line_geometry_stations",
-            "ok": true,
-            "detail": "20 個折點/端點皆為車站",
-            "level": "error"
-          },
-          {
-            "id": "route_stations_match_geometry",
-            "ok": true,
-            "detail": "各線車站列表與圖面一致",
-            "level": "error"
-          },
-          {
-            "id": "interchange_rule",
-            "ok": true,
-            "detail": "所有車站 interchange 標記符合「度數 >2（分歧/交會）或端點站轉乘/被穿過」規則",
-            "level": "error"
-          },
-          {
-            "id": "stations_named",
-            "ok": true,
-            "detail": "20/20 站皆有名稱",
-            "level": "error"
-          },
-          {
-            "id": "station_order",
-            "ok": true,
-            "detail": "所有線路站序合理",
-            "level": "warn"
-          },
-          {
-            "id": "line_wiki_stations",
-            "ok": true,
-            "detail": "各線站數與 wiki 線路條目相符（營運中站數）",
-            "level": "error"
-          }
-        ],
-        "reasons": [],
-        "warnings": [],
-        "audited_at": "2026-07-23T12:24:35.917Z"
       }
     },
     {

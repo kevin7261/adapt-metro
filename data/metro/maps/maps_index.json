@@ -2318,7 +2318,7 @@
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "artist": "أبو تائب"
  },
- "_rev": 1784809621394,
+ "_rev": 1784810365217,
  "americas/bolivia/am-bol-cochabamba": {
   "city": "Cochabamba",
   "country": "Bolivia",
@@ -2389,5 +2389,25 @@
   "wikidata": null,
   "commons_file": null,
   "license": "Official operator map (© operator; thesis use)"
+ },
+ "oceania/australia/oc-aus-adelaide": {
+  "city": "Adelaide",
+  "country": "Australia",
+  "wikidata": null,
+  "commons_file": null,
+  "map_file": "maps/oceania/australia/oc-aus-adelaide.png",
+  "source_url": "https://www.adelaidemetro.com.au/__data/assets/pdf_file/0009/1386774/map_rail_network_25_08_24_web.pdf",
+  "license": "Official operator map (© operator; thesis use)",
+  "note": "Adelaide Metro 官方「Adelaide rail network map」（2024-08-25；含 7 條鐵路＋3 條電車 inset。官網 403 WAF，取 Wayback 存檔的官方 PDF）"
+ },
+ "africa/mauritius/af-mri-port-louis": {
+  "city": "Port Louis",
+  "country": "Mauritius",
+  "wikidata": null,
+  "commons_file": null,
+  "map_file": "maps/africa/mauritius/af-mri-port-louis.png",
+  "source_url": "https://mauritiusmetroexpress.mu/wp-content/uploads/2022/10/Metro-Curepipe-Map-PIK-1080px.jpg",
+  "license": "Official operator map (© operator; thesis use)",
+  "note": "Metro Express（模里西斯）官方全網圖，含 Réduit/Ebene 支線；半地理式，符合政策第 2 條"
  }
 }

@@ -4,20 +4,20 @@
     "wikipedia_systems": 233,
     "our_systems": 266,
     "matched_ok": 202,
-    "flagged": 31,
+    "flagged": 34,
     "invariant_violations": {
       "wiki_city_without_data": 2,
       "stations_without_line": 0,
       "systems_with_stations_without_line": 0,
       "systems_with_non_station_vertices": 0,
-      "systems_with_broken_routes": 0
+      "systems_with_broken_routes": 3
     },
     "order_suspect_systems": 0,
     "by_severity": {
       "missing": 2,
       "no_line": 0,
       "vertex": 0,
-      "broken": 0,
+      "broken": 3,
       "order": 0,
       "zero": 0,
       "low": 2,
@@ -49,6 +49,36 @@
       "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
       "wiki_url": "https://en.wikipedia.org/wiki/New_Taipei_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei"
+    },
+    {
+      "severity": "broken",
+      "city": "Melbourne Tram",
+      "country": "Australia",
+      "our_file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
+      "our_stations": 797,
+      "our_lines": 24,
+      "note": "4 條線的路段聯集不連續（hover 會斷開）：Tram 64 斷成 2 段、Tram 72 斷成 2 段、Tram 5 斷成 2 段",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Melbourne%20Tram"
+    },
+    {
+      "severity": "broken",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "our_file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "our_stations": 55,
+      "our_lines": 1,
+      "note": "1 條線的路段聯集不連續（hover 會斷開）：Alexandria Passenger Transportation Authority 斷成 2 段",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Alexandria"
+    },
+    {
+      "severity": "broken",
+      "city": "Mostaganem",
+      "country": "Algeria",
+      "our_file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
+      "our_stations": 23,
+      "our_lines": 1,
+      "note": "1 條線的路段聯集不連續（hover 會斷開）：Ligne 1 斷成 2 段",
+      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Mostaganem"
     },
     {
       "severity": "low",
@@ -520,7 +550,7 @@
       "file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
       "city": "Melbourne Tram",
       "country": "Australia",
-      "station_count": 822,
+      "station_count": 797,
       "line_count": 24
     },
     {
@@ -542,7 +572,7 @@
       "city": "Melbourne",
       "country": "Australia",
       "station_count": 227,
-      "line_count": 24
+      "line_count": 22
     },
     {
       "file": "metro-maps/europe/germany/eu-ger-dusseldorf.geojson",
@@ -685,6 +715,20 @@
       "line_count": 2
     },
     {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "station_count": 55,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
+      "city": "Mostaganem",
+      "country": "Algeria",
+      "station_count": 23,
+      "line_count": 1
+    },
+    {
       "file": "metro-maps/europe/germany/eu-ger-bochum.geojson",
       "city": "Bochum",
       "country": "Germany",
@@ -734,13 +778,6 @@
       "line_count": 1
     },
     {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "city": "Alexandria",
-      "country": "Egypt",
-      "station_count": 37,
-      "line_count": 1
-    },
-    {
       "file": "metro-maps/africa/algeria/af-alg-constantine.geojson",
       "city": "Constantine",
       "country": "Algeria",
@@ -752,13 +789,6 @@
       "city": "Dakar",
       "country": "Senegal",
       "station_count": 13,
-      "line_count": 1
-    },
-    {
-      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
-      "city": "Mostaganem",
-      "country": "Algeria",
-      "station_count": 20,
       "line_count": 1
     },
     {

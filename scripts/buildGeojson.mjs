@@ -904,14 +904,15 @@ async function build() {
   const resolved = []
   for (const g of groups.values()) {
     const gNet0 = pick(repTags(g), 'network:en', 'network') || ''
-    // 電車（route=tram）：同一條路線的變體一律併成一條線（使用者裁決 2026-07-23
-    // 「tram 同路線就要合併，不要分開畫；車站沒停車就是 pass」）。墨爾本電車的
-    // 12d／57a／57d／75d… 是同號路線的區間車，照「分支＝獨立路線」會把 24 條畫成
-    // 35 條、同色重疊。取最長變體當該路線唯一的線，區間車只停部分站＝pass。
+    // 電車（route=tram）：同號路線的變體一律併成**一條線**畫共線（使用者裁決 2026-07-23
+    // 「同路線就要畫共線；沒停站才用 pass」）。墨爾本 12d／57a／57d／75d… 是同號區間／
+    // 車廠交路，若各自成線會把 24 條畫成 35 條同色重疊。規則：
+    //   - 同 ref → 一個 route_id；幾何＝dedupe 後各變體（含有新站的車廠支）全部進同一線
+    //   - 停靠＝各變體 stop 成員聯集（真的有停才算站）
+    //   - pass 只用在「幾何行經但不停靠」（快車跳站／express_passthrough）；區間車沒跑到
+    //     的外段不是 pass、也不另畫線
     const isTram = g.rids.every((r) => (routesTags.get(r) || {}).route === 'tram')
-    const keptAll = isTram
-      ? dedupeSeqs(g.seqs, 2).slice(0, 1)
-      : dedupeSeqs(g.seqs, /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
+    const keptAll = dedupeSeqs(g.seqs, /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
     if (!keptAll.length) continue
     // 支線/分支＝獨立路線（使用者 Option 1：凡有新站的分岔都算支線→獨立 route_id，
     // 只有「0 新站」的純重複/反向/子集短交路才併）。dedupeSeqs 已丟掉 0 新站的重複；
@@ -921,6 +922,7 @@ async function build() {
     // 同色的多個 route_id（同一條線的兩支、東鐵綫主線 vs 馬場…）在**渲染層**已用「相異
     // 色數」畫成一條連續線（LayerTab `_nc`／skeleton coline），故不在資料層強合併——強合併
     // 會串接站序、幾何來回鋸齒（曾把東鐵綫併成 42 站 Admiralty↔Lo Wu↔Racecourse 來回跳）。
+    // 電車例外：不拆 branchUnit，見下方 isTram 分支。
     const branchUnit = (w) => {
       const bt = { ...(routesTags.get(w.rid) || {}) }
       bt.__own = pick(bt, 'operator') || pick(bt, 'network:en', 'network')
@@ -931,7 +933,8 @@ async function build() {
     // 且該站是主線的**端點**（＝純線性延伸，官方碼連續：綾瀬 C19→北綾瀬 C20 同一條線）
     // → 新站直接接進主線序列、不另成 route。**中途分岔**（小碧潭在七張、東鐵羅湖/落馬洲
     // 在上水、NYC A 線分支）共用點非端點或共用多站 → 維持獨立 route 不變。
-    {
+    // 電車跳過此步：車廠／區間支整段併進同一 line unit（多段 MultiLineString）。
+    if (!isTram) {
       const near2 = (a, b) => { const A = cellOf(a), B = cellOf(b)
         return Math.abs(A[0] - B[0]) <= 2 && Math.abs(A[1] - B[1]) <= 2 }
       const mainW = keptAll[0]
@@ -957,11 +960,43 @@ async function build() {
       keptAll.length = 0
       keptAll.push(mainW, ...rest)
     }
-    const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
-    const mainRids = g.rids.filter((r) => !branchRids.has(r))
-    const units = [{ kept: [keptAll[0].rows],
-      gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
-    for (const w of keptAll.slice(1)) units.push(branchUnit(w))
+    const units = isTram
+      ? (() => {
+          // 同路線一條：主線＝最長變體；其餘只保留「分岔 spur」（含接軌站＋新站），
+          // 避免把反向／區間整段再走一遍把站序脹成 2×。停靠＝聯集；不標假 pass。
+          const mainW = keptAll[0]
+          const kept = [mainW.rows]
+          const mainCells = new Set(mainW.rows.map((r) => cellOf(r).join(':')))
+          const nearMain = (r) => {
+            const [cx, cy] = cellOf(r)
+            for (let dx = -2; dx <= 2; dx++) for (let dy = -2; dy <= 2; dy++)
+              if (mainCells.has(`${cx + dx}:${cy + dy}`)) return true
+            return false
+          }
+          for (const w of keptAll.slice(1)) {
+            const onMain = w.rows.map(nearMain)
+            if (!onMain.some(Boolean) || onMain.every(Boolean)) continue // 全離／全重疊
+            // 找連續 fresh 段，向前多收一個接軌站
+            let i = 0
+            while (i < w.rows.length) {
+              while (i < w.rows.length && onMain[i]) i++
+              if (i >= w.rows.length) break
+              const start = i > 0 ? i - 1 : i
+              while (i < w.rows.length && !onMain[i]) i++
+              const spur = w.rows.slice(start, i)
+              if (spur.length >= 2) kept.push(spur)
+            }
+          }
+          return [{ kept, gU: { key: g.key, rids: g.rids }, tU: null }]
+        })()
+      : (() => {
+          const branchRids = new Set(keptAll.slice(1).map((w) => w.rid))
+          const mainRids = g.rids.filter((r) => !branchRids.has(r))
+          const u = [{ kept: [keptAll[0].rows],
+            gU: { key: g.key, rids: mainRids.length ? mainRids : g.rids }, tU: null }]
+          for (const w of keptAll.slice(1)) u.push(branchUnit(w))
+          return u
+        })()
     for (const unit of units) {
     const kept = unit.kept
     const gRef = unit.gU
@@ -1684,6 +1719,8 @@ async function build() {
   } catch { /* optional */ }
 
   let mergedAway = 0
+  // 墨爾本電車路口異名合併（pre-snap + post-snap 共用此集合）
+  const TRAM_JUNCTION_MERGE = new Set(['melbournetram'])
   for (const grp of cityGroups.values()) {
     const feats = grp.stations
     if (feats.length < 2) continue
@@ -1712,41 +1749,132 @@ async function build() {
     // 「共線（同站的兩個方向節點/同線重複節點）或 <150 m」時成立；跨線
     // 同名遠站不併，官方 complex 以 interchanges.json 回補。stop_area 為
     // 每線每方向粒度，救不了方向節點成對的情況，不能全關。
+    // 墨爾本電車：**不以同名為共站**（官方路網圖為準）。同名「Stop 15: Smith
+    // Street」可分屬 Victoria Parade(12/109) 與 Smith St(86)、相距 ~300 m——800 m
+    // 同名規則會誤併；改走下方 (2b) 近距／成員線拓撲。
     const STRICT_SAMENAME = new Set(['newyorkcity'])
+    const SKIP_SAMENAME = TRAM_JUNCTION_MERGE // 與路口近距合併共用城市集
     const sameNameStrict = STRICT_SAMENAME.has(normCity(grp.info.city))
-    const byName = new Map()
-    feats.forEach((f, i) => {
-      const key = normName(f.properties.station_name)
-      if (!key || /^n\d+$/.test(key)) return
-      if (!byName.has(key)) byName.set(key, [])
-      byName.get(key).push(i)
-    })
-    // greedy same-name distance/line clustering → union each cluster
-    const clusterAndUnion = (idxs) => {
-      const clusters = []
-      for (const i of idxs) {
-        const [lon, lat] = feats[i].geometry.coordinates
-        const myLines = feats[i].properties.lines || []
-        let c = clusters.find((c) => {
-          const dLat = Math.abs(c.lat - lat)
-          const dLon = Math.abs((c.lon - lon) * Math.cos((lat * Math.PI) / 180))
-          if (dLat >= 0.0072 || dLon >= 0.0072) return false
-          if (!sameNameStrict) return true
-          if (dLat < 0.0014 && dLon < 0.0014) return true
-          return c.members.some((m) => {
-            const ml = feats[m].properties.lines || []
-            return myLines.some((x) => ml.includes(x))
+    const skipSameName = SKIP_SAMENAME.has(normCity(grp.info.city))
+    if (!skipSameName) {
+      const byName = new Map()
+      feats.forEach((f, i) => {
+        const key = normName(f.properties.station_name)
+        if (!key || /^n\d+$/.test(key)) return
+        if (!byName.has(key)) byName.set(key, [])
+        byName.get(key).push(i)
+      })
+      // greedy same-name distance/line clustering → union each cluster
+      const clusterAndUnion = (idxs) => {
+        const clusters = []
+        for (const i of idxs) {
+          const [lon, lat] = feats[i].geometry.coordinates
+          const myLines = feats[i].properties.lines || []
+          let c = clusters.find((c) => {
+            const dLat = Math.abs(c.lat - lat)
+            const dLon = Math.abs((c.lon - lon) * Math.cos((lat * Math.PI) / 180))
+            if (dLat >= 0.0072 || dLon >= 0.0072) return false
+            if (!sameNameStrict) return true
+            if (dLat < 0.0014 && dLon < 0.0014) return true
+            return c.members.some((m) => {
+              const ml = feats[m].properties.lines || []
+              return myLines.some((x) => ml.includes(x))
+            })
           })
-        })
-        if (!c) { c = { members: [], lon, lat }; clusters.push(c) }
-        c.members.push(i)
-        c.lon = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[0], 0) / c.members.length
-        c.lat = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[1], 0) / c.members.length
+          if (!c) { c = { members: [], lon, lat }; clusters.push(c) }
+          c.members.push(i)
+          c.lon = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[0], 0) / c.members.length
+          c.lat = c.members.reduce((s, m) => s + feats[m].geometry.coordinates[1], 0) / c.members.length
+        }
+        for (const c of clusters)
+          for (let k = 1; k < c.members.length; k++) union(c.members[0], c.members[k])
       }
-      for (const c of clusters)
-        for (let k = 1; k < c.members.length; k++) union(c.members[0], c.members[k])
+      for (const idxs of byName.values()) clusterAndUnion(idxs)
     }
-    for (const idxs of byName.values()) clusterAndUnion(idxs)
+    // (2b) 墨爾本電車：以官方示意圖「同位置＝共站」為準，不用同名／異名。
+    // 同名可分屬不同走廊（Stop 15 Smith＝Victoria Pde 12/109 vs Smith St 86）；
+    // 異名可為同站（Gertrude↔Brunswick、Chapel↔Dandenong／Windsor）；
+    // Swanston 對向月台同號約 60 m。只用 __memberLines。
+    //   同 Stop 號（含 D1/D14）+ <110 m → 併
+    //   <12 m → 強制併
+    //   <30 m + 異線 → 併
+    //   30–50 m + 異線 + 街名不同 → 併（Windsor 48 m；擋 Bourke Mall Stop3↔5 同街異號）
+    // 吸附後靠 post-snap。
+    if (TRAM_JUNCTION_MERGE.has(normCity(grp.info.city))) {
+      const stopNum = (name) => {
+        const m = String(name || '').match(/\bstop\s+(d?\d+[a-z]?)\b/i)
+        return m ? m[1].toUpperCase() : null
+      }
+      // 「Stop N: Street」→ street 正規化；同街異號近距＝CBD 平行站，不是路口共站
+      const streetKey = (name) => {
+        const s = String(name || '').replace(/^stop\s+\S+:\s*/i, '').trim().toLowerCase()
+        return s.replace(/[^a-z0-9]+/g, ' ').trim()
+      }
+      const lineKeys = (f) => {
+        const out = new Set()
+        if (f.__memberLines) for (const t of f.__memberLines) out.add(String(t).toLowerCase())
+        return out
+      }
+      const deg2m = (lon1, lat1, lon2, lat2) => {
+        const dy = (lat1 - lat2) * 111000
+        const dx = (lon1 - lon2) * Math.cos((lat1 * Math.PI) / 180) * 111000
+        return Math.hypot(dx, dy)
+      }
+      const clusterLines = feats.map(() => new Set())
+      for (let i = 0; i < feats.length; i++) {
+        const r = find(i)
+        for (const x of lineKeys(feats[i])) clusterLines[r].add(x)
+      }
+      const unionJn = (a, b) => {
+        const ra = find(a), rb = find(b)
+        if (ra === rb) return false
+        parent[rb] = ra
+        for (const x of clusterLines[rb]) clusterLines[ra].add(x)
+        clusterLines[rb] = clusterLines[ra]
+        return true
+      }
+      const shares = (A, B) => {
+        for (const x of A) if (B.has(x)) return true
+        return false
+      }
+      let jn = 0
+      const cand = []
+      for (let i = 0; i < feats.length; i++) {
+        const [lon1, lat1] = feats[i].geometry.coordinates
+        const ni = stopNum(feats[i].properties.station_name)
+        for (let j = i + 1; j < feats.length; j++) {
+          const [lon2, lat2] = feats[j].geometry.coordinates
+          const d = deg2m(lon1, lat1, lon2, lat2)
+          if (d >= 110) continue
+          const nj = stopNum(feats[j].properties.station_name)
+          cand.push({ i, j, d, sameNum: !!(ni && nj && ni === nj) })
+        }
+      }
+      cand.sort((a, b) => a.d - b.d)
+      for (const { i, j, d, sameNum } of cand) {
+        const ra = find(i), rb = find(j)
+        if (ra === rb) continue
+        if (sameNum || d < 12) {
+          if (unionJn(i, j)) jn++
+          continue
+        }
+        const Li = clusterLines[ra], Lj = clusterLines[rb]
+        if (!Li.size || !Lj.size || shares(Li, Lj)) continue
+        if (d < 30) {
+          if (unionJn(i, j)) jn++
+          continue
+        }
+        if (d < 50) {
+          const si = streetKey(feats[i].properties.station_name)
+          const sj = streetKey(feats[j].properties.station_name)
+          // 同街異號（Bourke Mall 3↔5）不併；異街＝路口（Chapel↔Dandenong）
+          if (si && sj && si !== sj) {
+            if (unionJn(i, j)) jn++
+          }
+        }
+      }
+      if (jn) console.log(`  ${grp.info.city}: tram map-costop merge ${jn} pairs`)
+    }
     // (3) adjudicated interchange pairs
     if (ixPairs.length) {
       const byId = new Map(feats.map((f, i) => [f.properties.station_id, i]))
@@ -1886,7 +2014,11 @@ async function build() {
         lines: [...e.lines].sort(),
       }))
       const allCodes = new Set()
-      for (const m of members) for (const c of (m.__codes || [])) allCodes.add(c)
+      const allMemberLines = new Set()
+      for (const m of members) {
+        for (const c of (m.__codes || [])) allCodes.add(c)
+        if (m.__memberLines) for (const t of m.__memberLines) allMemberLines.add(t)
+      }
       keep.push({
         type: 'Feature',
         properties: {
@@ -1899,6 +2031,8 @@ async function build() {
         },
         geometry: { type: 'Point', coordinates: [lon, lat] },
         ...(allCodes.size ? { __codes: allCodes } : {}),
+        // 保留 route 成員歸屬聯集——墨爾本電車 post-snap 路口合併靠它判不相交
+        ...(allMemberLines.size ? { __memberLines: allMemberLines } : {}),
       })
       for (const m of members)
         aliases.push({ c: m.geometry.coordinates, rep: [lon, lat] })
@@ -1984,6 +2118,103 @@ async function build() {
       return false
     })
     droppedLines += before - grp.lines.length
+
+    // ---- 墨爾本電車：吸附後幾乎重疊的異名站補合併 ----
+    // 路口兩站 OSM 相距 ~25–30 m（未過 pre-snap 門檻），snap 到同一軌道頂點後變 <15 m
+    // 卻仍是兩點 → 畫面上「該共站卻沒共站」。吸附後再併一次並改寫線頂點座標。
+    if (TRAM_JUNCTION_MERGE.has(normCity(grp.info.city)) && grp.stations.length >= 2) {
+      const deg2m = (a, b) => {
+        const dy = (a[1] - b[1]) * 111000
+        const dx = (a[0] - b[0]) * Math.cos((a[1] * Math.PI) / 180) * 111000
+        return Math.hypot(dx, dy)
+      }
+      const sts = grp.stations
+      // <5 m：強制併（snap 把路口撕成兩點）。5–30 m：僅 __memberLines 不相交才併
+      // （Camberwell 等異號路口；不用 properties.lines——900 m 猜測會誤判）。
+      const memLines = (f) => {
+        const out = new Set()
+        if (f.__memberLines) for (const t of f.__memberLines) out.add(String(t).toLowerCase())
+        return out
+      }
+      const clusterMem = sts.map((s) => memLines(s))
+      const parent = sts.map((_, i) => i)
+      const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i] } return i }
+      const union = (a, b) => {
+        const ra = find(a), rb = find(b)
+        if (ra === rb) return false
+        parent[rb] = ra
+        for (const x of clusterMem[rb]) clusterMem[ra].add(x)
+        clusterMem[rb] = clusterMem[ra]
+        return true
+      }
+      let n = 0
+      const cand = []
+      for (let i = 0; i < sts.length; i++) {
+        for (let j = i + 1; j < sts.length; j++) {
+          const d = deg2m(sts[i].geometry.coordinates, sts[j].geometry.coordinates)
+          if (d < 30) cand.push({ i, j, d })
+        }
+      }
+      cand.sort((a, b) => a.d - b.d)
+      for (const { i, j, d } of cand) {
+        if (find(i) === find(j)) continue
+        if (d >= 5) {
+          const Li = clusterMem[find(i)], Lj = clusterMem[find(j)]
+          if (!Li.size || !Lj.size) continue
+          let share = false
+          for (const x of Li) if (Lj.has(x)) { share = true; break }
+          if (share) continue
+        }
+        if (union(i, j)) n++
+      }
+      if (n) {
+        const groups = new Map()
+        sts.forEach((_, i) => { const r = find(i); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(i) })
+        const keep = []
+        const remap = new Map() // oldCoordKey → newCoord
+        for (const idxs of groups.values()) {
+          if (idxs.length === 1) { keep.push(sts[idxs[0]]); continue }
+          const members = idxs.map((i) => sts[i])
+          const lon = members.reduce((s, m) => s + m.geometry.coordinates[0], 0) / members.length
+          const lat = members.reduce((s, m) => s + m.geometry.coordinates[1], 0) / members.length
+          const lines = [...new Set(members.flatMap((m) => m.properties.lines || []))].sort()
+          const first = members.slice().sort((a, b) =>
+            (b.properties.lines || []).length - (a.properties.lines || []).length)[0]
+          const mergedNames = []
+          const seen = new Set()
+          for (const m of [first, ...members.filter((m) => m !== first)]) {
+            const nm = m.properties.station_name
+            const k = (nm || '').toLowerCase()
+            if (!k || seen.has(k)) continue
+            seen.add(k)
+            mergedNames.push({
+              station_id: m.properties.station_id,
+              station_name: m.properties.station_name,
+              station_name_local: m.properties.station_name_local ?? null,
+              lines: m.properties.lines || [],
+            })
+          }
+          const rep = [lon, lat]
+          for (const m of members) remap.set(m.geometry.coordinates.join(','), rep)
+          keep.push({
+            type: 'Feature',
+            properties: {
+              ...first.properties,
+              lines: lines.length ? lines : first.properties.lines,
+              merged_from: (first.properties.merged_from || 1) + members.length - 1,
+              merged_names: mergedNames.length > 1 ? mergedNames : first.properties.merged_names,
+            },
+            geometry: { type: 'Point', coordinates: rep },
+          })
+        }
+        for (const f of grp.lines) {
+          f.geometry.coordinates = f.geometry.coordinates.map((seq) =>
+            seq.map((c) => remap.get(c.join(',')) || c))
+        }
+        grp.stations = keep
+        console.log(`  ${grp.info.city}: post-snap tram merge ${n} pairs → ${keep.length} stations`)
+      }
+    }
 
     // ---- 自動快車跨站共線（使用者：像雪梨官方 CityRail 圖，很多路線共線、跳過的站是 pass）----
     // 路線的長跳站邊 A→C（快車直達，>2 km），若另一條線走 A→中間站→C 的近直線路徑（總長

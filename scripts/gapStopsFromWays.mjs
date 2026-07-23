@@ -94,7 +94,9 @@ function stitchWays(ways) {
         }
       }
     }
-    if (!pick || pick.d > 2) break
+    // 只補「真的接得上」的缺口（<300 m，多半是缺一小段連接 way）——放到 2 km 會把
+    // 相隔一站以上的另一段硬接上，路段聯集就會斷開（verify 的 broken_routes）。
+    if (!pick || pick.d > 0.3) break
     // 複線／對向軌的 way 會與既有鏈平行重疊，接上去會讓同一站被走第二次
     // （威靈頓 Kapiti 線尾端冒出 Kenepuru → Redwood）。中點離既有鏈 <120 m 視為
     // 重疊軌（同一條線的對向軌約 5–20 m），丟棄不接；門檻放太大會把「市中心那一段」

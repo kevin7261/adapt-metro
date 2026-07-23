@@ -7,7 +7,7 @@
 | Wikipedia 系統數 | 233 |
 | 本資料系統數 | 266 |
 | 站數相符 (ok) | 202 |
-| 標記待查 | 31（missing 2／no_line 0／order 0／zero 0／low 2／high 27） |
+| 標記待查 | 34（missing 2／no_line 0／order 0／zero 0／low 2／high 27） |
 | 額外（不在 wiki 清單） | 53 |
 
 ## 不變式（invariants，違反＝資料一定有錯，必須驗證修正）
@@ -23,6 +23,9 @@
 |---|---|---|---|---|---|---|---|
 | missing | Taoyuan | Taiwan | — | 22 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/Taoyuan_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Taoyuan) |
 | missing | New Taipei | Taiwan | — | 12 | — | 本資料無此系統（OSM 未以 route=subway 標記，或城市名不同） | [wiki](https://en.wikipedia.org/wiki/New_Taipei_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei) |
+| broken | Melbourne Tram | Australia | 797 | — | — | 4 條線的路段聯集不連續（hover 會斷開）：Tram 64 斷成 2 段、Tram 72 斷成 2 段、Tram 5 斷成 2 段 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Melbourne%20Tram) |
+| broken | Alexandria | Egypt | 55 | — | — | 1 條線的路段聯集不連續（hover 會斷開）：Alexandria Passenger Transportation Authority 斷成 2 段 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Alexandria) |
+| broken | Mostaganem | Algeria | 23 | — | — | 1 條線的路段聯集不連續（hover 會斷開）：Ligne 1 斷成 2 段 | [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Mostaganem) |
 | low | Lagos | Nigeria | 5 | 13 | 0.38 | 站數偏少（5 vs wiki 13） | [wiki](https://en.wikipedia.org/wiki/Lagos_Rail_Mass_Transit[Nb_72]) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Lagos) |
 | low | Samara | Russia | 2 | 10 | 0.2 | 站數偏少（2 vs wiki 10） | [wiki](https://en.wikipedia.org/wiki/Samara_Metro) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Samara) |
 | high | Berlin | Germany | 309 | 175 | 1.77 | 站數偏多（309 vs wiki 175），可能混入輕軌 | [wiki](https://en.wikipedia.org/wiki/Berlin_U-Bahn) · [urbanrail](https://www.google.com/search?q=site%3Aurbanrail.net%20Berlin) |
@@ -59,10 +62,10 @@
 
 | 檔案 | 城市 | 國家 | 站 | 線 |
 |---|---|---|---|---|
-| metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson | Melbourne Tram | Australia | 822 | 24 |
+| metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson | Melbourne Tram | Australia | 797 | 24 |
 | metro-maps/europe/germany/eu-ger-frankfurt.geojson | Frankfurt | Germany | 190 | 21 |
 | metro-maps/africa/south-africa/af-rsa-johannesburg.geojson | Johannesburg | South Africa | 209 | 30 |
-| metro-maps/oceania/australia/oc-aus-melbourne.geojson | Melbourne | Australia | 227 | 24 |
+| metro-maps/oceania/australia/oc-aus-melbourne.geojson | Melbourne | Australia | 227 | 22 |
 | metro-maps/europe/germany/eu-ger-dusseldorf.geojson | Dusseldorf | Germany | 136 | 9 |
 | metro-maps/africa/south-africa/af-rsa-cape-town.geojson | Cape Town | South Africa | 109 | 16 |
 | metro-maps/oceania/australia/oc-aus-brisbane.geojson | Brisbane | Australia | 134 | 14 |
@@ -83,6 +86,8 @@
 | metro-maps/europe/germany/eu-ger-ratingen.geojson | Ratingen | Germany | 71 | 2 |
 | metro-maps/africa/nigeria/af-ngr-abuja.geojson | Abuja | Nigeria | 12 | 2 |
 | metro-maps/africa/mauritius/af-mri-port-louis.geojson | Port Louis | Mauritius | 21 | 2 |
+| metro-maps/africa/egypt/af-egy-alexandria.geojson | Alexandria | Egypt | 55 | 1 |
+| metro-maps/africa/algeria/af-alg-mostaganem.geojson | Mostaganem | Algeria | 23 | 1 |
 | metro-maps/europe/germany/eu-ger-bochum.geojson | Bochum | Germany | 22 | 1 |
 | metro-maps/europe/spain/eu-esp-seville.geojson | Seville | Spain | 18 | 1 |
 | metro-maps/europe/austria/eu-aut-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
@@ -90,10 +95,8 @@
 | metro-maps/oceania/australia/oc-aus-newcastle.geojson | Newcastle | Australia | 6 | 1 |
 | metro-maps/oceania/australia/oc-aus-canberra.geojson | Canberra | Australia | 14 | 1 |
 | metro-maps/asia/china/as-chn-chuzhou.geojson | Chuzhou | China | 10 | 1 |
-| metro-maps/africa/egypt/af-egy-alexandria.geojson | Alexandria | Egypt | 37 | 1 |
 | metro-maps/africa/algeria/af-alg-constantine.geojson | Constantine | Algeria | 15 | 1 |
 | metro-maps/africa/senegal/af-sen-dakar.geojson | Dakar | Senegal | 13 | 1 |
-| metro-maps/africa/algeria/af-alg-mostaganem.geojson | Mostaganem | Algeria | 20 | 1 |
 | metro-maps/africa/algeria/af-alg-oran.geojson | Oran | Algeria | 32 | 1 |
 | metro-maps/africa/algeria/af-alg-ouargla.geojson | Ouargla | Algeria | 16 | 1 |
 | metro-maps/africa/algeria/af-alg-setif.geojson | Sétif | Algeria | 22 | 1 |
