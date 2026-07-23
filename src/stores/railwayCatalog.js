@@ -1,4 +1,4 @@
-import { assetUrl } from '../lib/assetUrl'
+import { assetUrl } from '../lib/assetUrl.js'
 
 // World national-railway catalog (data/railway/index.json), fetched once and
 // cached. One system per COUNTRY; the build writes country_zh so every menu shows

@@ -45,6 +45,11 @@ const TASKS = [
   { key: 'melbourne', mode: 'train', bbox: '(-38.5,144.3,-37.4,145.8)', stations: 'rail',
     keep: (t) => /^PTV - Metropolitan Trains$/i.test(net(t)) &&
       (/^[A-Z]{3}$/.test(t.ref ?? '') || MELB_TRUNK.has(t.ref ?? '')) },
+  // 墨爾本電車（Yarra Trams，24 條路線 ~1700 停留場）：使用者裁決 2026-07-23
+  // 「墨爾本分 Metro Trains 和 tram」——照抓，但 buildGeojson 之後由
+  // scripts/buildMelbourneVariants.mjs 拆成兩個系統檔（比照新加坡 MRT／MRT+LRT）：
+  //   oc-aus-melbourne（覆寫）＝ Metro Trains 16 線
+  //   oc-aus-melbourne-tram（新增）＝ Yarra Trams 24 路線
   { key: 'melbournetram', mode: 'tram', bbox: '(-38.1,144.6,-37.5,145.4)', stations: 'members',
     keep: (t) => /PTV - Metropolitan Trams|Yarra Trams/i.test(`${net(t)} ${op(t)}`) &&
       /^\d+$/.test(t.ref ?? '') },

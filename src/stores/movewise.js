@@ -352,9 +352,55 @@ function gridMergeSweep(skeleton, cells, cols, rows, opts = {}) {
   return { cellAfter: pos, cols: nC, rows: nR, merged: mergedRows + mergedCols, mergedRows, mergedCols, cursor, movedIds: [], desc }
 }
 
+const NUDGE_DIRS = [
+  [-1, 0], [1, 0], [0, -1], [0, 1],
+  [-1, -1], [-1, 1], [1, -1], [1, 1],
+]
+
+/**
+ * 半平面平移前清掉「落地格被非凍結點佔住」的擋格——否則成對縮格在密集區
+ * 會全部 occupy 失敗、空列永遠消不掉（東京山手形狀層 2026-07）。
+ * 只准挪動非 members；失敗回 false。
+ */
+function shiftAfterClearing(M, pos, movers, dc, dr, cols, rows, frozenMembers) {
+  const inC = new Set(movers)
+  if (!movers.length) return false
+  for (let round = 0; round < 64; round++) {
+    if (M.validShift(movers, inC, dc, dr)) {
+      M.applyShift(movers, [dc, dr])
+      return true
+    }
+    let cleared = false
+    const blockers = new Set()
+    for (const w of movers) {
+      const [c, r] = pos.get(w)
+      const nc = c + dc, nr = r + dr
+      for (const [id, p] of pos) {
+        if (p[0] === nc && p[1] === nr && !inC.has(id)) blockers.add(id)
+      }
+    }
+    for (const owner of blockers) {
+      if (frozenMembers?.has(owner)) continue
+      const cur = pos.get(owner)
+      if (!cur) continue
+      for (const [ddc, ddr] of NUDGE_DIRS) {
+        const P = [cur[0] + ddc, cur[1] + ddr]
+        if (P[0] < 0 || P[1] < 0 || P[0] >= cols || P[1] >= rows) continue
+        if (!M.validMove(owner, P)) continue
+        M.applyMove(owner, P)
+        cleared = true
+        break
+      }
+    }
+    if (!cleared) return false
+  }
+  return false
+}
+
 /**
  * 成方成對縮格：剛體護欄會擋「切開方形」的單軸合併（否則寬高一變就破方）。
  * 同時併一欄＋一列（各縮 1），再驗 isFourLineSquare——方仍是方，但能繼續壓縮。
+ * 半平面落地被擋時先把非凍結擋格挪開（shiftAfterClearing），避免做到一半停住。
  */
 function squarePairShrinkOnce(skeleton, cells, cols, rows) {
   const guard = getFrozen()
@@ -371,10 +417,20 @@ function squarePairShrinkOnce(skeleton, cells, cols, rows) {
   if (!(maxC > minC && maxR > minR)) return null
 
   const saved = guard
+  // 優先消「無顏色點」的列／欄邊界，再掃一般邊界（空帶先清，避免半途停）
+  const usedC = new Set(), usedR = new Set()
+  for (const p of pos.values()) { usedC.add(p[0]); usedR.add(p[1]) }
+  const colCuts = []
+  const rowCuts = []
+  for (let c = minC; c < maxC; c++) colCuts.push(c)
+  for (let r = minR; r < maxR; r++) rowCuts.push(r)
+  colCuts.sort((a, b) => Number(usedC.has(a + 1)) - Number(usedC.has(b + 1)) || a - b)
+  rowCuts.sort((a, b) => Number(usedR.has(a + 1)) - Number(usedR.has(b + 1)) || a - b)
+
   setFrozen(null) // 試算單軸時關護欄；成對後用 isFourLineSquare 驗方
   try {
-    for (let c = minC; c < maxC; c++) {
-      for (let r = minR; r < maxR; r++) {
+    for (const c of colCuts) {
+      for (const r of rowCuts) {
         const trialCells = new Map([...cells].map(([id, p]) => [id, [...p]]))
         for (const [id, p] of pos) {
           if (!trialCells.has(id)) trialCells.set(id, [...p])
@@ -386,12 +442,38 @@ function squarePairShrinkOnce(skeleton, cells, cols, rows) {
         const M = makeMover(g.pos, g.segs, g.inc, cols, rows)
         const compC = []
         for (const [id, pnt] of g.pos) if (pnt[0] > c) compC.push(id)
-        if (!compC.length || !M.validShift(compC, new Set(compC), -1, 0)) continue
-        M.applyShift(compC, [-1, 0])
+        if (!shiftAfterClearing(M, g.pos, compC, -1, 0, cols, rows, saved.members)) continue
         const compR = []
         for (const [id, pnt] of g.pos) if (pnt[1] > r) compR.push(id)
-        if (!compR.length || !M.validShift(compR, new Set(compR), 0, -1)) continue
-        M.applyShift(compR, [0, -1])
+        if (!shiftAfterClearing(M, g.pos, compR, 0, -1, cols, rows, saved.members)) continue
+        const ring = saved.ringIds.filter((id) => g.pos.has(id))
+        if (ring.length < 4 || !isFourLineSquare(ring, g.pos, g.segs)) continue
+        const out = new Map()
+        for (const id of cells.keys()) {
+          const p = g.pos.get(id)
+          if (p) out.set(id, [p[0], p[1]])
+        }
+        return { cellAfter: out, cols: cols - 1, rows: rows - 1 }
+      }
+    }
+    // 列優先（有時欄向擋格清完後列向才過）
+    for (const r of rowCuts) {
+      for (const c of colCuts) {
+        const trialCells = new Map([...cells].map(([id, p]) => [id, [...p]]))
+        for (const [id, p] of pos) {
+          if (!trialCells.has(id)) trialCells.set(id, [...p])
+        }
+        const g = buildHcGraph(skeleton, trialCells)
+        for (const [id, p] of trialCells) {
+          if (!g.pos.has(id)) { g.pos.set(id, [...p]); g.inc.set(id, []) }
+        }
+        const M = makeMover(g.pos, g.segs, g.inc, cols, rows)
+        const compR = []
+        for (const [id, pnt] of g.pos) if (pnt[1] > r) compR.push(id)
+        if (!shiftAfterClearing(M, g.pos, compR, 0, -1, cols, rows, saved.members)) continue
+        const compC = []
+        for (const [id, pnt] of g.pos) if (pnt[0] > c) compC.push(id)
+        if (!shiftAfterClearing(M, g.pos, compC, -1, 0, cols, rows, saved.members)) continue
         const ring = saved.ringIds.filter((id) => g.pos.has(id))
         if (ring.length < 4 || !isFourLineSquare(ring, g.pos, g.segs)) continue
         const out = new Map()
@@ -445,30 +527,85 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
   const hvBefore = countHV(g0.pos, g0.segs)
   const verts = g0.pos.size, segsN = g0.segs.length
   let mergedRows = 0, mergedCols = 0, pairMerges = 0, guardN = 0
+  // 一般合併 ⇄ 成對縮方交替到不動點——成對縮完常又露出可單軸合併的空帶，
+  // 舊邏輯只跑「先合併後成對」各一輪會半途停住（使用者回報 2026-07）。
   while (guardN++ < MERGE_ITER_CAP) {
-    const r = gridMergeSweep(skeleton, cur, nC, nR)
-    mergedRows += r.mergedRows
-    mergedCols += r.mergedCols
-    cur = r.cellAfter
-    nC = r.cols
-    nR = r.rows
-    if (!r.merged || opts.single) break
+    let progressed = false
+    while (guardN++ < MERGE_ITER_CAP) {
+      const r = gridMergeSweep(skeleton, cur, nC, nR)
+      mergedRows += r.mergedRows
+      mergedCols += r.mergedCols
+      cur = r.cellAfter
+      nC = r.cols
+      nR = r.rows
+      if (!r.merged) break
+      progressed = true
+      if (opts.single) break
+    }
+    if (getFrozen()) {
+      while (guardN++ < MERGE_ITER_CAP) {
+        const p = squarePairShrinkOnce(skeleton, cur, nC, nR)
+        if (!p) break
+        cur = p.cellAfter
+        nC = p.cols
+        nR = p.rows
+        pairMerges++
+        mergedRows++
+        mergedCols++
+        progressed = true
+        const dens = compactGridSafe(skeleton, cur, nC, nR)
+        cur = dens.cellAfter
+        nC = dens.cols
+        nR = dens.rows
+        if (opts.single) break
+      }
+    }
+    if (!progressed || opts.single) break
   }
-  let pairGuard = 0
-  while (getFrozen() && pairGuard++ < MERGE_ITER_CAP) {
-    const p = squarePairShrinkOnce(skeleton, cur, nC, nR)
-    if (!p) break
-    cur = p.cellAfter
-    nC = p.cols
-    nR = p.rows
-    pairMerges++
-    mergedRows++
-    mergedCols++
+  // 收尾再壓一次空帶（成對縮／擋格挪開後，先前被擋的空列可能已合法）
+  {
     const dens = compactGridSafe(skeleton, cur, nC, nR)
     cur = dens.cellAfter
     nC = dens.cols
     nR = dens.rows
-    if (opts.single) break
+  }
+  // 仍有空列／空欄且成方中：端點／直線微調可能挪開擋格，再給成對縮一次機會
+  // （否則會「明明看得到空帶卻停住」）。
+  if (!opts.single && getFrozen()) {
+    let densifyGuard = 0
+    while (densifyGuard++ < 8) {
+      const dens = auditGridDensity(cur, nC, nR)
+      if (dens.dense) break
+      const endp = MOVEWISE_PASS.endp(skeleton, cur, nC, nR, undefined)
+      let next = cur, nC2 = nC, nR2 = nR
+      if (endp.moved) {
+        const d = compactGridSafe(skeleton, endp.cellAfter, nC, nR)
+        next = d.cellAfter; nC2 = d.cols; nR2 = d.rows
+      }
+      const line = MOVEWISE_PASS.line(skeleton, next, nC2, nR2, undefined)
+      if (line.moved) {
+        const d = compactGridSafe(skeleton, line.cellAfter, nC2, nR2)
+        next = d.cellAfter; nC2 = d.cols; nR2 = d.rows
+      }
+      cur = next; nC = nC2; nR = nR2
+      let paired = false
+      while (true) {
+        const p = squarePairShrinkOnce(skeleton, cur, nC, nR)
+        if (!p) break
+        cur = p.cellAfter
+        nC = p.cols
+        nR = p.rows
+        pairMerges++
+        mergedRows++
+        mergedCols++
+        paired = true
+        const d2 = compactGridSafe(skeleton, cur, nC, nR)
+        cur = d2.cellAfter
+        nC = d2.cols
+        nR = d2.rows
+      }
+      if (!endp.moved && !line.moved && !paired) break
+    }
   }
   const g1 = buildHcGraph(skeleton, cur)
   const density = auditGridDensity(cur, nC, nR)

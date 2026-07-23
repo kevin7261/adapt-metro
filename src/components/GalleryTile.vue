@@ -16,7 +16,8 @@ const emit = defineEmits(['pick'])
 
 const root = ref(null)
 const thumb = ref(null)   // { W, H, lines:[{d,color}], dots:[{x,y}] }
-const state = ref('idle') // idle | loading | done | error
+const state = ref('idle') // idle | loading | done | empty | error
+// empty＝geojson 不存在；error＝有檔但讀取／解析失敗
 let observer = null
 
 const W = 168, H = 116, PAD = 7
@@ -89,6 +90,12 @@ async function load() {
     let data = layerData[id]
     if (!data) {
       const res = await fetch(assetUrl(`data/metro/${props.system.file}`), { cache: 'no-cache' })
+      // Vite SPA：缺檔常回 200 + text/html，不能只看 status
+      const ct = res.headers.get('content-type') || ''
+      if (res.status === 404 || !ct.includes('json') && !ct.includes('geo+json')) {
+        state.value = 'empty'
+        return
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       data = await res.json()
       layerData[id] = data
@@ -101,11 +108,13 @@ async function load() {
 }
 
 onMounted(() => {
+  // root＝畫廊捲動容器（預設 viewport 會把屏外卡片誤判成可見／永遠 shimmer）
+  const scrollRoot = root.value?.closest('.gallery-body') ?? null
   observer = new IntersectionObserver((entries) => {
     for (const en of entries) {
       if (en.isIntersecting) { load(); observer.disconnect(); observer = null; break }
     }
-  }, { rootMargin: '200px' })
+  }, { root: scrollRoot, rootMargin: '200px' })
   observer.observe(root.value)
 })
 onBeforeUnmount(() => observer?.disconnect())
@@ -113,7 +122,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <template>
   <button ref="root" class="tile" :class="{ bare }" :title="`匯入 ${system.cityZh ?? system.city}`" @click="emit('pick', system)">
-    <div class="tile-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
+    <div class="tile-canvas" :class="{ loading: state === 'loading' }">
       <svg v-if="thumb" :viewBox="`0 0 ${thumb.W} ${thumb.H}`" preserveAspectRatio="xMidYMid meet">
         <path
           v-for="(ln, i) in thumb.lines"
@@ -136,7 +145,8 @@ onBeforeUnmount(() => observer?.disconnect())
           class="tile-dot"
         />
       </svg>
-      <span v-if="state === 'error'" class="tile-msg">載入失敗</span>
+      <span v-if="state === 'empty'" class="tile-msg">沒有資料</span>
+      <span v-else-if="state === 'error'" class="tile-msg">載入失敗</span>
     </div>
     <span v-if="bare && label" class="tile-label">{{ label }}</span>
     <div v-if="!bare" class="tile-meta">

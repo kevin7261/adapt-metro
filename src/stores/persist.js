@@ -5,7 +5,7 @@
 // Metro layers re-fetch their GeoJSON from `file`, so only the descriptor is
 // stored. A D3 view imported from a local file keeps its data only in memory,
 // so that GeoJSON is stored too (dropped first if the quota is hit).
-import { layerData } from './layerData'
+import { layerData } from './layerData.js'
 
 const KEY = 'adapt-metro:session:v1'
 

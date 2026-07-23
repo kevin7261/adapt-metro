@@ -1,4 +1,4 @@
-import { assetUrl } from '../lib/assetUrl'
+import { assetUrl } from '../lib/assetUrl.js'
 import CITY_ZH from './cityNamesZh.json'
 
 // World metro-system catalog (data/metro/index.json), fetched once and cached.

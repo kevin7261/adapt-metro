@@ -28,7 +28,7 @@ import { NODE_COLOR, EDGE_HL, stationColor, strokesOf as strokesOfShared } from 
 // 離線可預算的鏈：hc ＋ 論文①〜⑧（PAPER_KINDS）。LLM 對齊另讀
 // data/metro/straighten-llm/<city>.<variant>.json（由 route-llm-align / llmAlignBatch
 // 預算），有檔且 fingerprint 相符才寫進 loop-llm-*／rwd-llm-*；否則畫廊顯示
-// 「尚未預算」。HC 畫廊與 RWD 畫廊共用同一份清單與後處理映射。
+// 「沒有資料」。HC 畫廊與 RWD 畫廊共用同一份清單與後處理映射。
 const CHAIN_KINDS = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
 const CHAIN_POST = { hc: null, ...PAPER_BUILD }
 const CHAIN_ZH = { hc: '基本', llm: 'LLM 對齊', ...PAPER_ZH }
@@ -464,7 +464,7 @@ export function hcViewLabels(tilt) {
     // 視圖畫廊 Straighten 縮圖＝循環後（loop-*），標籤明示「循環後」。
     out[`loop-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環後`
     out[`loop-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環後`
-    // 形狀變體（原始-形狀／旋轉-形狀）——每條鏈都有形狀版（缺檔顯示「尚未預算」）。
+    // 形狀變體（原始-形狀／旋轉-形狀）——每條鏈都有形狀版（缺檔顯示「成方路線沒有算」）。
     out[`loop-${kind}-orig-shape`] = `原始-形狀 · ${CHAIN_ZH[kind]}循環後`
     out[`loop-${kind}-rot-shape`] = `${rot}-形狀 · ${CHAIN_ZH[kind]}循環後`
   }
@@ -660,7 +660,7 @@ export function rwdViewLabels(tilt) {
     out[`rwd-${kind}-orig`] = `原始 · ${CHAIN_ZH[kind]}循環 · RWD 路網`
     out[`compact-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環縮減網格`
     out[`rwd-${kind}-rot`] = `${rot} · ${CHAIN_ZH[kind]}循環 · RWD 路網`
-    // 形狀變體（原始-形狀／旋轉-形狀）——每條鏈都有形狀版（缺檔顯示「尚未預算」）。
+    // 形狀變體（原始-形狀／旋轉-形狀）——每條鏈都有形狀版（缺檔顯示「成方路線沒有算」）。
     out[`compact-${kind}-orig-shape`] = `原始-形狀 · ${CHAIN_ZH[kind]}循環縮減網格`
     out[`rwd-${kind}-orig-shape`] = `原始-形狀 · ${CHAIN_ZH[kind]}循環 · RWD 路網`
     out[`compact-${kind}-rot-shape`] = `${rot}-形狀 · ${CHAIN_ZH[kind]}循環縮減網格`

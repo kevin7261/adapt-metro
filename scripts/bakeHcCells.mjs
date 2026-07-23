@@ -20,6 +20,7 @@ import {
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
 import { applyShapeGreens } from '../src/stores/paper/shape.js'
 import { getShapePresets } from '../src/stores/paper/shapePresets.js'
+import { waitIfPaused } from './_recomputePause.mjs'
 // 不 import straightenCells.js（會拖進瀏覽器 assetUrl）；指紋／algo 常數在此對齊。
 // 寫入的是預計算結果（cellAfter），不是 network 快取。
 const HC_CELLS_ALGO = 'hccells-v6'
@@ -193,10 +194,15 @@ async function bakeOne(cityId, variant, { shapelike = false, force = false } = {
 
 async function main() {
   const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
-  let cities = (index.systems ?? []).map((s) => s.file.split('/').pop().replace(/\.geojson$/, ''))
+  // 由少站到多站——全球重算先出小城結果、也較好觀察進度／錯誤
+  const systems = [...(index.systems ?? [])].sort(
+    (a, b) => (a.station_count ?? 0) - (b.station_count ?? 0)
+      || String(a.city ?? '').localeCompare(String(b.city ?? '')),
+  )
+  let cities = systems.map((s) => s.file.split('/').pop().replace(/\.geojson$/, ''))
   if (only.length) cities = cities.filter((c) => only.includes(c))
   if (shapeOnly) {
-    // 規定表＋square 檔
+    // 規定表＋square 檔（順序沿用上面少→多）
     const withShape = []
     for (const c of cities) {
       if (!getShapePresets(c)) continue
@@ -207,36 +213,47 @@ async function main() {
         if (j.square === true) withShape.push([c, `${v}-shape`])
       }
     }
-    console.log(`bake shapelike ${withShape.length} 件`)
-    let ok = 0, skip = 0
+    const total = withShape.length
+    console.log(`bake shapelike ${total} 件`)
+    console.log(`PROGRESS 0/${total} start`)
+    let ok = 0, skip = 0, i = 0
     const t0 = Date.now()
     for (const [c, v] of withShape) {
+      await waitIfPaused()
+      i++
+      const tag = `${c}.${v}`
+      console.log(`PROGRESS ${i}/${total} ${tag}`)
       try {
         const r = await bakeOne(c, v, { shapelike: true, force })
-        if (r.skip) { skip++; console.log(`· ${r.file ?? `${c}.${v}`} skip ${r.reason}`); continue }
+        if (r.skip) { skip++; console.log(`· ${r.file ?? tag} skip ${r.reason}`); continue }
         ok++
         console.log(`✓ ${r.file}`)
       } catch (e) {
-        console.error(`✗ ${c}.${v} ${e.message}`)
+        console.error(`✗ ${tag} ${e.message}`)
       }
     }
     console.log(`完成 ${ok}、跳過 ${skip}（${((Date.now() - t0) / 1000).toFixed(1)}s）`)
     return
   }
 
-  console.log(`bake ${cities.length} 城 × orig/rot`)
-  let ok = 0, skip = 0
+  const jobs = cities.flatMap((c) => ['orig', 'rot'].map((v) => [c, v]))
+  const total = jobs.length
+  console.log(`bake ${cities.length} 城 × orig/rot（${total} 件，站數少→多）`)
+  console.log(`PROGRESS 0/${total} start`)
+  let ok = 0, skip = 0, i = 0
   const t0 = Date.now()
-  for (const c of cities) {
-    for (const v of ['orig', 'rot']) {
-      try {
-        const r = await bakeOne(c, v, { shapelike: false, force })
-        if (r.skip) { skip++; console.log(`· ${r.file ?? `${c}.${v}`} skip ${r.reason}`); continue }
-        ok++
-        console.log(`✓ ${r.file}`)
-      } catch (e) {
-        console.error(`✗ ${c}.${v} ${e.message}`)
-      }
+  for (const [c, v] of jobs) {
+    await waitIfPaused()
+    i++
+    const tag = `${c}.${v}`
+    console.log(`PROGRESS ${i}/${total} ${tag}`)
+    try {
+      const r = await bakeOne(c, v, { shapelike: false, force })
+      if (r.skip) { skip++; console.log(`· ${r.file ?? tag} skip ${r.reason}`); continue }
+      ok++
+      console.log(`✓ ${r.file}`)
+    } catch (e) {
+      console.error(`✗ ${tag} ${e.message}`)
     }
   }
   console.log(`完成 ${ok}、跳過 ${skip}（${((Date.now() - t0) / 1000).toFixed(1)}s）`)

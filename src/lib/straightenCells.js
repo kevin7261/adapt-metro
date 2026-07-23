@@ -7,8 +7,8 @@
 //   shapelike＝成方已餵下游的那份
 // 失效：fingerprint（資料＋河流門檻）或 algo 不符 → 視為無結果。
 // 寫檔：vite POST /hc-cells/save（僅 dev）；讀檔：/data/... 。
-import { assetUrl } from './assetUrl'
-import { getDataOverlay, setDataOverlay } from './dataOverlay'
+import { assetUrl } from './assetUrl.js' // 附副檔名：Node ESM（scripts/buildViews.mjs）不做 extensionless 解析
+import { getDataOverlay, setDataOverlay } from './dataOverlay.js'
 
 // 改了 skeleton／schematicGrid／hillClimb／movewise 演算法就 +1（舊檔自動失效）。
 // v2: 直線演算法／循環 base＝格網化後（不再吃 HC）

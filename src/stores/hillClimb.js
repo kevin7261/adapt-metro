@@ -414,21 +414,29 @@ export function compactGridSafe(skeleton, cellAfter, cols, rows) {
   const M = makeMover(pos, segs, inc, cols, rows)
   let nC = cols, nR = rows
   let changed = true
-  for (let guard = 0; changed && guard < 8; guard++) {
+  // 上限加寬：成方擋格挪開後常連續露出多條空帶，8 輪不夠
+  for (let guard = 0; changed && guard < 64; guard++) {
     changed = false
     for (const axis of [0, 1]) {
+      // 每輪重算 used——半平面一移，空帶索引會變
       const used = new Set()
       for (const p of pos.values()) used.add(p[axis])
-      const size = axis ? nR : nC
-      for (let x = size - 1; x >= 0; x--) { // 由右/下往左/上，索引不互相干擾
+      let size = axis ? nR : nC
+      for (let x = size - 1; x >= 0; x--) { // 由右/下往左/上
         if (used.has(x)) continue
         const comp = []
         const inC = new Set()
         for (const [id, p] of pos) if (p[axis] > x) { comp.push(id); inC.add(id) }
         const d = axis ? [0, -1] : [-1, 0]
-        if (comp.length && !M.validShift(comp, inC, d[0], d[1])) continue // 保留此空帶
-        M.applyShift(comp, d)
+        // 高位空帶（上方／右方已無點）comp 為空：直接縮維
+        if (comp.length) {
+          if (!M.validShift(comp, inC, d[0], d[1])) continue // 保留此空帶
+          M.applyShift(comp, d)
+          for (const id of comp) used.add(pos.get(id)[axis]) // 落地列／欄已有點
+        }
+        used.delete(x)
         if (axis) nR--; else nC--
+        size = axis ? nR : nC
         changed = true
       }
     }

@@ -121,7 +121,8 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
 
 | 城市 | 模式 | 綁城方式 | 裁決重點 |
 |---|---|---|---|
-| 墨爾本 | train＋tram | `NETWORK_CITY` PTV | Metro Trains 16 線＋Yarra Trams 24 路線同一檔（1081 站，全庫最大）；Metro Tunnel 貫通運營的箭頭 ref（`WGS=>CBE`）不屬任何 master，補丁設 `ref=CBE` 併回 Cranbourne 線，否則該線與市中心斷開 |
+| 墨爾本 | train | `NETWORK_CITY` PTV - Metropolitan Trains | **鐵路與電車分成兩個系統檔**（使用者 2026-07-23：先「只要抓 Metro Trains」、再「分 Metro Trains 和 tram」）：`oc-aus-melbourne`＝Metro Trains 16 線 227 站。Metro Tunnel 貫通運營的箭頭 ref（`WGS=>CBE`）不屬任何 master，補丁設 `ref=CBE` 併回 Cranbourne 線，否則該線與市中心斷開 |
+| 墨爾本電車 | tram | `NETWORK_CITY` PTV - Metropolitan Trams | `oc-aus-melbourne-tram`（城市名 `Melbourne Tram`／墨爾本電車）＝Yarra Trams **24 條路線 822 站**。同號路線的區間車（12d／57a／57d／75d…）依「tram 同路線就要合併、不要分開畫」只取最長變體、其餘視為 pass；兩桶重疊，站複本由 `SPLIT_SIBLINGS`（buildGeojson）清掉，否則電車停留場會被鐵路線吸走（Flinders Street 出現三次、Caulfield 變「Stop 57: Caulfield Station」） |
 | 布里斯本 | train | `NETWORK_CITY` Queensland Rail | network `Translink` 與溫哥華 TransLink 撞名 → 用 operator；機場線兩方向 ref 相反（BDBR/BRBD）、卡布爾徹 CABR/BRCA/Caboolture 三寫法，補丁統一成官方線名 |
 | 伯斯 | train | `NETWORK_CITY` Transperth | `FSG` 皇家秀特別班不收；`AIR:P`／`MAN:W`／`YAN:W` 區間變體由 master 自動收斂 |
 | 阿德萊德 | train＋tram | `NETWORK_CITY` Adelaide Metro | **21 條 route 全部沒有 stop 成員**（只掛 way）→ 由 `gapStopsFromWays` 合成停靠序，否則整城只剩 3 條電車；GAWC/SALIS→GAW、OSBORN→OUTHA、NOAR→SEAFRD 補丁 |

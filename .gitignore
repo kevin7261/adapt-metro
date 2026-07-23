@@ -21,6 +21,9 @@ dist/
 
 # Local experiment scratch dirs
 .tmp-*/
+
+# 全球重算暫停旗標（vite metroRecompute）
+.metro-recompute-pause
 __pycache__/
 
 # Resumable raw OSM responses for the optional metro track underlay.

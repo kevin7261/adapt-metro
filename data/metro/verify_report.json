@@ -2,7 +2,7 @@
   "summary": {
     "generated_against": "Wikipedia: List of metro systems (+ urbanrail.net reference)",
     "wikipedia_systems": 233,
-    "our_systems": 265,
+    "our_systems": 266,
     "matched_ok": 202,
     "flagged": 32,
     "invariant_violations": {
@@ -23,7 +23,7 @@
       "low": 2,
       "high": 27
     },
-    "extras": 52
+    "extras": 53
   },
   "flags": [
     {
@@ -533,11 +533,11 @@
   ],
   "extras": [
     {
-      "file": "metro-maps/oceania/australia/oc-aus-melbourne.geojson",
-      "city": "Melbourne",
+      "file": "metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson",
+      "city": "Melbourne Tram",
       "country": "Australia",
-      "station_count": 1081,
-      "line_count": 58
+      "station_count": 822,
+      "line_count": 24
     },
     {
       "file": "metro-maps/europe/germany/eu-ger-frankfurt.geojson",
@@ -552,6 +552,13 @@
       "country": "South Africa",
       "station_count": 209,
       "line_count": 30
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-melbourne.geojson",
+      "city": "Melbourne",
+      "country": "Australia",
+      "station_count": 227,
+      "line_count": 24
     },
     {
       "file": "metro-maps/europe/germany/eu-ger-dusseldorf.geojson",
@@ -645,13 +652,6 @@
       "line_count": 3
     },
     {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "city": "Alexandria",
-      "country": "Egypt",
-      "station_count": 38,
-      "line_count": 5
-    },
-    {
       "file": "metro-maps/africa/morocco/af-mar-rabat.geojson",
       "city": "Rabat",
       "country": "Morocco",
@@ -698,13 +698,6 @@
       "city": "Port Louis",
       "country": "Mauritius",
       "station_count": 21,
-      "line_count": 2
-    },
-    {
-      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
-      "city": "Mostaganem",
-      "country": "Algeria",
-      "station_count": 23,
       "line_count": 2
     },
     {
@@ -757,6 +750,13 @@
       "line_count": 1
     },
     {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "station_count": 18,
+      "line_count": 1
+    },
+    {
       "file": "metro-maps/africa/algeria/af-alg-constantine.geojson",
       "city": "Constantine",
       "country": "Algeria",
@@ -768,6 +768,13 @@
       "city": "Dakar",
       "country": "Senegal",
       "station_count": 13,
+      "line_count": 1
+    },
+    {
+      "file": "metro-maps/africa/algeria/af-alg-mostaganem.geojson",
+      "city": "Mostaganem",
+      "country": "Algeria",
+      "station_count": 20,
       "line_count": 1
     },
     {

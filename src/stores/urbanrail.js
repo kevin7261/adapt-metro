@@ -146,6 +146,7 @@ export const URBANRAIL_CITIES = {
   "Medellín": "am/mede/medellin.htm",
   "Meerut": "as/in/delhi/meerut-metro.htm",
   "Melbourne": "au/melb/melbourne.htm",
+  "Melbourne Tram": "au/melb/melbourne.htm",
   "Mexico City": "am/mexi/mexico.htm",
   "Miami": "am/miam/miami.htm",
   "Milan": "eu/it/mil/milano.htm",

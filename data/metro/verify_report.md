@@ -5,10 +5,10 @@
 | 指標 | 值 |
 |---|---|
 | Wikipedia 系統數 | 233 |
-| 本資料系統數 | 265 |
+| 本資料系統數 | 266 |
 | 站數相符 (ok) | 202 |
 | 標記待查 | 32（missing 2／no_line 0／order 1／zero 0／low 2／high 27） |
-| 額外（不在 wiki 清單） | 52 |
+| 額外（不在 wiki 清單） | 53 |
 
 ## 不變式（invariants，違反＝資料一定有錯，必須驗證修正）
 
@@ -60,9 +60,10 @@
 
 | 檔案 | 城市 | 國家 | 站 | 線 |
 |---|---|---|---|---|
-| metro-maps/oceania/australia/oc-aus-melbourne.geojson | Melbourne | Australia | 1081 | 58 |
+| metro-maps/oceania/australia/oc-aus-melbourne-tram.geojson | Melbourne Tram | Australia | 822 | 24 |
 | metro-maps/europe/germany/eu-ger-frankfurt.geojson | Frankfurt | Germany | 190 | 21 |
 | metro-maps/africa/south-africa/af-rsa-johannesburg.geojson | Johannesburg | South Africa | 209 | 30 |
+| metro-maps/oceania/australia/oc-aus-melbourne.geojson | Melbourne | Australia | 227 | 24 |
 | metro-maps/europe/germany/eu-ger-dusseldorf.geojson | Dusseldorf | Germany | 136 | 9 |
 | metro-maps/africa/south-africa/af-rsa-cape-town.geojson | Cape Town | South Africa | 109 | 16 |
 | metro-maps/oceania/australia/oc-aus-brisbane.geojson | Brisbane | Australia | 134 | 14 |
@@ -76,7 +77,6 @@
 | metro-maps/oceania/new-zealand/oc-nzl-wellington.geojson | Wellington | New Zealand | 31 | 4 |
 | metro-maps/africa/ethiopia/af-eth-addis-ababa.geojson | Addis Ababa | Ethiopia | 39 | 2 |
 | metro-maps/americas/bolivia/am-bol-cochabamba.geojson | Cochabamba | Bolivia | 32 | 3 |
-| metro-maps/africa/egypt/af-egy-alexandria.geojson | Alexandria | Egypt | 38 | 5 |
 | metro-maps/africa/morocco/af-mar-rabat.geojson | Rabat | Morocco | 43 | 2 |
 | metro-maps/europe/germany/eu-ger-essen.geojson | Essen | Germany | 30 | 2 |
 | metro-maps/africa/morocco/af-mar-casablanca.geojson | Casablanca | Morocco | 106 | 4 |
@@ -84,7 +84,6 @@
 | metro-maps/europe/germany/eu-ger-ratingen.geojson | Ratingen | Germany | 71 | 2 |
 | metro-maps/africa/nigeria/af-ngr-abuja.geojson | Abuja | Nigeria | 12 | 2 |
 | metro-maps/africa/mauritius/af-mri-port-louis.geojson | Port Louis | Mauritius | 21 | 2 |
-| metro-maps/africa/algeria/af-alg-mostaganem.geojson | Mostaganem | Algeria | 23 | 2 |
 | metro-maps/europe/germany/eu-ger-bochum.geojson | Bochum | Germany | 22 | 1 |
 | metro-maps/europe/spain/eu-esp-seville.geojson | Seville | Spain | 18 | 1 |
 | metro-maps/europe/austria/eu-aut-bezirk-landeck.geojson | Bezirk Landeck | Austria | 4 | 1 |
@@ -92,8 +91,10 @@
 | metro-maps/oceania/australia/oc-aus-newcastle.geojson | Newcastle | Australia | 6 | 1 |
 | metro-maps/oceania/australia/oc-aus-canberra.geojson | Canberra | Australia | 14 | 1 |
 | metro-maps/asia/china/as-chn-chuzhou.geojson | Chuzhou | China | 10 | 1 |
+| metro-maps/africa/egypt/af-egy-alexandria.geojson | Alexandria | Egypt | 18 | 1 |
 | metro-maps/africa/algeria/af-alg-constantine.geojson | Constantine | Algeria | 15 | 1 |
 | metro-maps/africa/senegal/af-sen-dakar.geojson | Dakar | Senegal | 13 | 1 |
+| metro-maps/africa/algeria/af-alg-mostaganem.geojson | Mostaganem | Algeria | 20 | 1 |
 | metro-maps/africa/algeria/af-alg-oran.geojson | Oran | Algeria | 32 | 1 |
 | metro-maps/africa/algeria/af-alg-ouargla.geojson | Ouargla | Algeria | 16 | 1 |
 | metro-maps/africa/algeria/af-alg-setif.geojson | Sétif | Algeria | 22 | 1 |

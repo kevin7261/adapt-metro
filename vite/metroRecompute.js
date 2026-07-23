@@ -1,31 +1,25 @@
-// 全城「重新計算」——清空衍生 JSON 後重跑 buildViews／bakeHcCells（可選再跑 LLM 成方）。
+// 全城「重新計算」——清空 cells（可選成方）後重跑 bakeHcCells／buildViews（可選 LLM 成方）。
 //   POST /metro-recompute/run   { mode: 'all' | 'no-shape' | 'dataflow' }
 //   GET  /metro-recompute/status
 //
 // mode:
-//   all      — 全清（含成方）＋重算資料流＋重跑 LLM 成方
+//   all      — 全清 cells＋成方＋重算資料流＋重跑 LLM 成方
 //   no-shape — 成方相關一律不動（straighten-shape／形狀 cells／畫廊 *-shape 視圖）
 //              只重算一般（無形狀）路網
-//   dataflow — 不成方（保留 straighten-shape），但清空並重算整條資料流
-//              （含有形狀圖層的畫廊／cells）
+//   dataflow — 不成方（保留 straighten-shape），但清空並重算整條資料流 cells
 //
-// 衍生檔（皆 JSON）：
-//   data/metro/map-adjust/*.json      Map Adjust 畫廊縮圖
-//   data/metro/straighten/*.json      Straighten 畫廊縮圖
-//   data/metro/rwd-maps/*.json        RWD Maps 畫廊縮圖
-//   data/metro/straighten-cells/*.json  整數格佈局（開分頁讀檔）
-//   data/metro/straighten-shape/*.json  LLM 成方結果
+// 只清可重算的 cells／成方；不動：
+//   data/metro/index.json、metro-maps/*.geojson、maps/（官方路線圖）
+//   畫廊 map-adjust／straighten／rwd-maps 也不先刪——buildViews 依指紋覆寫，
+//   重算中途 OSM 清單與縮圖仍可顯示。
 import {
   existsSync, readdirSync, rmSync, readFileSync, writeFileSync,
 } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { join } from 'node:path'
+import { PAUSE_FILE, waitIfPaused } from '../scripts/_recomputePause.mjs'
 
-const VIEW_DIRS = [
-  'data/metro/map-adjust',
-  'data/metro/straighten',
-  'data/metro/rwd-maps',
-]
+// 成方縮圖備份／還原用（no-shape：cells 指紋變了會整檔重烤，需蓋回舊成方視圖）
 const SHAPE_VIEW_DIRS = ['data/metro/straighten', 'data/metro/rwd-maps']
 const CELLS_DIR = 'data/metro/straighten-cells'
 const SHAPE_DIR = 'data/metro/straighten-shape'
@@ -106,15 +100,56 @@ function shapeCities(root) {
     const src = readFileSync(join(root, 'src/stores/paper/shapePresets.js'), 'utf8')
     const m = src.match(/export const SHAPE_PRESETS = \{([\s\S]*?)\n\}/)
     if (!m) return []
-    return [...m[1].matchAll(/^\s*'([\w-]+)':\s*\[/gm)].map((x) => x[1])
+    const ids = [...m[1].matchAll(/^\s*'([\w-]+)':\s*\[/gm)].map((x) => x[1])
+    // 站數少→多（與 bakeHcCells 一致）
+    let count = new Map()
+    try {
+      const index = JSON.parse(readFileSync(join(root, 'data/metro/index.json'), 'utf8'))
+      for (const s of index.systems ?? []) {
+        const id = (s.file || '').split('/').pop()?.replace(/\.geojson$/, '')
+        if (id) count.set(id, s.station_count ?? 0)
+      }
+    } catch { /* ignore */ }
+    return ids.sort((a, b) => (count.get(a) ?? 0) - (count.get(b) ?? 0) || a.localeCompare(b))
   } catch { return [] }
 }
 
 export function metroRecompute() {
   const root = process.cwd()
-  /** @type {{ running: boolean, mode: string|null, step: string, log: string[], exit: number|null, error: string|null, cleared: object|null }} */
+  /** @type {{ running: boolean, paused: boolean, mode: string|null, step: string, phase: string, progress: { current: number, total: number, item: string }|null, log: string[], exit: number|null, error: string|null, cleared: object|null }} */
   let job = {
-    running: false, mode: null, step: '', log: [], exit: null, error: null, cleared: null,
+    running: false, paused: false, mode: null, step: '', phase: '', progress: null,
+    log: [], exit: null, error: null, cleared: null,
+  }
+
+  const clearPauseFile = () => {
+    try { if (existsSync(PAUSE_FILE)) rmSync(PAUSE_FILE) } catch { /* ignore */ }
+    job.paused = false
+  }
+
+  const setPaused = (on) => {
+    if (!job.running) return false
+    if (on) {
+      try { writeFileSync(PAUSE_FILE, `${Date.now()}\n`) } catch { return false }
+      job.paused = true
+      const base = job.step.replace(/^已暫停 · /, '')
+      job.step = `已暫停 · ${base}`
+      append('⏸ 已暫停（目前這城算完後停；按繼續再開）')
+    } else {
+      clearPauseFile()
+      job.step = job.step.replace(/^已暫停 · /, '')
+      append('▶ 繼續')
+    }
+    return true
+  }
+
+  const setProgress = (current, total, item, phase) => {
+    job.progress = { current, total, item: item || '' }
+    if (phase) job.phase = phase
+    const ph = job.phase || phase || ''
+    const frac = total > 0 ? `${current}/${total}` : ''
+    const body = [ph, frac, item].filter(Boolean).join(' · ')
+    job.step = job.paused ? `已暫停 · ${body}` : body
   }
 
   const append = (line) => {
@@ -122,6 +157,16 @@ export function metroRecompute() {
     if (!s) return
     job.log.push(s)
     if (job.log.length > 400) job.log.splice(0, job.log.length - 400)
+    if (s === 'PAUSED') {
+      job.paused = true
+      if (!job.step.startsWith('已暫停')) job.step = `已暫停 · ${job.step}`
+    } else if (s === 'RESUMED') {
+      job.paused = false
+      job.step = job.step.replace(/^已暫停 · /, '')
+    }
+    // bakeHcCells / buildViews：PROGRESS i/n item
+    const m = s.match(/^PROGRESS\s+(\d+)\/(\d+)\s*(.*)$/)
+    if (m) setProgress(+m[1], +m[2], m[3].trim(), job.phase)
     console.log(`[metro-recompute] ${s}`)
   }
 
@@ -131,21 +176,27 @@ export function metroRecompute() {
     req.on('end', () => { try { ok(JSON.parse(raw)) } catch { ok(null) } })
   })
 
-  const runCmd = (cmd, args, label) => new Promise((resolve, reject) => {
-    job.step = label
+  const runCmd = async (cmd, args, label) => {
+    await waitIfPaused()
+    job.paused = existsSync(PAUSE_FILE)
+    job.phase = label
+    job.progress = null
+    job.step = job.paused ? `已暫停 · ${label}` : label
     append(`▶ ${label}：${cmd} ${args.join(' ')}`)
-    const child = spawn(cmd, args, { cwd: root, env: process.env, shell: false })
-    const onChunk = (buf) => {
-      for (const line of String(buf).split(/\r?\n/)) append(line)
-    }
-    child.stdout.on('data', onChunk)
-    child.stderr.on('data', onChunk)
-    child.on('error', (err) => reject(err))
-    child.on('close', (code) => {
-      if (code === 0) resolve()
-      else reject(new Error(`${label} 結束碼 ${code}`))
+    return new Promise((resolve, reject) => {
+      const child = spawn(cmd, args, { cwd: root, env: process.env, shell: false })
+      const onChunk = (buf) => {
+        for (const line of String(buf).split(/\r?\n/)) append(line)
+      }
+      child.stdout.on('data', onChunk)
+      child.stderr.on('data', onChunk)
+      child.on('error', (err) => reject(err))
+      child.on('close', (code) => {
+        if (code === 0) resolve()
+        else reject(new Error(`${label} 結束碼 ${code}`))
+      })
     })
-  })
+  }
 
   const runLlmShapes = async () => {
     const cities = shapeCities(root)
@@ -157,10 +208,13 @@ export function metroRecompute() {
     const variants = ['orig', 'rot']
     let i = 0
     const total = cities.length * variants.length
+    job.phase = 'LLM 成方'
     for (const city of cities) {
       for (const variant of variants) {
+        await waitIfPaused()
+        job.paused = existsSync(PAUSE_FILE)
         i++
-        job.step = `llm-shape ${city}.${variant} (${i}/${total})`
+        setProgress(i, total, `${city}.${variant}`, 'LLM 成方')
         append(`▶ LLM 成方 ${city}.${variant}（${i}/${total}）`)
         const prompt = `使用 route-llm-shape skill：幫城市 ${city}（變體 ${variant}）用 LLM 把規定路段收成`
           + '四邊直線正方（isFourLineSquare），是 ⑨形狀計算的 LLM 版。'
@@ -199,48 +253,51 @@ export function metroRecompute() {
   }
 
   const startJob = async (mode) => {
+    clearPauseFile()
     job = {
-      running: true, mode, step: 'clear', log: [], exit: null, error: null, cleared: null,
+      running: true, paused: false, mode, step: '清空舊檔…', phase: 'clear', progress: null,
+      log: [], exit: null, error: null, cleared: null,
     }
     try {
       const cleared = { views: 0, cells: 0, shapes: 0, shapeViewsKept: 0 }
 
-      // no-shape：先備份畫廊成方視圖，重算後寫回
+      // no-shape：先備份畫廊成方視圖，重算後寫回（畫廊檔不先刪，但 cells 指紋變會整檔重烤）
       const shapeSnap = mode === 'no-shape' ? snapshotShapeViews(root) : null
       if (shapeSnap) append(`已備份 ${shapeSnap.size} 個畫廊檔的成方縮圖（將原樣寫回）`)
 
-      for (const d of VIEW_DIRS) cleared.views += clearJsonDir(join(root, d))
-
+      // 不動畫廊／geojson／官方圖；只清可重算的 cells（與可選成方結果）
       if (mode === 'no-shape') {
-        // 成方 cells 一律不動
         cleared.cells = clearJsonDir(join(root, CELLS_DIR), { skipFile: isShapeCellFile })
-        append(`已清空：畫廊 ${cleared.views}、一般 cells ${cleared.cells}（成方 cells／成方結果不動）`)
+        append(`已清空：一般 cells ${cleared.cells}（畫廊／geojson／成方 cells／成方結果不動）`)
       } else {
         cleared.cells = clearJsonDir(join(root, CELLS_DIR))
         if (mode === 'all') cleared.shapes = clearJsonDir(join(root, SHAPE_DIR))
-        append(`已清空：畫廊 ${cleared.views}、cells ${cleared.cells}`
-          + (mode === 'all' ? `、成方 ${cleared.shapes}` : '（成方結果檔保留）'))
+        append(`已清空：cells ${cleared.cells}`
+          + (mode === 'all' ? `、成方 ${cleared.shapes}` : '（成方結果檔保留）')
+          + '（畫廊／geojson／官方路線圖不動）')
       }
       job.cleared = cleared
 
       // 先 bake cells（D3Tab 真結果），再 buildViews（畫廊優先畫 cells）——順序不能反。
-      await runCmd('node', ['scripts/bakeHcCells.mjs', '--force'], 'bakeHcCells 一般路網')
+      await runCmd('node', ['scripts/bakeHcCells.mjs', '--force'], '一般路網')
 
       if (mode === 'no-shape') {
-        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews 畫廊縮圖')
+        await runCmd('node', ['scripts/buildViews.mjs'], '畫廊縮圖')
         // 把舊的成方縮圖蓋回，避免 buildViews 用現有成方檔重算出新的形狀視圖
         cleared.shapeViewsKept = restoreShapeViews(root, shapeSnap)
         append(`已還原 ${cleared.shapeViewsKept} 個畫廊檔的成方縮圖（內容未改）`)
       } else if (mode === 'dataflow') {
-        await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force'], 'bakeHcCells 有形狀資料流')
-        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews 畫廊縮圖')
+        await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force'], '有形狀資料流')
+        await runCmd('node', ['scripts/buildViews.mjs'], '畫廊縮圖')
       } else if (mode === 'all') {
         await runLlmShapes()
-        await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force'], 'bakeHcCells 有形狀資料流')
-        await runCmd('node', ['scripts/buildViews.mjs'], 'buildViews（含新成方）')
+        await runCmd('node', ['scripts/bakeHcCells.mjs', '--shape', '--force'], '有形狀資料流')
+        await runCmd('node', ['scripts/buildViews.mjs'], '畫廊縮圖')
       }
 
-      job.step = 'done'
+      job.step = '完成'
+      job.phase = 'done'
+      job.progress = null
       job.exit = 0
       append('✓ 全部完成')
     } catch (err) {
@@ -248,6 +305,7 @@ export function metroRecompute() {
       job.exit = 1
       append(`✗ ${job.error}`)
     } finally {
+      clearPauseFile()
       job.running = false
     }
   }
@@ -258,16 +316,43 @@ export function metroRecompute() {
     res.setHeader('Content-Type', 'application/json')
 
     if (p === '/metro-recompute/status' && req.method === 'GET') {
+      // 與暫停檔同步（子行程可能已印 PAUSED／RESUMED）
+      if (job.running) job.paused = existsSync(PAUSE_FILE)
       res.end(JSON.stringify({
         running: job.running,
+        paused: job.paused,
         mode: job.mode,
         step: job.step,
+        phase: job.phase,
+        progress: job.progress,
         exit: job.exit,
         error: job.error,
         cleared: job.cleared,
         tail: job.log.slice(-12).join('\n'),
         logCount: job.log.length,
       }))
+      return
+    }
+
+    if (p === '/metro-recompute/pause' && req.method === 'POST') {
+      if (!job.running) {
+        res.statusCode = 409
+        res.end(JSON.stringify({ error: 'not running' }))
+        return
+      }
+      setPaused(true)
+      res.end(JSON.stringify({ ok: true, paused: true, step: job.step }))
+      return
+    }
+
+    if (p === '/metro-recompute/resume' && req.method === 'POST') {
+      if (!job.running) {
+        res.statusCode = 409
+        res.end(JSON.stringify({ error: 'not running' }))
+        return
+      }
+      setPaused(false)
+      res.end(JSON.stringify({ ok: true, paused: false, step: job.step }))
       return
     }
 

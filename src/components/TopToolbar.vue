@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { clearDataOverlay } from '../lib/dataOverlay'
 import MIcon from './MIcon.vue'
@@ -45,8 +45,29 @@ const RECOMPUTE_OPTS = {
 const recomputeOpen = ref(false)
 const recomputeWrap = ref(null)
 const recomputeBusy = ref(false)
+const recomputePaused = ref(false)
 const recomputeStep = ref('')
+const recomputePhase = ref('')
+const recomputeProgress = ref(null) // { current, total, item }
 let recomputePoll = null
+
+const recomputeLabel = computed(() => {
+  if (!recomputeBusy.value) return '重新計算'
+  const p = recomputeProgress.value
+  let body = recomputeStep.value || '重新計算中…'
+  if (p?.total > 0) {
+    const item = p.item ? ` ${p.item}` : ''
+    body = `${recomputePhase.value || '進行中'} ${p.current}/${p.total}${item}`
+  }
+  if (recomputePaused.value && !body.startsWith('已暫停')) return `已暫停 · ${body.replace(/^已暫停 · /, '')}`
+  return body
+})
+
+const recomputePct = computed(() => {
+  const p = recomputeProgress.value
+  if (!p?.total) return 0
+  return Math.min(100, Math.round((100 * p.current) / p.total))
+})
 
 async function startRecompute(mode) {
   recomputeOpen.value = false
@@ -55,7 +76,10 @@ async function startRecompute(mode) {
   if (!opt) return
   if (!confirm(`確定要重新計算「${opt.label}」？\n${opt.detail}`)) return
   recomputeBusy.value = true
+  recomputePaused.value = false
   recomputeStep.value = '啟動中…'
+  recomputePhase.value = '啟動'
+  recomputeProgress.value = null
   store.toast(`重新計算：${opt.label}…`)
   try {
     const res = await fetch('/metro-recompute/run', {
@@ -73,12 +97,34 @@ async function startRecompute(mode) {
       throw new Error(j.error || `HTTP ${res.status}`)
     }
     clearInterval(recomputePoll)
-    recomputePoll = setInterval(pollRecompute, 2000)
+    recomputePoll = setInterval(pollRecompute, 1000)
     await pollRecompute()
   } catch (err) {
     recomputeBusy.value = false
+    recomputePaused.value = false
     recomputeStep.value = ''
+    recomputePhase.value = ''
+    recomputeProgress.value = null
     store.toast(`重新計算失敗：${err.message || err}`)
+  }
+}
+
+async function togglePause() {
+  if (!recomputeBusy.value) return
+  const path = recomputePaused.value ? '/metro-recompute/resume' : '/metro-recompute/pause'
+  try {
+    const res = await fetch(path, { method: 'POST' })
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}))
+      throw new Error(j.error || `HTTP ${res.status}`)
+    }
+    const j = await res.json()
+    recomputePaused.value = !!j.paused
+    if (j.step) recomputeStep.value = j.step
+    store.toast(recomputePaused.value ? '已暫停（這城算完後停）' : '繼續重算')
+    await pollRecompute()
+  } catch (err) {
+    store.toast(`暫停／繼續失敗：${err.message || err}`)
   }
 }
 
@@ -88,29 +134,42 @@ async function pollRecompute() {
     if (!res.ok) throw new Error(`status HTTP ${res.status}`)
     const j = await res.json()
     recomputeStep.value = j.step || ''
-    if (j.running) return
+    recomputePhase.value = j.phase || ''
+    recomputeProgress.value = j.progress ?? null
+    recomputePaused.value = !!j.paused
+    if (j.running) {
+      recomputeBusy.value = true
+      return
+    }
+    // 未在跑：若我們正在追蹤這次任務，收尾
+    if (!recomputeBusy.value && !recomputePoll) return
     clearInterval(recomputePoll)
     recomputePoll = null
+    const wasBusy = recomputeBusy.value
     recomputeBusy.value = false
+    recomputePaused.value = false
+    if (!wasBusy) return
     // 清瀏覽器 overlay，避免讀到舊 cells／縮圖
     clearDataOverlay('data/metro/')
     if (j.exit === 0) {
       store.toast('重新計算完成')
-    } else {
+    } else if (j.exit != null) {
       store.toast(`重新計算失敗：${j.error || '未知錯誤'}（見 terminal）`)
     }
     recomputeStep.value = ''
+    recomputePhase.value = ''
+    recomputeProgress.value = null
   } catch (err) {
     clearInterval(recomputePoll)
     recomputePoll = null
     recomputeBusy.value = false
+    recomputePaused.value = false
     recomputeStep.value = ''
+    recomputePhase.value = ''
+    recomputeProgress.value = null
     store.toast(`重新計算狀態讀取失敗：${err.message || err}`)
   }
 }
-
-// 每列圖層有自己「計算用到」的 skill 選單（LayerPanel）；toolbar 的 Skills
-// 按鈕開全部 skill 的 modal（DialogHost 'skills'）。
 
 function onDocClick(e) {
   if (infoOpen.value && infoWrap.value && !infoWrap.value.contains(e.target)) {
@@ -129,6 +188,10 @@ function onKeydown(e) {
 onMounted(() => {
   document.addEventListener('mousedown', onDocClick)
   document.addEventListener('keydown', onKeydown)
+  // 重整頁面時若後端仍在跑，接上進度
+  pollRecompute().then(() => {
+    if (recomputeBusy.value) recomputePoll = setInterval(pollRecompute, 1000)
+  })
 })
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocClick)
@@ -169,19 +232,43 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- 右上：重新計算全部城市（畫廊＋cells；可選 LLM 成方）——與各圖層 StyleBar 右上「重新計算」對齊 -->
-    <div ref="recomputeWrap" class="skills-wrap recompute-wrap">
-      <button
-        class="btn-ghost"
-        :class="{ active: recomputeOpen || recomputeBusy }"
-        :disabled="recomputeBusy"
-        :title="recomputeBusy ? `重新計算中：${recomputeStep || '…'}` : '重新計算全部城市的路網圖'"
-        @click="recomputeOpen = !recomputeOpen"
+    <!-- 重新計算：忙碌時顯示進度；旁側可暫停／繼續（這城算完後生效） -->
+    <div ref="recomputeWrap" class="skills-wrap recompute-wrap" :class="{ busy: recomputeBusy, paused: recomputePaused }">
+      <div class="recompute-cluster">
+        <button
+          class="btn-ghost recompute-btn"
+          :class="{ active: recomputeOpen || recomputeBusy, paused: recomputePaused }"
+          :disabled="recomputeBusy"
+          :title="recomputeBusy ? recomputeLabel : '重新計算全部城市的路網圖'"
+          @click="recomputeOpen = !recomputeOpen"
+        >
+          <MIcon
+            v-if="recomputeBusy"
+            :name="recomputePaused ? 'pause' : 'progress_activity'"
+            :size="14"
+            :class="{ spin: !recomputePaused }"
+          />
+          <span class="recompute-text">{{ recomputeLabel }}</span>
+          <MIcon v-if="!recomputeBusy" name="expand_more" :size="14" />
+        </button>
+        <button
+          v-if="recomputeBusy"
+          type="button"
+          class="btn-ghost pause-btn"
+          :title="recomputePaused ? '繼續重算' : '暫停（目前這城算完後停）'"
+          @click.stop="togglePause"
+        >
+          <MIcon :name="recomputePaused ? 'play_arrow' : 'pause'" :size="14" />
+          {{ recomputePaused ? '繼續' : '暫停' }}
+        </button>
+      </div>
+      <div
+        v-if="recomputeBusy && recomputeProgress?.total"
+        class="recompute-bar"
+        :title="recomputeLabel"
       >
-        <MIcon v-if="recomputeBusy" name="progress_activity" :size="14" class="spin" />
-        {{ recomputeBusy ? (recomputeStep || '重新計算中…') : '重新計算' }}
-        <MIcon v-if="!recomputeBusy" name="expand_more" :size="14" />
-      </button>
+        <div class="recompute-bar-fill" :class="{ paused: recomputePaused }" :style="{ width: recomputePct + '%' }" />
+      </div>
       <div v-if="recomputeOpen && !recomputeBusy" class="menu-pop recompute-menu">
         <div class="menu-label">重新計算全部城市</div>
         <button
@@ -248,16 +335,64 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 .toolbar .btn-ghost:hover:not(:disabled) {
-  border-color: hsl(var(--border));
+  border-color: transparent;
   background: hsl(var(--card));
 }
-.toolbar .btn-ghost:disabled { opacity: 0.7; cursor: wait; }
+.toolbar .btn-ghost:disabled { opacity: 0.85; cursor: wait; }
 .skills-wrap { position: relative; }
 .info-menu { top: 36px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
+.recompute-wrap.busy { max-width: min(640px, 56vw); }
+.recompute-cluster {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.recompute-btn {
+  max-width: min(420px, 40vw) !important;
+}
+.recompute-wrap.busy .recompute-btn:disabled { cursor: default; }
+.pause-btn {
+  flex-shrink: 0;
+  max-width: none !important;
+  padding: 0 10px !important;
+  border-color: hsl(var(--border)) !important;
+  font-weight: 600;
+}
+.pause-btn:hover {
+  border-color: hsl(var(--border)) !important;
+}
+.recompute-wrap.paused .pause-btn {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.35) !important;
+}
+.recompute-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.recompute-bar {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: hsl(var(--border));
+  overflow: hidden;
+  pointer-events: none;
+}
+.recompute-bar-fill {
+  height: 100%;
+  background: hsl(var(--primary));
+  transition: width 0.35s ease;
+}
+.recompute-bar-fill.paused { opacity: 0.45; }
 .recompute-menu { top: 36px; right: 0; left: auto; min-width: 300px; }
 .mi-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .mi-hint { font-size: 10.5px; color: hsl(var(--muted-foreground)); font-weight: 400; }
-.spin { animation: tb-spin 0.9s linear infinite; }
+.spin { animation: tb-spin 0.9s linear infinite; flex-shrink: 0; }
 @keyframes tb-spin { to { transform: rotate(360deg); } }
 </style>

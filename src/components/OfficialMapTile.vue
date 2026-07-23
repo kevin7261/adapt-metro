@@ -63,11 +63,12 @@ onMounted(async () => {
     await load()
     return
   }
+  const scrollRoot = root.value?.closest('.gallery-body') ?? null
   observer = new IntersectionObserver((entries) => {
     for (const en of entries) {
       if (en.isIntersecting) { load(); observer.disconnect(); observer = null; break }
     }
-  }, { rootMargin: '200px' })
+  }, { root: scrollRoot, rootMargin: '200px' })
   observer.observe(root.value)
 })
 onBeforeUnmount(() => {
@@ -102,7 +103,7 @@ const cityLabel = () => `${props.system.cityZh ?? props.system.city} · ${props.
     :title="state === 'done' ? `官方路線圖（${meta?.license || '出處見 maps_index'}）— 點擊放大` : '官方路線圖'"
     @click="openModal"
   >
-    <div class="omap-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
+    <div class="omap-canvas" :class="{ loading: state === 'loading' }">
       <img v-if="state === 'done'" :src="src" :alt="`${system.cityZh ?? system.city} 官方路線圖`" loading="lazy" />
       <!-- 無圖 / 載入失敗：留白（不顯示文字），方塊大小仍與其他格一致 -->
     </div>

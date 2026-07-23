@@ -3,13 +3,14 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { openSkillDoc } from '../stores/skillHandle'
 import { patchHcGalleryFromCells, patchRwdGalleryFromCells } from '../stores/viewGeometry'
+import { dataFingerprint, HC_CELLS_ALGO_READ } from '../lib/straightenCells'
+import { DEFAULT_RIVER_GRAY_SINUOSITY } from '../stores/skeleton'
 import MIcon from './MIcon.vue'
 
-// One city's view card (Hill Climbing / RWD Maps 共用): a title header + a grid
-// of pre-computed views. Geometry is fetched lazily
-// (data/metro/<dataDir>/<id>.json) when the card scrolls into view.
-// 差異全部參數化：資料目錄、view 順序、標籤（RWD 靜態表 / HC 依 tilt 動態
-// 「旋轉 N°」）、欄數、按鈕文案。
+// One city's view card (Hill Climbing / RWD Maps／Map Adjust 共用)。
+// Straighten／RWD：縮圖＝straighten-cells（與 D3Tab 同一份＋同一 fingerprint／algo
+// 門檻）；舊的 straighten/rwd-maps 預算圖一律丟棄——有縮圖卻點進去「尚未計算」不允許。
+// Map Adjust：仍讀 map-adjust/*.json（與格網化同源預算）。
 const props = defineProps({
   entry: { type: Object, required: true },
   dataDir: { type: String, required: true },   // 'straighten' | 'rwd-maps'
@@ -33,7 +34,8 @@ const gridStyle = computed(() => props.maxRows
 
 const root = ref(null)
 const data = ref(null)          // { W, H, tilt?, views:{...}, stats:{...} }
-const state = ref('idle')       // idle | loading | done | error
+const state = ref('idle')       // idle | loading | done | empty | error
+// empty＝檔案不存在／尚未預算；error＝有檔但讀取／解析失敗
 const lab = ref(props.labelsForTilt ? props.labelsForTilt(props.entry.tilt ?? 0) : props.labels)
 // RWD 畫廊：llmcompares → 右上角「全部／原始／旋轉最佳」徽章
 const compare = ref(null)       // { winner, winnerOrig, winnerRot } | null
@@ -57,46 +59,95 @@ function compareTags(viewId) {
   return tags
 }
 
+/** 單格提示：缺檔／缺視圖＝沒有資料；真的讀取失敗才寫載入失敗 */
+function cellMsg(id) {
+  if (state.value === 'error') return '載入失敗'
+  if (state.value === 'empty') return '沒有資料'
+  if (data.value && !data.value.views[id]) {
+    return /-shape$/.test(id) ? '成方路線沒有算' : '沒有資料'
+  }
+  return null
+}
+
+function isJsonRes(res) {
+  const ct = res.headers.get('content-type') || ''
+  return res.ok && (ct.includes('json') || ct.includes('geo+json'))
+}
+
+/** 與 D3Tab loadStraightenCells／bakeHcCells 同一道門檻 */
+function cellsUsable(doc, fp) {
+  return !!(doc && HC_CELLS_ALGO_READ.has(doc.algo) && doc.fingerprint === fp && doc.loops)
+}
+
+/** Straighten／RWD 依賴 cells 的視圖鍵——舊預算一律刪，只留 patch 寫回的 */
+function stripCellViews(views, dataDir) {
+  if (!views) return
+  for (const k of Object.keys(views)) {
+    if (dataDir === 'straighten' && k.startsWith('loop-')) delete views[k]
+    if (dataDir === 'rwd-maps' && (k.startsWith('rwd-') || k.startsWith('compact-'))) delete views[k]
+  }
+}
+
+async function fetchJson(rel) {
+  const res = await fetch(assetUrl(rel), { cache: 'no-cache' })
+  if (!isJsonRes(res)) return null
+  return res.json()
+}
+
 async function load() {
   if (state.value !== 'idle') return
   state.value = 'loading'
   try {
-    const res = await fetch(assetUrl(`data/metro/${props.dataDir}/${props.entry.id}.json`), { cache: 'no-cache' })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const json = await res.json()
-    if (props.labelsForTilt) lab.value = props.labelsForTilt(json.tilt ?? 0)
-    // Straighten／RWD：用 straighten-cells（與點進去 D3Tab 同一份）覆寫縮圖，
-    // 避免 data/metro/{straighten,rwd-maps} 舊預算跟互動真結果不一致。
-    if ((props.dataDir === 'straighten' || props.dataDir === 'rwd-maps') && props.entry?.file) {
-      try {
-        const cellsByVariant = {}
-        const shapeByVariant = {}
-        await Promise.all(['orig', 'rot'].flatMap((v) => [
-          fetch(assetUrl(`data/metro/straighten-cells/${props.entry.id}.${v}.json`), { cache: 'no-cache' })
-            .then(async (r) => { if (r.ok) cellsByVariant[v] = await r.json() }).catch(() => {}),
-          fetch(assetUrl(`data/metro/straighten-cells/${props.entry.id}.${v}-shape.shapelike.json`), { cache: 'no-cache' })
-            .then(async (r) => { if (r.ok) cellsByVariant[`${v}-shape`] = await r.json() }).catch(() => {}),
-          fetch(assetUrl(`data/metro/straighten-shape/${props.entry.id}.${v}.json`), { cache: 'no-cache' })
-            .then(async (r) => { if (r.ok) shapeByVariant[v] = await r.json() }).catch(() => {}),
-        ]))
-        if (Object.keys(cellsByVariant).length) {
-          const geoRes = await fetch(assetUrl(`data/metro/${props.entry.file}`), { cache: 'no-cache' })
-          if (geoRes.ok) {
-            const geo = await geoRes.json()
-            const patchOpts = { cityId: props.entry.id, shapeByVariant }
-            if (props.dataDir === 'straighten') patchHcGalleryFromCells(geo, json, cellsByVariant, patchOpts)
-            else patchRwdGalleryFromCells(geo, json, cellsByVariant, patchOpts)
-          }
-        }
-      } catch { /* 無 cells／geo → 沿用預算縮圖 */ }
+    const needsCells = props.dataDir === 'straighten' || props.dataDir === 'rwd-maps'
+    const gallery = await fetchJson(`data/metro/${props.dataDir}/${props.entry.id}.json`)
+    // Straighten／RWD：畫廊檔可缺——只要 cells＋geo 就能畫（且必須與 D3 同源）
+    let json = gallery
+    if (!json) {
+      if (!needsCells) { state.value = 'empty'; return }
+      json = { W: 200, H: 150, views: {}, tilt: props.entry.tilt ?? 0 }
     }
+    json.views = { ...(json.views ?? {}) }
+    if (props.labelsForTilt) lab.value = props.labelsForTilt(json.tilt ?? 0)
+
+    if (needsCells) {
+      stripCellViews(json.views, props.dataDir)
+      if (!props.entry?.file) {
+        data.value = json
+        state.value = 'done'
+        return
+      }
+      const geo = await fetchJson(`data/metro/${props.entry.file}`)
+      if (!geo) {
+        data.value = json
+        state.value = 'done'
+        return
+      }
+      const rg = DEFAULT_RIVER_GRAY_SINUOSITY
+      const fp = `${dataFingerprint(geo)}:rg${rg}`
+      const cellsByVariant = {}
+      const shapeByVariant = {}
+      await Promise.all(['orig', 'rot'].flatMap((v) => [
+        fetchJson(`data/metro/straighten-cells/${props.entry.id}.${v}.json`)
+          .then((j) => { if (cellsUsable(j, fp)) cellsByVariant[v] = j }),
+        fetchJson(`data/metro/straighten-cells/${props.entry.id}.${v}-shape.shapelike.json`)
+          .then((j) => { if (cellsUsable(j, fp)) cellsByVariant[`${v}-shape`] = j }),
+        fetchJson(`data/metro/straighten-shape/${props.entry.id}.${v}.json`)
+          .then((j) => { if (j) shapeByVariant[v] = j }),
+      ]))
+      if (Object.keys(cellsByVariant).length) {
+        const patchOpts = { cityId: props.entry.id, shapeByVariant }
+        if (props.dataDir === 'straighten') patchHcGalleryFromCells(geo, json, cellsByVariant, patchOpts)
+        else patchRwdGalleryFromCells(geo, json, cellsByVariant, patchOpts)
+      }
+      // 無通過門檻的 cells → views 已清空 → 每格「沒有資料」（與 D3「尚無預計算」一致）
+    }
+
     data.value = json
     state.value = 'done'
     if (props.dataDir === 'rwd-maps') {
       try {
-        const cr = await fetch(assetUrl(`data/metro/rwd-compare/${props.entry.id}.json`), { cache: 'no-cache' })
-        if (cr.ok) {
-          const cj = await cr.json()
+        const cj = await fetchJson(`data/metro/rwd-compare/${props.entry.id}.json`)
+        if (cj) {
           compare.value = {
             winner: cj.winner, winnerOrig: cj.winnerOrig, winnerRot: cj.winnerRot,
           }
@@ -109,11 +160,12 @@ async function load() {
 }
 
 onMounted(() => {
+  const scrollRoot = root.value?.closest('.gallery-body') ?? null
   observer = new IntersectionObserver((entries) => {
     for (const en of entries) {
       if (en.isIntersecting) { load(); observer.disconnect(); observer = null; break }
     }
-  }, { rootMargin: '300px' })
+  }, { root: scrollRoot, rootMargin: '300px' })
   observer.observe(root.value)
 })
 onBeforeUnmount(() => observer?.disconnect())
@@ -138,7 +190,7 @@ onBeforeUnmount(() => observer?.disconnect())
         :title="lab[id]"
         @click="emit('pick', entry, id)"
       >
-        <div class="vc-canvas" :class="{ loading: state === 'loading' || state === 'idle' }">
+        <div class="vc-canvas" :class="{ loading: state === 'loading' }">
           <svg
             v-if="data && data.views[id]"
             :viewBox="`0 0 ${data.W} ${data.H}`"
@@ -205,8 +257,7 @@ onBeforeUnmount(() => observer?.disconnect())
               :class="'vc-badge--' + t.kind"
             ><MIcon name="auto_awesome" :size="10" /><span>{{ t.label }}</span></span>
           </div>
-          <span v-if="state === 'error'" class="vc-msg">載入失敗</span>
-          <span v-else-if="data && !data.views[id]" class="vc-msg">{{ /-shape$/.test(id) ? '成方路線沒有算' : '尚未預算' }}</span>
+          <span v-if="cellMsg(id)" class="vc-msg">{{ cellMsg(id) }}</span>
         </div>
         <span class="vc-label">{{ lab[id] }}</span>
       </button>

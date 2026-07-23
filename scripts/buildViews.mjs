@@ -21,6 +21,9 @@ import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { computeCityViews, computeCityHcViews, computeCityRwdViews, HC_VIEW_ORDER, RWD_VIEW_ORDER } from '../src/stores/viewGeometry.js'
+import { dataFingerprint, HC_CELLS_ALGO_READ } from '../src/lib/straightenCells.js'
+import { DEFAULT_RIVER_GRAY_SINUOSITY } from '../src/stores/skeleton.js'
+import { waitIfPaused } from './_recomputePause.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = join(__dirname, '..', 'data', 'metro')
@@ -35,7 +38,8 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 54 // 54: RWD 畫廊優先畫 straighten-cells＋正方格（與 D3Tab 一致）。
+const VIEWS_VERSION = 55 // 55: cells 須過 D3 同款 fingerprint／algo，否則不畫 loop/rwd（禁舊縮圖）。
+                         // 54: RWD 畫廊優先畫 straighten-cells＋正方格（與 D3Tab 一致）。
                          // 53: Straighten 縮圖用正方格 letterbox（與 D3Tab Straighten 一致）。
                          // 52: Straighten 畫廊 loop-* 優先畫 straighten-cells（與 D3Tab 一致）。
                          // 51: 直線縮減四方向＋H/V 變多就要移（endp→loop／RWD 重烤）。
@@ -53,7 +57,11 @@ const CITY_ZH = JSON.parse(await readFile(join(__dirname, '..', 'src', 'stores',
 
 async function main() {
   const index = JSON.parse(await readFile(join(BASE, 'index.json'), 'utf8'))
-  const allSystems = index.systems ?? []
+  // 由少站到多站（與 bakeHcCells／全球重算一致）
+  const allSystems = [...(index.systems ?? [])].sort(
+    (a, b) => (a.station_count ?? 0) - (b.station_count ?? 0)
+      || String(a.city ?? '').localeCompare(String(b.city ?? '')),
+  )
   // 可選：node scripts/buildViews.mjs [cityId…] 只重算指定城（例成方城）。
   const only = new Set(process.argv.slice(2).filter((a) => !a.startsWith('-')))
   const systems = allSystems.filter((sys) => !only.size || only.has(idOf(sys.file)))
@@ -64,6 +72,8 @@ async function main() {
     process.exit(1)
   }
   if (only.size) console.log(`只重算 ${systems.length} 城：${systems.map((s) => idOf(s.file)).join(', ')}`)
+  else console.log(`buildViews ${systems.length} 城（站數少→多）`)
+  console.log(`PROGRESS 0/${systems.length} start`)
 
   // 增量：不清空目錄（保留 _fp 未變、可沿用的舊檔）；只確保目錄存在。
   // 已移除的城市留下的殘檔在最後依 currentIds 清掉（全量 catalog，非 only 子集）。
@@ -147,17 +157,24 @@ async function main() {
       return JSON.parse(await readFile(join(BASE, 'straighten-shape', `${id}.${variant}.json`), 'utf8'))
     } catch { return null }
   }
-  // straighten-cells（與 D3Tab「重新計算」同一份）——有則畫廊 loop-* 直接畫它，
-  // 保證縮圖＝點進去看到的真結果。
-  async function readCells(id, variant, shapelike = false) {
+  // straighten-cells（與 D3Tab「重新計算」同一份）——有則畫廊 loop-* 直接畫它。
+  // 必須過與 loadStraightenCells 相同的 algo／fingerprint，否則當無檔（禁舊圖冒充）。
+  async function readCells(id, variant, shapelike = false, expectFp = null) {
     const name = `${id}.${variant}${shapelike ? '.shapelike' : ''}.json`
     try {
-      return JSON.parse(await readFile(join(BASE, 'straighten-cells', name), 'utf8'))
+      const doc = JSON.parse(await readFile(join(BASE, 'straighten-cells', name), 'utf8'))
+      if (!expectFp) return doc
+      if (!HC_CELLS_ALGO_READ.has(doc.algo) || doc.fingerprint !== expectFp) return null
+      return doc
     } catch { return null }
   }
 
+  let cityIdx = 0
   for (const sys of systems) {
+    await waitIfPaused()
     const id = idOf(sys.file)
+    cityIdx++
+    console.log(`PROGRESS ${cityIdx}/${systems.length} ${id}`)
     let raw, geojson
     try {
       raw = await readFile(join(BASE, sys.file), 'utf8')
@@ -186,11 +203,14 @@ async function main() {
       om: shapeByVariant.orig?.moved ?? null, rm: shapeByVariant.rot?.moved ?? null,
       os: shapeByVariant.orig?.square === true, rs: shapeByVariant.rot?.square === true,
     }))
+    // 烤好的 cells 是否對得上目前的 geojson（readCells 的 expectFp）——與下面拿來當
+    // 縮圖指紋的 cellsFp 是兩回事，名稱要分開（同名會 SyntaxError）。
+    const cellsSrcFp = `${dataFingerprint(geojson)}:rg${DEFAULT_RIVER_GRAY_SINUOSITY}`
     const cellsByVariant = {
-      orig: await readCells(id, 'orig'),
-      rot: await readCells(id, 'rot'),
-      'orig-shape': await readCells(id, 'orig-shape', true),
-      'rot-shape': await readCells(id, 'rot-shape', true),
+      orig: await readCells(id, 'orig', false, cellsSrcFp),
+      rot: await readCells(id, 'rot', false, cellsSrcFp),
+      'orig-shape': await readCells(id, 'orig-shape', true, cellsSrcFp),
+      'rot-shape': await readCells(id, 'rot-shape', true, cellsSrcFp),
     }
     const cellsFp = strHash(JSON.stringify({
       o: cellsByVariant.orig?.fingerprint ?? null,

@@ -48,24 +48,42 @@ function scrollToCity(id) {
 }
 
 // 左（顯示圖層）與右（城市索引）兩塊面板都可左右拖拉調寬。
+// 卡片區至少 BODY_MIN，否則左右面板把縮圖擠沒（重算時開著畫廊常被誤以為「沒顯示」）。
+const BODY_MIN = 280
+const SIDE_MIN = 120
 const sideWidth = ref(Number.isFinite(savedShell.sideWidth) ? savedShell.sideWidth : 220)
 const indexWidth = ref(Number.isFinite(savedShell.indexWidth) ? savedShell.indexWidth : 184)
+const mainRef = ref(null)
+
+function clampPaneWidths() {
+  const mainW = mainRef.value?.clientWidth ?? 0
+  if (mainW < SIDE_MIN * 2 + BODY_MIN) return
+  const handles = 10 // 兩條 5px 把手
+  let side = sideWidth.value
+  let idx = indexWidth.value
+  const budget = () => mainW - handles - BODY_MIN
+  // 超出就按比例縮；單側不低於 SIDE_MIN
+  while (side + idx > budget() && (side > SIDE_MIN || idx > SIDE_MIN)) {
+    if (side >= idx && side > SIDE_MIN) side -= 1
+    else if (idx > SIDE_MIN) idx -= 1
+    else break
+  }
+  if (side !== sideWidth.value) sideWidth.value = side
+  if (idx !== indexWidth.value) indexWidth.value = idx
+}
+
 function makeResize(widthRef, dir, min, otherRef) {
   return (e) => {
     e.preventDefault()
     const startX = e.clientX, startW = widthRef.value
     const el = e.currentTarget
-    // 上限不再寫死（原本 640＝只能拖一半）——改依畫廊主體寬度動態算，最多拖到只留
-    // 「另一側面板寬 ＋ 240px 卡片區」，其餘都能給這一側（否則卡片區被擠到 0，縮圖
-    // 幾何算出 NaN）。
     const main = el.closest('.gallery-main')
-    // 把手抓住 pointer——拖過其他 dockview 面板/iframe 時事件才不會漏、不會拖到一半卡住。
     el.setPointerCapture?.(e.pointerId)
     document.body.style.userSelect = 'none'
     document.body.style.cursor = 'col-resize'
     const move = (ev) => {
       const mainW = main?.clientWidth ?? window.innerWidth
-      const max = Math.max(min, mainW - (otherRef?.value ?? 0) - 240)
+      const max = Math.max(min, mainW - (otherRef?.value ?? 0) - BODY_MIN - 5)
       widthRef.value = Math.max(min, Math.min(max, startW + (ev.clientX - startX) * dir))
     }
     const up = (ev) => {
@@ -75,14 +93,15 @@ function makeResize(widthRef, dir, min, otherRef) {
       el.removeEventListener('pointercancel', up)
       document.body.style.userSelect = ''
       document.body.style.cursor = ''
+      clampPaneWidths()
     }
     el.addEventListener('pointermove', move)
     el.addEventListener('pointerup', up)
     el.addEventListener('pointercancel', up)
   }
 }
-const startSideResize = makeResize(sideWidth, 1, 120, indexWidth)   // 把手在右緣：往右拖變寬
-const startIndexResize = makeResize(indexWidth, -1, 120, sideWidth) // 把手在左緣：往左拖變寬
+const startSideResize = makeResize(sideWidth, 1, SIDE_MIN, indexWidth)   // 把手在右緣：往右拖變寬
+const startIndexResize = makeResize(indexWidth, -1, SIDE_MIN, sideWidth) // 把手在左緣：往左拖變寬
 
 const TABS = [
   { id: 'quick', label: '快速選擇' },
@@ -127,13 +146,21 @@ function onBodyScroll() {
   clearTimeout(scrollTimer)
   scrollTimer = setTimeout(() => writeShellLs({ scrollTop: el.scrollTop }), 200)
 }
-onMounted(() => {
+let ro = null
+onMounted(async () => {
   bodyRef.value?.addEventListener('scroll', onBodyScroll, { passive: true })
+  await nextTick()
+  clampPaneWidths()
+  if (mainRef.value && typeof ResizeObserver !== 'undefined') {
+    ro = new ResizeObserver(() => clampPaneWidths())
+    ro.observe(mainRef.value)
+  }
 })
 onBeforeUnmount(() => {
   clearTimeout(scrollTimer)
   bodyRef.value?.removeEventListener('scroll', onBodyScroll)
   if (bodyRef.value) writeShellLs({ scrollTop: bodyRef.value.scrollTop })
+  ro?.disconnect()
 })
 
 const tiles = computed(() => {
@@ -148,14 +175,22 @@ const tiles = computed(() => {
     return [...all].sort((a, b) => ((a.station_count ?? 0) - (b.station_count ?? 0)) * dir)
   }
   if (tab.value === 'rings') {
-    // 只列「有規定環狀路段要成方」的城市（規定表 shapePresets）——排序跟快速選擇
-    // 同一套（orderQuickMetro：洲別 → 國家首次出現序 → 國內站數多到少；變體跟 base）。
-    // 先用 QUICK_CITIES 命中順序當輸入，國家首次出現序才會跟快速選擇一致。
-    const withRings = all.filter((s) => (getShapePresets(s.id)?.length ?? 0) > 0)
-    const fromQuick = QUICK_CITIES.map((q) => matchQuickSystem(withRings, q.en)).filter(Boolean)
+    // 只列有成方規定的城；順序＝先取「快速選擇」完整排序再過濾（不可先過濾再
+    // orderQuickMetro，否則缺城會改寫國家首次出現序，順序就跟快速選擇不一樣）。
+    const ringIds = new Set(
+      all.filter((s) => (getShapePresets(s.id)?.length ?? 0) > 0).map((s) => s.id),
+    )
+    const quickOrdered = orderQuickMetro(
+      QUICK_CITIES.map((q) => matchQuickSystem(all, q.en)).filter(Boolean),
+      continentRank,
+    )
+    const fromQuick = quickOrdered.filter((s) => ringIds.has(s.id))
     const seen = new Set(fromQuick.map((s) => s.id))
-    const rest = withRings.filter((s) => !seen.has(s.id))
-    return orderQuickMetro([...fromQuick, ...rest], continentRank)
+    const rest = orderQuickMetro(
+      all.filter((s) => ringIds.has(s.id) && !seen.has(s.id)),
+      continentRank,
+    )
+    return [...fromQuick, ...rest]
   }
   // global: 依洲別「固定順序」（亞洲→歐洲→北美→南美→非洲→大洋洲，continentRank）分組，
   // 再國家→城市——與加入 modal／其他 tab 的 list 一致（原本用 localeCompare 會變字母序＝
@@ -184,7 +219,7 @@ const tiles = computed(() => {
 
     <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區＋右側索引，
          左右兩塊面板都可拖拉調寬。 -->
-    <div class="gallery-main">
+    <div ref="mainRef" class="gallery-main">
       <template v-if="$slots.side">
         <aside class="gallery-side" :style="{ width: sideWidth + 'px' }">
           <slot name="side" />
@@ -287,7 +322,14 @@ const tiles = computed(() => {
 .pane-resize:hover { background: hsl(var(--primary) / 0.5); }
 /* container-type so the tile grid responds to the PANEL width, not the viewport
    (the gallery lives in a resizable dockview panel). */
-.gallery-body { flex: 1; overflow-y: auto; padding: 16px; container-type: inline-size; }
+.gallery-body {
+  flex: 1 1 auto;
+  min-width: 0; /* 允許縮，但 clampPaneWidths 會保住可視寬 */
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 16px;
+  container-type: inline-size;
+}
 .gallery-status { padding: 32px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px; line-height: 1.7; }
 .gallery-status code { font-size: 12px; background: hsl(var(--muted) / 0.6); padding: 1px 5px; border-radius: 4px; }
 

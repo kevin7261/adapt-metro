@@ -758,8 +758,17 @@ async function build() {
     // Newcastle-Maitland、District of Gungahlin…），且 route=train/tram 由 fetchOceania.mjs
     // 寫進 gap_* 快取——gap 的 network 從不進 geocodeSystems（只讀 stations/geom_*），
     // 故一律 pin。route=light_rail 的坎培拉/紐卡索本來就在基準查詢內，同樣 pin 城市名。
-    [/PTV - Metropolitan Train|PTV - Metropolitan Tram|Metro Trains Melbourne|Yarra Trams/i,
+    // 墨爾本分成兩個系統檔（使用者裁決 2026-07-23「墨爾本分 Metro Trains 和 tram」）：
+    //   Melbourne      ＝ Metro Trains 16 線（route=train）
+    //   Melbourne Tram ＝ Yarra Trams 24 路線（route=tram）→ oc-aus-melbourne-tram
+    // 兩網在同一座城市重疊，但車站會被複製進附近每個城市桶、再由 orphan-drop 清掉
+    // 沒有該桶線路的那一份（見下方「跨城轉乘站複製」），故分桶安全；分桶還能避免
+    // 電車停留場（名如「Stop 13: Flinders Street Station」）與火車站共站合併後
+    // 把火車站改名。
+    [/PTV - Metropolitan Train|Metro Trains Melbourne/i,
       { city: 'Melbourne', country: 'Australia', continent: 'oceania' }],
+    [/PTV - Metropolitan Tram|Yarra Trams/i,
+      { city: 'Melbourne Tram', country: 'Australia', continent: 'oceania' }],
     // 布里斯本 Translink 市郊線的 operator＝Queensland Rail（network "Translink" 與
     // 加拿大溫哥華 TransLink 撞名，不能用 network 當 key）。黃金海岸 G:link 的
     // network 也是 Translink、operator 是 Keolis Downer（跨城通用），改用
@@ -895,8 +904,14 @@ async function build() {
   const resolved = []
   for (const g of groups.values()) {
     const gNet0 = pick(repTags(g), 'network:en', 'network') || ''
-    const keptAll = dedupeSeqs(g.seqs,
-      /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
+    // 電車（route=tram）：同一條路線的變體一律併成一條線（使用者裁決 2026-07-23
+    // 「tram 同路線就要合併，不要分開畫；車站沒停車就是 pass」）。墨爾本電車的
+    // 12d／57a／57d／75d… 是同號路線的區間車，照「分支＝獨立路線」會把 24 條畫成
+    // 35 條、同色重疊。取最長變體當該路線唯一的線，區間車只停部分站＝pass。
+    const isTram = g.rids.every((r) => (routesTags.get(r) || {}).route === 'tram')
+    const keptAll = isTram
+      ? dedupeSeqs(g.seqs, 2).slice(0, 1)
+      : dedupeSeqs(g.seqs, /nyc subway|new york city subway/i.test(gNet0) ? 4 : 2)
     if (!keptAll.length) continue
     // 支線/分支＝獨立路線（使用者 Option 1：凡有新站的分岔都算支線→獨立 route_id，
     // 只有「0 新站」的純重複/反向/子集短交路才併）。dedupeSeqs 已丟掉 0 新站的重複；
@@ -1181,14 +1196,30 @@ async function build() {
     return keys
   }
 
+  // 城市桶 → 該桶所有線的 lineTag（站點分桶用）。同一座城市有兩個重疊路網各自成檔時
+  // （墨爾本 Metro Trains ↔ Yarra Trams），格網 cell 會同時登記兩個桶、`nearestCityKey`
+  // 取 Set 的第一個 → 電車停留場可能被判進鐵路桶，接著被鐵路 route 的 stop 成員 snap
+  // 吸走（Flinders Street 出現三次、Caulfield 變成「Stop 57: Caulfield Station」）。
+  // 故：站點的主桶優先取「含有該站所屬路線」的那個桶。
+  const groupTags = new Map()
+  for (const [ck, grp] of cityGroups) {
+    const tags = new Set()
+    for (const f of grp.lines) { const tg = featTag.get(f); if (tg) tags.add(tg) }
+    groupTags.set(ck, tags)
+  }
+
   for (const s of stations) {
     const t = s.tags
     const network = pick(t, 'network:en', 'network') || pick(t, 'operator') || 'Unknown'
-    const spatialKey = nearestCityKey(s.lon, s.lat)
-    const info = (spatialKey && gInfo.get(spatialKey)) || cityInfo(network, t.network)
     let lines = [...(nodeLineRefs.get(s.id) || [])]
     if (!lines.length) lines = nearbyLineRefs(s.lon, s.lat)
     lines = [...new Set(lines)].sort()
+    const ownKey = lines.length
+      ? [...nearbyCityKeys(s.lon, s.lat)].find((ck) =>
+          lines.some((tag) => groupTags.get(ck)?.has(tag)))
+      : null
+    const spatialKey = ownKey ?? nearestCityKey(s.lon, s.lat)
+    const info = (spatialKey && gInfo.get(spatialKey)) || cityInfo(network, t.network)
     const props = {
       station_id: `n${s.id}`,
       station_name: nameFor(t, info.country) || `n${s.id}`,
@@ -1207,6 +1238,10 @@ async function build() {
       type: 'Feature', properties: props,
       geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
     }
+    // 這個站「真正掛在哪些 route 成員上」（不含 nearbyLineRefs 的 900 m 猜測）——
+    // 供 snap 階段排除外來路網的站當吸附目標，見該處。
+    const memberLines = nodeLineRefs.get(s.id)
+    if (memberLines?.size) feat.__memberLines = new Set(memberLines)
     // 官方站碼（`ref`，如機捷 A1、環狀 Y20、板南 BL12、港鐵 FOH）——各線的 station 節點自帶
     // 該線的碼；共站合併時聚成 codes，路線再依 ref 字首挑出自己的碼、供官方順序排序。內部欄位。
     // `_overrides/station_codes.json`：上游節點缺 ref、官方確有碼者由此補（東京 N13/N19/S11/E27）。
@@ -1227,6 +1262,7 @@ async function build() {
         properties: { ...props, city: info2.city, country: info2.country },
         geometry: { type: 'Point', coordinates: [s.lon, s.lat] } }
       if (feat.__codes) clone.__codes = new Set(feat.__codes) // 官方站碼隨複製帶走（赤羽岩淵：主 bucket 在埼玉側、東京拿 clone）
+      if (feat.__memberLines) clone.__memberLines = new Set(feat.__memberLines) // 路線歸屬也帶走（桶內清理要用）
       groupFor(info2).stations.push(clone)
     }
   }
@@ -1446,8 +1482,8 @@ async function build() {
   //（阿爾及利亞 SETRAM 七城與模里西斯的 relation 走 _overrides 綁城，override 本身
   //  即豁免此規則，這裡列出只是文件性的；黃金海岸 G:link 同理。）
   const TRAM_RAIL_CITIES = new Set([
-    // 大洋洲
-    'melbourne', 'adelaide', 'canberra', 'newcastle', 'goldcoast',
+    // 大洋洲（melbournetram＝墨爾本電車獨立系統檔，見 NETWORK_CITY）
+    'melbournetram', 'adelaide', 'canberra', 'newcastle', 'goldcoast',
     // 非洲
     'addisababa', 'abuja', 'tunis', 'casablanca', 'rabat', 'alexandria',
     'portlouis', 'algiers', 'oran', 'constantine', 'setif', 'sidibelabbes',
@@ -1567,6 +1603,43 @@ async function build() {
     for (const grp of cityGroups.values()) for (const f of grp.lines) keptFeats.add(f)
     for (let i = lineFeatures.length - 1; i >= 0; i--)
       if (!keptFeats.has(lineFeatures[i])) lineFeatures.splice(i, 1)
+  }
+
+  // ---- 同城重疊路網分檔：把跑錯桶的站複本剔掉 --------------------------------
+  // 站點會被複製進附近每個城市桶（跨城轉乘站需要）。**同一座城市**有兩個重疊路網
+  // 各自成檔時（目前只有墨爾本：Metro Trains ↔ Yarra Trams），電車停留場的複本會
+  // 留在鐵路桶裡，接著被共站合併／snap 吸進鐵路線——Flinders Street 會出現三次、
+  // Caulfield 變成「Stop 57: Caulfield Station」。這裡在合併前剔掉走錯桶的複本。
+  // **只作用於下面明列的同城姊妹桶**，不影響其它城市既有行為（跨城轉乘站的複本
+  // 仍照舊保留，見上方 nearbyCityKeys）。
+  const SPLIT_SIBLINGS = new Map([
+    ['oceania/australia/oc-aus-melbourne', 'oceania/australia/oc-aus-melbourne-tram'],
+    ['oceania/australia/oc-aus-melbourne-tram', 'oceania/australia/oc-aus-melbourne'],
+  ])
+  {
+    let dropped = 0
+    for (const [ckey, grp] of cityGroups) {
+      const sib = SPLIT_SIBLINGS.get(ckey)
+      if (!sib) continue
+      const alive = new Set(grp.lines.map((f) => featTag.get(f)).filter(Boolean))
+      const sibTags = groupTags.get(sib) ?? new Set()
+      if (!alive.size || !sibTags.size) continue
+      const before = grp.stations.length
+      grp.stations = grp.stations.filter((f) => {
+        const ml = f.__memberLines
+        // 有 route 成員歸屬：屬於本桶就留、只屬於姊妹桶就剔
+        if (ml?.size) return [...ml].some((tag) => alive.has(tag)) ||
+          ![...ml].some((tag) => sibTags.has(tag))
+        // 沒有成員歸屬（lines 是 nearbyLineRefs 的 900 m 鄰近猜測，同城重疊路網會
+        // 互相猜錯）：改看站自帶的 network／operator 被 NETWORK_CITY 釘到哪個城市
+        const p = f.properties
+        const bind = NETWORK_CITY.find(([re]) =>
+          re.test(`${p.network ?? ''} ${p.network_local ?? ''} ${p.operator ?? ''}`))?.[1]
+        return !bind || normCity(bind.city) === normCity(grp.info.city)
+      })
+      dropped += before - grp.stations.length
+    }
+    if (dropped) console.log(`  同城分檔清理：剔除 ${dropped} 個跑錯桶的站複本`)
   }
 
   // ---- 共站合併（可轉乘＝同一車站；stop_area ∪ 同名近距 ∪ overrides）----
@@ -1864,7 +1937,17 @@ async function build() {
       sGrid.get(k).push({ c, rep })
     }
     const repAlive = new Set(grp.stations.map((f) => f.geometry.coordinates.join(',')))
-    for (const f of grp.stations) addSnapPoint(f.geometry.coordinates, f.geometry.coordinates)
+    // 吸附目標只認「本桶的站」：同一座城市有兩個重疊路網各自成檔時（墨爾本
+    // Metro Trains ↔ Yarra Trams），跨桶複製會把電車停留場放進鐵路桶，鐵路 route 的
+    // stop 成員就會 snap 到隔壁路網的點（Flinders Street 出現三次、Caulfield 變成
+    // 「Stop 57: Caulfield Station」）。有明確 route 成員歸屬、且沒有一條在本桶的站
+    // 不當吸附目標；無歸屬的站（純鄰近推得）維持原行為。
+    const aliveTags = new Set(grp.lines.map((f) => featTag.get(f)).filter(Boolean))
+    for (const f of grp.stations) {
+      const ml = f.__memberLines
+      if (ml?.size && ![...ml].some((tag) => aliveTags.has(tag))) continue
+      addSnapPoint(f.geometry.coordinates, f.geometry.coordinates)
+    }
     // 合併成員的原座標也是吸附目標（映射回代表點）——質心位移不甩站；
     // 代表點已被 orphan-drop 移除者不得借屍還魂
     for (const a of grp.__snapAliases ?? [])

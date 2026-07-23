@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import { assetUrl } from '../lib/assetUrl'
-import { loadPersisted } from './persist'
+import { assetUrl } from '../lib/assetUrl.js'
+import { loadPersisted } from './persist.js'
 import CITY_ZH from './cityNamesZh.json'
-import { RWD_COMPACTS } from '../lib/rwdCompacts'
+import { RWD_COMPACTS } from '../lib/rwdCompacts.js'
 import {
   metroDisplayName, variantLabel, variantRank, normalizeHcVariant,
   variantIsShape, hcVariantsForCity, migrateLayerNames, backfillCityChains,
-} from './layerMigrations'
+} from './layerMigrations.js'
 
 let toastTimer = null
 

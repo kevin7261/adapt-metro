@@ -2,9 +2,9 @@
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { openLayerTab } from '../stores/dockHandle'
-import { assetUrl } from '../lib/assetUrl'
 import { rwdCellCompact, rwdCellVariant, loopCellCompact } from '../stores/viewGeometry'
 import { PAPER_KINDS } from '../stores/paperAlign'
+import { loadMetroCatalog } from '../stores/metroCatalog'
 import { setPendingViewMode } from '../lib/pendingViewMode'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
@@ -15,9 +15,9 @@ import MIcon from './MIcon.vue'
 // 要顯示的圖層；每個圖層對應一張代表縮圖（Metro Maps＝OSM路網縮圖／官方路線圖，
 // 其餘取 data/metro/
 // {views,hcviews,rwdviews}/ 的代表視圖；LLM 對齊鏈在有 llmviews 時由
-// buildViews 預算進 hcviews/rwdviews，缺檔才顯示「尚未預算」）。預設只顯示
-// Metro Maps（不含 RWD Maps）。點任何一格都匯入該城市
-// 整組管線圖層（importCityChain）並開啟點到的那個圖層的 tab。
+// buildViews／瀏覽器皆以 straighten-cells 畫 Straighten／RWD 縮圖（與 D3Tab 同門檻）；
+// 缺 cells 顯示「沒有資料」，絕不拿舊預算圖冒充。預設只顯示 Metro Maps。
+// 點任何一格都匯入該城市整組管線圖層（importCityChain）並開對應 tab。
 // Straighten／RWD 再依「無形狀／有形狀」分子群組；勾選狀態存 localStorage。
 const store = useMapStore()
 
@@ -33,10 +33,10 @@ onMounted(() => {
   onBeforeUnmount(() => dispose?.dispose?.())
 })
 
+// 城市清單永遠讀 data/metro/index.json（geojson 目錄），不依賴 map-adjust。
+// 重算只清 straighten-cells／畫廊衍生 JSON 時，OSM 路網與官方路線圖仍可顯示。
 async function load() {
-  const res = await fetch(assetUrl('data/metro/map-adjust/index.json'), { cache: 'no-cache' })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return (await res.json()).systems ?? []
+  return loadMetroCatalog()
 }
 
 // 圖層節點：key（勾選鍵）、label（清單顯示名）、kind（卡片區段 raw/adjust/
@@ -71,7 +71,7 @@ const SIDE = [
     { key: 'adjust-rot', label: '旋轉・格網化後', kind: 'adjust', view: 'grid-rot-post', icon: 'polyline' },
   ] },
   // 無形狀＝原始／旋轉；有形狀＝原始-形狀／旋轉-形狀（餵 LLM 成方後的整條鏈）。
-  // 縮圖由 buildViews 預算；形狀變體缺檔（非規定表城市）顯示「尚未預算」。
+  // 縮圖由 buildViews 預算；形狀變體缺檔（非規定表城市）顯示「成方路線沒有算」。
   { t: 'group', id: 'straighten', label: 'Straighten', subgroups: [
     { id: 'straighten-plain', label: '無形狀', layers: [
       ...stRows('orig', '原始'), ...stRows('rot', '旋轉'),

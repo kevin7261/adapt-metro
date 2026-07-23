@@ -1,11 +1,11 @@
 // 專案另存／匯入——單一 JSON 含畫面 session＋各城 geojson＋straighten／LLM 結果，
 // 匯入後可回復圖層鏈與佈局（不必重算）。格式 version 2。
-import { assetUrl } from './assetUrl'
-import { layerData, layerExport } from '../stores/layerData'
-import { buildSnapshot, applySnapshot } from '../stores/persist'
-import { setDataOverlay, clearDataOverlay } from './dataOverlay'
-import { METRO_DIRS } from './metroDataPaths'
-import { RWD_COMPACTS } from './rwdCompacts'
+import { assetUrl } from './assetUrl.js'
+import { layerData, layerExport } from '../stores/layerData.js'
+import { buildSnapshot, applySnapshot } from '../stores/persist.js'
+import { setDataOverlay, clearDataOverlay } from './dataOverlay.js'
+import { METRO_DIRS } from './metroDataPaths.js'
+import { RWD_COMPACTS } from './rwdCompacts.js'
 
 export const PROJECT_KIND = 'adapt-metro-project'
 export const PROJECT_VERSION = 2

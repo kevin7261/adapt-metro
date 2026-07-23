@@ -1,4 +1,4 @@
-import { assetUrl } from '../lib/assetUrl'
+import { assetUrl } from '../lib/assetUrl.js'
 
 // World highway-network catalog (data/highway/index.json), fetched once and
 // cached. One system per country; the build already writes country_zh (中文,
