@@ -428,8 +428,11 @@ export function patchHcGalleryFromCells(geojson, galleryDoc, cellsByVariant, opt
     const projection = projFor(angle)
     const projById = projByIdFor(projection, stations, skeleton)
     const grid = buildSchematicGrid(skeleton, projById, extArr)
+    // 形狀：與 D3 shapeFeedsHc 同——square＋cols/rows 相符才畫；否則「成方路線沒有算」
+    const shp = isShape ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
+    if (isShape && !shp) continue
     const snap = (id) => grid.posAfter.get(id) ?? null
-    const greens = opts.shapeByVariant?.[variant]?.greens
+    const greens = shp?.greens ?? opts.shapeByVariant?.[variant]?.greens
     const sk = (isShape && greens?.length) ? applyShapeGreens(skeleton, greens) : skeleton
     for (const [kind, L] of Object.entries(cellsDoc.loops)) {
       if (!L?.cellAfter || L.cols == null || L.rows == null) continue
@@ -615,16 +618,16 @@ export function patchRwdGalleryFromCells(geojson, galleryDoc, cellsByVariant, op
     const projection = projFor(angle)
     const projById = projByIdFor(projection, stations, skeleton)
     const grid = buildSchematicGrid(skeleton, projById, extArr)
+    // 形狀：與 D3 shapeFeedsHc 同——square＋cols/rows 相符才畫
+    const shp = isShape ? shapeIfMatch(opts.shapeByVariant?.[variant], grid) : null
+    if (isShape && !shp) continue
     const snap = (id) => grid.posAfter.get(id) ?? null
-    const greens = opts.shapeByVariant?.[variant]?.greens
+    const greens = shp?.greens ?? opts.shapeByVariant?.[variant]?.greens
     const sk = (isShape && greens?.length) ? applyShapeGreens(skeleton, greens) : skeleton
     const frozen = isShape && opts.cityId
       ? shapeFrozenSet(sk, opts.cityId, greens ?? [])
       : null
-    // segs 拓撲：形狀用成方 base（有 greens 的 sk）；一般用格網化後。
-    const baseForSegs = isShape && opts.shapeByVariant?.[variant]
-      ? shapeIfMatch(opts.shapeByVariant[variant], grid)?.cells ?? grid.cellOf
-      : grid.cellOf
+    const baseForSegs = isShape ? (shp.cells ?? grid.cellOf) : grid.cellOf
     const segs = mergeParallelSegs(buildHcGraph(sk, baseForSegs).segs)
     if (frozen) setFrozen({ ringIds: [...frozen], members: frozen })
     try {
@@ -637,6 +640,10 @@ export function patchRwdGalleryFromCells(geojson, galleryDoc, cellsByVariant, op
           cellAfter, cols: L.cols, rows: L.rows, cellMapper, x0, y0,
           frozenIds: frozen,
         })
+        if (!galleryDoc.stats) galleryDoc.stats = {}
+        const suffix = `${kind}-${variant}${isShape ? '-shape' : ''}`
+        galleryDoc.stats[`compact-${suffix}`] = { cols: L.cols, rows: L.rows, fromCells: true }
+        galleryDoc.stats[`rwd-${suffix}`] = { cols: L.cols, rows: L.rows, fromCells: true }
         n += 2 // compact-* ＋ rwd-*
       }
     } finally { if (frozen) setFrozen(null) }

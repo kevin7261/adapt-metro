@@ -61,6 +61,9 @@ export const useMapStore = defineStore('map', {
       // 2026-07 圈層改版：群組＝城市（由 layerTree 依來源鏈動態算出），這裡只存
       // 各城市群組的收合狀態（rootLayerId -> bool；沿用 groupCollapsed 持久化欄位）。
       cityCollapsed: p?.groupCollapsed ?? {},
+
+      // 重新計算清／寫 cells 後遞增 → 視圖畫廊卡片 remount，縮圖與 D3 同源重載。
+      metroDataEpoch: 0,
     }
   },
 

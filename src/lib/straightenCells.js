@@ -80,6 +80,20 @@ export function purgeLegacyHcLocalStorage() {
   } catch { /* private mode */ }
 }
 
+/**
+ * 與 D3Tab／畫廊共用：cells 檔可否當結果用。
+ * 必須有 hc.cellAfter——有 loops 卻無 hc 時 D3 整檔丟棄，畫廊不得單獨畫縮圖。
+ */
+export function cellsDocUsable(doc, fingerprint) {
+  return !!(
+    doc
+    && HC_CELLS_ALGO_READ.has(doc.algo)
+    && doc.fingerprint === fingerprint
+    && doc.hc?.cellAfter
+    && doc.loops
+  )
+}
+
 /** 讀預計算結果。無檔／algo／fingerprint 不符 → null（開分頁不重算）。 */
 export async function loadStraightenCells({ cityId, variant, shapelike = false, fingerprint }) {
   const rel = hcCellsRelPath(cityId, variant, shapelike)
@@ -92,6 +106,7 @@ export async function loadStraightenCells({ cityId, variant, shapelike = false, 
       if (!res.ok || !isJson) return null
       e = await res.json()
     }
+    // 與畫廊 cellsDocUsable 同門檻（hc 為硬條件；loops 可為空物件）
     if (!HC_CELLS_ALGO_READ.has(e.algo) || e.fingerprint !== fingerprint || !e.hc?.cellAfter) return null
     return {
       hc: { cellAfter: deCells(e.hc.cellAfter), stats: e.hc.stats },

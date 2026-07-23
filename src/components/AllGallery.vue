@@ -192,6 +192,10 @@ function pick(kind, entry, viewId) {
   const { metro, d3, hc, rwd } = store.importCityChain(entry, { variant, compact })
   const target = { raw: metro, adjust: d3, straighten: hc, rwd }[kind] ?? metro
   if (!target) { store.toast('無法建立視圖'); return }
+  // 畫廊形狀縮圖＝已成方可餵；若舊層曾「清成方餵入」會與縮圖不同步——重置以對齊。
+  if ((kind === 'straighten' || kind === 'rwd') && /-shape$/.test(variant) && hc) {
+    hc.shapeFeedCleared = false
+  }
   // 開 tab 時切到與縮圖一致的視圖，並寫入 layer.viewMode（關掉再開仍停在此）。
   let openMode = null
   if (kind === 'straighten' && compact) {
@@ -296,7 +300,13 @@ function pick(kind, entry, viewId) {
 
     <template #default="{ tiles }">
       <div class="tile-grid">
-        <CityAllCard v-for="s in tiles" :key="s.id" :entry="s" :sections="sections" @pick="pick" />
+        <CityAllCard
+          v-for="s in tiles"
+          :key="`${s.id}-${store.metroDataEpoch}`"
+          :entry="s"
+          :sections="sections"
+          @pick="pick"
+        />
       </div>
     </template>
   </GalleryShell>

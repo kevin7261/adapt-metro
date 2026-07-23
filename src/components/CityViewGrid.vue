@@ -3,13 +3,14 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { assetUrl } from '../lib/assetUrl'
 import { openSkillDoc } from '../stores/skillHandle'
 import { patchHcGalleryFromCells, patchRwdGalleryFromCells } from '../stores/viewGeometry'
-import { dataFingerprint, HC_CELLS_ALGO_READ } from '../lib/straightenCells'
+import { dataFingerprint, cellsDocUsable } from '../lib/straightenCells'
 import { DEFAULT_RIVER_GRAY_SINUOSITY } from '../stores/skeleton'
 import MIcon from './MIcon.vue'
 
 // One city's view card (Hill Climbing / RWD Maps／Map Adjust 共用)。
-// Straighten／RWD：縮圖＝straighten-cells（與 D3Tab 同一份＋同一 fingerprint／algo
-// 門檻）；舊的 straighten/rwd-maps 預算圖一律丟棄——有縮圖卻點進去「尚未計算」不允許。
+// Straighten／RWD：縮圖＝straighten-cells，門檻與 D3Tab.loadStraightenCells 完全相同
+//（algo＋fingerprint＋hc.cellAfter＋loops；形狀另需 square＋cols/rows）。
+// 舊預算圖一律丟棄；無通過門檻＝「沒有資料」且不可點——有縮圖卻無結果＝重大錯誤。
 // Map Adjust：仍讀 map-adjust/*.json（與格網化同源預算）。
 const props = defineProps({
   entry: { type: Object, required: true },
@@ -74,10 +75,8 @@ function isJsonRes(res) {
   return res.ok && (ct.includes('json') || ct.includes('geo+json'))
 }
 
-/** 與 D3Tab loadStraightenCells／bakeHcCells 同一道門檻 */
-function cellsUsable(doc, fp) {
-  return !!(doc && HC_CELLS_ALGO_READ.has(doc.algo) && doc.fingerprint === fp && doc.loops)
-}
+/** 與 D3Tab loadStraightenCells 同一道門檻（見 cellsDocUsable） */
+const cellsUsable = cellsDocUsable
 
 /** Straighten／RWD 依賴 cells 的視圖鍵——舊預算一律刪，只留 patch 寫回的 */
 function stripCellViews(views, dataDir) {
@@ -134,6 +133,12 @@ async function load() {
         fetchJson(`data/metro/straighten-shape/${props.entry.id}.${v}.json`)
           .then((j) => { if (j) shapeByVariant[v] = j }),
       ]))
+      // 形狀：D3 只在 square===true 時餵下游；畫廊不得單獨畫 shapelike 縮圖
+      for (const v of ['orig', 'rot']) {
+        if (cellsByVariant[`${v}-shape`] && shapeByVariant[v]?.square !== true) {
+          delete cellsByVariant[`${v}-shape`]
+        }
+      }
       if (Object.keys(cellsByVariant).length) {
         const patchOpts = { cityId: props.entry.id, shapeByVariant }
         if (props.dataDir === 'straighten') patchHcGalleryFromCells(geo, json, cellsByVariant, patchOpts)
@@ -187,8 +192,10 @@ onBeforeUnmount(() => observer?.disconnect())
         v-for="id in order"
         :key="id"
         class="cell view-cell"
+        :class="{ 'no-pick': !data?.views[id] }"
         :title="lab[id]"
-        @click="emit('pick', entry, id)"
+        :disabled="!data?.views[id] && state === 'done'"
+        @click="data?.views[id] && emit('pick', entry, id)"
       >
         <div class="vc-canvas" :class="{ loading: state === 'loading' }">
           <svg
@@ -308,6 +315,11 @@ onBeforeUnmount(() => observer?.disconnect())
   transition: background 0.12s;
 }
 .view-cell:hover { background: hsl(var(--accent) / 0.6); }
+/* 無縮圖＝無結果：不可點進 D3（兩邊必須同步） */
+.view-cell:disabled,
+.view-cell.no-pick { cursor: default; }
+.view-cell:disabled:hover,
+.view-cell.no-pick:hover { background: hsl(var(--card)); }
 .vc-canvas {
   position: relative;
   width: var(--gv-w, 240px);    /* 固定 240×180（4/3），圖以 contain letterbox 塞入 */

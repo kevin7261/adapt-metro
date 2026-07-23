@@ -96,6 +96,9 @@ async function startRecompute(mode) {
       const j = await res.json().catch(() => ({}))
       throw new Error(j.error || `HTTP ${res.status}`)
     }
+    // cells 即將被清掉：畫廊立刻 remount，避免殘留「有縮圖、點進去無結果」
+    store.metroDataEpoch++
+    clearDataOverlay('data/metro/')
     clearInterval(recomputePoll)
     recomputePoll = setInterval(pollRecompute, 1000)
     await pollRecompute()
@@ -149,8 +152,9 @@ async function pollRecompute() {
     recomputeBusy.value = false
     recomputePaused.value = false
     if (!wasBusy) return
-    // 清瀏覽器 overlay，避免讀到舊 cells／縮圖
+    // 清瀏覽器 overlay＋畫廊 remount，縮圖與 D3 同讀新 cells
     clearDataOverlay('data/metro/')
+    store.metroDataEpoch++
     if (j.exit === 0) {
       store.toast('重新計算完成')
     } else if (j.exit != null) {
