@@ -469,14 +469,14 @@ STEP 5 的 local search 由「迭代到不動點」取代。多彎路由是 RWD 
       M('dot', C.nRed, '彩色點', '被收斂的節點', '一輪全靜止才停；結果＝RWD 底圖'),
     ],
     json: { code: `// 即時算；RWD 底圖用其收斂結果`, note: '一輪全靜止才停。' },
-    algorithm: `<p>端點移動 → 直線縮減 → 網格合併輪替：每輪各掃整個 network 一遍，每個單一移動後立即縮減網格；一輪全靜止才停。</p>`,
+    algorithm: `<p>端點移動 → 直線縮減 → 網格合併輪替：每階段跑到不動點再換下一個，每個單一移動後立即縮減網格；一輪全靜止才停。</p>`,
   },
   'step-verify': {
     title: '逐步驗證', tag: '視圖', skills: ['route-step-verify', 'route-movewise-loop'],
     svg: dStep, caption: '舊位置虛線圈 → 新位置橘色實圈。',
     mapping: [
       M('ring', '#94a3b8', '灰色虛線空心圈', '移動前位置', '復原堆疊記錄'),
-      M('dot', '#f59e0b', '橘色實圈', '移動後位置', '「下一步」掃一遍／「下一小步」單一移動'),
+      M('dot', '#f59e0b', '橘色實圈', '移動後位置', '「下一步」至不動點／「下一小步」單一移動'),
     ],
     json: { code: `// 即時算（步進狀態在記憶體）`, note: '用來觀察四步鏈怎麼一步步收斂。' },
     algorithm: `<p>把 movewise 循環拆成可觀察的單步：每步後亮起執行到的階段 chip，前後橘圈比對，含復原堆疊。演算法本體同端點移動／直線縮減／網格合併。</p>`,
@@ -568,7 +568,7 @@ const EXECUTION = {
   'grid-merge': execPure('src/stores/hillClimb.js', "movewiseStage('gather', …)", '<code>route-grid-merge</code>',
     '相鄰 row／col 兩兩合併：半平面整體移 1 格自帶壓縮，不壓點/不新增交叉/拓撲不變才採納。'),
   'movewise-loop': execPure('src/stores/hillClimb.js', 'straightenCompactLoop(skeleton, cells, cols, rows)', '<code>route-movewise-loop</code>',
-    '端點移動→直線縮減→網格合併三個純函式輪替，每輪各掃整個 network 一遍，一輪全靜止才停；結果供 RWD 底圖。'),
+    '端點移動→直線縮減→網格合併三個純函式輪替，每階段跑到不動點再換，一輪全靜止才停；結果供 RWD 底圖。'),
   'step-verify': execPure('src/stores/hillClimb.js', 'stepChainInit / stepChainNext', '<code>route-step-verify</code>',
     '把 movewise 循環拆成單步：<code>stepChainNext</code> 推進一掃描或一移動，前後橘圈比對，含復原堆疊（狀態只在記憶體）。'),
   rwd: `<ul class="exec-list">

@@ -17,8 +17,9 @@ import { getDataOverlay, setDataOverlay } from './dataOverlay'
 // v5: 循環收斂＝三階段皆無移動（與逐步驗證同；去掉 stall 提前停）
 // 寫入用最新；讀取相容舊版（畫廊縮圖常對應已存在的 v4 檔，勿因 bump 整批空白）。
 export const HC_CELLS_ALGO = 'hccells-v6'
-// v5 及更早：網格合併成對縮格被 POST_ITER_CAP=20 截斷（形狀圖層尤嚴重）
-export const HC_CELLS_ALGO_READ = new Set(['hccells-v6'])
+// v5 及更早：網格合併成對縮格曾被 POST_ITER_CAP=20 截斷（形狀圖層尤嚴重）。
+// 仍可讀 v5 以免全城空白；形狀圖層請「重新計算」或 metro:hccells:shape。
+export const HC_CELLS_ALGO_READ = new Set(['hccells-v5', 'hccells-v6'])
 
 export function dataFingerprint(data) {
   let h = 5381

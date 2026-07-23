@@ -4,7 +4,7 @@
     "wikipedia_systems": 233,
     "our_systems": 265,
     "matched_ok": 202,
-    "flagged": 34,
+    "flagged": 32,
     "invariant_violations": {
       "wiki_city_without_data": 2,
       "stations_without_line": 0,
@@ -12,13 +12,13 @@
       "systems_with_non_station_vertices": 0,
       "systems_with_broken_routes": 0
     },
-    "order_suspect_systems": 3,
+    "order_suspect_systems": 1,
     "by_severity": {
       "missing": 2,
       "no_line": 0,
       "vertex": 0,
       "broken": 0,
-      "order": 3,
+      "order": 1,
       "zero": 0,
       "low": 2,
       "high": 27
@@ -49,54 +49,6 @@
       "note": "本資料無此系統（OSM 未以 route=subway 標記，或城市名不同）",
       "wiki_url": "https://en.wikipedia.org/wiki/New_Taipei_Metro",
       "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20New%20Taipei"
-    },
-    {
-      "severity": "order",
-      "city": "Alexandria",
-      "country": "Egypt",
-      "our_file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "our_stations": 61,
-      "our_lines": 5,
-      "suspect_lines": [
-        {
-          "name": "El Nasr 6",
-          "ratio": 2.4
-        },
-        {
-          "name": "Alexandria Passenger Transportation Authority",
-          "ratio": 1.76
-        }
-      ],
-      "note": "2 條線站序可疑（路徑長 > 1.6× MST）：El Nasr 6 2.4×、Alexandria Passenger Transportation Authority 1.76×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Alexandria"
-    },
-    {
-      "severity": "order",
-      "city": "Adelaide",
-      "country": "Australia",
-      "our_file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
-      "our_stations": 123,
-      "our_lines": 10,
-      "suspect_lines": [
-        {
-          "name": "Outer Harbor Line",
-          "ratio": 2.13
-        },
-        {
-          "name": "Flinders Line",
-          "ratio": 1.88
-        },
-        {
-          "name": "Train PTDOCK",
-          "ratio": 1.85
-        },
-        {
-          "name": "Train BEL",
-          "ratio": 1.67
-        }
-      ],
-      "note": "4 條線站序可疑（路徑長 > 1.6× MST）：Outer Harbor Line 2.13×、Flinders Line 1.88×、Train PTDOCK 1.85×、Train BEL 1.67×，需以 Wikipedia 線路條目與 urbanrail 人工確認站序",
-      "urbanrail": "https://www.google.com/search?q=site%3Aurbanrail.net%20Adelaide"
     },
     {
       "severity": "order",
@@ -616,11 +568,11 @@
       "line_count": 16
     },
     {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "city": "Alexandria",
-      "country": "Egypt",
-      "station_count": 61,
-      "line_count": 5
+      "file": "metro-maps/oceania/australia/oc-aus-brisbane.geojson",
+      "city": "Brisbane",
+      "country": "Australia",
+      "station_count": 134,
+      "line_count": 14
     },
     {
       "file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
@@ -628,13 +580,6 @@
       "country": "Australia",
       "station_count": 123,
       "line_count": 10
-    },
-    {
-      "file": "metro-maps/oceania/australia/oc-aus-brisbane.geojson",
-      "city": "Brisbane",
-      "country": "Australia",
-      "station_count": 134,
-      "line_count": 14
     },
     {
       "file": "metro-maps/africa/south-africa/af-rsa-durban.geojson",
@@ -698,6 +643,13 @@
       "country": "Bolivia",
       "station_count": 32,
       "line_count": 3
+    },
+    {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "station_count": 38,
+      "line_count": 5
     },
     {
       "file": "metro-maps/africa/morocco/af-mar-rabat.geojson",

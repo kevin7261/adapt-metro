@@ -3,8 +3,8 @@
   "baseline": "Wikipedia: List of metro systems",
   "system_count": 265,
   "wikipedia_system_count": 233,
-  "line_total": 2243,
-  "station_total": 19703,
+  "line_total": 2219,
+  "station_total": 19680,
   "systems": [
     {
       "file": "metro-maps/oceania/australia/oc-aus-melbourne.geojson",
@@ -2475,43 +2475,6 @@
       }
     },
     {
-      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
-      "continent": "africa",
-      "country": "Egypt",
-      "city": "Alexandria",
-      "osm_networks": [
-        "Alexandria Passenger Transportation Authority",
-        "Unknown"
-      ],
-      "operator": "Alexandria Passenger Transportation Authority",
-      "official_website": null,
-      "official_map": null,
-      "wikidata": null,
-      "line_count": 5,
-      "segment_count": 23,
-      "station_count": 61,
-      "audit": null
-    },
-    {
-      "file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
-      "continent": "oceania",
-      "country": "Australia",
-      "city": "Adelaide",
-      "osm_networks": [
-        "Adelaide Metro",
-        "Great Southern Rail",
-        "Unknown"
-      ],
-      "operator": "Adelaide Metro (Rail Commissioner)",
-      "official_website": "https://www.adelaidemetro.com.au/routes/ptdock",
-      "official_map": "https://en.wikipedia.org/wiki/Gawler_railway_line",
-      "wikidata": "Q4681753",
-      "line_count": 10,
-      "segment_count": 22,
-      "station_count": 123,
-      "audit": null
-    },
-    {
       "file": "metro-maps/europe/spain/eu-esp-madrid.geojson",
       "continent": "europe",
       "country": "Spain",
@@ -3641,6 +3604,25 @@
         ],
         "audited_at": "2026-07-11T15:22:16.818Z"
       }
+    },
+    {
+      "file": "metro-maps/oceania/australia/oc-aus-adelaide.geojson",
+      "continent": "oceania",
+      "country": "Australia",
+      "city": "Adelaide",
+      "osm_networks": [
+        "Adelaide Metro",
+        "Great Southern Rail",
+        "Unknown"
+      ],
+      "operator": "Adelaide Metro (Rail Commissioner)",
+      "official_website": "https://www.adelaidemetro.com.au/routes/ptdock",
+      "official_map": "https://en.wikipedia.org/wiki/Gawler_railway_line",
+      "wikidata": "Q4681753",
+      "line_count": 10,
+      "segment_count": 16,
+      "station_count": 123,
+      "audit": null
     },
     {
       "file": "metro-maps/africa/south-africa/af-rsa-durban.geojson",
@@ -9880,6 +9862,24 @@
         ],
         "audited_at": "2026-07-11T15:22:16.656Z"
       }
+    },
+    {
+      "file": "metro-maps/africa/egypt/af-egy-alexandria.geojson",
+      "continent": "africa",
+      "country": "Egypt",
+      "city": "Alexandria",
+      "osm_networks": [
+        "Alexandria Passenger Transportation Authority",
+        "Unknown"
+      ],
+      "operator": "Alexandria Passenger Transportation Authority",
+      "official_website": null,
+      "official_map": null,
+      "wikidata": null,
+      "line_count": 5,
+      "segment_count": 5,
+      "station_count": 38,
+      "audit": null
     },
     {
       "file": "metro-maps/africa/morocco/af-mar-rabat.geojson",
