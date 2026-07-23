@@ -24,6 +24,12 @@ single=true 只掃一遍給逐步小步用、否則掃到沒有可合併——ta
   掃到不動點的上限用 `MERGE_ITER_CAP`（5000），**不可**共用論文鏈的
   `POST_ITER_CAP`（=20）——否則成對縮格會半途截斷（東京 rot-shape 曾停在
   62×64，跑滿可到 ~21×20）。
+- **validShift 成方 overrides**：半平面移動時 overrides 必須含 comp 內所有點
+  （含非 members）。若只寫 members，H/V 邊鎖會把一起動的非 member 當成靜止，
+  誤擋空列／空欄壓縮（2026-07）。
+- **緻密 audit**：`auditGridDensity`——整列／整欄不應沒有任何點；循環 stats
+  帶 `dense`／`emptyRows`／`emptyCols`。成方卡住時可能仍留空列（單軸破方、
+  成對縮又因壓點做不了），audit 會標出來。
 - 附帶性質（自動成立、不需另檢）：邊界段跨距只縮不增；H/V 段只增不減
   （水平/垂直段不受影響、dy=1 斜段合併後變水平、dy=1 垂直段因兩端撞格被
   validShift 擋下）。

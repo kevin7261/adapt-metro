@@ -351,11 +351,14 @@ export function makeMover(pos, segs, inc, cols, rows) {
         }
       }
     }
-    // 成方護欄：半平面／群集若動到方上頂點，必須全體同一位移（剛體）
+    // 成方護欄：半平面／群集若動到方上頂點，必須全體同一位移（剛體）。
+    // overrides 必須含 comp 內**所有**點（含非 members）——H/V 邊鎖用 at()
+    // 算兩端；若只寫 members，半平面裡一起動的非 member 會被當成沒動，
+    // 誤判「成方邊被拉斜」，空列／空欄壓不掉（東京 rot-shape 2026-07）。
     if (squareGuard) {
       const overrides = new Map()
       for (const w of comp) {
-        if (!squareGuard.members.has(w) || !pos.has(w)) continue
+        if (!pos.has(w)) continue
         const [c, r] = pos.get(w)
         overrides.set(w, [c + dc, r + dr])
       }
@@ -433,6 +436,19 @@ export function compactGridSafe(skeleton, cellAfter, cols, rows) {
   const out = new Map()
   for (const id of cellAfter.keys()) { const p = pos.get(id); out.set(id, [p[0], p[1]]) }
   return { cellAfter: out, cols: nC, rows: nR, removedCols: cols - nC, removedRows: rows - nR }
+}
+
+/** 網格緻密 audit：整列／整欄不應沒有任何點（使用者規則 2026-07）。 */
+export function auditGridDensity(cellAfter, cols, rows) {
+  const usedC = new Set(), usedR = new Set()
+  for (const [c, r] of cellAfter.values()) { usedC.add(c); usedR.add(r) }
+  const emptyCols = [], emptyRows = []
+  for (let c = 0; c < cols; c++) if (!usedC.has(c)) emptyCols.push(c)
+  for (let r = 0; r < rows; r++) if (!usedR.has(r)) emptyRows.push(r)
+  return {
+    emptyCols, emptyRows,
+    dense: emptyCols.length === 0 && emptyRows.length === 0,
+  }
 }
 
 // The HC graph shared by the optimizer and the RWD drawing (rwdMap.js):

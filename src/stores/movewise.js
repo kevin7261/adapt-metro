@@ -1,7 +1,7 @@
 // movewise 三步鏈＋循環＋逐步驗證——自 hillClimb.js 抽出，公開契約不變。
 import {
   buildHcGraph, makeMover, countHV,
-  makeUnionFind, compactGridSafe,
+  makeUnionFind, compactGridSafe, auditGridDensity,
   setFrozen, getFrozen,
 } from './hillClimb.js'
 import { sharesRoute, isHV } from './netUtil.js'
@@ -471,6 +471,7 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
     if (opts.single) break
   }
   const g1 = buildHcGraph(skeleton, cur)
+  const density = auditGridDensity(cur, nC, nR)
   return {
     cellAfter: cur,
     cols: nC,
@@ -481,6 +482,7 @@ function gridMergeStage(skeleton, cells, cols, rows, opts = {}) {
       movedPts: mergedRows, movedLines: mergedCols,
       converged: true,
       fromCols, fromRows, cols: nC, rows: nR,
+      ...density,
     },
   }
 }
@@ -742,6 +744,12 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     // 與逐步驗證相同：一輪三個演算法都沒改動才停（保險上限 roundCap）。
     if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
   }
+  // 收斂後再壓一次：成方護欄 overrides 修正後，先前誤留的空列／空欄可清掉
+  const dens = compactGridSafe(skeleton, cur, nC, nR)
+  cur = dens.cellAfter
+  nC = dens.cols
+  nR = dens.rows
+  const density = auditGridDensity(cur, nC, nR)
   return {
     cellAfter: cur,
     cols: nC,
@@ -751,6 +759,7 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
       segs: last.segs, verts: last.verts, moved, lineMoved, gatherMoved,
       rounds, roundCap, converged,
       fromCols: cols, fromRows: rows, cols: nC, rows: nR,
+      ...density,
     },
   }
 }
