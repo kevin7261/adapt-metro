@@ -32,7 +32,8 @@ validShift 同一套硬規則（含變形段檢查，見 [[route-hillclimb]] ③
 
 每輪＝**端點移動至不動點 → 直線縮減至不動點 → 網格合併至不動點 → 下一輪**；
 某一輪**三個演算法都沒有改動**才停止（與 [[route-step-verify]] 相同判準；
-上限 LOOP_ROUND_CAP=200）。起點先 `compactGridSafe`。
+上限 LOOP_ROUND_CAP=200；成方凍結用 LOOP_ROUND_CAP_FROZEN=40，且 gather 已不動、endp
+仍反覆抖動時提早 `stop-thrash`——莫斯科雙環曾打滿 200 輪空轉數小時）。起點先 `compactGridSafe`。
 收斂後雙方共用 **`loopPostConverge`**（再壓＋成方緻密／填空帶）——逐步
 done／執行到底必須走同一收尾，**最終座標與循環一模一樣**。
 

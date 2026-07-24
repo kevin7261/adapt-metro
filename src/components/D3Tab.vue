@@ -860,8 +860,8 @@ const VIEW_TABS = computed(() => {
     const shapeTabs = isShapeLayer.value ? [
       {
         header: shapeRouteName.value
-          ? `⑨形狀計算 ${shapeRouteName.value}`
-          : '⑨形狀計算',
+          ? `形狀計算 ${shapeRouteName.value}`
+          : '形狀計算',
         doc: 'shape-guided',
       },
       {
@@ -1825,8 +1825,19 @@ async function computeHcLayout({ seq, w, h, grid }) {
             hideStops: rwdHideStops.value,
             minStopPx: rwdMinStopPx.value,
             linkWeight: (u, v) => linkWeight(rwdWeights.value, u, v),
-            // 形狀圖層成方：方形邊強制直線（與成方護欄 members 同一組 id）
-            ...(frozenIds ? { frozenIds } : {}),
+            // 形狀圖層成方：方形邊強制直線（與成方護欄 members 同一組 id）。
+            // shapeAligned：凍結集含整條規定路線（環外尾段也在內），只有格座標
+            // H/V/45 對齊的段才鎖直線——尾段（如大江戶 中野坂上–練馬）回歸一般
+            // router，否則會被強制畫成非 45° 斜線（見 rwdMap shapeLock 註解）。
+            ...(frozenIds ? {
+              frozenIds,
+              shapeAligned: (a, b) => {
+                const A = cells.get(a), B = cells.get(b)
+                if (!A || !B) return true
+                const dc = Math.abs(A[0] - B[0]), dr = Math.abs(A[1] - B[1])
+                return dc === 0 || dr === 0 || dc === dr
+              },
+            } : {}),
             ...(fastFrame ? { fast: true }
               : (weighted || gridOn) ? {}
                 // 方形網格的 lattice 恰為正方（sx===sy）→ buildRwdMap 自動開 8 方向真 45° A*。
@@ -3025,7 +3036,7 @@ onBeforeUnmount(() => {
               <div class="llm-run-title">載入中…</div>
             </div>
           </div>
-          <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 ⑨形狀計算 / LLM 成方 view 跑出成方</span></div>
+          <div v-else-if="shapeNoCompute" class="ma-hint">成方路線沒有算<br /><span style="font-size:11px;opacity:.7">請先到 形狀計算 / LLM 成方 view 跑出成方</span></div>
           <div v-else-if="layoutPending" class="ma-hint llm-hint">
             <div class="llm-run-card">
               <div class="llm-run-title">尚無預計算結果</div>

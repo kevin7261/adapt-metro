@@ -530,7 +530,17 @@ function bakeRwdPair(views, {
   const rwd = buildRwdMap(segs, pxPos, {
     unit: Math.min(m.cw, m.ch),
     lattice: { x0: m.sep.xs[0], y0: m.sep.ys[0], sx: m.cw / 2, sy: m.ch / 2, nx: cols * 2 + 1, ny: rows * 2 + 1 },
-    ...(frozenIds ? { frozenIds } : {}),
+    // shapeAligned 同 D3Tab：凍結集含整條規定路線，只鎖格座標 H/V/45 對齊的段，
+    // 環外尾段（大江戶放射部）回歸一般 router（否則縮圖畫出非 45° 斜線）。
+    ...(frozenIds ? {
+      frozenIds,
+      shapeAligned: (a, b) => {
+        const A = cellAfter.get(a), B = cellAfter.get(b)
+        if (!A || !B) return true
+        const dc = Math.abs(A[0] - B[0]), dr = Math.abs(A[1] - B[1])
+        return dc === 0 || dr === 0 || dc === dr
+      },
+    } : {}),
   })
   views[`rwd-${suffix}`] = drawRwd(sk, stations, rwd, m.sep)
 }

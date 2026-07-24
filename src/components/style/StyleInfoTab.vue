@@ -149,7 +149,7 @@ const systemForMap = computed(() => layer.value ? {
               <!-- ⑨ 環形成方：規定表有設定就顯示該環形路線名，沒有就說「沒有」 -->
               <div v-if="!isHighway" class="info-row">
                 <span class="info-key">環形成方</span>
-                <span v-if="shapePreset">{{ shapePreset.label }}（收成方形，⑨形狀計算）</span>
+                <span v-if="shapePreset">{{ shapePreset.label }}（收成方形，形狀計算）</span>
                 <span v-else class="info-muted">沒有</span>
               </div>
               <div v-if="meta?.osm_networks?.length" class="info-row">

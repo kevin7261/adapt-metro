@@ -7,4 +7,165 @@ PROGRESS 1/2 eu-rus-moscow.orig-shape
 11:34:12 hc.line 8s
 11:35:23 hc.gather 79s
   loop 1/40 endp=162 line=101 gather=3
-3 hc.gather 79s
+  loop 5/40 endp=89 line=2 gather=0
+  loop stop-thrash @8
+11:42:43 hc done 519.7s
+11:42:43 hc.saved 520s
+11:42:44 stroke.post 0s
+11:42:47 stroke.endp 4s
+11:42:49 stroke.line 6s
+11:43:42 stroke.gather 59s
+  loop 1/40 endp=85 line=48 gather=2
+  loop 5/40 endp=175 line=5 gather=0
+  loop stop-thrash @8
+11:50:24 stroke done 460.6s
+11:50:24 stroke.saved 461s
+11:50:25 rect.post 1s
+11:50:28 rect.endp 4s
+11:50:31 rect.line 7s
+11:51:48 rect.gather 84s
+  loop 1/40 endp=83 line=66 gather=0
+  loop 5/40 endp=164 line=5 gather=0
+  loop stop-thrash @8
+11:58:09 rect done 464.9s
+11:58:09 rect.saved 465s
+11:58:09 milp.post 0s
+11:58:14 milp.endp 5s
+11:58:18 milp.line 9s
+11:59:42 milp.gather 93s
+  loop 1/40 endp=145 line=103 gather=3
+  loop 5/40 endp=69 line=2 gather=0
+  loop stop-thrash @8
+12:06:41 milp done 511.9s
+12:06:41 milp.saved 512s
+12:06:41 force.post 0s
+12:06:47 force.endp 6s
+12:06:50 force.line 9s
+12:08:13 force.gather 92s
+  loop 1/40 endp=171 line=91 gather=3
+  loop 5/40 endp=116 line=24 gather=0
+  loop stop-thrash @8
+12:13:16 force done 395.5s
+12:13:16 force.saved 395s
+12:13:16 lsq.post 0s
+12:13:21 lsq.endp 5s
+12:13:23 lsq.line 7s
+12:14:32 lsq.gather 76s
+  loop 1/40 endp=143 line=58 gather=1
+  loop 5/40 endp=92 line=1 gather=0
+  loop stop-thrash @8
+12:21:49 lsq done 513.2s
+12:21:50 lsq.saved 513s
+12:21:50 octi.post 0s
+12:21:54 octi.endp 5s
+12:21:58 octi.line 8s
+12:23:17 octi.gather 87s
+  loop 1/40 endp=152 line=104 gather=3
+  loop 5/40 endp=106 line=1 gather=0
+  loop stop-thrash @8
+12:30:34 octi done 524.6s
+12:30:34 octi.saved 525s
+12:30:34 path.post 0s
+12:30:39 path.endp 5s
+12:30:42 path.line 8s
+12:31:47 path.gather 73s
+  loop 1/40 endp=169 line=89 gather=3
+  loop 5/40 endp=95 line=5 gather=0
+  loop stop-thrash @8
+12:36:34 path done 359.5s
+12:36:34 path.saved 360s
+12:36:34 sat.post 0s
+12:36:39 sat.endp 5s
+12:36:42 sat.line 9s
+12:38:05 sat.gather 91s
+  loop 1/40 endp=145 line=103 gather=3
+  loop 5/40 endp=69 line=2 gather=0
+  loop stop-thrash @8
+12:44:53 sat done 499.3s
+12:44:53 sat.saved 499s
+✓ eu-rus-moscow.orig-shape.shapelike.json
+PROGRESS 2/2 eu-rus-moscow.rot-shape
+… eu-rus-moscow.rot-shape.shapelike.json
+12:44:53 start eu-rus-moscow.rot-shape.shapelike.json
+12:44:57 hc.endp 4s
+12:45:01 hc.line 8s
+12:46:17 hc.gather 84s
+  loop 1/40 endp=150 line=96 gather=4
+  loop 5/40 endp=115 line=1 gather=0
+  loop stop-thrash @8
+12:51:50 hc done 416.7s
+12:51:50 hc.saved 417s
+12:51:50 stroke.post 0s
+12:51:53 stroke.endp 3s
+12:51:55 stroke.line 5s
+12:52:40 stroke.gather 50s
+  loop 1/40 endp=86 line=52 gather=2
+  loop 5/40 endp=70 line=21 gather=0
+  loop stop-thrash @8
+12:57:38 stroke done 348.1s
+12:57:38 stroke.saved 348s
+12:57:38 rect.post 1s
+12:57:42 rect.endp 4s
+12:57:44 rect.line 6s
+12:59:02 rect.gather 84s
+  loop 1/40 endp=80 line=43 gather=1
+  loop 5/40 endp=180 line=4 gather=0
+  loop stop-thrash @8
+13:07:39 rect done 600.9s
+13:07:39 rect.saved 601s
+13:07:39 milp.post 0s
+13:07:43 milp.endp 4s
+13:07:46 milp.line 8s
+13:09:04 milp.gather 85s
+  loop 1/40 endp=139 line=93 gather=3
+  loop 5/40 endp=120 line=0 gather=0
+  loop stop-thrash @8
+13:15:25 milp done 465.8s
+13:15:25 milp.saved 466s
+13:15:25 force.post 0s
+13:15:29 force.endp 5s
+13:15:32 force.line 8s
+13:16:39 force.gather 75s
+  loop 1/40 endp=142 line=92 gather=2
+  loop 5/40 endp=148 line=0 gather=0
+  loop stop-thrash @8
+13:22:11 force done 406.8s
+13:22:11 force.saved 407s
+13:22:11 lsq.post 0s
+13:22:15 lsq.endp 4s
+13:22:18 lsq.line 7s
+13:23:30 lsq.gather 79s
+  loop 1/40 endp=114 line=70 gather=3
+  loop 5/40 endp=109 line=7 gather=0
+  loop stop-thrash @8
+13:28:41 lsq done 389.6s
+13:28:41 lsq.saved 390s
+13:28:41 octi.post 0s
+13:28:46 octi.endp 5s
+13:28:49 octi.line 8s
+13:30:01 octi.gather 81s
+  loop 1/40 endp=158 line=94 gather=3
+  loop 5/40 endp=99 line=7 gather=0
+  loop stop-thrash @8
+13:37:10 octi done 509.4s
+13:37:10 octi.saved 509s
+13:37:10 path.post 0s
+13:37:15 path.endp 5s
+13:37:18 path.line 7s
+13:38:34 path.gather 84s
+  loop 1/40 endp=156 line=85 gather=4
+  loop 5/40 endp=104 line=1 gather=0
+  loop stop-thrash @8
+13:43:14 path done 364.0s
+13:43:14 path.saved 364s
+13:43:14 sat.post 0s
+13:43:19 sat.endp 4s
+13:43:22 sat.line 8s
+13:44:40 sat.gather 86s
+  loop 1/40 endp=139 line=93 gather=3
+  loop 5/40 endp=120 line=0 gather=0
+  loop stop-thrash @8
+13:50:58 sat done 463.6s
+13:50:58 sat.saved 464s
+✓ eu-rus-moscow.rot-shape.shapelike.json
+完成 2、跳過 0（8214.3s）

@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-22-shape-freeze-v19'
+export const RWD_ROUTER_REV = '2026-07-24-shape-lock-aligned-v20'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -746,7 +746,12 @@ export function buildRwdMap(segs, pos, opts = {}) {
         (dirsN >= 8 || (d !== 'D+' && d !== 'D-'))
       // 成方邊（灰白 highlight）：兩端皆為 frozen members → 強制 S→T。
       // 不要求像素 H/V——非正方格時成方邊在畫面上是矩形邊，仍不可改彎。
-      const shapeLock = !!(frozenIds && frozenIds.has(s.a) && frozenIds.has(s.b))
+      // 但凍結集含**整條規定路線**的頂點（護欄需要）——環外放射尾段（東京大江戶線
+      // 都庁前—光が丘：中野坂上/練馬…）兩端也都 frozen，卻不在方形上、格座標不對齊，
+      // 強制直線會畫出非 H/V/45° 斜線。呼叫端經 opts.shapeAligned(a,b)（以格座標判
+      // H/V/45）過濾：對齊的才鎖（方形四邊 H/V、綠折 45 必對齊），尾段回歸一般 router。
+      const shapeLock = !!(frozenIds && frozenIds.has(s.a) && frozenIds.has(s.b)
+        && (typeof opts.shapeAligned !== 'function' || opts.shapeAligned(s.a, s.b)))
       return { s, i, len: dist(S, T), straight, shapeLock }
     })
     .sort((p, q) => Number(q.shapeLock) - Number(p.shapeLock)
