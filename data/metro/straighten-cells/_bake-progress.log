@@ -1,0 +1,10 @@
+bake shapelike 2 件
+PROGRESS 0/2 start
+PROGRESS 1/2 eu-rus-moscow.orig-shape
+… eu-rus-moscow.orig-shape.shapelike.json
+11:34:04 start eu-rus-moscow.orig-shape.shapelike.json
+11:34:09 hc.endp 5s
+11:34:12 hc.line 8s
+11:35:23 hc.gather 79s
+  loop 1/40 endp=162 line=101 gather=3
+3 hc.gather 79s

@@ -6,7 +6,7 @@
 //   node scripts/bakeHcCells.mjs --shape                 # 只 bake 成方成功（square）的 shapelike
 //   node scripts/bakeHcCells.mjs --shape as-twn-kaohsiung
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, appendFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { geoMercator } from 'd3-geo'
@@ -50,8 +50,10 @@ function serStageMap(obj) {
   for (const k of Object.keys(obj ?? {})) {
     const e = obj[k]
     if (!e?.cellAfter) continue
+    // 續跑時 posts／loops 可能已是磁碟序列（array），勿再當 Map 展平
+    const cellAfter = e.cellAfter instanceof Map ? serCells(e.cellAfter) : e.cellAfter
     out[k] = {
-      cellAfter: serCells(e.cellAfter),
+      cellAfter,
       stats: e.stats,
       ...(e.cols != null ? { cols: e.cols, rows: e.rows } : {}),
     }
@@ -108,18 +110,25 @@ async function bakeOne(cityId, variant, { shapelike = false, force = false } = {
     : variant
   const diskName = `${cityId}.${diskVariant}${useShape ? '.shapelike' : ''}.json`
   const diskPath = join(OUT, diskName)
-  if (!force && existsSync(diskPath)) {
+  const kinds = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
+  const kindDone = (prev, k) =>
+    !!(prev?.hc?.cellAfter &&
+      (k === 'hc' || prev.posts?.[k]?.cellAfter) &&
+      prev.loops?.[k]?.cellAfter &&
+      prev.endp?.[k]?.cellAfter &&
+      prev.line?.[k]?.cellAfter &&
+      prev.gather?.[k]?.cellAfter)
+  let prevPartial = null
+  if (existsSync(diskPath)) {
     try {
       const prev = JSON.parse(await readFile(diskPath, 'utf8'))
-      const need = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
-      const hasFlow = need.every((k) =>
-        (k === 'hc' || prev.posts?.[k]?.cellAfter) &&
-        prev.loops?.[k]?.cellAfter &&
-        prev.endp?.[k]?.cellAfter &&
-        prev.line?.[k]?.cellAfter &&
-        prev.gather?.[k]?.cellAfter)
-      if (prev.algo === HC_CELLS_ALGO && prev.fingerprint === fingerprint && prev.hc?.cellAfter && hasFlow) {
+      const hasFlow = kinds.every((k) => kindDone(prev, k))
+      if (!force && prev.algo === HC_CELLS_ALGO && prev.fingerprint === fingerprint && hasFlow) {
         return { skip: true, reason: 'fresh', file: diskName }
+      }
+      // 同指紋未齊 → 續跑已完成的 kind（莫斯科曾跑數小時被殺，需斷點）
+      if (prev.algo === HC_CELLS_ALGO && prev.fingerprint === fingerprint && prev.hc?.cellAfter) {
+        prevPartial = prev
       }
     } catch { /* 重算 */ }
   }
@@ -143,6 +152,12 @@ async function bakeOne(cityId, variant, { shapelike = false, force = false } = {
   }
 
   process.stdout.write(`… ${diskName}\n`)
+  const log = (msg) => {
+    const line = `${new Date().toISOString().slice(11, 19)} ${msg}\n`
+    process.stdout.write(line)
+    try { appendFileSync(join(OUT, '_bake-progress.log'), line) } catch { /* */ }
+  }
+  log(`start ${diskName}`)
   const g = buildHcGraph(skeleton, baseCells)
   const hc = {
     cellAfter: new Map([...baseCells].map(([id, p]) => [id, [p[0], p[1]]])),
@@ -153,42 +168,58 @@ async function bakeOne(cityId, variant, { shapelike = false, force = false } = {
       ...(useShape ? { shapeFeed: 'llm' } : {}),
     },
   }
+  // 續跑：沿用磁碟上已算完的 posts／loops／…
   const posts = {}, endp = {}, line = {}, gather = {}, loops = {}
-  const kinds = ['hc', ...PAPER_KINDS.map((p) => p.kind)]
+  if (prevPartial && !force) {
+    Object.assign(posts, prevPartial.posts ?? {})
+    Object.assign(endp, prevPartial.endp ?? {})
+    Object.assign(line, prevPartial.line ?? {})
+    Object.assign(gather, prevPartial.gather ?? {})
+    Object.assign(loops, prevPartial.loops ?? {})
+  }
+  const writePartial = async () => {
+    const payload = {
+      algo: HC_CELLS_ALGO,
+      fingerprint,
+      cityId,
+      variant: diskVariant,
+      shapelike: !!useShape,
+      hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats },
+      posts: serStageMap(posts),
+      layouts: {},
+      loops: serStageMap(loops),
+      endp: serStageMap(endp),
+      line: serStageMap(line),
+      gather: serStageMap(gather),
+    }
+    await mkdir(OUT, { recursive: true })
+    await writeFile(diskPath, JSON.stringify(payload))
+  }
+  if (force) prevPartial = null
   for (const kind of kinds) {
+    if (!force && kindDone({ hc, posts, endp, line, gather, loops }, kind)) {
+      log(`${kind} resume-skip`)
+      continue
+    }
     const t0 = Date.now()
+    const tick = (s) => log(`${kind}.${s} ${((Date.now() - t0) / 1000).toFixed(0)}s`)
     const post = PAPER_BUILD[kind]
       ? iteratePost(PAPER_BUILD[kind], skeleton, hc.cellAfter, grid.cols, grid.rows)
       : null
     const base = post ? post.cellAfter : hc.cellAfter
-    if (post) posts[kind] = post
+    if (post) { posts[kind] = post; tick('post') }
     const e = movewiseStage('endp', skeleton, base, grid.cols, grid.rows)
-    endp[kind] = e
+    endp[kind] = e; tick('endp')
     const l = movewiseStage('line', skeleton, e.cellAfter, e.cols, e.rows)
-    line[kind] = l
+    line[kind] = l; tick('line')
     const ga = movewiseStage('gather', skeleton, l.cellAfter, l.cols, l.rows)
-    gather[kind] = ga
+    gather[kind] = ga; tick('gather')
     loops[kind] = straightenCompactLoop(skeleton, base, grid.cols, grid.rows)
-    process.stdout.write(`  ${kind} ${((Date.now() - t0) / 1000).toFixed(1)}s\n`)
+    log(`${kind} done ${((Date.now() - t0) / 1000).toFixed(1)}s`)
+    await writePartial()
+    tick('saved')
   }
   setFrozen(null)
-
-  const payload = {
-    algo: HC_CELLS_ALGO,
-    fingerprint,
-    cityId,
-    variant: diskVariant,
-    shapelike: !!useShape,
-    hc: { cellAfter: serCells(hc.cellAfter), stats: hc.stats },
-    posts: serStageMap(posts),
-    layouts: {},
-    loops: serStageMap(loops),
-    endp: serStageMap(endp),
-    line: serStageMap(line),
-    gather: serStageMap(gather),
-  }
-  await mkdir(OUT, { recursive: true })
-  await writeFile(diskPath, JSON.stringify(payload))
   return { skip: false, file: diskName, kinds: kinds.length }
 }
 

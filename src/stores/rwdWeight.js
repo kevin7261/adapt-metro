@@ -58,7 +58,9 @@ export function uniformAxes(cols, rows, area) {
 export function lerpAxes(a, b, t) {
   const colX = a.colX.map((v, i) => v + (b.colX[i] - v) * t)
   const rowY = a.rowY.map((v, i) => v + (b.rowY[i] - v) * t)
-  return { colX, rowY, cellPx: ([c, r]) => [(colX[c] + colX[c + 1]) / 2, (rowY[r] + rowY[r + 1]) / 2] }
+  // 格線是 n+1 條、格中心取 [i, i+1]——超界頂點同樣夾回邊界格（見 centerAt 註解）
+  const mid = (arr, i) => { const k = Math.max(0, Math.min(arr.length - 2, i)); return (arr[k] + arr[k + 1]) / 2 }
+  return { colX, rowY, cellPx: ([c, r]) => [mid(colX, c), mid(rowY, r)] }
 }
 
 // 權重陣列 → 一軸的格線位置：每區間保底 minFrac × 均勻寬（權重 0 也不消失），
@@ -73,6 +75,12 @@ function axisEdges(wArr, n, total, o, minFrac) {
   return { edges, center: size.map((_, i) => (edges[i] + edges[i + 1]) / 2) }
 }
 
+// 中心索引 clamp：持久佈局偶有頂點落在宣告網格外一格（compaction 的 dims 與
+// cells 不一致，例：東京 JR -shape loops.hc 的 n8043717177 在 22 欄的 c=22）。
+// 陣列索引超界會回 undefined → NaN 位置 → RWD 整張畫布被毒化成空白。夾回
+// 邊界格（均勻網格的 cellPx 是純算術、超界也算得出數字，所以只有這裡要防）。
+const centerAt = (centers, i) => centers[Math.max(0, Math.min(centers.length - 1, i))]
+
 // LLM 調整（skill route-llm-grid）：模型直接給每個 X 欄／Y 列區間的顯示權重
 // （1=原尺寸、>1 放大、<1 壓縮），這裡只做正規化進固定外框——與 weightedAxes
 // 的末端變形完全相同，差別只在權重由誰填入（流量彙總 vs 模型推理）。
@@ -80,7 +88,7 @@ export function intervalAxes(colW, rowW, area, minFrac = 0.25) {
   const [x0, y0, x1, y1] = area
   const X = axisEdges(colW, colW.length, x1 - x0, x0, minFrac)
   const Y = axisEdges(rowW, rowW.length, y1 - y0, y0, minFrac)
-  return { colX: X.edges, rowY: Y.edges, cellPx: ([c, r]) => [X.center[c], Y.center[r]] }
+  return { colX: X.edges, rowY: Y.edges, cellPx: ([c, r]) => [centerAt(X.center, c), centerAt(Y.center, r)] }
 }
 
 // weight → 非均勻欄寬列高。pos: Map<id,[c,r]>（只含 cut 節點 a/b；interior 黑點的格
@@ -107,5 +115,5 @@ export function weightedAxes(pos, segs, weights, cols, rows, area, minFrac = 0.2
   }
   const X = axisEdges(colW, cols, x1 - x0, x0, minFrac)
   const Y = axisEdges(rowW, rows, y1 - y0, y0, minFrac)
-  return { colX: X.edges, rowY: Y.edges, colW, rowW, cellPx: ([c, r]) => [X.center[c], Y.center[r]] }
+  return { colX: X.edges, rowY: Y.edges, colW, rowW, cellPx: ([c, r]) => [centerAt(X.center, c), centerAt(Y.center, r)] }
 }

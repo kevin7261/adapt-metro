@@ -710,7 +710,7 @@ function loopPostConverge(skeleton, cur, nC, nR) {
   let gatherMoved = 0
   let lastStats = null
   if (getFrozen()) {
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 3; i++) {
       const density = auditGridDensity(cur, nC, nR)
       if (density.dense) break
       const ga = movewiseStage('gather', skeleton, cur, nC, nR)
@@ -938,7 +938,9 @@ export function stepChainNext(skeleton, st, opts = {}) {
 // 端點移動+直線縮減+網格合併循環：每輪三個階段各自 movewiseStage 至不動點；
 // 收斂判準與逐步大步相同；收尾走共用的 loopPostConverge（與逐步 done 一致）。
 const LOOP_ROUND_CAP = 200
-const LOOP_ROUND_CAP_FROZEN = 200
+// 成方凍結時每輪含 gather，大城（莫斯科雙環）單輪可 >1 分鐘；200 輪＝數小時／kind。
+// 能收斂的城多在 3–5 輪停；打滿 200 多半在抖動。凍結改 40，避免 shape bake 實用上跑不完。
+const LOOP_ROUND_CAP_FROZEN = 40
 export function straightenCompactLoop(skeleton, cells, cols, rows) {
   const fromCols = cols, fromRows = rows
   // 與 stepChainInit 相同：起點先壓，避免循環／逐步起點分叉
@@ -954,6 +956,7 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
   let converged = false
   const frozen = !!getFrozen()
   const roundCap = frozen ? LOOP_ROUND_CAP_FROZEN : LOOP_ROUND_CAP
+  let thrash = 0
   while (rounds < roundCap) {
     const endp = movewiseStage('endp', skeleton, cur, nC, nR)
     const line = movewiseStage('line', skeleton, endp.cellAfter, endp.cols, endp.rows)
@@ -966,14 +969,35 @@ export function straightenCompactLoop(skeleton, cells, cols, rows) {
     cur = gather.cellAfter
     nC = gather.cols
     nR = gather.rows
+    // 進度輸出只在 Node（bake/CLI）——此檔瀏覽器共用，process 在瀏覽器不存在，
+    // 不防護的話凍結現算第一輪就 throw、整個 render 中斷（畫布空白）。
+    if (frozen && (rounds === 1 || rounds % 5 === 0 || rounds === roundCap)
+      && typeof process !== 'undefined' && process.stdout?.write) {
+      process.stdout.write(`  loop ${rounds}/${roundCap} endp=${endp.stats.moved} line=${line.stats.moved} gather=${gather.stats.moved}\n`)
+    }
     // 與逐步驗證相同：一輪三個演算法都沒改動才停
     if (!endp.stats.moved && !line.stats.moved && !gather.stats.moved) { converged = true; break }
+    // 成方凍結：gather 已不動、endp/line 反覆同量抖動 → 再跑只是空轉（莫斯科雙環）
+    if (frozen && rounds >= 6 && !gather.stats.moved && endp.stats.moved > 0) {
+      thrash++
+      if (thrash >= 3) {
+        if (typeof process !== 'undefined' && process.stdout?.write) process.stdout.write(`  loop stop-thrash @${rounds}\n`)
+        break
+      }
+    } else thrash = 0
   }
   const post = loopPostConverge(skeleton, cur, nC, nR)
   cur = post.cellAfter
   nC = post.cols
   nR = post.rows
   gatherMoved += post.gatherMoved
+  // 防呆：凍結的成方頂點不隨壓縮平移，偶爾會留在宣告網格外一格（東京 JR -shape
+  // 的 n8043717177 在 22 欄的 c=22）——dims 撐大到涵蓋所有 cells，否則下游權重軸
+  // （intervalAxes/weightedAxes 的陣列索引）拿到 undefined → NaN → RWD 畫布整張空白。
+  for (const [, [c, r]] of cur) {
+    if (c >= nC) nC = c + 1
+    if (r >= nR) nR = r + 1
+  }
   const g1 = buildHcGraph(skeleton, cur)
   return {
     cellAfter: cur,
