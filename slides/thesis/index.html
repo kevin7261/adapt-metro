@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>論文內容 · Adapt-Metro</title>
+<meta name="description" content="博士論文內容投影片：從兩份計畫書（博士論文計畫書「自適應版面的地理空間網絡資料視覺化」與國科會計畫書「強化交通網絡流量視覺的自適應圖形繪製演算法」）到 Adapt-Metro 系統——研究源流、緒論、文獻回顧、研究方法（四階段管線）、實驗評估、章節規劃與預期貢獻。" />
+<!-- 首頁 header 用的 Material Symbols 字型（brand 的 map 圖示、相關連結的 open_in_new）——與 index.html 一致 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
+<style>
+  :root{
+    --page-bg:#eef1f6; --dot:rgba(15,23,42,.08);
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#64748b; --muted2:#94a3b8;
+    --blue:#2563eb; --purple:#7c3aed; --rose:#e11d48; --amber:#d97706; --green:#16a34a;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang TC', 'Noto Sans TC', Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page-bg:#0b1220; --dot:rgba(226,232,240,.07);
+      --card-bg:#141b2c; --border:#263043;
+      --ink:#e8ecf3; --muted:#9aa7bd; --muted2:#7885a0;
+      --code-bg:#060a13; --code-ink:#cbd5e1;
+    }
+  }
+  /* 首頁 app 的 shadcn design token（值抄自 src/style.css），獨立命名 --app-* 只給 header 用、
+     不干擾投影片自己的 token。<head> inline script 依 localStorage 套 html.dark / html[data-theme]。 */
+  :root{
+    --app-card:0 0% 100%; --app-border:214.3 31.8% 91.4%;
+    --app-fg:222.2 84% 4.9%; --app-muted-fg:215.4 16.3% 40%;
+    --app-primary:221.2 83.2% 53.3%;
+    --app-accent:210 40% 96.1%; --app-accent-fg:222.2 47.4% 11.2%;
+    --app-popover:0 0% 100%; --app-popover-fg:222.2 84% 4.9%;
+    --app-radius:0.5rem;
+  }
+  html.dark{
+    --app-card:222.2 84% 4.9%; --app-border:217.2 32.6% 17.5%;
+    --app-fg:210 40% 98%; --app-muted-fg:215 20.2% 65.1%;
+    --app-primary:217.2 91.2% 59.8%;
+    --app-accent:217.2 32.6% 17.5%; --app-accent-fg:210 40% 98%;
+    --app-popover:222.2 84% 4.9%; --app-popover-fg:210 40% 98%;
+  }
+  html[data-theme='violet']{ --app-primary:262.1 83.3% 57.8%; }
+  html[data-theme='emerald']{ --app-primary:142.1 76.2% 36.3%; }
+  html[data-theme='rose']{ --app-primary:346.8 77.2% 49.8%; }
+  html[data-theme='amber']{ --app-primary:24.6 95% 53.1%; }
+  /* 投影片內容固定白底（同系統介紹投影片；header 跟隨系統深淺色）。 */
+  .deck{
+    color-scheme: light;
+    --page-bg:#ffffff; --dot:rgba(15,23,42,.06);
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0b1220; --muted:#475569; --muted2:#64748b;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+    background:#ffffff;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--page-bg);
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column;
+  }
+  a{color:inherit;}
+  strong,b{font-weight:700;}
+
+  /* ---- header：逐字複製首頁 TopToolbar（src/components/TopToolbar.vue ＋ src/style.css）---- */
+  .app-toolbar{
+    display:flex; align-items:center; gap:4px; min-height:44px; padding:4px 8px; flex-shrink:0;
+    border-bottom:1px solid hsl(var(--app-border)); background:hsl(var(--app-card));
+    position:sticky; top:0; z-index:50;
+  }
+  .app-toolbar .brand{
+    display:flex; align-items:center; gap:6px; padding:0 10px 0 4px;
+    font-size:13px; font-weight:600; color:hsl(var(--app-primary));
+    white-space:nowrap; flex-shrink:0; text-decoration:none;
+  }
+  .app-toolbar .btn-ghost{
+    display:inline-flex; align-items:center; gap:4px; height:32px; padding:0 10px;
+    border-radius:calc(var(--app-radius) - 2px); font-size:13px; white-space:nowrap;
+    color:hsl(var(--app-fg)); text-decoration:none; background:none; border:0; cursor:pointer;
+    font-family:inherit; transition:background .12s, color .12s;
+  }
+  .app-toolbar .btn-ghost:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
+  .app-toolbar .btn-ghost.active{ color:hsl(var(--app-primary)); }
+  .app-toolbar .skills-link{ margin-left:auto; }
+  .app-toolbar .info-wrap{ position:relative; }
+  .app-toolbar .m-icon{
+    font-family:'Material Symbols Outlined'; font-weight:normal; font-style:normal;
+    line-height:1; display:inline-block; vertical-align:middle; flex-shrink:0;
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20; -webkit-font-feature-settings:'liga';
+  }
+  .app-toolbar .menu-pop{
+    position:absolute; z-index:200; top:34px; right:0; left:auto; min-width:232px;
+    background:hsl(var(--app-popover)); color:hsl(var(--app-popover-fg));
+    border:1px solid hsl(var(--app-border)); border-radius:calc(var(--app-radius) - 2px);
+    box-shadow:0 8px 24px rgb(0 0 0 / .18); padding:4px; font-size:13px;
+  }
+  .app-toolbar .menu-pop[hidden]{ display:none; }
+  .app-toolbar .menu-label{
+    padding:6px 8px 2px; font-size:11px; font-weight:600; color:hsl(var(--app-muted-fg));
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .app-toolbar .menu-item{
+    display:flex; align-items:center; gap:8px; width:100%; padding:6px 8px;
+    border-radius:calc(var(--app-radius) - 4px); text-align:left; white-space:nowrap;
+    color:hsl(var(--app-popover-fg)); text-decoration:none;
+  }
+  .app-toolbar .menu-item:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
+
+  /* ===== Google Slides 式觀看版面：header 下方＝左縮圖膠捲＋中央畫布，最底為工具列 ===== */
+  .workspace{ display:flex; flex:1; min-height:0; }
+
+  .filmstrip{
+    flex:0 0 184px; min-height:0; overflow-y:auto; overflow-x:hidden;
+    background:#f1f3f4; border-right:1px solid #dadce0;
+    padding:12px 10px; display:flex; flex-direction:column; gap:10px;
+  }
+  .filmstrip::-webkit-scrollbar{ width:10px; }
+  .filmstrip::-webkit-scrollbar-thumb{ background:#bdc1c6; border-radius:6px; border:3px solid #f1f3f4; }
+  .filmstrip::-webkit-scrollbar-thumb:hover{ background:#9aa0a6; }
+  .filmstrip{ scrollbar-width:thin; scrollbar-color:#bdc1c6 #f1f3f4; }
+  .filmstrip-item{ flex-shrink:0; display:flex; gap:8px; align-items:flex-start; cursor:pointer; }
+  .filmstrip-item .fs-num{
+    font-size:11px; color:#5f6368; font-family:var(--mono);
+    width:14px; text-align:right; padding-top:3px; flex-shrink:0;
+  }
+  .filmstrip-item .thumb{
+    flex:1; aspect-ratio:16/9; position:relative; overflow:hidden;
+    background:#fff; border:1px solid #dadce0; border-radius:3px;
+    box-shadow:0 1px 2px rgba(0,0,0,.08);
+  }
+  .filmstrip-item:hover .thumb{ border-color:#bdc1c6; }
+  .filmstrip-item.current .fs-num{ color:var(--blue); font-weight:700; }
+  .filmstrip-item.current .thumb{ border-color:var(--blue); box-shadow:0 0 0 2px var(--blue); }
+  .thumb-inner{
+    position:absolute; top:0; left:0; width:1280px; height:720px; transform-origin:top left;
+    pointer-events:none; background:#fff; color:#0f172a;
+    --page-bg:#fff; --dot:transparent; --card-bg:#fff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#475569; --muted2:#64748b; --code-bg:#0f172a; --code-ink:#e2e8f0;
+  }
+  .thumb-inner .slide{
+    opacity:1 !important; visibility:visible !important; transform:none !important;
+    transition:none !important; pointer-events:none; overflow:hidden;
+  }
+  .thumb-inner .slide.divider .roman{ opacity:.12; }
+
+  .deck{
+    position:relative; flex:1; min-width:0; height:100%; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    background-color:#f1f3f4;
+    color-scheme:light; color:#0f172a;
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#475569; --muted2:#64748b;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+  }
+
+  :fullscreen .app-toolbar, :fullscreen .filmstrip, :fullscreen .slidebar{ display:none; }
+  :fullscreen .deck{ background:#000; cursor:none; }
+  :fullscreen .deck:hover{ cursor:default; }
+  .stage{
+    position:relative; flex:0 0 auto; width:1280px; height:720px;
+    background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+    box-shadow:0 24px 64px rgba(15,23,42,.18);
+    overflow:hidden; transform-origin:center center;
+  }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center;
+    padding: 44px 64px;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transform: translateY(8px);
+    transition: opacity .3s ease, transform .35s ease, visibility 0s linear .3s;
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+    transition: opacity .3s ease, transform .35s ease;
+  }
+
+  .eyebrow{ display:flex; align-items:center; gap:14px; margin-bottom:20px; color:var(--muted); flex-shrink:0; }
+  .eyebrow .tag{ font-size:14px; letter-spacing:.04em; white-space:nowrap; }
+  .eyebrow .tag b{ color:var(--blue); font-family:var(--mono); margin-right:6px; }
+  .eyebrow .rule{ flex:1; height:1px; background:var(--border); min-width:24px; }
+  .eyebrow .eng{ font-size:12.5px; font-family:var(--mono); letter-spacing:.12em; color:var(--muted2); white-space:nowrap; }
+
+  h1.title{ font-size:40px; font-weight:800; line-height:1.22; margin:0 0 14px; letter-spacing:-.01em; }
+  p.subtitle{ font-size:17.5px; color:var(--muted); line-height:1.62; max-width:1080px; margin:0 0 6px; }
+  p.subtitle strong{ color:var(--ink); }
+
+  .grid{ display:grid; gap:14px; margin-top:20px; }
+  .grid.cols-2{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+  .grid.cols-3{ grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+  .grid.cols-4{ grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+
+  .card{
+    background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+    padding:15px 18px; border-top:3px solid var(--border);
+  }
+  .card.blue{ border-top-color:var(--blue); }
+  .card.purple{ border-top-color:var(--purple); }
+  .card.rose{ border-top-color:var(--rose); }
+  .card.amber{ border-top-color:var(--amber); }
+  .card.green{ border-top-color:var(--green); }
+  .card .label{ font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted2); margin-bottom:8px; font-family:var(--mono); }
+  .card h3{ font-size:18px; margin:0 0 6px; font-weight:700; }
+  .card p{ font-size:15px; color:var(--muted); line-height:1.58; margin:0; }
+  .card .big{ font-size:38px; font-weight:800; margin:0 0 4px; letter-spacing:-.01em; }
+
+  .stack{ margin-top:16px; }
+  .row{ display:flex; gap:14px; padding:11px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .row:last-child{ border-bottom:none; }
+  .row .num-badge{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%;
+    background:var(--blue); color:#fff; font-size:11.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-family:var(--mono); margin-top:1px;
+  }
+  .row .rowtext h4{ margin:0 0 3px; font-size:16.5px; font-weight:700; }
+  .row .rowtext p{ margin:0; font-size:15px; color:var(--muted); line-height:1.58; }
+
+  table.tbl{ width:100%; border-collapse:collapse; font-size:15px; margin-top:16px; }
+  table.tbl th{
+    text-align:left; font-weight:600; color:var(--muted); text-transform:uppercase;
+    font-size:11.5px; letter-spacing:.05em; border-bottom:1px solid var(--border); padding:8px 10px;
+    font-family:var(--mono);
+  }
+  table.tbl td{ padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.tbl tr:last-child td{ border-bottom:none; }
+  table.tbl td.num, table.tbl th.num{ text-align:right; font-family:var(--mono); }
+  table.tbl.dense{ font-size:13.5px; }
+  table.tbl.dense td{ padding:6.5px 9px; }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:16px; }
+  .legend .item{ display:flex; align-items:center; gap:7px; font-size:15px; color:var(--ink); }
+  .legend .dot{ width:11px; height:11px; border-radius:50%; flex-shrink:0; border:1px solid rgba(0,0,0,.12); }
+
+  .pillrow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+  .pill{
+    display:inline-flex; align-items:center; height:30px; padding:0 14px; border-radius:999px;
+    border:1px solid var(--border); background:var(--card-bg); font-size:14px; color:var(--ink); white-space:nowrap;
+  }
+
+  code.mono{ font-family:var(--mono); font-size:.92em; background:hsl(0 0% 50% / .1); padding:1px 5px; border-radius:4px; }
+
+  .codebox{
+    background:var(--code-bg); color:var(--code-ink); font-family:var(--mono); font-size:13.5px;
+    border-radius:10px; padding:12px 16px; margin-top:14px; line-height:1.65; overflow-x:auto;
+    white-space:pre;
+  }
+  .codebox .k{ color:#7dd3fc; } .codebox .s{ color:#86efac; } .codebox .c{ color:#7885a0; }
+
+  .flowrow{ display:flex; align-items:stretch; gap:8px; margin-top:18px; flex-wrap:wrap; }
+  .flowrow .fstep{ flex:1; min-width:150px; }
+  .flowrow .farrow{ display:flex; align-items:center; justify-content:center; color:var(--muted2); font-size:18px; flex:0 0 auto; }
+
+  .badge{
+    display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:999px;
+    font-size:10.5px; font-weight:700; letter-spacing:.02em;
+  }
+  .badge.ok{ background:rgba(22,163,74,.14); color:#16a34a; }
+  .badge.part{ background:rgba(217,119,6,.14); color:#d97706; }
+  .badge.no{ background:rgba(100,116,139,.14); color:#64748b; }
+
+  /* Divider (part) slides */
+  .slide.divider{ justify-content:center; }
+  .divider .roman{
+    position:absolute; left:72px; top:50%; transform:translateY(-56%);
+    font-size:180px; font-weight:800; line-height:1; letter-spacing:-.02em;
+    color:var(--blue); opacity:.12; user-select:none; pointer-events:none;
+  }
+  .divider .stagechip{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:14px;
+    color:var(--muted); margin-bottom:18px; letter-spacing:.04em;
+  }
+  .divider .stagechip .sw{ width:11px; height:11px; border-radius:3px; }
+  .divider h1.title{ position:relative; font-size:50px; }
+  .divider p.subtitle{ position:relative; }
+  .divider .pillrow{ position:relative; }
+
+  /* Title slide */
+  .slide.titleslide{ align-items:flex-start; }
+  .titleslide .kicker{
+    display:inline-flex; align-items:center; gap:8px; font-size:15px; color:var(--muted);
+    border:1px solid var(--border); border-radius:999px; padding:6px 16px 6px 12px; margin-bottom:24px;
+    background:var(--page-bg);
+  }
+  .titleslide .kicker .bullet{ width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .titleslide h1.title{ font-size:54px; max-width:1080px; }
+
+  /* Closing slide */
+  .slide.closing{ align-items:center; text-align:center; }
+  .closing h1.title{ max-width:none; }
+  .closing p.subtitle{ max-width:640px; margin-left:auto; margin-right:auto; }
+  .closing .cta{ display:flex; gap:12px; margin-top:26px; flex-wrap:wrap; justify-content:center; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; height:38px; padding:0 20px;
+    border-radius:10px; font-size:14px; font-weight:600; text-decoration:none; border:1px solid var(--border);
+  }
+  .btn.primary{ background:var(--ink); color:var(--page-bg); border-color:var(--ink); }
+  .btn.ghost{ background:var(--card-bg); color:var(--ink); }
+
+  /* 底部工具列 */
+  .slidebar{
+    flex-shrink:0; display:flex; align-items:center; gap:12px;
+    padding:11px 18px; background:#ffffff; border-top:1px solid #ebedf0; color:#5f6368;
+  }
+  .slidebar .counter{
+    flex-shrink:0; font-family:var(--mono); font-size:12px; color:#5f6368; user-select:none; white-space:nowrap;
+  }
+  .seekbar{ position:relative; flex:1; min-width:0; height:6px; border-radius:3px; background:#e6e9ec; cursor:pointer; }
+  .seekbar .seek-fill{
+    position:absolute; left:0; top:0; bottom:0; border-radius:3px; background:#2563eb;
+    transition:width .25s ease; pointer-events:none;
+  }
+  .seekbar .seek-knob{
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:13px; height:13px; border-radius:50%; background:#fff; border:2px solid #2563eb;
+    box-shadow:0 1px 3px rgba(0,0,0,.22); opacity:0; transition:opacity .12s; pointer-events:none;
+  }
+  .seekbar:hover .seek-knob{ opacity:1; }
+  .seekbar .seek-tip{
+    position:absolute; bottom:16px; transform:translateX(-50%);
+    background:#3c4043; color:#fff; font-size:11px; padding:2px 7px; border-radius:4px;
+    white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .1s; font-family:var(--mono);
+  }
+  .seekbar:hover .seek-tip{ opacity:1; }
+  .navbtn, .sb-fs{
+    flex-shrink:0; width:32px; height:32px; border-radius:50%; border:none; background:transparent; color:#5f6368;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-family:inherit;
+  }
+  .navbtn{ font-size:19px; }
+  .navbtn:hover, .sb-fs:hover{ background:#f1f3f4; color:#3c4043; }
+  .navbtn:disabled{ opacity:.3; cursor:default; }
+  .navbtn:disabled:hover{ background:transparent; }
+  .sb-fs .m-icon{
+    font-family:'Material Symbols Outlined'; font-size:20px; line-height:1;
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;
+  }
+
+  @media (max-width: 720px){
+    .filmstrip{ flex-basis:132px; }
+  }
+</style>
+<script>
+  /* header 跟首頁一致：讀首頁 app 存在 localStorage 的主題，渲染前套 .dark / data-theme。 */
+  (function () {
+    var dark = true, accent = 'blue';
+    try {
+      var s = JSON.parse(localStorage.getItem('adapt-metro:session:v1') || '{}');
+      if (typeof s.dark === 'boolean') dark = s.dark;
+      if (typeof s.accent === 'string') accent = s.accent;
+    } catch (e) { /* 用預設 */ }
+    var root = document.documentElement;
+    if (dark) root.classList.add('dark');
+    if (accent && accent !== 'blue') root.dataset.theme = accent;
+  })();
+</script>
+</head>
+<body>
+<!-- 逐字對齊首頁 TopToolbar：brand＋論文內容（左上角）＋Skills（靠右起點）＋系統介紹＋相關連結 -->
+<header class="app-toolbar">
+  <a class="brand" href="../../" title="重新載入">
+    <span class="material-symbols-outlined m-icon" style="font-size:16px">map</span>
+    <span class="brand-name">Adapt-Metro</span>
+  </a>
+  <a class="btn-ghost skills-link" href="../../">Skills</a>
+  <a class="btn-ghost active" href="./">論文內容</a>
+  <a class="btn-ghost" href="../">系統介紹</a>
+  <div class="info-wrap">
+    <button class="btn-ghost" id="relBtn" type="button">相關連結</button>
+    <div class="menu-pop" id="relMenu" hidden>
+      <div class="menu-label">相關連結</div>
+      <a class="menu-item" href="https://en.wikipedia.org/wiki/List_of_metro_systems" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined m-icon" style="font-size:14px">open_in_new</span> Metro systems (Wikipedia)</a>
+      <a class="menu-item" href="https://www.urbanrail.net/" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined m-icon" style="font-size:14px">open_in_new</span> UrbanRail.net</a>
+    </div>
+  </div>
+</header>
+<div class="workspace">
+<aside class="filmstrip" id="filmstrip" aria-label="投影片縮圖"></aside>
+<div class="deck" id="deck">
+<div class="stage" id="stage">
+
+  <!-- 1: TITLE -->
+  <section class="slide titleslide active" data-title="論文內容">
+    <div class="kicker"><span class="bullet"></span> 博士論文 · DOCTORAL DISSERTATION</div>
+    <h1 class="title">自適應版面的<br/>地理空間網絡資料視覺化</h1>
+    <p class="subtitle" style="font-family:var(--mono); font-size:15px; letter-spacing:.02em;">Adaptive Layout Display Method for Geospatial Network Data</p>
+    <p class="subtitle">鄭凱文 Kai-Wen Cheng ・ 指導教授：溫在弘 博士<br/>國立臺灣大學理學院地理環境資源學系</p>
+    <div class="grid cols-3" style="max-width:1080px;">
+      <div class="card blue">
+        <div class="label">PILOT STUDY 1</div>
+        <h3>博士論文計畫書（無 AI）</h3>
+        <p>「自適應版面的地理空間網絡資料視覺化」——確立問題、文獻架構與網格式演算法框架。</p>
+      </div>
+      <div class="card purple">
+        <div class="label">PILOT STUDY 2</div>
+        <h3>國科會計畫書（含 AI）</h3>
+        <p>「強化交通網絡流量視覺的自適應圖形繪製演算法」——兩年期：演算法框架＋AI Agent 與 RAG。</p>
+      </div>
+      <div class="card amber">
+        <div class="label">現行系統</div>
+        <h3>Adapt-Metro</h3>
+        <p>兩份計畫書的構想落地為 234 城全量、四階段管線、九條直線鏈與 LLM 離線整合的可運行系統。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2: ROADMAP -->
+  <section class="slide" data-title="簡報結構">
+    <div class="eyebrow"><span class="tag"><b>00</b>簡報結構</span><span class="rule"></span><span class="eng">ROADMAP</span></div>
+    <h1 class="title">從兩個 Pilot Study 到一本博士論文</h1>
+    <p class="subtitle">本論文的內容由兩份計畫書（pilot studies）演進而來：先在計畫書中確立研究問題、文獻架構與演算法框架，再以 <strong>Adapt-Metro 系統</strong>把框架完整實作並擴充到全球尺度。簡報依論文章節順序展開：</p>
+    <div class="grid cols-3">
+      <div class="card blue"><div class="label">PART I</div><h3>研究源流</h3><p>兩份計畫書的定位、共同架構、初步結果，以及「計畫書 → 系統」的逐項對應。</p></div>
+      <div class="card purple"><div class="label">PART II · CH1</div><h3>緒論</h3><p>研究背景與動機、三個研究問題、研究目的、範圍與限制。</p></div>
+      <div class="card rose"><div class="label">PART III · CH2</div><h3>文獻回顧</h3><p>自動繪製路網圖／自適應視覺化／生成式 AI 視覺化三大領域與研究空缺。</p></div>
+      <div class="card amber"><div class="label">PART IV · CH3–4</div><h3>研究方法與系統實作</h3><p>四階段管線：資料 → 骨架格網 → 爬山＋三步鏈 → RWD 畫線；LLM 離線整合。</p></div>
+      <div class="card green"><div class="label">PART V · CH5</div><h3>實驗與評估</h3><p>系統級全量實測（已完成）＋使用者評估設計（承計畫書規劃）。</p></div>
+      <div class="card blue"><div class="label">PART VI · CH6–7</div><h3>貢獻與規劃</h3><p>論文章節規劃、預期貢獻、發表與時程。</p></div>
+    </div>
+  </section>
+
+  <!-- 3: DIVIDER I -->
+  <section class="slide divider" data-title="研究源流">
+    <div class="roman">I</div>
+    <div class="stagechip"><span class="sw" style="background:var(--blue);"></span>PART I · PILOT STUDIES</div>
+    <h1 class="title">研究源流 ——<br/>兩份計畫書</h1>
+    <p class="subtitle">同一個研究母題的兩次凝視：先確立「自適應路網圖」的演算法框架（無 AI 版），再加入 AI Agent 與 RAG 的智慧化路線（國科會版）——最後在 Adapt-Metro 中合流。</p>
+    <div class="pillrow">
+      <span class="pill">博士論文計畫書（2024/10）</span><span class="pill">國科會計畫書</span><span class="pill">共同演算法框架</span><span class="pill">初步結果與教訓</span><span class="pill">計畫書 → 系統對應</span>
+    </div>
+  </section>
+
+  <!-- 4: PILOT 1 -->
+  <section class="slide" data-title="Pilot 1：博士論文計畫書">
+    <div class="eyebrow"><span class="tag"><b>01</b>Pilot Study 1</span><span class="rule"></span><span class="eng">DISSERTATION PROPOSAL (NO AI)</span></div>
+    <h1 class="title">博士論文計畫書：自適應版面的地理空間網絡資料視覺化</h1>
+    <p class="subtitle">2024 年 10 月提交。<strong>不含 AI 概念</strong>，聚焦把「含流量屬性的空間網絡」合理顯示在各種尺寸版面上：以<strong>網格</strong>為基本運算單位、以<strong>路網圖（示意圖）</strong>為表現形式、以<strong>地圖屬性概括化</strong>處理版面塞不下的內容，並可動態縮放重要資料區域。</p>
+    <div class="grid cols-2" style="margin-top:14px;">
+      <div class="card blue">
+        <div class="label">章節結構（7 章）</div>
+        <p>第 1 章 緒論（背景動機／目的／目標／範圍）・第 2 章 文獻回顧（響應式與自適應資料視覺化／空間路網圖視覺化／地圖概括化）・第 3 章 研究架構（資料收集／處理／實驗目標／實驗設計／開發）・第 4 章 實驗評估（受訪者／測試地圖／問卷）・第 5 章 初步結果・第 6 章 預期結果・第 7 章 研究時程。</p>
+      </div>
+      <div class="card blue">
+        <div class="label">核心論點</div>
+        <p>審視三個領域可發現：<strong>網格</strong>最適合作為自適應視覺化的基本運算單位；<strong>路網圖</strong>能簡化形狀與方向、保留拓撲、去除非關鍵元素；而<strong>針對路網圖做屬性概括化</strong>的研究相對稀少——這是明確的研究空缺。</p>
+      </div>
+      <div class="card green">
+        <div class="label">實驗資料</div>
+        <p>OpenStreetMap 台北捷運路網（站點、路線拓撲）＋台北捷運悠遊卡刷卡紀錄轉成的<strong>路線流量</strong>（多可能路線取最短路徑分配；年／月／日／時多時間尺度）。</p>
+      </div>
+      <div class="card green">
+        <div class="label">關鍵字</div>
+        <p>資料視覺化・地理視覺化・地鐵路線圖・路網圖・示意圖・地圖概括化・自適應設計・響應式設計。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5: PILOT 2 -->
+  <section class="slide" data-title="Pilot 2：國科會計畫書">
+    <div class="eyebrow"><span class="tag"><b>02</b>Pilot Study 2</span><span class="rule"></span><span class="eng">NSTC PROPOSAL (WITH AI)</span></div>
+    <h1 class="title">國科會計畫書：強化交通網絡流量視覺的自適應圖形繪製演算法</h1>
+    <p class="subtitle">在同一演算法框架上<strong>加入生成式 AI 路線</strong>（An Adaptive Layout Algorithm for Enhanced Visualization of Traffic Flow Networks）。兩年期設計：第一年建演算法、第二年讓 AI 接手調參數。</p>
+    <div class="grid cols-2" style="margin-top:12px;">
+      <div class="card blue">
+        <div class="label">第一年期 · 演算法框架</div>
+        <h3>建立演算法與確定繪製參數</h3>
+        <p>基於網格的自適應網絡圖演算法：資料預處理 → 定義起始參數 → 參數調整處理 → 版面顯示處理 → 繪圖處理，<strong>迭代試錯</strong>調整繪製參數找可行解；以使用者測試驗收。</p>
+      </div>
+      <div class="card purple">
+        <div class="label">第二年期 · AI 化</div>
+        <h3>LLM ＋ AI Agent ＋ RAG</h3>
+        <p>四個協作 Agent 接手第一年的四個處理階段：<strong>NLP Agent</strong>（自然語言 → 起始參數）、<strong>Parameter Setting Agent</strong>（依屬性重要性概括化）、<strong>Evaluation Agent</strong>（評估可否合理繪於版面、退回重調）、<strong>Generate Network Agent</strong>（外觀樣式與地標）；並建<strong>繪製參數 RAG 向量資料庫</strong>累積可被接受的參數組合。</p>
+      </div>
+    </div>
+    <table class="tbl dense">
+      <tr><th>研究問題</th><th>內容</th></tr>
+      <tr><td class="num">RQ1</td><td>如何發展<strong>通用演算法框架</strong>，依版面大小自動生成含流量屬性的交通網絡圖，突出重要內容、簡化次要資訊？</td></tr>
+      <tr><td class="num">RQ2</td><td>使用者能否<strong>識別因版面變化而調整的內容</strong>，並把圖上位置對應回真實位置？</td></tr>
+      <tr><td class="num">RQ3</td><td>如何引入 <strong>LLM＋AI Agent＋RAG</strong>，以自然語言指定繪製需求、依裝置尺寸與屬性內容動態優化地圖？</td></tr>
+    </table>
+  </section>
+
+  <!-- 6: COMMON FRAMEWORK -->
+  <section class="slide" data-title="共同演算法框架">
+    <div class="eyebrow"><span class="tag"><b>03</b>共同架構</span><span class="rule"></span><span class="eng">SHARED FRAMEWORK</span></div>
+    <h1 class="title">四個輸入、五個處理階段</h1>
+    <p class="subtitle">兩份計畫書共用同一個演算法框架——這也是本論文方法論的骨架。<strong>四個輸入</strong>：原始網絡（拓撲）、流量資料（屬性）、繪製版面（形狀大小）、繪製條件（使用情境）。</p>
+    <div class="flowrow">
+      <div class="card blue fstep"><div class="label">1</div><h3>資料預處理</h3><p>尋找最適空間網格大小（一格一站）→ 尋找最適直線化演算法 → 合併網絡與屬性成「空間網絡網格」。</p></div>
+      <div class="farrow">→</div>
+      <div class="card blue fstep"><div class="label">2</div><h3>定義起始參數</h3><p>依繪製條件設定所有繪製參數的起始值（版面網格最小單位長度等），降低試錯次數。</p></div>
+      <div class="farrow">→</div>
+      <div class="card blue fstep"><div class="label">3＋4</div><h3>參數調整＋版面顯示</h3><p>空間網絡網格投影到版面網格；塞不下就依屬性重要性<strong>概括化</strong>（合併不重要的節點與連結）、迭代到能置入；再依屬性重要性<strong>縮放網格</strong>（放大擁擠路段）。</p></div>
+      <div class="farrow">→</div>
+      <div class="card blue fstep"><div class="label">5</div><h3>繪圖處理</h3><p>加入顏色、線寬等視覺參數與重要地標，提升可讀性與美感。</p></div>
+    </div>
+    <p class="subtitle" style="margin-top:16px;">第二年期的四個 AI Agent 與此一一對應：定義起始參數＝<strong>NLP Agent</strong>、參數調整＝<strong>Parameter Setting Agent</strong>、版面顯示＝<strong>Evaluation Agent</strong>、繪圖處理＝<strong>Generate Network Agent</strong>——「AI 是框架的另一種實現」是計畫書的核心主張。</p>
+  </section>
+
+  <!-- 7: PRELIMINARY RESULTS -->
+  <section class="slide" data-title="初步結果與教訓">
+    <div class="eyebrow"><span class="tag"><b>04</b>初步結果</span><span class="rule"></span><span class="eng">PRELIMINARY RESULTS</span></div>
+    <h1 class="title">初步實作與它教會我們的事</h1>
+    <p class="subtitle">計畫書階段完成了「資料預處理」的初步實作——也暴露了單一演算法的極限，直接促成現行系統「多演算法並列比較」的設計。</p>
+    <div class="grid cols-2" style="margin-top:10px;">
+      <div class="card green">
+        <div class="label">已完成 ①</div>
+        <h3>車站分配到空間網絡網格</h3>
+        <p>以<strong>最近相鄰站距</strong>決定網格大小，台北捷運路網投影到網格、每格至多一站，再刪除整行／整列沒有車站的網格軸——得到分佈均勻的網格結構。</p>
+      </div>
+      <div class="card green">
+        <div class="label">已完成 ②</div>
+        <h3>Stroke-based 線段直線化</h3>
+        <p>依 Li &amp; Dong (2010)：計算線段方向決定投影軸 → 建投影多邊形檢查是否壓到其他車站（壓到就外移）→ 投影到網格線 → 斜線轉直角。</p>
+      </div>
+      <div class="card rose" style="grid-column:1/-1;">
+        <div class="label">教訓 → 設計決策</div>
+        <h3>「路線直線化後仍不夠筆直」</h3>
+        <p>計畫書自承：車站相對位置保留完好，但直線化結果不夠筆直——線段在投影過程未能有效串接。這個觀察成為現行系統兩個關鍵決策的起點：（1）<strong>不押注單一直線化演算法</strong>——把八篇經典論文各實作成一條可並列比較的「直線鏈」；（2）直線化之後還需要<strong>專門的壓縮機構</strong>——這催生了 movewise 三步鏈循環（端點移動 → 直線縮減 → 網格合併）。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8: PROPOSAL -> SYSTEM MAPPING -->
+  <section class="slide" data-title="計畫書 → 系統對應">
+    <div class="eyebrow"><span class="tag"><b>05</b>計畫書 → 系統</span><span class="rule"></span><span class="eng">FROM PROPOSALS TO SYSTEM</span></div>
+    <h1 class="title">每一個計畫書概念，都有系統落點</h1>
+    <table class="tbl dense">
+      <tr><th>計畫書概念</th><th>Adapt-Metro 實作</th></tr>
+      <tr><td>資料預處理（台北單城、OSM＋流量）</td><td><strong>三條資料管線</strong>（Metro 234 城／Railway 12 國／Highway 3 都會區），fetch ⇄ audit 迴圈、逐城驗證收斂</td></tr>
+      <tr><td>尋找最適空間網格大小（一格一站）</td><td>Stage 2 <strong>示意格網化</strong>：彩色點以 x/y 排名吸附到整數格、一格一點、撞格外擴</td></tr>
+      <tr><td>尋找最適直線化演算法</td><td><strong>直線演算法九條鏈</strong>：論文①〜⑧＋LLM 對齊並列實作、同一硬規則、可逐城比較擇優</td></tr>
+      <tr><td>依屬性重要性概括化／迭代尋找最佳解</td><td><strong>movewise 三步鏈循環</strong>：端點移動→直線縮減→網格合併，每步守單調不變式、迭代到全靜止</td></tr>
+      <tr><td>依屬性重要性縮放網格（放大擁擠路段）</td><td>RWD <strong>流量權重</strong>：link weight → 非均勻欄寬列高、白點自動隱藏；<strong>魚眼放大鏡</strong>區域縮放</td></tr>
+      <tr><td>版面顯示處理（繪製版面輸入）</td><td>RWD <strong>版面模擬</strong>：手機直橫／iPad／IG 貼文等 artboard，版面一變就在新像素座標重新求解</td></tr>
+      <tr><td>繪圖處理＋加入重要地標</td><td>D3 渲染（官方線色、線寬、站點樣式）＋獨立 <strong>Landmark 圖層</strong>（河流骨架線、皇居／中央公園面域）</td></tr>
+      <tr><td>NLP Agent（自然語言 → 參數）</td><td><strong>LLM 指定對齊</strong>／<strong>LLM 互動</strong>：使用者一句話 → 模型推理佈局調整或欄列權重</td></tr>
+      <tr><td>Parameter Setting ＋ Evaluation Agent 迭代</td><td><strong>LLM 對齊／評價</strong>：模型提案 → 確定性硬規則驗證，違反退回迭代（提案是模型的、合法性不是）</td></tr>
+      <tr><td>Generate Network Agent</td><td><strong>LLM 成方</strong>（Shape-Guided）＋ RWD 重繪；<strong>LLM 比較</strong>當唯讀評審選最佳結果</td></tr>
+      <tr><td>繪製參數 RAG 向量資料庫</td><td>離線結果檔（<code class="mono">llmviews/ llmgrids/ llmevals/ llmcompares/</code>）＋ fingerprint 驗證＋ 36 份 skill 契約——參數與裁決不失傳</td></tr>
+    </table>
+  </section>
+
+  <!-- 9: DIVIDER II -->
+  <section class="slide divider" data-title="緒論">
+    <div class="roman">II</div>
+    <div class="stagechip"><span class="sw" style="background:var(--purple);"></span>PART II · CHAPTER 1</div>
+    <h1 class="title">緒論 ——<br/>背景、問題與範圍</h1>
+    <p class="subtitle">為什麼「自適應的路網圖」是一個值得做的博士題目：從 Harry Beck 到行動裝置，再到生成式 AI。</p>
+    <div class="pillrow">
+      <span class="pill">研究背景與動機</span><span class="pill">三個研究問題</span><span class="pill">研究目的</span><span class="pill">範圍與限制</span>
+    </div>
+  </section>
+
+  <!-- 10: BACKGROUND -->
+  <section class="slide" data-title="研究背景與動機">
+    <div class="eyebrow"><span class="tag"><b>06</b>研究背景</span><span class="rule"></span><span class="eng">BACKGROUND &amp; MOTIVATION</span></div>
+    <h1 class="title">五條動機線，交會在同一個問題上</h1>
+    <div class="stack">
+      <div class="row"><div class="num-badge">1</div><div class="rowtext"><h4>拓撲地圖的傳統：Harry Beck 1933</h4><p>倫敦地鐵圖以水平／垂直／45° 直線取代地理曲線，成為全球交通路線圖的設計標準——但至今大多仍是<strong>人工繪製、風格互異</strong>，每張新圖都要重新學習閱讀；Cerovic (2016) 的「One Metro World」標準化元件是統一化的先聲。</p></div></div>
+      <div class="row"><div class="num-badge">2</div><div class="rowtext"><h4>城市數據與 IoT：空間網絡資料暴增</h4><p>行動裝置與物聯網讓城市運營數據成為含空間資訊的中大型網絡資料；近年文獻致力於城市空間網絡動態數據的視覺化系統，但多為<strong>特定數據、特定目的</strong>而設計，缺乏統一標準（Nobre et al. 2019；Schöttler et al. 2021）。</p></div></div>
+      <div class="row"><div class="num-badge">3</div><div class="rowtext"><h4>行動裝置超越桌機：版面適應成為硬需求</h4><p>行動裝置市佔已超過桌上型電腦（Rathore et al. 2024）；網絡圖必須能在各種尺寸的顯示平台上合理呈現——線性縮放讓整體趨勢難以理解，需要真正的<strong>自適應</strong>。</p></div></div>
+      <div class="row"><div class="num-badge">4</div><div class="rowtext"><h4>屬性資料的加入：主題化的路網圖</h4><p>把流量（擁擠度）等屬性疊上路網圖，需要「重要的放大、次要的簡化」——而<strong>網絡主題圖的概括化與縮放</strong>在文獻中幾乎沒有被處理。</p></div></div>
+      <div class="row"><div class="num-badge">5</div><div class="rowtext"><h4>生成式 AI 的機會</h4><p>LLM＋AI Agent＋RAG 能以自然語言驅動視覺化流程（「顯示擁擠路段」→ 自動生成突顯結果）——但現有 NL2VIS 研究僅止於統計圖表，<strong>路網圖沒有方法架構</strong>。</p></div></div>
+    </div>
+  </section>
+
+  <!-- 11: RQ & PURPOSE -->
+  <section class="slide" data-title="研究問題與目的">
+    <div class="eyebrow"><span class="tag"><b>07</b>研究問題</span><span class="rule"></span><span class="eng">RESEARCH QUESTIONS</span></div>
+    <h1 class="title">一個目的、三個研究問題</h1>
+    <p class="subtitle"><strong>研究目的</strong>：開發能夠適應不同大小／形狀版面的<strong>通用資料視覺化演算法框架</strong>——整合路網圖自動繪製與地圖屬性概括化，讓含流量屬性的網絡圖在不更改空間結構的前提下合理顯示於任何版面，同時突顯關鍵資訊、簡化次要內容。</p>
+    <div class="grid cols-3" style="margin-top:14px;">
+      <div class="card blue">
+        <div class="label">RQ1 · 演算法</div>
+        <h3>通用框架怎麼建？</h3>
+        <p>如何依顯示版面大小自動生成含流量屬性的交通網絡圖，合理突出重要內容並簡化次要資訊，且易於透過參數調整、具擴充性？</p>
+      </div>
+      <div class="card purple">
+        <div class="label">RQ2 · 使用者</div>
+        <h3>讀圖的人看得懂嗎？</h3>
+        <p>使用者查看交通網絡圖時，是否容易識別因版面大小變化而調整的內容，並理解圖上位置對應到真實世界的何處？</p>
+      </div>
+      <div class="card rose">
+        <div class="label">RQ3 · AI</div>
+        <h3>AI 能接手嗎？</h3>
+        <p>如何引入 LLM 並結合 AI Agent 與 RAG 機制，透過自然語言指定繪製需求，依裝置尺寸與屬性內容動態優化地圖？</p>
+      </div>
+    </div>
+    <p class="subtitle" style="margin-top:16px;">RQ1 由四階段管線與三步鏈回答；RQ2 由使用者評估設計回答；RQ3 由 LLM 離線整合（對齊／互動／評價／比較／成方）回答——三條線在後面各有專節。</p>
+  </section>
+
+  <!-- 12: SCOPE -->
+  <section class="slide" data-title="研究範圍與限制">
+    <div class="eyebrow"><span class="tag"><b>08</b>研究範圍</span><span class="rule"></span><span class="eng">SCOPE</span></div>
+    <h1 class="title">做什麼、不做什麼</h1>
+    <div class="grid cols-2" style="margin-top:8px;">
+      <div class="card green">
+        <div class="label">IN SCOPE</div>
+        <h3>本論文處理</h3>
+        <p>路網圖的<strong>自動佈局</strong>（layout）與<strong>自適應繪製</strong>；<strong>屬性概括化</strong>與重要區域縮放；<strong>網格</strong>為計算單位（含四／八／十六方向約束畫線）；LLM 輔助的佈局調整與評價；以 OSM 為來源的<strong>可重現資料管線</strong>。</p>
+      </div>
+      <div class="card rose">
+        <div class="label">OUT OF SCOPE</div>
+        <h3>暫不處理</h3>
+        <p>車站<strong>標籤繪製</strong>（labelling）、<strong>佈線問題</strong>（wiring）、線段方向性；即時流量串接；深度學習端到端生成（本論文的 AI 路線是「模型提案＋確定性驗證」而非黑盒生成）。</p>
+      </div>
+    </div>
+    <div class="grid cols-3" style="margin-top:12px;">
+      <div class="card blue"><div class="label">為什麼用網格</div><p>節點／連結的聚合計算有依據、不破壞拓撲；與示意圖的固定方向線條天然相容；易於快取與縮放特定位置。</p></div>
+      <div class="card blue"><div class="label">為什麼用路網圖</div><p>兼具「圖表」的抽象表達與「地圖」的空間結構（Cartwright 2015）；簡化形狀方向、保留拓撲、去除非關鍵元素。</p></div>
+      <div class="card blue"><div class="label">為什麼用台北捷運起步</div><p>OSM 資料完整、悠遊卡流量可得；框架驗證後擴充到 234 城——通用性由「同一套程式吃三種資料」證明。</p></div>
+    </div>
+  </section>
+
+  <!-- 13: DIVIDER III -->
+  <section class="slide divider" data-title="文獻回顧">
+    <div class="roman">III</div>
+    <div class="stagechip"><span class="sw" style="background:var(--rose);"></span>PART III · CHAPTER 2</div>
+    <h1 class="title">文獻回顧 ——<br/>三大領域與研究空缺</h1>
+    <p class="subtitle">自動繪製路網圖、自適應資料視覺化、生成式 AI 視覺化——三條文獻脈絡各自成熟，但它們的交集是空的。</p>
+    <div class="pillrow">
+      <span class="pill">路網圖自動繪製</span><span class="pill">自適應圖表／地圖</span><span class="pill">生成式 AI 視覺化</span><span class="pill">研究空缺</span>
+    </div>
+  </section>
+
+  <!-- 14: LIT OVERVIEW -->
+  <section class="slide" data-title="文獻三大領域">
+    <div class="eyebrow"><span class="tag"><b>09</b>文獻總覽</span><span class="rule"></span><span class="eng">LITERATURE MAP</span></div>
+    <h1 class="title">三條脈絡的交集是空的——那就是本論文</h1>
+    <div class="grid cols-3" style="margin-top:8px;">
+      <div class="card blue">
+        <div class="label">領域 1</div>
+        <h3>路網圖自動繪製</h3>
+        <p>1933 年以降的示意圖傳統，自動化演算法在<strong>速度與品質之間拉鋸</strong>：爬山（Stott 2005/2011）、MILP（Nöllenburg &amp; Wolff 2011）品質高但慢；stroke-based（Li &amp; Dong 2010）、力導向（Chivers 2014）快但需驗證；預定義網格（Bast 2020/2021）折衷但網格密度難調。</p>
+      </div>
+      <div class="card purple">
+        <div class="label">領域 2</div>
+        <h3>自適應資料視覺化</h3>
+        <p><strong>自適應圖表</strong>重資訊重組：資訊顯示密度與訊息保留程度的權衡（Kim et al. 2021）；<strong>自適應地圖</strong>重區域縮放：魚眼、四角／三角網格縮放單位（Haunert 2011、Ti 2014/2015）——多數縮放參數難控、未必考慮版面大小。</p>
+      </div>
+      <div class="card rose">
+        <div class="label">領域 3</div>
+        <h3>生成式 AI 視覺化</h3>
+        <p>NL2VIS／GenAI4VIS：Chat2VIS（LLM 生成繪圖程式碼）、MatPlotAgent（Agent 模擬人類繪圖流程）、VisEval／MatPlotBench（GPT-4V 評估基準）——<strong>全部止步於統計圖表</strong>。</p>
+      </div>
+    </div>
+    <div class="card amber" style="margin-top:14px;">
+      <div class="label">研究空缺（本論文的立足點）</div>
+      <p>（1）空間網絡上<strong>同時對節點與連結做屬性抽象化</strong>的方法稀少（Schöttler et al. 2021）；（2）<strong>網絡主題圖（含流量屬性）的概括化與縮放</strong>沒有文獻處理——現有縮放研究只管線段不管車站分佈（Ti），或限單一導航路線（Wang 2011）；（3）用 <strong>LLM 繪製／調整流動網絡圖</strong>尚無方法架構。</p>
+    </div>
+  </section>
+
+  <!-- 15: LIT AUTO-DRAWING -->
+  <section class="slide" data-title="文獻：自動繪製">
+    <div class="eyebrow"><span class="tag"><b>10</b>領域 1</span><span class="rule"></span><span class="eng">AUTOMATIC SCHEMATIC DRAWING</span></div>
+    <h1 class="title">八篇經典，各實作成一條可比較的鏈</h1>
+    <p class="subtitle">文獻回顧不停在「讀過」——八篇代表性論文<strong>各自完整實作</strong>成系統中的「直線鏈」，在同一輸入、同一硬規則下並列比較。這是本論文文獻回顧的方法論特色：<strong>用實作回顧文獻</strong>。</p>
+    <table class="tbl dense">
+      <tr><th>#</th><th>文獻</th><th>方法要旨</th><th>系統落點</th></tr>
+      <tr><td class="num">①</td><td>Li &amp; Dong 2010</td><td>段串成筆畫、依方向扭曲切分、投影到 H/V/45° 定向直線</td><td>筆畫法 <code class="mono">route-stroke-align</code></td></tr>
+      <tr><td class="num">②</td><td>Stott et al. 2011 (TVCG)</td><td>多準則爬山（角解析度／邊長／平衡／平直／八方向＋硬規則）</td><td>爬山主依據＋直角爬山 <code class="mono">route-rect-polish</code></td></tr>
+      <tr><td class="num">③</td><td>Nöllenburg &amp; Wolff 2011</td><td>混合整數規劃的方向指派＋座標重建</td><td>MILP規劃 <code class="mono">route-milp-align</code></td></tr>
+      <tr><td class="num">④</td><td>Hong et al. 2006</td><td>磁力彈簧力導向（引力＋斥力＋八方向磁場力）</td><td>力導向 <code class="mono">route-force-align</code></td></tr>
+      <tr><td class="num">⑤</td><td>Wang &amp; Chi 2011</td><td>Focus+Context 最小平方（目標向量旋到最近八方向）</td><td>最小平方 <code class="mono">route-lsq-align</code></td></tr>
+      <tr><td class="num">⑥</td><td>Bast et al. 2020</td><td>八向格網逐邊定案（一格一站、成本含彎折）</td><td>八向格網 <code class="mono">route-octi-align</code></td></tr>
+      <tr><td class="num">⑦</td><td>Merrick &amp; Gudmundsson 2007</td><td>C-directed 路徑簡化（ε-圓刺穿最少 link）</td><td>路徑簡化 <code class="mono">route-path-align</code></td></tr>
+      <tr><td class="num">⑧</td><td>Fuchs 2022</td><td>與③同模型、求解器換 SAT／DPLL 分支定界</td><td>SAT規劃 <code class="mono">route-sat-align</code></td></tr>
+      <tr><td class="num">＋</td><td>Batik et al. 2022</td><td>Shape-Guided：規定路段貼成幾何形狀</td><td>LLM 成方 <code class="mono">route-shape-align</code>（掛循環之後）</td></tr>
+    </table>
+  </section>
+
+  <!-- 16: LIT ADAPTIVE -->
+  <section class="slide" data-title="文獻：自適應視覺化">
+    <div class="eyebrow"><span class="tag"><b>11</b>領域 2</span><span class="rule"></span><span class="eng">RESPONSIVE &amp; ADAPTIVE VIS</span></div>
+    <h1 class="title">路網圖＝「圖表」×「地圖」，兩邊文獻都要</h1>
+    <p class="subtitle">路網圖同時具備圖表的抽象表達與地圖的空間結構（Cartwright 2015）——因此自適應設計必須同時回顧兩邊。</p>
+    <div class="grid cols-2" style="margin-top:10px;">
+      <div class="card purple">
+        <div class="label">自適應圖表 · 著重資訊重組</div>
+        <h3>密度與保留的權衡</h3>
+        <p>Kim et al. (2021)：響應式視覺化的兩大問題是<strong>資訊顯示密度</strong>（最小物件尺寸要肉眼可辨）與<strong>訊息保留程度</strong>（概括化不能過度到誤解）。對應本論文：版面網格的最小單位長度定義、依屬性重要性的節點／連結概括化——不同版面的讀者要對相同數據有一致理解。</p>
+      </div>
+      <div class="card purple">
+        <div class="label">自適應地圖 · 著重區域縮放</div>
+        <h3>放大重要、縮小次要</h3>
+        <p>魚眼縮放（Yamamoto 2009）、四角／三角網格縮放單位（Haunert 2011、Wu 2012、Ti 2015、van Dijk 2013）、專用演算法（Wang 2011、Galvão 2023）。本論文取<strong>縮放不超出原始邊界</strong>（顯示畫面固定）且<strong>可多位置縮放</strong>的路線——現有方法只縮線段不管車站分佈（Ti 2014/2015），或限單一導航路線放大（Wang 2011）。</p>
+      </div>
+    </div>
+    <div class="card blue" style="margin-top:12px;">
+      <div class="label">在系統中的體現</div>
+      <p>資訊密度 → RWD 最小站距與白點自動隱藏；訊息保留 → 拓撲鐵律（概括化絕不改變拓撲與相對位置關係）；區域縮放 → 流量權重欄寬列高＋魚眼放大鏡（焦點細格撐開、遠處壓扁、外框固定、每幀重繞線）。</p>
+    </div>
+  </section>
+
+  <!-- 17: LIT GENAI -->
+  <section class="slide" data-title="文獻：生成式 AI">
+    <div class="eyebrow"><span class="tag"><b>12</b>領域 3</span><span class="rule"></span><span class="eng">GENERATIVE AI FOR VIS</span></div>
+    <h1 class="title">NL2VIS 止步於統計圖表——路網圖是空缺</h1>
+    <p class="subtitle">核心式 <code class="mono">V = f(x, D)</code>：使用者以自然語言指令 x 與資料集 D，讓 AI 系統 f 生成正確、合理、易懂的圖表 V（Yang et al. 2024）。但 LLM 訓練文本廣而不精，直接生成常失敗——需生成繪圖程式碼、檢索重用、或引入 Agent 與 RAG。</p>
+    <table class="tbl dense">
+      <tr><th>研究</th><th>做法</th><th>限制</th></tr>
+      <tr><td>Chat2VIS（Maddigan 2023）</td><td>LLM 依指令生成繪圖程式碼、自選圖表形式</td><td>圖表美感控制不足</td></tr>
+      <tr><td>MatPlotAgent（Yang 2024）</td><td>AI Agent 模擬人類專家繪圖流程（指令轉換／生碼／檢視）</td><td>以科學數據視覺化為基準，未涵蓋其他領域</td></tr>
+      <tr><td>RGVisNet（Song 2022)</td><td>檢索＋重用相似程式碼的混合框架</td><td>依賴既有程式碼庫</td></tr>
+      <tr><td>VisEval／MatPlotBench（Chen 2024／Yang 2024）</td><td>GPT-4V 評估生成圖表的有效性／契合性／可讀性</td><td>評的是統計圖表</td></tr>
+    </table>
+    <div class="card rose" style="margin-top:12px;">
+      <div class="label">本論文的回應</div>
+      <p>不讓 LLM 直接「畫」：LLM 只<strong>提案</strong>（移動、權重、評語、形狀），所有提案經<strong>確定性硬規則</strong>驗證後才落地（拓撲不變、H/V 淨變差整批退回）——「提案是模型的判斷，合法性不是」。同時以 LLM 比較（唯讀評審）承接 VisEval 式的品質評估思路。</p>
+    </div>
+  </section>
+
+  <!-- 18: DIVIDER IV -->
+  <section class="slide divider" data-title="研究方法">
+    <div class="roman">IV</div>
+    <div class="stagechip"><span class="sw" style="background:var(--amber);"></span>PART IV · CHAPTERS 3–4</div>
+    <h1 class="title">研究方法 ——<br/>四階段管線與系統實作</h1>
+    <p class="subtitle">計畫書的五階段框架，落地為 Adapt-Metro 的四階段管線：純函式、確定性、零求解器依賴、全部在瀏覽器內完成。</p>
+    <div class="pillrow">
+      <span class="pill">Stage 1 · 資料</span><span class="pill">Stage 2 · 骨架與格網</span><span class="pill">Stage 3 · 爬山＋三步鏈</span><span class="pill">Stage 4 · RWD 畫線</span><span class="pill">LLM 離線整合</span>
+    </div>
+  </section>
+
+  <!-- 19: PIPELINE OVERVIEW -->
+  <section class="slide" data-title="四階段管線總覽">
+    <div class="eyebrow"><span class="tag"><b>13</b>方法總覽</span><span class="rule"></span><span class="eng">FOUR-STAGE PIPELINE</span></div>
+    <h1 class="title">真實路網 → 響應式示意圖，四步走完</h1>
+    <div class="grid cols-4" style="margin-top:10px;">
+      <div class="card blue"><div class="label">STAGE 1 · METRO MAPS</div><h3>真實路網</h3><p>OSM 抓取的城市地鐵／輕軌 GeoJSON，原始地理座標與官方線色。對應計畫書「資料預處理」的資料面。</p></div>
+      <div class="card purple"><div class="label">STAGE 2 · MAP ADJUST</div><h3>骨架與格網</h3><p>拓撲收縮成骨架，再以排名吸附到整數格。對應「尋找最適空間網格大小」。</p></div>
+      <div class="card rose"><div class="label">STAGE 3 · STRAIGHTEN</div><h3>爬山＋三步鏈循環</h3><p>多準則爬山＋九條直線鏈＋movewise 循環壓縮。對應「直線化＋概括化迭代」。</p></div>
+      <div class="card amber"><div class="label">STAGE 4 · RWD MAPS</div><h3>版面畫線</h3><p>4／8／16 方向折線、版面模擬、流量權重、魚眼。對應「版面顯示＋繪圖處理」。</p></div>
+    </div>
+    <div class="grid cols-3" style="margin-top:12px;">
+      <div class="card green"><div class="label">確定性</div><p>每階段都是純函式、無亂數——同輸入永遠同輸出；唯一例外是選用性的 LLM 功能（離線預算、存檔、網頁只載入）。</p></div>
+      <div class="card green"><div class="label">可回溯</div><p>「圖層即產線」：每階段是 Layers 面板一個群組，可逐步檢視、比較、回溯——不是黑盒子一次生成。</p></div>
+      <div class="card green"><div class="label">可重現</div><p>36 份 skill 是演算法與資料管線的實作契約——改演算法必同步改 skill，設計裁決不失傳。</p></div>
+    </div>
+  </section>
+
+  <!-- 20: STAGE 1 DATA -->
+  <section class="slide" data-title="Stage 1：資料">
+    <div class="eyebrow"><span class="tag"><b>14</b>Stage 1</span><span class="rule"></span><span class="eng">DATA PIPELINES</span></div>
+    <h1 class="title">一套 schema、三種路網：通用性的證明</h1>
+    <p class="subtitle">計畫書以台北單城起步；論文以「<strong>同一套演算法與渲染器完全不改就能吃三種資料</strong>」證明框架的通用性——這直接回答 RQ1 的「通用」二字。</p>
+    <table class="tbl">
+      <tr><th></th><th>Metro（地鐵／輕軌）</th><th>Railway（國家鐵路）</th><th>Highway（高速公路）</th></tr>
+      <tr><td>單位</td><td>一城市一檔</td><td>一國家（高鐵／一般兩檔；日本再拆 JR 六社）</td><td>一都會區一檔</td></tr>
+      <tr><td>「站」</td><td>地鐵站</td><td>車站（吸附到軌道圖）</td><td>交流道</td></tr>
+      <tr><td class="num">規模</td><td class="num">234 城 / 1,744 線 / 16,970 站</td><td class="num">12 國 / 368 線 / 6,779 站</td><td class="num">3 都會區 / 261 交流道</td></tr>
+    </table>
+    <div class="grid cols-2" style="margin-top:12px;">
+      <div class="card blue"><div class="label">fetch ⇄ audit 迴圈</div><p>Overpass 抓取 → Nominatim 反查 → 組檔 → 逐城 audit 到收斂；驗證不變式（站必有名、站必有線、逐線站數以 Wikipedia 為準…）error 級必修到 0；人工裁決一律落地 <code class="mono">_overrides/</code>，重抓自動套用。</p></div>
+      <div class="card blue"><div class="label">幾何三鐵律</div><p>線永遠壓在站點上（折點都是車站）；重疊路段只畫一條、每段必連續；快車不另成線（跳站標 <code class="mono">pass</code>）——這讓下游拓撲計算有乾淨的輸入。</p></div>
+    </div>
+  </section>
+
+  <!-- 21: STAGE 2 -->
+  <section class="slide" data-title="Stage 2：骨架與格網">
+    <div class="eyebrow"><span class="tag"><b>15</b>Stage 2</span><span class="rule"></span><span class="eng">SKELETON &amp; GRID</span></div>
+    <h1 class="title">先收縮拓撲，再吸附整數格</h1>
+    <div class="grid cols-2" style="margin-top:8px;">
+      <div class="card purple">
+        <div class="label">骨架化 · route-skeleton-connect</div>
+        <h3>拓撲收縮、不拉直、不新增</h3>
+        <p>以 route 站序建無向圖，節點依 degree 分<strong>紅</strong>（分歧／轉乘）／<strong>藍</strong>（端點）／<strong>黑</strong>（直通）；幾何真交叉補<strong>黃</strong>點；degree-2 黑點鏈收成保留原折線的「邊」——保留地理形狀、只做拓撲收縮與標記。</p>
+      </div>
+      <div class="card purple">
+        <div class="label">示意格網化 · route-skeleton-grid</div>
+        <h3>排名吸附：一格一點</h3>
+        <p>彩色點以 x/y「排名」吸附到整數格（撞格 Chebyshev 外擴），每條路線在彩色點切開、端點吸附拉直、黑點沿新邊平均放回。格網規模依城市：台北約 68×68、紐約約 160×160——正是計畫書「一格一站、刪空欄列」構想的一般化。</p>
+      </div>
+    </div>
+    <div class="card blue" style="margin-top:12px;">
+      <div class="label">旋轉變體 · Boeing 2019</div>
+      <p>每城另做「旋轉」變體：以長度加權<strong>方向熵</strong>與 φ 指標（φ = 1 − ((H−H<sub>grid</sub>)/(H<sub>max</sub>−H<sub>grid</sub>))²）偵測路網主軸角，主軸明顯的城市轉正後再格網化——原始與旋轉兩變體全程並列比較，讓「城市固有方向性」成為實驗變因之一。</p>
+    </div>
+  </section>
+
+  <!-- 22: STAGE 3 HILLCLIMB + CHAINS -->
+  <section class="slide" data-title="Stage 3：爬山與九條鏈">
+    <div class="eyebrow"><span class="tag"><b>16</b>Stage 3（上）</span><span class="rule"></span><span class="eng">HILL CLIMBING &amp; 9 CHAINS</span></div>
+    <h1 class="title">爬山整理佈局，九條鏈比較直線化</h1>
+    <div class="grid cols-2" style="margin-top:8px;">
+      <div class="card rose">
+        <div class="label">多準則爬山 · Stott et al. 2011</div>
+        <h3>5 準則 ＋ 4 硬規則</h3>
+        <p>角解析度／邊長／平衡邊長／平直／八方向五個加權準則，邊界／象限／遮蔽／邊環繞序四條硬規則；逐頂點爬山、半徑 [2,1,1] 冷卻、超長邊群集平移；黑點沿新邊平均放回。</p>
+      </div>
+      <div class="card rose">
+        <div class="label">直線演算法 · 九條鏈</div>
+        <h3>論文①〜⑧ ＋ LLM 對齊</h3>
+        <p>爬山之後，九種 H/V 最大化後處理<strong>並列執行、互相比較</strong>：每條鏈短距離移動彩色頂點讓水平／垂直段最多，共用 WINDOW ±2 夾擠、逐批漸進＋嚴格改善、對齊感知量化、同一套硬規則，各自迭代到不動點。②直角爬山實測<strong>全網 H/V +42.9%</strong>。</p>
+      </div>
+    </div>
+    <div class="card amber" style="margin-top:12px;">
+      <div class="label">回應計畫書「尋找最適直線化演算法」</div>
+      <p>計畫書原本要「選一個」直線化演算法；初步結果證明單一方法不夠筆直。論文的答案是<strong>全部實作、並列比較、逐城擇優</strong>——並以 LLM 比較（唯讀評審）自動選出每城最佳結果。這把「尋找最適」從人工挑選變成系統性實驗。</p>
+    </div>
+  </section>
+
+  <!-- 23: STAGE 3 MOVEWISE -->
+  <section class="slide" data-title="Stage 3：三步鏈循環">
+    <div class="eyebrow"><span class="tag"><b>17</b>Stage 3（下）</span><span class="rule"></span><span class="eng">MOVEWISE 3-STEP LOOP</span></div>
+    <h1 class="title">核心貢獻：movewise 三步鏈循環壓縮</h1>
+    <p class="subtitle">直線化之後，用自製的三步鏈把網格壓到最小、線拉到最直——對應計畫書「依屬性重要性概括化、迭代尋找最佳解」的一般化實作。</p>
+    <table class="tbl dense">
+      <tr><th>步</th><th>演算法</th><th>移動</th><th>採納條件</th><th>收斂單調量</th></tr>
+      <tr><td class="num">1</td><td><strong>端點移動</strong></td><td>每個非白點移 1 格（八方向含 45°）</td><td>H/V 淨增優先；否則入射段縮最短（bendsPaid 護欄）</td><td>(−H/V, 總長) 字典序嚴格下降</td></tr>
+      <tr><td class="num">2</td><td><strong>直線縮減</strong></td><td>跨相交點串接的整條直線平移 ±1 格</td><td>H/V 變多優先；否則邊界段縮最短</td><td>(−H/V, 邊界總長) 字典序下降</td></tr>
+      <tr><td class="num">3</td><td><strong>網格合併</strong></td><td>相鄰 row／col 兩兩合併（半平面整體移 1 格）</td><td>validShift 硬規則全過（不壓點／不新增交叉／拓撲不變）</td><td>網格欄列數每次 −1</td></tr>
+    </table>
+    <div class="grid cols-3" style="margin-top:12px;">
+      <div class="card green"><div class="label">共同機構</div><p>每一個單一移動後<strong>立即全域壓縮</strong>（movewise）；一次只移一格；跨距上限（SPAN_CAP，預設 3）；拓撲鐵律全程不破。</p></div>
+      <div class="card green"><div class="label">循環語意</div><p>每輪＝三個演算法各跑到不動點再輪替，一輪全靜止才停——<strong>234 城全量實測全部收斂、總計約 5 秒</strong>（NYC 160×160 → 約 31×34）。</p></div>
+      <div class="card green"><div class="label">逐步驗證</div><p>「下一小步」單一移動前後比對（舊位置虛線圈、軌跡、新位置橘圈）、快照復原、全速跑到收斂與循環 tab 完全一致——演算法行為可逐移動檢視。</p></div>
+    </div>
+  </section>
+
+  <!-- 24: STAGE 4 RWD -->
+  <section class="slide" data-title="Stage 4：RWD 畫線">
+    <div class="eyebrow"><span class="tag"><b>18</b>Stage 4</span><span class="rule"></span><span class="eng">RESPONSIVE DRAWING</span></div>
+    <h1 class="title">版面一變，就在新像素座標重新求解</h1>
+    <p class="subtitle">把循環收斂結果重繪成<strong>嚴格方向約束</strong>折線——方向以「畫面像素」為準（不是格索引），resize／換版面／改權重都會重跑整個佈線器。這是計畫書「版面顯示處理」的完整實現。</p>
+    <div class="grid cols-2" style="margin-top:10px;">
+      <div class="card amber"><div class="label">方向數 4 / 8 / 16</div><p>預設 H/V/45° 八向；4 向純直角（45° 腿展開成階梯）；16 向加 22.5° 族。方向級是 tie-break 不是硬閘：零衝突的 22.5° 贏過有衝突的 45°，兩者乾淨時 45° 一定優先。</p></div>
+      <div class="card amber"><div class="label">絕不交叉</div><p>候選折線依轉折數絕對優先（直線＞單折＞雙折…）；多層衝突消解依序升級：成對聯合重算 → A* 走廊佈線 → rip-up &amp; reroute → 共線救援——同一對線最多交叉一次、節點環狀順序不可變。</p></div>
+      <div class="card amber"><div class="label">版面模擬＋流量權重</div><p>手機直橫／iPad／IG 貼文等固定尺寸 artboard；link weight → 非均勻欄寬列高、白點自動隱藏、~700ms 格線內插動畫——「放大擁擠路段」的計畫書構想在此以權重連續化。</p></div>
+      <div class="card amber"><div class="label">魚眼放大鏡</div><p>游標所在細格為焦點、附近欄列撐開遠處壓扁（外框固定），每幀在變形後的像素空間重繞線——多位置、不超出邊界的區域縮放。</p></div>
+    </div>
+  </section>
+
+  <!-- 25: LLM INTEGRATION -->
+  <section class="slide" data-title="LLM 離線整合">
+    <div class="eyebrow"><span class="tag"><b>19</b>AI 路線</span><span class="rule"></span><span class="eng">LLM-IN-THE-LOOP</span></div>
+    <h1 class="title">第二年期構想的實現：LLM 離線整合</h1>
+    <p class="subtitle">瀏覽器端沒有 API key、不做即時推論——全部「<strong>離線預算、存檔、網頁載入</strong>」。國科會計畫書的四個 AI Agent 構想，在此以五個 LLM 功能落地：</p>
+    <table class="tbl dense">
+      <tr><th>功能</th><th>對應 Agent 構想</th><th>做法</th></tr>
+      <tr><td><strong>LLM 對齊</strong>（自動／指定）</td><td>Parameter Setting Agent</td><td>模型讀佈局提案短距離移動 → 經與論文鏈<strong>相同硬規則</strong>套用，淨 H/V 變差整批退回；指定對齊依使用者一句話</td></tr>
+      <tr><td><strong>LLM 互動</strong></td><td>NLP Agent</td><td>一句話（「把市中心那幾欄拉開」）→ 模型推理逐欄／列顯示權重 → 新像素座標重畫</td></tr>
+      <tr><td><strong>LLM 評價</strong></td><td>Evaluation Agent</td><td>模型讀幾何脈絡寫評語（哪些線可更直／彎太多／銳角在哪站）＋建議轉具體 moves 經硬規則 apply</td></tr>
+      <tr><td><strong>LLM 比較</strong></td><td>Evaluation Agent（評審面）</td><td>唯讀評審：比較兩變體 × 九條鏈最多 18 個結果，選全體／原始／旋轉最佳並列優缺點</td></tr>
+      <tr><td><strong>LLM 成方</strong></td><td>Generate Network Agent</td><td>Shape-Guided：把規定路段（山手線／新加坡環狀線／大江戶線）收成四邊直線正方後餵下游</td></tr>
+    </table>
+    <div class="card rose" style="margin-top:10px;">
+      <div class="label">與 RAG 構想的對應</div>
+      <p>計畫書的「繪製參數 RAG 向量資料庫」以<strong>結果檔＋指紋</strong>實現：所有 LLM 結果存檔（<code class="mono">llmviews/ llmgrids/ llmevals/ llmcompares/</code>）、以 fingerprint 對當前資料驗證、絕不手改；可被接受的佈局成為下游重算的基準——「累積可用參數、供後續檢索」的精神一致，但以確定性、可稽核的形式落地。</p>
+    </div>
+  </section>
+
+  <!-- 26: DIVIDER V -->
+  <section class="slide divider" data-title="實驗與評估">
+    <div class="roman">V</div>
+    <div class="stagechip"><span class="sw" style="background:var(--green);"></span>PART V · CHAPTER 5</div>
+    <h1 class="title">實驗與評估</h1>
+    <p class="subtitle">兩層評估：系統級全量實測（已完成）驗證演算法；使用者評估（承計畫書設計）驗證人的理解——分別回答 RQ1 與 RQ2。</p>
+    <div class="pillrow">
+      <span class="pill">234 城全量實測</span><span class="pill">收斂與品質指標</span><span class="pill">使用者測試設計</span><span class="pill">LLM 評審</span>
+    </div>
+  </section>
+
+  <!-- 27: SYSTEM EVAL -->
+  <section class="slide" data-title="系統級評估">
+    <div class="eyebrow"><span class="tag"><b>20</b>評估（一）</span><span class="rule"></span><span class="eng">SYSTEM-SCALE EVALUATION</span></div>
+    <h1 class="title">全球 234 城，每一城都是一個測試案例</h1>
+    <p class="subtitle">通用框架的最強證據是規模：不挑資料、不挑城市，全量跑完、全量收斂。</p>
+    <div class="grid cols-4" style="margin-top:12px;">
+      <div class="card green"><div class="label">收斂性</div><p class="big">234 / 234</p><p>三步鏈循環全城收斂，無一例外；總計約 5 秒（單城最慢 NYC 約 0.4 秒）。</p></div>
+      <div class="card green"><div class="label">直線化品質</div><p class="big">+42.9%</p><p>②直角爬山迭代到不動點後全網 H/V 段數提升；其餘鏈以 H/V/45° 準則逐城比較。</p></div>
+      <div class="card green"><div class="label">拓撲正確性</div><p class="big">0 交叉</p><p>RWD 佈線「絕不交叉」多層消解；全 234 城 0 孤立站、殘留 forced 僅深度 Jordan 封閉極限案例（琥珀標示）。</p></div>
+      <div class="card green"><div class="label">壓縮率</div><p class="big">160→31</p><p>NYC 網格 160×160 壓到約 31×34——版面利用率的直接量化。</p></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:12px;">
+      <div class="card blue"><div class="label">確定性＝可重現</div><p>全演算法無亂數，同輸入同輸出；每個單一移動可在逐步驗證重播——實驗結果可完整重現與稽核，這是論文方法章的可信度基礎。</p></div>
+      <div class="card blue"><div class="label">LLM 評審</div><p>LLM 比較對每城 18 個候選結果（2 變體 × 9 鏈）做唯讀評比，依方正／直線／轉折／平衡／硬失敗選最佳——承接 VisEval 式「模型評模型」的評估思路。</p></div>
+    </div>
+  </section>
+
+  <!-- 28: USER EVAL -->
+  <section class="slide" data-title="使用者評估設計">
+    <div class="eyebrow"><span class="tag"><b>21</b>評估（二）</span><span class="rule"></span><span class="eng">USER STUDY DESIGN</span></div>
+    <h1 class="title">使用者評估：人看得懂才算數</h1>
+    <p class="subtitle">承兩份計畫書的實驗評估設計（回答 RQ2）：驗證屬性概括化網絡圖在不同裝置上對使用者理解與偏好的影響。</p>
+    <div class="grid cols-3" style="margin-top:10px;">
+      <div class="card purple"><div class="label">受訪者</div><h3>至少 30 名</h3><p>行動裝置地圖使用者（日常使用 Google Maps／Apple Maps 查詢、導航），男女各半、18–65 歲、不限職業——對小螢幕地圖有實際使用經驗。</p></div>
+      <div class="card purple"><div class="label">測試地圖 × 3</div><h3>三種底圖對照</h3><p>自適應屬性網絡圖（本系統輸出）vs 加入屬性的台北捷運官方路線圖 vs 加入屬性的 Google Maps 路線圖；各在個人電腦／平板／手機三種裝置呈現。</p></div>
+      <div class="card purple"><div class="label">問卷 × 2 部份</div><h3>績效衡量＋使用者評價</h3><p>客觀作答速度與正確率，加上李克特量表的主觀喜好度。</p></div>
+    </div>
+    <table class="tbl dense">
+      <tr><th>績效衡量題型</th><th>測什麼</th></tr>
+      <tr><td><strong>用圖找說明</strong></td><td>能否從地圖迅速找到關鍵資訊（「擁擠路段有哪些？」）——屬性辨識速度與正確性</td></tr>
+      <tr><td><strong>用說明找圖</strong></td><td>能否依文字描述在地圖定位（「找到某車站」）——目標定位能力</td></tr>
+      <tr><td><strong>用圖找圖</strong></td><td>能否把概括化地圖上的位置準確對應到 Google Maps 的真實位置——空間認知的保真度</td></tr>
+    </table>
+  </section>
+
+  <!-- 29: DIVIDER VI -->
+  <section class="slide divider" data-title="貢獻與規劃">
+    <div class="roman">VI</div>
+    <div class="stagechip"><span class="sw" style="background:var(--blue);"></span>PART VI · CHAPTERS 6–7</div>
+    <h1 class="title">貢獻與規劃</h1>
+    <p class="subtitle">論文章節規劃、四項預期貢獻、發表與時程。</p>
+    <div class="pillrow">
+      <span class="pill">章節規劃</span><span class="pill">預期貢獻</span><span class="pill">發表規劃</span>
+    </div>
+  </section>
+
+  <!-- 30: CHAPTER PLAN -->
+  <section class="slide" data-title="論文章節規劃">
+    <div class="eyebrow"><span class="tag"><b>22</b>章節規劃</span><span class="rule"></span><span class="eng">DISSERTATION OUTLINE</span></div>
+    <h1 class="title">章節規劃：素材都已就位</h1>
+    <table class="tbl dense">
+      <tr><th>章</th><th>內容</th><th>素材來源</th></tr>
+      <tr><td class="num">1</td><td><strong>緒論</strong>——背景動機、三個研究問題、目的、範圍與限制</td><td>兩份計畫書第 1 章（合併改寫）</td></tr>
+      <tr><td class="num">2</td><td><strong>文獻回顧</strong>——路網圖自動繪製／自適應視覺化／生成式 AI 視覺化；研究空缺</td><td>計畫書第 2 章＋<code class="mono">data/thesis/</code> 九篇演算法說明</td></tr>
+      <tr><td class="num">3</td><td><strong>研究方法</strong>——四階段管線形式化：骨架化、格網化、爬山、九條直線鏈、movewise 三步鏈、RWD 佈線的演算法定義與不變式</td><td>36 份 skill（演算法契約）＋<code class="mono">src/stores/</code> 純函式實作</td></tr>
+      <tr><td class="num">4</td><td><strong>系統實作</strong>——Adapt-Metro 架構、三條資料管線（fetch⇄audit）、LLM 離線整合、效能與快取</td><td>README＋系統本身（線上可操作）</td></tr>
+      <tr><td class="num">5</td><td><strong>實驗與評估</strong>——234 城全量實測（收斂／H/V／壓縮率／0 交叉）、九鏈逐城比較、LLM 評審、使用者測試</td><td>系統實測數據＋計畫書第 4 章評估設計</td></tr>
+      <tr><td class="num">6</td><td><strong>討論</strong>——三步鏈與 NP-hard 正交壓縮的關係、速度 vs 最佳性的取捨、LLM-in-the-loop 的把關範式、限制</td><td>演算法文獻定位＋實驗發現</td></tr>
+      <tr><td class="num">7</td><td><strong>結論與未來工作</strong>——貢獻總結；標籤／佈線、即時流量、更多網絡型態</td><td>——</td></tr>
+    </table>
+  </section>
+
+  <!-- 31: CONTRIBUTIONS -->
+  <section class="slide" data-title="預期貢獻">
+    <div class="eyebrow"><span class="tag"><b>23</b>預期貢獻</span><span class="rule"></span><span class="eng">CONTRIBUTIONS</span></div>
+    <h1 class="title">四項貢獻，各對應一個研究問題面向</h1>
+    <div class="grid cols-2" style="margin-top:10px;">
+      <div class="card blue">
+        <div class="label">貢獻 1 · 通用演算法框架（RQ1）</div>
+        <h3>自適應版面的空間網絡視覺化</h3>
+        <p>從真實路網到響應式示意圖的完整四階段管線——以三種路網（metro／railway／highway）、234 城全量驗證通用性；純函式、確定性、瀏覽器內即時求解。</p>
+      </div>
+      <div class="card rose">
+        <div class="label">貢獻 2 · 三步鏈 movewise（RQ1）</div>
+        <h3>NP-hard 壓縮問題的 local search 解法</h3>
+        <p>固定拓撲正交示意化＋面積最小化是經典 NP-hard 問題；三步鏈以「每種移動守一個單調不變式＋movewise 即時壓縮」逼近——犧牲最佳性換秒級全量速度與<strong>逐步可視化</strong>（求解器路線給不了的）。</p>
+      </div>
+      <div class="card purple">
+        <div class="label">貢獻 3 · LLM-in-the-loop 範式（RQ3）</div>
+        <h3>提案歸模型、合法性歸規則</h3>
+        <p>LLM 當最佳化器／評審而非黑盒生成器：所有提案經確定性硬規則驗證（拓撲不變、變差退回）、結果存檔可稽核——為「生成式 AI 畫路網圖」這個文獻空缺提供第一個方法架構。</p>
+      </div>
+      <div class="card green">
+        <div class="label">貢獻 4 · 開放可重現的資料管線</div>
+        <h3>fetch ⇄ audit ＋ skill 即規格</h3>
+        <p>全球 234 城地鐵資料的抓取／清理／驗證迴圈，人工裁決全部落地 overrides 可重放；36 份 skill 讓演算法與資料規則成為可稽核的實作契約。</p>
+      </div>
+    </div>
+    <p class="subtitle" style="margin-top:14px;">發表規劃（承國科會計畫書）：至少 <strong>2 篇 SCIE／SSCI 期刊論文</strong>＋參與至少 <strong>3 次國際學術研討會</strong>。</p>
+  </section>
+
+  <!-- 32: Closing -->
+  <section class="slide closing" data-title="回到系統">
+    <div class="eyebrow" style="justify-content:center;"><span class="eng">THANK YOU</span></div>
+    <h1 class="title">論文寫的每一件事，系統裡都能親手操作</h1>
+    <p class="subtitle">回到 Adapt-Metro，開啟 Metro Maps → Map Adjust → Straighten → RWD Maps 四個圖層群組——從真實路網到響應式示意圖的每一步、每一個單一移動，都能逐步重播。</p>
+    <div class="cta">
+      <a class="btn primary" href="../../">回到系統</a>
+      <a class="btn ghost" href="../">系統介紹投影片</a>
+      <a class="btn ghost" href="#" onclick="history.back();return false;">‹ 返回上一頁</a>
+    </div>
+  </section>
+
+</div><!-- /stage -->
+</div><!-- /deck -->
+</div><!-- /workspace -->
+
+<!-- 底部工具列＝滿版 footer：‹ ［細軌置中］ › ・數字＋全螢幕在右 -->
+<footer class="slidebar">
+  <button class="navbtn" id="prevBtn" aria-label="上一頁" title="上一頁 (←)">‹</button>
+  <div class="seekbar" id="seekbar" title="點擊跳到該頁">
+    <div class="seek-fill" id="seekFill"></div>
+    <div class="seek-knob" id="seekKnob"></div>
+    <div class="seek-tip" id="seekTip"></div>
+  </div>
+  <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
+  <span class="counter" id="counter">1 / 32</span>
+  <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
+</footer>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0;
+
+  var stage = document.getElementById('stage');
+  var deckEl = document.getElementById('deck');
+  function fit(){
+    var w = deckEl.clientWidth - 28, h = deckEl.clientHeight - 28;
+    var scale = Math.min(w / 1280, h / 720);
+    stage.style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fit);
+  document.addEventListener('fullscreenchange', fit);
+  fit();
+
+  // ---- 左側縮圖膠捲：每頁一張實時等比縮小的 clone，可點跳頁 ----
+  var filmstrip = document.getElementById('filmstrip');
+  var thumbItems = [];
+  slides.forEach(function(s, i){
+    var item = document.createElement('div');
+    item.className = 'filmstrip-item';
+    item.setAttribute('role', 'button');
+    item.title = (i + 1) + '　' + (s.getAttribute('data-title') || '');
+    var num = document.createElement('span');
+    num.className = 'fs-num'; num.textContent = (i + 1);
+    var thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    var inner = document.createElement('div');
+    inner.className = 'thumb-inner';
+    var clone = s.cloneNode(true);
+    clone.removeAttribute('id');
+    inner.appendChild(clone);
+    thumb.appendChild(inner);
+    item.appendChild(num); item.appendChild(thumb);
+    item.addEventListener('click', function(){ go(i); });
+    filmstrip.appendChild(item);
+    thumbItems.push(item);
+  });
+  function scaleThumbs(){
+    thumbItems.forEach(function(item){
+      var thumb = item.querySelector('.thumb'), inner = item.querySelector('.thumb-inner');
+      var w = thumb.clientWidth; if (w) inner.style.transform = 'scale(' + (w / 1280) + ')';
+    });
+  }
+  window.addEventListener('resize', scaleThumbs);
+  scaleThumbs();
+
+  var seekFill = document.getElementById('seekFill');
+  var seekKnob = document.getElementById('seekKnob');
+  var seekbar = document.getElementById('seekbar');
+  var seekTip = document.getElementById('seekTip');
+  var counterEl = document.getElementById('counter');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var fsBtn = document.getElementById('fsBtn');
+
+  function clamp(n){ return Math.max(0, Math.min(total - 1, n)); }
+
+  function render(){
+    slides.forEach(function(s, i){ s.classList.toggle('active', i === idx); });
+    if (slides[idx]) slides[idx].scrollTop = 0;
+    counterEl.textContent = (idx + 1) + ' / ' + total;
+    var pct = (total <= 1) ? 100 : (idx / (total - 1) * 100);
+    seekFill.style.width = pct + '%';
+    seekKnob.style.left = pct + '%';
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === total - 1;
+    thumbItems.forEach(function(item, i){ item.classList.toggle('current', i === idx); });
+    if (thumbItems[idx]) thumbItems[idx].scrollIntoView({ block: 'nearest' });
+    var title = slides[idx].getAttribute('data-title') || '';
+    document.title = (title ? title + ' · ' : '') + '論文內容 · Adapt-Metro';
+    history.replaceState(null, '', '#' + (idx + 1));
+  }
+
+  function go(n){ idx = clamp(n); render(); }
+  function next(){ go(idx + 1); }
+  function prev(){ go(idx - 1); }
+
+  function seekIndex(e){
+    var r = seekbar.getBoundingClientRect();
+    var f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    return clamp(Math.round(f * (total - 1)));
+  }
+  seekbar.addEventListener('click', function(e){ go(seekIndex(e)); });
+  seekbar.addEventListener('mousemove', function(e){
+    var r = seekbar.getBoundingClientRect();
+    var n = seekIndex(e);
+    seekTip.textContent = (n + 1) + ' / ' + total;
+    seekTip.style.left = ((e.clientX - r.left)) + 'px';
+  });
+
+  var hash = parseInt((location.hash || '').replace('#', ''), 10);
+  if (!isNaN(hash)) idx = clamp(hash - 1);
+  render();
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  deckEl.addEventListener('click', function(){ if (document.fullscreenElement) next(); });
+  deckEl.addEventListener('contextmenu', function(e){ if (document.fullscreenElement) { e.preventDefault(); prev(); } });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); go(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
+    else if (e.key === 'Escape' && document.fullscreenElement) { document.exitFullscreen(); }
+  });
+
+  var touchStartX = null;
+  document.addEventListener('touchstart', function(e){ touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function(e){
+    if (touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 44) { dx < 0 ? next() : prev(); }
+    touchStartX = null;
+  }, { passive: true });
+
+  function toggleFullscreen(){
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(function(){});
+  }
+  fsBtn.addEventListener('click', toggleFullscreen);
+})();
+</script>
+
+<script>
+  /* 相關連結下拉：與首頁 TopToolbar 同行為。 */
+  (function () {
+    var btn = document.getElementById('relBtn');
+    var menu = document.getElementById('relMenu');
+    if (!btn || !menu) return;
+    var toggle = function (open) {
+      var show = open === undefined ? menu.hasAttribute('hidden') : open;
+      if (show) menu.removeAttribute('hidden'); else menu.setAttribute('hidden', '');
+      btn.classList.toggle('active', show);
+    };
+    btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+    document.addEventListener('mousedown', function (e) {
+      if (!menu.hasAttribute('hidden') && !menu.contains(e.target) && e.target !== btn) toggle(false);
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+  })();
+</script>
+
+</body>
+</html>

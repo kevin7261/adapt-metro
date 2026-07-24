@@ -14,6 +14,7 @@ const store = useMapStore()
 // base (GitHub Pages: /adapt-metro/).
 const homeUrl = import.meta.env.BASE_URL
 const slidesUrl = `${import.meta.env.BASE_URL}slides/`
+const thesisUrl = `${import.meta.env.BASE_URL}slides/thesis/`
 
 /* ---- Info dropdown ---- */
 const infoOpen = ref(false)
@@ -247,6 +248,9 @@ onBeforeUnmount(() => {
 
     <!-- Skills：所有 skill 的總覽 modal -->
     <button class="btn-ghost skills-link" @click="store.ui.dialog = 'skills'">Skills</button>
+
+    <!-- 論文內容：博士論文內容投影片（緊接在「系統介紹」前面） -->
+    <a class="btn-ghost" :href="thesisUrl">論文內容</a>
 
     <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
 
