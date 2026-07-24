@@ -1127,12 +1127,12 @@
     "city": "Algiers",
     "country": "Algeria",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "only geographic authority overlays — left blank 2026-07-24"
+    "map_file": "maps/africa/algeria/af-alg-algiers.png",
+    "commons_file": "File:Map_of_train-metro-tram_of_Algiers_-_January_2022_-_fr.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Map_of_train-metro-tram_of_Algiers_-_January_2022_-_fr.svg",
+    "license": "CC BY 4.0",
+    "artist": "Poudou99 — Lignes de métro, trains et tramway d'Alger (2022-01)",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/"
   },
   "europe/ukraine/eu-ukr-kharkiv": {
     "city": "Kharkiv",
@@ -1519,12 +1519,12 @@
     "city": "Lanzhou",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no compliant operating schematic (only 2035 planning GIS) — left blank 2026-07-24"
+    "map_file": "maps/asia/china/as-chn-lanzhou.png",
+    "commons_file": "File:Lanzhou_Metro_Map.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Lanzhou_Metro_Map.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Painjet — Lanzhou Metro Map (L1+L2)",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "asia/china/as-chn-urumqi": {
     "city": "Ürümqi",
@@ -1581,12 +1581,12 @@
     "city": "Hanoi",
     "country": "Vietnam",
     "wikidata": null,
-    "map_file": null,
+    "map_file": "maps/asia/vietnam/as-vie-hanoi.png",
     "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "only geo/satellite/planning overlays — left blank 2026-07-24"
+    "source_url": "https://www.urbanrail.net/as/hanoi/hanoi-metro-map.png",
+    "license": "© UrbanRail.Net / R. Schwandl (thesis use)",
+    "artist": "UrbanRail.Net — Hanoi metro map (2A+L3 operating)",
+    "license_url": "https://www.urbanrail.net/"
   },
   "asia/china/as-chn-changzhou": {
     "city": "Changzhou",
@@ -1635,12 +1635,12 @@
     "city": "Luoyang",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "official map is terrain/street basemap — left blank per policy 2026-07-24"
+    "map_file": "maps/asia/china/as-chn-luoyang.png",
+    "commons_file": "File:System_Map_of_Luoyang_Metro.png",
+    "source_url": "https://commons.wikimedia.org/wiki/File:System_Map_of_Luoyang_Metro.png",
+    "license": "CC BY-SA 4.0",
+    "artist": "Windmemories — System Map of Luoyang Metro",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "asia/china/as-chn-foshan": {
     "city": "Foshan",
@@ -1830,12 +1830,12 @@
     "city": "Bezirk Landeck",
     "country": "Austria",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no metro system (Seilbahn / VVT bus only) — left blank 2026-07-24"
+    "map_file": "maps/europe/austria/eu-aut-bezirk-landeck.png",
+    "commons_file": "File:Transitkaart_Dorfbahn_Serfaus.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Transitkaart_Dorfbahn_Serfaus.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Twanrebel — Transitkaart Dorfbahn Serfaus (U-Bahn Serfaus)",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "europe/italy/eu-ita-brescia": {
     "city": "Brescia",
@@ -1945,12 +1945,12 @@
     "city": "Tabriz",
     "country": "Iran",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "official map draws unopened lines solid — left blank 2026-07-24"
+    "map_file": "maps/asia/iran/as-iri-tabriz.png",
+    "commons_file": "File:Tabriz-Line1.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Tabriz-Line1.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Ziraksima — Tabriz Metro Line 1 schematic (El Goli–Noor)",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "asia/japan/as-jpn-chiba-prefecture": {
     "city": "Chiba Prefecture",
@@ -2122,34 +2122,34 @@
     "city": "Ho Chi Minh City",
     "country": "Vietnam",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no clean digital operator schematic (photos only) — left blank 2026-07-24"
+    "map_file": "maps/asia/vietnam/as-vie-ho-chi-minh-city.png",
+    "commons_file": "File:Hcmc-metro-1-horizontal.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Hcmc-metro-1-horizontal.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Dragfyre — HCMC Metro Line 1 horizontal schematic",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
   },
   "asia/china/as-chn-taizhou": {
     "city": "Taizhou",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no static operator schematic — left blank 2026-07-24"
+    "map_file": "maps/asia/china/as-chn-taizhou.png",
+    "commons_file": "File:Taizhou_Rail_Transit_System_Map.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Taizhou_Rail_Transit_System_Map.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Kmchang28 — Taizhou Rail Transit System Map (S1)",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "asia/south-korea/as-kor-gwangju": {
     "city": "Gwangju",
     "country": "South Korea",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "only Line-2 planning geographic map — left blank 2026-07-24"
+    "map_file": "maps/asia/south-korea/as-kor-gwangju.png",
+    "commons_file": "File:Gwangju_subway_linemap.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Gwangju_subway_linemap.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Tcfc2349 — Gwangju Metro Line 1 linemap",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "asia/india/as-ind-kanpur": {
     "city": "Kanpur",
@@ -2186,12 +2186,12 @@
     "city": "Chuzhou",
     "country": "China",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "no Ningchu/Chuzhou operator schematic (do not reuse Nanjing) — left blank 2026-07-24"
+    "map_file": "maps/asia/china/as-chn-chuzhou.png",
+    "commons_file": "File:滁宁城际铁路线路图.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:%E6%BB%81%E5%AE%81%E5%9F%8E%E9%99%85%E9%93%81%E8%B7%AF%E7%BA%BF%E8%B7%AF%E5%9B%BE.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "橙子木 — 滁宁城际铁路／南京地铁S4号线线路图（2023.01）",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "americas/united-states/am-usa-honolulu": {
     "city": "Honolulu",
@@ -2239,12 +2239,12 @@
     "city": "Indore",
     "country": "India",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "only alignment/construction map — left blank per policy 2026-07-24"
+    "map_file": "maps/asia/india/as-ind-indore.png",
+    "commons_file": "File:Indore_Metro.png",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Indore_Metro.png",
+    "license": "CC BY-SA 4.0",
+    "artist": "Dilip kabiraj — Indore Metro Yellow Line schematic",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
   },
   "asia/india/as-ind-patna": {
     "city": "Patna",
@@ -2292,12 +2292,12 @@
     "city": "Genoa",
     "country": "Italy",
     "wikidata": null,
-    "map_file": null,
-    "commons_file": null,
-    "source_url": null,
-    "license": null,
-    "artist": null,
-    "note": "AMT official map is geographic street overlay — left blank 2026-07-24"
+    "map_file": "maps/europe/italy/eu-ita-genoa.png",
+    "commons_file": "File:Metro_Genova_it.svg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Metro_Genova_it.svg",
+    "license": "CC BY-SA 3.0",
+    "artist": "DaniDF1995 (from L.m.k) — Metropolitana di Genova",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
   },
   "asia/saudi-arabia/as-ksa-mecca": {
     "city": "Mecca",
@@ -2310,7 +2310,7 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
     "artist": "أبو تائب"
   },
-  "_rev": 1784908714811,
+  "_rev": 1784912473586,
   "americas/bolivia/am-bol-cochabamba": {
     "city": "Cochabamba",
     "country": "Bolivia",

@@ -1,0 +1,8 @@
+STATUS: HIT_COMMUNITY
+source_url: https://www.urbanrail.net/as/hanoi/hanoi-metro-map.png
+commons: None
+path: data/metro/maps/_staging_2026-07-25/as-vie-hanoi/hanoi-metro-map.png
+license: © UrbanRail.Net / Robert Schwandl (thesis use; all rights reserved by author)
+author: Robert Schwandl (UrbanRail.Net)
+MD5: 9a928145a25cca5b66d366fa9c64bf2c
+why: UrbanRail 2026 schematic of operating 2A+Line3 elevated; dashed=under construction; faded=planned. White bg. Commons alternatives were dark-theme or planning-as-open.

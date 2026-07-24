@@ -64,6 +64,8 @@ function onLink(id) { linkedId.value = id }
 
 // 左（顯示圖層）與右（城市索引）兩塊面板都可左右拖拉調寬。
 // 卡片區至少 BODY_MIN，否則左右面板把縮圖擠沒（重算時開著畫廊常被誤以為「沒顯示」）。
+// 世界地圖分頁不顯示左側 → 預算只扣右側索引＋1 條把手，否則 main 溢出被 dockview
+// 水平捲走，地圖（狀態色圓點）捲出可視區只剩右側清單。
 const BODY_MIN = 280
 const SIDE_MIN = 120
 const sideWidth = ref(Number.isFinite(savedShell.sideWidth) ? savedShell.sideWidth : 220)
@@ -72,19 +74,31 @@ const mainRef = ref(null)
 
 function clampPaneWidths() {
   const mainW = mainRef.value?.clientWidth ?? 0
-  if (mainW < SIDE_MIN * 2 + BODY_MIN) return
-  const handles = 10 // 兩條 5px 把手
-  let side = sideWidth.value
+  if (mainW <= 0) return
+  const world = tab.value === 'worldmap'
+  const handles = world ? 5 : 10
+  // 窄面板時放寬 body 下限，仍優先保住地圖／卡片區可見
+  const bodyMin = Math.min(BODY_MIN, Math.max(160, mainW - handles - (world ? SIDE_MIN : SIDE_MIN * 2)))
+  let side = world ? 0 : sideWidth.value
   let idx = indexWidth.value
-  const budget = () => mainW - handles - BODY_MIN
-  // 超出就按比例縮；單側不低於 SIDE_MIN
+  const budget = () => mainW - handles - bodyMin
   while (side + idx > budget() && (side > SIDE_MIN || idx > SIDE_MIN)) {
-    if (side >= idx && side > SIDE_MIN) side -= 1
+    if (!world && side >= idx && side > SIDE_MIN) side -= 1
     else if (idx > SIDE_MIN) idx -= 1
+    else if (!world && side > SIDE_MIN) side -= 1
     else break
   }
-  if (side !== sideWidth.value) sideWidth.value = side
+  if (!world && side !== sideWidth.value) sideWidth.value = side
   if (idx !== indexWidth.value) indexWidth.value = idx
+}
+
+/** dockview 水平捲把地圖捲走時歸零（世界地圖 tab 切換／resize 後） */
+function resetGalleryScroll() {
+  let el = mainRef.value
+  while (el) {
+    if (el.scrollLeft) el.scrollLeft = 0
+    el = el.parentElement
+  }
 }
 
 function makeResize(widthRef, dir, min, otherRef) {
@@ -139,6 +153,14 @@ watch([tab, stationSort, sideWidth, indexWidth], () => {
   })
 })
 
+// 切到世界地圖：重算寬度＋清掉水平捲，否則地圖被捲出只剩索引清單
+watch(tab, async () => {
+  linkedId.value = null
+  await nextTick()
+  clampPaneWidths()
+  resetGalleryScroll()
+})
+
 // 卡片清單就緒後還原捲動（優先上次點過的城市，否則 scrollTop）。
 let scrollRestored = false
 watch(catalog, async (list) => {
@@ -167,8 +189,12 @@ onMounted(async () => {
   bodyRef.value?.addEventListener('scroll', onBodyScroll, { passive: true })
   await nextTick()
   clampPaneWidths()
+  resetGalleryScroll()
   if (mainRef.value && typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(() => clampPaneWidths())
+    ro = new ResizeObserver(() => {
+      clampPaneWidths()
+      if (tab.value === 'worldmap') resetGalleryScroll()
+    })
     ro.observe(mainRef.value)
   }
 })
@@ -288,7 +314,7 @@ const tiles = computed(() => {
 </template>
 
 <style scoped>
-.gallery { display: flex; flex-direction: column; height: 100%; background: hsl(var(--background)); }
+.gallery { display: flex; flex-direction: column; height: 100%; min-width: 0; background: hsl(var(--background)); overflow: hidden; }
 /* Footer（與 LayerTab StatusBar／D3Tab ma-statusbar 同款）：每個 tab 都有 footer */
 .gallery-statusbar {
   display: flex;
@@ -313,6 +339,8 @@ const tiles = computed(() => {
   padding: 0 12px;
   border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
+  min-width: 0;
+  overflow-x: auto;
   background: hsl(var(--card));
 }
 .gallery-tab {
@@ -334,7 +362,7 @@ const tiles = computed(() => {
   border-bottom-color: hsl(var(--primary));
 }
 /* 主體：左側清單｜卡片區｜右側索引，中間以可拖拉的把手分隔 */
-.gallery-main { flex: 1; display: flex; min-height: 0; }
+.gallery-main { flex: 1; display: flex; min-height: 0; min-width: 0; overflow: hidden; }
 .gallery-side {
   flex-shrink: 0;
   overflow-y: auto;

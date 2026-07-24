@@ -9,6 +9,28 @@
 5. 圖一律**下載存成本地檔**（`data/metro/maps/**.png`），不用外連 URL。PDF/SVG 用 macOS `qlmanage -t -s 2400 -o <dir> <file>` 轉 png（PDF 只轉第 1 頁，多頁文件內頁抓不到）；jpg/gif/webp 用 `sips -s format png`。
 6. 覆蓋同路徑圖檔後，記得 bump `maps_index.json` 頂層 `_rev`（時間戳）——前端用它做 `?v=` 破除瀏覽器快取，不然使用者會一直看到舊圖。
 
+## 現況（2026-07-25 更新）
+
+> ### 2026-07-25 剩餘 12 留白再掃（官方優先 → 否則最佳示意圖）
+> 使用者裁決：找不到官方就上網找最適合的淺底彩色路網示意圖（Commons／UrbanRail 等）。
+> 派 3 組平行 agent，主 session 逐張目視後寫入。**12 城全部補齊**（0 官方 HIT／12 社群 HIT）。
+>
+> **新增社群／Commons 圖（12）**：
+> - **滁州**：橙子木 滁宁城际／S4 線形圖（CC BY-SA 4.0）
+> - **蘭州**：Painjet Lanzhou Metro Map L1+L2（CC BY-SA 4.0）
+> - **洛陽**：Windmemories System Map（CC BY-SA 4.0）
+> - **台州**：Kmchang28 S1 System Map（CC BY-SA 4.0）
+> - **印多爾**：Dilip kabiraj Yellow Line（CC BY-SA 4.0）
+> - **大不里士**：Ziraksima Line 1 strip（CC BY-SA 4.0；避開官方未通車實線圖）
+> - **光州**：Tcfc2349 Line 1 linemap（CC BY-SA 4.0）
+> - **河內**：UrbanRail.Net 2A+L3（© R. Schwandl；thesis use）
+> - **胡志明**：Dragfyre Line 1 horizontal（CC BY-SA 3.0）
+> - **阿爾及爾**：Poudou99 métro+tram+train（CC BY 4.0）
+> - **熱那亞**：DaniDF1995 Metro Genova（CC BY-SA 3.0）
+> - **蘭德克縣**：Twanrebel Dorfbahn Serfaus（CC BY-SA 4.0；先前「無地鐵」誤判——資料是 U-Bahn Serfaus 4 站）
+>
+> **計數**：官方 **134**　／　社群 **98**　／　留白 **0**（232 系統全有圖）。
+
 ## 現況（2026-07-24 更新）
 
 > ### 2026-07-24 留白 21 城再掃（＋9 官方圖）

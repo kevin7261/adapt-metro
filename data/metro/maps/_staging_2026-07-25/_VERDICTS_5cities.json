@@ -1,0 +1,52 @@
+{
+  "as-ind-indore": {
+    "status": "HIT_COMMUNITY",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Indore_Metro.png",
+    "commons": "File:Indore Metro.png",
+    "path": "data/metro/maps/_staging_2026-07-25/as-ind-indore/Indore_Metro.png",
+    "license": "CC BY-SA 4.0",
+    "author": "Dilip kabiraj",
+    "md5": "bdefef3a91ea3b2a3e0f6bbb06c5eddc",
+    "why": "Commons passenger schematic of Yellow Line; solid=operating (5 stations), dashed=under construction. Not alignment/construction map."
+  },
+  "as-iri-tabriz": {
+    "status": "HIT_COMMUNITY",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/46/Tabriz-Line1.jpg",
+    "commons": "File:Tabriz-Line1.jpg",
+    "path": "data/metro/maps/_staging_2026-07-25/as-iri-tabriz/Tabriz_Line1_schematic.png",
+    "license": "CC BY-SA 4.0",
+    "author": "Ziraksima",
+    "md5": "30b1662d506be14fb3a3fe64d25053d7",
+    "why": "Commons Line-1-only bilingual strip schematic (El Goli–Noor). Avoids official system map that draws unopened Lines 2–5 solid."
+  },
+  "as-kor-gwangju": {
+    "status": "HIT_COMMUNITY",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Gwangju_subway_linemap.svg",
+    "commons": "File:Gwangju subway linemap.svg",
+    "path": "data/metro/maps/_staging_2026-07-25/as-kor-gwangju/Gwangju_Line1_linemap.png",
+    "license": "CC BY-SA 4.0",
+    "author": "Tcfc2349",
+    "md5": "1542131a2768cb4403c79471ce4d6314",
+    "why": "Commons Line-1 schematic with Korean station labels (Pyeongdong–Nokdong). Source SVG/PNG is transparent-bg (not dark); staged white-composite PNG for display. Not Line-2 planning geo."
+  },
+  "as-vie-hanoi": {
+    "status": "HIT_COMMUNITY",
+    "source_url": "https://www.urbanrail.net/as/hanoi/hanoi-metro-map.png",
+    "commons": null,
+    "path": "data/metro/maps/_staging_2026-07-25/as-vie-hanoi/hanoi-metro-map.png",
+    "license": "© UrbanRail.Net / Robert Schwandl (thesis use; all rights reserved by author)",
+    "author": "Robert Schwandl (UrbanRail.Net)",
+    "md5": "9a928145a25cca5b66d366fa9c64bf2c",
+    "why": "UrbanRail 2026 schematic of operating 2A+Line3 elevated; dashed=under construction; faded=planned. White bg. Commons alternatives were dark-theme or planning-as-open."
+  },
+  "as-vie-ho-chi-minh-city": {
+    "status": "HIT_COMMUNITY",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Hcmc-metro-1-horizontal.jpg",
+    "commons": "File:Hcmc-metro-1-horizontal.jpg",
+    "path": "data/metro/maps/_staging_2026-07-25/as-vie-ho-chi-minh-city/HCMC_Line1_schematic.png",
+    "license": "CC BY-SA 3.0",
+    "author": "Dragfyre (enwiki)",
+    "md5": "b3381dc3960b90fcf85f5d0f6b3eb069",
+    "why": "Commons digital Line-1 strip schematic Ben Thanh–Suoi Tien (14 stations) on white; not station-board photos or MAUR geographic planning map."
+  }
+}

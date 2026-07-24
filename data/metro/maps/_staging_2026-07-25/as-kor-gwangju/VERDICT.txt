@@ -1,0 +1,8 @@
+STATUS: HIT_COMMUNITY
+source_url: https://upload.wikimedia.org/wikipedia/commons/a/aa/Gwangju_subway_linemap.svg
+commons: File:Gwangju subway linemap.svg
+path: data/metro/maps/_staging_2026-07-25/as-kor-gwangju/Gwangju_Line1_linemap.png
+license: CC BY-SA 4.0
+author: Tcfc2349
+MD5: 1542131a2768cb4403c79471ce4d6314
+why: Commons Line-1 schematic with Korean station labels (Pyeongdong–Nokdong). Source SVG/PNG is transparent-bg (not dark); staged white-composite PNG for display. Not Line-2 planning geo.

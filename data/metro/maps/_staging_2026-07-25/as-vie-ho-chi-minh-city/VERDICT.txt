@@ -1,0 +1,8 @@
+STATUS: HIT_COMMUNITY
+source_url: https://upload.wikimedia.org/wikipedia/commons/0/09/Hcmc-metro-1-horizontal.jpg
+commons: File:Hcmc-metro-1-horizontal.jpg
+path: data/metro/maps/_staging_2026-07-25/as-vie-ho-chi-minh-city/HCMC_Line1_schematic.png
+license: CC BY-SA 3.0
+author: Dragfyre (enwiki)
+MD5: b3381dc3960b90fcf85f5d0f6b3eb069
+why: Commons digital Line-1 strip schematic Ben Thanh–Suoi Tien (14 stations) on white; not station-board photos or MAUR geographic planning map.

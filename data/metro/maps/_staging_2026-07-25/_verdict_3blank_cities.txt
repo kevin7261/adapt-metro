@@ -1,0 +1,21 @@
+af-alg-algiers: HIT_COMMUNITY
+  source: https://commons.wikimedia.org/wiki/File:Map_of_train-metro-tram_of_Algiers_-_January_2022_-_fr.svg
+  path: data/metro/maps/_staging_2026-07-25/af-alg-algiers.png
+  license/author: CC BY 4.0 / Poudou99
+  MD5: d492ee3772ff9a40eb461df1b3fa4c04
+  why: Official EMA/AOTU maps are geographic overlays. Best Commons light-bg colored schematic covering Algiers Metro (blue) + SETRAM tram (green) + suburban rail (red). Rejected File:Algiers Metro.svg (transparent/dark presentation) and partial Line-1 strip diagram.
+
+eu-ita-genoa: HIT_COMMUNITY
+  source: https://commons.wikimedia.org/wiki/File:Metro_Genova_it.svg
+  path: data/metro/maps/_staging_2026-07-25/eu-ita-genoa.png
+  license/author: CC BY-SA 3.0 / DaniDF1995 (derivative of L.m.k Metro Genova.svg)
+  MD5: 774e477fbba8507303fb5735564ae335
+  why: AMT official map is geographic street overlay. Best Commons single-line schematic; transparent SVG composited on white for light-bg. Shows all 8 operating stations (Brin–Brignole) matching geojson. Prefer Italian version over older German File:Metro Genova.svg (marks Brignole as under construction). Rejected OSM geographic Genova mappa metropolitana.
+
+eu-aut-bezirk-landeck: HIT_COMMUNITY
+  source: https://commons.wikimedia.org/wiki/File:Transitkaart_Dorfbahn_Serfaus.svg
+  path: data/metro/maps/_staging_2026-07-25/eu-aut-bezirk-landeck.png
+  license/author: CC BY-SA 4.0 / Twanrebel
+  MD5: 9df234f36542be1b1912730b43ce496d
+  why: Prior blank note (cable car/bus only) is incorrect for our dataset: geojson is U-Bahn Serfaus / Dorfbahn (Q701311), 1 line / 4 stations (Parkplatz–Kirche–Zentrum–Seilbahn), audit passed. Best Commons light-bg schematic (transparent SVG on white). Not a bus map. Prefer Transitkaart over older Netzplan (Raika naming).
+

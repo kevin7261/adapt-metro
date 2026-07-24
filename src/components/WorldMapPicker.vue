@@ -51,9 +51,13 @@ async function loadStatus() {
 }
 
 /** 重抓狀態；有任何城 complete 變動才 setData（避免無謂重繪）。 */
+let statusRefreshPending = false
 async function refreshStatus({ force = false } = {}) {
   if (!cityFc || !map) return
-  if (statusRefreshBusy) return
+  if (statusRefreshBusy) {
+    statusRefreshPending = true
+    return
+  }
   statusRefreshBusy = true
   try {
     const status = await loadStatus()
@@ -66,9 +70,26 @@ async function refreshStatus({ force = false } = {}) {
       }
     }
     statusById = status
-    if (changed) map.getSource?.('cities')?.setData(cityFc)
+    if (changed) {
+      // 新物件參考——MapLibre 對同參考 in-place 突變有時不重繪
+      const src = map.getSource?.('cities')
+      if (src) {
+        src.setData({
+          type: 'FeatureCollection',
+          features: cityFc.features.map((f) => ({
+            type: 'Feature',
+            geometry: f.geometry,
+            properties: { ...f.properties },
+          })),
+        })
+      }
+    }
   } finally {
     statusRefreshBusy = false
+    if (statusRefreshPending) {
+      statusRefreshPending = false
+      refreshStatus({ force: true })
+    }
   }
 }
 
@@ -118,6 +139,14 @@ onMounted(async () => {
         if (document.visibilityState === 'hidden') return
         refreshStatus()
       }, 2000)
+      // 面板拖拉改寬時 map 必須 resize，否則圓點錯位／空白
+      if (typeof ResizeObserver !== 'undefined' && container.value) {
+        const ro = new ResizeObserver(() => {
+          try { map?.resize() } catch { /* */ }
+        })
+        ro.observe(container.value)
+        container.value.__wmRo = ro
+      }
     })
     .catch((err) => { loadError.value = String(err?.message ?? err); loading.value = false })
 })
@@ -128,14 +157,14 @@ watch(() => store.metroDataEpoch, () => { refreshStatus({ force: true }) })
 function addCityLayer() {
   if (!map || map.getSource('cities')) return
   map.addSource('cities', { type: 'geojson', data: cityFc })
-  // 圓點顏色：內容完整＝綠、內容不完整＝紅。
+  // 圓點顏色：內容完整＝紅、內容不完整＝綠。
   map.addLayer({
     id: 'city-dots',
     type: 'circle',
     source: 'cities',
     paint: {
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 3.5, 6, 6.5],
-      'circle-color': ['case', ['==', ['get', 'complete'], 1], '#ef4444', '#16a34a'],
+      'circle-color': ['case', ['==', ['to-number', ['get', 'complete']], 1], '#ef4444', '#16a34a'],
       'circle-stroke-width': 1.5,
       'circle-stroke-color': '#ffffff',
       'circle-opacity': 0.9,
@@ -149,7 +178,7 @@ function addCityLayer() {
     filter: ['==', ['get', 'id'], props.highlight ?? '__none__'],
     paint: {
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 7, 6, 11],
-      'circle-color': ['case', ['==', ['get', 'complete'], 1], '#ef4444', '#16a34a'],
+      'circle-color': ['case', ['==', ['to-number', ['get', 'complete']], 1], '#ef4444', '#16a34a'],
       'circle-stroke-width': 3,
       'circle-stroke-color': '#1e293b',
       'circle-opacity': 1,
@@ -188,6 +217,10 @@ function addCityLayer() {
     const id = e.features?.[0]?.properties?.id
     const entry = id && byId.get(id)
     if (entry) openCity(entry)
+  })
+  // dock 面板剛掛上時容器尺寸可能尚未穩定——補一次 resize 才看得到圓點
+  requestAnimationFrame(() => {
+    try { map.resize() } catch { /* */ }
   })
 }
 
@@ -233,6 +266,7 @@ watch(() => props.highlight, (id) => {
 onBeforeUnmount(() => {
   clearInterval(statusPoll)
   statusPoll = null
+  try { container.value?.__wmRo?.disconnect() } catch { /* */ }
   try { popup.remove() } catch { /* */ }
   try { map?.remove() } catch { /* */ }
   map = null
