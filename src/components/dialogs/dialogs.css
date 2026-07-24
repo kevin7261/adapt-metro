@@ -104,6 +104,30 @@
   gap: 8px;
 }
 @media (max-width: 640px) { .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (max-width: 640px) {
+  .miller {
+    flex-direction: column;
+    height: min(420px, 62dvh);
+  }
+  .miller-col {
+    flex: 1 1 33%;
+    min-height: 0;
+  }
+  .miller-col + .miller-col { border-left: none; border-top: 1px solid hsl(var(--border)); }
+  .add-data-body { flex-direction: column; min-height: 0; }
+  .source-list {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid hsl(var(--border));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-height: 120px;
+  }
+  .settings-select { width: min(220px, 100%); }
+  .settings-row { flex-wrap: wrap; gap: 6px; }
+}
 .quick-cell {
   display: flex;
   flex-direction: column;

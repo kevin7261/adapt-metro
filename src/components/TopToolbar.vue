@@ -5,6 +5,7 @@ import { clearDataOverlay } from '../lib/dataOverlay'
 import {
   showRecomputeOverlay, updateRecomputeOverlay, hideRecomputeOverlay,
 } from '../stores/recomputeOverlay'
+import { useMediaQuery } from '../lib/useMediaQuery'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -26,6 +27,18 @@ const infoWrap = ref(null)
 const relatedLinks = [
   { label: 'Metro systems (Wikipedia)', href: 'https://en.wikipedia.org/wiki/List_of_metro_systems' },
   { label: 'UrbanRail.net', href: 'https://www.urbanrail.net/' },
+]
+
+/* RWD：≤900px 把論文／系統連結收到「更多」選單，功能不變 */
+const narrowToolbar = useMediaQuery('(max-width: 900px)')
+const moreOpen = ref(false)
+const moreWrap = ref(null)
+const navLinks = [
+  { label: '論文內容', href: thesisUrl },
+  { label: '論文本文', href: paperUrl },
+  { label: '改善建議', href: improveUrl },
+  { label: '系統介紹', href: slidesUrl },
+  { label: '系統架構', href: architectureUrl },
 ]
 
 /* ---- 重新計算（全城）----
@@ -221,11 +234,15 @@ function onDocClick(e) {
   if (recomputeOpen.value && recomputeWrap.value && !recomputeWrap.value.contains(e.target)) {
     recomputeOpen.value = false
   }
+  if (moreOpen.value && moreWrap.value && !moreWrap.value.contains(e.target)) {
+    moreOpen.value = false
+  }
 }
 function onKeydown(e) {
   if (e.key === 'Escape') {
     infoOpen.value = false
     recomputeOpen.value = false
+    moreOpen.value = false
   }
 }
 onMounted(() => {
@@ -253,15 +270,51 @@ onBeforeUnmount(() => {
     <!-- Skills：所有 skill 的總覽 modal -->
     <button class="btn-ghost skills-link" @click="store.ui.dialog = 'skills'">Skills</button>
 
-    <!-- 論文文件三入口（投影片／本文／改善建議），緊接在「系統介紹」前面 -->
-    <a class="btn-ghost" :href="thesisUrl">論文內容</a>
-    <a class="btn-ghost" :href="paperUrl">論文本文</a>
-    <a class="btn-ghost" :href="improveUrl">改善建議</a>
+    <!-- 寬螢幕：論文／系統連結平鋪；窄螢幕收進「更多」 -->
+    <template v-if="!narrowToolbar">
+      <a class="btn-ghost" :href="thesisUrl">論文內容</a>
+      <a class="btn-ghost" :href="paperUrl">論文本文</a>
+      <a class="btn-ghost" :href="improveUrl">改善建議</a>
+      <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
+      <a class="btn-ghost" :href="architectureUrl">系統架構</a>
+    </template>
 
-    <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
-    <a class="btn-ghost" :href="architectureUrl">系統架構</a>
+    <div ref="moreWrap" class="skills-wrap more-wrap">
+      <button
+        v-if="narrowToolbar"
+        class="btn-ghost"
+        :class="{ active: moreOpen }"
+        title="更多"
+        @click="moreOpen = !moreOpen"
+      >
+        <MIcon name="menu" :size="15" /> 更多
+      </button>
+      <div v-if="narrowToolbar && moreOpen" class="menu-pop more-menu">
+        <div class="menu-label">文件與介紹</div>
+        <a
+          v-for="link in navLinks"
+          :key="link.href"
+          class="menu-item"
+          :href="link.href"
+          @click="moreOpen = false"
+        >{{ link.label }}</a>
+        <div class="menu-sep" />
+        <div class="menu-label">相關連結</div>
+        <a
+          v-for="link in relatedLinks"
+          :key="link.href"
+          class="menu-item"
+          :href="link.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click="moreOpen = false"
+        >
+          <MIcon name="open_in_new" :size="14" /> {{ link.label }}
+        </a>
+      </div>
+    </div>
 
-    <div ref="infoWrap" class="skills-wrap info-wrap">
+    <div v-if="!narrowToolbar" ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
         相關連結
       </button>
@@ -347,6 +400,8 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));
+  min-width: 0;
+  overflow: visible;
 }
 .brand {
   display: flex;
@@ -391,7 +446,10 @@ onBeforeUnmount(() => {
 .skills-wrap { position: relative; }
 .info-menu { top: 36px; right: 0; left: auto; min-width: 220px; }
 .info-menu a.menu-item { text-decoration: none; color: inherit; }
+.more-menu { top: 36px; right: 0; left: auto; min-width: 200px; max-width: min(280px, calc(100vw - 24px)); }
+.more-menu a.menu-item { text-decoration: none; color: inherit; }
 .recompute-wrap.busy { max-width: min(640px, 56vw); }
+.recompute-menu { max-width: min(320px, calc(100vw - 24px)); }
 .recompute-cluster {
   display: flex;
   align-items: center;
@@ -439,7 +497,12 @@ onBeforeUnmount(() => {
   transition: width 0.35s ease;
 }
 .recompute-bar-fill.paused { opacity: 0.45; }
-.recompute-menu { top: 36px; right: 0; left: auto; min-width: 300px; }
+.recompute-menu { top: 36px; right: 0; left: auto; min-width: min(300px, calc(100vw - 24px)); }
+@media (max-width: 640px) {
+  .brand-name { display: none; }
+  .pause-btn { padding: 0 8px !important; }
+  .recompute-wrap.busy { max-width: min(420px, 48vw); }
+}
 .mi-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .mi-hint { font-size: 10.5px; color: hsl(var(--muted-foreground)); font-weight: 400; }
 .spin { animation: tb-spin 0.9s linear infinite; flex-shrink: 0; }

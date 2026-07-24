@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { dragResize } from '../lib/dragResize'
+import { useMediaQuery } from '../lib/useMediaQuery'
 import MIcon from './MIcon.vue'
 import StyleInfoTab from './style/StyleInfoTab.vue'
 import StyleObjectTab from './style/StyleObjectTab.vue'
@@ -107,10 +108,13 @@ const emit = defineEmits(['run-llm', 'run-prompt', 'run-grid', 'run-eval', 'run-
 
 const store = useMapStore()
 const selectedProps = computed(() => store.selectedFeatures[props.layer.id] ?? null)
+const narrowUi = useMediaQuery('(max-width: 900px)')
 
-const open = ref(true)
 const width = ref(300)
 const activeTab = ref('info')
+// 窄螢幕預設收合；展開時以抽屜覆蓋畫布（見 style-panel.css）
+const open = ref(!narrowUi.value)
+watch(narrowUi, (n) => { if (n) open.value = false })
 
 const layer = computed(() => props.layer)
 const isMetro = computed(() => layer.value?.type === 'metro' || layer.value?.metroLike === true)
@@ -181,7 +185,15 @@ function startResize(e) {
   </aside>
 
   <template v-else>
+    <button
+      v-if="narrowUi"
+      type="button"
+      class="rwd-scrim style-scrim"
+      aria-label="關閉資訊面板"
+      @click="open = false"
+    />
     <div
+      v-if="!narrowUi"
       class="resize-x"
       :class="{ dragging }"
       role="separator"
@@ -189,7 +201,12 @@ function startResize(e) {
       @pointerdown="startResize"
     />
 
-    <aside class="style-panel" aria-label="Layer panel" :style="{ width: width + 'px' }">
+    <aside
+      class="style-panel"
+      :class="{ 'style-panel--drawer': narrowUi }"
+      aria-label="Layer panel"
+      :style="{ width: width + 'px' }"
+    >
       <div class="panel-header tabs-header">
         <div class="panel-tabs" role="tablist">
           <button

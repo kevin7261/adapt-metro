@@ -1,6 +1,7 @@
 <script setup>
-import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useMapStore } from '../stores/mapStore'
+import { useMediaQuery } from '../lib/useMediaQuery'
 import { openLayerTab, openAllGalleryTab, dockHandle } from '../stores/dockHandle'
 import { layerData, layerExport } from '../stores/layerData'
 import { dragResize } from '../lib/dragResize'
@@ -16,6 +17,11 @@ import { clearDataOverlay } from '../lib/dataOverlay'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
+const narrowUi = useMediaQuery('(max-width: 768px)')
+
+// 進入窄螢幕時預設收合圖層面板（仍可手動展開為抽屜），不改桌面行為
+if (narrowUi.value) store.ui.layerPanelOpen = false
+watch(narrowUi, (n) => { if (n) store.ui.layerPanelOpen = false })
 
 const typeIcons = { point: 'circle', line: 'polyline', polygon: 'hexagon', raster: 'image', metro: 'train', d3: 'polyline', hillclimb: 'terrain', rwd: 'route' }
 
@@ -405,7 +411,19 @@ onBeforeUnmount(() => {
   </aside>
 
   <template v-else>
-    <aside class="layer-panel" aria-label="Layers" :style="{ width: store.layerPanelWidth + 'px' }">
+    <button
+      v-if="narrowUi"
+      type="button"
+      class="rwd-scrim layer-scrim"
+      aria-label="關閉圖層面板"
+      @click="store.ui.layerPanelOpen = false"
+    />
+    <aside
+      class="layer-panel"
+      :class="{ 'layer-panel--drawer': narrowUi }"
+      aria-label="Layers"
+      :style="{ width: store.layerPanelWidth + 'px' }"
+    >
       <div class="panel-header">
         <span class="panel-title">圖層</span>
         <div class="header-actions">
@@ -614,6 +632,7 @@ onBeforeUnmount(() => {
     </aside>
 
     <div
+      v-if="!narrowUi"
       class="resize-x"
       :class="{ dragging }"
       role="separator"
@@ -843,7 +862,14 @@ onBeforeUnmount(() => {
   background: hsl(var(--destructive) / 0.12);
 }
 
-@media (max-width: 768px) {
-  .layer-panel { position: absolute; z-index: 50; top: 0; bottom: 0; left: 0; }
+.layer-scrim { z-index: 45; position: fixed; inset: 0; }
+.layer-panel--drawer {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  max-width: min(320px, 86vw);
+  box-shadow: var(--shadow-lg);
 }
 </style>

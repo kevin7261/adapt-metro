@@ -57,7 +57,11 @@
 
 /* ---- Base ---- */
 *, *::before, *::after { box-sizing: border-box; }
-html, body, #app { height: 100%; margin: 0; }
+html, body, #app {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+}
 body {
   /* Google Fonts：Inter（UI）＋ Noto Sans TC（中文）＋ JetBrains Mono（等寬） */
   font-family: 'Inter', 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
@@ -71,6 +75,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* RWD：窄螢幕抽屜遮罩（圖層／資訊面板／畫廊側欄共用） */
+.rwd-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgb(0 0 0 / 0.35);
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 :focus-visible { outline: 1.5px solid hsl(var(--ring)); outline-offset: 1px; }
 button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
@@ -194,6 +209,7 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   box-shadow: var(--shadow-lg);
   width: min(560px, calc(100vw - 32px));
   max-height: calc(100vh - 64px);
+  max-height: calc(100dvh - 64px);
   display: flex; flex-direction: column;
 }
 .dialog-header {

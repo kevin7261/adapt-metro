@@ -1,0 +1,21 @@
+{
+  "city": "Tampa",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    4789201,
+    10956202,
+    10956203,
+    10958822,
+    12321304,
+    12555767,
+    12560186,
+    12560187,
+    12560190,
+    12560191,
+    12560196,
+    12560197
+  ],
+  "source": "https://www.urbanrail.net/am/tampa/tampa.htm",
+  "note": "Tampa（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

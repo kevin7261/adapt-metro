@@ -3,7 +3,9 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { QUICK_CITIES, matchQuickSystem, orderQuickMetro } from '../lib/quickCities'
 import { continentRank } from '../stores/metroCatalog'
 import { getShapePresets } from '../stores/paper/shapePresets.js'
+import { useMediaQuery } from '../lib/useMediaQuery'
 import CityIndexList from './CityIndexList.vue'
+import MIcon from './MIcon.vue'
 
 // 四個畫廊 tab（Metro Maps / Map Adjust / Hill Climbing / RWD Maps）的共用外殼：
 // 三個子分頁（快速選擇 / 依車站數排序 / 全球地鐵地圖）、多到少/少到多 segmented
@@ -52,9 +54,19 @@ const mapFocus = ref(null)
 function onIndexPick(id) {
   if (tab.value === 'worldmap') {
     mapFocus.value = { id, n: (mapFocus.value?.n ?? 0) + 1 }
-    return
+  } else {
+    scrollToCity(id)
   }
-  scrollToCity(id)
+  if (narrowGallery.value) indexDrawer.value = false
+}
+
+function toggleSideDrawer() {
+  sideDrawer.value = !sideDrawer.value
+  if (sideDrawer.value) indexDrawer.value = false
+}
+function toggleIndexDrawer() {
+  indexDrawer.value = !indexDrawer.value
+  if (indexDrawer.value) sideDrawer.value = false
 }
 
 // list↔地圖雙向 hover 連動：任一側 hover 的城市 id 放這裡，同時回灌給清單（反白）
@@ -72,9 +84,19 @@ const sideWidth = ref(Number.isFinite(savedShell.sideWidth) ? savedShell.sideWid
 const indexWidth = ref(Number.isFinite(savedShell.indexWidth) ? savedShell.indexWidth : 184)
 const mainRef = ref(null)
 
+// RWD：窄面板時左右欄改抽屜，主體佔滿；功能（篩選／索引點選）不變
+const narrowGallery = useMediaQuery('(max-width: 720px)')
+const sideDrawer = ref(false)
+const indexDrawer = ref(false)
+watch(narrowGallery, (n) => {
+  if (n) { sideDrawer.value = false; indexDrawer.value = false }
+})
+
 function clampPaneWidths() {
   const mainW = mainRef.value?.clientWidth ?? 0
   if (mainW <= 0) return
+  // 窄螢幕抽屜模式：主體全寬，不壓縮側欄寬度狀態
+  if (narrowGallery.value) return
   const world = tab.value === 'worldmap'
   const handles = world ? 5 : 10
   // 窄面板時放寬 body 下限，仍優先保住地圖／卡片區可見
@@ -156,6 +178,8 @@ watch([tab, stationSort, sideWidth, indexWidth], () => {
 // 切到世界地圖：重算寬度＋清掉水平捲，否則地圖被捲出只剩索引清單
 watch(tab, async () => {
   linkedId.value = null
+  sideDrawer.value = false
+  indexDrawer.value = false
   await nextTick()
   clampPaneWidths()
   resetGalleryScroll()
@@ -262,13 +286,29 @@ const tiles = computed(() => {
     <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區／地圖＋右側
          全球城市索引，左右兩塊面板都可拖拉調寬。世界地圖分頁不顯示左側清單、主體改
          成整片地圖，但右側全球清單照樣顯示（點城市＝把地圖飛過去）。 -->
-    <div ref="mainRef" class="gallery-main">
-      <!-- 左側清單：世界地圖分頁不顯示 -->
-      <template v-if="tab !== 'worldmap' && $slots.side">
-        <aside class="gallery-side" :style="{ width: sideWidth + 'px' }">
+    <div ref="mainRef" class="gallery-main" :class="{ 'gallery-main--narrow': narrowGallery }">
+      <!-- 左側清單：世界地圖分頁不顯示；窄螢幕改抽屜 -->
+      <template v-if="tab !== 'worldmap' && $slots.side && (!narrowGallery || sideDrawer)">
+        <button
+          v-if="narrowGallery && sideDrawer"
+          type="button"
+          class="rwd-scrim gallery-scrim"
+          aria-label="關閉顯示圖層"
+          @click="sideDrawer = false"
+        />
+        <aside
+          class="gallery-side"
+          :class="{ 'gallery-pane--drawer gallery-pane--left': narrowGallery }"
+          :style="{ width: sideWidth + 'px' }"
+        >
           <slot name="side" />
         </aside>
-        <div class="pane-resize" title="拖拉調整寬度" @pointerdown="startSideResize" />
+        <div
+          v-if="!narrowGallery"
+          class="pane-resize"
+          title="拖拉調整寬度"
+          @pointerdown="startSideResize"
+        />
       </template>
 
       <!-- 主體：世界地圖分頁畫整片地圖，其餘畫卡片 -->
@@ -289,26 +329,64 @@ const tiles = computed(() => {
         <slot v-else :tiles="tiles" />
       </div>
 
-      <!-- 右側城市索引：依洲別/國家分組（同加入 modal）＋可收合；「依車站數排序」tab
-           則照站數順序、不分組。順序跟左邊卡片一致。所有分頁（含世界地圖）都顯示。 -->
-      <div v-if="catalog && tiles.length" class="pane-resize" title="拖拉調整寬度" @pointerdown="startIndexResize" />
-      <nav v-if="catalog && tiles.length" class="gallery-index" :style="{ width: indexWidth + 'px' }" aria-label="城市索引">
-        <CityIndexList
-          :items="tiles"
-          :grouped="grouped"
-          :sortable="tab === 'stations'"
-          v-model:sort-dir="stationSort"
-          count-noun="城市"
-          :active-id="tab === 'worldmap' ? linkedId : null"
-          @pick="onIndexPick($event.id)"
-          @hover="tab === 'worldmap' && onLink($event)"
+      <!-- 右側城市索引；窄螢幕改抽屜 -->
+      <template v-if="catalog && tiles.length && (!narrowGallery || indexDrawer)">
+        <button
+          v-if="narrowGallery && indexDrawer"
+          type="button"
+          class="rwd-scrim gallery-scrim"
+          aria-label="關閉城市索引"
+          @click="indexDrawer = false"
         />
-      </nav>
+        <div
+          v-if="!narrowGallery"
+          class="pane-resize"
+          title="拖拉調整寬度"
+          @pointerdown="startIndexResize"
+        />
+        <nav
+          class="gallery-index"
+          :class="{ 'gallery-pane--drawer gallery-pane--right': narrowGallery }"
+          :style="{ width: indexWidth + 'px' }"
+          aria-label="城市索引"
+        >
+          <CityIndexList
+            :items="tiles"
+            :grouped="grouped"
+            :sortable="tab === 'stations'"
+            v-model:sort-dir="stationSort"
+            count-noun="城市"
+            :active-id="tab === 'worldmap' ? linkedId : null"
+            @pick="onIndexPick($event.id)"
+            @hover="tab === 'worldmap' && onLink($event)"
+          />
+        </nav>
+      </template>
     </div>
 
     <!-- Footer：每個 tab 都有 footer（即使沒資訊）。這裡顯示城市數當中性內容。 -->
     <footer class="gallery-statusbar">
       <span>{{ catalog ? `${tiles.length} 城市` : '—' }}</span>
+      <template v-if="narrowGallery">
+        <button
+          v-if="tab !== 'worldmap' && $slots.side"
+          type="button"
+          class="btn-ghost gallery-rwd-btn"
+          :class="{ active: sideDrawer }"
+          @click="toggleSideDrawer"
+        >
+          <MIcon name="filter_list" :size="14" /> 圖層
+        </button>
+        <button
+          v-if="catalog && tiles.length"
+          type="button"
+          class="btn-ghost gallery-rwd-btn"
+          :class="{ active: indexDrawer }"
+          @click="toggleIndexDrawer"
+        >
+          <MIcon name="list" :size="14" /> 索引
+        </button>
+      </template>
     </footer>
   </div>
 </template>
@@ -401,4 +479,24 @@ const tiles = computed(() => {
   padding: 0 0 14px;
   background: hsl(var(--card));
 }
+.gallery-main--narrow { position: relative; }
+.gallery-scrim { z-index: 40; }
+.gallery-pane--drawer {
+  position: absolute;
+  z-index: 45;
+  top: 0;
+  bottom: 0;
+  max-width: min(280px, 88vw);
+  box-shadow: var(--shadow-lg);
+  background: hsl(var(--card));
+}
+.gallery-pane--left { left: 0; border-right: 1px solid hsl(var(--border)); }
+.gallery-pane--right { right: 0; border-left: 1px solid hsl(var(--border)); }
+.gallery-rwd-btn {
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+  margin-left: 4px;
+}
+.gallery-statusbar { flex-wrap: wrap; row-gap: 2px; }
 </style>

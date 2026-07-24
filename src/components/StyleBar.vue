@@ -571,16 +571,17 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 /* 單一控制項的小視窗 */
 .sb-pop {
   z-index: 80;
-  min-width: 200px;
+  min-width: min(200px, calc(100vw - 24px));
+  max-width: calc(100vw - 16px);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 .sb-label { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
-.sb-row { display: flex; align-items: center; gap: 8px; }
+.sb-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .sb-col { display: flex; flex-direction: column; gap: 4px; }
-.sb-slider { width: 176px; }
+.sb-slider { width: min(176px, 56vw); }
 .sb-num {
   width: 60px;
   padding: 4px 6px;

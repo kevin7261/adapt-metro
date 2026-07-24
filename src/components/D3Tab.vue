@@ -3199,6 +3199,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex: 1;
   min-height: 0;
+  position: relative; /* StylePanel 窄螢幕抽屜定位 */
 }
 /* Canvas + its attribute table stack vertically; StylePanel sits beside. */
 .map-col {
@@ -3210,6 +3211,7 @@ onBeforeUnmount(() => {
 }
 /* Map area: a left view-list rail + the canvas to its right. */
 .map-main {
+  position: relative; /* D3ViewNav 窄螢幕抽屜 */
   display: flex;
   flex: 1;
   min-height: 0;
@@ -3237,6 +3239,10 @@ onBeforeUnmount(() => {
   font-size: 11.5px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .ma-diag { white-space: normal; }
+  .ma-statusbar { gap: 8px; padding: 3px 8px; }
 }
 .ma-diag b { color: hsl(var(--foreground)); font-weight: 600; }
 /* 沒診斷資訊時的中性佔位（footer 仍在，維持每個 tab 都有 footer） */
@@ -3305,7 +3311,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  max-width: 440px;
+  max-width: min(440px, calc(100vw - 32px));
   padding: 24px 28px;
   text-align: center;
   background: hsl(var(--card) / 0.96);
@@ -3333,8 +3339,9 @@ onBeforeUnmount(() => {
 }
 .llm-run-log {
   width: 100%;
-  min-width: 340px;
-  height: 200px;
+  min-width: 0;
+  max-width: min(440px, calc(100vw - 48px));
+  height: min(200px, 36vh);
   overflow: auto;
   text-align: left;
   font-size: 10.5px;
@@ -3372,7 +3379,8 @@ onBeforeUnmount(() => {
 /* LLM 調整 overlay 的一句話輸入框（畫布中央、開始鈕上方） */
 .grid-prompt-box {
   width: 100%;
-  min-width: 300px;
+  min-width: 0;
+  max-width: min(420px, calc(100vw - 48px));
   resize: vertical;
   font-size: 12px;
   line-height: 1.5;

@@ -90,6 +90,13 @@ const COLS = 1
   display: flex;
   flex-direction: column;
 }
+@media (max-width: 720px) {
+  .all-card { --gv-w: 168px; --gv-h: 126px; }
+  .ah-stats { display: none; }
+}
+@media (max-width: 480px) {
+  .all-card { --gv-w: 140px; --gv-h: 105px; }
+}
 .all-head {
   display: flex;
   align-items: center;

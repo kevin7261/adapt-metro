@@ -948,6 +948,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex: 1;
   min-height: 0;
+  position: relative; /* StylePanel 窄螢幕抽屜定位 */
 }
 /* Map + its attribute table stack vertically; StylePanel sits full-height beside. */
 .map-col {
@@ -1012,7 +1013,8 @@ onBeforeUnmount(() => {
 .basemap-btn.active { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.5); }
 .basemap-menu {
   position: absolute; right: 0; bottom: 42px;
-  width: 248px; padding: 6px;
+  width: min(248px, calc(100vw - 24px));
+  padding: 6px;
   display: flex; flex-direction: column;
 }
 /* 階層：① 頂層群組（鐵路圖層／地圖圖層）→ 其子項；地圖圖層下再分供應商子群組 → 底圖項。 */

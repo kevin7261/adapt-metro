@@ -16,6 +16,17 @@
   background: hsl(var(--card));
   border-left: 1px solid hsl(var(--border));
 }
+/* RWD：窄螢幕抽屜（不佔 flex 寬，覆蓋畫布） */
+.style-scrim { z-index: 45; position: fixed; inset: 0; }
+.style-panel--drawer {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  max-width: min(320px, 86vw);
+  box-shadow: var(--shadow-lg);
+}
 .rail {
   width: 42px;
   flex-shrink: 0;
@@ -35,8 +46,14 @@
 }
 
 /* header tabs */
-.tabs-header { padding: 4px 8px 0 8px; align-items: flex-end; }
-.panel-tabs { display: flex; gap: 2px; }
+.tabs-header { padding: 4px 8px 0 8px; align-items: flex-end; min-width: 0; }
+.panel-tabs {
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
 .panel-tab {
   display: inline-flex;
   align-items: center;

@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import MIcon from '../MIcon.vue'
 import { dragResize } from '../../lib/dragResize'
 import { openLayerDoc } from '../../stores/layerDocHandle'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 const props = defineProps({
   sections: { type: Array, required: true },
@@ -17,6 +18,14 @@ const emit = defineEmits(['update:mode'])
 // resize through the ResizeObserver on host).
 const viewNavWidth = ref(132)
 const navDragging = ref(false)
+const narrowUi = useMediaQuery('(max-width: 768px)')
+const navOpenDrawer = ref(false)
+watch(narrowUi, (n) => {
+  if (n) {
+    navOpenDrawer.value = false
+    if (viewNavWidth.value > 160) viewNavWidth.value = 148
+  }
+})
 
 function startNavResize(e) {
   e.preventDefault()
@@ -42,10 +51,37 @@ const navSectionOpen = (s) =>
 function toggleNavSection(s) {
   if (s.header) navOpen.value[s.header] = !navSectionOpen(s)
 }
+
+function pickMode(id) {
+  emit('update:mode', id)
+  if (narrowUi.value) navOpenDrawer.value = false
+}
 </script>
 
 <template>
-  <div class="view-nav" :style="{ width: viewNavWidth + 'px' }" role="tablist">
+  <button
+    v-if="narrowUi && !navOpenDrawer"
+    type="button"
+    class="btn-ghost view-nav-fab"
+    title="開啟視圖清單"
+    @click="navOpenDrawer = true"
+  >
+    <MIcon name="view_list" :size="15" /> 視圖
+  </button>
+  <button
+    v-if="narrowUi && navOpenDrawer"
+    type="button"
+    class="rwd-scrim view-nav-scrim"
+    aria-label="關閉視圖清單"
+    @click="navOpenDrawer = false"
+  />
+  <div
+    v-if="!narrowUi || navOpenDrawer"
+    class="view-nav"
+    :class="{ 'view-nav--drawer': narrowUi }"
+    :style="{ width: viewNavWidth + 'px' }"
+    role="tablist"
+  >
     <div
       v-for="s in sections"
       :key="s.header ?? 'flat'"
@@ -84,12 +120,13 @@ function toggleNavSection(s) {
           :aria-selected="mode === t.id"
           :disabled="!panelLayer || (t.rot && !canRotate) || !!t.disabled"
           :title="t.disabled ? '此城市未規定形狀計算（不需計算）' : (t.rot && !canRotate ? '網路已對齊正南北，無需旋轉' : '')"
-          @click="emit('update:mode', t.id)"
+          @click="pickMode(t.id)"
         >{{ t.label }}</button>
       </div>
     </div>
   </div>
   <div
+    v-if="!narrowUi"
     class="view-nav-resize"
     :class="{ dragging: navDragging }"
     role="separator"
@@ -106,6 +143,29 @@ function toggleNavSection(s) {
   flex-shrink: 0;
   padding: 6px;
   overflow-y: auto;
+  background: hsl(var(--card));
+}
+.view-nav-fab {
+  position: absolute;
+  z-index: 28;
+  top: 8px;
+  left: 8px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card) / 0.94);
+  box-shadow: var(--shadow);
+}
+.view-nav-scrim { z-index: 29; position: absolute; inset: 0; }
+.view-nav--drawer {
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  max-width: min(220px, 78vw);
+  box-shadow: var(--shadow-lg);
+  border-right: 1px solid hsl(var(--border));
 }
 /* 分組（原始／Hill Climbing／直線演算法／…）——全部左側功能列共用同一套版面：
    header 一列（caret＋標題＋項目數 badge）可開合，展開的項目縮排並帶樹狀導引線。 */

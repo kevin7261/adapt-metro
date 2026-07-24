@@ -301,6 +301,7 @@ function startResize(e) {
   flex-shrink: 0;
   border-top: 1px solid hsl(var(--border));
   background: hsl(var(--card));
+  max-height: min(500px, 42dvh);
 }
 .resize-y { position: absolute; top: -2px; left: 0; right: 0; z-index: 10; }
 .attr-header {
