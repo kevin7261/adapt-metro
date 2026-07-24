@@ -1,0 +1,13 @@
+{
+  "city": "Kagoshima",
+  "country": "Japan",
+  "continent": "asia",
+  "osm_route_ids": [
+    12771495,
+    12771496,
+    12771497,
+    12771498
+  ],
+  "source": "https://www.urbanrail.net/as/jp/kagoshima/kagoshima.htm",
+  "note": "Kagoshima（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}
