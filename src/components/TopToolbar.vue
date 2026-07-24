@@ -38,10 +38,6 @@ const navLinks = [
   { label: '系統介紹', href: slidesUrl },
   { label: '系統架構', href: architectureUrl },
 ]
-// 開任一選單時關掉其他，避免重疊
-watch(moreOpen, (v) => { if (v) { infoOpen.value = false; recomputeOpen.value = false } })
-watch(infoOpen, (v) => { if (v) { moreOpen.value = false; recomputeOpen.value = false } })
-watch(recomputeOpen, (v) => { if (v) { moreOpen.value = false; infoOpen.value = false } })
 
 /* ---- 重新計算（全城）----
    all      連環狀成方一起重做
@@ -67,6 +63,11 @@ const RECOMPUTE_OPTS = {
 }
 const recomputeOpen = ref(false)
 const recomputeWrap = ref(null)
+
+// 開任一選單時關掉其他，避免重疊
+watch(moreOpen, (v) => { if (v) { infoOpen.value = false; recomputeOpen.value = false } })
+watch(infoOpen, (v) => { if (v) { moreOpen.value = false; recomputeOpen.value = false } })
+watch(recomputeOpen, (v) => { if (v) { moreOpen.value = false; infoOpen.value = false } })
 const recomputeBusy = ref(false)
 const recomputePaused = ref(false)
 const recomputeStep = ref('')
@@ -272,6 +273,7 @@ onBeforeUnmount(() => {
     <!-- 右側叢集：Skills 起推到右；窄螢幕用 CSS 收合 nav-wide → 更多 -->
     <div class="toolbar-end">
       <button class="btn-ghost skills-link" title="Skills" @click="store.ui.dialog = 'skills'">
+        <MIcon name="auto_awesome" :size="16" class="skills-ico" />
         <span class="lbl">Skills</span>
       </button>
 
@@ -393,11 +395,11 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* 與 slides/_shared/app-toolbar.css 對齊（靜態頁共用同一套視覺） */
+/* 與 slides/_shared/app-toolbar.css 對齊 */
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   min-height: 44px;
   padding: 6px 12px;
   flex-shrink: 0;
@@ -426,7 +428,22 @@ onBeforeUnmount(() => {
 .brand:hover { background: transparent; color: hsl(var(--foreground)); }
 .brand :deep(.m-icon) { color: hsl(var(--primary)); }
 
-.skills-link { margin-left: auto; }
+.toolbar-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex-shrink: 1;
+}
+.nav-wide {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.nav-narrow { display: none; }
+
 .toolbar a.btn-ghost { text-decoration: none; }
 .toolbar .btn-ghost {
   height: 32px;
@@ -440,29 +457,37 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .toolbar .btn-ghost:hover:not(:disabled) {
   border-color: transparent;
-  background: hsl(var(--card));
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
 }
 .toolbar .btn-ghost:disabled { opacity: 0.85; cursor: wait; }
-.skills-wrap { position: relative; }
-.info-menu { top: 36px; right: 0; left: auto; min-width: 220px; }
-.info-menu a.menu-item { text-decoration: none; color: inherit; }
-.more-menu { top: 36px; right: 0; left: auto; min-width: 200px; max-width: min(280px, calc(100vw - 24px)); }
+.skills-wrap { position: relative; flex-shrink: 0; }
+.info-menu,
+.more-menu,
+.recompute-menu {
+  top: 36px;
+  right: 0;
+  left: auto;
+  min-width: 220px;
+  max-width: min(300px, calc(100vw - 24px));
+}
+.info-menu a.menu-item,
 .more-menu a.menu-item { text-decoration: none; color: inherit; }
-.recompute-wrap.busy { max-width: min(640px, 56vw); }
-.recompute-menu { max-width: min(320px, calc(100vw - 24px)); }
+
+.recompute-wrap.busy { max-width: min(420px, 42vw); }
 .recompute-cluster {
   display: flex;
   align-items: center;
   gap: 2px;
   min-width: 0;
 }
-.recompute-btn {
-  max-width: min(420px, 40vw) !important;
-}
+.recompute-btn { max-width: 100% !important; }
 .recompute-wrap.busy .recompute-btn:disabled { cursor: default; }
+.recompute-ico { display: none; }
 .pause-btn {
   flex-shrink: 0;
   max-width: none !important;
@@ -470,9 +495,7 @@ onBeforeUnmount(() => {
   border-color: hsl(var(--border)) !important;
   font-weight: 600;
 }
-.pause-btn:hover {
-  border-color: hsl(var(--border)) !important;
-}
+.pause-btn:hover { border-color: hsl(var(--border)) !important; }
 .recompute-wrap.paused .pause-btn {
   color: hsl(var(--primary));
   border-color: hsl(var(--primary) / 0.35) !important;
@@ -500,14 +523,32 @@ onBeforeUnmount(() => {
   transition: width 0.35s ease;
 }
 .recompute-bar-fill.paused { opacity: 0.45; }
-.recompute-menu { top: 36px; right: 0; left: auto; min-width: min(300px, calc(100vw - 24px)); }
-@media (max-width: 640px) {
-  .brand-name { display: none; }
-  .pause-btn { padding: 0 8px !important; }
-  .recompute-wrap.busy { max-width: min(420px, 48vw); }
-}
 .mi-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .mi-hint { font-size: 10.5px; color: hsl(var(--muted-foreground)); font-weight: 400; }
 .spin { animation: tb-spin 0.9s linear infinite; flex-shrink: 0; }
 @keyframes tb-spin { to { transform: rotate(360deg); } }
+
+/* ≤1100：五個中文連結改收進「更多」 */
+@media (max-width: 1100px) {
+  .nav-wide { display: none; }
+  .nav-narrow { display: block; }
+}
+/* ≤720：藏品牌文字 */
+@media (max-width: 720px) {
+  .brand-name { display: none; }
+  .toolbar { padding: 6px 8px; gap: 4px; }
+}
+.skills-ico { display: none; }
+/* ≤520：按鈕改圖示為主，避免 Skills／更多／重算擠爆 */
+@media (max-width: 520px) {
+  .toolbar .btn-ghost { padding: 0 8px; }
+  .toolbar .lbl { display: none; }
+  .skills-ico { display: inline-flex; }
+  .more-btn { padding: 0 8px !important; }
+  .recompute-ico { display: inline-flex; }
+  .recompute-caret { display: none; }
+  .recompute-wrap.busy { max-width: min(200px, 46vw); }
+  .recompute-wrap.busy .recompute-text.lbl { display: inline; max-width: 9em; }
+  .pause-btn { padding: 0 8px !important; }
+}
 </style>

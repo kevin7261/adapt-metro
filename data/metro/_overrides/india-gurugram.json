@@ -1,0 +1,29 @@
+{
+  "city": "Gurugram",
+  "country": "India",
+  "continent": "asia",
+  "osm_route_ids": [
+    447209,
+    447210,
+    2535797,
+    2535798,
+    3537978,
+    4481323,
+    7890002,
+    8037669,
+    8037705,
+    8037712,
+    8037715,
+    8051592,
+    8241298,
+    8242437,
+    8385429,
+    8385430,
+    17337287,
+    17337288,
+    20268499,
+    20268500
+  ],
+  "source": "https://www.urbanrail.net/as/in/delhi/gurugram-metro.htm",
+  "note": "Gurugram（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

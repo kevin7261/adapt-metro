@@ -1,4 +1,4 @@
-/* 全站靜態頁共用 header——視覺對齊 src/components/TopToolbar.vue + src/style.css。
+/* 全站靜態頁共用 header——視覺／RWD 對齊 src/components/TopToolbar.vue + src/style.css。
    token 值抄自 style.css（Cursor 風格），獨立命名 --app-* 以免干擾各頁內容色。 */
 :root {
   --app-card: 0 0% 98.5%;
@@ -33,7 +33,7 @@ html[data-theme='amber'] { --app-primary: 32 95% 52%; }
 .app-toolbar {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   min-height: 44px;
   padding: 6px 12px;
   flex-shrink: 0;
@@ -66,6 +66,22 @@ html[data-theme='amber'] { --app-primary: 32 95% 52%; }
 }
 .app-toolbar .brand:hover { color: hsl(var(--app-fg)); background: transparent; }
 .app-toolbar .brand .m-icon { color: hsl(var(--app-primary)); }
+
+.app-toolbar .toolbar-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.app-toolbar .nav-wide {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.app-toolbar .nav-narrow { display: none; }
+
 .app-toolbar .btn-ghost {
   display: inline-flex;
   align-items: center;
@@ -85,6 +101,7 @@ html[data-theme='amber'] { --app-primary: 32 95% 52%; }
   max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 .app-toolbar .btn-ghost:hover {
   background: hsl(var(--app-accent));
@@ -92,7 +109,6 @@ html[data-theme='amber'] { --app-primary: 32 95% 52%; }
   border-color: transparent;
 }
 .app-toolbar .btn-ghost.active { color: hsl(var(--app-primary)); }
-.app-toolbar .skills-link { margin-left: auto; }
 .app-toolbar .info-wrap,
 .app-toolbar .more-wrap { position: relative; flex-shrink: 0; }
 .app-toolbar .m-icon {
@@ -113,7 +129,7 @@ html[data-theme='amber'] { --app-primary: 32 95% 52%; }
   right: 0;
   left: auto;
   min-width: 220px;
-  max-width: min(280px, calc(100vw - 24px));
+  max-width: min(300px, calc(100vw - 24px));
   background: hsl(var(--app-popover));
   color: hsl(var(--app-popover-fg));
   border: 1px solid hsl(var(--app-border));
@@ -146,23 +162,28 @@ html[data-theme='amber'] { --app-primary: 32 95% 52%; }
   background: hsl(var(--app-accent));
   color: hsl(var(--app-accent-fg));
 }
+.app-toolbar .menu-item.active { color: hsl(var(--app-primary)); font-weight: 600; }
 .app-toolbar .menu-sep {
   height: 1px;
   margin: 4px 0;
   background: hsl(var(--app-border));
 }
-.app-toolbar .nav-wide {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-.app-toolbar .nav-narrow { display: none; }
 
-@media (max-width: 900px) {
+/* ≤1100：平鋪連結 →「更多」 */
+@media (max-width: 1100px) {
   .app-toolbar .nav-wide { display: none; }
   .app-toolbar .nav-narrow { display: block; }
 }
-@media (max-width: 640px) {
+/* ≤720：藏品牌文字 */
+@media (max-width: 720px) {
   .app-toolbar .brand-name { display: none; }
+  .app-toolbar { padding: 6px 8px; gap: 4px; }
+}
+.app-toolbar .skills-ico { display: none; }
+/* ≤520：Skills／更多改圖示為主 */
+@media (max-width: 520px) {
+  .app-toolbar .btn-ghost { padding: 0 8px; }
+  .app-toolbar .lbl { display: none; }
+  .app-toolbar .skills-ico { display: inline-block; }
+  .app-toolbar .more-btn { padding: 0 8px; }
 }
