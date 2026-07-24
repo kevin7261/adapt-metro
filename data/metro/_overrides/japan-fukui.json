@@ -1,0 +1,14 @@
+{
+  "city": "Fukui",
+  "country": "Japan",
+  "continent": "asia",
+  "osm_route_ids": [
+    1895507,
+    10286530,
+    10286618,
+    10286621,
+    18788174
+  ],
+  "source": "https://www.urbanrail.net/as/jp/fukui/fukui.htm",
+  "note": "Fukui（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

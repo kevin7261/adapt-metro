@@ -1,0 +1,103 @@
+{
+ "_comment": "人工站序補正（wiki 已裁決、OSM route relation 上游未更新時用）。appends[].relation 的成員序尾端依序補上 append_stops 節點（role=stop）；close_loop=true 時最後回到第一個 stop（環狀路線不變式）。節點座標與站名由 gap_geom_/gap_stations_ccl_closure 供給（scripts/_fetch_ccl_nodes.mjs）。",
+ "appends": [
+  {
+   "relation": 7913594,
+   "note": "成都地铁10号线三期（太平园—武侯祠）2025-09-17 開通，高升桥為新增中間站；OSM 上游 route relation 尚未把高升桥列為停靠成員（站點節點存在）。zh wiki 成都地铁10号线。",
+   "inserts": [
+    {
+     "after": 7834217097,
+     "add": [
+      4079221277
+     ]
+    }
+   ]
+  },
+  {
+   "relation": 8298253,
+   "note": "同上（反向：新平→武侯祠，插在红牌楼之後、武侯祠之前）。",
+   "inserts": [
+    {
+     "after": 13146678235,
+     "add": [
+      4079221277
+     ]
+    }
+   ]
+  },
+  {
+   "relation": 2076291,
+   "note": "新加坡環狀線 CCL6 閉合段 2026 通車（wiki: Circle Line (MRT)）：HarbourFront 之後 Keppel(CC30)→Cantonment(CC31)→Prince Edward Road(CC32)，回到起點 Marina Bay 成環。OSM 四個 CCL relation 皆尚未加入此三站成員（僅存在 stop_area）。",
+   "append_stops": [
+    12849271710,
+    12849271709,
+    12849271708
+   ],
+   "close_loop": true
+  },
+  {
+   "relation": 18356557,
+   "note": "苏州7号线 2024-12-01 全线通车（木里—常楼 28 站营运，zh wiki 站表），OSM relation 成员只涵盖红庄—常楼段且漏 3 个中途站。南段 7 站前置＋中央公园/黄天荡/登云 插入。白荡南暂缓开通已由 station_excludes 剔除。",
+   "prepend_stops": [
+    4570262476,
+    4570262475,
+    4570262474,
+    4570262473,
+    4570262472,
+    4570262471,
+    4570262470
+   ],
+   "inserts": [
+    {
+     "after": 12299823430,
+     "add": [
+      4625473986
+     ]
+    },
+    {
+     "after": 12299823423,
+     "add": [
+      2099907821
+     ]
+    },
+    {
+     "after": 12299823363,
+     "add": [
+      12299823361
+     ]
+    }
+   ]
+  },
+  {
+   "relation": 13319538,
+   "note": "郑州城郊线延伸至郑州航空港站（2022-06-20 随高铁站开通，en/zh wiki 站表 18 站）；OSM relation 名称已写航空港站但成员止于港区会展。",
+   "append_stops": [
+    5575721417
+   ]
+  },
+  {
+   "relation": 7575713,
+   "note": "NYC 2 深夜全停模式停靠 59 St–Columbus Circle（en wiki 2 Train：night 61 站）；OSM 深夜 relation 漏此停靠成員。插在 66 St–Lincoln Center 之後。",
+   "inserts": [
+    {
+     "after": 4460385064,
+     "add": [
+      5111472254
+     ]
+    }
+   ]
+  },
+  {
+   "relation": 9655662,
+   "note": "同上（反向：插在 50th St 之後、66 St 之前）。",
+   "inserts": [
+    {
+     "after": 5111471159,
+     "add": [
+      5111472254
+     ]
+    }
+   ]
+  }
+ ]
+}

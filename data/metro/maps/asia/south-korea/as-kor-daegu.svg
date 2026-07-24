@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="612px" height="405px" viewBox="0 0 612 405" enable-background="new 0 0 612 405" xml:space="preserve">
+<symbol  id="환승역_1_" viewBox="-3.5 -3.5 7 7">
+	<g>
+		<path fill="#FFFFFF" d="M0-2.75c-1.517,0-2.75,1.233-2.75,2.75S-1.517,2.75,0,2.75S2.75,1.517,2.75,0S1.517-2.75,0-2.75L0-2.75z"
+			/>
+		<path fill="#231F20" d="M0,2c1.103,0,2-0.897,2-2S1.103-2,0-2s-2,0.897-2,2S-1.103,2,0,2 M0,3.5c-1.934,0-3.5-1.566-3.5-3.5
+			S-1.934-3.5,0-3.5S3.5-1.934,3.5,0S1.934,3.5,0,3.5L0,3.5z"/>
+	</g>
+</symbol>
+<g id="바탕">
+</g>
+<g id="노선">
+	<g id="_x33_호선">
+		<polyline fill="none" stroke="#BD9A2F" stroke-width="4" stroke-dasharray="10,5" points="252,27 252,63 252,90 216,126 216,144 
+			225,153 225,171 243,189 288,189 297,198 297,261 324,261 333,270 378,270 378,324 405,351 414,351 		"/>
+	</g>
+	<g id="_x32_호선">
+		<polyline fill="none" stroke="#50B848" stroke-width="4" points="27,252 63,252 81,270 243,270 270,243 333,243 342,252 423,252 
+			468,297 549,297 		"/>
+	</g>
+	<g id="_x31_호선">
+		<polyline fill="none" stroke="#DD0000" stroke-width="4" points="585,234 504,234 468,198 396,198 378,216 324,216 315,225 
+			315,288 297,306 252,306 180,378 162,378 		"/>
+	</g>
+</g>
+<g id="역">
+	<g id="일반역">
+		<g id="환승역">
+			
+				<use xlink:href="#환승역_1_"  width="7" height="7" x="-3.5" y="-3.5" transform="matrix(1 0 0 -1 314.9785 261.0002)" overflow="visible"/>
+			
+				<use xlink:href="#환승역_1_"  width="7" height="7" x="-3.5" y="-3.5" transform="matrix(1 0 0 -1 314.9785 243.0002)" overflow="visible"/>
+			
+				<use xlink:href="#환승역_1_"  width="7" height="7" x="-3.5" y="-3.5" transform="matrix(1 0 0 -1 297 243.0002)" overflow="visible"/>
+		</g>
+		<g id="_x32_호선_1_">
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="230.167" y1="275" x2="230.167" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="354.667" y1="252" x2="354.667" y2="247"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="374.333" y1="252" x2="374.333" y2="247"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="412.667" y1="257" x2="412.667" y2="252"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="395.082" y1="252" x2="395.082" y2="247"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="475.917" y1="302" x2="475.917" y2="297"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="504.5" y1="302" x2="504.5" y2="297"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="526.917" y1="302" x2="526.917" y2="297"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="548" y1="302" x2="548" y2="297"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="429.965" y1="266.035" x2="433.5" y2="262.5"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="455.59" y1="291.661" x2="459.125" y2="288.125"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="277" y1="248" x2="277" y2="243"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="336.682" y1="246.735" x2="340.217" y2="243.199"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="250.786" y1="269.286" x2="247.25" y2="265.75"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="259.083" y1="253.917" x2="255.548" y2="250.381"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="212.5" y1="275" x2="212.5" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="195" y1="275" x2="195" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="170" y1="275" x2="170" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="153" y1="275" x2="153" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="125" y1="275" x2="125" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="99" y1="275" x2="99" y2="270"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="71.69" y1="267.761" x2="75.226" y2="264.226"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="28" y1="257" x2="28" y2="252"/>
+			<line fill="none" stroke="#50B848" stroke-width="2" x1="60" y1="257" x2="60" y2="252"/>
+		</g>
+		<g id="_x31_호선_1_">
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="310" y1="277.563" x2="315" y2="277.563"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="315" y1="230.083" x2="320" y2="230.083"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="337.75" y1="216" x2="337.75" y2="211"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="361.25" y1="216" x2="361.25" y2="211"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="421.625" y1="203" x2="421.625" y2="198"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="405.833" y1="203" x2="405.833" y2="198"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="440.5" y1="203" x2="440.5" y2="198"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="459.125" y1="203" x2="459.125" y2="198"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="519.5" y1="239" x2="519.5" y2="234"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="541.75" y1="239" x2="541.75" y2="234"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="560.75" y1="239" x2="560.75" y2="234"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="584" y1="239" x2="584" y2="234"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="480.697" y1="217.768" x2="484.232" y2="214.232"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="497.715" y1="234.785" x2="501.25" y2="231.25"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="384.035" y1="217.035" x2="380.5" y2="213.5"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="392.125" y1="201.875" x2="388.59" y2="198.34"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="315" y1="217.93" x2="318.535" y2="221.465"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="308.625" y1="294.375" x2="312.161" y2="297.91"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="236.292" y1="321.707" x2="239.827" y2="325.243"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="246.089" y1="304.84" x2="249.625" y2="308.375"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="217.756" y1="333.174" x2="221.292" y2="336.709"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="209.125" y1="348.876" x2="212.66" y2="352.41"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="195.381" y1="355.549" x2="198.917" y2="359.084"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="189.125" y1="368.875" x2="192.661" y2="372.409"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="163" y1="378" x2="163" y2="383"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="294.188" y1="306" x2="294.188" y2="311"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="279.5" y1="306" x2="279.5" y2="311"/>
+			<line fill="none" stroke="#DD0000" stroke-width="2" x1="265.125" y1="306" x2="265.125" y2="311"/>
+		</g>
+	</g>
+	<g id="역명_x28_en_x29_">
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 321.916 231.2092)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Jungangno</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 321.916 231.2092)" fill="none" stroke="#FFFFFF" font-family="'Tahoma'" font-size="4.5">Jungangno</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 155.6665 397.011)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Daegok</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 251.3794 331.3)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Daemyeong</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 220.8462 290.5002)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Gamsam</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 204.6938 289.0276)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Jukjeon</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 186.1909 290.2297)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Yongsan</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 166.5581 284.5286)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Igok</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 142.1187 291.802)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Seongseo</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 133.1763 308.3801)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Industrial Complex</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 105.5142 300.2385)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Keimyung Univ.</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 85.5425 294.0432)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Gangchang</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 63.313 278.3772)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Daesil</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 55.7729 267.2512)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Dasa</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 17.7358 273.1223)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Munyang</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 281.356 302.8323)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">National University</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 293.9585 297.8665)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">of Education</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 410.6279 220.7258)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Dongchon</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 395.2324 220.3293)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Ayanggyo</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 403.1094 272.7034)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Manchon</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 391.083 242.4387)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Suseong-gu</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 394.9014 246.2571)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Office</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 422.208 276.1047)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Damti</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 445.7373 304.0754)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Yeonho</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 469.3389 313.9739)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Daegu</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 466.5693 324.3792)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Grand Park</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 498.7842 313.6526)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Gosan</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 519.333 315.2297)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Sinmae</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 542.6152 313.1975)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Sawol</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 434.1875 215.5012)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Haean</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 448.3027 220.385)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Bangchon</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 468.585 231.8411)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Yonggye</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 489.9697 244.5588)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Yulha</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 515.1543 249.0393)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Singi</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 531.0186 255.6711)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Banyawol</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 553.5605 252.5227)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Gaksan</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 578.2471 250.7815)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Ansim</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 294.4429 284.2815)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Myeongdeok</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 272.0532 269.9836)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Seomun Market</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 265.5903 265.0764)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Bangogae</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 248.1187 255.55)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Naedang</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 249.4429 276.4192)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Duryu</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 320.0596 239.9768)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Banwoldang</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 342.1846 243.9768)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Kyungpook Nat&apos;l</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 346.0029 247.7952)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Univ. Hosp.</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 354.667 245.9768)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Daegu Bank</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 374.333 245.9768)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Beomeo</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 337.75 210.1663)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Chilseong Market </text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 362.8281 185.0881)" fill="#231F20" font-family="'Tahoma'" font-size="4.5"> </text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 361.25 210.1663)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Sincheon</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 321.916 231.2092)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Jungangno</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 270.2524 326.26)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Anjirang</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 276.0376 335.5667)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Hyeonchungno</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 190.4604 382.0598)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Jincheon</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 188.9175 359.3645)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Wolbae</text>
+		<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 211.4702 361.05)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Sangin</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 210.3892 337.8938)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Wolchon</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 234.5444 313.7395)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Seongdangmot</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 235.5903 336.9299)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Songhyeon</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 308.4492 309.5706)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Yeungnam</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 306.7188 318.9377)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">University Hospital</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 303.9175 226.9514)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Daegu Station</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 375.2412 232.8899)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Dongdaegu Station</text>
+		
+			<text transform="matrix(0.7071 -0.7071 0.7071 0.7071 379.8535 204.8069)" fill="#231F20" font-family="'Tahoma'" font-size="4.5">Keungogae</text>
+	</g>
+</g>
+<g id="범례">
+	<text transform="matrix(1 0 0 1 33.167 54.6663)" fill="#231F20" font-family="'Tahoma'" font-size="5">100218</text>
+	<g id="텍스트_x28_en_x29_">
+		<text transform="matrix(1 0 0 1 80.9995 90.5999)" fill="#231F20" font-family="'UnDotum'" font-size="7">Transfer</text>
+		<text transform="matrix(1 0 0 1 81 81.5999)" fill="#231F20" font-family="'UnDotum'" font-size="7">Line 3</text>
+		<text transform="matrix(1 0 0 1 147.4995 72.7502)" fill="#231F20" font-family="'UnDotum'" font-size="7">Line 2</text>
+		<text transform="matrix(1 0 0 1 81 72.5999)" fill="#231F20" font-family="'UnDotum'" font-size="7">Line 1</text>
+		<text transform="matrix(1 0 0 1 31.5005 45.0002)" fill="#231F20" font-family="'UnDotum'" font-size="20">Daegu Subway Map</text>
+	</g>
+	<g id="Pic">
+		
+			<use xlink:href="#환승역_1_"  width="7" height="7" x="-3.5" y="-3.5" transform="matrix(1 0 0 -1 62.5 88.2502)" overflow="visible"/>
+		<line fill="none" stroke="#DD0000" stroke-width="4" x1="49" y1="72" x2="76" y2="72"/>
+		<line fill="none" stroke="#DD0000" stroke-width="2" x1="62.5" y1="67" x2="62.5" y2="72"/>
+		<line fill="none" stroke="#BD9A2F" stroke-width="4" x1="49" y1="81" x2="76" y2="81"/>
+		<line fill="none" stroke="#BD9A2F" stroke-width="2" x1="62.5" y1="76" x2="62.5" y2="81"/>
+		<line fill="none" stroke="#50B848" stroke-width="4" x1="115.5" y1="72" x2="142.5" y2="72"/>
+		<line fill="none" stroke="#50B848" stroke-width="2" x1="129" y1="67" x2="129" y2="72"/>
+	</g>
+</g>
+</svg>

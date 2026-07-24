@@ -1,0 +1,15 @@
+{
+  "city": "Cochabamba",
+  "country": "Bolivia",
+  "continent": "south-america",
+  "osm_route_ids": [
+    9074378,
+    9083839,
+    11678428,
+    14576926,
+    14576927,
+    19604339
+  ],
+  "source": "人工裁決 2026-07-21：科恰班巴 Tren Metropolitano（Mi Tren）三線 Verde/Roja/Amarilla 原被誤併進 am-mex-guadalajara.geojson。",
+  "note": "病因：兩地系統都標 network=Mi Tren（玻利維亞 Operadora del Tren Metropolitano de Cochabamba vs 墨西哥 SITEUR），geocodeSystems.mjs 的 netKey() 把 network 排在 operator 之前，於是兩城 192 個車站（墨 144＋玻 48）被平均成單一重心，多數決把它拉到瓜達拉哈拉。buildGeojson.mjs 的 250km 護欄有正確觸發（實距約 4600km），但救援用的 nearestWiki 找不到科恰班巴（不在 Wikipedia List of metro systems，最近者為 1309km 外的利馬），只好退回同一個已汙染的 geocode 值，等於偵測到錯誤後又改回錯誤答案。此檔以 pinnedKeys 直接釘死分桶，不經距離護欄。對應的 3 個 route_master 為 14576928 (Línea Verde)、14576929 (Línea Roja)、19604340 (Línea Amarilla)。"
+}

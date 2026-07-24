@@ -1,0 +1,34 @@
+{
+  "_comment": "只含官方已公布站名的連續段（站名 100%、不編造）。萬大二期/民汐台北段/環狀南北環因官方未命名，不納入。座標：有值＝OSM 錨點，null＝沿 OSM 線形插值。",
+  "lines": [
+    {
+      "ref": "LG", "name": "萬大-中和-樹林線一期", "name_en": "Wanda–Zhonghe–Shulin Line (Phase 1)",
+      "colour": "#A9D08E", "polyline_key": "wanda", "variant": "phase1",
+      "wikipedia": "zh:萬大-中和-樹林線",
+      "stations": [
+        {"code": "LG01", "name_zh": "中正紀念堂", "name_en": "Chiang Kai-Shek Memorial Hall", "lon": 121.517762, "lat": 25.033394},
+        {"code": "LG02", "name_zh": "植物園", "name_en": "Taipei Botanical Garden", "lon": null, "lat": null},
+        {"code": "LG03", "name_zh": "廈安", "name_en": "Xiaan", "lon": null, "lat": null},
+        {"code": "LG04", "name_zh": "加蚋", "name_en": "Kalah", "lon": null, "lat": null},
+        {"code": "LG05", "name_zh": "永和永平國小", "name_en": "Yonghe Yongping Elementary School", "lon": null, "lat": null},
+        {"code": "LG06", "name_zh": "中和", "name_en": "Zhonghe", "lon": 121.496212, "lat": 25.002355},
+        {"code": "LG07", "name_zh": "連城錦和", "name_en": "Liancheng Jinhe", "lon": null, "lat": null},
+        {"code": "LG08", "name_zh": "中和高中", "name_en": "Zhonghe Senior High School", "lon": null, "lat": null},
+        {"code": "LG08A", "name_zh": "莒光", "name_en": "Juguang", "lon": null, "lat": null}
+      ]
+    },
+    {
+      "ref": "SB", "name": "汐東線", "name_en": "Xidong Line",
+      "colour": "#7BC8E8", "polyline_key": "minxi", "variant": "xidong",
+      "wikipedia": "zh:民生汐止線",
+      "stations": [
+        {"code": "SB10", "name_zh": "東湖", "name_en": "Donghu", "lon": 121.6105, "lat": 25.0648},
+        {"code": "SB11", "name_zh": "下社后", "name_en": "Xiashehou", "lon": 121.6228, "lat": 25.0663},
+        {"code": "SB12", "name_zh": "社后", "name_en": "Shehou", "lon": 121.6331, "lat": 25.0660},
+        {"code": "SB13", "name_zh": "樟樹灣", "name_en": "Zhangshuwan", "lon": 121.6397, "lat": 25.0599},
+        {"code": "SB14", "name_zh": "汐科", "name_en": "Xike", "lon": 121.648624, "lat": 25.062829},
+        {"code": "SB15", "name_zh": "汐止區公所", "name_en": "Xizhi District Office", "lon": 121.6578, "lat": 25.0640}
+      ]
+    }
+  ]
+}

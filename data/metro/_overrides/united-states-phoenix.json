@@ -1,0 +1,19 @@
+{
+  "city": "Phoenix",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    4499553,
+    4499554,
+    7728595,
+    8729958,
+    8729959,
+    16056809,
+    16056810,
+    19236098,
+    19244495,
+    19251454
+  ],
+  "source": "https://www.urbanrail.net/am/phoenix/phoenix.htm",
+  "note": "Phoenix（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

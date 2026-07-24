@@ -1,0 +1,13 @@
+{
+  "_comment": "官方路網圖釘選（downloadMaps.mjs）。key=rel（洲/國/檔名slug）。commons_file:null＝該城固定無圖；commons_file:'File:...'＝固定用該 Commons 檔。每筆必附 note。",
+  "overrides": {
+    "americas/venezuela/am-ven-valencia": {
+      "commons_file": "File:Mapa del Metro de VLN.png",
+      "note": "同名城陷阱：自動解析會抓到西班牙 Metrovalencia 的圖。Commons 上委內瑞拉 Valencia 的路網圖檔名用縮寫 VLN，檔名比對不到，故釘選。"
+    },
+    "americas/united-states/am-usa-new-york-city": {
+      "commons_file": null,
+      "note": "NYC 官方地鐵圖有版權（Commons 沒有自由授權版）；QID 解析曾誤命中 PATH 抓「PATH daytime.svg」冒充全系統圖。固定無圖，前端退回 Google 圖片搜尋。使用者裁決 2026-07。官方地圖頁＝https://www.mta.info/map/5256（2025-04 改版圖，官網釘選已指向此頁，見 site_overrides）。"
+    }
+  }
+}

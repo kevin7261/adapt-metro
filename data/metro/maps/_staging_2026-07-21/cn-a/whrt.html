@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
+    <title>武汉地铁集团</title>
+    <link rel="icon" href="images/icon/favicon.ico">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+<style>
+    .sel-methods{
+        background: #3345C4;
+        color: white;
+    }
+    .unsel-methods{
+        background: #E6E6E6;
+        color:#A1A1A1;
+    }
+    /* // 滚轮条样式修改 */
+    .yhgd-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .yhgd-scrollbar::-webkit-scrollbar-thumb {
+        border-radius: 3px 3px 3px 3px;
+        box-shadow: inset 0 0 5px #394AC1;
+        background: #394AC1 !important;
+    }
+    .yhgd-scrollbar::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        border-radius: 3px 3px 3px 3px;
+        background: rgba(235,235,235,1);
+    }
+</style>
+<body>
+
+    <div id="app" v-cloak>
+        <!-- 头部 -->
+        <!-- active-html="首页" -->
+        <global-header :placeholder="true"></global-header>
+        <!-- banner -->
+        <div id="noticeId" class="banner relative bg-no-repeat bg-cover" :style="`height: ${windowHeight - 100}px;`">
+            <div id="banner-swiper" class="swiper-container h-full">
+                <!-- <div class="swiper-wrapper hidden xl:block"> -->
+                <div class="swiper-wrapper">
+                    <!-- bannerListMobile -->
+                    <!-- homePagebanner 暂时使用 -->
+                    <div v-for="(item, index) in bannerList" :key="index" class="swiper-slide">
+                        <img :src="item" class="w-full h-full object-cover xl:object-fill" alt="">
+                    </div>
+                </div>
+                <div class="bannerSwiper1 swiper-pagination"></div>
+            </div>
+        </div>
+        <!-- 通知公告 -->
+        <div class="notice bg-white bg-opacity-50 overflow-hidden">
+            <div class="jr-wrap px-5 xl:px-0">
+                <div class="text-blue-500 tip inline-block float-left relative mr-4 cursor-pointer" style="z-index: 2;"
+                    @click="navToNotice">
+                    <img class="inline-block w-4 mr-1 xl:w-8 xl:mr-2" src="./images/icon/notice.png" alt="">
+                    <b>通知公告</b>
+                </div>
+                <div class="txtMarquee-left relative">
+                    <div class="bd">
+                        <ul class="overflow-hidden">
+                            <li class="mr-2.5 float-left w-auto xl:mr-4" v-for="item in noticeListData.slice(0, 5)"
+                                :key="item.id">
+                                <a :href="`news-content.html?id=${item.id}`" :title="item.title" target="_blank">
+                                    <span>{{ item.title }}</span>
+                                    <span class="mx-2">{{ item.releaseTime | beautySubDate }}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- part1 新闻中心 -->
+        <div id="groupNewsId" class="bg-gray-100 news-content pb-0 xl:pb-20">
+            <div class="jr-wrap">
+                <!-- tab 切换栏 -->
+                <div class="relative mb-4 news pt-7 xl:mb-10 xl:pt-16">
+                    <div class="text-center text-xl font-semibold mb-4 md:text-2xl xl:text-4xl xl:mb-10 cursor-pointer"
+                        @click="navToPage('news.html')">集团快讯</div>
+                    <div class="flex-1 text-xs text-center xl:text-lg">
+                        <!-- <div class="inline-block py-1 lg:py-2.5 px-3 lg:px-6 mr-4 news-tab-btn xl:mr-14 cursor-pointer"
+                         :class="{ active: activePart1 === '集团快讯' }"
+                         @click="navToPage('news.html')"
+                         @mouseover="activePart1 = '集团快讯'"
+                    >集团快讯</div>
+                    <div class="inline-block py-1 lg:py-2.5 px-3 lg:px-6 news-tab-btn cursor-pointer"
+                         :class="{ active: activePart1 === '通知公告' }"
+                         @click="navToPage('notify-bulletin.html')"
+                         @mouseover="activePart1 = '通知公告'"
+                    >通知公告</div> -->
+                        <!--<div class="inline-block py-1 lg:py-2.5 px-3 lg:px-6 news-tab-btn cursor-pointer"
+                         :class="{ active: activePart1 === '各地新闻' }"
+                         @click="navToPage('local-news.html')"
+                         @mouseover="activePart1 = '各地新闻'"
+                    >各地新闻</div>-->
+                    </div>
+                </div>
+                <!-- 集团快讯  -->
+                <transition enter-active-class="animate__animated animate__fadeIn">
+                    <div v-show="activePart1 === '集团快讯'" class="bg-gray-100">
+                        <div class="clique-content px-4 xl:px-0 xl:flex">
+                            <div class="relative xl:w-1/2 mr-2 xl:rounded-lg overflow-hidden">
+                                <div id="swiper1" class="swiper-container">
+                                    <div class="swiper-wrapper">
+                                        <a v-for="item in jtkxImgListData" :key="item.id"
+                                            :href="`news-content.html?id=${item.id}`" target="_blank"
+                                            :title="item.title"
+                                            class="swiper-slide bg-white rounded lg:rounded-lg shadow-md">
+                                            <img class="w-full h-full object-cover img-scale" :src="item.image" alt="">
+                                            <div
+                                                class="absolute w-full text-white bg-black bg-opacity-30 truncate bottom-0 text-xs pr-20 p-2 xl:text-base xl:p-4 xl:pr-24">
+                                                {{ item.title }}</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <!-- Add Pagination -->
+                                <div class="swiper1 absolute swiper-pagination right-2 bottom-2 xl:right-4 xl:bottom-4">
+                                </div>
+                            </div>
+
+                            <div class="h-full mt-4 xl:flex xl:w-1/2 xl:mt-0">
+                                <!-- <div class="hidden flex-col text-gray-500 justify-between xl:flex xl:w-1/2 mr-2"> -->
+                                <div class="hidden flex-col text-gray-500 justify-between xl:flex xl:w-1/2 mr-2">
+                                    <a v-for="(item, index) in jtkxListData.slice(0, 2)" :key="item.id"
+                                        :href="`news-content.html?id=${item.id}`" :title="item.title" target="_blank"
+                                        :class="{'xl:mb-4': index !== 1}"
+                                        class="block xl:h-1/2 p-5 h-full clique-item bg-white rounded-lg">
+                                        <div class="h-2/3 border-gray border-b-1 pb-3">
+                                            <h2 class="mb-2 text-black text-xl clique-item-title truncate">
+                                                {{item.title}}</h2>
+                                            <h4 class="text-sm text-ellipsis-3" v-html="item.contentAbstract"></h4>
+                                        </div>
+                                        <div class="flex flex-row jc-sb mt-2">
+                                            <div>
+                                                <!-- <h2 class="text-2xl">{{ item.time }}</h2>
+                                            <h3 class="text-lg">{{ item.year }}</h3> -->
+                                            </div>
+                                            <div class="next mt-5" @click.stop="navToPage('news.html')"></div>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="hidden flex-col flex justify-between xl:w-1/2 h-full">
+                                    <a v-for="(item, index) in jtkxListData.slice(0,2)" :key="item.id"
+                                        :href="`news-content.html?id=${item.id}`" :title="item.title" target="_blank"
+                                        class="h-1/3 clique-right bg-white flex flex-col jc-sa p-4 rounded-lg"
+                                        :class="{'mb-4 xl:mb-2': index !== 2}">
+                                        <div class="flex">
+                                            <div class="flex-none pr-4 mt-2 xl:w-2/6">
+                                                <h2 class="text-2xl">{{ item.time }}</h2>
+                                                <h3 class="text-lg">{{ item.year }}</h3>
+                                            </div>
+                                            <div class="pl-4 flex flex-col jc-sb border-l-1" style="height: 80px;">
+                                                <div class="text-black text-ellipsis-2">
+                                                    {{ item.title }}
+                                                </div>
+                                                <div class="gback"></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="flex-col flex justify-between xl:w-1/2 h-full">
+                                    <a v-for="(item, index) in jtkxListData.slice(2)" :key="item.id"
+                                        :href="`news-content.html?id=${item.id}`" :title="item.title" target="_blank"
+                                        class="h-1/3 clique-right bg-white flex flex-col jc-sa p-4 rounded-lg"
+                                        :class="{'mb-4 xl:mb-2': index !== 2}">
+                                        <div class="flex">
+                                            <!-- <div class="flex-none pr-4 mt-2 xl:w-2/6">
+                                                <h2 class="text-2xl">{{ item.time }}</h2>
+                                                <h3 class="text-lg">{{ item.year }}</h3>
+                                            </div> -->
+                                            <div class="px-4 flex flex-col flex-1 jc-sb" style="height: 80px;">
+                                                <div class="text-black text-base text-ellipsis-2">
+                                                    {{ item.title }}
+                                                </div>
+                                                <div @click.stop="navToPage('news.html')" class="ml-auto gback"></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+                <!-- 通知公告 -->
+                <transition enter-active-class="animate__animated animate__fadeIn">
+                    <div v-show="activePart1 === '通知公告'" class="md:grid md:grid-cols-2 md:gap-2 px-4 xl:px-0">
+                        <a class="block mb-2 md:mb-4 cursor-pointer md:mr-2" v-for="item in noticeListData"
+                            :key="item.id" :href="`news-content.html?id=${item.id}`" :title="item.title"
+                            target="_blank">
+                            <div class="news-border p-4 notice-content bg-white shadow">
+                                <h2 class="mb-2 xl:text-xl jr-multi-ellipsis--l1 font-medium">{{item.title}}</h2>
+                                <p class="jr-multi-ellipsis--l2 text-sm xl:text-base xl:h-12 content-color"
+                                    v-html="item.contentAbstract"></p>
+                                <p class="text-right pt-4 text-sm xl:text-base">{{ item.releaseTime | beautySubDate }}
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </transition>
+
+                <!-- 各地新闻 -->
+                <!--<transition enter-active-class="animate__animated animate__fadeIn">
+                <div v-show="activePart1 === '各地新闻'">
+                    <div class="clique-content px-4 xl:px-0 xl:flex">
+                        <div class="relative xl:w-1/2 mr-2">
+                            <div id="swiper2" class="swiper-container">
+                                <div class="swiper-wrapper">
+                                    <a v-for="item in gdxwImgListData" :key="item.id" :href="`news-content.html?id=${item.id}`" target="_blank" :title="item.title" class="swiper-slide bg-white rounded lg:rounded-lg shadow-md">
+                                        <img class="w-full h-full object-cover" :src="item.image" alt="">
+                                        <div class="absolute w-full text-white bg-black bg-opacity-30 truncate bottom-0 text-xs pr-20 p-2 xl:text-base xl:p-4 xl:pr-24">{{ item.title }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                            &lt;!&ndash; Add Pagination &ndash;&gt;
+                            <div class="swiper2 absolute swiper-pagination right-2 bottom-2 xl:right-4 xl:bottom-4"></div>
+                        </div>
+
+                        <div class="h-full mt-4 xl:flex xl:w-1/2 xl:mt-0">
+                            <div class="hidden flex-col text-gray-500 justify-between xl:flex xl:w-1/2 mr-2">
+                                <a v-for="(item, index) in gdxwListData.slice(0, 2)"
+                                   :key="item.id"
+                                   :href="`news-content.html?id=${item.id}`"
+                                   :title="item.title"
+                                   target="_blank"
+                                   class="block xl:h-1/2 p-5 h-full clique-item bg-white"
+                                   :class="{'mb-4': index !== 1}"
+                                >
+                                    <div class="h-1/2 border-gray border-b-1">
+                                        <h2 class="mb-3  text-black text-lg clique-item-title truncate">{{item.title}}</h2>
+                                        <h4 class="text-sm text-ellipsis-2">{{ item.contentAbstract }}</h4>
+                                    </div>
+                                    <div class="flex flex-row jc-sb mt-8">
+                                        <div>
+                                            <h2 class="text-2xl">{{ item.time }}</h2>
+                                            <h3 class="text-lg">{{ item.year }}</h3>
+                                        </div>
+                                        <div class="next mt-5"></div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="flex-col flex justify-between xl:w-1/2 h-full">
+                                <a v-for="(item, index) in gdxwListData.slice(2)"
+                                   :key="item.id"
+                                   :href="`news-content.html?id=${item.id}`"
+                                   :title="item.title"
+                                   target="_blank"
+                                   class="h-1/3 clique-right bg-white flex flex-col jc-sa p-4"
+                                   :class="{'mb-4 xl:mb-2': index !== 2}"
+                                >
+                                    <div class="flex">
+                                        <div class="flex-none pr-4 mt-2 xl:w-2/6">
+                                            <h2 class="text-2xl">{{ item.time }}</h2>
+                                            <h3 class="text-lg">{{ item.year }}</h3>
+                                        </div>
+                                        <div class="pl-4 flex flex-col jc-sb border-l-1" style="height: 80px;">
+                                            <div class="text-black text-ellipsis-2">
+                                                {{ item.title }}
+                                            </div>
+                                            <div class="gback"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>-->
+            </div>
+        </div>
+        <!-- 地铁宣传 -->
+        <div id="enterprisePublicityId" class="bg-gray-100 subway-publicity" :style="`height: ${windowHeight - 90}px;`">
+            <video :poster="subwayPublicityMp4" :src="subwayPublicityMp4" :controls="!isPC" class="mt-4 xl:mt-0"
+                preload="auto" style="width: 100%;height: 100%;object-fit: inherit;" x5-video-player-type="h5" loop
+                muted playsinline :autoplay="isPC">
+                <source :src="subwayPublicityMp4" type="video/mp4">
+            </video>
+        </div>
+        <!-- 运营数据 -->
+        <div id="operatingDataId" class="operational-data pt-6 px-4 md:pt-10 xl:pt-16">
+            <div class="jr-wrap">
+                <!-- tab 切换栏 -->
+                <div class="relative mb-4 news">
+                    <div class="text-center text-xl font-semibold mb-4 md:text-2xl xl:text-4xl xl:mb-10 cursor-pointer">
+                        运营数据</div>
+                </div>
+                <div class="mt-6 flex items-center justify-center font-bold">
+                    <div class="operating-hours py-2 px-4 text-sm xl:text-lg">{{dtDataInfo.yyrq || ''}}</div>
+                </div>
+                <div class="h-32 xl:h-64 flex items-center justify-center">
+                    <div class="flex-1 flex items-center justify-center">
+                        <div>
+                            <div class="title text-base xl:text-2xl">站点总数</div>
+                            <span class="number">{{parseFloat(dtDataInfo.zdzs)}}<span
+                                    class="sub text-sm xl:text-2xl text-2xl ml-2">座</span></span>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center">
+                        <div>
+                            <div class="title text-base xl:text-2xl">运营公里</div>
+                            <span class="number">{{parseFloat(dtDataInfo.yygl)}}<span
+                                    class="sub text-sm xl:text-2xl ml-2">公里</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 客流排行 -->
+        <div class="passenger-flow-ranking ranking-bg">
+            <div class="jr-wrap relative">
+                <div class="ranking-height">
+                    <div class="h-full float-left ml-4 xl:ml-8 flex flex-col text-white items-center justify-center">
+                        <span><i class="ri-bar-chart-2-fill"></i></span>
+                        <div class="flex flex-col text-xs xl:text-base">
+                            <span>客</span>
+                            <span>流</span>
+                            <span>站</span>
+                            <span>点</span>
+                            <span>排</span>
+                            <span>行</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div
+                    class="bg-white station-rank absolute white-bg p-4 xl:p-4 xl:px-8 flex items-center overflow-x-auto rounded-lg scrollbar">
+                    <div class="txtMarquee-left relative">
+                        <div class="bd">
+                            <div class="tempWrap" style="overflow:hidden; position:relative; ">
+                                <ul class="picList">
+                                    <li v-for="(item,index) in stationRank" :key="item"
+                                        class="float-left line-li w-auto p-2 px-4 mx-2 xl:p-6 xl:px-10 xl:mx-4 rounded-lg">
+                                        <div class="flex pb-1 xl:pb-4 items-center justify-center">
+                                            <span
+                                                class="serial-number block rounded-full flex items-center justify-center text-white w-5 h-5 text-xs font-bold"
+                                                :style="{background: subwayColor[item.lxmc]}">
+                                                {{index + 1}}
+                                            </span>
+                                            <span class="pl-2 text-base font-medium"
+                                                :style="{color: subwayColor[item.lxmc]}">{{item.lxmc}}</span>
+                                        </div>
+                                        <div class="flex rounded-full py-1 text-white px-4 items-center justify-center text-sm font-medium"
+                                            :style="{background: subwayColor[item.lxmc]}">
+                                            {{item.zdmc}}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div
+                    class="bg-white station-rank absolute white-bg p-4 xl:p-8 xl:px-8  rounded-lg ">
+                    <div class=" relative ">
+                        <ul class="picList flex items-center  overflow-x-auto">
+                            <li v-for="(item,index) in stationRank" :key="item"
+                                class="float-left line-li pic-li p-2 px-4 mx-2 xl:p-6 xl:px-10 xl:mx-4 rounded-lg">
+                                <div class="flex pb-1 xl:pb-4 items-center justify-center">
+                                    <span
+                                        class="serial-number block rounded-full flex items-center justify-center text-white w-5 h-5 text-xs font-bold"
+                                        :style="{background: subwayColor[item.lxmc]}">
+                                        {{index + 1}}
+                                    </span>
+                                    <span class="pl-2 text-base font-medium"
+                                        :style="{color: subwayColor[item.lxmc]}">{{item.lxmc}}</span>
+                                </div>
+                                <div class="flex rounded-full py-1 text-white px-4 items-center justify-center text-sm font-medium"
+                                    :style="{background: subwayColor[item.lxmc]}">
+                                    {{item.zdmc}}
+                                </div>
+                            </li>
+                        </ul>
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 行程查询 -->
+        <div class="trip-query py-4 xl:py-16  px-5 xl:px-0">
+            <div class="jr-wrap relative trip-query-bg">
+                <div class="relative mb-4 news pt-4 xl:mb-10 xl:pt-8">
+                    <div class="text-center text-xl font-semibold mb-4 md:text-2xl xl:text-4xl xl:mb-10">行程查询</div>
+                </div>
+                <div class="flex justify-center cursor-pointer">
+                    <div class="search-button flex items-center justify-center text-white p-2 px-6 rounded-full cursor-pointer"
+                        @click="dialogShow = true">
+                        <i class="ri-search-line pr-2"></i> 点击查询
+                    </div>
+                </div>
+
+                <!-- 行程查询 -->
+                <div class="search mt-2.5 h-20 xl:h-40 xl:mt-5 z-20 absolute xl:relative jr-wrap" @scroll.prevent
+                    v-if="dialogShow">
+                    <div class="mobile rounded-tl p-2.5 rounded-lg rounded-tl xl:hidden z-10"
+                        style="background: rgba(51,69,198, .92);">
+                        <h3 class="text-white flex justify-between items-center">
+                            <span class="text-sm">票价查询</span>
+                            <span class="text-10 text-xs">
+                                <!--<i class="ri-error-warning-fill align-middle md:align-bottom"></i>
+                        温馨提示：乘车查询时间结果不含换乘时间-->
+                            </span>
+                        </h3>
+                        <div class="flex justify-between items-center mt-2">
+                            <div class="my-input flex-1">
+                                <label>
+                                    <el-cascader v-model="startStation" :options="stationOptions" placeholder="请选择站点"
+                                        clearable filterable :props="cascaderProps" :filter-method="stationsFilter"
+                                        :debounce="500" class="startStation w-full rounded"
+                                        style="height: 28px;"></el-cascader>
+                                </label>
+                            </div>
+                            <div class="w-4 h-4 bg-white flex items-center rounded-full mx-1 md:mx-4">
+                                <img class="w-2.5 mx-auto" src="./images/icon/subway_head.png" alt="">
+                            </div>
+                            <div class="my-input flex-1">
+                                <label>
+                                    <el-cascader v-model="endStation" :options="stationOptions" placeholder="请选择站点"
+                                        clearable filterable :props="cascaderProps" :filter-method="stationsFilter"
+                                        :debounce="500" class="endStation w-full rounded"
+                                        style="height: 28px;"></el-cascader>
+                                </label>
+                            </div>
+                            <div class="search-btn w-8 h-7 leading-7 cursor-pointer rounded-sm text-xs text-center text-white ml-1 md:w-16 md:ml-4"
+                                style="background: #00BFFF;" @click="onClickSearch">查询</div>
+                        </div>
+                    </div>
+                    <div class="hidden h-full xl:grid xl:grid-cols-2 gap-4 relative z-10">
+                        <div class="rounded-tl-lg shadow-xl h-40 py-4 px-10" style="background: rgba(51,69,198, .92);">
+                            <h3 class="text-white mb-5 xl:text-28">线路查询</h3>
+                            <div class="flex items-center justify-between">
+                                <img src="./images/index/arrows_right.png" alt="" style="height: 21px;">
+                                <div class="my-input" style="width: 350px;">
+                                    <label>
+                                        <el-cascader v-model="startStation" :options="stationOptions"
+                                            placeholder="请选择或输入站点" clearable filterable :props="cascaderProps"
+                                            :filter-method="stationsFilter" :debounce="500"
+                                            class="startStation w-full rounded" style="height: 52px;"></el-cascader>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-tl-lg shadow-xl h-40 py-4 px-10" style="background: rgba(51,69,198, .92);">
+                            <h3 class="text-white text-right mb-5" style="color: transparent;line-height: 42px">
+                                <i class="ri-error-warning-fill align-bottom"></i>
+                                温馨提示：乘车查询时间结果不含换乘时间
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <div class="my-input" style="width: 350px;">
+                                    <label>
+                                        <el-cascader v-model="endStation" :options="stationOptions"
+                                            placeholder="请选择或输入站点" clearable filterable :props="cascaderProps"
+                                            :filter-method="stationsFilter" :debounce="500"
+                                            class="endStation w-full rounded" style="height: 52px;"></el-cascader>
+                                    </label>
+                                </div>
+                                <div class="search-btn cursor-pointer rounded-md text-center text-white"
+                                    style="background: #00BFFF;width: 130px;height: 52px;line-height: 52px"
+                                    @click="onClickSearch">开始查询</div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-full absolute text-center link-icon">
+                            <img class="w-5 mx-auto inline" src="./images/icon/subway_head.png" alt="">
+                        </div>
+                    </div>
+                </div>
+                <!-- 查询结果 -->
+                <div class="relative md:flex flex-col mt-24 xl:mt-4 z-20 " v-if="dialogShow && queryResultShow">
+                    <div class="flex " v-if="searchInfo.paths&&searchInfo.paths.length&&searchInfo.paths.length>=2">
+                        <div class="w-1/2 flex items-center justify-center py-3" :class="defaultIndex==index?'sel-methods':'unsel-methods'" v-for="(item,index) in searchInfo.paths.slice(0,2)" @click="changeRideMethod(index)">
+                            {{item.type.value}}
+                        </div>
+                    </div>
+                    <div class="md:flex bg-white p-4 pb-28 rounded-b-lg">
+                        <!-- 左侧 -->
+                        <div class="md:flex-1 md:mr-2">
+                            <!-- 预计乘车时间 -->
+                            <div class="bg-white flex text-white rounded-md">
+                                <div class="search-blue-bg px-10 py-6  xl:text-xl rounded-l-md roun text-center">
+                                    <p>预计</p>
+                                    <p>乘车时间</p>
+                                </div>
+                                <div class="flex-1 gray-right-bg rounded-r-md flex justify-center items-center" >
+                                    <p class="py-2 pb-4"><span class="text-7xl font-Impact">{{getMinuteInfo(searchInfo.paths[defaultIndex].time.value)}}</span><sub class="text-black ">分钟</sub></p>
+                                </div>
+                            </div>
+
+                            <!-- 线路列表 -->
+                            <div class="flex flex-wrap -mx-1">
+                                <div class="w-1/3 mt-2 px-1 text-center" v-for="(item,index) in searchInfo.paths[defaultIndex].notVirtual">
+                                    <div class=" text-white py-0.5 text-sm xl:text-xl rounded-t-md " :style="{background:handleLineColor(item.line)}">{{index==0?'始发站':'换乘站'}}</div>
+                                    <div class=" bg-white rounded-b-md py-2 xl:text-base" :style="{background:handleLineBgColor(item.line)}">{{item.line}}</div>
+                                </div>
+                            </div>
+
+                            <!-- 换乘、里程 -->
+                            <div class="gray-right-bg rounded-md mt-2 flex text-center">
+                                <div class="w-1/2">
+                                    <p class="text-black pt-3">换乘：</p>
+                                    <p class="py-2 pb-4"><span class="text-5xl font-Impact">{{searchInfo.paths[defaultIndex].transfer.value}}</span><sub class=" ">次</sub></p>
+                                </div>
+                                <div class="w-1/2">
+                                    <p class="text-black pt-3">乘车票价：</p>
+                                    <p class="py-2 pb-4"><span class="text-5xl font-Impact">{{searchInfo.paths[defaultIndex].price.value}}</span><sub class=" ">元</sub></p>
+                                </div>
+                            </div>
+
+                            <!-- 乘车票价 -->
+                            <!-- <div class="bg-white flex text-white mt-2 rounded-md">
+                                <div class="search-blue-bg  px-10 py-10  xl:text-xl  rounded-l-md roun text-center">
+                                    <p>乘车票价</p>
+                                    <p></p>
+                                </div>
+                                <div class="flex-1 gray-right-bg rounded-r-md flex justify-center items-center">
+                                    <p class="py-2 pb-4"><span
+                                            class="text-7xl font-Impact">{{searchInfo.paths[defaultIndex].price.value}}</span><sub
+                                            class=" ">元</sub></p>
+                                </div>
+                            </div> -->
+                        </div>
+
+                        <!-- 右侧 -->
+                        <div class="mt-2 md:mt-0 md:flex-1 md:ml-2 max-h-96 flex flex-wrap" >
+                            <!-- 头部 -->
+                            <header class="search-blue-bg w-full rounded-t-md text-white flex py-3 px-8 xl:py-5">
+                                <h2 class=" xl:text-xl ">乘车方案</h2>
+                                <span
+                                    class="inline-block ml-6 bg-white text-sm px-2 flex items-center justify-center rounded-md"
+                                    style="color:#00BFFF;">共{{searchInfo.paths[defaultIndex].pass.value}}站</span>
+                            </header>
+                            <div class="w-full bg-white flex-1 p-4  rounded-b-md" style="background: #ebfaff;">
+                                <main class="w-full max-h-96  overflow-hidden overflow-y-auto yhgd-scrollbar">
+                                    <ul  v-for="(item,index) in searchInfo.paths[defaultIndex].details">
+                                        <li v-for="(ctem,cdex) in item.stations" :style="{'list-style':handleLineColor(item.line)}" class="flex relative pl-1" :class="{'flex items-center':cdex!=0}">
+                                            <div
+                                                v-if="!item?.isVirtual"
+                                                class="bg-white w-3 h-3 rounded-full z-10"
+                                                :class="{'w-4 h-4 mt-1 -ml-0.5': (cdex==0)}"
+                                                :style="{border:`3px solid ${handleLineColor(item.line)}`}">
+                                            </div>
+                                            <!-- 虚拟换乘虚线 -->
+                                            <div v-if="item?.isVirtual" class="w-1 h-full absolute ml-1 mt-1" style="border-left: 4px dashed #999;"></div>
+                                            <!-- 正常线路实线 -->
+                                            <div v-else class="w-1 h-full absolute ml-1 mt-1" :style="{background:`${handleLineColor(item.line)}`}"></div>
+                                            <template v-if="item?.isVirtual">
+                                                <div  class="flex flex-col mb-2 ml-3">
+                                                    <div class="flex items-center mt-4 mb-3" >
+                                                        <div class="ml-3">{{item?.transfer}}</div>
+                                                        <div  class="ml-2 text-sm" style="color: #9999;">约{{item.outDuration}}分钟</div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template v-else>
+                                                <div v-if="cdex==0" class="flex flex-col mb-2 ml-3">
+                                                    <div class="flex">
+                                                        <div>{{ctem}}</div>
+                                                        <div class="text-xs flex px-2 justify-center items-center text-white rounded-md ml-2" :style="{background:handleLineColor(item.line)}">{{item.line}} {{index==0?'始发站':'换乘站'}}</div>
+                                                    </div>
+                                                    <div class="mt-3 mb-3">
+                                                        <span class="text-sm px-3 py-1" style="background: #FFFFFF;border:solid 1px #CBF2FF;">
+                                                            <span>共{{item.stations.length - 1}}站</span>
+                                                            <span class="ml-2"><i class="icon-a-03jt-01" style="color:#00bfff;"></i>  {{item.direction}}</span>
+                                                            <span class="ml-2" style="color: #9999;">约{{item.duration}}分</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <div v-if="cdex!=0" class="my-3 ml-3">
+                                                {{ctem}}
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                </main>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div :class="{'mask':dialogShow}" @click="handleTopDiv"></div>
+            </div>
+        </div>
+
+        <!-- 线路 -->
+        <div id="operatingLineId" class="line-part-box">
+            <div class="jr-wrap relative">
+                <div class="flex pt-6 xl:pt-14 justify-center">
+                    <div class="line-button mr-4 xl:mr-48 text-sm xl:text-lg font-medium"
+                        :class="{'active':lineUnderConstruction === 'yyxl'}"
+                         @mouseover="lineUnderConstruction = 'yyxl'"
+                    >运营线路</div>
+                    <div class="line-button text-sm xl:text-lg font-medium"
+                        :class="{'active':lineUnderConstruction === 'zjxl'}"
+                         @mouseover="lineUnderConstruction = 'zjxl'"
+                         @click="navToBuildLine"
+                    >在建线路</div>
+                </div>
+
+                <!-- 线路图 -->
+                <div class="line-box-ul mt-4 xl:mt-10 pb-6 xl:pb-14 px-5 xl:px-0">
+                    <!-- 运营线路  -->
+                    <transition enter-active-class="animate__animated animate__fadeIn">
+                        <div v-show="lineUnderConstruction === 'yyxl'"
+                            class="relative bg-white overflow-hidden cover-iframe p-4 xl:p-0" style="height: 520px;">
+                            <iframe src="./index-subway-line.html" width="100%" height="100%" frameborder="0"></iframe>
+                        </div>
+                    </transition>
+                    <!-- 12号线运营说明 -->
+                    <p v-show="lineUnderConstruction === 'yyxl'" class="mt-3 text-sm md:text-base text-gray-700 leading-relaxed">
+                        武汉轨道交通12号线由武汉轨道交通十二号线建设运营有限公司运营管理，服务热线：027-84558455。
+                    </p>
+
+                    <!-- 在建线路 -->
+                    <transition enter-active-class="animate__animated animate__fadeIn">
+                        <div v-show="lineUnderConstruction === 'zjxl'"
+                            class="grid grid-cols-2 gap-2 md:gap-4 xl:grid-cols-3 xl:gap-8 xl:pb-0.5">
+                            <template v-for="item in buildLineListData" :key="item.id">
+                                <!--<a :href="`build-line-details.html?id=${item.id}`"-->
+                                <a :href="`news-content.html?id=${item.id}`" class="line-box shadow-md img-scale "
+                                    :title="item.title" target="_blank">
+                                    <img class="w-full object-cover rounded-lg" :src="item.image" alt="">
+                                    <div class="bg-white p-2 xl:pr-4 xl:pl-8 xl:py-4 rounded-lg">
+                                        <h4 class="text-sm md:text-2xl mb-1 truncate xl:mb-0">{{item.title}}</h4>
+                                        <p v-html="item.contentAbstract" class="text-10 md:text-xs xl:text-lg truncate">
+                                        </p>
+                                    </div>
+                                </a>
+                            </template>
+                        </div>
+                    </transition>
+                </div>
+            </div>
+        </div>
+
+        <!-- part2 建设运营 -->
+        <div v-if="false" class="pt-6 mb-0 pb-10 px-4 md:pt-10 xl:mb-20 xl:pt-20 xl:pb-0">
+            <div class="jr-wrap">
+                <!-- tab 切换栏 -->
+                <div class="relative mb-4 md:mb-6 xl:mb-10">
+                    <div class="flex-1 text-xl text-center md:text-2xl xl:text-4xl">
+                        <div class="inline mr-4 xl:mr-14 tab-btn cursor-pointer"
+                            :class="{ active: activePart2 === '建设' }" @mouseover="activePart2 = '建设'"
+                            @click="navToPage('build-line.html')"><b>建设</b></div>
+                        <div class="inline mr-4 xl:mr-14 tab-btn cursor-pointer"
+                            :class="{ active: activePart2 === '运营' }" @mouseover="activePart2 = '运营'"
+                            @click="navToPage('metro-operation.html')"><b>运营</b></div>
+                        <div class="inline tab-btn cursor-pointer" :class="{ active: activePart2 === '经营' }"
+                            @mouseover="activePart2 = '经营'" @click="navToPage('land-reserve.html')"><b>经营</b></div>
+                    </div>
+                </div>
+
+                <!-- 建设  -->
+                <transition enter-active-class="animate__animated animate__fadeIn">
+                    <div v-show="activePart2 === '建设'"
+                        class="grid grid-cols-2 gap-2 md:gap-4 xl:grid-cols-3 xl:gap-8 xl:pb-0.5">
+                        <template v-for="item in jsxlListData">
+                            <!--<a :href="`/build-line-details.html?id=${item.id}`"-->
+                            <a :href="`news-content.html?id=${item.id}`" target="_blank"
+                                class="line-box shadow-md cursor-pointer" :title="item.title">
+                                <img class="w-full object-cover" :src="item.image" alt="">
+                                <div class="bg-gray-100 p-2 xl:pr-4 xl:pl-8 xl:py-4">
+                                    <h4 class="text-xs lg:text-2xl mb-1 truncate xl:mb-0">{{ item.title }}</h4>
+                                    <p class="text-10 text-xs lg:text-base xl:text-lg truncate"
+                                        v-html="item.contentAbstract"></p>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </transition>
+
+                <!-- 运营 -->
+                <transition enter-active-class="animate__animated animate__fadeIn">
+                    <div v-show="activePart2 === '运营'" class="xl:flex">
+                        <div class="xl:w-1/3 flex-none xl:mr-2 flex flex-col jc-sb">
+                            <a v-for="item in yyxxListData" :href="`news-content.html?id=${item.id}`" target="_blank"
+                                :title="item.title"
+                                class="text-md lg:text-base bg-6-38 text-gray-500 text-white mb-2 xl:m-0 flex flex-col jc-sa p-5 xl:px-5 xl:py-10">
+                                <div class="flex">
+                                    <div class="mr-4 mt-2 flex-none">
+                                        <h2 class="text-2xl">{{ item.time }}</h2>
+                                        <h3 class="text-lg">{{ item.year }}</h3>
+                                    </div>
+                                    <div class="pl-6 lg:pl-10 flex flex-col jc-sb border-l-1 h-20">
+                                        <div class="text-white text-ellipsis-2">
+                                            {{ item.title }}
+                                        </div>
+                                        <div class="gback white"></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="xl:w-2/3 border border-gray-300 py-10 lg:px-16 lg:py-20 flex flex-col jc-sa">
+                            <div class="flex flex-row jc-sa mb-5 lg:mb-14">
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="yyskb ='./images/index/yyskb-l.png'"
+                                    @mouseout="yyskb ='./images/index/yyskb-h.png'"
+                                    @click="navToPage('metro-operation.html?anchorPoint=OperationsTime')">
+                                    <img class="object-cover run-img mx-auto" :src="yyskb" alt="">
+                                    <p class="run-text">运营时刻表</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="yylx ='./images/index/yylx-l.png'"
+                                    @mouseout="yylx ='./images/index/yylx-h.png'"
+                                    @click="navToPage('metro-operation.html?anchorPoint=anchorPoint')">
+                                    <img class="object-cover run-img mx-auto" :src="yylx" alt="">
+                                    <p class="run-text">运营路线</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="ckxz ='./images/index/ckxz-l.png'"
+                                    @mouseout="ckxz ='./images/index/ckxz-h.png'"
+                                    @click="navToPage('redirect-article.html?id=507')">
+                                    <img class="object-cover run-img mx-auto" :src="ckxz" alt="">
+                                    <p class="run-text">乘客须知</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="aqcs ='./images/index/aqcs-l.png'"
+                                    @mouseout="aqcs ='./images/index/aqcs-h.png'"
+                                    @click="navToPage('redirect-article.html?id=502')">
+                                    <img class="object-cover run-img mx-auto" :src="aqcs" alt="">
+                                    <p class="run-text">安全常识</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-row jc-sa">
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="fwcl ='./images/index/fwcl-l.png'"
+                                    @mouseout="fwcl ='./images/index/fwcl-h.png'"
+                                    @click="navToPage('redirect-article.html?id=509')">
+                                    <img class="object-cover run-img mx-auto" :src="fwcl" alt="">
+                                    <p class="run-text ">服务承诺</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="pwgd ='./images/index/pwgd-l.png'"
+                                    @mouseout="pwgd ='./images/index/pwgd-h.png'"
+                                    @click="navToPage('metro-operation.html?anchorPoint=ticketingRegulations')">
+                                    <img class="object-cover run-img mx-auto" :src="pwgd" alt="">
+                                    <p class="run-text">票务规定</p>
+                                </div>
+                                <div class="f-20 invisible">
+
+                                </div>
+                                <div class="f-20 invisible">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+                <!-- 经营 -->
+                <transition enter-active-class="animate__animated animate__fadeIn">
+                    <div v-show="activePart2 === '经营'" class="xl:flex">
+                        <div class="xl:w-1/3 flex-none xl:mr-2 flex flex-col jc-sb">
+                            <a v-for="item in jyxxListData" :href="`news-content.html?id=${item.id}`" target="_blank"
+                                :title="item.title"
+                                class="text-md lg:text-base bg-6-38 text-gray-500 text-white mb-2 xl:m-0 flex flex-col jc-sa p-5 xl:px-5 xl:py-10">
+                                <div class="flex">
+                                    <div class="mr-4 mt-2 flex-none">
+                                        <h2 class="text-2xl">{{ item.time }}</h2>
+                                        <h3 class="text-lg">{{ item.year }}</h3>
+                                    </div>
+                                    <div class="pl-6 lg:pl-10 flex flex-col jc-sb border-l-1 h-20">
+                                        <div class="text-white text-ellipsis-2">
+                                            {{ item.title }}
+                                        </div>
+                                        <div class="gback white"></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="xl:w-2/3 border border-gray-300 py-10 lg:px-16 lg:py-20 flex flex-col jc-sa">
+                            <div class="flex flex-row jc-sa mb-5 xl:mb-14">
+                                <div class="f-20 yyjy cursor-pointer text-gray-500 text-center"
+                                    @mouseover="tdcb ='./images/index/tdcb-l.png'"
+                                    @mouseout="tdcb ='./images/index/tdcb-h.png'"
+                                    @click="navToPage('land-reserve.html')">
+                                    <img class="object-cover run-img mx-auto" :src="tdcb" alt="">
+                                    <p class="run-text">土地储备</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="zhkf ='./images/index/zhkf-l.png'"
+                                    @mouseout="zhkf ='./images/index/zhkf-h.png'"
+                                    @click="navToPage('management-dev.html')">
+                                    <img class="object-cover run-img mx-auto" :src="zhkf" alt="">
+                                    <p class="run-text">综合开发</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="kggs ='./images/index/kggs-l.png'"
+                                    @mouseout="kggs ='./images/index/kggs-h.png'" @click="navToPage('management.html')">
+                                    <img class="object-cover run-img mx-auto" :src="kggs" alt="">
+                                    <p class="run-text">控股公司</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="zygs ='./images/index/zygs-l.png'"
+                                    @mouseout="zygs ='./images/index/zygs-h.png'"
+                                    @click="navToPage('resource-company.html')">
+                                    <img class="object-cover run-img mx-auto" :src="zygs" alt="">
+                                    <p class="run-text">资源公司</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-row jc-sa">
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="jsgs ='./images/index/jsgs-l.png'"
+                                    @mouseout="jsgs ='./images/index/jsgs-h.png'"
+                                    @click="navToPage('construction-company.html')">
+                                    <img class="object-cover run-img mx-auto" :src="jsgs" alt="">
+                                    <p class="run-text ">建设公司</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="xbgs ='./images/index/xbgs-l.png'"
+                                    @mouseout="xbgs ='./images/index/xbgs-h.png'" @click="navToPage('xunbo.html')">
+                                    <img class="object-cover run-img mx-auto" :src="xbgs" alt="">
+                                    <p class="run-text">迅博公司</p>
+                                </div>
+                                <div class="f-20 yyjy cursor-pointer" @mouseover="xhgs ='./images/index/xhgs-l.png'"
+                                    @mouseout="xhgs ='./images/index/xhgs-h.png'"
+                                    @click="navToPage('xunhe-company.html')">
+                                    <img class="object-cover run-img mx-auto" :src="xhgs" alt="">
+                                    <p class="run-text">迅和公司</p>
+                                </div>
+                                <div class="f-20 cursor-pointer invisible">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+            </div>
+        </div>
+        <!-- part3  -->
+        <div id="businessInvestmentId" class="other px-4 py-8 hidden xl:p-0 xl:flex">
+            <div class="other-item flex flex-col jc-c border-b-1 xl:w-1/4 xl:border-r-2 xl:border-b-0"
+                @click="navToPage('courtship.html')">
+                <div class="h-full p-10 xl:p-0 flex items-center justify-center">
+                    <div>
+                        <!--  run-img -->
+                        <img class="object-cover w-20 m-auto" src="./images/index/jyzs.png" alt="">
+                        <p class="text-white text-center text-2xl font-bold mt-4">经营招商</p>
+                        <p class="text mt-2 w-2/3 mx-auto xl:mt-10 xl:leading-10 text-white text-ellipsis-3">
+                            武汉地铁招商信息公告发布处，供意向合作方查询招商具体信息，下载招商报名材料，获取报名渠道...
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="other-item flex flex-col jc-c border-b-1 xl:w-1/4 xl:border-r-2 xl:border-b-0"
+                @click="navToPage('https://cjob.wuhanrt.com/')">
+                <div class="h-full p-10 xl:p-0 flex items-center justify-center">
+                    <div>
+                        <img class="object-cover w-20 m-auto" src="./images/index/zxlc.png" alt="">
+                        <p class="text-white text-center text-2xl font-bold mt-4">招贤纳才</p>
+                        <p class="text mt-2 w-2/3 mx-auto xl:mt-10 xl:leading-10 text-white text-ellipsis-3">
+                            武汉地铁招聘公告发布处，包含社会招聘及校园招聘，供应聘者查询招聘岗位信息，获取简历投递渠道...
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="other-item flex flex-col jc-c border-b-1 xl:w-1/4 xl:border-r-2 xl:border-b-0"
+                @click="navToPage('https://cg.wuhanrt.com/')">
+                <div class="h-full p-10 xl:p-0 flex items-center justify-center">
+                    <div>
+                        <img class="object-cover w-20 m-auto" src="./images/index/zbxb.png" alt="">
+                        <p class="text-white text-center text-2xl font-bold mt-4">招标采购</p>
+                        <p class="text mt-2 w-2/3 mx-auto xl:mt-10 xl:leading-10 text-white text-ellipsis-3">
+                            武汉地铁招标采购信息公示处，供企业及时获取招投标信息，准确了解招投标项目概况...
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="other-item flex flex-col jc-c xl:w-1/4">
+                <div class="h-full p-10 xl:p-0 flex items-center justify-center">
+                    <div>
+                        <img class="object-cover w-20 m-auto" src="./images/index/zxzx.png" alt="">
+                        <p class="text-white text-center text-2xl font-bold mt-4">电话咨询</p>
+                        <p class="text mt-8 text-white text-center xl:mt-16">
+                            <b class="block mx-auto">“您好，请问有什么可以帮到您？”</b>
+                        </p>
+                        <p class="text mt-4 text-white text-center">
+                            <span class="bg-6-38 block mx-auto px-12 py-2 rounded-full text-xl xl:text-2xl">
+                                <i class="ri-phone-fill align-bottom"></i>
+                                <b> 96556</b>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 移动端 -->
+        <div class="other-manage xl:hidden">
+            <div class="flex flex-wrap">
+                <div class="w-1/2 other-mobile-item" v-for="(item,index) in otherManageMobile" :key="index" @click="navToPage(item.href)">
+                    <div class="h-full py-10 xl:p-0 flex border-b-1 border-r-1 items-center justify-center">
+                        <div>
+                            <!--  run-img -->
+                            <img class="object-cover w-10 m-auto" :src="item.img" alt="">
+                            <p class="text-white text-center text-2xl font-bold mt-4" :class="{ 'hover:hidden': item.title === '电话咨询' }">{{item.title}}</p>
+                            <p v-if="item.title === '电话咨询'" class="text mt-4 text-white text-center">
+                                <span class="bg-6-38 block mx-auto px-2 py-1 rounded-full">
+                                    <i class="ri-phone-fill align-bottom"></i>
+                                    <b>96556</b>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- part4 关于我们 -->
+        <div v-if="false" class="w-full mb-10 overflow-hidden px-4 xl:mb-0 xl:p-0">
+            <div class="jr-wrap">
+                <div class="text-xl mt-6 mb-4 xl:mt-20 xl:mb-14 text-center font-bold md:text-2xl xl:text-4xl">关于我们
+                </div>
+                <div class="aboutUs-content relative">
+                    <div class="hidden aboutUs-img absolute z-10 xl:block"></div>
+                    <img class="w-full xl:hidden" src="images/index/about_us_m.jpg" alt="">
+                    <div class="xl:w-1/5 xl:text-blue-500 border-b-1 xl:pt-28">
+                        <p class="italic text-xl mb-1"><b> Wuhan Metro Group </b></p>
+                        <p class="text-base mt-6 text-center xl:text-left xl:mt-0 mb-4 text-2xl"><b>武汉地铁集团有限公司</b></p>
+                    </div>
+                    <p class="mt-5 mb-5 text-33 tracking-wide leading-5 text-left xl:leading-10 xl:w-3/5 xl:mt-20 text-ellipsis-4 cursor-pointer"
+                        @click="navToPage('about.html')">
+                        武汉地铁集团全力推动武汉轨道交通高质量发展，始终坚持“诚信、敬业、高效、奉献”的核心价值观，秉承“拼搏赶超，有诺必达”的企业精神，大力实施建设、运营、经营“三驾马车”协同发展战略，以“引领城市发展、市民出行首选”为使命，通过轨道交通的建设和发展，更好地方便市民出行，改善城市交通环境，为打造“五个中心”,建现代化武汉贡献地铁力量...
+                    </p>
+                    <div class="bg-6-38 text-white p-5 whjt xl:p-14 xl:mt-16 flex items-center relative">
+                        <div class="text-sm text-left xl:text-lg xl:ml-40 xl:mr-16">
+                            <p class="xl:text-2xl mb-2">想了解更多关于武汉地铁集团？</p>
+                            <p class="text-gray-300 xl:text-lg">Want to know more about Wuhan Metro Group?</p>
+                        </div>
+                        <div @click="navToPage('about.html')"
+                            class="cursor-pointer flex-none border flex justify-center items-center w-9 h-9 rounded-full text-2xl text-gray-300">
+                            <i class="ri-arrow-right-s-line"></i></div>
+                        <div class="hidden absolute h-full xl:block" style="background-color: rgba(6, 178, 255, 100);"
+                            :style="`width: ${afterWidth}px;right: -${afterWidth}px;`"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- part5 更多服务 -->
+        <div id="moreServicesId" class="p5 xl:pb-9 more-service-bg">
+            <div class="jr-wrap pb-10 xl:px-20">
+                <div class="text-xl pt-4 xl:pt-20 xl:mb-10 text-center font-bold md:text-2xl xl:text-4xl">更多服务</div>
+                <div class="swiper overflow-hidden relative mt-4 xl:mt-0 xl:py-10 xl:px-10"
+                    style="padding-bottom: 37px;">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide cursor-pointer gdfw-item flex flex-row jc-sa"
+                            @click="navToPage(item.url)" v-for="(item,i) in gdfwList" :key="i">
+                            <div
+                                class="overflow-hidden bg-white flex flex-col items-center more-service-li py-10 pb-16 xl:py-20 xl:pb-32 relative rounded-lg img-scale">
+                                <!-- pt-1 md:py-2 -->
+                                <img class="w-10 h-10 xl:w-20 xl:h-20 mb-2" :src="item.img" alt="">
+                                <p class="text-lg mb-2 md:text-base xl:text-xl">{{item.name}}</p>
+                                <p class="text-xs text-gray-400 md:text-xm xl:text-sm">{{item.content}}</p>
+                                <div
+                                    class="absolute bottom-0 w-full h-10 xl:h-16 learn_more text-white flex justify-center items-center text-sm xl:text-base">
+                                    了解更多
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiperMore swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <global-footer></global-footer>
+        <!-- 运营服务热线 -->
+        <service-hotline></service-hotline>
+    </div>
+
+    <script>
+        const libs = [
+            'utils/common.js',
+            'plugin/jquery.SuperSlide.2.1.3.js'
+        ]
+        for (let i = 0; i < libs.length; i++) {
+            const item = libs[i]
+            document.write(`<script src="./js/${item}?v=${Math.random()}"><\/script>`)
+        }
+    </script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            mixins: [CommonRequest],
+            data() {
+                return {
+                    yyskb: './images/index/yyskb-h.png',
+                    yylx: './images/index/yylx-h.png',
+                    ckxz: './images/index/ckxz-h.png',
+                    aqcs: './images/index/aqcs-h.png',
+                    fwcl: './images/index/fwcl-h.png',
+                    pwgd: './images/index/pwgd-h.png',
+                    tdcb: './images/index/tdcb-h.png',
+                    kggs: './images/index/kggs-h.png',
+                    zygs: './images/index/zygs-h.png',
+                    jsgs: './images/index/jsgs-h.png',
+                    xbgs: './images/index/xbgs-h.png',
+                    zhkf: './images/index/zhkf-h.png',
+                    xhgs: './images/index/xhgs-h.png',
+
+                    // 通知公告列表
+                    noticeListData: [],
+
+                    // 集团快讯列表
+                    jtkxImgListData: [], // 轮播图
+                    jtkxListData: [],
+
+                    // 各地新闻列表
+                    gdxwImgListData: [], // 轮播图
+                    gdxwListData: [],
+
+                    // 建设
+                    jsxlListData: [],
+
+                    // 运营信息
+                    yyxxListData: [],
+
+                    // 经营信息
+                    jyxxListData: [],
+
+                    activePart1: '集团快讯',
+                    activePart2: '建设',
+                    mySwiper: null, // swiper 插件
+
+                    // 更多服务
+                    gdfwList: [
+                        { name: '建议提案办理', img: './images/index/tabl.png', content: '届次提案详情列表区', url: './public.html' },
+                        { name: '阳光招采平台', img: './images/index/ygcz.png', content: '招标采购入口', url: 'https://cg.wuhanrt.com' },
+                        // {name: '武汉地铁官方APP', img: './images/index/whdt.png', content: '官方下载指定通道',url:'http://app1.wuhanrt.com/'},
+                        { name: '武汉地铁运营采购网', img: './images/index/dtcg.png', content: '供货商咨询比价入口', url: 'http://www.whrtyycg.com/xcreator-web/tenant-engine-page/pc/platform/fgrszg2w/index' },
+                        { name: '中国文明网', img: './images/index/dtcg.png', content: '中央宣传部网站入口', url: 'http://www.wenming.cn/' },
+                        { name: '武汉通', img: './images/index/dtcg.png', content: '武汉通业务办理入口', url: 'http://www.whcst.com/index' },
+                    ],
+
+                    bannerSwiper: null, // banner轮播
+                    bannerList: [],
+                    // 固定banner图片
+                    // homePagebanner: [
+                    //     './images/index/index_icon4.png',
+                    //     './images/index/index_icon1.png',
+                    //     './images/index/index_icon2.png',
+                    //     './images/index/index_icon3.png'
+                    // ],
+                    bannerListMobile: [],
+                    swiper1: null, // 集团快讯 轮播
+                    swiper2: null, // 各地新闻 轮播
+                    // 视频播放
+                    isPC: true,
+                    subwayPublicityMp4: '', // https://www.whucg.cn/themes/simpleboot3/public/assets/video/about3.mp4
+
+                    //运营时间
+                    operatingHours: '2023年10月1日',
+
+                    // 客流站点排行
+                    stationRank: [],
+                    // 地铁运营数据
+                    dtDataInfo: {
+                        yygl: '0',
+                        yyrq: '',
+                        zdzs: '0',
+                        zrkl: '0'
+                    },
+                    // 地铁线路颜色标记
+                    subwayColor: {},
+                    nowDate: '', // 当前日期
+
+                    // 站点数据
+                    cascaderProps: {
+                        emitPath: false
+                    },
+                    startStation: '', // 出发地站点
+                    endStation: '', // 目的地站点
+                    stationOptions: Tools.getSession('stationOptions') || [],
+                    dialogShow: false, // 是否显示遮罩层
+                    queryResultShow: false,// 查询结果
+                    linesOption: [],
+                    defaultIndex: 0,
+                    searchInfo: {},
+
+                    // 在建线路
+                    lineUnderConstruction: 'yyxl', // yyxl zjxl
+                    buildLineListData: [],
+
+                    // 显示运营信息
+                    showOperateLine: false,
+
+                    // 经营招商、移动端
+                    otherManageMobile: [
+                        { img: './images/index/jyzs.png', title: '经营招商', href: 'courtship.html' },
+                        { img: './images/index/zxlc.png', title: '招贤纳才', href: 'https://cjob.wuhanrt.com/' },
+                        { img: './images/index/zbxb.png', title: '招标询比', href: 'bidding.html' },
+                        { img: './images/index/zxzx.png', title: '电话咨询', href: '' },
+                    ],
+                    // 页面描点
+                    anchorPoint: Tools.getQueryString('anchorPoint'),
+                    // 获取浏览器可视区域的宽高度
+                    windowHeight: 0,
+                }
+            },
+            computed: {
+                afterWidth() {
+                    const innerWidth = window.innerWidth
+                    if (innerWidth >= 1536) {
+                        return (window.innerWidth - 1400) / 2
+                    } else {
+                        return (window.innerWidth - 1200) / 2
+                    }
+                }
+            },
+            watch: {
+                // 新闻中心切换
+                activePart1: function (val) {
+                    if (val === '集团快讯') {
+                        setTimeout(() => {
+                            this.swiper1.update()
+                        }, 100)
+                    }
+                    // else if (val === '各地新闻') {
+                    //     setTimeout(() => {
+                    //         this.swiper2.update()
+                    //     }, 100)
+                    // }
+                }
+            },
+            created() {
+                const userAgentInfo = navigator.userAgent;
+                const Agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
+                this.isPC = true;
+                for (var i = 0; i < Agents.length; i++) {
+                    if (userAgentInfo.indexOf(Agents[i]) > 0) {
+                        this.isPC = false;
+                        break;
+                    }
+                }
+
+                this.nowDate = dayjs().format('YYYY年MM月DD日')
+
+                const timer = setInterval(() => {
+                    const linesOption = Tools.getLocal('lineList');
+                    if (linesOption) {
+                        const subwayColor = {}
+                        this.linesOption = linesOption
+                        linesOption.forEach(item => {
+                            subwayColor[item.name] = '#' + item.color
+                        })
+                        this.subwayColor = subwayColor
+                        clearInterval(timer);
+                        this.getColumnTree((data) => {
+                            if (data) {
+                                this.columnsTree = data
+                            }
+                            this.handleBanner(0)
+                            this.getMetroLine()
+                            this.getBuildLineList()
+                            this.getNoticeList()
+                            this.getJtkxImgList()
+                            this.getJtkxList()
+                            // this.getGdxwImgList()
+                            this.getGdxwList()
+                            this.getJsxlList()
+                            this.getYyxxList()
+                            this.getJyxxList()
+                            this.getListData()
+                            this.getVideoList()
+                        })
+                    }
+                }, 50)
+            },
+            mounted() {
+                // grayFilter 处理灰色主题
+                // festival 节日主题
+                this.getThemeState(({ festival, grayFilter }) => {
+                    if (grayFilter) {
+                        this.handleGrayTheme()
+                    }
+                    if (festival) {
+                        this.handleBanner()
+                    }
+                })
+                this.setSwiper() // 更多服务 swiper初始化
+
+                if (this.anchorPoint && this.anchorPoint !== '') {
+                    document.getElementById(`${this.anchorPoint}`).scrollIntoView({ behavior: "smooth" })
+                }
+                this.updateDimensions();
+                window.addEventListener('resize', this.updateDimensions);
+            },
+            methods: {
+                // 在建线路跳转
+                navToBuildLine() {
+                    Tools.forward('build-line.html?anchorPoint=lineUnderConstructionId');
+                },
+                updateDimensions() {
+                    // 判断页面宽度，是否是移动端还是pc
+                    if (window.matchMedia("(min-width: 750px)").matches) {
+                        this.windowHeight = window.innerHeight;
+                    } else {
+                        this.windowHeight = undefined;
+                    }
+                },
+                // 处理主题banner
+                handleBanner(type = 1) {
+                    if (type === 1) {
+                        const { festival, festivalOpt } = this
+                        if (festival) {
+                            const banner = festivalOpt.banner.split(',')
+                            banner.forEach(item => {
+                                this.bannerList.unshift(BASE_FILE_URL + item)
+                            })
+                        }
+                        this.handleFestivalTheme()
+                    }
+                    this.getBannerImg()
+                    this.getBannerImgMobile()
+                },
+                // 获取banner图
+                getBannerImg() {
+                    const params = {
+                        page: 0,
+                        size: 6,
+                        thumbnail: 2,
+                        firstClass: '1113'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            const images = []
+                            records.forEach(item => {
+                                if (item.thumbnailImg) {
+                                    images.push(BASE_FILE_URL + item.thumbnailImg)
+                                }
+                            })
+                            this.bannerList = this.bannerList.concat(images)
+                            this.$nextTick(() => {
+                                this.initBannerSwiper()
+                            })
+                        }
+                    })
+                },
+                // 获取移动端banner图
+                getBannerImgMobile() {
+                    const params = {
+                        page: 0,
+                        size: 6,
+                        thumbnail: 2,
+                        firstClass: '1115'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            const images = []
+                            records.forEach(item => {
+                                if (item.thumbnailImg) {
+                                    images.push(BASE_FILE_URL + item.thumbnailImg)
+                                }
+                            })
+                            this.bannerListMobile = this.bannerListMobile.concat(images)
+                            this.$nextTick(() => {
+                                this.initBannerSwiper()
+                            })
+                        }
+                    })
+                },
+                // 获取通知公告
+                getNoticeList() {
+                    const params = {
+                        page: 0,
+                        size: 6,
+                        firstClass: '179'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            this.noticeListData = records
+                            this.$nextTick(() => {
+                                this.initTextMarquee() // 通知公告跑马灯
+                            })
+                        }
+                    })
+                },
+                // 获取集团快讯轮播图
+                getJtkxImgList() {
+                    const params = {
+                        page: 0,
+                        size: 5,
+                        firstClass: '175',
+                        thumbnail: 2
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                if (item.thumbnailImg && item.thumbnail === 2) {
+                                    item.image = BASE_FILE_URL + item.thumbnailImg
+                                }
+                            })
+                            this.jtkxImgListData = records
+                            this.$nextTick(() => {
+                                this.initSwiper1() // 集团快讯swiper初始化
+                            })
+                        }
+                    })
+                },
+                // 获取集团快讯文章
+                getJtkxList() {
+                    const params = {
+                        page: 0,
+                        size: 5,
+                        firstClass: '175',
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                item.year = item.releaseTime.substr(0, 4)
+                                item.time = item.releaseTime.substr(5, 2) + '.' + item.releaseTime.substr(8, 2)
+                            })
+                            this.jtkxListData = records
+                        }
+                    })
+                },
+
+                // 获取各地新闻轮播图
+                getGdxwImgList() {
+                    const params = {
+                        page: 0,
+                        size: 5,
+                        firstClass: '587',
+                        thumbnail: 2
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                if (item.thumbnailImg && item.thumbnail === 2) {
+                                    item.image = BASE_FILE_URL + item.thumbnailImg
+                                }
+                            })
+                            this.gdxwImgListData = records
+                            this.$nextTick(() => {
+                                this.initSwiper2() // 集团快讯swiper初始化
+                            })
+                        }
+                    })
+                },
+                // 获取各地新闻文章
+                getGdxwList() {
+                    const params = {
+                        page: 0,
+                        size: 5,
+                        firstClass: '587',
+
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                item.year = item.releaseTime.substr(0, 4)
+                                item.time = item.releaseTime.substr(5, 2) + '.' + item.releaseTime.substr(8, 2)
+                            })
+                            this.gdxwListData = records
+                        }
+                    })
+                },
+                // 在建线路
+                getBuildLineList() {
+                    const params = {
+                        page: 0,
+                        size: 6,
+                        thumbnail: 2,
+                        firstClass: '589'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                if (item.thumbnailImg) {
+                                    item.image = BASE_FILE_URL + item.thumbnailImg
+                                }
+                            })
+                            this.buildLineListData = records
+                        }
+                    })
+                },
+
+
+                // 建设路线
+                getJsxlList() {
+                    const params = {
+                        page: 0,
+                        size: 6,
+                        firstClass: '589',
+                        thumbnail: 2
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                if (item.thumbnailImg && item.thumbnail === 2) {
+                                    item.image = BASE_FILE_URL + item.thumbnailImg
+                                }
+                            })
+                            this.jsxlListData = records
+                        }
+                    })
+                },
+                // 运营信息文章
+                getYyxxList() {
+                    const params = {
+                        page: 0,
+                        size: 3,
+                        firstClass: '503'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                item.year = item.releaseTime.substr(0, 4)
+                                item.time = item.releaseTime.substr(5, 2) + '.' + item.releaseTime.substr(8, 2)
+                            })
+                            this.yyxxListData = records
+                        }
+                    })
+                },
+                // 经营信息文章
+                getJyxxList() {
+                    const params = {
+                        page: 0,
+                        size: 3,
+                        firstClassList: '207,208,206,463,707,447,456,466'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            records.forEach(item => {
+                                item.year = item.releaseTime.substr(0, 4)
+                                item.time = item.releaseTime.substr(5, 2) + '.' + item.releaseTime.substr(8, 2)
+                            })
+                            this.jyxxListData = records
+                        }
+                    })
+                },
+                // 获取
+                getVideoList() {
+                    const params = {
+                        page: 0,
+                        size: 3,
+                        firstClass: '1123'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data;
+                            this.subwayPublicityMp4 = BASE_FILE_URL + records[0].video
+                            // this.subwayPublicityMp4 = 'https://www.whucg.cn/themes/simpleboot3/public/assets/video/about3.mp4'
+                        }
+                    })
+                },
+                // 查询所有地铁运营数据
+                getListData() {
+                    axios({
+                        url: QUERY_ALL_LIST_OPERATIONAL_DATA,
+                        method: 'get'
+                    }).then((response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            if (data && data.length) {
+                                data[0].detail = JSON.parse(data[0].detail)
+                                data[0].yyrq = dayjs(data[0].yyrq).format('YYYY年MM月DD日')
+                                this.dtDataInfo = data[0]
+                                this.stationRank = data[0].detail
+                                this.$nextTick(() => {
+                                    this.initTextMarquee() // 文字跑马灯初始化
+                                })
+                            }
+                        }
+                    }).catch(() => { })
+                },
+                // 跳转通知公告
+                navToNotice() {
+                    Tools.openWindow('notify-bulletin.html')
+                },
+                // 集团快讯swiper初始化
+                initSwiper1() {
+                    this.swiper1 = new Swiper('#swiper1', {
+                        pagination: {
+                            el: '.swiper1.swiper-pagination',
+                            clickable: true
+                        },
+                        spaceBetween: 10,
+                        autoplay: true,
+                        loop: true, // 循环模式选项
+                        slidesPerView: 1
+                    });
+                },
+                // 各地新闻swiper初始化
+                initSwiper2() {
+                    this.swiper2 = new Swiper('#swiper2', {
+                        pagination: {
+                            el: '.swiper2.swiper-pagination',
+                            clickable: true
+                        },
+                        spaceBetween: 10,
+                        autoplay: true,
+                        loop: true, // 循环模式选项
+                        slidesPerView: 1
+                    });
+                },
+                // 更多服务
+                setSwiper() {
+                    // 设置新的swiper
+                    this.mySwiper = new Swiper('.swiper', {
+                        navigation: {
+                            nextEl: '.swiper-button-next',
+                            prevEl: '.swiper-button-prev',
+                        },
+                        pagination: {
+                            el: '.swiperMore.swiper-pagination',
+                            clickable: false
+                        },
+                        direction: 'horizontal', // 垂直切换选项
+                        loop: false, // 循环模式选项
+                        autoplay: true,
+                        slidesPerView: 1,
+                        spaceBetween: 10,
+                        breakpoints: { // 当屏幕宽度大于等于
+                            320: {
+                                spaceBetween: 0,
+                                slidesPerView: 2
+                            },
+                            640: {
+                                spaceBetween: 20,
+                                slidesPerView: 2
+                            },
+                            768: {
+                                spaceBetween: 20,
+                                slidesPerView: 3
+                            },
+                            1024: {
+                                spaceBetween: 40,
+                                slidesPerView: 3
+                            }
+                        }
+                    })
+                },
+
+                // banner轮播图
+                initBannerSwiper() {
+                    // 暂时注释
+                    // if (this.bannerList.length > 0) {
+                    //     this.bannerSwiper = new Swiper('#banner-swiper', {
+                    //         pagination: {
+                    //             el: '#banner-swiper .swiper-pagination',
+                    //             clickable: true
+                    //         },
+                    //         autoplay: {
+                    //             delay: 5000
+                    //         },
+                    //         loop: true, // 循环模式选项
+                    //         slidesPerView: 1
+                    //     })
+                    // }
+                    if(this.bannerSwiper){
+                        this.bannerSwiper.destroy(true, true);
+                    }
+                    this.bannerSwiper = new Swiper('#banner-swiper', {
+                        direction: 'horizontal',
+                        pagination: {
+                            el: '.bannerSwiper1',
+                            clickable: true
+                        },
+                        autoplay: {
+                            delay: 5000
+                        },
+                        loop: true, // 循环模式选项
+                        slidesPerView: 1
+                    })
+                },
+
+                // 文字跑马灯初始化
+                initTextMarquee() {
+                    // 通知公告滚动
+                    $(".notice .txtMarquee-left").slide({
+                        mainCell: ".bd ul",
+                        autoPlay: true,
+                        effect: "leftMarquee",
+                        vis: 5,
+                        interTime: 50
+                    })
+                    // 客流站点排行滚动
+                    // $(".station-rank .txtMarquee-left").slide({
+                    //     mainCell: ".bd ul",
+                    //     autoPlay: true,
+                    //     effect: "leftMarquee",
+                    //     vis: 5,
+                    //     opp: false,
+                    //     mouseOverStop: false,
+                    //     interTime: 50,
+                    //     delayTime: 100
+                    //     // interTime: 10
+                    // })
+                },
+
+                // 栏目跳转
+                navToPage(url) {
+                    if (url) {
+                        Tools.openWindow(url)
+                    }
+                },
+
+                // 秒数转换为分钟
+                getMinuteInfo(value) {
+                    let time = ""
+                    if (value) {
+                        time = value / 60
+                    } else {
+                        time = 0
+                    }
+                    time > 0 ? time = Math.floor(time) : time
+                    return time
+                },
+                // 切换乘车方式
+                changeRideMethod(index) {
+                    this.defaultIndex = index
+                },
+                // 处理线路对应颜色
+                handleLineColor(name) {
+                    let color = '#3080B7'
+                    this.linesOption.forEach(item => {
+                        if (name.indexOf(item.name) !== -1) {
+                            color = '#' + item.color
+                        }
+                    })
+                    return color
+                },
+                // 处理线路对应颜色
+                handleLineBgColor(name) {
+                    let color = 'rgba(48, 128, 183, .2)'
+                    this.linesOption.forEach(item => {
+                        if (name.indexOf(item.name) !== -1) {
+                            color = item.bgColor
+                        }
+                    })
+                    return color
+                },
+                // 处理线路对应颜色
+                handleLineColor(name) {
+                    let color = '#3080B7'
+                    for (let index = 0; index < this.linesOption.length; index++) {
+                        const item = this.linesOption[index];
+                        if (name === item.name) {
+                            color = '#' + item.color
+                            break;
+                        }
+                        if(name == '21号线（阳逻线）'){
+                            color = '#D10195'
+                            break;
+                        }
+
+                    }
+                    return color
+                },
+                // 获取线路
+                getMetroLine() {
+                    const { stationOptions } = this
+                    if (!stationOptions.length) {
+                        axios({
+                            url: SELECT_ALL_LINE,
+                            method: 'get'
+                        }).then((response) => {
+                            const { code, data, message } = response
+                            if (code === 200) {
+                                data.forEach(item => {
+                                    item.label = item.lineName
+                                    item.value = item.lineName
+                                })
+                                this.metroList = data
+                                Tools.setSession('metroList', data)
+                                this.$nextTick(() => {
+                                    this.getStationList()
+                                })
+                            }
+                        }).catch(() => { })
+                    }
+                },
+                // 获取站点信息
+                getStationList() {
+                    axios({
+                        url: SELECT_ALL_STATION,
+                        method: 'get'
+                    }).then((response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            data.forEach(item => {
+                                item.label = item.siteName
+                                item.value = item.siteName
+                            })
+                            Tools.setSession('stationList', data)
+                            this.handleStationList(data)
+                        }
+                    }).catch(() => { })
+                },
+                // 处理站点数据
+                handleStationList(data) {
+                    const stationOptions = JSON.parse(JSON.stringify(this.metroList))
+                    const stationData = {}
+                    data.forEach(item => {
+                        const { lineName } = item
+                        if (stationData[lineName]) {
+                            stationData[lineName].push(item)
+                        } else {
+                            stationData[lineName] = [item]
+                        }
+                    })
+                    stationOptions.forEach(item => {
+                        item.children = stationData[item.lineName] || []
+                    })
+                    this.stationOptions = stationOptions
+                    Tools.setSession('stationOptions', stationOptions)
+                },
+                // 选择开始站点
+                onChangeStartStation(val) {
+                    this.startStation = val
+                },
+                // 选择结束站点
+                onChangeEndStation(val) {
+                    this.endStation = val
+                },
+                // 票价查询站点搜索
+                stationsFilter(node, keyword) {
+                    return node.value === keyword
+                },
+                // 点击查询
+                onClickSearch() {
+                    const { startStation, endStation } = this
+                    if (startStation && endStation) {
+                        axios({
+                            url: 'https://advh5.whrtmpay.com/lmap/route',
+                            method: 'post',
+                            data: {
+                                "startStationName": startStation,
+                                "endStationName": endStation,
+                                "jsVersion": 3
+                            }
+                        }).then((response) => {
+                            // linecode
+                            const lineObj = {
+                                '01':'1号线',
+                                '02':'2号线',
+                                '03':'3号线',
+                                '04':'4号线',
+                                '05':'5号线',
+                                '06':'6号线',
+                                '07':'7号线',
+                                '08':'8号线',
+                                '11':'11号线',
+                                '12':'12号线',
+                                '16':'16号线',
+                                '19':'19号线',
+                                '21':'21号线（阳逻线）'
+                            }
+                            const busObj = {
+                                '01':{
+                                    '01':'汉口北-径河',
+                                    '02':'径河-汉口北'
+                                },
+                                '02':{
+                                    '01':'佛祖岭-天河机场',
+                                    '02':'天河机场-佛祖岭'      
+                                },
+                                '03':{
+                                    '01':'宏图大道-沌阳大道',
+                                    '02':'沌阳大道-宏图大道'      
+                                },
+                                '04':{
+                                    '01':'武汉火车站-柏林',
+                                    '02':'柏林-武汉火车站'      
+                                },
+                                '05':{
+                                    '01':'武汉站东广场-红霞',
+                                    '02':'红霞-武汉站东广场'      
+                                },
+                                '06':{
+                                    '01':'东风公司-新城十一路',
+                                    '02':'新城十一路-东风公司'      
+                                },
+                                '07':{
+                                    '01':'青龙山地铁小镇-黄陂广场',
+                                    '02':'黄陂广场-青龙山地铁小镇'      
+                                },
+                                '08':{
+                                    '01':'军运村-金潭路',
+                                    '02':'金潭路-军运村'      
+                                },
+                                '11':{
+                                    '01':'葛店南-江安路',
+                                    '02':'江安路-葛店南'      
+                                },
+                                '12':{
+                                    '01':'墨水湖公园-钢都花园',
+                                    '02':'钢都花园-墨水湖公园'      
+                                },
+                                '16':{
+                                    '01':'通航机场-国博中心南',
+                                    '02':'国博中心南-通航机场'      
+                                },
+                                '19':{
+                                    '01':'新月溪公园-武汉站西广场',
+                                    '02':'武汉站西广场-新月溪公园'      
+                                },
+                                '21':{
+                                    '01':'金台-后湖大道',
+                                    '02':'后湖大道-金台'      
+                                },
+                            }
+                            if(response?.success && response?.rtData?.buslist?.length > 0){
+                                console.log(response.rtData.buslist)
+                                // 计算总站数
+                                let passValue = 0;
+                                const newList = response.rtData.buslist.map(item=>{
+                                    const segmentBoList = item.segmentBoList;
+                                    let details = item.segmentBoList.map(segmentItem=>{
+                                        const stations = [];
+                                        stations.push(segmentItem?.startname);
+                                        const passdepotName = segmentItem?.passdepotname.split(' ') ||[];
+                                        if(passdepotName && passdepotName?.length > 0){
+                                            stations.push(...passdepotName);
+                                        }
+                                        stations.push(segmentItem?.endname);
+                                        const newStations = stations.filter(s => s && s.trim() !== '')
+                                        passValue += newStations.length - 1;
+                                        return {
+                                            transfer:'',
+                                            stations:newStations,
+                                            line:lineObj[segmentItem?.linecode],
+                                            duration:segmentItem?.duration ,
+                                            // direction:'开往<佛祖岭>方向',
+                                            direction:busObj[segmentItem?.linecode]?.[segmentItem?.direction] || '',
+                                            startname:segmentItem?.startname,
+                                            endname:segmentItem?.endname,
+                                            outDuration: segmentItem?.outDuration, //虚拟缓存
+                                        }
+                                    })
+                                
+                                    // 虚拟换乘数据处理
+                                    // 虚拟换乘的逻辑是，上一个和结束和本级的开始名称不一样的话，那就是虚拟换成
+                                    const newDetails = [];
+                                    details.forEach((item, index) => {
+                                        // 判断是否需要虚拟换乘:上一段的终点站名 ≠ 当前段的起点站名
+                                        if(item?.outDuration && item?.outDuration > 0){
+                                            if(index > 0 && details[index - 1]?.endname !== item?.startname){
+                                                // 在当前项之前添加虚拟换乘数据
+                                                newDetails.push({
+                                                    transfer: '出站换乘（虚拟换乘）',
+                                                    stations: ['虚拟换乘'],
+                                                    line: '',
+                                                    direction: '',
+                                                    duration: item?.outDuration || 0,
+                                                    startname: '',
+                                                    endname: '',
+                                                    outDuration: item?.outDuration || 0,
+                                                    isVirtual: true // 标记为虚拟换乘
+                                                });
+                                            }else{
+                                                // 在当前项之前添加虚拟换乘数据
+                                                newDetails.push({
+                                                    transfer: '站内换乘',
+                                                    stations: ['站内换乘'],
+                                                    line: '',
+                                                    direction: '',
+                                                    duration: item?.outDuration || 0,
+                                                    startname: '',
+                                                    endname: '',
+                                                    outDuration: item?.outDuration || 0,
+                                                    isVirtual: true // 标记为虚拟换乘
+                                                });
+                                            }
+                                        }
+                                        newDetails.push(item);
+                                    });
+                                    details = newDetails;
+                                    const newItem = {
+                                        type:{
+                                            description:item.typename,
+                                            value:item.typename,
+                                        },
+                                        distance:{
+                                            unit:'千米',
+                                            value:'64.519',
+                                            description:'线路里程'
+                                        },
+                                        transfer:{
+                                            value:item.segmentBoList.length - 1,
+                                            description:'换乘次数',
+                                        },
+                                        time:{
+                                            value:item.duration * 60,
+                                            description:'秒',
+                                        },
+                                        price:{
+                                            value:item?.amount || 0,
+                                            description:'票价',
+                                            unit:'元'
+                                        },
+                                        pass:{
+                                            description:'经过站点数',
+                                            value:passValue,
+                                        },
+                                        details:details,
+                                        notVirtual:details.filter(item => !item.isVirtual),
+                                    }
+                                    return newItem;
+                                })
+
+                                this.searchInfo ={
+                                    paths:newList
+                                }
+                                this.defaultIndex = 0
+                                this.queryResultShow = true
+                            }else{
+                                this.queryResultShow = false
+                            }
+                        }).catch(() => {})
+                        // const params = {
+                        //     from: startStation,
+                        //     to: endStation
+                        // }
+                        // axios({
+                        //     url: EXPORT_SEARCH,
+                        //     method: 'get',
+                        //     params: params
+                        // }).then((response) => {
+                        //     if (response.result >= 1) {
+                        //         this.searchInfo = response
+                        //         this.queryResultShow = true
+                        //     } else {
+                        //         this.queryResultShow = false
+                        //     }
+                        // }).catch(() => { })
+                    } else {
+                        this.$message.warning('请先选择起点站和终点站')
+                    }
+                },
+                handleTopDiv(e) {
+                    this.searchInfo = {}
+                    this.queryResultShow = false
+                    this.dialogShow = false
+                },
+            },
+            beforeDestroy() {
+                window.removeEventListener('resize', this.updateDimensions);
+            },
+        })
+    </script>
+</body>
+
+</html>

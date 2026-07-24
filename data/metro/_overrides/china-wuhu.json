@@ -1,0 +1,13 @@
+{
+  "city": "Wuhu",
+  "country": "China",
+  "continent": "asia",
+  "osm_route_ids": [
+    13401846,
+    13401847,
+    13601036,
+    13601037
+  ],
+  "source": "auditLoop targeted-fetch r=40km (Wuhu Rail Transit)",
+  "created": "2026-07-10T08:36:03.465Z"
+}

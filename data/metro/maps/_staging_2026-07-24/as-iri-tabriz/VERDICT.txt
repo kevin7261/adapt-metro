@@ -1,0 +1,4 @@
+REJECT
+candidate: http://tabrizmetro.ir/Uploads/User/2/image/نقشه-مترو.jpg (live official)
+also: Wayback metromap-b.jpg
+why: operator map draws Lines 2–5 solid though only Line 1 operational — same prior reject. Commons Line1 strip is Own work (not operator). Cabin photo rejected (photo).

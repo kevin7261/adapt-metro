@@ -1,0 +1,277 @@
+# 官方路線圖策展 — 待辦（2026-07）
+
+## 政策（使用者裁決）
+
+1. **只要真正官方**（營運商/運輸局自己發行的路網圖），社群/維基自製圖**只在沒有官方版時**才保留，並在 `maps_index.json` 的 `license` 標「Official operator map」vs 一般 CC 授權區分。
+2. **官方圖若是半地理圖也可接受**（如台中捷運綠線圖、薩爾瓦多 Metrô Mapa das Linhas）——只要是營運商正式發行、淺底、清楚的彩色路網圖，不強求嚴格 H/V/45° 示意圖。
+3. **純地理/衛星/GIS 圖、照片、純規劃圖、黑底圖**——一律不用。
+4. **連社群示意圖都沒有的城市 → 留白**（`map_file: null`），不要湊地理圖佔位。
+5. 圖一律**下載存成本地檔**（`data/metro/maps/**.png`），不用外連 URL。PDF/SVG 用 macOS `qlmanage -t -s 2400 -o <dir> <file>` 轉 png（PDF 只轉第 1 頁，多頁文件內頁抓不到）；jpg/gif/webp 用 `sips -s format png`。
+6. 覆蓋同路徑圖檔後，記得 bump `maps_index.json` 頂層 `_rev`（時間戳）——前端用它做 `?v=` 破除瀏覽器快取，不然使用者會一直看到舊圖。
+
+## 現況（2026-07-25 更新）
+
+> ### 2026-07-25 剩餘 12 留白再掃（官方優先 → 否則最佳示意圖）
+> 使用者裁決：找不到官方就上網找最適合的淺底彩色路網示意圖（Commons／UrbanRail 等）。
+> 派 3 組平行 agent，主 session 逐張目視後寫入。**12 城全部補齊**（0 官方 HIT／12 社群 HIT）。
+>
+> **新增社群／Commons 圖（12）**：
+> - **滁州**：橙子木 滁宁城际／S4 線形圖（CC BY-SA 4.0）
+> - **蘭州**：Painjet Lanzhou Metro Map L1+L2（CC BY-SA 4.0）
+> - **洛陽**：Windmemories System Map（CC BY-SA 4.0）
+> - **台州**：Kmchang28 S1 System Map（CC BY-SA 4.0）
+> - **印多爾**：Dilip kabiraj Yellow Line（CC BY-SA 4.0）
+> - **大不里士**：Ziraksima Line 1 strip（CC BY-SA 4.0；避開官方未通車實線圖）
+> - **光州**：Tcfc2349 Line 1 linemap（CC BY-SA 4.0）
+> - **河內**：UrbanRail.Net 2A+L3（© R. Schwandl；thesis use）
+> - **胡志明**：Dragfyre Line 1 horizontal（CC BY-SA 3.0）
+> - **阿爾及爾**：Poudou99 métro+tram+train（CC BY 4.0）
+> - **熱那亞**：DaniDF1995 Metro Genova（CC BY-SA 3.0）
+> - **蘭德克縣**：Twanrebel Dorfbahn Serfaus（CC BY-SA 4.0；先前「無地鐵」誤判——資料是 U-Bahn Serfaus 4 站）
+>
+> **計數**：官方 **134**　／　社群 **98**　／　留白 **0**（232 系統全有圖）。
+
+## 現況（2026-07-24 更新）
+
+> ### 2026-07-24 留白 21 城再掃（＋9 官方圖）
+> 使用者要求再掃一輪 `map_file:null` 城。派 4 組平行 agent，主 session 逐張目視後寫入。
+>
+> **新增官方圖（9）**：
+> - **加爾各答**：Metro Railway Kolkata System Map 2025-03 R1（Commons 轉載官方圖；mtp 官網此環境擋）
+> - **雅加達**：MRT Jakarta／JakLingko 車廂路網圖 2026-01（transportforjakarta.or.id PDF）
+> - **巴庫**：metro.gov.az 淺底示意圖（先前深底地理圖已拒）
+> - **埼玉**：埼玉高速鉄道「地下鉄路線ご案内」railmap.pdf（對應我方 SR 8 站）
+> - **科恰班巴**：Mi Tren 官方示意圖（紅／綠／黃）
+> - **雷恩**：STAR 都會路網圖（含地鐵 A／B；Rennes Métropole open data；star.fr Cloudflare 擋）
+> - **合肥**：合肥市轨道交通运营线网图（图源合肥轨道交通；hfmtr.com Cloudflare 擋）
+> - **南通**：南通轨道交通线网示意图 L1+L2（ntrailway.com；遠景規劃圖已拒）
+> - **溫州**：S2 線走向圖含 S1（市委宣傳部供圖／開通日官方示意）
+>
+> **維持留白（12）**：
+> - 政策判退：阿爾及爾（地理疊圖）、洛陽（地形底圖）、印多爾（對齊／施工圖）、大不里士（未通車實線）、光州（2 號線規劃地理圖）、河內（GIS／衛星／規劃）、胡志明（僅站牌照片）、熱那亞（AMT 街圖疊線）
+> - 找不到合規靜態圖：滁州、蘭州、台州
+> - 無地鐵：蘭德克縣（纜車＋區域巴士）
+>
+> **計數（以 `maps_index.json` 重數為準）**：官方 **134**　／　社群 **86**　／　留白 **12**（本輪前留白 21 → 後 12）。
+
+## 現況（2026-07-23 更新）
+> ### 2026-07-23 大洋洲／非洲新城補圖（＋7 官方圖）
+> 使用者裁決「只做新城 23 個，86 張社群圖維持現狀」。本輪拿到 7 張真正官方圖：
+> - **奧克蘭**：Auckland Transport「New Train Network — City Rail Link 2026」（at.govt.nz）
+> - **威靈頓**：Metlink「Wellington Regional Rail Network」（metlink.org.nz）
+> - **伯斯**：Transperth System Map 2025-10（含 Ellenbrook／Airport／Byford）
+> - **墨爾本**：Transport Victoria「Victorian train network」（sitecorecloud 官方 PDF，含共站）
+> - **墨爾本電車**：Transport Victoria「Melbourne tram network」24 路線（sitecorecloud 官方 PDF，含共站；不再依賴 Wayback）
+> - **紐卡索**：Newcastle Transport 官方輕軌線路圖（6 站）
+> - **路易港（模里西斯）**：Metro Express 官方全網圖（半地理，policy 第 2 條允許）
+>
+> **依政策退掉的（不是沒找到，是不合規）**：
+> - 布里斯本：Queensland Rail SEQ Network Map 是**黑底圖**（政策 3）→ 仍留白，待抓 Translink 淺底新版
+>   （translink.com.au 的圖放在 widen.net CDN 的 JS 頁，curl 抓不到資產 URL）。
+> - 坎培拉：Transport Canberra Network Map 是**公車＋輕軌的地理圖**（政策 3）→ 留白。
+> - 奧蘭／君士坦丁／阿爾及爾（SETRAM）：官網 `nos-reseaux/*` 的「map」是 **Google 地圖式地理疊圖**
+>   （政策 3）→ 留白，與先前阿爾及爾的裁決一致。
+>
+> ### 2026-07-23（續）：阿德萊德＋路易港補進，新城官方圖累計 9 張
+> - **阿德萊德**：Adelaide Metro 官方「Adelaide rail network map」2024-08-25（官網 403 WAF
+>   → 走 Wayback 的官方 PDF；含 7 條鐵路與電車 inset，與我方資料一致）。
+> - **路易港**：Metro Express 官方全網圖（先前只存了 PNG、漏寫 index，本輪補齊）。
+> - **布里斯本**：Translink 淺底 SEQ 圖（`260302-seq-network-map`）在 widen.net 的 JS 檢視器內，
+>   `/content/...`、`embed.widencdn.net/...`、Wayback 三路都拿不到原檔 → 仍留白。
+> - **黃金海岸／坎培拉**：ridetheg.com.au 的 stylised route map 是 JS 元件（無靜態圖檔）、
+>   ACT 官方只有地理式公車圖 → 仍留白。
+> - **非洲 12 城**（約堡／開普敦／德班／突尼斯／卡薩布蘭卡／拉巴特／阿迪斯阿貝巴／阿布加／
+>   亞歷山卓／達卡＋SETRAM 四城）：官網為 SPA 或只提供地理疊圖，本輪掃過 casatramway.ma、
+>   casatransport.ma、gautrain.co.za、senter.sn、setram.dz 皆無靜態示意圖 → 仍留白。
+
+> **本輪未解、仍留白的新城（16）**：布里斯本、阿德萊德（官網 403 WAF）、黃金海岸（widen CDN）、
+> 坎培拉、約翰尼斯堡、開普敦、德班、達卡、突尼斯、卡薩布蘭卡、拉巴特、阿迪斯阿貝巴、阿布加、
+> 亞歷山卓、塞提夫／西迪貝勒阿巴斯／瓦爾格拉／莫斯塔加內姆（SETRAM 同上）。
+
+## 前一輪現況（2026-07-21）
+
+- ✅ 官方營運商圖：**118**
+- 🟡 社群/Commons 示意圖（無官方版或官網此環境抓不到）：85
+- ⬜ 留白：**21**
+
+> ### 2026-07-21 第二輪「去別的地方抓」（+5：Astana＋retry 4）
+> 使用者指示「空白的盡量去別的地方抓」——官網被擋就找官方圖的**鏡像/轉載**。再派 4 個
+> agent 掃 24 城，命中 4，加上 Astana 共 +5：
+> - **Astana**：cts.gov.kz（營運商）只有互動 Yandex 圖、無靜態圖；改用官方啟用示意圖經
+>   新聞轉載版（無 logo，attribution 已誠實標註）。
+> - **Lahore**：Orange Line 官方圖（OLMRTS/PMA），Wayback。
+> - **Karaj**：官方德黑蘭地鐵圖（Line 5 綠線含 Golshahr/Karaj/Garmdarreh 走廊），Wayback。
+> - **Adana**：市府官方「Metro ve Tramvay Haritası」（現有線具名、二期虛線），adana.bel.tr 鏡像。
+> - **Dalian**：官方「大连地铁线网图」（含變形聲明），bendibao 鏡像。
+>
+> **21 城仍留白，且經第二輪徹查（Wayback/政府鏡像/百度/微信/圖搜/Commons 都試過）確認無解**：
+> - 中國 7（滁州/合肥/蘭州/洛陽/南通/台州/溫州）：官網 SPA 或只有地理/規劃/時刻表圖；
+>   滁州確認連南京官方圖也不含宁滁线。
+> - 只有地理/規劃/插畫/社群改繪圖（重試無用，除非營運商發布正式示意圖）：Indore、Kolkata
+>   （2019 工程圖多為施工中）、Jakarta、Hanoi、胡志明、Tabriz、Baku、Genoa、Rennes、Gwangju、
+>   埼玉、Algiers、Cochabamba。
+> - 無地鐵：Bezirk Landeck（纜車＋區域巴士）——建議從資料集移除，非缺圖。
+> ### 2026-07-21 平行 agent 收官（16 城新增官方圖）
+> 額度重置後派 6 個平行 agent 掃 41 留白城，逐城「找官方圖→下載→**agent 自行讀圖驗證**
+> →存 PNG」，agent **不碰 maps_index.json**（避免並行寫入互相蓋掉），回報後由主 session
+> 逐張抽查再寫 index。命中率被「官網 WAF/地區封鎖」與「官方圖本身是地理/規劃圖」兩個
+> 因素卡住，屬正常。
+>
+> **新增官方圖（16）**：廣島（電車路線図，本輪稍早）、Lille、貝洛奧里藏特、巴西利亞、
+> 雷西非、巴拿馬城、邁阿密、Hyderabad、Pune、Mumbai、Wuhan、Isfahan、Shiraz、Bursa、
+> Bilbao、Brescia、Düsseldorf。（Düsseldorf 推翻先前「無官方圖」判定——Rheinbahn 官方
+> Netzplan 2026-03 從 CDN 取得。）
+>
+> **26 城維持留白（分兩類）**：
+> - *官網此環境抓不到*（region-block/WAF/DNS）：多數中國城（大連/合肥/蘭州/溫州/台州/
+>   洛陽/南通/滁州）、加爾各答、胡志明市、Karaj、Lahore、Adana、Algiers、Rennes…
+> - *找得到但依政策判退*（地理圖/衛星/規劃圖/深底）：Indore(GIS 規劃)、Tabriz(全線畫實線
+>   的規劃圖)、Baku(深底地理)、Jakarta(Google Maps 截圖)、Hanoi(規劃圖)、Gwangju(規劃圖)、
+>   埼玉(觀光導覽圖)、Genoa(地理街圖)、Cochabamba(只有社群圖)、Panama Nueva Red Maestra(規劃圖，已改用 L1+L2 營運圖)。
+> - *無地鐵*：Bezirk Landeck（只有纜車＋區域巴士）。
+>
+> ⚠️ **Astana 懸而未決**：agent 抓到一張單綠線圖，但來源是新聞站鏡像、圖上**無任何營運商
+> 標題/logo/圖例**，無法確認是官方圖還是媒體製圖 → 主 session 判退、**未寫入 index**（維持
+> 留白）。但該 PNG 已被 workflow 連同其他圖一起 commit 進 `data/metro/maps/asia/kazakhstan/
+> as-kaz-astana.png`，成為**未被 index 引用的孤兒檔**。待使用者裁決：要嘛找到有品牌的官方
+> 版寫入、要嘛 `git rm` 該檔。
+
+> 數字請以實際重數為準（下方待辦 A 的 47 城表已過時）：
+> ```
+> python3 -c "import json;d=json.load(open('data/metro/maps/maps_index.json'));m={k:v for k,v in d.items() if isinstance(v,dict)};o=[s for s,v in m.items() if v.get('map_file') and 'Official operator map' in (v.get('license') or '')];print('official',len(o),'blank',len([s for s,v in m.items() if not v.get('map_file')]))"
+> ```
+
+> **✅ 索引缺口已補齊（2026-07-21）**：先前 `metro:build` 後系統數 235、maps_index
+> 只有 224 筆。實際比對後缺 12 個（非 11），已處理：
+> - **科恰班巴**（獨立系統）→ 補 `map_file:null` 條目，暫留白（無官方示意圖；找圖屬留白城市工作）。
+> - **東京 JR / 大阪 JR**（JR 合併系統）與 **`-lm` 地標變體**：使用者最終裁決（2026-07-21）
+>   ——這些變體的官方圖**一律跟母城東京/大阪顯示同一張**，不給獨立 JR 圖。做法＝
+>   maps_index **不放** `-jr`/`-lm` 條目，靠 `metroCatalog.js` 的 `mapsKeyBase()` 去尾綴
+>   fallback 到母城。⚠️ 注意：**不可**放 `map_file:null` 條目——那會讓 tile 顯示「無圖」
+>   而非 fallback（`rec = index[key] || index[base]`，key 存在但 null 就中斷 fallback）。
+>   （曾一度照前一個選擇給 tokyo-jr/osaka-jr 各自的 JR East/West 官方圖，後依此裁決撤回。）
+>
+> ⚠️ 注意：這些手工策展的官方圖（含本次 JR、NYC/London/Tokyo 等）都是本地營運商檔、
+> 不在 Commons，**無法用 `_overrides/map_overrides.json` 釘選**（該機制只吃 Commons 檔名
+> 或 no-map 釘選）。故一旦跑 `downloadMaps.mjs` 全量重建會被清成 null 並刪 png——
+> 目前策展流程是手改 `maps_index.json`，**不要再跑 downloadMaps 全量重建**（只可 `--only`）。
+
+### 2026-07-21 這輪的結果
+
+派 10 個 agent，**9 個在 session 額度耗盡時陣亡**（僅 China B 完成）。死前下載的 89 個檔案
+已保全在 `_staging_2026-07-21/`（gitignored），額度回來後可直接驗證、不必重抓。
+
+**新增 5 張（全部經人工目視驗證）**：金華、雅典、杜林、京都、橫濱。
+
+**驗證後剔除**：河內（衛星空拍圖疊線）、巴庫（深色底地理圖）、洛陽（官方版本身就是
+地形底圖）、南通（只有遠期規劃圖）、台州（營運商無官網）、滁州（南京官方圖不含寧滁線）。
+
+**✅ provenance 缺口已補齊（2026-07-21）**：雅典/杜林/京都/橫濱這 4 張原本 `source_url` 為
+`null`（agent 在回報前被砍）。已重新到官網逐一查回並**用「下載→同法重新轉檔→MD5 比對」
+驗證確認就是同一份檔案**（非憑印象填寫）：
+
+| 城市 | source_url | 驗證方式 |
+|---|---|---|
+| 京都 | `https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000008/8995/nihongo_240529.pdf` | `qlmanage -s 2400` 渲染後 MD5 相同 |
+| 雅典 | `https://stasy.gr/wp-content/uploads/2022/10/MAP_STASY_2022.pdf` | 同上（stasy.gr 有 Cloudflare，需經 Wayback `id_` 取檔） |
+| 杜林 | `https://www.gtt.to.it/cms/risorse/urbana/img/metrotorino3.jpg` | `sips -s format png` 轉檔後 MD5 相同 |
+| 橫濱 | `https://navi.hamabus.city.yokohama.lg.jp/blt-storage/pc/img/koutuu/railmap-pc.png` | 原生 PNG，MD5 直接相同 |
+
+排除的錯誤候選（供日後省事）：雅典 `stasy.gr/wp-content/uploads/2021/12/Stasy_Map.pdf` 是
+2021 舊版（3 號線尚未通到比雷埃夫斯、底圖較深）；杜林 `.../avvisi/img/grafo_metro_bengasi.jpg`
+其實是 350×166 的手機翻拍照。橫濱官方 `/kotsu/sub/` 底下只有互動式路線圖，靜態 PNG 藏在
+`navi.hamabus…` 這個路線查詢子站。
+
+**已移出的殘留錯誤檔**（`_staging_2026-07-21/_rejected_leftovers/`）：洛陽/滁州/南通/台州
+四城路徑下的舊檔——其中 `as-chn-chuzhou.png` 其實是**舊版南京地鐵圖**，留著會誤導。
+留白城市路徑下若還有 png/svg，**不代表已抓到**，多為歷次策展判退的殘留。
+
+## 待辦 A：47 個留白城市——找官方圖
+
+用平行 agent（**這週 Agent 額度已用完，需等 2026-07-22 14:00 Asia/Taipei 重置**），比照台中/薩爾瓦多的做法：**用 WebFetch 直接讀營運商官網頁面**（curl 常被 Cloudflare/WAF 擋，WebFetch 有時能穿透）找出實際圖檔 URL，再 curl 下載＋驗證＋套用。
+
+47 城清單（slug｜城市｜國家）：
+
+| slug | 城市 | 國家 |
+|---|---|---|
+| af-alg-algiers | 阿爾及爾 | Algeria |
+| am-bra-belo-horizonte | 貝洛奧里藏特 | Brazil |
+| am-bra-brasilia | 巴西利亞 | Brazil |
+| am-bra-recife | 雷西非 | Brazil |
+| am-pan-panama-city | 巴拿馬城 | Panama |
+| am-usa-miami | 邁阿密 | United States |
+| as-aze-baku | 巴庫 | Azerbaijan |
+| as-chn-chuzhou | 滁州 | China |
+| as-chn-dalian | 大連 | China |
+| as-chn-hefei | 合肥 | China |
+| as-chn-jinhua | 金華 | China |
+| as-chn-lanzhou | 蘭州 | China |
+| as-chn-luoyang | 洛陽 | China |
+| as-chn-nantong | 南通 | China |
+| as-chn-taizhou | 台州 | China |
+| as-chn-wenzhou | 溫州 | China |
+| as-chn-wuhan | 武漢 | China |
+| as-ina-jakarta | 雅加達 | Indonesia |
+| as-ind-hyderabad | 海得拉巴 | India |
+| as-ind-indore | 印多爾 | India |
+| as-ind-kolkata | 加爾各答 | India |
+| as-ind-mumbai | 孟買 | India |
+| as-ind-pune | 浦那 | India |
+| as-iri-isfahan | 伊斯法罕 | Iran |
+| as-iri-karaj | 卡拉季 | Iran |
+| as-iri-mashhad | 馬什哈德 | Iran |
+| as-iri-shiraz | 設拉子 | Iran |
+| as-iri-tabriz | 大不里士 | Iran |
+| as-jpn-kyoto | 京都 | Japan |
+| as-jpn-saitama-prefecture | 埼玉縣 | Japan |
+| as-jpn-yokohama | 橫濱 | Japan |
+| as-kaz-astana | 阿斯塔納 | Kazakhstan |
+| as-kor-gwangju | 光州 | South Korea |
+| as-pak-lahore | 拉合爾 | Pakistan |
+| as-tur-adana | 阿達納 | Turkey |
+| as-tur-bursa | 布爾薩 | Turkey |
+| as-vie-hanoi | 河內 | Vietnam |
+| as-vie-ho-chi-minh-city | 胡志明市 | Vietnam |
+| eu-aut-bezirk-landeck | 蘭德克縣 | Austria |
+| eu-esp-bilbao | 畢爾包 | Spain |
+| eu-fra-lille | 里爾 | France |
+| eu-fra-rennes | 雷恩 | France |
+| eu-ger-dusseldorf | 杜塞道夫 | Germany |
+| eu-gre-athens | 雅典 | Greece |
+| eu-ita-brescia | 布雷西亞 | Italy |
+| eu-ita-genoa | 熱那亞 | Italy |
+| eu-ita-turin | 杜林 | Italy |
+
+> 巴拿馬城備註：官方示意圖只嵌在多頁 pocket-guide PDF 第 2–3 頁（`elmetrodepanama.com`），`qlmanage` 只轉得到封面頁，需要能翻頁的 PDF 轉檔工具（或找獨立單頁官方圖）。
+
+## 待辦 B：86 個社群圖城市——官方版可能只是這次抓不到
+
+這次（2026-07）分兩波共派 20 個 agent 找官方圖，多數城市的官網被**地區封鎖 / Cloudflare / WAF / DNS 解析失敗**擋下，agent 明確回報「官方確實有示意圖，但這個環境抓不到」的城市（值得之後從沒被擋的網路重試，**這份清單是憑對話記錄整理，未必完整**）：
+
+- 羅馬 eu-ita-rome（ATAC 有 bot 防護）
+- 莫斯科 eu-rus-moscow（mosmetro.ru 連線被拒）
+- 重慶 as-chn-chongqing（cqmetro.cn 地區封鎖）
+- 北京 as-chn-beijing（官方圖是互動 JS canvas，非靜態圖）
+- 廣州 as-chn-guangzhou（cs.gzmtr.com 地區封鎖）
+- 成都 as-chn-chengdu（cdmetro.cn 地區封鎖）
+- 洛桑 eu-sui-lausanne（tl 官方確有示意圖，F5 WAF 擋直接抓取）
+- 華沙 eu-pol-warsaw（Incapsula 擋）
+- 哥本哈根 eu-den-copenhagen（m.dk 只有互動式線圖、無靜態檔）
+- 塞維亞 eu-esp-seville（metrodesevilla.es 連線被拒）
+- 里昂 eu-fra-lyon（tcl.fr Cloudflare 擋）
+- 基輔 eu-ukr-kyiv（metro.kyiv.ua 403）
+- 曼谷 as-tha-bangkok（BEM/BTS 都擋或只有互動地圖）
+- 福塔萊薩 am-bra-fortaleza（F5 WAF + 憑證過期）
+- 利雅德 as-ksa-riyadh（riyadhmetro.sa 網域不存在、rpt.sa 403）
+- 塔什干 as-uzb-tashkent（uzmetro.uz 只有互動元件）
+- 明斯克 eu-blr-minsk（只有互動 HTML/SVG）
+
+其餘社群圖城市多半是「官方圖本身也是地理圖」（如聖多明哥、雅加達地鐵、阿赫馬達巴德…），這些**維持社群圖即可**，不必重試官網。
+
+## 執行方式建議
+
+Agent 額度重置後：
+1. 待辦 A（47 城）優先，用 8–10 個平行 agent，prompt 比照本次「Fill blank city maps」那批（含 WebFetch 找靜態圖 URL、Wayback 備援、半地理官方圖可接受）。
+2. 待辦 B 挑幾個大城市（北京/廣州/成都/羅馬/莫斯科優先）試試看換一個網路環境或用 Wayback 快照。
+3. 每批下載後用 Playwright 產生接觸表截圖人工複驗，勿盲目套用。
+4. 套用後記得 bump `maps_index.json` 的 `_rev`。

@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+
+
+
+
+<title>埼玉高速鉄道　埼玉スタジアム線 | 都心直結、埼玉スタジアム直結</title>
+
+
+<meta name="description" content="埼玉高速鉄道　埼玉スタジアム線のウェブサイト。時刻表、路線図、運行情報、運賃、おとくなきっぷなどのご利用案内のほか、企業情報、採用情報、安全・安心への取組みなどを掲載しています。沿線のタウン情報「えすあーる」で、各駅ごとに魅力を発信しています。">
+
+<meta name="keywords" content="埼玉高速鉄道,SR,えすあーる,都心直結,沿線情報,浦和レッズ,埼玉スタジアム,御成道,ハイキング,植木,盆栽,割引きっぷ">
+
+<meta property="og:locale" content="ja_JP">
+<meta property="og:type" content="website">
+<meta property="og:title" content="埼玉高速鉄道　埼玉スタジアム線 | 都心直結、埼玉スタジアム直結">
+
+<meta property="og:url" content="/">
+
+
+<meta property="og:description" content="埼玉高速鉄道　埼玉スタジアム線のウェブサイト。時刻表、路線図、運行情報、運賃、おとくなきっぷなどのご利用案内のほか、企業情報、採用情報、安全・安心への取組みなどを掲載しています。沿線のタウン情報「えすあーる」で、各駅ごとに魅力を発信しています。">
+
+
+<meta property="og:site_name" content="埼玉高速鉄道　埼玉スタジアム線 | 都心直結、埼玉スタジアム直結">
+
+    <!-- css -->
+  <link rel="stylesheet" href="/common/css/reset_min.css">
+
+  <link rel="stylesheet" href="/common/css/swiper.min.css">
+
+  <link rel="stylesheet" href="/common/css/cmn_style.css">
+
+  <!-- fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=BIZ+UDPGothic&display=swap" rel="stylesheet">
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="https://www.s-rail.co.jp/favicon.ico">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2039GKWVH4"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-2039GKWVH4');
+</script>
+<!-- Google tag (gtag.js) -->
+<meta name="google-site-verification" content="UBTCIsglK5HLfRQllxL__2wbDFZ-I9lz4iBEyr8Zcp0" />
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "埼玉高速鉄道",
+    "item": "https://www.s-rail.co.jp/"
+}
+      ]
+    }
+  </script>
+</head>
+<body id="top">
+  <header id="header" class="header"></header>
+  <main id="main" class="main">
+    <div class="top_mv">
+      <p class="top_mv--txt"><img src="img/top_mv_txt.svg" alt="SAITAMA RAILWAY" width="494" height="184"></p>
+      <figure class="top_mv--random"><img id="mv" src="img/top_mv0.png" alt="" width="1280" height="700" loading="lazy"></figure>
+    </div>
+
+    <div class="top_topics">
+      <div class="cmn_section">
+        <div class="topics_list">
+          <article class="topics_item">
+            <div class="topics_item--block">
+              <span class="topics_label">SR線運行情報</span>
+              <span id="status-icon"></span>
+              <h3 class="topics_ttl"><a href="/ticket/train/" id="status-text"></a></h3>
+            </div>
+            <div class="topics_others">
+              <a href="/ticket/info/#sec07">振替輸送のご案内</a>
+              <a href="/delay/">遅延証明書<img src="img/topics_others01.png" alt="" width="24" height="24" loading="lazy"></a>
+              <a href="/ticket/train/">運行情報<img src="img/topics_others02.png" alt="" width="24" height="24" loading="lazy"></a>
+            </div>
+          </article>
+          
+          
+        </div>
+        <hgroup class="cmn_heading">
+          <p class="cmn_heading--sub">TOPICS</p>
+          <h2 class="cmn_heading--main">トピックス</h2>
+        </hgroup>
+        <div class="swiper-outer">
+          <div class="swiper swiper-topics">
+            <ul class="swiper-wrapper">
+              <li class="swiper-slide">
+                <a href="25th/" target="_blank"><img src="img/swiper_topics01.webp" alt="" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="/area/event/154.html"><img src="img/swiper_topics03.webp" alt="" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="/area/event/153.html"><img src="img/swiper_topics04.webp" alt="" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="news/2026/429.html"><img src="img/swiper_topics05.webp" alt="『こどもも楽しめる!浦和美園駅ナカ酒場』開催！日付：7/4（土）12:00 ▶ 20:00、場所：浦和美園駅 3番線ホーム、臨時改札口周辺など ※雨天決行（荒天または都合によりイベント内容が変更・中止となる場合があります）" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="25th/" target="_blank"><img src="img/swiper_topics01.webp" alt="" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="/area/event/154.html"><img src="img/swiper_topics03.webp" alt="" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="/area/event/153.html"><img src="img/swiper_topics04.webp" alt="" width="241" height="150" loading="lazy"></a>
+              </li>
+              <li class="swiper-slide">
+                <a href="news/2026/429.html"><img src="img/swiper_topics05.webp" alt="『こどもも楽しめる!浦和美園駅ナカ酒場』開催！日付：7/4（土）12:00 ▶ 20:00、場所：浦和美園駅 3番線ホーム、臨時改札口周辺など ※雨天決行（荒天または都合によりイベント内容が変更・中止となる場合があります）" width="241" height="150" loading="lazy"></a>
+              </li>
+            </ul>
+          </div>
+          <div class="swiper-button-prev topics"></div>
+          <div class="swiper-button-next topics"></div>
+          <div class="swiper-pagination topics"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="cmn_section top_trains">
+      <hgroup class="gray_heading">
+        <p class="gray_heading--sub"><img src="img/top_trains_en.svg" alt="TRAINS AND TICKETS" width="1353" height="97"></p>
+        <h2 class="gray_heading--main">電車・きっぷ</h2>
+      </hgroup>
+      <ul class="ticket_list">
+        <li class="ticket_list--item">
+          <a class="ticket_list--itemLink" href="https://s-rail.ekitan.com/norikae/timetable">
+            <figure class="ticket_list--fig"><img src="img/ticket_list1.svg" alt="" width="21" height="19" loading="lazy"></figure>
+            <p>時刻表検索</p>
+          </a>
+        </li>
+        <li class="ticket_list--item">
+          <a class="ticket_list--itemLink" href="/ticket/info/">
+            <figure class="ticket_list--fig"><img src="img/ticket_list2.svg" alt="" width="22" height="12" loading="lazy"></figure>
+            <p>乗車券類</p>
+          </a>
+          <div class="ticket_list--mega">
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/info/#sec02"><img src="img/ticket_list_mega01.svg" alt="" width="25" height="25" loading="lazy">運賃</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/info/#sec01"><img src="img/ticket_list_mega02.svg" alt="" width="22" height="12" loading="lazy">普通券</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/info/#sec03"><img src="img/ticket_list_mega03.svg" alt="" width="23" height="15" loading="lazy">定期券</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/info/#sec05"><img src="img/ticket_list_mega04.svg" alt="" width="27" height="16" loading="lazy">回数券</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/info/#sec04"><img src="img/ticket_list_mega05.svg" alt="" width="19" height="23" loading="lazy">各種割引</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/info/#sec06"><img src="img/ticket_list_mega06.svg" alt="" width="21" height="15" loading="lazy">PASMO</a>
+            </p>
+          </div>
+        </li>
+        <li class="ticket_list--item">
+          <a class="ticket_list--itemLink" href="/ticket/faq/">
+            <figure class="ticket_list--fig"><img src="img/ticket_list5.svg" alt="" width="18" height="13" loading="lazy"></figure>
+            <p>よくあるご質問</p>
+          </a>
+          <div class="ticket_list--mega">
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/faq/about/"><img src="img/ticket_list_mega01.svg" alt="" width="25" height="25" loading="lazy">乗車券について</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/faq/service/"><img src="img/ticket_list_mega02.svg" alt="" width="22" height="12" loading="lazy">ご利用について</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/faq/pasmo/"><img src="img/ticket_list_mega03.svg" alt="" width="23" height="15" loading="lazy">PASMOについて</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/hojin/advertisement/"><img src="img/ticket_list_mega04.svg" alt="" width="27" height="16" loading="lazy">車両・駅への広告掲載について</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/hojin/coverage/"><img src="img/ticket_list_mega05.svg" alt="" width="19" height="23" loading="lazy">駅での撮影・取材について</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/hojin/kinsetsu-kyogi/"><img src="img/ticket_list_mega08.svg" alt="" width="21" height="15" loading="lazy">近接工事による協議（近接協議）のご案内</a>
+            </p>
+            <p class="ticket_list--megaLink">
+              <a href="/ticket/faq/dynamic-vehicle-screen-faq/"><img src="img/ticket_list_mega07.svg" alt="" width="21" height="15" loading="lazy">「TRAIN BOARD 埼玉高速鉄道DVS」Q＆A</a>
+            </p>
+            <!-- <p class="ticket_list--megaLink">
+              <a href="/hojin/substname/"><img src="img/ticket_list_mega06.svg" alt="" width="21" height="15" loading="lazy">副駅名称募集中</a>
+            </p> -->
+          </div>
+        </li>
+        <li class="ticket_list--item">
+          <a class="ticket_list--itemLink" href="/ticket/lostarticles/">
+            <figure class="ticket_list--fig"><img src="img/ticket_list1.svg" alt="" width="21" height="19" loading="lazy"></figure>
+            <p>お忘れ物について</p>
+          </a>
+        </li>
+        <li class="ticket_list--item">
+          <a class="ticket_list--itemLink" href="/ticket/train/">
+            <figure class="ticket_list--fig"><img src="img/ticket_list4.svg" alt="" width="25" height="14" loading="lazy"></figure>
+            <p>運行情報</p>
+          </a>
+        </li>
+      </ul>
+      <ul class="trains_list">
+        <li class="trains_list--item">
+          <a href="ticket/line/urawa-misono/">
+            <p class="trains_list--ttl">浦和美園</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon1.png" alt="SR26" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">うらわ<br>みその</span>
+            <span class="trains_list--color sr26-red"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/higashi-kawaguchi/">
+            <p class="trains_list--ttl">東川口</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon2.png" alt="SR25" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">ひがし<br>かわぐち</span>
+            <span class="trains_list--color sr25-orange"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/tozuka-angyo/">
+            <p class="trains_list--ttl">戸塚安行</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon3.png" alt="SR24" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">とづか<br>あんぎょう</span>
+            <span class="trains_list--color sr24-yellow"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/araijuku/">
+            <p class="trains_list--ttl">新井宿</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon4.png" alt="SR23" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">あらいじゅく</span>
+            <span class="trains_list--color sr23-green"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/hatogaya/">
+            <p class="trains_list--ttl">鳩ヶ谷</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon5.png" alt="SR22" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">はとがや</span>
+            <span class="trains_list--color sr22-blue"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/minami-hatogaya/">
+            <p class="trains_list--ttl">南鳩ヶ谷</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon6.png" alt="SR21" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">みなみ<br>はとがや</span>
+            <span class="trains_list--color sr21-violet"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/kawaguchi-motogo/">
+            <p class="trains_list--ttl">川口元郷</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon7.png" alt="SR20" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">かわぐち<br>もとごう</span>
+            <span class="trains_list--color sr20-purple"></span>
+          </a>
+        </li>
+        <li class="trains_list--item">
+          <a href="ticket/line/akabane-iwabuchi/">
+            <p class="trains_list--ttl">赤羽岩淵</p>
+            <figure class="trains_list--icon"><img src="common/img/trains_icon8.png" alt="SR19" width="51" height="51" loading="lazy"></figure>
+            <span class="trains_list--furigana">あかばね<br>いわぶち</span>
+            <span class="trains_list--color sr19-red"></span>
+          </a>
+        </li>
+      </ul>
+      <p class="center_txt"><a href="ticket/" class="more_btn">電車・きっぷ</a></p>
+    </section>
+    
+    <section class="cmn_section top_news">
+      <hgroup class="cmn_heading">
+        <p class="cmn_heading--sub">NEWS</p>
+        <h2 class="cmn_heading--main">お知らせ</h2>
+      </hgroup>
+      <div class="news_list">
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="new_mark" datetime="2026-07-09">2026.07.09</time>
+            <span class="news_label ">プレスリリース</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/464.html">エスカレーター「歩かず立ち止まろう」キャンペーンの実施について</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="new_mark" datetime="2026-07-06">2026.07.06</time>
+            <span class="news_label ">プレスリリース</span>
+            
+              
+              
+              <span class="news_label sr26-red">浦和美園</span>
+            
+              
+              
+              <span class="news_label sr25-orange">東川口</span>
+            
+              
+              
+              <span class="news_label sr24-yellow">戸塚安行</span>
+            
+              
+              
+              <span class="news_label sr23-green">新井宿</span>
+            
+              
+              
+              <span class="news_label sr22-blue">鳩ヶ谷</span>
+            
+              
+              
+              <span class="news_label sr21-violet">南鳩ヶ谷</span>
+            
+              
+              
+              <span class="news_label sr20-purple">川口元郷</span>
+            
+              
+              
+              <span class="news_label sr19-red">赤羽岩淵</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/465.html">「しらこばと往復割引セット乗車券」発売！ ～電車・バス・プールがセットでおトクに！～</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="new_mark" datetime="2026-07-06">2026.07.06</time>
+            <span class="news_label ">プレスリリース</span>
+            
+              
+              
+              <span class="news_label sr26-red">浦和美園</span>
+            
+              
+              
+              <span class="news_label sr23-green">新井宿</span>
+            
+              
+              
+              <span class="news_label sr22-blue">鳩ヶ谷</span>
+            
+              
+              
+              <span class="news_label sr20-purple">川口元郷</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/461.html">駅から地域の実りを発信するプロジェクト始動 『御成道マルシェ～新井宿の実りと出会う駅～』を初開催！</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-30">2026.06.30</time>
+            <span class="news_label ">お知らせ</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/455.html">埼⽟⾼速鉄道線（地下鉄7号線）延伸に関する事業実施要請の回答について</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-29">2026.06.29</time>
+            <span class="news_label ">お知らせ</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/454.html">エレベータ・エスカレータ定期点検のお知らせ（2026年7月）</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-12">2026.06.12</time>
+            <span class="news_label ">プレスリリース</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/434.html">令和7年度（第35期）決算について</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-09">2026.06.09</time>
+            <span class="news_label ">プレスリリース</span>
+            
+              
+              
+              <span class="news_label sr26-red">浦和美園</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/429.html">『こどもも楽しめる!浦和美園駅ナカ酒場』開催!</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-04">2026.06.04</time>
+            <span class="news_label ">お知らせ</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/423.html">エレベータ・エスカレータ定期点検のお知らせ（2026年6月）</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-03">2026.06.03</time>
+            <span class="news_label ">お知らせ</span>
+            
+              
+              
+              <span class="news_label sr26-red">浦和美園</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/422.html">【店舗・屋台村のお知らせ】６月６日（土）浦和レッズ vs ファジアーノ岡山</a></h3>
+        </article>
+        
+        <article class="news_item">
+          <div class="news_status">
+            
+            <time class="" datetime="2026-06-02">2026.06.02</time>
+            <span class="news_label ">プレスリリース</span>
+            
+          </div>
+          <h3 class="news_ttl"><a href="/news/2026/413.html">povo、データが無料でもらえる「povo Data Oasis」を 関東の私鉄駅、合計600駅以上に拡大 ～新たに「東急電鉄」「小田急電鉄」「京王電鉄」など8事業者で全駅利用可能に～ </a></h3>
+        </article>
+        
+      </div>
+      <p class="center_txt"><a href="news/" class="more_btn">お知らせ一覧</a></p>
+    </section>
+
+    <div class="top_area">
+      <div class="cmn_section top_area--inner">
+        <hgroup class="gray_heading">
+          <p class="gray_heading--sub"><img src="img/top_area_en.svg" alt="AREA INFO" width="696" height="97"></p>
+          <h2 class="gray_heading--main">エリア インフォメーション</h2>
+        </hgroup>
+        <p class="sentence center_txt"><img src="img/area_sentence.svg" alt="駅からはじまるストーリーを体験しよう。" width="783" height="98" loading="lazy"></p>
+        <ul class="area_list">
+          <li>
+            <a href="area/event/">
+              <div class="area_listcircle">
+                <div class="area_listcircle--txt"><p>あそぶ</p></div>
+                <figure class="area_listcircle--fig"><img src="img/area_list01.webp" alt="" width="154" height="154" loading="lazy"></figure>
+              </div>
+              <p class="area_listtitle">おでかけ・イベント</p>
+            </a>
+          </li>
+          <li>
+            <a href="area/tokaiinaka/">
+              <div class="area_listcircle">
+                <div class="area_listcircle--txt"><p>ふれあう</p></div>
+                <figure class="area_listcircle--fig"><img src="img/area_list02.webp" alt="" width="154" height="154" loading="lazy"></figure>
+              </div>
+              <p class="area_listtitle">TOKAiiNAKA</p>
+            </a>
+          </li>
+          <li>
+            <a href="area/nanairo-plus/">
+              <div class="area_listcircle">
+                <div class="area_listcircle--txt"><p>めぐる</p></div>
+                <figure class="area_listcircle--fig"><img src="img/area_list03.webp" alt="" width="154" height="154" loading="lazy"></figure>
+              </div>
+              <p class="area_listtitle">ナナイロぷらす</p>
+            </a>
+          </li>
+          <li>
+            <a href="area/cultureschool/">
+              <div class="area_listcircle">
+                <div class="area_listcircle--txt"><p>まなぶ</p></div>
+                <figure class="area_listcircle--fig"><img src="img/area_list04.webp" alt="" width="154" height="154" loading="lazy"></figure>
+              </div>
+              <p class="area_listtitle">カルチャースクール</p>
+            </a>
+          </li>
+        </ul>
+        <p class="center_txt"><a href="area/" class="more_btn">エリア インフォメーションを見る</a></p>
+
+        <div class="swiper-outer">
+          <h3 class="cmn_normal--ttlMain center_txt">おでかけ・イベント Pick Up</h3>
+          <div class="swiper swiper-event">
+            <ul class="swiper-wrapper">
+              
+              <li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/141.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/33c70f7cd549014d530e983175c68627f7ef1208.jpg" alt="" width="2481" height="3508" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>イオンモール浦和美園パーク&amp;ライド駐車場</span></p>
+      <p>　埼玉高速鉄道埼玉スタジアム線浦和美園駅東口に《パーク＆ライド駐車場》を実験的に設置しております。マ...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr26-red">浦和美園</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/395.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/3822c20e383b460beb7a817149bc7e2186eaeeee.jpg" alt="" width="500" height="375" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>【終了】川口市立科学館特別展「われら、ガイライ界隈。～とっても身近な外来生物のセカイ。～」</span></p>
+      <p>■日時：　2026年6⽉6⽇(土) ～7⽉12⽇(日)　※月曜日、6月30日(火)は休館■会館時間：...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr22-blue">鳩ヶ谷</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/393.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/4c0e6c8a5f2b43aa828584e9d6893e53c46ce01c.jpg" alt="" width="2712" height="2697" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>埼スタ花火 John Williams Fireworks 2026</span></p>
+      <p>2026年9月5日（土）、埼玉スタジアム2002にて、映画音楽の巨匠ジョン・ウィリアムズの楽曲と花火...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr26-red">浦和美園</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/388.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/348e955ed699f212b5f65345b8538cac1e4c87c7.jpg" alt="" width="1920" height="1080" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>【終了】スーパーカーが約100台集合！TOKYO SUPERCAR DAY 2026 さいたま</span></p>
+      <p>今年も埼玉スタジアム2002横にある大門上池調整池広場で「TOKYO SUPERCAR DAY 20...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr26-red">浦和美園</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/355.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/1ef414a499df1daa32aab45f29bbb66b4899209d.jpg" alt="" width="940" height="705" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>【終了】川口市立科学館開館記念日無料公開</span></p>
+      <p>川口市立科学館のイベント情報をお知らせします。イベント情報川口市立科学館ホームページ</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr22-blue">鳩ヶ谷</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/354.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/888f69f9a159f914bacd44d7197d177f8485acb1.jpg" alt="" width="1191" height="894" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>【終了】こどもの日フェスタ２０２６</span></p>
+      <p>こどもの日フェスタ２０２６　５月５日（火・祝）に「こどもの日フェスタ２０２６」が開催されます。　会場...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr23-green">新井宿</span>
+  
+    
+    
+    <span class="swiper-station--label sr22-blue">鳩ヶ谷</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/325.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/41c73de62f3033cc3194ae240c0d73832b10a8e7.jpg" alt="" width="1077" height="718" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>【終了】南鳩ヶ谷スプリングフェス２０２６</span></p>
+      <p>南鳩ヶ谷スプリングフェス２０２６　４月１８日（土）、１９日（日）に「南鳩ヶ谷スプリングフェス２０２６...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr21-violet">南鳩ヶ谷</span>
+  
+
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-station--item">
+  
+  
+  
+  <a href="/area/event/182.html">
+    
+      <p class="swiper-station--icon"><img src="/common/img/swiper_event_icon.png" alt="おでかけ・イベント案内" width="181" height="41" loading="lazy"></p>
+    
+    <figure><img src="/media/25fes.jpg" alt="" width="210" height="85" loading="lazy"></figure>
+
+    <div class="swiper-station--ex bg_gray">
+      <p class="center_txt bold_txt"><span>【終了】開業25周年記念イベント『25フェス』</span></p>
+      <p>　埼玉高速鉄道株式会社は、2026年3月28日に開業25周年を迎えます。2001年の開業以来、当社を...</p>
+    </div>
+    <div class="swiper-station--labelOuter">
+      <span class="swiper-station--label sr26-red">浦和美園</span>
+  
+
+    </div>
+  </a>
+</li>
+
+
+            </ul>
+          </div>
+          <div class="swiper-button-prev event"></div>
+          <div class="swiper-button-next event"></div>
+          <div class="swiper-pagination event"></div>
+          <p class="center_txt"><a href="/area/event/" class="more_btn type02">一覧を見る</a></p>
+        </div>
+
+        <div class="swiper-outer">
+          <h3 class="cmn_normal--ttlMain center_txt">TOKAiiNAKA Pick Up</h3>
+          <div class="swiper swiper-tokaiinaka">
+            <ul class="swiper-wrapper">
+              <li class="swiper-slide swiper-tokaiinaka--item">
+  <a href="/area/tokaiinaka/186.html">
+    <figure><img src="/assets_c/2026/03/sakura2026_main-thumb-400xauto-751.jpg" alt="" width="400" loading="lazy"></figure>
+    <div class="swiper-tokaiinaka--ex">
+      <p class="center_txt bold_txt"><span>#TOKAiiNAKA 駅からはじまる、桜めぐり</span></p>
+      <p>浦和美園のさくら見沼たんぼ桜回廊minumatanbo-saitama.jp/sakurakairo...</p>
+    </div>
+    
+    
+    
+    <div class="swiper-tokaiinaka--labelOuter">
+      
+        <span class="swiper-station--label sr-general">SR全駅</span>
+      
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-tokaiinaka--item">
+  <a href="/area/tokaiinaka/49.html">
+    <figure><img src="/assets_c/2026/01/saitamaichigo-shun-main-thumb-400xauto-16.jpg" alt="" width="400" loading="lazy"></figure>
+    <div class="swiper-tokaiinaka--ex">
+      <p class="center_txt bold_txt"><span>#TOKAiiNAKA 埼玉いちごの旬が来た！2026冬春</span></p>
+      <p>浦和美園のいちご美園いちごランド収穫と販売〒336-0965 埼玉県さいたま市緑区間宮803miso...</p>
+    </div>
+    
+    
+    
+    <div class="swiper-tokaiinaka--labelOuter">
+      
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr26-red">浦和美園</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr25-orange">東川口</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr24-yellow">戸塚安行</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr23-green">新井宿</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr22-blue">鳩ヶ谷</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr21-violet">南鳩ヶ谷</p>
+        
+      
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-tokaiinaka--item">
+  <a href="/area/tokaiinaka/128.html">
+    <figure><img src="/assets_c/2026/02/kokorosomaru-koyo-main-thumb-400xauto-468.jpg" alt="" width="400" loading="lazy"></figure>
+    <div class="swiper-tokaiinaka--ex">
+      <p class="center_txt bold_txt"><span>#TOKAiiNAKA ～ こころ染まる、紅葉時間</span></p>
+      <p>散策しながら出会う美しい景観、写真に収めたくなる瞬間、そしてほっと一息つける温かなひととき。四季の中...</p>
+    </div>
+    
+    
+    
+    <div class="swiper-tokaiinaka--labelOuter">
+      
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr25-orange">東川口</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr24-yellow">戸塚安行</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr23-green">新井宿</p>
+        
+      
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-tokaiinaka--item">
+  <a href="/area/tokaiinaka/127.html">
+    <figure><img src="/assets_c/2026/02/minorijikan-fw25_main-thumb-400xauto-441.jpg" alt="" width="400" loading="lazy"></figure>
+    <div class="swiper-tokaiinaka--ex">
+      <p class="center_txt bold_txt"><span>#TOKAiiNAKA「実り時間、はじめよう。秋」</span></p>
+      <p>浦和美園の実り時間丸園maruen-best.com/activities【体験】釜炒り茶、うどんづ...</p>
+    </div>
+    
+    
+    
+    <div class="swiper-tokaiinaka--labelOuter">
+      
+        <span class="swiper-station--label sr-general">SR全駅</span>
+      
+    </div>
+  </a>
+</li>
+
+<li class="swiper-slide swiper-tokaiinaka--item">
+  <a href="/area/tokaiinaka/144.html">
+    <figure><img src="/assets_c/2026/02/minorijikan_main-thumb-400xauto-605.jpg" alt="" width="400" loading="lazy"></figure>
+    <div class="swiper-tokaiinaka--ex">
+      <p class="center_txt bold_txt"><span>実り時間、はじめよう。</span></p>
+      <p>新井宿の実り時間まるはらいとう農園@maruharaitounouen【体験】温州みかん、夏みかん、...</p>
+    </div>
+    
+    
+    
+    <div class="swiper-tokaiinaka--labelOuter">
+      
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr23-green">新井宿</p>
+        
+          
+          
+          <p class="swiper-tokaiinaka--label sr26-red">浦和美園</p>
+        
+      
+    </div>
+  </a>
+</li>
+
+
+            </ul>
+          </div>
+          <div class="swiper-button-prev tokaiinaka"></div>
+          <div class="swiper-button-next tokaiinaka"></div>
+          <div class="swiper-pagination tokaiinaka"></div>
+          <p class="center_txt"><a href="/area/tokaiinaka/" class="more_btn type02">一覧を見る</a></p>
+        </div>
+      </div>
+      <figure class="top_area--cover"><img src="img/area_cover.webp" alt="" width="1280" height="450" loading="lazy"></figure>
+    </div>
+
+    <section class="cmn_section">
+      <hgroup class="cmn_heading">
+        <p class="cmn_heading--sub">CORPORATE INFORMATION</p>
+        <h2 class="cmn_heading--main">企業情報</h2>
+      </hgroup>
+      <ul class="top_profile--link">
+        <li><a href="/corporate/outline/">会社概要</a></li>
+        <li><a href="/corporate/philosophy/">経営理念・経営方針</a></li>
+        <li><a href="/corporate/organize/">組織図</a></li>
+        <li><a href="/corporate/history/">会社沿革</a></li>
+        <li><a href="/corporate/financial/">経営状況・輸送状況</a></li>
+        <li><a href="/privacy/">個人情報保護</a></li>
+        <li><a href="/corporate/compliance/">コンプライアンス</a></li>
+        <li><a href="/corporate/csr/">SRの取り組み</a></li>
+        <li><a href="/corporate/customer/">お客様へのお願い</a></li>
+        <li><a href="/corporate/tamasaburou/">マスコットキャラクター</a></li>
+      </ul>
+    </section>
+
+    <ul class="banner_list">
+      <li><a href="https://www.iwatsuki-himawari.ed.jp/" target="_blank"><img src="img/banner_list01.webp" alt="" width="220" height="101" loading="lazy"></a></li>
+      <li><a href="https://www.pref.saitama.lg.jp/a0109/sr-main/sr-townguide/" target="_blank"><img src="img/banner_list02.webp" alt="" width="220" height="101" loading="lazy"></a></li>
+      <li><a href="https://www.misono-tm.org/udcmi/info/news/18577.html" target="_blank"><img src="img/banner_list03.webp" alt="" width="220" height="101" loading="lazy"></a></li>
+      <li><a href="https://www.urawa-misono.net/" target="_blank"><img src="img/banner_list04.webp" alt="" width="220" height="101" loading="lazy"></a></li>
+    </ul>
+  </main>
+  <footer id="footer" class="footer"></footer>
+  <a id="backtop" href="#" aria-label="ページ上部に戻る"></a>
+
+  <script src="/common/js/common.js"></script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mv = document.getElementById('mv');
+      const random = Math.floor( Math.random() * 8 ) + 1;
+
+      mv.src = 'img/top_mv0' + random + ".webp";
+    })
+  </script>
+
+  <script src="/common/js/swiper-bundle.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const baseOptions = {
+        centeredSlides: false,
+        loop: true,
+        loopedSlides: 1,
+        loopAdditionalSlides: 1,
+        speed: 1800,
+        autoplay: {
+          delay: 4000,
+          disableOnInteraction: false,
+          waitForTransition: false,
+        },
+        grabCursor: true,
+        watchSlidesProgress: true,
+      };
+
+      const swipers = [
+        {
+          container: '.swiper.swiper-topics',
+          nextEl: '.swiper-button-next.topics',
+          prevEl: '.swiper-button-prev.topics',
+          options: {
+            slidesPerView: 2,
+            spaceBetween: 8,
+            pagination: {
+              el: '.swiper-pagination.topics',
+            },
+            breakpoints: {
+              768: {
+                spaceBetween: 16,
+                slidesPerView: 4,
+                // slidesPerView: 3,
+              }
+            }
+          }
+        },
+        {
+          container: '.swiper.swiper-event',
+          nextEl: '.swiper-button-next.event',
+          prevEl: '.swiper-button-prev.event',
+          options: {
+            slidesPerView: 2,
+            spaceBetween: 12,
+            pagination: {
+              el: '.swiper-pagination.event',
+            },
+            breakpoints: {
+              768: {
+                spaceBetween: 20,
+                slidesPerView: 4,
+              }
+            }
+          }
+        },
+        {
+          container: '.swiper.swiper-tokaiinaka',
+          nextEl: '.swiper-button-next.tokaiinaka',
+          prevEl: '.swiper-button-prev.tokaiinaka',
+          options: {
+            slidesPerView: 2,
+            spaceBetween: 12,
+            pagination: {
+              el: '.swiper-pagination.tokaiinaka',
+            },
+            breakpoints: {
+              768: {
+                spaceBetween: 20,
+                slidesPerView: 4,
+              }
+            }
+          }
+        },
+      ];
+
+      swipers.forEach(swiper => {
+        const wrapper = document.querySelector(swiper.container + ' .swiper-wrapper');
+
+        // Swiper初期化
+        new Swiper(swiper.container, {
+          ...baseOptions,        // 共通オプション
+          ...swiper.options,     // 個別オプションをマージ
+          navigation: {
+            nextEl: swiper.nextEl,
+            prevEl: swiper.prevEl
+          }
+        });
+      })
+    });
+  </script>
+  <script>
+  (() => {
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/service_status/status.json?t=' + Date.now())
+      .then((response) => {
+        if (!response.ok) {
+          document.getElementById('status-text').textContent = 'データを取得できませんでした。';
+          throw new Error('Network response was not ok : ' . response.status);
+        }
+        return response.text();
+      })
+      .then(json => {
+        const obj = JSON.parse(json);
+        if (obj === null || !obj.messages || obj.messages.length === 0) {
+          document.getElementById('status-text').textContent = '運行情報はありません。';
+          return;
+        }
+        const messages = obj.messages;
+        if (messages.length > 0) {
+          setMessage(messages[0]);
+        }
+      });
+    });
+
+    function getStatusIconImage(iconType) {
+      switch (iconType) {
+        case "o":
+          return '<img src="img/train_icon01.png" alt="" width="25" height="25">';
+        case "^":
+          return '<img src="img/train_icon02.png" alt="" width="26" height="22">';
+        case "x":
+          return '<img src="img/train_icon03.png" alt="" width="24" height="24">';
+        case "!":
+          return '<img src="img/train_icon04.png" alt="" width="25" height="25">';
+        default:
+          return "";
+      }
+    }
+
+    function setMessage(msg) {
+
+      let iconImg = "";
+      let statusEn = "";
+
+      switch (msg.type) {
+        case "stdtxt":
+          iconImg = getStatusIconImage("o");
+          break;
+        case "message":
+          const statusJa = msg.langs.ja.status;
+          iconImg = getStatusIconImage(statusToIconType(statusJa));
+          break;
+        default:
+          break;
+      }
+
+      document.getElementById('status-icon').innerHTML = iconImg;
+
+      const a = document.createElement('a');
+      a.textContent = msg.langs.ja.text;
+      a.href = '/ticket/train/';
+      document.getElementById('status-text').appendChild(a);
+
+    }
+
+const STATUS_TYPES ={
+    "運転見合わせ":     "x",
+    "遅延":             "^",
+    "平常運転":         "o",
+    "運転再開見込":     "x",
+    "お知らせ":         "!",
+    "運転再開":         "^",
+    "一部運休":         "^",
+    "直通運転中止":     "^",
+    "運休":             "x",
+    "折返し運転":       "^",
+    "経路変更":         "^",
+    "直通運転再開":     "^",
+    "バス代行":         "x",
+    "振替輸送":         "x",
+    "リフレッシュ工事": "!",
+    "一部運転再開":     "^",
+};
+
+function statusToIconType(statusJa) {
+    return STATUS_TYPES[statusJa] || "";
+}
+
+  })();
+  </script>
+</body>
+</html>

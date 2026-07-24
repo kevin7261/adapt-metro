@@ -1,0 +1,21 @@
+{
+  "city": "Las Vegas",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    9728923,
+    9728924,
+    17583000,
+    17583001,
+    17583002,
+    17583003,
+    17583058,
+    17583059,
+    17583060,
+    17583061,
+    19413836,
+    19413837
+  ],
+  "source": "https://www.urbanrail.net/am/lveg/las-vegas.htm",
+  "note": "Las Vegas（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

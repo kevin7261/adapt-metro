@@ -1,0 +1,1249 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg4136"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   width="740"
+   height="697"
+   viewBox="0 0 740 697"
+   sodipodi:docname="Incheon Metro Map ko.svg">
+  <metadata
+     id="metadata4142">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs4140" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="686"
+     inkscape:window-height="696"
+     id="namedview4138"
+     showgrid="false"
+     inkscape:zoom="1.543759"
+     inkscape:cx="572.89461"
+     inkscape:cy="220.05746"
+     inkscape:window-x="592"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4136" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="incheon">
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#ed8b00;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 21.376394,56.355948 235.140336,-0.64777 5.18215,-0.647769 5.82993,1.943308 3.88662,3.238848 1.29554,3.886617 1.94331,5.829925 0.64776,8.421004 -0.64776,287.609669 0.64776,86.15334 1.94331,7.12547 3.23885,5.18215 6.4777,2.59108 3.23884,1.94331 7.12547,0 209.87732,-1.29554 213.76394,0"
+       id="path4149"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#6f99d0;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 704.77323,112.7119 -235.7881,0 -4.53439,1.29553 -5.18215,3.23885 -4.53439,5.18216 -0.64777,9.06877 1.29554,213.11617 -1.29554,218.9461 0.64777,47.93494 -3.23885,3.88662 -5.82992,4.53439 -5.82993,1.94331 -7.77323,0.64777 -183.96654,-0.64777 -224.128258,-3.23885"
+       id="path4151"
+       inkscape:connector-curvature="0" />
+    <ellipse
+       style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153"
+       cx="19.1092"
+       cy="54.41264"
+       rx="5.506041"
+       ry="5.8299255" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-9"
+       cx="175.54553"
+       cy="620.56317"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-1"
+       cx="220.24164"
+       cy="621.211"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-16"
+       cx="263.64221"
+       cy="620.56323"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-31"
+       cx="301.8606"
+       cy="621.85876"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-0"
+       cx="341.37454"
+       cy="621.211"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-35"
+       cx="433.35782"
+       cy="621.8587"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-19"
+       cx="455.38199"
+       cy="595.94794"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-42"
+       cx="455.38199"
+       cy="562.26392"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-6"
+       cx="453.43866"
+       cy="529.87543"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-2"
+       cx="454.08643"
+       cy="502.66913"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-8"
+       cx="456.02975"
+       cy="424.28903"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-69"
+       cx="454.73419"
+       cy="383.47955"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-194"
+       cx="454.73419"
+       cy="341.37451"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-08"
+       cx="454.08643"
+       cy="259.10782"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-25"
+       cx="455.38196"
+       cy="180.07993"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-96"
+       cx="454.73422"
+       cy="141.86153"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-33"
+       cx="493.60037"
+       cy="113.35966"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-05"
+       cx="540.23975"
+       cy="114.00742"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-07"
+       cx="582.34479"
+       cy="114.00743"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-165"
+       cx="624.44983"
+       cy="113.35966"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-47"
+       cx="663.96375"
+       cy="112.7119"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+    <ellipse
+       style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4153-53-08-3-42-7"
+       cx="694.40894"
+       cy="636.75745"
+       rx="5.506041"
+       ry="5.8299255"
+       inkscape:transform-center-x="-248.74349"
+       inkscape:transform-center-y="-139.91822" />
+  </g>
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-4"
+     cx="71.254654"
+     cy="55.708179"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-7"
+     cx="123.0762"
+     cy="55.06041"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-42"
+     cx="170.36339"
+     cy="54.412643"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-5"
+     cx="213.76395"
+     cy="55.060413"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53"
+     cx="255.86896"
+     cy="55.06041"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3"
+     cx="275.62592"
+     cy="92.307152"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-9"
+     cx="274.0065"
+     cy="130.20168"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-1"
+     cx="274.6543"
+     cy="169.06784"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-0"
+     cx="275.30203"
+     cy="207.28625"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-16"
+     cx="274.0065"
+     cy="244.85687"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-6"
+     cx="274.0065"
+     cy="284.37082"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-95"
+     cx="274.65427"
+     cy="320.64594"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-952"
+     cx="274.65427"
+     cy="358.86432"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-5"
+     cx="274.65427"
+     cy="396.43494"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-08"
+     cx="274.0065"
+     cy="432.71005"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-64"
+     cx="304.45169"
+     cy="468.33734"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-4"
+     cx="386.07062"
+     cy="467.68958"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-12"
+     cx="694.40887"
+     cy="667.20264"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-44"
+     cx="498.78253"
+     cy="467.04181"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-60"
+     cx="544.1264"
+     cy="467.68961"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-2"
+     cx="590.11798"
+     cy="468.33737"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-99"
+     cx="632.22302"
+     cy="468.98514"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-68"
+     cx="677.56689"
+     cy="468.33737"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-66"
+     cx="719.67194"
+     cy="467.04181"
+     rx="5.506041"
+     ry="5.8299255" />
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3-9"
+     cx="343.31784"
+     cy="467.68961"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <ellipse
+     style="fill:#ffffff;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3-0"
+     cx="454.73419"
+     cy="467.68964"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-08-3"
+     cx="25.26301"
+     cy="621.211"
+     rx="5.506041"
+     ry="5.8299255"
+     inkscape:transform-center-x="-248.74349"
+     inkscape:transform-center-y="-139.91822" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-08-3-4"
+     cx="75.789032"
+     cy="621.8587"
+     rx="5.506041"
+     ry="5.8299255"
+     inkscape:transform-center-x="-248.74349"
+     inkscape:transform-center-y="-139.91822" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-08-3-3"
+     cx="127.61059"
+     cy="622.50653"
+     rx="5.506041"
+     ry="5.8299255"
+     inkscape:transform-center-x="-248.74349"
+     inkscape:transform-center-y="-139.91822" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3-3"
+     cx="701.53442"
+     cy="113.35966"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3-3-9"
+     cx="455.38196"
+     cy="218.29834"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3-3-5"
+     cx="455.38199"
+     cy="302.50836"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <ellipse
+     style="fill:#6f99d0;fill-opacity:1;stroke:#444444;stroke-width:6.58690929;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-3-3-58"
+     cx="391.25281"
+     cy="622.50647"
+     rx="7.6275492"
+     ry="7.3036642" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 672.38476,666.55483 45.99163,0.64777"
+     id="path4593"
+     inkscape:connector-curvature="0" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#6f99d0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 673.6803,637.4052 40.16171,0"
+     id="path4595"
+     inkscape:connector-curvature="0" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="station names">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="41.43845"
+       y="27.797396"
+       id="text4601"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="41.43845"
+         y="27.797396"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400;fill-opacity:1"
+         id="tspan5263">검단오류</tspan><tspan
+         sodipodi:role="line"
+         x="41.43845"
+         y="41.859894"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400;fill-opacity:1"
+         id="tspan6788">(검단산업단지)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="91.983269"
+       y="40.445164"
+       id="text4611"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="91.983269"
+         y="40.445164"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400"
+         id="tspan5267">검단사거리</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="60.78812"
+       y="78.023964"
+       id="text4611-1"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="60.78812"
+         y="78.023964"
+         id="tspan4615-4"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">왕길</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:12.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="157.13571"
+       y="77.26281"
+       id="text4611-6"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="157.13571"
+         y="77.26281"
+         id="tspan4615-8"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">마전</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="201.52419"
+       y="40.931019"
+       id="text4611-0"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="201.52419"
+         y="40.931019"
+         id="tspan4615-6"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">완정</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="290.1593"
+       y="97.728256"
+       id="text4601-6"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="290.1593"
+         y="97.728256"
+         id="tspan4605-6"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1">검암</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="334.18982"
+       y="453.45447"
+       id="text4601-6-4"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="334.18982"
+         y="453.45447"
+         id="tspan4605-6-7"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1">주안</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-253.60965"
+       y="629.8501"
+       id="text4601-6-8"
+       sodipodi:linespacing="125%"
+       transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+         sodipodi:role="line"
+         x="-253.60965"
+         y="629.8501"
+         id="tspan4605-6-70"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1">인천시청역</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="469.4035"
+       y="307.05853"
+       id="text4601-6-9"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="469.4035"
+         y="307.05853"
+         id="tspan4605-6-9"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1">부평</tspan></text>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="259.79092"
+     y="47.408718"
+     id="text4611-7"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="259.79092"
+       y="47.408718"
+       id="tspan4615-87"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">독정</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="226.02605"
+     y="134.8576"
+     id="text4611-9"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="226.02605"
+       y="134.8576"
+       id="tspan4615-9"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">검바위</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="114.56136"
+     y="172.42824"
+     id="text4611-64"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="114.56136"
+       y="172.42824"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400"
+       id="tspan6792">아시아드경기장 (공촌사거리)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:12.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="222.39871"
+     y="211.94218"
+     id="text4611-8"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="222.39871"
+       y="211.94218"
+       id="tspan4615-7"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">서구청</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="179.78348"
+     y="250.16058"
+     id="text4611-4"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="179.78348"
+       y="250.16058"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400"
+       id="tspan6796">가정 (루원시티)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="189.62177"
+     y="289.02676"
+     id="text4611-3"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="189.62177"
+       y="289.02676"
+       id="tspan4615-66"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">가정중앙시장</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="179.54091"
+     y="327.24515"
+     id="text4611-81"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="179.54091"
+       y="327.24515"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400"
+       id="tspan6800">석남 (거북시장)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="190.67474"
+     y="361.57693"
+     id="text4611-77"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="190.67474"
+       y="361.57693"
+       id="tspan4615-92"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">서부여성회관</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="213.75095"
+     y="402.38641"
+     id="text4611-60"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="213.75095"
+       y="402.38641"
+       id="tspan4615-04"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">인천가좌</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="226.39037"
+     y="438.6615"
+     id="text4611-84"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="226.39037"
+       y="438.6615"
+       id="tspan4615-40"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">가재울</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="284.05035"
+     y="490.48306"
+     id="text4611-10"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="284.05035"
+       y="490.48306"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan5275">주안국가산단</tspan><tspan
+       sodipodi:role="line"
+       x="284.05035"
+       y="504.54556"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan6808">(인천J밸리)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="382.57474"
+     y="488.53976"
+     id="text4611-68"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="382.57474"
+       y="488.53976"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan5279">시민공원</tspan><tspan
+       sodipodi:role="line"
+       x="382.57474"
+       y="502.60226"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan6814">(문화창작지대)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="419.00873"
+     y="454.54813"
+     id="text4611-69"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="419.00873"
+       y="454.54813"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan5283">석바위시장</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="470.54276"
+     y="488.53976"
+     id="text4611-2"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="470.54276"
+       y="488.53976"
+       id="tspan4615-48"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">석천사거리</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-102.58117"
+     y="708.36951"
+     id="text4611-5"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.52100963,-0.8535508,0.8535508,0.52100963,0,0)"><tspan
+       sodipodi:role="line"
+       x="-102.58117"
+       y="708.36951"
+       id="tspan4615-5"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">모래내시장</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-112.57326"
+     y="742.29694"
+     id="text4611-62"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.48328237,-0.87546453,0.87546453,0.48328237,0,0)"><tspan
+       sodipodi:role="line"
+       x="-112.57326"
+       y="742.29694"
+       id="tspan4615-05"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">만수</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-78.217194"
+     y="779.80499"
+     id="text4611-41"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-78.217194"
+       y="779.80499"
+       id="tspan4615-56"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">남동구청</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-58.24971"
+     y="815.65753"
+     id="text4611-26"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-58.24971"
+       y="815.65753"
+       id="tspan4615-043"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">인천대공원</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="468.75577"
+     y="223.49628"
+     id="text4601-6-7"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="468.75577"
+       y="223.49628"
+       id="tspan4605-6-703"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1">부평구청</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+     x="681.98541"
+     y="97.828979"
+     id="text4601-6-71"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="681.98541"
+       y="97.828979"
+       id="tspan4605-6-4"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1;">계양</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#aa4400;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="373.22604"
+     y="645.84198"
+     id="text4601-6-1"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="373.22604"
+       y="645.84198"
+       id="tspan4605-6-5"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.5px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#333333;fill-opacity:1">원인재</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="478.72598"
+     y="99.416145"
+     id="text4611-9-4"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="478.72598"
+       y="99.416145"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan5295">경인교대입구</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="544.85889"
+     y="99.604591"
+     id="text4611-9-4-9"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="544.85889"
+       y="99.604591"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1">계산</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="623.9668"
+     y="100.77402"
+     id="text4611-9-4-9-8"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="623.9668"
+       y="100.77402"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-7">박촌</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="585.74847"
+     y="135.75357"
+     id="text4611-9-4-9-3"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="585.74847"
+       y="135.75357"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-5">임학</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="665.05981"
+     y="136.40134"
+     id="text4611-9-4-9-36"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="665.05981"
+       y="136.40134"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-4">귤현</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="479.17407"
+     y="146.76566"
+     id="text4611-9-4-9-6"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="479.17407"
+       y="146.76566"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-6">작전</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="479.34415"
+     y="184.33629"
+     id="text4611-9-4-9-5"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="479.34415"
+       y="184.33629"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-1">갈산</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="488.32373"
+     y="265.30746"
+     id="text4611-9-4-9-9"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="488.32373"
+       y="265.30746"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-58">부평시장</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="478.58304"
+     y="346.27866"
+     id="text4611-9-4-9-1"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="478.58304"
+       y="346.27866"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-77">동수</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="496.15369"
+     y="386.44037"
+     id="text4611-9-4-9-4"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="496.15369"
+       y="386.44037"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-8">부평삼거리</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="497.90271"
+     y="427.89764"
+     id="text4611-9-4-9-7"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="497.90271"
+       y="427.89764"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-0">간석오거리</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="486.89063"
+     y="506.27774"
+     id="text4611-9-4-9-78"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="486.89063"
+       y="506.27774"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-17">예술회관</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="493.33582"
+     y="534.7796"
+     id="text4611-9-4-9-88"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="493.33582"
+       y="534.7796"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-13">인천터미널</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="496.40454"
+     y="567.16809"
+     id="text4611-9-4-9-2"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="496.40454"
+       y="567.16809"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-89">문학경기장</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="480.46964"
+     y="600.20435"
+     id="text4611-9-4-9-888"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="480.46964"
+       y="600.20435"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-133">선학</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="458.55887"
+     y="640.36609"
+     id="text4611-9-4-9-67"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="458.55887"
+       y="640.36609"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-131">신연수</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-341.00696"
+     y="610.76929"
+     id="text4611-9-4-9-47"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-341.00696"
+       y="610.76929"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-49">동춘</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-360.05087"
+     y="575.95135"
+     id="text4611-9-4-9-49"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-360.05087"
+       y="575.95135"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-10">동막</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-365.60938"
+     y="540.14093"
+     id="text4611-9-4-9-99"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-365.60938"
+       y="540.14093"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-43">캠퍼스타운</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-388.08374"
+     y="501.36667"
+     id="text4611-9-4-9-48"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-388.08374"
+       y="501.36667"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-2">테크노파크</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-405.25833"
+     y="459.74219"
+     id="text4611-9-4-9-72"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-405.25833"
+       y="459.74219"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-9">지식정보단지</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-432.94162"
+     y="422.67303"
+     id="text4611-9-4-9-10"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-432.94162"
+       y="422.67303"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-09">인천대입구</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-457.90027"
+     y="375.73874"
+     id="text4611-9-4-9-63"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.50000002,-0.86602539,0.86602539,0.50000002,0,0)"><tspan
+       sodipodi:role="line"
+       x="-457.90027"
+       y="375.73874"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-45">센트럴파크</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-502.43579"
+     y="288.3934"
+     id="text4611-9-4-9-45"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.42261828,-0.90630778,0.90630778,0.42261828,0,0)"><tspan
+       sodipodi:role="line"
+       x="-502.43579"
+       y="288.3934"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan5213">국제업무지구</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="630.72797"
+     y="641.60486"
+     id="text4611-9-4-9-26"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="630.72797"
+       y="641.60486"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#3771c8;fill-opacity:1"
+       id="tspan4989-1-37">인천 1호선</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="599.42944"
+     y="670.26227"
+     id="text4611-2-8"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="599.42944"
+       y="670.26227"
+       id="tspan4615-48-3"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#aa4400">인천 2 호선</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:11.25px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#803300;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="719.94611"
+     y="489.59131"
+     id="text4611-2-1"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       x="719.94611"
+       y="489.59131"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan5287">운연</tspan><tspan
+       sodipodi:role="line"
+       x="719.94611"
+       y="503.65381"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#aa4400"
+       id="tspan6818">(서창)</tspan></text>
+  <ellipse
+     style="fill:#ed8b00;fill-opacity:1;stroke:#ed8b00;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path4153-53-4-9"
+     cx="419.75464"
+     cy="467.68958"
+     rx="5.506041"
+     ry="5.8299255" />
+</svg>

@@ -1,0 +1,8 @@
+STATUS: HIT_COMMUNITY
+source_url: https://upload.wikimedia.org/wikipedia/commons/4/46/Tabriz-Line1.jpg
+commons: File:Tabriz-Line1.jpg
+path: data/metro/maps/_staging_2026-07-25/as-iri-tabriz/Tabriz_Line1_schematic.png
+license: CC BY-SA 4.0
+author: Ziraksima
+MD5: 30b1662d506be14fb3a3fe64d25053d7
+why: Commons Line-1-only bilingual strip schematic (El Goli–Noor). Avoids official system map that draws unopened Lines 2–5 solid.

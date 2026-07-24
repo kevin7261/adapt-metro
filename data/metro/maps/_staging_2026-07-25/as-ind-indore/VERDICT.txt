@@ -1,0 +1,8 @@
+STATUS: HIT_COMMUNITY
+source_url: https://upload.wikimedia.org/wikipedia/commons/3/33/Indore_Metro.png
+commons: File:Indore Metro.png
+path: data/metro/maps/_staging_2026-07-25/as-ind-indore/Indore_Metro.png
+license: CC BY-SA 4.0
+author: Dilip kabiraj
+MD5: bdefef3a91ea3b2a3e0f6bbb06c5eddc
+why: Commons passenger schematic of Yellow Line; solid=operating (5 stations), dashed=under construction. Not alignment/construction map.

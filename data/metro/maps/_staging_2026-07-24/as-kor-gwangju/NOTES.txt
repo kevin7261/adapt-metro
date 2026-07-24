@@ -1,0 +1,4 @@
+REJECT — Only official Line 2 construction/planning geographic map found:
+https://www.gwangju.go.kr/home/build/images/sub/subwaymap_line2.jpg
+(and download button subwaymap_line2_down.png). Line 1 has no static schematic on
+grtc.co.kr (interactive only) or city site — previous planning reject stands.

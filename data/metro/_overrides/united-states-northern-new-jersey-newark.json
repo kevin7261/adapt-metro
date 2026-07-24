@@ -1,0 +1,19 @@
+{
+  "city": "Northern New Jersey (Newark",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    1378219,
+    1380716,
+    1468867,
+    2634557,
+    7943864,
+    9821042,
+    9821064,
+    9997058,
+    11269264,
+    11269265
+  ],
+  "source": "https://www.urbanrail.net/am/nj/new-jersey.htm",
+  "note": "Northern New Jersey (Newark（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,202 @@
+{
+ "_comment": "wiki 裁決「非營運中」的站點（預留未開通/封站改造/停運施工），build 站源拒收（同墓碑語義）。上游改為營運後應移除該筆。",
+ "excludes": [
+  {
+   "id": "n9382082818",
+   "city": "Shanghai",
+   "name": "龙居路",
+   "note": "14號線預留站，因徵地未開通（zh/en wiki 2026-07-11）",
+   "names": [
+    "龙居路",
+    "Longju Road"
+   ],
+   "lon": 121.5547,
+   "lat": 31.25947
+  },
+  {
+   "id": "n3369001423",
+   "city": "Beijing",
+   "name": "红庙",
+   "note": "14號線預留站未開通（wiki 33 營運站不含）",
+   "names": [
+    "红庙",
+    "Hongmiao"
+   ],
+   "lon": 116.47206,
+   "lat": 39.91457
+  },
+  {
+   "id": "n5779214860",
+   "city": "Beijing",
+   "name": "福寿岭",
+   "note": "1號線從未開通的預留站",
+   "names": [
+    "福寿岭",
+    "Fushouling"
+   ],
+   "lon": 116.16494,
+   "lat": 39.93856
+  },
+  {
+   "id": "n6617849506",
+   "city": "Beijing",
+   "name": "八角游乐园",
+   "note": "2025-06 起封站改造至 2027（wiki）",
+   "names": [
+    "八角游乐园",
+    "Bajiao Amusement Park"
+   ],
+   "lon": 116.20649,
+   "lat": 39.90615
+  },
+  {
+   "id": "n6669929054",
+   "city": "Chengdu",
+   "name": "天府机场3号4号航站楼",
+   "note": "18號線預留站未開通（zh wiki 明載）",
+   "names": [
+    "天府机场3号4号航站楼",
+    "Terminal 3 & 4 of Tianfu International Airport"
+   ],
+   "lon": 104.43256,
+   "lat": 30.29421
+  },
+  {
+   "id": "n3316038284",
+   "city": "Chengdu",
+   "name": "大面铺",
+   "note": "2號線東段 2025-12-20 起停運改線施工（zh wiki）",
+   "names": [
+    "大面铺",
+    "Damianpu"
+   ],
+   "lon": 104.19894,
+   "lat": 30.595
+  },
+  {
+   "id": "n3316038311",
+   "city": "Chengdu",
+   "name": "连山坡",
+   "note": "同上",
+   "names": [
+    "连山坡",
+    "Lianshanpo"
+   ],
+   "lon": 104.21048,
+   "lat": 30.59014
+  },
+  {
+   "id": "n3316038285",
+   "city": "Chengdu",
+   "name": "界牌",
+   "note": "同上",
+   "names": [
+    "界牌",
+    "Jiepai"
+   ],
+   "lon": 104.22285,
+   "lat": 30.58536
+  },
+  {
+   "id": "n3316038283",
+   "city": "Chengdu",
+   "name": "书房",
+   "note": "同上",
+   "names": [
+    "书房",
+    "Shufang"
+   ],
+   "lon": 104.23973,
+   "lat": 30.57816
+  },
+  {
+   "id": "n3309162963",
+   "city": "Chengdu",
+   "name": "龙平路",
+   "note": "同上",
+   "names": [
+    "龙平路",
+    "Longping Road"
+   ],
+   "lon": 104.25652,
+   "lat": 30.57553
+  },
+  {
+   "id": "n3316038313",
+   "city": "Chengdu",
+   "name": "龙泉驿",
+   "note": "同上",
+   "names": [
+    "龙泉驿",
+    "Longquanyi"
+   ],
+   "lon": 104.26594,
+   "lat": 30.5629
+  },
+  {
+   "id": "n10727310952",
+   "city": "Chongqing",
+   "name": "玉河沟",
+   "note": "5號線加站，wiki 現載尚未投入營運",
+   "names": [
+    "玉河沟",
+    "Yuhegou"
+   ],
+   "lon": 106.56552,
+   "lat": 29.69698
+  },
+  {
+   "city": "Shaoxing",
+   "name": "张墅",
+   "lon": 120.5496,
+   "lat": 30.0555,
+   "names": [
+    "张墅",
+    "Zhangshu"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Suzhou",
+   "name": "白荡南",
+   "lon": 120.64701,
+   "lat": 31.3571,
+   "names": [
+    "白荡南"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Tianjin",
+   "name": "咸水沽北",
+   "lon": 117.41417,
+   "lat": 39.00843,
+   "names": [
+    "咸水沽北",
+    "Xianshuigubei"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Zhengzhou",
+   "name": "须水",
+   "lon": 113.51569,
+   "lat": 34.77555,
+   "names": [
+    "须水",
+    "Xushui"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  },
+  {
+   "city": "Pune",
+   "name": "Range Hills",
+   "lon": 73.84581,
+   "lat": 18.55029,
+   "names": [
+    "Range Hills"
+   ],
+   "note": "暫緩/預留未開通（agent wiki 查證 2026-07-11）"
+  }
+ ]
+}

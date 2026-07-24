@@ -1,0 +1,4226 @@
+{
+  "generated_at": "2026-07-21T20:26:55.192Z",
+  "bbox": [
+    139.56,
+    35.54,
+    140.42,
+    35.84
+  ],
+  "note": "東京主要私鐵（route=train，operator 過濾）→ buildCombinedSystems 併入 as-jpn-tokyo-rail",
+  "lines": [
+    {
+      "routeId": "tokyopriv-r3304256",
+      "opk": "Tokyo",
+      "ref": "R",
+      "name": "りんかい線",
+      "nameLocal": "りんかい線",
+      "nameEn": "Rinkai Line",
+      "color": "#2d3087",
+      "network": "りんかい線",
+      "networkLocal": "Tokyo Waterfront Area Rapid Transit",
+      "operator": "Tokyo Waterfront Area Rapid Transit",
+      "wikidata": "Q225095",
+      "wikipedia": "en:Rinkai Line",
+      "osmIds": [
+        3304256
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n1950768183",
+          "name": "新木場",
+          "nameLocal": "新木場",
+          "nameEn": "Shin-kiba",
+          "code": "R01",
+          "coord": [
+            139.8272975,
+            35.6461142
+          ]
+        },
+        {
+          "id": "n1950765321",
+          "name": "東雲",
+          "nameLocal": "東雲",
+          "nameEn": "Shinonome",
+          "code": "R02",
+          "coord": [
+            139.8036324,
+            35.6407163
+          ]
+        },
+        {
+          "id": "n1063379042",
+          "name": "国際展示場",
+          "nameLocal": "国際展示場",
+          "nameEn": "Kokusai-tenjijo",
+          "code": "R03",
+          "coord": [
+            139.7917707,
+            35.6344187
+          ]
+        },
+        {
+          "id": "n1742285574",
+          "name": "東京テレポート",
+          "nameLocal": "東京テレポート",
+          "nameEn": "Tokyo Teleport",
+          "code": null,
+          "coord": [
+            139.7781004,
+            35.6270704
+          ]
+        },
+        {
+          "id": "n1742285572",
+          "name": "天王洲アイル",
+          "nameLocal": "天王洲アイル",
+          "nameEn": "Tennozu Isle",
+          "code": "R05",
+          "coord": [
+            139.7509101,
+            35.6205791
+          ]
+        },
+        {
+          "id": "n1742285570",
+          "name": "品川シーサイド",
+          "nameLocal": "品川シーサイド",
+          "nameEn": "Shinagawa Seaside",
+          "code": "R06",
+          "coord": [
+            139.7499067,
+            35.6097164
+          ]
+        },
+        {
+          "id": "n1742285571",
+          "name": "大井町",
+          "nameLocal": "大井町",
+          "nameEn": "Oimachi",
+          "code": null,
+          "coord": [
+            139.7344023,
+            35.6074205
+          ]
+        },
+        {
+          "id": "n3406728237",
+          "name": "大崎",
+          "nameLocal": "大崎",
+          "nameEn": "Osaki",
+          "code": "JA08;R08",
+          "coord": [
+            139.7282629,
+            35.6192833
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3336658",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 京成本線",
+      "nameLocal": "京成電鉄 京成本線",
+      "nameEn": "Keisei Main Line",
+      "color": "#005aaa",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q1063675",
+      "wikipedia": "ja:京成本線",
+      "osmIds": [
+        3336658
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n7858255371",
+          "name": "成田空港",
+          "nameLocal": "成田空港",
+          "nameEn": "Narita Airport Terminal",
+          "code": "KS42",
+          "coord": [
+            140.3857872,
+            35.7653577
+          ]
+        },
+        {
+          "id": "n7858346610",
+          "name": "空港第2ビル",
+          "nameLocal": "空港第2ビル",
+          "nameEn": "Narita Airport Terminal 2·",
+          "code": "KS41",
+          "coord": [
+            140.3872202,
+            35.7732538
+          ]
+        },
+        {
+          "id": "n7858255375",
+          "name": "京成成田",
+          "nameLocal": "京成成田",
+          "nameEn": "Keisei-Narita",
+          "code": "KS40",
+          "coord": [
+            140.3156259,
+            35.7763281
+          ]
+        },
+        {
+          "id": "n7858025488",
+          "name": "公津の杜",
+          "nameLocal": "公津の杜",
+          "nameEn": "Kozunomori",
+          "code": "KS39",
+          "coord": [
+            140.295276,
+            35.7604672
+          ]
+        },
+        {
+          "id": "n7858255378",
+          "name": "宗吾参道",
+          "nameLocal": "宗吾参道",
+          "nameEn": "Sogosando",
+          "code": "KS38",
+          "coord": [
+            140.2810201,
+            35.7526291
+          ]
+        },
+        {
+          "id": "n7858255380",
+          "name": "京成酒々井",
+          "nameLocal": "京成酒々井",
+          "nameEn": "Keisei-Shisui",
+          "code": "KS37",
+          "coord": [
+            140.2700606,
+            35.7367885
+          ]
+        },
+        {
+          "id": "n7858255382",
+          "name": "大佐倉",
+          "nameLocal": "大佐倉",
+          "nameEn": "Osakura",
+          "code": "KS36",
+          "coord": [
+            140.2511054,
+            35.7300635
+          ]
+        },
+        {
+          "id": "n7858182734",
+          "name": "京成佐倉",
+          "nameLocal": "京成佐倉",
+          "nameEn": "Keisei-Sakura",
+          "code": "KS35",
+          "coord": [
+            140.2297222,
+            35.7251714
+          ]
+        },
+        {
+          "id": "n7858182737",
+          "name": "京成臼井",
+          "nameLocal": "京成臼井",
+          "nameEn": "Keisei-Usui",
+          "code": "KS34",
+          "coord": [
+            140.1807658,
+            35.7299377
+          ]
+        },
+        {
+          "id": "n7858182740",
+          "name": "ユーカリが丘",
+          "nameLocal": "ユーカリが丘",
+          "nameEn": "Yukarigaoka",
+          "code": "KS33",
+          "coord": [
+            140.1563812,
+            35.7217146
+          ]
+        },
+        {
+          "id": "n7858182742",
+          "name": "志津",
+          "nameLocal": "志津",
+          "nameEn": "Shizu",
+          "code": "KS32",
+          "coord": [
+            140.1449771,
+            35.7174387
+          ]
+        },
+        {
+          "id": "n7858182744",
+          "name": "勝田台",
+          "nameLocal": "勝田台",
+          "nameEn": "Katsutadai",
+          "code": "KS31",
+          "coord": [
+            140.1260488,
+            35.7154417
+          ]
+        },
+        {
+          "id": "n172704865",
+          "name": "京成大和田",
+          "nameLocal": "京成大和田",
+          "nameEn": "Keisei-Owada",
+          "code": "KS30",
+          "coord": [
+            140.1087147,
+            35.7123582
+          ]
+        },
+        {
+          "id": "n7858159329",
+          "name": "八千代台",
+          "nameLocal": "八千代台",
+          "nameEn": "Yachiyodai",
+          "code": "KS29",
+          "coord": [
+            140.0906288,
+            35.7012475
+          ]
+        },
+        {
+          "id": "n7858159332",
+          "name": "実籾",
+          "nameLocal": "実籾",
+          "nameEn": "Mimomi",
+          "code": "KS28",
+          "coord": [
+            140.0684215,
+            35.686889
+          ]
+        },
+        {
+          "id": "n7858158402",
+          "name": "京成大久保",
+          "nameLocal": "京成大久保",
+          "nameEn": "Keisei-Okubo",
+          "code": "KS27",
+          "coord": [
+            140.0481815,
+            35.6859407
+          ]
+        },
+        {
+          "id": "n3276703423",
+          "name": "京成津田沼",
+          "nameLocal": "京成津田沼",
+          "nameEn": "Keisei Tsudanuma",
+          "code": "KS26",
+          "coord": [
+            140.0248061,
+            35.6835498
+          ]
+        },
+        {
+          "id": "n7858158404",
+          "name": "谷津",
+          "nameLocal": "谷津",
+          "nameEn": "Yatsu",
+          "code": "KS25",
+          "coord": [
+            140.0075327,
+            35.6852523
+          ]
+        },
+        {
+          "id": "n7858158407",
+          "name": "船橋競馬場",
+          "nameLocal": "船橋競馬場",
+          "nameEn": "Funabashi-Keibajo",
+          "code": "KS24",
+          "coord": [
+            139.997925,
+            35.6897793
+          ]
+        },
+        {
+          "id": "n1697486325",
+          "name": "大神宮下",
+          "nameLocal": "大神宮下",
+          "nameEn": "Daijingu-Shita",
+          "code": "KS23",
+          "coord": [
+            139.9912263,
+            35.6942902
+          ]
+        },
+        {
+          "id": "n7858159186",
+          "name": "京成船橋",
+          "nameLocal": "京成船橋",
+          "nameEn": "Keisei Funabashi",
+          "code": "KS22",
+          "coord": [
+            139.9856425,
+            35.7002123
+          ]
+        },
+        {
+          "id": "n7858159188",
+          "name": "海神",
+          "nameLocal": "海神",
+          "nameEn": "Kaijin",
+          "code": "KS21",
+          "coord": [
+            139.972086,
+            35.705748
+          ]
+        },
+        {
+          "id": "n7858142413",
+          "name": "京成西船",
+          "nameLocal": "京成西船",
+          "nameEn": "Keisei Nishifuna",
+          "code": "KS20",
+          "coord": [
+            139.9589726,
+            35.7116371
+          ]
+        },
+        {
+          "id": "n7858142415",
+          "name": "東中山",
+          "nameLocal": "東中山",
+          "nameEn": "Higashi-Nakayama",
+          "code": "KS19",
+          "coord": [
+            139.9525876,
+            35.7144596
+          ]
+        },
+        {
+          "id": "n7832712310",
+          "name": "京成中山",
+          "nameLocal": "京成中山",
+          "nameEn": "Keisei-Nakayama",
+          "code": "KS18",
+          "coord": [
+            139.9447207,
+            35.7168562
+          ]
+        },
+        {
+          "id": "n1927034774",
+          "name": "鬼越",
+          "nameLocal": "鬼越",
+          "nameEn": "Onigoe",
+          "code": "KS17",
+          "coord": [
+            139.9375351,
+            35.7199251
+          ]
+        },
+        {
+          "id": "n7832712312",
+          "name": "京成八幡",
+          "nameLocal": "京成八幡",
+          "nameEn": "Keisei Yawata",
+          "code": "KS16",
+          "coord": [
+            139.9280099,
+            35.7238872
+          ]
+        },
+        {
+          "id": "n7858116082",
+          "name": "菅野",
+          "nameLocal": "菅野",
+          "nameEn": "Sugano",
+          "code": "KS15",
+          "coord": [
+            139.9193034,
+            35.7283036
+          ]
+        },
+        {
+          "id": "n4557424775",
+          "name": "市川真間",
+          "nameLocal": "市川真間",
+          "nameEn": "Ichikawamama",
+          "code": "KS14",
+          "coord": [
+            139.9115435,
+            35.7313886
+          ]
+        },
+        {
+          "id": "n1925534724",
+          "name": "国府台",
+          "nameLocal": "国府台",
+          "nameEn": "Konodai",
+          "code": "KS13",
+          "coord": [
+            139.9025039,
+            35.736405
+          ]
+        },
+        {
+          "id": "n1925534589",
+          "name": "江戸川",
+          "nameLocal": "江戸川",
+          "nameEn": "Edogawa",
+          "code": "KS12",
+          "coord": [
+            139.8958708,
+            35.7377414
+          ]
+        },
+        {
+          "id": "n3877438575",
+          "name": "京成小岩",
+          "nameLocal": "京成小岩",
+          "nameEn": "Keisei Koiwa",
+          "code": "KS11",
+          "coord": [
+            139.8833372,
+            35.7424015
+          ]
+        },
+        {
+          "id": "n6451014010",
+          "name": "京成高砂",
+          "nameLocal": "京成高砂",
+          "nameEn": "Keisei Takasago",
+          "code": null,
+          "coord": [
+            139.8671246,
+            35.7509218
+          ]
+        },
+        {
+          "id": "n7858131590",
+          "name": "青砥",
+          "nameLocal": "青砥",
+          "nameEn": "Aoto",
+          "code": "KS09",
+          "coord": [
+            139.856014,
+            35.7455882
+          ]
+        },
+        {
+          "id": "n7857922510",
+          "name": "お花茶屋",
+          "nameLocal": "お花茶屋",
+          "nameEn": "Ohanajaya",
+          "code": "KS08",
+          "coord": [
+            139.840136,
+            35.7475735
+          ]
+        },
+        {
+          "id": "n2543426332",
+          "name": "堀切菖蒲園",
+          "nameLocal": "堀切菖蒲園",
+          "nameEn": "Horikirishobuen",
+          "code": "KS07",
+          "coord": [
+            139.8274828,
+            35.7476602
+          ]
+        },
+        {
+          "id": "n2543426535",
+          "name": "京成関屋",
+          "nameLocal": "京成関屋",
+          "nameEn": "Keisei Sekiya",
+          "code": "KS06",
+          "coord": [
+            139.8117769,
+            35.7439777
+          ]
+        },
+        {
+          "id": "n7857922512",
+          "name": "千住大橋",
+          "nameLocal": "千住大橋",
+          "nameEn": "Senjuohashi",
+          "code": "KS05",
+          "coord": [
+            139.7968103,
+            35.7424065
+          ]
+        },
+        {
+          "id": "n7857922515",
+          "name": "町屋",
+          "nameLocal": "町屋",
+          "nameEn": "Machiya",
+          "code": "KS04",
+          "coord": [
+            139.7814922,
+            35.7422628
+          ]
+        },
+        {
+          "id": "n2543426557",
+          "name": "新三河島",
+          "nameLocal": "新三河島",
+          "nameEn": "Shim-Mikawashima",
+          "code": "KS03",
+          "coord": [
+            139.7739836,
+            35.7371829
+          ]
+        },
+        {
+          "id": "n7040886157",
+          "name": "日暮里",
+          "nameLocal": "日暮里",
+          "nameEn": "Nippori",
+          "code": "KS02",
+          "coord": [
+            139.7710029,
+            35.7284053
+          ]
+        },
+        {
+          "id": "n7040850879",
+          "name": "京成上野",
+          "nameLocal": "京成上野",
+          "nameEn": "Keisei-Ueno",
+          "code": "KS01",
+          "coord": [
+            139.7736847,
+            35.7109738
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r2060618",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 千葉線",
+      "nameLocal": "京成電鉄 千葉線",
+      "nameEn": "Keisei Chiba Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q841998",
+      "wikipedia": "ja:京成千葉線",
+      "osmIds": [
+        2060618
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2982996958",
+          "name": "京成津田沼",
+          "nameLocal": "京成津田沼",
+          "nameEn": "Keisei Tsudanuma",
+          "code": "KS26",
+          "coord": [
+            140.0248445,
+            35.6837127
+          ]
+        },
+        {
+          "id": "n9901314517",
+          "name": "京成幕張本郷",
+          "nameLocal": "京成幕張本郷",
+          "nameEn": "Keisei Makuhari-Hongo",
+          "code": "KS52",
+          "coord": [
+            140.0421609,
+            35.6726512
+          ]
+        },
+        {
+          "id": "n243794142",
+          "name": "京成幕張",
+          "nameLocal": "京成幕張",
+          "nameEn": "Keisei Makuhari",
+          "code": "KS53",
+          "coord": [
+            140.0558853,
+            35.6609226
+          ]
+        },
+        {
+          "id": "n9901314523",
+          "name": "検見川",
+          "nameLocal": "検見川",
+          "nameEn": "Kemigawa",
+          "code": "KS54",
+          "coord": [
+            140.0665406,
+            35.652592
+          ]
+        },
+        {
+          "id": "n9901314525",
+          "name": "京成稲毛",
+          "nameLocal": "京成稲毛",
+          "nameEn": "Keisei Inage",
+          "code": "KS55",
+          "coord": [
+            140.0856249,
+            35.6376437
+          ]
+        },
+        {
+          "id": "n9901314527",
+          "name": "みどり台",
+          "nameLocal": "みどり台",
+          "nameEn": "Midoridai",
+          "code": "KS56",
+          "coord": [
+            140.0974793,
+            35.6249766
+          ]
+        },
+        {
+          "id": "n9901314529",
+          "name": "西登戸",
+          "nameLocal": "西登戸",
+          "nameEn": "Nishi-Nobuto",
+          "code": "KS57",
+          "coord": [
+            140.1029454,
+            35.6174677
+          ]
+        },
+        {
+          "id": "n9916327145",
+          "name": "新千葉",
+          "nameLocal": "新千葉",
+          "nameEn": "Shin-Chiba",
+          "code": "KS58",
+          "coord": [
+            140.1084318,
+            35.6124772
+          ]
+        },
+        {
+          "id": "n1986866031",
+          "name": "京成千葉",
+          "nameLocal": "京成千葉",
+          "nameEn": "Keisei Chiba",
+          "code": "KS59",
+          "coord": [
+            140.1142993,
+            35.6116826
+          ]
+        },
+        {
+          "id": "n2982996957",
+          "name": "千葉中央",
+          "nameLocal": "千葉中央",
+          "nameEn": "Chiba-Chuo",
+          "code": "KS60",
+          "coord": [
+            140.1178546,
+            35.6073315
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3338455",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 押上線",
+      "nameLocal": "京成電鉄 押上線",
+      "nameEn": "Keisei Oshiage Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q841584",
+      "wikipedia": "ja:京成押上線",
+      "osmIds": [
+        3338455
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n7858131589",
+          "name": "青砥",
+          "nameLocal": "青砥",
+          "nameEn": "Aoto",
+          "code": "KS09",
+          "coord": [
+            139.8560985,
+            35.7455506
+          ]
+        },
+        {
+          "id": "n7913372085",
+          "name": "京成立石",
+          "nameLocal": "京成立石",
+          "nameEn": "Keisei Tateishi",
+          "code": "KS49",
+          "coord": [
+            139.8480733,
+            35.7381737
+          ]
+        },
+        {
+          "id": "n2545151254",
+          "name": "四ツ木",
+          "nameLocal": "四ツ木",
+          "nameEn": "Yotsugi",
+          "code": "KS48",
+          "coord": [
+            139.8348682,
+            35.7317266
+          ]
+        },
+        {
+          "id": "n339081983",
+          "name": "八広",
+          "nameLocal": "八広",
+          "nameEn": "Yahiro",
+          "code": "KS47",
+          "coord": [
+            139.8283189,
+            35.7271257
+          ]
+        },
+        {
+          "id": "n6452649496",
+          "name": "京成曳舟",
+          "nameLocal": "京成曳舟",
+          "nameEn": "Keisei Hikifune",
+          "code": null,
+          "coord": [
+            139.8197878,
+            35.7182079
+          ]
+        },
+        {
+          "id": "n7913290529",
+          "name": "押上〈スカイツリー前〉",
+          "nameLocal": "押上〈スカイツリー前〉",
+          "nameEn": "Oshiage 'SKYTREE'",
+          "code": "KS45",
+          "coord": [
+            139.8128762,
+            35.7106417
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r1927482",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 金町線",
+      "nameLocal": "京成電鉄 金町線",
+      "nameEn": "Keisei Kanamachi Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q4490874",
+      "wikipedia": "ja:京成金町線",
+      "osmIds": [
+        1927482
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n769422111",
+          "name": "京成金町",
+          "nameLocal": "京成金町",
+          "nameEn": "Keisei Kanamachi",
+          "code": "KS51",
+          "coord": [
+            139.8703595,
+            35.7685573
+          ]
+        },
+        {
+          "id": "n7961273908",
+          "name": "柴又",
+          "nameLocal": "柴又",
+          "nameEn": "Shibamata",
+          "code": "KS50",
+          "coord": [
+            139.8752152,
+            35.756448
+          ]
+        },
+        {
+          "id": "n6451022047",
+          "name": "京成高砂",
+          "nameLocal": "京成高砂",
+          "nameEn": "Keisei Takasago",
+          "code": null,
+          "coord": [
+            139.8681224,
+            35.75101
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3347989",
+      "opk": "京成",
+      "ref": "KS",
+      "name": "京成電鉄 東成田線",
+      "nameLocal": "京成電鉄 東成田線",
+      "nameEn": "Keisei Higashi-Narita Line",
+      "color": "#0000cd",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": "Q4492924",
+      "wikipedia": "ja:京成東成田線",
+      "osmIds": [
+        3347989
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2543426468",
+          "name": "京成成田",
+          "nameLocal": "京成成田",
+          "nameEn": "Keisei-Narita",
+          "code": "KS40",
+          "coord": [
+            140.3154742,
+            35.7764723
+          ]
+        },
+        {
+          "id": "n7961261831",
+          "name": "東成田",
+          "nameLocal": "東成田",
+          "nameEn": "Higashi-Narita",
+          "code": "KS44",
+          "coord": [
+            140.3870535,
+            35.7700406
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r11501094",
+      "opk": "京成",
+      "ref": "SL",
+      "name": "京成松戸線",
+      "nameLocal": "京成松戸線",
+      "nameEn": "Keisei Matsudo Line",
+      "color": "#e95098",
+      "network": "京成電鉄",
+      "networkLocal": "京成電鉄",
+      "operator": "京成電鉄",
+      "wikidata": null,
+      "wikipedia": null,
+      "osmIds": [
+        11501094
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6089167849",
+          "name": "松戸",
+          "nameLocal": "松戸",
+          "nameEn": "Matsudo",
+          "code": "KS88",
+          "coord": [
+            139.9009109,
+            35.7844064
+          ]
+        },
+        {
+          "id": "n7962936960",
+          "name": "上本郷",
+          "nameLocal": "上本郷",
+          "nameEn": "Kamihongo",
+          "code": "KS87",
+          "coord": [
+            139.9162095,
+            35.7897078
+          ]
+        },
+        {
+          "id": "n7962936958",
+          "name": "松戸新田",
+          "nameLocal": "松戸新田",
+          "nameEn": "Matsudo-Shinden",
+          "code": "KS86",
+          "coord": [
+            139.9226207,
+            35.7906384
+          ]
+        },
+        {
+          "id": "n7962936956",
+          "name": "みのり台",
+          "nameLocal": "みのり台",
+          "nameEn": "Minoridai",
+          "code": "KS85",
+          "coord": [
+            139.9291901,
+            35.7893151
+          ]
+        },
+        {
+          "id": "n7962936954",
+          "name": "八柱",
+          "nameLocal": "八柱",
+          "nameEn": "Yabashira",
+          "code": "KS84",
+          "coord": [
+            139.9375961,
+            35.7916197
+          ]
+        },
+        {
+          "id": "n7962936952",
+          "name": "常盤平",
+          "nameLocal": "常盤平",
+          "nameEn": "Tokiwadaira",
+          "code": "KS83",
+          "coord": [
+            139.9500952,
+            35.8034104
+          ]
+        },
+        {
+          "id": "n7962936950",
+          "name": "五香",
+          "nameLocal": "五香",
+          "nameEn": "Goko",
+          "code": "KS82",
+          "coord": [
+            139.9659833,
+            35.7969961
+          ]
+        },
+        {
+          "id": "n7962936948",
+          "name": "元山",
+          "nameLocal": "元山",
+          "nameEn": "Motoyama",
+          "code": "KS81",
+          "coord": [
+            139.9757961,
+            35.7902669
+          ]
+        },
+        {
+          "id": "n7962936946",
+          "name": "くぬぎ山",
+          "nameLocal": "くぬぎ山",
+          "nameEn": "Kunugiyama",
+          "code": "KS80",
+          "coord": [
+            139.975772,
+            35.7822795
+          ]
+        },
+        {
+          "id": "n7962936944",
+          "name": "北初富",
+          "nameLocal": "北初富",
+          "nameEn": "Kita-hatsutomi",
+          "code": "KS79",
+          "coord": [
+            139.9916191,
+            35.77718
+          ]
+        },
+        {
+          "id": "n7962936942",
+          "name": "新鎌ヶ谷",
+          "nameLocal": "新鎌ヶ谷",
+          "nameEn": "Shin-kamagaya",
+          "code": "KS78",
+          "coord": [
+            139.9985057,
+            35.7793441
+          ]
+        },
+        {
+          "id": "n2467338945",
+          "name": "初富",
+          "nameLocal": "初富",
+          "nameEn": "Hatsutomi",
+          "code": "KS77",
+          "coord": [
+            140.0006173,
+            35.7721896
+          ]
+        },
+        {
+          "id": "n7962936938",
+          "name": "鎌ヶ谷大仏",
+          "nameLocal": "鎌ヶ谷大仏",
+          "nameEn": "Kamagayadaibutsu",
+          "code": "KS76",
+          "coord": [
+            140.0138587,
+            35.7579571
+          ]
+        },
+        {
+          "id": "n7962936936",
+          "name": "二和向台",
+          "nameLocal": "二和向台",
+          "nameEn": "Futawamukodai",
+          "code": "KS75",
+          "coord": [
+            140.0235809,
+            35.7539666
+          ]
+        },
+        {
+          "id": "n7962936934",
+          "name": "三咲",
+          "nameLocal": "三咲",
+          "nameEn": "Misaki",
+          "code": "KS74",
+          "coord": [
+            140.0285431,
+            35.7490782
+          ]
+        },
+        {
+          "id": "n245519436",
+          "name": "滝不動",
+          "nameLocal": "滝不動",
+          "nameEn": "Takifudo",
+          "code": "KS73",
+          "coord": [
+            140.0260084,
+            35.7377089
+          ]
+        },
+        {
+          "id": "n7962936931",
+          "name": "高根公団",
+          "nameLocal": "高根公団",
+          "nameEn": "Takanekodan",
+          "code": "KS72",
+          "coord": [
+            140.0297018,
+            35.7302687
+          ]
+        },
+        {
+          "id": "n7962936962",
+          "name": "高根木戸",
+          "nameLocal": "高根木戸",
+          "nameEn": "Takanekido",
+          "code": "KS71",
+          "coord": [
+            140.0348228,
+            35.7267566
+          ]
+        },
+        {
+          "id": "n6286901529",
+          "name": "北習志野",
+          "nameLocal": "北習志野",
+          "nameEn": null,
+          "code": "KS70",
+          "coord": [
+            140.0420401,
+            35.7214941
+          ]
+        },
+        {
+          "id": "n2650130430",
+          "name": "習志野",
+          "nameLocal": "習志野",
+          "nameEn": "Narashino",
+          "code": "KS69",
+          "coord": [
+            140.0427376,
+            35.7151508
+          ]
+        },
+        {
+          "id": "n245519813",
+          "name": "薬園台",
+          "nameLocal": "薬園台",
+          "nameEn": "Yakuendai",
+          "code": "KS68",
+          "coord": [
+            140.0379512,
+            35.7101692
+          ]
+        },
+        {
+          "id": "n7962936927",
+          "name": "前原",
+          "nameLocal": "前原",
+          "nameEn": "Maebara",
+          "code": "KS67",
+          "coord": [
+            140.0278518,
+            35.7009366
+          ]
+        },
+        {
+          "id": "n7962936925",
+          "name": "新津田沼",
+          "nameLocal": "新津田沼",
+          "nameEn": "Shin-Tsudanuma",
+          "code": "KS66",
+          "coord": [
+            140.0238278,
+            35.6901774
+          ]
+        },
+        {
+          "id": "n4532112000",
+          "name": "京成津田沼",
+          "nameLocal": "京成津田沼",
+          "nameEn": "Keisei Tsudanuma",
+          "code": "KS26",
+          "coord": [
+            140.0248584,
+            35.6837883
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r1994313",
+      "opk": "京浜急行",
+      "ref": "KK",
+      "name": "京浜急行電鉄本線",
+      "nameLocal": "京浜急行電鉄本線",
+      "nameEn": "Keikyū Main Line",
+      "color": "#888888",
+      "network": "京急電鉄",
+      "networkLocal": "京浜急行電鉄",
+      "operator": "京浜急行電鉄",
+      "wikidata": "Q1063632",
+      "wikipedia": "en:Keikyū Main Line",
+      "osmIds": [
+        1994313
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n7834808029",
+          "name": "六郷土手",
+          "nameLocal": "六郷土手",
+          "nameEn": "Rokugodote",
+          "code": "KK19",
+          "coord": [
+            139.7076543,
+            35.5406676
+          ]
+        },
+        {
+          "id": "n7834719309",
+          "name": "雑色",
+          "nameLocal": "雑色",
+          "nameEn": "Zoshiki",
+          "code": "KK18",
+          "coord": [
+            139.7149573,
+            35.549694
+          ]
+        },
+        {
+          "id": "n256002105",
+          "name": "京急蒲田",
+          "nameLocal": "京急蒲田",
+          "nameEn": "Keikyu Kamata",
+          "code": "KK11",
+          "coord": [
+            139.7240568,
+            35.5613646
+          ]
+        },
+        {
+          "id": "n7834719311",
+          "name": "梅屋敷",
+          "nameLocal": "梅屋敷",
+          "nameEn": "Umeyashiki",
+          "code": "KK10",
+          "coord": [
+            139.7283576,
+            35.5669738
+          ]
+        },
+        {
+          "id": "n7834719313",
+          "name": "大森町",
+          "nameLocal": "大森町",
+          "nameEn": "Omorimachi",
+          "code": "KK09",
+          "coord": [
+            139.7320537,
+            35.572507
+          ]
+        },
+        {
+          "id": "n7834719317",
+          "name": "平和島",
+          "nameLocal": "平和島",
+          "nameEn": "Heiwajima",
+          "code": "KK08",
+          "coord": [
+            139.7349465,
+            35.5787185
+          ]
+        },
+        {
+          "id": "n7834719319",
+          "name": "大森海岸",
+          "nameLocal": "大森海岸",
+          "nameEn": "Ōmorikaigan",
+          "code": "KK07",
+          "coord": [
+            139.7353777,
+            35.5876997
+          ]
+        },
+        {
+          "id": "n7834719320",
+          "name": "立会川",
+          "nameLocal": "立会川",
+          "nameEn": "Tachiaigawa",
+          "code": "KK06",
+          "coord": [
+            139.7389638,
+            35.5987033
+          ]
+        },
+        {
+          "id": "n7856861011",
+          "name": "鮫洲",
+          "nameLocal": "鮫洲",
+          "nameEn": "Samezu",
+          "code": "KK05",
+          "coord": [
+            139.7421817,
+            35.605055
+          ]
+        },
+        {
+          "id": "n7834719325",
+          "name": "青物横丁",
+          "nameLocal": "青物横丁",
+          "nameEn": "Aomono-yokocho",
+          "code": "KK04",
+          "coord": [
+            139.7430548,
+            35.6088685
+          ]
+        },
+        {
+          "id": "n7834575754",
+          "name": "新馬場",
+          "nameLocal": "新馬場",
+          "nameEn": "Shimbamba",
+          "code": "KK-03",
+          "coord": [
+            139.7413577,
+            35.616943
+          ]
+        },
+        {
+          "id": "n2246596008",
+          "name": "北品川",
+          "nameLocal": "北品川",
+          "nameEn": "Kitashinagawa",
+          "code": "KK02",
+          "coord": [
+            139.7392682,
+            35.6223406
+          ]
+        },
+        {
+          "id": "n393082150",
+          "name": "品川",
+          "nameLocal": "品川",
+          "nameEn": "Shinagawa",
+          "code": "KK-01",
+          "coord": [
+            139.7379859,
+            35.6280667
+          ]
+        },
+        {
+          "id": "n263271715",
+          "name": "泉岳寺",
+          "nameLocal": "泉岳寺",
+          "nameEn": "Sengakuji",
+          "code": "A07",
+          "coord": [
+            139.7398984,
+            35.6387045
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3340251",
+      "opk": "京浜急行",
+      "ref": "KK",
+      "name": "京浜急行電鉄空港線",
+      "nameLocal": "京浜急行電鉄空港線",
+      "nameEn": "Keikyū Airport Line",
+      "color": "#888888",
+      "network": "京急電鉄",
+      "networkLocal": "京浜急行電鉄",
+      "operator": "京浜急行電鉄",
+      "wikidata": "Q906807",
+      "wikipedia": "ja:京急空港線",
+      "osmIds": [
+        3340251
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6476086277",
+          "name": "京急蒲田",
+          "nameLocal": "京急蒲田",
+          "nameEn": "Keikyu Kamata",
+          "code": "KK11",
+          "coord": [
+            139.7242378,
+            35.5612988
+          ]
+        },
+        {
+          "id": "n2546879671",
+          "name": "糀谷",
+          "nameLocal": "糀谷",
+          "nameEn": "Kojiya",
+          "code": "KK12",
+          "coord": [
+            139.7294831,
+            35.5547134
+          ]
+        },
+        {
+          "id": "n2649481021",
+          "name": "大鳥居",
+          "nameLocal": "大鳥居",
+          "nameEn": "Otorii",
+          "code": "KK13",
+          "coord": [
+            139.7397097,
+            35.5524778
+          ]
+        },
+        {
+          "id": "n2649481028",
+          "name": "穴守稲荷",
+          "nameLocal": "穴守稲荷",
+          "nameEn": "Anamori-Inari",
+          "code": "KK14",
+          "coord": [
+            139.7467626,
+            35.5503295
+          ]
+        },
+        {
+          "id": "n8132985096",
+          "name": "天空橋",
+          "nameLocal": "天空橋",
+          "nameEn": "Tenkubashi",
+          "code": "KK15",
+          "coord": [
+            139.7547051,
+            35.5481306
+          ]
+        },
+        {
+          "id": "n8132987834",
+          "name": "羽田空港第3ターミナル",
+          "nameLocal": "羽田空港第3ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "KK16",
+          "coord": [
+            139.7670419,
+            35.5450307
+          ]
+        },
+        {
+          "id": "n8132987867",
+          "name": "羽田空港第1・第2ターミナル",
+          "nameLocal": "羽田空港第1・第2ターミナル",
+          "nameEn": "Haneda Airport Terminal 1・",
+          "code": "KK17",
+          "coord": [
+            139.7860523,
+            35.549901
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r10056053",
+      "opk": "京王",
+      "ref": "KO",
+      "name": "京王線",
+      "nameLocal": "京王線",
+      "nameEn": "Keio New Line",
+      "color": "#e50b84",
+      "network": "京王線",
+      "networkLocal": "京王",
+      "operator": "京王",
+      "wikidata": "Q32388",
+      "wikipedia": "ja:京王新線",
+      "osmIds": [
+        10056053
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2251504616",
+          "name": "新宿",
+          "nameLocal": "新宿",
+          "nameEn": "Shinsen-Shinjuku",
+          "code": "S01",
+          "coord": [
+            139.6992018,
+            35.6885497
+          ]
+        },
+        {
+          "id": "n7872741441",
+          "name": "初台",
+          "nameLocal": "初台",
+          "nameEn": "Hatsudai",
+          "code": "KO02",
+          "coord": [
+            139.686886,
+            35.6814141
+          ]
+        },
+        {
+          "id": "n2249611977",
+          "name": "幡ヶ谷",
+          "nameLocal": "幡ヶ谷",
+          "nameEn": "Hatagaya",
+          "code": "KO03",
+          "coord": [
+            139.6767872,
+            35.6771977
+          ]
+        },
+        {
+          "id": "n315864078",
+          "name": "笹塚",
+          "nameLocal": "笹塚",
+          "nameEn": "Sasazuka",
+          "code": "KO04",
+          "coord": [
+            139.6671115,
+            35.673616
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r11602038",
+      "opk": "京王",
+      "ref": "IN",
+      "name": "京王電鉄井の頭線",
+      "nameLocal": "京王電鉄井の頭線",
+      "nameEn": "Keio Inokashira Line",
+      "color": "#083476",
+      "network": "井の頭線系統",
+      "networkLocal": "京王電鉄",
+      "operator": "京王電鉄",
+      "wikidata": "Q1191300",
+      "wikipedia": "ja:京王井の頭線",
+      "osmIds": [
+        11602038
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6219196072",
+          "name": "渋谷",
+          "nameLocal": "渋谷",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.699007,
+            35.6584056
+          ]
+        },
+        {
+          "id": "n3623708933",
+          "name": "神泉",
+          "nameLocal": "神泉",
+          "nameEn": "Shinsen",
+          "code": "IN02",
+          "coord": [
+            139.693332,
+            35.6571884
+          ]
+        },
+        {
+          "id": "n1472702363",
+          "name": "駒場東大前",
+          "nameLocal": "駒場東大前",
+          "nameEn": "Komaba-todaimae",
+          "code": "IN03",
+          "coord": [
+            139.6840735,
+            35.6587073
+          ]
+        },
+        {
+          "id": "n7892696561",
+          "name": "池ノ上",
+          "nameLocal": "池ノ上",
+          "nameEn": "Ikenoue",
+          "code": "IN04",
+          "coord": [
+            139.673304,
+            35.6604137
+          ]
+        },
+        {
+          "id": "n7678131302",
+          "name": "下北沢",
+          "nameLocal": "下北沢",
+          "nameEn": "Shimo-Kitazawa",
+          "code": null,
+          "coord": [
+            139.6670568,
+            35.6615157
+          ]
+        },
+        {
+          "id": "n7892696563",
+          "name": "新代田",
+          "nameLocal": "新代田",
+          "nameEn": "Shindaita",
+          "code": "IN06",
+          "coord": [
+            139.6606128,
+            35.6625826
+          ]
+        },
+        {
+          "id": "n7892696565",
+          "name": "東松原",
+          "nameLocal": "東松原",
+          "nameEn": "Higashi-matsubara",
+          "code": "IN07",
+          "coord": [
+            139.6558508,
+            35.6625951
+          ]
+        },
+        {
+          "id": "n6098947525",
+          "name": "明大前",
+          "nameLocal": "明大前",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.6503634,
+            35.6690878
+          ]
+        },
+        {
+          "id": "n3623712530",
+          "name": "永福町",
+          "nameLocal": "永福町",
+          "nameEn": "Eifukucho",
+          "code": "IN09",
+          "coord": [
+            139.6426181,
+            35.6762478
+          ]
+        },
+        {
+          "id": "n7892696571",
+          "name": "西永福",
+          "nameLocal": "西永福",
+          "nameEn": "Nishi-eifuku",
+          "code": null,
+          "coord": [
+            139.6353132,
+            35.6787762
+          ]
+        },
+        {
+          "id": "n3623712544",
+          "name": "浜田山",
+          "nameLocal": "浜田山",
+          "nameEn": "Hamadayama",
+          "code": "IN11",
+          "coord": [
+            139.6274386,
+            35.6816115
+          ]
+        },
+        {
+          "id": "n3623712566",
+          "name": "高井戸",
+          "nameLocal": "高井戸",
+          "nameEn": "Takaido",
+          "code": "IN12",
+          "coord": [
+            139.6149568,
+            35.6831801
+          ]
+        },
+        {
+          "id": "n6098776270",
+          "name": "富士見ヶ丘",
+          "nameLocal": "富士見ヶ丘",
+          "nameEn": "Fujimigaoka",
+          "code": "IN13",
+          "coord": [
+            139.6073685,
+            35.6846944
+          ]
+        },
+        {
+          "id": "n7892696576",
+          "name": "久我山",
+          "nameLocal": "久我山",
+          "nameEn": "Kugayama",
+          "code": "IN14",
+          "coord": [
+            139.5995653,
+            35.6879309
+          ]
+        },
+        {
+          "id": "n6098778752",
+          "name": "三鷹台",
+          "nameLocal": "三鷹台",
+          "nameEn": "Mitakadai",
+          "code": "IN15",
+          "coord": [
+            139.5890973,
+            35.692157
+          ]
+        },
+        {
+          "id": "n2473039013",
+          "name": "井の頭公園",
+          "nameLocal": "井の頭公園",
+          "nameEn": "Inokashira-koen",
+          "code": "IN16",
+          "coord": [
+            139.5831099,
+            35.6972555
+          ]
+        },
+        {
+          "id": "n2502424663",
+          "name": "吉祥寺",
+          "nameLocal": "吉祥寺",
+          "nameEn": "Kichijōji",
+          "code": "IN17",
+          "coord": [
+            139.5803599,
+            35.7022137
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r11271039",
+      "opk": "京王",
+      "ref": "KO",
+      "name": "京王線",
+      "nameLocal": "京王線",
+      "nameEn": "Keio Railway Keio Line",
+      "color": "#e50b84",
+      "network": "京王",
+      "networkLocal": "京王電鉄",
+      "operator": "京王電鉄",
+      "wikidata": "Q1323112",
+      "wikipedia": "ja:京王線",
+      "osmIds": [
+        11271039
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2390642241",
+          "name": "新宿",
+          "nameLocal": "新宿",
+          "nameEn": "Shinjuku",
+          "code": "KO01",
+          "coord": [
+            139.6991484,
+            35.6904577
+          ]
+        },
+        {
+          "id": "n7683175894",
+          "name": "笹塚",
+          "nameLocal": "笹塚",
+          "nameEn": "Sasazuka",
+          "code": "KO04",
+          "coord": [
+            139.6671649,
+            35.6735243
+          ]
+        },
+        {
+          "id": "n315864096",
+          "name": "代田橋",
+          "nameLocal": "代田橋",
+          "nameEn": "Daitabashi",
+          "code": "KO05",
+          "coord": [
+            139.6594286,
+            35.6710857
+          ]
+        },
+        {
+          "id": "n7682830404",
+          "name": "明大前",
+          "nameLocal": "明大前",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.6504599,
+            35.6683079
+          ]
+        },
+        {
+          "id": "n315864075",
+          "name": "下高井戸",
+          "nameLocal": "下高井戸",
+          "nameEn": "Shimo-takaido",
+          "code": null,
+          "coord": [
+            139.6420504,
+            35.6660765
+          ]
+        },
+        {
+          "id": "n315863791",
+          "name": "桜上水",
+          "nameLocal": "桜上水",
+          "nameEn": "Sakurajosui",
+          "code": "KO08",
+          "coord": [
+            139.6320286,
+            35.6675454
+          ]
+        },
+        {
+          "id": "n315863995",
+          "name": "上北沢",
+          "nameLocal": "上北沢",
+          "nameEn": "Kami-kitazawa",
+          "code": "KO09",
+          "coord": [
+            139.623299,
+            35.6688199
+          ]
+        },
+        {
+          "id": "n7682887598",
+          "name": "八幡山",
+          "nameLocal": "八幡山",
+          "nameEn": null,
+          "code": "KO10",
+          "coord": [
+            139.6156966,
+            35.6698439
+          ]
+        },
+        {
+          "id": "n315863954",
+          "name": "芦花公園",
+          "nameLocal": "芦花公園",
+          "nameEn": "Roka-koen",
+          "code": "KO11",
+          "coord": [
+            139.6086369,
+            35.6706085
+          ]
+        },
+        {
+          "id": "n7682885668",
+          "name": "千歳烏山",
+          "nameLocal": "千歳烏山",
+          "nameEn": "Chitose-karasuyama",
+          "code": null,
+          "coord": [
+            139.6008882,
+            35.667995
+          ]
+        },
+        {
+          "id": "n315863881",
+          "name": "仙川",
+          "nameLocal": "仙川",
+          "nameEn": "Sengawa",
+          "code": "KO13",
+          "coord": [
+            139.5850146,
+            35.6623088
+          ]
+        },
+        {
+          "id": "n315863880",
+          "name": "つつじヶ丘",
+          "nameLocal": "つつじヶ丘",
+          "nameEn": "Tsutsujigaoka",
+          "code": "KO14",
+          "coord": [
+            139.5753341,
+            35.6580925
+          ]
+        },
+        {
+          "id": "n315863809",
+          "name": "柴崎",
+          "nameLocal": "柴崎",
+          "nameEn": "Shibasaki",
+          "code": "KO15",
+          "coord": [
+            139.5670015,
+            35.6542039
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r9483158",
+      "opk": "小田急",
+      "ref": "OH",
+      "name": "小田急電鉄小田原線",
+      "nameLocal": "小田急電鉄小田原線",
+      "nameEn": "Odakyu Odawara Line",
+      "color": "#0d82c7",
+      "network": "小田急電鉄",
+      "networkLocal": "小田急電鉄",
+      "operator": "小田急電鉄",
+      "wikidata": "Q135176",
+      "wikipedia": "ja:小田急小田原線",
+      "osmIds": [
+        9483158
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6281974025",
+          "name": "新宿",
+          "nameLocal": "新宿",
+          "nameEn": "Shinjuku",
+          "code": "OH01",
+          "coord": [
+            139.6996683,
+            35.6899223
+          ]
+        },
+        {
+          "id": "n2466136264",
+          "name": "南新宿",
+          "nameLocal": "南新宿",
+          "nameEn": "Minami-Shinjuku",
+          "code": "OH02",
+          "coord": [
+            139.698871,
+            35.6836942
+          ]
+        },
+        {
+          "id": "n9329770618",
+          "name": "参宮橋",
+          "nameLocal": "参宮橋",
+          "nameEn": "Sangubashi",
+          "code": "OH03",
+          "coord": [
+            139.693694,
+            35.6787314
+          ]
+        },
+        {
+          "id": "n9988033941",
+          "name": "代々木八幡",
+          "nameLocal": "代々木八幡",
+          "nameEn": "Yoyogi-Hachiman",
+          "code": "OH04",
+          "coord": [
+            139.6880925,
+            35.6694223
+          ]
+        },
+        {
+          "id": "n1569749302",
+          "name": "代々木上原",
+          "nameLocal": "代々木上原",
+          "nameEn": "Yoyogi-Uehara",
+          "code": "OH05",
+          "coord": [
+            139.6798647,
+            35.6689144
+          ]
+        },
+        {
+          "id": "n6793632125",
+          "name": "東北沢",
+          "nameLocal": "東北沢",
+          "nameEn": "Higashi-Kitazawa",
+          "code": "OH06",
+          "coord": [
+            139.6725505,
+            35.6650882
+          ]
+        },
+        {
+          "id": "n6793675290",
+          "name": "下北沢",
+          "nameLocal": "下北沢",
+          "nameEn": "Shimo-Kitazawa",
+          "code": "OH07",
+          "coord": [
+            139.6668377,
+            35.6611218
+          ]
+        },
+        {
+          "id": "n6793673430",
+          "name": "世田谷代田",
+          "nameLocal": "世田谷代田",
+          "nameEn": "Setagaya-Daita",
+          "code": "OH08",
+          "coord": [
+            139.661541,
+            35.6582731
+          ]
+        },
+        {
+          "id": "n6793692096",
+          "name": "梅ヶ丘",
+          "nameLocal": "梅ヶ丘",
+          "nameEn": "Umegaoka",
+          "code": "OH09",
+          "coord": [
+            139.6541526,
+            35.6561279
+          ]
+        },
+        {
+          "id": "n6793703209",
+          "name": "豪徳寺",
+          "nameLocal": "豪徳寺",
+          "nameEn": "Gotokuji",
+          "code": "OH10",
+          "coord": [
+            139.6468687,
+            35.6534875
+          ]
+        },
+        {
+          "id": "n6793719332",
+          "name": "経堂",
+          "nameLocal": "経堂",
+          "nameEn": "Kyodo",
+          "code": "OH11",
+          "coord": [
+            139.636733,
+            35.6511595
+          ]
+        },
+        {
+          "id": "n6794025287",
+          "name": "成城学園前",
+          "nameLocal": "成城学園前",
+          "nameEn": "Seijogakuen-mae",
+          "code": "OH14",
+          "coord": [
+            139.5984484,
+            35.6399319
+          ]
+        },
+        {
+          "id": "n2644971737",
+          "name": "登戸",
+          "nameLocal": "登戸",
+          "nameEn": "Noborito",
+          "code": "OH18",
+          "coord": [
+            139.5694019,
+            35.6209011
+          ]
+        },
+        {
+          "id": "n6305527607",
+          "name": "向ヶ丘遊園",
+          "nameLocal": "向ヶ丘遊園",
+          "nameEn": "Mukogaoka-Yuen",
+          "code": "OH19",
+          "coord": [
+            139.5645639,
+            35.6171843
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3417174",
+      "opk": "東京モノレール",
+      "ref": "MO",
+      "name": "東京モノレール羽田空港線",
+      "nameLocal": "東京モノレール羽田空港線",
+      "nameEn": "Tokyo Monorail Local",
+      "color": "#003685",
+      "network": "東京モノレール",
+      "networkLocal": "東京モノレール",
+      "operator": "東京モノレール",
+      "wikidata": "Q8015774",
+      "wikipedia": "ja:東京モノレール羽田空港線",
+      "osmIds": [
+        3417174
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6233258068",
+          "name": "モノレール浜松町",
+          "nameLocal": "モノレール浜松町",
+          "nameEn": "Monorail Hamamatsucho",
+          "code": "MO01",
+          "coord": [
+            139.7567934,
+            35.6555976
+          ]
+        },
+        {
+          "id": "n6233288127",
+          "name": "天王洲アイル",
+          "nameLocal": "天王洲アイル",
+          "nameEn": "Tennozu Isle",
+          "code": "MO02",
+          "coord": [
+            139.7508064,
+            35.6227519
+          ]
+        },
+        {
+          "id": "n6233306620",
+          "name": "大井競馬場前",
+          "nameLocal": "大井競馬場前",
+          "nameEn": "Oikeibajo-Mae",
+          "code": "MO03",
+          "coord": [
+            139.7470745,
+            35.5951293
+          ]
+        },
+        {
+          "id": "n6233228616",
+          "name": "流通センター",
+          "nameLocal": "流通センター",
+          "nameEn": "Ryutsu Center",
+          "code": "MO04",
+          "coord": [
+            139.7491442,
+            35.5816902
+          ]
+        },
+        {
+          "id": "n12628416139",
+          "name": "昭和島",
+          "nameLocal": "昭和島",
+          "nameEn": "Showajima",
+          "code": "MO05",
+          "coord": [
+            139.7500681,
+            35.5707693
+          ]
+        },
+        {
+          "id": "n6233024958",
+          "name": "整備場",
+          "nameLocal": "整備場",
+          "nameEn": "Seibijo",
+          "code": "MO06",
+          "coord": [
+            139.7533778,
+            35.5551633
+          ]
+        },
+        {
+          "id": "n6233024960",
+          "name": "天空橋",
+          "nameLocal": "天空橋",
+          "nameEn": "Tenkubashi",
+          "code": "MO07",
+          "coord": [
+            139.7543945,
+            35.5489899
+          ]
+        },
+        {
+          "id": "n6233196292",
+          "name": "羽田空港第3ターミナル",
+          "nameLocal": "羽田空港第3ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "MO08",
+          "coord": [
+            139.7686676,
+            35.5438943
+          ]
+        },
+        {
+          "id": "n6233025300",
+          "name": "新整備場",
+          "nameLocal": "新整備場",
+          "nameEn": "Shinseibijo",
+          "code": "MO09",
+          "coord": [
+            139.7868127,
+            35.542837
+          ]
+        },
+        {
+          "id": "n6233192379",
+          "name": "羽田空港第1ターミナル",
+          "nameLocal": "羽田空港第1ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "MO10",
+          "coord": [
+            139.7845042,
+            35.5491467
+          ]
+        },
+        {
+          "id": "n6233041642",
+          "name": "羽田空港第2ターミナル",
+          "nameLocal": "羽田空港第2ターミナル",
+          "nameEn": "Haneda Airport Terminal",
+          "code": "MO11",
+          "coord": [
+            139.7882856,
+            35.5508377
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3423146",
+      "opk": "東京都交通局",
+      "ref": "NT",
+      "name": "日暮里・舎人ライナー",
+      "nameLocal": "日暮里・舎人ライナー",
+      "nameEn": "Nippori-Toneri Liner",
+      "color": "#ff69b4",
+      "network": "日暮里・舎人ライナー",
+      "networkLocal": "東京都交通局",
+      "operator": "東京都交通局",
+      "wikidata": "Q910032",
+      "wikipedia": "ja:東京都交通局日暮里・舎人ライナー",
+      "osmIds": [
+        3423146
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6368871712",
+          "name": "日暮里",
+          "nameLocal": "日暮里",
+          "nameEn": "Nippori",
+          "code": "NT01",
+          "coord": [
+            139.7712873,
+            35.7289168
+          ]
+        },
+        {
+          "id": "n6368871734",
+          "name": "西日暮里",
+          "nameLocal": "西日暮里",
+          "nameEn": "Nishi-nippori",
+          "code": "NT02",
+          "coord": [
+            139.7680432,
+            35.7337204
+          ]
+        },
+        {
+          "id": "n722149194",
+          "name": "赤土小学校前",
+          "nameLocal": "赤土小学校前",
+          "nameEn": "Akado-shogakkomae",
+          "code": "NT03",
+          "coord": [
+            139.7689755,
+            35.7428641
+          ]
+        },
+        {
+          "id": "n722149196",
+          "name": "熊野前",
+          "nameLocal": "熊野前",
+          "nameEn": "Kumanomae",
+          "code": "04",
+          "coord": [
+            139.7698041,
+            35.7485037
+          ]
+        },
+        {
+          "id": "n722149198",
+          "name": "足立小台",
+          "nameLocal": "足立小台",
+          "nameEn": "Adachi-odai",
+          "code": "NT-05",
+          "coord": [
+            139.7703354,
+            35.7546723
+          ]
+        },
+        {
+          "id": "n722149200",
+          "name": "扇大橋",
+          "nameLocal": "扇大橋",
+          "nameEn": "Ogi-ohashi",
+          "code": "06",
+          "coord": [
+            139.77078,
+            35.7639817
+          ]
+        },
+        {
+          "id": "n722149203",
+          "name": "高野",
+          "nameLocal": "高野",
+          "nameEn": "Koya",
+          "code": "07",
+          "coord": [
+            139.7706489,
+            35.7684884
+          ]
+        },
+        {
+          "id": "n722149205",
+          "name": "江北",
+          "nameLocal": "江北",
+          "nameEn": "Kohoku",
+          "code": "NT08",
+          "coord": [
+            139.7702593,
+            35.7739596
+          ]
+        },
+        {
+          "id": "n722149207",
+          "name": "西新井大師西",
+          "nameLocal": "西新井大師西",
+          "nameEn": "Nishiaraidaishi-nishi",
+          "code": "09",
+          "coord": [
+            139.7700397,
+            35.7815513
+          ]
+        },
+        {
+          "id": "n722149212",
+          "name": "谷在家",
+          "nameLocal": "谷在家",
+          "nameEn": "Yazaike",
+          "code": "10",
+          "coord": [
+            139.7700116,
+            35.7887166
+          ]
+        },
+        {
+          "id": "n722149216",
+          "name": "舎人公園",
+          "nameLocal": "舎人公園",
+          "nameEn": "Toneri-koen",
+          "code": "11",
+          "coord": [
+            139.7700819,
+            35.7963752
+          ]
+        },
+        {
+          "id": "n722149228",
+          "name": "舎人",
+          "nameLocal": "舎人",
+          "nameEn": "Toneri",
+          "code": "12",
+          "coord": [
+            139.7700797,
+            35.8056467
+          ]
+        },
+        {
+          "id": "n6368880407",
+          "name": "見沼代親水公園",
+          "nameLocal": "見沼代親水公園",
+          "nameEn": "Minumadai-shinsuikoen",
+          "code": "NT13",
+          "coord": [
+            139.7706798,
+            35.8144994
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r404834",
+      "opk": "東急",
+      "ref": "DT",
+      "name": "東急田園都市線",
+      "nameLocal": "東急田園都市線",
+      "nameEn": "Tokyu-Denentoshi Line",
+      "color": "#20a288",
+      "network": "東急電鉄",
+      "networkLocal": "東急電鉄",
+      "operator": "東急電鉄",
+      "wikidata": "Q1190086",
+      "wikipedia": "ja:東急田園都市線",
+      "osmIds": [
+        404834
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n266084657",
+          "name": "鷺沼",
+          "nameLocal": "鷺沼",
+          "nameEn": "Saginuma",
+          "code": null,
+          "coord": [
+            139.572865,
+            35.5794743
+          ]
+        },
+        {
+          "id": "n266084683",
+          "name": "宮前平",
+          "nameLocal": "宮前平",
+          "nameEn": "Miyamaedaira",
+          "code": "DT13",
+          "coord": [
+            139.5822764,
+            35.5850112
+          ]
+        },
+        {
+          "id": "n266084430",
+          "name": "宮崎台",
+          "nameLocal": "宮崎台",
+          "nameEn": "Miyazakidai",
+          "code": "DT12",
+          "coord": [
+            139.5910119,
+            35.5872033
+          ]
+        },
+        {
+          "id": "n6290166707",
+          "name": "梶が谷",
+          "nameLocal": "梶が谷",
+          "nameEn": "Kajigaya",
+          "code": "DT11",
+          "coord": [
+            139.6054668,
+            35.59373
+          ]
+        },
+        {
+          "id": "n6290079047",
+          "name": "溝の口",
+          "nameLocal": "溝の口",
+          "nameEn": "Mizonokuchi",
+          "code": "DT10;OM12",
+          "coord": [
+            139.6104044,
+            35.5999618
+          ]
+        },
+        {
+          "id": "n266083834",
+          "name": "高津",
+          "nameLocal": "高津",
+          "nameEn": "Takatsu",
+          "code": "DT09",
+          "coord": [
+            139.6168516,
+            35.6031872
+          ]
+        },
+        {
+          "id": "n6290166705",
+          "name": "二子新地",
+          "nameLocal": "二子新地",
+          "nameEn": "Futako-shinchi",
+          "code": "DT08",
+          "coord": [
+            139.6225215,
+            35.6071847
+          ]
+        },
+        {
+          "id": "n2574026895",
+          "name": "二子玉川",
+          "nameLocal": "二子玉川",
+          "nameEn": "Futako-tamagawa",
+          "code": "DT08",
+          "coord": [
+            139.6266416,
+            35.6118727
+          ]
+        },
+        {
+          "id": "n7880411992",
+          "name": "用賀",
+          "nameLocal": "用賀",
+          "nameEn": "Yoga",
+          "code": "DT06",
+          "coord": [
+            139.6341713,
+            35.6266331
+          ]
+        },
+        {
+          "id": "n7880412007",
+          "name": "桜新町",
+          "nameLocal": "桜新町",
+          "nameEn": "Sakura-shimmachi",
+          "code": "DT05",
+          "coord": [
+            139.6453614,
+            35.6317434
+          ]
+        },
+        {
+          "id": "n7880412033",
+          "name": "駒沢大学",
+          "nameLocal": "駒沢大学",
+          "nameEn": "Komazawa-daigaku",
+          "code": "DT04",
+          "coord": [
+            139.6611239,
+            35.6332462
+          ]
+        },
+        {
+          "id": "n7880412050",
+          "name": "三軒茶屋",
+          "nameLocal": "三軒茶屋",
+          "nameEn": "Sangen-jaya",
+          "code": "DT03",
+          "coord": [
+            139.6712359,
+            35.6435366
+          ]
+        },
+        {
+          "id": "n7880412065",
+          "name": "池尻大橋",
+          "nameLocal": "池尻大橋",
+          "nameEn": "Ikejiri-ohashi",
+          "code": "DT02",
+          "coord": [
+            139.6847495,
+            35.6507843
+          ]
+        },
+        {
+          "id": "n266083652",
+          "name": "渋谷",
+          "nameLocal": "渋谷",
+          "nameEn": "Shibuya",
+          "code": "DT01;Z01",
+          "coord": [
+            139.7020805,
+            35.6595562
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r9342007",
+      "opk": "東急",
+      "ref": "IK",
+      "name": "東急池上線",
+      "nameLocal": "東急池上線",
+      "nameEn": "Tokyu Ikegami Line",
+      "color": "#ee86a7",
+      "network": "東急電鉄",
+      "networkLocal": "東急電鉄",
+      "operator": "東急電鉄",
+      "wikidata": "Q1192388",
+      "wikipedia": "ja:東急池上線",
+      "osmIds": [
+        9342007
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6291466015",
+          "name": "蒲田",
+          "nameLocal": "蒲田",
+          "nameEn": "Kamata",
+          "code": "IK15",
+          "coord": [
+            139.7146722,
+            35.5617973
+          ]
+        },
+        {
+          "id": "n593987067",
+          "name": "蓮沼",
+          "nameLocal": "蓮沼",
+          "nameEn": "Hasunuma",
+          "code": "IK14",
+          "coord": [
+            139.7085021,
+            35.5642455
+          ]
+        },
+        {
+          "id": "n593985398",
+          "name": "池上",
+          "nameLocal": "池上",
+          "nameEn": "Ikegami",
+          "code": "IK13",
+          "coord": [
+            139.7030503,
+            35.5720035
+          ]
+        },
+        {
+          "id": "n593986537",
+          "name": "千鳥町",
+          "nameLocal": "千鳥町",
+          "nameEn": "Chidoricho",
+          "code": "IK12",
+          "coord": [
+            139.691557,
+            35.5729033
+          ]
+        },
+        {
+          "id": "n2145130483",
+          "name": "久が原",
+          "nameLocal": "久が原",
+          "nameEn": "Kugahara",
+          "code": "IK11",
+          "coord": [
+            139.6856337,
+            35.5795835
+          ]
+        },
+        {
+          "id": "n593985631",
+          "name": "御嶽山",
+          "nameLocal": "御嶽山",
+          "nameEn": "Ontakesan",
+          "code": "IK10",
+          "coord": [
+            139.6824556,
+            35.5852499
+          ]
+        },
+        {
+          "id": "n593985486",
+          "name": "雪が谷大塚",
+          "nameLocal": "雪が谷大塚",
+          "nameEn": "Yukigaya-otsuka",
+          "code": "IK09",
+          "coord": [
+            139.6810084,
+            35.5920038
+          ]
+        },
+        {
+          "id": "n1045678773",
+          "name": "石川台",
+          "nameLocal": "石川台",
+          "nameEn": "Ishikawa-dai",
+          "code": "IK08",
+          "coord": [
+            139.685208,
+            35.5969839
+          ]
+        },
+        {
+          "id": "n593984897",
+          "name": "洗足池",
+          "nameLocal": "洗足池",
+          "nameEn": "Senzoku-ike",
+          "code": "IK07",
+          "coord": [
+            139.6912965,
+            35.5998107
+          ]
+        },
+        {
+          "id": "n2707132930",
+          "name": "長原",
+          "nameLocal": "長原",
+          "nameEn": "Nagahara",
+          "code": "IK06",
+          "coord": [
+            139.69791,
+            35.6022528
+          ]
+        },
+        {
+          "id": "n266085388",
+          "name": "旗の台",
+          "nameLocal": "旗の台",
+          "nameEn": "Hatanodai",
+          "code": "2",
+          "coord": [
+            139.7033718,
+            35.6052034
+          ]
+        },
+        {
+          "id": "n304159071",
+          "name": "荏原中延",
+          "nameLocal": "荏原中延",
+          "nameEn": "Ebara-nakanobu",
+          "code": "IK04",
+          "coord": [
+            139.7121435,
+            35.6100738
+          ]
+        },
+        {
+          "id": "n7808705901",
+          "name": "大崎広小路",
+          "nameLocal": "大崎広小路",
+          "nameEn": "Osakihirokoji",
+          "code": "IK02",
+          "coord": [
+            139.7225565,
+            35.6225833
+          ]
+        },
+        {
+          "id": "n304159100",
+          "name": "五反田",
+          "nameLocal": "五反田",
+          "nameEn": "Gotanda",
+          "code": "IK01",
+          "coord": [
+            139.7239931,
+            35.6250101
+          ]
+        },
+        {
+          "id": "n2145295226",
+          "name": "戸越銀座",
+          "nameLocal": "戸越銀座",
+          "nameEn": "Togoshi-ginza",
+          "code": "IK03",
+          "coord": [
+            139.7150542,
+            35.6162094
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r5375680",
+      "opk": "東急",
+      "ref": "MG",
+      "name": "東急目黒線",
+      "nameLocal": "東急目黒線",
+      "nameEn": "Tokyu-Meguro Line",
+      "color": "#009cd2",
+      "network": "東急電鉄",
+      "networkLocal": "東急電鉄",
+      "operator": "東急電鉄",
+      "wikidata": "Q283861",
+      "wikipedia": "ja:東急目黒線",
+      "osmIds": [
+        5375680
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6289283880",
+          "name": "日吉",
+          "nameLocal": "日吉",
+          "nameEn": "Hiyoshi",
+          "code": "MG13;SH03",
+          "coord": [
+            139.6469044,
+            35.5534676
+          ]
+        },
+        {
+          "id": "n2225723173",
+          "name": "元住吉",
+          "nameLocal": "元住吉",
+          "nameEn": "Motosumiyoshi",
+          "code": "MG12",
+          "coord": [
+            139.6539026,
+            35.5641069
+          ]
+        },
+        {
+          "id": "n6289310478",
+          "name": "武蔵小杉",
+          "nameLocal": "武蔵小杉",
+          "nameEn": "Musashi-kosugi",
+          "code": "TY11",
+          "coord": [
+            139.6596705,
+            35.5757897
+          ]
+        },
+        {
+          "id": "n6289310479",
+          "name": "新丸子",
+          "nameLocal": "新丸子",
+          "nameEn": "Shin-maruko",
+          "code": "TY10;MG10",
+          "coord": [
+            139.6620323,
+            35.5806712
+          ]
+        },
+        {
+          "id": "n6289318414",
+          "name": "多摩川",
+          "nameLocal": "多摩川",
+          "nameEn": "Tamagawa",
+          "code": "TY09",
+          "coord": [
+            139.6687852,
+            35.5896282
+          ]
+        },
+        {
+          "id": "n266085960",
+          "name": "田園調布",
+          "nameLocal": "田園調布",
+          "nameEn": "Den-en-chofu",
+          "code": "MG08",
+          "coord": [
+            139.6673423,
+            35.5968906
+          ]
+        },
+        {
+          "id": "n266085925",
+          "name": "奥沢",
+          "nameLocal": "奥沢",
+          "nameEn": "Okusawa",
+          "code": "MG07",
+          "coord": [
+            139.6730637,
+            35.604191
+          ]
+        },
+        {
+          "id": "n6289850740",
+          "name": "大岡山",
+          "nameLocal": "大岡山",
+          "nameEn": "Ookayama",
+          "code": "MG06;OM08",
+          "coord": [
+            139.6857967,
+            35.6075728
+          ]
+        },
+        {
+          "id": "n266085921",
+          "name": "洗足",
+          "nameLocal": "洗足",
+          "nameEn": "Senzoku",
+          "code": "MG05",
+          "coord": [
+            139.6941517,
+            35.6101598
+          ]
+        },
+        {
+          "id": "n266085864",
+          "name": "西小山",
+          "nameLocal": "西小山",
+          "nameEn": "Nishi-koyama",
+          "code": "MG04",
+          "coord": [
+            139.6987095,
+            35.6154753
+          ]
+        },
+        {
+          "id": "n266085862",
+          "name": "武蔵小山",
+          "nameLocal": "武蔵小山",
+          "nameEn": "Musashi-koyama",
+          "code": "MG03",
+          "coord": [
+            139.7045585,
+            35.6205828
+          ]
+        },
+        {
+          "id": "n266085878",
+          "name": "不動前",
+          "nameLocal": "不動前",
+          "nameEn": "Fudo-mae",
+          "code": "MG02",
+          "coord": [
+            139.713034,
+            35.6253573
+          ]
+        },
+        {
+          "id": "n4111329882",
+          "name": "目黒",
+          "nameLocal": "目黒",
+          "nameEn": "Meguro",
+          "code": null,
+          "coord": [
+            139.7156838,
+            35.6324892
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r9341647",
+      "opk": "東急",
+      "ref": "OM",
+      "name": "東急大井町線",
+      "nameLocal": "東急大井町線",
+      "nameEn": "Tokyu Oimachi Line",
+      "color": "#f18c43",
+      "network": "東急電鉄",
+      "networkLocal": "東急電鉄",
+      "operator": "東急電鉄",
+      "wikidata": "Q384995",
+      "wikipedia": "ja:東急大井町線",
+      "osmIds": [
+        9341647
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6289892321",
+          "name": "大井町",
+          "nameLocal": "大井町",
+          "nameEn": "Oimachi",
+          "code": "OM01",
+          "coord": [
+            139.7342793,
+            35.6075687
+          ]
+        },
+        {
+          "id": "n2926897371",
+          "name": "下神明",
+          "nameLocal": "下神明",
+          "nameEn": "Shimo-simmei",
+          "code": "OM02",
+          "coord": [
+            139.7262033,
+            35.608783
+          ]
+        },
+        {
+          "id": "n2926897372",
+          "name": "戸越公園",
+          "nameLocal": "戸越公園",
+          "nameEn": "Togoshi-koen",
+          "code": "OM03",
+          "coord": [
+            139.7183106,
+            35.6089139
+          ]
+        },
+        {
+          "id": "n266085304",
+          "name": "中延",
+          "nameLocal": "中延",
+          "nameEn": "Nakanobu",
+          "code": "2",
+          "coord": [
+            139.7127901,
+            35.6058466
+          ]
+        },
+        {
+          "id": "n2926897314",
+          "name": "荏原町",
+          "nameLocal": "荏原町",
+          "nameEn": "Ebara-machi",
+          "code": "OM05",
+          "coord": [
+            139.7075549,
+            35.6038413
+          ]
+        },
+        {
+          "id": "n2273292392",
+          "name": "旗の台",
+          "nameLocal": "旗の台",
+          "nameEn": "Hatanodai",
+          "code": "4",
+          "coord": [
+            139.7027027,
+            35.6048516
+          ]
+        },
+        {
+          "id": "n6289932023",
+          "name": "北千束",
+          "nameLocal": "北千束",
+          "nameEn": "Kita-senzoku",
+          "code": "OM07",
+          "coord": [
+            139.6929574,
+            35.6063785
+          ]
+        },
+        {
+          "id": "n6289850739",
+          "name": "大岡山",
+          "nameLocal": "大岡山",
+          "nameEn": "Ookayama",
+          "code": "MG06;OM08",
+          "coord": [
+            139.6858386,
+            35.6074796
+          ]
+        },
+        {
+          "id": "n6290069796",
+          "name": "緑が丘",
+          "nameLocal": "緑が丘",
+          "nameEn": "Midorigaoka",
+          "code": "OM09",
+          "coord": [
+            139.6789854,
+            35.6065466
+          ]
+        },
+        {
+          "id": "n6290069798",
+          "name": "自由が丘",
+          "nameLocal": "自由が丘",
+          "nameEn": "Jiyugaoka",
+          "code": "OM10",
+          "coord": [
+            139.6692629,
+            35.607528
+          ]
+        },
+        {
+          "id": "n2574536541",
+          "name": "九品仏",
+          "nameLocal": "九品仏",
+          "nameEn": "Kuhombutsu",
+          "code": "OM11",
+          "coord": [
+            139.6611882,
+            35.6053636
+          ]
+        },
+        {
+          "id": "n6290069801",
+          "name": "尾山台",
+          "nameLocal": "尾山台",
+          "nameEn": "Oyamadai",
+          "code": "OM12",
+          "coord": [
+            139.6537448,
+            35.6070206
+          ]
+        },
+        {
+          "id": "n6290069803",
+          "name": "等々力",
+          "nameLocal": "等々力",
+          "nameEn": "Todoroki",
+          "code": "OM13",
+          "coord": [
+            139.6480129,
+            35.6083157
+          ]
+        },
+        {
+          "id": "n6290069806",
+          "name": "上野毛",
+          "nameLocal": "上野毛",
+          "nameEn": "Kaminoge",
+          "code": "OM14",
+          "coord": [
+            139.6388373,
+            35.6119483
+          ]
+        },
+        {
+          "id": "n6290069808",
+          "name": "二子玉川",
+          "nameLocal": "二子玉川",
+          "nameEn": "Futako-tamagawa",
+          "code": "OM15",
+          "coord": [
+            139.6268207,
+            35.6117816
+          ]
+        },
+        {
+          "id": "n6290079046",
+          "name": "二子新地",
+          "nameLocal": "二子新地",
+          "nameEn": "Futako-shinchi",
+          "code": "DT08",
+          "coord": [
+            139.6225866,
+            35.6071429
+          ]
+        },
+        {
+          "id": "n2574447113",
+          "name": "高津",
+          "nameLocal": "高津",
+          "nameEn": "Takatsu",
+          "code": "DT09",
+          "coord": [
+            139.6168898,
+            35.6031294
+          ]
+        },
+        {
+          "id": "n6290079049",
+          "name": "溝の口",
+          "nameLocal": "溝の口",
+          "nameEn": "Mizonokuchi",
+          "code": "DT10;OM12",
+          "coord": [
+            139.6105287,
+            35.5998306
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r5375679",
+      "opk": "東急",
+      "ref": "TM",
+      "name": "東急多摩川線",
+      "nameLocal": "東急多摩川線",
+      "nameEn": "Tōkyū Tamagawa Line",
+      "color": "#ae0378",
+      "network": "東急電鉄",
+      "networkLocal": "東急電鉄",
+      "operator": "東急電鉄",
+      "wikidata": "Q379292",
+      "wikipedia": "ja:東急多摩川線",
+      "osmIds": [
+        5375679
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6291466017",
+          "name": "蒲田",
+          "nameLocal": "蒲田",
+          "nameEn": "Kamata",
+          "code": "TM07",
+          "coord": [
+            139.7146782,
+            35.5616116
+          ]
+        },
+        {
+          "id": "n7834193981",
+          "name": "矢口渡",
+          "nameLocal": "矢口渡",
+          "nameEn": "Yaguchi-no-watashi",
+          "code": "TM06",
+          "coord": [
+            139.7002481,
+            35.5625575
+          ]
+        },
+        {
+          "id": "n7834193979",
+          "name": "武蔵新田",
+          "nameLocal": "武蔵新田",
+          "nameEn": "Musashi-nitta",
+          "code": "TM05",
+          "coord": [
+            139.6924509,
+            35.5678605
+          ]
+        },
+        {
+          "id": "n7834193977",
+          "name": "下丸子",
+          "nameLocal": "下丸子",
+          "nameEn": "Shimomaruko",
+          "code": "TM04",
+          "coord": [
+            139.6855851,
+            35.5713731
+          ]
+        },
+        {
+          "id": "n7834193983",
+          "name": "鵜の木",
+          "nameLocal": "鵜の木",
+          "nameEn": "Unoki",
+          "code": "TM03",
+          "coord": [
+            139.6805499,
+            35.5754631
+          ]
+        },
+        {
+          "id": "n2145028048",
+          "name": "沼部",
+          "nameLocal": "沼部",
+          "nameEn": "Numabe",
+          "code": "TM02",
+          "coord": [
+            139.6730505,
+            35.5827546
+          ]
+        },
+        {
+          "id": "n6291716442",
+          "name": "多摩川",
+          "nameLocal": "多摩川",
+          "nameEn": "Tamagawa",
+          "code": "TM01",
+          "coord": [
+            139.6687617,
+            35.5896242
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r1947536",
+      "opk": "東急",
+      "ref": "TY",
+      "name": "東急東横線",
+      "nameLocal": "東急東横線",
+      "nameEn": "Train Tokyu-Toyoko Line",
+      "color": "#da0442",
+      "network": "東急電鉄",
+      "networkLocal": "東急電鉄",
+      "operator": "東急電鉄",
+      "wikidata": "Q1192468",
+      "wikipedia": "en:Tōkyū Tōyoko Line",
+      "osmIds": [
+        1947536
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6254596907",
+          "name": "日吉",
+          "nameLocal": "日吉",
+          "nameEn": "Hiyoshi",
+          "code": "TY13;SH03",
+          "coord": [
+            139.6467609,
+            35.553503
+          ]
+        },
+        {
+          "id": "n980049707",
+          "name": "元住吉",
+          "nameLocal": "元住吉",
+          "nameEn": "Motosumiyoshi",
+          "code": "TY12",
+          "coord": [
+            139.6539746,
+            35.5645231
+          ]
+        },
+        {
+          "id": "n256001078",
+          "name": "武蔵小杉",
+          "nameLocal": "武蔵小杉",
+          "nameEn": "Musashi-kosugi",
+          "code": "TY11;MG11",
+          "coord": [
+            139.6595763,
+            35.5758364
+          ]
+        },
+        {
+          "id": "n6254516167",
+          "name": "新丸子",
+          "nameLocal": "新丸子",
+          "nameEn": "Shin-maruko",
+          "code": "TY10;MG10",
+          "coord": [
+            139.6618902,
+            35.580698
+          ]
+        },
+        {
+          "id": "n6254511184",
+          "name": "多摩川",
+          "nameLocal": "多摩川",
+          "nameEn": "Tamagawa",
+          "code": "TY09",
+          "coord": [
+            139.668669,
+            35.5896082
+          ]
+        },
+        {
+          "id": "n243887444",
+          "name": "田園調布",
+          "nameLocal": "田園調布",
+          "nameEn": "Den-en-chofu",
+          "code": "TY08",
+          "coord": [
+            139.6672836,
+            35.596893
+          ]
+        },
+        {
+          "id": "n243887439",
+          "name": "自由が丘",
+          "nameLocal": "自由が丘",
+          "nameEn": "Jiyugaoka",
+          "code": "TY07",
+          "coord": [
+            139.668826,
+            35.6075666
+          ]
+        },
+        {
+          "id": "n1031517168",
+          "name": "都立大学",
+          "nameLocal": "都立大学",
+          "nameEn": "Toritsu-daigaku",
+          "code": "TY06",
+          "coord": [
+            139.6761727,
+            35.6175561
+          ]
+        },
+        {
+          "id": "n598965280",
+          "name": "学芸大学",
+          "nameLocal": "学芸大学",
+          "nameEn": "Gakugei-daigaku",
+          "code": "TY05",
+          "coord": [
+            139.6852812,
+            35.6289474
+          ]
+        },
+        {
+          "id": "n243887414",
+          "name": "祐天寺",
+          "nameLocal": "祐天寺",
+          "nameEn": "Yutenji",
+          "code": "TY04",
+          "coord": [
+            139.6910422,
+            35.6375748
+          ]
+        },
+        {
+          "id": "n6254452462",
+          "name": "中目黒",
+          "nameLocal": "中目黒",
+          "nameEn": "Naka-meguro",
+          "code": "TY03",
+          "coord": [
+            139.6987133,
+            35.6442023
+          ]
+        },
+        {
+          "id": "n6254444172",
+          "name": "代官山",
+          "nameLocal": "代官山",
+          "nameEn": "Daikan-yama",
+          "code": "TY02",
+          "coord": [
+            139.7032482,
+            35.6481642
+          ]
+        },
+        {
+          "id": "n1951952370",
+          "name": "渋谷",
+          "nameLocal": "渋谷",
+          "nameEn": "Shibuya",
+          "code": null,
+          "coord": [
+            139.7027222,
+            35.6586094
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r14309203",
+      "opk": "東武",
+      "ref": "TD",
+      "name": "東武アーバンパークライン",
+      "nameLocal": "東武アーバンパークライン",
+      "nameEn": "Noda Line",
+      "color": "#00bfff",
+      "network": "東武鉄道",
+      "networkLocal": "東武鉄道",
+      "operator": "東武鉄道",
+      "wikidata": "Q76804",
+      "wikipedia": "en:Tōbu Urban Park Line",
+      "osmIds": [
+        14309203
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n1649374713",
+          "name": "新柏",
+          "nameLocal": "新柏",
+          "nameEn": "Shin-Kashiwa",
+          "code": null,
+          "coord": [
+            139.9666062,
+            35.8384799
+          ]
+        },
+        {
+          "id": "n3654392328",
+          "name": "増尾",
+          "nameLocal": "増尾",
+          "nameEn": "Masuo",
+          "code": null,
+          "coord": [
+            139.9766893,
+            35.8295749
+          ]
+        },
+        {
+          "id": "n251511476",
+          "name": "逆井",
+          "nameLocal": "逆井",
+          "nameEn": "Sakasai",
+          "code": null,
+          "coord": [
+            139.9838932,
+            35.8232287
+          ]
+        },
+        {
+          "id": "n1649371749",
+          "name": "高柳",
+          "nameLocal": "高柳",
+          "nameEn": "Takayanagi",
+          "code": null,
+          "coord": [
+            139.9986974,
+            35.80821
+          ]
+        },
+        {
+          "id": "n3654392334",
+          "name": "六実",
+          "nameLocal": "六実",
+          "nameEn": "Mutsumi",
+          "code": null,
+          "coord": [
+            139.9992249,
+            35.7938537
+          ]
+        },
+        {
+          "id": "n3654392267",
+          "name": "新鎌ヶ谷",
+          "nameLocal": "新鎌ヶ谷",
+          "nameEn": "Shin-Kamagaya",
+          "code": null,
+          "coord": [
+            139.999483,
+            35.7803449
+          ]
+        },
+        {
+          "id": "n3654392235",
+          "name": "鎌ヶ谷",
+          "nameLocal": "鎌ヶ谷",
+          "nameEn": "Kamagaya",
+          "code": null,
+          "coord": [
+            139.9973329,
+            35.7640499
+          ]
+        },
+        {
+          "id": "n251511389",
+          "name": "馬込沢",
+          "nameLocal": "馬込沢",
+          "nameEn": "Magomezawa",
+          "code": null,
+          "coord": [
+            139.9922374,
+            35.7415722
+          ]
+        },
+        {
+          "id": "n251511693",
+          "name": "塚田",
+          "nameLocal": "塚田",
+          "nameEn": "Tsukada",
+          "code": null,
+          "coord": [
+            139.982508,
+            35.7216797
+          ]
+        },
+        {
+          "id": "n3654392264",
+          "name": "新船橋",
+          "nameLocal": "新船橋",
+          "nameEn": "Shin-Funabashi",
+          "code": null,
+          "coord": [
+            139.9797781,
+            35.7114502
+          ]
+        },
+        {
+          "id": "n3654392225",
+          "name": "船橋",
+          "nameLocal": "船橋",
+          "nameEn": "Funabashi",
+          "code": null,
+          "coord": [
+            139.9846753,
+            35.7019618
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r5219680",
+      "opk": "東武",
+      "ref": "TS",
+      "name": "東武鉄道亀戸線",
+      "nameLocal": "東武鉄道亀戸線",
+      "nameEn": "Tobu Kameido Line",
+      "color": "#888888",
+      "network": "東武鉄道",
+      "networkLocal": "東武鉄道",
+      "operator": "東武鉄道",
+      "wikidata": "Q2791146",
+      "wikipedia": "ja:東武亀戸線",
+      "osmIds": [
+        5219680
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n3558471789",
+          "name": "亀戸",
+          "nameLocal": "亀戸",
+          "nameEn": "Kameido",
+          "code": null,
+          "coord": [
+            139.8274028,
+            35.6977662
+          ]
+        },
+        {
+          "id": "n3558471791",
+          "name": "亀戸水神",
+          "nameLocal": "亀戸水神",
+          "nameEn": "Kameidosuijin",
+          "code": null,
+          "coord": [
+            139.8335039,
+            35.7000518
+          ]
+        },
+        {
+          "id": "n1666311407",
+          "name": "東あずま",
+          "nameLocal": "東あずま",
+          "nameEn": "Higashi-azuma",
+          "code": null,
+          "coord": [
+            139.8317888,
+            35.7070657
+          ]
+        },
+        {
+          "id": "n1680721134",
+          "name": "小村井",
+          "nameLocal": "小村井",
+          "nameEn": "Omurai",
+          "code": null,
+          "coord": [
+            139.8276218,
+            35.7103183
+          ]
+        },
+        {
+          "id": "n3558471785",
+          "name": "曳舟",
+          "nameLocal": "曳舟",
+          "nameEn": "Hikifune",
+          "code": null,
+          "coord": [
+            139.8168537,
+            35.7183011
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r3300716",
+      "opk": "株式会社ゆりかもめ",
+      "ref": "U",
+      "name": "ゆりかもめ",
+      "nameLocal": "ゆりかもめ",
+      "nameEn": "Yurikamome",
+      "color": "#1662b8",
+      "network": "ゆりかもめ東京臨海新交通臨海線",
+      "networkLocal": "株式会社ゆりかもめ",
+      "operator": "株式会社ゆりかもめ",
+      "wikidata": "Q1191079",
+      "wikipedia": "ja:ゆりかもめ東京臨海新交通臨海線",
+      "osmIds": [
+        3300716
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6228101090",
+          "name": "新橋",
+          "nameLocal": "新橋",
+          "nameEn": "Shimbashi",
+          "code": "U01",
+          "coord": [
+            139.7598894,
+            35.6654201
+          ]
+        },
+        {
+          "id": "n6231308300",
+          "name": "汐留",
+          "nameLocal": "汐留",
+          "nameEn": "Shiodome",
+          "code": null,
+          "coord": [
+            139.7600204,
+            35.6629015
+          ]
+        },
+        {
+          "id": "n6231308299",
+          "name": "竹芝",
+          "nameLocal": "竹芝",
+          "nameEn": "Takeshiba",
+          "code": "U03",
+          "coord": [
+            139.7619388,
+            35.6539777
+          ]
+        },
+        {
+          "id": "n6234857926",
+          "name": "日の出",
+          "nameLocal": "日の出",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7591363,
+            35.6491379
+          ]
+        },
+        {
+          "id": "n6234857922",
+          "name": "芝浦ふ頭",
+          "nameLocal": "芝浦ふ頭",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7577993,
+            35.6417274
+          ]
+        },
+        {
+          "id": "n6234857920",
+          "name": "お台場海浜公園",
+          "nameLocal": "お台場海浜公園",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7788398,
+            35.6298736
+          ]
+        },
+        {
+          "id": "n6234812891",
+          "name": "台場",
+          "nameLocal": "台場",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7714382,
+            35.6258521
+          ]
+        },
+        {
+          "id": "n6234812890",
+          "name": "東京国際クルーズターミナル",
+          "nameLocal": "東京国際クルーズターミナル",
+          "nameEn": "Tokyo International Cruise Terminal",
+          "code": null,
+          "coord": [
+            139.773136,
+            35.6214205
+          ]
+        },
+        {
+          "id": "n6234812887",
+          "name": "テレコムセンター",
+          "nameLocal": "テレコムセンター",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7794117,
+            35.6176004
+          ]
+        },
+        {
+          "id": "n6234771067",
+          "name": "青海",
+          "nameLocal": "青海",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.781213,
+            35.6247525
+          ]
+        },
+        {
+          "id": "n6234751506",
+          "name": "東京ビッグサイト",
+          "nameLocal": "東京ビッグサイト",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7913353,
+            35.6302566
+          ]
+        },
+        {
+          "id": "n6234751504",
+          "name": "有明",
+          "nameLocal": "有明",
+          "nameEn": "Ariake",
+          "code": "U12",
+          "coord": [
+            139.7931987,
+            35.6345466
+          ]
+        },
+        {
+          "id": "n6234351311",
+          "name": "有明テニスの森",
+          "nameLocal": "有明テニスの森",
+          "nameEn": null,
+          "code": null,
+          "coord": [
+            139.7887435,
+            35.6400925
+          ]
+        },
+        {
+          "id": "n6365108499",
+          "name": "市場前",
+          "nameLocal": "市場前",
+          "nameEn": "Shijō-mae",
+          "code": "U14",
+          "coord": [
+            139.7857454,
+            35.6457957
+          ]
+        },
+        {
+          "id": "n6234300525",
+          "name": "新豊洲",
+          "nameLocal": "新豊洲",
+          "nameEn": "Shin-toyosu",
+          "code": "U15",
+          "coord": [
+            139.7901603,
+            35.6487821
+          ]
+        },
+        {
+          "id": "n6234291731",
+          "name": "豊洲",
+          "nameLocal": "豊洲",
+          "nameEn": "Toyosu",
+          "code": null,
+          "coord": [
+            139.79536,
+            35.6537949
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r9506864",
+      "opk": "西武",
+      "ref": "SS",
+      "name": "西武新宿線",
+      "nameLocal": "西武新宿線",
+      "nameEn": "Seibu Shinjuku Line",
+      "color": "#00a6bf",
+      "network": "西武鉄道",
+      "networkLocal": "西武鉄道",
+      "operator": "西武鉄道",
+      "wikidata": "Q195685",
+      "wikipedia": "ja:西武新宿線",
+      "osmIds": [
+        9506864
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n6718925357",
+          "name": "西武新宿",
+          "nameLocal": "西武新宿",
+          "nameEn": "Seibu-Shinjuku",
+          "code": "SS01",
+          "coord": [
+            139.6999469,
+            35.6960878
+          ]
+        },
+        {
+          "id": "n6718925347",
+          "name": "高田馬場",
+          "nameLocal": "高田馬場",
+          "nameEn": "Takadanobaba",
+          "code": "SS02",
+          "coord": [
+            139.7038244,
+            35.7126499
+          ]
+        },
+        {
+          "id": "n410590121",
+          "name": "下落合",
+          "nameLocal": "下落合",
+          "nameEn": "Shimo-Ochiai",
+          "code": "SS03",
+          "coord": [
+            139.6953702,
+            35.7157497
+          ]
+        },
+        {
+          "id": "n1676750292",
+          "name": "中井",
+          "nameLocal": "中井",
+          "nameEn": "Nakai",
+          "code": "SS04",
+          "coord": [
+            139.6862972,
+            35.7150628
+          ]
+        },
+        {
+          "id": "n410590200",
+          "name": "新井薬師前",
+          "nameLocal": "新井薬師前",
+          "nameEn": "Araiyakushi-mae",
+          "code": "SS05",
+          "coord": [
+            139.6726599,
+            35.7156962
+          ]
+        },
+        {
+          "id": "n7975107300",
+          "name": "沼袋",
+          "nameLocal": "沼袋",
+          "nameEn": "Numabukuro",
+          "code": null,
+          "coord": [
+            139.6646887,
+            35.7192402
+          ]
+        },
+        {
+          "id": "n410589764",
+          "name": "野方",
+          "nameLocal": "野方",
+          "nameEn": "Nogata",
+          "code": "SS07",
+          "coord": [
+            139.6531638,
+            35.7196547
+          ]
+        },
+        {
+          "id": "n410589847",
+          "name": "都立家政",
+          "nameLocal": "都立家政",
+          "nameEn": "Toritsu-Kasei",
+          "code": "SS08",
+          "coord": [
+            139.6448228,
+            35.7223679
+          ]
+        },
+        {
+          "id": "n6719028542",
+          "name": "鷺ノ宮",
+          "nameLocal": "鷺ノ宮",
+          "nameEn": "Saginomiya",
+          "code": "SS09",
+          "coord": [
+            139.6396287,
+            35.722638
+          ]
+        },
+        {
+          "id": "n410589596",
+          "name": "下井草",
+          "nameLocal": "下井草",
+          "nameEn": "Shimo-Igusa",
+          "code": "SS10",
+          "coord": [
+            139.6253797,
+            35.7238105
+          ]
+        },
+        {
+          "id": "n410589611",
+          "name": "井荻",
+          "nameLocal": "井荻",
+          "nameEn": "Iogi",
+          "code": "SS11",
+          "coord": [
+            139.6152612,
+            35.7246469
+          ]
+        },
+        {
+          "id": "n410590002",
+          "name": "上井草",
+          "nameLocal": "上井草",
+          "nameEn": "Kami-Igusa",
+          "code": "SS12",
+          "coord": [
+            139.6031462,
+            35.7252497
+          ]
+        },
+        {
+          "id": "n410589608",
+          "name": "上石神井",
+          "nameLocal": "上石神井",
+          "nameEn": "Kami-Shakujii",
+          "code": "SS13",
+          "coord": [
+            139.5924974,
+            35.7261132
+          ]
+        },
+        {
+          "id": "n410589825",
+          "name": "武蔵関",
+          "nameLocal": "武蔵関",
+          "nameEn": "Musashi-Seki",
+          "code": "SS14",
+          "coord": [
+            139.5764401,
+            35.7276511
+          ]
+        },
+        {
+          "id": "n410589780",
+          "name": "東伏見",
+          "nameLocal": "東伏見",
+          "nameEn": "Higashi-Fushimi",
+          "code": "SS15",
+          "coord": [
+            139.5643443,
+            35.7287186
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r10956059",
+      "opk": "西武鉄道;東京地下鉄",
+      "ref": "SI",
+      "name": "西武有楽町線・池袋線",
+      "nameLocal": "西武有楽町線・池袋線",
+      "nameEn": "Yurakucho-Ikebukuro Line",
+      "color": "#ed772d",
+      "network": "西武鉄道",
+      "networkLocal": "西武鉄道;東京地下鉄",
+      "operator": "西武鉄道;東京地下鉄",
+      "wikidata": null,
+      "wikipedia": null,
+      "osmIds": [
+        10956059
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n7763479269",
+          "name": "保谷",
+          "nameLocal": "保谷",
+          "nameEn": "Hoya",
+          "code": "SI12",
+          "coord": [
+            139.5677939,
+            35.7483659
+          ]
+        },
+        {
+          "id": "n3624969297",
+          "name": "大泉学園",
+          "nameLocal": "大泉学園",
+          "nameEn": "Oizumi-gakuen",
+          "code": null,
+          "coord": [
+            139.5866345,
+            35.7495568
+          ]
+        },
+        {
+          "id": "n7763497557",
+          "name": "石神井公園",
+          "nameLocal": "石神井公園",
+          "nameEn": "Shakujii-koen",
+          "code": "SI10",
+          "coord": [
+            139.6061656,
+            35.7438455
+          ]
+        },
+        {
+          "id": "n6791198367",
+          "name": "練馬高野台",
+          "nameLocal": "練馬高野台",
+          "nameEn": "Nerima-Takanodai",
+          "code": null,
+          "coord": [
+            139.616332,
+            35.7409764
+          ]
+        },
+        {
+          "id": "n3624957764",
+          "name": "富士見台",
+          "nameLocal": "富士見台",
+          "nameEn": "Fujimidai",
+          "code": null,
+          "coord": [
+            139.6297262,
+            35.7359771
+          ]
+        },
+        {
+          "id": "n6791183254",
+          "name": "中村橋",
+          "nameLocal": "中村橋",
+          "nameEn": "Nakamurabashi",
+          "code": null,
+          "coord": [
+            139.6377903,
+            35.7368591
+          ]
+        },
+        {
+          "id": "n3730686210",
+          "name": "練馬",
+          "nameLocal": "練馬",
+          "nameEn": "Nerima",
+          "code": null,
+          "coord": [
+            139.6540965,
+            35.7379683
+          ]
+        },
+        {
+          "id": "n7968817577",
+          "name": "新桜台",
+          "nameLocal": "新桜台",
+          "nameEn": "Shin-Sakuradai",
+          "code": null,
+          "coord": [
+            139.6686148,
+            35.7411056
+          ]
+        },
+        {
+          "id": "n7369435826",
+          "name": "小竹向原",
+          "nameLocal": "小竹向原",
+          "nameEn": "Kotake-mukaihara",
+          "code": null,
+          "coord": [
+            139.6806313,
+            35.7428773
+          ]
+        }
+      ]
+    },
+    {
+      "routeId": "tokyopriv-r2549404",
+      "opk": "首都圏新都市",
+      "ref": "TX",
+      "name": "つくばエクスプレス線",
+      "nameLocal": "つくばエクスプレス線",
+      "nameEn": "Tsukuba Express Line",
+      "color": "#000084",
+      "network": "つくばエクスプレス",
+      "networkLocal": "首都圏新都市鉄道",
+      "operator": "首都圏新都市鉄道",
+      "wikidata": "Q1377699",
+      "wikipedia": null,
+      "osmIds": [
+        2549404
+      ],
+      "loop": false,
+      "stations": [
+        {
+          "id": "n2445314143",
+          "name": "南流山",
+          "nameLocal": "南流山",
+          "nameEn": "Minami-Nagareyama",
+          "code": "TX10",
+          "coord": [
+            139.9031283,
+            35.8384454
+          ]
+        },
+        {
+          "id": "n1933600407",
+          "name": "三郷中央",
+          "nameLocal": "三郷中央",
+          "nameEn": "Misato-chuo",
+          "code": "09",
+          "coord": [
+            139.8784032,
+            35.8245158
+          ]
+        },
+        {
+          "id": "n7756045685",
+          "name": "八潮",
+          "nameLocal": "八潮",
+          "nameEn": "Yashio",
+          "code": "08",
+          "coord": [
+            139.8448467,
+            35.8077871
+          ]
+        },
+        {
+          "id": "n7756036396",
+          "name": "六町",
+          "nameLocal": "六町",
+          "nameEn": "Rokucho",
+          "code": "07",
+          "coord": [
+            139.8218978,
+            35.7848551
+          ]
+        },
+        {
+          "id": "n7756036690",
+          "name": "青井",
+          "nameLocal": "青井",
+          "nameEn": "Aoi",
+          "code": "06",
+          "coord": [
+            139.8203469,
+            35.7717435
+          ]
+        },
+        {
+          "id": "n6237894915",
+          "name": "北千住",
+          "nameLocal": "北千住",
+          "nameEn": "Kita-Senju",
+          "code": "TX05",
+          "coord": [
+            139.8051789,
+            35.7495161
+          ]
+        },
+        {
+          "id": "n2037827867",
+          "name": "南千住",
+          "nameLocal": "南千住",
+          "nameEn": "Minami-Senju",
+          "code": "TX04",
+          "coord": [
+            139.7988421,
+            35.7328634
+          ]
+        },
+        {
+          "id": "n7412555526",
+          "name": "浅草",
+          "nameLocal": "浅草",
+          "nameEn": "Asakusa",
+          "code": "TX03",
+          "coord": [
+            139.7924245,
+            35.713585
+          ]
+        },
+        {
+          "id": "n6209071062",
+          "name": "新御徒町",
+          "nameLocal": "新御徒町",
+          "nameEn": "Shin-Okachimachi",
+          "code": "TX02",
+          "coord": [
+            139.7820152,
+            35.7069461
+          ]
+        },
+        {
+          "id": "n6238841529",
+          "name": "秋葉原",
+          "nameLocal": "秋葉原",
+          "nameEn": "Akihabara",
+          "code": "TX01",
+          "coord": [
+            139.7743275,
+            35.6988291
+          ]
+        }
+      ]
+    }
+  ]
+}

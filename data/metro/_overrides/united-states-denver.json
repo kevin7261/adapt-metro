@@ -1,0 +1,24 @@
+{
+  "city": "Denver",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    1661227,
+    1661469,
+    1661472,
+    2512641,
+    6942623,
+    8646173,
+    8652420,
+    8652421,
+    8668341,
+    9947500,
+    9947506,
+    9947524,
+    9947528,
+    9947531,
+    14910916
+  ],
+  "source": "https://www.urbanrail.net/am/denv/denver.htm",
+  "note": "Denver（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

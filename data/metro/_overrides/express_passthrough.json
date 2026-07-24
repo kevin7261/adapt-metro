@@ -1,0 +1,177 @@
+{
+  "_comment": "快車跨站共線（使用者：機場快線與東涌線共線到欣澳／青衣）。快車（如香港機場快線 AEL）與慢車（東涌線 TCL）共用物理軌道，但快車跳過中間站，站對站幾何走不同站段，抓不到共線。此 override 讓快車 route 的某段『幾何沿慢車的中間站畫』（pass-through 頂點），使共線段被路段化判為共線、畫成雙色——但這些中間站**不算快車的停靠站**（不進 route.stations／station_count，車站的 lines 也不加該快車）。以 route_osm 認 route（其 osm_route_ids 任一命中即套用）；在幾何序列中找相鄰的 from→to 頂點（座標近似匹配），於其間依序插入 via 座標並標記 pass。",
+  "_comment_no_auto": "自動快車跨站共線偵測（buildGeojson.mjs：長跳站邊沿另一條線的近直線路徑畫）的排除名單。用於獨立路線的跳站長邊剛好與另一條線『大致平行』但實際不共軌的誤判——該線 osm_route_ids 任一命中即整條線不參與自動偵測（仍可被手動 passthrough 指定）。每筆附依據。",
+  "no_auto": [
+    {
+      "city": "Paris",
+      "route_osm": [
+        123737,
+        3328693
+      ],
+      "note": "巴黎地鐵 14 號線：全線獨立深層自動化隧道，Châtelet→Gare de Lyon 直達（跳過 1 號線的 Hôtel de Ville、Bastille），但與 1 號線並無共軌。自動偵測因 1 號線那段近直線而誤判成共線，故排除。"
+    }
+  ],
+  "passthrough": [
+    {
+      "city": "Hong Kong",
+      "route_osm": [
+        5317238,
+        5317239
+      ],
+      "note": "機場快線 AEL：Hong Kong→Kowloon→(Olympic·Nam Cheong·Lai King)→Tsing Yi 與東涌線 TCL 共軌；快車不停中間三站，僅幾何經過。",
+      "from": [
+        114.1616,
+        22.30493
+      ],
+      "to": [
+        114.10729,
+        22.35839
+      ],
+      "via": [
+        [
+          114.16028,
+          22.31768
+        ],
+        [
+          114.15376,
+          22.32637
+        ],
+        [
+          114.12609,
+          22.34837
+        ]
+      ]
+    },
+    {
+      "city": "Hong Kong",
+      "route_osm": [
+        5317238,
+        5317239
+      ],
+      "note": "機場快線 AEL：Tsing Yi→(Sunny Bay 欣澳)→(Tung Chung 東涌)→Airport 與東涌線 TCL 共軌畫到東涌（使用者裁決 2026-07：共線走廊延伸到東涌站、與官方圖一致），東涌才分往機場；快車不停欣澳/東涌，僅幾何經過。",
+      "from": [
+        114.10729,
+        22.35839
+      ],
+      "to": [
+        113.93657,
+        22.3159
+      ],
+      "via": [
+        [
+          114.02890675,
+          22.33185545
+        ],
+        [
+          113.94136713,
+          22.2892269
+        ]
+      ]
+    },
+    {
+      "city": "Hong Kong",
+      "route_osm": [
+        4248589,
+        4248590,
+        4250432
+      ],
+      "note": "東鐵綫 EAL：九龍塘→大圍 段出筆架山隧道後沿屯馬綫 TML 走廊經過顯徑 Hin Keng 但不停靠（顯徑僅屯馬綫停靠）；幾何沿顯徑畫使共軌段判為共線、顯徑對 EAL 標 pass（2026-07 使用者裁決）。",
+      "from": [
+        114.17647,
+        22.33692
+      ],
+      "to": [
+        114.17861,
+        22.37298
+      ],
+      "via": [
+        [
+          114.17077,
+          22.36386
+        ]
+      ]
+    },
+    {
+      "city": "London",
+      "route_osm": [
+        102788,
+        7703380,
+        7703381,
+        7703382,
+        7703383,
+        7703384,
+        18528635,
+        18528636,
+        18528637,
+        18528638
+      ],
+      "note": "Piccadilly line 快車走廊：Acton Town↔Turnham Green 段與 District line 共走廊，Piccadilly 通過但不停 Chiswick Park（Chiswick Park 僅 District 停靠；Piccadilly 全時段快跑此段）。幾何沿 Chiswick Park 畫使共軌段判為共線畫雙色，Chiswick Park 對 Piccadilly 標 pass（2026-07 使用者裁決）。",
+      "from": [
+        -0.2799,
+        51.5027
+      ],
+      "to": [
+        -0.2545,
+        51.4951
+      ],
+      "via": [
+        [
+          -0.268,
+          51.4946
+        ]
+      ]
+    },
+    {
+      "city": "London",
+      "route_osm": [
+        102788,
+        7703380,
+        7703381,
+        7703382,
+        7703383,
+        7703384
+      ],
+      "note": "Piccadilly line 快車走廊：Earl's Court↔Barons Court 段與 District line 共走廊，Piccadilly 通過但不停 West Kensington（West Kensington 僅 District 停靠）。幾何沿 West Kensington 畫使共軌段判為共線畫雙色，West Kensington 對 Piccadilly 標 pass（2026-07 使用者裁決）。",
+      "from": [
+        -0.194,
+        51.4916
+      ],
+      "to": [
+        -0.2145,
+        51.4903
+      ],
+      "via": [
+        [
+          -0.2059,
+          51.4907
+        ]
+      ]
+    },
+    {
+      "city": "London",
+      "route_osm": [
+        7702937,
+        7702941,
+        7702970,
+        7702971,
+        20664389,
+        20664642
+      ],
+      "note": "Northern line 兩分支共走廊：Euston↔Camden Town 段，Bank 分支（經 Bank/City 支線）直達不停 Mornington Crescent，Charing Cross 分支才停靠。此 override 讓 Bank 分支幾何沿 Mornington Crescent 畫，使兩分支判為共線畫成單一走廊，Mornington Crescent 對 Bank 分支標 pass（仍是 Charing Cross 分支停靠站、保留 Northern）（2026-07 使用者裁決）。",
+      "from": [
+        -0.1331,
+        51.5285
+      ],
+      "to": [
+        -0.1427,
+        51.5395
+      ],
+      "via": [
+        [
+          -0.1383,
+          51.5343
+        ]
+      ]
+    }
+  ]
+}

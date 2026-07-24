@@ -1,0 +1,4 @@
+HIT — Official 埼玉高速鉄道 railmap.pdf (地下鉄路線ご案内).
+source_url: https://www.s-rail.co.jp/common/pdf/railmap.pdf
+Our data only has SR (埼玉高速鉄道線) — map covers SR with Tokyo Metro/Toei transfers.
+new-shuttle-2026_map.jpg REJECTED (観光案内図 / tourism+photos+bike rental).

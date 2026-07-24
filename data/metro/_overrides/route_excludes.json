@@ -1,0 +1,14 @@
+{
+  "_comment": "整條線剔除（by OSM route relation id）。用於 OSM 把實際未通車/建設中的線誤標成營運中 route=subway/light_rail（通過 isOperational 過濾器）、違反 operational-only 不變式的特例。build 端在最前面把這些 relation id 從 routes 移除；連帶車站失去線路歸屬會被 orphan-drop 清掉。每筆必附 wiki 依據，上游改標或實際通車後應刪除該筆。",
+  "exclude": [19664874, 19675921, 20186679, 2703073, 208013, 1721156, 17337287, 17337288, 20268499, 20268500, 12718501, 12718502, 19476850, 20199154, 20317427],
+  "_notes": [
+    "12718501, 12718502, 19476850, 20199154 = 墨爾本 Cross City（Williamstown⇄Sandringham 貫通／Newport shuttle）：OSM 標 ref=WIL／掛進 SHM master，會把 Sandringham 站序接到 Williamstown。官方 Victorian train network 圖無獨立 Cross City 線（共站／共線以幹線共線畫）。使用者 2026-07-23 重抓時剔除。",
+    "20317427 = 墨爾本 City Circle（train）：Loop 空車／運轉用，非官方都會幹線；電車 City Circle 是 route 35（tram 桶）。",
+    "17337287, 17337288, 20268499, 20268500 = Delhi–Meerut RapidX（Namo Bharat RRTS 區域快鐵，network=RapidX）：OSM 誤標 route=subway 才被抓進來，實為 Regional Rapid Transit System 城際快鐵、非都會地鐵，不在 Wikipedia『List of metro systems』。剔除後諾伊達桶位釋出給真正的 Noida Metro Aqua Line（net『Noida Metro』，wiki 21 站）。使用者裁決 2026-07。",
+    "19675921 = Kocaeli/Gebze M1 Darıca Sahil–Gebze OSB：2026 才預定通車（查證 2026-07，尚未確認營運），建設中。",
+    "19664874, 20186679 = Kocaeli M2 Körfezray（北環輕軌）：2024-10 動工、2028 完工，建設中。",
+    "兩線剔除後 Derince/Kocaeli 整個系統消失——Kocaeli 非 Wikipedia 營運中 metro 城市，本就不該出現。",
+    "2703073 = Roma『Metro D』：OSM 標 route=subway 但 name=Metro D、無 operator/無通車日/network 缺，wikidata Q3832679 是 2012 年因經費取消、從未動工的規劃第四線。違反 operational-only 不變式（查證 2026-07）。",
+    "208013, 1721156 = Roma『Metromare』（前 Ferrovia Roma-Lido 郊區鐵路，network/operator=COTRAL，wikipedia it:Ferrovia Roma-Lido）：OSM 誤標 route=subway 才被抓進來，實為區域/通勤鐵路，Wikipedia『List of metro systems』的羅馬只計 A/B(含B1)/C 三線約 74 站、不含 Roma-Lido。scope 例外（非 lifecycle），使用者裁決 2026-07 剔除以對齊 wiki。"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "city": "Alexandria",
+  "country": "Egypt",
+  "continent": "africa",
+  "osm_route_ids": [
+    331250,
+    331251,
+    331252,
+    331253,
+    331254,
+    331258,
+    331262,
+    331279,
+    331281,
+    331282,
+    331283,
+    331284,
+    331285,
+    7409680,
+    7409686,
+    7409703,
+    7409709,
+    7409813,
+    7410752,
+    7410761,
+    7410762
+  ],
+  "source": "https://www.urbanrail.net/af/africa.htm",
+  "note": "Alexandria（route=tram）——由 scripts/fetchAfrica.mjs 自動產生。operator（SETRAM／RATP Dev／Transdev／Metrorail…）跨城通用或完全無標籤，無法以 network 綁城，故以 relation id 直綁；override 同時豁免 buildGeojson 的「純 LRT 剔除」規則。重跑 fetchAfrica.mjs 會依最新 OSM 覆寫本檔。"
+}

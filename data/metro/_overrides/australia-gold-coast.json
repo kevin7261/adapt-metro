@@ -1,0 +1,8 @@
+{
+  "city": "Gold Coast",
+  "country": "Australia",
+  "continent": "oceania",
+  "osm_route_ids": [6363673, 13363424],
+  "source": "https://www.urbanrail.net/au/oceania.htm",
+  "note": "黃金海岸 G:link 輕軌（route=light_rail，已在全球基準查詢內）：network=Translink（與布里斯本市郊鐵路同名、且與加拿大溫哥華 TransLink 撞名）、operator=Keolis Downer（同時營運墨爾本電車與紐卡索輕軌），network/operator 都無法綁城 → 以 relation id 直綁（override 同時豁免『純 LRT 剔除』規則）。使用者 2026-07-23 指定澳洲除雪梨外全收。"
+}

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="196" viewBox="-70 34 1620 196">
+<style type="text/css"><![CDATA[
+svg { background:#ffffff; }
+text { stroke:#000; stroke-width:0; fill:#000; font-family:"PingFang SC","Heiti SC","黑体",sans-serif; }
+ellipse { stroke:#d51529; stroke-width:2.5; fill:#fff; }
+.sline { stroke:#d51529; stroke-width:7; fill:none; }
+.szn { font-size:14px; }
+.sen { font-size:10px; display:none; }
+.sico { display:none; }
+]]></style>
+
+                    <g>
+                        <title>图</title>
+                        <style transform="matrix(0.161068443423801,0,0,0.161068443423801,0,0) " type="text/css">
+                            .st0 {
+                                fill-rule: evenodd;
+                                clip-rule: evenodd;
+                                fill: #D51529;
+                            }
+
+                            .st1 {
+                                fill-rule: evenodd;
+                                clip-rule: evenodd;
+                                fill: #3A3A3A;
+                            }
+
+                            .st2 {
+                                fill-rule: evenodd;
+                                clip-rule: evenodd;
+                                fill: #FFFFFF;
+                            }
+
+                            .st3 {
+                                fill-rule: evenodd;
+                                clip-rule: evenodd;
+                                fill: #1B1918;
+                            }
+                        </style>
+                        <!--义东段 区间连线   开始-->
+                        <line class="sline yiwu lingyun lineyidong" id="lineyidong_0_1" y2="220" x2="600" y1="220"
+                              x1="650"/>
+                        <line class="sline lingyun chunhan lineyidong" id="lineyidong_1_2" y2="220" x2="650" y1="220"
+                              x1="700"/>
+                        <!--义东段 春晗 - 塘雅 折线区间连线 -->
+                        <path class="sline chunhan qintang lineyidong" d="M850,120 L750,220 L700,220" fill="#fff"/>
+                        <!--义东段 国际世贸 - 塘雅 折线区间连线 -->
+                        <path class="sline guojishangmao qintang lineyidong" d="M850,120 L875,95 L925,95"
+                              fill="#fff"/>
+                        <line class="sline guojishangmao zhesiyiyuan lineyidong" id="lineyidong_3_4" y2="95" x2="925"
+                              y1="95" x1="975"/>
+                        <line class="sline zhesiyiyuan jiangdong lineyidong" id="lineyidong_4_5" y2="95" x2="975"
+                              y1="95" x1="1025"/>
+                        <line class="sline jiangdong mudiao lineyidong" id="lineyidong_5_6" y2="95" x2="1025" y1="95"
+                              x1="1075"/>
+                        <line class="sline mudiao geshan lineyidong" id="lineyidong_6_7" y2="95" x2="1075" y1="95"
+                              x1="1125"/>
+                        <line class="sline geshan renmin lineyidong" id="lineyidong_7_8" y2="95" x2="1125" y1="95"
+                              x1="1175"/>
+                        <line class="sline renmin huizhan lineyidong" id="lineyidong_8_9" y2="95" x2="1175" y1="95"
+                              x1="1225"/>
+                        <line class="sline huizhan tiyuguan lineyidong" id="lineyidong_9_10" y2="95" x2="1225" y1="95"
+                              x1="1275"/>
+                        <line class="sline tiyuguan hengdian lineyidong" id="lineyidong_10_11" y2="95" x2="1275"
+                              y1="95" x1="1325"/>
+                        <line class="sline hengdian mingqinggong lineyidong" id="lineyidong_11_12" y2="95" x2="1325"
+                              y1="95" x1="1375"/>
+                        <!--义东段 区间连线   结束-->
+                        <!--金义段 区间连线   开始-->
+                        <line class="sline jinhua shuangxi linejinyi" id="linejinyi_0_1" y2="120" x2="50" y1="120"
+                              x1="100"/>
+                        <line class="sline shuangxi bayi linejinyi" id="linejinyi_1_2" y2="120" x2="100" y1="120"
+                              x1="150"/>
+                        <line class="sline bayi wanda linejinyi" id="linejinyi_2_3" y2="120" x2="150" y1="120"
+                              x1="200"/>
+                        <line class="sline wanda dayanhe linejinyi" id="linejinyi_3_4" y2="120" x2="200" y1="120"
+                              x1="250"/>
+                        <line class="sline dayanhe guidaodasha linejinyi" id="linejinyi_4_5" y2="120" x2="250" y1="120"
+                              x1="300"/>
+                        <line class="sline guidaodasha jinhuanan linejinyi" id="linejinyi_5_6" y2="120" x2="300"
+                              y1="120" x1="350"/>
+                        <line class="sline jinhuanan tangya linejinyi" id="linejinyi_6_7" y2="120" x2="350" y1="120"
+                              x1="400"/>
+                        <line class="sline tangya cheliangduan linejinyi" id="linejinyi_7_8" y2="120" x2="400" y1="120"
+                              x1="450"/>
+                        <line class="sline cheliangduan zongbaoqu linejinyi" id="linejinyi_8_9" y2="120" x2="450"
+                              y1="120" x1="500"/>
+                        <line class="sline zongbaoqu xinqu linejinyi" id="linejinyi_9_10" y2="120" x2="500" y1="120"
+                              x1="550"/>
+                        <line class="sline xinqu donghuajie linejinyi" id="linejinyi_10_11" y2="120" x2="550" y1="120"
+                              x1="600"/>
+                        <line class="sline donghuajie yiting linejinyi" id="linejinyi_11_12" y2="120" x2="600" y1="120"
+                              x1="650"/>
+                        <line class="sline yiting guantang linejinyi" id="linejinyi_12_13" y2="120" x2="650" y1="120"
+                              x1="700"/>
+                        <line class="sline guantang choujiang linejinyi" id="linejinyi_13_14" y2="120" x2="700" y1="120"
+                              x1="750"/>
+                        <line class="sline choujiang xiuhu linejinyi" id="linejinyi_14_15" y2="120" x2="750" y1="120"
+                              x1="800"/>
+                        <line class="sline xiuhu qintang linejinyi" id="linejinyi_15_16" y2="120" x2="800" y1="120"
+                              x1="850"/>
+                        <!--金义段 区间连线   结束-->
+                        <!--金义段 车站信息  开始-->
+                        <g class="sta jinhua" lineid="linejinyi" sid="jinhua">
+                            <text transform="rotate(-45 45,100) " xml:space="preserve" text-anchor="start" id="st_0"
+                                  x="45" y="100" class="szn">金华站</text>
+                            <text transform="rotate(-45 50,110) " xml:space="preserve" text-anchor="start" id="ste_0"
+                                  x="50" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_0" cx="50" cy="120"/>
+                        </g>
+                        <g class="sta shuangxi" lineid="linejinyi" sid="shuangxi">
+                            <text transform="rotate(-45 95,100) " xml:space="preserve" text-anchor="start" id="st_1"
+                                  x="95" y="100" class="szn">双溪西路站</text>
+                            <text transform="rotate(-45 100,110) " xml:space="preserve" text-anchor="start" id="ste_1"
+                                  x="100" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_1" cx="100" cy="120"/>
+                        </g>
+                        <g class="sta bayi" lineid="linejinyi" sid="bayi">
+                            <text transform="rotate(-45 145,100) " xml:space="preserve" text-anchor="start" id="st_2"
+                                  x="145" y="100" class="szn">八一南街站</text>
+                            <text transform="rotate(-45 150,110) " xml:space="preserve" text-anchor="start" id="ste_2"
+                                  x="150" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_2" cx="150" cy="120"/>
+                        </g>
+                        <g class="sta wanda" lineid="linejinyi" sid="wanda">
+                            <text transform="rotate(-45 195,100) " xml:space="preserve" text-anchor="start" id="st_3"
+                                  x="195" y="100" class="szn">万达广场站</text>
+                            <text transform="rotate(-45 200,110) " xml:space="preserve" text-anchor="start" id="ste_3"
+                                  x="200" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_3" cx="200" cy="120"/>
+                        </g>
+                        <g class="sta dayanhe" lineid="linejinyi" sid="dayanhe">
+                            <text transform="rotate(-45 245,100) " xml:space="preserve" text-anchor="start" id="st_4"
+                                  x="245" y="100" class="szn">大堰河街站</text>
+                            <text transform="rotate(-45 250,110) " xml:space="preserve" text-anchor="start" id="ste_4"
+                                  x="250" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_4" cx="250" cy="120"/>
+                        </g>
+                        <g class="sta guidaodasha" lineid="linejinyi" sid="guidaodasha">
+                            <text transform="rotate(-45 295,100) " xml:space="preserve" text-anchor="start" id="st_5"
+                                  x="295" y="100" class="szn">轨道大厦站</text>
+                            <text transform="rotate(-45 300,110) " xml:space="preserve" text-anchor="start" id="ste_5"
+                                  x="300" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_5" cx="300" cy="120"/>
+                        </g>
+                        <g class="sta jinhuanan" lineid="linejinyi" sid="jinhuanan">
+                            <text transform="rotate(-45 345,100) " xml:space="preserve" text-anchor="start" id="st_6"
+                                  x="345" y="100" class="szn">金华南站</text>
+                            <text transform="rotate(-45 350,110) " xml:space="preserve" text-anchor="start" id="ste_6"
+                                  x="350" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_6" cx="350" cy="120"/>
+                        </g>
+                        <g class="sta tangya" lineid="linejinyi" sid="tangya">
+                            <text transform="rotate(-45 395,100) " xml:space="preserve" text-anchor="start" id="st_7"
+                                  x="395" y="100" class="szn">塘雅站</text>
+                            <text transform="rotate(-45 400,110) " xml:space="preserve" text-anchor="start" id="ste_7"
+                                  x="400" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_7" cx="400" cy="120"/>
+                        </g>
+                        <g class="sta cheliangduan" lineid="linejinyi" sid="cheliangduan">
+                            <text transform="rotate(-45 445,100) " xml:space="preserve" text-anchor="start" id="st_8"
+                                  x="445" y="100" class="szn">车辆段站</text>
+                            <text transform="rotate(-45 450,110) " xml:space="preserve" text-anchor="start" id="ste_8"
+                                  x="450" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_8" cx="450" cy="120"/>
+                        </g>
+                        <g class="sta zongbaoqu" lineid="linejinyi" sid="zongbaoqu">
+                            <text transform="rotate(-45 495,100) " xml:space="preserve" text-anchor="start" id="st_9"
+                                  x="495" y="100" class="szn">综保区站</text>
+                            <text transform="rotate(-45 500,110) " xml:space="preserve" text-anchor="start" id="ste_9"
+                                  x="500" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_9" cx="500" cy="120"/>
+                        </g>
+                        <g class="sta xinqu" lineid="linejinyi" sid="xinqu">
+                            <text transform="rotate(-45 545,100) " xml:space="preserve" text-anchor="start" id="st_10"
+                                  x="545" y="100" class="szn">新区站</text>
+                            <text transform="rotate(-45 550,110) " xml:space="preserve" text-anchor="start" id="ste_10"
+                                  x="550" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_10" cx="550" cy="120"/>
+                        </g>
+                        <g class="sta donghuajie" lineid="linejinyi" sid="donghuajie">
+                            <text transform="rotate(-45 595,100) " xml:space="preserve" text-anchor="start" id="st_11"
+                                  x="595" y="100" class="szn">东华街站</text>
+                            <text transform="rotate(-45 600,110) " xml:space="preserve" text-anchor="start" id="ste_11"
+                                  x="600" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_11" cx="600" cy="120"/>
+                        </g>
+                        <g class="sta yiting" lineid="linejinyi" sid="yiting">
+                            <text transform="rotate(-45 645,100) " xml:space="preserve" text-anchor="start" id="st_12"
+                                  x="645" y="100" class="szn">义亭站</text>
+                            <text transform="rotate(-45 650,110) " xml:space="preserve" text-anchor="start" id="ste_12"
+                                  x="650" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_12" cx="650" cy="120"/>
+                        </g>
+                        <g class="sta guantang" lineid="linejinyi" sid="guantang">
+                            <text transform="rotate(-45 695,100) " xml:space="preserve" text-anchor="start" id="st_13"
+                                  x="695" y="100" class="szn">官塘站</text>
+                            <text transform="rotate(-45 700,110) " xml:space="preserve" text-anchor="start" id="ste_13"
+                                  x="700" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_13" cx="700" cy="120"/>
+                        </g>
+                        <g class="sta choujiang" lineid="linejinyi" sid="choujiang">
+                            <text transform="rotate(-45 745,100) " xml:space="preserve" text-anchor="start" id="st_14"
+                                  x="745" y="100" class="szn">稠江站</text>
+                            <text transform="rotate(-45 750,110) " xml:space="preserve" text-anchor="start" id="ste_14"
+                                  x="750" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_14" cx="750" cy="120"/>
+                        </g>
+                        <g class="sta xiuhu" lineid="linejinyi" sid="xiuhu">
+                            <text transform="rotate(-45 795,100) " xml:space="preserve" text-anchor="start" id="st_15"
+                                  x="795" y="100" class="szn">绣湖站</text>
+                            <text transform="rotate(-45 800,110) " xml:space="preserve" text-anchor="start" id="ste_15"
+                                  x="800" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_15" cx="800" cy="120"/>
+                        </g>
+                        <g class="sta qintang" lineid="linejinyi_lineyidong" sid="qintang">
+                            <text transform="rotate(-45 845,100) " xml:space="preserve" text-anchor="start" id="st_16"
+                                  x="845" y="100" class="szn">秦塘站</text>
+                            <text transform="rotate(-45 850,110) " xml:space="preserve" text-anchor="start" id="ste_16"
+                                  x="850" y="110" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_16" cx="850" cy="120"/>
+                        </g>
+                        <!--金义段 车站信息  结束-->
+
+                        <!--义东段 车站信息  开始-->
+                        <g class="sta yiwu" lineid="lineyidong" sid="yiwu">
+                            <text transform="rotate(-45 595,200) " xml:space="preserve" text-anchor="start" id="st_0"
+                                  x="595" y="200" class="szn">义乌高铁站</text>
+                            <text transform="rotate(-45 600,210) " xml:space="preserve" text-anchor="start" id="ste_0"
+                                  x="600" y="210" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_0" cx="600" cy="220"/>
+                        </g>
+                        <g class="sta lingyun" lineid="lineyidong" sid="lingyun">
+                            <text transform="rotate(-45 645,200) " xml:space="preserve" text-anchor="start" id="st_1"
+                                  x="645" y="200" class="szn">凌云</text>
+                            <text transform="rotate(-45 650,210) " xml:space="preserve" text-anchor="start" id="ste_1"
+                                  x="650" y="210" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_1" cx="650" cy="220"/>
+                        </g>
+                        <g class="sta chunhan" lineid="lineyidong" sid="chunhan">
+                            <text transform="rotate(-45 695,200) " xml:space="preserve" text-anchor="start" id="st_2"
+                                  x="695" y="200" class="szn">春晗</text>
+                            <text transform="rotate(-45 700,210) " xml:space="preserve" text-anchor="start" id="ste_2"
+                                  x="700" y="210" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_2" cx="700" cy="220"/>
+                        </g>
+                        <!--义东段 车站信息  折线分割  没有塘雅站-->
+
+                        <g class="sta guojishangmao" lineid="lineyidong" sid="guojishangmao">
+                            <text transform="rotate(-45 920,75) " xml:space="preserve" text-anchor="start" id="st_3"
+                                  x="920" y="75" class="szn">国际商贸城</text>
+                            <text transform="rotate(-45 925,85) " xml:space="preserve" text-anchor="start" id="ste_3"
+                                  x="925" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_3" cx="925" cy="95"/>
+                        </g>
+                        <g class="sta zhesiyiyuan" lineid="lineyidong" sid="zhesiyiyuan">
+                            <text transform="rotate(-45 970,75) " xml:space="preserve" text-anchor="start" id="st_4"
+                                  x="970" y="75" class="szn">浙医四院</text>
+                            <text transform="rotate(-45 975,85) " xml:space="preserve" text-anchor="start" id="ste_4"
+                                  x="975" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_4" cx="975" cy="95"/>
+                        </g>
+                        <g class="sta jiangdong" lineid="lineyidong" sid="jiangdong">
+                            <text transform="rotate(-45 1020,75) " xml:space="preserve" text-anchor="start" id="st_5"
+                                  x="1020" y="75" class="szn">江东</text>
+                            <text transform="rotate(-45 1025,85) " xml:space="preserve" text-anchor="start" id="ste_5"
+                                  x="1025" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_5" cx="1025" cy="95"/>
+                        </g>
+                        <g class="sta mudiao" lineid="lineyidong" sid="mudiao">
+                            <text transform="rotate(-45 1070,75) " xml:space="preserve" text-anchor="start" id="st_6"
+                                  x="1070" y="75" class="szn">木雕城</text>
+                            <text transform="rotate(-45 1075,85) " xml:space="preserve" text-anchor="start" id="ste_6"
+                                  x="1075" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_6" cx="1075" cy="95"/>
+                        </g>
+                        <g class="sta geshan" lineid="lineyidong" sid="geshan">
+                            <text transform="rotate(-45 1120,75) " xml:space="preserve" text-anchor="start" id="st_7"
+                                  x="1120" y="75" class="szn">歌山路</text>
+                            <text transform="rotate(-45 1125,85) " xml:space="preserve" text-anchor="start" id="ste_7"
+                                  x="1125" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_7" cx="1125" cy="95"/>
+                        </g>
+                        <g class="sta renmin" lineid="lineyidong" sid="renmin">
+                            <text transform="rotate(-45 1170,75) " xml:space="preserve" text-anchor="start" id="st_8"
+                                  x="1170" y="75" class="szn">人民路</text>
+                            <text transform="rotate(-45 1175,85) " xml:space="preserve" text-anchor="start" id="ste_8"
+                                  x="1175" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_8" cx="1175" cy="95"/>
+                        </g>
+                        <g class="sta huizhan" lineid="lineyidong" sid="huizhan">
+                            <text transform="rotate(-45 1220,75) " xml:space="preserve" text-anchor="start" id="st_9"
+                                  x="1220" y="75" class="szn">会展中心</text>
+                            <text transform="rotate(-45 1225,85) " xml:space="preserve" text-anchor="start" id="ste_9"
+                                  x="1225" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_9" cx="1225" cy="95"/>
+                        </g>
+                        <g class="sta tiyuguan" lineid="lineyidong" sid="tiyuguan">
+                            <text transform="rotate(-45 1270,75) " xml:space="preserve" text-anchor="start" id="st_10"
+                                  x="1270" y="75" class="szn">体育馆</text>
+                            <text transform="rotate(-45 1275,85) " xml:space="preserve" text-anchor="start" id="ste_10"
+                                  x="1275" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_10" cx="1275" cy="95"/>
+                        </g>
+                        <g class="sta hengdian" lineid="lineyidong" sid="hengdian">
+                            <text transform="rotate(-45 1320,75) " xml:space="preserve" text-anchor="start" id="st_11"
+                                  x="1320" y="75" class="szn">横店高铁站</text>
+                            <text transform="rotate(-45 1325,85) " xml:space="preserve" text-anchor="start" id="ste_11"
+                                  x="1325" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_11" cx="1325" cy="95"/>
+                        </g>
+                        <g class="sta mingqinggong" lineid="lineyidong" sid="mingqinggong">
+                            <text transform="rotate(-45 1370,75) " xml:space="preserve" text-anchor="start" id="st_12"
+                                  x="1370" y="75" class="szn">明清宫站</text>
+                            <text transform="rotate(-45 1375,85) " xml:space="preserve" text-anchor="start" id="ste_12"
+                                  x="1375" y="85" class="sen">Jinhua Railway Station</text>
+                            <ellipse ry="8" rx="8" id="stc_12" cx="1375" cy="95"/>
+                        </g>
+                        <!--义东段 车站信息  结束-->
+                        <!--起点图标 -->
+                        <g class="sico qidian" id="qidian">
+                            <ellipse ry="10" rx="10" id="stc_12" cx="7" cy="0"/>
+                            <text xml:space="preserve" text-anchor="start" x="0" y="4">起</text>
+                        </g>
+                        <!--终点图标 -->
+                        <g class="sico zhongdian" id="zhongdian">
+                            <ellipse ry="10" rx="10" cx="7" cy="0"/>
+                            <text xml:space="preserve" text-anchor="start" x="0" y="4">终</text>
+                        </g>
+                    </g>
+                </svg>

@@ -1,0 +1,393 @@
+{
+  "patches": [
+    {
+      "relation": 7627370,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Metro L1 route_master：見下方四條 route relation 的統一說明。master 也一併統一（repTags 取 master）。"
+    },
+    {
+      "relation": 289331,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Ligne 1 統一名（見 8210886 說明）。"
+    },
+    {
+      "relation": 6545466,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Ligne 1 統一名（見 8210886 說明）。"
+    },
+    {
+      "relation": 8210887,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Ligne 1 統一名（見 8210886 說明）。"
+    },
+    {
+      "relation": 8210886,
+      "set": {
+        "name": "Ligne 1",
+        "name:en": "Line 1"
+      },
+      "note": "Algiers Metro Ligne 1 底下四個 relation（Metro L1 / L1R / L1-2 / L1R-2）是同一條官方 Ligne 1 的 Y 型分支變體（El-Harrach 支＋Aïn Naâdja 支），OSM 各給不同 name。分支帶新站→依設計各自成 route（line_count＝route 數會 >官方線數，同港鐵東鐵綫佔 3 的既定行為，非 bug），但因 name 不一致，車站 routes[]/lines 以 ref+name 去重時無法收斂、出現 ['L1','L1'] 重複、hover 像兩條線。四條 relation 全部統一官方名『Ligne 1』(en: Line 1) 使顯示身分一致、車站標記收斂成單一 L1。站數 19 本就正確。上游補齊統一名後可移除。"
+    },
+    {
+      "relation": 15624911,
+      "set": {
+        "ref": "L2",
+        "colour": "#48a23e"
+      },
+      "note": "Panama City: 'Ramal línea 2 : Corredor Sur → Aeropuerto' (OSM relation 15624911) is the 3-station airport branch of Line 2 (shares Corredor Sur with the main L2 route; ITSE/Aeropuerto are its own stations). Upstream OSM tags have no colour and no ref, so it grouped as its own untagged line and fell back to the default red — visually indistinguishable from Line 1. Wikipedia/mapa-metro.com confirm the airport branch is operationally part of Line 2 and shares its green livery. Setting ref=L2 lets it merge into Line 2's group via the normal same-network+ref grouping (colour then inherited from the coloured variant); colour is set directly too as belt-and-braces. Remove once upstream OSM adds these tags."
+    },
+    {
+      "relation": 7869622,
+      "set": {
+        "colour": "red"
+      },
+      "note": "Bursaray B2 route_master (r7869622, ref=B2 BursaRay 2): OSM tags colour=black, a placeholder (no line is black). The master colour overrides the variant colours, so the patch must target the master, not the route relations 7869620/7869621. Bursaray is one branching system sharing an eastern trunk; per user, both branches use B1's red. Setting colour=red (→ #e6194b). Remove if upstream OSM sets a real colour."
+    },
+    {
+      "relation": 9437778,
+      "set": {
+        "name": "板南線",
+        "name:zh": "板南線",
+        "name:zh-Hant": "板南線"
+      },
+      "note": "Taipei BL master：OSM name「臺北捷運 南港-板橋-土城線」為工程路線名；官方線名＝板南線（trtc.com.tw 路網圖，2026-07 使用者規則：路線名一律用官方名）。"
+    },
+    {
+      "relation": 4264893,
+      "set": {
+        "name": "文湖線",
+        "name:zh": "文湖線",
+        "name:zh-Hant": "文湖線"
+      },
+      "note": "Taipei BR master：OSM name「捷運文湖線」冠「捷運」前綴；官方線名＝文湖線。"
+    },
+    {
+      "relation": 4250358,
+      "set": {
+        "name": "松山新店線",
+        "name:zh": "松山新店線",
+        "name:zh-Hant": "松山新店線"
+      },
+      "note": "Taipei G master：OSM name 竟為端點站名「台電大樓」（上游命名錯誤）；官方線名＝松山新店線。"
+    },
+    {
+      "relation": 4250380,
+      "set": {
+        "name": "小碧潭支線",
+        "name:zh": "小碧潭支線",
+        "name:zh-Hant": "小碧潭支線"
+      },
+      "note": "Taipei G 支線 relation：OSM name「台北捷運小碧潭支線」冠系統前綴；官方＝小碧潭支線。"
+    },
+    {
+      "relation": 10658528,
+      "set": {
+        "name": "環狀線",
+        "name:zh": "環狀線",
+        "name:zh-Hant": "環狀線"
+      },
+      "note": "Taipei Y master：OSM name「臺北捷運環狀線（大坪林」截斷且含變體註記；官方線名＝環狀線。"
+    },
+    {
+      "relation": 4250359,
+      "set": {
+        "name": "中和新蘆線",
+        "name:zh": "中和新蘆線",
+        "name:zh-Hant": "中和新蘆線"
+      },
+      "note": "Taipei O master（南勢角–迴龍）：OSM name「台北捷運中和新蘆線(蘆洲)」冠前綴＋錯誤分支註記；官方線名＝中和新蘆線（迴龍/蘆洲雙分支同名）。"
+    },
+    {
+      "relation": 4250352,
+      "set": {
+        "name": "中和新蘆線",
+        "name:zh": "中和新蘆線",
+        "name:zh-Hant": "中和新蘆線"
+      },
+      "note": "Taipei O 蘆洲分支 relation（南勢角–蘆洲）：同上，官方線名＝中和新蘆線。"
+    },
+    {
+      "relation": 5576487,
+      "set": {
+        "name": "淡海輕軌藍海線",
+        "name:zh": "淡海輕軌藍海線",
+        "name:zh-Hant": "淡海輕軌藍海線"
+      },
+      "note": "New Taipei V master（紅樹林–淡水漁人碼頭 12 站，經濱海沙崙）：OSM name 只寫「淡海輕軌」；此營運模式為官方藍海線。"
+    },
+    {
+      "relation": 9154523,
+      "set": {
+        "name": "淡海輕軌綠山線",
+        "name:zh": "淡海輕軌綠山線",
+        "name:zh-Hant": "淡海輕軌綠山線"
+      },
+      "note": "New Taipei V relation（紅樹林–崁頂 11 站）：OSM name「淡海輕軌 紅樹林-崁頂」；官方＝綠山線（V01–V11）。"
+    },
+    {
+      "relation": 21066082,
+      "set": {
+        "name": "三鶯線",
+        "name:zh": "三鶯線",
+        "name:zh-Hant": "三鶯線"
+      },
+      "note": "New Taipei LB master：OSM name「捷運三鶯線」冠「捷運」前綴；官方線名＝三鶯線。"
+    },
+    {
+      "relation": 8487050,
+      "set": {
+        "name": "桃園國際機場捷運直達車",
+        "name:zh": "桃園國際機場捷運直達車",
+        "name:zh-Hant": "桃園國際機場捷運直達車"
+      },
+      "note": "Taoyuan A 快車 relation：組檔顯示「桃園國際機場捷運（快車）」；官方稱直達車。"
+    },
+    {
+      "relation": 9437207,
+      "set": {
+        "name": "淡水信義線",
+        "name:zh": "淡水信義線",
+        "name:zh-Hant": "淡水信義線",
+        "ref": "R",
+        "colour": "#FF0000"
+      },
+      "note": "Taipei 新北投支線 route_master：OSM 把「捷運紅線 (新北投支線)」整串塞進 name/ref。設 ref=R 使其群組與紅線主線「快/慢車合併」為同一條線；master name 必須設為主線官方名（淡水信義線）——合併後代表 tags 由 master 覆蓋，若留支線名會把整條紅線改名（實測踩過）。支線自身的名稱在 relation 級補丁。另補 colour=#FF0000：合併後代表 tags 由此 master 覆蓋，其 OSM colour #F890A5（粉紅）曾毒到整條紅線主線（2026-07 修正，同 name 教訓）。"
+    },
+    {
+      "relation": 9437206,
+      "set": {
+        "name": "新北投支線",
+        "name:zh": "新北投支線",
+        "name:zh-Hant": "新北投支線",
+        "ref": "R",
+        "colour": "#F890A5"
+      },
+      "note": "Taipei 新北投支線 relation（master 成員）：官方名＝新北投支線、屬紅線 ref R；帶新站（新北投）的分支變體在合併群組內自成 route（同小碧潭支線模式），顯示此名。另補 colour=#FF0000：新北投支線官方屬紅線（與主線同色），OSM 的 #F890A5 非官方色。顏色＝官方粉紅 #F890A5（台北捷運官方路網圖新北投支線為粉紅、非紅線色；2026-07 使用者回報修正）。"
+    },
+    {
+      "relation": 2665129,
+      "set": {
+        "name": "新北投支線",
+        "name:zh": "新北投支線",
+        "name:zh-Hant": "新北投支線",
+        "ref": "R",
+        "colour": "#F890A5"
+      },
+      "note": "Taipei 新北投支線另一方向 relation（不在 master 成員內，曾自成一線帶著整串怪 ref）：同上補 ref/官方名，使其併入紅線分組、與 9437206 去重。另補 colour=#FF0000：新北投支線官方屬紅線（與主線同色），OSM 的 #F890A5 非官方色。顏色＝官方粉紅 #F890A5（台北捷運官方路網圖新北投支線為粉紅、非紅線色；2026-07 使用者回報修正）。"
+    },
+    {
+      "relation": 272133,
+      "set": {
+        "name": "屯馬綫",
+        "name:zh": "屯馬綫",
+        "name:zh-Hant": "屯馬綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：屯馬綫"
+    },
+    {
+      "relation": 6452936,
+      "set": {
+        "name": "觀塘綫",
+        "name:zh": "觀塘綫",
+        "name:zh-Hant": "觀塘綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：觀塘綫"
+    },
+    {
+      "relation": 269670,
+      "set": {
+        "name": "港島綫",
+        "name:zh": "港島綫",
+        "name:zh-Hant": "港島綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：港島綫"
+    },
+    {
+      "relation": 9736531,
+      "set": {
+        "name": "荃灣綫",
+        "name:zh": "荃灣綫",
+        "name:zh-Hant": "荃灣綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：荃灣綫"
+    },
+    {
+      "relation": 9736612,
+      "set": {
+        "name": "將軍澳綫",
+        "name:zh": "將軍澳綫",
+        "name:zh-Hant": "將軍澳綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：將軍澳綫"
+    },
+    {
+      "relation": 13352937,
+      "set": {
+        "name": "將軍澳綫",
+        "name:zh": "將軍澳綫",
+        "name:zh-Hant": "將軍澳綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：將軍澳綫（康城支線變體，官方同名）"
+    },
+    {
+      "relation": 1139477,
+      "set": {
+        "name": "迪士尼綫",
+        "name:zh": "迪士尼綫",
+        "name:zh-Hant": "迪士尼綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：迪士尼綫"
+    },
+    {
+      "relation": 4248590,
+      "set": {
+        "name": "東鐵綫",
+        "name:zh": "東鐵綫",
+        "name:zh-Hant": "東鐵綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：東鐵綫（羅湖變體；master rm272132 已是官方名，變體 relation 名補齊使三條一致）"
+    },
+    {
+      "relation": 4250432,
+      "set": {
+        "name": "東鐵綫",
+        "name:zh": "東鐵綫",
+        "name:zh-Hant": "東鐵綫"
+      },
+      "note": "香港港鐵官方路網圖線名無「港鐵」前綴（mtr.com.hk，2026-07 官方名規則）：東鐵綫（落馬洲/馬場變體）"
+    },
+    {
+      "relation": 7894362,
+      "set": {
+        "name": "NYCS - S Rockaway Park Shuttle"
+      },
+      "note": "NYC S 接駁：net+ref 群組合併把三條 S shuttle 併進同群，代表 tags 取 master 7894362（OSM 上是 Franklin 的 master）、但最長變體（kept[0]）是 Rockaway Park Shuttle 的 rows → 主 route 錯名 Franklin。把 master 顯示名改為 Rockaway（Franklin 分支變體用自己 relation 名、不受影響）。上游若把 Rockaway 拆成自己的 master 應刪除本筆。"
+    },
+    {
+      "relation": 6937084,
+      "set": {
+        "ref": "TY-A"
+      },
+      "note": "桃園國際機場捷運（機捷）route_master r6937084，原 ref=A 與台北自家線的字母 ref 系統混在同一都會圈檔（桃園併入台北，見 metro-city-taipei）。使用者規則 2026-07：桃園捷運路線 id 加 TY- 前綴以資區別——機捷路線 id A → TY-A。master ref 覆蓋變體 ref（repTags），故 patch 打在 master 而非 4 條 route 變體（2108764/6937083/8487050/8487062）。只改線 id/route_ref，車站代碼 A1–A21 不受影響（另源）。"
+    },
+    {
+      "relation": 11330479,
+      "set": {
+        "ref": "TY-G"
+      },
+      "note": "桃園捷運綠線 route r11330479（未通車例外，走 uc_exceptions/gap_routes_uc），原 ref=G 與台北松山新店線/小碧潭支線同字母、在同一都會圈檔（桃園併入台北）易混淆。使用者規則 2026-07：桃園捷運的 G → TY-G。此線無 route_master，patch 直接打在 route relation；只改線 id/route_ref。"
+    },
+    {
+      "relation": 17585171,
+      "set": {
+        "colour": "#5786c5"
+      },
+      "note": "Incheon International Airport Shuttle Train route_master r17585171（及 4 條 route 變體）OSM 完全沒標 colour／ref → route_color=null、前端退回預設紅。NamuWiki（ko:인천국제공항 셔틀트레인）象徵色：Blue Line（T1↔탑승동）#5786c5、Orange Line（T2↔탑승동）#f99d1b；合併成單一 route_master 後取 Blue 為代表色。Remove once upstream OSM adds colour."
+    },
+    {
+      "relation": 19382689,
+      "set": {
+        "ref": "CBE",
+        "colour": "#34ACE1"
+      },
+      "note": "墨爾本 Metro Tunnel（2025 通車）貫通運營：relation 19382689「Watergardens => Cranbourne」的 OSM ref 是箭頭寫法「WGS=>CBE」且不屬於任何 route_master，會自成一條無名的「Metro Tunnel」線（32 站）與 Cranbourne 線並存。實際上它就是 Cranbourne 線經地鐵隧道的全程班次（PTV 官方路網圖：Cranbourne 線 Cranbourne↔Sunbury 方向）。設 ref=CBE 讓它併入 Cranbourne 線分組（原本只剩 Dandenong–Cranbourne 接駁段 4 站），colour 補官方淺藍。上游改用正規 ref 後可移除。"
+    },
+    {
+      "relation": 10391556,
+      "set": {
+        "ref": "Airport"
+      },
+      "note": "布里斯本機場線 route_master（ref=BDBR，Roma Street → Airport）：同一條線的兩個方向在 OSM 用相反的四碼 ref（BDBR／BRBD），會被 network+ref 分組拆成兩條線。統一成官方線名 ref=Airport（另一方向的 route 2047576 同步）。"
+    },
+    {
+      "relation": 2047576,
+      "set": {
+        "ref": "Airport"
+      },
+      "note": "布里斯本機場線反向 route（ref=BRBD，無 master）：同上，統一 ref=Airport 併回機場線。"
+    },
+    {
+      "relation": 15625847,
+      "set": {
+        "ref": "Caboolture"
+      },
+      "note": "布里斯本卡布爾徹線 route_master（ref=CABR）：CABR／BRCA 是同一條線的兩個方向，另有 ref=Caboolture 的 Nightlink 變體，三者統一成官方線名 ref=Caboolture。"
+    },
+    {
+      "relation": 19224286,
+      "set": {
+        "ref": "Caboolture"
+      },
+      "note": "布里斯本卡布爾徹線反向 route_master（ref=BRCA）：同上。"
+    },
+    {
+      "relation": 19224700,
+      "set": {
+        "ref": "Rosewood"
+      },
+      "note": "布里斯本羅斯伍德/伊普斯威奇線 route_master（ref=RWIP，Rosewood => Ipswich 區間車）：與 ref=Rosewood 的全程線是同一條，統一 ref=Rosewood。"
+    },
+    {
+      "relation": 13903112,
+      "set": {
+        "ref": "GAW"
+      },
+      "note": "阿德萊德高勒線 route_master（ref=GAWC，Gawler Central）：GAW／GAWC／SALIS 是同一條 Gawler 線的全程、延伸終點與 Salisbury 區間，統一成 ref=GAW（官方 Gawler line）。"
+    },
+    {
+      "relation": 16672157,
+      "set": {
+        "ref": "GAW"
+      },
+      "note": "阿德萊德高勒線 Salisbury 區間 route_master（ref=SALIS）：同上，併入 GAW。"
+    },
+    {
+      "relation": 16672584,
+      "set": {
+        "ref": "OUTHA"
+      },
+      "note": "阿德萊德奧斯本區間 route_master（ref=OSBORN）：Osborne 是 Outer Harbor 線上的中間站，區間車併入 ref=OUTHA。"
+    },
+    {
+      "relation": 16672579,
+      "set": {
+        "ref": "SEAFRD"
+      },
+      "note": "阿德萊德諾蘭加區間 route（ref=NOAR，無 master）：Noarlunga Centre 是 Seaford 線上的中間站，區間車併入 ref=SEAFRD。"
+    },
+    {
+      "relation": 548496,
+      "set": {
+        "ref": "T1"
+      },
+      "note": "阿爾及爾電車（SETRAM）：同一條線的兩個方向在 OSM 用 ref「T1 A」/「T1 R」（aller／retour），會被拆成兩條線。統一 ref=T1。"
+    },
+    {
+      "relation": 6545828,
+      "set": {
+        "ref": "T1",
+        "colour": "#0363ff"
+      },
+      "note": "阿爾及爾電車反向 route（ref=T1 R）：同上；colour 統一成與去程相同的官方藍（OSM 上兩向色碼不同 #6633FF/#0363ff）。"
+    },
+    {
+      "relation": 15540826,
+      "set": {
+        "ref": "2"
+      },
+      "note": "莫斯塔加內姆電車 Ligne 2 的 route_master（r15540826）在 OSM 被誤標 ref=1，與 Ligne 1 的 master（r15540825）同 ref＋同 operator(SETRAM) → 被「network＋ref」合併成同一條線，兩段互不相連（verify broken_routes：Ligne 1 斷成 2 段）。改回官方 ref=2。上游修正後可移除。"
+    }
+  ]
+}

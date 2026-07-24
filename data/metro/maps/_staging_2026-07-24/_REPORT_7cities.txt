@@ -1,0 +1,3 @@
+HIT: hefei, nantong, wenzhou
+REJECT: luoyang (terrain basemap on lysubway.com.cn)
+NOT_FOUND: chuzhou, lanzhou, taizhou

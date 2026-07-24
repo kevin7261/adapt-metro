@@ -1,0 +1,11 @@
+{
+  "city": "Sétif",
+  "country": "Algeria",
+  "continent": "africa",
+  "osm_route_ids": [
+    8284586,
+    13176696
+  ],
+  "source": "https://www.urbanrail.net/af/africa.htm",
+  "note": "Sétif（route=tram）——由 scripts/fetchAfrica.mjs 自動產生。operator（SETRAM／RATP Dev／Transdev／Metrorail…）跨城通用或完全無標籤，無法以 network 綁城，故以 relation id 直綁；override 同時豁免 buildGeojson 的「純 LRT 剔除」規則。重跑 fetchAfrica.mjs 會依最新 OSM 覆寫本檔。"
+}

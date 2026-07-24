@@ -1,0 +1,50 @@
+{
+  "as-chn-chuzhou": {
+    "verdict": "HIT_COMMUNITY",
+    "source_url": "https://commons.wikimedia.org/wiki/File:%E6%BB%81%E5%AE%81%E5%9F%8E%E9%99%85%E9%93%81%E8%B7%AF%E7%BA%BF%E8%B7%AF%E5%9B%BE.svg",
+    "commons_file": "滁宁城际铁路线路图.svg",
+    "local_png": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-chuzhou.png",
+    "local_svg": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-chuzhou.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "橙子木",
+    "md5_png": "c249183b59634261cb6e7519765b6693",
+    "md5_svg": "1e9bb1417bb7edf9b4f9cd56406f08b5",
+    "why": "Ningchu/S4-focused linear schematic (not full Nanjing). Light bg, orange line, Chuzhou+Nanjing greyed. Official Nanjing maps omit Ningchu; no Chuzhou operator schematic found.",
+    "alt_considered": "Nanjing Metro Line S4 Map.svg (geo-basemap overlay; kept as candidate as-chn-chuzhou-s4.png)"
+  },
+  "as-chn-lanzhou": {
+    "verdict": "HIT_COMMUNITY",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Lanzhou_Metro_Map.svg",
+    "commons_file": "Lanzhou Metro Map.svg",
+    "local_png": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-lanzhou.png",
+    "local_svg": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-lanzhou.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Painjet",
+    "md5_png": "5e07785e3c640ff9bd7e3d66188fbf2f",
+    "md5_svg": "7b5e5495330dcdf145374e14f29d2130",
+    "why": "Official site only has 2035 planning GIS. Commons schematic shows operating L1 (blue)+L2 (red) on white bg with Yellow River cue; not a planning spaghetti map."
+  },
+  "as-chn-luoyang": {
+    "verdict": "HIT_COMMUNITY",
+    "source_url": "https://commons.wikimedia.org/wiki/File:System_Map_of_Luoyang_Metro.png",
+    "commons_file": "System Map of Luoyang Metro.png",
+    "local_png": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-luoyang.png",
+    "license": "CC BY-SA 4.0",
+    "artist": "Windmemories",
+    "md5_png": "048820022f1d758751fdf0d2b0ec4df1",
+    "why": "Official lysubway line_map is terrain/street basemap (rejected). Windmemories Commons schematic: L1 magenta + L2 green, light bg, bilingual stations."
+  },
+  "as-chn-taizhou": {
+    "verdict": "HIT_COMMUNITY",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Taizhou_Rail_Transit_System_Map.svg",
+    "commons_file": "Taizhou Rail Transit System Map.svg",
+    "local_png": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-taizhou.png",
+    "local_svg": "/Users/kevincheng/Library/CloudStorage/Dropbox/__NTU/__Thesis/_website/adapt-metro/data/metro/maps/_staging_2026-07-25/as-chn-taizhou.svg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Kmchang28",
+    "md5_png": "f65adbf6c417fce2300213cec2482d6d",
+    "md5_svg": "10f97aaea9972451f1afca9643dbed55",
+    "why": "No usable static operator schematic. Commons System Map SVG is S1-only operating schematic; SVG has transparent/light style (qlmanage→white). Commons auto-PNG thumb is black-bg (rejected). Planning.svg shows S1+S2 as if both open — not used.",
+    "note": "Prefer SVG→qlmanage PNG over Commons black thumb of same file."
+  }
+}

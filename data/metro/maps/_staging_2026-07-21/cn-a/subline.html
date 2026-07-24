@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover, shrink-to-fit=no" />
+    <title>武汉地铁集团</title>
+    <link rel="icon" href="images/icon/favicon.ico">
+    <link rel="stylesheet" href="styles/common.css">
+    <style>
+        .line-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .line-btn.active {
+            background-color: #0067CC !important;
+            color: white !important;
+        }
+
+        .arrow-left {
+            left: 6px;
+            top: 6px;
+            border-top: 10px solid transparent;
+            border-right: 10px solid rgba(22, 92, 195, .74);
+            border-bottom: 10px solid transparent;
+        }
+
+        /* #subwaySvg {
+            width: 2000px !important;
+            height: 2000px !important;
+        } */
+        .down_icon {
+            position: absolute;
+            right: 0;
+            z-index: 99999;
+            top: 60px;
+            right: 10px;
+        }
+        /* .amap-subway-api #subwaySvg{
+            top: -90px !important;
+        } */
+    </style>
+</head>
+
+<body>
+
+    <div id="app" v-cloak class="relative" :class="{'cursor-pointer': canScale}" @click="canScale = true">
+        <div class="line-box absolute top-0 bg-white bg-opacity-70 z-20 w-full px-1 py-2 overflow-x-auto"
+            style="white-space: nowrap">
+            <div v-for="item in lineList" :key="item.id"
+                class="line-btn inline cursor-pointer p-2 border leading-10 rounded-md mr-1 bg-white"
+                :class="currentLine === item.id ? 'active' : ''" :data-id="item.id" :style="`color: #${item.color}`"
+                @click="changeSubwayLine(item.id)">
+                {{ item.name }}
+            </div>
+        </div>
+        <div id="metroLine" @wheel="onMouseWheel"></div>
+        <!-- 图标按钮 -->
+        <div class="down_icon">
+            <ul>
+                <li @click="downloadImage"
+                    class="cursor-pointer shadow-md bg-white rounded-md p-1 md:p-2 mb-2  xl:mb-4  flex justify-center items-center">
+                    <i class=" md:text-2xl xl:text-3xl icon-a-02xiazai"></i>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- <script type="text/javascript" src="https://webapi.amap.com/subway?v=1.0&key=9d46a541efe676edff18c12da5f40fcc&callback=cbk"></script> -->
+    <script src="js/plugin/vue-2.6.12/vue.min.js"></script>
+    <script>
+        const libs = [
+            'utils/common.js',
+            'utils/subwayLineMain.js',
+        ]
+        for (let i = 0; i < libs.length; i++) {
+            const item = libs[i]
+            document.write(`<script src="./js/${item}?v=${Math.random()}"><\/script>`)
+        }
+    </script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            mixins: [CommonRequest],
+            data() {
+                return {
+                    // 地铁线路图
+                    mySubway: null,
+                    lineList: [],
+                    stationList: Tools.getSession('stationList') || [],
+                    currentLine: '',
+                    zoom: 0.5,
+                    canScale: false,
+                    metroData: '',
+                    // 线路图下载地址
+                    metroLineDownloadUrl: '',
+                }
+            },
+            watch: {
+                canScale: function (val) {
+                    if (val) {
+                        document.body.addEventListener("mousewheel", this.stopWheel, { passive: false });
+                    } else {
+                        document.body.removeEventListener("mousewheel", this.stopWheel)
+                    }
+                }
+            },
+            created() {
+                if (!this.stationList.length) {
+                    this.getAllStation()
+                }
+                this.getAllmetroData()
+                this.getMetroLineDownload()
+            },
+            mounted() {
+             },
+            methods: {
+                stopWheel(event) {
+                    event.preventDefault()
+                },
+                // 获取所有站点信息
+                getAllStation() {
+                    axios({
+                        url: SELECT_ALL_STATION,
+                        method: 'get'
+                    }).then((response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            Tools.setSession('stationList', data)
+                            this.stationList = data
+                        }
+                    }).catch(() => { })
+                },
+
+                // 16进制转rgba
+                hexToRgba(hex, opacity = 1) {
+                    hex = hex.replace("#", "");
+                    // 如果传入3位的颜色值，则转为6位
+                    if (hex.length === 3) {
+                        hex = hex.split("").map(function (n) {
+                            return n + n;
+                        }).join("");
+                    }
+
+                    // 使用解构赋值将每个两位十六进制值赋给对应的变量
+                    const [r, g, b] = hex.match(/.{1,2}/g).map(val => parseInt(val, 16));
+
+                    return `rgba(${r}, ${g}, ${b}), ${opacity})`;
+                },
+                // 获取地铁数据源
+                getAllmetroData() {
+                    axios({
+                        url: SELECT_ALL_METRO,
+                        method: 'get'
+                    }).then((response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            this.metroData = data.content
+                            if (this.metroData !== '') {
+                                this.initSubwayLine()
+                            }
+                        }
+                    }).catch(() => { })
+                },
+                // 获取线路图下载地址
+                getMetroLineDownload() {
+                    const params = {
+                        page: 0,
+                        size: 1,
+                        thumbnail: 2,
+                        firstClass: '500'
+                    }
+                    this.requestArticleList(params, (response) => {
+                        const { code, data, message } = response
+                        if (code === 200) {
+                            const { records } = data
+                            if (records.length && records[0].attachment) {
+                                this.metroLineDownloadUrl = BASE_FILE_URL + records[0].attachment
+                            }
+                        }
+                    })
+                },
+                // 初始化地铁图
+                initSubwayLine() {
+                    const { stationList, metroData } = this
+                    const _this = this
+                    $('body').on("mouseleave", () => {
+                        this.canScale = false
+                    });
+                    const mySubway = subway("metroLine", {
+                        // adcode: 4201, // 武汉的 adcode
+                        theme: 'colorful', // 'normal'（标准）和'colorful'（站点颜色跟随线路颜色
+                    })
+                    mySubway.setData(JSON.parse(metroData));
+                    // 地铁加载完成，执行complete事件
+                    mySubway.event.on("subway.complete", function (ev, info) {
+                        mySubway.getLineList((lineList) => {
+                            // 线路颜色添加背景色
+                            lineList.map(item => {
+                                item.bgColor = _this.hexToRgba(item.color, 0.2);
+                            })
+                            Tools.setLocal('lineList', lineList)
+                            _this.lineList = lineList.filter(item=>{
+                                if(item.name !== ''){
+                                    return true
+                                }
+                            })
+                        })
+                    })
+                    // 点击站点，显示此站点的信息窗体
+                    mySubway.event.on("station.touch", function (ev, info) {
+                        const id = info.id
+                        const name = info.name
+                        let siteInfo = {}
+                        stationList.forEach(item => {
+                            if (item.siteName === name) {
+                                siteInfo = item
+                            }
+                        })
+                        mySubway.stopAnimation()
+                        if (siteInfo.lineName === undefined && siteInfo.siteName === undefined) return false
+                        mySubway.addInfoWindow(id, {
+                            content: `
+                        <div class="text-white px-4 -mt-4 relative">
+                            <div class="arrow-left absolute"></div>
+                            <div class="w-56 rounded-lg p-4" style="background-color: rgba(22, 92, 195, .74)">
+                                <h4 class="text-2xl mb-3">
+                                    <i class="iconfont icon-a-01zhandian-ditie text-lg p-2 bg-white rounded-full mr-2" style="color: #165CC3"></i>
+                                    <a href="station-detail.html?line=${siteInfo.lineName.indexOf('阳逻线') !== -1 ? '阳逻线' : siteInfo.lineName}&site=${siteInfo.siteName}" target="_blank">${name}</a>
+                                </h4>
+                                <p class="text-sm leading-relaxed" style="text-indent: 2rem">${siteInfo.siteInfo}</p>
+                            </div>
+                        </div>
+                        `
+                        })
+                        const center = mySubway.getStCenter(id)
+                        mySubway.setCenter(center)
+                    })
+                    // 点击线路名
+                    mySubway.event.on("lineName.touch", function (ev, info) {
+                        _this.changeSubwayLine(info.id)
+                    })
+                    // 点击空白, 关闭infoWindow
+                    mySubway.event.on("subway.touch", function () {
+                        _this.currentLine = ''
+                        mySubway.clearLine()
+                        mySubway.clearInfoWindow()
+                    })
+                    this.mySubway = mySubway
+
+                    this.$nextTick(() => {
+                        this.mySubway.scale(0.5)
+                    })
+                },
+                // 切换运营线路
+                changeSubwayLine(id) {
+                    this.currentLine = id
+                    this.mySubway.showLine(id)
+                    const select_obj = $('#g-select')
+                    this.mySubway.setFitView(select_obj)
+                    const center = this.mySubway.getSelectedLineCenter()
+                    this.mySubway.setCenter(center)
+                },
+                onMouseWheel(e) {
+                    if (!this.canScale) return;
+                    let zoom = this.zoom
+                    e = e || window.event
+                    // console.log(e, 'e=')
+                    if (e.wheelDelta) {  //判断浏览器IE，谷歌滑轮事件
+                        if (e.wheelDelta > 0) { //当滑轮向上滚动时
+                            if (zoom === 1.5) {
+                                return
+                            } else {
+                                zoom += 0.5
+                            }
+                        } else if (e.wheelDelta < 0) { //当滑轮向下滚动时
+                            if (zoom > 0.5) {
+                                zoom -= 0.5
+                            } else if (zoom === 0) {
+                                return
+                            }
+                        }
+                    } else if (e.detail) {  //Firefox滑轮事件
+                        if (e.detail > 0) { //当滑轮向下滚动时
+                            if (zoom > 0.5) {
+                                zoom -= 0.5
+                            } else if (zoom === 0) {
+                                return
+                            }
+                        }
+                        if (e.detail < 0) { //当滑轮向上滚动时
+                            if (zoom === 1.5) {
+                                return
+                            } else {
+                                zoom += 0.5
+                            }
+                        }
+                    }
+                    this.mySubway.scale(zoom)
+                    this.zoom = zoom
+                },
+                // 下载图片
+                downloadImage() {
+                    if (!this.metroLineDownloadUrl) {
+                        console.log('线路图下载地址为空')
+                        return
+                    }
+                    let eleLink = document.createElement('a')
+                    eleLink.download = '武汉地铁线路图'
+                    eleLink.href = this.metroLineDownloadUrl
+                    eleLink.click()
+                    eleLink.remove()
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

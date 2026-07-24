@@ -1,0 +1,8 @@
+{
+  "city": "Port Louis",
+  "country": "Mauritius",
+  "continent": "africa",
+  "osm_route_ids": [10567271, 10567272, 15351071, 15351073],
+  "source": "https://www.urbanrail.net/af/africa.htm",
+  "note": "模里西斯 Metro Express（route=light_rail，已在全球基準查詢內）：4 條 relation 完全沒有 network／operator／ref 標籤，network 解析成 Unknown、座標最近的 wiki metro 城市在數千公里外 → 會落進 unknown 桶被丟掉。以 relation id 直綁 Port Louis（override 同時豁免『純 LRT 剔除』規則）。10567271/10567272＝Port Louis Victoria ⇄ Curepipe Central 主線，15351071/15351073＝Rose Hill ⇄ Mahatma Gandhi（Réduit）支線。使用者 2026-07-23 指定收錄。"
+}

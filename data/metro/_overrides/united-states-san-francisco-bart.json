@@ -1,0 +1,31 @@
+{
+  "city": "San Francisco BART",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    63250,
+    63572,
+    91022,
+    2124174,
+    2827683,
+    2827684,
+    2827685,
+    2827686,
+    2851612,
+    2851613,
+    2851725,
+    2851726,
+    2851727,
+    2851728,
+    2877693,
+    3433311,
+    3433312,
+    3433314,
+    3433316,
+    3435875,
+    6071916,
+    6071917
+  ],
+  "source": "https://www.urbanrail.net/am/snfr/san-francisco-bart.htm",
+  "note": "San Francisco BART（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

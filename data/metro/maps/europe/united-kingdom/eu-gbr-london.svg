@@ -1,0 +1,1774 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+width="2550" height="2010"
+viewBox="-700 -1100 2550 2010"
+>
+        <title>Guangzhou Metro Map in London Style (2019)</title>
+        <style type="text/css">
+<!--type="text/css" is required otherwise librsvg won't load anything from style element.-->
+<!--Class name begins with a dot in the style element. It is recalled in other element with the "class" attribute.-->
+
+<!--Fonts for Apple: "Hiragino Mincho ProN","PingFang HK",Futura-->
+<!--Notice font-weight-->
+<!--Change "啓" to "啓"-->
+
+.title {text-anchor:start;fill:#fff;font-size:75px;}
+.engtitle {
+        font-family:Railway,"Johnston ITC","P22 Johnston Underground",Arial,sans-serif;
+}
+.chttitle {
+        font-family:Railway,DFPLiSong-Md,"A-OTF Midashi Min MA31 Pr5",DFPNMingXBold-B5,DFPLiSong-Md,"Arial Unicode MS",sans-serif;
+}
+
+.dagger {font-family:"Times New Roman",serif;fill:#243588;font-weight:bold;font-size:20px;}
+
+.stname {
+        font-family:RailwayN12,"Johnston ITC","P22 Johnston Underground",Arial,sans-serif;
+        fill:#243588;
+        font-weight:bold;
+}
+.stclosed {
+        font-family:RailwayN12,"Johnston ITC","P22 Johnston Underground",Arial,sans-serif;
+        font-weight:bold;
+        fill:#E42313;
+        text-decoration:line-through;
+}
+.longtext {
+        font-family:Railway,"Johnston ITC","P22 Johnston Underground",Arial,sans-serif;
+        fill:#243588;
+}
+
+.chtstname {
+        font-family:RailwayN12,"A-OTF Midashi Min MA31 Pr5",DFPNMingXBold-B5,DFPLiSong-Bd,"Arial Unicode MS",sans-serif;
+        fill:#243588;
+}
+.chtstclosed {
+        font-family:RailwayN12,"A-OTF Midashi Min MA31 Pr5",DFPNMingXBold-B5,DFPLiSong-Bd,"Arial Unicode MS",sans-serif;
+        fill:#E42313;
+}
+.chtlongtext {
+        font-family:Railway,DFPLiSong-Md,Railway,"Johnston ITC","P22 Johnston Underground","Arial Unicode MS",sans-serif;
+        fill:#243588;
+}
+
+.legendtitle {
+        font-family:RailwayN12,"P22 Johnston Underground",Arial,sans-serif;
+        fill:#243588;
+        font-size:24px;
+        font-weight:bold;
+}
+.chtlegendtitle {
+        font-family:RailwayN12,"A-OTF Midashi Min MA31 Pr5",DFPNMingXBold-B5,DFPLiSong-Md,"Arial Unicode MS",sans-serif;
+        fill:#243588;
+        font-size:24px;
+}
+
+.me {fill:none;stroke-width:5}
+.mex {stroke:#fff;stroke-width:2}
+.melegend {fill:none;stroke-width:7}
+.mexlegend {stroke:#fff;stroke-width:3}
+.sline1 {stroke:#F3D03E}
+.sline2 {stroke:#00629B}
+.sline3 {stroke:#ECA154}
+.sline4 {stroke:#00843D}
+.sline5 {stroke:#C5003E}
+.sline6 {stroke:#80225F}
+.sline7 {stroke:#97D700}
+.sline8 {stroke:#008C95}
+.sline9 {stroke:#71CC98}
+.sline10 {stroke:#7D9BC1}
+.sline11 {stroke:#470A68}
+.sline12 {stroke:#59621D}
+.sline13 {stroke:#8E8C13}
+.sline14 {stroke:#81312F}
+.sline18 {stroke:#D48BC8}
+.sline21 {stroke:#201747}
+.sline22 {stroke:#041E42}
+.sgfline {stroke:#C4D600}
+.sapmline {stroke:#00B5E2}
+.sthz1 {stroke:#44A729}
+.sfmetro2 {stroke:#009900}
+.sunknown {stroke:#999999}
+
+.osi {fill:none;stroke:#243588;stroke-width:2;cursor:help}
+.boxotl {stroke:#00ABE7;stroke-width:2;fill:none}
+.sepln {stroke:#00ABE7;stroke-width:1;fill:none}
+
+.riverotl {fill:none;stroke-width:15;stroke:#00ABE7}
+.riverwtr {fill:none;stroke-width:14;stroke:#D4EDFC}
+        </style>
+        <defs><!--stores objects to be used for more than once with the "use" element.-->
+                <path id="term" class="me" d="M -7.5,0 H 7.5"/>
+                <path id="st" class="me" d="M -2,0 H 7.5"/>
+                <path id="outofcity" stroke="none" d="
+                M -9.7,-8 V -1 L 0,3.5
+                L 9.7,-1 V -8 L 0,-3.5 Z
+                "/>
+                <use xlink:href="#term" id="termline1" class="sline1"/>        
+                <use xlink:href="#st" id="stline1" class="sline1"/>
+                <use xlink:href="#term" id="termline2" class="sline2"/>        
+                <use xlink:href="#st" id="stline2" class="sline2"/>
+                <use xlink:href="#term" id="termline3" class="sline3"/>        
+                <use xlink:href="#st" id="stline3" class="sline3"/>
+                <use xlink:href="#term" id="termline4" class="sline4"/>        
+                <use xlink:href="#st" id="stline4" class="sline4"/>
+                <use xlink:href="#term" id="termline5" class="sline5"/>        
+                <use xlink:href="#st" id="stline5" class="sline5"/>
+                <use xlink:href="#term" id="termline6" class="sline6"/>        
+                <use xlink:href="#st" id="stline6" class="sline6"/>
+                <use xlink:href="#term" id="termline7" class="sline7"/>        
+                <use xlink:href="#st" id="stline7" class="sline7"/>
+                <use xlink:href="#term" id="termline8" class="sline8"/>        
+                <use xlink:href="#st" id="stline8" class="sline8"/>
+                <use xlink:href="#term" id="termline9" class="sline9"/>        
+                <use xlink:href="#st" id="stline9" class="sline9"/>
+                <use xlink:href="#term" id="termline10" class="sline10"/>        
+                <use xlink:href="#st" id="stline10" class="sline10"/>
+                <use xlink:href="#term" id="termline11" class="sline11"/>        
+                <use xlink:href="#st" id="stline11" class="sline11"/>
+                <use xlink:href="#term" id="termline12" class="sline12"/>        
+                <use xlink:href="#st" id="stline12" class="sline12"/>
+                <use xlink:href="#term" id="termline13" class="sline13"/>        
+                <use xlink:href="#st" id="stline13" class="sline13"/>
+                <use xlink:href="#term" id="termline14" class="sline14"/>        
+                <use xlink:href="#st" id="stline14" class="sline14"/>
+                <use xlink:href="#term" id="termline18" class="sline18"/>        
+                <use xlink:href="#st" id="stline18" class="sline18"/>
+                <use xlink:href="#term" id="termline21" class="sline21"/>        
+                <use xlink:href="#st" id="stline21" class="sline21"/>
+                <use xlink:href="#term" id="termline22" class="sline22"/>        
+                <use xlink:href="#st" id="stline22" class="sline22"/>
+                <use xlink:href="#term" id="termgfline" class="sgfline"/>        
+                <use xlink:href="#st" id="stgfline" class="sgfline"/>
+                <use xlink:href="#term" id="termapmline" class="sapmline"/>        
+                <use xlink:href="#st" id="stapmline" class="sapmline"/>
+                <use xlink:href="#term" id="termthz1" class="sthz1"/>        
+                <use xlink:href="#st" id="stthz1" class="sthz1"/>
+                <use xlink:href="#term" id="termfmetro2" class="sfmetro2"/>        
+                <use xlink:href="#st" id="stfmetro2" class="sfmetro2"/>
+                <use xlink:href="#term" id="termunknown" class="sunknown"/>        
+                <use xlink:href="#st" id="stunknown" class="sunknown"/>
+                <g id="int">
+                        <circle cx="0" cy="0" r="8.25" fill="#fff"/>
+                        <circle cx="0" cy="0" r="6" style="fill:#fff;stroke:#000;stroke-width:3"/>
+                </g>
+                <g id="cap2">
+			<rect x="-8.25" y="-8.25" width="31" height="16.5" rx="8.25" fill="#fff"/>
+			<rect x="-6" y="-6" width="26.5" height="12" rx="6" style="fill:#fff;stroke:#000;stroke-width:3"/>
+                        <!--end width: 14.5-->
+		</g>
+                <g id="airport" transform="rotate(-90)scale(0.04)translate(-250,-250)" style="stroke:none;fill:#243588">
+			<polygon points="490,250 450,225 320,225 170,10 140,10 200,225 80,225 30,150 10,150 30,240 30,260 10,350 30,350 80,275 200,275 140,490 170,490 320,275 450,275"/>
+			<ellipse cx="441" cy="250" rx="50" ry="24" stroke="#000"/>
+                        <!--y minus 4-->
+		</g>
+                <g id="chinarail" transform="scale(0.035)" style="stroke:none;fill:#E60012">
+                        <path d="M169,273.5c0-19,14.7-34.8,33.7-36.3c18.9-1.5,38.1-2.2,57.4-2.2c19.3,0,38.4,0.8,57.3,2.2
+                   	c19,1.5,33.7,17.3,33.7,36.3v47.3l-51.3,14.7c-11.2,3.2-18.9,13.4-18.9,25v147.8c0,17.4,12.2,32.3,29.3,35.7l110.6,22.1
+        	        c4.9,1,8.4,5.2,8.4,10.2V599H91v-22.7c0-5,3.5-9.2,8.4-10.2L209.9,544c17-3.4,29.3-18.3,29.3-35.7V360.5c0-11.6-7.7-21.8-18.9-25
+	                L169,320.8V273.5z M309.4,31.7c0.2-1.2,0.3-2.4,0.3-3.6c0-14-11.1-25.4-24.9-26C276.6,1.4,268.3,1,260,1c-8.3,0-16.6,0.4-24.7,1.1
+	                c-13.9,0.6-24.9,12-24.9,26c0,1.2,0.1,2.5,0.3,3.6C90.6,54.8,0,160.3,0,287c0,97.2,53.4,182,132.4,226.6l36.8-48.1
+	                C104.3,432.4,59.8,364.9,59.8,287c0-110.6,89.6-200.2,200.2-200.2S460.2,176.4,460.2,287c0,77.9-44.5,145.4-109.4,178.5
+	                c15,19.6,25.6,33.5,36.8,48.1C466.6,469,520,384.2,520,287C520,160.3,429.4,54.8,309.4,31.7z"/>
+                        <!--x minus 9, y minus 15-->
+                        <!--compare to int, y minus 11-->
+                </g>
+                <path id="enabled" style="fill:#fff;stroke:#000;stroke-width:1" d="
+		M 0,0 l 10,10 m -10,0 l 10,-10 m -10,0 h 10 v 10 h -10 z
+		"/>
+        </defs>
+        
+        <g id="header">
+                <rect x="-700" y="-1100" width="2550" height="160" fill="#243588"/>
+        </g>
+        <g class="title">
+                <g id="engheader">
+                <text x="-600" y="-1020" class="engtitle" transform="translate(0,25)">Guangzhou Metro map</text>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+        </g>
+        <g id="chtheader" style="visibility:hidden">
+                <text x="-600" y="-1020" class="chttitle" transform="translate(0,25)">廣州地鐵路綫圖</text>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+        </g>
+        </g>
+        
+        
+        <!--
+        <rect id="background" x="-600" y="-900" width="2000" height="1600" fill="#eee"/>
+        -->
+        <rect id="background" x="-700" y="-940" width="2550" height="1850" fill="#fff"/>
+
+        <g class="riverotl">
+                <g id="Pearl_River">
+                        <path id="Datansha_PearlRiver" d="
+                        M -120,-231
+                        L -90,-201 q 10,10 10,24
+                        V -40 q 0,14 10,24
+                        L -59,-5 q 10,10 24,10
+                        H 150 q 14,0 24,10
+                        L 210,51 q 10,10 24,10
+                        H 660 q 14,0 24,10
+                        L 759,146 q 10,10 24,10
+                        "/>
+                        <path id="Baietan" d="
+                        M 5,50
+                        V 5
+                        "/>
+                        <path id="Zhoutouzui_Baietan" d="
+                        M 5,50
+                        V 39 a 34,34 0 0,0 -34,-34
+                        "/>
+                        <path id="Xiaozhou_Guanzhou_Huangpu" d="
+                        M 615,260 q 14,0 24,-10
+                        L 723,166 q 10,-10 24,-10
+                        H 800 q 14,0 24,10
+                        L 833,175 q 10,10 24,10
+                        "/>
+                        <path id="Xiaozhou_Luntou" d="
+                        M 649,240 q 10,-10 10,-24
+                        V 190 a 34,34 0 0,1 34,-34
+                        H 749
+                        "/>
+                        <path id="Datansha_Liuxihe" d="
+                        M -80,-45
+                        L -110,-75 q -10,-10 -10,-24
+                        V -537 a 34,34 0 0,1 34,-34
+                        H 385 q 14,0 24,-10
+                        L 619,-791 q 10,-10 24,-10
+                        H 860 a 34,34 0 0,1 34,34
+                        V -741 a 34,34 0 0,0 34,34
+                        H 1500
+                        "/>
+                        <path id="Zhoutouzui_Houhangdao_Nansha" d="
+                        M 39,5 q -14,0 -24,10
+                        L 15,15 q -10,10 -10,24
+                        V 180 q 0,14 10,24
+                        L 58,250 q 10,10 24,10
+                        H 750 q 14,0 24,-10
+                        L 829,195 q 10,-10 24,-10
+                        H 940 q 14,0 24,10
+                        L 1464,695
+                        "/>
+                        <path id="Luoxi_Shaxi" d="
+                        M 120,260 q 14,0 24,10
+                        L 162,288 q 10,10 24,10
+                        H 630 q 14,0 24,-10
+                        L 672,270 q 10,-10 24,-10
+                        "/>
+                </g>
+        </g>
+        <use class="riverwtr" xlink:href="#Pearl_River"/>
+        <rect id="sidebackground" x="1400" y="-940" width="2550" height="1850" fill="#fff"/>
+        <rect id="mapbox" x="-600" y="-840" width="2000" height="1650" class="boxotl"  />
+
+        <g id="cht_switch" style="opacity:0;cursor:pointer">
+		<g id="cht_switch_base">
+			<rect x="-590" y="-930" width="10" height="10" style="fill:#fff;stroke:#000;stroke-width:1"/>
+			<text x="-575" y="-920" font-size="14px" class="stname">Traditional Chinese</text>
+		</g>
+		<g id="cht_switch_over" style="visibility:hidden;opacity:0">
+                        <use xlink:href="#enabled" x="-590" y="-930"/>
+			<text x="-575" y="-920" style="stroke:#243588;stroke-width:0.5;font-size:14px" class="stname">Traditional Chinese</text>
+			<set
+			begin="cht_switch_base.click"
+			end="cht_switch_over.click"
+			attributeName="visibility" attributeType="CSS" to="visible"/>
+			<set
+			begin="cht_switch_base.click"
+			end="cht_switch_over.click"
+			attributeName="opacity" attributeType="CSS" to="1"/>
+		</g>
+		<animate
+		attributeName="opacity" attributeType="CSS" values="0; 1" keyTimes="0; 1" dur="0.5s" fill="freeze"/>
+	</g>
+
+
+<!--Never leave any space in id name and do not begin the id name with number; avoid punctuation and non-English characters too.-->
+<!--You can add more class in the same class attribute. Separate the classes with a space.-->
+
+        <g id="Line_route" class="me">
+
+                <path id="Line_1_route" class="sline1" d="
+                M -93,118
+                V 63 q 0,-14 10,-24
+                L -44,0 q 10,-10 10,-24
+                V -70 a 34,34 0 0,1 34,-34
+                H 478 a 34,34 0 0,0 34,-34
+                V -204 a 34,34 0 0,0 -34,-34
+                H 442
+                "/>
+                <path id="Line_2_route" class="sline2" d="
+                M 337,-501
+                L 134,-298 q -10,10 -10,24
+                V 134 q 0,14 10,24
+                L 190,214 q 10,10 10,24
+                V 318 q 0,14 -10,24
+                L 112,422
+                "/>
+                <path id="Line_3_route" class="sline3" d="
+                M 337,-701
+                V -501 q 0,14 10,24
+                L 432,-392 q 10,10 10,24
+                V 380 q 0,14 10,24
+                L 506,458
+                "/>
+                <path id="Line_4_route" class="sline4" d="
+                M 714,-133 q 0,14 -10,24
+                L 692,-97 q -10,10 -10,24
+                V 194 q 0,14 10,24
+                L 1098,624 q 10,10 24,10
+                H 1242
+                "/>
+                <path id="Line_5_route" class="sline5" d="
+                M -134,-80
+                L 0,-214 q 10,-10 24,-10
+                H 124 q 14,0 24,10
+                L 198,-164 q 10,10 24,10
+                H 358 a 34,34 0 0,1 34,34
+                V -58 a 34,34 0 0,0 34,34
+                H 682 q 14,0 24,10
+                L 762,42 q 10,10 24,10
+                H 936
+                "/>
+                <path id="Line_6_route" class="sline6" d="
+                M -188,-284
+                L -106,-202 q 10,10 10,24
+                V -86 q 0,14 10,24
+                L -58,-34 q 10,10 24,10
+                H 274 a 34,34 0 0,0 34,-34
+                V -254 a 34,34 0 0,1 34,-34
+                H 582 q 14,0 24,-10
+                L 634,-326 q 10,-10 24,-10
+                H 1018
+                "/>
+                <path id="Line_7_route" class="sline7" d="
+                M 115,426
+                L 151,390 q 10,-10 24,-10
+                H 572 q 14,0 24,-10
+                L 720,246
+                "/>
+                <path id="Line_8_route" class="sline8" d="
+                M -56,-558
+                L 14,-488 q 10,10 10,24
+                V 100 a 34,34 0 0,0 34,34
+                H 682
+                "/>
+                <path id="Line_9_route" class="sline9" d="
+                M 337,-621
+                H 237 q -14,0 -24,-10
+                L 177,-667 q -10,-10 -24,-10
+                H 78 q -14,0 -24,10
+                L 18,-631 q -10,10 -24,10
+                H -131
+                "/>
+                <path id="Line_10_route" class="sline3" d="
+                M 442,-109
+                H 548 a 34,34 0 0,0 34,-34
+                V -288
+                "/>
+                <path id="Line_11_route" class="sline11" d="
+                M 602,-24
+                "/>
+                <path id="Line_13_route" class="sline13" d="
+                M 786,52
+                V 100 a 34,34 0 0,0 34,34
+                H 970 q 14,0 24,-10
+                L 1078,40 q 10,-10 24,-10
+                H 1202
+                "/>
+                <path id="Line_14_route" class="sline14" d="
+                M 337,-501
+                H 413 q 14,0 24,-10
+                L 670,-744 q 10,-10 24,-10
+                H 919
+                "/>
+                <path id="Line_14_sub_route" class="sline14" d="
+                M 656,-730
+                L 840,-546 q 10,10 24,10
+                H 938
+                "/>
+                <path id="Line_21_route" class="sline21" d="
+                M 607,-24
+                V -99 a 34,34 0 0,1 34,-34
+                H 738 a 34,34 0 0,0 34,-34
+                V -247 a 34,34 0 0,1 34,-34
+                H 904 a 34,34 0 0,0 34,-34
+                V -536 a 34,34 0 0,1 34,-34
+                H 1272
+                "/>
+                <path id="GF_Line_route" class="sgfline" d="
+                M -293,518
+                H -379 a 34,34 0 0,1 -34,-34
+                V 312 a 34,34 0 0,1 34,-34
+                H -287 a 34,34 0 0,0 34,-34
+                V 152 a 34,34 0 0,1 34,-34
+                H 7 q 14,0 24,10
+                L 131,228 q 10,10 24,10
+                H 442
+                "/>
+                <path id="APM_Line_route" class="sapmline" d="
+                M 471,-188
+                V 84
+                "/>
+                <g class="sthz1">
+                        <path id="THZ1_route" d="
+                        M 456.5,98.5
+                        H 632.5 q 14,0 24,10
+                        L 667.5,119.5
+                        "/>
+                </g>
+                <use class="mex" xlink:href="#THZ1_route"/>
+                <g class="sfmetro2">
+                        <path id="FMetro2_route" d="
+                        M -560,438
+                        H 99.5
+                        "/>
+                </g>
+                <use class="mex" xlink:href="#FMetro2_route"/>
+                <g class="sunknown">
+                        <path id="Nanhai_Xinjiaotong_route" d="
+                        M -233,198
+                        H -183 q 14,0 24,10
+                        L -24.5,342.5 q 10,10 10,24
+                        V 418
+                        "/>
+                </g>
+                <use class="mex" xlink:href="#Nanhai_Xinjiaotong_route"/>
+        </g>
+
+        <g id="Line_1_station_icons">
+                <!--Xilang in GF Line-->
+                <use xlink:href="#stline1" transform="translate(-93,78)rotate(180)" id="Kengkou"/>
+                <use xlink:href="#stline1" transform="translate(-83,39)rotate(-135)" id="Huadiwan"/>
+                <use xlink:href="#stline1" transform="translate(-59,15)rotate(45)" id="Fangcun"/>
+                <!--Huangsha in Line 6-->
+                <use xlink:href="#stline1" transform="translate(-34,-74)rotate(180)" id="Changshou_Lu"/>
+                <use xlink:href="#int" x="24" y="-104" id="Chen_Clan_Academy"/>
+                <use xlink:href="#stline1" transform="translate(74,-104)rotate(-90)" id="Ximenkou"/>
+                <!--Gongyuanqian in Line 2-->
+                <use xlink:href="#stline1" transform="translate(185,-104)rotate(90)" id="Peasant_Movement_Institute"/>
+                <use xlink:href="#stline1" transform="translate(247,-104)rotate(-90)" id="Martyrs_Park"/>
+                <!--Dongshankou in Line 6-->
+                <use xlink:href="#int" x="392" y="-104" id="Yangji"/>
+                <use xlink:href="#int" x="442" y="-106.5" id="Tiyu_Xilu"/>
+                <use xlink:href="#stline1" x="512" y="-171" id="Tianhe_Sports_Centre"/>
+        </g>
+        <g id="Line_2_station_icons">
+                <use xlink:href="#int" x="337" y="-501" id="Jiahe_Wanggang"/>
+                <use xlink:href="#stline2" transform="translate(306,-470)rotate(-135)" id="Huangbian"/>
+                <use xlink:href="#stline2" transform="translate(275,-439)rotate(-135)" id="Jiangxia"/>
+                <use xlink:href="#stline2" transform="translate(244,-408)rotate(-135)" id="Xiao_Gang"/>
+                <use xlink:href="#stline2" transform="translate(213,-377)rotate(-135)" id="Baiyun_Cultrual_Square"/>
+                <use xlink:href="#stline2" transform="translate(182,-346)rotate(-135)" id="Baiyun_Park"/>
+                <use xlink:href="#stline2" transform="translate(151,-315)rotate(-135)" id="Feixiang_Park"/>
+                <use xlink:href="#stline2" transform="translate(124,-274)rotate(180)" id="Sanyuanli"/>
+                <use xlink:href="#int" x="124" y="-224" id="Guangzhou_Railway_Station"/>
+                <use xlink:href="#stline2" transform="translate(124,-195)rotate(180)" id="Yuexiu_Park"/>
+                <use xlink:href="#stline2" transform="translate(124,-144)rotate(0)" id="SYS_Memorial_Hall"/>
+                <use xlink:href="#int" x="124" y="-104" id="Gongyuanqian"/>
+                <use xlink:href="#int" x="124" y="-24" id="Haizhu_Square"/>
+                <use xlink:href="#stline2" x="124" y="34" id="The_2nd_Workers_Cultrual_Palace"/>
+                <use xlink:href="#stline2" x="124" y="84" id="Jiangnanxi"/>
+                <!--Changgang in Line 8-->
+                <use xlink:href="#stline2" transform="translate(148,172)rotate(-45)" id="Jiangtai_Lu"/>
+                <use xlink:href="#stline2" transform="translate(176,200)rotate(-45)" id="Dongxiaonan"/>
+                <use xlink:href="#int" x="200" y="238" id="Nanzhou"/>
+                <use xlink:href="#stline2" transform="translate(200,278)rotate(180)" id="Luoxi"/>
+                <use xlink:href="#stline2" transform="translate(200,318)rotate(180)" id="Nanpu"/>
+                <use xlink:href="#stline2" transform="translate(176,356)rotate(-135)" id="Huijiang"/>
+                <use xlink:href="#int" x="149.5" y="388" id="Shibi"/>
+                <use xlink:href="#cap2" transform="translate(109.75,427.75)rotate(135)" id="Guangzhou_South_Railway_Station"/>
+        </g>
+        <g id="Line_3_station_icons">
+                <use xlink:href="#termline3" x="337" y="-701" id="Airport_N"/>
+                <use xlink:href="#stline3" x="337" y="-661" id="Airport_S"/>
+                <use xlink:href="#int" x="337" y="-621" id="Gaozeng"/>
+                <use xlink:href="#stline3" x="337" y="-591" id="Renhe"/>
+                <use xlink:href="#stline3" transform="translate(337,-541)rotate(180)" id="Longgui"/>
+                <!--Jiahe Wanggang in Line 2-->
+                <use xlink:href="#stline3" transform="translate(361,-463)rotate(-45)" id="Baiyundadaobei"/>
+                <use xlink:href="#stline3" transform="translate(389.5,-434.5)rotate(-45)" id="Yongtai"/>
+                <use xlink:href="#stline3" transform="translate(418,-406)rotate(-45)" id="Tonghe"/>
+                <use xlink:href="#stline3" x="442" y="-368" id="Jingxi_Nanfang_Hospital"/>
+                <use xlink:href="#stline3" x="442" y="-328" id="Meihuayuan"/>
+                <use xlink:href="#int" x="442" y="-288" id="Yantang"/>
+                <use xlink:href="#int" x="442" y="-238" id="Guangzhou_East_Railway_Station"/>
+                <path class="osi" d="M 442,-188 H 471">
+		        <title>Linhexi interchange</title>
+		</path>
+                <use xlink:href="#int" x="442" y="-188" id="Linhexi"/>
+                <!--Tiyu Xilu in Line 1-->
+                <!--Zhujiang New Town in Line 5-->
+                <path class="osi" d="
+                M 442,84 L 456.5,98.5
+                M 442,84 H 471
+                ">
+		        <title>Canton Tower interchange</title>
+		</path>
+                <use xlink:href="#int" x="442" y="84" id="Canton_Tower"/>
+                <!--Kecun in Line 8-->
+                <use xlink:href="#stline3" x="442" y="186" id="Datang"/>
+                <!--Lijiao in GF Line-->
+                <use xlink:href="#stline3" x="442" y="278" id="Xiajiao"/>
+                <use xlink:href="#stline3" x="442" y="333" id="Dashi"/>
+                <use xlink:href="#int" x="442" y="380" id="Hanxi_Chimelong"/>
+                <use xlink:href="#stline3" transform="translate(470,422)rotate(-45)" id="Shiqiao"/>
+                <use xlink:href="#termline3" transform="translate(506,458)rotate(-45)" id="Panyu_Square"/>
+        </g>
+        <g id="Line_4_station_icons">
+                <use xlink:href="#stline4" x="682" y="-73" id="Chebei"/>
+                <!--Chebeinan in Line 5-->
+                <path class="osi" d="M 682,134 L 667.5,119.5">
+		        <title>Wanshengwei interchange</title>
+		</path>
+                <use xlink:href="#int" x="682" y="134" id="Wanshengwei"/>
+                <use xlink:href="#stline4" x="682" y="174" id="Guanzhou"/>
+                <use xlink:href="#stline4" transform="translate(692,218)rotate(-45)" id="HEMC_N"/>
+                <use xlink:href="#int" x="720" y="246" id="HEMC_S"/>
+                <use xlink:href="#stline4" transform="translate(748,274)rotate(-45)" id="Xinzao"/>
+                <use xlink:href="#stline4" transform="translate(776,302)rotate(-45)" id="Guanqiao"/>
+                <use xlink:href="#stline4" transform="translate(804,330)rotate(-45)" id="Shiqi"/>
+                <use xlink:href="#stline4" transform="translate(832,358)rotate(-45)" id="Haibang"/>
+                <use xlink:href="#stline4" transform="translate(860,386)rotate(-45)" id="Dichong"/>
+                <use xlink:href="#stline4" transform="translate(888,414)rotate(-45)" id="Dongchong"/>
+                <use xlink:href="#int" transform="translate(916,442)" id="Qingsheng"/>
+                <use xlink:href="#stline4" transform="translate(944,470)rotate(-45)" id="Huangge_Auto_Town"/>
+                <use xlink:href="#stline4" transform="translate(972,498)rotate(-45)" id="Huangge"/>
+                <use xlink:href="#stline4" transform="translate(1000,526)rotate(-45)" id="Jiaomen"/>
+                <use xlink:href="#stline4" transform="translate(1028,554)rotate(-45)" id="Jinzhou"/>
+                <use xlink:href="#stline4" transform="translate(1056,582)rotate(-45)" id="Feishajiao"/>
+                <use xlink:href="#stline4" transform="translate(1084,610)rotate(-45)" id="Guanglong"/>
+                <use xlink:href="#stline4" transform="translate(1122,634)rotate(90)" id="Dachong"/>
+                <use xlink:href="#stline4" transform="translate(1162,634)rotate(-90)" id="Tangkeng"/>
+                <use xlink:href="#stline4" transform="translate(1202,634)rotate(90)" id="Nanheng"/>
+                <use xlink:href="#termline4" transform="translate(1242,634)rotate(90)" id="Nansha_Passenger_Port"/>
+        </g>
+        <g id="Line_5_station_icons">
+                <use xlink:href="#termline5" transform="translate(-134,-80)rotate(-135)" id="Jiaokou"/>
+                <use xlink:href="#int" x="-96" y="-118" id="Tanwei"/>
+                <use xlink:href="#stline5" transform="translate(-58,-156)rotate(45)" id="Zhongshanba"/>
+                <use xlink:href="#stline5" transform="translate(-20,-194)rotate(-135)" id="Xichang"/>
+                <!--Xicun in Line 8-->
+                <!--Guangzhou Railway Station in Line 2-->
+                <use xlink:href="#stline5" transform="translate(173,-189)rotate(-45)" id="Xiaobei"/>
+                <use xlink:href="#stline5" transform="translate(247,-154)rotate(90)" id="Taojin"/>
+                <!--Ouzhuang in Line 6-->
+                <use xlink:href="#stline5" transform="translate(358,-154)rotate(-90)" id="Zoo"/>
+                <!--Yangji in Line 1-->
+                <use xlink:href="#stline5" transform="translate(392,-58)rotate(180)" id="Wuyangcun"/>
+                <use xlink:href="#int" x="442" y="-24" id="Zhujiang_New_Town"/>
+                <use xlink:href="#stline5" transform="translate(512,-24)rotate(-90)" id="Liede"/>
+                <use xlink:href="#stline5" transform="translate(557,-24)rotate(90)" id="Tancun"/>
+                <use xlink:href="#int" x="607" y="-24" id="Yuancun"/>
+                <use xlink:href="#stline5" transform="translate(642,-24)rotate(90)" id="Keyun_Lu"/>
+                <use xlink:href="#int" x="682" y="-24" id="Chebeinan"/>
+                <use xlink:href="#stline5" transform="translate(720,0)rotate(-45)" id="Dongpu"/>
+                <use xlink:href="#stline5" transform="translate(748,28)rotate(-45)" id="Sanxi"/>
+                <use xlink:href="#int" x="786" y="52" id="Yuzhu"/>
+                <use xlink:href="#stline5" transform="translate(836,52)rotate(-90)" id="Dashadi"/>
+                <use xlink:href="#stline5" transform="translate(886,52)rotate(90)" id="Dashadong"/>
+                <use xlink:href="#termline5" transform="translate(936,52)rotate(90)" id="Wenchong"/>
+        </g>
+        <g id="Line_6_station_icons">
+                <use xlink:href="#termline6" transform="translate(-188,-284)rotate(135)" id="Xunfenggang"/>
+                <use xlink:href="#stline6" transform="translate(-160,-256)rotate(135)" id="Hengsha"/>
+                <use xlink:href="#stline6" transform="translate(-132,-228)rotate(135)" id="Shabei"/>
+                <use xlink:href="#stline6" transform="translate(-96,-158)rotate(180)" id="Hesha"/>
+                <!--Tanwei in Line 5-->
+                <use xlink:href="#stline6" transform="translate(-62,-38)rotate(135)" id="Ruyifang"/>
+                <use xlink:href="#int" x="-34" y="-24" id="Huangsha"/>
+                <use xlink:href="#int" x="24" y="-24" id="Cultrual_Park"/>
+                <use xlink:href="#stline6" transform="translate(74,-24)rotate(-90)" id="Yide_Lu"/>
+                <!--Haizhu Square in Line 2-->
+                <use xlink:href="#stline6" transform="translate(174,-24)rotate(90)" id="Beijing_Lu"/>
+                <use xlink:href="#stline6" transform="translate(224,-24)rotate(-90)" id="Yuexiunan"/>
+                <use xlink:href="#stline6" transform="translate(274,-24)rotate(90)" id="Donghu"/>
+                <use xlink:href="#int" x="308" y="-104" id="Dongshankou"/>
+                <use xlink:href="#int" x="308" y="-154" id="Ouzhuang"/>
+                <use xlink:href="#stline6" transform="translate(308,-204)rotate(0)" id="Huanghuagang"/>
+                <use xlink:href="#stline6" transform="translate(308,-254)rotate(180)" id="Shaheding"/>
+                <use xlink:href="#stline6" transform="translate(352,-288)rotate(90)" id="Shahe"/>
+                <use xlink:href="#stline6" transform="translate(397,-288)rotate(-90)" id="Tianpingjia"/>
+                <!--Yantang in Line 3-->
+                <!--Tianhe Coach Terminal in Line 10-->
+                <use xlink:href="#stline6" transform="translate(620,-312)rotate(45)" id="Changban"/>
+                <use xlink:href="#stline6" transform="translate(658,-336)rotate(-90)" id="Botanical_Garden"/>
+                <use xlink:href="#stline6" transform="translate(698,-336)rotate(90)" id="Longdong"/>
+                <use xlink:href="#stline6" transform="translate(738,-336)rotate(-90)" id="Kemulang"/>
+                <use xlink:href="#stline6" transform="translate(778,-336)rotate(90)" id="Gaotangshi"/>
+                <use xlink:href="#stline6" transform="translate(818,-336)rotate(-90)" id="Huangbei"/>
+                <use xlink:href="#stline6" transform="translate(858,-336)rotate(90)" id="Jinfeng"/>
+                <use xlink:href="#stline6" transform="translate(898,-336)rotate(-90)" id="Xiangang"/>
+                <use xlink:href="#int" x="938" y="-336" id="Suyuan"/>
+                <use xlink:href="#stline6" transform="translate(978,-336)rotate(-90)" id="Luogang"/>
+                <use xlink:href="#termline6" transform="translate(1018,-336)rotate(-90)" id="Xiangxue"/>
+        </g>
+        <g id="Line_7_station_icons">
+                <!--Guangzhou South Railway Station in Line 2-->
+                <!--Shibi in Line 2-->
+                <use xlink:href="#stline7" transform="translate(264,380)rotate(-90)" id="Xiecun"/>
+                <use xlink:href="#stline7" transform="translate(353,380)rotate(-90)" id="Zhongcun"/>
+                <use xlink:href="#stline7" transform="translate(507,380)rotate(-90)" id="Nancun_Wanbo"/>
+                <use xlink:href="#stline7" transform="translate(596,370)rotate(45)" id="Yuangang"/>
+                <use xlink:href="#stline7" transform="translate(658,308)rotate(45)" id="Banqiao"/>
+        </g>
+        <g id="Line_8_station_icons">
+                <use xlink:href="#termline8" transform="translate(-56,-558)rotate(135)" id="Jiaoxin"/>
+                <use xlink:href="#stline8" transform="translate(-28,-530)rotate(135)" id="Tinggang"/>
+                <use xlink:href="#stline8" transform="translate(0,-502)rotate(135)" id="Shijing"/>
+                <use xlink:href="#stline8" transform="translate(24,-464)rotate(180)" id="Xiaoping"/>
+                <use xlink:href="#stline8" transform="translate(24,-424)rotate(180)" id="Shitan"/>
+                <use xlink:href="#stline8" transform="translate(24,-384)rotate(180)" id="Dekang"/>
+                <use xlink:href="#stline8" transform="translate(24,-344)rotate(180)" id="Shangbu"/>
+                <use xlink:href="#stline8" transform="translate(24,-304)rotate(180)" id="Tongdewei"/>
+                <use xlink:href="#stline8" transform="translate(24,-264)rotate(180)" id="Ezhangtan"/>
+                <use xlink:href="#int" x="24" y="-224" id="Xicun"/>
+                <use xlink:href="#stline8" x="24" y="-164" id="Caihongqiao"/>
+                <!--Chen Clan Academy in Line 1-->
+                <use xlink:href="#stline8" x="24" y="-64" id="Hualin_Temple"/>
+                <!--Cultrual Park in Line 6-->
+                <use xlink:href="#stline8" x="24" y="25" id="Tongfuxi"/>
+                <use xlink:href="#stline8" x="24" y="74" id="Fenghuang_Xincun"/>
+                <use xlink:href="#int" x="32.5" y="126" id="Shayuan"/>
+                <use xlink:href="#stline8" transform="translate(79,134)rotate(90)" id="Baogang_Dadao"/>
+<!--int icon is omnidirectional so no need for transform/rotate on diagonal line.-->
+                <use xlink:href="#int" x="124" y="134" id="Changgang"/>
+                <use xlink:href="#stline8" transform="translate(203,134)rotate(-90)" id="Xiaogang"/>
+                <use xlink:href="#stline8" transform="translate(283,134)rotate(-90)" id="SYSU"/>
+                <use xlink:href="#stline8" transform="translate(362,134)rotate(-90)" id="Lujiang"/>
+                <use xlink:href="#int" x="442" y="134" id="Kecun"/>
+                <use xlink:href="#stline8" transform="translate(490,134)rotate(90)" id="Chigang"/>
+                <use xlink:href="#stline8" transform="translate(538,134)rotate(-90)" id="Modiesha"/>
+                <use xlink:href="#stline8" transform="translate(586,134)rotate(90)" id="Xingangdong"/>
+                <use xlink:href="#stline8" transform="translate(634,134)rotate(-90)" id="Pazhou"/>
+                <!--Wanshengwei in Line 4-->
+        </g>
+        <g id="Line_9_station_icons">
+                <use xlink:href="#termline9" transform="translate(-131,-621)rotate(90)" id="Feieling"/>
+                <use xlink:href="#stline9" transform="translate(-81,-621)rotate(-90)" id="Huadu_Autocity"/>
+                <use xlink:href="#stline9" transform="translate(-31,-621)rotate(90)" id="Guangzhou_North_Railway_Station"/>
+                <use xlink:href="#int" transform="translate(18,-631)rotate(45)" id="Huachenglu"/>
+                <use xlink:href="#stline9" transform="translate(54,-667)rotate(-135)" id="Huaguoshan_Park"/>
+                <use xlink:href="#stline9" transform="translate(103,-677)rotate(90)" id="Huadu_Square"/>
+                <use xlink:href="#stline9" transform="translate(153,-677)rotate(-90)" id="Maanshan_Park"/>
+                <use xlink:href="#stline9" transform="translate(195,-649)rotate(-45)" id="Liantang"/>
+                <use xlink:href="#stline9" transform="translate(237,-621)rotate(90)" id="Qingbu"/>
+                <use xlink:href="#stline9" transform="translate(287,-621)rotate(-90)" id="Qingtang"/>
+                <!--Gaozeng in Line 3-->
+        </g>
+        <g id="Line_10_station_icons">
+                <!--Tiyu Xilu in Line 1-->
+                <use xlink:href="#stline3" transform="translate(533,-109)rotate(90)" id="Shipaiqiao"/>
+                <use xlink:href="#stline3" x="582" y="-162" id="Gangding"/>
+                <use xlink:href="#stline3" x="582" y="-204" id="SCNU"/>
+                <use xlink:href="#stline3" x="582" y="-246" id="Wushan"/>
+                <use xlink:href="#int" x="582" y="-288" id="Tianhe_Coach_Terminal"/>
+        </g>
+        <g id="Line_13_station_icons">
+                <!--Yuzhu in Line 5-->
+                <use xlink:href="#stline13" transform="translate(820,134)rotate(90)" id="Yufengwei"/>
+                <use xlink:href="#stline13" transform="translate(870,134)rotate(-90)" id="Shuanggang"/>
+                <use xlink:href="#stline13" transform="translate(920,134)rotate(90)" id="Nanhai_God_Temple"/>
+                <use xlink:href="#stline13" transform="translate(970,134)rotate(-90)" id="Xiayuan"/>
+                <use xlink:href="#stline13" transform="translate(1008,110)rotate(45)" id="Nangang"/>
+                <use xlink:href="#stline13" transform="translate(1036,82)rotate(45)" id="Shacun"/>
+                <use xlink:href="#stline13" transform="translate(1064,54)rotate(45)" id="Baijiang"/>
+                <use xlink:href="#stline13" transform="translate(1102,30)rotate(-90)" id="Xintang"/>
+                <use xlink:href="#stline13" transform="translate(1152,30)rotate(90)" id="Guanhu"/>
+                <use xlink:href="#termline13" transform="translate(1202,30)rotate(-90)" id="Xinsha"/>
+        </g>
+        <g id="Line_14_station_icons">
+                <!--Jiahe Wanggang in Line 2-->
+                <use xlink:href="#stline14" transform="translate(387,-501)rotate(-90)" id="Dongping"/>
+                <use xlink:href="#stline14" transform="translate(437,-511)rotate(45)" id="Shihu"/>
+                <use xlink:href="#stline14" transform="translate(480.8,-554.8)rotate(45)" id="Taihe"/>
+                <use xlink:href="#stline14" transform="translate(524.6,-598.6)rotate(45)" id="Zhuliao"/>
+                <use xlink:href="#stline14" transform="translate(568.4,-642.4)rotate(-135)" id="Zhongluotan"/>
+                <use xlink:href="#stline14" transform="translate(612.2,-686.2)rotate(-135)" id="Lijiatang"/>
+                <use xlink:href="#int" x="656" y="-730" id="Xinhe"/>
+                <use xlink:href="#stline14" transform="translate(719,-754)rotate(-90)" id="Taiping"/>
+                <use xlink:href="#stline14" transform="translate(769,-754)rotate(90)" id="Shengang"/>
+                <use xlink:href="#stline14" transform="translate(819,-754)rotate(-90)" id="Dengcun"/>
+                <use xlink:href="#stline14" transform="translate(869,-754)rotate(90)" id="Jiangpu"/>
+                <use xlink:href="#termline14" transform="translate(919,-754)rotate(-90)" id="Jiekou"/>
+        </g>
+        <g id="Line_14_sub_station_icons">
+                <!--Xinhe in Line 14-->
+                <use xlink:href="#stline14" transform="translate(683,-703)rotate(-45)" id="Hongwei"/>
+                <use xlink:href="#stline14" transform="translate(709,-677)rotate(135)" id="Xinnan"/>
+                <use xlink:href="#stline14" transform="translate(735,-651)rotate(135)" id="Fengxia"/>
+                <use xlink:href="#stline14" transform="translate(761,-625)rotate(135)" id="Sino_Singapore_KC"/>
+                <use xlink:href="#stline14" transform="translate(787,-599)rotate(135)" id="Hetangxia"/>
+                <use xlink:href="#stline14" transform="translate(813,-573)rotate(135)" id="Wangcun"/>
+                <use xlink:href="#stline14" transform="translate(839,-547)rotate(135)" id="Tangcun"/>
+                <use xlink:href="#stline14" transform="translate(888,-536)rotate(90)" id="Zhenlongbei"/>
+                <!--Zhenlong in Line 21-->
+        </g>
+        <g id="Line_21_station_icons">
+                <use xlink:href="#stline21" x="607" y="-74" id="Tianhe_Park"/>
+                <use xlink:href="#stline21" transform="translate(665,-133)rotate(90)" id="Tangdong"/>
+                <use xlink:href="#int" x="714" y="-133" id="Huangcun"/>
+                <use xlink:href="#stline21" transform="translate(772,-187)rotate(0)" id="Shijiedaduan"/>
+                <use xlink:href="#stline21" transform="translate(772,-227)rotate(0)" id="Wisdom_City"/>
+                <use xlink:href="#stline21" transform="translate(830,-281)rotate(-90)" id="Shenzhou_Lu"/>
+                <use xlink:href="#stline21" transform="translate(880,-281)rotate(90)" id="Kexue_Square"/>
+                <!--Suyuan in Line 6-->
+                <use xlink:href="#stline21" x="938" y="-376" id="Shuixi"/>
+                <use xlink:href="#stline21" x="938" y="-416" id="Changping"/>
+                <use xlink:href="#stline21" x="938" y="-456" id="Jinkeng"/>
+                <use xlink:href="#stline21" x="938" y="-496" id="Zhenlongnan"/>
+                <use xlink:href="#int" x="938" y="-536" id="Zhenlong"/>
+                <use xlink:href="#stline21" transform="translate(972,-570)rotate(-90)" id="Zhongxin"/>
+                <use xlink:href="#stline21" transform="translate(1022,-570)rotate(90)" id="Zhongxindong"/>
+                <use xlink:href="#stline21" transform="translate(1072,-570)rotate(-90)" id="Zhucun"/>
+                <use xlink:href="#stline21" transform="translate(1122,-570)rotate(90)" id="Zhucundong"/>
+                <use xlink:href="#stline21" transform="translate(1172,-570)rotate(-90)" id="Xiangling"/>
+                <use xlink:href="#stline21" transform="translate(1222,-570)rotate(90)" id="Zhonggang"/>
+                <use xlink:href="#termline21" transform="translate(1272,-570)rotate(-90)" id="Zengcheng_Square"/>
+        </g>
+        <g id="GF_Line_station_icons">
+                <use xlink:href="#termgfline" transform="translate(-293,518)rotate(90)" id="Xincheng_Dong"/>
+                <use xlink:href="#stgfline" transform="translate(-333,518)rotate(-90)" id="Dongping"/>
+                <use xlink:href="#stgfline" transform="translate(-373,518)rotate(90)" id="Shijilian"/>
+                <use xlink:href="#stgfline" transform="translate(-413,478)rotate(180)" id="Lanshi"/>
+                <use xlink:href="#int" transform="translate(-413,438)rotate(180)" id="Kuiqi_Lu"/>
+                <use xlink:href="#stgfline" transform="translate(-413,398)rotate(180)" id="Jihua_Park"/>
+                <use xlink:href="#stgfline" transform="translate(-413,358)rotate(180)" id="Tongji_Lu"/>
+                <use xlink:href="#stgfline" transform="translate(-413,318)rotate(180)" id="Foshan_Ancestral_Temple"/>
+                <use xlink:href="#stgfline" transform="translate(-373,278)rotate(-90)" id="Pujun_Beilu"/>
+                <use xlink:href="#stgfline" transform="translate(-333,278)rotate(90)" id="Chaoan"/>
+                <use xlink:href="#stgfline" transform="translate(-293,278)rotate(-90)" id="Guicheng"/>
+                <use xlink:href="#stgfline" transform="translate(-253,238)rotate(0)" id="Nangui_Lu"/>
+                <path class="osi" d="
+                M -253,198 H -233
+                ">
+		        <title>Leigang interchange</title>
+		</path>
+                <use xlink:href="#int" transform="translate(-253,198)rotate(0)" id="Leigang"/>
+                <use xlink:href="#stgfline" transform="translate(-253,158)rotate(0)" id="Qiandenghu_Lake"/>
+                <use xlink:href="#stgfline" transform="translate(-213,118)rotate(-90)" id="Financial_HiTech_Zone"/>
+                <use xlink:href="#stgfline" transform="translate(-173,118)rotate(90)" id="Longxi"/>
+                <use xlink:href="#stgfline" transform="translate(-133,118)rotate(-90)" id="Jushu"/>
+                <use xlink:href="#int" x="-93" y="118" id="Xilang"/>
+                <use xlink:href="#stgfline" transform="translate(-53,118)rotate(-90)" id="Hedong"/>
+                <use xlink:href="#stgfline" transform="translate(-13,118)rotate(90)" id="Shachong"/>
+                <!--Shayuan in Line 8-->
+                <use xlink:href="#stgfline" transform="translate(81,178)rotate(135)" id="Yangang"/>
+                <use xlink:href="#stgfline" transform="translate(131,228)rotate(135)" id="Shixi"/>
+                <!--Nanzhou in Line 1-->
+                <use xlink:href="#int" x="442" y="238" id="Lijiao"/>
+        </g>
+        <g id="APM_Line_station_icons">
+                <use xlink:href="#int" x="471" y="-188" id="Linhexi_APM"/>
+                <use xlink:href="#int" x="471" y="84" id="Canton_Tower_APM"/>
+        </g>
+        <g id="THZ1_station_icons">
+                <use xlink:href="#int" x="456.5" y="98.5" id="Canton_Tower_THZ1"/>
+                <use xlink:href="#int" x="667.5" y="119.5" id="Wanshengwei_THZ1"/>
+        </g>
+        <g id="FMetro2_station_icons">
+                <use xlink:href="#outofcity" fill="#009900" transform="translate(-560,438)rotate(90)" id="Foshan"/>
+                <use xlink:href="#stfmetro2" transform="translate(-533,438)rotate(90)" id="Zhangcha"/>
+                <use xlink:href="#stfmetro2" transform="translate(-493,438)rotate(-90)" id="Shiwan"/>
+                <use xlink:href="#stfmetro2" transform="translate(-453,438)rotate(90)" id="Shagang"/>
+                <!--Kuiqi Lu in GF Line-->
+                <use xlink:href="#stfmetro2" transform="translate(-356.5,438)rotate(90)" id="Shiliang"/>
+                <use xlink:href="#stfmetro2" transform="translate(-299.5,438)rotate(-90)" id="Wanhua"/>
+                <use xlink:href="#stfmetro2" transform="translate(-242.5,438)rotate(90)" id="Dengzhou"/>
+                <use xlink:href="#stfmetro2" transform="translate(-185.5,438)rotate(-90)" id="The_World_Of_Flowers"/>
+                <use xlink:href="#stfmetro2" transform="translate(-128.5,438)rotate(90)" id="Xianchong"/>
+                <use xlink:href="#stfmetro2" transform="translate(-71.5,438)rotate(-90)" id="Shizhou"/>
+                <path class="osi" d="
+                M -14.5,438 V 418
+                ">
+		        <title>Leigang interchange</title>
+		</path>
+                <use xlink:href="#int" transform="translate(-14.5,438)rotate(90)" id="Linyue_Xi"/>
+                <use xlink:href="#stfmetro2" transform="translate(42.5,438)rotate(90)" id="Linyue_Dong"/>
+                <!--Guangzhou South Railway Station in Line 2-->
+        </g>
+        <g id="NHXJT_station_icons">
+                <use xlink:href="#int" x="-233" y="198" id="Leigang_NHXJT"/>
+                <use xlink:href="#int" x="-14.5" y="418" id="Linyue_Xi_NHXJT"/>
+        </g>
+
+<!--Unlike other attributes, value of font-size attribute should always include the unit (px) otherwise it may be interpreted differently.-->
+<!--Translate value equalizes the height difference of text labels above and below the horizontal line.-->
+<!--y of text below horizontal line = y of icon +18.-->
+<!--y of text above horizontal line = y of icon -18.-->
+
+        <g class="stname" id="text_labels" font-size="15px" transform="translate(0,5)">
+
+                <g text-anchor="middle">
+                        <text x="387" y="-519">Dongping</text>
+                        <text x="888" y="-518">Zhenlongbei</text>
+                        <text x="665" y="-115">Tangdong</text>
+                        <text x="830" y="-299">Shenzhou Lu</text>
+                        <text x="880" y="-263">Kexue<tspan x="880" dy="14">Square</tspan></text>
+                        <text x="972" y="-588">Zhongxin</text>
+                        <text x="1022" y="-552">Zhongxindong</text>
+                        <text x="1072" y="-588">Zhucun</text>
+                        <text x="1122" y="-552">Zhucundong</text>
+                        <text x="1172" y="-588">Xiangling</text>
+                        <text x="1222" y="-552">Zhonggang</text>
+                        <text x="1272" y="-602">Zengcheng<tspan x="1272" dy="14">Square</tspan></text>
+                        <text x="978" y="-354">Luogang</text>
+                        <text x="898" y="-354">Xiangang</text>
+                        <text x="858" y="-318">Jinfeng</text>
+                        <text x="818" y="-354">Huangbei</text>
+                        <text x="778" y="-318">Gaotangshi</text>
+                        <text x="738" y="-354">Kemulang</text>
+                        <text x="698" y="-318">Longdong</text>
+                        <text x="658" y="-368">Botanical<tspan x="658" dy="14">Garden</tspan></text>
+                        <text x="397" y="-306">Tianpingjia</text>
+                        
+                        <text x="-533" y="456">Zhangcha</text>
+                        <text x="-493" y="420">Shiwan</text>
+                        <text x="-453" y="456">Shagang</text>
+                        <text x="-356.5" y="456">Shiliang</text>
+                        <text x="-299.5" y="420">Wanhua</text>
+                        <text x="-242.5" y="456">Dengzhou</text>
+                        <text x="-185.5" y="406">The World<tspan x="-185.3" dy="14">of Flowers</tspan></text>
+                        <text x="-128.5" y="456">Xianchong</text>
+                        <text x="-71.5" y="420">Shizhou</text>
+                        
+                        <text x="42.5" y="456">Linyue Dong</text>
+
+                        <text x="-293" y="536">Xincheng<tspan x="-293" dy="14">Dong</tspan></text>
+                        <text x="-333" y="500">Dongping</text>
+                        <text x="-373" y="536">Shijilian</text>
+                        <text x="-373" y="246">Pujun<tspan x="-373" dy="14">Beilu</tspan></text>
+                        <text x="-333" y="296">Chao'an</text>
+                        <text x="-293" y="260">Guicheng</text>
+                        <text x="-213" y="86">Financial<tspan x="-213" dy="14">Hi-Tech Zone</tspan></text>
+                        <text x="-173" y="136">Longxi</text>
+                        <text x="-133" y="100">Jushu</text>
+                        <text x="-93" y="136">Xilang</text>
+                        <text x="-53" y="100">Hedong</text>
+                        <text x="-13" y="136">Shachong</text>
+                        <text x="74" y="-122">Ximenkou</text>
+                        <text x="185" y="-86">Peasant Movement<tspan x="185" dy="14">Institute</tspan></text>
+                        <text x="74" y="-42">Yide Lu</text>
+                        <text x="174" y="-6">Beijing Lu</text>
+                        <text x="224" y="-42">Yuexiunan</text>
+                        <text x="274" y="-6">Donghu</text>
+                        <text x="247" y="-122">Martyrs' Park</text>
+                        <text x="247" y="-136">Taojin</text>
+                        <text x="308" y="-86">Dongshankou</text>
+                        <text x="358" y="-172">Zoo</text>
+                        <text x="533" y="-91">Shipaiqiao</text>
+                        <text x="512" y="-42">Liede</text>
+                        <text x="557" y="-6">Tancun</text>
+                        <text x="642" y="-6">Keyun<tspan x="642" dy="14">Lu</tspan></text>
+                        <text x="836" y="34">Dashadi</text>
+                        <text x="886" y="70">Dashadong</text>
+                        <text x="936" y="34">Wenchong</text>
+                        <text x="1102" y="12">Xintang</text>
+                        <text x="1152" y="48">Guanhu</text>
+                        <text x="1202" y="12">Xinsha</text>
+                        <text x="820" y="152">Yufengwei</text>
+                        <text x="870" y="116">Shuanggang</text>
+                        <text x="920" y="152">Nanhai God<tspan x="920" dy="14">Temple</tspan></text>
+                        <text x="970" y="116">Xiayuan</text>
+                        <text x="79" y="152">Baogang<tspan x="79" dy="14">Dadao</tspan></text>
+                        <text x="203" y="116">Xiaogang</text>
+                        <text x="283" y="102">Sun Yat-sen<tspan x="283" dy="14">University</tspan></text>
+                        <text x="362" y="116">Lujiang</text>
+                        <text x="490" y="152">Chigang</text>
+                        <text x="538" y="116">Modiesha</text>
+                        <text x="586" y="152">Xingangdong</text>
+                        <text x="634" y="116">Pazhou</text>
+                        <text x="264" y="362">Xiecun</text>
+                        <text x="353" y="362">Zhongcun</text>
+                        <text x="507" y="348">Nancun<tspan x="507" dy="14">Wanbo</tspan></text>
+                        <text x="1122" y="652">Dachong</text>
+                        <text x="1162" y="616">Tangkeng</text>
+                        <text x="1202" y="652">Nanheng</text>
+                        
+                        <text x="237" y="-603">Qingbu</text>
+                        <text x="153" y="-709">Ma'anshan<tspan x="153" dy="14">Park</tspan></text>
+                        <text x="103" y="-659">Huadu<tspan x="103" dy="14">Square</tspan></text>
+                        <text x="-81" y="-653">Huadu<tspan x="-81" dy="14">Autocity</tspan></text>
+                        <text x="719" y="-772">Taiping</text>
+                        <text x="769" y="-736">Shengang</text>
+                        <text x="819" y="-772">Dengcun</text>
+                        <text x="869" y="-736">Jiangpu</text>
+                        <text x="919" y="-772">Jiekou</text>
+                </g>
+                <g text-anchor="end">
+                        <text x="597" y="-42">Yuancun</text>
+                        <text x="-66" y="-548">Jiaoxin</text>
+                        <text x="-38" y="-520">Tinggang</text>
+                        <text x="-10" y="-492">Shijing</text>
+                        <text x="14" y="-464">Xiaoping</text>
+                        <text x="14" y="-424">Shitan</text>
+                        <text x="14" y="-384">Dekang</text>
+                        <text x="14" y="-344">Shangbu</text>
+                        <text x="14" y="-304">Tongdewei</text>
+                        <text x="14" y="-264">Ezhangtan</text>
+                        <text x="558.4" y="-652.4">Zhongluotan</text>
+                        <text x="602.2" y="-696.2">Lijiatang</text>
+                        <text x="646" y="-740">Xinhe</text>
+                        <text x="699" y="-667">Xinnan</text>
+                        <text x="725" y="-641">Fengxia</text>
+                        <text x="751" y="-622">Sino-Singapore<tspan x="751" dy="14">Knowledge City</tspan></text>
+                        <text x="777" y="-589">Hetangxia</text>
+                        <text x="803" y="-563">Wangcun</text>
+                        <text x="829" y="-537">Tangcun</text>
+                        <text x="325" y="-541">Longgui</text>
+                        <text x="325" y="-511">Jiahe Wanggang</text>
+                        <text x="296" y="-480">Huangbian</text>
+                        <text x="265" y="-449">Jiangxia</text>
+                        <text x="234" y="-418">Xiao-gang</text>
+                        <text x="203" y="-394">Baiyun<tspan x="203" dy="14">Cultrual Square</tspan></text>
+                        <text x="172" y="-356">Baiyun Park</text>
+                        <text x="141" y="-325">Feixiang Park</text>
+                        <text x="112" y="-274">Sanyuanli</text>
+                        <text x="774" y="62">Yuzhu</text>
+                        <text x="12" y="-236">Xicun</text>
+                        <text x="112" y="-202">Yuexiu<tspan x="112" dy="14">Park</tspan></text>
+                        <text x="118" y="-90">Gongyuanqian</text>
+                        <text x="-141" y="-621">Fei'eling</text>
+                        <text x="44" y="-684">Huaguoshan<tspan x="44" dy="14">Park</tspan></text>
+                        <text x="-425" y="478">Lanshi</text>
+                        
+                        <text x="-265" y="198">Leigang</text>
+                        <text x="-425" y="398">Jihua Park</text>
+                        <text x="-425" y="358">Tongji Lu</text>
+                        <text x="-425" y="311">Foshan<tspan x="-425" dy="14">Ancestral Temple</tspan></text>
+                        <text x="71" y="188">Yangang</text>
+                        <text x="121" y="238">Shixi</text>
+                        <text x="188" y="278">Luoxi</text>
+                        <text x="188" y="318">Nanpu</text>
+                        <text x="166" y="346">Huijiang</text>
+                        
+                        <text x="380" y="-58">Wuyangcun</text>
+                        <text x="432" y="-12">Zhujiang<tspan x="432" dy="14">New Town</tspan></text>
+                        <text x="430" y="-188">Linhexi</text>
+                        <text x="298" y="-172">Ouzhuang</text>
+                        <text x="382" y="-122">Yangji</text>
+                        <text x="432" y="-245">Guangzhou East<tspan x="432" dy="14">Railway Station</tspan></text>
+                        <use xlink:href="#chinarail" x="312" y="-253"/>
+                        <text x="296" y="-254">Shaheding</text>
+                        <text x="430" y="77">Canton<tspan x="430" dy="14">Tower</tspan></text>
+                        <text x="432" y="146">Kecun</text>
+                        <text x="432" y="392">Hanxi<tspan x="432" dy="14">Chimelong</tspan></text>
+                        <text x="14" y="-130">Chen Clan<tspan x="14" dy="14">Academy</tspan></text>
+                        <text x="-144" y="-90">Jiaokou</text>
+                        <text x="-198" y="-274">Xunfenggang</text>
+                        <text x="-170" y="-246">Hengsha</text>
+                        <text x="-142" y="-218">Shabei</text>
+                        <text x="-108" y="-158">Hesha</text>
+                        <text x="-106" y="-128">Tanwei</text>
+                        <text x="-46" y="-81">Changshou<tspan x="-46" dy="14">Lu</tspan></text>
+                        <text x="-30" y="-204">Xichang</text>
+                        <text x="-72" y="-28">Ruyifang</text>
+                        <text x="-44" y="-14">Huangsha</text>
+                        <text x="-93" y="29">Huadiwan</text>
+                        <text x="-105" y="78">Kengkou</text>
+                        
+                </g>
+                <g text-anchor="start">
+                        <text x="-2.5" y="418">Linyue Xi</text>
+                        <text x="119.75" y="430.75">Guangzhou South<tspan x="119.75" dy="14">Railway Station</tspan></text>
+                        <use xlink:href="#chinarail" x="240" y="423"/>
+                        <text x="-403" y="424">Kuiqi Lu</text>
+                        <text x="183" y="-199">Xiaobei</text>
+                        <text x="-48" y="-146">Zhongshanba</text>
+                        <text x="36" y="-164">Caihongqiao</text>
+                        <text x="134" y="-248">Guangzhou<tspan x="134" dy="14">Railway Station</tspan></text>
+                        <use xlink:href="#chinarail" x="134" y="-283"/>
+                        <text x="134" y="-158">Sun Yat-sen<tspan x="134" dy="14">Memorial</tspan><tspan x="134" dy="14">Hall</tspan></text>
+                        <text x="-49" y="25">Fangcun</text>
+                        <text x="320" y="-204">Huanghuagang</text>
+                        
+                        <text x="694" y="-73">Chebei</text>
+                        <text x="694" y="-34">Chebeinan</text>
+                        <text x="730" y="-10">Dongpu</text>
+                        <text x="758" y="18">Sanxi</text>
+                        <text x="1018" y="120">Nangang</text>
+                        <text x="1046" y="92">Shacun</text>
+                        <text x="1074" y="64">Baijiang</text>
+                        <text x="724" y="-121">Huangcun</text>
+                        <text x="784" y="-194">Grand World<tspan x="784" dy="14">Scenic Park</tspan></text>
+                        <text x="784" y="-227">Wisdom City</text>
+                        
+                        <text x="349" y="-661">Airport S.</text>
+                        <use xlink:href="#airport" x="430" y="-665"/>
+                        <text x="349" y="-621">Gaozeng</text>
+                        <text x="349" y="-591">Renhe</text>
+                        <text x="371" y="-473">Baiyundadaobei</text>
+                        <text x="399.5" y="-444.5">Yongtai</text>
+                        <text x="428" y="-416">Tonghe</text>
+                        <text x="454" y="-368">Jingxi Nanfang Hospital</text>
+                        <text x="454" y="-328">Meihuayuan</text>
+                        <text x="454" y="-300">Yantang</text>
+                        <text x="594" y="-278">Tianhe Coach Terminal</text>
+                        <text x="594" y="-246">Wushan</text>
+                        <text x="594" y="-211">South China<tspan x="594" dy="14">Normal University</tspan></text>
+                        <text x="594" y="-162">Gangding</text>
+                        <text x="524" y="-185">Tianhe<tspan x="524" dy="14">Sports</tspan><tspan x="524" dy="14">Center</tspan></text>
+                        <text x="630" y="-302">Changban</text>
+                        <text x="-241" y="238">Nangui Lu</text>
+                        
+                        <text x="-241" y="158">Qiandenghu Lake</text>
+                        <text x="36" y="-71">Hualin<tspan x="36" dy="14">Temple</tspan></text>
+                        <text x="34" y="-12">Cultrual<tspan x="33" dy="14">Park</tspan></text>
+                        <text x="36" y="25">Tongfuxi</text>
+                        <text x="36" y="67">Fenghuang<tspan x="36" dy="14">Xincun</tspan></text>
+                        <text x="42.5" y="116">Shayuan</text>
+                        <text x="134" y="-50">Haizhu<tspan x="134" dy="14">Square</tspan></text>
+                        <text x="136" y="27">The 2nd Workers'<tspan x="136" dy="14">Cultrual Palace</tspan></text>
+                        <text x="136" y="84">Jiangnanxi</text>
+                        <text x="134" y="146">Changgang</text>
+                        <text x="210" y="226">Nanzhou</text>
+                        <text x="186" y="190">Dongxiaonan</text>
+                        <text x="158" y="162">Jiangtai Lu</text>
+                        <text x="159.5" y="398">Shibi</text>
+                        <text x="454" y="186">Datang</text>
+                        <text x="454" y="238">Lijiao</text>
+                        <text x="454" y="278">Xiajiao</text>
+                        <text x="454" y="333">Dashi</text>
+                        <text x="480" y="412">Shiqiao</text>
+                        <text x="516" y="448">Panyu Square</text>
+                        <text x="606" y="380">Yuangang</text>
+                        <text x="668" y="318">Banqiao</text>
+                        <text x="694" y="134">Wanshengwei</text>
+                        <text x="694" y="174">Guanzhou</text>
+                        <text x="702" y="201">Higher Education<tspan x="702" dy="14">Mega Center N.</tspan></text>
+                        <text x="732" y="229">Higher Education<tspan x="732" dy="14">Mega Center S.</tspan></text>
+                        <text x="758" y="264">Xinzao</text>
+                        
+                        <text x="814" y="320">Shiqi</text>
+                        <text x="842" y="348">Haibang</text>
+                        <text x="870" y="376">Dichong</text>
+                        <text x="898" y="404">Dongchong</text>
+                        
+                        <text x="954" y="460">Huangge Auto Town</text>
+                        <text x="982" y="488">Huangge</text>
+                        <text x="1010" y="516">Jiaomen</text>
+                        <text x="1038" y="544">Jinzhou</text>
+                        <text x="1066" y="572">Feishajiao</text>
+                        <text x="1094" y="600">Guanglong</text>
+                        <text x="1220" y="602">Nansha <tspan x="1220" dy="14">Passenger Port</tspan></text>
+                        <text x="205" y="-659">Liantang</text>
+                        <text x="28" y="-621">Huacheng Lu</text>
+                        <use xlink:href="#chinarail" x="28" y="-616"/>
+                        <text x="948" y="-322">Suyuan</text>
+                        <text x="950" y="-376">Shuixi</text>
+                        <text x="950" y="-416">Changping</text>
+                        <text x="950" y="-456">Jinkeng</text>
+                        <text x="950" y="-496">Zhenlongnan</text>
+                        <text x="950" y="-536">Zhenlong</text>
+                        <text x="1028" y="-336">Xiangxue</text>
+                        <text x="447" y="-501">Shihu</text>
+                        <text x="490.8" y="-544.8">Taihe</text>
+                        <text x="534.6" y="-588.6">Zhuliao</text>
+                        <text x="693" y="-713">Hongwei</text>
+                </g>
+
+<!--x,y of text alongside diagonal line = x,y of icon ��10. Use &amp; for &.-->
+<!--x of text on the right-hand side of vertical line = x of icon +12.-->
+<!--Use tspan for broken label. Increase dy value for greater line height of text.-->
+<!--Subtract y value of the text element by half of the dy value for vertically centred 2-line text.-->
+<!--x of text on the left-hand side of vertical line = x of icon -12.-->
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+        </g>
+        <g id="text_labels_with_dagger" font-size="15px" transform="translate(0,5)">
+                <g text-anchor="middle">
+                        <text x="287" y="-639">
+                                <tspan class="stname">Qingtang</tspan>
+                        </text>
+                        <text x="352" y="-270">
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan class="stname">Shahe</tspan>
+                                <tspan x="357" class="stclosed">&#8213;&#8213;&#8213;</tspan>
+                        </text>
+                        <text x="-31" y="-603">
+                                <tspan class="stname">Guangzhou North</tspan>
+                                <tspan x="-31" dy="14" class="stname">Railway Station</tspan>
+                                <tspan class="dagger">&#8224;</tspan>
+                        </text>
+                </g>
+                <g text-anchor="start">
+                        <text x="619" y="-81">
+                                <tspan class="stname">Tianhe</tspan>
+                                <tspan x="619" dy="14" class="stname">Park</tspan>
+                        </text>
+                        <text x="786" y="292">
+                                <tspan class="stname">Guanqiao</tspan>
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan x="786" class="stclosed">&#8213;&#8213;&#8213;&#8213;</tspan>
+                        </text>
+                        <text x="926" y="432">
+                                <tspan class="stname">Qingsheng</tspan>
+                        </text>
+                        <use xlink:href="#chinarail" x="1005" y="417"/>
+                        <text x="349" y="-701">
+                                <tspan class="stname">Airport N.</tspan>
+                                
+                        </text>
+                        <use xlink:href="#airport" x="437" y="-705"/>
+                </g>
+                <g text-anchor="end">
+                        <text x="436" y="-138.5">
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan class="stname">Tiyu</tspan>
+                                <tspan x="436" dy="14" class="stname">Xilu</tspan>
+                        </text>
+                </g>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+        </g>
+        <g id="APM_explanation">
+                <path class="boxotl" d="
+                M -570,-790
+                H -270
+                M -570,-390
+                H -270
+                "/>
+                <g>
+                        <text x="-560" y="-785" class="legendtitle" transform="translate(0,25)">Explanation of APM Line</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g style="visibility:hidden">
+                        <text x="-560" y="-785" class="chtlegendtitle" transform="translate(0,25)">APM綫沿途各站</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+                <g class="me">
+                        <path class="sapmline" d="
+                        M -530,-730
+                        V -410
+                        "/>
+                </g>
+                <path class="osi" d="
+                M -550,-730
+                H -530
+                M -550,-410
+                H -530
+                ">
+		        <title>haha</title>
+		</path>
+                <use xlink:href="#int" x="-550" y="-730" id="Linhexi_ex_3"/>
+                <use xlink:href="#int" x="-530" y="-730" id="Linhexi_ex"/>
+                <use xlink:href="#stapmline" x="-530" y="-690" id="Tianhe_Sports_Center_S"/>
+                <use xlink:href="#stapmline" x="-530" y="-650" id="Tianhenan"/>
+                <use xlink:href="#stapmline" x="-530" y="-610" id="Huangpu_Dadao"/>
+                <use xlink:href="#stapmline" x="-530" y="-570" id="GZWCMC"/>
+                <use xlink:href="#stapmline" x="-530" y="-530" id="Huacheng Dadao"/>
+                <use xlink:href="#stapmline" x="-530" y="-490" id="Guangzhou_Opera_House"/>
+                <use xlink:href="#stapmline" x="-530" y="-450" id="Guangzhou_Opera_House"/>
+                <use xlink:href="#int" x="-530" y="-410" id="Canton_Tower_ex_APM"/>
+                <use xlink:href="#int" x="-550" y="-410" id="Canton_Tower_ex_3"/>
+                <g text-anchor="start" class="stname" id="text_labels" font-size="15px" transform="translate(0,5)">
+                        <text x="-518" y="-730">Linhexi</text>
+                        <text x="-518" y="-690">Tianhe Sports Center South</text>
+                        <text x="-518" y="-650">Tianhenan</text>
+                        <text x="-518" y="-610">Huangpu Dadao</text>
+                        <text x="-518" y="-577">Guangzhou Women and<tspan x="-518" dy="14">Children's Medical Center</tspan></text>
+                        <text x="-518" y="-530">Huacheng Dadao</text>
+                        <text x="-518" y="-490">Guangzhou Opera House</text>
+                        <text x="-518" y="-450">Haixinsha</text>
+                        <text x="-518" y="-410">Canton Tower</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g text-anchor="start" class="chtstname" id="cht_text_labels" font-size="15px" transform="translate(0,5)" style="visibility:hidden">
+                        <text x="-518" y="-730">林和西</text>
+                        <text x="-518" y="-690">體育中心南</text>
+                        <text x="-518" y="-650">天河南</text>
+                        <text x="-518" y="-610">黃埔大道</text>
+                        <text x="-518" y="-570">婦兒中心</text>
+                        <text x="-518" y="-530">花城大道</text>
+                        <text x="-518" y="-490">大劇院</text>
+                        <text x="-518" y="-450">海心沙</text>
+                        <text x="-518" y="-410">廣州塔</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+        </g>
+        <g id="THZ1_explanation">
+                <path class="boxotl" d="
+                M -570,620
+                H 460
+                M -570,760
+                H 460
+                "/>
+                <g>
+                        <text x="-260" y="625" class="legendtitle" transform="translate(0,25)">Explanation of THZ1 (Tram Haizhu 1)</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g style="visibility:hidden">
+                        <text x="-260" y="625" class="chtlegendtitle" transform="translate(0,25)">海珠有軌電車THZ1沿途各站</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+                <g class="me">
+                        <g class="sthz1">
+                                <path id="THZ1_ex_route" d="
+                                M -200,712
+                                H 400
+                                "/>
+                        </g>
+                </g>
+                <use class="mex" xlink:href="#THZ1_ex_route"/>
+                <path class="osi" d="
+                M -230,697.5
+                L -200,712
+                M 400,712
+                L 414.5,726.5
+                ">
+		        <title>haha</title>
+		</path>
+                <use xlink:href="#int" x="-230" y="697.5" id="Canton_Tower_ex_THZ1_3"/>
+                <use xlink:href="#int" x="-200" y="712" id="Canton_Tower_ex_THZ1"/>
+                <use xlink:href="#stthz1" transform="translate(-140,712)rotate(90)" id="Canton_Tower_E"/>
+                <use xlink:href="#stthz1" transform="translate(-80,712)rotate(-90)" id="Liede_Bridge_S"/>
+                <use xlink:href="#stthz1" transform="translate(-20,712)rotate(90)" id="Party_Pier"/>
+                <use xlink:href="#stthz1" transform="translate(40,712)rotate(-90)" id="Nanfeng"/>
+                <use xlink:href="#stthz1" transform="translate(100,712)rotate(90)" id="CEC_W"/>
+                <use xlink:href="#stthz1" transform="translate(160,712)rotate(-90)" id="CEC_M"/>
+                <use xlink:href="#stthz1" transform="translate(220,712)rotate(90)" id="CEC_E"/>
+                <use xlink:href="#stthz1" transform="translate(280,712)rotate(-90)" id="Pazhou_Bridge_S"/>
+                <use xlink:href="#stthz1" transform="translate(340,712)rotate(90)" id="Pazhou_Pagoda"/>
+                <use xlink:href="#int" x="400" y="712" id="Wanshengwei_ex_THZ1"/>
+                <use xlink:href="#int" x="414.5" y="726.5" id="Wanshengwei_ex_8"/>
+                <g text-anchor="middle" class="stname" id="text_labels" font-size="15px" transform="translate(0,5)">
+                        <text x="-200" y="680">Canton<tspan x="-200" dy="14">Tower</tspan></text>
+                        <text x="-140" y="730">Canton Tower<tspan x="-140" dy="14">East</tspan></text>
+                        <text x="-80" y="680">Liede Bridge<tspan x="-80" dy="14">South</tspan></text>
+                        <text x="-20" y="730">Party<tspan x="-20" dy="14">Pier</tspan></text>
+                        <text x="40" y="694">Nanfeng</text>
+                        <text x="100" y="730">Canton Fair<tspan x="100" dy="14">Complex West</tspan></text>
+                        <text x="160" y="680">Canton Fair<tspan x="160" dy="14">Complex Middle</tspan></text>
+                        <text x="220" y="730">Canton Fair<tspan x="220" dy="14">Complex East</tspan></text>
+                        <text x="280" y="680">Pazhou Bridge<tspan x="280" dy="14">South</tspan></text>
+                        <text x="340" y="730">Pazhou<tspan x="340" dy="14">Pagoda</tspan></text>
+                        <text x="400" y="694">Wanshengwei</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g text-anchor="middle" class="chtstname" id="cht_text_labels" font-size="15px" transform="translate(0,5)" style="visibility:hidden">
+                        <text x="-200" y="694">廣州塔</text>
+                        <text x="-140" y="730">廣州塔東</text>
+                        <text x="-80" y="694">獵德大橋南</text>
+                        <text x="-20" y="730">琶醍</text>
+                        <text x="40" y="694">南風</text>
+                        <text x="100" y="730">會展西</text>
+                        <text x="160" y="694">會展中</text>
+                        <text x="220" y="730">會展東</text>
+                        <text x="280" y="694">琶洲大橋南</text>
+                        <text x="340" y="730">琶洲塔</text>
+                        <text x="400" y="694">萬勝圍</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+        </g>
+        
+        <g id="keytosymbols">
+                <g>
+                        <text x="-560" y="625" class="legendtitle" transform="translate(0,25)">Key to Symbols</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g style="visibility:hidden">
+                        <text x="-560" y="625" class="chtlegendtitle" transform="translate(0,25)">圖例</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+                <use xlink:href="#int" x="-550" y="675"/>
+                <use xlink:href="#chinarail" x="-559" y="694"/>
+                <use xlink:href="#airport" x="-550" y="735"/>
+                <g text-anchor="start" class="stname" id="text_labels" font-size="18px" transform="translate(0,6)">
+                        <text x="-532" y="675">Interchange stations</text>
+                        <text x="-532" y="705">China Railway</text>
+                        <text x="-532" y="735">Airport</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g text-anchor="start" class="chtstname" id="cht_text_labels" font-size="18px" transform="translate(0,6)" style="visibility:hidden">
+                        <text x="-532" y="675">轉綫站</text>
+                        <text x="-532" y="705">中國鐵路</text>
+                        <text x="-532" y="735">機場</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+        </g>
+        <g id="keytolines">
+                <path class="boxotl" d="
+                M 1430,160
+                H 1750
+                M 1430,810
+                H 1750
+                "/>
+                <g>
+                        <text x="1440" y="170" class="legendtitle" transform="translate(0,20)">Key to Lines</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g style="visibility:hidden">
+                        <text x="1440" y="170" class="chtlegendtitle" transform="translate(0,20)">各路綫顏色</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+                <g class="melegend">
+                        <g class="sunknown">
+                                <path id="NHXJT_legend" d="M 1450,775 H 1580"/>
+                        </g>
+                        <use class="mexlegend" xlink:href="#NHXJT_legend"/>
+                        <g class="sfmetro2">
+                                <path id="FMetro2_legend" d="M 1450,740 H 1580"/>
+                        </g>
+                        <use class="mexlegend" xlink:href="#FMetro2_legend"/>
+                        <g class="sthz1">
+                                <path id="THZ1_legend" d="M 1450,705 H 1580"/>
+                        </g>
+                        <use class="mexlegend" xlink:href="#THZ1_legend"/>
+                        <path class="sapmline" d="M 1450,670 H 1580"/>
+                        <path class="sgfline" d="M 1450,635 H 1580"/>
+                        <path class="sline21" d="M 1450,600 H 1580"/>
+                        <path class="sline14" d="M 1450,565 H 1580"/>
+                        <path class="sline13" d="M 1450,530 H 1580"/>
+                        <path class="sline9" d="M 1450,495 H 1580"/>
+                        <path class="sline8" d="M 1450,460 H 1580"/>
+                        <path class="sline7" d="M 1450,425 H 1580"/>
+                        <path class="sline6" d="M 1450,390 H 1580"/>
+                        <path class="sline5" d="M 1450,355 H 1580"/>
+                        <path class="sline4" d="M 1450,320 H 1580"/>
+                        <path class="sline3" d="M 1450,285 H 1580"/>
+                        <path class="sline2" d="M 1450,250 H 1580"/>
+                        <path class="sline1" d="M 1450,215 H 1580"/>
+                </g>
+                <g text-anchor="start" class="stname" id="text_labels" font-size="18px" transform="translate(0,6)">
+                        <text x="1600" y="775">Nanhai Xinjiaotong</text>
+                        <text x="1600" y="740">Foshan Line 2</text>
+                        <text x="1600" y="705">Tram Haizhu 1</text>
+                        <text x="1600" y="670">APM Line</text>
+                        <text x="1600" y="635">Guangfo Line</text>
+                        <text x="1600" y="600">Line 21</text>
+                        <text x="1600" y="565">Line 14</text>
+                        <text x="1600" y="530">Line 13</text>
+                        <text x="1600" y="495">Line 9</text>
+                        <text x="1600" y="460">Line 8</text>
+                        <text x="1600" y="425">Line 7</text>
+                        <text x="1600" y="390">Line 6</text>
+                        <text x="1600" y="355">Line 5</text>
+                        <text x="1600" y="320">Line 4</text>
+                        <text x="1600" y="285">Line 3</text>
+                        <text x="1600" y="250">Line 2</text>
+                        <text x="1600" y="215">Line 1</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+                </g>
+                <g text-anchor="start" class="chtstname" id="cht_text_labels" font-size="18px" transform="translate(0,6)" style="visibility:hidden">
+                        <text x="1600" y="775">南海新交通</text>
+                        <text x="1600" y="740">佛山2號綫</text>
+                        <text x="1600" y="705">海珠有軌電車THZ1</text>
+                        <text x="1600" y="670">APM綫</text>
+                        <text x="1600" y="635">廣佛綫</text>
+                        <text x="1600" y="600">21號綫</text>
+                        <text x="1600" y="565">14號綫</text>
+                        <text x="1600" y="530">13號綫</text>
+                        <text x="1600" y="495">9號綫</text>
+                        <text x="1600" y="460">8號綫</text>
+                        <text x="1600" y="425">7號綫</text>
+                        <text x="1600" y="390">6號綫</text>
+                        <text x="1600" y="355">5號綫</text>
+                        <text x="1600" y="320">4號綫</text>
+                        <text x="1600" y="285">3號綫</text>
+                        <text x="1600" y="250">2號綫</text>
+                        <text x="1600" y="215">1號綫</text>
+                        <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+                </g>
+        </g>
+
+        <g id="chkbefore">
+                <path class="boxotl" d="
+                        M 1430,-840 H 1750
+                        M 1430,-309 H 1750
+                "/>
+                <path class="sepln" d="
+                        M 1430,-580 H 1750
+                        M 1430,-505 H 1750
+                        M 1430,-430 H 1750
+                "/>
+                <text x="1445" y="-830" class="legendtitle" transform="translate(0,20)">Check before you travel</text>
+                <g text-anchor="start" id="text_labels" font-size="18px" transform="translate(0,6)" class="longtext">
+                        <text x="1430" y="-790" class="dagger">&#8224;</text>
+                        <text x="1445" y="-790" class="stname">Tiyu Xilu</text>
+                        <text x="1445" y="-767">Line 3 is a through service from <tspan class="stname">Panyu</tspan>
+                        <tspan x="1445" dy="23"><tspan class="stname">Square</tspan>, via this station, terminating</tspan>
+                        <tspan x="1445" dy="23">at <tspan class="stname">Tianhe Coach Terminal</tspan>. </tspan>
+                        <tspan x="1445" dy="23">-</tspan>
+                        <tspan x="1445" dy="23">Line 3 train from <tspan class="stname">Airport N.</tspan> stops </tspan>
+                        <tspan x="1445" dy="23">service at this station. Passengers for</tspan>
+                        <tspan x="1445" dy="23"><tspan class="stname">Panyu Square</tspan> should change train at</tspan>
+                        <tspan x="1445" dy="23">this station. </tspan></text>
+                        <!--end height 26-->
+
+
+                        <text x="1430" y="-554" class="dagger">&#8224;</text>
+                        <text x="1445" y="-554" class="stname">Guanqiao</text>
+                        <text x="1445" y="-531">Station is not yet in use. </text>
+
+                        <text x="1430" y="-479" class="dagger">&#8224;</text>
+                        <text x="1445" y="-479" class="stname">Shahe</text>
+                        <text x="1445" y="-456">Station is not yet in use. </text>
+
+
+                        <text x="1430" y="-404" class="dagger">&#8224;</text>
+                        <text x="1445" y="-404" class="stname">Guangzhou North Railway Station</text>
+                        <text x="1445" y="-381">Passengers for Guangzhou North 
+                        <tspan x="1445" dy="23">Railway Station should alight at</tspan>
+                        <tspan x="1445" dy="23"><tspan class="stname">Huacheng Lu</tspan>. </tspan></text>
+
+                        
+                </g>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="hidden"/>
+        </g>
+        <g id="cht_chkbefore" style="visibility:hidden">
+                <path class="boxotl" d="
+                        M 1430,-840 H 1750
+                        M 1430,-378 H 1750
+                "/>
+                <path class="sepln" d="
+                        M 1430,-626 H 1750
+                        M 1430,-551 H 1750
+                        M 1430,-476 H 1750
+                "/>
+                <text x="1445" y="-830" class="chtlegendtitle" transform="translate(0,20)">出發前睇真啲</text>
+                <g text-anchor="start" id="text_labels" font-size="18px" transform="translate(0,6)" class="chtlongtext">
+                        <text x="1430" y="-790" class="dagger">&#8224;</text>
+                        <text x="1445" y="-790" class="chtstname">體育西路</text>
+                        <text x="1445" y="-767">從<tspan class="chtstname">番禺廣場</tspan>開出的3號綫列車為直通車，
+                        <tspan x="1445" dy="23">駛經本站，並以<tspan class="chtstname">天河客運站</tspan>為終點站。</tspan>
+                        <tspan x="1445" dy="23">-</tspan>
+                        <tspan x="1445" dy="23">從<tspan class="chtstname">機場北</tspan>開出的3號綫列車以本站為終</tspan>
+                        <tspan x="1445" dy="23">點站。往<tspan class="chtstname">番禺廣場</tspan>的乘客，請在本站轉</tspan>
+                        <tspan x="1445" dy="23">車。</tspan></text>
+                        <!--end height 26-->
+
+                        <text x="1430" y="-600" class="dagger">&#8224;</text>
+                        <text x="1445" y="-600" class="chtstname">官橋</text>
+                        <text x="1445" y="-577">本站尚未啟用。</text>
+
+                        <text x="1430" y="-525" class="dagger">&#8224;</text>
+                        <text x="1445" y="-525" class="chtstname">沙河</text>
+                        <text x="1445" y="-502">本站尚未啟用。</text>
+
+                        <text x="1430" y="-450" class="dagger">&#8224;</text>
+                        <text x="1445" y="-450" class="chtstname">廣州北站</text>
+                        <text x="1445" y="-427">往廣州火車北站的乘客，請於<tspan class="chtstname">花城路</tspan>落
+                        <tspan x="1445" dy="23">車。</tspan></text>
+
+                        
+                </g>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+        </g>
+
+        <g class="chtstname" id="cht_text_labels" font-size="15px" transform="translate(0,5)" style="visibility:hidden">
+
+                <g text-anchor="middle">
+                        <text x="387" y="-519">東平</text>
+                        <text x="888" y="-518">鎮龍北</text>
+                        <text x="665" y="-115">棠東</text>
+                        <text x="830" y="-299">神舟路</text>
+                        <text x="880" y="-263">科學廣場</text>
+                        <text x="972" y="-588">中新</text>
+                        <text x="1022" y="-552">中新東</text>
+                        <text x="1072" y="-588">朱村</text>
+                        <text x="1122" y="-552">朱村東</text>
+                        <text x="1172" y="-588">象嶺</text>
+                        <text x="1222" y="-552">鍾崗</text>
+                        <text x="1272" y="-588">增城廣場</text>
+                        <text x="978" y="-354">蘿崗</text>
+                        <text x="898" y="-354">暹崗</text>
+                        <text x="858" y="-318">金峰</text>
+                        <text x="818" y="-354">黃陂</text>
+                        <text x="778" y="-318">高塘石</text>
+                        <text x="738" y="-354">柯木塱</text>
+                        <text x="698" y="-318">龍洞</text>
+                        <text x="658" y="-361">植物園</text>
+                        <text x="397" y="-306">天平架</text>
+                        
+                        <text x="-533" y="456">張槎</text>
+                        <text x="-493" y="420">石灣</text>
+                        <text x="-453" y="456">沙崗</text>
+                        <text x="-356.5" y="456">石梁</text>
+                        <text x="-299.5" y="420">灣華</text>
+                        <text x="-242.5" y="456">登洲</text>
+                        <text x="-185.5" y="420">花卉世界</text>
+                        <text x="-128.5" y="456">仙涌</text>
+                        <text x="-71.5" y="420">石洲</text>
+                        
+                        <text x="42.5" y="456">林岳東</text>
+
+                        <text x="-293" y="536">新城東</text>
+                        <text x="-333" y="500">東平</text>
+                        <text x="-373" y="536">世紀蓮</text>
+                        <text x="-373" y="253">普君北路</text>
+                        <text x="-333" y="296">朝安</text>
+                        <text x="-293" y="260">桂城</text>
+                        <text x="-213" y="100">金融高新區</text>
+                        <text x="-173" y="136">龍歸</text>
+                        <text x="-133" y="100">菊樹</text>
+                        <text x="-93" y="136">西塱</text>
+                        <text x="-53" y="100">鶴洞</text>
+                        <text x="-13" y="136">沙涌</text>
+                        <text x="74" y="-122">西門口</text>
+                        <text x="185" y="-86">農講所</text>
+                        <text x="74" y="-42">一德路</text>
+                        <text x="174" y="-6">北京路</text>
+                        <text x="224" y="-42">越秀南</text>
+                        <text x="274" y="-6">東湖</text>
+                        <text x="247" y="-122">烈士陵園</text>
+                        <text x="247" y="-136">淘金</text>
+                        <text x="308" y="-86">東山口</text>
+                        <text x="358" y="-172">動物園</text>
+                        <text x="533" y="-91">石牌橋</text>
+                        <text x="512" y="-42">獵德</text>
+                        <text x="557" y="-6">潭村</text>
+                        <text x="642" y="-6">科韻路</text>
+                        <text x="836" y="34">大沙地</text>
+                        <text x="886" y="70">大沙東</text>
+                        <text x="936" y="34">文沖</text>
+                        <text x="1102" y="12">新塘</text>
+                        <text x="1152" y="48">官湖</text>
+                        <text x="1202" y="12">新沙</text>
+                        <text x="820" y="152">裕豐圍</text>
+                        <text x="870" y="116">雙崗</text>
+                        <text x="920" y="152">南海神廟</text>
+                        <text x="970" y="116">夏園</text>
+                        <text x="79" y="152">寶崗大道</text>
+                        <text x="203" y="116">曉港</text>
+                        <text x="283" y="116">中大</text>
+                        <text x="362" y="116">鷺江</text>
+                        <text x="490" y="152">赤崗</text>
+                        <text x="538" y="116">磨碟沙</text>
+                        <text x="586" y="152">新港東</text>
+                        <text x="634" y="116">琶洲</text>
+                        <text x="264" y="362">謝村</text>
+                        <text x="353" y="362">鍾村</text>
+                        <text x="507" y="362">南村萬博</text>
+                        <text x="1122" y="652">大涌</text>
+                        <text x="1162" y="616">塘坑</text>
+                        <text x="1202" y="652">南橫</text>
+                        <text x="1242" y="616">南沙客運港</text>
+                        <text x="237" y="-603">清㘵</text>
+                        <text x="153" y="-695">馬鞍山公園</text>
+                        <text x="103" y="-659">花都廣場</text>
+                        <text x="-81" y="-639">花都汽車城</text>
+                        <text x="719" y="-772">太平</text>
+                        <text x="769" y="-736">神崗</text>
+                        <text x="819" y="-772">鄧村</text>
+                        <text x="869" y="-736">江埔</text>
+                        <text x="919" y="-772">街口</text>
+                </g>
+                <g text-anchor="end">
+                        <text x="597" y="-42">員村</text>
+                        <text x="-66" y="-548">滘心</text>
+                        <text x="-38" y="-520">亭崗</text>
+                        <text x="-10" y="-492">石井</text>
+                        <text x="14" y="-464">小坪</text>
+                        <text x="14" y="-424">石潭</text>
+                        <text x="14" y="-384">德康</text>
+                        <text x="14" y="-344">上埗</text>
+                        <text x="14" y="-304">同德圍</text>
+                        <text x="14" y="-264">鵝掌坦</text>
+                        <text x="558.4" y="-652.4">鐘落潭</text>
+                        <text x="602.2" y="-696.2">黎家塘</text>
+                        <text x="646" y="-740">新和</text>
+                        <text x="699" y="-667">新南</text>
+                        <text x="725" y="-641">楓下</text>
+                        <text x="751" y="-615">知識城</text>
+                        <text x="777" y="-589">何棠下</text>
+                        <text x="803" y="-563">旺村</text>
+                        <text x="829" y="-537">湯村</text>
+                        <text x="325" y="-541">龍歸</text>
+                        <text x="325" y="-511">嘉禾望崗</text>
+                        <text x="296" y="-480">黃邊</text>
+                        <text x="265" y="-449">江夏</text>
+                        <text x="234" y="-418">蕭崗</text>
+                        <text x="203" y="-387">白雲文化廣場</text>
+                        <text x="172" y="-356">白雲公園</text>
+                        <text x="141" y="-325">飛翔公園</text>
+                        <text x="112" y="-274">三元里</text>
+                        <text x="774" y="62">魚珠</text>
+                        <text x="12" y="-236">西村</text>
+                        <text x="112" y="-195">越秀公園</text>
+                        <text x="118" y="-90">公園前</text>
+                        <text x="-141" y="-621">飛鵝嶺</text>
+                        <text x="44" y="-677">花果山公園</text>
+                        <text x="-425" y="478">瀾石</text>
+                        
+                        <text x="-265" y="198">𧒽崗</text>
+                        <text x="-425" y="398">季華園</text>
+                        <text x="-425" y="358">同濟路</text>
+                        <text x="-425" y="318">祖廟</text>
+                        <text x="71" y="188">燕崗</text>
+                        <text x="121" y="238">石溪</text>
+                        <text x="188" y="278">洛溪</text>
+                        <text x="188" y="318">南浦</text>
+                        <text x="166" y="346">會江</text>
+                        
+                        <text x="380" y="-58">五羊邨</text>
+                        <text x="432" y="-12">珠江新城</text>
+                        <text x="430" y="-188">林和西</text>
+                        <text x="298" y="-172">區莊</text>
+                        <text x="382" y="-122">楊箕</text>
+                        <text x="432" y="-238">廣州東站</text>
+                        <use xlink:href="#chinarail" x="352" y="-253"/>
+                        <text x="296" y="-254">沙河頂</text>
+                        <text x="430" y="84">廣州塔</text>
+                        <text x="432" y="146">客村</text>
+                        <text x="432" y="392">漢溪長隆</text>
+                        <text x="14" y="-116">陳家祠</text>
+                        <text x="-144" y="-90">滘口</text>
+                        <text x="-198" y="-274">潯峰崗</text>
+                        <text x="-170" y="-246">橫沙</text>
+                        <text x="-142" y="-218">沙貝</text>
+                        <text x="-108" y="-158">河沙</text>
+                        <text x="-106" y="-128">坦尾</text>
+                        <text x="-46" y="-74">長壽路</text>
+                        <text x="-30" y="-204">西場</text>
+                        <text x="-72" y="-28">如意坊</text>
+                        <text x="-44" y="-14">黃沙</text>
+                        <text x="-93" y="29">花地灣</text>
+                        <text x="-105" y="78">坑口</text>
+                        
+                </g>
+                <g text-anchor="start">
+                        <text x="-2.5" y="418">林岳西</text>
+                        <text x="119.75" y="437.75">廣州南站</text>
+                        <use xlink:href="#chinarail" x="190" y="423.75"/>
+                        <text x="-403" y="424">魁奇路</text>
+                        <text x="183" y="-199">小北</text>
+                        <text x="-48" y="-146">中山八</text>
+                        <text x="36" y="-164">彩虹橋</text>
+                        <text x="134" y="-234">廣州火車站</text>
+                        <use xlink:href="#chinarail" x="134" y="-269"/>
+                        <text x="134" y="-144">紀念堂</text>
+                        <text x="-49" y="25">芳村</text>
+                        <text x="320" y="-204">黃花崗</text>
+                        
+                        <text x="694" y="-73">車陂</text>
+                        <text x="694" y="-34">車陂南</text>
+                        <text x="730" y="-10">東圃</text>
+                        <text x="758" y="18">三溪</text>
+                        <text x="1018" y="120">南崗</text>
+                        <text x="1046" y="92">沙村</text>
+                        <text x="1074" y="64">白江</text>
+                        <text x="724" y="-121">黃村</text>
+                        <text x="784" y="-187">世界大觀</text>
+                        <text x="784" y="-227">智慧城</text>
+                        
+                        <text x="349" y="-661">機場南</text>
+                        <use xlink:href="#airport" x="410" y="-665"/>
+                        <text x="349" y="-621">高增</text>
+                        <text x="349" y="-591">人和</text>
+                        <text x="371" y="-473">白雲大道北</text>
+                        <text x="399.5" y="-444.5">永泰</text>
+                        <text x="428" y="-416">同和</text>
+                        <text x="454" y="-368">京溪南方醫院</text>
+                        <text x="454" y="-328">梅花園</text>
+                        <text x="454" y="-300">燕塘</text>
+                        <text x="594" y="-278">天河客運站</text>
+                        <text x="594" y="-246">五山</text>
+                        <text x="594" y="-204">華師</text>
+                        <text x="594" y="-162">崗頂</text>
+                        <text x="524" y="-178">體育<tspan x="524" dy="14">中心</tspan></text>
+                        <text x="630" y="-302">長湴</text>
+                        <text x="-241" y="238">南桂路</text>
+                        
+                        <text x="-241" y="158">千燈湖</text>
+                        <text x="36" y="-64">華林寺</text>
+                        <text x="34" y="-12">文化公園</text>
+                        <text x="36" y="25">同福西</text>
+                        <text x="36" y="74">鳳凰新村</text>
+                        <text x="42.5" y="116">沙園</text>
+                        <text x="134" y="-50">海珠<tspan x="134" dy="14">廣場</tspan></text>
+                        <text x="136" y="34">市二宮</text>
+                        <text x="136" y="84">江南西</text>
+                        <text x="134" y="146">昌崗</text>
+                        <text x="210" y="226">南洲</text>
+                        <text x="186" y="190">東曉南</text>
+                        <text x="158" y="162">江泰路</text>
+                        <text x="159.5" y="398">石壁</text>
+                        <text x="454" y="186">大塘</text>
+                        <text x="454" y="238">瀝滘</text>
+                        <text x="454" y="278">廈滘</text>
+                        <text x="454" y="333">大石</text>
+                        <text x="480" y="412">市橋</text>
+                        <text x="516" y="448">番禺廣場</text>
+                        <text x="606" y="380">員崗</text>
+                        <text x="668" y="318">板橋</text>
+                        <text x="694" y="134">萬勝圍</text>
+                        <text x="694" y="174">官洲</text>
+                        <text x="702" y="208">大學城北</text>
+                        <text x="732" y="236">大學城南</text>
+                        <text x="758" y="264">新造</text>
+                        
+                        <text x="814" y="320">石碁</text>
+                        <text x="842" y="348">海傍</text>
+                        <text x="870" y="376">低涌</text>
+                        <text x="898" y="404">東涌</text>
+                        
+                        <text x="954" y="460">黃閣汽車城</text>
+                        <text x="982" y="488">黃閣</text>
+                        <text x="1010" y="516">蕉門</text>
+                        <text x="1038" y="544">金洲</text>
+                        <text x="1066" y="572">飛沙角</text>
+                        <text x="1094" y="600">廣隆</text>
+                        
+                        <text x="205" y="-659">蓮塘</text>
+                        <text x="28" y="-621">花城路</text>
+                        <use xlink:href="#chinarail" x="28" y="-616"/>
+                        <text x="948" y="-322">蘇元</text>
+                        <text x="950" y="-376">水西</text>
+                        <text x="950" y="-416">長平</text>
+                        <text x="950" y="-456">金坑</text>
+                        <text x="950" y="-496">鎮龍南</text>
+                        <text x="950" y="-536">鎮龍</text>
+                        <text x="1028" y="-336">香雪</text>
+                        <text x="447" y="-501">石湖</text>
+                        <text x="490.8" y="-544.8">太和</text>
+                        <text x="534.6" y="-588.6">竹料</text>
+                        <text x="693" y="-713">紅衞</text>
+                </g>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+        </g>
+        
+        <g id="cht_text_labels_with_dagger" font-size="15px" transform="translate(0,5)" style="visibility:hidden">
+                <g text-anchor="middle">
+                        <text x="287" y="-639">
+                                <tspan class="chtstname">清塘</tspan>
+                        </text>
+                        <text x="352" y="-270">
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan class="chtstname">沙河</tspan>
+                                <tspan x="357" class="chtstclosed">&#8213;&#8213;</tspan>
+                        </text>
+                        <text x="-31" y="-603">
+                                <tspan class="chtstname">廣州北站</tspan>
+                                <tspan class="dagger">&#8224;</tspan>
+                        </text>
+                </g>
+                <g text-anchor="start">
+                        <text x="616.5" y="-81">
+                                <tspan class="chtstname">天河</tspan>
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan x="616.5" dy="14" class="chtstname">公園</tspan>
+                        </text>
+                        <text x="786" y="292">
+                                <tspan class="chtstname">官橋</tspan>
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan x="786" class="chtstclosed">&#8213;&#8213;</tspan>
+                        </text>
+                        <text x="926" y="432">
+                                <tspan class="chtstname">慶盛</tspan>
+                        </text>
+                        <use xlink:href="#chinarail" x="970" y="417"/>
+                        <text x="349" y="-701">
+                                <tspan class="chtstname">機場北</tspan>
+                        </text>
+                        <use xlink:href="#airport" x="417" y="-705"/>
+                </g>
+                <g text-anchor="end">
+                        <text x="436" y="-138.5">
+                                <tspan class="dagger">&#8224;</tspan>
+                                <tspan class="chtstname">體育</tspan>
+                                <tspan x="436" dy="14" class="chtstname">西路</tspan>
+                        </text>
+                </g>
+                <set begin="cht_switch_base.click" end="cht_switch_over.click" attributeName="visibility" attributeType="CSS" to="visible"/>
+        </g>
+</svg>

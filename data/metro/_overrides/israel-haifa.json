@@ -1,0 +1,11 @@
+{
+  "city": "Haifa",
+  "country": "Israel",
+  "continent": "asia",
+  "osm_route_ids": [
+    2954026,
+    18850076
+  ],
+  "source": "https://www.urbanrail.net/as/il/hai/haifa.htm",
+  "note": "Haifa（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,70 @@
+<html>
+<body>
+<script>
+    function saveToSessionStorageWithTimeout(key, data, timeout) {
+        try {
+            const now = new Date().getTime();
+            const expiryTime = now + timeout;
+            const entry = { data, expiry: expiryTime };
+            sessionStorage.setItem(key, JSON.stringify(entry));
+            console.log(`Data saved to sessionStorage with timeout under key: ${key}`);
+        } catch (e) {
+            console.error('Error saving to sessionStorage:', e);
+        }
+    }
+
+    function getFromSessionStorageWithTimeout(key) {
+        try {
+            const entryString = sessionStorage.getItem(key);
+            if (!entryString) return null;
+
+            const entry = JSON.parse(entryString);
+            const now = new Date().getTime(); 
+
+            if (now > entry.expiry) {
+                sessionStorage.removeItem(key); 
+                console.log(`Data for key '${key}' has expired.`);
+                return null;
+            }
+
+            return entry.data;
+        } catch (e) {
+            console.error('Error getting from sessionStorage:', e);
+            return null;
+        }
+    }
+
+    const timeout = 1000;
+    const botdPromise = import('/botd01989834.js').then((Botd) => Botd.load())
+
+    botdPromise
+        .then((botd) => botd.detect())
+        .then((result) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        const restoredState = getFromSessionStorageWithTimeout('pageState');
+                        if (restoredState) {
+                            alert('刷新频率太快, 请稍后再试');
+                        } else {
+                            const sessionData = { reloadTimes: '1' };
+                            saveToSessionStorageWithTimeout('pageState', sessionData, timeout);
+                            location.reload();
+                        }
+                        //console.log('Success: ', xhr.responseText);
+                    } else {
+                        alert('刷新频率太快, 请稍后再试');
+                        //console.error('Error: ' + xhr.status);
+                    }
+                }
+            };
+            var jsondata = JSON.stringify(result);
+            xhr.open('POST', '/Ahxwd_botd98165315', true)
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(jsondata);
+        })
+        .catch((error) => console.error(error));
+</script>
+</body>
+</html>

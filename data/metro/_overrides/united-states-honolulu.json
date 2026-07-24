@@ -1,0 +1,11 @@
+{
+  "city": "Honolulu",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    15979955,
+    15979956
+  ],
+  "source": "auditLoop targeted-fetch r=80km (Skyline)",
+  "created": "2026-07-11T12:28:54.301Z"
+}

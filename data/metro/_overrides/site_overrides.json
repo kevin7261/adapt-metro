@@ -1,0 +1,89 @@
+{
+  "_comment": "官方網站釘選（fetchOfficialSites.mjs）。key=rel（洲/國/檔名slug）。website:null＝該城固定無官網；website:'https://...'＝固定用該 URL。每筆必附 note。",
+  "overrides": {
+    "asia/saudi-arabia/as-ksa-riyadh": {
+      "website": "https://rpt.sa/en/",
+      "note": "Riyadh Public Transport（RCRC 官方公共運輸網站）。HTTP 403 為 Cloudflare 擋爬蟲，可連。自動解析無 P856 可用。"
+    },
+    "europe/germany/eu-ger-essen": {
+      "website": "https://www.ruhrbahn.de/essen",
+      "note": "Ruhrbahn GmbH（Essen Stadtbahn 營運商）官網 Essen 分站，HTTP 200。"
+    },
+    "americas/mexico/am-mex-monterrey": {
+      "website": "https://www.metrorrey.mx/",
+      "note": "Metrorrey 官網（Nuevo León 州政府分權機構），HTTP 200。"
+    },
+    "europe/germany/eu-ger-ratingen": {
+      "website": "https://www.rheinbahn.com/",
+      "note": "Rheinbahn AG（Düsseldorf 都會區含 Ratingen 的 Stadtbahn 營運商）官網，HTTP 200。"
+    },
+    "asia/north-korea/as-prk-pyongyang": {
+      "website": null,
+      "note": "平壤地鐵確定無官方網站（僅維基/urbanrail/旅遊站），2026-07 查證。"
+    },
+    "asia/china/as-chn-wuhu": {
+      "website": "https://www.wuhurailtransit.com/",
+      "note": "蕪湖市運達軌道交通官網。境外 geo-block，Wayback 2026-01 快照 200 確認在線。"
+    },
+    "americas/united-states/am-usa-san-juan": {
+      "website": "https://www.ati.pr.gov/",
+      "note": "ATI（波多黎各整合運輸局，Tren Urbano 主管機關）官網，HTTP 200。"
+    },
+    "asia/india/as-ind-gurgaon": {
+      "website": "https://www.delhimetrorail.com/rapid-metro",
+      "note": "Rapid Metro Gurugram 自 2019-10 由 DMRC 營運，此為 DMRC 官網專頁；舊 rapidmetrogurgaon.com 已非營運商。"
+    },
+    "asia/japan/as-jpn-chiba-prefecture": {
+      "website": "https://chiba-monorail.co.jp/",
+      "note": "千葉都市モノレール株式会社官網，HTTP 200。"
+    },
+    "asia/pakistan/as-pak-lahore": {
+      "website": "https://pma.punjab.gov.pk/",
+      "note": "Punjab Masstransit Authority（Orange Line 主管機關）官網。境外連線被拒，Wayback 2026-05 快照 200 確認在線。"
+    },
+    "asia/china/as-chn-taizhou": {
+      "website": "https://www.tz-mtr.com/",
+      "note": "台州暢行軌道交通（S1 線營運商）官網。境外 geo-block，Wayback 2026-03 快照 200 確認在線。"
+    },
+    "asia/china/as-chn-chuzhou": {
+      "website": "http://czctgs.cn/",
+      "note": "滁寧城際鐵路官網（zh.wiki infobox 所列；滁州段委託南京地鐵營運）。境外連線被拒，Wayback 2026-03 快照 200 確認在線。"
+    },
+    "asia/india/as-ind-meerut": {
+      "website": "https://ncrtc.in/",
+      "note": "NCRTC（Meerut Metro 擁有者暨營運商）官網，HTTP 200；meerutmetro.in 為非官方站。"
+    },
+    "asia/kazakhstan/as-kaz-astana": {
+      "website": "https://cts.gov.kz/",
+      "note": "City Transportation Systems（前 Astana LRT LLP）.gov.kz 官網，HTTP 200；舊域名 alrt.kz 已 404。"
+    },
+    "asia/saudi-arabia/as-ksa-mecca": {
+      "website": null,
+      "note": "Al Mashaaer 朝覲專線僅 Hajj 季營運，無專屬官方網站，2026-07 查證。"
+    },
+    "oceania/australia/oc-aus-sydney": {
+      "website": "https://transportnsw.info/",
+      "note": "P137 追鏈曾抓到輕軌承包商 Transdev Sydney——外包商不是官網。雪梨市郊鐵路＋Metro 官方入口為 Transport for NSW。"
+    },
+    "europe/italy/eu-ita-milan": {
+      "website": "https://www.atm.it/",
+      "note": "P856 曾給 ATM 票價子站 nuovosistematariffario.atm.it，官網應為 atm.it 首頁。"
+    },
+    "europe/united-kingdom/eu-gbr-london": {
+      "website": "https://tfl.gov.uk/",
+      "note": "P137 operator 追鏈曾抓到 DLR 承包商 Serco（serco.com）——外包商不是系統官網。London Underground 官方為 TfL。"
+    },
+    "asia/united-arab-emirates/as-uae-dubai": {
+      "website": "https://www.rta.ae/",
+      "note": "同 London：杜拜地鐵營運承包商 Serco 的 serco.com 不是官網，官方為 RTA（道路交通管理局）。"
+    },
+    "europe/spain/eu-esp-seville": {
+      "website": "https://metrodesevilla.net/",
+      "note": "Wikidata P856 是舊域名 metro-sevilla.es（已死），官方現為 metrodesevilla.net（實測 200，2026-07）。"
+    },
+    "americas/united-states/am-usa-new-york-city": {
+      "website": "https://www.mta.info/map/5256",
+      "note": "MTA 官方地鐵圖頁（2025-04 全面改版路網圖），使用者裁決 2026-07-17 指定此頁取代首頁。HTTP 403 為 Cloudflare 擋爬蟲，可連。歷史：自動解析誤把候選按路徑深度排序、取到 depth-0 的 abellio.com（Abellio 荷蘭運輸公司 Q318672，wrongCountry 因描述寫 Dutch 非 Netherlands 未擋下），故原釘 mta.info 首頁。"
+    }
+  }
+}

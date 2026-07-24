@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>系統架構 · Adapt-Metro</title>
+<meta name="description" content="Adapt-Metro 系統架構圖與 UML：C4 情境圖/容器圖、部署圖、前端元件圖、模組相依、四階段演算法管線、movewise 狀態機、LLM 觸發與重新計算序列圖、Node 資料管線、資料格式 ER 圖與 dev server API 一覽。" />
+<!-- header 與首頁 TopToolbar 共用 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Noto+Sans+TC:wght@400..700&display=swap" />
+<link rel="stylesheet" href="../_shared/app-toolbar.css" />
+<style>
+  :root{
+    --page-bg:#eef1f6; --dot:rgba(15,23,42,.08);
+    --card-bg:#ffffff; --border:#e2e8f0;
+    --ink:#0f172a; --muted:#64748b; --muted2:#94a3b8;
+    --blue:#2563eb; --purple:#7c3aed; --rose:#e11d48; --amber:#d97706; --green:#16a34a;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang TC', 'Noto Sans TC', Arial, sans-serif;
+  }
+  /* header token／樣式見 ../_shared/app-toolbar.css */
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--page-bg);
+    display:flex; flex-direction:column; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  strong,b{font-weight:700;}
+
+  /* ---- 內容：固定白底文件（同投影片「內容白底、header 跟系統」的裁決）---- */
+  .doc-scroll{ flex:1; min-height:0; overflow-y:auto; color-scheme:light; }
+  .doc{
+    max-width:1120px; margin:0 auto; padding:28px 20px 120px;
+  }
+  .doc-hero{
+    background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+    padding:26px 30px; margin-bottom:18px;
+  }
+  .doc-hero h1{ margin:0 0 8px; font-size:26px; letter-spacing:-.02em; }
+  .doc-hero p{ margin:4px 0; color:var(--muted); font-size:14px; line-height:1.75; }
+  .doc-hero .meta{ font-family:var(--mono); font-size:12px; color:var(--muted2); margin-top:10px; }
+
+  /* 分頁列（原目錄 chips）：一個項目一個 tab，內容不變 */
+  .tabbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; flex-wrap:wrap; gap:6px;
+    margin:14px -20px 18px; padding:10px 20px 12px;
+    background:var(--page-bg); border-bottom:1px solid var(--border);
+  }
+  .tabbar a{
+    font-size:12px; padding:4px 10px; border:1px solid var(--border); border-radius:999px;
+    background:var(--card-bg); text-decoration:none; color:var(--muted); white-space:nowrap;
+    cursor:pointer;
+  }
+  .tabbar a:hover{ color:var(--blue); border-color:var(--blue); }
+  .tabbar a[aria-selected='true']{
+    background:var(--blue); border-color:var(--blue); color:#fff; font-weight:600;
+  }
+
+  section.card{
+    background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+    padding:24px 30px; margin-bottom:18px; scroll-margin-top:60px;
+    display:none;                      /* 非當前分頁不顯示 */
+  }
+  section.card.is-active{ display:block; }
+  section.card > h2{
+    margin:0 0 4px; font-size:19px; letter-spacing:-.01em;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  section.card > h2 .no{
+    font-family:var(--mono); font-size:12px; color:var(--muted2); font-weight:500;
+  }
+  section.card h3{ margin:22px 0 6px; font-size:15px; }
+  section.card p, section.card li{ font-size:13.5px; line-height:1.85; color:#334155; }
+  section.card p.lead{ color:var(--muted); margin-top:2px; }
+  section.card ul{ padding-left:20px; margin:6px 0; }
+  code{
+    font-family:var(--mono); font-size:.92em; background:#f1f5f9; border:1px solid #e2e8f0;
+    border-radius:4px; padding:0 4px; color:#0f172a; white-space:nowrap;
+  }
+  pre.tree{
+    background:var(--code-bg); color:var(--code-ink); border-radius:10px;
+    padding:16px 18px; font-family:var(--mono); font-size:12px; line-height:1.7;
+    overflow-x:auto; margin:10px 0;
+  }
+  pre.tree .c{ color:#7dd3fc; }        /* 目錄 */
+  pre.tree .m{ color:#94a3b8; }        /* 註解 */
+
+  /* mermaid 圖框 */
+  .fig{
+    border:1px solid var(--border); border-radius:10px; background:#fbfcfe;
+    padding:14px 12px 6px; margin:12px 0; overflow-x:auto;
+  }
+  .fig .figcap{
+    font-size:11.5px; color:var(--muted2); font-family:var(--mono);
+    padding:0 4px 8px; border-bottom:1px dashed var(--border); margin-bottom:8px;
+  }
+  pre.mermaid{ margin:0; display:flex; justify-content:center; background:transparent; font-size:14px; }
+  pre.mermaid:not([data-processed]){
+    font-family:var(--mono); font-size:11px; color:var(--muted); white-space:pre; justify-content:flex-start;
+  }
+  .mermaid-fail{
+    font-size:12px; color:var(--rose); padding:6px 4px; display:none;
+  }
+
+  table.spec{
+    width:100%; border-collapse:collapse; font-size:12.5px; margin:10px 0;
+  }
+  table.spec th, table.spec td{
+    border:1px solid var(--border); padding:6px 10px; text-align:left; vertical-align:top; line-height:1.6;
+  }
+  table.spec th{ background:#f8fafc; font-size:12px; color:var(--muted); white-space:nowrap; }
+  table.spec td:first-child{ white-space:nowrap; }
+  table.spec code{ white-space:nowrap; }
+
+  .pill{ display:inline-block; font-size:10.5px; font-family:var(--mono); border-radius:999px; padding:1px 8px; margin-right:4px; }
+  .pill.dev{ background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+  .pill.prod{ background:#dcfce7; color:#166534; border:1px solid #bbf7d0; }
+  .pill.pure{ background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; }
+
+  .note{
+    border-left:3px solid var(--blue); background:#eff6ff; border-radius:0 8px 8px 0;
+    padding:10px 14px; font-size:13px; color:#1e3a8a; margin:10px 0; line-height:1.8;
+  }
+</style>
+<script>
+  /* header 跟首頁一致：讀首頁 app 存在 localStorage 的主題，渲染前套到 <html>（同 slides/）。 */
+  (function () {
+    var dark = true, accent = 'blue';
+    try {
+      var s = JSON.parse(localStorage.getItem('adapt-metro:session:v1') || '{}');
+      if (typeof s.dark === 'boolean') dark = s.dark;
+      if (typeof s.accent === 'string') accent = s.accent;
+    } catch (e) { /* 用預設 */ }
+    var root = document.documentElement;
+    if (dark) root.classList.add('dark');
+    if (accent && accent !== 'blue') root.dataset.theme = accent;
+  })();
+</script>
+<noscript><style>section.card{ display:block; }</style></noscript>
+</head>
+<body>
+<header id="appToolbar" class="app-toolbar"></header>
+<script src="../_shared/app-toolbar.js"></script>
+<script>AdaptMetroToolbar.mount('#appToolbar', { base: '../../', active: 'architecture' });</script>
+
+<div class="doc-scroll">
+<div class="doc">
+
+<div class="doc-hero">
+  <h1>Adapt-Metro 系統架構</h1>
+  <p>
+    本頁以 C4 模型與 UML（元件圖、類別圖、狀態機、序列圖、ER 圖）完整描述 Adapt-Metro 的系統架構：
+    Vue 3 單頁應用、Vite dev server 中介層、Node.js 資料管線、Claude Code LLM 整合，
+    以及「Metro Maps → Map Adjust → Straighten → RWD Maps」四階段示意圖佈局演算法管線。
+    圖中的識別字（檔名、函式、路由）皆與程式碼一一對應，可直接以此頁為 code tour 的入口。
+  </p>
+  <div class="meta">repo: adapt-metro-gis-ui · stack: Vue 3.5 + Pinia 3 + dockview-vue 7 + MapLibre GL 5 + D3 + Vite 6 · 圖表引擎: Mermaid 11（CDN）</div>
+</div>
+
+<nav class="tabbar" role="tablist" aria-label="系統架構分頁">
+  <a role="tab" href="#ctx">1 系統情境圖</a>
+  <a role="tab" href="#container">2 容器圖</a>
+  <a role="tab" href="#deploy">3 部署圖</a>
+  <a role="tab" href="#components">4 前端元件圖</a>
+  <a role="tab" href="#modules">5 模組相依圖</a>
+  <a role="tab" href="#pipeline">6 演算法管線</a>
+  <a role="tab" href="#hillclimb">7 Hill Climbing</a>
+  <a role="tab" href="#movewise">8 movewise 狀態機</a>
+  <a role="tab" href="#chains">9 直線演算法九條鏈</a>
+  <a role="tab" href="#llmseq">10 LLM 觸發序列圖</a>
+  <a role="tab" href="#recompute">11 重新計算序列圖</a>
+  <a role="tab" href="#datapipe">12 Node 資料管線</a>
+  <a role="tab" href="#datadir">13 資料目錄</a>
+  <a role="tab" href="#er">14 資料格式 ER 圖</a>
+  <a role="tab" href="#api">15 dev server API</a>
+  <a role="tab" href="#invariants">16 不變式與持久化</a>
+  <a role="tab" href="#glossary">17 名詞表</a>
+</nav>
+
+<!-- ======================================================================= -->
+<section class="card" id="ctx">
+  <h2><span class="no">C4-1</span>系統情境圖（System Context）</h2>
+  <p class="lead">
+    最外層視角：誰使用系統、系統依賴哪些外部服務。特別之處是「LLM 最佳化不走 API key」——
+    dev server 直接 spawn 本機的 Claude Code CLI 當最佳化器／評審。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 1 — C4 Level 1：System Context</div>
+    <pre class="mermaid">
+flowchart TB
+  user(["👤 使用者<br/>（研究者／讀者）"])
+  dev(["👤 開發者<br/>（資料管線操作者）"])
+
+  subgraph adapt ["Adapt-Metro"]
+    spa["🖥 Vue 3 SPA<br/>路網圖示意化工作台"]
+    vite["⚙ Vite dev server<br/>＋自製 middleware 插件"]
+    scripts["📜 Node.js 資料管線<br/>scripts/*.mjs"]
+    datastore[("📁 data/<br/>GeoJSON 檔案庫<br/>metro / highway / railway")]
+  end
+
+  claude["🤖 Claude Code CLI<br/>LLM 對齊/評價/成方/比較"]
+  overpass["🌐 OSM Overpass API"]
+  wiki["🌐 Wikipedia<br/>List of metro systems / 各線 infobox"]
+  nominatim["🌐 Nominatim<br/>反向地理編碼"]
+  official["🌐 營運商官網<br/>官方路網圖"]
+  pages["☁ GitHub Pages<br/>kevin7261.github.io/adapt-metro"]
+
+  user -->|"瀏覽器操作"| spa
+  dev -->|"npm run …"| scripts
+  spa <-->|"HTTP（/data /skills /llm-* …）"| vite
+  vite -->|"讀寫"| datastore
+  vite -->|"spawn"| claude
+  vite -->|"spawn（重新計算）"| scripts
+  claude -->|"寫結果 JSON"| datastore
+  scripts -->|"抓取"| overpass
+  scripts -->|"站數/清單驗證"| wiki
+  scripts -->|"座標→城市"| nominatim
+  scripts -->|"下載圖檔"| official
+  scripts -->|"寫入"| datastore
+  datastore -->|"build 時整包拷貝"| pages
+  user -->|"正式版（純靜態）"| pages
+    </pre>
+  </div>
+  <ul>
+    <li><b>SPA</b>：匯入某城市的 metro／railway／highway 圖層後，在瀏覽器內完整執行示意圖演算法（純前端、可離線重算）。</li>
+    <li><b>Vite dev server</b>：開發模式加值——即時 city_status、LLM 觸發、cells 持久化、全城重新計算。這些在 GitHub Pages 上不存在（見 §3 部署圖）。</li>
+    <li><b>Node 資料管線</b>：fetch ⇄ audit 迴圈，把 OSM 原始資料收斂成乾淨的每城市 GeoJSON。</li>
+  </ul>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="container">
+  <h2><span class="no">C4-2</span>容器圖（Container）</h2>
+  <p class="lead">系統內部拆成五個容器：瀏覽器 SPA、靜態文件頁、Vite 插件層、Node 管線、檔案資料庫。</p>
+  <div class="fig">
+    <div class="figcap">fig 2 — C4 Level 2：Containers（□ = process，⌗ = 檔案系統）</div>
+    <pre class="mermaid">
+flowchart LR
+  subgraph browser ["瀏覽器"]
+    direction TB
+    spa["<b>Vue 3 SPA</b><br/>main.js → App.vue<br/>Pinia stores ＋ dockview 分頁工作區<br/>MapLibre GL（地理）＋ D3（示意圖）"]
+    slides["<b>靜態頁</b> slides/<br/>系統介紹（投影片）<br/>論文內容 · 論文本文 · 系統架構（本頁）"]
+  end
+
+  subgraph devsrv ["Vite dev server（vite.config.js 插件鏈）"]
+    direction TB
+    p1["cityStatus<br/>攔截 /data/metro/city_status.json 即時計算"]
+    p2["serveDataDir<br/>/data/** 直讀磁碟"]
+    p3["serveSkills · serveSlides<br/>/skills/** · /slides/**"]
+    p4["llmTriggers ×5<br/>/llm-align /llm-shape /llm-grid /llm-eval /llm-compare"]
+    p5["hcCellsPersist<br/>/hc-cells/save · clear"]
+    p6["metroRecompute<br/>/metro-recompute/run · status · pause · resume · city"]
+    p7["copyStaticAssets<br/>build 時 data/ skills/ slides/ → dist/"]
+  end
+
+  subgraph node ["Node.js 資料管線（scripts/*.mjs）"]
+    direction TB
+    fetchers["fetch 系列<br/>fetchMetro · fetchRailways · fetchHighways …"]
+    builders["build 系列<br/>buildGeojson · buildViews · buildCombinedSystems …"]
+    auditors["audit 系列<br/>auditLoop · verifyMetro · wikiLineCheck …"]
+  end
+
+  claude["🤖 Claude Code CLI"]
+  files[("⌗ data/<br/>metro · highway · railway · thesis")]
+  skillsdir[("⌗ .claude/skills/<br/>演算法/管線知識庫 SKILL.md")]
+
+  spa <--> p1 & p2 & p4 & p5 & p6
+  slides --- p3
+  p4 -->|"seed outFile ＋ spawn"| claude
+  p6 -->|"spawn 全城管線"| node
+  claude --> files
+  fetchers --> builders --> auditors
+  node <--> files
+  p1 & p2 --> files
+  p3 --> skillsdir
+    </pre>
+  </div>
+  <table class="spec">
+    <tr><th>容器</th><th>技術</th><th>職責</th></tr>
+    <tr><td><b>Vue 3 SPA</b></td><td>Vue 3.5（<code>&lt;script setup&gt;</code>）、Pinia 3、dockview-vue 7、MapLibre GL 5.6、d3-selection/zoom/geo/delaunay、marked</td><td>圖層管理、地理地圖分頁、D3 示意圖分頁（演算法全部在前端純函式執行）、視圖畫廊、世界地圖選城</td></tr>
+    <tr><td><b>靜態頁 slides/</b></td><td>純 HTML/CSS/JS，不經 Vite bundle</td><td>系統介紹投影片、論文內容/本文、本架構頁；header 逐字複製 SPA 的 TopToolbar 並同步主題</td></tr>
+    <tr><td><b>Vite 插件層</b></td><td>Vite 6 middleware（vite/*.js）</td><td>資料服務、LLM 觸發、持久化、重新計算——皆為 dev-only HTTP API</td></tr>
+    <tr><td><b>Node 管線</b></td><td>Node ESM（.mjs）、無框架</td><td>OSM/Wikipedia 抓取、GeoJSON 組檔、變體/合併系統、驗證報告</td></tr>
+    <tr><td><b>data/ 檔案庫</b></td><td>GeoJSON / JSON 檔案（無資料庫）</td><td>唯一資料來源（single source of truth）；build 時整包拷進 dist</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="deploy">
+  <h2><span class="no">UML</span>部署圖（Deployment）</h2>
+  <p class="lead">同一份程式碼有兩種部署形態，能力差異全在「有沒有 dev server」。</p>
+  <div class="fig">
+    <div class="figcap">fig 3 — Deployment：開發模式 vs GitHub Pages</div>
+    <pre class="mermaid">
+flowchart TB
+  subgraph devbox ["💻 開發機（npm run serve，port 5173）"]
+    direction LR
+    vited["Vite dev server<br/>＋全部 middleware 插件"]
+    cc["Claude Code CLI<br/>（本機、無 API key）"]
+    nodep["scripts/*.mjs"]
+    dataw[("data/ 可讀可寫")]
+    vited --> cc & nodep
+    cc --> dataw
+    nodep --> dataw
+    vited --> dataw
+  end
+
+  subgraph ghp ["☁ GitHub Pages（npm run deploy）"]
+    direction LR
+    dist["dist/（gh-pages branch，--no-history）<br/>base=/adapt-metro/ · .nojekyll"]
+    datar[("data/ 唯讀快照<br/>（copyStaticAssets 拷貝，剔除 _cache）")]
+    slidesr["slides/ · skills/ 靜態快照"]
+    dist --- datar & slidesr
+  end
+
+  devbox -->|"npm run build:pages（GITHUB_PAGES=1）→ gh-pages -d dist"| ghp
+    </pre>
+  </div>
+  <table class="spec">
+    <tr><th>功能</th><th>開發模式</th><th>GitHub Pages</th></tr>
+    <tr><td>瀏覽／演算法重算（前端純函式）</td><td>✅</td><td>✅（演算法都在瀏覽器跑，正式版一樣能算）</td></tr>
+    <tr><td>city_status.json</td><td>✅ 即時計算（cityStatus 插件）</td><td>⚠ build 當下的快照</td></tr>
+    <tr><td>LLM 對齊/評價/互動/成方/比較</td><td>✅ spawn Claude Code</td><td>❌ 只能讀已產生的結果檔</td></tr>
+    <tr><td>straighten-cells 持久化</td><td>✅ /hc-cells/save 寫回磁碟</td><td>❌ 唯讀</td></tr>
+    <tr><td>重新計算（全城）</td><td>✅ /metro-recompute/*</td><td>❌ 回 404，前端提示「僅開發伺服器可用」</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="components">
+  <h2><span class="no">UML</span>前端元件圖（Component）</h2>
+  <p class="lead">
+    App.vue 是唯一入口（無 vue-router；「頁面」由 dockview 分頁與靜態頁連結構成）。
+    EditorArea 以 dockview-vue 註冊三種 panel 元件：<code>layer-tab</code>（MapLibre 地理地圖）、
+    <code>d3-tab</code>（D3 示意圖演算法工作台）、<code>all-gallery</code>（全城市視圖畫廊）。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 4 — 元件樹（實線＝template 直接引用；標籤＝dockview panel type）</div>
+    <pre class="mermaid">
+flowchart TB
+  App["App.vue<br/>鍵盤快捷鍵 ⌘K/⌘S/⌘O/?<br/>persist 訂閱 · dark/accent watch"]
+
+  App --> TopToolbar["TopToolbar.vue<br/>brand · Skills · 論文/系統介紹/系統架構連結<br/>相關連結下拉 · 重新計算（進度/暫停）"]
+  App --> LayerPanel["LayerPanel.vue<br/>圖層清單 · 開關分頁"]
+  App --> EditorArea["EditorArea.vue<br/>dockview-vue 工作區<br/>版面 toJSON 持久化"]
+  App --> CommandPalette["CommandPalette.vue<br/>⌘K 指令面板"]
+  App --> DialogHost["DialogHost.vue<br/>import-metro / add-data / settings /<br/>about / shortcuts / new-project / skills"]
+  App --> SkillViewer["SkillViewer.vue<br/>SKILL.md 檢視器（marked）"]
+  App --> LayerDocViewer["LayerDocViewer.vue<br/>圖層演算法說明"]
+  App --> RecomputeOverlay["RecomputeOverlay.vue<br/>全螢幕重算進度"]
+
+  EditorArea -->|"panel: layer-tab"| LayerTab["LayerTab.vue<br/>MapLibre GL 地理地圖"]
+  EditorArea -->|"panel: d3-tab"| D3Tab["D3Tab.vue<br/>D3 示意圖工作台<br/>Map Adjust / Straighten / RWD 全部視圖"]
+  EditorArea -->|"panel: all-gallery"| AllGallery["AllGallery.vue<br/>視圖畫廊"]
+  EditorArea -->|"default tab"| DockTab["DockTab.vue"]
+  EditorArea -->|"watermark"| DockWatermark["DockWatermark.vue"]
+
+  LayerTab --> StylePanel["StylePanel.vue"] & StyleBar["StyleBar.vue"] & StatusBar["StatusBar.vue"] & AttributeTable["AttributeTable.vue"]
+  D3Tab --> StylePanel & StyleBar & AttributeTable
+
+  AllGallery --> GalleryShell["GalleryShell.vue"] & CityAllCard["CityAllCard.vue"] & WorldMapPicker["WorldMapPicker.vue<br/>世界地圖分頁（圓點=city_status）"]
+  GalleryShell --> CityIndexList["CityIndexList.vue"]
+  CityAllCard --> GalleryTile["GalleryTile.vue"] & OfficialMapTile["OfficialMapTile.vue<br/>官方路線圖格"] & CityViewGrid["CityViewGrid.vue"]
+    </pre>
+  </div>
+  <div class="note">
+    <b>D3Tab.vue 是最大的元件</b>（數千行）：一個元件承載 Map Adjust（骨架化、格網化前/後）、
+    Straighten（Hill Climbing、movewise 三步鏈、循環、逐步驗證、直線演算法九條鏈、LLM 成方）、
+    RWD Maps（版面畫線、LLM 評價/互動/比較）所有 layer-mode 視圖切換；演算法本體都抽在
+    <code>src/stores/*.js</code> 純函式模組（§5），D3Tab 只負責呼叫與繪製。
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="modules">
+  <h2><span class="no">UML</span>模組相依圖（stores / lib）</h2>
+  <p class="lead">
+    <span class="pill pure">pure</span> 標記的模組是無副作用純函式（演算法核心，可單元測試、可被 Node 腳本重用）；
+    其餘是 Pinia store 或瀏覽器端 handle。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 5 — 模組相依（箭頭＝import 方向）</div>
+    <pre class="mermaid">
+flowchart LR
+  subgraph ui ["UI 狀態層"]
+    mapStore["mapStore.js<br/>Pinia 中央 store<br/>dark/accent · ui.dialog · layers<br/>openTabIds/dockLayout · metroDataEpoch"]
+    persist["persist.js<br/>localStorage adapt-metro:session:v1<br/>debounce 300ms ＋ beforeunload flush"]
+    layerData["layerData.js / layerMigrations.js<br/>圖層資料重建與舊 session 遷移"]
+    catalogs["metroCatalog · railwayCatalog · highwayCatalog<br/>data/index.json 目錄"]
+    handles["mapHandle · dockHandle ·<br/>layerDocHandle · skillHandle"]
+  end
+
+  subgraph algo ["演算法層（全部 pure）"]
+    skeleton["skeleton.js<br/>buildConnectSkeleton<br/>骨架2：拓撲收縮＋節點分色"]
+    sgrid["schematicGrid.js<br/>buildSchematicGrid · placeBlacks<br/>⑨示意格網化：排名吸附"]
+    hillClimb["hillClimb.js<br/>buildHillClimb · makeMover<br/>setFrozen/getFrozen · iteratePost<br/>applyLlmTargets · scoreAlign"]
+    movewise["movewise.js<br/>movewiseStage · stepChainInit/Next<br/>straightenCompactLoop · setSpanCap"]
+    paperAlign["paperAlign.js<br/>PAPER_KINDS ①〜⑧總目錄"]
+    paperdir["paper/*<br/>stroke · milp · sat · force · lsq ·<br/>octi · path · shape · shapeSquare ·<br/>_dirModel · _shared"]
+    rwdMap["rwdMap.js<br/>buildRwdMap · mergeParallelSegs<br/>H/V/45° 版面畫線"]
+  end
+
+  subgraph libx ["lib"]
+    cells["straightenCells.js<br/>HC_CELLS_ALGO=hccells-v9<br/>cellsDocUsable · dataFingerprint<br/>load/save/clearStraightenCells"]
+    metroDraw["metroDraw.js"]
+    llmModels["llmModels.js"]
+    dataOverlay["dataOverlay.js"]
+  end
+
+  D3Tab["D3Tab.vue"] --> skeleton --> sgrid --> hillClimb
+  D3Tab --> movewise & paperAlign & rwdMap & cells
+  paperAlign --> paperdir
+  paperAlign --> hillClimb
+  movewise --> hillClimb
+  rwdMap -.->|"讀縮減網格佈局"| movewise
+  App["App.vue"] --> mapStore & persist
+  mapStore --> persist
+  D3Tab --> mapStore
+  LayerTab["LayerTab.vue"] --> mapStore & handles & metroDraw
+  AllGallery["AllGallery.vue"] --> catalogs & cells
+  mapStore --> layerData
+    </pre>
+  </div>
+  <h3>演算法層類別圖（主要 export 面）</h3>
+  <div class="fig">
+    <div class="figcap">fig 6 — 類別圖：核心模組的公開介面（節錄自實際 export）</div>
+    <pre class="mermaid">
+classDiagram
+  class skeleton_js {
+    +buildConnectSkeleton(geojson, opts) Skeleton
+    +DEFAULT_RIVER_GRAY_SINUOSITY = 1.15
+  }
+  class schematicGrid_js {
+    +buildSchematicGrid(skeleton, posById, extent) Grid
+    +placeBlacks(skeleton, posMap, snap)
+  }
+  class hillClimb_js {
+    +buildHillClimb(skeleton, cellOf, cols, rows, opts)
+    +makeMover(pos, segs, inc, cols, rows) 唯一移動關口
+    +setFrozen(guard) / getFrozen() 成方頂點凍結
+    +buildRectPolish(...) ②直角爬山
+    +iteratePost(build, ...) POST_ITER_CAP=20
+    +applyLlmTargets(skeleton, cells, cols, rows, targets)
+    +scoreAlign(pos, segs) / countHV / countHVD
+    +compactGridSafe(...) / buildHcGraph(...)
+  }
+  class movewise_js {
+    +movewiseStage(stage, skeleton, cells, cols, rows)
+    +stepChainInit(...) / stepChainNext(...) 逐步驗證
+    +straightenCompactLoop(...) 三步鏈循環
+    +setSpanCap(n) 預設 3（Chebyshev）
+  }
+  class paperAlign_js {
+    +PAPER_KINDS: stroke|rect|milp|force|lsq|octi|path|sat
+    +PAPER_BUILD / PAPER_ZH
+    +applyShapeGreens / shapeLlmContext / applyShapeLlmTargets
+  }
+  class rwdMap_js {
+    +buildRwdMap(segs, pos, opts)
+    +mergeParallelSegs(segs)
+    +RWD_ROUTER_REV 版路由修訂字串
+  }
+  class straightenCells_js {
+    +HC_CELLS_ALGO = hccells-v9
+    +HC_CELLS_ALGO_READ = v8|v9
+    +cellsDocUsable(doc, fingerprint) bool
+    +dataFingerprint(data) string
+    +loadStraightenCells / saveStraightenCells / clearStraightenCells
+    +hcCellsRelPath(cityId, variant, shapelike)
+  }
+  skeleton_js <.. schematicGrid_js : 骨架輸入
+  schematicGrid_js <.. hillClimb_js : 整數格輸入
+  hillClimb_js <.. movewise_js : makeMover/硬規則
+  hillClimb_js <.. paperAlign_js : ②rect ＋ 凍結守衛
+  movewise_js <.. rwdMap_js : 縮減網格佈局
+  hillClimb_js <.. straightenCells_js : cells 持久化
+    </pre>
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="pipeline">
+  <h2><span class="no">FLOW</span>四階段演算法管線（核心）</h2>
+  <p class="lead">
+    這是整個系統的主軸：把地理正確的路網 GeoJSON，逐階段收斂成嚴格 H/V/45° 的示意圖。
+    每一階段都是獨立的 dockview 視圖，可逐步檢視中間結果；每城市另有 <code>orig</code>（原始）與
+    <code>rot</code>（旋轉）兩個變體各跑一遍全管線。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 7 — 演算法管線：Metro Maps → Map Adjust → Straighten → RWD Maps</div>
+    <pre class="mermaid">
+flowchart LR
+  geo[("城市 GeoJSON<br/>data/metro/**")]
+
+  subgraph s1 ["① Metro Maps"]
+    raw["原始路線/車站圖層<br/>地理座標 · MapLibre/D3 檢視"]
+  end
+
+  subgraph s2 ["② Map Adjust"]
+    sk["骨架化（骨架2）<br/>buildConnectSkeleton<br/>共線併邊 · 交叉補黃點<br/>紅/藍/黑節點分色 · 保留地理形狀"]
+    grid["示意格網化 ⑨<br/>buildSchematicGrid<br/>彩色點排名吸附到整數欄列<br/>黑點沿新邊平均放回"]
+  end
+
+  subgraph s3 ["③ Straighten"]
+    hc["Hill Climbing<br/>buildHillClimb（Stott 2011）<br/>多準則適應度＋4硬規則＋冷卻"]
+    mv["movewise 三步鏈循環<br/>端點移動→直線縮減→網格合併<br/>每步後立即壓縮 · 到不動點"]
+    paper["直線演算法 ①〜⑧＋LLM對齊<br/>PAPER_KINDS（§9）<br/>短距離移動彩色點最大化 H/V"]
+    shape["⑨ LLM 成方（Shape-Guided）<br/>規定路段收成正方 · FROZEN 凍結<br/>餵回下游全鏈（不得破方）"]
+  end
+
+  subgraph s4 ["④ RWD Maps"]
+    rwd["版面畫線 buildRwdMap<br/>嚴格 H/V/45° 折線候選＋衝突繞行<br/>像素座標（非格索引）"]
+    llm2["LLM 評價 / LLM 互動 / LLM 比較<br/>rwd-llmeval · rwd-llmgrid · rwd-compare"]
+  end
+
+  cellsdb[("straighten-cells/<br/>持久檔＝佈局權威<br/>hccells-v9")]
+
+  geo --> raw --> sk --> grid --> hc --> mv --> paper --> rwd --> llm2
+  shape -.->|"有成方結果且執行調整時"| paper
+  hc <-->|"save / load（fingerprint 驗證）"| cellsdb
+  grid -.->|"格網化後＝輸入"| shape
+    </pre>
+  </div>
+  <ul>
+    <li><b>只算彩色點</b>：所有最佳化只移動彩色節點（端點/轉乘/分歧/交叉），中間的白/黑點不參與，事後沿新邊平均放回——與論文設定一致（paper fidelity）。</li>
+    <li><b>凍結不變式</b>：⑨ 成方後，成方頂點透過 <code>setFrozen()</code> 凍結；所有移動都經 <code>makeMover</code> 唯一關口檢查，下游任何鏈都不得破壞方形。</li>
+    <li><b>權威佈局</b>：Hill Climbing 的整數格結果以 <code>data/metro/straighten-cells/*.json</code> 為權威（演算法版本 <code>hccells-v9</code>、資料指紋比對），瀏覽器與畫廊/世界地圖統計共用同一份。</li>
+  </ul>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="hillclimb">
+  <h2><span class="no">FLOW</span>Hill Climbing 細部（Stott et al. 2011）</h2>
+  <p class="lead">Straighten 的主體：以「格網化後」整數格佈局為輸入的多準則爬山搜尋。</p>
+  <div class="fig">
+    <div class="figcap">fig 8 — buildHillClimb 內部流程</div>
+    <pre class="mermaid">
+flowchart TB
+  input["輸入：格網化後整數格佈局<br/>skeleton ＋ cellOf ＋ cols×rows"]
+  fit["多準則適應度加權和<br/>角解析度 · 邊長 · 平衡邊長 ·<br/>平直度 · 八方向對齊"]
+  hard["4 條硬規則（makeMover）<br/>① 邊界內 ② 象限保持<br/>③ 不遮蔽節點 ④ 邊環繞序不變"]
+  loop{"每輪：逐彩色點試探<br/>半徑 R 內全部候選格"}
+  best["取適應度下降最多的移動<br/>（嚴格改善才採納）"]
+  cool["冷卻：R 由 8 遞減至 1<br/>最多 5 輪"]
+  cluster["超長邊群集移動<br/>整段節點群一起平移"]
+  blacks["黑點沿新邊平均放回"]
+  save["saveStraightenCells<br/>algo=hccells-v9 ＋ dataFingerprint"]
+
+  input --> fit --> loop
+  hard -.->|"每個候選都先過"| loop
+  loop --> best --> cool
+  cool -->|"未收斂"| loop
+  cool -->|"收斂"| cluster --> blacks --> save
+    </pre>
+  </div>
+  <p>
+    後續的「直線演算法」九條鏈（§9）都以此結果為輸入做 H/V 最大化後處理；其中②直角爬山
+    （<code>buildRectPolish</code>）就是把方向準則從八方向 <code>|sin 4θ|</code> 換成直角
+    <code>|sin 2θ|</code> 再爬一次，經 <code>iteratePost</code> 迭代到不動點（上限
+    <code>POST_ITER_CAP = 20</code>）。
+  </p>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="movewise">
+  <h2><span class="no">UML</span>movewise 三步鏈循環（狀態機）</h2>
+  <p class="lead">
+    「循環」tab 的執行語意：三個演算法各自跑到不動點才輪替，一整輪完全靜止才停機。
+    每一個單一移動後立即壓縮網格（movewise），不再有獨立的縮減步驟。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 9 — straightenCompactLoop 狀態機（stepChainInit / stepChainNext 驅動逐步驗證）</div>
+    <pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  [*] --> 端點移動
+  state "端點移動 endpoint" as 端點移動 {
+    [*] --> 試移
+    試移: 每個非白點一次移 1 格（八方向含 45°）
+    試移: 採納序＝H/V 直線變多 → 否則路線變最短
+    試移: bendsPaid 護欄 ＋ SPAN_CAP ＋ makeMover 硬規則
+    試移 --> 壓縮: 每一步採納後
+    壓縮: movewise 立即縮減網格
+    壓縮 --> 試移: 還有可採納移動
+  }
+  端點移動 --> 直線縮減: 到不動點
+  state "直線縮減 line-compact" as 直線縮減 {
+    [*] --> 平移
+    平移: 跨相交點串接的直線整條 ±1 格平移
+    平移: 優先 H/V 變多，否則邊界段變最短
+    平移: validShift ＋ SPAN_CAP
+  }
+  直線縮減 --> 網格合併: 到不動點
+  state "網格合併 grid-merge" as 網格合併 {
+    [*] --> 合併
+    合併: 相鄰 row 兩兩合併、col 兩兩合併
+    合併: 半平面整體移 1 格（自帶壓縮）
+    合併: validShift＝不壓點/不新增交叉/拓撲不變
+  }
+  網格合併 --> 端點移動: 本輪有任何採納
+  網格合併 --> [*]: 一輪全靜止（收斂）
+    </pre>
+  </div>
+  <p>
+    逐步驗證 tab 用同一個狀態機的細粒度介面：<code>stepChainNext</code> 的「下一小步」＝單一移動
+    （前後橘圈比對）、「下一步」＝目前演算法跑到不動點；含復原堆疊與每秒一小步的自動執行。
+  </p>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="chains">
+  <h2><span class="no">MAP</span>直線演算法九條鏈 × 論文對應</h2>
+  <p class="lead">
+    H/V 最大化後處理共 9 條：論文①〜⑧（名稱與 <code>data/thesis</code> 的演算法說明一一對應）＋
+    LLM 對齊；另有獨立的 ⑨ LLM 成方（Shape-Guided）掛在形狀圖層。共用機構在
+    <code>paperAlign.js</code>／<code>paper/_shared.js</code>：WINDOW ±2 夾擠、clampTargets、
+    finishPass/finishBatches（逐批漸進＋嚴格改善）、snapAligned 對齊感知量化、scoreAlign 接受準則
+    （HV 優先、45° 次之）、dirModel（③⑧共用）、coordsFromDirs 鬆弛重建。
+  </p>
+  <table class="spec">
+    <tr><th>#</th><th>kind</th><th>tab 名</th><th>實作檔</th><th>論文</th><th>方法一句話</th></tr>
+    <tr><td>①</td><td><code>stroke</code></td><td>①筆畫法</td><td><code>paper/stroke.js</code></td><td>Li &amp; Dong 2010</td><td>段串成筆畫、&gt;45° 扭曲遞迴切分、子筆畫投影到 H/V（被擋退 ±45°）</td></tr>
+    <tr><td>②</td><td><code>rect</code></td><td>②直角爬山</td><td><code>hillClimb.js buildRectPolish</code></td><td>Stott et al. 2011（直角變體）</td><td>爬山方向準則 |sin 4θ| → |sin 2θ|，45° 變最貴，迭代到不動點</td></tr>
+    <tr><td>③</td><td><code>milp</code></td><td>③MILP規劃</td><td><code>paper/milp.js</code>＋<code>_dirModel.js</code></td><td>Nöllenburg &amp; Wolff 2011</td><td>每段 3 個八方向候選、生成樹 DP＋feedback 枚舉精確求解方向指派</td></tr>
+    <tr><td>④</td><td><code>force</code></td><td>④力導向</td><td><code>paper/force.js</code></td><td>Hong et al. 2006</td><td>磁力彈簧：引力＋斥力＋八方向磁場力 40 輪，PrEd 位移上限</td></tr>
+    <tr><td>⑤</td><td><code>lsq</code></td><td>⑤最小平方</td><td><code>paper/lsq.js</code></td><td>Wang &amp; Chi 2011</td><td>目標向量＝旋到最近八方向，Gauss–Seidel 解正則化最小平方 60 輪</td></tr>
+    <tr><td>⑥</td><td><code>octi</code></td><td>⑥八向格網</td><td><code>paper/octi.js</code></td><td>Bast et al. 2020</td><td>邊依線度數排序逐邊定案，候選格成本＝位移＋彎折＋線彎，一格一站</td></tr>
+    <tr><td>⑦</td><td><code>path</code></td><td>⑦路徑簡化</td><td><code>paper/path.js</code></td><td>Merrick &amp; Gudmundsson 2007</td><td>C=8 方向 ε-圓刺穿最少 link 簡化，頂點投影到 link，轉乘多者先定案</td></tr>
+    <tr><td>⑧</td><td><code>sat</code></td><td>⑧SAT規劃</td><td><code>paper/sat.js</code>＋<code>_dirModel.js</code></td><td>Fuchs 2022</td><td>與③同模型，求解器換 DPLL 分支定界（節點上限 60000，超限退回）</td></tr>
+    <tr><td>—</td><td><code>llm</code></td><td>LLM自動/指定對齊</td><td><code>vite/llmTriggers.js</code>＋<code>applyLlmTargets</code></td><td>本論文（LLM 鏈）</td><td>Claude Code 讀圖提 moves，經與論文鏈相同硬規則套用（§10）</td></tr>
+    <tr><td>⑨</td><td><code>shape</code></td><td>LLM成方</td><td><code>paper/shape.js · shapeSquare.js · shapePresets.js</code></td><td>Batik et al. 2022 精神</td><td>規定路段收成四邊直線正方，成方頂點凍結後餵下游全鏈</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="llmseq">
+  <h2><span class="no">UML</span>LLM 觸發序列圖（五條 /llm-* 路由共通）</h2>
+  <p class="lead">
+    LLM 功能不需要 API key：dev server 收到請求後 seed 起點檔、spawn 本機 Claude Code CLI，
+    模型直接讀寫 <code>data/metro/</code> 下的結果 JSON。五條路由（align／shape／grid／eval／compare）
+    共用同一套骨架，差別只在輸出目錄與 prompt。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 10 — 以 /llm-align 為例（其餘四條同構）</div>
+    <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor U as 使用者
+  participant D3 as D3Tab.vue
+  participant VP as vite llmTriggers<br/>(/llm-align)
+  participant FS as data/metro/<br/>straighten-llm/
+  participant CC as Claude Code CLI
+
+  U->>D3: 「重跑 LLM 對齊」（自動 或 --prompt 指定）
+  D3->>VP: POST /llm-align/run {city, variant, base, prompt?}
+  Note over VP: outFile = straighten-llm/城市.變體[.prompt].json<br/>base=auto/prompt→複製既有檔當起點<br/>base=hc→清掉 outFile 從 Hill Climbing 起
+  VP->>FS: seed outFile（＝主視圖目前顯示的佈局）
+  VP->>CC: spawn claude（prompt 指示：讀 outFile 起點往下 refine）
+  loop 每秒輪詢
+    D3->>VP: GET /llm-align/status
+    VP-->>D3: {running, step…}
+  end
+  CC->>FS: 寫回 moves／新佈局 JSON
+  VP-->>D3: 完成
+  D3->>FS: 載入結果 → 「LLM自動對齊／LLM指定對齊」tab 顯示
+  Note over D3: 跑完不自動套用
+  U->>D3: 按「執行調整」
+  D3->>D3: applyLlmTargets()——經 makeMover 硬規則套用（套用⇄恢復可切換）
+    </pre>
+  </div>
+  <table class="spec">
+    <tr><th>路由前綴</th><th>功能</th><th>結果目錄</th><th>顯示位置</th></tr>
+    <tr><td><code>/llm-align</code></td><td>LLM 對齊（自動 <code>.json</code>／指定 <code>.prompt.json</code>）</td><td><code>straighten-llm/</code></td><td>Straighten「LLM自動對齊」「LLM指定對齊」tab</td></tr>
+    <tr><td><code>/llm-shape</code></td><td>⑨ LLM 成方（<code>城市.orig.json</code>／<code>城市.rot.json</code>）</td><td><code>straighten-shape/</code></td><td>Straighten 形狀圖層；執行調整時餵下游</td></tr>
+    <tr><td><code>/llm-grid</code></td><td>LLM 互動（一句話改欄列權重）</td><td><code>rwd-llmgrid/</code></td><td>RWD Maps「LLM互動」tab</td></tr>
+    <tr><td><code>/llm-eval</code></td><td>LLM 評價（幾何脈絡→評語＋moves）</td><td><code>rwd-llmeval/</code></td><td>RWD Maps「LLM評價」tab</td></tr>
+    <tr><td><code>/llm-compare</code></td><td>LLM 比較（orig/rot × ①〜⑧＋LLM 全結果選最佳）</td><td><code>rwd-compare/</code></td><td>RWD Maps 比較視圖</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="recompute">
+  <h2><span class="no">UML</span>重新計算（全城）序列圖</h2>
+  <p class="lead">
+    header 的「重新計算」按鈕：dev server spawn 全城管線，前端每秒輪詢進度；
+    每算完一城就 bump <code>metroDataEpoch</code>，畫廊縮圖與世界地圖綠點即時跟上磁碟進度。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 11 — TopToolbar ⇄ metroRecompute 插件</div>
+    <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor U as 使用者
+  participant TB as TopToolbar.vue
+  participant MR as vite metroRecompute
+  participant SC as scripts/*.mjs（全城管線）
+  participant ST as mapStore
+
+  U->>TB: 選模式（all / no-shape / dataflow）＋ confirm
+  TB->>MR: POST /metro-recompute/run {mode}
+  alt 已有計算進行中
+    MR-->>TB: 409 → toast「已有重新計算在進行中」
+  else
+    MR->>SC: spawn 子行程
+    MR-->>TB: 200
+  end
+  TB->>ST: metroDataEpoch++ ＋ clearDataOverlay（畫廊立即 remount）
+  loop 每 1000ms
+    TB->>MR: GET /metro-recompute/status
+    MR-->>TB: {running, phase, progress:{current,total,item}, paused}
+    opt progress.current 前進（算完一城）
+      TB->>ST: clearDataOverlay ＋ metroDataEpoch++
+    end
+  end
+  opt 使用者按「暫停／繼續」
+    TB->>MR: POST /metro-recompute/pause 或 /resume（這城算完後生效）
+  end
+  SC-->>MR: exit code
+  MR-->>TB: {running:false, exit}
+  TB->>ST: 最終 clearDataOverlay ＋ epoch++ → toast 完成/失敗
+    </pre>
+  </div>
+  <p>
+    三種模式對應成方資料的處理策略：<code>all</code>（連 LLM 成方一起重做）、
+    <code>no-shape</code>(成方相關全部不動)、<code>dataflow</code>（成方結果不動、但形狀下游佈局全部重算）。
+    另有 <code>POST /metro-recompute/city</code> 供單城重算。
+  </p>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="datapipe">
+  <h2><span class="no">FLOW</span>Node 資料管線（fetch ⇄ audit 迴圈）</h2>
+  <p class="lead">
+    <code>npm run metro:all</code> 的完整鏈；highway／railway 是同 schema 的平行管線
+    （<code>highway:all</code>、<code>railway:all</code>）。城市專屬規則以
+    <code>data/_overrides/</code> 與 <code>.claude/skills/metro-city-*</code> 治理。
+  </p>
+  <div class="fig">
+    <div class="figcap">fig 12 — metro:all 執行順序（節點＝scripts/*.mjs）</div>
+    <pre class="mermaid">
+flowchart TB
+  subgraph fetch ["抓取"]
+    w["fetchWikiList<br/>Wikipedia 城市/系統清單"]
+    m["fetchMetro<br/>Overpass：route=subway|light_rail"]
+    uc["fetchUcExceptions<br/>未通車例外"]
+    sb["fetchSbahnDe<br/>德國 S-Bahn（train 例外）"]
+    geo2["geocodeSystems<br/>Nominatim 反向地理編碼分桶"]
+    w --> m --> uc --> sb --> geo2
+  end
+
+  subgraph build ["組檔"]
+    bg["buildGeojson<br/>每城市 systems GeoJSON"]
+    sgv["buildSingaporeVariants<br/>base=MRT · +LRT 變體"]
+    jr["buildJrCombined"]
+    lm["buildLandmarkCombined<br/>河流/地標圖層合併"]
+    cs["buildCombinedSystems<br/>首爾+仁川 · 台北+台鐵+高鐵 · 東京+JR+私鐵"]
+    bv["buildViews<br/>逐城市視圖烘焙"]
+    bg --> sgv --> jr --> lm --> cs --> bv
+  end
+
+  subgraph tracks ["軌跡"]
+    ft["fetchMetroTracks"] --> bt["buildMetroTrackGeojson"] --> bc["buildMetroTrackCenterline"]
+  end
+
+  subgraph audit ["驗證（audit）"]
+    wl["wikiLineCheck<br/>逐線對照 Wikipedia infobox 站數"]
+    al["auditLoop<br/>逐城 audit ⇄ 修補迴圈<br/>verify_report.md"]
+    wl --> al
+  end
+
+  fetch --> build --> tracks --> audit
+  audit -.->|"未通過城市 → 定向重抓（fetch⇄audit 迴圈）"| fetch
+
+  ov[("data/_overrides/<br/>城市裁決釘選")] -.-> geo2 & bg
+  maps2["downloadMaps / fetchOfficialSites<br/>官方路網圖 · map_overrides.json 釘選"] --> mapsdir[("data/metro/maps/**")]
+    </pre>
+  </div>
+  <ul>
+    <li><b>fetch ⇄ audit 迴圈</b>：audit 產出的未通過城市清單回饋給定向重抓（<code>refetchFailedCities</code>／<code>refreshRelations</code>），收斂到 <code>verify_report.md</code> 全綠。</li>
+    <li><b>三套平行管線</b>：metro／highway／railway 共用 schema 與下游（畫廊、圖層匯入），各自有 fetch、build、verify 腳本與對應 skill。</li>
+    <li><b>知識庫</b>：<code>.claude/skills/</code> 裡的 SKILL.md（metro-osm-fetch、metro-audit、metro-city-* 等）記錄管線規則與逐城裁決，SPA 內建 SkillViewer 可直接閱讀，build 時也拷貝到 <code>dist/skills/</code>。</li>
+  </ul>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="datadir">
+  <h2><span class="no">FS</span>資料目錄結構</h2>
+  <p class="lead">無資料庫——檔案系統就是資料庫。<code>data/metro/</code> 是最大宗：</p>
+  <pre class="tree">data/
+├── <span class="c">metro/</span>
+│   ├── index.json                <span class="m"># 城市/系統總目錄（metroCatalog 讀）</span>
+│   ├── city_coords.json          <span class="m"># 城市座標（世界地圖）</span>
+│   ├── official_sites.json       <span class="m"># 營運商官網清單</span>
+│   ├── verify_report.md / .json  <span class="m"># auditLoop 驗證報告</span>
+│   ├── <span class="c">_cache/</span>                   <span class="m"># Overpass/wiki 快取（build 時剔除）</span>
+│   ├── <span class="c">_overrides/</span>               <span class="m"># 城市裁決釘選（如 bolivia-cochabamba.json）</span>
+│   ├── <span class="c">maps/</span>                     <span class="m"># 官方路網圖（依洲分目錄）＋ map_overrides.json 釘選</span>
+│   ├── <span class="c">metro-tracks/ · metro-tracks-center/</span>  <span class="m"># 實際軌跡與中心線</span>
+│   ├── <span class="c">metro-landmarks/</span>          <span class="m"># 河流骨架/地標面域（獨立圖層）</span>
+│   ├── <span class="c">map-adjust/</span>               <span class="m"># ② 骨架化/格網化 烘焙結果（buildViews）</span>
+│   ├── <span class="c">straighten/</span>               <span class="m"># ③ Straighten 烘焙結果</span>
+│   ├── <span class="c">straighten-cells/</span>         <span class="m"># ★ Hill Climbing 整數格持久檔（佈局權威，hccells-v9）</span>
+│   ├── <span class="c">straighten-llm/</span>           <span class="m"># LLM 對齊結果（城市.變體.json / .prompt.json）</span>
+│   ├── <span class="c">straighten-shape/</span>         <span class="m"># ⑨ LLM 成方結果（城市.orig.json / 城市.rot.json）</span>
+│   ├── <span class="c">rwd-maps/</span>                 <span class="m"># ④ RWD 版面畫線烘焙結果</span>
+│   ├── <span class="c">rwd-llmeval/ · rwd-llmgrid/ · rwd-compare/</span>  <span class="m"># RWD 的 LLM 結果檔</span>
+│   └── city_status.json          <span class="m"># （虛擬檔）dev 由 cityStatus 插件即時算；build 時落地快照</span>
+├── <span class="c">highway/</span>                      <span class="m"># 高速公路（schema 同 metro）</span>
+├── <span class="c">railway/</span>                      <span class="m"># 國鐵/高鐵（一國拆 -hsr / -rail；日本 JR 六社分檔）</span>
+└── <span class="c">thesis/</span>                       <span class="m"># 論文 md（直線化演算法的實作依據）</span></pre>
+  <p>
+    檔名慣例：<code>&lt;洲&gt;-&lt;國&gt;-&lt;城市&gt;</code>（如 <code>as-twn-taipei</code>、<code>af-alg-algiers</code>）；
+    變體後綴 <code>orig</code>／<code>rot</code>（旋轉）；形狀圖層另有 shapelike 路徑
+    （<code>hcCellsRelPath(cityId, variant, shapelike)</code>）。
+  </p>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="er">
+  <h2><span class="no">UML</span>資料格式 ER 圖（關鍵 JSON schema）</h2>
+  <div class="fig">
+    <div class="figcap">fig 13 — 檔案之間的邏輯關聯（實體＝JSON 檔/Feature 類型）</div>
+    <pre class="mermaid">
+erDiagram
+  CITY_INDEX ||--o{ SYSTEM_GEOJSON : "index.json 列出"
+  SYSTEM_GEOJSON ||--o{ LINE_FEATURE : "FeatureCollection 含"
+  SYSTEM_GEOJSON ||--o{ STATION_FEATURE : "FeatureCollection 含"
+  SYSTEM_GEOJSON ||--o{ CELLS_DOC : "每變體 orig/rot 一份"
+  CELLS_DOC ||--o| LLM_VIEW : "seed 起點"
+  CELLS_DOC ||--o| SHAPE_DOC : "格網化後餵成方"
+  SYSTEM_GEOJSON ||--o| OFFICIAL_MAP : "map_overrides.json 釘選"
+  CITY_INDEX ||--|| CITY_STATUS : "cityStatus 即時彙整"
+
+  CITY_INDEX {
+    string id "as-twn-taipei"
+    string name_zh
+    string continent
+    float lat_lng "city_coords.json"
+  }
+  SYSTEM_GEOJSON {
+    string type "FeatureCollection"
+    json features "路線 LineString ＋ 車站 Point"
+  }
+  LINE_FEATURE {
+    string geometry "LineString"
+    string name "線名（日本城市用 name:ja）"
+    string colour "官方線色"
+    string network
+  }
+  STATION_FEATURE {
+    string geometry "Point"
+    string name "站名"
+    json lines "所屬路線"
+  }
+  CELLS_DOC {
+    string algo "hccells-v9（讀相容 v8/v9）"
+    string fingerprint "dataFingerprint(來源資料)"
+    json cells "節點 id → 整數格 (col,row)"
+    int cols_rows
+  }
+  LLM_VIEW {
+    string file "straighten-llm/城.變體[.prompt].json"
+    json layout "LLM 調整後佈局/moves"
+  }
+  SHAPE_DOC {
+    string file "straighten-shape/城.orig|rot.json"
+    json square "成方頂點（下游 FROZEN）"
+  }
+  CITY_STATUS {
+    string city
+    bool cellsUsable "gallery 門檻（世界地圖圓點色）"
+  }
+  OFFICIAL_MAP {
+    string file "maps/洲/…png|svg"
+    string source "營運商官方發行"
+  }
+    </pre>
+  </div>
+  <div class="note">
+    <b>cellsDocUsable 的兩層檢查</b>：讀 cells 檔時先驗 <code>algo ∈ HC_CELLS_ALGO_READ</code>
+    （演算法版本相容），再驗 <code>fingerprint === dataFingerprint(目前來源資料)</code>
+    （來源沒變過）。兩者任一不符即視為不可用、需重算——這是世界地圖圓點顏色
+    （city_status 的 <code>cellsUsable</code>）與畫廊縮圖共同依據的判準。
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="api">
+  <h2><span class="no">HTTP</span>dev server API 一覽</h2>
+  <p class="lead">全部由 vite.config.js 的插件鏈提供（順序敏感：cityStatus 必須在 serveDataDir 之前攔截）。</p>
+  <table class="spec">
+    <tr><th>Method · Path</th><th>插件</th><th>環境</th><th>說明</th></tr>
+    <tr><td><code>GET /data/metro/city_status.json</code></td><td>cityStatus</td><td><span class="pill dev">dev</span></td><td>即時彙整各城 cells 可用狀態（cityStatusCompute.js）；正式版為 build 快照</td></tr>
+    <tr><td><code>GET /data/**</code></td><td>serveDataDir</td><td><span class="pill dev">dev</span><span class="pill prod">pages</span></td><td>dev 直讀磁碟；pages 由 copyStaticAssets 拷貝的靜態檔</td></tr>
+    <tr><td><code>GET /skills/index.json · /skills/&lt;id&gt;.md</code></td><td>serveSkills</td><td><span class="pill dev">dev</span><span class="pill prod">pages</span></td><td>SKILL.md 知識庫（SkillViewer 讀）</td></tr>
+    <tr><td><code>GET /slides/**</code></td><td>serveSlides</td><td><span class="pill dev">dev</span><span class="pill prod">pages</span></td><td>靜態文件頁（含本頁）</td></tr>
+    <tr><td><code>POST /llm-align/run · GET /llm-align/status</code></td><td>llmTriggers</td><td><span class="pill dev">dev</span></td><td>LLM 對齊（自動/指定）；seed outFile → spawn claude</td></tr>
+    <tr><td><code>POST /llm-shape/run · …/status</code></td><td>llmTriggers</td><td><span class="pill dev">dev</span></td><td>⑨ LLM 成方（orig/rot 兩檔）</td></tr>
+    <tr><td><code>POST /llm-grid/run · …/status</code></td><td>llmTriggers</td><td><span class="pill dev">dev</span></td><td>LLM 互動（欄列權重）</td></tr>
+    <tr><td><code>POST /llm-eval/run · …/status</code></td><td>llmTriggers</td><td><span class="pill dev">dev</span></td><td>LLM 評價（評語＋moves）</td></tr>
+    <tr><td><code>POST /llm-compare/run · …/status</code></td><td>llmTriggers</td><td><span class="pill dev">dev</span></td><td>LLM 全結果比較（≤18 個候選）</td></tr>
+    <tr><td><code>POST /hc-cells/save · /hc-cells/clear</code></td><td>hcCellsPersist</td><td><span class="pill dev">dev</span></td><td>Hill Climbing cells 寫回 <code>straighten-cells/</code></td></tr>
+    <tr><td><code>POST /metro-recompute/run · /pause · /resume · /city<br/>GET /metro-recompute/status</code></td><td>metroRecompute</td><td><span class="pill dev">dev</span></td><td>全城/單城重算，含暫停（這城算完後生效）</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="invariants">
+  <h2><span class="no">RULE</span>跨模組不變式與持久化</h2>
+  <h3>演算法不變式（違反即 bug）</h3>
+  <ul>
+    <li><b>唯一移動關口</b>：任何演算法要移動節點都必須經 <code>hillClimb.js makeMover</code>；四條硬規則（邊界／象限／遮蔽／邊環繞序）與 FROZEN 檢查都在這一個關口實施。</li>
+    <li><b>成方凍結</b>：⑨ 成方被「執行調整」採用後，成方頂點進入 <code>SQUARE_GUARD</code>（<code>setFrozen</code>）；下游所有鏈（②爬山、movewise、①〜⑧、RWD）可動方形頂點以外的點，但不得破壞四邊直線。</li>
+    <li><b>SPAN_CAP</b>：端點移動與直線縮減的每一步，受影響段的兩個彩色點 Chebyshev 距離不得超過上限（預設 3；樣式 tab 可調＋重新計算套用）。</li>
+    <li><b>paper fidelity</b>：直線化演算法照 <code>data/thesis</code> 論文 md 實作、不自創；只算彩色點，白/黑點事後平均放回。</li>
+    <li><b>嚴格改善</b>：論文鏈的逐批套用（finishBatches strict）只接受 <code>scoreAlign</code> 變好的批次——HV 優先、45° 次之。</li>
+    <li><b>LLM 結果不自動套用</b>：eval／grid／align／shape 跑完只寫檔＋顯示，一律等使用者按「執行調整」；重跑清舊資料。</li>
+  </ul>
+  <h3>持久化層級</h3>
+  <table class="spec">
+    <tr><th>層級</th><th>位置</th><th>內容</th><th>寫入時機</th></tr>
+    <tr><td>Session</td><td><code>localStorage adapt-metro:session:v1</code></td><td>主題（dark/accent）、圖層、openTabIds/activeTabId、dockview 版面 toJSON、面板尺寸</td><td>store.$subscribe debounce 300ms；beforeunload／visibilitychange=hidden 立即 flush</td></tr>
+    <tr><td>佈局權威</td><td><code>data/metro/straighten-cells/</code></td><td>Hill Climbing 整數格（algo＋fingerprint）</td><td>dev：算完 POST /hc-cells/save；重算管線亦寫入（bakeHcCells）</td></tr>
+    <tr><td>LLM 結果</td><td><code>straighten-llm/ · straighten-shape/ · rwd-llm*/ · rwd-compare/</code></td><td>各 LLM 鏈輸出</td><td>Claude Code 行程結束時</td></tr>
+    <tr><td>烘焙視圖</td><td><code>map-adjust/ · straighten/ · rwd-maps/</code></td><td>逐城逐視圖結果（畫廊縮圖用）</td><td>buildViews／metro-recompute</td></tr>
+  </table>
+  <p>
+    快取失效以 <b>epoch 計數器</b>驅動：<code>mapStore.metroDataEpoch</code> 遞增 → 畫廊/世界地圖 remount 重讀；
+    <code>clearDataOverlay('data/metro/')</code> 清瀏覽器端資料覆蓋，確保 D3 與縮圖同讀新檔。
+    舊版 session 由 <code>layerMigrations.js</code> 清洗（如已下架的自創 align/ilp 鏈）、
+    舊 cells localStorage 由 <code>purgeLegacyHcLocalStorage</code> 清除。
+  </p>
+</section>
+
+<!-- ======================================================================= -->
+<section class="card" id="glossary">
+  <h2><span class="no">DICT</span>名詞表（程式碼 ⇄ 領域用語）</h2>
+  <table class="spec">
+    <tr><th>名詞</th><th>定義</th></tr>
+    <tr><td>骨架（骨架2 / connect）</td><td><code>buildConnectSkeleton</code> 的輸出：共線併邊、真交叉補黃點、依 degree 分色（紅=分歧/轉乘、藍=端點、黑=直通、黃=交叉、紫=切點），保留地理形狀只做拓撲收縮。</td></tr>
+    <tr><td>彩色點 / 白（黑）點</td><td>彩色點＝參與最佳化的結構節點；白/黑點＝線上中間點，不參與最佳化，事後沿新邊等距放回。</td></tr>
+    <tr><td>cells（格網化）</td><td>節點 → 整數格 (col,row) 的映射；「格網化後」是 Straighten 全部演算法的輸入座標系。</td></tr>
+    <tr><td>variant：orig / rot</td><td>每城市兩個變體：原始方位與旋轉方位，各自跑完整管線；RWD 比較會跨變體選最佳。</td></tr>
+    <tr><td>movewise</td><td>「每一個單一移動後立即縮減網格」的執行語意（取消獨立縮減步驟）。</td></tr>
+    <tr><td>直線演算法</td><td>H/V 最大化後處理的九條鏈：論文①〜⑧＋LLM 對齊（§9）；名稱與 data/thesis 論文一一對應。</td></tr>
+    <tr><td>成方（⑨ Shape-Guided）</td><td>把規定路段（環線等；目前東京/新加坡等規定表城市）收成四條直線的正方，之後凍結餵下游。</td></tr>
+    <tr><td>RWD Maps</td><td>第四階段：把縮減網格佈局在版面像素座標重繪成嚴格 H/V/45° 折線，含候選折線排序與衝突繞行。</td></tr>
+    <tr><td>epoch</td><td><code>metroDataEpoch</code> 之類的遞增計數器，用來驅動前端快取失效與元件 remount。</td></tr>
+    <tr><td>fingerprint</td><td><code>dataFingerprint</code>：來源資料的雜湊，cells 檔跟資料版本綁定的依據。</td></tr>
+    <tr><td>skills（知識庫）</td><td><code>.claude/skills/*/SKILL.md</code>：管線規則、演算法規格、逐城裁決的長期記憶；SPA 內可讀、亦部署到正式站。</td></tr>
+  </table>
+  <p style="margin-top:18px;color:var(--muted2);font-size:12px;">
+    本頁由程式碼靜態分析產生（元件 import、export 面、路由字串皆對照原始碼），若與程式碼不一致以程式碼為準。
+    來源入口：<code>src/main.js</code> · <code>vite.config.js</code> · <code>package.json scripts</code>。
+  </p>
+</section>
+
+</div>
+</div>
+
+<script type="module">
+  // Mermaid 由 CDN 載入；失敗時圖表退回原始碼文字並顯示提示（頁面其餘內容不受影響）。
+  // 分頁化後改成「切到該分頁時才畫」——mermaid 需要可見容器才能量測寬度。
+  const mermaidReady = import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')
+    .then(({ default: mermaid }) => {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'neutral',
+        securityLevel: 'loose',
+        fontFamily: "ui-sans-serif, system-ui, 'PingFang TC', 'Noto Sans TC', sans-serif",
+        flowchart: { curve: 'basis', htmlLabels: true },
+        sequence: { useMaxWidth: true },
+      });
+      return mermaid;
+    });
+  mermaidReady.catch(function () { /* 由 renderIn 統一處理 */ });
+
+  async function renderIn(root) {
+    const nodes = Array.from(root.querySelectorAll('pre.mermaid:not([data-processed])'));
+    if (!nodes.length) return;
+    try {
+      const mermaid = await mermaidReady;
+      await mermaid.run({ nodes });
+    } catch (err) {
+      root.querySelectorAll('.fig').forEach(function (fig) {
+        if (fig.querySelector('.mermaid-fail')) return;
+        var warn = document.createElement('div');
+        warn.className = 'mermaid-fail';
+        warn.style.display = 'block';
+        warn.textContent = '⚠ Mermaid 載入失敗（離線？）——以下顯示圖表原始碼。';
+        fig.insertBefore(warn, fig.querySelector('pre.mermaid'));
+      });
+      console.error('mermaid load failed', err);
+    }
+  }
+
+  // 分頁：一個項目一個 tab，內容不變。網址 hash（#ctx…）即分頁，可直接深連結／上一頁。
+  const tabs = Array.from(document.querySelectorAll('.tabbar a[role="tab"]'));
+  const panels = Array.from(document.querySelectorAll('section.card'));
+  const scroller = document.querySelector('.doc-scroll');
+  panels.forEach(function (p) { p.setAttribute('role', 'tabpanel'); });
+
+  function activate(id, resetScroll) {
+    const panel = panels.find(function (p) { return p.id === id; }) || panels[0];
+    if (!panel) return;
+    panels.forEach(function (p) { p.classList.toggle('is-active', p === panel); });
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-selected', String(t.hash === '#' + panel.id));
+    });
+    if (resetScroll && scroller) scroller.scrollTop = 0;
+    renderIn(panel);
+  }
+
+  activate(decodeURIComponent(location.hash || '').slice(1), false);
+  window.addEventListener('hashchange', function () {
+    activate(decodeURIComponent(location.hash || '').slice(1), true);
+  });
+</script>
+</body>
+</html>
