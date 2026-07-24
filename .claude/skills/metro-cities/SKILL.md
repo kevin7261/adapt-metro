@@ -142,6 +142,22 @@ Airport Express、香港機場快線 AEL 等（regex 只擋接駁電車詞，不
 阿比讓（僅建設中地鐵與 Sitarail 貨運）、安納巴／巴特納／哈科特港（urbanrail 標斜體＝
 建設中/計畫中）。
 
+## 全球 urbanrail.net 缺城補齊（使用者裁決 2026-07-24）
+
+使用者原話：依 [urbanrail.net](https://www.urbanrail.net/) 全球清單，**有出現的都要抓，除非還未完工**。
+歐陸／美洲／亞洲大量電車與輕軌城原本不在 wiki metro 基準、也不在大洋洲／非洲例外表。
+
+| 步驟 | 指令／檔案 |
+|---|---|
+| 任務表 | `data/metro/_urbanrail_gap_tasks.json`（Nominatim bbox；跳過斜體＝未通車） |
+| 補抓 | `npm run metro:fetchurbanrail` → `scripts/fetchUrbanrailGap.mjs`（bbox 內 `subway\|light_rail\|tram`，**不含 train**） |
+| 綁城 | 自動寫 `_overrides/<country>-<city>.json`（豁免純 LRT 剔除） |
+| 組檔 | `npm run metro:buildonly` → `metro:views` → `metro:coords` → `metro:hccells` |
+
+**刻意跳過（未通車／斜體）**：Austin、Bogotá metro、Hamilton、Mississauga、Omaha、Québec、
+Penang、Surat、Bologna、Jaén、Gebze Körfezray、Annaba、Batna、Kermanshah、Qom 等。
+**不做 route=train**：國鐵會灌爆 bbox；市郊鐵路仍走既有 Oceania／Africa／Sydney／S-Bahn 腳本。
+
 ## 新增城市專屬規則時
 
 1. 若該城規則多，**新建 `metro-city-<城市>` skill**（description 寫明城市名＋觸發場景，

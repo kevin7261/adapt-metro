@@ -1,0 +1,1 @@
+{"elements":[{"type":"relation","id":7825810,"tags":{"name":"KC Streetcar","network":"RideKC","network:wikidata":"Q6364889","operator":"Kansas City Streetcar Authority","route_master":"tram","type":"route_master","wikidata":"Q113548541"},"members":[{"type":"relation","ref":7825410,"role":""},{"type":"relation","ref":7825409,"role":""}]}]}

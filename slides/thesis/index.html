@@ -111,18 +111,76 @@
   }
   .app-toolbar .menu-item:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
 
-  /* ===== Google Slides 式觀看版面：header 下方＝左縮圖膠捲＋中央畫布，最底為工具列 ===== */
+  /* ===== Google Slides 式觀看版面：Slides 門面（標題列＋選單列＋工具列）→
+         左縮圖膠捲＋中央畫布，最底為工具列 ===== */
   .workspace{ display:flex; flex:1; min-height:0; }
+
+  /* ---- Slides 門面（樣式仿 Google Slides；功能都是本頁原有的：投影播放＝全螢幕、共用＝複製連結） ---- */
+  .gs-chrome{ flex-shrink:0; background:#f9fbfd; padding:6px 16px 8px; }
+  .gs-titlebar{ display:flex; align-items:flex-start; gap:10px; }
+  .gs-appicon{ flex-shrink:0; width:26px; height:34px; margin-top:4px; }
+  .gs-titlecol{ min-width:0; flex:1; }
+  .gs-titlerow{ display:flex; align-items:center; gap:6px; padding:2px 0 0; }
+  .gs-title{
+    font-size:18px; color:#1f1f1f; font-weight:400; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; padding:1px 6px; border-radius:4px;
+  }
+  .gs-title:hover{ outline:1px solid #dadce0; }
+  .gs-menus{ display:flex; align-items:center; flex-wrap:nowrap; overflow:hidden; }
+  .gs-menu{
+    position:relative; font-size:13.5px; color:#1f1f1f; padding:3px 8px; border-radius:5px;
+    cursor:default; user-select:none; white-space:nowrap;
+  }
+  .gs-menu:hover, .gs-menu.open{ background:rgba(68,71,70,.08); }
+  .gs-drop{
+    position:absolute; top:26px; left:0; z-index:300; min-width:230px;
+    background:#fff; border-radius:8px; padding:6px 0;
+    box-shadow:0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+  }
+  .gs-drop[hidden]{ display:none; }
+  .gs-drop button{
+    display:flex; align-items:center; gap:12px; width:100%; padding:7px 18px 7px 14px;
+    background:none; border:0; font-family:inherit; font-size:13.5px; color:#1f1f1f;
+    cursor:pointer; text-align:left; white-space:nowrap;
+  }
+  .gs-drop button:hover{ background:#f1f3f4; }
+  .gs-drop .m-icon{ font-size:17px; color:#444746; }
+  .gs-drop hr{ border:none; border-top:1px solid #e8eaed; margin:6px 0; }
+  .gs-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; padding-top:6px; }
+  .gs-present{
+    display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 16px 0 12px;
+    border:1px solid #747775; border-radius:999px; background:#fff; color:#1f1f1f;
+    font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
+  }
+  .gs-present:hover{ background:#f1f3f4; }
+  .gs-present .m-icon{ font-size:18px; }
+  .gs-share{
+    display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 18px 0 14px;
+    border:none; border-radius:999px; background:#c2e7ff; color:#001d35;
+    font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
+  }
+  .gs-share:hover{ box-shadow:0 1px 2px rgba(60,64,67,.3); }
+  .gs-share .m-icon{ font-size:17px; }
+  .gs-avatar{
+    width:32px; height:32px; border-radius:50%; background:hsl(var(--app-primary)); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; user-select:none;
+  }
+  .gs-toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:400;
+    background:#3c4043; color:#fff; font-size:13px; padding:9px 18px; border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,.3); opacity:0; transition:opacity .2s; pointer-events:none;
+  }
+  .gs-toast.show{ opacity:1; }
 
   .filmstrip{
     flex:0 0 184px; min-height:0; overflow-y:auto; overflow-x:hidden;
-    background:#f1f3f4; border-right:1px solid #dadce0;
+    background:#ffffff; border-right:1px solid #dadce0;
     padding:12px 10px; display:flex; flex-direction:column; gap:10px;
   }
   .filmstrip::-webkit-scrollbar{ width:10px; }
-  .filmstrip::-webkit-scrollbar-thumb{ background:#bdc1c6; border-radius:6px; border:3px solid #f1f3f4; }
+  .filmstrip::-webkit-scrollbar-thumb{ background:#bdc1c6; border-radius:6px; border:3px solid #ffffff; }
   .filmstrip::-webkit-scrollbar-thumb:hover{ background:#9aa0a6; }
-  .filmstrip{ scrollbar-width:thin; scrollbar-color:#bdc1c6 #f1f3f4; }
+  .filmstrip{ scrollbar-width:thin; scrollbar-color:#bdc1c6 #ffffff; }
   .filmstrip-item{ flex-shrink:0; display:flex; gap:8px; align-items:flex-start; cursor:pointer; }
   .filmstrip-item .fs-num{
     font-size:11px; color:#5f6368; font-family:var(--mono);
@@ -151,14 +209,14 @@
   .deck{
     position:relative; flex:1; min-width:0; height:100%; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
-    background-color:#f1f3f4;
+    background-color:#f9fbfd;
     color-scheme:light; color:#0f172a;
     --card-bg:#ffffff; --border:#e2e8f0;
     --ink:#0f172a; --muted:#475569; --muted2:#64748b;
     --code-bg:#0f172a; --code-ink:#e2e8f0;
   }
 
-  :fullscreen .app-toolbar, :fullscreen .filmstrip, :fullscreen .slidebar{ display:none; }
+  :fullscreen .app-toolbar, :fullscreen .filmstrip, :fullscreen .slidebar, :fullscreen .gs-chrome{ display:none; }
   :fullscreen .deck{ background:#000; cursor:none; }
   :fullscreen .deck:hover{ cursor:default; }
   .stage{
@@ -369,7 +427,10 @@
   </a>
   <a class="btn-ghost skills-link" href="../../">Skills</a>
   <a class="btn-ghost active" href="./">論文內容</a>
+  <a class="btn-ghost" href="./paper/">論文本文</a>
+  <a class="btn-ghost" href="./paper/?doc=improve">改善建議</a>
   <a class="btn-ghost" href="../">系統介紹</a>
+  <a class="btn-ghost" href="../architecture/">系統架構</a>
   <div class="info-wrap">
     <button class="btn-ghost" id="relBtn" type="button">相關連結</button>
     <div class="menu-pop" id="relMenu" hidden>
@@ -379,6 +440,52 @@
     </div>
   </div>
 </header>
+
+<!-- ===== Google Slides 式門面（樣式仿 Slides；功能都是本頁原有的：投影播放＝全螢幕、共用＝複製連結） ===== -->
+<div class="gs-chrome">
+  <div class="gs-titlebar">
+    <!-- Slides 黃色簡報圖示 -->
+    <svg class="gs-appicon" viewBox="0 0 26 34" aria-hidden="true">
+      <path d="M16 0H3C1.35 0 0 1.35 0 3v28c0 1.65 1.35 3 3 3h20c1.65 0 3-1.35 3-3V10L16 0z" fill="#f4b400"/>
+      <path d="M16 0v10h10L16 0z" fill="#fadc87"/>
+      <rect x="5.5" y="15" width="15" height="10" rx="1.2" fill="#f1f1f1"/>
+      <rect x="7.5" y="17" width="11" height="6" rx=".8" fill="#f4b400"/>
+    </svg>
+    <div class="gs-titlecol">
+      <div class="gs-titlerow">
+        <span class="gs-title">論文內容——自適應版面的地理空間網絡資料視覺化</span>
+      </div>
+      <nav class="gs-menus" aria-label="選單列">
+        <span class="gs-menu" id="gsMenuFile">檔案
+          <div class="gs-drop" id="gsDropFile" hidden>
+            <button id="gsCopyLink" type="button"><span class="material-symbols-outlined m-icon">link</span>複製連結</button>
+            <hr />
+            <button id="gsFilePresent" type="button"><span class="material-symbols-outlined m-icon">slideshow</span>投影播放</button>
+          </div>
+        </span>
+        <span class="gs-menu" id="gsMenuView">查看
+          <div class="gs-drop" id="gsDropView" hidden>
+            <button id="gsViewPresent" type="button"><span class="material-symbols-outlined m-icon">fullscreen</span>全螢幕（F）</button>
+            <hr />
+            <button id="gsGoFirst" type="button"><span class="material-symbols-outlined m-icon">first_page</span>第一張投影片（Home）</button>
+            <button id="gsGoLast" type="button"><span class="material-symbols-outlined m-icon">last_page</span>最後一張投影片（End）</button>
+          </div>
+        </span>
+      </nav>
+    </div>
+    <div class="gs-actions">
+      <button class="gs-present" id="gsPresent" type="button" title="簡報模式・全螢幕 (F)">
+        <span class="material-symbols-outlined m-icon">slideshow</span>投影播放
+      </button>
+      <button class="gs-share" id="gsShare" type="button" title="複製本頁連結">
+        <span class="material-symbols-outlined m-icon">lock</span>共用
+      </button>
+      <div class="gs-avatar" title="kevin7261">K</div>
+    </div>
+  </div>
+
+</div>
+
 <div class="workspace">
 <aside class="filmstrip" id="filmstrip" aria-label="投影片縮圖"></aside>
 <div class="deck" id="deck">
@@ -413,7 +520,7 @@
   <section class="slide" data-title="簡報結構">
     <div class="eyebrow"><span class="tag"><b>00</b>簡報結構</span><span class="rule"></span><span class="eng">ROADMAP</span></div>
     <h1 class="title">從兩個 Pilot Study 到一本博士論文</h1>
-    <p class="subtitle">本論文的內容由兩份計畫書（pilot studies）演進而來：先在計畫書中確立研究問題、文獻架構與演算法框架，再以 <strong>Adapt-Metro 系統</strong>把框架完整實作並擴充到全球尺度。簡報依論文章節順序展開：</p>
+    <p class="subtitle">本論文的內容由兩份計畫書（pilot studies）演進而來：先在計畫書中確立研究問題、文獻架構與演算法框架，再以 <strong>Adapt-Metro 系統</strong>把框架完整實作並擴充到全球尺度。<strong>論文全文已成文</strong>（APA 7、Markdown）——header 的「<strong>論文本文</strong>」可切換渲染顯示與 .md 原文；本簡報依論文章節順序摘要：</p>
     <div class="grid cols-3">
       <div class="card blue"><div class="label">PART I</div><h3>研究源流</h3><p>兩份計畫書的定位、共同架構、初步結果，以及「計畫書 → 系統」的逐項對應。</p></div>
       <div class="card purple"><div class="label">PART II · CH1</div><h3>緒論</h3><p>研究背景與動機、三個研究問題、研究目的、範圍與限制。</p></div>
@@ -855,6 +962,20 @@
     </div>
   </section>
 
+  <!-- 25b: LLM ENGINEERING FIVE LAYERS -->
+  <section class="slide" data-title="LLM 工程五層面">
+    <div class="eyebrow"><span class="tag"><b>19b</b>LLM 工程</span><span class="rule"></span><span class="eng">PROMPT / CONTEXT / HARNESS / LOOP / GRAPH</span></div>
+    <h1 class="title">讓模型安全進入確定性管線的五層工程</h1>
+    <p class="subtitle">LLM-in-the-loop 之所以可行，靠的是系統化的工程方法（論文 3.7.1 節）——五個層面各有留存物：提示契約落在 skill 規格、脈絡由確定性 export 重現、transcript 隨結果檔存檔，全程可稽核可重放。且架構<strong>模型無關</strong>（論文 3.7.2 節）：正確性下界由純演算法保證、模型演進只單調提升提案品質——<strong>研究主張不隨模型換代貶值</strong>。</p>
+    <div class="grid cols-3" style="margin-top:10px;">
+      <div class="card blue"><div class="label">PROMPT</div><h3>提示工程</h3><p>提示＝結構化契約：任務目標＋硬規則清單＋輸出 schema＋幾何脈絡；禁止事項與評分準則（H/V 優先、45° 次之）明文列出，使用者語句放獨立欄位、不覆寫系統約束。</p></div>
+      <div class="card purple"><div class="label">CONTEXT</div><h3>脈絡工程</h3><p>不丟原始 GeoJSON——export 精煉成逐線頂點鏈、方向統計、彎折與銳角位置（點名在哪些站）、欄列使用率；難例附交叉對與環內外分區。模型看得到什麼，決定它能推理什麼。</p></div>
+      <div class="card rose"><div class="label">HARNESS</div><h3>把關工程</h3><p>確定性驗證器是唯一權威：逐移動硬規則＋整批淨效果（淨 H/V 變差整批退回）＋指紋一致性；退回附原因回饋下一輪，模型不可靠性被隔離成「提案品質」問題。</p></div>
+      <div class="card amber"><div class="label">LOOP</div><h3>迭代工程</h3><p>提案→驗證→退回→再提案；一般對齊「小步多輪＋嚴格改善」、結構性調整（環形成方）「大步單批＋整組同動」跨越局部極小。終止條件與純演算法鏈相同。</p></div>
+      <div class="card green"><div class="label">GRAPH</div><h3>圖工程</h3><p>模型面對的是被工程化的圖：拓撲已收縮、座標已整數化、不變式已明文化——管線走得越深，留給模型的問題越乾淨；表徵工程比換更強的模型更具槓桿。</p></div>
+    </div>
+  </section>
+
   <!-- 26: DIVIDER V -->
   <section class="slide divider" data-title="實驗與評估">
     <div class="roman">V</div>
@@ -899,6 +1020,7 @@
       <tr><td><strong>用說明找圖</strong></td><td>能否依文字描述在地圖定位（「找到某車站」）——目標定位能力</td></tr>
       <tr><td><strong>用圖找圖</strong></td><td>能否把概括化地圖上的位置準確對應到 Google Maps 的真實位置——空間認知的保真度</td></tr>
     </table>
+    <p class="subtitle" style="margin-top:12px;">研究假設（論文 5.3 節）：<strong>H1</strong> 小螢幕上自適應圖的屬性辨識更快更準；<strong>H2</strong> 其空間認知保真度不低於官方路線圖；<strong>H3</strong> 需查看屬性資料時使用者更偏好自適應圖。</p>
   </section>
 
   <!-- 29: DIVIDER VI -->
@@ -915,7 +1037,8 @@
   <!-- 30: CHAPTER PLAN -->
   <section class="slide" data-title="論文章節規劃">
     <div class="eyebrow"><span class="tag"><b>22</b>章節規劃</span><span class="rule"></span><span class="eng">DISSERTATION OUTLINE</span></div>
-    <h1 class="title">章節規劃：素材都已就位</h1>
+    <h1 class="title">章節規劃：全文已成文，見「論文本文」</h1>
+    <p class="subtitle" style="margin:-4px 0 4px;">七章結構已依此規劃寫成完整文稿（<code class="mono">slides/thesis/paper.md</code>，APA 7）；第三章含 3.7.1「LLM 工程五層面」（prompt／context／harness／loop／graph）。</p>
     <table class="tbl dense">
       <tr><th>章</th><th>內容</th><th>素材來源</th></tr>
       <tr><td class="num">1</td><td><strong>緒論</strong>——背景動機、三個研究問題、目的、範圍與限制</td><td>兩份計畫書第 1 章（合併改寫）</td></tr>
@@ -946,12 +1069,12 @@
       <div class="card purple">
         <div class="label">貢獻 3 · LLM-in-the-loop 範式（RQ3）</div>
         <h3>提案歸模型、合法性歸規則</h3>
-        <p>LLM 當最佳化器／評審而非黑盒生成器：所有提案經確定性硬規則驗證（拓撲不變、變差退回）、結果存檔可稽核——為「生成式 AI 畫路網圖」這個文獻空缺提供第一個方法架構。</p>
+        <p>LLM 當最佳化器／評審而非黑盒生成器：所有提案經確定性硬規則驗證（拓撲不變、變差退回）、結果存檔可稽核——為「生成式 AI 畫路網圖」提供第一個方法架構，系統化為 <strong>prompt／context／harness／loop／graph 五層工程</strong>，且<strong>模型無關</strong>：主張不隨模型換代貶值。</p>
       </div>
       <div class="card green">
-        <div class="label">貢獻 4 · 開放可重現的資料管線</div>
-        <h3>fetch ⇄ audit ＋ skill 即規格</h3>
-        <p>全球 234 城地鐵資料的抓取／清理／驗證迴圈，人工裁決全部落地 overrides 可重放；36 份 skill 讓演算法與資料規則成為可稽核的實作契約。</p>
+        <div class="label">貢獻 4 · 全球示意圖佈局基準</div>
+        <h3>MetroBench-234（暫名）</h3>
+        <p>234 城統一 schema 資料集＋資料品質不變式與收斂報告＋八演算法同約束基準結果——使示意圖佈局首次能全量公平比較；由 fetch ⇄ audit 閉環與可重放 overrides 支撐，計畫掛 DOI 發布。</p>
       </div>
     </div>
     <p class="subtitle" style="margin-top:14px;">發表規劃（承國科會計畫書）：至少 <strong>2 篇 SCIE／SSCI 期刊論文</strong>＋參與至少 <strong>3 次國際學術研討會</strong>。</p>
@@ -963,9 +1086,9 @@
     <h1 class="title">論文寫的每一件事，系統裡都能親手操作</h1>
     <p class="subtitle">回到 Adapt-Metro，開啟 Metro Maps → Map Adjust → Straighten → RWD Maps 四個圖層群組——從真實路網到響應式示意圖的每一步、每一個單一移動，都能逐步重播。</p>
     <div class="cta">
-      <a class="btn primary" href="../../">回到系統</a>
+      <a class="btn primary" href="./paper/">閱讀論文本文（md 顯示⇄原文）</a>
+      <a class="btn ghost" href="../../">回到系統</a>
       <a class="btn ghost" href="../">系統介紹投影片</a>
-      <a class="btn ghost" href="#" onclick="history.back();return false;">‹ 返回上一頁</a>
     </div>
   </section>
 
@@ -1130,6 +1253,60 @@
       if (!menu.hasAttribute('hidden') && !menu.contains(e.target) && e.target !== btn) toggle(false);
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+  })();
+</script>
+
+<div class="gs-toast" id="gsToast">已複製連結</div>
+<script>
+  /* Slides 門面互動：檔案／查看下拉、投影播放＝全螢幕、共用＝複製連結、跳頁走既有鍵盤事件。 */
+  (function () {
+    var toast = document.getElementById('gsToast');
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(function(){ toast.classList.remove('show'); }, 1800);
+    }
+    function closeMenus(){
+      document.querySelectorAll('.gs-drop').forEach(function(d){ d.setAttribute('hidden',''); });
+      document.querySelectorAll('.gs-menu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+    function wireMenu(menuEl, dropEl){
+      menuEl.addEventListener('click', function(e){
+        if (e.target.closest('.gs-drop')) return;
+        var open = dropEl.hasAttribute('hidden');
+        closeMenus();
+        if (open){ dropEl.removeAttribute('hidden'); menuEl.classList.add('open'); }
+        e.stopPropagation();
+      });
+    }
+    wireMenu(document.getElementById('gsMenuFile'), document.getElementById('gsDropFile'));
+    wireMenu(document.getElementById('gsMenuView'), document.getElementById('gsDropView'));
+    document.addEventListener('mousedown', function(e){
+      if (!e.target.closest('.gs-menu')) closeMenus();
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenus(); });
+
+    var fsBtn = document.getElementById('fsBtn');
+    function present(){ closeMenus(); fsBtn.click(); }
+    document.getElementById('gsPresent').addEventListener('click', present);
+    document.getElementById('gsFilePresent').addEventListener('click', present);
+    document.getElementById('gsViewPresent').addEventListener('click', present);
+    function pressKey(key){
+      closeMenus();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: key, cancelable: true }));
+    }
+    document.getElementById('gsGoFirst').addEventListener('click', function(){ pressKey('Home'); });
+    document.getElementById('gsGoLast').addEventListener('click', function(){ pressKey('End'); });
+
+    function copyLink(){
+      closeMenus();
+      (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject())
+        .then(function(){ showToast('已複製連結'); })
+        .catch(function(){ showToast(location.href); });
+    }
+    document.getElementById('gsShare').addEventListener('click', copyLink);
+    document.getElementById('gsCopyLink').addEventListener('click', copyLink);
   })();
 </script>
 

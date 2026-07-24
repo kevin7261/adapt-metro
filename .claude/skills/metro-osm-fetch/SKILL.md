@@ -142,6 +142,12 @@ operator pin）、雪梨要含 Sydney Trains／CityRail 市郊 T 線（`route=tr
 坎培拉／紐卡索／黃金海岸／阿迪斯阿貝巴／阿布加／突尼斯／模里西斯是 `route=light_rail`，
 **本來就在基準查詢內**，只需 pin＋白名單，不必補抓。
 
+**全球 urbanrail.net 缺城（使用者 2026-07-24）**：歐／美／亞大量電車與輕軌城——
+`scripts/fetchUrbanrailGap.mjs`（`npm run metro:fetchurbanrail`）讀
+`data/metro/_urbanrail_gap_tasks.json`（Nominatim bbox），bbox 內抓
+`subway|light_rail|tram`（**不含 train**），自動寫 `_overrides`。未通車（urbanrail 斜體）
+不進任務表。詳見 [[metro-cities]]「全球 urbanrail.net 缺城補齊」。
+
 **gap 的 route_master（`scripts/fetchGapMasters.mjs`）**：分組第一順位是 route_master，但
 基準查詢只抓 subway|light_rail 的 master → 定向補抓的 train/tram 沒有 master 可用。此腳本以
 Overpass 的 `rel(br.r)` 反查母 relation、寫 `gap_masters_*.json`，build 端在載入

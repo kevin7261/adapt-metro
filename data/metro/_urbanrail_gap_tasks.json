@@ -1,0 +1,4678 @@
+[
+  {
+    "key": "buffalo",
+    "city": "Buffalo",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(42.7460,-79.0024,43.0464,-78.7151)",
+    "url": "https://www.urbanrail.net/am/buff/buffalo.htm",
+    "urbanrail_path": "am/buff/buffalo.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "calgary",
+    "city": "Calgary",
+    "country": "Canada",
+    "continent": "north-america",
+    "bbox": "(50.7625,-114.3958,51.2925,-113.7800)",
+    "url": "https://www.urbanrail.net/am/calg/calgary.htm",
+    "urbanrail_path": "am/calg/calgary.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "charlotte",
+    "city": "Charlotte",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(34.9305,-81.0917,35.4803,-80.5549)",
+    "url": "https://www.urbanrail.net/am/char/charlotte.htm",
+    "urbanrail_path": "am/char/charlotte.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cincinnati",
+    "city": "Cincinnati",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(38.9721,-84.7924,39.3010,-84.2896)",
+    "url": "https://www.urbanrail.net/am/cinn/cincinnati.htm",
+    "urbanrail_path": "am/cinn/cincinnati.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cuenca",
+    "city": "Cuenca",
+    "country": "Ecuador",
+    "continent": "south-america",
+    "bbox": "(-3.1374,-79.2442,-2.6574,-78.7642)",
+    "url": "https://www.urbanrail.net/am/cuenca/cuenca.htm",
+    "urbanrail_path": "am/cuenca/cuenca.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dallas",
+    "city": "Dallas",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(32.5332,-97.0805,33.1039,-96.3836)",
+    "url": "https://www.urbanrail.net/am/dall/dallas.htm",
+    "urbanrail_path": "am/dall/dallas.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "denver",
+    "city": "Denver",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(39.5343,-105.1899,39.9942,-104.5197)",
+    "url": "https://www.urbanrail.net/am/denv/denver.htm",
+    "urbanrail_path": "am/denv/denver.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "detroit",
+    "city": "Detroit",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(42.1752,-83.3680,42.5304,-82.8304)",
+    "url": "https://www.urbanrail.net/am/detr/detroit.htm",
+    "urbanrail_path": "am/detr/detroit.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "edmonton",
+    "city": "Edmonton",
+    "country": "Canada",
+    "continent": "north-america",
+    "bbox": "(53.2573,-113.7938,53.7963,-113.1915)",
+    "url": "https://www.urbanrail.net/am/edmo/edmonton.htm",
+    "urbanrail_path": "am/edmo/edmonton.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "elpaso",
+    "city": "El Paso",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(31.5423,-106.7158,32.0815,-106.1192)",
+    "url": "https://www.urbanrail.net/am/elpaso/el-paso.htm",
+    "urbanrail_path": "am/elpaso/el-paso.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "houston",
+    "city": "Houston",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(29.4571,-95.9897,30.1904,-94.9321)",
+    "url": "https://www.urbanrail.net/am/hous/houston.htm",
+    "urbanrail_path": "am/hous/houston.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "jacksonville",
+    "city": "Jacksonville",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(30.0237,-82.1294,30.6662,-81.2367)",
+    "url": "https://www.urbanrail.net/am/jack/jacksonville.htm",
+    "urbanrail_path": "am/jack/jacksonville.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kansascity",
+    "city": "Kansas City",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(38.7472,-94.8459,39.4367,-94.3055)",
+    "url": "https://www.urbanrail.net/am/kansas/kansas-city.htm",
+    "urbanrail_path": "am/kansas/kansas-city.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lasvegas",
+    "city": "Las Vegas",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(36.0496,-115.4866,36.4815,-114.9821)",
+    "url": "https://www.urbanrail.net/am/lveg/las-vegas.htm",
+    "urbanrail_path": "am/lveg/las-vegas.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "littlerock",
+    "city": "Little Rock",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(34.5457,-92.6016,34.9018,-92.0707)",
+    "url": "https://www.urbanrail.net/am/little-rock/little-rock.htm",
+    "urbanrail_path": "am/little-rock/little-rock.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "memphis",
+    "city": "Memphis",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(34.9142,-90.3884,35.3439,-89.5571)",
+    "url": "https://www.urbanrail.net/am/memphis/memphis.htm",
+    "urbanrail_path": "am/memphis/memphis.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mendoza",
+    "city": "Mendoza",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(29.9064,-97.7854,30.1064,-97.5854)",
+    "url": "https://www.urbanrail.net/am/mend/mendoza.htm",
+    "urbanrail_path": "am/mend/mendoza.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "milwaukee",
+    "city": "Milwaukee",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(42.8408,-88.1511,43.2749,-87.7827)",
+    "url": "https://www.urbanrail.net/am/milwaukee/milwaukee.htm",
+    "urbanrail_path": "am/milwaukee/milwaukee.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "minneapolisstpaul",
+    "city": "Minneapolis/St. Paul",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(44.7714,-93.9545,45.6714,-93.0545)",
+    "url": "https://www.urbanrail.net/am/minn/minneapolis.htm",
+    "urbanrail_path": "am/minn/minneapolis.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "morgantown",
+    "city": "Morgantown",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(39.4957,-80.0682,39.7548,-79.8190)",
+    "url": "https://www.urbanrail.net/am/morg/morgantown.htm",
+    "urbanrail_path": "am/morg/morgantown.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "neworleans",
+    "city": "New Orleans",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(29.7855,-90.2199,30.2795,-89.5452)",
+    "url": "https://www.urbanrail.net/am/new-orleans/new-orleans.htm",
+    "urbanrail_path": "am/new-orleans/new-orleans.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "norfolk",
+    "city": "Norfolk",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(36.7408,-76.4249,37.0497,-76.0967)",
+    "url": "https://www.urbanrail.net/am/norfolk/norfolk.htm",
+    "urbanrail_path": "am/norfolk/norfolk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "northernnewjerseynewark",
+    "city": "Northern New Jersey (Newark",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(40.6316,-74.2573,40.7939,-74.0882)",
+    "url": "https://www.urbanrail.net/am/nj/new-jersey.htm",
+    "urbanrail_path": "am/nj/new-jersey.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "oklahomacity",
+    "city": "Oklahoma City",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(35.2107,-97.9109,35.7549,-97.0447)",
+    "url": "https://www.urbanrail.net/am/oklahoma/oklahoma-city.htm",
+    "urbanrail_path": "am/oklahoma/oklahoma-city.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ottawa",
+    "city": "Ottawa",
+    "country": "Canada",
+    "continent": "north-america",
+    "bbox": "(44.8818,-76.4356,45.6177,-75.1666)",
+    "url": "https://www.urbanrail.net/am/ottawa/ottawa.htm",
+    "urbanrail_path": "am/ottawa/ottawa.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "phoenix",
+    "city": "Phoenix",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(33.2105,-112.4040,33.9984,-111.8455)",
+    "url": "https://www.urbanrail.net/am/phoenix/phoenix.htm",
+    "urbanrail_path": "am/phoenix/phoenix.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "pittsburgh",
+    "city": "Pittsburgh",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(40.2815,-80.1755,40.5812,-79.7857)",
+    "url": "https://www.urbanrail.net/am/pitt/pittsburgh.htm",
+    "urbanrail_path": "am/pitt/pittsburgh.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "portland",
+    "city": "Portland",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(45.3525,-122.9167,45.7329,-122.3920)",
+    "url": "https://www.urbanrail.net/am/ptld/portland.htm",
+    "urbanrail_path": "am/ptld/portland.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sacramento",
+    "city": "Sacramento",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(38.3577,-121.6401,38.7655,-121.2827)",
+    "url": "https://www.urbanrail.net/am/sacr/sacramento.htm",
+    "urbanrail_path": "am/sacr/sacramento.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "saltlakecity",
+    "city": "Salt Lake City",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(40.6199,-112.1814,40.9334,-111.6605)",
+    "url": "https://www.urbanrail.net/am/salt/salt-lake-city.htm",
+    "urbanrail_path": "am/salt/salt-lake-city.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sandiego",
+    "city": "San Diego",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(32.4548,-117.3898,33.1942,-116.8257)",
+    "url": "https://www.urbanrail.net/am/sdie/san-diego.htm",
+    "urbanrail_path": "am/sdie/san-diego.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sanfranciscobart",
+    "city": "San Francisco BART",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(37.5832,-122.5251,37.7440,-122.3642)",
+    "url": "https://www.urbanrail.net/am/snfr/san-francisco-bart.htm",
+    "urbanrail_path": "am/snfr/san-francisco-bart.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sanjose",
+    "city": "San Jose",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(37.0432,-122.1262,37.5491,-121.5058)",
+    "url": "https://www.urbanrail.net/am/sjos/san-jose.htm",
+    "urbanrail_path": "am/sjos/san-jose.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "santos",
+    "city": "Santos",
+    "country": "Brazil",
+    "continent": "south-america",
+    "bbox": "(-24.0732,-46.4831,-23.6554,-46.0970)",
+    "url": "https://www.urbanrail.net/am/santos/santos.htm",
+    "urbanrail_path": "am/santos/santos.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "seattle",
+    "city": "Seattle",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(47.4010,-122.5397,47.8142,-122.1444)",
+    "url": "https://www.urbanrail.net/am/seat/seattle.htm",
+    "urbanrail_path": "am/seat/seattle.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "stlouis",
+    "city": "St. Louis",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(38.4519,-90.4007,38.8543,-90.0842)",
+    "url": "https://www.urbanrail.net/am/slou/saint-louis.htm",
+    "urbanrail_path": "am/slou/saint-louis.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tacoma",
+    "city": "Tacoma",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(47.0868,-122.6421,47.3990,-122.2681)",
+    "url": "https://www.urbanrail.net/am/tacoma/tacoma.htm",
+    "urbanrail_path": "am/tacoma/tacoma.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tampa",
+    "city": "Tampa",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(27.7327,-82.7288,28.2514,-82.1739)",
+    "url": "https://www.urbanrail.net/am/tampa/tampa.htm",
+    "urbanrail_path": "am/tampa/tampa.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tucson",
+    "city": "Tucson",
+    "country": "United States",
+    "continent": "north-america",
+    "bbox": "(31.9104,-111.1382,32.4009,-110.6282)",
+    "url": "https://www.urbanrail.net/am/tucson/tucson.htm",
+    "urbanrail_path": "am/tucson/tucson.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "valparaiso",
+    "city": "Valparaíso",
+    "country": "Chile",
+    "continent": "south-america",
+    "bbox": "(-33.4958,-72.0697,-32.5958,-71.1697)",
+    "url": "https://www.urbanrail.net/am/valp/valparaiso.htm",
+    "urbanrail_path": "am/valp/valparaiso.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "waterloo",
+    "city": "Waterloo",
+    "country": "Canada",
+    "continent": "north-america",
+    "bbox": "(43.30,-80.70,43.60,-80.20)",
+    "url": "https://www.urbanrail.net/am/waterloo/waterloo-region.htm",
+    "urbanrail_path": "am/waterloo/waterloo-region.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ustkamenogorsk",
+    "city": "Ust'-Kamenogorsk",
+    "country": "Kazakhstan",
+    "continent": "asia",
+    "bbox": "(49.7948,82.3845,50.1211,82.8808)",
+    "url": "https://www.urbanrail.net/as/kz/oskemen/oskemen.htm",
+    "urbanrail_path": "as/kz/oskemen/oskemen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "chongjin",
+    "city": "Chongjin",
+    "country": "North Korea",
+    "continent": "asia",
+    "bbox": "(41.5468,129.2666,42.3749,130.4027)",
+    "url": "https://www.urbanrail.net/as/kr/chongjin/chongjin.htm",
+    "urbanrail_path": "as/kr/chongjin/chongjin.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dujiangyan",
+    "city": "Dujiangyan",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(30.6689,103.3486,31.4489,103.8642)",
+    "url": "https://www.urbanrail.net/as/cn/dujiangyan/dujiangyan.htm",
+    "urbanrail_path": "as/cn/dujiangyan/dujiangyan.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "enoshimashonan",
+    "city": "Enoshima (Shonan",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(35.2267,139.4027,35.3967,139.5727)",
+    "url": "https://www.urbanrail.net/as/jp/shonan/shonan.htm",
+    "urbanrail_path": "as/jp/shonan/shonan.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "fukui",
+    "city": "Fukui",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(35.2637,135.3693,36.5315,136.9124)",
+    "url": "https://www.urbanrail.net/as/jp/fukui/fukui.htm",
+    "urbanrail_path": "as/jp/fukui/fukui.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "guangan",
+    "city": "Guang'an",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(29.9383,105.8637,30.9231,107.3804)",
+    "url": "https://www.urbanrail.net/as/cn/guangan/guangan.htm",
+    "urbanrail_path": "as/cn/guangan/guangan.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gurugram",
+    "city": "Gurugram",
+    "country": "India",
+    "continent": "asia",
+    "bbox": "(28.1206,76.5710,28.6209,77.3219)",
+    "url": "https://www.urbanrail.net/as/in/delhi/gurugram-metro.htm",
+    "urbanrail_path": "as/in/delhi/gurugram-metro.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "guwahati",
+    "city": "Guwahati",
+    "country": "India",
+    "continent": "asia",
+    "bbox": "(25.9406,91.5139,26.4206,91.9939)",
+    "url": "https://www.urbanrail.net/as/in/guwahati/guwahati.htm",
+    "urbanrail_path": "as/in/guwahati/guwahati.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "haifa",
+    "city": "Haifa",
+    "country": "Israel",
+    "continent": "asia",
+    "bbox": "(32.6780,34.8686,32.9275,35.1597)",
+    "url": "https://www.urbanrail.net/as/il/hai/haifa.htm",
+    "urbanrail_path": "as/il/hai/haifa.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "hakodate",
+    "city": "Hakodate",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(41.5051,140.5694,42.2175,141.5362)",
+    "url": "https://www.urbanrail.net/as/jp/hakodate/hakodate.htm",
+    "urbanrail_path": "as/jp/hakodate/hakodate.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "huai",
+    "city": "Huai",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(32.3665,116.2209,32.5412,116.4752)",
+    "url": "https://www.urbanrail.net/as/cn/huaian/huaian.htm",
+    "urbanrail_path": "as/cn/huaian/huaian.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "huangshi",
+    "city": "Huangshi",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(29.4286,114.4462,30.4083,115.5852)",
+    "url": "https://www.urbanrail.net/as/cn/huangshi/huangshi.htm",
+    "urbanrail_path": "as/cn/huangshi/huangshi.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "jerusalem",
+    "city": "Jerusalem",
+    "country": "Israel",
+    "continent": "asia",
+    "bbox": "(31.6296,35.0052,31.9627,35.3450)",
+    "url": "https://www.urbanrail.net/as/il/jeru/jerusalem.htm",
+    "urbanrail_path": "as/il/jeru/jerusalem.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "jiaxing",
+    "city": "Jiaxing",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(30.1775,120.2108,31.1124,121.5863)",
+    "url": "https://www.urbanrail.net/as/cn/jiaxing/jiaxing.htm",
+    "urbanrail_path": "as/cn/jiaxing/jiaxing.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kagoshima",
+    "city": "Kagoshima",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(31.0716,130.0974,31.9716,130.9974)",
+    "url": "https://www.urbanrail.net/as/jp/kagoshima/kagoshima.htm",
+    "urbanrail_path": "as/jp/kagoshima/kagoshima.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kitakyushu",
+    "city": "Kitakyushu",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(33.6410,130.4009,34.2488,131.2219)",
+    "url": "https://www.urbanrail.net/as/jp/kitakyushu/kitakyushu.htm",
+    "urbanrail_path": "as/jp/kitakyushu/kitakyushu.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kozhikode",
+    "city": "Kozhikode",
+    "country": "India",
+    "continent": "asia",
+    "bbox": "(11.0051,75.5355,11.4851,76.0155)",
+    "url": "https://www.urbanrail.net/as/in/kozhikode/kozhikode.htm",
+    "urbanrail_path": "as/in/kozhikode/kozhikode.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kumamoto",
+    "city": "Kumamoto",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(32.1950,130.1841,33.0950,131.0841)",
+    "url": "https://www.urbanrail.net/as/jp/kumamoto/kumamoto.htm",
+    "urbanrail_path": "as/jp/kumamoto/kumamoto.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "matsuyama",
+    "city": "Matsuyama",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(33.6074,132.3664,34.2028,133.0068)",
+    "url": "https://www.urbanrail.net/as/jp/matsuyama/matsuyama.htm",
+    "urbanrail_path": "as/jp/matsuyama/matsuyama.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mengzi",
+    "city": "Mengzi",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(22.9383,103.1301,23.6551,103.8978)",
+    "url": "https://www.urbanrail.net/as/cn/mengzi/mengzi.htm",
+    "urbanrail_path": "as/cn/mengzi/mengzi.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nagasaki",
+    "city": "Nagasaki",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(32.6655,129.3374,33.5655,130.2374)",
+    "url": "https://www.urbanrail.net/as/jp/nagasaki/nagasaki.htm",
+    "urbanrail_path": "as/jp/nagasaki/nagasaki.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "naha",
+    "city": "Naha",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(26.0964,127.4803,26.3352,127.8187)",
+    "url": "https://www.urbanrail.net/as/jp/naha/naha.htm",
+    "urbanrail_path": "as/jp/naha/naha.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "okayama",
+    "city": "Okayama",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(34.1718,133.1868,35.4329,134.4932)",
+    "url": "https://www.urbanrail.net/as/jp/okayama/okayama.htm",
+    "urbanrail_path": "as/jp/okayama/okayama.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "pavlodar",
+    "city": "Pavlodar",
+    "country": "Kazakhstan",
+    "continent": "asia",
+    "bbox": "(51.3612,75.9785,52.2612,76.8785)",
+    "url": "https://www.urbanrail.net/as/kz/pavlodar/pavlodar.htm",
+    "urbanrail_path": "as/kz/pavlodar/pavlodar.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "qiubei",
+    "city": "Qiubei",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(23.6685,103.4934,24.5558,104.6515)",
+    "url": "https://www.urbanrail.net/as/cn/qiubei/qiubei.htm",
+    "urbanrail_path": "as/cn/qiubei/qiubei.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "samarkand",
+    "city": "Samarkand",
+    "country": "Uzbekistan",
+    "continent": "asia",
+    "bbox": "(39.5351,66.7338,39.8077,67.1483)",
+    "url": "https://www.urbanrail.net/as/uz/samarkand/samarkand.htm",
+    "urbanrail_path": "as/uz/samarkand/samarkand.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sanya",
+    "city": "Sanya",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(18.0638,108.8482,18.7102,109.8869)",
+    "url": "https://www.urbanrail.net/as/cn/sanya/sanya.htm",
+    "urbanrail_path": "as/cn/sanya/sanya.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "takaoka",
+    "city": "Takaoka",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(36.5764,136.7535,36.9587,137.2308)",
+    "url": "https://www.urbanrail.net/as/jp/takaoka/takaoka.htm",
+    "urbanrail_path": "as/jp/takaoka/takaoka.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "taoyuan",
+    "city": "Taoyuan",
+    "country": "Taiwan",
+    "continent": "asia",
+    "bbox": "(24.5064,120.9058,25.2027,121.5599)",
+    "url": "https://www.urbanrail.net/as/tw/taip/taoyuan.htm",
+    "urbanrail_path": "as/tw/taip/taoyuan.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "telaviv",
+    "city": "Tel Aviv",
+    "country": "Israel",
+    "continent": "asia",
+    "bbox": "(31.9493,34.6591,32.2270,34.9323)",
+    "url": "https://www.urbanrail.net/as/il/tlav/tel-aviv.htm",
+    "urbanrail_path": "as/il/tlav/tel-aviv.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "temirtau",
+    "city": "Temirtau",
+    "country": "Kazakhstan",
+    "continent": "asia",
+    "bbox": "(49.9174,72.7559,50.2709,73.3110)",
+    "url": "https://www.urbanrail.net/as/kz/temirtau/temirtau.htm",
+    "urbanrail_path": "as/kz/temirtau/temirtau.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tianshui",
+    "city": "Tianshui",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(34.2039,105.3504,35.1039,106.2504)",
+    "url": "https://www.urbanrail.net/as/cn/tianshui/tianshui.htm",
+    "urbanrail_path": "as/cn/tianshui/tianshui.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "toyama",
+    "city": "Toyama",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(36.1944,136.6884,37.3328,137.8434)",
+    "url": "https://www.urbanrail.net/as/jp/toyama/toyama.htm",
+    "urbanrail_path": "as/jp/toyama/toyama.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "toyohashi",
+    "city": "Toyohashi",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(34.2650,137.1653,34.9413,137.6146)",
+    "url": "https://www.urbanrail.net/as/jp/toyohashi/toyohashi.htm",
+    "urbanrail_path": "as/jp/toyohashi/toyohashi.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "trivandrum",
+    "city": "Trivandrum",
+    "country": "India",
+    "continent": "asia",
+    "bbox": "(8.2482,76.7076,8.7282,77.1876)",
+    "url": "https://www.urbanrail.net/as/in/trivandrum/trivandrum.htm",
+    "urbanrail_path": "as/in/trivandrum/trivandrum.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "uijeongbu",
+    "city": "Uijeongbu",
+    "country": "South Korea",
+    "continent": "asia",
+    "bbox": "(37.6059,126.9216,37.8604,127.2274)",
+    "url": "https://www.urbanrail.net/as/kr/uijeongbu/uijeongbu.htm",
+    "urbanrail_path": "as/kr/uijeongbu/uijeongbu.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "utsunomiya",
+    "city": "Utsunomiya",
+    "country": "Japan",
+    "continent": "asia",
+    "bbox": "(36.3840,139.6629,36.8101,140.0908)",
+    "url": "https://www.urbanrail.net/as/jp/utsunomiya/utsunomiya.htm",
+    "urbanrail_path": "as/jp/utsunomiya/utsunomiya.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "varanasi",
+    "city": "Varanasi",
+    "country": "India",
+    "continent": "asia",
+    "bbox": "(25.0956,82.7676,25.5756,83.2476)",
+    "url": "https://www.urbanrail.net/as/in/varanasi/varanasi.htm",
+    "urbanrail_path": "as/in/varanasi/varanasi.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "vijayawada",
+    "city": "Vijayawada",
+    "country": "India",
+    "continent": "asia",
+    "bbox": "(16.2715,80.3760,16.7515,80.8560)",
+    "url": "https://www.urbanrail.net/as/in/vijayawada/vijayawada.htm",
+    "urbanrail_path": "as/in/vijayawada/vijayawada.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zhuhai",
+    "city": "Zhuhai",
+    "country": "China",
+    "continent": "asia",
+    "bbox": "(21.3397,112.9950,22.5677,114.5824)",
+    "url": "https://www.urbanrail.net/as/cn/zhuhai/zhuhai.htm",
+    "urbanrail_path": "as/cn/zhuhai/zhuhai.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "botosani",
+    "city": "Botosani",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(47.3583,26.0184,48.3455,27.4713)",
+    "url": "https://www.urbanrail.net/eu/ro/botosani/botosani.htm",
+    "urbanrail_path": "eu/ro/botosani/botosani.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "aarhus",
+    "city": "Aarhus",
+    "country": "Denmark",
+    "continent": "europe",
+    "bbox": "(55.9096,9.9734,56.3896,10.4534)",
+    "url": "https://www.urbanrail.net/eu/dk/aarhus/aarhus.htm",
+    "urbanrail_path": "eu/dk/aarhus/aarhus.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "achinsk",
+    "city": "Achinsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(56.1226,90.2799,56.4136,90.6778)",
+    "url": "https://www.urbanrail.net/eu/ru/achinsk/achinsk.htm",
+    "urbanrail_path": "eu/ru/achinsk/achinsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "alicante",
+    "city": "Alicante",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(38.0805,-0.7367,38.6171,-0.2951)",
+    "url": "https://www.urbanrail.net/eu/es/alicante/alacant.htm",
+    "urbanrail_path": "eu/es/alicante/alacant.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "almada",
+    "city": "Almada",
+    "country": "Portugal",
+    "continent": "europe",
+    "bbox": "(38.4703,-9.3430,38.7684,-9.0485)",
+    "url": "https://www.urbanrail.net/eu/pt/lisboa/almada.htm",
+    "urbanrail_path": "eu/pt/lisboa/almada.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "angarsk",
+    "city": "Angarsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(52.3509,103.7180,52.7009,104.0843)",
+    "url": "https://www.urbanrail.net/eu/ru/angarsk/angarsk.htm",
+    "urbanrail_path": "eu/ru/angarsk/angarsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "angers",
+    "city": "Angers",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.3574,-0.6977,47.6063,-0.4283)",
+    "url": "https://www.urbanrail.net/eu/fr/angers/angers.htm",
+    "urbanrail_path": "eu/fr/angers/angers.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "antalya",
+    "city": "Antalya",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(36.6466,30.4630,37.1266,30.9430)",
+    "url": "https://www.urbanrail.net/as/tr/antalya/antalya.htm",
+    "urbanrail_path": "as/tr/antalya/antalya.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "antwerp",
+    "city": "Antwerp",
+    "country": "Belgium",
+    "continent": "europe",
+    "bbox": "(51.0633,4.1376,51.4576,4.5891)",
+    "url": "https://www.urbanrail.net/eu/be/ant/antwerpen.htm",
+    "urbanrail_path": "eu/be/ant/antwerpen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "arad",
+    "city": "Arad",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(45.9648,21.0714,46.3418,21.4947)",
+    "url": "https://www.urbanrail.net/eu/ro/arad/arad.htm",
+    "urbanrail_path": "eu/ro/arad/arad.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "aubagne",
+    "city": "Aubagne",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(43.1643,5.4332,43.4164,5.6939)",
+    "url": "https://www.urbanrail.net/eu/fr/aubagne/aubagne.htm",
+    "urbanrail_path": "eu/fr/aubagne/aubagne.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "augsburg",
+    "city": "Augsburg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(48.1781,10.6834,48.5387,11.0393)",
+    "url": "https://www.urbanrail.net/eu/de/a/augsburg.htm",
+    "urbanrail_path": "eu/de/a/augsburg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "avdiivka",
+    "city": "Avdiivka",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.0269,37.6053,48.2605,37.8879)",
+    "url": "https://www.urbanrail.net/eu/ua/avdeevka/avdeevka.htm",
+    "urbanrail_path": "eu/ua/avdeevka/avdeevka.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "avignon",
+    "city": "Avignon",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(43.8074,4.6596,44.0767,5.0071)",
+    "url": "https://www.urbanrail.net/eu/fr/avignon/avignon.htm",
+    "urbanrail_path": "eu/fr/avignon/avignon.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "barnaul",
+    "city": "Barnaul",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(53.1069,83.4529,53.5618,83.9880)",
+    "url": "https://www.urbanrail.net/eu/ru/barnaul/barnaul.htm",
+    "urbanrail_path": "eu/ru/barnaul/barnaul.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "basel",
+    "city": "Basel",
+    "country": "Switzerland",
+    "continent": "europe",
+    "bbox": "(47.4393,7.4747,47.6699,7.7141)",
+    "url": "https://www.urbanrail.net/eu/ch/bs/basel.htm",
+    "urbanrail_path": "eu/ch/bs/basel.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "belgrade",
+    "city": "Belgrade",
+    "country": "Serbia",
+    "continent": "europe",
+    "bbox": "(44.6080,20.1414,45.0227,20.7032)",
+    "url": "https://www.urbanrail.net/eu/rs/beograd/beograd.htm",
+    "urbanrail_path": "eu/rs/beograd/beograd.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "benelux",
+    "city": "Benelux",
+    "country": "Belgium",
+    "continent": "europe",
+    "bbox": "(50.8753,4.2345,51.0354,4.3946)",
+    "url": "https://www.urbanrail.net/eu/be/benelux.htm",
+    "urbanrail_path": "eu/be/benelux.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bergamo",
+    "city": "Bergamo",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(45.3422,9.3651,46.1712,10.3427)",
+    "url": "https://www.urbanrail.net/eu/it/berg/bergamo.htm",
+    "urbanrail_path": "eu/it/berg/bergamo.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bergen",
+    "city": "Bergen",
+    "country": "Norway",
+    "continent": "europe",
+    "bbox": "(60.0961,5.0646,60.6161,5.7668)",
+    "url": "https://www.urbanrail.net/eu/no/bergen/bergen.htm",
+    "urbanrail_path": "eu/no/bergen/bergen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bern",
+    "city": "Bern",
+    "country": "Switzerland",
+    "continent": "europe",
+    "bbox": "(46.8390,7.2143,47.0702,7.5756)",
+    "url": "https://www.urbanrail.net/eu/ch/be/bern.htm",
+    "urbanrail_path": "eu/ch/be/bern.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "besancon",
+    "city": "Besançon",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.1207,5.8610,47.4001,6.1635)",
+    "url": "https://www.urbanrail.net/eu/fr/besancon/besancon.htm",
+    "urbanrail_path": "eu/fr/besancon/besancon.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "birmingham",
+    "city": "Birmingham",
+    "country": "United Kingdom",
+    "continent": "europe",
+    "bbox": "(52.3011,-2.1136,52.6887,-1.6488)",
+    "url": "https://www.urbanrail.net/eu/uk/bir/birmingham.htm",
+    "urbanrail_path": "eu/uk/bir/birmingham.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "biysk",
+    "city": "Biysk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(52.3485,84.7606,52.6726,85.4658)",
+    "url": "https://www.urbanrail.net/eu/ru/biysk/biysk.htm",
+    "urbanrail_path": "eu/ru/biysk/biysk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "blackpool",
+    "city": "Blackpool",
+    "country": "United Kingdom",
+    "continent": "europe",
+    "bbox": "(53.6979,-3.1710,53.9379,-2.9310)",
+    "url": "https://www.urbanrail.net/eu/uk/black/blackpool.htm",
+    "urbanrail_path": "eu/uk/black/blackpool.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bonn",
+    "city": "Bonn",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.5527,6.9425,50.8544,7.2907)",
+    "url": "https://www.urbanrail.net/eu/de/bn/bonn.htm",
+    "urbanrail_path": "eu/de/bn/bonn.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bordeaux",
+    "city": "Bordeaux",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(44.7308,-0.7187,44.9962,-0.4537)",
+    "url": "https://www.urbanrail.net/eu/fr/bordeaux/bordeaux-tram.htm",
+    "urbanrail_path": "eu/fr/bordeaux/bordeaux-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "braila",
+    "city": "Braila",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(45.1510,27.8285,45.3935,28.1029)",
+    "url": "https://www.urbanrail.net/eu/ro/braila/braila.htm",
+    "urbanrail_path": "eu/ro/braila/braila.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "brandenburghavel",
+    "city": "Brandenburg (Havel",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.3614,12.4467,52.5244,12.6105)",
+    "url": "https://www.urbanrail.net/eu/de/brb/brandenburg-havel.htm",
+    "urbanrail_path": "eu/de/brb/brandenburg-havel.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bratislava",
+    "city": "Bratislava",
+    "country": "Slovakia",
+    "continent": "europe",
+    "bbox": "(47.9267,16.8660,48.3451,17.3645)",
+    "url": "https://www.urbanrail.net/eu/sk/bratislava/bratislava.htm",
+    "urbanrail_path": "eu/sk/bratislava/bratislava.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "braunschweig",
+    "city": "Braunschweig",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.1068,10.3324,52.4376,10.7232)",
+    "url": "https://www.urbanrail.net/eu/de/bs/braunschweig.htm",
+    "urbanrail_path": "eu/de/bs/braunschweig.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bremen",
+    "city": "Bremen",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.9312,8.4016,53.6784,9.0708)",
+    "url": "https://www.urbanrail.net/eu/de/hb/bremen.htm",
+    "urbanrail_path": "eu/de/hb/bremen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "brest",
+    "city": "Brest",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(48.2773,-4.6489,48.5396,-4.3478)",
+    "url": "https://www.urbanrail.net/eu/fr/brest/brest.htm",
+    "urbanrail_path": "eu/fr/brest/brest.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "brno",
+    "city": "Brno",
+    "country": "Czechia",
+    "continent": "europe",
+    "bbox": "(49.0299,16.3480,49.3744,16.8078)",
+    "url": "https://www.urbanrail.net/eu/cz/brno/brno.htm",
+    "urbanrail_path": "eu/cz/brno/brno.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "bydgoszcz",
+    "city": "Bydgoszcz",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(52.9701,17.7942,53.2893,18.2826)",
+    "url": "https://www.urbanrail.net/eu/pl/bydg/bydgoszcz.htm",
+    "urbanrail_path": "eu/pl/bydg/bydgoszcz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "caen",
+    "city": "Caen",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(49.0730,-0.4938,49.2963,-0.2507)",
+    "url": "https://www.urbanrail.net/eu/fr/caen/caen-tram.htm",
+    "urbanrail_path": "eu/fr/caen/caen-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cagliari",
+    "city": "Cagliari",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(39.0780,8.9263,39.3628,9.2618)",
+    "url": "https://www.urbanrail.net/eu/it/cagl/cagliari.htm",
+    "urbanrail_path": "eu/it/cagl/cagliari.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "charleroi",
+    "city": "Charleroi",
+    "country": "Belgium",
+    "continent": "europe",
+    "bbox": "(50.2727,4.2681,50.5724,4.5876)",
+    "url": "https://www.urbanrail.net/eu/be/char/charleroi.htm",
+    "urbanrail_path": "eu/be/char/charleroi.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "chelyabinsk",
+    "city": "Chelyabinsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.9110,61.0636,55.4010,61.6721)",
+    "url": "https://www.urbanrail.net/eu/ru/chelya/chelyabinsk-tram.htm",
+    "urbanrail_path": "eu/ru/chelya/chelyabinsk-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "chemnitz",
+    "city": "Chemnitz",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.6614,12.6475,50.9839,13.1340)",
+    "url": "https://www.urbanrail.net/eu/de/c/chemnitz.htm",
+    "urbanrail_path": "eu/de/c/chemnitz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "clermontferrand",
+    "city": "Clermont-Ferrand",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(45.6757,2.9733,45.8984,3.2522)",
+    "url": "https://www.urbanrail.net/eu/fr/clermont-ferrand/clermont-ferrand-tram.htm",
+    "urbanrail_path": "eu/fr/clermont-ferrand/clermont-ferrand-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "clujnapoca",
+    "city": "Cluj-Napoca",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(46.6100,23.4192,46.9418,23.7983)",
+    "url": "https://www.urbanrail.net/eu/ro/cluj/cluj-napoca.htm",
+    "urbanrail_path": "eu/ro/cluj/cluj-napoca.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cologne",
+    "city": "Cologne",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.7504,6.6925,51.1650,7.2420)",
+    "url": "https://www.urbanrail.net/eu/de/k/koeln.htm",
+    "urbanrail_path": "eu/de/k/koeln.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cottbus",
+    "city": "Cottbus",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.6125,14.1933,51.9442,14.5813)",
+    "url": "https://www.urbanrail.net/eu/de/cb/cottbus.htm",
+    "urbanrail_path": "eu/de/cb/cottbus.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cracow",
+    "city": "Cracow",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(49.8877,19.7122,50.2061,20.2973)",
+    "url": "https://www.urbanrail.net/eu/pl/kra/krakow.htm",
+    "urbanrail_path": "eu/pl/kra/krakow.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "craiova",
+    "city": "Craiova",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(44.1881,23.6279,44.4586,23.9858)",
+    "url": "https://www.urbanrail.net/eu/ro/craiova/craiova.htm",
+    "urbanrail_path": "eu/ro/craiova/craiova.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "czestochowa",
+    "city": "Czestochowa",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(50.6547,18.9313,50.9645,19.3132)",
+    "url": "https://www.urbanrail.net/eu/pl/czestochowa/czestochowa.htm",
+    "urbanrail_path": "eu/pl/czestochowa/czestochowa.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "cadiz",
+    "city": "Cádiz",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(36.3640,-6.3976,36.6255,-6.1451)",
+    "url": "https://www.urbanrail.net/eu/es/cadiz/cadiz.htm",
+    "urbanrail_path": "eu/es/cadiz/cadiz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "darmstadt",
+    "city": "Darmstadt",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.7157,8.4782,50.0338,8.8299)",
+    "url": "https://www.urbanrail.net/eu/de/da/darmstadt.htm",
+    "urbanrail_path": "eu/de/da/darmstadt.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "daugavpils",
+    "city": "Daugavpils",
+    "country": "Latvia",
+    "continent": "europe",
+    "bbox": "(55.7548,26.3580,56.0376,26.7123)",
+    "url": "https://www.urbanrail.net/eu/lv/dauga/daugavpils.htm",
+    "urbanrail_path": "eu/lv/dauga/daugavpils.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "debrecen",
+    "city": "Debrecen",
+    "country": "Hungary",
+    "continent": "europe",
+    "bbox": "(47.3450,21.3565,47.7170,21.9633)",
+    "url": "https://www.urbanrail.net/eu/hu/debrecen/debrecen.htm",
+    "urbanrail_path": "eu/hu/debrecen/debrecen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dessau",
+    "city": "Dessau",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.7110,12.1231,51.9510,12.3631)",
+    "url": "https://www.urbanrail.net/eu/de/de/dessau.htm",
+    "urbanrail_path": "eu/de/de/dessau.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dijon",
+    "city": "Dijon",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.2062,4.8824,47.4575,5.1821)",
+    "url": "https://www.urbanrail.net/eu/fr/dijon/dijon.htm",
+    "urbanrail_path": "eu/fr/dijon/dijon.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "donets",
+    "city": "Donets",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.5735,37.8125,49.4735,38.7125)",
+    "url": "https://www.urbanrail.net/eu/ua/don/donetsk-tram.htm",
+    "urbanrail_path": "eu/ua/don/donetsk-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "donostia",
+    "city": "Donostia",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(43.1378,-2.1668,43.4182,-1.8079)",
+    "url": "https://www.urbanrail.net/eu/es/doss/donostia.htm",
+    "urbanrail_path": "eu/es/doss/donostia.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dortmund",
+    "city": "Dortmund",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.3357,7.2224,51.6800,7.7182)",
+    "url": "https://www.urbanrail.net/eu/de/do/dortmund.htm",
+    "urbanrail_path": "eu/de/do/dortmund.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dresden",
+    "city": "Dresden",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.8949,13.4993,51.2577,14.0461)",
+    "url": "https://www.urbanrail.net/eu/de/dd/dresden.htm",
+    "urbanrail_path": "eu/de/dd/dresden.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "druzhkivka",
+    "city": "Druzhkivka",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.5074,37.3855,48.7448,37.6809)",
+    "url": "https://www.urbanrail.net/eu/ua/druzhkivka/druzhkivka.htm",
+    "urbanrail_path": "eu/ua/druzhkivka/druzhkivka.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dusseldorf",
+    "city": "Düsseldorf",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.15,6.65,51.35,6.95)",
+    "url": "https://www.urbanrail.net/eu/de/d/tram/duesseldorf-tram.htm",
+    "urbanrail_path": "eu/de/d/tram/duesseldorf-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dublin",
+    "city": "Dublin",
+    "country": "Ireland",
+    "continent": "europe",
+    "bbox": "(53.2187,-6.4670,53.4905,-6.0349)",
+    "url": "https://www.urbanrail.net/eu/ie/dublin/dublin.htm",
+    "urbanrail_path": "eu/ie/dublin/dublin.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "duisburg",
+    "city": "Duisburg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.2534,6.5456,51.6401,6.9103)",
+    "url": "https://www.urbanrail.net/eu/de/du/duisburg.htm",
+    "urbanrail_path": "eu/de/du/duisburg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "dzerzhinsk",
+    "city": "Dzerzhinsk*",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(56.1084,43.1707,56.4561,43.8523)",
+    "url": "https://www.urbanrail.net/eu/ru/dzerzhinsk/dzerzhinsk.htm",
+    "urbanrail_path": "eu/ru/dzerzhinsk/dzerzhinsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "edinburgh",
+    "city": "Edinburgh",
+    "country": "United Kingdom",
+    "continent": "europe",
+    "bbox": "(55.7388,-3.5295,56.0841,-2.9950)",
+    "url": "https://www.urbanrail.net/eu/uk/edin/edinburgh.htm",
+    "urbanrail_path": "eu/uk/edin/edinburgh.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "elblag",
+    "city": "Elblag",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(54.0544,19.2790,54.3433,19.5897)",
+    "url": "https://www.urbanrail.net/eu/pl/elblg/elblag.htm",
+    "urbanrail_path": "eu/pl/elblg/elblag.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "erfurt",
+    "city": "Erfurt",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.8105,10.7747,51.1599,11.2551)",
+    "url": "https://www.urbanrail.net/eu/de/ef/erfurt.htm",
+    "urbanrail_path": "eu/de/ef/erfurt.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "eskisehir",
+    "city": "Eskisehir",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(39.5344,30.2791,40.0144,30.7591)",
+    "url": "https://www.urbanrail.net/as/tr/eskisehir/eskisehir.htm",
+    "urbanrail_path": "as/tr/eskisehir/eskisehir.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "firenze",
+    "city": "Firenze",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(43.6459,11.0698,43.9155,11.4189)",
+    "url": "https://www.urbanrail.net/eu/it/fir/firenze.htm",
+    "urbanrail_path": "eu/it/fir/firenze.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "freiburg",
+    "city": "Freiburg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(47.8236,7.5820,48.1511,8.0108)",
+    "url": "https://www.urbanrail.net/eu/de/fr/freiburg.htm",
+    "urbanrail_path": "eu/de/fr/freiburg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "galati",
+    "city": "Galati",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(45.3105,27.8634,45.6904,28.2887)",
+    "url": "https://www.urbanrail.net/eu/ro/galati/galati.htm",
+    "urbanrail_path": "eu/ro/galati/galati.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gaziantep",
+    "city": "Gaziantep",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(36.8228,37.1393,37.3028,37.6193)",
+    "url": "https://www.urbanrail.net/as/tr/gaziantep/gaziantep.htm",
+    "urbanrail_path": "as/tr/gaziantep/gaziantep.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gdansk",
+    "city": "Gdansk",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(54.1949,18.3495,54.6627,19.1503)",
+    "url": "https://www.urbanrail.net/eu/pl/gdan/gdansk-tram.htm",
+    "urbanrail_path": "eu/pl/gdan/gdansk-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "geneva",
+    "city": "Geneva",
+    "country": "Switzerland",
+    "continent": "europe",
+    "bbox": "(46.0978,6.0302,46.3119,6.2559)",
+    "url": "https://www.urbanrail.net/eu/ch/ge/geneve.htm",
+    "urbanrail_path": "eu/ch/ge/geneve.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gera",
+    "city": "Gera",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.7186,11.9182,51.0566,12.2495)",
+    "url": "https://www.urbanrail.net/eu/de/g/gera.htm",
+    "urbanrail_path": "eu/de/g/gera.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ghent",
+    "city": "Ghent",
+    "country": "Belgium",
+    "continent": "europe",
+    "bbox": "(50.8995,3.4998,51.2689,3.9293)",
+    "url": "https://www.urbanrail.net/eu/be/gent/gent.htm",
+    "urbanrail_path": "eu/be/gent/gent.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gmunden",
+    "city": "Gmunden",
+    "country": "Austria",
+    "continent": "europe",
+    "bbox": "(47.7386,13.6948,48.0202,13.9803)",
+    "url": "https://www.urbanrail.net/eu/at/gmunden/gmunden.htm",
+    "urbanrail_path": "eu/at/gmunden/gmunden.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gorzow",
+    "city": "Gorzow",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(52.6042,15.0434,52.8569,15.3909)",
+    "url": "https://www.urbanrail.net/eu/pl/gorzow/gorzow.htm",
+    "urbanrail_path": "eu/pl/gorzow/gorzow.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gotha",
+    "city": "Gotha",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.8122,10.5423,51.0713,10.8618)",
+    "url": "https://www.urbanrail.net/eu/de/gth/gotha.htm",
+    "urbanrail_path": "eu/de/gth/gotha.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gothenburg",
+    "city": "Gothenburg",
+    "country": "Sweden",
+    "continent": "europe",
+    "bbox": "(57.4672,11.7270,57.9472,12.2070)",
+    "url": "https://www.urbanrail.net/eu/se/goteborg/goteborg.htm",
+    "urbanrail_path": "eu/se/goteborg/goteborg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "granada",
+    "city": "Granada",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(37.0567,-3.7804,37.3050,-3.4163)",
+    "url": "https://www.urbanrail.net/eu/es/granada/granada.htm",
+    "urbanrail_path": "eu/es/granada/granada.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "graz",
+    "city": "Graz",
+    "country": "Austria",
+    "continent": "europe",
+    "bbox": "(46.9319,15.2697,47.2145,15.6142)",
+    "url": "https://www.urbanrail.net/eu/at/graz/graz.htm",
+    "urbanrail_path": "eu/at/graz/graz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "grenoble",
+    "city": "Grenoble",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(45.0741,5.5976,45.2941,5.8331)",
+    "url": "https://www.urbanrail.net/eu/fr/grenoble/grenoble-tram.htm",
+    "urbanrail_path": "eu/fr/grenoble/grenoble-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "grudziadz",
+    "city": "Grudziadz",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(53.3408,18.6061,53.6041,18.9509)",
+    "url": "https://www.urbanrail.net/eu/pl/grudz/grudziadz.htm",
+    "urbanrail_path": "eu/pl/grudz/grudziadz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "gorlitz",
+    "city": "Görlitz",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.9726,14.8318,51.3076,15.0979)",
+    "url": "https://www.urbanrail.net/eu/de/gr/goerlitz.htm",
+    "urbanrail_path": "eu/de/gr/goerlitz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "halberstadt",
+    "city": "Halberstadt",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.7510,10.8014,52.0372,11.2548)",
+    "url": "https://www.urbanrail.net/eu/de/hbs/halberstadt.htm",
+    "urbanrail_path": "eu/de/hbs/halberstadt.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "hallesaale",
+    "city": "Halle (Saale",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.3221,11.7753,51.6235,12.1692)",
+    "url": "https://www.urbanrail.net/eu/de/hal/halle-saale.htm",
+    "urbanrail_path": "eu/de/hal/halle-saale.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "hannover",
+    "city": "Hannover",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.2249,9.5244,52.5343,9.9986)",
+    "url": "https://www.urbanrail.net/eu/de/h/hannover.htm",
+    "urbanrail_path": "eu/de/h/hannover.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "heidelberg",
+    "city": "Heidelberg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.2720,8.4932,49.5397,8.8740)",
+    "url": "https://www.urbanrail.net/eu/de/hd/heidelberg.htm",
+    "urbanrail_path": "eu/de/hd/heidelberg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "heilbronn",
+    "city": "Heilbronn",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.0129,8.9644,49.2899,9.3821)",
+    "url": "https://www.urbanrail.net/eu/de/hn/heilbronn.htm",
+    "urbanrail_path": "eu/de/hn/heilbronn.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "horlivka",
+    "city": "Horlivka",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.1350,37.8247,48.4785,38.3339)",
+    "url": "https://www.urbanrail.net/eu/ua/horlivka/horlivka.htm",
+    "urbanrail_path": "eu/ua/horlivka/horlivka.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "iasi",
+    "city": "Iasi",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(47.0048,27.3966,47.3079,27.7721)",
+    "url": "https://www.urbanrail.net/eu/ro/iasi/iasi.htm",
+    "urbanrail_path": "eu/ro/iasi/iasi.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "innsbruck",
+    "city": "Innsbruck",
+    "country": "Austria",
+    "continent": "europe",
+    "bbox": "(47.1308,11.2216,47.4401,11.5360)",
+    "url": "https://www.urbanrail.net/eu/at/innsbruck/innsbruck.htm",
+    "urbanrail_path": "eu/at/innsbruck/innsbruck.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "irkutsk",
+    "city": "Irkutsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(52.1292,103.9789,52.5017,104.5285)",
+    "url": "https://www.urbanrail.net/eu/ru/irkutsk/irkutsk.htm",
+    "urbanrail_path": "eu/ru/irkutsk/irkutsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "izhevsk",
+    "city": "Izhevsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(56.6364,52.9266,57.0848,53.4714)",
+    "url": "https://www.urbanrail.net/eu/ru/izhevsk/izhevsk.htm",
+    "urbanrail_path": "eu/ru/izhevsk/izhevsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "jena",
+    "city": "Jena",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.7761,11.4190,51.0689,11.7530)",
+    "url": "https://www.urbanrail.net/eu/de/j/jena.htm",
+    "urbanrail_path": "eu/de/j/jena.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kamianske",
+    "city": "Kamianske",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.45,34.50,48.60,34.75)",
+    "url": "https://www.urbanrail.net/eu/ua/kamianske/kamianske.htm",
+    "urbanrail_path": "eu/ua/kamianske/kamianske.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "karlsruhe",
+    "city": "Karlsruhe",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(48.8604,8.1974,49.1713,8.6217)",
+    "url": "https://www.urbanrail.net/eu/de/ka/karlsruhe.htm",
+    "urbanrail_path": "eu/de/ka/karlsruhe.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kassel",
+    "city": "Kassel",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.1804,9.2710,51.4494,9.6501)",
+    "url": "https://www.urbanrail.net/eu/de/ks/kassel.htm",
+    "urbanrail_path": "eu/de/ks/kassel.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "katowice",
+    "city": "Katowice",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(50.0501,18.8115,50.3777,19.2044)",
+    "url": "https://www.urbanrail.net/eu/pl/katow/katowice.htm",
+    "urbanrail_path": "eu/pl/katow/katowice.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kayseri",
+    "city": "Kayseri",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(38.4819,35.2473,38.9619,35.7273)",
+    "url": "https://www.urbanrail.net/as/tr/kayseri/kayseri.htm",
+    "urbanrail_path": "as/tr/kayseri/kayseri.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kemerovo",
+    "city": "Kemerovo",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(55.1766,85.8295,55.6249,86.3720)",
+    "url": "https://www.urbanrail.net/eu/ru/kemerovo/kemerovo.htm",
+    "urbanrail_path": "eu/ru/kemerovo/kemerovo.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "khabarovsk",
+    "city": "Khabarovsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(51.1813,135.6715,52.0813,136.5715)",
+    "url": "https://www.urbanrail.net/eu/ru/khabarovsk/khabarovosk.htm",
+    "urbanrail_path": "eu/ru/khabarovsk/khabarovosk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kolomna",
+    "city": "Kolomna",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.9534,38.6115,55.2121,38.9849)",
+    "url": "https://www.urbanrail.net/eu/ru/kolomna/kolomna.htm",
+    "urbanrail_path": "eu/ru/kolomna/kolomna.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "komsomolsknaamure",
+    "city": "Komsomolsk-na-Amure*",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(50.3400,136.7766,50.7806,137.2963)",
+    "url": "https://www.urbanrail.net/eu/ru/komsomolsk/komsomolsk.htm",
+    "urbanrail_path": "eu/ru/komsomolsk/komsomolsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "konotop",
+    "city": "Konotop",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(51.1174,33.0554,51.3543,33.3566)",
+    "url": "https://www.urbanrail.net/eu/ua/konotop/konotop.htm",
+    "urbanrail_path": "eu/ua/konotop/konotop.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "konya",
+    "city": "Konya",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(37.6327,32.2524,38.1127,32.7324)",
+    "url": "https://www.urbanrail.net/as/tr/konya/konya.htm",
+    "urbanrail_path": "as/tr/konya/konya.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kosice",
+    "city": "Kosice",
+    "country": "Slovakia",
+    "continent": "europe",
+    "bbox": "(48.4900,21.0400,48.9045,21.4382)",
+    "url": "https://www.urbanrail.net/eu/sk/kosice/kosice.htm",
+    "urbanrail_path": "eu/sk/kosice/kosice.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "krasnodar",
+    "city": "Krasnodar",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(44.8880,38.6911,45.2340,39.2324)",
+    "url": "https://www.urbanrail.net/eu/ru/krasnodar/krasnodar.htm",
+    "urbanrail_path": "eu/ru/krasnodar/krasnodar.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "krasnoturyinsk",
+    "city": "Krasnoturyinsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(59.6346,60.0287,59.8870,60.3717)",
+    "url": "https://www.urbanrail.net/eu/ru/krasnoturyinsk/krasnoturyinsk.htm",
+    "urbanrail_path": "eu/ru/krasnoturyinsk/krasnoturyinsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "krasnoyarsk",
+    "city": "Krasnoyarsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(55.8318,92.5475,56.2138,93.2484)",
+    "url": "https://www.urbanrail.net/eu/ru/krasno/krasnoyarsk.htm",
+    "urbanrail_path": "eu/ru/krasno/krasnoyarsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "krefeld",
+    "city": "Krefeld",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.2058,6.3979,51.4855,6.7862)",
+    "url": "https://www.urbanrail.net/eu/de/kr/krefeld.htm",
+    "urbanrail_path": "eu/de/kr/krefeld.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kryvyrihkrivoyrog",
+    "city": "Kryvy Rih - Krivoy Rog",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(47.8264,33.2665,47.9865,33.4266)",
+    "url": "https://www.urbanrail.net/eu/ua/kry/kryvy-rih.htm",
+    "urbanrail_path": "eu/ua/kry/kryvy-rih.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kursk",
+    "city": "Kursk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(51.5406,35.9803,51.9136,36.3839)",
+    "url": "https://www.urbanrail.net/eu/ru/kursk/kursk.htm",
+    "urbanrail_path": "eu/ru/kursk/kursk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lehavre",
+    "city": "Le Havre",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(49.3717,-0.0132,49.6201,0.2756)",
+    "url": "https://www.urbanrail.net/eu/fr/le-havre/le-havre.htm",
+    "urbanrail_path": "eu/fr/le-havre/le-havre.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lemans",
+    "city": "Le Mans",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.8480,0.0563,48.1159,0.3351)",
+    "url": "https://www.urbanrail.net/eu/fr/le-mans/le-mans-tram.htm",
+    "urbanrail_path": "eu/fr/le-mans/le-mans-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "leipzig",
+    "city": "Leipzig",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.1582,12.1567,51.5281,12.6225)",
+    "url": "https://www.urbanrail.net/eu/de/l/leipzig.htm",
+    "urbanrail_path": "eu/de/l/leipzig.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "liberec",
+    "city": "Liberec",
+    "country": "Czechia",
+    "continent": "europe",
+    "bbox": "(50.6280,14.8730,50.9043,15.2269)",
+    "url": "https://www.urbanrail.net/eu/cz/liberec/liberec.htm",
+    "urbanrail_path": "eu/cz/liberec/liberec.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "liepaja",
+    "city": "Liepaja",
+    "country": "Latvia",
+    "continent": "europe",
+    "bbox": "(56.3853,20.8821,56.6891,21.1857)",
+    "url": "https://www.urbanrail.net/eu/lv/liepa/liepaja.htm",
+    "urbanrail_path": "eu/lv/liepa/liepaja.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "linz",
+    "city": "Linz",
+    "country": "Austria",
+    "continent": "europe",
+    "bbox": "(48.1314,14.1657,48.4587,14.4892)",
+    "url": "https://www.urbanrail.net/eu/at/linz/linz.htm",
+    "urbanrail_path": "eu/at/linz/linz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lipetsk",
+    "city": "Lipetsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(52.2435,38.6623,53.1435,39.5623)",
+    "url": "https://www.urbanrail.net/eu/ru/lipetsk/lipetsk.htm",
+    "urbanrail_path": "eu/ru/lipetsk/lipetsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "liege",
+    "city": "Liège",
+    "country": "Belgium",
+    "continent": "europe",
+    "bbox": "(50.4810,5.4434,50.7682,5.7553)",
+    "url": "https://www.urbanrail.net/eu/be/liege/liege.htm",
+    "urbanrail_path": "eu/be/liege/liege.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lodz",
+    "city": "Lodz",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(51.6061,19.2409,51.9399,19.7199)",
+    "url": "https://www.urbanrail.net/eu/pl/lodz/lodz.htm",
+    "urbanrail_path": "eu/pl/lodz/lodz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ludwigshafen",
+    "city": "Ludwigshafen",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.3467,8.2182,49.6281,8.5569)",
+    "url": "https://www.urbanrail.net/eu/de/lu/ludwigshafen.htm",
+    "urbanrail_path": "eu/de/lu/ludwigshafen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "luhansk",
+    "city": "Luhansk",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.8225,38.4650,49.7225,39.3650)",
+    "url": "https://www.urbanrail.net/eu/ua/luhansk/luhansk.htm",
+    "urbanrail_path": "eu/ua/luhansk/luhansk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lund",
+    "city": "Lund",
+    "country": "Sweden",
+    "continent": "europe",
+    "bbox": "(55.5981,13.0602,55.8213,13.3434)",
+    "url": "https://www.urbanrail.net/eu/se/lund/lund.htm",
+    "urbanrail_path": "eu/se/lund/lund.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "luxembourg",
+    "city": "Luxembourg",
+    "country": "Luxembourg",
+    "continent": "europe",
+    "bbox": "(49.4810,5.9892,49.7349,6.2836)",
+    "url": "https://www.urbanrail.net/eu/lu/luxembourg.htm",
+    "urbanrail_path": "eu/lu/luxembourg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "lviv",
+    "city": "Lviv",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(49.6882,23.8181,49.9837,24.2134)",
+    "url": "https://www.urbanrail.net/eu/ua/lviv/lviv.htm",
+    "urbanrail_path": "eu/ua/lviv/lviv.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "magdeburg",
+    "city": "Magdeburg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.9437,11.4372,52.3084,11.8440)",
+    "url": "https://www.urbanrail.net/eu/de/md/magdeburg.htm",
+    "urbanrail_path": "eu/de/md/magdeburg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "magnitogorsk",
+    "city": "Magnitogorsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(53.2200,58.8172,53.6313,59.3156)",
+    "url": "https://www.urbanrail.net/eu/ru/magnitogrosk/magnitogorsk.htm",
+    "urbanrail_path": "eu/ru/magnitogrosk/magnitogorsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mainz",
+    "city": "Mainz",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.8155,8.0631,50.1153,8.4231)",
+    "url": "https://www.urbanrail.net/eu/de/mz/mainz.htm",
+    "urbanrail_path": "eu/de/mz/mainz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "manchester",
+    "city": "Manchester",
+    "country": "United Kingdom",
+    "continent": "europe",
+    "bbox": "(53.2601,-2.3999,53.6246,-2.0668)",
+    "url": "https://www.urbanrail.net/eu/uk/man/manchester.htm",
+    "urbanrail_path": "eu/uk/man/manchester.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mannheim",
+    "city": "Mannheim",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.3303,8.3342,49.6705,8.6700)",
+    "url": "https://www.urbanrail.net/eu/de/ma/mannheim.htm",
+    "urbanrail_path": "eu/de/ma/mannheim.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mariupol",
+    "city": "Mariupol",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(46.9476,37.3855,47.3095,37.8355)",
+    "url": "https://www.urbanrail.net/eu/ua/mariupol/mariupol.htm",
+    "urbanrail_path": "eu/ua/mariupol/mariupol.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mersin",
+    "city": "Mersin",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(36.5578,34.3898,37.0378,34.8698)",
+    "url": "https://www.urbanrail.net/as/tr/mersin/mersin.htm",
+    "urbanrail_path": "as/tr/mersin/mersin.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "messina",
+    "city": "Messina",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(37.9755,15.3279,38.3815,15.7331)",
+    "url": "https://www.urbanrail.net/eu/it/mess/messina.htm",
+    "urbanrail_path": "eu/it/mess/messina.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "metropalmademallorca",
+    "city": "Metro Palma de Mallorca",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(39.5543,2.5676,39.7144,2.7277)",
+    "url": "https://www.urbanrail.net/eu/es/palma/palma.htm",
+    "urbanrail_path": "eu/es/palma/palma.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "miskolc",
+    "city": "Miskolc",
+    "country": "Hungary",
+    "continent": "europe",
+    "bbox": "(47.9436,20.4017,48.2349,20.9499)",
+    "url": "https://www.urbanrail.net/eu/hu/miskolc/miskolc.htm",
+    "urbanrail_path": "eu/hu/miskolc/miskolc.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "munich",
+    "city": "Munich",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(48.05,11.35,48.25,11.75)",
+    "url": "https://www.urbanrail.net/eu/de/m/tram/muenchen-tram.htm",
+    "urbanrail_path": "eu/de/m/tram/muenchen-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "montpellier",
+    "city": "Montpellier",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(43.4867,3.7271,43.7334,4.0213)",
+    "url": "https://www.urbanrail.net/eu/fr/montpellier/montpellier-tram.htm",
+    "urbanrail_path": "eu/fr/montpellier/montpellier-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mozyr",
+    "city": "Mozyr",
+    "country": "Belarus",
+    "continent": "europe",
+    "bbox": "(51.9275,29.0900,52.1778,29.4025)",
+    "url": "https://www.urbanrail.net/eu/by/mazyr/mazyr.htm",
+    "urbanrail_path": "eu/by/mazyr/mazyr.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mulhouse",
+    "city": "Mulhouse",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.6419,7.2025,47.8634,7.4486)",
+    "url": "https://www.urbanrail.net/eu/fr/mulhouse/mulhouse-tram.htm",
+    "urbanrail_path": "eu/fr/mulhouse/mulhouse-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "murcia",
+    "city": "Murcia",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(37.6359,-1.4655,38.1979,-0.7709)",
+    "url": "https://www.urbanrail.net/eu/es/murcia/murcia.htm",
+    "urbanrail_path": "eu/es/murcia/murcia.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "mykolaiv",
+    "city": "Mykolaiv",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(46.7383,31.8005,47.1275,32.2152)",
+    "url": "https://www.urbanrail.net/eu/ua/mykolaiv/mykolaiv.htm",
+    "urbanrail_path": "eu/ua/mykolaiv/mykolaiv.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "malaga",
+    "city": "Málaga",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(36.5557,-4.6679,36.9740,-4.1805)",
+    "url": "https://www.urbanrail.net/eu/es/malaga/malaga.htm",
+    "urbanrail_path": "eu/es/malaga/malaga.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nancy",
+    "city": "Nancy",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(48.5869,6.0542,48.7892,6.2926)",
+    "url": "https://www.urbanrail.net/eu/fr/nancy/nancy-tram.htm",
+    "urbanrail_path": "eu/fr/nancy/nancy-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nantes",
+    "city": "Nantes",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.1006,-1.7218,47.3759,-1.3988)",
+    "url": "https://www.urbanrail.net/eu/fr/nantes/nantes-tram.htm",
+    "urbanrail_path": "eu/fr/nantes/nantes-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "naumburg",
+    "city": "Naumburg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.9928,11.5676,51.2820,11.9535)",
+    "url": "https://www.urbanrail.net/eu/de/nmb/naumburg.htm",
+    "urbanrail_path": "eu/de/nmb/naumburg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "neuchatel",
+    "city": "Neuchâtel",
+    "country": "Switzerland",
+    "continent": "europe",
+    "bbox": "(46.8978,6.7651,47.1438,7.0718)",
+    "url": "https://www.urbanrail.net/eu/ch/ne/neuchatel.htm",
+    "urbanrail_path": "eu/ch/ne/neuchatel.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nice",
+    "city": "Nice",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(43.5654,7.1020,43.8408,7.4039)",
+    "url": "https://www.urbanrail.net/eu/fr/nice/nice-tram.htm",
+    "urbanrail_path": "eu/fr/nice/nice-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nizhnekamsk",
+    "city": "Nizhnekamsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(55.4795,51.5816,55.7601,52.1052)",
+    "url": "https://www.urbanrail.net/eu/ru/nizhnekamsk/nizhnekamsk.htm",
+    "urbanrail_path": "eu/ru/nizhnekamsk/nizhnekamsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nizhnynovgorod",
+    "city": "Nizhny Novgorod",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(56.20,43.80,56.40,44.15)",
+    "url": "https://www.urbanrail.net/eu/ru/niz/tram/nizhniy-novgorod-tram.htm",
+    "urbanrail_path": "eu/ru/niz/tram/nizhniy-novgorod-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nordhausen",
+    "city": "Nordhausen",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.3605,10.5961,51.6356,11.0281)",
+    "url": "https://www.urbanrail.net/eu/de/ndh/nordhausen.htm",
+    "urbanrail_path": "eu/de/ndh/nordhausen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "norrkoping",
+    "city": "Norrköping",
+    "country": "Sweden",
+    "continent": "europe",
+    "bbox": "(58.3509,15.9504,58.8309,16.4304)",
+    "url": "https://www.urbanrail.net/eu/se/norrkoeping/norrkoeping.htm",
+    "urbanrail_path": "eu/se/norrkoeping/norrkoeping.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nottingham",
+    "city": "Nottingham",
+    "country": "United Kingdom",
+    "continent": "europe",
+    "bbox": "(52.8090,-1.3270,53.0987,-1.0061)",
+    "url": "https://www.urbanrail.net/eu/uk/nott/nottingham.htm",
+    "urbanrail_path": "eu/uk/nott/nottingham.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "novocherkassk",
+    "city": "Novocherkassk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(47.2484,39.8873,47.5911,40.3567)",
+    "url": "https://www.urbanrail.net/eu/ru/novocherkassk/novocherkassk.htm",
+    "urbanrail_path": "eu/ru/novocherkassk/novocherkassk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "novokuznetsk",
+    "city": "Novokuznetsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(53.5603,86.7792,54.0283,87.5309)",
+    "url": "https://www.urbanrail.net/eu/ru/novokuznetsk/novokuznetsk.htm",
+    "urbanrail_path": "eu/ru/novokuznetsk/novokuznetsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "novopolotsk",
+    "city": "Novopolotsk",
+    "country": "Belarus",
+    "continent": "europe",
+    "bbox": "(55.4058,28.4141,55.6845,28.8006)",
+    "url": "https://www.urbanrail.net/eu/by/navapolatsk/navapolatsk.htm",
+    "urbanrail_path": "eu/by/navapolatsk/navapolatsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "novotroitsk",
+    "city": "Novotroitsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(51.0913,58.1700,51.3247,58.4857)",
+    "url": "https://www.urbanrail.net/eu/ru/novotroitsk/novotroitsk.htm",
+    "urbanrail_path": "eu/ru/novotroitsk/novotroitsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "nuremberg",
+    "city": "Nuremberg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.35,10.95,49.55,11.20)",
+    "url": "https://www.urbanrail.net/eu/de/n/tram/nuernberg-tram.htm",
+    "urbanrail_path": "eu/de/n/tram/nuernberg-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "odense",
+    "city": "Odense",
+    "country": "Denmark",
+    "continent": "europe",
+    "bbox": "(55.1597,10.1452,55.6397,10.6252)",
+    "url": "https://www.urbanrail.net/eu/dk/odense/odense.htm",
+    "urbanrail_path": "eu/dk/odense/odense.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "odessa",
+    "city": "Odessa",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(46.2627,30.5314,46.7091,30.9114)",
+    "url": "https://www.urbanrail.net/eu/ua/odessa/odessa.htm",
+    "urbanrail_path": "eu/ua/odessa/odessa.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "olomouc",
+    "city": "Olomouc",
+    "country": "Czechia",
+    "continent": "europe",
+    "bbox": "(49.4547,17.0821,49.7420,17.4761)",
+    "url": "https://www.urbanrail.net/eu/cz/olomouc/olomouc.htm",
+    "urbanrail_path": "eu/cz/olomouc/olomouc.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "olsztyn",
+    "city": "Olsztyn",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(53.6442,20.2865,53.9090,20.6466)",
+    "url": "https://www.urbanrail.net/eu/pl/olsztyn/olsztyn.htm",
+    "urbanrail_path": "eu/pl/olsztyn/olsztyn.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "omsk",
+    "city": "Omsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.7440,73.0175,55.5066,73.7399)",
+    "url": "https://www.urbanrail.net/eu/ru/omsk/omsk-tram.htm",
+    "urbanrail_path": "eu/ru/omsk/omsk-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "kusttram",
+    "city": "Kusttram",
+    "country": "Belgium",
+    "continent": "europe",
+    "bbox": "(51.05,2.55,51.40,3.40)",
+    "url": "https://www.urbanrail.net/eu/be/kusttram/kusttram.htm",
+    "urbanrail_path": "eu/be/kusttram/kusttram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "oradea",
+    "city": "Oradea",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(46.8149,21.6885,47.2949,22.1685)",
+    "url": "https://www.urbanrail.net/eu/ro/oradea/oradea.htm",
+    "urbanrail_path": "eu/ro/oradea/oradea.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "orlans",
+    "city": "Orlans",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(46.6963,4.8054,46.8564,4.9655)",
+    "url": "https://www.urbanrail.net/eu/fr/orleans/orleans-tram.htm",
+    "urbanrail_path": "eu/fr/orleans/orleans-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "orsk",
+    "city": "Orsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(50.9674,58.2607,51.4180,58.8404)",
+    "url": "https://www.urbanrail.net/eu/ru/orsk/orsk.htm",
+    "urbanrail_path": "eu/ru/orsk/orsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "oryol",
+    "city": "Oryol",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(52.8155,35.8940,53.1206,36.2990)",
+    "url": "https://www.urbanrail.net/eu/ru/oryol/oryol.htm",
+    "urbanrail_path": "eu/ru/oryol/oryol.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "osijek",
+    "city": "Osijek",
+    "country": "Croatia",
+    "continent": "europe",
+    "bbox": "(45.4341,18.5162,45.6601,18.8614)",
+    "url": "https://www.urbanrail.net/eu/hr/osijek/osijek.htm",
+    "urbanrail_path": "eu/hr/osijek/osijek.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "osinniki",
+    "city": "Osinniki",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(53.5055,87.2012,53.7645,87.5370)",
+    "url": "https://www.urbanrail.net/eu/ru/osinniki/osinniki.htm",
+    "urbanrail_path": "eu/ru/osinniki/osinniki.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ostrava",
+    "city": "Ostrava",
+    "country": "Czechia",
+    "continent": "europe",
+    "bbox": "(49.6458,18.0184,49.9938,18.4563)",
+    "url": "https://www.urbanrail.net/eu/cz/ostrava/ostrava.htm",
+    "urbanrail_path": "eu/cz/ostrava/ostrava.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "padova",
+    "city": "Padova",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(45.0156,11.3109,45.7672,12.2864)",
+    "url": "https://www.urbanrail.net/eu/it/pad/padova.htm",
+    "urbanrail_path": "eu/it/pad/padova.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "palermo",
+    "city": "Palermo",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(37.9699,13.1622,38.3046,13.5321)",
+    "url": "https://www.urbanrail.net/eu/it/pal/palermo.htm",
+    "urbanrail_path": "eu/it/pal/palermo.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "parla",
+    "city": "Parla",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(40.1212,-3.8874,40.3365,-3.6538)",
+    "url": "https://www.urbanrail.net/eu/es/parla/parla.htm",
+    "urbanrail_path": "eu/es/parla/parla.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "perugia",
+    "city": "Perugia",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(42.5168,11.8324,43.6973,13.3442)",
+    "url": "https://www.urbanrail.net/eu/it/per/perugia.htm",
+    "urbanrail_path": "eu/it/per/perugia.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "plauen",
+    "city": "Plauen",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.3507,11.9797,50.6549,12.3095)",
+    "url": "https://www.urbanrail.net/eu/de/pl/plauen.htm",
+    "urbanrail_path": "eu/de/pl/plauen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ploiesti",
+    "city": "Ploiesti",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(44.8161,25.8379,45.0484,26.1820)",
+    "url": "https://www.urbanrail.net/eu/ro/ploiesti/ploiesti.htm",
+    "urbanrail_path": "eu/ro/ploiesti/ploiesti.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "plzen",
+    "city": "Plzen",
+    "country": "Czechia",
+    "continent": "europe",
+    "bbox": "(49.5976,13.1880,49.8858,13.5558)",
+    "url": "https://www.urbanrail.net/eu/cz/plzen/plzen.htm",
+    "urbanrail_path": "eu/cz/plzen/plzen.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "poland",
+    "city": "Poland",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(52.1330,20.9221,52.2947,21.0848)",
+    "url": "https://www.urbanrail.net/eu/pl/poland.htm",
+    "urbanrail_path": "eu/pl/poland.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "potsdam",
+    "city": "Potsdam",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.2620,12.8068,52.5947,13.2482)",
+    "url": "https://www.urbanrail.net/eu/de/p/potsdam.htm",
+    "urbanrail_path": "eu/de/p/potsdam.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "poznan",
+    "city": "Poznan",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(52.2119,16.6516,52.5893,17.1517)",
+    "url": "https://www.urbanrail.net/eu/pl/poz/poznan.htm",
+    "urbanrail_path": "eu/pl/poz/poznan.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "prokopyevsk",
+    "city": "Prokopyevsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(53.6713,86.4927,54.0502,86.9516)",
+    "url": "https://www.urbanrail.net/eu/ru/prokopyevsk/prokopyevsk.htm",
+    "urbanrail_path": "eu/ru/prokopyevsk/prokopyevsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "pyatigorsk",
+    "city": "Pyatigorsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(43.9028,42.8544,44.1722,43.3127)",
+    "url": "https://www.urbanrail.net/eu/ru/pyatigorsk/pyatigorsk.htm",
+    "urbanrail_path": "eu/ru/pyatigorsk/pyatigorsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "reims",
+    "city": "Reims",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(49.1239,3.9058,49.3832,4.2103)",
+    "url": "https://www.urbanrail.net/eu/fr/reims/reims.htm",
+    "urbanrail_path": "eu/fr/reims/reims.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "resita",
+    "city": "Resita",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(45.1299,21.7197,45.4679,22.1927)",
+    "url": "https://www.urbanrail.net/eu/ro/resita/resita.htm",
+    "urbanrail_path": "eu/ro/resita/resita.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "rheinruhr",
+    "city": "Rhein-Ruhr",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.3449,7.1975,51.5069,7.3617)",
+    "url": "https://www.urbanrail.net/eu/de/ruhrgeb.htm",
+    "urbanrail_path": "eu/de/ruhrgeb.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "riga",
+    "city": "Riga",
+    "country": "Latvia",
+    "continent": "europe",
+    "bbox": "(56.7773,23.8526,57.1661,24.4045)",
+    "url": "https://www.urbanrail.net/eu/lv/riga/riga.htm",
+    "urbanrail_path": "eu/lv/riga/riga.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "romania",
+    "city": "Romania",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(44.3975,25.9913,44.5576,26.1514)",
+    "url": "https://www.urbanrail.net/eu/ro/romania.htm",
+    "urbanrail_path": "eu/ro/romania.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "rostock",
+    "city": "Rostock",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(53.9708,11.9184,54.3245,12.3754)",
+    "url": "https://www.urbanrail.net/eu/de/hro/rostock.htm",
+    "urbanrail_path": "eu/de/hro/rostock.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "rostovondon",
+    "city": "Rostov-on-Don",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(47.0734,39.3247,47.4487,39.9314)",
+    "url": "https://www.urbanrail.net/eu/ru/ros/rostov-na-donu.htm",
+    "urbanrail_path": "eu/ru/ros/rostov-na-donu.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "rouen",
+    "city": "Rouen",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(49.3372,0.9501,49.5453,1.2321)",
+    "url": "https://www.urbanrail.net/eu/fr/rouen/rouen-tram.htm",
+    "urbanrail_path": "eu/fr/rouen/rouen-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "saarbrucken",
+    "city": "Saarbrücken",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.0922,6.7476,49.4021,7.2180)",
+    "url": "https://www.urbanrail.net/eu/de/sb/saarbruecken.htm",
+    "urbanrail_path": "eu/de/sb/saarbruecken.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sainttienne",
+    "city": "Saint-tienne",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(45.4663,5.9039,45.6273,6.0643)",
+    "url": "https://www.urbanrail.net/eu/fr/saint-etienne/saint-etienne-tram.htm",
+    "urbanrail_path": "eu/fr/saint-etienne/saint-etienne-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "salavat",
+    "city": "Salavat",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(53.2312,55.7354,53.5311,56.0714)",
+    "url": "https://www.urbanrail.net/eu/ru/salavat/salavat.htm",
+    "urbanrail_path": "eu/ru/salavat/salavat.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "samsun",
+    "city": "Samsun",
+    "country": "Turkey",
+    "continent": "asia",
+    "bbox": "(40.7804,35.5183,41.6804,36.4183)",
+    "url": "https://www.urbanrail.net/as/tr/samsun/samsun.htm",
+    "urbanrail_path": "as/tr/samsun/samsun.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sarajevo",
+    "city": "Sarajevo",
+    "country": "Bosnia and Herzegovina",
+    "continent": "europe",
+    "bbox": "(43.7409,18.1695,44.0468,18.5972)",
+    "url": "https://www.urbanrail.net/eu/ba/sarajevo/sarajevo.htm",
+    "urbanrail_path": "eu/ba/sarajevo/sarajevo.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "saratov",
+    "city": "Saratov",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(51.3121,45.7253,51.7656,46.2897)",
+    "url": "https://www.urbanrail.net/eu/ru/saratov/saratov.htm",
+    "urbanrail_path": "eu/ru/saratov/saratov.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sassari",
+    "city": "Sassari",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(40.5718,8.0508,40.9493,8.7236)",
+    "url": "https://www.urbanrail.net/eu/it/sass/sassari.htm",
+    "urbanrail_path": "eu/it/sass/sassari.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "schwerin",
+    "city": "Schwerin",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(53.4644,11.2160,53.7673,11.5855)",
+    "url": "https://www.urbanrail.net/eu/de/sn/schwerin.htm",
+    "urbanrail_path": "eu/de/sn/schwerin.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "schoneiche",
+    "city": "Schöneiche",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.44,13.65,52.52,13.78)",
+    "url": "https://www.urbanrail.net/eu/de/mol/wolt-schoen-rued.htm",
+    "urbanrail_path": "eu/de/mol/wolt-schoen-rued.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sheffield",
+    "city": "Sheffield",
+    "country": "United Kingdom",
+    "continent": "europe",
+    "bbox": "(53.2245,-1.8815,53.5831,-1.2447)",
+    "url": "https://www.urbanrail.net/eu/uk/sheff/sheffield.htm",
+    "urbanrail_path": "eu/uk/sheff/sheffield.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "sintra",
+    "city": "Sintra",
+    "country": "Portugal",
+    "continent": "europe",
+    "bbox": "(38.6586,-9.5805,39.0124,-9.1407)",
+    "url": "https://www.urbanrail.net/eu/pt/sintra/sintra.htm",
+    "urbanrail_path": "eu/pt/sintra/sintra.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "smolensk",
+    "city": "Smolensk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.6276,31.7083,54.9304,32.2896)",
+    "url": "https://www.urbanrail.net/eu/ru/smolensk/smolensk.htm",
+    "urbanrail_path": "eu/ru/smolensk/smolensk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "staryioskol",
+    "city": "Staryi Oskol",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(51.1330,37.6347,51.4480,38.0516)",
+    "url": "https://www.urbanrail.net/eu/ru/staryi-oskol/staryi-oskol.htm",
+    "urbanrail_path": "eu/ru/staryi-oskol/staryi-oskol.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "strasbourg",
+    "city": "Strasbourg",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(48.4119,7.6081,48.7262,7.9161)",
+    "url": "https://www.urbanrail.net/eu/fr/strasbourg/strasbourg-tram.htm",
+    "urbanrail_path": "eu/fr/strasbourg/strasbourg-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "strausberg",
+    "city": "Strausberg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(52.4342,13.7332,52.6835,14.1009)",
+    "url": "https://www.urbanrail.net/eu/de/mol/strausberg.htm",
+    "urbanrail_path": "eu/de/mol/strausberg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "stuttgart",
+    "city": "Stuttgart",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(48.6120,8.9586,48.9464,9.3960)",
+    "url": "https://www.urbanrail.net/eu/de/s/stuttgart.htm",
+    "urbanrail_path": "eu/de/s/stuttgart.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "szczecin",
+    "city": "Szczecin",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(53.2417,14.3638,53.6177,14.8854)",
+    "url": "https://www.urbanrail.net/eu/pl/szczn/szczecin.htm",
+    "urbanrail_path": "eu/pl/szczn/szczecin.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "szeged",
+    "city": "Szeged",
+    "country": "Hungary",
+    "continent": "europe",
+    "bbox": "(46.0358,19.8924,46.4299,20.3886)",
+    "url": "https://www.urbanrail.net/eu/hu/szeged/szeged.htm",
+    "urbanrail_path": "eu/hu/szeged/szeged.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "soller",
+    "city": "Sóller",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(39.6552,2.5821,39.9034,2.8403)",
+    "url": "https://www.urbanrail.net/eu/es/soller/soller.htm",
+    "urbanrail_path": "eu/es/soller/soller.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "taganrog",
+    "city": "Taganrog",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(47.1085,38.7130,47.3699,39.0501)",
+    "url": "https://www.urbanrail.net/eu/ru/taganrog/taganrog.htm",
+    "urbanrail_path": "eu/ru/taganrog/taganrog.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tallinn",
+    "city": "Tallinn",
+    "country": "Estonia",
+    "continent": "europe",
+    "bbox": "(59.2718,24.4702,59.6716,25.0063)",
+    "url": "https://www.urbanrail.net/eu/ee/tallinn/tallinn.htm",
+    "urbanrail_path": "eu/ee/tallinn/tallinn.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tampere",
+    "city": "Tampere",
+    "country": "Finland",
+    "continent": "europe",
+    "bbox": "(61.3434,23.4623,61.9166,24.1985)",
+    "url": "https://www.urbanrail.net/eu/fi/tampere/tampere.htm",
+    "urbanrail_path": "eu/fi/tampere/tampere.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tenerife",
+    "city": "Tenerife",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(27.9181,-17.0059,28.6854,-16.0394)",
+    "url": "https://www.urbanrail.net/eu/es/tenerife/tenerife.htm",
+    "urbanrail_path": "eu/es/tenerife/tenerife.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "thehague",
+    "city": "The Hague",
+    "country": "Netherlands",
+    "continent": "europe",
+    "bbox": "(51.9348,4.1050,52.2150,4.5025)",
+    "url": "https://www.urbanrail.net/eu/nl/dhg/den-haag.htm",
+    "urbanrail_path": "eu/nl/dhg/den-haag.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "timisoara",
+    "city": "Timisoara",
+    "country": "Romania",
+    "continent": "europe",
+    "bbox": "(45.6038,21.0317,45.9142,21.4072)",
+    "url": "https://www.urbanrail.net/eu/ro/timisoara/timisoara.htm",
+    "urbanrail_path": "eu/ro/timisoara/timisoara.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tomsk",
+    "city": "Tomsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(58.1624,81.5975,59.0624,82.4975)",
+    "url": "https://www.urbanrail.net/eu/ru/tomsk/tomsk.htm",
+    "urbanrail_path": "eu/ru/tomsk/tomsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "torun",
+    "city": "Torun",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(52.8831,18.3807,53.1459,18.8222)",
+    "url": "https://www.urbanrail.net/eu/pl/torun/torun.htm",
+    "urbanrail_path": "eu/pl/torun/torun.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tours",
+    "city": "Tours",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(47.2689,0.5728,47.5196,0.8173)",
+    "url": "https://www.urbanrail.net/eu/fr/tours/tours.htm",
+    "urbanrail_path": "eu/fr/tours/tours.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "trieste",
+    "city": "Trieste",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(45.5268,13.5883,45.8266,13.9783)",
+    "url": "https://www.urbanrail.net/eu/it/tri/trieste.htm",
+    "urbanrail_path": "eu/it/tri/trieste.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "trondheim",
+    "city": "Trondheim",
+    "country": "Norway",
+    "continent": "europe",
+    "bbox": "(63.0799,9.9235,63.5966,10.8052)",
+    "url": "https://www.urbanrail.net/eu/no/trondheim/trondheim.htm",
+    "urbanrail_path": "eu/no/trondheim/trondheim.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "tver",
+    "city": "Tver",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(56.7033,35.6414,57.0161,36.1482)",
+    "url": "https://www.urbanrail.net/eu/ru/tver/tver.htm",
+    "urbanrail_path": "eu/ru/tver/tver.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ufa",
+    "city": "Ufa",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.4208,55.6986,55.0400,56.3786)",
+    "url": "https://www.urbanrail.net/eu/ru/ufa/ufa-tram.htm",
+    "urbanrail_path": "eu/ru/ufa/ufa-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ukraine",
+    "city": "Ukraine",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(50.3682,30.4467,50.5289,30.6078)",
+    "url": "https://www.urbanrail.net/eu/ua/ukraine.htm",
+    "urbanrail_path": "eu/ua/ukraine.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ulanude",
+    "city": "Ulan-Ude",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(51.6302,107.3284,52.1077,108.0384)",
+    "url": "https://www.urbanrail.net/eu/ru/ulan-ude/ulan-ude.htm",
+    "urbanrail_path": "eu/ru/ulan-ude/ulan-ude.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ulm",
+    "city": "Ulm",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(48.2267,9.7625,48.5485,10.1228)",
+    "url": "https://www.urbanrail.net/eu/de/ul/ulm.htm",
+    "urbanrail_path": "eu/de/ul/ulm.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ulyanovsk",
+    "city": "Ulyanovsk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.1191,48.1701,54.4965,48.8057)",
+    "url": "https://www.urbanrail.net/eu/ru/ulyanovsk/ulyanovsk.htm",
+    "urbanrail_path": "eu/ru/ulyanovsk/ulyanovsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "usolyesibirskoye",
+    "city": "Usolye Sibirskoye",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(52.6265,103.4805,52.9076,103.8039)",
+    "url": "https://www.urbanrail.net/eu/ru/usolye/usolye-sibirskoye.htm",
+    "urbanrail_path": "eu/ru/usolye/usolye-sibirskoye.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "ustilimsk",
+    "city": "Ust'-Ilimsk*",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(57.8358,102.4404,58.1785,102.9678)",
+    "url": "https://www.urbanrail.net/eu/ru/ust-ilimsk/ust-ilimsk.htm",
+    "urbanrail_path": "eu/ru/ust-ilimsk/ust-ilimsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "utrecht",
+    "city": "Utrecht",
+    "country": "Netherlands",
+    "continent": "europe",
+    "bbox": "(51.9463,4.8901,52.2221,5.2752)",
+    "url": "https://www.urbanrail.net/eu/nl/utr/utrecht.htm",
+    "urbanrail_path": "eu/nl/utr/utrecht.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "valenciennes",
+    "city": "Valenciennes",
+    "country": "France",
+    "continent": "europe",
+    "bbox": "(50.2567,3.3963,50.4675,3.6323)",
+    "url": "https://www.urbanrail.net/eu/fr/valenciennes/valenciennes-tram.htm",
+    "urbanrail_path": "eu/fr/valenciennes/valenciennes-tram.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "veneziamestre",
+    "city": "Venezia-Mestre",
+    "country": "Italy",
+    "continent": "europe",
+    "bbox": "(45.3975,12.1467,45.5675,12.3167)",
+    "url": "https://www.urbanrail.net/eu/it/venezia/venezia-mestre.htm",
+    "urbanrail_path": "eu/it/venezia/venezia-mestre.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "vinnytsia",
+    "city": "Vinnytsia",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.4490,28.0661,49.3490,28.9661)",
+    "url": "https://www.urbanrail.net/eu/ua/vinnytsia/vinnytsia.htm",
+    "urbanrail_path": "eu/ua/vinnytsia/vinnytsia.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "vitebsk",
+    "city": "Vitebsk",
+    "country": "Belarus",
+    "continent": "europe",
+    "bbox": "(55.0503,29.9968,55.3951,30.4020)",
+    "url": "https://www.urbanrail.net/eu/by/vitsebsk/vitsebsk.htm",
+    "urbanrail_path": "eu/by/vitsebsk/vitsebsk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "vitoriagasteiz",
+    "city": "Vitoria-Gasteiz",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(42.6846,-2.9336,43.0167,-2.4638)",
+    "url": "https://www.urbanrail.net/eu/es/vitoria/vitoria-gasteiz.htm",
+    "urbanrail_path": "eu/es/vitoria/vitoria-gasteiz.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "vladivostok",
+    "city": "Vladivostok",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(42.9771,131.7597,43.3692,132.3181)",
+    "url": "https://www.urbanrail.net/eu/ru/vladivostok/vladivostok.htm",
+    "urbanrail_path": "eu/ru/vladivostok/vladivostok.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "volchansk",
+    "city": "Volchansk",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(59.7653,59.9179,60.0376,60.2028)",
+    "url": "https://www.urbanrail.net/eu/ru/volchansk/volchansk.htm",
+    "urbanrail_path": "eu/ru/volchansk/volchansk.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "volgograd",
+    "city": "Volgograd",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(48.3271,44.0288,48.9691,44.7674)",
+    "url": "https://www.urbanrail.net/eu/ru/vol/volgograd.htm",
+    "urbanrail_path": "eu/ru/vol/volgograd.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "volzhskiy",
+    "city": "Volzhskiy",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(48.6437,44.5485,49.0177,44.9731)",
+    "url": "https://www.urbanrail.net/eu/ru/volzhskiy/volzhskiy.htm",
+    "urbanrail_path": "eu/ru/volzhskiy/volzhskiy.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "velezmalaga",
+    "city": "Vélez-Málaga",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(36.6328,-4.3184,36.9371,-3.9127)",
+    "url": "https://www.urbanrail.net/eu/es/malaga/velez-malaga.htm",
+    "urbanrail_path": "eu/es/malaga/velez-malaga.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "wroclaw",
+    "city": "Wroclaw",
+    "country": "Poland",
+    "continent": "europe",
+    "bbox": "(50.9627,16.7273,51.2901,17.2562)",
+    "url": "https://www.urbanrail.net/eu/pl/wroc/wroclaw.htm",
+    "urbanrail_path": "eu/pl/wroc/wroclaw.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "wuppertal",
+    "city": "Wuppertal",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(51.0857,6.9341,51.3981,7.3934)",
+    "url": "https://www.urbanrail.net/eu/de/w/wuppertal.htm",
+    "urbanrail_path": "eu/de/w/wuppertal.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "wurzburg",
+    "city": "Würzburg",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(49.6307,9.7916,49.9255,10.0944)",
+    "url": "https://www.urbanrail.net/eu/de/wue/wuerzburg.htm",
+    "urbanrail_path": "eu/de/wue/wuerzburg.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "yaroslavl",
+    "city": "Yaroslavl",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(57.4457,39.6492,57.8553,40.0833)",
+    "url": "https://www.urbanrail.net/eu/ru/yaroslavl/yaroslavl.htm",
+    "urbanrail_path": "eu/ru/yaroslavl/yaroslavl.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "yenakiieve",
+    "city": "Yenakiieve",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(48.0999,38.0788,48.3664,38.3398)",
+    "url": "https://www.urbanrail.net/eu/ua/yenakiieve/yenakiieve.htm",
+    "urbanrail_path": "eu/ua/yenakiieve/yenakiieve.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "yevpatoria",
+    "city": "Yevpatoria",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(45.0714,33.2294,45.3302,33.5725)",
+    "url": "https://www.urbanrail.net/eu/ua/yevpatoria/yevpatoria.htm",
+    "urbanrail_path": "eu/ua/yevpatoria/yevpatoria.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zagreb",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "continent": "europe",
+    "bbox": "(45.5340,15.6932,46.0491,16.3196)",
+    "url": "https://www.urbanrail.net/eu/hr/zagreb/zagreb.htm",
+    "urbanrail_path": "eu/hr/zagreb/zagreb.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zaporizhia",
+    "city": "Zaporizhia",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(46.9665,35.4730,47.8665,36.3730)",
+    "url": "https://www.urbanrail.net/eu/ua/zaporizhia/zaporizhia.htm",
+    "urbanrail_path": "eu/ua/zaporizhia/zaporizhia.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zaragoza",
+    "city": "Zaragoza",
+    "country": "Spain",
+    "continent": "europe",
+    "bbox": "(41.3717,-1.2537,42.0115,-0.6004)",
+    "url": "https://www.urbanrail.net/eu/es/zara/zaragoza.htm",
+    "urbanrail_path": "eu/es/zara/zaragoza.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zhytomyr",
+    "city": "Zhytomyr",
+    "country": "Ukraine",
+    "continent": "europe",
+    "bbox": "(50.4581,27.9368,51.3581,28.8368)",
+    "url": "https://www.urbanrail.net/eu/ua/zhytomyr/zhytomyr.htm",
+    "urbanrail_path": "eu/ua/zhytomyr/zhytomyr.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zlatoust",
+    "city": "Zlatoust",
+    "country": "Russia",
+    "continent": "europe",
+    "bbox": "(54.5333,59.0013,55.5342,60.1306)",
+    "url": "https://www.urbanrail.net/eu/ru/zlatoust/zlatoust.htm",
+    "urbanrail_path": "eu/ru/zlatoust/zlatoust.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zurich",
+    "city": "Zurich",
+    "country": "Switzerland",
+    "continent": "europe",
+    "bbox": "(47.2402,8.3680,47.5147,8.7054)",
+    "url": "https://www.urbanrail.net/eu/ch/zh/zuerich.htm",
+    "urbanrail_path": "eu/ch/zh/zuerich.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  },
+  {
+    "key": "zwickau",
+    "city": "Zwickau",
+    "country": "Germany",
+    "continent": "europe",
+    "bbox": "(50.5618,12.3284,50.8928,12.6459)",
+    "url": "https://www.urbanrail.net/eu/de/z/zwickau.htm",
+    "urbanrail_path": "eu/de/z/zwickau.htm",
+    "modes": [
+      "subway",
+      "light_rail",
+      "tram"
+    ]
+  }
+]

@@ -1,0 +1,1 @@
+{"elements":[{"type":"relation","id":9562449,"tags":{"name":"Cuatro Ríos","network":"Tranvía de Cuenca","operator":"Alcaldía de Cuenca","route":"tram","route_master":"tram","type":"route_master"},"members":[{"type":"relation","ref":9562448,"role":""},{"type":"relation","ref":9562447,"role":""}]}]}

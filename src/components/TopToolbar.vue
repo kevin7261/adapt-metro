@@ -15,6 +15,10 @@ const store = useMapStore()
 const homeUrl = import.meta.env.BASE_URL
 const slidesUrl = `${import.meta.env.BASE_URL}slides/`
 const thesisUrl = `${import.meta.env.BASE_URL}slides/thesis/`
+const paperUrl = `${import.meta.env.BASE_URL}slides/thesis/paper/`
+const improveUrl = `${import.meta.env.BASE_URL}slides/thesis/paper/?doc=improve`
+// 系統架構：C4/UML 全套架構圖靜態頁（slides/architecture/）
+const architectureUrl = `${import.meta.env.BASE_URL}slides/architecture/`
 
 /* ---- Info dropdown ---- */
 const infoOpen = ref(false)
@@ -249,10 +253,13 @@ onBeforeUnmount(() => {
     <!-- Skills：所有 skill 的總覽 modal -->
     <button class="btn-ghost skills-link" @click="store.ui.dialog = 'skills'">Skills</button>
 
-    <!-- 論文內容：博士論文內容投影片（緊接在「系統介紹」前面） -->
+    <!-- 論文文件三入口（投影片／本文／改善建議），緊接在「系統介紹」前面 -->
     <a class="btn-ghost" :href="thesisUrl">論文內容</a>
+    <a class="btn-ghost" :href="paperUrl">論文本文</a>
+    <a class="btn-ghost" :href="improveUrl">改善建議</a>
 
     <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
+    <a class="btn-ghost" :href="architectureUrl">系統架構</a>
 
     <div ref="infoWrap" class="skills-wrap info-wrap">
       <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">

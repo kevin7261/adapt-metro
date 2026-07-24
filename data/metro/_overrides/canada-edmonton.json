@@ -1,0 +1,19 @@
+{
+  "city": "Edmonton",
+  "country": "Canada",
+  "continent": "north-america",
+  "osm_route_ids": [
+    1861588,
+    6305415,
+    7699146,
+    7700090,
+    7701972,
+    9730135,
+    9730136,
+    16653794,
+    20182428,
+    20183686
+  ],
+  "source": "https://www.urbanrail.net/am/edmo/edmonton.htm",
+  "note": "Edmonton（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

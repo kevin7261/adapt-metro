@@ -308,7 +308,7 @@ onBeforeUnmount(() => {
   font-family: ui-monospace, monospace;
 }
 .wm-legend {
-  position: absolute; left: 10px; bottom: 34px; z-index: 2;
+  position: absolute; right: 10px; bottom: 10px; z-index: 2;
   display: flex; gap: 12px;
   background: hsl(var(--background) / 0.92);
   border: 1px solid hsl(var(--border));

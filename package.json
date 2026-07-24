@@ -23,6 +23,7 @@
     "metro:fetchhiroden": "node scripts/fetchHiroden.mjs",
     "metro:fetchoceania": "node scripts/fetchOceania.mjs",
     "metro:fetchafrica": "node scripts/fetchAfrica.mjs",
+    "metro:fetchurbanrail": "node scripts/fetchUrbanrailGap.mjs",
     "metro:manuallines": "node scripts/buildManualLines.mjs",
     "metro:refresh": "node scripts/refreshRelations.mjs",
     "metro:refetchfailed": "node scripts/refetchFailedCities.mjs",
