@@ -33,6 +33,7 @@
     "metro:buildtracks": "node scripts/buildMetroTrackGeojson.mjs",
     "metro:buildcenterlines": "node scripts/buildMetroTrackCenterline.mjs",
     "metro:views": "node scripts/buildViews.mjs",
+    "metro:coords": "node scripts/buildCityCoords.mjs",
     "metro:hccells": "node scripts/bakeHcCells.mjs",
     "metro:hccells:shape": "node scripts/bakeHcCells.mjs --shape",
     "metro:llmalign": "node scripts/llmAlignBatch.mjs",

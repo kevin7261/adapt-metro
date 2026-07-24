@@ -60,6 +60,7 @@ const props = defineProps({
   // 「執行調整」：評價時已把附帶的 moves 過硬規則、把調整後佈局存進結果檔的
   // exec——按鈕只切換顯示（套用 exec.cells ⇄ 恢復原佈局），不再跑 LLM。
   evalApplied: { type: Boolean, default: false },
+  evalGridChanged: { type: Boolean, default: false }, // 網格被重新壓縮：評語照顯示、執行調整停用
   // LLM 全部評價：一次比較原始＋旋轉最多 8 個候選，選全體／原始／旋轉最佳。
   compareRecord: { type: Object, default: null },
   compareRunning: { type: Boolean, default: false },
@@ -265,6 +266,7 @@ function startResize(e) {
           :eval-msg="evalMsg"
           :eval-error="evalError"
           :eval-applied="evalApplied"
+          :eval-grid-changed="evalGridChanged"
           :compare-record="compareRecord"
           :compare-running="compareRunning"
           :compare-can-run="compareCanRun"

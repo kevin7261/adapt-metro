@@ -59,7 +59,7 @@ export function claudeSkillTrigger(spec) {
         res.end(JSON.stringify({ error: 'bad params' }))
         return
       }
-      const { key, outFile, prompt, userPrompt, seedFrom, resetOut } = v
+      const { key, outFile, prompt, userPrompt, seedFrom, resetOut, env: extraEnv } = v
       if (jobs.get(key)?.exit === null) {
         res.statusCode = 409
         res.end(JSON.stringify({ running: true }))
@@ -113,7 +113,7 @@ export function claudeSkillTrigger(spec) {
         '--output-format', 'stream-json', '--verbose',
         '--permission-mode', 'acceptEdits',
         '--allowedTools', 'Bash(node:*),Read,Write,Glob,Grep,Skill',
-      ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LLM_SPAN_CAP: String(spanCap) } })
+      ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LLM_SPAN_CAP: String(spanCap), ...(extraEnv ?? {}) } })
       const job = { child, log: [], text: '', final: '', exit: null, prompt, buf: '' }
       jobs.set(key, job)
       const append = (s) => {

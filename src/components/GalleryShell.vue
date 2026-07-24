@@ -18,7 +18,7 @@ const props = defineProps({
 
 // 關掉畫廊 tab 再開／reload：還原目前分頁、排序、面板寬、捲動位置。
 const SHELL_LS = 'adaptMetro.galleryShell.v1'
-const TAB_IDS = new Set(['quick', 'stations', 'global', 'rings'])
+const TAB_IDS = new Set(['quick', 'stations', 'global', 'rings', 'worldmap'])
 function readShellLs() {
   try { return JSON.parse(localStorage.getItem(SHELL_LS) || 'null') } catch { return null }
 }
@@ -46,6 +46,21 @@ function scrollToCity(id) {
   el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   if (id) writeShellLs({ scrollCity: id })
 }
+
+// 世界地圖分頁沒有卡片可捲——改把「飛到該城」訊號傳給 #map slot（WorldMapPicker）。
+const mapFocus = ref(null)
+function onIndexPick(id) {
+  if (tab.value === 'worldmap') {
+    mapFocus.value = { id, n: (mapFocus.value?.n ?? 0) + 1 }
+    return
+  }
+  scrollToCity(id)
+}
+
+// list↔地圖雙向 hover 連動：任一側 hover 的城市 id 放這裡，同時回灌給清單（反白）
+// 與地圖（強調點＋popup）。只在世界地圖分頁生效。
+const linkedId = ref(null)
+function onLink(id) { linkedId.value = id }
 
 // 左（顯示圖層）與右（城市索引）兩塊面板都可左右拖拉調寬。
 // 卡片區至少 BODY_MIN，否則左右面板把縮圖擠沒（重算時開著畫廊常被誤以為「沒顯示」）。
@@ -108,6 +123,7 @@ const TABS = [
   { id: 'stations', label: '依車站數排序' },
   { id: 'global', label: '全球地鐵地圖' },
   { id: 'rings', label: '環狀成方城市' },
+  { id: 'worldmap', label: '世界地圖' },
 ]
 const tab = ref(TAB_IDS.has(savedShell.tab) ? savedShell.tab : TABS[0].id)
 const stationSort = ref(savedShell.stationSort === 'asc' ? 'asc' : 'desc')
@@ -217,26 +233,38 @@ const tiles = computed(() => {
 
     </div>
 
-    <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區＋右側索引，
-         左右兩塊面板都可拖拉調寬。 -->
+    <!-- 主體：可選的左側清單（#side，如視圖畫廊的「顯示圖層」）＋卡片區／地圖＋右側
+         全球城市索引，左右兩塊面板都可拖拉調寬。世界地圖分頁不顯示左側清單、主體改
+         成整片地圖，但右側全球清單照樣顯示（點城市＝把地圖飛過去）。 -->
     <div ref="mainRef" class="gallery-main">
-      <template v-if="$slots.side">
+      <!-- 左側清單：世界地圖分頁不顯示 -->
+      <template v-if="tab !== 'worldmap' && $slots.side">
         <aside class="gallery-side" :style="{ width: sideWidth + 'px' }">
           <slot name="side" />
         </aside>
         <div class="pane-resize" title="拖拉調整寬度" @pointerdown="startSideResize" />
       </template>
-      <div ref="bodyRef" class="gallery-body">
+
+      <!-- 主體：世界地圖分頁畫整片地圖，其餘畫卡片 -->
+      <div ref="bodyRef" class="gallery-body" :class="{ 'map-body': tab === 'worldmap' }">
         <div v-if="error" class="gallery-status">
           {{ errorText }}：{{ error }}
           <template v-if="errorHint"><br />（請先執行 <code>{{ errorHint }}</code>）</template>
         </div>
         <div v-else-if="!catalog" class="gallery-status">{{ loadingText }}</div>
+        <slot
+          v-else-if="tab === 'worldmap'"
+          name="map"
+          :catalog="catalog"
+          :focus="mapFocus"
+          :highlight="linkedId"
+          :on-hover="onLink"
+        />
         <slot v-else :tiles="tiles" />
       </div>
 
-      <!-- 右側城市索引：依洲別/國家分組（同加入 modal）＋可收合；
-           「依車站數排序」tab 則照站數順序、不分組。順序跟左邊卡片一致。 -->
+      <!-- 右側城市索引：依洲別/國家分組（同加入 modal）＋可收合；「依車站數排序」tab
+           則照站數順序、不分組。順序跟左邊卡片一致。所有分頁（含世界地圖）都顯示。 -->
       <div v-if="catalog && tiles.length" class="pane-resize" title="拖拉調整寬度" @pointerdown="startIndexResize" />
       <nav v-if="catalog && tiles.length" class="gallery-index" :style="{ width: indexWidth + 'px' }" aria-label="城市索引">
         <CityIndexList
@@ -245,7 +273,9 @@ const tiles = computed(() => {
           :sortable="tab === 'stations'"
           v-model:sort-dir="stationSort"
           count-noun="城市"
-          @pick="scrollToCity($event.id)"
+          :active-id="tab === 'worldmap' ? linkedId : null"
+          @pick="onIndexPick($event.id)"
+          @hover="tab === 'worldmap' && onLink($event)"
         />
       </nav>
     </div>
@@ -330,6 +360,8 @@ const tiles = computed(() => {
   padding: 16px;
   container-type: inline-size;
 }
+/* 世界地圖分頁：整片地圖填滿，不要內距／捲軸／container query。 */
+.map-body { padding: 0; overflow: hidden; position: relative; container-type: normal; }
 .gallery-status { padding: 32px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px; line-height: 1.7; }
 .gallery-status code { font-size: 12px; background: hsl(var(--muted) / 0.6); padding: 1px 5px; border-radius: 4px; }
 

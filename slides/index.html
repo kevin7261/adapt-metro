@@ -447,7 +447,7 @@
     <div class="grid cols-4">
       <div class="card blue"><div class="label">STAGE 1 · METRO MAPS</div><h3>真實路網</h3><p>匯入城市地鐵/輕軌 GeoJSON，原始地理座標與官方顏色。</p></div>
       <div class="card purple"><div class="label">STAGE 2 · MAP ADJUST</div><h3>骨架與格網</h3><p>拓撲收縮成骨架，再吸附到整數格路網。</p></div>
-      <div class="card rose"><div class="label">STAGE 3 · STRAIGHTEN</div><h3>爬山＋三步鏈循環</h3><p>多準則爬山、H/V 最大化四法，再以「端點移動→直線縮減→網格合併」循環把網格壓到最小。</p></div>
+      <div class="card rose"><div class="label">STAGE 3 · STRAIGHTEN</div><h3>爬山＋三步鏈循環</h3><p>多準則爬山、<strong>直線演算法九條鏈</strong>（論文①〜⑧＋LLM 對齊），再各以「端點移動→直線縮減→網格合併」循環把網格壓到最小。</p></div>
       <div class="card amber"><div class="label">STAGE 4 · RWD MAPS</div><h3>版面畫線</h3><p>4／8／16 方向折線繪製（預設 H/V/45°），依版面、裝置模擬與流量權重即時重排。</p></div>
     </div>
     <p class="subtitle" style="margin-top:18px;">純函式、確定性、無亂數——同一份輸入永遠得到同一份輸出，唯一的例外是選用性的 LLM 對齊／互動／評價／比較（離線預算、存檔、網頁只載入）。</p>
@@ -747,8 +747,8 @@
     <div class="roman">III</div>
     <div class="stagechip"><span class="sw" style="background:var(--rose);"></span>STAGE 3 · STRAIGHTEN</div>
     <h1 class="title">Straighten ——<br/>爬山最佳化＋三步鏈循環壓縮</h1>
-    <p class="subtitle">先依 Stott et al. (2011) 的多準則爬山把整數格佈局整理好、用四種方法把水平／垂直段最大化；再以自製的 <strong>movewise 三步鏈</strong>（端點移動 → 直線縮減 → 網格合併）循環，把網格壓到最小、線拉到最直——每一個移動後立即縮減網格、拓撲全程不變。</p>
-    <div class="pillrow"><span class="pill">五項準則</span><span class="pill">硬規則與冷卻</span><span class="pill">H/V 最大化四法</span><span class="pill">movewise 三步鏈</span><span class="pill">循環與逐步驗證</span><span class="pill">收斂統計</span></div>
+    <p class="subtitle">先依 Stott et al. (2011) 的多準則爬山把整數格佈局整理好，再用<strong>直線演算法九條鏈</strong>（論文①〜⑧＋LLM 對齊，名稱與 <code class="mono">data/thesis</code> 文獻一一對應）各自把水平／垂直段最大化；每一條鏈的結果再各走一條自製的 <strong>movewise 三步鏈</strong>（端點移動 → 直線縮減 → 網格合併）循環，把網格壓到最小、線拉到最直——每一個移動後立即縮減網格、拓撲全程不變。</p>
+    <div class="pillrow"><span class="pill">五項準則</span><span class="pill">硬規則與冷卻</span><span class="pill">直線演算法：論文①〜⑧</span><span class="pill">第九條鏈：LLM 對齊</span><span class="pill">Shape-Guided 貼形</span><span class="pill">movewise 三步鏈</span><span class="pill">循環與逐步驗證</span><span class="pill">收斂統計</span></div>
   </section>
 
   <!-- 18: hill climbing criteria -->
@@ -786,23 +786,56 @@
     </div>
   </section>
 
-  <!-- 20: HV maximization -->
-  <section class="slide" data-title="H/V 最大化">
-    <div class="eyebrow"><span class="tag"><b>19</b>H/V 最大化後處理</span><span class="rule"></span><span class="eng">RECTILINEAR REFINEMENT</span></div>
-    <h1 class="title">四種方法各成一條「鏈」，各自迭代到不動點</h1>
-    <p class="subtitle">爬山完成後，再短距離移動彩色頂點讓水平/垂直段最多（一段是 H/V ⇔ 兩端恰有一個座標相同）。直角爬山／軸對齊／整數規劃＋LLM 對齊共四種方法互相獨立、可比較，共用同一套硬規則與移動原語，各自迭代到不動點（上限 20 次）——每一種的結果就是一條「鏈」，後面的三步鏈、循環、逐步驗證都以鏈為單位各有一個 tab。</p>
-    <div class="grid cols-3">
-      <div class="card rose"><div class="label">直角爬山</div><h3>八方向準則換方向</h3><p>|sin(4θ)| 換成 |sin(2θ)|（45° 變最貴），權重 ×3、半徑 [2,1,1] 再爬一次。</p></div>
-      <div class="card rose"><div class="label">軸對齊</div><h3>方向指派＋座標指派</h3><p>逐軸把貼近該軸（45° 不算）、垂距 ≤2·maxShift 的段用 union-find 併群，每群吸到成員座標中位數（L1 最小移動）。</p></div>
-      <div class="card rose"><div class="label">整數規劃</div><h3>逐軸 0-1 精確解</h3><p>每個可對齊端點一個 offset 變數 ∈[-k,k]，最大化對齊段數（位移當 tie-break）；配對圖分連通元件，生成樹 DP 求解，環用小 feedback set 枚舉。</p></div>
+  <!-- 20: HV maximization overview -->
+  <section class="slide" data-title="直線演算法九條鏈">
+    <div class="eyebrow"><span class="tag"><b>19</b>直線演算法：九條鏈</span><span class="rule"></span><span class="eng">RECTILINEAR REFINEMENT · 9 CHAINS</span></div>
+    <h1 class="title">論文①〜⑧＋LLM 對齊，各成一條「鏈」</h1>
+    <p class="subtitle">爬山把佈局整理好後，再短距離移動彩色頂點讓水平/垂直段最多（一段是 H/V ⇔ 兩端恰有一個座標相同）。「直線演算法」＝<strong>八篇論文的正交化方法各實作成一條鏈（①〜⑧）＋第九條 LLM 對齊</strong>——名稱與 <code class="mono">data/thesis/&lt;n&gt;_*_演算法說明.md</code> 一一對應，互相獨立、可並列比較，全部共用同一套硬規則與移動原語、各自迭代到不動點（上限 20 次）。每一條鏈就是後面三步鏈、循環、逐步驗證各一個 tab 的單位（9 條 × 5 種視圖）。</p>
+    <div class="grid cols-4">
+      <div class="card rose"><div class="label">① 筆畫法</div><h3>Stroke</h3><p>Li &amp; Dong 2010</p></div>
+      <div class="card rose"><div class="label">② 直角爬山</div><h3>Rectilinear HC</h3><p>Stott et al. 2011</p></div>
+      <div class="card rose"><div class="label">③ MILP規劃</div><h3>Mixed-Integer</h3><p>Nöllenburg &amp; Wolff 2011</p></div>
+      <div class="card rose"><div class="label">④ 力導向</div><h3>Force-Directed</h3><p>Hong et al. 2006</p></div>
+      <div class="card rose"><div class="label">⑤ 最小平方</div><h3>Least-Squares</h3><p>Wang &amp; Chi 2011</p></div>
+      <div class="card rose"><div class="label">⑥ 八向格網</div><h3>Octilinear Grid</h3><p>Bast et al. 2020</p></div>
+      <div class="card rose"><div class="label">⑦ 路徑簡化</div><h3>Path Simplification</h3><p>Merrick &amp; Gudmundsson 2007</p></div>
+      <div class="card rose"><div class="label">⑧ SAT規劃</div><h3>SAT Solver</h3><p>Fuchs 2022</p></div>
     </div>
+    <p class="subtitle" style="margin-top:14px;">共用機構在 <code class="mono">src/stores/paperAlign.js</code>（總機構 skill <code class="mono">route-paper-align</code>）：WINDOW ±2 夾擠、逐批漸進 + 嚴格改善套用（finishBatches）、對齊感知量化（snapAligned）、HV 優先／45° 次之的接受準則（scoreAlign）、③⑧ 共用的方向指派模型（dirModel）。<strong>先前自創、不對應論文的「軸對齊／整數規劃」鏈已於 2026-07 下架。</strong></p>
+  </section>
+
+  <!-- 20b: paper chains detail I (①〜④) -->
+  <section class="slide" data-title="論文鏈 ①〜④">
+    <div class="eyebrow"><span class="tag"><b>20</b>論文鏈細節 ①〜④</span><span class="rule"></span><span class="eng">PAPER CHAINS I</span></div>
+    <h1 class="title">筆畫、直角爬山、MILP、力導向</h1>
+    <table class="tbl">
+      <tr><th>鏈</th><th>文獻</th><th>做法</th></tr>
+      <tr><td><strong>① 筆畫法</strong><br/><code class="mono">stroke</code></td><td>Li &amp; Dong 2010</td><td>把段串成「筆畫」（同路線具名優先、剩餘段跨路線 every-best-fit）；依最大方向扭曲 &gt;45° 遞迴切子筆畫；各子筆畫先試 H/V、被擋才退 ±45°，成員頂點垂直投影到過錨點的定向直線，逐子筆畫當場套用。</td></tr>
+      <tr><td><strong>② 直角爬山</strong><br/><code class="mono">rect</code></td><td>Stott et al. 2011</td><td>爬山的方向準則從八方向 <code class="mono">|sin4θ|</code> 換成直角 <code class="mono">|sin2θ|</code>（45° 變最貴），權重 ×3、半徑 [2,1,1] 在 Hill Climbing 結果上再爬，迭代到不動點（上限 20 次）。全網 H/V <strong>+42.9%</strong>。</td></tr>
+      <tr><td><strong>③ MILP規劃</strong><br/><code class="mono">milp</code></td><td>Nöllenburg &amp; Wolff 2011</td><td>每段給 3 個八方向候選（最近扇區 ±1），成本＝λ₁·同路線相鄰段彎折＋λ₂·偏離原方向，同頂點同向硬 veto；配對圖分連通元件，生成樹 DP＋feedback 段枚舉<strong>精確</strong>求解方向指派，再鬆弛重建座標＋量化。</td></tr>
+      <tr><td><strong>④ 力導向</strong><br/><code class="mono">force</code></td><td>Hong et al. 2006</td><td>引力 d/δ＋頂點對斥力 δ²/d²＋頂點×不相鄰邊斥力 (γ−d)²/d＋八方向磁場力（力偶垂直於邊），逐頂點在格空間跑 40 輪，位移過 PrEd 8 區域上限，量化後逐頂點批＋嚴格改善套用。</td></tr>
+    </table>
+  </section>
+
+  <!-- 20c: paper chains detail II (⑤〜⑧) -->
+  <section class="slide" data-title="論文鏈 ⑤〜⑧">
+    <div class="eyebrow"><span class="tag"><b>21</b>論文鏈細節 ⑤〜⑧</span><span class="rule"></span><span class="eng">PAPER CHAINS II</span></div>
+    <h1 class="title">最小平方、八向格網、路徑簡化、SAT</h1>
+    <table class="tbl">
+      <tr><th>鏈</th><th>文獻</th><th>做法</th></tr>
+      <tr><td><strong>⑤ 最小平方</strong><br/><code class="mono">lsq</code></td><td>Wang &amp; Chi 2011（Focus+Context）</td><td>每段目標向量＝目前邊向量旋到最近八方向、長度不變，解 <code class="mono">min Σ|(ṽᵢ−ṽⱼ)−f_ij|² ＋ w_g·Σ|ṽᵢ−vᵢ|²</code>（Gauss–Seidel 60 輪），量化後單批套用。</td></tr>
+      <tr><td><strong>⑥ 八向格網</strong><br/><code class="mono">octi</code></td><td>Bast et al. 2020</td><td>邊依線度數 ldeg 排序逐邊定案：未定案端點在半徑 WINDOW 內的空格候選中選一對，成本＝位移懲罰＋非八方向弦彎折＋站上同路線段線彎；定案格關閉（一格一站）。目標最接近三步鏈的「格子越少越好」。</td></tr>
+      <tr><td><strong>⑦ 路徑簡化</strong><br/><code class="mono">path</code></td><td>Merrick &amp; Gudmundsson 2007</td><td>每條路線的頂點鏈當折線，C=8 方向、ε-圓刺穿求最少 link 的 <strong>C-directed 簡化</strong>（reach＋BFS 分層）；頂點垂直投影到刺穿它的 link，路線依轉乘站數排序漸進、先處理的定案。</td></tr>
+      <tr><td><strong>⑧ SAT規劃</strong><br/><code class="mono">sat</code></td><td>Fuchs 2022</td><td>與 ③MILP <strong>完全同模型</strong>（每段 3 候選、一熱、同頂點同向硬子句、S1/S2 軟子句），求解器換成 <strong>DPLL 分支定界</strong>（most-constrained 優先、單元傳播 veto、目前最佳成本剪枝、節點上限 60000 超限退回原方向）。</td></tr>
+    </table>
+    <p class="subtitle" style="margin-top:12px;">八條鏈接受準則一律用 H/V/45°（countHVD——八方向系演算法），套用一律經同一套整數格精確幾何硬規則；違反者不採納。跑完九條鏈可用 RWD 的「LLM 比較」一次評審選最佳。</p>
   </section>
 
   <!-- 21: LLM align workflow -->
-  <section class="slide" data-title="LLM 對齊">
-    <div class="eyebrow"><span class="tag"><b>20</b>LLM 對齊工作流程</span><span class="rule"></span><span class="eng">LLM AS OPTIMIZER</span></div>
-    <h1 class="title">第四種方法：語言模型直接讀圖提案</h1>
-    <p class="subtitle">瀏覽器端沒有 API key、無法即時推論，結果離線預算、存檔，網頁只載入。提案「動哪些點」是模型的判斷；合法性不是——每輪提案都經與其他三種完全相同的硬規則套用，淨 H/V 變差整批退回。</p>
+  <section class="slide" data-title="第九條鏈：LLM 對齊">
+    <div class="eyebrow"><span class="tag"><b>22</b>第九條鏈 · LLM 對齊</span><span class="rule"></span><span class="eng">LLM AS OPTIMIZER</span></div>
+    <h1 class="title">第九條鏈：語言模型直接讀圖提案</h1>
+    <p class="subtitle">論文①〜⑧之外的第九條鏈——不用 API key，由 Claude Code 的模型直接當最佳化器。瀏覽器端無法即時推論，結果離線預算、存檔，網頁只載入。提案「動哪些點」是模型的判斷；合法性不是——每輪提案都經與其他八條鏈完全相同的硬規則套用，淨 H/V 變差整批退回。</p>
     <div class="flowrow">
       <div class="card green fstep"><div class="label">1 · export</div><p>印出目前佈局：offSegs（未對齊的段）、hvSegs（已對齊、鎖定方向的段）</p></div>
       <div class="farrow">→</div>
@@ -815,9 +848,9 @@
 
   <!-- 22: movewise chain -->
   <section class="slide" data-title="movewise 三步鏈">
-    <div class="eyebrow"><span class="tag"><b>21</b>movewise 三步鏈</span><span class="rule"></span><span class="eng">MOVEWISE COMPACTION CHAIN</span></div>
+    <div class="eyebrow"><span class="tag"><b>23</b>movewise 三步鏈</span><span class="rule"></span><span class="eng">MOVEWISE COMPACTION CHAIN</span></div>
     <h1 class="title">每一個移動後，立即縮減網格</h1>
-    <p class="subtitle">四條鏈的結果再各走一條三步鏈：<strong>端點移動 → 直線縮減 → 網格合併</strong>。「縮減網格」不是獨立步驟——<strong>每一個單一移動完成後就把整排/整欄沒有彩色點的欄列移除</strong>（movewise），網格隨時緻密、尺寸逐移動縮小。</p>
+    <p class="subtitle">九條鏈的結果再各走一條三步鏈：<strong>端點移動 → 直線縮減 → 網格合併</strong>。「縮減網格」不是獨立步驟——<strong>每一個單一移動完成後就把整排/整欄沒有彩色點的欄列移除</strong>（movewise），網格隨時緻密、尺寸逐移動縮小。</p>
     <div class="grid cols-4">
       <div class="card rose"><div class="label">共同守則 1</div><h3>一次只移一格</h3><p>三個演算法一致；遠距離的對齊與合併靠「移一格→壓縮→再移一格」逐步完成。</p></div>
       <div class="card rose"><div class="label">共同守則 2</div><h3>跨距上限</h3><p>任何移動不得讓受影響段的兩個顏色點橫跨超過 n 格（Chebyshev；Straighten 工具列輸入、預設 3、改數字即重算——只約束爬山 movewise，RWD 畫線不用）。舊長段只准縮短。</p></div>
@@ -828,7 +861,7 @@
 
   <!-- 23: the three algorithms -->
   <section class="slide" data-title="三個演算法">
-    <div class="eyebrow"><span class="tag"><b>22</b>三步鏈的三個演算法</span><span class="rule"></span><span class="eng">THREE MOVE KINDS</span></div>
+    <div class="eyebrow"><span class="tag"><b>24</b>三步鏈的三個演算法</span><span class="rule"></span><span class="eng">THREE MOVE KINDS</span></div>
     <h1 class="title">點移一格、線移一格、邊界兩兩合併</h1>
     <div class="grid cols-3" style="margin-top:16px;">
       <div class="card rose"><div class="label">1 · 端點移動</div><h3>每個非白點移 1 格</h3><p>採納條件三擇一：入射段 H/V 淨增；H/V 不變但「直線變長且斜線變短」（把斜線一格一格吃掉）；藍色端點「線變短」（往鄰居收）。bendsPaid 護欄：既有直段只有同路線同步被拉直才准折彎。</p></div>
@@ -840,7 +873,7 @@
 
   <!-- 24: loop & step verify -->
   <section class="slide" data-title="循環與逐步驗證">
-    <div class="eyebrow"><span class="tag"><b>23</b>循環與逐步驗證</span><span class="rule"></span><span class="eng">ROUND-ROBIN &amp; STEP-THROUGH</span></div>
+    <div class="eyebrow"><span class="tag"><b>25</b>循環與逐步驗證</span><span class="rule"></span><span class="eng">ROUND-ROBIN &amp; STEP-THROUGH</span></div>
     <h1 class="title">三個演算法各掃一遍輪替；每一步都能重播</h1>
     <div class="grid cols-2">
       <div class="card rose"><div class="label">循環</div><h3>掃一遍就換手，全靜止才停</h3><p>每輪＝端點移動把整個 network 掃<strong>一遍</strong>（每個元素本輪最多動一次）→ 直線縮減掃一遍 → 網格合併掃一遍 → 回到端點移動；某一輪三個演算法都沒有任何改動才停止。RWD Maps 的底圖就是這個循環的收斂結果。</p></div>
@@ -851,12 +884,12 @@
 
   <!-- 25: convergence stats -->
   <section class="slide" data-title="收斂統計">
-    <div class="eyebrow"><span class="tag"><b>24</b>收斂結果與實測統計</span><span class="rule"></span><span class="eng">CONVERGENCE STATS</span></div>
+    <div class="eyebrow"><span class="tag"><b>26</b>收斂結果與實測統計</span><span class="rule"></span><span class="eng">CONVERGENCE STATS</span></div>
     <h1 class="title">234 城實測，全數收斂</h1>
-    <p class="subtitle">H/V 後處理四條鏈各自迭代到不動點（上限 20 次）；三步鏈循環＝一遍掃描輪替到全靜止（上限 200 輪，實測普遍 2–5 輪）。全部確定性、無亂數。</p>
+    <p class="subtitle">直線演算法九條鏈各自迭代到不動點（上限 20 次）；三步鏈循環＝一遍掃描輪替到全靜止（上限 200 輪，實測普遍 2–5 輪）。全部確定性、無亂數。</p>
     <table class="tbl">
       <tr><th>項目</th><th>結果</th><th class="num">備註</th></tr>
-      <tr><td>H/V 後處理（迭代到不動點）</td><td>ILP +47.8%／直角爬山 +42.9%／軸對齊 +28.5%</td><td class="num">最大迭代 12 次</td></tr>
+      <tr><td>②直角爬山鏈（迭代到不動點）</td><td>全網 H/V <strong>+42.9%</strong>、全數收斂</td><td class="num">比較基準；其餘鏈依方法各異</td></tr>
       <tr><td>三步鏈循環（234 城全量）</td><td><strong>234/234 全數收斂</strong>，總計約 5 秒</td><td class="num">普遍 2–5 輪</td></tr>
       <tr><td>壓縮幅度（例）</td><td>台北 68×68 → 約 14×13；NYC 160×160 → 約 31×34</td><td class="num">拓撲逐段驗證不變</td></tr>
     </table>
@@ -874,7 +907,7 @@
 
   <!-- 24: parallel route merging -->
   <section class="slide" data-title="同軌路線合併">
-    <div class="eyebrow"><span class="tag"><b>25</b>同軌路線合併</span><span class="rule"></span><span class="eng">PARALLEL SEG MERGING</span></div>
+    <div class="eyebrow"><span class="tag"><b>27</b>同軌路線合併</span><span class="rule"></span><span class="eng">PARALLEL SEG MERGING</span></div>
     <h1 class="title">重疊就一條，不錯開成平行線</h1>
     <p class="subtitle">使用者裁決：RWD 要跟匯入的 network 一樣，同軌路線重疊就畫一條、不錯開。判準一律看匯入的真實幾何，不管官方圖語意。</p>
     <div class="grid cols-2">
@@ -886,7 +919,7 @@
 
   <!-- 25: candidate polylines -->
   <section class="slide" data-title="候選折線">
-    <div class="eyebrow"><span class="tag"><b>26</b>候選折線與轉折優先序</span><span class="rule"></span><span class="eng">CANDIDATE ROUTING</span></div>
+    <div class="eyebrow"><span class="tag"><b>28</b>候選折線與轉折優先序</span><span class="rule"></span><span class="eng">CANDIDATE ROUTING</span></div>
     <h1 class="title">直線 &gt; 單折 &gt; 雙折 &gt; 多折，轉折數絕對優先</h1>
     <p class="subtitle">每段依轉折數由少到多產生候選折線：直線、單折（45° 或 L）、雙折兩家族（45–H–45／H–45–H，分點 1/2·1/4·3/4）、三折混合（axis–45–axis–45）、45° 與軸腿任意次交替的階梯（折數硬頂 ≤20）。方向判準以像素為準：Δy≈0→H、Δx≈0→V、|Δx|≈|Δy|→45°。</p>
     <div class="bendrow">
@@ -904,7 +937,7 @@
 
   <!-- 25b: direction levels & selection order -->
   <section class="slide" data-title="方向級與選擇序">
-    <div class="eyebrow"><span class="tag"><b>27</b>方向級與候選選擇序</span><span class="rule"></span><span class="eng">DIRECTION LEVELS &amp; PICKBEST</span></div>
+    <div class="eyebrow"><span class="tag"><b>29</b>方向級與候選選擇序</span><span class="rule"></span><span class="eng">DIRECTION LEVELS &amp; PICKBEST</span></div>
     <h1 class="title">4／8／16 方向：能用低一級就不用高一級</h1>
     <p class="subtitle">工具列「方向」下拉三選一（預設 8），三個方向級<strong>同一套判斷邏輯</strong>。方向級優先是 tie-break 不是硬閘：衝突數（含近距貼線）排在方向級之前——零衝突的 22.5° 贏過有重疊或貼線的 45°；兩者都乾淨時 45° 一定優先。</p>
     <div class="grid cols-3">
@@ -920,7 +953,7 @@
 
   <!-- 26: conflict escalation -->
   <section class="slide" data-title="絕不交叉">
-    <div class="eyebrow"><span class="tag"><b>28</b>絕不交叉的多層消解</span><span class="rule"></span><span class="eng">CONFLICT ESCALATION</span></div>
+    <div class="eyebrow"><span class="tag"><b>30</b>絕不交叉的多層消解</span><span class="rule"></span><span class="eng">CONFLICT ESCALATION</span></div>
     <h1 class="title">候選都衝突時，依序升級七個層級</h1>
     <p class="subtitle">「路線交叉絕不允許」是最高優先硬規則。衝突判定：共線重疊/平行貼線（累積 ≤25% 弧長硬上限）、線段相交（端點對端點除外，<strong>同一對線最多交叉一次</strong>）、壓過節點直接淘汰、<strong>節點環狀順序不可變</strong>（rotation system——同節點任兩條線不得互換位置）。</p>
     <div class="stack" style="margin-top:8px;">
@@ -935,7 +968,7 @@
 
   <!-- 27: soft goals -->
   <section class="slide" data-title="軟目標收尾">
-    <div class="eyebrow"><span class="tag"><b>29</b>軟目標與收尾迭代</span><span class="rule"></span><span class="eng">SOFT GOALS &amp; FINISHING PASSES</span></div>
+    <div class="eyebrow"><span class="tag"><b>31</b>軟目標與收尾迭代</span><span class="rule"></span><span class="eng">SOFT GOALS &amp; FINISHING PASSES</span></div>
     <h1 class="title">同名路線盡量不轉折，L 形能改 45° 就改</h1>
     <p class="subtitle">衝突消解後的微調，排在折數絕對優先序之後——不會為此增加共線或交叉。收尾迭代跑兩輪：〔A* 樓梯轉 45（destairPass）→ 22.5 升回 45（deskewPass）→ 壓短共線（移分點）→ 順接軟調整 → 降折到定點 → L→45（最後）〕，每步挪動走廊後回頭重撿。</p>
     <div class="grid cols-2">
@@ -948,7 +981,7 @@
 
   <!-- 27b: frames & fisheye -->
   <section class="slide" data-title="版面模擬與魚眼">
-    <div class="eyebrow"><span class="tag"><b>30</b>版面模擬與魚眼放大鏡</span><span class="rule"></span><span class="eng">DEVICE FRAMES &amp; FISHEYE</span></div>
+    <div class="eyebrow"><span class="tag"><b>32</b>版面模擬與魚眼放大鏡</span><span class="rule"></span><span class="eng">DEVICE FRAMES &amp; FISHEYE</span></div>
     <h1 class="title">同一份佈局，任何版面都重新求解</h1>
     <p class="subtitle">方向約束以「畫面像素」為準——欄寬 ≠ 列高是常態，格座標的對角線在畫面上不是 45°，所以折線永遠在<strong>當下畫布的像素空間</strong>重建；視窗或版面一變就重跑整個佈線器（同尺寸 render 用快取）。</p>
     <div class="grid cols-2">
@@ -959,7 +992,7 @@
 
   <!-- 28: traffic weight -->
   <section class="slide" data-title="流量權重">
-    <div class="eyebrow"><span class="tag"><b>31</b>流量權重與響應式概括化</span><span class="rule"></span><span class="eng">WEIGHT-DRIVEN GENERALIZATION</span></div>
+    <div class="eyebrow"><span class="tag"><b>33</b>流量權重與響應式概括化</span><span class="rule"></span><span class="eng">WEIGHT-DRIVEN GENERALIZATION</span></div>
     <h1 class="title">依流量放大主幹、隱藏次要站</h1>
     <p class="subtitle">版面簡化不改拓撲——只把權重轉成非均勻的欄寬列高，在新像素座標重跑 RWD 繪線。weight 粒度＝相鄰兩站的 link，不是段的兩端點。</p>
     <div class="grid cols-2">
@@ -971,7 +1004,7 @@
 
   <!-- 29: LLM grid -->
   <section class="slide" data-title="LLM 互動">
-    <div class="eyebrow"><span class="tag"><b>32</b>LLM 互動工作流程</span><span class="rule"></span><span class="eng">NATURAL-LANGUAGE GRID WEIGHTS</span></div>
+    <div class="eyebrow"><span class="tag"><b>34</b>LLM 互動工作流程</span><span class="rule"></span><span class="eng">NATURAL-LANGUAGE GRID WEIGHTS</span></div>
     <h1 class="title">一句話，讓 AI 推理每欄每列的顯示權重</h1>
     <p class="subtitle">第二種「權重＝大小」來源：使用者說「把市中心那幾欄拉開」，語言模型逐欄／逐列推理顯示權重——不搬任何站的整數格座標，只改顯示比例，不做任何幾何求解。跑完不自動套用，按「執行調整」才在新像素座標重畫。</p>
     <div class="codebox">{ <span class="k">"model"</span>: <span class="s">"Fable 5"</span>, <span class="k">"colW"</span>: [1, 1, 4.5, 3, 1, 0.8], <span class="k">"rowW"</span>: [0.9, 1, 3.8, 1.2],
@@ -982,12 +1015,12 @@
 
   <!-- 29b: LLM eval & compare -->
   <section class="slide" data-title="LLM 評價與比較">
-    <div class="eyebrow"><span class="tag"><b>33</b>LLM 評價與 LLM 比較</span><span class="rule"></span><span class="eng">LLM AS CRITIC &amp; JUDGE</span></div>
+    <div class="eyebrow"><span class="tag"><b>35</b>LLM 評價與 LLM 比較</span><span class="rule"></span><span class="eng">LLM AS CRITIC &amp; JUDGE</span></div>
     <h1 class="title">AI 評路網佈局，並在八個結果中選最佳</h1>
     <p class="subtitle">兩個唯讀取向的 LLM 功能，與 LLM 對齊／互動同一套「離線預算、存檔、網頁載入」架構——瀏覽器端沒有 API key、不做即時推論。</p>
     <div class="grid cols-2">
       <div class="card green"><div class="label">LLM 評價（route-llm-eval）</div><h3>讀幾何寫評語＋轉成具體 moves</h3><p>模型讀縮減網格佈局的幾何脈絡（逐線段方向統計、彎折數、頂點鏈），寫評價（哪些線可以更直/更方正/彎太多）並把建議轉成 moves——<strong>最優先消除銳角</strong>（夾角&lt;90° 的尖折改成 90° 直角或 180° 直通）。moves 經硬規則 apply 存檔；「執行調整」只切換套用⇄恢復比較前後，不再跑 LLM。</p></div>
-      <div class="card green"><div class="label">LLM 比較（route-llm-compare）</div><h3>八結果評審，選全體／原始／旋轉最佳</h3><p>一次比較原始與旋轉變體的直角爬山、軸對齊、整數規劃與可用的 LLM 對齊（最多 8 個），依方正/直線比例、轉折數、平衡、硬失敗（forced/fallback）評分，選出 winner、winnerOrig、winnerRot 並逐一列優缺點。純評審——不動任何座標。</p></div>
+      <div class="card green"><div class="label">LLM 比較（route-llm-compare）</div><h3>全結果評審，選全體／原始／旋轉最佳</h3><p>一次比較原始與旋轉變體的<strong>論文①〜⑧八條鏈</strong>與可用的 LLM 對齊（最多 18 個），依方正/直線比例、轉折數、平衡、硬失敗（forced/fallback）評分，選出 winner、winnerOrig、winnerRot 並逐一列優缺點。純評審——不動任何座標。</p></div>
     </div>
   </section>
 
@@ -1005,7 +1038,7 @@
 
   <!-- parallel: correspondence -->
   <section class="slide" data-title="三管線一一對應">
-    <div class="eyebrow"><span class="tag"><b>34</b>三管線一一對應</span><span class="rule"></span><span class="eng">ONE-TO-ONE CORRESPONDENCE</span></div>
+    <div class="eyebrow"><span class="tag"><b>36</b>三管線一一對應</span><span class="rule"></span><span class="eng">ONE-TO-ONE CORRESPONDENCE</span></div>
     <h1 class="title">系統單位不同，schema 相同</h1>
     <p class="subtitle">三條管線輸出同一份 GeoJSON 規格（<code class="mono">seg_id</code>／<code class="mono">routes[]</code>／<code class="mono">stations[]</code>／<code class="mono">lines</code>…），系統中繼放各自的 <code class="mono">*_system</code> 並鏡射一份 <code class="mono">metro_system{kind}</code>，讓前端一律當 metro 圖層渲染。每條管線都有成對的取得／驗證 skill，互為 fetch⇄audit 迴圈。</p>
     <table class="tbl">
@@ -1020,7 +1053,7 @@
 
   <!-- parallel: railway -->
   <section class="slide" data-title="Railway 國家鐵路">
-    <div class="eyebrow"><span class="tag"><b>35</b>Railway · 國家鐵路</span><span class="rule"></span><span class="eng">NATIONAL RAILWAYS</span></div>
+    <div class="eyebrow"><span class="tag"><b>37</b>Railway · 國家鐵路</span><span class="rule"></span><span class="eng">NATIONAL RAILWAYS</span></div>
     <h1 class="title">一國拆高鐵/一般，日本再拆 JR 六社</h1>
     <p class="subtitle">收 <code class="mono">railway=rail</code> 幹線＋高鐵（新幹線／TGV／高鐵／KTX），不含地鐵/輕軌/路面電車；私鐵預設收、用 <code class="mono">_overrides</code> 兩層過濾逐國排除。</p>
     <div class="grid cols-3">
@@ -1033,7 +1066,7 @@
 
   <!-- parallel: highway + landmark -->
   <section class="slide" data-title="Highway 與 Landmark">
-    <div class="eyebrow"><span class="tag"><b>36</b>Highway ＋ Landmark</span><span class="rule"></span><span class="eng">HIGHWAYS &amp; LANDMARKS</span></div>
+    <div class="eyebrow"><span class="tag"><b>38</b>Highway ＋ Landmark</span><span class="rule"></span><span class="eng">HIGHWAYS &amp; LANDMARKS</span></div>
     <h1 class="title">交流道＝站；河流＝骨架線</h1>
     <div class="grid cols-2">
       <div class="card amber"><div class="label">HIGHWAY · 高速公路</div><h3>封閉式道路網，交流道當車站</h3><p>收國道 motorway ＋封閉式快速公路，交流道 <code class="mono">motorway_junction</code> 串成網絡、依 ref 分組。驗證看交流道命名率／里程單調／無假長線／只收封閉式。目前台灣三都會區：台北 126／台中 83／高雄 52 交流道。國家專屬判準與路標配色見 <code class="mono">highway-cities</code>。</p></div>
@@ -1043,7 +1076,7 @@
   </section>
 
   <section class="slide" data-title="系統總覽">
-    <div class="eyebrow"><span class="tag"><b>37</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
+    <div class="eyebrow"><span class="tag"><b>39</b>系統總覽</span><span class="rule"></span><span class="eng">AT A GLANCE</span></div>
     <h1 class="title">一個瀏覽器，跑完整條產線</h1>
     <div class="grid cols-4">
       <div class="card blue"><div class="big">234</div><p>城市路網資料集</p></div>
@@ -1059,27 +1092,27 @@
 
   <!-- 35: literature & positioning -->
   <section class="slide" data-title="演算法文獻與定位">
-    <div class="eyebrow"><span class="tag"><b>38</b>演算法文獻與定位</span><span class="rule"></span><span class="eng">RELATED WORK</span></div>
-    <h1 class="title">九篇核心文獻，逐篇對應系統章節</h1>
-    <p class="subtitle"><code class="mono">data/thesis/</code> 收錄核心文獻 PDF 與逐篇中文演算法說明，每篇都標明對本系統哪個階段的思路貢獻或作為對照法。</p>
+    <div class="eyebrow"><span class="tag"><b>40</b>演算法文獻與定位</span><span class="rule"></span><span class="eng">RELATED WORK</span></div>
+    <h1 class="title">九篇核心文獻，八篇各成一條直線鏈</h1>
+    <p class="subtitle"><code class="mono">data/thesis/</code> 收錄核心文獻 PDF 與逐篇中文演算法說明。<strong>編號 1–8 都以「整數格短距離後處理」形式實作成 Straighten 的論文直線鏈①〜⑧</strong>（tab 名帶論文圈號、與演算法說明一一對應），第 9 篇的 Shape-Guided 掛在循環之後（非直線鏈第 9 條）。</p>
     <table class="tbl">
-      <tr><th class="num">#</th><th>文獻</th><th>對應</th></tr>
-      <tr><td class="num">1</td><td>Stroke-based schematic maps</td><td>骨架化思路對照</td></tr>
-      <tr><td class="num">2</td><td><strong>Stott et al. 2011</strong>，Automatic Metro Map Layout Using Multicriteria Optimization (TVCG)</td><td><strong>Stage 3 爬山法主依據</strong></td></tr>
-      <tr><td class="num">3</td><td>Nöllenburg &amp; Wolff，Mixed-Integer Programming</td><td>整數規劃後處理對照</td></tr>
-      <tr><td class="num">4</td><td>力導向自動視覺化</td><td>對照法</td></tr>
-      <tr><td class="num">5</td><td>Focus+Context Metro Maps</td><td>流量權重／概括化思路</td></tr>
-      <tr><td class="num">6</td><td>Bast et al.，Octilinear Grid Graphs</td><td>八向格佈線對照（目標最接近三步鏈的「格子越少越好」）</td></tr>
-      <tr><td class="num">7</td><td>Merrick &amp; Gudmundsson，Path Simplification</td><td>路徑簡化對照</td></tr>
-      <tr><td class="num">8</td><td>SAT-based Octolinear Layouts</td><td>求解器路線對照</td></tr>
-      <tr><td class="num">9</td><td>Batik et al. 2022，Shape-Guided Mixed Metro Map Layout (Pacific Graphics)</td><td>對照法（使用者自訂形狀嵌入佈局，本系統未實作對應章節）</td></tr>
+      <tr><th class="num">#</th><th>文獻</th><th>對應鏈 / 用途</th></tr>
+      <tr><td class="num">1</td><td>Li &amp; Dong 2010，Stroke-based schematic maps</td><td>直線鏈 <strong>①筆畫法</strong>（<code class="mono">route-stroke-align</code>）</td></tr>
+      <tr><td class="num">2</td><td><strong>Stott et al. 2011</strong>，Automatic Metro Map Layout Using Multicriteria Optimization (TVCG)</td><td><strong>Stage 3 爬山法主依據</strong>＋直線鏈 <strong>②直角爬山</strong>（<code class="mono">route-rect-polish</code>）</td></tr>
+      <tr><td class="num">3</td><td>Nöllenburg &amp; Wolff 2011，Mixed-Integer Programming</td><td>直線鏈 <strong>③MILP規劃</strong>（<code class="mono">route-milp-align</code>）</td></tr>
+      <tr><td class="num">4</td><td>Hong et al. 2006，力導向自動視覺化</td><td>直線鏈 <strong>④力導向</strong>（<code class="mono">route-force-align</code>）</td></tr>
+      <tr><td class="num">5</td><td>Wang &amp; Chi 2011，Focus+Context Metro Maps</td><td>直線鏈 <strong>⑤最小平方</strong>（<code class="mono">route-lsq-align</code>）＋流量權重思路</td></tr>
+      <tr><td class="num">6</td><td>Bast et al. 2020，Octilinear Grid Graphs</td><td>直線鏈 <strong>⑥八向格網</strong>（<code class="mono">route-octi-align</code>；目標最接近三步鏈的「格子越少越好」）</td></tr>
+      <tr><td class="num">7</td><td>Merrick &amp; Gudmundsson 2007，Path Simplification</td><td>直線鏈 <strong>⑦路徑簡化</strong>（<code class="mono">route-path-align</code>）</td></tr>
+      <tr><td class="num">8</td><td>Fuchs 2022，SAT-based Octolinear Layouts</td><td>直線鏈 <strong>⑧SAT規劃</strong>（<code class="mono">route-sat-align</code>；與 #3 同模型換求解器）</td></tr>
+      <tr><td class="num">9</td><td>Batik et al. 2022，Shape-Guided Mixed Metro Map Layout (Pacific Graphics)</td><td><strong>Shape-Guided</strong>（<code class="mono">route-shape-align</code>；掛在①〜⑧循環之後貼形，非直線鏈第 9 條）</td></tr>
     </table>
-    <p class="subtitle" style="margin-top:12px;">另有 <strong>Boeing 2019</strong>《Urban Spatial Order: Street Network Orientation, Configuration, and Entropy》——非上表編號文獻，但有<strong>直接程式對應</strong>：<code class="mono">src/stores/orientation.js</code> 的長度加權方向熵／φ 計算（Stage 2 示意格網化 rotated 變體的主軸角偵測）直接沿用該文公式。</p>
+    <p class="subtitle" style="margin-top:12px;">第九條直線鏈是 <strong>LLM 對齊</strong>（不對應論文、由模型當最佳化器）。另有 <strong>Boeing 2019</strong>《Urban Spatial Order: Street Network Orientation, Configuration, and Entropy》——非上表編號文獻，但有<strong>直接程式對應</strong>：<code class="mono">src/stores/orientation.js</code> 的長度加權方向熵／φ 計算（Stage 2 示意格網化 rotated 變體的主軸角偵測）直接沿用該文公式。</p>
   </section>
 
   <!-- 36: three-chain positioning -->
   <section class="slide" data-title="三步鏈的定位">
-    <div class="eyebrow"><span class="tag"><b>39</b>三步鏈的定位</span><span class="rule"></span><span class="eng">POSITIONING</span></div>
+    <div class="eyebrow"><span class="tag"><b>41</b>三步鏈的定位</span><span class="rule"></span><span class="eng">POSITIONING</span></div>
     <h1 class="title">犧牲最佳性，換取秒級速度與逐步可視化</h1>
     <p class="subtitle">固定拓撲下的正交示意化＋面積最小化是經典 <strong>NP-hard</strong> 問題——TSM 框架的 orthogonal compaction、VLSI 1-D compaction、Misue et al. 的 orthogonal ordering 保持都是零件級近親。</p>
     <div class="grid cols-2" style="margin-top:8px;">
@@ -1112,7 +1145,7 @@
     <div class="seek-tip" id="seekTip"></div>
   </div>
   <button class="navbtn" id="nextBtn" aria-label="下一頁" title="下一頁 (→)">›</button>
-  <span class="counter" id="counter">1 / 46</span>
+  <span class="counter" id="counter">1 / 48</span>
   <button class="sb-fs" id="fsBtn" title="簡報模式・全螢幕 (F)" aria-label="全螢幕簡報"><span class="material-symbols-outlined m-icon">fullscreen</span></button>
 </footer>
 

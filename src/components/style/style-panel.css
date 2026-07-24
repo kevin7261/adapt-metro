@@ -207,6 +207,13 @@
   margin-bottom: 6px;
 }
 .llm-skill summary:hover { text-decoration: underline; }
+/* 結果 info-rows 裡標示「這個結果是哪個 skill 跑出來的」——等寬、主色，和底部
+   可展開 SKILL.md 全文的區塊呼應（使用者：LLM 相關 tab 出現結果後都要顯示用到的 skill）。 */
+.llm-skill-ref {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
 .llm-skill-md {
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) - 2px);

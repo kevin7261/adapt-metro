@@ -10,6 +10,7 @@ import { llmApplySet } from '../lib/llmApplyPersist'
 import { variantBase } from '../stores/layerMigrations'
 import GalleryShell from './GalleryShell.vue'
 import CityAllCard from './CityAllCard.vue'
+import WorldMapPicker from './WorldMapPicker.vue'
 import MIcon from './MIcon.vue'
 
 // 視圖畫廊：every city 的「所有地圖」縮圖。左側清單＝圈層面板的同款結構（Metro
@@ -314,6 +315,16 @@ function pick(kind, entry, viewId) {
           @pick="pick"
         />
       </div>
+    </template>
+
+    <!-- 世界地圖分頁：全球地圖選城市，點下去匯入並開 Metro Maps；與右側全球清單雙向連動 -->
+    <template #map="{ catalog, focus, highlight, onHover }">
+      <WorldMapPicker
+        :systems="catalog"
+        :focus="focus"
+        :highlight="highlight"
+        @hover="onHover"
+      />
     </template>
   </GalleryShell>
 </template>

@@ -34,6 +34,25 @@ export function loadMetroCatalog() {
   return catalogPromise
 }
 
+// Per-city representative coordinate index (data/metro/city_coords.json, from
+// metro:coords) — { <geojson stem>: [lng, lat] }. The 世界地圖 tab uses it to
+// place one dot per system without fetching every city's full network.
+let coordsPromise = null
+
+export function loadCityCoords() {
+  coordsPromise ??= fetch(assetUrl('data/metro/city_coords.json'), { cache: 'no-cache' })
+    .then((r) => {
+      if (!r.ok) throw new Error(`city_coords.json ${r.status}`)
+      return r.json()
+    })
+    .then((j) => j.coords ?? j)
+    .catch((err) => {
+      coordsPromise = null // allow retry
+      throw err
+    })
+  return coordsPromise
+}
+
 // Official-website index (data/metro/official_sites.json, from metro:sites),
 // keyed by '{continent}/{country}/{slug}'. 官方路線圖圖檔不再抓（使用者 2026-07
 // 裁決改抓官方網站）——資訊 tab 的「官網」列優先讀這裡，缺項 fallback 到

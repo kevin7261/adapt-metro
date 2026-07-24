@@ -21,8 +21,10 @@ const props = defineProps({
   countryEnOf: { type: Function, default: (t) => t.country },
   metricOf: { type: Function, default: (t) => `${t.line_count ?? 0} 線 · ${t.station_count ?? 0} 站` },
   keyOf: { type: Function, default: (t) => t.id ?? t.file },
+  // 與地圖等外部視圖連動：目前反白的城市 key（hover/選取），null＝無。
+  activeId: { type: [String, Number], default: null },
 })
-const emit = defineEmits(['pick', 'update:sortDir'])
+const emit = defineEmits(['pick', 'update:sortDir', 'hover'])
 
 // 收合狀態（預設全縮：洲別收起；展開洲別後國家也預設收起）。
 const expandedCont = reactive({})
@@ -92,8 +94,12 @@ const toggleSort = () => emit('update:sortDir', props.sortDir === 'desc' ? 'asc'
                 v-for="t in c.cities"
                 :key="keyOf(t)"
                 class="gi-item"
+                :class="{ active: keyOf(t) === activeId }"
+                :data-city-id="keyOf(t)"
                 :title="`${primaryZh(t)} · ${countryZhOf(t)}`"
                 @click="emit('pick', t)"
+                @mouseenter="emit('hover', keyOf(t))"
+                @mouseleave="emit('hover', null)"
               >
                 <span class="gi-name">{{ primaryZh(t) }}</span>
                 <span v-if="primaryEn(t) && primaryEn(t) !== primaryZh(t)" class="gi-en">{{ primaryEn(t) }}</span>
@@ -110,8 +116,12 @@ const toggleSort = () => emit('update:sortDir', props.sortDir === 'desc' ? 'asc'
         v-for="t in items"
         :key="keyOf(t)"
         class="gi-item flat"
+        :class="{ active: keyOf(t) === activeId }"
+        :data-city-id="keyOf(t)"
         :title="`${primaryZh(t)} · ${countryZhOf(t)} · ${metricOf(t)}`"
         @click="emit('pick', t)"
+        @mouseenter="emit('hover', keyOf(t))"
+        @mouseleave="emit('hover', null)"
       >
         <span class="gi-name">{{ primaryZh(t) }} · {{ countryZhOf(t) }}</span>
         <span class="gi-en">{{ primaryEn(t) }} · {{ countryEnOf(t) }}</span>
@@ -241,4 +251,12 @@ const toggleSort = () => emit('update:sortDir', props.sortDir === 'desc' ? 'asc'
 .gi-item:hover { background: hsl(var(--accent)); color: hsl(var(--primary)); }
 .gi-item:hover .gi-en,
 .gi-item:hover .gi-meta { color: hsl(var(--primary) / 0.75); }
+/* 與地圖連動反白（地圖 hover 到某點時，對應清單列亮起） */
+.gi-item.active {
+  background: hsl(var(--primary) / 0.14);
+  color: hsl(var(--primary));
+  box-shadow: inset 2px 0 0 hsl(var(--primary));
+}
+.gi-item.active .gi-en,
+.gi-item.active .gi-meta { color: hsl(var(--primary) / 0.75); }
 </style>

@@ -36,6 +36,7 @@ const props = defineProps({
   evalMsg: { type: String, default: null },
   evalError: { type: String, default: '' },
   evalApplied: { type: Boolean, default: false },
+  evalGridChanged: { type: Boolean, default: false }, // 網格重新壓縮：評語照顯示、執行調整停用
   compareRecord: { type: Object, default: null },
   compareRunning: { type: Boolean, default: false },
   compareCanRun: { type: Boolean, default: false },
@@ -162,6 +163,7 @@ watch(() => props.shapeText, () => {
 
             <template v-if="gridRecord">
               <div class="info-rows">
+                <div class="info-row"><span class="info-key">使用 skill</span><span class="llm-skill-ref">route-llm-grid</span></div>
                 <div class="info-row"><span class="info-key">模型</span><span>{{ gridRecord.model ?? '—' }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(gridRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">網格</span><span>{{ gridRecord.cols }} 欄 × {{ gridRecord.rows }} 列</span></div>
@@ -239,6 +241,7 @@ watch(() => props.shapeText, () => {
 
             <template v-if="evalRecord">
               <div class="info-rows">
+                <div class="info-row"><span class="info-key">使用 skill</span><span class="llm-skill-ref">route-llm-eval</span></div>
                 <div class="info-row"><span class="info-key">模型</span><span>{{ evalRecord.model ?? '—' }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(evalRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">網格</span><span>{{ evalRecord.stats.cols }} 欄 × {{ evalRecord.stats.rows }} 列</span></div>
@@ -275,9 +278,17 @@ watch(() => props.shapeText, () => {
                 <pre class="llm-pre">{{ evalRecord.finalOutput }}</pre>
               </template>
 
+              <!-- 網格被重新壓縮：評語（描述路網本身）仍以目前圖面為準顯示，但「執行
+                   調整」記錄的是舊網格的絕對格座標、套到新網格會錯位 → 停用、提示重跑 -->
+              <p v-if="evalGridChanged" class="llm-note">
+                此評價是在不同（{{ evalRecord.stats.cols }} 欄 × {{ evalRecord.stats.rows }} 列）的壓縮底圖上做的；
+                目前圖面已用新的壓縮重排。上方評語以路網拓撲為準仍適用，但「執行調整」記錄的是那張舊底圖的
+                完整座標——套用會把整個路網搬回舊底圖（連結順序、方向、相對位置都變），不是只讓路網更方正，
+                因此停用。要在目前圖面上一鍵套用，請按「重新 LLM 評價」重跑一次。
+              </p>
               <!-- 執行調整：評價時已把 moves 過硬規則、算好調整後佈局存進 exec——
                    這裡只切換顯示（套用 ⇄ 恢復），不再跑 LLM，可來回比較前後差別 -->
-              <template v-if="evalRecord.exec">
+              <template v-else-if="evalRecord.exec">
                 <h4 class="llm-h">記錄的調整（評價時已算好）</h4>
                 <div class="info-rows">
                   <div class="info-row">
@@ -339,6 +350,7 @@ watch(() => props.shapeText, () => {
             <p v-if="compareError" class="llm-run-hint eval-err">執行失敗：{{ compareError }}</p>
             <template v-if="compareRecord">
               <div class="info-rows">
+                <div class="info-row"><span class="info-key">使用 skill</span><span class="llm-skill-ref">route-llm-compare</span></div>
                 <div class="info-row"><span class="info-key">模型</span><span>{{ compareRecord.model }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(compareRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">全部最佳</span><b>{{ compareLabel(compareRecord, compareRecord.winner) }}</b></div>
@@ -459,6 +471,7 @@ watch(() => props.shapeText, () => {
 
             <template v-if="llmRecord">
               <div class="info-rows">
+                <div class="info-row"><span class="info-key">使用 skill</span><span class="llm-skill-ref">route-llm-align</span></div>
                 <div class="info-row"><span class="info-key">模型</span><span>{{ llmRecord.model ?? '—' }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(llmRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">輪數</span><span>{{ llmRecord.rounds }}</span></div>
@@ -548,6 +561,7 @@ watch(() => props.shapeText, () => {
 
             <template v-if="promptRecord">
               <div class="info-rows">
+                <div class="info-row"><span class="info-key">使用 skill</span><span class="llm-skill-ref">route-llm-align</span></div>
                 <div class="info-row"><span class="info-key">模型</span><span>{{ promptRecord.model ?? '—' }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(promptRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">輪數</span><span>{{ promptRecord.rounds }}</span></div>
@@ -630,6 +644,7 @@ watch(() => props.shapeText, () => {
 
             <template v-if="shapeRecord">
               <div class="info-rows">
+                <div class="info-row"><span class="info-key">使用 skill</span><span class="llm-skill-ref">route-llm-shape</span></div>
                 <div class="info-row"><span class="info-key">模型</span><span>{{ shapeRecord.model ?? '—' }}</span></div>
                 <div class="info-row"><span class="info-key">執行時間</span><span>{{ fmtElapsed(shapeRecord.elapsedMs) || '—' }}</span></div>
                 <div class="info-row"><span class="info-key">規定路段</span><span>{{ shapeRecord.route ?? '—' }}</span></div>

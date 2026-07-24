@@ -278,7 +278,9 @@ let rwdGridSeq = 0             // 套用切換序號，併進 RWD 快取鍵
 const rwdCompactKey = computed(() => (useLlm.value ? 'llm' : postKind.value ?? 'hc'))
 const gridRunner = makeRun({
   base: '/llm-grid',
-  params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
+  // shape＝目前「成方餵 HC」是否套用中——headless 腳本據此走與網頁相同的佈局管線
+  // （成方佈局＋凍結 vs 純格網化後），縮減網格尺寸（fingerprint cols/rows）才會一致。
+  params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3, shape: shapeFeedSource.value === 'llm' }),
   run: gridRun, tail: gridRunTail, text: gridRunText, logEl: gridLogEl,
   shouldRender: () => false, // 唯讀：跑的時候畫布照畫 RWD、不留白（串流顯示在面板）
   onStart: () => { cachedGrid = null; gridStats.value = null; gridMsg.value = null; gridApplied.value = false; llmApplySet(llmApplyKeys.value.grid, false) },
@@ -305,6 +307,7 @@ function toggleGridExec() {
 // fingerprint 驗證，顯示在右側「LLM評價」tab——畫布完全不受影響。
 const evalStats = ref(null)   // the whole llmeval file（右側 LLM評價 面板）
 const evalMsg = ref(null)     // hint when the result is missing / stale
+const evalGridChanged = ref(false) // 骨架相符但網格被重新壓縮：評語仍顯示，「執行調整」停用
 const evalRun = ref(null)     // null | 'running' | 'error'
 const evalRunTail = ref('')
 const evalRunText = ref('')
@@ -312,10 +315,11 @@ const evalLogEl = ref(null)   // 評價不蓋畫布 overlay——串流顯示在
 let cachedEval = null         // fetched llmeval: { stats } or { miss }
 const evalRunner = makeRun({
   base: '/llm-eval',
-  params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3 }),
+  // shape 同 llm-grid：讓 headless 腳本與網頁走同一條佈局管線（成方 vs 非成方）。
+  params: () => ({ variant: hcVariant.value, compact: rwdCompactKey.value, span: appliedSpanCap.value ?? panelLayer.value?.spanCap ?? 3, shape: shapeFeedSource.value === 'llm' }),
   run: evalRun, tail: evalRunTail, text: evalRunText, logEl: evalLogEl,
   shouldRender: () => false, // 唯讀評價：畫布照畫、不留白、不蓋 overlay
-  onStart: () => { cachedEval = null; evalStats.value = null; evalMsg.value = null; evalApplied.value = false; llmApplySet(llmApplyKeys.value.eval, false) },
+  onStart: () => { cachedEval = null; evalStats.value = null; evalMsg.value = null; evalGridChanged.value = false; evalApplied.value = false; llmApplySet(llmApplyKeys.value.eval, false) },
   onDone: () => { cachedEval = null },
 })
 const startEvalRun = evalRunner.start
@@ -558,7 +562,7 @@ const compareViewTags = computed(() => {
 // 佈局。可來回切換比較前後差別，不重跑任何 LLM。
 const evalApplied = ref(false)
 function toggleEvalExec() {
-  if (!evalStats.value?.exec?.cells) return
+  if (!evalStats.value?.exec?.cells || evalGridChanged.value) return
   evalApplied.value = !evalApplied.value
   llmApplySet(llmApplyKeys.value.eval, evalApplied.value)
   cachedRWD = null // sizeKey 不含套用狀態——直接作廢重畫
@@ -638,7 +642,11 @@ let cachedRWD = null // virtual-canvas routing — isotropic rescale on resize
 // llmview（LLM 對齊）與 llmgrid（LLM 調整）結果檔的共用載入器：fetch →
 // content-type 檢查 → fingerprint 比對（verts/segs 共通＋fpOk 額外欄位）→
 // 對應 miss 訊息；成功回 onOk(j)。呼叫端自己處理 renderSeq 過期。
-async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, dims }) {
+// softExtra：骨架（verts/segs＝圖面的站與拓撲）相符時，即使 fpOk（cols/rows＝壓縮後
+// 網格尺寸）不符也**不判 stale**，改回 onOk(j, { gridChanged: true })。用於「以圖面為主」
+// 的唯讀結果（LLM 評價的評語描述的是網路本身，不因網格被重新壓縮而失效）；只有依賴
+// 絕對格座標的「執行調整」才需要 cols/rows 相符，由呼叫端據 gridChanged 另行守門。
+async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, dims, softExtra }) {
   try {
     const { getDataOverlay } = await import('../lib/dataOverlay.js')
     let j = getDataOverlay(url)
@@ -654,6 +662,8 @@ async function fetchLlmResult(url, { missNone, missStale, missErr, fpOk, onOk, d
     const vOk = !cachedHC?.stats || fp.verts === cachedHC.stats.verts
     const sOk = !cachedHC?.stats || fp.segs === cachedHC.stats.segs
     const extraOk = fpOk(fp)
+    // 骨架相符、只有網格尺寸不符時：softExtra 者放行（以圖面拓撲為主），回報 gridChanged
+    if (vOk && sOk && !extraOk && softExtra) return onOk(j, { gridChanged: true })
     if (!vOk || !sOk || !extraOk) {
       // 診斷：印出「結果檔存的指紋 vs 網頁此刻實算」哪一欄對不上（stale 定位用）。
       const webCR = dims ? `${dims[0]}×${dims[1]}` : '?'
@@ -1125,6 +1135,7 @@ function resetPerDataset(data) {
   gridStats.value = null
   evalStats.value = null
   evalMsg.value = null
+  evalGridChanged.value = false
   hcCompactStats.value = null
   endpStats.value = null
   lineStats.value = null
@@ -1691,19 +1702,26 @@ async function computeHcLayout({ seq, w, h, grid }) {
         missNone: '尚未產生評價——按「開始 LLM 評價」讓模型評這個路網',
         missStale: 'LLM 評價與目前資料不符（資料已更新）——請重新產生',
         missErr: '無法載入 LLM 評價結果',
+        // 評語以圖面拓撲（verts/segs）為主：網格被重新壓縮（cols/rows 變）也照顯示，
+        // 只把「執行調整」停用（exec.cells 是舊網格的絕對格座標，套到新網格會錯位）。
+        softExtra: true,
         fpOk: (fp) => fp.cols === nC && fp.rows === nR,
         dims: [nC, nR],
-        onOk: (j) => ({ stats: j }),
+        onOk: (j, m) => ({ stats: j, gridChanged: !!m?.gridChanged }),
       })
     if (seq !== renderSeq) return null // superseded during fetch
     evalStats.value = cachedEval.stats ?? null
     evalMsg.value = cachedEval.miss ?? null
+    evalGridChanged.value = !!cachedEval.gridChanged
     justEval = true
   }
   // 「執行調整」套用中：以評價存好的 exec.cells（apply 時已過硬規則）取代
   // 縮減網格佈局重畫；恢復＝這裡不取代。網格尺寸不變 → 前後可對齊比較。
+  // exec.cells 是「評價當時的壓縮底圖 + 微調」的整張絕對格座標快照；底圖被重新
+  // 壓縮（gridChanged）後，套用會把整個路網搬回舊底圖（連結順序/方向/相對位置全變、
+  // 不是只讓路網更方正）——無法有效重現，停用、由呼叫端提示重跑。
   if (isRWD.value) {
-    const evalExec = evalStats.value?.exec
+    const evalExec = evalGridChanged.value ? null : evalStats.value?.exec
     if (!evalExec?.cells) evalApplied.value = false
     else {
       // 首次載到結果時恢復上次「已套用」狀態（見 llmApplyKeys）。
@@ -3089,6 +3107,7 @@ onBeforeUnmount(() => {
       :eval-msg="evalMsg"
       :eval-error="evalRun === 'error' ? evalRunTail : ''"
       :eval-applied="evalApplied"
+      :eval-grid-changed="evalGridChanged"
       :compare-record="isRWD ? compareRecord : null"
       :compare-running="compareRunning"
       :compare-can-run="!!llmCityId"

@@ -93,6 +93,10 @@ export function llmGridTrigger() {
         key: `${b.city}.${b.variant}.${compact}`,
         outFile: `data/metro/rwd-llmgrid/${b.city}.${b.variant}.${compact}.json`,
         userPrompt,
+        // 網頁當下「成方餵 HC」狀態 → headless run 的 LLM_SHAPE_FEED（腳本據此選
+        // 與網頁相同的佈局管線，缺參數＝腳本自動偵測）。status GET 也會帶。
+        env: b.shape === true || b.shape === 'true' ? { LLM_SHAPE_FEED: '1' }
+          : b.shape === false || b.shape === 'false' ? { LLM_SHAPE_FEED: '0' } : {},
         prompt: `使用 route-llm-grid skill：幫城市 ${b.city}（變體 ${b.variant}，縮減 ${compact}）依使用者的一句話`
           + '推理路網網格每個 X 欄與 Y 列區間的顯示權重（export → 推理 → apply 存檔）。'
           + '權重要明顯（核心 3–5 倍、至少一組 ≥3）、由核心向外漸近、給出全部區間。'
@@ -116,6 +120,9 @@ export function llmEvalTrigger() {
         key: `${b.city}.${b.variant}.${compact}`,
         outFile: `data/metro/rwd-llmeval/${b.city}.${b.variant}.${compact}.json`,
         userPrompt,
+        // 同 llm-grid：網頁「成方餵 HC」狀態 → LLM_SHAPE_FEED，兩端同一條佈局管線。
+        env: b.shape === true || b.shape === 'true' ? { LLM_SHAPE_FEED: '1' }
+          : b.shape === false || b.shape === 'false' ? { LLM_SHAPE_FEED: '0' } : {},
         prompt: `使用 route-llm-eval skill：幫城市 ${b.city}（變體 ${b.variant}，縮減 ${compact}）產生或更新 LLM 評價`
           + '（export 讀佈局幾何 → 寫評價＋moves → apply 存檔）。評價不修改佈局；'
           + '評語要用站名與數字落地（哪條線哪一段可以更直/更水平、彎在哪、怎麼更方正），'

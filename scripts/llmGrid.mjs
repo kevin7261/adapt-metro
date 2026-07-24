@@ -31,6 +31,9 @@ import {
   straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
+import { applyShapeFeed } from './_shapeFeed.mjs'
+import { dataFingerprint, HC_CELLS_ALGO_READ } from '../src/lib/straightenCells.js'
+import { DEFAULT_RIVER_GRAY_SINUOSITY } from '../src/stores/skeleton.js'
 
 // 跨距上限（SPAN_CAP）：與網頁一致——vite plugin 觸發的 headless run 經
 // LLM_SPAN_CAP env 傳入網頁「已套用」的最大跨距；手動 CLI 跑（無 env）＝預設 3。
@@ -85,26 +88,55 @@ for (const c of skeleton.crossings ?? []) {
 const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
 const gridBase = grid.cellOf
 
-// RWD compact base＝格網化後 → 論文鏈（或 llmviews）→ 循環到不動點（不再吃 HC）。
-let baseCells
-if (POST_BUILD[compact]) {
-  baseCells = iteratePost(POST_BUILD[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
-} else if (compact === 'llm') {
-  const f = join(DATA, 'straighten-llm', `${cityId}.${variant}.json`)
-  if (!existsSync(f)) {
-    console.error(`縮減來源是 LLM 對齊，但 ${f} 不存在——先跑 route-llm-align`)
-    process.exit(1)
+// 成方餵 HC（與網頁一致，見 _shapeFeed.mjs）：成方套用中時下游鏈起點＝成方佈局、
+// 骨架含綠折點、成方頂點凍結。
+const feed = await applyShapeFeed(DATA, cityId, variant, skeleton, gridBase)
+const hcSk = feed.skeleton
+const hcBase = feed.baseCells
+
+// 佈局來源第一優先：網頁顯示的**同一份持久檔**（straighten-cells，見 llmEval.mjs 同段
+// 說明）——loops[compact] 的 cellAfter/cols/rows 保證與網頁一致；缺才退回現場重算。
+let comp = null
+let fpBase = hcBase
+{
+  const cellsDoc = join(DATA, 'straighten-cells',
+    `${cityId}.${variant}${feed.shapeOn ? '-shape.shapelike' : ''}.json`)
+  if (existsSync(cellsDoc)) {
+    try {
+      const doc = JSON.parse(await readFile(cellsDoc, 'utf8'))
+      const lp = doc.loops?.[compact]
+      if (HC_CELLS_ALGO_READ.has(doc.algo)
+        && doc.fingerprint === `${dataFingerprint(geojson)}:rg${DEFAULT_RIVER_GRAY_SINUOSITY}`
+        && lp?.cellAfter && lp.cols != null) {
+        comp = { cellAfter: new Map(lp.cellAfter.map(([id, c, r]) => [id, [c, r]])), cols: lp.cols, rows: lp.rows }
+        if (doc.hc?.cellAfter) fpBase = new Map(doc.hc.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+      }
+    } catch { /* 壞檔 → 現場重算 */ }
   }
-  const j = JSON.parse(await readFile(f, 'utf8'))
-  baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
-} else {
-  baseCells = gridBase
 }
-const comp = straightenCompactLoop(skeleton, baseCells, grid.cols, grid.rows)
+// 退回：RWD compact base＝格網化後（成方時＝成方佈局）→ 論文鏈（或 llmviews）→
+// 循環到不動點（不再吃 HC）。
+if (!comp) {
+  let baseCells
+  if (POST_BUILD[compact]) {
+    baseCells = iteratePost(POST_BUILD[compact], hcSk, hcBase, grid.cols, grid.rows).cellAfter
+  } else if (compact === 'llm') {
+    const f = join(DATA, 'straighten-llm', `${cityId}.${variant}.json`)
+    if (!existsSync(f)) {
+      console.error(`縮減來源是 LLM 對齊，但 ${f} 不存在——先跑 route-llm-align`)
+      process.exit(1)
+    }
+    const j = JSON.parse(await readFile(f, 'utf8'))
+    baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+  } else {
+    baseCells = hcBase
+  }
+  comp = straightenCompactLoop(hcSk, baseCells, grid.cols, grid.rows)
+}
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows
 
-const g0 = buildHcGraph(skeleton, gridBase)
+const g0 = buildHcGraph(hcSk, fpBase)
 const fingerprint = { verts: g0.pos.size, segs: g0.segs.length, cols: nC, rows: nR, compact }
 
 let saved = null

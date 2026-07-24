@@ -34,6 +34,9 @@ import {
   straightenCompactLoop, setSpanCap,
 } from '../src/stores/hillClimb.js'
 import { PAPER_KINDS, PAPER_BUILD } from '../src/stores/paperAlign.js'
+import { applyShapeFeed } from './_shapeFeed.mjs'
+import { dataFingerprint, HC_CELLS_ALGO_READ } from '../src/lib/straightenCells.js'
+import { DEFAULT_RIVER_GRAY_SINUOSITY } from '../src/stores/skeleton.js'
 
 // 跨距上限（SPAN_CAP）：與網頁一致——vite plugin 觸發的 headless run 經
 // LLM_SPAN_CAP env 傳入網頁「已套用」的最大跨距；手動 CLI 跑（無 env）＝預設 3。
@@ -87,35 +90,79 @@ for (const c of skeleton.crossings ?? []) {
 const grid = buildSchematicGrid(skeleton, projById, [24, 24, 1176, 776])
 const gridBase = grid.cellOf
 
-// Same base-layout selection as the RWD view (llmGrid.mjs): 格網化後 → 論文鏈
-// → 循環到不動點（不再吃 HC）。
-let baseCells
-if (POST_BUILD[compact]) {
-  baseCells = iteratePost(POST_BUILD[compact], skeleton, gridBase, grid.cols, grid.rows).cellAfter
-} else if (compact === 'llm') {
-  const f = join(DATA, 'straighten-llm', `${cityId}.${variant}.json`)
-  if (!existsSync(f)) {
-    console.error(`縮減來源是 LLM 對齊，但 ${f} 不存在——先跑 route-llm-align`)
-    process.exit(1)
+// 成方餵 HC（與網頁一致，見 _shapeFeed.mjs）：成方套用中時下游鏈起點＝成方佈局、
+// 骨架含綠折點、成方頂點凍結——否則此城市壓縮出的網格尺寸與網頁永遠不同（一產生就 stale）。
+const feed = await applyShapeFeed(DATA, cityId, variant, skeleton, gridBase)
+const hcSk = feed.skeleton
+const hcBase = feed.baseCells
+
+// 佈局來源第一優先：網頁顯示的**同一份持久檔**（data/metro/straighten-cells＝
+// bakeHcCells 預烤＋網頁 persistHcCells 寫回；網頁「開分頁只讀檔、不現場重算」）。
+// 直接取 loops[compact] 的 cellAfter/cols/rows，保證 fingerprint 的 cols/rows 與網頁
+// 一致——即使壓縮演算法漂移（重構後現算結果≠舊烤檔）也不分岔。
+// 無檔／algo/fingerprint 不符／該 compact 缺（如 'llm' 未持久）→ 退回現場重算。
+let comp = null
+let fpBase = hcBase // fingerprint 骨架圖（verts/segs）的佈局來源，與網頁 cachedHC 對齊
+{
+  const cellsDoc = join(DATA, 'straighten-cells',
+    `${cityId}.${variant}${feed.shapeOn ? '-shape.shapelike' : ''}.json`)
+  if (existsSync(cellsDoc)) {
+    try {
+      const doc = JSON.parse(await readFile(cellsDoc, 'utf8'))
+      const lp = doc.loops?.[compact]
+      // 網頁的檔指紋＝資料指紋＋河流門檻後綴（同 bakeHcCells 的 `${dfp}:rg1.15`）
+      if (HC_CELLS_ALGO_READ.has(doc.algo)
+        && doc.fingerprint === `${dataFingerprint(geojson)}:rg${DEFAULT_RIVER_GRAY_SINUOSITY}`
+        && lp?.cellAfter && lp.cols != null) {
+        comp = { cellAfter: new Map(lp.cellAfter.map(([id, c, r]) => [id, [c, r]])), cols: lp.cols, rows: lp.rows }
+        if (doc.hc?.cellAfter) fpBase = new Map(doc.hc.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+      }
+    } catch { /* 壞檔 → 現場重算 */ }
   }
-  const j = JSON.parse(await readFile(f, 'utf8'))
-  baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
-} else {
-  baseCells = gridBase
 }
-const comp = straightenCompactLoop(skeleton, baseCells, grid.cols, grid.rows)
+// 退回：Same base-layout selection as the RWD view (llmGrid.mjs)——格網化後
+// （成方時＝成方佈局）→ 論文鏈 → 循環到不動點（不再吃 HC）。
+if (!comp) {
+  let baseCells
+  if (POST_BUILD[compact]) {
+    baseCells = iteratePost(POST_BUILD[compact], hcSk, hcBase, grid.cols, grid.rows).cellAfter
+  } else if (compact === 'llm') {
+    const f = join(DATA, 'straighten-llm', `${cityId}.${variant}.json`)
+    if (!existsSync(f)) {
+      console.error(`縮減來源是 LLM 對齊，但 ${f} 不存在——先跑 route-llm-align`)
+      process.exit(1)
+    }
+    const j = JSON.parse(await readFile(f, 'utf8'))
+    baseCells = new Map(j.cellAfter.map(([id, c, r]) => [id, [c, r]]))
+  } else {
+    baseCells = hcBase
+  }
+  comp = straightenCompactLoop(hcSk, baseCells, grid.cols, grid.rows)
+}
 const cells = comp.cellAfter
 const nC = comp.cols, nR = comp.rows
 
-const g0 = buildHcGraph(skeleton, gridBase)
+const g0 = buildHcGraph(hcSk, fpBase)
+// 兩層有效性（見 SKILL.md「兩層有效性」）：
+//   骨架層 verts/segs（＝站與拓撲，圖面本身）→ 決定「評語」是否有效；
+//   網格層 cols/rows/compact（＝壓縮後的整數格佈局）→ 決定「執行調整」(exec) 是否有效。
+// 壓縮演算法一改網格層就變，exec 的絕對格座標失效必須重算；但骨架沒變時評語仍描述
+// 同一個路網，重跑時沿用舊評語當脈絡（以圖面為主）。
 const fingerprint = { verts: g0.pos.size, segs: g0.segs.length, cols: nC, rows: nR, compact }
 
 let saved = null
+let gridChanged = false
 if (existsSync(outFile)) {
-  saved = JSON.parse(await readFile(outFile, 'utf8'))
-  if (JSON.stringify(saved.fingerprint) !== JSON.stringify(fingerprint)) {
-    console.error('⚠ 既有 llmeval 與目前資料不符（fingerprint 變了）——視為不存在')
-    saved = null
+  const prev = JSON.parse(await readFile(outFile, 'utf8'))
+  const pf = prev.fingerprint ?? {}
+  const skeletonSame = pf.verts === fingerprint.verts && pf.segs === fingerprint.segs
+  const gridSame = pf.cols === nC && pf.rows === nR && pf.compact === compact
+  if (skeletonSame) {
+    saved = prev            // 骨架相同 → 評語脈絡沿用（重跑時餵回 export 的 current）
+    gridChanged = !gridSame // 只有網格不同 → 評語可留、moves/exec 必須在新網格重算
+    if (gridChanged) console.error('ℹ 既有 llmeval 骨架相同、網格已重新壓縮——評語沿用，moves/exec 要在新網格重算')
+  } else {
+    console.error('⚠ 既有 llmeval 骨架已變（verts/segs 不符）——視為不存在')
   }
 }
 
@@ -129,7 +176,7 @@ const dirOf = (A, B) => {
   if (Math.abs(dx) === Math.abs(dy)) return 'D45'
   return 'other'
 }
-const { segs } = buildHcGraph(skeleton, cells)
+const { segs } = buildHcGraph(hcSk, cells)
 const nameById = new Map(stations.map((f) => {
   const p = f.properties
   return [p.station_id, p.station_name_local || p.station_name || p.station_id]
@@ -233,6 +280,9 @@ if (cmd === 'export') {
     lines: lines.map(({ rid, ...l }) => l),
     verts, // moves 的索引來源：moves["i"] = [c, r]
     current: saved ? { summary: saved.summary, userPrompt: saved.userPrompt ?? null } : null,
+    // true＝既有評語的骨架相同、但網格已重新壓縮：評語可沿用/微調，但 moves 必須照
+    // 目前的 stats.cols×rows 重寫、exec 會在新底圖上重算（舊 exec 的絕對格座標已失效）。
+    gridChanged,
   }))
 } else if (cmd === 'apply') {
   if (!evalPath) { console.error('apply 需要 eval.json 路徑'); process.exit(1) }
@@ -260,7 +310,7 @@ if (cmd === 'export') {
         && Number.isInteger(t[0]) && Number.isInteger(t[1])
         && t[0] >= 0 && t[0] < nC && t[1] >= 0 && t[1] < nR)
     if (targetEntries.length) {
-      const res = applyLlmTargets(skeleton, cells, nC, nR, targetEntries)
+      const res = applyLlmTargets(hcSk, cells, nC, nR, targetEntries)
       const rejected = targetEntries
         .filter(([id, t]) => {
           const p = res.cellAfter.get(id)

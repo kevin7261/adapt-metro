@@ -40,6 +40,11 @@ scripts/llmGrid.mjs apply <cityId> <orig|rot> [compact] <weights.json>
   （`layer.compact`：'hc' 預設／'rect'／'align'／'ilp'／'llm'）。
 - 結果檔含 `fingerprint`（verts/segs/cols/rows/compact）；資料重抓後不符時
   網頁會顯示「與目前資料不符」，用 `reset` 後重跑即可。
+- **佈局來源與網頁嚴格一致（全城市通用，與 [[route-llm-eval]] 同段機制）**：
+  第一優先讀網頁同一份持久檔 `data/metro/straighten-cells/…` 的 `loops[compact]`
+  （收/拒同網頁：`HC_CELLS_ALGO_READ`＋指紋）；缺才退回同管線現場重算。
+  **成方餵 HC** 由共用的 scripts/_shapeFeed.mjs 處理（`LLM_SHAPE_FEED` env 由網頁
+  按鈕傳當下成方狀態；手動 CLI＝自動偵測）——成方城市漏掉這步，結果一產生就 stale。
 - 網頁端：RWD 視圖右側面板的「**LLM互動**」tab（「權重」旁、「LLM評價」前）
   ——不再是獨立的左側視圖。跟 [[route-llm-eval]] 完全同一套 UX：跑完**不自動
   套用**，畫布照畫 RWD 路網、回傳文字即時串流在面板內。

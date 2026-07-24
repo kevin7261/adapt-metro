@@ -148,6 +148,33 @@ D3 分頁左選單分 **8 個部份、56 個視圖**：
 （`src/stores/paperAlign.js`）接受準則用 H/V/45°（countHVD——八方向系演算法），
 全部同一套硬規則與下游功能。
 
+#### 直線演算法九條鏈（逐鏈細節）
+
+爬山把佈局整理好後，「直線演算法」再短距離移動彩色頂點讓水平/垂直段最多
+（一段是 H/V ⇔ 兩端恰有一個座標相同）。八篇論文的正交化方法各實作成一條鏈
+（①〜⑧），第九條是 LLM 對齊；tab 名帶論文圈號、與 `data/thesis/<n>_*_演算法說明.md`
+一一對應，互相獨立、可並列比較，各自迭代到不動點（上限 20 次）。**共用機構**在
+`src/stores/paperAlign.js`（skill `route-paper-align`）：WINDOW ±2 夾擠、`clampTargets`、
+逐批漸進＋嚴格改善套用（`finishBatches`）、對齊感知量化（`snapAligned`）、HV 優先／
+45° 次之的接受準則（`scoreAlign`）、③⑧ 共用的方向指派模型（`dirModel`）與鬆弛重建
+（`coordsFromDirs`）。
+
+| # | 鏈（tab／`kind`） | 文獻 | 做法 | skill |
+|---|---|---|---|---|
+| ① | 筆畫法 `stroke` | Li & Dong 2010 | 段串成「筆畫」（同路線具名優先、剩餘段跨路線 every-best-fit）；依最大方向扭曲 >45° 遞迴切子筆畫；各子筆畫先試 H/V、被擋才退 ±45°，成員頂點垂直投影到過錨點的定向直線 | `route-stroke-align` |
+| ② | 直角爬山 `rect` | Stott et al. 2011 | 爬山方向準則從 `\|sin4θ\|` 換成直角 `\|sin2θ\|`（45° 變最貴）、權重 ×3、半徑 [2,1,1] 在 Hill Climbing 結果上再爬，迭代到不動點。**全網 H/V +42.9%** | `route-rect-polish` |
+| ③ | MILP規劃 `milp` | Nöllenburg & Wolff 2011 | 每段 3 個八方向候選（最近扇區 ±1），成本＝λ₁·同路線相鄰段彎折＋λ₂·偏離原方向、同頂點同向硬 veto；配對圖分元件、生成樹 DP＋feedback 段枚舉**精確**求解方向指派，再鬆弛重建座標 | `route-milp-align` |
+| ④ | 力導向 `force` | Hong et al. 2006 | 引力 d/δ＋頂點對斥力 δ²/d²＋頂點×不相鄰邊斥力 (γ−d)²/d＋八方向磁場力（力偶垂直於邊），逐頂點在格空間跑 40 輪，位移過 PrEd 8 區域上限，量化後批套用 | `route-force-align` |
+| ⑤ | 最小平方 `lsq` | Wang & Chi 2011（Focus+Context） | 每段目標向量＝目前邊向量旋到最近八方向、長度不變，解 `min Σ\|(ṽᵢ−ṽⱼ)−f_ij\|² ＋ w_g·Σ\|ṽᵢ−vᵢ\|²`（Gauss–Seidel 60 輪），量化後單批套用 | `route-lsq-align` |
+| ⑥ | 八向格網 `octi` | Bast et al. 2020 | 邊依線度數 ldeg 排序逐邊定案：未定案端點在半徑 WINDOW 內空格候選選一對，成本＝位移懲罰＋非八方向弦彎折＋站上同路線段線彎；定案格關閉（一格一站）。目標最接近三步鏈的「格子越少越好」 | `route-octi-align` |
+| ⑦ | 路徑簡化 `path` | Merrick & Gudmundsson 2007 | 每條路線頂點鏈當折線、C=8 方向、ε-圓刺穿求最少 link 的 C-directed 簡化（reach＋BFS 分層）；頂點垂直投影到刺穿它的 link，路線依轉乘站數排序漸進、先處理的定案 | `route-path-align` |
+| ⑧ | SAT規劃 `sat` | Fuchs 2022 | 與 ③MILP **完全同模型**（每段 3 候選、一熱、同頂點同向硬子句、S1/S2 軟子句），求解器換成 **DPLL 分支定界**（most-constrained 優先、單元傳播 veto、目前最佳成本剪枝、節點上限 60000 超限退回原方向） | `route-sat-align` |
+| ⑨ | LLM 對齊 `llm` | —（模型當最佳化器） | 不用 API key，Claude Code 模型讀圖提案短距離移動 → apply 經**與八條論文鏈相同的硬規則**套用（淨 H/V 變差整批退回）；分自動對齊與指定對齊兩 tab，離線預算存 `llmviews/` | `route-llm-align` |
+
+> **Shape-Guided**（`route-shape-align`；Batik et al. 2022）**不是**直線鏈第 9 條——它掛在
+> 「循環」與「逐步驗證」之間，把規定路段（山手線／新加坡環狀線／大江戶線環形，目前僅
+> 東京／新加坡）貼成四邊直線正方後餵下游，只留 LLM 成方（`route-llm-shape`）一種入口。
+
 ### Stage 4 · RWD Maps（版面畫線）
 
 把 **Straighten「循環」的收斂結果**（RWD 圖層第一個 tab「循環結果」）重繪成
@@ -452,6 +479,10 @@ osm_networks、operator、official_website、wikidata、線/段/站數）／
 四個端點都是 `vite.config.js` 的 dev-only plugin（需本機 `npm run dev` ＋ Claude Code CLI）；
 GitHub Pages 上按鈕會顯示對應提示。**提案是模型的判斷，合法性不是**——所有結果都經
 確定性硬規則把關（拓撲不變，違反進 rejected 迭代）；LLM 比較是唯讀評審、不動任何座標。
+
+每個 LLM tab **出現結果後**都在結果的資訊列標明「使用 skill」（`route-llm-align`／
+`route-llm-grid`／`route-llm-eval`／`route-llm-compare`／`route-llm-shape`），面板底部另有可
+展開的該 skill `SKILL.md` 全文——讓「這個結果是哪個 skill 依什麼協定跑出來的」在畫面上一目了然。
 
 ---
 

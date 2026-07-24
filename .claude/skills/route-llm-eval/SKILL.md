@@ -25,8 +25,31 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
 ```
 
 - `cityId`／`variant`／`compact` 與 [[route-llm-grid]] 同義（結果檔名同三段）。
-- 結果檔含 `fingerprint`（verts/segs/cols/rows/compact）；資料重抓後不符時網頁
-  顯示「與目前資料不符」，`reset` 後重跑即可。
+- **佈局來源與網頁嚴格一致（全城市通用）**：export/apply 的縮減網格佈局
+  1. **第一優先＝持久檔** `data/metro/straighten-cells/<city>.<variant>[-shape.shapelike].json`
+     的 `loops[compact]`（bakeHcCells 預烤＋網頁 persistHcCells 寫回、網頁「開分頁只讀檔」
+     的同一份）——收/拒條件與網頁同一套（`HC_CELLS_ALGO_READ`＋`dataFingerprint:rg` 指紋），
+     保證 cols/rows 與網頁一致，演算法漂移也不分岔；
+  2. 無檔/被拒（網頁也會重算的情況）→ 退回與網頁相同的現場重算管線。
+- **成方餵 HC**（scripts/_shapeFeed.mjs，與 [[route-llm-grid]] 共用）：城市成方
+  （square===true）且套用中時，網頁下游鏈吃成方佈局＋凍結成方頂點——腳本亦同
+  （選 `-shape.shapelike` 持久檔／重算時以成方佈局起算＋setFrozen）。網頁按鈕把當下
+  成方狀態隨 run 傳入（`LLM_SHAPE_FEED` env：1 開/0 關；手動 CLI 未設＝自動偵測，
+  同網頁預設）。漏掉這步該城市的評價**一產生就 stale、重跑也治不好**。
+- 結果檔含 `fingerprint`（verts/segs/cols/rows/compact），分**兩層有效性**（重要）：
+  - **骨架層 `verts`／`segs`（＝站與拓撲，圖面本身）** 決定**評語**是否有效。
+    骨架相同時評語永遠可讀（網頁「以圖面為主」照顯示總評/分數/逐線/建議，不因網格
+    重壓縮而失效）；export 偵測到骨架相同會把舊評語當 `current` 脈絡餵回，重跑時沿用。
+  - **網格層 `cols`／`rows`／`compact`（＝壓縮後的整數格佈局）** 決定**執行調整**
+    （`exec.cells`）是否有效。`exec.cells` 是「評價當時那張壓縮底圖＋微調」的**絕對格
+    座標快照**——壓縮演算法一改（網格尺寸變），快照就對不上新底圖，套用會把整個路網
+    搬回舊底圖（連結順序/方向/相對位置全變，**不是只讓路網更方正**）。所以網頁在網格
+    變動時**停用「執行調整」**、要**重跑**才會在新底圖上重算出有效的 exec；評語不受影響。
+  - `export` 回報 **`gridChanged`**：骨架相同但網格已重排時為 `true`——代表評語可沿用/
+    微調，但 **`moves` 必須照目前 `stats.cols`×`rows` 重寫、`exec` 會在新底圖重算**。
+    看到 `gridChanged:true` 就是「重跑補上新網格的執行調整」的情境。
+  - 骨架也變（重抓資料改了站/拓撲）時整份視為不存在，網頁顯示「與目前資料不符」，
+    `reset` 後從頭重評即可。
 - 網頁端：RWD 視圖右側面板的「**LLM評價**」tab（「LLM調整」旁）——按鈕 POST
   `/llm-eval/run`（vite dev plugin spawn headless `claude -p` 跑本 skill）、輪詢
   `/llm-eval/status` 即時串流回傳文字，跑完自動載入顯示。GH Pages 沒有 dev
@@ -117,7 +140,9 @@ scripts/llmEval.mjs apply <cityId> <orig|rot> [compact] <eval.json>
    - **相鄰路線可連動**：為了讓某條線變直/變短，周邊相連路線的頂點（轉乘站、
      鄰近站）可以對應一起移。
    - **拓撲不變**：以上一切前提是不改變拓撲——由 apply 的硬規則把關，違反會進
-     `rejected`，照步驟 3 迭代即可。
+     `rejected`，照步驟 3 迭代即可。這條鐵律是**相對 apply 當下的底圖**成立的：
+     exec 存的是那張底圖的絕對座標，所以底圖（網格）一換就必須重跑重算（見上「兩層
+     有效性」），不能拿舊 exec 套到新底圖——那會破壞相對位置，等於改了拓撲的呈現。
 3. `node scripts/llmEval.mjs apply <cityId> <variant> [compact] <eval.json>`，
    讀輸出的 `exec`：H/V 前後、`rejected`（被硬規則拒絕的提案）。**被拒的提案
    要迭代**：改目標格（或放棄該條）再 apply 一次，直到 rejected 清空或確認
