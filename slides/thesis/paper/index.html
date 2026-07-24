@@ -150,8 +150,60 @@
   .gd-right{ margin-left:auto; display:flex; align-items:center; gap:8px; flex-shrink:0; padding-left:8px; }
 
   /* ---- 內容捲動區：Docs「無頁面（pageless）」一頁式——整面白底、單欄連續捲動，
-         無紙張邊框、無分頁、無尺規。 ---- */
-  .scroll{ flex:1; min-height:0; overflow-y:auto; background:#fff; }
+         無紙張邊框、無分頁、無尺規。左側＝文件大綱（list view）。 ---- */
+  .gd-body{ flex:1; min-height:0; display:flex; background:#fff; }
+  .scroll{ flex:1; min-width:0; min-height:0; overflow-y:auto; background:#fff; }
+
+  /* 文件大綱：由渲染後的 h1/h2/h3 生成，點擊跳段、捲動時高亮目前章節（同 Docs 大綱）。 */
+  .gd-outline{
+    flex:0 0 272px; min-height:0; overflow-y:auto; background:#fff;
+    padding:14px 8px 40px 12px; border-right:1px solid #eef1f4;
+    scrollbar-width:thin; scrollbar-color:#c4c7c5 #fff;
+  }
+  .gd-outline::-webkit-scrollbar{ width:8px; }
+  .gd-outline::-webkit-scrollbar-thumb{ background:#c4c7c5; border-radius:4px; }
+  .gd-outline-head{
+    display:flex; align-items:center; gap:6px; padding:2px 6px 10px;
+    font-size:12px; font-weight:600; color:var(--gd-icon); letter-spacing:.02em;
+  }
+  .gd-outline-head .m-icon{ font-size:17px; }
+  .gd-outline-head .ol-close{
+    margin-left:auto; width:26px; height:26px; border:none; border-radius:50%; background:none;
+    color:var(--gd-icon); cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .gd-outline-head .ol-close:hover{ background:var(--gd-hover); }
+  .gd-outline-head .ol-close .m-icon{ font-size:18px; }
+  .ol-item{
+    display:block; width:100%; text-align:left; border:none; background:none; cursor:pointer;
+    font-family:inherit; font-size:12.5px; color:#5f6368; line-height:1.45;
+    padding:5px 8px 5px 10px; border-radius:0 999px 999px 0; position:relative;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .ol-item:hover{ background:#f1f3f4; color:#202124; }
+  .ol-item.l1{ font-weight:600; color:#3c4043; }
+  .ol-item.l2{ padding-left:24px; }
+  .ol-item.l3{ padding-left:38px; font-size:12px; }
+  .ol-item.current{
+    color:var(--gd-blue); font-weight:600; background:#e8f0fe;
+  }
+  .ol-item.current::before{
+    content:''; position:absolute; left:0; top:6px; bottom:6px; width:3px;
+    border-radius:2px; background:var(--gd-blue);
+  }
+  .ol-empty{ padding:4px 10px; font-size:12px; color:#9aa0a6; }
+
+  /* 收合狀態：大綱藏起來，左上浮出「顯示文件大綱」小圓鈕（同 Docs） */
+  .gd-body.ol-collapsed .gd-outline{ display:none; }
+  .ol-open{
+    position:absolute; left:10px; top:12px; z-index:70;
+    width:36px; height:36px; border:none; border-radius:50%; background:#fff;
+    color:var(--gd-icon); cursor:pointer; display:none; align-items:center; justify-content:center;
+    box-shadow:0 1px 3px rgba(60,64,67,.3);
+  }
+  .ol-open:hover{ background:#f1f3f4; }
+  .ol-open .m-icon{ font-size:19px; }
+  /* 顯示與否由 JS 控制（收合且非原文模式才出現）；掛在 .gd-body 內部左上。 */
+  .gd-body{ position:relative; }
   .pages{ padding:0 0 120px; }
   .gd-pageless{
     max-width:900px; margin:0 auto; background:#fff;
@@ -211,7 +263,7 @@
     .gd-pageless, .gd-rawsheet{ padding:28px 20px 32px; }
   }
   @media print{
-    .app-toolbar, .gd-chrome, .gd-toast{ display:none !important; }
+    .app-toolbar, .gd-chrome, .gd-toast, .gd-outline, .ol-open{ display:none !important; }
     .scroll{ overflow:visible; }
     .pages{ padding:0; zoom:1 !important; }
   }
@@ -312,13 +364,27 @@
 
 </div>
 
-<div class="scroll" id="scroll">
-  <div class="pages" id="pages">
-    <div class="gd-pageless"><div id="view" class="md"><div class="loading">載入論文本文中…</div></div></div>
+<div class="gd-body" id="gdBody">
+  <aside class="gd-outline" id="outline" aria-label="文件大綱">
+    <div class="gd-outline-head">
+      <span class="material-symbols-outlined m-icon">format_list_bulleted</span>文件大綱
+      <button class="ol-close" id="olClose" type="button" title="關閉文件大綱">
+        <span class="material-symbols-outlined m-icon">chevron_left</span>
+      </button>
+    </div>
+    <div id="olList"><div class="ol-empty">載入中…</div></div>
+  </aside>
+  <div class="scroll" id="scroll">
+    <div class="pages" id="pages">
+      <div class="gd-pageless"><div id="view" class="md"><div class="loading">載入論文本文中…</div></div></div>
+    </div>
+    <div class="pages" id="rawWrap" hidden>
+      <div class="gd-rawsheet"><pre id="rawPre"></pre></div>
+    </div>
   </div>
-  <div class="pages" id="rawWrap" hidden>
-    <div class="gd-rawsheet"><pre id="rawPre"></pre></div>
-  </div>
+  <button class="ol-open" id="olOpen" type="button" title="顯示文件大綱">
+    <span class="material-symbols-outlined m-icon">format_list_bulleted</span>
+  </button>
 </div>
 
 <div class="gd-toast" id="gdToast">已複製連結</div>
@@ -339,6 +405,10 @@
   var gdTitle = document.getElementById('gdTitle');
   var zoomSel = document.getElementById('zoomSel');
   var toast = document.getElementById('gdToast');
+  var gdBody = document.getElementById('gdBody');
+  var olList = document.getElementById('olList');
+  var olOpen = document.getElementById('olOpen');
+  var olClose = document.getElementById('olClose');
 
   /* 兩份文件共用同一個「顯示⇄原文」檢視：?doc=improve 切到改善建議，#raw 進原文模式。 */
   var DOCS = {
@@ -363,6 +433,64 @@
   }
   zoomSel.addEventListener('change', applyZoom);
 
+  /* ---- 文件大綱（左側 list view，同 Docs）----
+     由渲染後的 h1/h2/h3 生成：點擊跳段、捲動時高亮目前章節、可收合。 */
+  var olItems = [];   // { headEl, btnEl }
+  var olCollapsed = window.innerWidth < 1100;
+  function updateOutlineVis(){
+    var hidden = olCollapsed || mode === 'raw';
+    gdBody.classList.toggle('ol-collapsed', hidden);
+    olOpen.style.display = (olCollapsed && mode !== 'raw') ? 'inline-flex' : 'none';
+  }
+  olClose.addEventListener('click', function(){ olCollapsed = true; updateOutlineVis(); });
+  olOpen.addEventListener('click', function(){ olCollapsed = false; updateOutlineVis(); });
+
+  function buildOutline(){
+    olItems = [];
+    olList.innerHTML = '';
+    var heads = view.querySelectorAll('h1, h2, h3');
+    if (!heads.length){
+      olList.innerHTML = '<div class="ol-empty">此文件沒有標題</div>';
+      return;
+    }
+    heads.forEach(function(h, i){
+      if (!h.id) h.id = 'ol-h-' + i;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ol-item l' + h.tagName.charAt(1);
+      btn.textContent = h.textContent;
+      btn.title = h.textContent;
+      btn.addEventListener('click', function(){
+        h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      olList.appendChild(btn);
+      olItems.push({ headEl: h, btnEl: btn });
+    });
+    updateCurrentOutline();
+  }
+
+  /* scrollspy：目前視窗頂附近的章節高亮（用 getBoundingClientRect，zoom 下也正確） */
+  function updateCurrentOutline(){
+    if (!olItems.length || mode !== 'view') return;
+    var topEdge = scroll.getBoundingClientRect().top + 90;
+    var cur = 0;
+    for (var i = 0; i < olItems.length; i++){
+      if (olItems[i].headEl.getBoundingClientRect().top <= topEdge) cur = i;
+      else break;
+    }
+    olItems.forEach(function(it, i){
+      it.btnEl.classList.toggle('current', i === cur);
+    });
+    var curBtn = olItems[cur] && olItems[cur].btnEl;
+    if (curBtn) curBtn.scrollIntoView({ block: 'nearest' });
+  }
+  var olTick = false;
+  scroll.addEventListener('scroll', function(){
+    if (olTick) return;
+    olTick = true;
+    requestAnimationFrame(function(){ olTick = false; updateCurrentOutline(); });
+  }, { passive: true });
+
   function syncUrl(){
     var q = docKey === 'paper' ? '' : '?doc=' + docKey;
     history.replaceState(null, '', location.pathname + q + (mode === 'raw' ? '#raw' : '#view'));
@@ -376,6 +504,7 @@
     btnRaw.classList.toggle('on', isRaw);
     scroll.scrollTop = 0;
     document.title = (isRaw ? '原文' : '顯示') + ' · ' + DOCS[docKey].label + ' · Adapt-Metro';
+    updateOutlineVis();
     syncUrl();
   }
   function loadDoc(key){
@@ -392,6 +521,7 @@
     dlLink.href = doc.file;
     dlLink.setAttribute('download', doc.dl);
     view.innerHTML = '<div class="loading">載入' + doc.label + '中…</div>';
+    olList.innerHTML = '<div class="ol-empty">載入中…</div>';
     rawPre.textContent = '';
     fetch(doc.file)
       .then(function(res){
@@ -406,6 +536,7 @@
           var src = img.getAttribute('src') || '';
           if (src && !/^(https?:|data:|\/|\.\.\/)/.test(src)) img.setAttribute('src', '../' + src);
         });
+        buildOutline();
         setMode(mode);
       })
       .catch(function(err){

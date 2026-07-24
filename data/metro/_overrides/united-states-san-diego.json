@@ -1,0 +1,20 @@
+{
+  "city": "San Diego",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    1371791,
+    2846984,
+    2847013,
+    4729047,
+    9946499,
+    9946500,
+    12417806,
+    13466482,
+    13466483,
+    18108499,
+    18108500
+  ],
+  "source": "https://www.urbanrail.net/am/sdie/san-diego.htm",
+  "note": "San Diego（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}
