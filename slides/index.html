@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>系統介紹 · Adapt-Metro</title>
 <meta name="description" content="Adapt-Metro 系統演算法投影片：Metro Maps → Map Adjust → Straighten（爬山＋movewise 三步鏈循環）→ RWD Maps 四階段管線細節，含逐步驗證、三條並列資料管線、資料格式與演算法文獻定位。" />
-<!-- 首頁 header 用的 Material Symbols 字型（brand 的 map 圖示、相關連結的 open_in_new）——與 index.html 一致 -->
+<!-- header 與首頁 TopToolbar 共用：Material Symbols + Inter/Noto + _shared/app-toolbar -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Noto+Sans+TC:wght@400..700&display=swap" />
+<link rel="stylesheet" href="./_shared/app-toolbar.css" />
 <style>
   :root{
     --page-bg:#eef1f6; --dot:rgba(15,23,42,.08);
@@ -27,30 +29,7 @@
       --code-bg:#060a13; --code-ink:#cbd5e1;
     }
   }
-  /* 首頁 app 的 shadcn design token（值抄自 src/style.css），獨立命名 --app-* 只給 header 用、
-     不干擾投影片自己的 token。<head> inline script 依 localStorage 套 html.dark / html[data-theme]。 */
-  :root{
-    --app-card:0 0% 100%; --app-border:214.3 31.8% 91.4%;
-    --app-fg:222.2 84% 4.9%; --app-muted-fg:215.4 16.3% 40%;
-    --app-primary:221.2 83.2% 53.3%;
-    --app-accent:210 40% 96.1%; --app-accent-fg:222.2 47.4% 11.2%;
-    --app-popover:0 0% 100%; --app-popover-fg:222.2 84% 4.9%;
-    --app-radius:0.5rem;
-  }
-  html.dark{
-    --app-card:222.2 84% 4.9%; --app-border:217.2 32.6% 17.5%;
-    --app-fg:210 40% 98%; --app-muted-fg:215 20.2% 65.1%;
-    --app-primary:217.2 91.2% 59.8%;
-    --app-accent:217.2 32.6% 17.5%; --app-accent-fg:210 40% 98%;
-    --app-popover:222.2 84% 4.9%; --app-popover-fg:210 40% 98%;
-  }
-  html[data-theme='violet']{ --app-primary:262.1 83.3% 57.8%; }
-  html[data-theme='emerald']{ --app-primary:142.1 76.2% 36.3%; }
-  html[data-theme='rose']{ --app-primary:346.8 77.2% 49.8%; }
-  html[data-theme='amber']{ --app-primary:24.6 95% 53.1%; }
-  /* 投影片內容固定白底（使用者：投影片要用白底；但 header 不改——只限縮在 .deck，
-     header 仍用 :root、跟隨系統深淺色）。.deck 內覆寫整組亮色 token，故無論系統深色
-     與否，slide 內容都是白底＋深色字。 */
+  /* header token／樣式見 _shared/app-toolbar.css。投影片內容固定白底（.deck 覆寫）。 */
   .deck{
     color-scheme: light;
     --page-bg:#ffffff; --dot:rgba(15,23,42,.06);
@@ -70,53 +49,6 @@
   }
   a{color:inherit;}
   strong,b{font-weight:700;}
-
-  /* ---- header：逐字複製首頁 TopToolbar（src/components/TopToolbar.vue ＋ src/style.css）----
-     markup、class、佈局（brand 靠左＋Skills margin-left:auto 把其餘推到右）、圖示（Material
-     Symbols「map」）、下拉（相關連結）全部照抄；顏色用首頁的 shadcn token（--app-*），由 <head>
-     inline script 依 localStorage 套 .dark/data-theme → 和首頁「當下」完全一致。 */
-  .app-toolbar{
-    display:flex; align-items:center; gap:4px; min-height:44px; padding:4px 8px; flex-shrink:0;
-    border-bottom:1px solid hsl(var(--app-border)); background:hsl(var(--app-card));
-    position:sticky; top:0; z-index:50;
-  }
-  .app-toolbar .brand{
-    display:flex; align-items:center; gap:6px; padding:0 10px 0 4px;
-    font-size:13px; font-weight:600; color:hsl(var(--app-primary));
-    white-space:nowrap; flex-shrink:0; text-decoration:none;
-  }
-  .app-toolbar .btn-ghost{
-    display:inline-flex; align-items:center; gap:4px; height:32px; padding:0 10px;
-    border-radius:calc(var(--app-radius) - 2px); font-size:13px; white-space:nowrap;
-    color:hsl(var(--app-fg)); text-decoration:none; background:none; border:0; cursor:pointer;
-    font-family:inherit; transition:background .12s, color .12s;
-  }
-  .app-toolbar .btn-ghost:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
-  .app-toolbar .btn-ghost.active{ color:hsl(var(--app-primary)); }
-  .app-toolbar .skills-link{ margin-left:auto; }  /* 首頁：Skills 以後全部推到右邊 */
-  .app-toolbar .info-wrap{ position:relative; }
-  .app-toolbar .m-icon{
-    font-family:'Material Symbols Outlined'; font-weight:normal; font-style:normal;
-    line-height:1; display:inline-block; vertical-align:middle; flex-shrink:0;
-    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20; -webkit-font-feature-settings:'liga';
-  }
-  .app-toolbar .menu-pop{
-    position:absolute; z-index:200; top:34px; right:0; left:auto; min-width:232px;
-    background:hsl(var(--app-popover)); color:hsl(var(--app-popover-fg));
-    border:1px solid hsl(var(--app-border)); border-radius:calc(var(--app-radius) - 2px);
-    box-shadow:0 8px 24px rgb(0 0 0 / .18); padding:4px; font-size:13px;
-  }
-  .app-toolbar .menu-pop[hidden]{ display:none; }
-  .app-toolbar .menu-label{
-    padding:6px 8px 2px; font-size:11px; font-weight:600; color:hsl(var(--app-muted-fg));
-    text-transform:uppercase; letter-spacing:.03em;
-  }
-  .app-toolbar .menu-item{
-    display:flex; align-items:center; gap:8px; width:100%; padding:6px 8px;
-    border-radius:calc(var(--app-radius) - 4px); text-align:left; white-space:nowrap;
-    color:hsl(var(--app-popover-fg)); text-decoration:none;
-  }
-  .app-toolbar .menu-item:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
 
   /* ===== Google Slides 式觀看版面（無編輯功能）：header 下方＝左縮圖膠捲＋中央畫布，最底為工具列 ===== */
   .workspace{ display:flex; flex:1; min-height:0; }
@@ -412,27 +344,9 @@
 </script>
 </head>
 <body>
-<!-- 逐字對齊首頁 TopToolbar：brand（map 圖示）＋Skills（靠右起點）＋系統介紹＋相關連結下拉 -->
-<header class="app-toolbar">
-  <a class="brand" href="../" title="重新載入">
-    <span class="material-symbols-outlined m-icon" style="font-size:16px">map</span>
-    <span class="brand-name">Adapt-Metro</span>
-  </a>
-  <a class="btn-ghost skills-link" href="../">Skills</a>
-  <a class="btn-ghost" href="./thesis/">論文內容</a>
-  <a class="btn-ghost" href="./thesis/paper/">論文本文</a>
-  <a class="btn-ghost" href="./thesis/paper/?doc=improve">改善建議</a>
-  <a class="btn-ghost active" href="./">系統介紹</a>
-  <a class="btn-ghost" href="./architecture/">系統架構</a>
-  <div class="info-wrap">
-    <button class="btn-ghost" id="relBtn" type="button">相關連結</button>
-    <div class="menu-pop" id="relMenu" hidden>
-      <div class="menu-label">相關連結</div>
-      <a class="menu-item" href="https://en.wikipedia.org/wiki/List_of_metro_systems" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined m-icon" style="font-size:14px">open_in_new</span> Metro systems (Wikipedia)</a>
-      <a class="menu-item" href="https://www.urbanrail.net/" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined m-icon" style="font-size:14px">open_in_new</span> UrbanRail.net</a>
-    </div>
-  </div>
-</header>
+<header id="appToolbar" class="app-toolbar"></header>
+<script src="./_shared/app-toolbar.js"></script>
+<script>AdaptMetroToolbar.mount('#appToolbar', { base: '../', active: 'slides' });</script>
 <div class="workspace">
 <aside class="filmstrip" id="filmstrip" aria-label="投影片縮圖"></aside>
 <div class="deck" id="deck">
@@ -1327,25 +1241,6 @@
   }
   fsBtn.addEventListener('click', toggleFullscreen);
 })();
-</script>
-
-<script>
-  /* 相關連結下拉：與首頁 TopToolbar 同行為（點按鈕開/關、點外面或 Esc 關）。 */
-  (function () {
-    var btn = document.getElementById('relBtn');
-    var menu = document.getElementById('relMenu');
-    if (!btn || !menu) return;
-    var toggle = function (open) {
-      var show = open === undefined ? menu.hasAttribute('hidden') : open;
-      if (show) menu.removeAttribute('hidden'); else menu.setAttribute('hidden', '');
-      btn.classList.toggle('active', show);
-    };
-    btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
-    document.addEventListener('mousedown', function (e) {
-      if (!menu.hasAttribute('hidden') && !menu.contains(e.target) && e.target !== btn) toggle(false);
-    });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
-  })();
 </script>
 
 </body>

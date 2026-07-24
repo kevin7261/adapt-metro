@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useMapStore } from '../stores/mapStore'
 import { clearDataOverlay } from '../lib/dataOverlay'
 import {
   showRecomputeOverlay, updateRecomputeOverlay, hideRecomputeOverlay,
 } from '../stores/recomputeOverlay'
-import { useMediaQuery } from '../lib/useMediaQuery'
 import MIcon from './MIcon.vue'
 
 const store = useMapStore()
@@ -29,8 +28,7 @@ const relatedLinks = [
   { label: 'UrbanRail.net', href: 'https://www.urbanrail.net/' },
 ]
 
-/* RWD：≤900px 把論文／系統連結收到「更多」選單，功能不變 */
-const narrowToolbar = useMediaQuery('(max-width: 900px)')
+/* RWD：寬螢幕平鋪連結；窄螢幕用 CSS 收到「更多」（見 .nav-wide / .nav-narrow） */
 const moreOpen = ref(false)
 const moreWrap = ref(null)
 const navLinks = [
@@ -40,6 +38,10 @@ const navLinks = [
   { label: '系統介紹', href: slidesUrl },
   { label: '系統架構', href: architectureUrl },
 ]
+// 開任一選單時關掉其他，避免重疊
+watch(moreOpen, (v) => { if (v) { infoOpen.value = false; recomputeOpen.value = false } })
+watch(infoOpen, (v) => { if (v) { moreOpen.value = false; recomputeOpen.value = false } })
+watch(recomputeOpen, (v) => { if (v) { moreOpen.value = false; infoOpen.value = false } })
 
 /* ---- 重新計算（全城）----
    all      連環狀成方一起重做
@@ -262,135 +264,136 @@ onBeforeUnmount(() => {
 
 <template>
   <header class="toolbar">
-    <a class="brand" :href="homeUrl" title="重新載入">
+    <a class="brand" :href="homeUrl" title="Adapt-Metro">
       <MIcon name="map" :size="16" />
       <span class="brand-name">Adapt-Metro</span>
     </a>
 
-    <!-- Skills：所有 skill 的總覽 modal -->
-    <button class="btn-ghost skills-link" @click="store.ui.dialog = 'skills'">Skills</button>
-
-    <!-- 寬螢幕：論文／系統連結平鋪；窄螢幕收進「更多」 -->
-    <template v-if="!narrowToolbar">
-      <a class="btn-ghost" :href="thesisUrl">論文內容</a>
-      <a class="btn-ghost" :href="paperUrl">論文本文</a>
-      <a class="btn-ghost" :href="improveUrl">改善建議</a>
-      <a class="btn-ghost" :href="slidesUrl">系統介紹</a>
-      <a class="btn-ghost" :href="architectureUrl">系統架構</a>
-    </template>
-
-    <div ref="moreWrap" class="skills-wrap more-wrap">
-      <button
-        v-if="narrowToolbar"
-        class="btn-ghost"
-        :class="{ active: moreOpen }"
-        title="更多"
-        @click="moreOpen = !moreOpen"
-      >
-        <MIcon name="menu" :size="15" /> 更多
+    <!-- 右側叢集：Skills 起推到右；窄螢幕用 CSS 收合 nav-wide → 更多 -->
+    <div class="toolbar-end">
+      <button class="btn-ghost skills-link" title="Skills" @click="store.ui.dialog = 'skills'">
+        <span class="lbl">Skills</span>
       </button>
-      <div v-if="narrowToolbar && moreOpen" class="menu-pop more-menu">
-        <div class="menu-label">文件與介紹</div>
-        <a
-          v-for="link in navLinks"
-          :key="link.href"
-          class="menu-item"
-          :href="link.href"
-          @click="moreOpen = false"
-        >{{ link.label }}</a>
-        <div class="menu-sep" />
-        <div class="menu-label">相關連結</div>
-        <a
-          v-for="link in relatedLinks"
-          :key="link.href"
-          class="menu-item"
-          :href="link.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          @click="moreOpen = false"
-        >
-          <MIcon name="open_in_new" :size="14" /> {{ link.label }}
-        </a>
-      </div>
-    </div>
 
-    <div v-if="!narrowToolbar" ref="infoWrap" class="skills-wrap info-wrap">
-      <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
-        相關連結
-      </button>
-      <div v-if="infoOpen" class="menu-pop info-menu">
-        <div class="menu-label">相關連結</div>
-        <a
-          v-for="link in relatedLinks"
-          :key="link.href"
-          class="menu-item"
-          :href="link.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          @click="infoOpen = false"
-        >
-          <MIcon name="open_in_new" :size="14" /> {{ link.label }}
-        </a>
+      <div class="nav-wide">
+        <a v-for="link in navLinks" :key="link.href" class="btn-ghost" :href="link.href">{{ link.label }}</a>
+        <div ref="infoWrap" class="skills-wrap info-wrap">
+          <button class="btn-ghost" :class="{ active: infoOpen }" @click="infoOpen = !infoOpen">
+            相關連結
+          </button>
+          <div v-if="infoOpen" class="menu-pop info-menu">
+            <div class="menu-label">相關連結</div>
+            <a
+              v-for="link in relatedLinks"
+              :key="link.href"
+              class="menu-item"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="infoOpen = false"
+            >
+              <MIcon name="open_in_new" :size="14" /> {{ link.label }}
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- 重新計算：忙碌時顯示進度；旁側可暫停／繼續（這城算完後生效） -->
-    <div ref="recomputeWrap" class="skills-wrap recompute-wrap" :class="{ busy: recomputeBusy, paused: recomputePaused }">
-      <div class="recompute-cluster">
+      <div ref="moreWrap" class="skills-wrap more-wrap nav-narrow">
         <button
-          class="btn-ghost recompute-btn"
-          :class="{ active: recomputeOpen || recomputeBusy, paused: recomputePaused }"
-          :disabled="recomputeBusy"
-          :title="recomputeBusy ? recomputeLabel : '重新計算全部城市的路網圖'"
-          @click="recomputeOpen = !recomputeOpen"
+          class="btn-ghost more-btn"
+          :class="{ active: moreOpen }"
+          title="更多"
+          aria-label="更多"
+          @click="moreOpen = !moreOpen"
         >
-          <MIcon
+          <MIcon name="menu" :size="18" />
+          <span class="lbl">更多</span>
+        </button>
+        <div v-if="moreOpen" class="menu-pop more-menu">
+          <div class="menu-label">文件與介紹</div>
+          <a
+            v-for="link in navLinks"
+            :key="link.href"
+            class="menu-item"
+            :href="link.href"
+            @click="moreOpen = false"
+          >{{ link.label }}</a>
+          <div class="menu-sep" />
+          <div class="menu-label">相關連結</div>
+          <a
+            v-for="link in relatedLinks"
+            :key="link.href"
+            class="menu-item"
+            :href="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            @click="moreOpen = false"
+          >
+            <MIcon name="open_in_new" :size="14" /> {{ link.label }}
+          </a>
+        </div>
+      </div>
+
+      <!-- 重新計算：忙碌時顯示進度；旁側可暫停／繼續（這城算完後生效） -->
+      <div ref="recomputeWrap" class="skills-wrap recompute-wrap" :class="{ busy: recomputeBusy, paused: recomputePaused }">
+        <div class="recompute-cluster">
+          <button
+            class="btn-ghost recompute-btn"
+            :class="{ active: recomputeOpen || recomputeBusy, paused: recomputePaused }"
+            :disabled="recomputeBusy"
+            :title="recomputeBusy ? recomputeLabel : '重新計算全部城市的路網圖'"
+            @click="recomputeOpen = !recomputeOpen"
+          >
+            <MIcon
+              v-if="recomputeBusy"
+              :name="recomputePaused ? 'pause' : 'progress_activity'"
+              :size="14"
+              :class="{ spin: !recomputePaused }"
+            />
+            <MIcon v-else name="restart_alt" :size="14" class="recompute-ico" />
+            <span class="recompute-text lbl">{{ recomputeLabel }}</span>
+            <MIcon v-if="!recomputeBusy" name="expand_more" :size="14" class="recompute-caret" />
+          </button>
+          <button
             v-if="recomputeBusy"
-            :name="recomputePaused ? 'pause' : 'progress_activity'"
-            :size="14"
-            :class="{ spin: !recomputePaused }"
-          />
-          <span class="recompute-text">{{ recomputeLabel }}</span>
-          <MIcon v-if="!recomputeBusy" name="expand_more" :size="14" />
-        </button>
-        <button
-          v-if="recomputeBusy"
-          type="button"
-          class="btn-ghost pause-btn"
-          :title="recomputePaused ? '繼續重算' : '暫停（目前這城算完後停）'"
-          @click.stop="togglePause"
+            type="button"
+            class="btn-ghost pause-btn"
+            :title="recomputePaused ? '繼續重算' : '暫停（目前這城算完後停）'"
+            @click.stop="togglePause"
+          >
+            <MIcon :name="recomputePaused ? 'play_arrow' : 'pause'" :size="14" />
+            <span class="lbl">{{ recomputePaused ? '繼續' : '暫停' }}</span>
+          </button>
+        </div>
+        <div
+          v-if="recomputeBusy && recomputeProgress?.total"
+          class="recompute-bar"
+          :title="recomputeLabel"
         >
-          <MIcon :name="recomputePaused ? 'play_arrow' : 'pause'" :size="14" />
-          {{ recomputePaused ? '繼續' : '暫停' }}
-        </button>
-      </div>
-      <div
-        v-if="recomputeBusy && recomputeProgress?.total"
-        class="recompute-bar"
-        :title="recomputeLabel"
-      >
-        <div class="recompute-bar-fill" :class="{ paused: recomputePaused }" :style="{ width: recomputePct + '%' }" />
-      </div>
-      <div v-if="recomputeOpen && !recomputeBusy" class="menu-pop recompute-menu">
-        <div class="menu-label">重新計算全部城市</div>
-        <button
-          v-for="(opt, mode) in RECOMPUTE_OPTS"
-          :key="mode"
-          class="menu-item"
-          @click="startRecompute(mode)"
-        >
-          <MIcon name="restart_alt" :size="14" />
-          <span class="mi-col">
-            <span>{{ opt.label }}</span>
-            <span class="mi-hint">{{ opt.hint }}</span>
-          </span>
-        </button>
+          <div class="recompute-bar-fill" :class="{ paused: recomputePaused }" :style="{ width: recomputePct + '%' }" />
+        </div>
+        <div v-if="recomputeOpen && !recomputeBusy" class="menu-pop recompute-menu">
+          <div class="menu-label">重新計算全部城市</div>
+          <button
+            v-for="(opt, mode) in RECOMPUTE_OPTS"
+            :key="mode"
+            class="menu-item"
+            @click="startRecompute(mode)"
+          >
+            <MIcon name="restart_alt" :size="14" />
+            <span class="mi-col">
+              <span>{{ opt.label }}</span>
+              <span class="mi-hint">{{ opt.hint }}</span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
 </template>
 
 <style scoped>
+/* 與 slides/_shared/app-toolbar.css 對齊（靜態頁共用同一套視覺） */
 .toolbar {
   display: flex;
   align-items: center;

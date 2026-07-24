@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Noto+Sans+TC:wght@400..700&display=swap" />
+<link rel="stylesheet" href="../../_shared/app-toolbar.css" />
 <style>
   :root{
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -17,26 +19,7 @@
     --gd-hover:rgba(68,71,70,.08); --gd-border:#c7c7c7; --gd-canvas:#f8fafd;
     --gd-blue:#1a73e8; --gd-tonal:#c2e7ff; --gd-tonal-ink:#001d35;
   }
-  /* 首頁 app 的 shadcn design token（同 slides/index.html），只給 header 用。 */
-  :root{
-    --app-card:0 0% 100%; --app-border:214.3 31.8% 91.4%;
-    --app-fg:222.2 84% 4.9%; --app-muted-fg:215.4 16.3% 40%;
-    --app-primary:221.2 83.2% 53.3%;
-    --app-accent:210 40% 96.1%; --app-accent-fg:222.2 47.4% 11.2%;
-    --app-popover:0 0% 100%; --app-popover-fg:222.2 84% 4.9%;
-    --app-radius:0.5rem;
-  }
-  html.dark{
-    --app-card:222.2 84% 4.9%; --app-border:217.2 32.6% 17.5%;
-    --app-fg:210 40% 98%; --app-muted-fg:215 20.2% 65.1%;
-    --app-primary:217.2 91.2% 59.8%;
-    --app-accent:217.2 32.6% 17.5%; --app-accent-fg:210 40% 98%;
-    --app-popover:222.2 84% 4.9%; --app-popover-fg:210 40% 98%;
-  }
-  html[data-theme='violet']{ --app-primary:262.1 83.3% 57.8%; }
-  html[data-theme='emerald']{ --app-primary:142.1 76.2% 36.3%; }
-  html[data-theme='rose']{ --app-primary:346.8 77.2% 49.8%; }
-  html[data-theme='amber']{ --app-primary:24.6 95% 53.1%; }
+  /* header token／樣式見 ../../_shared/app-toolbar.css */
 
   *,*::before,*::after{ box-sizing:border-box; }
   html,body{ height:100%; margin:0; }
@@ -45,32 +28,6 @@
     display:flex; flex-direction:column; -webkit-font-smoothing:antialiased;
   }
   a{ color:inherit; }
-
-  /* ---- header：逐字複製首頁 TopToolbar ---- */
-  .app-toolbar{
-    display:flex; align-items:center; gap:4px; min-height:44px; padding:4px 8px; flex-shrink:0;
-    border-bottom:1px solid hsl(var(--app-border)); background:hsl(var(--app-card));
-    position:sticky; top:0; z-index:60;
-  }
-  .app-toolbar .brand{
-    display:flex; align-items:center; gap:6px; padding:0 10px 0 4px;
-    font-size:13px; font-weight:600; color:hsl(var(--app-primary));
-    white-space:nowrap; flex-shrink:0; text-decoration:none;
-  }
-  .app-toolbar .btn-ghost{
-    display:inline-flex; align-items:center; gap:4px; height:32px; padding:0 10px;
-    border-radius:calc(var(--app-radius) - 2px); font-size:13px; white-space:nowrap;
-    color:hsl(var(--app-fg)); text-decoration:none; background:none; border:0; cursor:pointer;
-    font-family:inherit; transition:background .12s, color .12s;
-  }
-  .app-toolbar .btn-ghost:hover{ background:hsl(var(--app-accent)); color:hsl(var(--app-accent-fg)); }
-  .app-toolbar .btn-ghost.active{ color:hsl(var(--app-primary)); }
-  .app-toolbar .skills-link{ margin-left:auto; }
-  .app-toolbar .m-icon{
-    font-family:'Material Symbols Outlined'; font-weight:normal; font-style:normal;
-    line-height:1; display:inline-block; vertical-align:middle; flex-shrink:0;
-    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20; -webkit-font-feature-settings:'liga';
-  }
 
   /* =====================================================================
      Google Docs 式門面：標題列（文件圖示＋文件名＋選單列）→ 工具列藥丸 → 尺規
@@ -298,18 +255,15 @@
 </script>
 </head>
 <body>
-<header class="app-toolbar">
-  <a class="brand" href="../../../" title="重新載入">
-    <span class="material-symbols-outlined m-icon" style="font-size:16px">map</span>
-    <span class="brand-name">Adapt-Metro</span>
-  </a>
-  <a class="btn-ghost skills-link" href="../../../">Skills</a>
-  <a class="btn-ghost" href="../">論文內容</a>
-  <a class="btn-ghost" id="hdrPaper" href="./">論文本文</a>
-  <a class="btn-ghost" id="hdrImprove" href="./?doc=improve">改善建議</a>
-  <a class="btn-ghost" href="../../">系統介紹</a>
-  <a class="btn-ghost" href="../../architecture/">系統架構</a>
-</header>
+<header id="appToolbar" class="app-toolbar"></header>
+<script src="../../_shared/app-toolbar.js"></script>
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var active = q.get('doc') === 'improve' ? 'improve' : 'paper';
+    AdaptMetroToolbar.mount('#appToolbar', { base: '../../../', active: active });
+  })();
+</script>
 
 <!-- ===== Google Docs 式門面（樣式仿 Docs；功能都是本頁原有的：文件切換／顯示⇄原文／下載／列印／縮放） ===== -->
 <div class="gd-chrome">
@@ -569,10 +523,7 @@
     docPaper.classList.toggle('on', key === 'paper');
     docImprove.classList.toggle('on', key === 'improve');
     /* header 的「論文本文／改善建議」active 跟目前文件連動 */
-    var hdrPaper = document.getElementById('hdrPaper');
-    var hdrImprove = document.getElementById('hdrImprove');
-    if (hdrPaper) hdrPaper.classList.toggle('active', key === 'paper');
-    if (hdrImprove) hdrImprove.classList.toggle('active', key === 'improve');
+    if (window.AdaptMetroToolbar) AdaptMetroToolbar.setActive(key === 'improve' ? 'improve' : 'paper');
     gdTitle.textContent = doc.label;
     dlLink.href = doc.file;
     dlLink.setAttribute('download', doc.dl);

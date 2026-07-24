@@ -1,0 +1,17 @@
+{
+  "city": "Ust'-Kamenogorsk",
+  "country": "Kazakhstan",
+  "continent": "asia",
+  "osm_route_ids": [
+    19855632,
+    19856172,
+    19861701,
+    19984886,
+    19988416,
+    19988417,
+    20007413,
+    20007414
+  ],
+  "source": "https://www.urbanrail.net/as/kz/oskemen/oskemen.htm",
+  "note": "Ust'-Kamenogorsk（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}
