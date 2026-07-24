@@ -1,0 +1,32 @@
+{
+  "city": "Magdeburg",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    2072897,
+    2072898,
+    2074856,
+    2074857,
+    2074945,
+    2074946,
+    2075033,
+    2075523,
+    2077983,
+    2077984,
+    2078003,
+    2078004,
+    2078005,
+    2078006,
+    2078222,
+    2078223,
+    2082553,
+    2082709,
+    5360131,
+    5360132,
+    11551728,
+    11551729,
+    19460198
+  ],
+  "source": "https://www.urbanrail.net/eu/de/md/magdeburg.htm",
+  "note": "Magdeburg（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

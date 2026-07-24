@@ -1,0 +1,27 @@
+{
+  "city": "Bonn",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    34474,
+    34488,
+    34489,
+    1316192,
+    1316193,
+    1353066,
+    1633562,
+    1646140,
+    1694577,
+    1694615,
+    1995629,
+    1995733,
+    1995774,
+    1995775,
+    2156838,
+    2156839,
+    2156840,
+    2156841
+  ],
+  "source": "https://www.urbanrail.net/eu/de/bn/bonn.htm",
+  "note": "Bonn（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

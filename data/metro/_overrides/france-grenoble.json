@@ -1,0 +1,20 @@
+{
+  "city": "Grenoble",
+  "country": "France",
+  "continent": "europe",
+  "osm_route_ids": [
+    3921456,
+    3921457,
+    3921458,
+    3921459,
+    3921460,
+    3921461,
+    3921474,
+    3921475,
+    3921476,
+    3921477,
+    17885132
+  ],
+  "source": "https://www.urbanrail.net/eu/fr/grenoble/grenoble-tram.htm",
+  "note": "Grenoble（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

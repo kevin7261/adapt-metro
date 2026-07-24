@@ -1,0 +1,15 @@
+{
+  "city": "Craiova",
+  "country": "Romania",
+  "continent": "europe",
+  "osm_route_ids": [
+    2648551,
+    2648601,
+    2648602,
+    12315492,
+    12315493,
+    12315494
+  ],
+  "source": "https://www.urbanrail.net/eu/ro/craiova/craiova.htm",
+  "note": "Craiova（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

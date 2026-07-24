@@ -28484,3 +28484,15 @@ PROGRESS 2/2 eu-rus-moscow.rot-shape
 20:04:28 rect.endp 33s
 20:04:42 rect.line 48s
 20:04:44 rect.gather 49s
+21:08:51 rect done 3896.5s
+21:08:51 rect.saved 3897s
+21:08:51 milp.post 0s
+21:09:38 milp.endp 47s
+21:10:06 milp.line 75s
+21:10:07 milp.gather 77s
+22:05:12 milp done 3381.3s
+22:05:12 milp.saved 3381s
+22:05:13 force.post 1s
+22:06:07 force.endp 55s
+22:06:45 force.line 93s
+22:06:47 force.gather 95s

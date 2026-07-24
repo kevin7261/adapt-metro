@@ -1,0 +1,15 @@
+{
+  "city": "Krasnoyarsk",
+  "country": "Russia",
+  "continent": "europe",
+  "osm_route_ids": [
+    11499848,
+    11564279,
+    11564285,
+    17954163,
+    18489390,
+    18489391
+  ],
+  "source": "https://www.urbanrail.net/eu/ru/krasno/krasnoyarsk.htm",
+  "note": "Krasnoyarsk（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

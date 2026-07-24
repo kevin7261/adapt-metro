@@ -1,0 +1,17 @@
+{
+  "city": "Liberec",
+  "country": "Czechia",
+  "continent": "europe",
+  "osm_route_ids": [
+    2462588,
+    2462589,
+    2462590,
+    2462591,
+    2468633,
+    2468634,
+    2468636,
+    2468638
+  ],
+  "source": "https://www.urbanrail.net/eu/cz/liberec/liberec.htm",
+  "note": "Liberec（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

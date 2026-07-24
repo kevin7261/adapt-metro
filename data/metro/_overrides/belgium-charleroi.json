@@ -1,0 +1,29 @@
+{
+  "city": "Charleroi",
+  "country": "Belgium",
+  "continent": "europe",
+  "osm_route_ids": [
+    2804168,
+    3287304,
+    3939084,
+    4139149,
+    5508315,
+    5508316,
+    5508317,
+    5508318,
+    5508319,
+    5508320,
+    11525525,
+    11592486,
+    11592932,
+    11593003,
+    19828679,
+    19828680,
+    19828681,
+    19828682,
+    19828683,
+    19828684
+  ],
+  "source": "https://www.urbanrail.net/eu/be/char/charleroi.htm",
+  "note": "Charleroi（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

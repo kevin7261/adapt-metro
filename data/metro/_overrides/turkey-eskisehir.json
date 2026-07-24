@@ -1,0 +1,19 @@
+{
+  "city": "Eskisehir",
+  "country": "Turkey",
+  "continent": "asia",
+  "osm_route_ids": [
+    6799065,
+    6799070,
+    6800375,
+    6800648,
+    6800876,
+    15354959,
+    15354960,
+    16464065,
+    16464070,
+    19766622
+  ],
+  "source": "https://www.urbanrail.net/as/tr/eskisehir/eskisehir.htm",
+  "note": "Eskisehir（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

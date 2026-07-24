@@ -1,0 +1,23 @@
+{
+  "city": "Kolomna",
+  "country": "Russia",
+  "continent": "europe",
+  "osm_route_ids": [
+    2294790,
+    2294791,
+    2294792,
+    2294793,
+    2294802,
+    2294803,
+    2294806,
+    2294807,
+    2294856,
+    2294857,
+    2294859,
+    2294860,
+    2294910,
+    2294912
+  ],
+  "source": "https://www.urbanrail.net/eu/ru/kolomna/kolomna.htm",
+  "note": "Kolomna（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

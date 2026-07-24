@@ -1,0 +1,28 @@
+{
+  "city": "Chemnitz",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    68055,
+    68067,
+    68068,
+    70670,
+    72580,
+    409790,
+    1809688,
+    1860361,
+    1860402,
+    1860419,
+    1862031,
+    2806129,
+    2956929,
+    7204220,
+    7204221,
+    7211720,
+    7795768,
+    7795769,
+    13751722
+  ],
+  "source": "https://www.urbanrail.net/eu/de/c/chemnitz.htm",
+  "note": "Chemnitz（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

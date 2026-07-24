@@ -15,7 +15,7 @@ const props = defineProps({
   // 以下皆為 RWD Maps 版面控制（狀態都在 D3Tab，工具列只顯示＋emit 回去）：
   showWeights: { type: Boolean, default: true }, // 顯示權重數字
   weightMode: { type: String, default: 'uniform' }, // 'uniform'(版面網格) | 'square'(方形) | 'weight'(權重，僅 RWD)
-  dirs: { type: Number, default: 8 }, // 允許的線方向數：4（只H/V）| 8（+45°）| 16（+22.5°）
+  dirs: { type: Number, default: 8 }, // 允許的線方向數：0（任意）| 4（只H/V）| 8（+45°）| 16（+22.5°）
   frame: { type: String, default: 'auto' }, // RWD 版面尺寸預設（目前／網頁／手機／IG）
   weightAuto: { type: Boolean, default: false }, // 每 5 秒自動重抽
   hideStops: { type: Boolean, default: false }, // 白點縮減（true＝隱藏過密直通白點）
@@ -239,7 +239,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
     <div v-if="hasRow2" class="sb-row sb-row-2">
       <!-- RWD 專屬：方向數／版面模式／顯示權重數字／隱藏白點／最小站距／隨機權重 -->
       <template v-if="isRwd">
-        <!-- 線方向數：4（只H/V）／8（+45°）／16（+22.5°）＝下拉選單 -->
+        <!-- 線方向數：任意／4（只H/V）／8（+45°）／16（+22.5°）＝下拉選單 -->
         <label class="sb-inline" title="允許的線方向數">
           <span class="sb-inline-label">方向</span>
           <select
@@ -247,6 +247,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
             :value="dirs"
             @change="emit('dir-count', +$event.target.value)"
           >
+            <option :value="0">任意方向</option>
             <option :value="4">4方向</option>
             <option :value="8">8方向</option>
             <option :value="16">16方向</option>

@@ -1,0 +1,31 @@
+{
+  "city": "Belgrade",
+  "country": "Serbia",
+  "continent": "europe",
+  "osm_route_ids": [
+    2653185,
+    2653186,
+    2653187,
+    2653188,
+    2653189,
+    2653190,
+    2653191,
+    2653192,
+    2653193,
+    2653194,
+    2653197,
+    2653198,
+    2653199,
+    2653200,
+    7023559,
+    7023560,
+    18586107,
+    18586108,
+    18586117,
+    18586118,
+    20961440,
+    20961441
+  ],
+  "source": "https://www.urbanrail.net/eu/rs/beograd/beograd.htm",
+  "note": "Belgrade（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

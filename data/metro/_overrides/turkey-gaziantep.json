@@ -1,0 +1,15 @@
+{
+  "city": "Gaziantep",
+  "country": "Turkey",
+  "continent": "asia",
+  "osm_route_ids": [
+    15463464,
+    15463465,
+    15470242,
+    15470243,
+    15471517,
+    15471518
+  ],
+  "source": "https://www.urbanrail.net/as/tr/gaziantep/gaziantep.htm",
+  "note": "Gaziantep（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

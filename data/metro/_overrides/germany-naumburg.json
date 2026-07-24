@@ -1,0 +1,10 @@
+{
+  "city": "Naumburg",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    2930171
+  ],
+  "source": "https://www.urbanrail.net/eu/de/nmb/naumburg.htm",
+  "note": "Naumburg（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

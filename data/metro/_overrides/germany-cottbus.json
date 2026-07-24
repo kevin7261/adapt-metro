@@ -1,0 +1,17 @@
+{
+  "city": "Cottbus",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    79326,
+    1625318,
+    1628042,
+    1628043,
+    1628066,
+    1637442,
+    1639386,
+    1719179
+  ],
+  "source": "https://www.urbanrail.net/eu/de/cb/cottbus.htm",
+  "note": "Cottbus（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

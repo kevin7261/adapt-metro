@@ -1,0 +1,15 @@
+{
+  "city": "Dublin",
+  "country": "Ireland",
+  "continent": "europe",
+  "osm_route_ids": [
+    3616735,
+    3616736,
+    3616737,
+    3616738,
+    6975500,
+    6975501
+  ],
+  "source": "https://www.urbanrail.net/eu/ie/dublin/dublin.htm",
+  "note": "Dublin（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

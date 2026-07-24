@@ -1,0 +1,23 @@
+{
+  "city": "Nantes",
+  "country": "France",
+  "continent": "europe",
+  "osm_route_ids": [
+    64031,
+    64032,
+    64033,
+    65819,
+    2096890,
+    2096891,
+    2116451,
+    2116453,
+    2851637,
+    2851638,
+    19513723,
+    19513724,
+    19515571,
+    19515572
+  ],
+  "source": "https://www.urbanrail.net/eu/fr/nantes/nantes-tram.htm",
+  "note": "Nantes（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

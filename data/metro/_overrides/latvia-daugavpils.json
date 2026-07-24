@@ -1,0 +1,18 @@
+{
+  "city": "Daugavpils",
+  "country": "Latvia",
+  "continent": "europe",
+  "osm_route_ids": [
+    1707560,
+    1707561,
+    1707562,
+    1707563,
+    1708349,
+    1708350,
+    15057095,
+    15057096,
+    17096731
+  ],
+  "source": "https://www.urbanrail.net/eu/lv/dauga/daugavpils.htm",
+  "note": "Daugavpils（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

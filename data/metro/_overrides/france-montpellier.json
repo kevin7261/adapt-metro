@@ -1,0 +1,21 @@
+{
+  "city": "Montpellier",
+  "country": "France",
+  "continent": "europe",
+  "osm_route_ids": [
+    1852816,
+    4107686,
+    4107771,
+    4107772,
+    4107815,
+    4107816,
+    4107862,
+    4107863,
+    4107864,
+    4107865,
+    19846275,
+    19846276
+  ],
+  "source": "https://www.urbanrail.net/eu/fr/montpellier/montpellier-tram.htm",
+  "note": "Montpellier（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

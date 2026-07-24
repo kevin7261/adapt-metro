@@ -1,0 +1,17 @@
+{
+  "city": "Braila",
+  "country": "Romania",
+  "continent": "europe",
+  "osm_route_ids": [
+    14412280,
+    14412281,
+    14412290,
+    14412291,
+    16317267,
+    16318123,
+    16318124,
+    16318291
+  ],
+  "source": "https://www.urbanrail.net/eu/ro/braila/braila.htm",
+  "note": "Braila（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

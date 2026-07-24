@@ -1,0 +1,19 @@
+{
+  "city": "Galati",
+  "country": "Romania",
+  "continent": "europe",
+  "osm_route_ids": [
+    309018,
+    358086,
+    358087,
+    358088,
+    399971,
+    16337135,
+    16337326,
+    16337327,
+    16337534,
+    16337536
+  ],
+  "source": "https://www.urbanrail.net/eu/ro/galati/galati.htm",
+  "note": "Galati（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

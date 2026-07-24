@@ -748,7 +748,7 @@ const rwdStats = ref(null)       // { straight, single, double, fallback, segs }
 // 'square'  = 方形網格（格子正方、置中 letterbox）
 // 'weight'  = 權重網格（僅 RWD：weight → 非均勻欄寬列高 → 重跑 buildRwdMap）
 const rwdWeightMode = ref('uniform') // 'uniform' | 'square' | 'weight'
-const rwdDirs = ref(8)               // RWD 允許的線方向數：4（只H/V）| 8（+45°，預設）| 16（+22.5°）
+const rwdDirs = ref(8)               // RWD 允許的線方向數：0（任意）| 4（只H/V）| 8（+45°，預設）| 16（+22.5°）
 const rwdFrameId = ref('auto')       // 版面尺寸：目前面板／網頁／手機／IG（模擬 RWD）
 const rwdFrameInfo = computed(() => resolveRwdFrame(rwdFrameId.value, 0, 0))
 const rwdShowWeights = ref(true)     // 是否顯示 weight 數字（開關）
@@ -1820,7 +1820,7 @@ async function computeHcLayout({ seq, w, h, grid }) {
           // 候選＋兜底；fast 幀（動畫/放大鏡）再略過多輪衝突消解換每幀夠快；均勻格照舊帶 lattice。
           ...buildRwdMap(cachedSegs, pxPos, {
             unit: Math.min(cw, ch),
-            dirs: rwdDirs.value, // 允許的線方向數 4/8/16
+            dirs: rwdDirs.value, // 允許的線方向數 0/4/8/16
             // 自動隱藏白點：站距 < 門檻才刪，逐級升高 weight 差門檻（見 rwdMap.js）。
             hideStops: rwdHideStops.value,
             minStopPx: rwdMinStopPx.value,

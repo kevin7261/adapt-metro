@@ -1,0 +1,15 @@
+{
+  "city": "Bergamo",
+  "country": "Italy",
+  "continent": "europe",
+  "osm_route_ids": [
+    399912,
+    919290,
+    919291,
+    2423981,
+    2797902,
+    2797903
+  ],
+  "source": "https://www.urbanrail.net/eu/it/berg/bergamo.htm",
+  "note": "Bergamo（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

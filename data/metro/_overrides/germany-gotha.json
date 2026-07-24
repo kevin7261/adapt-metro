@@ -1,0 +1,19 @@
+{
+  "city": "Gotha",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    2531657,
+    2531658,
+    2531808,
+    2531809,
+    2531810,
+    2531811,
+    2531862,
+    2531863,
+    11576100,
+    11576101
+  ],
+  "source": "https://www.urbanrail.net/eu/de/gth/gotha.htm",
+  "note": "Gotha（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

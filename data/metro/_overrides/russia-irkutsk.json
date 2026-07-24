@@ -1,0 +1,22 @@
+{
+  "city": "Irkutsk",
+  "country": "Russia",
+  "continent": "europe",
+  "osm_route_ids": [
+    7874579,
+    7874580,
+    7874581,
+    7874582,
+    7875000,
+    7875001,
+    7875272,
+    7875273,
+    7875274,
+    7875275,
+    7875922,
+    7875923,
+    17262471
+  ],
+  "source": "https://www.urbanrail.net/eu/ru/irkutsk/irkutsk.htm",
+  "note": "Irkutsk（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,20 @@
+{
+  "city": "Birmingham",
+  "country": "United Kingdom",
+  "continent": "europe",
+  "osm_route_ids": [
+    164916,
+    17248967,
+    17582894,
+    17582895,
+    17582896,
+    18094029,
+    18094030,
+    18094031,
+    18094032,
+    20439814,
+    20439815
+  ],
+  "source": "https://www.urbanrail.net/eu/uk/bir/birmingham.htm",
+  "note": "Birmingham（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

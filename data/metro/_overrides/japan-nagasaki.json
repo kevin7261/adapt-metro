@@ -1,0 +1,19 @@
+{
+  "city": "Nagasaki",
+  "country": "Japan",
+  "continent": "asia",
+  "osm_route_ids": [
+    20235161,
+    20235162,
+    20246072,
+    20246073,
+    20247060,
+    20247061,
+    20248467,
+    20248468,
+    20248469,
+    20248470
+  ],
+  "source": "https://www.urbanrail.net/as/jp/nagasaki/nagasaki.htm",
+  "note": "Nagasaki（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

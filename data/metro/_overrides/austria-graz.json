@@ -1,0 +1,27 @@
+{
+  "city": "Graz",
+  "country": "Austria",
+  "continent": "europe",
+  "osm_route_ids": [
+    23294,
+    27010,
+    27176,
+    27194,
+    27222,
+    27223,
+    962028,
+    962057,
+    962919,
+    962994,
+    963683,
+    6458029,
+    13443921,
+    13443922,
+    19829359,
+    19829360,
+    19834140,
+    19834141
+  ],
+  "source": "https://www.urbanrail.net/eu/at/graz/graz.htm",
+  "note": "Graz（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

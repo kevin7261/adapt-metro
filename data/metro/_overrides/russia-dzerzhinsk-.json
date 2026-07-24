@@ -1,0 +1,17 @@
+{
+  "city": "Dzerzhinsk*",
+  "country": "Russia",
+  "continent": "europe",
+  "osm_route_ids": [
+    240654,
+    240655,
+    2986718,
+    2986719,
+    2987493,
+    2987498,
+    2988529,
+    2988530
+  ],
+  "source": "https://www.urbanrail.net/eu/ru/dzerzhinsk/dzerzhinsk.htm",
+  "note": "Dzerzhinsk*（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

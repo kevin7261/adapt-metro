@@ -1,0 +1,23 @@
+{
+  "city": "Barnaul",
+  "country": "Russia",
+  "continent": "europe",
+  "osm_route_ids": [
+    391573,
+    392039,
+    393013,
+    1856423,
+    1856424,
+    1858330,
+    1859937,
+    1860228,
+    1860230,
+    7065806,
+    7601653,
+    7621518,
+    7626856,
+    7626897
+  ],
+  "source": "https://www.urbanrail.net/eu/ru/barnaul/barnaul.htm",
+  "note": "Barnaul（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

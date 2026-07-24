@@ -1,0 +1,19 @@
+{
+  "city": "Jena",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    147372,
+    147373,
+    147394,
+    147398,
+    147471,
+    3376752,
+    3474899,
+    3474911,
+    3474947,
+    3474951
+  ],
+  "source": "https://www.urbanrail.net/eu/de/j/jena.htm",
+  "note": "Jena（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,21 @@
+{
+  "city": "Ghent",
+  "country": "Belgium",
+  "continent": "europe",
+  "osm_route_ids": [
+    223229,
+    2844991,
+    6667784,
+    10577035,
+    10578337,
+    10578338,
+    16012106,
+    16012107,
+    17854818,
+    17854819,
+    17854832,
+    17854833
+  ],
+  "source": "https://www.urbanrail.net/eu/be/gent/gent.htm",
+  "note": "Ghent（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

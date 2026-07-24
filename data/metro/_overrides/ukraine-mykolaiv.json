@@ -1,0 +1,21 @@
+{
+  "city": "Mykolaiv",
+  "country": "Ukraine",
+  "continent": "europe",
+  "osm_route_ids": [
+    2633460,
+    4199158,
+    4199185,
+    4199186,
+    11279457,
+    11905252,
+    11906456,
+    11906877,
+    11907494,
+    11907495,
+    11910377,
+    11910378
+  ],
+  "source": "https://www.urbanrail.net/eu/ua/mykolaiv/mykolaiv.htm",
+  "note": "Mykolaiv（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

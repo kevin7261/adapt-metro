@@ -1,0 +1,19 @@
+{
+  "city": "Geneva",
+  "country": "Switzerland",
+  "continent": "europe",
+  "osm_route_ids": [
+    2633135,
+    2633136,
+    3907310,
+    3907311,
+    3908572,
+    3908573,
+    10460911,
+    10486181,
+    11726240,
+    11726241
+  ],
+  "source": "https://www.urbanrail.net/eu/ch/ge/geneve.htm",
+  "note": "Geneva（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

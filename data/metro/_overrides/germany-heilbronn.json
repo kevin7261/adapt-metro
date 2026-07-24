@@ -1,0 +1,18 @@
+{
+  "city": "Heilbronn",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    2395144,
+    2396465,
+    2400967,
+    2400997,
+    3368505,
+    3368506,
+    4272603,
+    4272650,
+    13551839
+  ],
+  "source": "https://www.urbanrail.net/eu/de/hn/heilbronn.htm",
+  "note": "Heilbronn（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,19 @@
+{
+  "city": "Elblag",
+  "country": "Poland",
+  "continent": "europe",
+  "osm_route_ids": [
+    2104341,
+    2125660,
+    3398798,
+    6792535,
+    6792536,
+    6792545,
+    6792546,
+    6792594,
+    6792595,
+    6792596
+  ],
+  "source": "https://www.urbanrail.net/eu/pl/elblg/elblag.htm",
+  "note": "Elblag（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

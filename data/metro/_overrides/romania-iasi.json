@@ -1,0 +1,25 @@
+{
+  "city": "Iasi",
+  "country": "Romania",
+  "continent": "europe",
+  "osm_route_ids": [
+    4525524,
+    4525525,
+    4621819,
+    4629073,
+    4629074,
+    4631229,
+    4631230,
+    4631272,
+    4631273,
+    4631288,
+    4631289,
+    4633529,
+    5709214,
+    10103679,
+    10103680,
+    14231698
+  ],
+  "source": "https://www.urbanrail.net/eu/ro/iasi/iasi.htm",
+  "note": "Iasi（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,1 @@
+{"elements":[{"type":"relation","id":18489392,"tags":{"name":"Трамвай 2: КрасТЭЦ - Посёлок Энергетиков","route_master":"tram","type":"route_master"},"members":[{"type":"relation","ref":18489391,"role":""},{"type":"relation","ref":18489390,"role":""}]}]}

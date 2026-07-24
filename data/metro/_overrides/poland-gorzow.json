@@ -1,0 +1,19 @@
+{
+  "city": "Gorzow",
+  "country": "Poland",
+  "continent": "europe",
+  "osm_route_ids": [
+    1028300,
+    1028301,
+    1028303,
+    17242414,
+    20180111,
+    20195197,
+    20195199,
+    20198776,
+    20198778,
+    20201339
+  ],
+  "source": "https://www.urbanrail.net/eu/pl/gorzow/gorzow.htm",
+  "note": "Gorzow（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

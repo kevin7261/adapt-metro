@@ -1,0 +1,21 @@
+{
+  "city": "Erfurt",
+  "country": "Germany",
+  "continent": "europe",
+  "osm_route_ids": [
+    2888562,
+    2888672,
+    2888721,
+    3298518,
+    3298522,
+    3874568,
+    3878213,
+    3878214,
+    13334858,
+    13334859,
+    13334860,
+    13334861
+  ],
+  "source": "https://www.urbanrail.net/eu/de/ef/erfurt.htm",
+  "note": "Erfurt（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,21 @@
+{
+  "city": "Firenze",
+  "country": "Italy",
+  "continent": "europe",
+  "osm_route_ids": [
+    2172768,
+    2172769,
+    9298532,
+    9298541,
+    18621862,
+    18622253,
+    18624687,
+    18624725,
+    18649601,
+    18649602,
+    18651301,
+    18651302
+  ],
+  "source": "https://www.urbanrail.net/eu/it/fir/firenze.htm",
+  "note": "Firenze（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

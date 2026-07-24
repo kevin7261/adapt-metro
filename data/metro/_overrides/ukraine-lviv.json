@@ -1,0 +1,25 @@
+{
+  "city": "Lviv",
+  "country": "Ukraine",
+  "continent": "europe",
+  "osm_route_ids": [
+    1133369,
+    1133379,
+    1133381,
+    1133383,
+    1133422,
+    2152511,
+    2169221,
+    2171615,
+    2198036,
+    2548727,
+    6749429,
+    6749430,
+    10692513,
+    10693446,
+    17852991,
+    17883966
+  ],
+  "source": "https://www.urbanrail.net/eu/ua/lviv/lviv.htm",
+  "note": "Lviv（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

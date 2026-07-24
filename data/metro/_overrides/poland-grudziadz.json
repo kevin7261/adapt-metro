@@ -1,0 +1,15 @@
+{
+  "city": "Grudziadz",
+  "country": "Poland",
+  "continent": "europe",
+  "osm_route_ids": [
+    3407929,
+    3409484,
+    10806553,
+    10806554,
+    10807449,
+    10807450
+  ],
+  "source": "https://www.urbanrail.net/eu/pl/grudz/grudziadz.htm",
+  "note": "Grudziadz（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

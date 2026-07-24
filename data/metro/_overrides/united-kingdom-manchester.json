@@ -1,0 +1,32 @@
+{
+  "city": "Manchester",
+  "country": "United Kingdom",
+  "continent": "europe",
+  "osm_route_ids": [
+    64307,
+    65667,
+    180999,
+    1380620,
+    5861742,
+    5861755,
+    9332228,
+    9426439,
+    9427381,
+    9446632,
+    9446762,
+    9446766,
+    9446820,
+    9446823,
+    10314834,
+    10314857,
+    10326845,
+    10326849,
+    10326850,
+    10334657,
+    10872307,
+    10872308,
+    16749012
+  ],
+  "source": "https://www.urbanrail.net/eu/uk/man/manchester.htm",
+  "note": "Manchester（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

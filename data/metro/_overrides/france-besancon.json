@@ -1,0 +1,13 @@
+{
+  "city": "Besançon",
+  "country": "France",
+  "continent": "europe",
+  "osm_route_ids": [
+    4109606,
+    4109607,
+    4109608,
+    4109609
+  ],
+  "source": "https://www.urbanrail.net/eu/fr/besancon/besancon.htm",
+  "note": "Besançon（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

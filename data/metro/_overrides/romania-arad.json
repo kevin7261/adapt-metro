@@ -1,0 +1,29 @@
+{
+  "city": "Arad",
+  "country": "Romania",
+  "continent": "europe",
+  "osm_route_ids": [
+    2815040,
+    2815041,
+    12190485,
+    13374354,
+    13374713,
+    13374919,
+    13374920,
+    13375830,
+    13375831,
+    13381185,
+    13381186,
+    13390076,
+    13390077,
+    13398577,
+    13398578,
+    13398639,
+    13398640,
+    13405780,
+    13405781,
+    21013546
+  ],
+  "source": "https://www.urbanrail.net/eu/ro/arad/arad.htm",
+  "note": "Arad（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -1,0 +1,20 @@
+{
+  "city": "Caen",
+  "country": "France",
+  "continent": "europe",
+  "osm_route_ids": [
+    9797080,
+    9797081,
+    9797083,
+    9797084,
+    9797087,
+    9797088,
+    19746608,
+    19747285,
+    19747335,
+    20804494,
+    20804495
+  ],
+  "source": "https://www.urbanrail.net/eu/fr/caen/caen-tram.htm",
+  "note": "Caen（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}
