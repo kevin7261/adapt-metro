@@ -1,0 +1,5 @@
+af-alg-algiers | NOT_FOUND
+am-bol-cochabamba | HIT | am-bol-cochabamba.png / .pdf
+eu-aut-bezirk-landeck | NOT_FOUND | no metro system (cable car + regional bus/rail only)
+eu-fra-rennes | HIT | eu-fra-rennes.png / eu-fra-rennes-lignes-urbaines.pdf
+eu-ita-genoa | REJECT | official AMT geographic street map only; no schematic

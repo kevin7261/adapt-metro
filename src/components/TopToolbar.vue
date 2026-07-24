@@ -53,6 +53,8 @@ const recomputeStep = ref('')
 const recomputePhase = ref('')
 const recomputeProgress = ref(null) // { current, total, item }
 let recomputePoll = null
+let lastRecomputeDone = -1
+
 
 const recomputeLabel = computed(() => {
   if (!recomputeBusy.value) return '重新計算'
@@ -106,6 +108,7 @@ async function startRecompute(mode) {
     }
     // cells 即將被清掉：畫廊立刻 remount，避免殘留「有縮圖、點進去無結果」
     store.metroDataEpoch++
+    lastRecomputeDone = -1
     clearDataOverlay('data/metro/')
     clearInterval(recomputePoll)
     recomputePoll = setInterval(pollRecompute, 1000)
@@ -158,6 +161,13 @@ async function pollRecompute() {
     })
     if (j.running) {
       recomputeBusy.value = true
+      // 每算完一城就 bump：世界地圖綠點／畫廊縮圖跟磁碟進度同步，不必等全城結束
+      const done = j.progress?.current ?? -1
+      if (done !== lastRecomputeDone) {
+        lastRecomputeDone = done
+        clearDataOverlay('data/metro/')
+        store.metroDataEpoch++
+      }
       return
     }
     // 未在跑：若我們正在追蹤這次任務，收尾

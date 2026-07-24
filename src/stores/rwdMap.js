@@ -2,7 +2,7 @@ import { pairKey, sharesRoute } from './netUtil.js'
 
 // Included in D3Tab's in-memory RWD cache key. Bump whenever routing semantics
 // change so Vite HMR cannot keep displaying polylines built by an old router.
-export const RWD_ROUTER_REV = '2026-07-24-shape-lock-aligned-v20'
+export const RWD_ROUTER_REV = '2026-07-24-shape-lock-bend-v21'
 
 // RWD Maps（版面路網畫線）— see skill route-rwd-draw.
 // Draw the hill-climbing 縮減網格 layout as a schematic of STRICT H/V/45° legs.
@@ -1485,13 +1485,27 @@ export function buildRwdMap(segs, pos, opts = {}) {
     ]
     for (const { s, straight, shapeLock } of ordered) {
       const S = pos.get(s.a), T = pos.get(s.b)
-      // 成方邊：永遠畫 S→T 直線並鎖定——不得繞行／A*／重掃／成對 rip 改彎。
+      // 成方邊：畫 S→T 並鎖定——不得繞行／A*／重掃／成對 rip 改彎。
+      // 直線方向合法（H/V、或 8 方向的像素 45°）→ 照舊直畫。**不合法**（格 45° 的
+      // 綠折邊在 cw≠ch 的非正方格下像素斜率≠45°，硬直畫＝非 H/V/45° 違規線）→
+      // 改畫「最小單折合法線」：8 方向＝45° 腿＋軸腿、4 方向＝L 形；兩種折向取
+      // 衝突較少者。端點不動、仍鎖定、仍算成方邊（灰白襯底照亮）。
       if (shapeLock) {
-        const pts = [S, T]
         const placed = placedOf(-1)
+        let pts = [S, T]
+        if (!straight) {
+          const dx = T[0] - S[0], dy = T[1] - S[1]
+          const m = Math.min(Math.abs(dx), Math.abs(dy))
+          const sx = Math.sign(dx), sy = Math.sign(dy)
+          const [mA, mB] = dirsN >= 8
+            ? [[S[0] + sx * m, S[1] + sy * m], [T[0] - sx * m, T[1] - sy * m]] // 對角先／軸先
+            : [[T[0], S[1]], [S[0], T[1]]] // 4 方向：L 形（橫先／縱先）
+          const cA = [S, mA, T], cB = [S, mB, T]
+          pts = conflictCount(cA, s, placed, false, true) <= conflictCount(cB, s, placed, false, true) ? cA : cB
+        }
         const n = conflictCount(pts, s, placed, false, true)
         pushLine({
-          seg: s, pts, bends: 0, fallback: false, forced: n > 0,
+          seg: s, pts, bends: pts.length - 2, fallback: false, forced: n > 0,
           lockedStraight: true, shapeLock: true, legs: legsOfPts(pts),
         })
         continue

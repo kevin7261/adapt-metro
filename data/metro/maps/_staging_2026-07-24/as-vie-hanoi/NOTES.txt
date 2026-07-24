@@ -1,0 +1,5 @@
+REJECT — Official Hanoi Metro maps found but all fail policy:
+- line2a.jpg (metrohanoi.vn): geographic/GIS street map
+- line3.png: satellite overlay
+- plan8.pdf (ban-do-8-tuyen): quy hoạch planning geographic (TEDI)
+- handbook.pdf: photos, no schematic network map

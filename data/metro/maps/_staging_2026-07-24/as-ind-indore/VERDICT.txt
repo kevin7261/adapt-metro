@@ -1,0 +1,3 @@
+REJECT
+candidate: https://mpmetrorail.com/uploads/media/2024_04_30_IN_Aln_Map_Distances.jpg (via Wayback)
+why: official MPMRCL Yellow Line alignment/construction-progress map (phases, tenders, trial notes) — planning map, not passenger schematic. No compliant schematic found on mpmetrorail.com.

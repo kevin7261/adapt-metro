@@ -5,12 +5,14 @@
 //   algo ∈ {hccells-v8, v9}、fingerprint === dataFingerprint(geojson):rg1.15、
 //   有 hc.cellAfter、有 loops。orig 必要；可旋轉的城市（map-adjust canRotate）rot 也要。
 // Map Adjust 圖（map-adjust/<id>.json）為資料流一環，一併要求存在。
+// 規定表成方城另要：straighten-shape square===true ＋ orig/rot-shape.shapelike cells。
 //
 // 讀「目前磁碟狀態」計算，所以按「重新計算」重烤 cells（寫 straighten-cells）後，
-// 這裡立刻反映最新結果——世界地圖靠 metroDataEpoch 變動重抓即可即時更新。
+// 這裡立刻反映最新結果——世界地圖開著時每 2s 輪詢 city_status，UI 重算另靠 metroDataEpoch。
 // 大檔 geojson 依 mtime 記憶指紋，避免每次重解析整個 data/metro。
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { getShapePresets } from '../src/stores/paper/shapePresets.js'
 
 const RG = 1.15 // DEFAULT_RIVER_GRAY_SINUOSITY（畫廊縮圖固定用這個門檻）
 const ALGO_READ = new Set(['hccells-v8', 'hccells-v9'])
@@ -76,7 +78,16 @@ export function computeCityStatus(root) {
     const orig = cellsUsable(readJson(join(metro, 'straighten-cells', `${id}.orig.json`)), fp)
     const needRot = canRotate[id] !== false
     const rot = cellsUsable(readJson(join(metro, 'straighten-cells', `${id}.rot.json`)), fp)
-    out[id] = maExists && orig && (needRot ? rot : true)
+    // 規定表成方城：還要 square 成方檔＋shapelike cells（否則形狀層開了也是「沒算完」）
+    let shapeOk = true
+    if (getShapePresets(id)) {
+      const so = readJson(join(metro, 'straighten-shape', `${id}.orig.json`))
+      const sr = readJson(join(metro, 'straighten-shape', `${id}.rot.json`))
+      const co = cellsUsable(readJson(join(metro, 'straighten-cells', `${id}.orig-shape.shapelike.json`)), fp)
+      const cr = cellsUsable(readJson(join(metro, 'straighten-cells', `${id}.rot-shape.shapelike.json`)), fp)
+      shapeOk = so?.square === true && co && (!needRot || (sr?.square === true && cr))
+    }
+    out[id] = maExists && orig && (needRot ? rot : true) && shapeOk
   }
   return out
 }

@@ -1,0 +1,5 @@
+REJECT — No clean downloadable official schematic:
+- carriage-route / station-map: photos of HCMC Metro signage (policy rejects photos)
+- urban-rail-network.png: fan reproduction (hochiminhcitymetro.com), not operator file
+- maur-plan.jpg: official MAUR but geographic planning map (QUY HOẠCH)
+MAUR site region-blocked for direct assets; hurc.vn empty.

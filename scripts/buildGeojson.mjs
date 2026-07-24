@@ -1802,10 +1802,13 @@ async function build() {
     // 同名可分屬不同走廊（Stop 15 Smith＝Victoria Pde 12/109 vs Smith St 86）；
     // 異名可為同站（Gertrude↔Brunswick、Chapel↔Dandenong／Windsor）；
     // Swanston 對向月台同號約 60 m。只用 __memberLines。
-    //   同 Stop 號（含 D1/D14）+ <110 m → 併
+    //   同 Stop 號（含 D1/D14）+ <110 m → 併（對向月台；不可放大——CBD 同號會串
+    //     Bourke Mall 5→Elizabeth 5→Flinders 5 整條吸進 Flinders）
     //   <12 m → 強制併
     //   <30 m + 異線 → 併
-    //   30–50 m + 異線 + 街名不同 → 併（Windsor 48 m；擋 Bourke Mall Stop3↔5 同街異號）
+    //   30–90 m + 異線 + 街名不同 → 併（路口；擋 Bourke Mall 3↔5 同街異號）
+    //   具名樞紐（…Station／Melbourne Central）一般 <200 m；Melbourne Central 兩側
+    //     街道 OSM ~280 m → 該樞紐單獨 <300 m
     // 吸附後靠 post-snap。
     if (TRAM_JUNCTION_MERGE.has(normCity(grp.info.city))) {
       const stopNum = (name) => {
@@ -1816,6 +1819,26 @@ async function build() {
       const streetKey = (name) => {
         const s = String(name || '').replace(/^stop\s+\S+:\s*/i, '').trim().toLowerCase()
         return s.replace(/[^a-z0-9]+/g, ' ').trim()
+      }
+      // 官方圖上的具名樞紐（火車站名／Melbourne Central）——異 Stop 號仍是同一共站
+      const isHubStation = (name) => {
+        const s = streetKey(name)
+        if (/mall|shopping/.test(s)) return false // Bourke Street Mall 等不是樞紐
+        return /\bstations?\b/.test(s) || /melbourne central|southern cross/.test(s)
+      }
+      // 樞紐核心名必須相同（flinders≠southern≠flagstaff），避免 200 m 內異樞紐誤併
+      const hubCore = (name) => {
+        const s = streetKey(name)
+          .replace(/\band\b.*$/, '')
+          .replace(/\bstations?\b/g, 'station')
+          .replace(/\s+/g, ' ').trim()
+        const toks = s.split(' ').filter((t) => t.length > 3 && t !== 'station' && t !== 'street')
+        return toks[0] || s
+      }
+      const hubMatch = (a, b) => {
+        if (!isHubStation(a) || !isHubStation(b)) return false
+        const ca = hubCore(a), cb = hubCore(b)
+        return !!(ca && cb && ca === cb)
       }
       const lineKeys = (f) => {
         const out = new Set()
@@ -1852,7 +1875,7 @@ async function build() {
         for (let j = i + 1; j < feats.length; j++) {
           const [lon2, lat2] = feats[j].geometry.coordinates
           const d = deg2m(lon1, lat1, lon2, lat2)
-          if (d >= 110) continue
+          if (d >= 310) continue // 候選上限＝Melbourne Central 樞紐窗
           const nj = stopNum(feats[j].properties.station_name)
           cand.push({ i, j, d, sameNum: !!(ni && nj && ni === nj) })
         }
@@ -1861,20 +1884,30 @@ async function build() {
       for (const { i, j, d, sameNum } of cand) {
         const ra = find(i), rb = find(j)
         if (ra === rb) continue
-        if (sameNum || d < 12) {
+        // 同號只認對向月台（≤110 m）；放大會串 CBD 同號進 Flinders
+        if ((sameNum && d < 110) || d < 12) {
           if (unionJn(i, j)) jn++
           continue
         }
         const Li = clusterLines[ra], Lj = clusterLines[rb]
+        const ni = feats[i].properties.station_name
+        const nj = feats[j].properties.station_name
+        // 具名樞紐先判（可已有共用線——City Circle 30/35 常掛兩側出入口）
+        // 一般 ≤200 m；Melbourne Central 兩側街道 OSM ~280 m，單獨放寬
+        const hubR = hubCore(ni) === 'melbourne' && hubCore(nj) === 'melbourne' ? 300 : 200
+        if (d < hubR && hubMatch(ni, nj)) {
+          if (unionJn(i, j)) jn++
+          continue
+        }
         if (!Li.size || !Lj.size || shares(Li, Lj)) continue
         if (d < 30) {
           if (unionJn(i, j)) jn++
           continue
         }
-        if (d < 50) {
-          const si = streetKey(feats[i].properties.station_name)
-          const sj = streetKey(feats[j].properties.station_name)
-          // 同街異號（Bourke Mall 3↔5）不併；異街＝路口（Chapel↔Dandenong）
+        if (d < 90) {
+          const si = streetKey(ni), sj = streetKey(nj)
+          // 同街異號（Bourke Mall 3↔5）不併；異街＝路口（Chapel↔Dandenong、
+          // Swanston↔Bourke Mall Stop 10——官方圖轉乘共站）
           if (si && sj && si !== sj) {
             if (unionJn(i, j)) jn++
           }
@@ -2084,30 +2117,47 @@ async function build() {
     // 「Stop 57: Caulfield Station」）。有明確 route 成員歸屬、且沒有一條在本桶的站
     // 不當吸附目標；無歸屬的站（純鄰近推得）維持原行為。
     const aliveTags = new Set(grp.lines.map((f) => featTag.get(f)).filter(Boolean))
+    // repKey → 該站 __memberLines（小寫 tag）；別名吸附也帶同一份
+    const memByRep = new Map()
     for (const f of grp.stations) {
       const ml = f.__memberLines
       if (ml?.size && ![...ml].some((tag) => aliveTags.has(tag))) continue
-      addSnapPoint(f.geometry.coordinates, f.geometry.coordinates)
+      const rep = f.geometry.coordinates
+      const mem = new Set()
+      if (ml) for (const t of ml) mem.add(String(t).toLowerCase())
+      memByRep.set(rep.join(','), mem)
+      addSnapPoint(rep, rep)
     }
     // 合併成員的原座標也是吸附目標（映射回代表點）——質心位移不甩站；
     // 代表點已被 orphan-drop 移除者不得借屍還魂
     for (const a of grp.__snapAliases ?? [])
       if (repAlive.has(a.rep.join(','))) addSnapPoint(a.c, a.rep)
-    const nearestStation = (lon, lat) => {
+    // preferTag：墨爾本電車 CBD 站距常 <100 m，純距離會把 Swanston 吸到隔壁
+    // Bourke Mall。優先吸附「本線 stop 成員」的站，再 fallback 最近站。
+    const nearestStation = (lon, lat, preferTag = null) => {
       const gx = Math.round(lon / SNAP), gy = Math.round(lat / SNAP)
       let best = null, bestD = Infinity
+      let bestMem = null, bestMemD = Infinity
+      const want = preferTag ? String(preferTag).toLowerCase() : null
       for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
         for (const { c, rep } of sGrid.get(`${gx + dx}:${gy + dy}`) || []) {
           const d = (c[0] - lon) ** 2 + (c[1] - lat) ** 2
           if (d < bestD) { bestD = d; best = rep }
+          if (want) {
+            const mem = memByRep.get(rep.join(','))
+            if (mem?.has(want) && d < bestMemD) { bestMemD = d; bestMem = rep }
+          }
         }
-      return best && Math.sqrt(bestD) < SNAP ? best : null
+      const lim = SNAP * SNAP
+      if (bestMem != null && bestMemD < lim) return bestMem
+      return best != null && bestD < lim ? best : null
     }
     for (const f of grp.lines) {
+      const tag = featTag.get(f)
       f.geometry.coordinates = f.geometry.coordinates.map((seq) => {
         const out = []
         for (const [lon, lat] of seq) {
-          const st = nearestStation(lon, lat)
+          const st = nearestStation(lon, lat, tag)
           if (!st) { droppedVerts++; continue }  // bend that is no station → out
           snapped++
           const last = out[out.length - 1]
@@ -2233,7 +2283,11 @@ async function build() {
       // 紐約特例：快車跳站的長邊常 <2 km（曼哈頓 express 跳 1 個 local 站 ~0.6–1.5 km），
       // 通用 2 km 門檻會漏掉（A 跳 Spring St、B 跳 Cortelyou）。NYC 降到 0.35 km，仍靠
       // ≤1.35× 繞路守衛擋偽陽性（跳邊必須另有一線走 A→…→C 的近直線共軌路徑）。
-      const passMinKm = /new york city/i.test(grp.info.city || '') ? 0.35 : 2
+      // 墨爾本電車站距常 200–400 m，區間變體常跳過 1 站畫成捷徑弦→共線變兩條；
+      // 門檻降到 0.2 km（仍靠 ≤1.35× 繞路守衛）。
+      const passMinKm = /new york city/i.test(grp.info.city || '') ? 0.35
+        : /melbourne tram/i.test(grp.info.city || '') ? 0.2
+        : 2
       const kmd = (a, b) => Math.hypot((a[0] - b[0]) * 111 * Math.cos(a[1] * Math.PI / 180), (a[1] - b[1]) * 111)
       const coordOf = new Map()
       for (const s of grp.stations) coordOf.set(s.geometry.coordinates.join(','), s.geometry.coordinates)

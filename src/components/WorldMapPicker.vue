@@ -10,10 +10,10 @@ import MIcon from './MIcon.vue'
 
 // 視圖畫廊的「世界地圖」分頁內容：一張淺色全球底圖，每個地鐵系統一個可點圓點——
 // 點下去就匯入該城市整組管線並開啟 Metro Maps（OSM 路網）tab（＝點卡片／＋加入
-// 的結果）。圓點顏色＝內容完整（綠）／內容不完整（紅）：完整＝該城整個資料流的圖
+// 的結果）。圓點顏色＝內容完整（紅）／內容不完整（綠）：完整＝該城整個資料流的圖
 // 都算出來——Straighten／RWD 的 straighten-cells 通過畫廊同門檻（見
-// data/metro/city_status.json，由 vite 讀目前磁碟狀態即時計算）。重烤某城 cells 後，
-// 靠 store.metroDataEpoch 變動重抓 city_status，圓點顏色即時更新。
+// data/metro/city_status.json，由 vite 讀目前磁碟狀態即時計算）。
+// 即時更新：開著本分頁每 2s 輪詢 city_status；UI 重算另靠 metroDataEpoch 立刻重抓。
 // 座標來自 data/metro/city_coords.json（metro:coords 預算的 bbox 中心）。
 // list↔地圖雙向連動：
 //   focus     = 右側清單「點」城市時的 { id, n }，把地圖飛到該城。
@@ -36,6 +36,8 @@ const byId = new Map()       // id → catalog entry
 let coordsById = null        // id → [lng, lat]
 let statusById = {}          // id → boolean（整個資料流是否都算出來）
 let cityFc = null
+let statusPoll = null        // 輪詢 city_status（CLI／重算寫盤後圓點即時變色）
+let statusRefreshBusy = false
 const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
 
 // 讀 city_status.json（dev 由 vite 即時計算目前磁碟狀態）。cache:no-cache 確保重烤後拿到新值。
@@ -46,6 +48,28 @@ async function loadStatus() {
     const j = await res.json()
     return j.status ?? j ?? {}
   } catch { return {} }
+}
+
+/** 重抓狀態；有任何城 complete 變動才 setData（避免無謂重繪）。 */
+async function refreshStatus({ force = false } = {}) {
+  if (!cityFc || !map) return
+  if (statusRefreshBusy) return
+  statusRefreshBusy = true
+  try {
+    const status = await loadStatus()
+    let changed = force
+    for (const f of cityFc.features) {
+      const next = status[f.properties.id] === true ? 1 : 0
+      if (f.properties.complete !== next) {
+        f.properties.complete = next
+        changed = true
+      }
+    }
+    statusById = status
+    if (changed) map.getSource?.('cities')?.setData(cityFc)
+  } finally {
+    statusRefreshBusy = false
+  }
 }
 
 onMounted(async () => {
@@ -80,7 +104,7 @@ onMounted(async () => {
           properties: {
             id: s.id,
             label: `${s.countryZh ?? s.country}－${s.cityZh ?? s.city}`,
-            complete: status[s.id] === true,
+            complete: status[s.id] === true ? 1 : 0,
           },
         })
       }
@@ -88,17 +112,18 @@ onMounted(async () => {
       if (map.isStyleLoaded()) addCityLayer()
       else map.on('load', () => addCityLayer())
       loading.value = false
+      // 開著世界地圖就輪詢：CLI bake／工具列重算寫盤後綠紅即時變，不必等 remount
+      clearInterval(statusPoll)
+      statusPoll = setInterval(() => {
+        if (document.visibilityState === 'hidden') return
+        refreshStatus()
+      }, 2000)
     })
     .catch((err) => { loadError.value = String(err?.message ?? err); loading.value = false })
 })
 
-// 即時更新：重算／重烤某城後 metroDataEpoch++ → 重抓 city_status，就地更新每點顏色。
-watch(() => store.metroDataEpoch, async () => {
-  if (!cityFc) return
-  statusById = await loadStatus()
-  for (const f of cityFc.features) f.properties.complete = statusById[f.properties.id] === true
-  map?.getSource?.('cities')?.setData(cityFc)
-})
+// UI 內重算／重烤也會 bump epoch → 立刻重抓（不等下一個 poll）。
+watch(() => store.metroDataEpoch, () => { refreshStatus({ force: true }) })
 
 function addCityLayer() {
   if (!map || map.getSource('cities')) return
@@ -110,7 +135,7 @@ function addCityLayer() {
     source: 'cities',
     paint: {
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 3.5, 6, 6.5],
-      'circle-color': ['case', ['get', 'complete'], '#16a34a', '#ef4444'],
+      'circle-color': ['case', ['==', ['get', 'complete'], 1], '#ef4444', '#16a34a'],
       'circle-stroke-width': 1.5,
       'circle-stroke-color': '#ffffff',
       'circle-opacity': 0.9,
@@ -124,7 +149,7 @@ function addCityLayer() {
     filter: ['==', ['get', 'id'], props.highlight ?? '__none__'],
     paint: {
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 7, 6, 11],
-      'circle-color': ['case', ['get', 'complete'], '#16a34a', '#ef4444'],
+      'circle-color': ['case', ['==', ['get', 'complete'], 1], '#ef4444', '#16a34a'],
       'circle-stroke-width': 3,
       'circle-stroke-color': '#1e293b',
       'circle-opacity': 1,
@@ -206,6 +231,8 @@ watch(() => props.highlight, (id) => {
 })
 
 onBeforeUnmount(() => {
+  clearInterval(statusPoll)
+  statusPoll = null
   try { popup.remove() } catch { /* */ }
   try { map?.remove() } catch { /* */ }
   map = null
@@ -224,7 +251,7 @@ onBeforeUnmount(() => {
     </div>
     <div class="wm-legend">
       <span><i class="dot complete" /> 內容完整</span>
-      <span><i class="dot" /> 內容不完整</span>
+      <span><i class="dot incomplete" /> 內容不完整</span>
     </div>
   </div>
 </template>
@@ -257,9 +284,10 @@ onBeforeUnmount(() => {
 .wm-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .wm-legend .dot {
   width: 9px; height: 9px; border-radius: 50%;
-  background: #ef4444; border: 1.5px solid #fff;
+  background: #16a34a; border: 1.5px solid #fff;
   box-shadow: 0 0 0 1px hsl(var(--border));
 }
-.wm-legend .dot.complete { background: #16a34a; }
+.wm-legend .dot.complete { background: #ef4444; }
+.wm-legend .dot.incomplete { background: #16a34a; }
 :deep(.wm-pop) { font-size: 12px; font-weight: 550; }
 </style>

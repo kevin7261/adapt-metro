@@ -38,7 +38,7 @@ const idOf = (file) => file.split('/').pop().replace(/\.geojson$/, '')
 // 重跑時 `_fp` 沒變就沿用舊檔、只重算內容變了的城市（配合 metro:build 串接，等於
 // 「某城 metro 資料一重抓/重建 → 該城衍生檔自動重算」）。**改了畫線程式（viewGeometry.js
 // 或其相依 store）就把 VIEWS_VERSION 遞增**，強制全部重算（否則 geojson 沒變會誤沿用舊圖）。
-const VIEWS_VERSION = 55 // 55: cells 須過 D3 同款 fingerprint／algo，否則不畫 loop/rwd（禁舊縮圖）。
+const VIEWS_VERSION = 57 // 57: 鎖定邊直畫不合法時改最小單折合法線（綠折 45° 在非正方格）。56: 成方 shapeLock 只鎖格對齊段（尾段回歸 router）。55: cells 須過 D3 同款 fingerprint／algo。
                          // 54: RWD 畫廊優先畫 straighten-cells＋正方格（與 D3Tab 一致）。
                          // 53: Straighten 縮圖用正方格 letterbox（與 D3Tab Straighten 一致）。
                          // 52: Straighten 畫廊 loop-* 優先畫 straighten-cells（與 D3Tab 一致）。

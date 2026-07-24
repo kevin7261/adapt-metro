@@ -1,0 +1,5 @@
+HIT — Official Baku Metro light schematic from metro.gov.az conceptual development page.
+source_url: https://www.metro.gov.az/storage/pages/ccfPgQHOo1Kjj36oAo6fpSFmIgHDoYmRmWG6JUxn.jpg
+page: https://www.metro.gov.az/az/page/xetlerimiz/konseptual-sxem
+Also: concept.pdf same page. metro-schema.jpg REJECTED (dark geographic — previous reject type).
+Current Red/Green/Purple solid; future dashed (Adana-style OK).

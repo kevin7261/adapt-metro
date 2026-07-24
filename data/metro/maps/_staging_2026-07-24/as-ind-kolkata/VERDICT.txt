@@ -1,0 +1,4 @@
+HIT
+source: https://upload.wikimedia.org/wikipedia/commons/0/05/Kolkata_metro_system_map_%28updated%29.jpg
+original_operator: https://mtp.indianrailways.gov.in/view_section.jsp?id=0,1,285&lang=0 (blocked from this env; Commons mirror Source=Author=Metro Railway Kolkata, dated 31 Mar 2025)
+local: as-ind-kolkata.png

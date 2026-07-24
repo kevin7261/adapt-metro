@@ -1,0 +1,5 @@
+HIT
+source: https://transportforjakarta.or.id/wp-content/uploads/2026/01/Peta-Rute-MRT-Jakarta-Kabin-Jan26.pdf
+branding: MRT Jakarta + JakLingko (FDTJ collaboration credit on footer)
+covers: MRT North-South only — matches as-ina-jakarta geojson (no LRT in our data)
+local: as-ina-jakarta.png
