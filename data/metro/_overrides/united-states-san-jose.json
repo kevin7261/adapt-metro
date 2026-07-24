@@ -1,0 +1,21 @@
+{
+  "city": "San Jose",
+  "country": "United States",
+  "continent": "north-america",
+  "osm_route_ids": [
+    2851510,
+    2851512,
+    2851726,
+    2851728,
+    2989876,
+    2989877,
+    9897506,
+    9897507,
+    10561835,
+    10561836,
+    17301585,
+    17301586
+  ],
+  "source": "https://www.urbanrail.net/am/sjos/san-jose.htm",
+  "note": "San Jose（urbanrail gap；modes=subway|light_rail|tram）——由 scripts/fetchUrbanrailGap.mjs 自動產生。bbox 內 subway|light_rail|tram；override 豁免 buildGeojson「純 LRT 剔除」。重跑會覆寫本檔。"
+}

@@ -154,12 +154,26 @@
   .gd-body{ flex:1; min-height:0; display:flex; background:#fff; }
   .scroll{ flex:1; min-width:0; min-height:0; overflow-y:auto; background:#fff; }
 
-  /* 文件大綱：由渲染後的 h1/h2/h3 生成，點擊跳段、捲動時高亮目前章節（同 Docs 大綱）。 */
+  /* 文件大綱：由渲染後的 h1/h2/h3 生成，點擊跳段、捲動時高亮目前章節（同 Docs 大綱）。
+     寬度可用右側把手拖拉（flex-basis 由 JS 設定，預設 272px）。 */
   .gd-outline{
     flex:0 0 272px; min-height:0; overflow-y:auto; background:#fff;
-    padding:14px 8px 40px 12px; border-right:1px solid #eef1f4;
+    padding:14px 8px 40px 12px;
     scrollbar-width:thin; scrollbar-color:#c4c7c5 #fff;
   }
+  /* 拖拉把手：hover／拖曳中顯示藍色分隔線；雙擊還原預設寬 */
+  .ol-resizer{
+    flex:0 0 7px; margin-left:-3px; cursor:col-resize; position:relative; z-index:10;
+    background:transparent;
+  }
+  .ol-resizer::before{
+    content:''; position:absolute; left:3px; top:0; bottom:0; width:1px; background:#eef1f4;
+  }
+  .ol-resizer:hover::before, .ol-resizer.dragging::before{
+    width:3px; left:2px; background:var(--gd-blue); border-radius:2px;
+  }
+  .gd-body.ol-collapsed .ol-resizer{ display:none; }
+  body.ol-dragging{ cursor:col-resize; user-select:none; }
   .gd-outline::-webkit-scrollbar{ width:8px; }
   .gd-outline::-webkit-scrollbar-thumb{ background:#c4c7c5; border-radius:4px; }
   .gd-outline-head{
@@ -374,6 +388,7 @@
     </div>
     <div id="olList"><div class="ol-empty">載入中…</div></div>
   </aside>
+  <div class="ol-resizer" id="olResizer" title="拖拉調整大綱寬度（雙擊還原）"></div>
   <div class="scroll" id="scroll">
     <div class="pages" id="pages">
       <div class="gd-pageless"><div id="view" class="md"><div class="loading">載入論文本文中…</div></div></div>
@@ -444,6 +459,47 @@
   }
   olClose.addEventListener('click', function(){ olCollapsed = true; updateOutlineVis(); });
   olOpen.addEventListener('click', function(){ olCollapsed = false; updateOutlineVis(); });
+
+  /* 大綱寬度拖拉：右緣把手 pointer 拖曳（180〜520px 夾擠），寬度記進 localStorage、
+     雙擊把手還原預設 272px。 */
+  var outlineEl = document.getElementById('outline');
+  var olResizer = document.getElementById('olResizer');
+  var OL_W_KEY = 'adapt-metro:paper-outline-w';
+  var OL_W_DEF = 272, OL_W_MIN = 180, OL_W_MAX = 520;
+  function setOutlineWidth(w){
+    w = Math.max(OL_W_MIN, Math.min(OL_W_MAX, Math.round(w)));
+    outlineEl.style.flexBasis = w + 'px';
+    return w;
+  }
+  try {
+    var savedW = parseInt(localStorage.getItem(OL_W_KEY), 10);
+    if (!isNaN(savedW)) setOutlineWidth(savedW);
+  } catch (e) { /* 用預設 */ }
+  olResizer.addEventListener('pointerdown', function(e){
+    e.preventDefault();
+    var startX = e.clientX;
+    var startW = outlineEl.getBoundingClientRect().width;
+    var curW = startW;
+    olResizer.setPointerCapture(e.pointerId);
+    olResizer.classList.add('dragging');
+    document.body.classList.add('ol-dragging');
+    function onMove(ev){ curW = setOutlineWidth(startW + (ev.clientX - startX)); }
+    function onUp(){
+      olResizer.classList.remove('dragging');
+      document.body.classList.remove('ol-dragging');
+      olResizer.removeEventListener('pointermove', onMove);
+      olResizer.removeEventListener('pointerup', onUp);
+      olResizer.removeEventListener('pointercancel', onUp);
+      try { localStorage.setItem(OL_W_KEY, String(curW)); } catch (err) { /* 忽略 */ }
+    }
+    olResizer.addEventListener('pointermove', onMove);
+    olResizer.addEventListener('pointerup', onUp);
+    olResizer.addEventListener('pointercancel', onUp);
+  });
+  olResizer.addEventListener('dblclick', function(){
+    setOutlineWidth(OL_W_DEF);
+    try { localStorage.removeItem(OL_W_KEY); } catch (e) { /* 忽略 */ }
+  });
 
   function buildOutline(){
     olItems = [];
